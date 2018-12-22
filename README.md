@@ -26,8 +26,7 @@ a product consists of:
 - <b>tasks</b> (NOT IN MVP)
 
 <b>Other design choices:</b><br />
-The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area.<br />
-The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
+The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
 Features have (business) value. Delivering the high priority features first is the aim of all participants.<br />
 Priorities are set on pbi level. It is the responsibility of the PO to select the pbi's of the most important feature first.<br />
 The owning team is an attribute of the pbi and used for filtering.<br />
