@@ -26,11 +26,12 @@ a product consists of:
 - <b>tasks</b> (NOT IN MVP)
 
 <b>Other design choices:</b><br />
-The scope is the selected product. The tool assumes that products are independent of each other.<br />
+The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area.<br />
+The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
 Features have (business) value. Delivering the high priority features first is the aim of all participants.<br />
 Priorities are set on pbi level. It is the responsibility of the PO to select the pbi's of the most important feature first.<br />
 The owning team is an attribute of the pbi and used for filtering.<br />
-The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the pbi and used for filtering.<br />
+When multiple databases are created projects defined in different databases are considered completely independent.<br />
 
 <b>Product and epic size estimate:</b><br />
 Products and epics are estimated in T-shirt sizes.
@@ -40,7 +41,7 @@ Features are estimated in story points using the Fibonacci scale. When all pbi's
 
 NOT IN MVP: <b>Pbi's of kind Defects:</b><br />
 Note: When a defect is found before a Pbi is set to done a task is created for its resolution.<br />
-When a defect is found after a Pbi is set to done a defect Pbi is created with an estimated effort. Note that this effort was not accounted for when the Pbi was estimated. This effort is considered as a measure of lack of quality in the refinement or the realization.
+When a defect is found after a Pbi is set to done a defect Pbi is created with an estimated effort. Note that this effort was not accounted for when the pbi was estimated. This effort is considered as a measure of lack of quality in the refinement or the realization.
 
 <b>Backlog refinement:</b>
 - the preferred order for refinement is by feature. The tool supports a feature view of the backlog
