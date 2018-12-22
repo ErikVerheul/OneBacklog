@@ -1,8 +1,30 @@
 import Vue from 'vue'
 import App from './App.vue'
+import axios from 'axios'
 
-Vue.config.productionTip = false
+import router from './router'
+import store from './store/store'
+
+axios.defaults.baseURL = 'https://localhost:6984'
+//axios.defaults.headers.get['Accepts'] = 'application/json'
+
+const reqInterceptor = axios.interceptors.request.use(config => {
+  // eslint-disable-next-line no-console
+  console.log('Request Interceptor', config)
+  return config
+})
+const resInterceptor = axios.interceptors.response.use(res => {
+  // eslint-disable-next-line no-console
+  console.log('Response Interceptor', res)
+  return res
+})
+
+axios.interceptors.request.eject(reqInterceptor)
+axios.interceptors.response.eject(resInterceptor)
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
+  el: '#app',
+  router,
+  store,
+  render: h => h(App)
+})
