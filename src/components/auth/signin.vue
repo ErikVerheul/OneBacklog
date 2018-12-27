@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-12 col-sm-12">
-        <b-img src="/src/assets/logo.png" center fluid alt="OneBacklog logo"/>
+        <b-img :src="require('../../assets/logo.png')" center fluid alt="OneBacklog logo"/>
       </div>
       <div class="col-lg-12 col-sm-12" id="signin">
           <div class="signin-form">
