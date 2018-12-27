@@ -1,6 +1,9 @@
 <template>
   <div>
     <div class="row">
+      <div class="col-lg-2 col-sm-4">
+        <b-img :src="require('../../assets/logo.png')" center fluid alt="OneBacklog logo"/>
+      </div>
       <div class="col-lg-10 col-sm-8">
         <h4>Welcome {{ name }}. This page is intended for the initial database setup:
           <ol>
@@ -11,9 +14,7 @@
           <p>You will be the only one who can access the database (for now)</p>
         </h4>
       </div>
-      <div class="col-lg-2 col-sm-4">
-        <b-img src="/src/assets/logo.png" center fluid alt="OneBacklog logo"/>
-      </div>
+
       <div class="col-lg-12 col-sm-12">
         <table>
           <thead>
