@@ -22,8 +22,9 @@ The database has secure https access
 a product consists of:
 - <b>epics</b> which consists of
 - <b>features</b> which consists of
-- <b>pbi's</b> of kind story/defect/spike which are realized by executing
+- <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
 - <b>tasks</b> (NOT IN MVP)
+Multiple requirement areas can be maintained on the feature level across products.
 
 <b>Other design choices:</b><br />
 The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
@@ -80,8 +81,11 @@ Viewers can only read the information of the products assigned to them.
 100 simultaneous users, 1 update per second, updates by other users should be available within 1 second (either by page refresh or automatically)
 
 <b>Implementation:</b>
-Product, epic, feature, pbi, task and requirement area names are mapped to a key. That key is used for reference purposes so that the name can be updated independently.
-Include path references in the documents of hierarchical elements product, epic, feature, pbi and task (task is NOT IN MVP)
+- Product, epic, feature, pbi, task and requirement area names are mapped to a key. That key is used for reference purposes so that the name can be updated independently.
+- The history of products, epics, features, pbi's are stored and easily accessible. The type of epic, feature and pbi can be changed among each other.
+- A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi is he is allowed to.
+- Users can add comments to an item.
+- NOT IN MVP: Attachments can be added to each backlog item type.
 
 <b>And finally avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
 <ul>
