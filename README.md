@@ -23,8 +23,8 @@ a product consists of:
 - <b>epics</b> which consists of
 - <b>features</b> which consists of
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
-- <b>tasks</b> (NOT IN MVP)
-Multiple requirement areas can be maintained on the feature level across products.
+- <b>tasks</b> (NOT IN MVP) and
+- <b>multiple requirement areas can be maintained on the feature level across products.
 
 <b>Other design choices:</b><br />
 The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
@@ -48,14 +48,13 @@ When a defect is found after a Pbi is set to done a defect Pbi is created with a
 - the team that refines a pbi becomes the owner of that pbi
 - pbi's are estimated by the owning team in story points on the Fibonacci scale
 
-NOT IN MVP: <b>Sprint backlog and planning board:</b>
+NOT IN MVP: <b>Sprint backlog and planning board:</b><br />
+The use of the electronic planning board is optional and only advised for use when team members are remote
 - a sprint is dedicated to the increment of one product only; The tool should enforce this
 - the team selects the pbi's to work on
 - the team adds tasks to the pbi's
 - a task is/will be assigned to a member of the owning team
-- NOT IN MVP: optionally tasks are estimated with T-shirt sizes
-- NOT IN MVP: the use of the electronic planning board is optional and only advised for use when team members are remote
-- the workflow has 4 stages: to do, in development, ready for test & review, done
+- the workflow for the tasks usually has 4 stages: to-do, in-development, ready for test/review and done
 
 <b>Pbi/defect status values:</b>
 - <b>new</b>
