@@ -87,15 +87,13 @@ Viewers can only read the information of the products assigned to them.
 - NOT IN MVP: Attachments can be added to each backlog item type.
 
 <b>And finally avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
-<ul>
-  <li>"The focus is on tools rather than the deep systemic problems, and then this diverts or avoids focusing on what’s important:
-      Changing behavior and the system; these tools don't solve the real problems"</li>
-  <li>These tools contain and promote reporting features, reinforcing traditional management-reporting and control behaviors</li>
-  <li>It conveys a façade of improvement or agile adoption, when nothing meaningful has changed; ‘agile’ tools have nothing to do with being agile</li>
-  <li>They often impose inflexible terminology and workflows to the teams, taking away process ownership and restricting improvement</li>
-  <li>The backlog is often hidden for most people as access requires an expensive account</li>
-  <li>These tools enable complexifying rather than simplifying</li>
-</ul>
+
+- "The focus is on tools rather than the deep systemic problems, and then this diverts or avoids focusing on what’s important: Changing behavior and the system; these tools don't solve the real problems"
+- These tools contain and promote reporting features, reinforcing traditional management-reporting and control behaviors
+- It conveys a façade of improvement or agile adoption, when nothing meaningful has changed; ‘agile’ tools have nothing to do with being agile
+- They often impose inflexible terminology and workflows to the teams, taking away process ownership and restricting improvement
+- The backlog is often hidden for most people as access requires an expensive account
+- These tools enable complexifying rather than simplifying
 
 ## Build Setup
 
