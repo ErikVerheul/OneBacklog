@@ -12,7 +12,7 @@
       <div class="col-lg-8 col-sm-8">
         <button @click="showCredentials" class="myButton">0. Show my credentials</button>
         <button @click="chPassword" class="myButton">1. Change my password</button>
-        <button @click="crateUsers" class="myButton">2. Create user</button>
+        <button @click="createUsers" class="myButton">2. Create user</button>
         <button @click="crateDB" class="myButton">3. Create a database</button>
         <button @click="assignUser" class="myButton">4. Assing users to the last created database</button>
         <button @click="showDBsecurity" class="myButton">5. Show the database security info</button>
@@ -56,6 +56,7 @@
   </template>
 
   <script>
+  import {mapGetters} from 'vuex'
   export default {
     data () {
       return {
@@ -89,7 +90,7 @@
           this.chPasswordExe()
           break
           case 2:
-          this.crateUsersExe()
+          this.createUsersExe()
           break
           case 3:
           this.crateDBExe()
@@ -143,7 +144,7 @@
         }
         this.$store.dispatch('changePW', payload)
       },
-      crateUsers() {
+      createUsers() {
         this.$store.commit('clearAll')
         this.selectionMade = true
         this.row = {
@@ -152,7 +153,7 @@
         }
         this.commandNr = 2
       },
-      crateUsersExe() {
+      createUsersExe() {
         var payload = {
           name: this.row.field1,
           role: this.row.field2
