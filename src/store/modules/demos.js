@@ -21,7 +21,7 @@ const getters = {
 }
 
 const mutations = {
-  clearAll (state) {
+  clearAll: state => {
     state.message = ''
     state.comment = ''
     state.errorMessage = ''
@@ -30,6 +30,7 @@ const mutations = {
 
 const actions = {
   showCreds({state}) {
+    this.commit('clearAll')
     globalAxios({
       method: 'GET',
       url: '/_session',
@@ -48,6 +49,7 @@ const actions = {
   },
 
   updateUser({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'PUT',
       url: '/_users/org.couchdb.user:' + this.state.user,
@@ -67,6 +69,7 @@ const actions = {
   },
 
   changePW({dispatch, state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + this.state.user,
@@ -89,6 +92,7 @@ const actions = {
   },
 
   createUser({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'PUT',
       url: '_users/org.couchdb.user:' + payload.name,
@@ -114,6 +118,7 @@ const actions = {
   },
 
   createDB({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'PUT',
       url: payload,
@@ -136,6 +141,7 @@ const actions = {
   },
 
   replacePermissions({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'PUT',
       url: payload.dbName + '/_security',
@@ -155,6 +161,7 @@ const actions = {
   },
 
   assignUser({dispatch, state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'GET',
       url: payload.dbName + '/_security',
@@ -179,6 +186,7 @@ const actions = {
   },
 
   showDBsec({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'GET',
       url: payload.dbName + '/_security',
@@ -201,6 +209,7 @@ const actions = {
   },
 
   createDoc({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'PUT',
       url: payload.dbName + '/' + payload.docName,
@@ -224,6 +233,7 @@ const actions = {
   },
 
   showAllDocs({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'GET',
       url: payload.dbName + '/_all_docs',
@@ -242,6 +252,7 @@ const actions = {
   },
 
   showDoc({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'GET',
       url: payload.dbName + '/' + payload.id,
@@ -260,6 +271,7 @@ const actions = {
   },
 
   delDB({state}, payload) {
+    this.commit('clearAll')
     globalAxios({
       method: 'DELETE',
       url: payload.dbName,
