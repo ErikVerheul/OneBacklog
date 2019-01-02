@@ -68,21 +68,13 @@
       }
     },
     computed: {
-      name () {
-        return !this.$store.getters.user ? false : this.$store.getters.user
-      },
-      roles () {
-        return !this.$store.getters.roles ? false : this.$store.getters.roles
-      },
-      message() {
-        return this.$store.getters.returnMessage
-      },
-      comment() {
-        return this.$store.getters.returnComment
-      },
-      errorMessage() {
-        return this.$store.getters.returnErrorMsg
-      }
+      ...mapGetters({
+        name: 'user',
+        roles: 'roles',
+        message: 'returnMessage',
+        comment: 'returnComment',
+        errorMessage: 'returnErrorMsg'
+      }),
     },
     created () {
       //this.$store.dispatch('fetchUser')
