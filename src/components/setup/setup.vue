@@ -34,12 +34,7 @@
             </tr>
             <tr>
               <td>
-                <a @click="execute2" class="myButton">Show result</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a @click="execute3" class="myButton">Undo</a>
+                <a @click="execute2" class="myButton">Undo</a>
               </td>
             </tr>
           </tbody>
@@ -96,10 +91,6 @@
         this.crateDBExe()
       },
       execute2() {
-        this.$store.commit('clearAll')
-        //this.$store.commit('setMessage') = 'the parameters'
-      },
-      execute3() {
         this.deleteDBExe()
       },
       crateDBExe() {
