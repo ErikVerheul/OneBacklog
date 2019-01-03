@@ -169,7 +169,7 @@ const actions = {
       //if no permissions are set CouchDB returns an empty object
       if (Object.keys(newPermissions).length === 0) {
         newPermissions = {
-           "members": { "names": [], "roles": [] }
+          "members": { "names": [], "roles": [] }
         }
       }
       newPermissions.members.names.push(payload.name)
@@ -206,17 +206,13 @@ const actions = {
     })
   },
 
-  createDoc({state}, payload) {
+  initializeDB({state}, payload) {
     this.commit('clearAll')
     globalAxios({
-      method: 'PUT',
-      url: payload.dbName + '/' + payload.docName,
+      method: 'POST',
+      url: payload.dbName + '/_bulk_docs',
       withCredentials: true,
-      data: {
-        description: "A newly created dodument created in database " + payload.dbName,
-        [payload.fieldName]: payload.fieldValue,
-        creationDate: new Date().toISOString()
-      }
+      data: initData
     }).then(res => {
       state.message = res.data
       // eslint-disable-next-line no-console
@@ -287,6 +283,144 @@ const actions = {
     })
   },
 }
+
+const initData = {"docs": [
+  {
+    "_id": "config-v1",
+    "type": "config",
+    "followers": [],
+    "history": [
+      {
+        "changedBy": "Erik Verheul",
+        "changeDate": 1546005201189,
+        "status": [
+          "New",
+          "Ready",
+          "In progress",
+          "On hold",
+          "Done",
+          "Removed"
+        ],
+        "statusDefinition": [
+          "The status New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
+          "The status Ready means that the item is understood well enough by the team for realization in a sprint",
+          "The status 'In progress' means that the item is worked on in a (past) sprint",
+          "The status 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
+          "The status Done means that the item is ready for deployment and meets all criteria set by the definition of done",
+          "The status Removed means that work on the item will never start or was cancelled"
+        ],
+        "pbi-type": [
+          "User story",
+          "Spike",
+          "Defect"
+        ],
+        "pbi-typeDefinition": [
+          "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
+          "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
+          "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
+        ]
+      }
+    ]
+  },
+
+  {
+    "_id": "product-template-v1",
+    "type": "product",
+    "followers": [],
+    "history": [
+      {
+        "changedBy": "Erik Verheul",
+        "changeDate": 1546005201189,
+        "description": "Describe your business case here...",
+        "acceptanceCriteria": "Please don't forget",
+        "state": 0,
+        "priority": "TBD",
+        "size": null,
+        "comments": []
+      }
+    ]
+  },
+
+  {
+    "_id": "requirements-area-template-v1",
+    "type": "requirementsArea",
+    "followers": [],
+    "history": [
+      {
+        "changedBy": "Erik Verheul",
+        "changeDate": 1546005201189,
+        "description": "Describe your requirements area here...",
+        "acceptanceCriteria": "Please don't forget",
+        "state": 0,
+        "priority": "TBD",
+        "size": null,
+        "comments": []
+      }
+    ]
+  },
+
+  {
+    "_id": "epic-template-v1",
+    "followers": [],
+    "history": [
+      {
+        "type": "epic",
+        "changedBy": "Erik Verheul",
+        "changeDate": 1546005201189,
+        "product": "product-template-v1",
+        "description": "Describe your business case here...",
+        "acceptanceCriteria": "Please don't forget",
+        "state": 0,
+        "priority": "TBD",
+        "size": null,
+        "comments": []
+      }
+    ]
+  },
+
+  {
+    "_id": "feature-template-v1",
+    "followers": [],
+    "history": [
+      {
+        "type": "feature",
+        "changedBy": "Erik Verheul",
+        "changeDate": 1546005201189,
+        "product": "product-template-v1",
+        "requirementsArea": "requirements-area-v1",
+        "epic": "epic-template-v1",
+        "description": "As <my role> I want ... so that I can ...",
+        "acceptanceCriteria": "Please don't forget",
+        "state": 0,
+        "priority": "TBD",
+        "size": null,
+        "comments": []
+      }
+    ]
+  },
+
+  {
+    "_id": "product-backlog-item-template-v1",
+    "followers": [],
+    "history": [
+      {
+        "type": "pbi",
+        "changedBy": "Erik Verheul",
+        "changeDate": 1546005201189,
+        "product": "product-template-v1",
+        "epic": "epic-template-v1",
+        "feature": "feature-template-v1",
+        "subtype": 0,
+        "description": "As <my role> I want ... so that I can ...",
+        "acceptanceCriteria": "Please don't forget",
+        "state": 0,
+        "priority": "TBD",
+        "size": null,
+        "comments": []
+      }
+    ]
+  }
+]}
 
 export default {
   state,
