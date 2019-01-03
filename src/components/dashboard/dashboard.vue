@@ -16,7 +16,7 @@
         <button @click="crateDB" class="myButton">3. Create a database</button>
         <button @click="assignUser" class="myButton">4. Assing users to the last created database</button>
         <button @click="showDBsecurity" class="myButton">5. Show the database security info</button>
-        <button @click="addDocument" class="myButton">6. Add a document to the last created database</button>
+        <button @click="initDB" class="myButton">6. Initialize the last created database</button>
         <button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
         <button @click="showDocById" class="myButton">8. Show a document by id</button>
         <button @click="deleteDB" class="myButton">9. Delete the created database</button>
@@ -102,7 +102,7 @@
           this.showDBsecurityExe()
           break
           case 6:
-          this.addDocumentExe()
+          this.initDBExe()
           break
           case 7:
           this.showDocumentsExe()
@@ -205,23 +205,20 @@
         }
         this.$store.dispatch('showDBsec', payload)
       },
-      addDocument() {
+      initDB() {
         this.$store.commit('clearAll')
         this.selectionMade = true
         this.row = {
-          field1: "a name",
-          field2: "a value"
+          field1: "field not used",
+          field2: "field not used",
         }
         this.commandNr = 6
       },
-      addDocumentExe() {
+      initDBExe() {
         var payload = {
           dbName: localStorage.getItem('dbName'),
-          docName: 'document-' + (((1+Math.random())*0x10000)|0).toString(16).substring(1),
-          fieldName: this.row.field1,
-          fieldValue: this.row.field2
         }
-        this.$store.dispatch('createDoc', payload)
+        this.$store.dispatch('initializeDB', payload)
       },
       showDocuments() {
         this.$store.commit('clearAll')
