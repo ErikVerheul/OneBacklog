@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import globalAxios from 'axios'
 import router from '../router' //Here ../router/index is imported
-import demos from './modules/demos'
+import setup from './modules/setup'
 
 Vue.use(Vuex)
 
@@ -119,7 +119,7 @@ export default new Vuex.Store({
     },
 
     modules: {
-      demos
+      setup
     }
 
   })

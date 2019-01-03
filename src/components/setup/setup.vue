@@ -1,40 +1,42 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-lg-2 col-sm-4">
+      <div class="col-lg-12 col-sm-12">
+        <h4 v-if="name">You should only get here if you're authenticated!
+        Your user name is: {{ name }}, and your roles are: {{ roles }}
+        Now see what you can do with the roles you have.</h4>
+      </div>
+      <div class="col-lg-4 col-sm-4">
         <b-img :src="require('../../assets/logo.png')" center fluid alt="OneBacklog logo"/>
       </div>
-      <div class="col-lg-10 col-sm-8">
-        <h4>Welcome {{ name }}. This page is intended for the initial database setup:
-          <ol>
-            <li>Name the database (only lowercase characters and digits and no spaces)</li>
-            <li>Name the product (just one for now)</li>
-            <li>Name the team (just one for now)</li>
-          </ol>
-          <p>You will be the only one who can access the database (for now)</p>
-        </h4>
+      <div class="col-lg-8 col-sm-8">
+        <button @click="showCredentials" class="myButton">0. Show my credentials</button>
+        <button @click="chPassword" class="myButton">1. Change my password</button>
+        <button @click="createUser" class="myButton">2. Create user</button>
+        <button @click="crateDB" class="myButton">3. Choose or Create a database</button>
+        <button @click="assignUser" class="myButton">4. Assing users to the last created database</button>
+        <button @click="showDBsecurity" class="myButton">5. Show the database security info</button>
+        <button @click="initDB" class="myButton">6. Initialize the last created database</button>
+        <button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
+        <button @click="showDocById" class="myButton">8. Show a document by id</button>
+        <button @click="deleteDB" class="myButton">9. Delete the created database</button>
       </div>
 
       <div class="col-lg-12 col-sm-12">
         <table>
           <thead>
-            <td><strong>Field-1</strong></td>
-            <td><strong>Field-2</strong></td>
-            <td><strong>Field-3</strong></td>
-            <td></td>
+            <tr v-if="selectionMade">
+              <td><strong>Field-1</strong></td>
+              <td><strong>Field-2</strong></td>
+              <td></td>
+            </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr v-if="selectionMade">
               <td><input type="text" v-model="row.field1"></td>
               <td><input type="text" v-model="row.field2"></td>
-              <td><input type="text" v-model="row.field3"></td>
               <td>
-                <a @click="execute1" class="myButton">Execute</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a @click="execute2" class="myButton">Undo</a>
+                <a @click="execute" class="myButton">Execute</a>
               </td>
             </tr>
           </tbody>
@@ -54,47 +56,209 @@
   </template>
 
   <script>
+  import {mapGetters} from 'vuex'
   export default {
     data () {
       return {
         selectionMade: false,
         row: {
-          field1: 'database name',
-          field2: 'product name',
-          field3: 'team name'
+          field1: '',
+          field2: ''
         },
         commandNr: null,
       }
     },
     computed: {
-      name () {
-        return !this.$store.getters.user ? false : this.$store.getters.user
-      },
-      roles () {
-        return !this.$store.getters.roles ? false : this.$store.getters.roles
-      },
-      message() {
-        return this.$store.getters.returnMessage
-      },
-      comment() {
-        return this.$store.getters.returnComment
-      },
-      errorMessage() {
-        return this.$store.getters.returnErrorMsg
-      }
+      ...mapGetters({
+        name: 'user',
+        roles: 'roles',
+        message: 'returnMessage',
+        comment: 'returnComment',
+        errorMessage: 'returnErrorMsg'
+      }),
     },
     created () {
       //this.$store.dispatch('fetchUser')
     },
     methods: {
-      execute1() {
-        this.crateDBExe()
+      execute() {
+        switch (this.commandNr) {
+          case 0:
+          this.showCredentialsExe()
+          break
+          case 1:
+          this.chPasswordExe()
+          break
+          case 2:
+          this.createUserExe()
+          break
+          case 3:
+          this.crateDBExe()
+          break
+          case 4:
+          this.assignUserExe()
+          break
+          case 5:
+          this.showDBsecurityExe()
+          break
+          case 6:
+          this.initDBExe()
+          break
+          case 7:
+          this.showDocumentsExe()
+          break
+          case 8:
+          this.showDocByIdExe()
+          break
+          case 9:
+          this.deleteDBExe()
+          break
+          default:
+        }
       },
-      execute2() {
-        this.deleteDBExe()
+      showCredentials() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: "field not used",
+          field2: "field not used"
+        }
+        this.commandNr = 0
+      },
+      showCredentialsExe() {
+        this.$store.dispatch('showCreds')
+      },
+      chPassword() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: "new password",
+          field2: "field not used"
+        }
+        this.commandNr = 1
+      },
+      chPasswordExe() {
+        var payload = {
+          newPW: this.row.field1,
+          userData: {}
+        }
+        this.$store.dispatch('changePW', payload)
+      },
+      createUser() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: "user name",
+          field2: "roles"
+        }
+        this.commandNr = 2
+      },
+      createUserExe() {
+        var payload = {
+          name: this.row.field1,
+          role: this.row.field2
+        }
+        this.$store.dispatch('createUser', payload)
+      },
+      crateDB() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: "DB name",
+          field2: "field not used",
+        }
+        this.commandNr = 3
       },
       crateDBExe() {
         this.$store.dispatch('createDB', this.row.field1)
+      },
+      assignUser() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: "user name",
+          field2: "role"
+        }
+        this.commandNr = 4
+      },
+      assignUserExe() {
+        var payload = {
+          dbName: localStorage.getItem('dbName'),
+          name: this.row.field1,
+          role: this.row.field2,
+          permissions: {}
+        }
+        this.$store.dispatch('assignUser', payload)
+      },
+      showDBsecurity() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: localStorage.getItem('dbName'),
+          field2: "field not used"
+        }
+        this.commandNr = 5
+      },
+      showDBsecurityExe() {
+        var payload = {
+          dbName: this.row.field1
+        }
+        this.$store.dispatch('showDBsec', payload)
+      },
+      initDB() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: "field not used",
+          field2: "field not used",
+        }
+        this.commandNr = 6
+      },
+      initDBExe() {
+        var payload = {
+          dbName: localStorage.getItem('dbName'),
+        }
+        this.$store.dispatch('initializeDB', payload)
+      },
+      showDocuments() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: localStorage.getItem('dbName'),
+          field2: "field not used"
+        }
+        this.commandNr = 7
+      },
+      showDocumentsExe() {
+        var payload = {
+          dbName: this.row.field1
+        }
+        this.$store.dispatch('showAllDocs', payload)
+      },
+      showDocById() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: localStorage.getItem('dbName'),
+          field2: "paste the id here"
+        }
+        this.commandNr = 8
+      },
+      showDocByIdExe() {
+        var payload = {
+          dbName: this.row.field1,
+          id: this.row.field2
+        }
+        this.$store.dispatch('showDoc', payload)
+      },
+      deleteDB() {
+        this.$store.commit('clearAll')
+        this.selectionMade = true
+        this.row = {
+          field1: localStorage.getItem('dbName'),
+          field2: "field not used"
+        }
+        this.commandNr = 9
       },
       deleteDBExe() {
         var payload = {
