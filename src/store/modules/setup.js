@@ -129,12 +129,17 @@ const actions = {
       }
       // eslint-disable-next-line no-console
       console.log(res)
-    })
-    .catch(error => {
+    }).catch(error => {
+      if (error.response.status == 412) {
+        //database already exists
+        localStorage.setItem('dbName', payload)
+        state.comment = 'Note that subsequent actions will be performed on this database'
+      } else {
+        state.errorMessage = error.message
+      }
       // eslint-disable-next-line no-console
       console.log(error)
       state.message = error.response.data
-      state.errorMessage = error.message
     })
   },
 
@@ -283,6 +288,18 @@ const actions = {
     })
   },
 }
+
+// These are the known roles:
+//   '_admin': the default CouchDB administrator allowing all tasks for all databases
+//   'admin': allow administrator tasks for all products in this database only
+//   'superPo': allow all PO tasks for all products in this database only
+//   'po': allow PO tasks for this product
+//   'developer': allow developer tasks for this product only
+//   'viewer': allow read-only view for this product only
+//   'guest': no password required, can only read a text on how to become a user
+const initUsers =  {"docs": [
+
+]}
 
 const initData = {"docs": [
   {
