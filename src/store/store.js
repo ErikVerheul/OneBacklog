@@ -55,7 +55,7 @@ export default new Vuex.Store({
   },
 
   actions: {
-    refreshCookie ({commit, dispatch, state}, payload) {
+    refreshCookie ({dispatch, state}, payload) {
       // eslint-disable-next-line no-console
       console.log("refreshcookie: afterSeconds= " + payload.afterSeconds)
       state.runningTimeout = setTimeout(() => {
@@ -69,7 +69,9 @@ export default new Vuex.Store({
           }
         }).then (res => {
           // eslint-disable-next-line no-console
-          console.log("refreshCookie is executed")
+          console.log(res)
+          // eslint-disable-next-line no-console
+          console.log("recurse refreshCookie")
           //Recurse
           dispatch('refreshCookie', payload)
         })
