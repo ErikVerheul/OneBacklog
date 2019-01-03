@@ -1,15 +1,24 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import globalAxios from 'axios'
-import router from '../router'
+import router from '../router' //Here ../router/index is imported
 import demos from './modules/demos'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+
   state: {
     user: null,
     roles: [],
+    // These are the known roles:
+    //   '_admin': the default CouchDB administrator allowing all tasks for all databases
+    //   'admin': allow administrator tasks for all products in this database only
+    //   'superPo': allow all PO tasks for all products in this database only
+    //   'po': allow PO tasks for this product
+    //   'developer': allow developer tasks for this product only
+    //   'viewer': allow read-only view for this product only
+    //   'guest': no password required, can only read a text on how to become a user
     runningTimeout: null,
   },
 
@@ -42,7 +51,7 @@ export default new Vuex.Store({
       state.user = null
       state.roles = []
       clearTimeout(state.runningTimeout)
-    }
+    },
   },
 
   actions: {
