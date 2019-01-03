@@ -1,5 +1,3 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
 import globalAxios from 'axios'
 
 const state = {
@@ -160,7 +158,7 @@ const actions = {
     })
   },
 
-  assignUser({dispatch, state}, payload) {
+  assignUser({dispatch}, payload) {
     this.commit('clearAll')
     globalAxios({
       method: 'GET',
