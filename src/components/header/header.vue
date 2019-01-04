@@ -1,21 +1,33 @@
 <template>
   <b-navbar toggleable="md" type="dark" variant="dark">
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-    <b-navbar-brand href="https://verheulconsultants.nl">OneBacklog version 0.1.0</b-navbar-brand>
+    <b-navbar-brand href="https://verheulconsultants.nl">OneBacklog version 0.1.1</b-navbar-brand>
     <b-collapse is-nav id="nav_collapse">
       <b-navbar-nav>
         <b-nav-item href="#">User guide</b-nav-item>
       </b-navbar-nav>
+
+      <b-nav-form>
+        <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search on key word"/>
+        <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+      </b-nav-form>
+
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-navbar-nav>
           <b-nav-item v-if="superAdmin">
             <router-link to="/setup">Setup</router-link>
           </b-nav-item>
-          <b-nav-item v-if="auth">
-            <router-link to="/dashboard">Test utilities</router-link>
-          </b-nav-item>
         </b-navbar-nav>
+
+        <b-nav-item-dropdown text="Select your view" right>
+          <b-dropdown-item href="#">Products</b-dropdown-item>
+          <b-dropdown-item href="#">Requirement areas</b-dropdown-item>
+          <b-dropdown-item href="#">Epics</b-dropdown-item>
+          <b-dropdown-item href="#">Features</b-dropdown-item>
+          <b-dropdown-item href="#">Backlog items</b-dropdown-item>
+        </b-nav-item-dropdown>
+
         <b-nav-item-dropdown right>
           <!-- Using button-content slot -->
           <template slot="button-content">
@@ -89,7 +101,7 @@ li {
 
 li a {
   text-decoration: none;
-  color: white;
+  color: lightblue;
 }
 
 li a:hover,
