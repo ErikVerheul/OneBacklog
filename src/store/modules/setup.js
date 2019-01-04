@@ -98,7 +98,7 @@ const actions = {
       data: {
         "name": payload.name,
         "password": payload.name,
-        "roles": [payload.role],
+        "roles": payload.role.split(',').map(Function.prototype.call, String.prototype.trim),
         "type": "user"
       }
     }).then(res => {
@@ -135,11 +135,11 @@ const actions = {
         localStorage.setItem('dbName', payload)
         state.comment = 'Note that subsequent actions will be performed on this database'
       } else {
+        // eslint-disable-next-line no-console
+        console.log(error)
+        state.message = error.response.data
         state.errorMessage = error.message
       }
-      // eslint-disable-next-line no-console
-      console.log(error)
-      state.message = error.response.data
     })
   },
 
@@ -171,14 +171,24 @@ const actions = {
       withCredentials: true,
     }).then(res => {
       var newPermissions = res.data
-      //if no permissions are set CouchDB returns an empty object
-      if (Object.keys(newPermissions).length === 0) {
-        newPermissions = {
-          "members": { "names": [], "roles": [] }
-        }
+      // If no permissions are set CouchDB returns an empty object
+      // Also only the admins or members can be set
+      if (!newPermissions.hasOwnProperty('admins'))  {
+        newPermissions['admins'] = { "names": [], "roles": [] }
       }
-      newPermissions.members.names.push(payload.name)
-      newPermissions.members.roles.push(payload.role)
+      if (!newPermissions.hasOwnProperty('members'))  {
+        newPermissions['members'] = { "names": [], "roles": [] }
+      }
+
+      //prevent adding empty string when user field was left empty
+      if (payload.name.length > 0) {
+        newPermissions.members.names.push(payload.name)
+      }
+      //prevent adding empty string when roles field was left empty
+      if (payload.role.length > 0) {
+        newPermissions.members.roles = newPermissions.members.roles.concat(payload.role.split(',').map(Function.prototype.call, String.prototype.trim))
+      }
+
       payload.permissions = newPermissions
       dispatch("replacePermissions", payload)
     })
@@ -289,6 +299,65 @@ const actions = {
   },
 }
 
+const initUsers = {"data": [
+  {
+    //https://127.0.0.1:6984/_users/org.couchdb.user:Jan
+    "name": "Jan",
+    "password": "Jan",
+    "roles": ["admin","superPO"],
+    "type": "user",
+    "email": "jan@mycompany.nl"
+  },
+  {
+    "name": "Herman",
+    "password": "Herman",
+    "roles": ["admin","PO"],
+    "type": "user",
+    "email": "herman@mycompany.nl"
+  },
+  {
+    "name": "Piet",
+    "password": "Piet",
+    "roles": ["developer"],
+    "type": "user",
+    "email": "piet@mycompany.nl"
+  },
+  {
+    "name": "Mechteld",
+    "password": "Mechteld",
+    "roles": ["developer"],
+    "type": "developer",
+    "email": "mechteld@mycompany.nl"
+  },
+  {
+    "name": "Henk",
+    "password": "Henk",
+    "roles": ["viewer"],
+    "type": "user",
+    "email": ""
+  },
+  {
+    "name": "guest",
+    "password": "guest",
+    "roles": ["guest"],
+    "type": "user",
+    "email": ""
+  }
+]}
+
+const initSecurity = {"data":
+  {
+    "admins": {
+      "names": ["Jan","Herman"],
+      "roles": ["superPO", "admin"]
+    },
+    "members": {
+      "names": ["Piet","Mechteld","Henk"],
+      "roles": ["PO","viewer"]
+    }
+  }
+}
+
 const initData = {"docs": [
   {
     "_id": "config-v1",
@@ -296,7 +365,7 @@ const initData = {"docs": [
     "followers": [],
     "history": [
       {
-        "changedBy": "Erik Verheul",
+        "changedBy": "Jan",
         "changeDate": 1546005201189,
         "status": [
           "New",
@@ -335,7 +404,7 @@ const initData = {"docs": [
     "history": [
       {
         "users":[],
-        "changedBy": "Erik Verheul",
+        "changedBy": "Jan",
         "changeDate": 1546005201189,
         "description": "Describe your business case here...",
         "acceptanceCriteria": "Please don't forget",
@@ -354,7 +423,7 @@ const initData = {"docs": [
     "history": [
       {
         "users":[],
-        "changedBy": "Erik Verheul",
+        "changedBy": "Jan",
         "changeDate": 1546005201189,
         "description": "Describe your requirements area here...",
         "acceptanceCriteria": "Please don't forget",
@@ -372,7 +441,7 @@ const initData = {"docs": [
     "history": [
       {
         "type": "epic",
-        "changedBy": "Erik Verheul",
+        "changedBy": "Jan",
         "changeDate": 1546005201189,
         "product": "product-template-v1",
         "description": "Describe your business case here...",
@@ -391,7 +460,7 @@ const initData = {"docs": [
     "history": [
       {
         "type": "feature",
-        "changedBy": "Erik Verheul",
+        "changedBy": "Jan",
         "changeDate": 1546005201189,
         "product": "product-template-v1",
         "requirementsArea": "requirements-area-v1",
@@ -412,7 +481,7 @@ const initData = {"docs": [
     "history": [
       {
         "type": "pbi",
-        "changedBy": "Erik Verheul",
+        "changedBy": "Jan",
         "changeDate": 1546005201189,
         "product": "product-template-v1",
         "epic": "epic-template-v1",
