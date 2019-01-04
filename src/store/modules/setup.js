@@ -125,21 +125,31 @@ const actions = {
       state.message = res.data
       if (res.status == 201) {
         localStorage.setItem('dbName', payload)
-        state.comment = 'Note that subsequent actions will be performed on this database'
+        state.comment = 'New database is created. Note that subsequent actions will be performed on this database'
       }
       // eslint-disable-next-line no-console
       console.log(res)
     }).catch(error => {
-      if (error.response.status == 412) {
-        //database already exists
+      // eslint-disable-next-line no-console
+      console.log(error)
+      state.message = error.response.data
+      state.errorMessage = error.message
+    })
+  },
+
+  chooseOrCreateDB({state, dispatch}, payload) {
+    this.commit('clearAll')
+    globalAxios({
+      method: 'GET',
+      url: payload,
+      withCredentials: true,
+    }).then(res => {
+      if (res.status == 200) {
         localStorage.setItem('dbName', payload)
-        state.comment = 'Note that subsequent actions will be performed on this database'
-      } else {
-        // eslint-disable-next-line no-console
-        console.log(error)
-        state.message = error.response.data
-        state.errorMessage = error.message
+        state.comment = 'The database exists already. Note that subsequent actions will be performed on this database'
       }
+    }).catch(error => {
+      dispatch("createDB", payload)
     })
   },
 
@@ -179,14 +189,20 @@ const actions = {
       if (!newPermissions.hasOwnProperty('members'))  {
         newPermissions['members'] = { "names": [], "roles": [] }
       }
-
       //prevent adding empty string when user field was left empty
-      if (payload.name.length > 0) {
-        newPermissions.members.names.push(payload.name)
+      if (payload.memberNames.length > 0) {
+        // assign to                 = the original                  +   members of array of strings splitted by the comma and trimmed from spaces
+        newPermissions.members.names = newPermissions.members.names.concat(payload.memberNames.split(',').map(Function.prototype.call, String.prototype.trim))
       }
-      //prevent adding empty string when roles field was left empty
-      if (payload.role.length > 0) {
-        newPermissions.members.roles = newPermissions.members.roles.concat(payload.role.split(',').map(Function.prototype.call, String.prototype.trim))
+      if (payload.memberRoles.length > 0) {
+        newPermissions.members.roles = newPermissions.members.roles.concat(payload.memberRoles.split(',').map(Function.prototype.call, String.prototype.trim))
+      }
+      //prevent adding empty string when user field was left empty
+      if (payload.adminNames.length > 0) {
+        newPermissions.admins.names = newPermissions.admins.names.concat(payload.adminNames.split(',').map(Function.prototype.call, String.prototype.trim))
+      }
+      if (payload.adminRoles.length > 0) {
+        newPermissions.admins.roles = newPermissions.admins.roles.concat(payload.adminRoles.split(',').map(Function.prototype.call, String.prototype.trim))
       }
 
       payload.permissions = newPermissions

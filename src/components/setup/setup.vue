@@ -4,7 +4,7 @@
       <div class="col-lg-12 col-sm-12">
         <h4 v-if="name">As database administrator you're authenticated to setup the database for OneBacklog.
         Your user name is: {{ name }}, and your roles are: {{ roles }}</h4>
-        <h5>Note that users with their roles must be created in the protected _users database first to sign in.</br>
+        <h5>Note that users with their roles must be created in the protected _users database first to sign in.<br/>
           When you have created the database for OneBacklog you then can assign known users to it.</h5>
         <p>These are the set roles: (note that the _admin system role can not be set here. See the CouchDB docs)</p>
       </div>
@@ -31,7 +31,7 @@
         <button @click="chPassword" class="myButton">1. Change my password</button>
         <button @click="createUser" class="myButton">2. Create user</button>
         <button @click="crateDB" class="myButton">3. Choose or Create a database</button>
-        <button @click="assignUser" class="myButton">4. Assing new user to the last created|selected database</button>
+        <button @click="assignUser" class="myButton">4. Add new users and roles to the last created || selected database</button>
         <button @click="showDBsecurity" class="myButton">5. Show the database security info</button>
         <button @click="initDB" class="myButton">6. Initialize the last created database to an example database</button>
         <button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
@@ -201,24 +201,26 @@
         this.commandNr = 3
       },
       crateDBExe() {
-        this.$store.dispatch('createDB', this.row.field1)
+        this.$store.dispatch('chooseOrCreateDB', this.row.field1)
       },
       assignUser() {
         this.$store.commit('clearAll')
         this.selectionMade = true
         this.row = {
-          field1: "user name",
-          field2: "role, role, etc.",
-          field3: "field not used",
-          field4: "field not used",
+          field1: "member user name, name...",
+          field2: "member role, role, etc.",
+          field3: "admin user name, name...",
+          field4: "admin role, role, etc.",
         }
         this.commandNr = 4
       },
       assignUserExe() {
         var payload = {
           dbName: localStorage.getItem('dbName'),
-          name: this.row.field1,
-          role: this.row.field2,
+          memberNames: this.row.field1,
+          memberRoles: this.row.field2,
+          adminNames: this.row.field3,
+          adminRoles: this.row.field4,
           permissions: {}
         }
         this.$store.dispatch('assignUser', payload)
