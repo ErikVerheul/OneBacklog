@@ -149,7 +149,14 @@ const actions = {
         state.comment = 'The database exists already. Note that subsequent actions will be performed on this database'
       }
     }).catch(error => {
-      dispatch("createDB", payload)
+      if (error.response.status == 404) {
+        dispatch("createDB", payload)
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(error)
+        state.message = error.response.data
+        state.errorMessage = error.message
+      }
     })
   },
 
