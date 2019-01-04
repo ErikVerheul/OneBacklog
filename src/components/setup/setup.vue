@@ -2,9 +2,26 @@
   <div>
     <div class="row">
       <div class="col-lg-12 col-sm-12">
-        <h4 v-if="name">You should only get here if you're authenticated!
-        Your user name is: {{ name }}, and your roles are: {{ roles }}
-        Now see what you can do with the roles you have.</h4>
+        <h4 v-if="name">As database administrator you're authenticated to setup the database for OneBacklog.
+        Your user name is: {{ name }}, and your roles are: {{ roles }}</h4>
+        <h5>Note that users with their roles must be created in the protected _users database first to login.</br>
+          When you have created the database for OneBacklog you then can assign known users to it.</h5>
+        <p>These are the set roles: (note that the _admin system role can not be set here. See the CouchDB docs)</p>
+      </div>
+      <div class="col-lg-6 col-sm-6">
+        <ul>
+          <li>'admin': allow administrator tasks for all products in this database</li>
+          <li>'superPo': allow all PO tasks for all products in this database</li>
+        </ul>
+      </div>
+      <div class="col-lg-6 col-sm-6">
+        <p>[not implemented yet] On the product level:</p>
+        <ul>
+          <li>'po': allow PO tasks for this product</li>
+          <li>'developer': allow developer tasks for this product</li>
+          <li>'viewer': allow read-only view for this product</li>
+          <li>'guest': no password required, can only read a text on how to become a user</li>
+        </ul>
       </div>
       <div class="col-lg-4 col-sm-4">
         <b-img :src="require('../../assets/logo.png')" center fluid alt="OneBacklog logo"/>
@@ -14,12 +31,12 @@
         <button @click="chPassword" class="myButton">1. Change my password</button>
         <button @click="createUser" class="myButton">2. Create user</button>
         <button @click="crateDB" class="myButton">3. Choose or Create a database</button>
-        <button @click="assignUser" class="myButton">4. Assing users to the last created database</button>
+        <button @click="assignUser" class="myButton">4. Assing new user to the last created|selected database</button>
         <button @click="showDBsecurity" class="myButton">5. Show the database security info</button>
         <button @click="initDB" class="myButton">6. Initialize the last created database</button>
         <button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
         <button @click="showDocById" class="myButton">8. Show a document by id</button>
-        <button @click="deleteDB" class="myButton">9. Delete the created database</button>
+        <button @click="deleteDB" class="myButton">9. Delete the created|selected database</button>
       </div>
 
       <div class="col-lg-12 col-sm-12">
@@ -271,8 +288,8 @@
   </script>
 
   <style scoped>
-  h1, h4 {
-    margin: 50px;
+  h1, h4, h5 {
+    margin: 20px;
     text-align: left;
   }
 
