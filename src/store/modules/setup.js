@@ -289,18 +289,6 @@ const actions = {
   },
 }
 
-// These are the known roles:
-//   '_admin': the default CouchDB administrator allowing all tasks for all databases
-//   'admin': allow administrator tasks for all products in this database only
-//   'superPo': allow all PO tasks for all products in this database only
-//   'po': allow PO tasks for this product
-//   'developer': allow developer tasks for this product only
-//   'viewer': allow read-only view for this product only
-//   'guest': no password required, can only read a text on how to become a user
-const initUsers =  {"docs": [
-
-]}
-
 const initData = {"docs": [
   {
     "_id": "config-v1",
@@ -346,6 +334,7 @@ const initData = {"docs": [
     "followers": [],
     "history": [
       {
+        "users":[],
         "changedBy": "Erik Verheul",
         "changeDate": 1546005201189,
         "description": "Describe your business case here...",
@@ -364,6 +353,7 @@ const initData = {"docs": [
     "followers": [],
     "history": [
       {
+        "users":[],
         "changedBy": "Erik Verheul",
         "changeDate": 1546005201189,
         "description": "Describe your requirements area here...",
