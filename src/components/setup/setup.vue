@@ -4,20 +4,20 @@
       <div class="col-lg-12 col-sm-12">
         <h4 v-if="name">As database administrator you're authenticated to setup the database for OneBacklog.
         Your user name is: {{ name }}, and your roles are: {{ roles }}</h4>
-        <h5>Note that users with their roles must be created in the protected _users database first to login.</br>
+        <h5>Note that users with their roles must be created in the protected _users database first to sign in.</br>
           When you have created the database for OneBacklog you then can assign known users to it.</h5>
         <p>These are the set roles: (note that the _admin system role can not be set here. See the CouchDB docs)</p>
       </div>
       <div class="col-lg-6 col-sm-6">
         <ul>
           <li>'admin': allow administrator tasks for all products in this database</li>
-          <li>'superPo': allow all PO tasks for all products in this database</li>
+          <li>'superPO': allow all Product Owner tasks for all products in this database</li>
         </ul>
       </div>
       <div class="col-lg-6 col-sm-6">
         <p>[not implemented yet] On the product level:</p>
         <ul>
-          <li>'po': allow PO tasks for this product</li>
+          <li>'PO': allow PO tasks for this product</li>
           <li>'developer': allow developer tasks for this product</li>
           <li>'viewer': allow read-only view for this product</li>
           <li>'guest': no password required, can only read a text on how to become a user</li>
@@ -33,7 +33,7 @@
         <button @click="crateDB" class="myButton">3. Choose or Create a database</button>
         <button @click="assignUser" class="myButton">4. Assing new user to the last created|selected database</button>
         <button @click="showDBsecurity" class="myButton">5. Show the database security info</button>
-        <button @click="initDB" class="myButton">6. Initialize the last created database</button>
+        <button @click="initDB" class="myButton">6. Initialize the last created database to an example database</button>
         <button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
         <button @click="showDocById" class="myButton">8. Show a document by id</button>
         <button @click="deleteDB" class="myButton">9. Delete the created|selected database</button>
@@ -45,6 +45,8 @@
             <tr v-if="selectionMade">
               <td><strong>Field-1</strong></td>
               <td><strong>Field-2</strong></td>
+              <td><strong>Field-3</strong></td>
+              <td><strong>Field-4</strong></td>
               <td></td>
             </tr>
           </thead>
@@ -52,6 +54,8 @@
             <tr v-if="selectionMade">
               <td><input type="text" v-model="row.field1"></td>
               <td><input type="text" v-model="row.field2"></td>
+              <td><input type="text" v-model="row.field3"></td>
+              <td><input type="text" v-model="row.field4"></td>
               <td>
                 <a @click="execute" class="myButton">Execute</a>
               </td>
@@ -80,7 +84,9 @@
         selectionMade: false,
         row: {
           field1: '',
-          field2: ''
+          field2: '',
+          field3: '',
+          field4: ''
         },
         commandNr: null,
       }
@@ -138,7 +144,9 @@
         this.selectionMade = true
         this.row = {
           field1: "field not used",
-          field2: "field not used"
+          field2: "field not used",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 0
       },
@@ -150,7 +158,9 @@
         this.selectionMade = true
         this.row = {
           field1: "new password",
-          field2: "field not used"
+          field2: "field not used",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 1
       },
@@ -166,7 +176,9 @@
         this.selectionMade = true
         this.row = {
           field1: "user name",
-          field2: "roles"
+          field2: "role, role, etc.",
+          field3: "email",
+          field4: "cell phone"
         }
         this.commandNr = 2
       },
@@ -183,6 +195,8 @@
         this.row = {
           field1: "DB name",
           field2: "field not used",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 3
       },
@@ -194,7 +208,9 @@
         this.selectionMade = true
         this.row = {
           field1: "user name",
-          field2: "role"
+          field2: "role, role, etc.",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 4
       },
@@ -212,7 +228,9 @@
         this.selectionMade = true
         this.row = {
           field1: localStorage.getItem('dbName'),
-          field2: "field not used"
+          field2: "field not used",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 5
       },
@@ -228,6 +246,8 @@
         this.row = {
           field1: "field not used",
           field2: "field not used",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 6
       },
@@ -242,7 +262,9 @@
         this.selectionMade = true
         this.row = {
           field1: localStorage.getItem('dbName'),
-          field2: "field not used"
+          field2: "field not used",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 7
       },
@@ -257,7 +279,9 @@
         this.selectionMade = true
         this.row = {
           field1: localStorage.getItem('dbName'),
-          field2: "paste the id here"
+          field2: "paste the id here",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 8
       },
@@ -273,7 +297,9 @@
         this.selectionMade = true
         this.row = {
           field1: localStorage.getItem('dbName'),
-          field2: "field not used"
+          field2: "field not used",
+          field3: "field not used",
+          field4: "field not used",
         }
         this.commandNr = 9
       },
