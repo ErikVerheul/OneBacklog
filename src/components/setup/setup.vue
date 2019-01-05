@@ -103,7 +103,7 @@
               case 3:
               this.crateDBExe()
               break
-              case4:
+              case 4:
               this.initDBExe()
               break
               case 5:
