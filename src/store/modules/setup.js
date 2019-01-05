@@ -149,7 +149,7 @@ const actions = {
         state.comment = 'The database exists already. Note that subsequent actions will be performed on this database'
       }
     }).catch(error => {
-      if (error.response.status == 404) {
+      if (error.response.status === 404) {
         dispatch("createDB", payload)
       } else {
         // eslint-disable-next-line no-console
@@ -250,7 +250,7 @@ const actions = {
       method: 'POST',
       url: payload.dbName + '/_bulk_docs',
       withCredentials: true,
-      data: initData
+      data: configData
     }).then(res => {
       state.message = res.data
       // eslint-disable-next-line no-console
@@ -320,11 +320,75 @@ const actions = {
       state.errorMessage = error.message
     })
   },
+
+  createExampleDB({state}, payload) {
+    this.commit('clearAll')
+    globalAxios({
+      method: 'POST',
+      url: payload.dbName + '/_bulk_docs',
+      withCredentials: true,
+      data: initData
+    }).then(res => {
+      state.message = res.data
+      // eslint-disable-next-line no-console
+      console.log(res)
+    })
+    .catch(error => {
+      // eslint-disable-next-line no-console
+      console.log(error)
+      state.message = error.response.data
+      state.errorMessage = error.message
+    })
+  },
+
+  createUsers({state}, payload) {
+    this.commit('clearAll')
+    initUsers.data.forEach(function(el) {
+      globalAxios({
+        method: 'PUT',
+        url: '_users/org.couchdb.user:' + el.name,
+        withCredentials: true,
+        data: el
+      }).then(res => {
+        state.message = res.data
+        // eslint-disable-next-line no-console
+        console.log(res)
+      })
+      .catch(error => {
+        if (error.response.status === 409) {
+          state.comment = state.comment + 'User ' + el.name + ' already exists, >'
+        } else {
+          // eslint-disable-next-line no-console
+          console.log(error)
+          state.message = error.response.data
+          state.errorMessage = error.message
+        }
+      })
+    });
+  },
+
+  setSecurity({state}, payload) {
+    globalAxios({
+      method: 'PUT',
+      url: payload.dbName + '/_security',
+      withCredentials: true,
+      data: initSecurity
+    }).then(res => {
+      state.message = res.data
+      // eslint-disable-next-line no-console
+      console.log(res)
+    })
+    .catch(error => {
+      // eslint-disable-next-line no-console
+      console.log(error)
+      state.message = error.response.data
+      state.errorMessage = error.message
+    })
+  }
 }
 
 const initUsers = {"data": [
   {
-    //https://127.0.0.1:6984/_users/org.couchdb.user:Jan
     "name": "Jan",
     "password": "Jan",
     "roles": ["admin","superPO"],
@@ -349,7 +413,7 @@ const initUsers = {"data": [
     "name": "Mechteld",
     "password": "Mechteld",
     "roles": ["developer"],
-    "type": "developer",
+    "type": "user",
     "email": "mechteld@mycompany.nl"
   },
   {
@@ -368,7 +432,7 @@ const initUsers = {"data": [
   }
 ]}
 
-const initSecurity = {"data":
+const initSecurity =
   {
     "admins": {
       "names": ["Jan","Herman"],
@@ -379,9 +443,8 @@ const initSecurity = {"data":
       "roles": ["PO","viewer"]
     }
   }
-}
 
-const initData = {"docs": [
+const configData = {"docs": [
   {
     "_id": "config-v1",
     "type": "config",
@@ -419,7 +482,9 @@ const initData = {"docs": [
       }
     ]
   },
+]}
 
+const initData = {"docs": [
   {
     "_id": "product-template-v1",
     "type": "product",

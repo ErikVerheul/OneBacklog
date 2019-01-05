@@ -202,6 +202,12 @@
             }
             this.commandNr = 4
           },
+          initDBExe() {
+            var payload = {
+              dbName: localStorage.getItem('dbName'),
+            }
+            this.$store.dispatch('initializeDB', payload)
+          },
           assignUser() {
             this.$store.commit('clearAll')
             this.selectionMade = true
@@ -240,12 +246,6 @@
               dbName: this.row.field1
             }
             this.$store.dispatch('showDBsec', payload)
-          },
-          initDBExe() {
-            var payload = {
-              dbName: localStorage.getItem('dbName'),
-            }
-            this.$store.dispatch('initializeDB', payload)
           },
           showDocuments() {
             this.$store.commit('clearAll')
@@ -300,11 +300,24 @@
             this.$store.dispatch('delDB', payload)
           },
           exampleDB() {
+            this.$store.commit('clearAll')
+            this.selectionMade = true
+            this.row = {
+              field1: "field not used",
+              field2: "field not used",
+              field3: "field not used",
+              field4: "field not used",
+            }
             this.commandNr = 10
           },
-          exmpleDBExe() {
-
-          }
+          exampleDBExe() {
+            var payload = {
+              dbName: localStorage.getItem('dbName'),
+            }
+            this.$store.dispatch('createUsers', payload)
+            this.$store.dispatch('setSecurity', payload)
+            this.$store.dispatch('createExampleDB', payload)
+          },
         }
       }
       </script>
@@ -336,7 +349,7 @@
 
       /* Box styles */
       .myBox {
-        margin: 20px;
+        margin-left: 20px;
         border: 2px;
         padding: 5px;
         font: 12px/18px sans-serif;
