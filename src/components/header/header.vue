@@ -15,7 +15,8 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-navbar-nav>
-          <b-nav-item v-if="superAdmin">
+          <!-- REVERSE THIS WHEN DONE WITH TESTING: <b-nav-item v-if="superAdmin"> -->
+          <b-nav-item>
             <router-link to="/setup">Setup</router-link>
           </b-nav-item>
         </b-navbar-nav>
