@@ -11,14 +11,10 @@ export default new Vuex.Store({
   state: {
     user: null,
     roles: [],
-    // These are the known roles:
-    //   '_admin': the default CouchDB administrator allowing all tasks for all databases
-    //   'admin': allow administrator tasks for all products in this database only
-    //   'superPo': allow all PO tasks for all products in this database only
-    //   'po': allow PO tasks for this product
-    //   'developer': allow developer tasks for this product only
-    //   'viewer': allow read-only view for this product only
-    //   'guest': no password required, can only read a text on how to become a user
+    databases: [],
+    currentDb: null,
+    email: null,
+    config: null,
     runningTimeout: null,
   },
 
@@ -52,6 +48,9 @@ export default new Vuex.Store({
       state.roles = []
       clearTimeout(state.runningTimeout)
     },
+    setConfig (state, config) {
+      state.config = config
+    }
   },
 
   actions: {
@@ -80,6 +79,47 @@ export default new Vuex.Store({
       }, payload.afterSeconds * 1000)
     },
 
+    // Load the config file from this database
+    getConfig({state, commit}) {
+      globalAxios({
+        method: 'GET',
+        url: state.currentDb + '/config',
+        withCredentials: true,
+      }).then (res => {
+        // eslint-disable-next-line no-console
+        console.log(res)
+        if (res.status == 200) {
+          commit('setConfig', 'res.data')
+          // eslint-disable-next-line no-console
+          console.log('The configuration is loaded')
+        }
+      })
+      // eslint-disable-next-line no-console
+      .catch(error => console.log('Config doc missing in database ' + state.currentDb + '. Error = ' + error))
+    },
+
+    // Get the default DB name for this user
+    getDbName({state, dispatch}) {
+      this.commit('clearAll')
+      globalAxios({
+        method: 'GET',
+        url: '_users/org.couchdb.user:' + state.user,
+        withCredentials: true
+      }).then(res => {
+        // eslint-disable-next-line no-console
+        console.log('getDbName called for user = ' + state.user)
+        state.roles = res.data.roles
+        state.email = res.data.email
+        state.databases = res.data.databases
+        state.currentDb = res.data.currentDb
+        dispatch('getConfig')
+      })
+      .catch(error => {
+        // eslint-disable-next-line no-console
+        console.log('getDbName error= ', error)
+      })
+    },
+
     login({commit, dispatch, state}, authData) {
       globalAxios({
         method: 'POST',
@@ -98,7 +138,7 @@ export default new Vuex.Store({
             user: res.data.name,
             roles: res.data.roles
           })
-          commit('storeUser', res.data.name)
+          dispatch('getDbName')
           //Refresh the session cookie after 6 minutes
           dispatch('refreshCookie', {
             authData,

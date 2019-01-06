@@ -314,7 +314,8 @@
             var payload = {
               dbName: localStorage.getItem('dbName'),
             }
-            this.$store.dispatch('createUsers', payload)
+            this.$store.dispatch('createUsers')
+            this.$store.dispatch('setUsersDbSecurity')
             this.$store.dispatch('setSecurity', payload)
             this.$store.dispatch('createExampleDB', payload)
           },

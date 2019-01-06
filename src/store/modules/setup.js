@@ -341,7 +341,7 @@ const actions = {
     })
   },
 
-  createUsers({state}, payload) {
+  createUsers({state}) {
     this.commit('clearAll')
     initUsers.data.forEach(function(el) {
       globalAxios({
@@ -356,7 +356,7 @@ const actions = {
       })
       .catch(error => {
         if (error.response.status === 409) {
-          state.comment = state.comment + 'User ' + el.name + ' already exists, >'
+          state.comment = state.comment + 'User ' + el.name + ' already exists, '
         } else {
           // eslint-disable-next-line no-console
           console.log(error)
@@ -365,6 +365,25 @@ const actions = {
         }
       })
     });
+  },
+
+  setUsersDbSecurity({state}) {
+    globalAxios({
+      method: 'PUT',
+      url: '/_users/_security',
+      withCredentials: true,
+      data: initUsersDbSecurity
+    }).then(res => {
+      state.message = res.data
+      // eslint-disable-next-line no-console
+      console.log(res)
+    })
+    .catch(error => {
+      // eslint-disable-next-line no-console
+      console.log(error)
+      state.message = error.response.data
+      state.errorMessage = error.message
+    })
   },
 
   setSecurity({state}, payload) {
@@ -393,44 +412,68 @@ const initUsers = {"data": [
     "password": "Jan",
     "roles": ["admin","superPO"],
     "type": "user",
-    "email": "jan@mycompany.nl"
+    "email": "jan@mycompany.nl",
+    "databases": ['a', 'b', 'c', 'd'],
+    "currentDb": 'a'
   },
   {
     "name": "Herman",
     "password": "Herman",
     "roles": ["admin","PO"],
     "type": "user",
-    "email": "herman@mycompany.nl"
+    "email": "herman@mycompany.nl",
+    "databases": ['a', 'b', 'c', 'd'],
+    "currentDb": 'a'
   },
   {
     "name": "Piet",
     "password": "Piet",
     "roles": ["developer"],
     "type": "user",
-    "email": "piet@mycompany.nl"
+    "email": "piet@mycompany.nl",
+    "databases": ['a', 'b', 'c', 'd'],
+    "currentDb": 'a'
   },
   {
     "name": "Mechteld",
     "password": "Mechteld",
     "roles": ["developer"],
     "type": "user",
-    "email": "mechteld@mycompany.nl"
+    "email": "mechteld@mycompany.nl",
+    "databases": ['a', 'b', 'c', 'd'],
+    "currentDb": 'a'
   },
   {
     "name": "Henk",
     "password": "Henk",
     "roles": ["viewer"],
     "type": "user",
-    "email": ""
+    "email": "",
+    "databases": ['a', 'b', 'c', 'd'],
+    "currentDb": 'a'
   },
   {
     "name": "guest",
     "password": "guest",
     "roles": ["guest"],
     "type": "user",
-    "email": ""
+    "email": "",
+    "databases": [],
+    "currentDb": null
   }
 ]}
+
+const initUsersDbSecurity =
+{
+  "admins": {
+    "names": [],
+    "roles": ["admin",'superPO']
+  },
+  "members": {
+    "names": [],
+    "roles": ['PO','developer','viewer','guest']
+  }
+}
 
 const initSecurity =
   {
@@ -444,15 +487,15 @@ const initSecurity =
     }
   }
 
-const configData = {"docs": [
-  {
-    "_id": "config-v1",
-    "type": "config",
-    "followers": [],
-    "history": [
+  const configData = {"docs": [
+    {
+      "_id": "config",
+      "type": "config",
+      "data":
       {
         "changedBy": "Jan",
         "changeDate": 1546005201189,
+
         "status": [
           "New",
           "Ready",
@@ -469,6 +512,7 @@ const configData = {"docs": [
           "The status Done means that the item is ready for deployment and meets all criteria set by the definition of done",
           "The status Removed means that work on the item will never start or was cancelled"
         ],
+
         "pbi-type": [
           "User story",
           "Spike",
@@ -478,11 +522,29 @@ const configData = {"docs": [
           "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
           "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
           "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
+        ],
+
+        "knownRoles": [
+          '_admin',
+          'admin',
+          'superPO',
+          'PO',
+          'developer',
+          'viewer',
+          'guest',
+        ],
+        "knownRolesDefinition": [
+          "'_admin': the default CouchDB administrator allowing all tasks for all databases",
+          "'admin': allow administrator tasks for all products in this database only",
+          "'superPO': allow all PO tasks for all products in this database only",
+          "'PO': allow PO tasks for this product",
+          "'developer': allow developer tasks for this product only",
+          "'viewer': allow read-only view for this product only",
+          "'guest': no password required, can only read a text on how to become a user"
         ]
       }
-    ]
-  },
-]}
+    }
+  ]}
 
 const initData = {"docs": [
   {
