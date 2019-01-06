@@ -74,6 +74,7 @@
               field4: ''
             },
             commandNr: null,
+            currentDb: this.$store.state.currentDb
           }
         },
         computed: {
@@ -204,7 +205,7 @@
           },
           initDBExe() {
             var payload = {
-              dbName: localStorage.getItem('dbName'),
+              dbName: this.currentDb,
             }
             this.$store.dispatch('initializeDB', payload)
           },
@@ -221,7 +222,7 @@
           },
           assignUserExe() {
             var payload = {
-              dbName: localStorage.getItem('dbName'),
+              dbName: this.currentDb,
               memberNames: this.row.field1,
               memberRoles: this.row.field2,
               adminNames: this.row.field3,
@@ -234,7 +235,7 @@
             this.$store.commit('clearAll')
             this.selectionMade = true
             this.row = {
-              field1: localStorage.getItem('dbName'),
+              field1: this.currentDb,
               field2: "field not used",
               field3: "field not used",
               field4: "field not used",
@@ -251,7 +252,7 @@
             this.$store.commit('clearAll')
             this.selectionMade = true
             this.row = {
-              field1: localStorage.getItem('dbName'),
+              field1: this.currentDb,
               field2: "field not used",
               field3: "field not used",
               field4: "field not used",
@@ -268,7 +269,7 @@
             this.$store.commit('clearAll')
             this.selectionMade = true
             this.row = {
-              field1: localStorage.getItem('dbName'),
+              field1: this.currentDb,
               field2: "paste the id here",
               field3: "field not used",
               field4: "field not used",
@@ -286,7 +287,7 @@
             this.$store.commit('clearAll')
             this.selectionMade = true
             this.row = {
-              field1: localStorage.getItem('dbName'),
+              field1: this.currentDb,
               field2: "field not used",
               field3: "field not used",
               field4: "field not used",
@@ -312,7 +313,7 @@
           },
           exampleDBExe() {
             var payload = {
-              dbName: localStorage.getItem('dbName'),
+              dbName: this.currentDb,
             }
             this.$store.dispatch('createUsers')
             this.$store.dispatch('setUsersDbSecurity')

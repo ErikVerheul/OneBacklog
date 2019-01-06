@@ -124,7 +124,6 @@ const actions = {
     }).then(res => {
       state.message = res.data
       if (res.status == 201) {
-        localStorage.setItem('dbName', payload)
         state.comment = 'New database is created. Note that subsequent actions will be performed on this database'
       }
       // eslint-disable-next-line no-console
@@ -145,7 +144,6 @@ const actions = {
       withCredentials: true,
     }).then(res => {
       if (res.status == 200) {
-        localStorage.setItem('dbName', payload)
         state.comment = 'The database exists already. Note that subsequent actions will be performed on this database'
       }
     }).catch(error => {

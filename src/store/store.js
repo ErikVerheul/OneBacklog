@@ -46,6 +46,10 @@ export default new Vuex.Store({
     clearAuthData (state) {
       state.user = null
       state.roles = []
+      state.databases = []
+      state.currentDb = null
+      state.email = null
+      state.config = null
       clearTimeout(state.runningTimeout)
     },
     setConfig (state, config) {
@@ -133,7 +137,6 @@ export default new Vuex.Store({
         // eslint-disable-next-line no-console
         console.log(res)
         if (res.status == 200) {
-          localStorage.setItem('user', res.data.name)
           commit('authUser', {
             user: res.data.name,
             roles: res.data.roles
@@ -153,7 +156,6 @@ export default new Vuex.Store({
 
       logout ({commit}) {
         commit('clearAuthData')
-        localStorage.removeItem('user')
         router.replace('/')
       }
     },
