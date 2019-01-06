@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <app-header />
+    <app-header/>
     <router-view/>
   </div>
 </template>
@@ -17,7 +17,7 @@
 
 <style>
   body, html {
-    margin: 0;
+    padding: 3px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 </style>
