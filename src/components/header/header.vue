@@ -15,18 +15,18 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-navbar-nav>
-          <!-- REVERSE THIS WHEN DONE WITH TESTING: <b-nav-item v-if="superAdmin"> -->
+          <!-- ToDo: REVERSE THIS WHEN DONE WITH TESTING: <b-nav-item v-if="superAdmin"> -->
           <b-nav-item>
             <router-link to="/setup">Setup</router-link>
           </b-nav-item>
         </b-navbar-nav>
 
         <b-nav-item-dropdown text="Select your view" right>
-          <b-dropdown-item href="#">Products</b-dropdown-item>
-          <b-dropdown-item href="#">Requirement areas</b-dropdown-item>
-          <b-dropdown-item href="#">Epics</b-dropdown-item>
-          <b-dropdown-item href="#">Features</b-dropdown-item>
-          <b-dropdown-item href="#">Backlog items</b-dropdown-item>
+          <b-dropdown-item to ="../../product">Products</b-dropdown-item>
+          <b-dropdown-item to ="../../reqsarea">Requirement areas</b-dropdown-item>
+          <b-dropdown-item to ="../../epic">Epics</b-dropdown-item>
+          <b-dropdown-item to ="../../feature">Features</b-dropdown-item>
+          <b-dropdown-item to ="../../pbi">Backlog items</b-dropdown-item>
         </b-nav-item-dropdown>
 
         <b-nav-item-dropdown right>
