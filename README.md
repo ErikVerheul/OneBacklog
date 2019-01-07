@@ -86,7 +86,7 @@ Viewers can only read the information of the products assigned to them.
 - Users can add comments to an item.
 - NOT IN MVP: Attachments can be added to each backlog item type.
 
-<b>And finally avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
+<b>And avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
 
 - "The focus is on tools rather than the deep systemic problems, and then this diverts or avoids focusing on what’s important: Changing behavior and the system; these tools don't solve the real problems"
 - These tools contain and promote reporting features, reinforcing traditional management-reporting and control behaviors
@@ -94,6 +94,7 @@ Viewers can only read the information of the products assigned to them.
 - They often impose inflexible terminology and workflows to the teams, taking away process ownership and restricting improvement
 - The backlog is often hidden for most people as access requires an expensive account
 - These tools enable complexifying rather than simplifying
+Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the real role the product owner has.
 
 ## Build Setup
 
