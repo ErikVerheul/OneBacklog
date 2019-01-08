@@ -1,79 +1,106 @@
 <template>
   <!-- horizontal panes -->
-  <multipane class="horizontal-panes" layout="horizontal">
-    <div class="pane" :style="{ minHeight: '160px', height: '160px', maxHeight: '160px' }">
-      <div id="container">
-        <div id="left">
-          <b-img :src="require('../../assets/logo.png')" fluid alt="OneBacklog logo" />
-        </div>
-        <div id="right">
-          <h1>Database .NAME.</h1>
-          <div id="innerrow">
-            <h3>other text</h3>
-            <p>more text</p>
-          </div>
+<multipane class="horizontal-panes" layout="horizontal">
+  <div class="pane" :style="{ minHeight: '160px', height: '160px', maxHeight: '160px' }">
+    <div id="container">
+      <div id="left">
+        <b-img :src="require('../../assets/logo.png')" fluid alt="OneBacklog logo" />
+      </div>
+      <div id="right">
+        <h1>Database .NAME.</h1>
+        <div id="innerrow">
+          <h3>other text</h3>
+          <p>more text</p>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- vertical panes -->
-    <multipane class="custom-resizer" layout="vertical">
-      <div class="pane">
-        <div>
-          <h6 class="title is-6">Vertical Pane 1</h6>
-        </div>
+  <!-- vertical panes -->
+  <multipane class="custom-resizer" layout="vertical">
+    <div class="pane">
+      <div>
+        <h2 class="title is-6">Vertical Pane 1</h2>
       </div>
+    </div>
 
-      <multipane-resizer></multipane-resizer>
-      <div class="pane" :style="{ flexGrow: 1 }">
-        <!-- inner horizontal panes -->
-        <multipane class="horizontal-panes" layout="horizontal">
-          <div class="pane" :style="{ minHeight: '100px', height: '200px', maxHeight: '300px' }">
-            <div>
-              <h6 class="title is-6">Pane 1</h6>
-              <p class="subtitle is-6">Fixed height.</p>
-              <p>
-                <small>
-                <strong>Configured with:</strong><br/>
-                minHeight: 100px<br/>
-                height: 200px<br/>
-                maxHeight: 300px<br/>
-              </small>
-              </p>
+    <multipane-resizer></multipane-resizer>
+    <div class="pane" :style="{ flexGrow: 1 }">
+      <!-- inner horizontal panes -->
+      <multipane class="horizontal-panes" layout="horizontal">
+        <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+          <div id="container">
+            <div id="left2">
+              <h5 class="title is-6">-selected product title-</h5>
+            </div>
+            <div id="right2">
+              <b-button href="#">(Un)Subscribe to change notices</b-button>
             </div>
           </div>
-          <multipane-resizer></multipane-resizer>
-          <div class="pane" :style="{ height: '40%', maxHeight: '60%' }">
-            <div>
-              <h6 class="title is-6">Pane 2</h6>
-              <p class="subtitle is-6">Fluid height.</p>
-              <p>
-                <small>
+        </div>
+        <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+          <div id="container">
+            <div id="left2">
+              <h5 class="title is-6">Description</h5>
+            </div>
+            <div id="right2">
+              <h5 class="title is-6">Created by -Erik Verheul- at -8 Januari 2019- </h5>
+            </div>
+          </div>
+        </div>
+        <div class="pane" :style="{ height: '30%', maxHeight: '60%' }">
+          <div>
+            <h6 class="title is-6">Pane 3</h6>
+          </div>
+        </div>
+        <multipane-resizer></multipane-resizer>
+        <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+          <div>
+            <h5 class="title is-6">Description</h5>
+          </div>
+        </div>
+        <div class="pane" :style="{ height: '30%', maxHeight: '60%' }">
+          <div>
+            <h6 class="title is-6">Pane 5</h6>
+            <p class="subtitle is-6">Fluid height.</p>
+            <p>
+              <small>
                 <strong>Configured with:</strong><br/>
                 height: 40%<br/>
                 maxHeight: 60%<br/>
               </small>
-              </p>
+            </p>
+          </div>
+        </div>
+        <multipane-resizer></multipane-resizer>
+        <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+          <div id="container">
+            <div id="left2">
+              <h5 class="title is-6">Comments</h5>
+            </div>
+            <div id="right2">
+              <b-button href="#">Add comment</b-button>
             </div>
           </div>
-          <multipane-resizer></multipane-resizer>
-          <div class="pane" :style="{ flexGrow: 1 }">
-            <div>
-              <h6 class="title is-6">Pane 3</h6>
-              <p class="subtitle is-6">Takes remaining available space.</p>
+        </div>
+        <multipane-resizer></multipane-resizer>
+        <div class="pane" :style="{ flexGrow: 1 }">
+          <div>
+            <h6 class="title is-6">Pane 7</h6>
+            <p class="subtitle is-6">Takes remaining available space.</p>
 
-              <p>
-                <small>
+            <p>
+              <small>
                 <strong>Configured with:</strong><br/>
                 flex-grow: 1<br/>
               </small>
-              </p>
-            </div>
+            </p>
           </div>
-        </multipane>
-      </div>
-    </multipane>
+        </div>
+      </multipane>
+    </div>
   </multipane>
+</multipane>
 </template>
 
 <script>
@@ -90,25 +117,11 @@
   };
 </script>
 
-<style lang="css" scoped>
-
-
-  <!-- horizontal allignment -->
-  * {margin: 0; padding: 0;}
-  #container {height: 100%; width:100%; font-size:0;}
-  #left, #right, #innerrow {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 12px;}
-  #left {width: 10%; background: white;}
-  #right {width: 90%; background: green; text-align: center;}
-  #innerrow {width: 100%; background: white; text-align: center;}
-
-
-</style>
-
 <style lang="scss" scoped>
 // horizontal panes
 .horizontal-panes {
   width: 100%;
-  height: 100%;
+  height: 800px;
   border: 1px solid #ccc;
 }
 
@@ -124,12 +137,20 @@
   border-top: 1px solid #ccc;
 }
 
-
+// horizontal allignment
+* {margin: 0; padding: 0;}
+#container {height: 100%; width:100%; font-size:0;}
+#left, #left2, #right, #right2, #innerrow {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 12px;}
+#left {width: 10%; background: white;}
+#right {width: 90%; background: green; text-align: center;}
+#left2 {width: 20%; background: white;}
+#right2 {width: 80%; background: white; text-align: right;}
+#innerrow {width: 100%; background: white; text-align: center;}
 
 // vertical panes
 .custom-resizer {
   width: 100%;
-  height: 400px;
+  height: 100%;
 }
 
 .custom-resizer >>> .pane {
@@ -137,7 +158,7 @@
   padding: 15px;
   overflow: hidden;
   background: #eee;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
 }
 
 .custom-resizer >>> .pane ~ .pane {}
