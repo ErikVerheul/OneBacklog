@@ -1,19 +1,13 @@
-<template>
-  <div class ="container">
-    <h1> Feature </h1>
-
-
+<template lang="html">
+  <div>
+    <h1>FEATURE AREA</h1>
   </div>
 </template>
 
 <script>
-  export default {
-
-
-  }
-
+export default {
+}
 </script>
 
-<style>
-
+<style lang="css" scoped>
 </style>

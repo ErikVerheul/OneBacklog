@@ -56,7 +56,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="css" scoped>
 .signin-form {
   width: 400px;
   margin: 30px auto;

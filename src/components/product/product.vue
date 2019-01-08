@@ -1,19 +1,120 @@
 <template>
-  <div class ="container">
-    <h1> Product </h1>
+  <!-- horizontal panes -->
+  <multipane class="horizontal-panes" layout="horizontal">
+    <div class="pane" :style="{ minHeight: '160px', height: '160px', maxHeight: '160px' }">
+      <div id="container">
+        <div id="left">
+          <b-img :src="require('../../assets/logo.png')" fluid alt="OneBacklog logo" />
+        </div>
+        <div id="right">
+          <h1>Database .NAME.</h1>
+          <div id="innerrow">
+            <h3>other text</h3>
+            <p>more text</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- vertical panes -->
+    <multipane class="custom-resizer" layout="vertical">
+      <div class="pane">
+        <div>
+          <h6 class="title is-6">Vertical Pane 1</h6>
+        </div>
+      </div>
 
-  </div>
+      <multipane-resizer></multipane-resizer>
+      <div class="pane" :style="{ flexGrow: 1 }">
+        <div>
+          <h6 class="title is-6">Vertical Pane 2</h6>
+        </div>
+      </div>
+    </multipane>
+  </multipane>
 </template>
 
 <script>
-  export default {
-
-
+  import {
+    Multipane, MultipaneResizer
   }
+  from 'vue-multipane'
 
+  export default {
+    components: {
+      Multipane,
+      MultipaneResizer,
+    },
+  };
 </script>
 
-<style>
+<style lang="css" scoped>
 
+<!-- horizontal panes -->
+  .horizontal-panes {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+  }
+
+  <!-- use deep selecor here. See https://vue-loader.vuejs.org/guide/scoped-css.html#deep-selectors -->
+  .horizontal-panes >>> .pane {
+    text-align: left;
+    padding: 15px;
+    overflow: hidden;
+    background: #eee;
+  }
+
+  <!-- use deep selecor here. See https://vue-loader.vuejs.org/guide/scoped-css.html#deep-selectors -->
+  .horizontal-panes >>> .pane ~ .pane {
+    border-top: 1px solid #ccc;
+  }
+
+  <!-- horizontal allignment -->
+  * {margin: 0; padding: 0;}
+  #container {height: 100%; width:100%; font-size:0;}
+  #left, #right, #innerrow {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 12px;}
+  #left {width: 10%; background: white;}
+  #right {width: 90%; background: green; text-align: center;}
+  #innerrow {width: 100%; background: white; text-align: center;}
+
+  <!-- vertical panes -->
+  .custom-resizer {
+    width: 100%;
+    height: 400px;
+  }
+
+  .custom-resizer > .pane {
+    text-align: left;
+    padding: 15px;
+    overflow: hidden;
+    background: #eee;
+    border: 1px solid #ccc;
+  }
+
+  .custom-resizer > .pane ~ .pane {}
+
+  .custom-resizer > .multipane-resizer {
+    margin: 0;
+    left: 0;
+    position: relative;
+    &:before {
+      display: block;
+      content: "";
+      width: 3px;
+      height: 40px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -20px;
+      margin-left: -1.5px;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+    }
+    &:hover {
+      &:before {
+        border-color: #999;
+      }
+    }
+  }
 </style>
