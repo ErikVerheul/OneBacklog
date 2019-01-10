@@ -88,14 +88,7 @@
         </div>
         <div class="pane" :style="{ flexGrow: 1 }">
           <div>
-            <h6 class="title is-6">Pane 7</h6>
-            <p class="subtitle is-6">Takes remaining available space.</p>
-            <p>
-              <small>
-                <strong>Configured with:</strong><br/>
-                flex-grow: 1<br/>
-              </small>
-            </p>
+            <b-table stacked :items="comments"></b-table>
           </div>
         </div>
       </multipane>
@@ -117,6 +110,26 @@
         createdBy: 'Erik Verheul',
         creationDate: '8 January 2019',
         tShirtSize: 'XL',
+        comments: [
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+
+        ]
       }
     },
     components: {
@@ -130,7 +143,7 @@
 // horizontal panes
 .horizontal-panes {
   width: 100%;
-  height: 820px;
+
   border: 1px solid #ccc;
 }
 
