@@ -10,13 +10,7 @@
         <h1>Database {{ databaseName }}</h1>
         <div>
           <h3>Product T-Shirt size:
-            <input
-              type="text"
-              size="3"
-              maxlength="3"
-              id="productTitle"
-              v-model.lazy="tShirtSize">
-            </input>
+            <input type="text" size="3" maxlength="3" id="productTitle" v-model.lazy="tShirtSize"/>
           </h3>
         </div>
       </div>
@@ -27,7 +21,7 @@
   <multipane class="custom-resizer" layout="vertical">
     <div class="pane">
       <div>
-        <h2 class="title is-6">Vertical Pane 1</h2>
+        <h1>The tree view comes here!</h1>
       </div>
     </div>
 
@@ -149,14 +143,15 @@
           { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
           'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
 
-        ]
-      }
-    },
-    components: {
-      Multipane,
-      MultipaneResizer,
-    },
-  };
+      ],
+    }
+  },
+  components: {
+    Multipane,
+    MultipaneResizer,
+  },
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -247,6 +242,24 @@
 
 .tal {
   text-align: left;
+}
+
+// Tree view
+
+body {
+  font-family: Menlo, Consolas, monospace;
+  color: #444;
+}
+.item {
+  cursor: pointer;
+}
+.bold {
+  font-weight: bold;
+}
+ul {
+  padding-left: 1em;
+  line-height: 1.5em;
+  list-style-type: dot;
 }
 
 </style>
