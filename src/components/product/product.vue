@@ -87,9 +87,29 @@
           </div>
         </div>
         <div class="pane" :style="{ flexGrow: 1 }">
-          <div>
-            <b-table stacked :items="comments"></b-table>
+          <!-- Inner vertical split -->
+          <multipane class="vertical-panes" layout="vertical">
+            <multipane-resizer></multipane-resizer>
+            <div class="pane" :style="{ flexGrow: 1 }">
+              <div>
+                <b-table stacked :items="comments"></b-table>
+              </div>
+            </div>
+            <multipane-resizer></multipane-resizer>
+            <div class="pane" :style="{ minWidth: '100px', width: '100px', maxWidth: '100px' }">
+            <div>
+              <b-button href="#" size="sm">Upload attachment</b-button>
+              <b-dropdown variant="link" size="lg" no-caret>
+                <template slot="button-content">
+                  &#x1f50d;<span class="sr-only">Search</span>
+                </template>
+                <b-dropdown-item href="#">Attachement-1</b-dropdown-item>
+                <b-dropdown-item href="#">Attachement-2</b-dropdown-item>
+                <b-dropdown-item href="#">Attachement-3</b-dropdown-item>
+              </b-dropdown>
+            </div>
           </div>
+          </multipane>
         </div>
       </multipane>
     </div>
