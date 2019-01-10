@@ -7,10 +7,17 @@
         <b-img left :src="require('../../assets/logo.png')" height="140px" width="160px" alt="OneBacklog logo"/>
       </div>
       <div class="d-table-cell w-100 tac">
-        <h1>Database .NAME.</h1>
+        <h1>Database {{ databaseName }}</h1>
         <div>
-          <h3>other text</h3>
-          <p>more text</p>
+          <h3>Product T-Shirt size:
+            <input
+              type="text"
+              size="3"
+              maxlength="3"
+              id="productTitle"
+              v-model.lazy="tShirtSize">
+            </input>
+          </h3>
         </div>
       </div>
     </div>
@@ -33,7 +40,7 @@
           <div class="d-table w-100">
             <b-input class="d-table-cell"
               type="text"
-              maxlength="120"
+              maxlength="10"
               id="productTitle"
               v-model.lazy="productTitle">
             </b-input>
@@ -103,11 +110,13 @@
   export default {
     data () {
       return {
+        databaseName: '-name-',
         productTitle: 'The product title',
         description: 'Your product business case go\'s here',
         acceptanceCriteria: 'Please include your acceptance criteria here',
         createdBy: 'Erik Verheul',
         creationDate: '8 January 2019',
+        tShirtSize: 'XL',
       }
     },
     components: {
