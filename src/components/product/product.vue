@@ -1,14 +1,14 @@
 <template>
   <!-- horizontal panes -->
 <multipane class="horizontal-panes" layout="horizontal">
-  <div class="pane" :style="{ minHeight: '160px', height: '160px', maxHeight: '160px' }">
-    <div id="container">
-      <div id="left">
-        <b-img :src="require('../../assets/logo.png')" fluid alt="OneBacklog logo" />
+  <div class="pane" :style="{ minHeight: '150px', height: '150px', maxHeight: '150px' }">
+    <div class="d-table ">
+      <div class="d-table-cell tal clearfix">
+        <b-img left :src="require('../../assets/logo.png')" height="140px" width="160px" alt="OneBacklog logo"/>
       </div>
-      <div id="right">
+      <div class="d-table-cell w-100 tac">
         <h1>Database .NAME.</h1>
-        <div id="innerrow">
+        <div>
           <h3>other text</h3>
           <p>more text</p>
         </div>
@@ -28,67 +28,61 @@
     <div class="pane" :style="{ flexGrow: 1 }">
       <!-- inner horizontal panes -->
       <multipane class="horizontal-panes" layout="horizontal">
-        <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
-          <div id="container">
-            <div id="left2">
-              <h5 class="title is-6">-selected product title-</h5>
-            </div>
-            <div id="right2">
+        <multipane-resizer></multipane-resizer>
+        <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
+          <div class="d-table w-100">
+            <b-input class="d-table-cell"
+              type="text"
+              maxlength="120"
+              id="productTitle"
+              v-model.lazy="productTitle">
+            </b-input>
+            <div class="d-table-cell tar">
               <b-button href="#">(Un)Subscribe to change notices</b-button>
             </div>
           </div>
         </div>
-        <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
-          <div id="container">
-            <div id="left2">
-              <h5 class="title is-6">Description</h5>
-            </div>
-            <div id="right2">
-              <h5 class="title is-6">Created by -Erik Verheul- at -8 Januari 2019- </h5>
-            </div>
-          </div>
-        </div>
-        <div class="pane" :style="{ height: '30%', maxHeight: '60%' }">
-          <div>
-            <h6 class="title is-6">Pane 3</h6>
-          </div>
-        </div>
-        <multipane-resizer></multipane-resizer>
-        <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
-          <div>
+        <div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
+          <div class="d-table w-100">
             <h5 class="title is-6">Description</h5>
+            <div class="d-table-cell tar">
+              <h5 class="title is-6">Created by {{ createdBy }} at {{ creationDate }} </h5>
+            </div>
           </div>
         </div>
         <div class="pane" :style="{ height: '30%', maxHeight: '60%' }">
-          <div>
-            <h6 class="title is-6">Pane 5</h6>
-            <p class="subtitle is-6">Fluid height.</p>
-            <p>
-              <small>
-                <strong>Configured with:</strong><br/>
-                height: 40%<br/>
-                maxHeight: 60%<br/>
-              </small>
-            </p>
-          </div>
+          <textarea style="width:100%"
+            id="description"
+            v-model.lazy="description"
+            rows="8">
+          </textarea>
         </div>
         <multipane-resizer></multipane-resizer>
         <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
-          <div id="container">
-            <div id="left2">
+          <div>
+            <h5 class="title is-6">Acceptance criteria</h5>
+          </div>
+        </div>
+        <div class="pane" :style="{ height: '30%', maxHeight: '60%' }">
+          <textarea style="width:100%"
+            id="acceptanceCriteria"
+            v-model.lazy="acceptanceCriteria"
+            rows="8">
+          </textarea>
+        </div>
+        <multipane-resizer></multipane-resizer>
+        <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
+          <div class="d-table w-100">
               <h5 class="title is-6">Comments</h5>
-            </div>
-            <div id="right2">
+            <div class="d-table-cell tar">
               <b-button href="#">Add comment</b-button>
             </div>
           </div>
         </div>
-        <multipane-resizer></multipane-resizer>
         <div class="pane" :style="{ flexGrow: 1 }">
           <div>
             <h6 class="title is-6">Pane 7</h6>
             <p class="subtitle is-6">Takes remaining available space.</p>
-
             <p>
               <small>
                 <strong>Configured with:</strong><br/>
@@ -104,12 +98,18 @@
 </template>
 
 <script>
-  import {
-    Multipane, MultipaneResizer
-  }
-  from 'vue-multipane'
+  import {Multipane, MultipaneResizer} from 'vue-multipane'
 
   export default {
+    data () {
+      return {
+        productTitle: 'The product title',
+        description: 'Your product business case go\'s here',
+        acceptanceCriteria: 'Please include your acceptance criteria here',
+        createdBy: 'Erik Verheul',
+        creationDate: '8 January 2019',
+      }
+    },
     components: {
       Multipane,
       MultipaneResizer,
@@ -121,14 +121,14 @@
 // horizontal panes
 .horizontal-panes {
   width: 100%;
-  height: 800px;
+  height: 820px;
   border: 1px solid #ccc;
 }
 
 // Use deep selecor here and below. See https://vue-loader.vuejs.org/guide/scoped-css.html#deep-selectors -->
 .horizontal-panes >>> .pane {
   text-align: left;
-  padding: 15px;
+  padding: 5px;
   overflow: hidden;
   background: #eee;
 }
@@ -136,16 +136,6 @@
 .horizontal-panes >>> .pane ~ .pane {
   border-top: 1px solid #ccc;
 }
-
-// horizontal allignment
-* {margin: 0; padding: 0;}
-#container {height: 100%; width:100%; font-size:0;}
-#left, #left2, #right, #right2, #innerrow {display: inline-block; *display: inline; zoom: 1; vertical-align: top; font-size: 12px;}
-#left {width: 10%; background: white;}
-#right {width: 90%; background: green; text-align: center;}
-#left2 {width: 20%; background: white;}
-#right2 {width: 80%; background: white; text-align: right;}
-#innerrow {width: 100%; background: white; text-align: center;}
 
 // vertical panes
 .custom-resizer {
@@ -155,10 +145,10 @@
 
 .custom-resizer >>> .pane {
   text-align: left;
-  padding: 15px;
+  padding: 3px;
   overflow: hidden;
   background: #eee;
-  border: 2px solid #ccc;
+  border: 5px solid #ccc;
 }
 
 .custom-resizer >>> .pane ~ .pane {}
@@ -186,4 +176,35 @@
     }
   }
 }
+// other stuff
+
+.border {
+  border: 2px indigo dashed;
+}
+
+.d-table {
+  display:table;
+}
+
+.d-table-cell {
+  display:table-cell;
+  vertical-align: middle;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.tar {
+  text-align: right;
+}
+
+.tac {
+  text-align: center;
+}
+
+.tal {
+  text-align: left;
+}
+
 </style>
