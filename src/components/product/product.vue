@@ -86,7 +86,14 @@
             <multipane-resizer></multipane-resizer>
             <div class="pane" :style="{ flexGrow: 1 }">
               <div>
-                <b-table stacked :items="comments"></b-table>
+                <!-- <b-table stacked striped small :items="comments"></b-table> -->
+                <ul>
+                  <li v-for= "comment in comments" :key= comment.authorAndIssueDate>
+                    <div v-for= "(value, key) in comment" :key= key>
+                      {{ key }} {{ value }}
+                    </div>
+                  </li>
+                </ul>
               </div>
             </div>
             <multipane-resizer></multipane-resizer>
@@ -128,20 +135,20 @@
           { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
           'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
 
-          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 11 2019 17:26:48 GMT+0100",
           'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
 
-          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 12 2019 17:26:48 GMT+0100",
           'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
 
-          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 13 2019 17:26:48 GMT+0100",
           'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
 
-          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 14 2019 17:26:48 GMT+0100",
           'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
 
-          { 'Author and issue date': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
-          'Comment': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+          { 'Author and issue date': "Erik Verheul @ Thu Jan 15 2019 17:26:48 GMT+0100",
+          'Comment': "[LAST ELEMENT IN ARRAY] Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
 
       ],
     }
@@ -242,24 +249,6 @@
 
 .tal {
   text-align: left;
-}
-
-// Tree view
-
-body {
-  font-family: Menlo, Consolas, monospace;
-  color: #444;
-}
-.item {
-  cursor: pointer;
-}
-.bold {
-  font-weight: bold;
-}
-ul {
-  padding-left: 1em;
-  line-height: 1.5em;
-  list-style-type: dot;
 }
 
 </style>
