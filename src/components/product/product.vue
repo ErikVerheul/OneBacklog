@@ -1,10 +1,10 @@
 <template>
   <!-- horizontal panes -->
   <multipane class="horizontal-panes" layout="horizontal">
-    <div class="pane" :style="{ minHeight: '150px', height: '150px', maxHeight: '150px' }">
+    <div class="pane" :style="{ minHeight: '120px', height: '120px', maxHeight: '120px' }">
       <div class="d-table ">
         <div class="d-table-cell tal clearfix">
-          <b-img left :src="require('../../assets/logo.png')" height="130px" width="160px" alt="OneBacklog logo" />
+          <b-img left :src="require('../../assets/logo.png')" height="100%" alt="OneBacklog logo" />
         </div>
         <div class="d-table-cell w-100 tac">
           <h1>Database {{ databaseName }}</h1>
@@ -64,43 +64,27 @@
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <h5 class="title is-6">Comments</h5>
+              <div class="d-table-cell tal">
+                <b-button href="#">Add {{ selected }}</b-button>
+              </div>
+              <div class="d-table-cell tac">
+                <b-form-group label="Select to see">
+                  <b-form-radio-group v-model="selected" :options="options" plain name="plainInline" />
+                </b-form-group>
+              </div>
               <div class="d-table-cell tar">
-                <b-button href="#">Add comment</b-button>
+                <b-button href="#">Find {{ selected }}</b-button>
               </div>
             </div>
           </div>
           <div class="pane" :style="{ flexGrow: 1 }">
-            <!-- Inner vertical split -->
-            <multipane class="vertical-panes" layout="vertical">
-              <multipane-resizer></multipane-resizer>
-              <div class="pane" :style="{ flexGrow: 1 }">
-                <div>
-                  <!-- Bootstrap-Veu <b-table stacked striped small :items="comments"></b-table> -->
-                  <ul>
-                    <li v-for="comment in comments" :key=comment.authorAndIssueDate>
-                      <div v-for="(value, key) in comment" :key=key>
-                        {{ key }} {{ value }}
-                      </div>
-                    </li>
-                  </ul>
+            <ul>
+              <li v-for="comment in comments" :key=comment.authorAndIssueDate>
+                <div v-for="(value, key) in comment" :key=key>
+                  {{ key }} {{ value }}
                 </div>
-              </div>
-              <multipane-resizer></multipane-resizer>
-              <div class="pane" :style="{ minWidth: '100px', width: '100px', maxWidth: '100px' }">
-                <div>
-                  <b-button href="#" size="sm">Upload attachment</b-button>
-                  <b-dropdown variant="link" size="lg" no-caret>
-                    <template slot="button-content">
-                      &#x1f50d;<span class="sr-only">Search</span>
-                    </template>
-                    <b-dropdown-item href="#">Attachement-1</b-dropdown-item>
-                    <b-dropdown-item href="#">Attachement-2</b-dropdown-item>
-                    <b-dropdown-item href="#">Attachement-3</b-dropdown-item>
-                  </b-dropdown>
-                </div>
-              </div>
-            </multipane>
+              </li>
+            </ul>
           </div>
         </multipane>
       </div>
@@ -124,6 +108,16 @@
         createdBy: 'Erik Verheul',
         creationDate: '8 January 2019',
         tShirtSize: 'XL',
+        selected: 'comments',
+        options: [{
+            text: 'Comments',
+            value: 'comments',
+          },
+          {
+            text: 'Attachments',
+            value: 'attachments',
+          },
+        ],
         comments: [{
             'Author and issue date:': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
             'Comment:': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
@@ -169,7 +163,6 @@
   // horizontal panes
   .horizontal-panes {
     width: 100%;
-
     border: 1px solid #ccc;
   }
 
@@ -178,7 +171,7 @@
     text-align: left;
     padding: 5px;
     overflow: hidden;
-    background: #eee;
+    background: white;
   }
 
   .horizontal-panes>>>.pane~.pane {
@@ -196,7 +189,7 @@
     padding: 3px;
     overflow: hidden;
     background: #eee;
-    border: 5px solid #ccc;
+    border: 2px solid #ccc;
   }
 
   .custom-resizer>>>.pane~.pane {}
@@ -228,11 +221,6 @@
   }
 
   // other stuff
-
-  .border {
-    border: 2px indigo dashed;
-  }
-
   .d-table {
     display: table;
   }
