@@ -78,9 +78,16 @@
             </div>
           </div>
           <div class="pane" :style="{ flexGrow: 1 }">
-            <ul>
+            <ul v-if="selected==='comments'">
               <li v-for="comment in comments" :key=comment.authorAndIssueDate>
                 <div v-for="(value, key) in comment" :key=key>
+                  {{ key }} {{ value }}
+                </div>
+              </li>
+            </ul>
+            <ul v-if="selected==='attachments'">
+              <li v-for="attach in attachments" :key=attach.authorAndIssueDate>
+                <div v-for="(value, key) in attach" :key=key>
                   {{ key }} {{ value }}
                 </div>
               </li>
@@ -149,6 +156,10 @@
           },
 
         ],
+        attachments: [{
+          'Author and issue date:': "Erik Verheul @ Wed Jan 30 2019 15:26:48 GMT-0400",
+          'link:': "file location"
+        }],
       }
     },
     components: {
