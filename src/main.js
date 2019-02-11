@@ -5,6 +5,8 @@ import axios from 'axios'
 import router from './router'
 import store from './store/store'
 
+import './fa.config';
+
 axios.defaults.baseURL = 'https://localhost:6984'
 //axios.defaults.headers.get['Accepts'] = 'application/json'
 
