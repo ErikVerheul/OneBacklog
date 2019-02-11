@@ -167,33 +167,167 @@
 				contextMenuIsVisible: false,
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
+
 				nodes: [{
-						title: 'Item1',
-						isLeaf: true
-					},
-					{
-						title: 'Item2',
-						isLeaf: true,
-						data: {
-							visible: false
-						}
-					},
-					{
-						title: 'Folder1'
-					},
-					{
-						title: 'Folder2',
-						isExpanded: true,
-						children: [{
-								title: 'Item3',
-								isLeaf: true
+						"title": "Database-1",
+						"isSelected": false,
+						"isExpanded": true,
+						"children": [{
+								"title": "Product-1",
+								"isExpanded": true,
+								"children": [{
+										"title": "Epic-A",
+										"children": [{
+											"title": "Feature-A1",
+											"children": [{
+													"title": "PBI-A1-1",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-A1-2",
+													"isLeaf": true,
+													"data": {
+														"visible": true
+													},
+													"isSelected": false
+												},
+												{
+													"title": "PBI-A1-3",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-A1-4",
+													"isLeaf": true,
+													"isSelected": false
+												}
+											],
+											"isSelected": false,
+											"isExpanded": true
+										}],
+										"isSelected": false
+									},
+									{
+										"title": "Epic-B",
+										"isExpanded": true,
+										"isSelected": false,
+										"children": [{
+											"title": "Feature-B1",
+											"children": [{
+													"title": "PBI-B1-1",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-B1-2",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-B1-3",
+													"isLeaf": true,
+													"data": {
+														"visible": true
+													},
+													"isSelected": true
+												},
+												{
+													"title": "PBI-B1-4",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-B1-5",
+													"isLeaf": true,
+													"isSelected": false
+												}
+											],
+											"isSelected": false
+										}]
+									}
+								],
+								"isSelected": false
 							},
 							{
-								title: 'Item4',
-								isLeaf: true
-							}
+								"title": "Product-2",
+								"isExpanded": true,
+								"children": [{
+										"title": "Epic-C",
+										"children": [{
+											"title": "Feature-C1",
+											"children": [{
+													"title": "PBI-C1-1",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-C1-2",
+													"isLeaf": true,
+													"data": {
+														"visible": true
+													},
+													"isSelected": false
+												},
+												{
+													"title": "PBI-C1-3",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-C1-4",
+													"isLeaf": true,
+													"isSelected": false
+												}
+											],
+											"isSelected": false,
+											"isExpanded": true
+										}],
+										"isSelected": false
+									},
+									{
+										"title": "Epic-D",
+										"isExpanded": true,
+										"isSelected": false,
+										"children": [{
+											"title": "Feature-D1",
+											"children": [{
+													"title": "PBI-D1-1",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-D1-2",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-D1-3",
+													"isLeaf": true,
+													"data": {
+														"visible": true
+													},
+													"isSelected": true
+												},
+												{
+													"title": "PBI-D1-4",
+													"isLeaf": true,
+													"isSelected": false
+												},
+												{
+													"title": "PBI-D1-5",
+													"isLeaf": true,
+													"isSelected": false
+												}
+											],
+											"isSelected": false
+										}]
+									}
+								],
+								"isSelected": false
+							},
 						]
-					}
+					},
 				],
 
 				customToolbar: [
@@ -326,6 +460,7 @@
 
 <style lang="scss" scoped>
 	@import "../../css/sl-vue-tree-dark.css";
+
 	// horizontal panes
 	.horizontal-panes {
 		width: 100%;
@@ -462,7 +597,7 @@
 		flex-grow: 1;
 		overflow-x: hidden;
 		overflow-y: auto;
-		height: 300px;
+		height: 100%;
 	}
 
 
