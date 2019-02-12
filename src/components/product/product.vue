@@ -20,7 +20,7 @@
 
 			<!-- vertical panes -->
 			<multipane class="custom-resizer" layout="vertical">
-				<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }" id="app" @click="contextMenuIsVisible = false">
+				<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }" @click="contextMenuIsVisible = false">
 					<h2> Sl-vue-tree - tree view</h2>
 
 					<div class='last-event'>
@@ -87,7 +87,6 @@
 							</div>
 						</div>
 						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<!--						<textarea style="width:100%" id="description" v-model.lazy="description" rows="8"></textarea>-->
 							<vue-editor v-model.lazy="description" :editorToolbar="customToolbar"></vue-editor>
 						</div>
 						<multipane-resizer></multipane-resizer>
@@ -97,7 +96,6 @@
 							</div>
 						</div>
 						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<!--						<textarea style="width:100%" id="acceptanceCriteria" v-model.lazy="acceptanceCriteria" rows="8"></textarea>-->
 							<vue-editor v-model.lazy="acceptanceCriteria" :editorToolbar="customToolbar"></vue-editor>
 						</div>
 						<multipane-resizer></multipane-resizer>
@@ -138,11 +136,6 @@
 		</multipane>
 	</div>
 </template>
-
-<!--
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-<script src="./js/sl-vue-tree.js"></script>
--->
 
 <script>
 	import {
@@ -556,15 +549,6 @@
 		color: rgba(255, 255, 255, 0.5);
 	}
 
-	a {
-		color: #bbb;
-	}
-
-	.row {
-		display: flex;
-		margin-bottom: 10px;
-	}
-
 	.contextmenu {
 		position: absolute;
 		background-color: white;
@@ -580,7 +564,6 @@
 	.contextmenu>div:hover {
 		background-color: rgba(100, 100, 255, 0.5);
 	}
-
 
 	.last-event {
 		color: white;
@@ -598,15 +581,6 @@
 		overflow-x: hidden;
 		overflow-y: auto;
 		height: 100%;
-	}
-
-
-	.json-preview {
-		flex-grow: 1;
-		margin-left: 10px;
-		background-color: #13242d;
-		border: 1px solid black;
-		padding: 10px;
 	}
 
 	.item-icon {
