@@ -80,6 +80,7 @@ Viewers can only read the information of the products assigned to them.
 100 simultaneous users, 1 update per second, updates by other users should be available within 1 second (either by page refresh or automatically)
 
 <b>Implementation:</b>
+
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/example-screen.png)
 
 - Product, epic, feature, pbi, task and requirement area names are mapped to a key. That key is used for reference purposes so that the name can be updated independently.
