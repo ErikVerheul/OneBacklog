@@ -399,18 +399,6 @@
 		},
 
 		methods: {
-			toggleVisibility: function(event, node) {
-				const slVueTree = this.$refs.slVueTree;
-				event.stopPropagation();
-				const visible = !node.data || node.data.visible !== false;
-				slVueTree.updateNode(node.path, {
-					data: {
-						visible: !visible
-					}
-				});
-				this.lastEvent = `Node ${node.title} is ${ visible ? 'visible' : 'invisible'} now`;
-			},
-
 			nodeSelected(nodes) {
 				this.selectedNodesTitle = nodes.map(node => node.title).join(', ');
 				this.lastEvent = `Select nodes: ${this.selectedNodesTitle}`;
