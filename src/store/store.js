@@ -22,6 +22,9 @@ export default new Vuex.Store({
     user (state) {
       return state.user
     },
+		getCurrendDb (state) {
+			return state.currentDb
+		},
     roles (state) {
       return state.roles
     },
@@ -54,7 +57,10 @@ export default new Vuex.Store({
     },
     setConfig (state, config) {
       state.config = config
-    }
+    },
+		setCurrentDb (state, currentDb) {
+			state.currentDb = currentDb
+		}
   },
 
   actions: {
@@ -90,8 +96,6 @@ export default new Vuex.Store({
         url: state.currentDb + '/config',
         withCredentials: true,
       }).then (res => {
-        // eslint-disable-next-line no-console
-        console.log(res)
         if (res.status == 200) {
           commit('setConfig', 'res.data')
           // eslint-disable-next-line no-console
@@ -116,6 +120,8 @@ export default new Vuex.Store({
         state.email = res.data.email
         state.databases = res.data.databases
         state.currentDb = res.data.currentDb
+				// eslint-disable-next-line no-console
+				console.log('getDbName: database ' + state.currentDb + ' is set for user ' + state.user)
         dispatch('getConfig')
       })
       .catch(error => {
@@ -137,6 +143,7 @@ export default new Vuex.Store({
         // eslint-disable-next-line no-console
         console.log(res)
         if (res.status == 200) {
+					state.user = res.data.name
           commit('authUser', {
             user: res.data.name,
             roles: res.data.roles

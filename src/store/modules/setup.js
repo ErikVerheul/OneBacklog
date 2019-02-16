@@ -115,11 +115,11 @@ const actions = {
     })
   },
 
-  createDB({state}, payload) {
+  createDB({state}, dbName) {
     this.commit('clearAll')
     globalAxios({
       method: 'PUT',
-      url: payload,
+      url: dbName,
       withCredentials: true,
     }).then(res => {
       state.message = res.data
@@ -136,11 +136,11 @@ const actions = {
     })
   },
 
-  chooseOrCreateDB({state, dispatch}, payload) {
+  chooseOrCreateDB({state, dispatch}, dbName) {
     this.commit('clearAll')
     globalAxios({
       method: 'GET',
-      url: payload,
+      url: dbName,
       withCredentials: true,
     }).then(res => {
       if (res.status == 200) {
@@ -148,7 +148,7 @@ const actions = {
       }
     }).catch(error => {
       if (error.response.status === 404) {
-        dispatch("createDB", payload)
+        dispatch("createDB", dbName)
       } else {
         // eslint-disable-next-line no-console
         console.log(error)
@@ -244,6 +244,8 @@ const actions = {
 
   initializeDB({state}, payload) {
     this.commit('clearAll')
+		// eslint-disable-next-line no-console
+		console.log('Initialize DB: ' + payload.dbName)
     globalAxios({
       method: 'POST',
       url: payload.dbName + '/_bulk_docs',
