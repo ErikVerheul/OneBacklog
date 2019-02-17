@@ -85,7 +85,7 @@ const actions = {
       console.log(error)
       state.message = error.response.data
       state.errorMessage = error.message
-      state.comment = "As a 'superadmin' you cannot change your password here. Use Fauxton instead"
+      state.comment = "As a 'server admin' you cannot change your password here. Use Fauxton instead"
     })
   },
 

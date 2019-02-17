@@ -15,8 +15,8 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-navbar-nav>
-          <!-- ToDo: REVERSE THIS WHEN DONE WITH TESTING: <b-nav-item v-if="superAdmin"> -->
-          <b-nav-item>
+          <!-- ToDo: REVERSE THIS WHEN DONE WITH TESTING: <b-nav-item v-if="serverAdmin"> -->
+          <b-nav-item v-if="serverAdmin">
             <router-link to="/setup">Setup</router-link>
           </b-nav-item>
         </b-navbar-nav>
@@ -49,8 +49,8 @@ export default {
     auth () {
       return this.$store.getters.isAuthenticated
     },
-    superAdmin () {
-      return this.$store.getters.isAuthenticated && this.$store.getters.isSuperAdmin
+    serverAdmin () {
+      return this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin
     }
   },
   methods: {

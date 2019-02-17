@@ -28,7 +28,7 @@ export default new Vuex.Store({
     roles (state) {
       return state.roles
     },
-    isSuperAdmin (state) {
+    isServerAdmin (state) {
       return state.roles.includes("_admin")
     },
     isAuthenticated (state) {
@@ -106,8 +106,8 @@ export default new Vuex.Store({
       .catch(error => console.log('Config doc missing in database ' + state.currentDb + '. Error = ' + error))
     },
 
-    // Get the default DB name for this user
-    getDbName({state, dispatch}) {
+    // Get the current DB name etc. for this user. Note that the user roles are already fetched
+    getOtherUserData({state, dispatch}) {
       this.commit('clearAll')
       globalAxios({
         method: 'GET',
@@ -115,18 +115,17 @@ export default new Vuex.Store({
         withCredentials: true
       }).then(res => {
         // eslint-disable-next-line no-console
-        console.log('getDbName called for user = ' + state.user)
-        state.roles = res.data.roles
+        console.log('getOtherUserData called for user = ' + state.user)
         state.email = res.data.email
         state.databases = res.data.databases
         state.currentDb = res.data.currentDb
 				// eslint-disable-next-line no-console
-				console.log('getDbName: database ' + state.currentDb + ' is set for user ' + state.user)
+				console.log('getOtherUserData: database ' + state.currentDb + ' is set for user ' + state.user)
         dispatch('getConfig')
       })
       .catch(error => {
         // eslint-disable-next-line no-console
-        console.log('getDbName error= ', error)
+        console.log('getOtherUserData error= ', error)
       })
     },
 
@@ -148,7 +147,7 @@ export default new Vuex.Store({
             user: res.data.name,
             roles: res.data.roles
           })
-          dispatch('getDbName')
+          dispatch('getOtherUserData')
           //Refresh the session cookie after 6 minutes
           dispatch('refreshCookie', {
             authData,

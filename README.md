@@ -103,7 +103,7 @@ Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the rea
 
 ``` bash
 # install CouchDB
-Install the database locally and create a superadmin account. Use these credentials to start this app
+Install the database locally and create a server admin account. Use these credentials to start this app
 and create other users with less privileges.
 See http://docs.couchdb.org/en/stable/config/http.html#secure-socket-level-options to install SSL
 Caveat: the current Chrome version has problems with self signed certificates,
