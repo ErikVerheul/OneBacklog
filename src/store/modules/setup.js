@@ -117,6 +117,7 @@ const actions = {
 
   createDB({state}, dbName) {
     this.commit('clearAll')
+		var vm = this
     globalAxios({
       method: 'PUT',
       url: dbName,
@@ -124,7 +125,8 @@ const actions = {
     }).then(res => {
       state.message = res.data
       if (res.status == 201) {
-        state.comment = 'New database is created. Note that subsequent actions will be performed on this database'
+				vm.state.currentDb = dbName
+        state.comment = 'New database ' + dbName + ' is created. Note that subsequent actions will be performed on this database'
       }
       // eslint-disable-next-line no-console
       console.log(res)
@@ -138,13 +140,15 @@ const actions = {
 
   chooseOrCreateDB({state, dispatch}, dbName) {
     this.commit('clearAll')
+		var vm = this
     globalAxios({
       method: 'GET',
       url: dbName,
       withCredentials: true,
     }).then(res => {
       if (res.status == 200) {
-        state.comment = 'The database exists already. Note that subsequent actions will be performed on this database'
+				vm.state.currentDb = dbName
+        state.comment = 'The database ' + dbName + ' exists already. Note that subsequent actions will be performed on this database'
       }
     }).catch(error => {
       if (error.response.status === 404) {

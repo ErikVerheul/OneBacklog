@@ -57,10 +57,7 @@ export default new Vuex.Store({
     },
     setConfig (state, config) {
       state.config = config
-    },
-		setCurrentDb (state, currentDb) {
-			state.currentDb = currentDb
-		}
+    }
   },
 
   actions: {

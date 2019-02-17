@@ -2,7 +2,7 @@
 	<div>
 		<div class="row">
 			<div class="col-lg-12 col-sm-12">
-				<h4 v-if="name">If you are database administrator you're authenticated to setup the database for OneBacklog.
+				<h4 v-if="name">As a server administrator you're authenticated to setup the database for OneBacklog.
 					Your user name is: {{ name }}, and your roles are: {{ roles }}. Your default database is {{ db }}</h4>
 				<h6>Note that users with their roles must be created in the protected _users database to sign in.<br />
 					Create and initialize the database for OneBacklog first. Then can assign known users and/or roles to it.</h6>
@@ -200,9 +200,6 @@
 			crateDBExe() {
 				const dbName = this.row.field1
 				this.$store.dispatch('chooseOrCreateDB', dbName)
-				this.$store.commit('setCurrentDb', dbName)
-				// eslint-disable-next-line no-console
-				console.log('Current database name is set to ' + dbName)
 			},
 			initDB() {
 				this.$store.commit('clearAll')
