@@ -27,7 +27,8 @@
 						Last event: {{ lastEvent }}
 					</div>
 
-					<div class="tree-container">
+					<!-- Fix this bug with @mousedown.stop: see https://github.com/yansern/vue-multipane/issues/19 -->
+					<div class="tree-container" @mousedown.stop>
 						<sl-vue-tree v-model="nodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @drop="nodeDropped" @toggle="nodeToggled" @nodecontextmenu="showContextMenu">
 
 							<template slot="title" slot-scope="{ node }">
