@@ -454,6 +454,10 @@
 
 			showInsertModal(node, event) {
 				event.preventDefault();
+				var currentLevel = this.firstNodeSelected.level;
+				if (currentLevel === 5) {
+					this.nodeTypeSelected = 1; //Cannot create child from PBI
+				}
 				this.$refs.insertModalRef.show();
 			},
 
@@ -535,7 +539,7 @@
 							isdraggable: true,
 							isSelectable: true
 						}
-						return "Insert " + this.getLevelText(currentLevel) + " as a child node"
+						return "Insert " + this.getLevelText(currentLevel + 1) + " as a child node"
 					}
 				}
 				return ''
