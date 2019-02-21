@@ -20,7 +20,7 @@
 
 			<!-- vertical panes -->
 			<multipane class="custom-resizer" layout="vertical">
-				<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }" @click="ctxMenuRemoveIsVisible = false">
+				<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
 					<h2>Sl-vue-tree - tree view</h2>
 
 					<div class='last-event'>
@@ -29,7 +29,7 @@
 
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="tree-container" @mousedown.stop>
-						<sl-vue-tree v-model="nodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showCtxInsertMenu" @nodecontextmenu="showCtxRemoveMenu">
+						<sl-vue-tree v-model="nodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 
 							<template slot="title" slot-scope="{ node }">
 								<span class="item-icon">
@@ -133,12 +133,17 @@
 		</multipane>
 		<template>
 			<div>
-				<b-modal v-model="ctxMenuRemoveIsVisible" @ok="removeNode">Delete this node (these nodes) and decendants?</b-modal>
+				<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
+					<div class="d-block text-center">
+						<h3>This operation cannot be undone!</h3>
+					</div>
+					<b-button class="mt-3" variant="outline-danger" block @click="hideRemoveModal">Remove now!</b-button>
+				</b-modal>
 			</div>
 		</template>
 		<template>
 			<div>
-				<b-modal v-model="ctxMenuInsertIsVisible" @ok="insertNode">
+				<b-modal ref='insertModalRef' @ok="hideInsertModal">
 					<b-form-group label="Select what node type to insert:">
 						<b-form-radio-group v-model="nodeTypeSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
 					</b-form-group>
@@ -168,9 +173,9 @@
 				databaseName: '-name-',
 				productTitle: 'The product title',
 				nodeIsSelected: false,
+				allNodesSelected: null,
 				firstNodeSelected: null,
-				ctxMenuRemoveIsVisible: false,
-				ctxMenuInsertIsVisible: false,
+				removeTitle: '',
 				newNodeLocation: {},
 				nodeTypeSelected: 0,
 				newNode: {},
@@ -418,7 +423,8 @@
 				this.nodeIsSelected = true;
 				this.selectedNodesTitle = nodes.map(node => node.title).join(', ');
 				this.lastEvent = `Select nodes: ${this.selectedNodesTitle}`;
-				this.firstNodeSelected = nodes[0]
+				this.allNodesSelected = nodes;
+				this.firstNodeSelected = nodes[0];
 			},
 
 			nodeToggled(node) {
@@ -429,25 +435,34 @@
 				this.lastEvent = `Nodes: ${nodes.map(node => node.title).join(', ')} are dropped ${position.placement} ${position.node.title}`;
 			},
 
-			showCtxRemoveMenu(node, event) {
+			showRemoveModal(node, event) {
 				event.preventDefault();
 				if (this.nodeIsSelected) {
-					this.ctxMenuRemoveIsVisible = true;
+					this.removeTitle = this.allNodesSelected.length > 1 ? this.allNodesSelected.length + ' nodes will be removed' : 'One node will be removed';
+					this.$refs.removeModalRef.show();
 				}
 			},
 
-			showCtxInsertMenu(node, event) {
-				event.preventDefault();
-				this.ctxMenuInsertIsVisible = true;
-			},
-
-			removeNode() {
-				this.ctxMenuRemoveIsVisible = false;
+			hideRemoveModal() {
+				this.$refs.removeModalRef.hide();
 				this.nodeIsSelected = false;
-				this.lastEvent = 'Node is removed / Nodes are removed';
+				this.lastEvent = this.allNodesSelected.length > 1 ? 'Nodes are removed' : 'Node is removed'
 				const $slVueTree = this.$refs.slVueTree;
 				const paths = $slVueTree.getSelected().map(node => node.path);
 				$slVueTree.remove(paths);
+			},
+
+			showInsertModal(node, event) {
+				event.preventDefault();
+				this.$refs.insertModalRef.show();
+			},
+
+			hideInsertModal() {
+				this.$refs.removeModalRef.hide();
+				this.lastEvent = 'Node will be inserted';
+				const $slVueTree = this.$refs.slVueTree;
+				$slVueTree.insert(this.newNodeLocation, this.newNode);
+				this.nodeTypeSelected = 0;
 			},
 
 			getLevelText(level) {
@@ -499,12 +514,13 @@
 						}
 						this.newNode = {
 							title: 'New ' + this.getLevelText(currentLevel),
-							isLeaf: (currentLevel < 5) ? false : true,
+							isLeaf: (currentLevel < 5) ? false : true, // for now PBI's have no children
 							children: [],
 							isExpanded: false,
 							isdraggable: true,
 							isSelectable: true
 						}
+						if (currentLevel === 5) this.nodeTypeSelected = 1; // preselect only option
 						return "Insert " + this.getLevelText(currentLevel) + " below the selected node"
 					}
 					if (this.nodeTypeSelected === 2) {
@@ -525,14 +541,6 @@
 				}
 				return ''
 			},
-
-			insertNode() {
-				this.ctxMenuInsertIsVisible = false;
-				this.lastEvent = 'Node will be inserted';
-				const $slVueTree = this.$refs.slVueTree;
-				$slVueTree.insert(this.newNodeLocation, this.newNode);
-				this.nodeTypeSelected = 0;
-			}
 		},
 
 		components: {
