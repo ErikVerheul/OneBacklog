@@ -177,7 +177,7 @@
 				firstNodeSelected: null,
 				removeTitle: '',
 				newNodeLocation: {},
-				nodeTypeSelected: 0,
+				nodeTypeSelected: 1, //default to sibling node (not descendant)
 				newNode: {},
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
@@ -462,7 +462,7 @@
 				this.lastEvent = 'Node will be inserted';
 				const $slVueTree = this.$refs.slVueTree;
 				$slVueTree.insert(this.newNodeLocation, this.newNode);
-				this.nodeTypeSelected = 0;
+				this.nodeTypeSelected = 1;
 			},
 
 			getLevelText(level) {
@@ -478,7 +478,7 @@
 					case 5:
 						return 'Product backlog item'
 					default:
-						return 'Unsupported level ' + level
+						return 'The task level is not supported'
 				}
 			},
 
@@ -520,7 +520,6 @@
 							isdraggable: true,
 							isSelectable: true
 						}
-						if (currentLevel === 5) this.nodeTypeSelected = 1; // preselect only option
 						return "Insert " + this.getLevelText(currentLevel) + " below the selected node"
 					}
 					if (this.nodeTypeSelected === 2) {
