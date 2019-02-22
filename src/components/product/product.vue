@@ -518,7 +518,7 @@
 						}
 						this.newNode = {
 							title: 'New ' + this.getLevelText(currentLevel),
-							isLeaf: (currentLevel < 5) ? false : true, // for now PBI's have no children
+							isLeaf: (currentLevel < 4) ? false : true, // for now PBI's have no children,
 							children: [],
 							isExpanded: false,
 							isdraggable: true,
@@ -533,7 +533,7 @@
 						}
 						this.newNode = {
 							title: 'New ' + this.getLevelText(currentLevel + 1),
-							isLeaf: false,
+							isLeaf: (currentLevel < 4) ? false : true, // for now PBI's have no children,
 							children: [],
 							isExpanded: false,
 							isdraggable: true,
