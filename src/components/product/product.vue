@@ -133,21 +133,21 @@
 		</multipane>
 		<template>
 			<div>
-				<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
+				<b-modal ref='removeModalRef' v-if="this.firstNodeSelected != null" hide-footer :title=this.removeTitle>
 					<div class="d-block text-center">
 						<h3>This operation cannot be undone!</h3>
 					</div>
-					<b-button class="mt-3" variant="outline-danger" block @click="hideRemoveModal">Remove now!</b-button>
+					<b-button class="mt-3" variant="outline-danger" block @click="doRemove">Remove now!</b-button>
 				</b-modal>
 			</div>
 		</template>
 		<template>
 			<div>
-				<b-modal ref='insertModalRef' @ok="hideInsertModal">
+				<b-modal ref='insertModalRef' v-if="this.firstNodeSelected != null" @ok="doInsert">
 					<b-form-group label="Select what node type to insert:">
 						<b-form-radio-group v-model="nodeTypeSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
 					</b-form-group>
-					<div class="mt-3">Selected: <strong>{{ getNodeTypeSelectedText() }}</strong></div>
+					<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
 				</b-modal>
 			</div>
 		</template>
@@ -437,13 +437,11 @@
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
-				if (this.nodeIsSelected) {
-					this.removeTitle = this.allNodesSelected.length > 1 ? this.allNodesSelected.length + ' nodes will be removed' : 'One node will be removed';
-					this.$refs.removeModalRef.show();
-				}
+				this.removeTitle = this.allNodesSelected.length > 1 ? this.allNodesSelected.length + ' nodes will be removed' : 'One node will be removed';
+				this.$refs.removeModalRef.show();
 			},
 
-			hideRemoveModal() {
+			doRemove() {
 				this.$refs.removeModalRef.hide();
 				this.nodeIsSelected = false;
 				this.lastEvent = this.allNodesSelected.length > 1 ? 'Nodes are removed' : 'Node is removed'
@@ -461,7 +459,7 @@
 				this.$refs.insertModalRef.show();
 			},
 
-			hideInsertModal() {
+			doInsert() {
 				this.$refs.removeModalRef.hide();
 				this.lastEvent = 'Node will be inserted';
 				const $slVueTree = this.$refs.slVueTree;
@@ -497,52 +495,50 @@
 						disabled: false
 					}
 				];
-				if (this.firstNodeSelected != null) {
-					var currentLevel = this.firstNodeSelected.level;
-					options[0].text = this.getLevelText(currentLevel);
-					options[0].value = 1;
-					options[1].text = this.getLevelText(currentLevel + 1);
-					options[1].value = 2;
-					if (currentLevel === 5) options[1].disabled = true;
-				}
+				var currentLevel = this.firstNodeSelected.level;
+				options[0].text = this.getLevelText(currentLevel);
+				options[0].value = 1;
+				options[1].text = this.getLevelText(currentLevel + 1);
+				options[1].value = 2;
+				if (currentLevel === 5) options[1].disabled = true;
 				return options
 			},
 
-			getNodeTypeSelectedText() {
-				if (this.firstNodeSelected != null) {
-					var currentLevel = this.firstNodeSelected.level
-					if (this.nodeTypeSelected === 1) {
-						this.newNodeLocation = {
-							node: this.firstNodeSelected,
-							placement: 'after'
-						}
-						this.newNode = {
-							title: 'New ' + this.getLevelText(currentLevel),
-							isLeaf: (currentLevel < 4) ? false : true, // for now PBI's have no children,
-							children: [],
-							isExpanded: false,
-							isdraggable: true,
-							isSelectable: true
-						}
-						return "Insert " + this.getLevelText(currentLevel) + " below the selected node"
+			prepareInsert() {
+				var currentLevel = this.firstNodeSelected.level
+				if (this.nodeTypeSelected === 1) {
+					// New node is a sibling placed below (after) the selected node
+					this.newNodeLocation = {
+						node: this.firstNodeSelected,
+						placement: 'after'
 					}
-					if (this.nodeTypeSelected === 2) {
-						this.newNodeLocation = {
-							node: this.firstNodeSelected,
-							placement: 'inside'
-						}
-						this.newNode = {
-							title: 'New ' + this.getLevelText(currentLevel + 1),
-							isLeaf: (currentLevel < 4) ? false : true, // for now PBI's have no children,
-							children: [],
-							isExpanded: false,
-							isdraggable: true,
-							isSelectable: true
-						}
-						return "Insert " + this.getLevelText(currentLevel + 1) + " as a child node"
+					this.newNode = {
+						title: 'New ' + this.getLevelText(currentLevel),
+						isLeaf: (currentLevel < 4) ? false : true, // for now PBI's have no children,
+						children: [],
+						isExpanded: false,
+						isdraggable: true,
+						isSelectable: true
 					}
+					return "Insert " + this.getLevelText(currentLevel) + " below the selected node"
 				}
-				return ''
+				if (this.nodeTypeSelected === 2) {
+					// New node is a child placed a level lower (inside) than the selected node
+					this.newNodeLocation = {
+						node: this.firstNodeSelected,
+						placement: 'inside'
+					}
+					this.newNode = {
+						title: 'New ' + this.getLevelText(currentLevel + 1),
+						isLeaf: (currentLevel < 4) ? false : true, // for now PBI's (level 5) have no children,
+						children: [],
+						isExpanded: false,
+						isdraggable: true,
+						isSelectable: true
+					}
+					return "Insert " + this.getLevelText(currentLevel + 1) + " as a child node"
+				}
+				return '' // Should never happen
 			},
 		},
 
