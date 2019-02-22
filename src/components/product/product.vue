@@ -131,9 +131,9 @@
 				</div>
 			</multipane>
 		</multipane>
-		<template>
+		<template v-if="this.nodeIsSelected">
 			<div>
-				<b-modal ref='removeModalRef' v-if="this.firstNodeSelected != null" hide-footer :title=this.removeTitle>
+				<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
 					<div class="d-block text-center">
 						<h3>This operation cannot be undone!</h3>
 					</div>
@@ -141,9 +141,9 @@
 				</b-modal>
 			</div>
 		</template>
-		<template>
+		<template v-if="this.nodeIsSelected">
 			<div>
-				<b-modal ref='insertModalRef' v-if="this.firstNodeSelected != null" @ok="doInsert">
+				<b-modal ref='insertModalRef' @ok="doInsert" :title=this.insertTitle>
 					<b-form-group label="Select what node type to insert:">
 						<b-form-radio-group v-model="nodeTypeSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
 					</b-form-group>
@@ -176,6 +176,7 @@
 				allNodesSelected: null,
 				firstNodeSelected: null,
 				removeTitle: '',
+				insertTitle: '',
 				newNodeLocation: {},
 				nodeTypeSelected: 1, //default to sibling node (not descendant)
 				newNode: {},
@@ -437,8 +438,10 @@
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
-				this.removeTitle = this.allNodesSelected.length > 1 ? this.allNodesSelected.length + ' nodes will be removed' : 'One node will be removed';
-				this.$refs.removeModalRef.show();
+				if (this.nodeIsSelected) {
+					this.removeTitle = this.allNodesSelected.length > 1 ? this.allNodesSelected.length + ' nodes will be removed' : 'One node will be removed';
+					this.$refs.removeModalRef.show();
+				}
 			},
 
 			doRemove() {
@@ -452,11 +455,13 @@
 
 			showInsertModal(node, event) {
 				event.preventDefault();
-				var currentLevel = this.firstNodeSelected.level;
-				if (currentLevel === 5) {
-					this.nodeTypeSelected = 1; //Cannot create child from PBI
+				if (this.nodeIsSelected) {
+					var currentLevel = this.firstNodeSelected.level;
+					if (currentLevel === 5) {
+						this.nodeTypeSelected = 1; //Cannot create child from PBI
+					}
+					this.$refs.insertModalRef.show();
 				}
-				this.$refs.insertModalRef.show();
 			},
 
 			doInsert() {
