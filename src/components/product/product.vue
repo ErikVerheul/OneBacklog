@@ -445,7 +445,6 @@
 			},
 
 			doRemove() {
-				this.$refs.removeModalRef.hide();
 				this.nodeIsSelected = false;
 				this.lastEvent = this.allNodesSelected.length > 1 ? 'Nodes are removed' : 'Node is removed'
 				const $slVueTree = this.$refs.slVueTree;
@@ -465,7 +464,6 @@
 			},
 
 			doInsert() {
-				this.$refs.removeModalRef.hide();
 				this.lastEvent = 'Node will be inserted';
 				const $slVueTree = this.$refs.slVueTree;
 				$slVueTree.insert(this.newNodeLocation, this.newNode);
