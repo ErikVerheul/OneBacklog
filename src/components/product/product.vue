@@ -29,7 +29,7 @@
 
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="tree-container" @mousedown.stop>
-						<sl-vue-tree v-model="nodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+						<sl-vue-tree v-model="nodes" ref="slVueTree" :allow-multiselect="false" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 
 							<template slot="title" slot-scope="{ node }">
 								<span class="item-icon">
@@ -173,7 +173,8 @@
 				databaseName: '-name-',
 				productTitle: 'The product title',
 				nodeIsSelected: false,
-				allNodesSelected: null,
+				nodesSelected: null,
+				numberOfNodesSelected: 0,
 				firstNodeSelected: null,
 				removeTitle: '',
 				insertTitle: '',
@@ -420,33 +421,71 @@
 		},
 
 		methods: {
+			itemTitleTrunc60(title) {
+				if (title.length <= 60) return title;
+				return title.substring(0, 56) + '...';
+			},
+
 			nodeSelected(nodes) {
 				this.nodeIsSelected = true;
-				this.selectedNodesTitle = nodes.map(node => node.title).join(', ');
-				this.lastEvent = `Select nodes: ${this.selectedNodesTitle}`;
-				this.allNodesSelected = nodes;
+				this.numberOfNodesSelected = nodes.length;
 				this.firstNodeSelected = nodes[0];
+				this.selectedNodesTitle = this.itemTitleTrunc60(nodes.map(node => node.title).join(', '));
+				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`;
+				this.nodesSelected = nodes;
 			},
 
 			nodeToggled(node) {
 				this.lastEvent = `Node ${node.title} is ${ node.isExpanded ? 'collapsed' : 'expanded'}`;
 			},
 
+			/**
+			/ Use undocumented event to:
+			/ - cancel drag to other than current level
+			/ - cancel drop inside other level
+			*/
+			beforeNodeDropped(draggingNodes, position, cancel) {
+//				console.log('beforeNodeDropped: draggingNodes[0].level = ' + draggingNodes[0].level + ' position.node.level = ' + position.node.level + ' position.placement = ' + position.placement)
+				var levelChange = Math.abs(draggingNodes[0].level - position.node.level)
+				if (levelChange > 1) {
+					cancel(true)
+					window.alert('Cannot drag to other than ' + this.getLevelText(draggingNodes[0].level) + ' level')
+					return
+				}
+
+				if (position.placement === 'after' || position.placement === 'before') {
+					if (draggingNodes[0].level != position.node.level) {
+						cancel(true)
+						window.alert('Cannot drop ' + this.getLevelText(draggingNodes[0].level) + ' inside ' + this.getLevelText(position.node.level - 1))
+						return
+					}
+				}
+
+				if (position.placement === 'inside') {
+					if (draggingNodes[0].level != position.node.level + 1) {
+						cancel(true)
+						window.alert('Cannot drop ' + this.getLevelText(draggingNodes[0].level) + ' inside other ' + this.getLevelText(position.node.level))
+						return
+					}
+				}
+			},
+
 			nodeDropped(nodes, position) {
-				this.lastEvent = `Nodes: ${nodes.map(node => node.title).join(', ')} are dropped ${position.placement} ${position.node.title}`;
+				this.lastEvent = `Node: ${this.itemTitleTrunc60(nodes.map(node => node.title).join(', '))} is dropped ${position.placement} ${position.node.title}`;
+//				console.log('      nodeDropped: draggingNodes[0].level = ' + nodes[0].level + ' position.node.level = ' + position.node.level + ' position.placement = ' + position.placement)
 			},
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
 				if (this.nodeIsSelected) {
-					this.removeTitle = this.allNodesSelected.length > 1 ? this.allNodesSelected.length + ' nodes will be removed' : 'One node will be removed';
+					this.removeTitle = this.numberOfNodesSelected > 1 ? this.numberOfNodesSelected + ' nodes will be removed' : 'One node will be removed';
 					this.$refs.removeModalRef.show();
 				}
 			},
 
 			doRemove() {
 				this.nodeIsSelected = false;
-				this.lastEvent = this.allNodesSelected.length > 1 ? 'Nodes are removed' : 'Node is removed'
+				this.lastEvent = this.numberOfNodesSelected > 1 ? 'Nodes are removed' : 'Node is removed'
 				const $slVueTree = this.$refs.slVueTree;
 				const paths = $slVueTree.getSelected().map(node => node.path);
 				$slVueTree.remove(paths);
@@ -461,13 +500,6 @@
 					}
 					this.$refs.insertModalRef.show();
 				}
-			},
-
-			doInsert() {
-				this.lastEvent = 'Node will be inserted';
-				const $slVueTree = this.$refs.slVueTree;
-				$slVueTree.insert(this.newNodeLocation, this.newNode);
-				this.nodeTypeSelected = 1;
 			},
 
 			getLevelText(level) {
@@ -542,6 +574,13 @@
 					return "Insert " + this.getLevelText(currentLevel + 1) + " as a child node"
 				}
 				return '' // Should never happen
+			},
+
+			doInsert() {
+				this.lastEvent = 'Node will be inserted';
+				const $slVueTree = this.$refs.slVueTree;
+				$slVueTree.insert(this.newNodeLocation, this.newNode);
+				this.nodeTypeSelected = 1;
 			},
 		},
 
