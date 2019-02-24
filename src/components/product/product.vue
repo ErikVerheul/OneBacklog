@@ -512,18 +512,45 @@
 
 			nodeDropped(draggingNodes, position) {
 				this.lastEvent = `Node(s): ${this.itemTitleTrunc60(draggingNodes.map(node => node.title).join(', '))} is/are dropped ${position.placement} ${position.node.title}`
-//				ToDo: this does not work
-//				var dropLevel = this.calcDropLevel(position)
-//				for (let i = 0; i < draggingNodes.length; i++) {
-//					if (dropLevel === 5) {
-//						draggingNodes[i].isLeaf = true
-//					} else {
-//						console.log('draggingNodes[' + i + '].isLeaf set to false')
-//						draggingNodes[i].isLeaf = false
-//					}
-//				}
-
-				console.log('nodeDropped: draggingNodes[0].level = ' + draggingNodes[0].level + ' position.node.level = ' + position.node.level + ' position.placement = ' + position.placement + ' haveDescendants(draggingNodes) = ' + this.haveDescendants(draggingNodes) + ' draggingNodes[0].isLeaf = ' + draggingNodes[0].isLeaf)
+				let fromLevel = draggingNodes[0].level
+				let dropLevel = this.calcDropLevel(position)
+				let levelChange = Math.abs(fromLevel - dropLevel)
+				const $slVueTree = this.$refs.slVueTree;
+				const paths = $slVueTree.getSelected().map(node => node.path);
+				for (let i = 0; i < paths.length; i++) {
+					if (levelChange === 0) {
+						// for now the PBI level is the highest level and always a leaf
+						if (dropLevel === 5) {
+							$slVueTree.updateNode(paths[i], {
+								isLeaf: true,
+								isExpanded: false,
+							})
+						} else {
+							// lower levels are not a leave
+							$slVueTree.updateNode(paths[i], {
+								isLeaf: false,
+								isExpanded: false,
+							})
+						}
+					} else {
+						let newTitle = '[type changed] ' + draggingNodes[i].title
+						// for now the PBI level is the highest level and always a leaf
+						if (dropLevel === 5) {
+							$slVueTree.updateNode(paths[i], {
+								isLeaf: true,
+								isExpanded: false,
+								title : newTitle
+							})
+						} else {
+							// lower levels are not a leave
+							$slVueTree.updateNode(paths[i], {
+								isLeaf: false,
+								isExpanded: false,
+								title : newTitle
+							})
+						}
+					}
+				}
 			},
 
 			showRemoveModal(node, event) {
