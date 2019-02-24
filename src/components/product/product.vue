@@ -29,7 +29,7 @@
 
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="tree-container" @mousedown.stop>
-						<sl-vue-tree v-model="nodes" ref="slVueTree" :allow-multiselect="false" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+						<sl-vue-tree v-model="nodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 
 							<template slot="title" slot-scope="{ node }">
 								<span class="item-icon">
@@ -197,11 +197,13 @@
 										"title": "Feature-A1",
 										"children": [{
 												"title": "PBI-A1-1",
+												"children": [],
 												"isLeaf": true,
 												"isSelected": false
 											},
 											{
 												"title": "PBI-A1-2",
+												"children": [],
 												"isLeaf": true,
 												"data": {
 													"visible": true
@@ -210,11 +212,13 @@
 											},
 											{
 												"title": "PBI-A1-3",
+												"children": [],
 												"isLeaf": true,
 												"isSelected": false
 											},
 											{
 												"title": "PBI-A1-4",
+												"children": [],
 												"isLeaf": true,
 												"isSelected": false
 											}
@@ -232,16 +236,19 @@
 										"title": "Feature-B1",
 										"children": [{
 												"title": "PBI-B1-1",
+												"children": [],
 												"isLeaf": true,
 												"isSelected": false
 											},
 											{
 												"title": "PBI-B1-2",
+												"children": [],
 												"isLeaf": true,
 												"isSelected": false
 											},
 											{
 												"title": "PBI-B1-3",
+												"children": [],
 												"isLeaf": true,
 												"data": {
 													"visible": true
@@ -250,11 +257,13 @@
 											},
 											{
 												"title": "PBI-B1-4",
+												"children": [],
 												"isLeaf": true,
 												"isSelected": false
 											},
 											{
 												"title": "PBI-B1-5",
+												"children": [],
 												"isLeaf": true,
 												"isSelected": false
 											}
@@ -439,40 +448,82 @@
 				this.lastEvent = `Node ${node.title} is ${ node.isExpanded ? 'collapsed' : 'expanded'}`;
 			},
 
-			/**
-			/ Use undocumented event to:
-			/ - cancel drag to other than current level
-			/ - cancel drop inside other level
-			*/
-			beforeNodeDropped(draggingNodes, position, cancel) {
-//				console.log('beforeNodeDropped: draggingNodes[0].level = ' + draggingNodes[0].level + ' position.node.level = ' + position.node.level + ' position.placement = ' + position.placement)
-				var levelChange = Math.abs(draggingNodes[0].level - position.node.level)
-				if (levelChange > 1) {
-					cancel(true)
-					window.alert('Cannot drag to other than ' + this.getLevelText(draggingNodes[0].level) + ' level')
-					return
-				}
-
-				if (position.placement === 'after' || position.placement === 'before') {
-					if (draggingNodes[0].level != position.node.level) {
-						cancel(true)
-						window.alert('Cannot drop ' + this.getLevelText(draggingNodes[0].level) + ' inside ' + this.getLevelText(position.node.level - 1))
-						return
+			haveDescendants(nodes) {
+				for (let i = 0; i < nodes.length; i++) {
+					if (nodes[i].children.length != 0) {
+						return true
 					}
-				}
-
-				if (position.placement === 'inside') {
-					if (draggingNodes[0].level != position.node.level + 1) {
-						cancel(true)
-						window.alert('Cannot drop ' + this.getLevelText(draggingNodes[0].level) + ' inside other ' + this.getLevelText(position.node.level))
-						return
-					}
+					return false
 				}
 			},
 
-			nodeDropped(nodes, position) {
-				this.lastEvent = `Node: ${this.itemTitleTrunc60(nodes.map(node => node.title).join(', '))} is dropped ${position.placement} ${position.node.title}`;
-//				console.log('      nodeDropped: draggingNodes[0].level = ' + nodes[0].level + ' position.node.level = ' + position.node.level + ' position.placement = ' + position.placement)
+			haveSameLevel(nodes) {
+				var level = nodes[0].level
+				for (let i = 0; i < nodes.length; i++) {
+					if (nodes[i].level != level) {
+						return false
+					}
+					return true
+				}
+			},
+
+			calcDropLevel(position) {
+				if (position.placement == 'before' || position.placement == 'after') {
+					return position.node.level
+				} else {
+					// inside
+					return position.node.level + 1
+				}
+			},
+
+			/**
+			/ Use undocumented event to:
+			/ - cancel drag of items on different levels
+			/ - cancel drop on other level (change of type) when having children
+			/ - cancel drop when moving over more than 1 level
+			*/
+			beforeNodeDropped(draggingNodes, position, cancel) {
+				if (!this.haveSameLevel(draggingNodes)) {
+					cancel(true)
+					return
+				}
+
+				let fromLevel = draggingNodes[0].level
+				let dropLevel = this.calcDropLevel(position)
+
+				let levelChange = Math.abs(fromLevel - dropLevel)
+				if (levelChange === 0) {
+					// just sorting
+					return
+				}
+
+				if (levelChange === 1 && this.haveDescendants(draggingNodes)) {
+					// change of type only allowed without children
+					cancel(true)
+					return
+				}
+
+				if (levelChange > 1) {
+					// cannot change type over more than 1 level
+					cancel(true)
+					return
+				}
+			},
+
+			nodeDropped(draggingNodes, position) {
+				this.lastEvent = `Node(s): ${this.itemTitleTrunc60(draggingNodes.map(node => node.title).join(', '))} is/are dropped ${position.placement} ${position.node.title}`
+//				ToDo: this does not work
+//				var dropLevel = this.calcDropLevel(position)
+//				for (let i = 0; i < draggingNodes.length; i++) {
+//					if (dropLevel === 5) {
+//						draggingNodes[i].isLeaf = true
+//					} else {
+//						console.log('draggingNodes[' + i + '].isLeaf set to false')
+//						draggingNodes[i].isLeaf = false
+//					}
+//				}
+
+				console.log('nodeDropped: draggingNodes[0].level = ' + draggingNodes[0].level + ' position.node.level = ' + position.node.level + ' position.placement = ' + position.placement + ' haveDescendants(draggingNodes) = ' + this.haveDescendants(draggingNodes) + ' draggingNodes[0].isLeaf = ' + draggingNodes[0].isLeaf)
 			},
 
 			showRemoveModal(node, event) {
