@@ -25,7 +25,7 @@ The authentication is based on the following roles:
 - 'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.
 - 'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.
 - 'developer': Can create and maintain pbi's and features for the assigned products.
-- 'guest': Can only view the items of the assigned products. Has no access to the requirements area view.
+- 'guest': Can only view the items of the assigned products. Has no access to the requirements area view.<br />
 Users can have multiple roles.
 
 <b>Design basics:</b><br />
@@ -34,7 +34,7 @@ a product consists of:
 - <b>features</b> which consists of
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
 - <b>tasks</b> (NOT IN MVP) and
-- <b>multiple requirement areas can be maintained on the feature level across products.
+- <b>multiple requirement areas</b> can be maintained on the feature level across products.
 
 <b>Other design choices:</b><br />
 The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
