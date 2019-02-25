@@ -18,6 +18,16 @@ As super PO I need one integrated tool to manage the product backlog of all my p
 <b>Security:</b><br />
 The database has secure https access
 
+<b>Authentication:</b><br />
+The authentication is based on the following roles:
+- '_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.
+- 'admin': Can create and assign users to products. Is also a guest to all products.
+- 'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.
+- 'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.
+- 'developer': Can create and maintain pbi's and features for the assigned products.
+- 'guest': Can only view the items of the assigned products. Has no access to the requirements area view.
+Users can have multiple roles.
+
 <b>Design basics:</b><br />
 a product consists of:
 - <b>epics</b> which consists of

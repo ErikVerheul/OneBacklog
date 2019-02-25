@@ -40,6 +40,8 @@ export default new Vuex.Store({
     authUser (state, userData) {
       state.user = userData.user
       state.roles = userData.roles
+			// move to product page
+			router.push('/product')
     },
     storeUser (state, user) {
       state.user = user

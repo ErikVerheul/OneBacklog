@@ -24,9 +24,6 @@
         <b-nav-item-dropdown text="Select your view" right>
           <b-dropdown-item to ="../../product">Products</b-dropdown-item>
           <b-dropdown-item to ="../../reqsarea">Requirement areas</b-dropdown-item>
-          <b-dropdown-item to ="../../epic">Epics</b-dropdown-item>
-          <b-dropdown-item to ="../../feature">Features</b-dropdown-item>
-          <b-dropdown-item to ="../../pbi">Backlog items</b-dropdown-item>
         </b-nav-item-dropdown>
 
         <b-nav-item-dropdown right>

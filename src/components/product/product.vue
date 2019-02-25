@@ -534,7 +534,7 @@
 						}
 					} else {
 						let newTitle = '[type changed] ' + draggingNodes[i].title
-						// for now the PBI level is the highest level and always a leaf
+						// warn the user when he dropped the node(s) on another level
 						if (dropLevel === 5) {
 							$slVueTree.updateNode(paths[i], {
 								isLeaf: true,
