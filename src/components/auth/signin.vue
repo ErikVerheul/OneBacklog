@@ -27,7 +27,7 @@
             </form>
           </div>
           <div class="text-center">
-            No account yet? Ask your PO to create one.
+            No account yet? Ask your SM or PO to create one.
           </div>
         </div>
     </div>
