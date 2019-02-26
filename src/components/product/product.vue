@@ -585,6 +585,9 @@
 					if (clickedLevel === 5) {
 						this.insertOptionSelected = 1; //Cannot create child below PBI
 					}
+					if (clickedLevel === 1) {
+						this.insertOptionSelected = 2; //Cannot create a database here
+					}
 					this.$refs.insertModalRef.show();
 				}
 			},
@@ -609,7 +612,8 @@
 			getNodeTypeOptions() {
 				let options = [{
 						text: 'Option 1',
-						value: 1
+						value: 1,
+						disabled: false
 					},
 					{
 						text: 'Option 2',
@@ -622,6 +626,8 @@
 				options[1].text = this.getLevelText(clickedLevel + 1);
 				// Disable the option to create a node below a PBI
 				if (clickedLevel === 5) options[1].disabled = true;
+				// Disable the option to create a new database
+				if (clickedLevel === 1) options[0].disabled = true;
 				return options
 			},
 
