@@ -631,6 +631,8 @@
 				return options
 			},
 
+
+
 			prepareInsert() {
 				var clickedLevel = this.firstNodeSelected.level
 				var insertLevel = clickedLevel
@@ -646,10 +648,12 @@
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
-						isSelectable: true
+						isSelectable: true,
+						isSelected: true
 					}
 					return "Insert " + this.getLevelText(insertLevel) + " below the selected node"
 				}
+
 				if (this.insertOptionSelected === 2) {
 					// New node is a child placed a level lower (inside) than the selected node
 					insertLevel = clickedLevel + 1
@@ -663,10 +667,12 @@
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
-						isSelectable: true
+						isSelectable: true,
+						isSelected: true
 					}
 					return "Insert " + this.getLevelText(insertLevel) + " as a child node"
 				}
+
 				return '' // Should never happen
 			},
 
@@ -675,6 +681,11 @@
 				const $slVueTree = this.$refs.slVueTree;
 				$slVueTree.insert(this.newNodeLocation, this.newNode);
 				this.insertOptionSelected = 1; //Restore default
+				// Unselect the node that was clicked before the insert
+				const paths = $slVueTree.getSelected().map(node => node.path);
+				$slVueTree.updateNode(paths[0], {
+					isSelected: false
+				})
 			},
 
 			doCancelInsert() {
