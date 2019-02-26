@@ -150,7 +150,7 @@
 		</template>
 		<template v-if="this.nodeIsSelected">
 			<div>
-				<b-modal ref='insertModalRef' @ok="doInsert" title='Insert a new item to your backlog'>
+				<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
 					<b-form-group label="Select what node type to insert:">
 						<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
 					</b-form-group>
@@ -674,8 +674,12 @@
 				this.lastEvent = 'Node is inserted';
 				const $slVueTree = this.$refs.slVueTree;
 				$slVueTree.insert(this.newNodeLocation, this.newNode);
-				this.insertOptionSelected = 1;
+				this.insertOptionSelected = 1; //Restore default
 			},
+
+			doCancelInsert() {
+				this.insertOptionSelected = 1; //Restore default
+			}
 		},
 
 		components: {
