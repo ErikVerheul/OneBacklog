@@ -150,7 +150,7 @@
 		</template>
 		<template v-if="this.nodeIsSelected">
 			<div>
-				<b-modal ref='insertModalRef' @ok="doInsert" :title=this.insertTitle>
+				<b-modal ref='insertModalRef' @ok="doInsert" title='Insert a new item to your backlog'>
 					<b-form-group label="Select what node type to insert:">
 						<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
 					</b-form-group>
@@ -184,7 +184,6 @@
 				numberOfNodesSelected: 0,
 				firstNodeSelected: null,
 				removeTitle: '',
-				insertTitle: '',
 				newNodeLocation: {},
 				insertOptionSelected: 1, //default to sibling node (no creation of descendant)
 				newNode: {},
@@ -498,10 +497,10 @@
 					return
 				}
 
-				let fromLevel = draggingNodes[0].level
+				let clickedLevel = draggingNodes[0].level
 				let dropLevel = this.calcDropLevel(position)
 
-				let levelChange = Math.abs(fromLevel - dropLevel)
+				let levelChange = Math.abs(clickedLevel - dropLevel)
 				if (levelChange === 0) {
 					// just sorting
 					return
@@ -522,9 +521,9 @@
 
 			nodeDropped(draggingNodes, position) {
 				this.lastEvent = `Node(s): ${this.itemTitleTrunc60(draggingNodes.map(node => node.title).join(', '))} is/are dropped ${position.placement} ${position.node.title}`
-				let fromLevel = draggingNodes[0].level
+				let clickedLevel = draggingNodes[0].level
 				let dropLevel = this.calcDropLevel(position)
-				let levelChange = Math.abs(fromLevel - dropLevel)
+				let levelChange = Math.abs(clickedLevel - dropLevel)
 				const $slVueTree = this.$refs.slVueTree;
 				const paths = $slVueTree.getSelected().map(node => node.path);
 				for (let i = 0; i < paths.length; i++) {
@@ -582,8 +581,8 @@
 			showInsertModal(node, event) {
 				event.preventDefault();
 				if (this.nodeIsSelected) {
-					let fromLevel = this.firstNodeSelected.level;
-					if (fromLevel === 5) {
+					let clickedLevel = this.firstNodeSelected.level;
+					if (clickedLevel === 5) {
 						this.insertOptionSelected = 1; //Cannot create child below PBI
 					}
 					this.$refs.insertModalRef.show();
@@ -618,17 +617,17 @@
 						disabled: false
 					}
 				];
-				var fromLevel = this.firstNodeSelected.level;
-				options[0].text = this.getLevelText(fromLevel);
-				options[1].text = this.getLevelText(fromLevel + 1);
+				var clickedLevel = this.firstNodeSelected.level;
+				options[0].text = this.getLevelText(clickedLevel);
+				options[1].text = this.getLevelText(clickedLevel + 1);
 				// Disable the option to create a node below a PBI
-				if (fromLevel === 5) options[1].disabled = true;
+				if (clickedLevel === 5) options[1].disabled = true;
 				return options
 			},
 
 			prepareInsert() {
-				var fromLevel = this.firstNodeSelected.level
-				var toLevel = fromLevel
+				var clickedLevel = this.firstNodeSelected.level
+				var insertLevel = clickedLevel
 				if (this.insertOptionSelected === 1) {
 					// New node is a sibling placed below (after) the selected node
 					this.newNodeLocation = {
@@ -636,31 +635,31 @@
 						placement: 'after'
 					}
 					this.newNode = {
-						title: 'New ' + this.getLevelText(toLevel),
-						isLeaf: (toLevel < 5) ? false : true, // for now PBI's (level 5) have no children
+						title: 'New ' + this.getLevelText(insertLevel),
+						isLeaf: (insertLevel < 5) ? false : true, // for now PBI's (level 5) have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
 						isSelectable: true
 					}
-					return "Insert " + this.getLevelText(toLevel) + " below the selected node"
+					return "Insert " + this.getLevelText(insertLevel) + " below the selected node"
 				}
 				if (this.insertOptionSelected === 2) {
 					// New node is a child placed a level lower (inside) than the selected node
-					toLevel = fromLevel++
+					insertLevel = clickedLevel + 1
 					this.newNodeLocation = {
 						node: this.firstNodeSelected,
 						placement: 'inside'
 					}
 					this.newNode = {
-						title: 'New ' + this.getLevelText(toLevel),
-						isLeaf: (toLevel < 5) ? false : true, // for now PBI's (level 5) have no children
+						title: 'New ' + this.getLevelText(insertLevel),
+						isLeaf: (insertLevel < 5) ? false : true, // for now PBI's (level 5) have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
 						isSelectable: true
 					}
-					return "Insert " + this.getLevelText(toLevel) + " as a child node"
+					return "Insert " + this.getLevelText(insertLevel) + " as a child node"
 				}
 				return '' // Should never happen
 			},
