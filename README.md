@@ -95,7 +95,7 @@ Viewers can only read the information of the products assigned to them.
 
 - Product, epic, feature, pbi, task and requirement area names are mapped to a key. That key is used for reference purposes so that the name can be updated independently.
 - The history of products, epics, features, pbi's are stored and easily accessible. The type of epic, feature and pbi can be changed among each other.
-- A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi is he is allowed to.
+- A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
 - Users can add comments to an item.
 - NOT IN MVP: Attachments can be added to each backlog item type.
 
