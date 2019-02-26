@@ -126,6 +126,13 @@
 									</div>
 								</li>
 							</ul>
+							<ul v-if="selected==='history'">
+								<li v-for="hist in history" :key=hist.authorAndIssueDate>
+									<div v-for="(value, key) in hist" :key=key>
+										{{ key }} {{ value }}
+									</div>
+								</li>
+							</ul>
 						</div>
 					</multipane>
 				</div>
@@ -145,7 +152,7 @@
 			<div>
 				<b-modal ref='insertModalRef' @ok="doInsert" :title=this.insertTitle>
 					<b-form-group label="Select what node type to insert:">
-						<b-form-radio-group v-model="nodeTypeSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
+						<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
 					</b-form-group>
 					<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
 				</b-modal>
@@ -179,7 +186,7 @@
 				removeTitle: '',
 				insertTitle: '',
 				newNodeLocation: {},
-				nodeTypeSelected: 1, //default to sibling node (not descendant)
+				insertOptionSelected: 1, //default to sibling node (no creation of descendant)
 				newNode: {},
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
@@ -385,6 +392,10 @@
 						text: 'Attachments',
 						value: 'attachments',
 					},
+					{
+						text: 'History',
+						value: 'history',
+					}
 				],
 				comments: [{
 						'Author and issue date:': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
@@ -411,15 +422,14 @@
 						'Comment:': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 					},
 
-					{
-						'Author and issue date:': "Erik Verheul @ Thu Jan 15 2019 17:26:48 GMT+0100",
-						'Comment:': "[LAST ELEMENT IN ARRAY] Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-					},
-
 				],
 				attachments: [{
 					'Author and issue date:': "Erik Verheul @ Wed Jan 30 2019 15:26:48 GMT-0400",
 					'link:': "file location"
+				}],
+				history: [{
+					'Author and issue date:': "Erik Verheul @ Wed Feb 26 2019 09:53:48 GMT+0100",
+					'Change:': "Description of PBI with id PBI-A1-1 changed from 'Setup database.' to 'Setup database and provide test content'"
 				}],
 			}
 		},
@@ -539,14 +549,14 @@
 							$slVueTree.updateNode(paths[i], {
 								isLeaf: true,
 								isExpanded: false,
-								title : newTitle
+								title: newTitle
 							})
 						} else {
 							// lower levels are not a leave
 							$slVueTree.updateNode(paths[i], {
 								isLeaf: false,
 								isExpanded: false,
-								title : newTitle
+								title: newTitle
 							})
 						}
 					}
@@ -572,9 +582,9 @@
 			showInsertModal(node, event) {
 				event.preventDefault();
 				if (this.nodeIsSelected) {
-					var currentLevel = this.firstNodeSelected.level;
-					if (currentLevel === 5) {
-						this.nodeTypeSelected = 1; //Cannot create child from PBI
+					let fromLevel = this.firstNodeSelected.level;
+					if (fromLevel === 5) {
+						this.insertOptionSelected = 1; //Cannot create child below PBI
 					}
 					this.$refs.insertModalRef.show();
 				}
@@ -598,67 +608,68 @@
 			},
 
 			getNodeTypeOptions() {
-				var options = [{
+				let options = [{
 						text: 'Option 1',
-						value: 'first'
+						value: 1
 					},
 					{
 						text: 'Option 2',
-						value: 'second',
+						value: 2,
 						disabled: false
 					}
 				];
-				var currentLevel = this.firstNodeSelected.level;
-				options[0].text = this.getLevelText(currentLevel);
-				options[0].value = 1;
-				options[1].text = this.getLevelText(currentLevel + 1);
-				options[1].value = 2;
-				if (currentLevel === 5) options[1].disabled = true;
+				var fromLevel = this.firstNodeSelected.level;
+				options[0].text = this.getLevelText(fromLevel);
+				options[1].text = this.getLevelText(fromLevel + 1);
+				// Disable the option to create a node below a PBI
+				if (fromLevel === 5) options[1].disabled = true;
 				return options
 			},
 
 			prepareInsert() {
-				var currentLevel = this.firstNodeSelected.level
-				if (this.nodeTypeSelected === 1) {
+				var fromLevel = this.firstNodeSelected.level
+				var toLevel = fromLevel
+				if (this.insertOptionSelected === 1) {
 					// New node is a sibling placed below (after) the selected node
 					this.newNodeLocation = {
 						node: this.firstNodeSelected,
 						placement: 'after'
 					}
 					this.newNode = {
-						title: 'New ' + this.getLevelText(currentLevel),
-						isLeaf: (currentLevel < 4) ? false : true, // for now PBI's have no children,
+						title: 'New ' + this.getLevelText(toLevel),
+						isLeaf: (toLevel < 5) ? false : true, // for now PBI's (level 5) have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
 						isSelectable: true
 					}
-					return "Insert " + this.getLevelText(currentLevel) + " below the selected node"
+					return "Insert " + this.getLevelText(toLevel) + " below the selected node"
 				}
-				if (this.nodeTypeSelected === 2) {
+				if (this.insertOptionSelected === 2) {
 					// New node is a child placed a level lower (inside) than the selected node
+					toLevel = fromLevel++
 					this.newNodeLocation = {
 						node: this.firstNodeSelected,
 						placement: 'inside'
 					}
 					this.newNode = {
-						title: 'New ' + this.getLevelText(currentLevel + 1),
-						isLeaf: (currentLevel < 4) ? false : true, // for now PBI's (level 5) have no children,
+						title: 'New ' + this.getLevelText(toLevel),
+						isLeaf: (toLevel < 5) ? false : true, // for now PBI's (level 5) have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
 						isSelectable: true
 					}
-					return "Insert " + this.getLevelText(currentLevel + 1) + " as a child node"
+					return "Insert " + this.getLevelText(toLevel) + " as a child node"
 				}
 				return '' // Should never happen
 			},
 
 			doInsert() {
-				this.lastEvent = 'Node will be inserted';
+				this.lastEvent = 'Node is inserted';
 				const $slVueTree = this.$refs.slVueTree;
 				$slVueTree.insert(this.newNodeLocation, this.newNode);
-				this.nodeTypeSelected = 1;
+				this.insertOptionSelected = 1;
 			},
 		},
 
