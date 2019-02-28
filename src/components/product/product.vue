@@ -562,7 +562,8 @@
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
-				if (this.nodeIsSelected) {
+				// Node must be selected first && Cannot remove on the database level
+				if (this.nodeIsSelected && node.level > 1) {
 					this.removeTitle = this.numberOfNodesSelected > 1 ? this.numberOfNodesSelected + ' nodes will be removed' : 'One node will be removed';
 					this.$refs.removeModalRef.show();
 				}
