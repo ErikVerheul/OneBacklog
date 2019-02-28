@@ -796,50 +796,19 @@
 	}
 
 	//tree stuff
-	body {
-		background: #050d12;
-		font-family: Arial;
-		color: rgba(255, 255, 255, 0.5);
-	}
-
-	.contextmenu {
-		position: absolute;
-		background-color: white;
-		color: black;
-		border-radius: 2px;
-		cursor: pointer;
-	}
-
-	.contextmenu>div {
-		padding: 10px;
-	}
-
-	.contextmenu>div:hover {
-		background-color: rgba(100, 100, 255, 0.5);
-	}
 
 	.last-event {
 		color: white;
-		background-color: rgba(100, 100, 255, 0.5);
+		background-color: #408FAE;
 		padding: 10px;
 		border-radius: 2px;
-	}
-
-	.tree-container {
-		flex-grow: 1;
-	}
-
-	.sl-vue-tree.sl-vue-tree-root {
-		flex-grow: 1;
-		overflow-x: hidden;
-		overflow-y: auto;
-		height: 100%;
 	}
 
 	.item-icon {
 		display: inline-block;
 		text-align: left;
 		width: 20px;
+		color: skyblue;
 	}
 
 </style>
