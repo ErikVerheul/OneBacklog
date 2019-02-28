@@ -180,6 +180,7 @@
 				nodeIsSelected: false,
 				numberOfNodesSelected: 0,
 				firstNodeSelected: null,
+				nodeToRemove: null,
 				removeTitle: '',
 				newNodeLocation: {},
 				insertOptionSelected: 1, //default to sibling node (no creation of descendant)
@@ -562,19 +563,22 @@
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
-				// Node must be selected first && Cannot remove on the database level
-				if (this.nodeIsSelected && node.level > 1) {
+				// Node must be selected first && User cannot remove on the database level && Only one node can be selected
+				if (this.nodeIsSelected && node.level > 1 && this.numberOfNodesSelected === 1) {
 					this.removeTitle = this.numberOfNodesSelected > 1 ? this.numberOfNodesSelected + ' nodes will be removed' : 'One node will be removed';
+					this.nodeToRemove = node
+					this.removeTitle = this.getLevelText(node.level) + ' ' + this.itemTitleTrunc60(node.title) + ' will be removed'
 					this.$refs.removeModalRef.show();
 				}
 			},
 
 			doRemove() {
-				this.nodeIsSelected = false;
-				this.lastEvent = this.numberOfNodesSelected > 1 ? 'Nodes are removed' : 'Node is removed' + ' ; no node(s) selected'
-				const $slVueTree = this.$refs.slVueTree;
-				const paths = $slVueTree.getSelected().map(node => node.path);
-				$slVueTree.remove(paths);
+				this.lastEvent =  this.getLevelText(this.nodeToRemove.level) + ' is removed'
+				const $slVueTree = this.$refs.slVueTree
+				const paths = $slVueTree.getSelected().map(node => node.path)
+				$slVueTree.remove(paths)
+				this.nodeIsSelected = false
+				this.nodeToRemove = null
 			},
 
 			showInsertModal(node, event) {
