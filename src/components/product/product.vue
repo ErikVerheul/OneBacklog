@@ -180,7 +180,6 @@
 				databaseName: '-name-',
 				productTitle: 'The product title',
 				nodeIsSelected: false,
-				nodesSelected: null,
 				numberOfNodesSelected: 0,
 				firstNodeSelected: null,
 				removeTitle: '',
@@ -450,7 +449,6 @@
 				this.firstNodeSelected = nodes[0];
 				this.selectedNodesTitle = this.itemTitleTrunc60(nodes.map(node => node.title).join(', '));
 				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`;
-				this.nodesSelected = nodes;
 			},
 
 			nodeToggled(node) {
@@ -520,7 +518,6 @@
 			},
 
 			nodeDropped(draggingNodes, position) {
-				this.lastEvent = `Node(s): ${this.itemTitleTrunc60(draggingNodes.map(node => node.title).join(', '))} is/are dropped ${position.placement} ${position.node.title}`
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = this.calcDropLevel(position)
 				let levelChange = Math.abs(clickedLevel - dropLevel)
@@ -542,24 +539,27 @@
 							})
 						}
 					} else {
-						let newTitle = '[type changed] ' + draggingNodes[i].title
 						// warn the user when he dropped the node(s) on another level
 						if (dropLevel === 5) {
 							$slVueTree.updateNode(paths[i], {
 								isLeaf: true,
 								isExpanded: false,
-								title: newTitle
 							})
 						} else {
 							// lower levels are not a leave
 							$slVueTree.updateNode(paths[i], {
 								isLeaf: false,
 								isExpanded: false,
-								title: newTitle
 							})
 						}
 					}
 				}
+				if ((draggingNodes.length) === 1) {
+					this.lastEvent = `Node: ${this.itemTitleTrunc60(draggingNodes.map(node => node.title).join(', '))} is dropped ${position.placement} ${position.node.title}`
+				} else {
+					this.lastEvent = `Nodes: ${this.itemTitleTrunc60(draggingNodes.map(node => node.title).join(', '))} are dropped ${position.placement} ${position.node.title}`
+				}
+				if (levelChange > 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
 			},
 
 			showRemoveModal(node, event) {
@@ -572,7 +572,7 @@
 
 			doRemove() {
 				this.nodeIsSelected = false;
-				this.lastEvent = this.numberOfNodesSelected > 1 ? 'Nodes are removed' : 'Node is removed'
+				this.lastEvent = this.numberOfNodesSelected > 1 ? 'Nodes are removed' : 'Node is removed' + ' ; no node(s) selected'
 				const $slVueTree = this.$refs.slVueTree;
 				const paths = $slVueTree.getSelected().map(node => node.path);
 				$slVueTree.remove(paths);
