@@ -8,7 +8,6 @@
 						<b-img left :src="require('../../assets/logo.png')" height="100%" alt="OneBacklog logo" />
 					</div>
 					<div class="d-table-cell w-100 tac">
-						<h1>Database {{ databaseName }}</h1>
 						<div>
 							<h3>Product T-Shirt size:
 								<input type="text" size="3" maxlength="3" id="productTitle" v-model.lazy="tShirtSize" />
@@ -177,7 +176,6 @@
 	export default {
 		data() {
 			return {
-				databaseName: '-name-',
 				productTitle: 'The product title',
 				nodeIsSelected: false,
 				numberOfNodesSelected: 0,
@@ -809,6 +807,18 @@
 		text-align: left;
 		width: 20px;
 		color: skyblue;
+	}
+
+	.tree-container {
+		flex-grow: 1;
+		height: 100%;
+	}
+
+	.sl-vue-tree.sl-vue-tree-root {
+		flex-grow: 1;
+		overflow-x: hidden;
+		overflow-y: auto;
+		height: 100%;
 	}
 
 </style>
