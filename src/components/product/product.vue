@@ -180,7 +180,6 @@
 				nodeIsSelected: false,
 				numberOfNodesSelected: 0,
 				firstNodeSelected: null,
-				nodeToRemove: null,
 				removeTitle: '',
 				newNodeLocation: {},
 				insertOptionSelected: 1, //default to sibling node (no creation of descendant)
@@ -561,24 +560,46 @@
 				if (levelChange > 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
 			},
 
+			countDescendants(path) {
+				const $slVueTree = this.$refs.slVueTree
+				let count = 0
+				let doCount = false
+				let initLevel = 0
+
+				$slVueTree.traverse((node) => {
+					if ($slVueTree.comparePaths(node.path, path) == 0) {
+						initLevel = node.level
+						doCount = true
+					} else {
+						if (node.level <= initLevel) return false
+
+						if ($slVueTree.comparePaths(node.path, path) == 1) {
+							if (doCount) {
+								count++
+							}
+						}
+					}
+				});
+				return count;
+			},
+
 			showRemoveModal(node, event) {
 				event.preventDefault();
 				// Node must be selected first && User cannot remove on the database level && Only one node can be selected
 				if (this.nodeIsSelected && node.level > 1 && this.numberOfNodesSelected === 1) {
-					this.removeTitle = this.numberOfNodesSelected > 1 ? this.numberOfNodesSelected + ' nodes will be removed' : 'One node will be removed';
-					this.nodeToRemove = node
-					this.removeTitle = this.getLevelText(node.level) + ' ' + this.itemTitleTrunc60(node.title) + ' will be removed'
+					this.removeTitle = `This ${this.getLevelText(node.level)} and ${this.countDescendants(node.path)} descendants will be removed`
 					this.$refs.removeModalRef.show();
 				}
 			},
 
 			doRemove() {
-				this.lastEvent =  this.getLevelText(this.nodeToRemove.level) + ' is removed'
 				const $slVueTree = this.$refs.slVueTree
-				const paths = $slVueTree.getSelected().map(node => node.path)
+				const selectedNodes = $slVueTree.getSelected()
+				this.lastEvent = `The ${this.getLevelText(selectedNodes[0].level)} and ${this.countDescendants(selectedNodes[0].path)} descendants are removed`
+				const paths = selectedNodes.map(node => node.path)
 				$slVueTree.remove(paths)
+				// After removal no node is selected
 				this.nodeIsSelected = false
-				this.nodeToRemove = null
 			},
 
 			showInsertModal(node, event) {
