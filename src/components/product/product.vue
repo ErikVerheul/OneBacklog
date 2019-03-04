@@ -436,16 +436,16 @@
 		},
 
 		methods: {
-			itemTitleTrunc60(title) {
-				if (title.length <= 60) return title;
-				return title.substring(0, 56) + '...';
+			itemTitleTrunc(length, title) {
+				if (title.length <= length) return title;
+				return title.substring(0, length - 4) + '...';
 			},
 
 			nodeSelected(nodes) {
 				this.nodeIsSelected = true;
 				this.numberOfNodesSelected = nodes.length;
 				this.firstNodeSelected = nodes[0];
-				this.selectedNodesTitle = this.itemTitleTrunc60(nodes.map(node => node.title).join(', '));
+				this.selectedNodesTitle = this.itemTitleTrunc(60, nodes.map(node => node.title).join(', '));
 				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`;
 			},
 
@@ -530,7 +530,7 @@
 								isExpanded: false,
 							})
 						} else {
-							// lower levels are not a leave
+							// lower levels are not a leaf
 							$slVueTree.updateNode(paths[i], {
 								isLeaf: false,
 								isExpanded: false,
@@ -553,9 +553,9 @@
 					}
 				}
 				if ((draggingNodes.length) === 1) {
-					this.lastEvent = `Node: ${this.itemTitleTrunc60(draggingNodes.map(node => node.title).join(', '))} is dropped ${position.placement} ${position.node.title}`
+					this.lastEvent = `Node: ${this.itemTitleTrunc(60, draggingNodes.map(node => node.title).join(', '))} is dropped ${position.placement} ${position.node.title}`
 				} else {
-					this.lastEvent = `Nodes: ${this.itemTitleTrunc60(draggingNodes.map(node => node.title).join(', '))} are dropped ${position.placement} ${position.node.title}`
+					this.lastEvent = `Nodes: ${this.itemTitleTrunc(60, draggingNodes.map(node => node.title).join(', '))} are dropped ${position.placement} ${position.node.title}`
 				}
 				if (levelChange > 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
 			},
