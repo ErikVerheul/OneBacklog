@@ -455,60 +455,59 @@ const actions = {
 const initUsers = {
 	"data": [
 		{
-			"name": "Jan",
+			"name": "Jan Klaassen",
 			"password": "Jan",
 			"roles": ["admin", "superPO"],
 			"type": "user",
 			"email": "jan@mycompany.nl",
-			"databases": ['a', 'b', 'c', 'd'],
+			"databases": ['a', 'b'],
 			"currentDb": 'a'
-  },
+		},
 		{
 			"name": "Herman",
 			"password": "Herman",
 			"roles": ["admin", "PO"],
 			"type": "user",
 			"email": "herman@mycompany.nl",
-			"databases": ['a', 'b', 'c', 'd'],
+			"databases": ['a', 'b'],
 			"currentDb": 'a'
-  },
+		},
 		{
 			"name": "Piet",
 			"password": "Piet",
 			"roles": ["developer"],
 			"type": "user",
 			"email": "piet@mycompany.nl",
-			"databases": ['a', 'b', 'c', 'd'],
+			"databases": ['a', 'b'],
 			"currentDb": 'a'
-  },
+		},
 		{
 			"name": "Mechteld",
 			"password": "Mechteld",
 			"roles": ["developer"],
 			"type": "user",
 			"email": "mechteld@mycompany.nl",
-			"databases": ['a', 'b', 'c', 'd'],
+			"databases": ['a', 'b'],
 			"currentDb": 'a'
-  },
+		},
 		{
 			"name": "Henk",
 			"password": "Henk",
 			"roles": ["viewer"],
 			"type": "user",
-			"email": "",
-			"databases": ['a', 'b', 'c', 'd'],
+			"email": "henk@mycompany.nl",
+			"databases": ['a', 'b'],
 			"currentDb": 'a'
-  },
+		},
 		{
 			"name": "guest",
 			"password": "guest",
 			"roles": ["guest"],
 			"type": "user",
-			"email": "",
-			"databases": [],
-			"currentDb": null
-  }
-]
+			"email": "guest@mycompany.nl",
+			"databases": ['a'],
+			"currentDb": 'a'
+		}]
 }
 
 const initUsersDbSecurity = {
@@ -539,10 +538,10 @@ const configData = {
 			"_id": "config",
 			"type": "config",
 			"data": {
-				"changedBy": "Jan",
+				"changedBy": "Erik",
 				"changeDate": 1546005201189,
 
-				"status": [
+				"state": [
           "New",
           "Ready",
           "In progress",
@@ -550,27 +549,47 @@ const configData = {
           "Done",
           "Removed"
         ],
-				"statusDefinition": [
-          "The status New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
-          "The status Ready means that the item is understood well enough by the team for realization in a sprint",
-          "The status 'In progress' means that the item is worked on in a (past) sprint",
-          "The status 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
-          "The status Done means that the item is ready for deployment and meets all criteria set by the definition of done",
-          "The status Removed means that work on the item will never start or was cancelled"
+				"stateDefinition": [
+          "0-The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
+          "1-The state Ready means that the item is understood well enough by the team for realization in a sprint",
+          "2-The state 'In progress' means that the item is worked on in a (past) sprint",
+          "3-The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
+          "4-The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
+          "5-The state Removed means that work on the item will never start or was cancelled"
         ],
 
-				"pbi-type": [
+				"tssize": [
+					"XXL",
+					"XL",
+					"L",
+					"M",
+					"S",
+					"XS",
+					"XXS"
+				],
+				"tssizeDefinition": [
+					"0-XXL Extra-extra large effort involved",
+					"1-XL  Extra large effort involved",
+					"2-L   Large effort involved",
+					"3-M   Medium effort involved",
+					"4-S   Small effort involved",
+					"5-XS  Extra small effort involved",
+					"6-XXS Almost none effort involved"
+				],
+
+				// For now the subtype field is used only for pbi's
+				"subtype": [
           "User story",
           "Spike",
           "Defect"
         ],
-				"pbi-typeDefinition": [
-          "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
-          "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
-          "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
+				"subtypeDefinition": [
+          "0-The product backog item of type 'User story' is the regular type as described in the Scrum guide",
+          "1-The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
+          "2-The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
         ],
 
-				"knownRoles": [
+				"knownroles": [
           '_admin',
           'admin',
           'superPO',
@@ -578,13 +597,13 @@ const configData = {
           'developer',
           'guest',
         ],
-				"knownRolesDefinition": [
-          "'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
-					"'admin': Can create and assign users to products. Is also a guest to all products.",
-					"'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.",
-					"'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
-					"'developer': Can create and maintain pbi's and features for the assigned products.",
-					"'guest': Can only view the items of the assigned products. Has no access to the requirements area view."
+				"knownrolesDefinition": [
+          "0-_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
+					"1-admin: Can create and assign users to products. Is also a guest to all products.",
+					"2-superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
+					"3-PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
+					"4-developer: Can create and maintain pbi's and features for the assigned products.",
+					"5-guest: Can only view the items of the assigned products. Has no access to the requirements area view."
         ]
 			}
     }
@@ -594,105 +613,91 @@ const configData = {
 const initData = {
 	"docs": [
 		{
-			"_id": "product-template-v1",
+			"_id": "onebacklog-a480",
+			"parentid": null,
 			"type": "product",
+			"subtype": null,
+			"state": 2,
+			"tssize": 1,
+			"spsize": null,
+			"reqarea": null,
+			"title": "One Backlog: the ultimate solution for multiteam companies",
 			"followers": [],
-			"history": [
-				{
-					"users": [],
-					"changedBy": "Jan",
-					"changeDate": 1546005201189,
-					"description": "Describe your business case here...",
-					"acceptanceCriteria": "Please don't forget",
-					"state": 0,
-					"priority": "TBD",
-					"size": null,
-					"comments": []
-      }
-    ]
-  },
-
+			"description": "As super PO I need one integrated tool to manage the product backlog of all my products so that: etc.",
+			"acceptanceCriteria": "Please don't forget",
+			"priority": 4503599627370500,
+			"attachments": [],
+			"comments": [],
+			"history": []
+		},
 		{
-			"_id": "requirements-area-template-v1",
+			"_id": "onebacklog-b319",
+			"parentid": null,
 			"type": "requirementsArea",
+			"state": 0,
+			"tssize": 0,
+			"title": "The 'One Backlog' user interface",
 			"followers": [],
-			"history": [
-				{
-					"users": [],
-					"changedBy": "Jan",
-					"changeDate": 1546005201189,
-					"description": "Describe your requirements area here...",
-					"acceptanceCriteria": "Please don't forget",
-					"state": 0,
-					"priority": "TBD",
-					"size": null,
-					"comments": []
-      }
-    ]
-  },
-
+			"description": "Describe your requirements area here...",
+			"acceptanceCriteria": "Please don't forget",
+			"attachments": [],
+			"comments": [],
+			"history": [],
+		},
 		{
-			"_id": "epic-template-v1",
+			"_id": "onebacklog-102b",
+			"parentid": "onebacklog-a480",
+			"type": "epic",
+			"subtype": null,
+			"state": 2,
+			"tssize": 3,
+			"spsize": null,
+			"reqarea": "onebacklog-b319",
+			"title": "The GUI",
 			"followers": [],
-			"history": [
-				{
-					"type": "epic",
-					"changedBy": "Jan",
-					"changeDate": 1546005201189,
-					"product": "product-template-v1",
-					"description": "Describe your business case here...",
-					"acceptanceCriteria": "Please don't forget",
-					"state": 0,
-					"priority": "TBD",
-					"size": null,
-					"comments": []
-      }
-    ]
-  },
-
+			"description": "As PO I want to see a MPV version of the GUI so that I can feel the product and come with improvements",
+			"acceptanceCriteria": "Please don't forget",
+			"priority": 4503599627370500,
+			"attachments": [],
+			"comments": [],
+			"history": []
+		},
 		{
-			"_id": "feature-template-v1",
+			"_id": "onebacklog-2e30",
+			"parentid": "onebacklog-102b",
+			"type": "feature",
+			"subtype": null,
+			"state": 4,
+			"tssize": 3,
+			"spsize": null,
+			"reqarea": "onebacklog-b319",
+			"title": "The tree structure",
 			"followers": [],
-			"history": [
-				{
-					"type": "feature",
-					"changedBy": "Jan",
-					"changeDate": 1546005201189,
-					"product": "product-template-v1",
-					"requirementsArea": "requirements-area-v1",
-					"epic": "epic-template-v1",
-					"description": "As <my role> I want ... so that I can ...",
-					"acceptanceCriteria": "Please don't forget",
-					"state": 0,
-					"priority": "TBD",
-					"size": null,
-					"comments": []
-      }
-    ]
-  },
-
+			"description": "As a PO I want a tree structure to walk over the products and all of its decendants",
+			"acceptanceCriteria": "Must be able to sort, create new, and delete items. Want to to be able to up or downgrade an item over 1 level: eg. a pbi to a feature, or a epic to a feature",
+			"priority": 4503599627370500,
+			"attachments": [],
+			"comments": [],
+			"history": []
+		},
 		{
-			"_id": "product-backlog-item-template-v1",
+			"_id": "onebacklog-f5b8",
+			"parentid": "onebacklog-2e30",
+			"type": "pbi",
+			"subtype": 0,
+			"state": 4,
+			"tssize": 0,
+			"spsize": 5,
+			"reqarea": null,
+			"title": "Enable item insertion",
 			"followers": [],
-			"history": [
-				{
-					"type": "pbi",
-					"changedBy": "Jan",
-					"changeDate": 1546005201189,
-					"product": "product-template-v1",
-					"epic": "epic-template-v1",
-					"feature": "feature-template-v1",
-					"subtype": 0,
-					"description": "As <my role> I want ... so that I can ...",
-					"acceptanceCriteria": "Please don't forget",
-					"state": 0,
-					"priority": "TBD",
-					"size": null,
-					"comments": []
-      }
-    ]
-  }
-]
+			"description": "As PO or developer I want to create new items right at the spot with the anticipated priority",
+			"acceptanceCriteria": "Please don't forget",
+			"priority": 4503599627370500,
+			"attachments": [],
+			"comments": [],
+			"history": []
+		}]
 }
 
 export default {
