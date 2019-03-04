@@ -19,13 +19,13 @@ export default new Vuex.Store({
   },
 
   getters: {
-    user (state) {
+    getUser (state) {
       return state.user
     },
 		getCurrendDb (state) {
 			return state.currentDb
 		},
-    roles (state) {
+    getRoles (state) {
       return state.roles
     },
     isServerAdmin (state) {

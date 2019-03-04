@@ -541,7 +541,7 @@ const configData = {
 				"changedBy": "Erik",
 				"changeDate": 1546005201189,
 
-				"state": [
+				"itemState": [
           "New",
           "Ready",
           "In progress",
@@ -549,7 +549,7 @@ const configData = {
           "Done",
           "Removed"
         ],
-				"stateDefinition": [
+				"itemStateDefinitions": [
           "0-The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
           "1-The state Ready means that the item is understood well enough by the team for realization in a sprint",
           "2-The state 'In progress' means that the item is worked on in a (past) sprint",
@@ -558,7 +558,7 @@ const configData = {
           "5-The state Removed means that work on the item will never start or was cancelled"
         ],
 
-				"tssize": [
+				"tsSize": [
 					"XXL",
 					"XL",
 					"L",
@@ -567,7 +567,7 @@ const configData = {
 					"XS",
 					"XXS"
 				],
-				"tssizeDefinition": [
+				"tsSizeDefinitions": [
 					"0-XXL Extra-extra large effort involved",
 					"1-XL  Extra large effort involved",
 					"2-L   Large effort involved",
@@ -583,13 +583,13 @@ const configData = {
           "Spike",
           "Defect"
         ],
-				"subtypeDefinition": [
+				"subtypeDefinitions": [
           "0-The product backog item of type 'User story' is the regular type as described in the Scrum guide",
           "1-The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
           "2-The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
         ],
 
-				"knownroles": [
+				"knownRoles": [
           '_admin',
           'admin',
           'superPO',
@@ -597,7 +597,7 @@ const configData = {
           'developer',
           'guest',
         ],
-				"knownrolesDefinition": [
+				"knownRolesDefinitions": [
           "0-_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
 					"1-admin: Can create and assign users to products. Is also a guest to all products.",
 					"2-superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",

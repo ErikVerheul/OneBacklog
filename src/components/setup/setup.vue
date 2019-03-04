@@ -89,9 +89,9 @@
 		},
 		computed: {
 			...mapGetters({
-				name: 'user',
+				name: 'getUser',
 				db: 'getCurrendDb',
-				roles: 'roles',
+				roles: 'getRoles',
 				message: 'returnMessage',
 				comment: 'returnComment',
 				errorMessage: 'returnErrorMsg'
