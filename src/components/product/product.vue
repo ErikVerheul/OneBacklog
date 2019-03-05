@@ -162,6 +162,10 @@
 
 <script>
 	import {
+		mapGetters
+	} from 'vuex'
+
+	import {
 		Multipane,
 		MultipaneResizer
 	} from 'vue-multipane'
@@ -430,12 +434,69 @@
 			}
 		},
 
+		computed: {
+			...mapGetters({
+				userName: 'getUser',
+				currentDb: 'getCurrendDb',
+				userRoles: 'getRoles',
+				isServerAdmin: 'isServerAdmin',
+				isAuthenticated: 'isAuthenticated',
+			}),
+		},
+
 		mounted() {
 			// expose instance to the global namespace
 			window.slVueTree = this.$refs.slVueTree;
 		},
 
 		methods: {
+			/* mappings from config */
+			getItemState(idx) {
+				if (idx < 0 || idx >= this.$store.state.config.data.itemState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.config.data.itemState[idx]
+			},
+			getTsSize(idx) {
+				if (idx < 0 || idx >= this.$store.state.config.data.tsSize.length) {
+					return 'Error: unknown T-shirt size'
+				}
+				return this.$store.state.config.data.tsSize(idx)
+			},
+			getSubType(idx) {
+				if (idx < 0 || idx >= this.$store.state.config.data.subtype.length) {
+					return 'Error: unknown subtype'
+				}
+				return this.$store.state.config.data.subtype[idx]
+			},
+			getKnownRoles() {
+				return this.$store.state.config.data.knownRoles
+			},
+			getItemStateDef(idx) {
+				if (idx < 0 || idx >= this.$store.state.config.data.itemStateDefinitions.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.config.data.itemStateDefinitions[idx]
+			},
+			getTsSizeDef(idx) {
+				if (idx < 0 || idx >= this.$store.state.config.data.tsSizeDefinitions.length) {
+					return 'Error: unknown T-shirt size'
+				}
+				return this.$store.state.config.data.tsSizeDefinitions(idx)
+			},
+			getSubTypeDef(idx) {
+				if (idx < 0 || idx >= this.$store.state.config.data.subtypeDefinitions.length) {
+					return 'Error: unknown subtype'
+				}
+				return this.$store.state.config.data.subtypeDefinitions[idx]
+			},
+			getKnownRoleDef(idx) {
+				if (idx < 0 || idx >= this.$store.state.config.data.knownRolesDefinitions.length) {
+					return 'Error: unknown role'
+				}
+				return this.$store.state.config.data.knownRolesDefinitions[idx]
+			},
+
 			itemTitleTrunc(length, title) {
 				if (title.length <= length) return title;
 				return title.substring(0, length - 4) + '...';
