@@ -460,8 +460,8 @@ const initUsers = {
 			"roles": ["admin", "superPO"],
 			"type": "user",
 			"email": "jan@mycompany.nl",
-			"databases": ['a', 'b'],
-			"currentDb": 'a'
+			"databases": ['a', 'b', 'demo'],
+			"currentDb": 'demo'
 		},
 		{
 			"name": "Herman",
@@ -469,8 +469,8 @@ const initUsers = {
 			"roles": ["admin", "PO"],
 			"type": "user",
 			"email": "herman@mycompany.nl",
-			"databases": ['a', 'b'],
-			"currentDb": 'a'
+			"databases": ['a', 'b', 'demo'],
+			"currentDb": 'demo'
 		},
 		{
 			"name": "Piet",
@@ -478,8 +478,8 @@ const initUsers = {
 			"roles": ["developer"],
 			"type": "user",
 			"email": "piet@mycompany.nl",
-			"databases": ['a', 'b'],
-			"currentDb": 'a'
+			"databases": ['a', 'b', 'demo'],
+			"currentDb": 'demo'
 		},
 		{
 			"name": "Mechteld",
@@ -487,8 +487,8 @@ const initUsers = {
 			"roles": ["developer"],
 			"type": "user",
 			"email": "mechteld@mycompany.nl",
-			"databases": ['a', 'b'],
-			"currentDb": 'a'
+			"databases": ['a', 'b', 'demo'],
+			"currentDb": 'demo'
 		},
 		{
 			"name": "Henk",
@@ -496,8 +496,8 @@ const initUsers = {
 			"roles": ["viewer"],
 			"type": "user",
 			"email": "henk@mycompany.nl",
-			"databases": ['a', 'b'],
-			"currentDb": 'a'
+			"databases": ['a', 'b', 'demo'],
+			"currentDb": 'demo'
 		},
 		{
 			"name": "guest",
@@ -505,8 +505,8 @@ const initUsers = {
 			"roles": ["guest"],
 			"type": "user",
 			"email": "guest@mycompany.nl",
-			"databases": ['a'],
-			"currentDb": 'a'
+			"databases": ['a', 'b', 'demo'],
+			"currentDb": 'demo'
 		}]
 }
 
@@ -550,12 +550,12 @@ const configData = {
           "Removed"
         ],
 				"itemStateDefinitions": [
-          "0-The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
-          "1-The state Ready means that the item is understood well enough by the team for realization in a sprint",
-          "2-The state 'In progress' means that the item is worked on in a (past) sprint",
-          "3-The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
-          "4-The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
-          "5-The state Removed means that work on the item will never start or was cancelled"
+          "The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
+          "The state Ready means that the item is understood well enough by the team for realization in a sprint",
+          "The state 'In progress' means that the item is worked on in a (past) sprint",
+          "The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
+          "The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
+          "The state Removed means that work on the item will never start or was cancelled"
         ],
 
 				"tsSize": [
@@ -568,13 +568,13 @@ const configData = {
 					"XXS"
 				],
 				"tsSizeDefinitions": [
-					"0-XXL Extra-extra large effort involved",
-					"1-XL  Extra large effort involved",
-					"2-L   Large effort involved",
-					"3-M   Medium effort involved",
-					"4-S   Small effort involved",
-					"5-XS  Extra small effort involved",
-					"6-XXS Almost none effort involved"
+					"Extra-extra large effort involved",
+					"Extra large effort involved",
+					"Large effort involved",
+					"Medium effort involved",
+					"Small effort involved",
+					"Extra small effort involved",
+					"Almost none effort involved"
 				],
 
 				// For now the subtype field is used only for pbi's
@@ -584,9 +584,9 @@ const configData = {
           "Defect"
         ],
 				"subtypeDefinitions": [
-          "0-The product backog item of type 'User story' is the regular type as described in the Scrum guide",
-          "1-The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
-          "2-The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
+          "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
+          "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
+          "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
         ],
 
 				"knownRoles": [
@@ -597,13 +597,13 @@ const configData = {
           'developer',
           'guest',
         ],
-				"knownRolesDefinitions": [
-          "0-_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
-					"1-admin: Can create and assign users to products. Is also a guest to all products.",
-					"2-superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
-					"3-PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
-					"4-developer: Can create and maintain pbi's and features for the assigned products.",
-					"5-guest: Can only view the items of the assigned products. Has no access to the requirements area view."
+				"knownRoleDefinitions": [
+          "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
+					"admin: Can create and assign users to products. Is also a guest to all products.",
+					"superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
+					"PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
+					"developer: Can create and maintain pbi's and features for the assigned products.",
+					"guest: Can only view the items of the assigned products. Has no access to the requirements area view."
         ]
 			}
     }
