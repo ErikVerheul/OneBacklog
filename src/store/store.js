@@ -16,6 +16,9 @@ export default new Vuex.Store({
 		email: null,
 		config: null,
 		runningTimeout: null,
+		batchSize: 3,
+		offset: 0,
+		batch: [],
 	},
 
 	getters: {
@@ -33,7 +36,8 @@ export default new Vuex.Store({
 		},
 		isAuthenticated(state) {
 			return state.user !== null
-		}
+		},
+
 	},
 
 	mutations: {
@@ -86,9 +90,69 @@ export default new Vuex.Store({
 			}, payload.afterSeconds * 1000)
 		},
 
+		// Load next #batchSize documents from this database skipping #offset
+		getNextDocsBatch({
+			state,
+			dispatch
+		}) {
+			globalAxios({
+					method: 'GET',
+					url: state.currentDb + '/_all_docs?include_docs=true&limit=' + state.batchSize + '&skip=' + state.offset,
+					withCredentials: true,
+				}).then(res => {
+					if (res.status == 200) {
+						// eslint-disable-next-line no-console
+						console.log(res)
+						state.batch = res.data.rows
+						if (state.batch.length < state.batchSize) {
+							state.offset += state.batch.length
+						} else {
+							state.offset += state.batchSize
+							//recurse until all read
+							dispatch('getNextDocsBatch')
+						}
+						// eslint-disable-next-line no-console
+						console.log('Another batch of documents is loaded')
+					}
+				})
+				// eslint-disable-next-line no-console
+				.catch(error => console.log('Could not read a batch of documents ' + state.currentDb + '. Error = ' + error))
+		},
+
+		// Load #batchSize documents from this database skipping #offset
+		getFirstDocsBatch({
+			state,
+			dispatch
+		}) {
+			globalAxios({
+					method: 'GET',
+					url: state.currentDb + '/_all_docs?include_docs=true&limit=' + state.batchSize + '&skip=' + state.offset,
+					withCredentials: true,
+				}).then(res => {
+					if (res.status == 200) {
+						// eslint-disable-next-line no-console
+						console.log(res)
+						state.batch = res.data.rows
+						if (state.batch.length < state.batchSize) {
+							state.allRead = true
+							state.offset += state.batch.length
+						} else {
+							state.offset += state.batchSize
+						}
+						// eslint-disable-next-line no-console
+						console.log('A first batch of documents is loaded, move to the product page')
+						dispatch('getNextDocsBatch')
+						router.push('/product')
+					}
+				})
+				// eslint-disable-next-line no-console
+				.catch(error => console.log('Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
+		},
+
 		// Load the config file from this database
 		getConfig({
 			state,
+			dispatch
 		}) {
 			globalAxios({
 					method: 'GET',
@@ -100,9 +164,8 @@ export default new Vuex.Store({
 						console.log(res)
 						state.config = res.data
 						// eslint-disable-next-line no-console
-						console.log('The configuration is loaded, Move to product page')
-						// eslint-disable-next-line no-console
-						router.push('/product')
+						console.log('The configuration is loaded')
+						dispatch('getFirstDocsBatch')
 					}
 				})
 				// eslint-disable-next-line no-console
