@@ -326,7 +326,7 @@
 				}
 				this.$store.dispatch('createUsers')
 				this.$store.dispatch('setUsersDbSecurity')
-				this.$store.dispatch('setSecurity', payload)
+				this.$store.dispatch('setPermissions', payload)
 				this.$store.dispatch('createExampleDB', payload)
 			},
 		}
