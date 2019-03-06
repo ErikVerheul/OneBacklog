@@ -541,6 +541,22 @@ const configData = {
 				"changedBy": "Erik",
 				"changeDate": 1546005201189,
 
+				"itemType": [
+					"Product",
+					"RequirementArea",
+					"Epic",
+					"Feature",
+					"PBI"
+				],
+
+				"ItemTypeDefinitions": [
+					"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
+					"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
+					"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
+					"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
+					"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
+				],
+
 				"itemState": [
           "New",
           "Ready",
