@@ -112,7 +112,7 @@ export default new Vuex.Store({
 							dispatch('getNextDocsBatch')
 						}
 						// eslint-disable-next-line no-console
-						console.log('Another batch of documents is loaded')
+						console.log('Another batch of ' +  state.batch.length + ' documents is loaded')
 					}
 				})
 				// eslint-disable-next-line no-console
@@ -140,7 +140,7 @@ export default new Vuex.Store({
 							state.offset += state.batchSize
 						}
 						// eslint-disable-next-line no-console
-						console.log('A first batch of documents is loaded, move to the product page')
+						console.log('A first batch of ' + state.batch.length + ' documents is loaded. Move to the product page')
 						dispatch('getNextDocsBatch')
 						router.push('/product')
 					}
