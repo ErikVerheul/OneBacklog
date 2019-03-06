@@ -444,10 +444,10 @@
 			}),
 		},
 
-		mounted() {
-			// expose instance to the global namespace
-			window.slVueTree = this.$refs.slVueTree;
-		},
+//		mounted() {
+//			// expose instance to the global namespace
+//			window.slVueTree = this.$refs.slVueTree;
+//		},
 
 		methods: {
 			/* mappings from config */
