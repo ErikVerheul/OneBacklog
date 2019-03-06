@@ -542,16 +542,16 @@ const configData = {
 				"changeDate": 1546005201189,
 
 				"itemType": [
-					"Product",
 					"RequirementArea",
+					"Product",
 					"Epic",
 					"Feature",
 					"PBI"
 				],
 
 				"ItemTypeDefinitions": [
-					"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
 					"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
+					"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
 					"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
 					"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
 					"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
@@ -629,9 +629,9 @@ const configData = {
 const initData = {
 	"docs": [
 		{
-			"_id": "onebacklog-a480",
+			"_id": "1551886228205955e",
 			"parentid": null,
-			"type": "product",
+			"type": 1,
 			"subtype": null,
 			"state": 2,
 			"tssize": 1,
@@ -647,9 +647,9 @@ const initData = {
 			"history": []
 		},
 		{
-			"_id": "onebacklog-b319",
+			"_id": "1551886229110f080",
 			"parentid": null,
-			"type": "requirementsArea",
+			"type": 0,
 			"state": 0,
 			"tssize": 0,
 			"title": "The 'One Backlog' user interface",
@@ -661,9 +661,9 @@ const initData = {
 			"history": [],
 		},
 		{
-			"_id": "onebacklog-102b",
+			"_id": "1551886229908753a",
 			"parentid": "onebacklog-a480",
-			"type": "epic",
+			"type": 2,
 			"subtype": null,
 			"state": 2,
 			"tssize": 3,
@@ -679,9 +679,9 @@ const initData = {
 			"history": []
 		},
 		{
-			"_id": "onebacklog-2e30",
+			"_id": "1551886230582194f",
 			"parentid": "onebacklog-102b",
-			"type": "feature",
+			"type": 3,
 			"subtype": null,
 			"state": 4,
 			"tssize": 3,
@@ -697,9 +697,9 @@ const initData = {
 			"history": []
 		},
 		{
-			"_id": "onebacklog-f5b8",
+			"_id": "1551886231234850e",
 			"parentid": "onebacklog-2e30",
-			"type": "pbi",
+			"type": 4,
 			"subtype": 0,
 			"state": 4,
 			"tssize": 0,
