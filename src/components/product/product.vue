@@ -434,6 +434,7 @@
 			}
 		},
 
+		// These getters are not in use right now
 		computed: {
 			...mapGetters({
 				userName: 'getUser',
@@ -443,11 +444,6 @@
 				isAuthenticated: 'isAuthenticated',
 			}),
 		},
-
-//		mounted() {
-//			// expose instance to the global namespace
-//			window.slVueTree = this.$refs.slVueTree;
-//		},
 
 		methods: {
 			/* mappings from config */
