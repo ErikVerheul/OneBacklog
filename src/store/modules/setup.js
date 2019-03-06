@@ -430,7 +430,7 @@ const actions = {
 			})
 	},
 
-	setSecurity({
+	setPermissions({
 		state
 	}, payload) {
 		globalAxios({
@@ -493,7 +493,7 @@ const initUsers = {
 		{
 			"name": "Henk",
 			"password": "Henk",
-			"roles": ["viewer"],
+			"roles": ["guest"],
 			"type": "user",
 			"email": "henk@mycompany.nl",
 			"databases": ['a', 'b', 'demo'],
@@ -517,7 +517,7 @@ const initUsersDbSecurity = {
 	},
 	"members": {
 		"names": [],
-		"roles": ['PO', 'developer', 'viewer', 'guest']
+		"roles": ['PO', 'developer', 'guest']
 	}
 }
 
@@ -528,10 +528,13 @@ const initSecurity = {
 	},
 	"members": {
 		"names": ["Piet", "Mechteld", "Henk"],
-		"roles": ["PO", "viewer"]
+		"roles": ["PO", "guest"]
 	}
 }
 
+/* The configuration data can change over time with new versions of this program.
+ * Once a database is created it is tightly coupled with the configuration is was created with.
+ */
 const configData = {
 	"docs": [
 		{
@@ -605,22 +608,15 @@ const configData = {
           "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
         ],
 
-				"knownRoles": [
-          '_admin',
-          'admin',
-          'superPO',
-          'PO',
-          'developer',
-          'guest',
-        ],
-				"knownRoleDefinitions": [
-          "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
-					"admin: Can create and assign users to products. Is also a guest to all products.",
-					"superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
-					"PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
-					"developer: Can create and maintain pbi's and features for the assigned products.",
-					"guest: Can only view the items of the assigned products. Has no access to the requirements area view."
-        ]
+				// These are the roles known by this application despite settings in the _users database otherwise.
+				"knownRoles": {
+					"_admin": "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
+					"admin": "admin: Can create and assign users to products. Is also a guest to all products.",
+					"superPO": "superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
+					"PO": "PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
+					"developer": "developer: Can create and maintain pbi's and features for the assigned products.",
+					"guest": "guest: Can only view the items of the assigned products. Has no access to the requirements area view."
+				},
 			}
     }
   ]
