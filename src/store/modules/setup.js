@@ -275,6 +275,90 @@ const actions = {
 	initializeDB({
 		state
 	}, payload) {
+		/* The configuration data can change over time with new versions of this program.
+ * Once a database is created it is tightly coupled with the configuration is was created with.
+ */
+const configData = {
+	"_id": "config",
+	"type": "config",
+	"changedBy": "Erik",
+	"changeDate": 1551940535871,
+
+	"itemType": [
+					"RequirementArea",
+					"Product",
+					"Epic",
+					"Feature",
+					"PBI"
+				],
+
+	"ItemTypeDefinitions": [
+					"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
+					"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
+					"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
+					"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
+					"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
+				],
+
+	"itemState": [
+          "New",
+          "Ready",
+          "In progress",
+          "On hold",
+          "Done",
+          "Removed"
+        ],
+	"itemStateDefinitions": [
+          "The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
+          "The state Ready means that the item is understood well enough by the team for realization in a sprint",
+          "The state 'In progress' means that the item is worked on in a (past) sprint",
+          "The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
+          "The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
+          "The state Removed means that work on the item will never start or was cancelled"
+        ],
+
+	"tsSize": [
+					"XXL",
+					"XL",
+					"L",
+					"M",
+					"S",
+					"XS",
+					"XXS"
+				],
+	"tsSizeDefinitions": [
+					"Extra-extra large effort involved",
+					"Extra large effort involved",
+					"Large effort involved",
+					"Medium effort involved",
+					"Small effort involved",
+					"Extra small effort involved",
+					"Almost none effort involved"
+				],
+
+	// For now the subtype field is used only for pbi's
+	"subtype": [
+          "User story",
+          "Spike",
+          "Defect"
+        ],
+	"subtypeDefinitions": [
+          "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
+          "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
+          "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
+        ],
+
+	// These are the roles known by this application despite settings in the _users database otherwise.
+	"knownRoles": {
+		"_admin": "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
+		"admin": "admin: Can create and assign users to products. Is also a guest to all products.",
+		"superPO": "superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
+		"PO": "PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
+		"developer": "developer: Can create and maintain pbi's and features for the assigned products.",
+		"guest": "guest: Can only view the items of the assigned products. Has no access to the requirements area view."
+	},
+}
+
 		this.commit('clearAll')
 		// eslint-disable-next-line no-console
 		console.log('Initialize DB: ' + payload.dbName)
@@ -456,6 +540,7 @@ const actions = {
 	}
 }
 
+/* Below some data to create a sample database */
 const initUsers = {
 	"data": [
 		{
@@ -534,90 +619,6 @@ const dbPermissions = {
 		"names": ["Piet", "Mechteld", "Henk"],
 		"roles": ["PO", "guest"]
 	}
-}
-
-/* The configuration data can change over time with new versions of this program.
- * Once a database is created it is tightly coupled with the configuration is was created with.
- */
-const configData = {
-	"_id": "config",
-	"type": "config",
-	"changedBy": "Erik",
-	"changeDate": 1551940535871,
-
-	"itemType": [
-					"RequirementArea",
-					"Product",
-					"Epic",
-					"Feature",
-					"PBI"
-				],
-
-	"ItemTypeDefinitions": [
-					"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
-					"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
-					"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
-					"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
-					"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
-				],
-
-	"itemState": [
-          "New",
-          "Ready",
-          "In progress",
-          "On hold",
-          "Done",
-          "Removed"
-        ],
-	"itemStateDefinitions": [
-          "The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
-          "The state Ready means that the item is understood well enough by the team for realization in a sprint",
-          "The state 'In progress' means that the item is worked on in a (past) sprint",
-          "The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
-          "The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
-          "The state Removed means that work on the item will never start or was cancelled"
-        ],
-
-	"tsSize": [
-					"XXL",
-					"XL",
-					"L",
-					"M",
-					"S",
-					"XS",
-					"XXS"
-				],
-	"tsSizeDefinitions": [
-					"Extra-extra large effort involved",
-					"Extra large effort involved",
-					"Large effort involved",
-					"Medium effort involved",
-					"Small effort involved",
-					"Extra small effort involved",
-					"Almost none effort involved"
-				],
-
-	// For now the subtype field is used only for pbi's
-	"subtype": [
-          "User story",
-          "Spike",
-          "Defect"
-        ],
-	"subtypeDefinitions": [
-          "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
-          "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
-          "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
-        ],
-
-	// These are the roles known by this application despite settings in the _users database otherwise.
-	"knownRoles": {
-		"_admin": "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
-		"admin": "admin: Can create and assign users to products. Is also a guest to all products.",
-		"superPO": "superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
-		"PO": "PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
-		"developer": "developer: Can create and maintain pbi's and features for the assigned products.",
-		"guest": "guest: Can only view the items of the assigned products. Has no access to the requirements area view."
-	},
 }
 
 const initData = {
@@ -710,6 +711,7 @@ const initData = {
 			"history": []
 		}]
 }
+/* Above some data to create a sample database */
 
 export default {
 	state,
