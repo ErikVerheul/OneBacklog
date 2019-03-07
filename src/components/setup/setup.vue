@@ -325,8 +325,8 @@
 					dbName: this.$store.state.currentDb,
 				}
 				this.$store.dispatch('createUsers')
-				this.$store.dispatch('setUsersDbSecurity')
-				this.$store.dispatch('setPermissions', payload)
+				this.$store.dispatch('setUsersDbPermissions')
+				this.$store.dispatch('setDbPermissions', payload)
 				this.$store.dispatch('createExampleDB', payload)
 			},
 		}
