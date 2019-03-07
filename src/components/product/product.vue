@@ -448,49 +448,49 @@
 		methods: {
 			/* mappings from config */
 			getItemState(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.data.itemState.length) {
+				if (idx < 0 || idx >= this.$store.state.config.itemState.length) {
 					return 'Error: unknown state'
 				}
-				return this.$store.state.config.data.itemState[idx]
+				return this.$store.state.config.itemState[idx]
 			},
 			getTsSize(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.data.tsSize.length) {
+				if (idx < 0 || idx >= this.$store.state.config.tsSize.length) {
 					return 'Error: unknown T-shirt size'
 				}
-				return this.$store.state.config.data.tsSize(idx)
+				return this.$store.state.config.tsSize(idx)
 			},
 			getSubType(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.data.subtype.length) {
+				if (idx < 0 || idx >= this.$store.state.config.subtype.length) {
 					return 'Error: unknown subtype'
 				}
-				return this.$store.state.config.data.subtype[idx]
+				return this.$store.state.config.subtype[idx]
 			},
 			getKnownRoles() {
-				return this.$store.state.config.data.knownRoles
+				return this.$store.state.config.knownRoles
 			},
 			getItemStateDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.data.itemStateDefinitions.length) {
+				if (idx < 0 || idx >= this.$store.state.config.itemStateDefinitions.length) {
 					return 'Error: unknown state'
 				}
-				return this.$store.state.config.data.itemStateDefinitions[idx]
+				return this.$store.state.config.itemStateDefinitions[idx]
 			},
 			getTsSizeDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.data.tsSizeDefinitions.length) {
+				if (idx < 0 || idx >= this.$store.state.config.tsSizeDefinitions.length) {
 					return 'Error: unknown T-shirt size'
 				}
-				return this.$store.state.config.data.tsSizeDefinitions(idx)
+				return this.$store.state.config.tsSizeDefinitions(idx)
 			},
 			getSubTypeDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.data.subtypeDefinitions.length) {
+				if (idx < 0 || idx >= this.$store.state.config.subtypeDefinitions.length) {
 					return 'Error: unknown subtype'
 				}
-				return this.$store.state.config.data.subtypeDefinitions[idx]
+				return this.$store.state.config.subtypeDefinitions[idx]
 			},
 			getKnownRoleDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.data.knownRolesDefinitions.length) {
+				if (idx < 0 || idx >= this.$store.state.config.knownRolesDefinitions.length) {
 					return 'Error: unknown role'
 				}
-				return this.$store.state.config.data.knownRolesDefinitions[idx]
+				return this.$store.state.config.knownRolesDefinitions[idx]
 			},
 
 			itemTitleTrunc(length, title) {
