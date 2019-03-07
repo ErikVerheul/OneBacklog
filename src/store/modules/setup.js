@@ -280,7 +280,7 @@ const actions = {
 		console.log('Initialize DB: ' + payload.dbName)
 		globalAxios({
 				method: 'POST',
-				url: payload.dbName + '/_bulk_docs',
+				url: payload.dbName,
 				withCredentials: true,
 				data: configData
 			}).then(res => {
@@ -409,18 +409,20 @@ const actions = {
 		});
 	},
 
-	setUsersDbSecurity({
+	setUsersDbPermissions({
 		state
 	}) {
+		// eslint-disable-next-line no-console
+		console.log('Start executing setUsersDbPermissions')
 		globalAxios({
 				method: 'PUT',
 				url: '/_users/_security',
 				withCredentials: true,
-				data: initUsersDbSecurity
+				data: usersDbPermissions
 			}).then(res => {
 				state.message = res.data
 				// eslint-disable-next-line no-console
-				console.log(res)
+				console.log('_users DB permissions are set, response is: ' + res)
 			})
 			.catch(error => {
 				// eslint-disable-next-line no-console
@@ -430,18 +432,20 @@ const actions = {
 			})
 	},
 
-	setPermissions({
+	setDbPermissions({
 		state
 	}, payload) {
+		// eslint-disable-next-line no-console
+		console.log('Start executing setDbPermissions')
 		globalAxios({
 				method: 'PUT',
 				url: payload.dbName + '/_security',
 				withCredentials: true,
-				data: initSecurity
+				data: dbPermissions
 			}).then(res => {
 				state.message = res.data
 				// eslint-disable-next-line no-console
-				console.log(res)
+				console.log('DB permissions are set, response is: ' + res)
 			})
 			.catch(error => {
 				// eslint-disable-next-line no-console
@@ -510,18 +514,18 @@ const initUsers = {
 		}]
 }
 
-const initUsersDbSecurity = {
+const usersDbPermissions = {
 	"admins": {
 		"names": [],
-		"roles": ["admin", 'superPO']
+		"roles": ["admin"]
 	},
 	"members": {
 		"names": [],
-		"roles": ['PO', 'developer', 'guest']
+		"roles": ['superPO', 'PO', 'developer', 'guest']
 	}
 }
 
-const initSecurity = {
+const dbPermissions = {
 	"admins": {
 		"names": ["Jan", "Herman"],
 		"roles": ["superPO", "admin"]
@@ -536,15 +540,12 @@ const initSecurity = {
  * Once a database is created it is tightly coupled with the configuration is was created with.
  */
 const configData = {
-	"docs": [
-		{
-			"_id": "config",
-			"type": "config",
-			"data": {
-				"changedBy": "Erik",
-				"changeDate": 1546005201189,
+	"_id": "config",
+	"type": "config",
+	"changedBy": "Erik",
+	"changeDate": 1551940535871,
 
-				"itemType": [
+	"itemType": [
 					"RequirementArea",
 					"Product",
 					"Epic",
@@ -552,7 +553,7 @@ const configData = {
 					"PBI"
 				],
 
-				"ItemTypeDefinitions": [
+	"ItemTypeDefinitions": [
 					"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
 					"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
 					"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
@@ -560,7 +561,7 @@ const configData = {
 					"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
 				],
 
-				"itemState": [
+	"itemState": [
           "New",
           "Ready",
           "In progress",
@@ -568,7 +569,7 @@ const configData = {
           "Done",
           "Removed"
         ],
-				"itemStateDefinitions": [
+	"itemStateDefinitions": [
           "The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
           "The state Ready means that the item is understood well enough by the team for realization in a sprint",
           "The state 'In progress' means that the item is worked on in a (past) sprint",
@@ -577,7 +578,7 @@ const configData = {
           "The state Removed means that work on the item will never start or was cancelled"
         ],
 
-				"tsSize": [
+	"tsSize": [
 					"XXL",
 					"XL",
 					"L",
@@ -586,7 +587,7 @@ const configData = {
 					"XS",
 					"XXS"
 				],
-				"tsSizeDefinitions": [
+	"tsSizeDefinitions": [
 					"Extra-extra large effort involved",
 					"Extra large effort involved",
 					"Large effort involved",
@@ -596,30 +597,27 @@ const configData = {
 					"Almost none effort involved"
 				],
 
-				// For now the subtype field is used only for pbi's
-				"subtype": [
+	// For now the subtype field is used only for pbi's
+	"subtype": [
           "User story",
           "Spike",
           "Defect"
         ],
-				"subtypeDefinitions": [
+	"subtypeDefinitions": [
           "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
           "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
           "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
         ],
 
-				// These are the roles known by this application despite settings in the _users database otherwise.
-				"knownRoles": {
-					"_admin": "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
-					"admin": "admin: Can create and assign users to products. Is also a guest to all products.",
-					"superPO": "superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
-					"PO": "PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
-					"developer": "developer: Can create and maintain pbi's and features for the assigned products.",
-					"guest": "guest: Can only view the items of the assigned products. Has no access to the requirements area view."
-				},
-			}
-    }
-  ]
+	// These are the roles known by this application despite settings in the _users database otherwise.
+	"knownRoles": {
+		"_admin": "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
+		"admin": "admin: Can create and assign users to products. Is also a guest to all products.",
+		"superPO": "superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
+		"PO": "PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
+		"developer": "developer: Can create and maintain pbi's and features for the assigned products.",
+		"guest": "guest: Can only view the items of the assigned products. Has no access to the requirements area view."
+	},
 }
 
 const initData = {
