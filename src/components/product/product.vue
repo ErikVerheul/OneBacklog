@@ -191,7 +191,7 @@
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
 
-				nodes: this.$store.load.nodes,
+				nodes: this.$store.state.load.nodes,
 
 				customToolbar: [
 					[{
