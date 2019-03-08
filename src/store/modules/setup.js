@@ -276,15 +276,15 @@ const actions = {
 		state
 	}, payload) {
 		/* The configuration data can change over time with new versions of this program.
- * Once a database is created it is tightly coupled with the configuration is was created with.
- */
-const configData = {
-	"_id": "config",
-	"type": "config",
-	"changedBy": "Erik",
-	"changeDate": 1551940535871,
+		 * Once a database is created it is tightly coupled with the configuration is was created with.
+		 */
+		const configData = {
+			"_id": "config",
+			"type": "config",
+			"changedBy": "Erik",
+			"changeDate": 1551940535871,
 
-	"itemType": [
+			"itemType": [
 					"RequirementArea",
 					"Product",
 					"Epic",
@@ -292,7 +292,7 @@ const configData = {
 					"PBI"
 				],
 
-	"ItemTypeDefinitions": [
+			"ItemTypeDefinitions": [
 					"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
 					"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
 					"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
@@ -300,7 +300,7 @@ const configData = {
 					"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
 				],
 
-	"itemState": [
+			"itemState": [
           "New",
           "Ready",
           "In progress",
@@ -308,7 +308,7 @@ const configData = {
           "Done",
           "Removed"
         ],
-	"itemStateDefinitions": [
+			"itemStateDefinitions": [
           "The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
           "The state Ready means that the item is understood well enough by the team for realization in a sprint",
           "The state 'In progress' means that the item is worked on in a (past) sprint",
@@ -317,7 +317,7 @@ const configData = {
           "The state Removed means that work on the item will never start or was cancelled"
         ],
 
-	"tsSize": [
+			"tsSize": [
 					"XXL",
 					"XL",
 					"L",
@@ -326,7 +326,7 @@ const configData = {
 					"XS",
 					"XXS"
 				],
-	"tsSizeDefinitions": [
+			"tsSizeDefinitions": [
 					"Extra-extra large effort involved",
 					"Extra large effort involved",
 					"Large effort involved",
@@ -336,28 +336,28 @@ const configData = {
 					"Almost none effort involved"
 				],
 
-	// For now the subtype field is used only for pbi's
-	"subtype": [
+			// For now the subtype field is used only for pbi's
+			"subtype": [
           "User story",
           "Spike",
           "Defect"
         ],
-	"subtypeDefinitions": [
+			"subtypeDefinitions": [
           "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
           "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
           "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
         ],
 
-	// These are the roles known by this application despite settings in the _users database otherwise.
-	"knownRoles": {
-		"_admin": "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
-		"admin": "admin: Can create and assign users to products. Is also a guest to all products.",
-		"superPO": "superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
-		"PO": "PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
-		"developer": "developer: Can create and maintain pbi's and features for the assigned products.",
-		"guest": "guest: Can only view the items of the assigned products. Has no access to the requirements area view."
-	},
-}
+			// These are the roles known by this application despite settings in the _users database otherwise.
+			"knownRoles": {
+				"_admin": "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
+				"admin": "admin: Can create and assign users to products. Is also a guest to all products.",
+				"superPO": "superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
+				"PO": "PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
+				"developer": "developer: Can create and maintain pbi's and features for the assigned products.",
+				"guest": "guest: Can only view the items of the assigned products. Has no access to the requirements area view."
+			},
+		}
 
 		this.commit('clearAll')
 		// eslint-disable-next-line no-console
@@ -367,6 +367,32 @@ const configData = {
 				url: payload.dbName,
 				withCredentials: true,
 				data: configData
+			}).then(res => {
+				state.message = res.data
+				// eslint-disable-next-line no-console
+				console.log(res)
+			})
+			.catch(error => {
+				// eslint-disable-next-line no-console
+				console.log(error)
+				state.message = error.response.data
+				state.errorMessage = error.message
+			})
+
+		// Add the _design document
+		globalAxios({
+				method: 'PUT',
+				url: payload.dbName + '/_design/design1',
+				withCredentials: true,
+				data: {
+					"views": {
+						// Sort on the negative value of the priority so that the highest priority comes op top
+						"sortedFilter": {
+							"map": 'function (doc) {if (doc.type >= 0)  emit([doc.type, doc.priority*-1], 1);}'
+						}
+					},
+					"language": "javascript"
+				}
 			}).then(res => {
 				state.message = res.data
 				// eslint-disable-next-line no-console
@@ -624,6 +650,24 @@ const dbPermissions = {
 const initData = {
 	"docs": [
 		{
+			"_id": "15520476690102786",
+			"parentid": "1551886230582194f",
+			"type": 4,
+			"subtype": 0,
+			"state": 4,
+			"tssize": 0,
+			"spsize": 5,
+			"reqarea": null,
+			"title": "Use modals for item insertion and deletion",
+			"followers": [],
+			"description": "As PO or developer I want to create new items right at the spot with the anticipated priority",
+			"acceptanceCriteria": "Please don't forget",
+			"priority": 6755399441055750,
+			"attachments": [],
+			"comments": [],
+			"history": []
+		},
+		{
 			"_id": "1551886229110f080",
 			"parentid": null,
 			"type": 0,
@@ -709,7 +753,9 @@ const initData = {
 			"attachments": [],
 			"comments": [],
 			"history": []
-		}]
+		},
+
+	]
 }
 /* Above some data to create a sample database */
 
