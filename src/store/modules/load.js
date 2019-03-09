@@ -1,6 +1,5 @@
 import globalAxios from 'axios'
 import router from '../../router' //Here ../router/index is imported
-//Bug? Do not put this import in curly braces
 
 const testNodes = [{
 	"title": "Database-1",
@@ -171,12 +170,6 @@ const testNodes = [{
 						},
 					]
 				}, ]
-const initNodes = [{
-	"title": "Database-1",
-	"isSelected": false,
-	"isExpanded": true,
-	"children": []
-},]
 
 const state = {
 	databases: [],
@@ -184,20 +177,48 @@ const state = {
 	batchSize: 3,
 	offset: 0,
 	batch: [],
-	nodes: initNodes
+	nodes: [],
+	lastInsertedNodeParent: null,
+	lastInsertedNode: null,
+	lastLevel: 0
 }
 
 const getters = {
 	getCurrendDb(state) {
 		return state.currentDb
-	},
+	}
 }
 
 const mutations = {
 	processBatch: (state) => {
 		for (let i = 0; i < state.batch.length; i++) {
-			// eslint-disable-next-line no-console
-			console.log('processBatch # : type:priority = ' + i + ' : ' + state.batch[i].doc.type + ':' + state.batch[i].doc.priority + ' title = ' + state.batch[i].doc.title)
+			/*
+			 * Compute the level the new node is at
+			 * Note that the database is at level 0 and requirement area documents are skipped in the database view
+			 */
+			let level = state.batch[i].doc.type
+
+			let newNode = {
+				title: state.batch[i].doc.title,
+				isLeaf: (level < 4) ? false : true, // for now PBI's (level 4) have no children
+				children: [],
+				isExpanded: (level < 3) ? true : false, // expand the tree up to the feature level
+				isdraggable: true,
+				isSelectable: true,
+				isSelected: false
+			}
+
+			if (level == state.lastLevel) {
+				// New node is a sibling placed below (after = same level) the selected node
+				state.lastInsertedNodeParent.children.push(newNode)
+			} else {
+				// New node is a child placed a level lower (inside = higher level) than the selected node
+				state.lastInsertedNode.children.push(newNode)
+				state.lastInsertedNodeParent = state.lastInsertedNode
+			}
+
+			state.lastLevel = level
+			state.lastInsertedNode = newNode
 		}
 	}
 }
@@ -219,6 +240,17 @@ const actions = {
 					state.config = res.data
 					// eslint-disable-next-line no-console
 					console.log('The configuration is loaded')
+					// prepare for loading the first batch; add the root node for the database name
+					state.nodes = [
+						{
+							"title": state.currentDb,
+							"isSelected": false,
+							"isExpanded": true,
+							"children": []
+						},
+					]
+					state.lastInsertedNodeParent = state.nodes[0]
+					state.lastInsertedNode = state.nodes[0]
 					dispatch('getFirstDocsBatch')
 				}
 			})
@@ -245,8 +277,6 @@ const actions = {
 				state.email = res.data.email
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb
-				console.log('getOtherUserData Update database title to = ', res.data.currentDb)
-				state.nodes[0]["title"] = res.data.currentDb
 				// eslint-disable-next-line no-console
 				console.log('getOtherUserData: database ' + state.currentDb + ' is set for user ' + rootState.user)
 				dispatch('getConfig')
@@ -277,9 +307,9 @@ const actions = {
 						state.offset += state.batchSize
 						// recurse until all read
 						dispatch('getNextDocsBatch')
-						// eslint-disable-next-line no-console
-						console.log('Another batch of ' + state.batch.length + ' documents is loaded')
 					}
+					// eslint-disable-next-line no-console
+					console.log('Another batch of ' + state.batch.length + ' documents is loaded')
 				}
 			})
 			// eslint-disable-next-line no-console
