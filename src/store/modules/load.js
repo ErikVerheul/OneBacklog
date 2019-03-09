@@ -175,6 +175,7 @@ const state = {
 	databases: [],
 	config: null,
 	currentDb: null,
+	email: null,
 	batchSize: 3,
 	offset: 0,
 	batch: [],
