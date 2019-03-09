@@ -213,7 +213,10 @@ const mutations = {
 				isExpanded: (level < pbiLevel - 1) ? true : false, // expand the tree up to the feature level (assuming the feature level is 1 above the PBI level)
 				isdraggable: true,
 				isSelectable: true,
-				isSelected: false
+				isSelected: false,
+				data: {
+					"_id": state.batch[i].doc._id
+				}
 			}
 
 			if (level == state.lastLevel) {
