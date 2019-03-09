@@ -10,7 +10,7 @@
 					<div class="d-table-cell w-100 tac">
 						<div>
 							<h3>Product T-Shirt size:
-								<input type="text" size="3" maxlength="3" id="productTitle" v-model.lazy="tShirtSize" />
+								<input type="text" size="3" maxlength="3" id="productTitle" v-model="tShirtSize" />
 							</h3>
 						</div>
 					</div>
@@ -67,7 +67,7 @@
 					<multipane class="horizontal-panes" layout="horizontal">
 						<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 							<div class="d-table w-100">
-								<b-input class="d-table-cell" type="text" maxlength="10" id="productTitle" v-model.lazy="productTitle">
+								<b-input class="d-table-cell" type="text" maxlength="10" id="productTitle" v-model.lazy="itemTitle">
 								</b-input>
 								<div class="d-table-cell tar">
 									<b-button href="#">(Un)Subscribe to change notices</b-button>
@@ -78,12 +78,12 @@
 							<div class="d-table w-100">
 								<h5 class="title is-6">Description</h5>
 								<div class="d-table-cell tar">
-									<h5 class="title is-6">Created by {{ createdBy }} at {{ creationDate }} </h5>
+									<h5 class="title is-6">Created by {{ history[0].createdBy }} at {{ new Date(history[0].creationDate).toString().substring(0, 33) }} </h5>
 								</div>
 							</div>
 						</div>
 						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<vue-editor v-model.lazy="description" :editorToolbar="customToolbar"></vue-editor>
+							<vue-editor :value="description" :editorToolbar="customToolbar"></vue-editor>
 						</div>
 						<multipane-resizer></multipane-resizer>
 						<div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
@@ -92,7 +92,7 @@
 							</div>
 						</div>
 						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<vue-editor v-model.lazy="acceptanceCriteria" :editorToolbar="customToolbar"></vue-editor>
+							<vue-editor :value="acceptanceCriteria" :editorToolbar="customToolbar"></vue-editor>
 						</div>
 						<multipane-resizer></multipane-resizer>
 						<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
@@ -180,7 +180,6 @@
 	export default {
 		data() {
 			return {
-				productTitle: 'The product title',
 				nodeIsSelected: false,
 				numberOfNodesSelected: 0,
 				firstNodeSelected: null,
@@ -210,11 +209,9 @@
 					}], // outdent/indent
 					['link', 'image', 'code-block']
 				],
-				description: 'Your product business case go\'s here',
-				acceptanceCriteria: 'Please include your acceptance criteria here',
-				createdBy: 'Erik Verheul',
-				creationDate: '8 January 2019',
-				tShirtSize: 'XL',
+
+				tShirtSize: 'XL', // ToDo: make dynamic
+
 				selected: 'comments',
 				options: [{
 						text: 'Comments',
@@ -229,44 +226,9 @@
 						value: 'history',
 					}
 				],
-				comments: [{
-						'Author and issue date:': "Erik Verheul @ Thu Jan 10 2019 17:26:48 GMT+0100",
-						'Comment:': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-					},
-
-					{
-						'Author and issue date:': "Erik Verheul @ Thu Jan 11 2019 17:26:48 GMT+0100",
-						'Comment:': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-					},
-
-					{
-						'Author and issue date:': "Erik Verheul @ Thu Jan 12 2019 17:26:48 GMT+0100",
-						'Comment:': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-					},
-
-					{
-						'Author and issue date:': "Erik Verheul @ Thu Jan 13 2019 17:26:48 GMT+0100",
-						'Comment:': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-					},
-
-					{
-						'Author and issue date:': "Erik Verheul @ Thu Jan 14 2019 17:26:48 GMT+0100",
-						'Comment:': "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-					},
-
-				],
-				attachments: [{
-					'Author and issue date:': "Erik Verheul @ Wed Jan 30 2019 15:26:48 GMT-0400",
-					'link:': "file location"
-				}],
-				history: [{
-					'Author and issue date:': "Erik Verheul @ Wed Feb 26 2019 09:53:48 GMT+0100",
-					'Change:': "Description of PBI with id PBI-A1-1 changed from 'Setup database.' to 'Setup database and provide test content'"
-				}],
 			}
 		},
 
-		// These getters are not in use right now
 		computed: {
 			...mapGetters({
 				userName: 'getUser',
@@ -274,55 +236,77 @@
 				userRoles: 'getRoles',
 				isServerAdmin: 'isServerAdmin',
 				isAuthenticated: 'isAuthenticated',
+				docId: 'getCurrentDocId',
+				acceptanceCriteria: 'getCurrentDocAcceptanceCriteria',
+				attachments: 'getCurrentDocAttachments',
+				comments: 'getCurrentDocComments',
+				description: 'getCurrentDocDescription',
+				followers: 'getCurrentDocFollowers',
+				history: 'getCurrentDocHistory',
+				reqAreaId: 'getCurrentDocReqArea',
+				spSize: 'getCurrentDocSpSize',
+				itemState: 'getCurrentDocState',
+				subType: 'getCurrentDocSubType',
+				itemTitle: 'getCurrentDocTitle',
+				tsSize: 'getCurrentDocTsSize',
+				itemType: 'getCurrentDocType'
 			}),
 		},
 
 		methods: {
 			/* mappings from config */
+			getLevelText(level) {
+				// note that in the tree model the first level is 1 (not zero)
+				let treeLevel = level - 1
+				if (treeLevel < 0 || treeLevel >= this.$store.state.load.config.itemType.length) {
+					return 'Error: unknown level'
+				}
+				return this.$store.state.load.config.itemType[treeLevel]
+			},
 			getItemState(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.itemState.length) {
+				if (idx < 0 || idx >= this.$store.state.load.config.itemType.length) {
 					return 'Error: unknown state'
 				}
-				return this.$store.state.config.itemState[idx]
+				return this.$store.state.load.config.itemState[idx]
 			},
 			getTsSize(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.tsSize.length) {
+				if (idx < 0 || idx >= this.$store.state.load.config.tsSize.length) {
 					return 'Error: unknown T-shirt size'
 				}
-				return this.$store.state.config.tsSize(idx)
+				return this.$store.state.load.config.tsSize(idx)
 			},
 			getSubType(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.subtype.length) {
+				if (idx < 0 || idx >= this.$store.state.load.config.subtype.length) {
 					return 'Error: unknown subtype'
 				}
-				return this.$store.state.config.subtype[idx]
+				return this.$store.state.load.config.subtype[idx]
 			},
 			getKnownRoles() {
-				return this.$store.state.config.knownRoles
+				return this.$store.state.load.config.knownRoles
 			},
 			getItemStateDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.itemStateDefinitions.length) {
+				if (idx < 0 || idx >= this.$store.state.load.config.itemStateDefinitions.length) {
 					return 'Error: unknown state'
 				}
-				return this.$store.state.config.itemStateDefinitions[idx]
+				return this.$store.state.load.config.itemStateDefinitions[idx]
 			},
 			getTsSizeDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.tsSizeDefinitions.length) {
+				if (idx < 0 || idx >= this.$store.state.load.config.tsSizeDefinitions.length) {
 					return 'Error: unknown T-shirt size'
 				}
-				return this.$store.state.config.tsSizeDefinitions(idx)
+				return this.$store.state.load.config.tsSizeDefinitions(idx)
 			},
 			getSubTypeDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.subtypeDefinitions.length) {
+				if (idx < 0 || idx >= this.$store.state.load.config.subtypeDefinitions.length) {
 					return 'Error: unknown subtype'
 				}
-				return this.$store.state.config.subtypeDefinitions[idx]
+				return this.$store.state.load.config.subtypeDefinitions[idx]
 			},
 			getKnownRoleDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.config.knownRolesDefinitions.length) {
+				if (idx < 0 || idx >= this.$store.state.load.config.knownRolesDefinitions.length) {
 					return 'Error: unknown role'
 				}
-				return this.$store.state.config.knownRolesDefinitions[idx]
+				return this.$store.state.load.config.knownRolesDefinitions[idx]
 			},
 
 			itemTitleTrunc(length, title) {
@@ -330,12 +314,15 @@
 				return title.substring(0, length - 4) + '...';
 			},
 
-			nodeSelected(nodes) {
+			nodeSelected(selNodes) {
 				this.nodeIsSelected = true;
-				this.numberOfNodesSelected = nodes.length;
-				this.firstNodeSelected = nodes[0];
-				this.selectedNodesTitle = this.itemTitleTrunc(60, nodes.map(node => node.title).join(', '));
-				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`;
+				this.numberOfNodesSelected = selNodes.length
+				this.firstNodeSelected = selNodes[0]
+				// read the document
+				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
+
+				this.selectedNodesTitle = this.itemTitleTrunc(60, selNodes.map(node => node.title).join(', '))
+				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`
 			},
 
 			nodeToggled(node) {
@@ -502,23 +489,6 @@
 						this.insertOptionSelected = 2; //Cannot create a database here
 					}
 					this.$refs.insertModalRef.show();
-				}
-			},
-
-			getLevelText(level) {
-				switch (level) {
-					case 1:
-						return 'Database'
-					case 2:
-						return 'Product'
-					case 3:
-						return 'Epic'
-					case 4:
-						return 'Feature'
-					case 5:
-						return 'Product backlog item'
-					default:
-						return 'The task level is not supported'
 				}
 			},
 
