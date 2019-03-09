@@ -45,6 +45,7 @@ export default new Vuex.Store({
 			state.load.databases = []
 			state.load.currentDb = null
 			state.load.offset = 0
+			state.load.nodes = []
 			state.email = null
 			state.config = null
 			clearTimeout(state.runningTimeout)
