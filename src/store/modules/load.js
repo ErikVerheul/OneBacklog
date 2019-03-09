@@ -173,8 +173,11 @@ const testNodes = [{
 
 const state = {
 	databases: [],
+	products: [],
+	currentProduct: null,
 	config: null,
 	currentDb: null,
+	currentDoc: null,
 	email: null,
 	batchSize: 3,
 	offset: 0,
@@ -188,6 +191,54 @@ const state = {
 const getters = {
 	getCurrendDb(state) {
 		return state.currentDb
+	},
+	getProducts(state) {
+		return state.products
+	},
+	getCurrendProduct(state) {
+		return state.currentProduct
+	},
+	getCurrentDocId(state) {
+		if (state.currentDoc != null) return state.currentDoc._id
+	},
+	getCurrentDocAcceptanceCriteria(state) {
+		if (state.currentDoc != null) return state.currentDoc.acceptanceCriteria
+	},
+	getCurrentDocAttachments(state) {
+		if (state.currentDoc != null) return state.currentDoc.attachments
+	},
+	getCurrentDocComments(state) {
+		if (state.currentDoc != null) return state.currentDoc.comments
+	},
+	getCurrentDocDescription(state) {
+		if (state.currentDoc != null) return state.currentDoc.description
+	},
+	getCurrentDocFollowers(state) {
+		if (state.currentDoc != null) return state.currentDoc.followers
+	},
+	getCurrentDocHistory(state) {
+		if (state.currentDoc != null) return state.currentDoc.history
+	},
+	getCurrentDocReqArea(state) {
+		if (state.currentDoc != null) return state.currentDoc.reqarea
+	},
+	getCurrentDocSpSize(state) {
+		if (state.currentDoc != null) return state.currentDoc.spsize
+	},
+	getCurrentDocState(state) {
+		if (state.currentDoc != null) return state.currentDoc.state
+	},
+	getCurrentDocSubType(state) {
+		if (state.currentDoc != null) return state.currentDoc.subtype
+	},
+	getCurrentDocTitle(state) {
+		if (state.currentDoc != null) return state.currentDoc.title
+	},
+	getCurrentDocTsSize(state) {
+		if (state.currentDoc != null) return state.currentDoc.tssize
+	},
+	getCurrentDocType(state) {
+		if (state.currentDoc != null) return state.currentDoc.type
 	}
 }
 
@@ -205,7 +256,13 @@ const mutations = {
 			 * This will change when tasks become the lowest level
 			 */
 			let pbiLevel = state.config.itemType.length - 1
-
+			// eslint-disable-next-line no-console
+			console.log('Create new node at level ' + level + ' and title ' + state.batch[i].doc.title)
+			if (level == 1) {
+				// Found a new level 1 item, usually a product
+				state.lastInsertedNodeParent = state.nodes[0]
+				state.lastInsertedNode = state.nodes[0]
+			}
 			let newNode = {
 				title: state.batch[i].doc.title,
 				isLeaf: (level < pbiLevel) ? false : true, // for now PBI's have no children
@@ -213,7 +270,8 @@ const mutations = {
 				isExpanded: (level < pbiLevel - 1) ? true : false, // expand the tree up to the feature level (assuming the feature level is 1 above the PBI level)
 				isdraggable: true,
 				isSelectable: true,
-				isSelected: false,
+				// As the product document is initially loaded show it as selected
+				isSelected: (state.batch[i].doc._id == state.currentProduct) ? true : false,
 				data: {
 					"_id": state.batch[i].doc._id
 				}
@@ -275,7 +333,6 @@ const actions = {
 		state,
 		dispatch
 	}) {
-		this.commit('clearAll')
 		globalAxios({
 				method: 'GET',
 				url: '_users/org.couchdb.user:' + rootState.user,
@@ -288,6 +345,10 @@ const actions = {
 				state.email = res.data.email
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb
+				state.products = res.data.products
+				state.currentProduct = state.products[res.data.currentProductIdx]
+				// load the currect project document
+				dispatch('loadDoc', state.currentProduct)
 				// eslint-disable-next-line no-console
 				console.log('getOtherUserData: database ' + state.currentDb + ' is set for user ' + rootState.user)
 				dispatch('getConfig')
@@ -354,6 +415,28 @@ const actions = {
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
+	},
+
+	// Load one document on _id
+	loadDoc({
+		state
+	}, _id) {
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					// eslint-disable-next-line no-console
+					console.log(res)
+					state.currentDoc = res.data
+					// eslint-disable-next-line no-console
+					console.log('loadDoc: docoment with _id + ' + _id + ' is loaded.')
+
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 
 }
