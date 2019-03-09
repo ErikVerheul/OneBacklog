@@ -198,6 +198,11 @@ const mutations = {
 			 * Note that the database is at level 0 and requirement area documents are skipped in the database view
 			 */
 			let level = state.batch[i].doc.type
+			/*
+			 * Compute the level the PBI is at
+			 * Note that for now the PBI level is the lowest level (highest type number)
+			 * This will change when tasks become the lowest level
+			 */
 			let pbiLevel = state.config.itemType.length - 1
 
 			let newNode = {
