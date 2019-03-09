@@ -173,6 +173,7 @@ const testNodes = [{
 
 const state = {
 	databases: [],
+	config: null,
 	currentDb: null,
 	batchSize: 3,
 	offset: 0,
@@ -197,12 +198,13 @@ const mutations = {
 			 * Note that the database is at level 0 and requirement area documents are skipped in the database view
 			 */
 			let level = state.batch[i].doc.type
+			let pbiLevel = state.config.itemType.length - 1
 
 			let newNode = {
 				title: state.batch[i].doc.title,
-				isLeaf: (level < 4) ? false : true, // for now PBI's (level 4) have no children
+				isLeaf: (level < pbiLevel) ? false : true, // for now PBI's have no children
 				children: [],
-				isExpanded: (level < 3) ? true : false, // expand the tree up to the feature level
+				isExpanded: (level < pbiLevel - 1) ? true : false, // expand the tree up to the feature level (assuming the feature level is 1 above the PBI level)
 				isdraggable: true,
 				isSelectable: true,
 				isSelected: false

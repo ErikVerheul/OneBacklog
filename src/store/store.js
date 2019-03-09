@@ -13,7 +13,6 @@ export default new Vuex.Store({
 		user: null,
 		roles: [],
 		email: null,
-		config: null,
 		runningTimeout: null,
 	},
 
@@ -47,7 +46,7 @@ export default new Vuex.Store({
 			state.load.offset = 0
 			state.load.nodes = []
 			state.email = null
-			state.config = null
+			state.load.config = null
 			clearTimeout(state.runningTimeout)
 		}
 	},
