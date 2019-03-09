@@ -386,10 +386,13 @@ const actions = {
 				withCredentials: true,
 				data: {
 					"views": {
-						// Sort on the negative value of the priority so that the highest priority comes op top
-						// Skip the requirements area documents with type 0 in this view
+						/*
+						 * Sort on productId first to separate items from different products. Sort on type to build the intem tree top down.
+						 * Sort on the negative value of the priority so that the highest priority comes on top.
+						 * Skip the requirements area documents with type 0 in this view. Requirements areas can overlook multiple products.
+						 */
 						"sortedFilter": {
-							"map": 'function (doc) {if (doc.type > 0)  emit([doc.type, doc.priority*-1], 1);}'
+							"map": 'function (doc) {if (doc.type > 0) emit([doc.productId, doc.type, doc.priority*-1], 1);}'
 						}
 					},
 					"language": "javascript"
@@ -576,8 +579,9 @@ const initUsers = {
 			"roles": ["admin", "superPO"],
 			"type": "user",
 			"email": "jan@mycompany.nl",
-			"databases": ['a', 'b', 'demo'],
-			"currentDb": 'demo'
+			"currentDb": 'demo',
+			"products": ["15521398069875394", "1552152600149c2ac"],
+			"currentProductIdx": 0
 		},
 		{
 			"name": "Herman",
@@ -585,8 +589,9 @@ const initUsers = {
 			"roles": ["admin", "PO"],
 			"type": "user",
 			"email": "herman@mycompany.nl",
-			"databases": ['a', 'b', 'demo'],
-			"currentDb": 'demo'
+			"currentDb": 'demo',
+			"products": ["15521398069875394", "1552152600149c2ac"],
+			"currentProductIdx": 1
 		},
 		{
 			"name": "Piet",
@@ -594,8 +599,9 @@ const initUsers = {
 			"roles": ["developer"],
 			"type": "user",
 			"email": "piet@mycompany.nl",
-			"databases": ['a', 'b', 'demo'],
-			"currentDb": 'demo'
+			"currentDb": 'demo',
+			"products": ["15521398069875394", "1552152600149c2ac"],
+			"currentProductIdx": 0
 		},
 		{
 			"name": "Mechteld",
@@ -603,8 +609,9 @@ const initUsers = {
 			"roles": ["developer"],
 			"type": "user",
 			"email": "mechteld@mycompany.nl",
-			"databases": ['a', 'b', 'demo'],
-			"currentDb": 'demo'
+			"currentDb": 'demo',
+			"products": ["15521398069875394", "1552152600149c2ac"],
+			"currentProductIdx": 0
 		},
 		{
 			"name": "Henk",
@@ -612,8 +619,9 @@ const initUsers = {
 			"roles": ["guest"],
 			"type": "user",
 			"email": "henk@mycompany.nl",
-			"databases": ['a', 'b', 'demo'],
-			"currentDb": 'demo'
+			"currentDb": 'demo',
+			"products": ["15521398069875394"],
+			"currentProductIdx": 0
 		},
 		{
 			"name": "guest",
@@ -621,8 +629,9 @@ const initUsers = {
 			"roles": ["guest"],
 			"type": "user",
 			"email": "guest@mycompany.nl",
-			"databases": ['a', 'b', 'demo'],
-			"currentDb": 'demo'
+			"currentDb": 'demo',
+			"products": ["1552152600149c2ac"],
+			"currentProductIdx": 0
 		}]
 }
 
@@ -651,8 +660,8 @@ const dbPermissions = {
 const initData = {
 	"docs": [
 		{
-			"_id": "15520476690102786",
-			"parentid": "1551886230582194f",
+			"_id": "1552140438968e1e9",
+			"productId": "15521398069875394",
 			"type": 4,
 			"subtype": 0,
 			"state": 4,
@@ -666,11 +675,14 @@ const initData = {
 			"priority": 6755399441055750,
 			"attachments": [],
 			"comments": [],
-			"history": []
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552140438969
+			}]
 		},
 		{
-			"_id": "1551886229110f080",
-			"parentid": "1551886228205955e",
+			"_id": "15521397677068926",
+			"productId": null,
 			"type": 0,
 			"state": 0,
 			"tssize": 0,
@@ -681,11 +693,14 @@ const initData = {
 			"priority": 4503599627370500,
 			"attachments": [],
 			"comments": [],
-			"history": [],
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552139767707
+			}],
 		},
 		{
-			"_id": "1551886228205955e",
-			"parentid": null,
+			"_id": "15521398069875394",
+			"productId": "15521398069875394",
 			"type": 1,
 			"subtype": null,
 			"state": 1,
@@ -699,17 +714,20 @@ const initData = {
 			"priority": 4503599627370500,
 			"attachments": [],
 			"comments": [],
-			"history": []
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552139806988,
+			}]
 		},
 		{
-			"_id": "1551886229908753a",
-			"parentid": "1551886228205955e",
+			"_id": "15521399035145bef",
+			"productId": "15521398069875394",
 			"type": 2,
 			"subtype": null,
 			"state": 2,
 			"tssize": 3,
 			"spsize": null,
-			"reqarea": "1551886229110f080",
+			"reqarea": "15521397677068926",
 			"title": "The GUI",
 			"followers": [],
 			"description": "As PO I want to see a MPV version of the GUI so that I can feel the product and come with improvements",
@@ -717,29 +735,35 @@ const initData = {
 			"priority": 4503599627370500,
 			"attachments": [],
 			"comments": [],
-			"history": []
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552139903514,
+			}]
 		},
 		{
-			"_id": "1551886230582194f",
-			"parentid": "1551886229908753a",
+			"_id": "1552139972020f641",
+			"productId": "15521398069875394",
 			"type": 3,
 			"subtype": null,
 			"state": 4,
 			"tssize": 3,
 			"spsize": null,
-			"reqarea": "1551886229110f080",
+			"reqarea": "15521397677068926",
 			"title": "The tree structure",
 			"followers": [],
-			"description": "As a PO I want a tree structure to walk over the products and all of its decendants",
-			"acceptanceCriteria": "Must be able to sort, create new, and delete items. Want to to be able to up or downgrade an item over 1 level: eg. a pbi to a feature, or a epic to a feature",
+			"description": "As a PO I want a tree structure to walk over the products and all of its descendants",
+			"acceptanceCriteria": "Must be able to sort, create new, and delete items. Want to to be able to up or downgrade an item over 1 level: eg. a pbi to a feature, or a epic to a feature. Warn the user before deletion. For now there is nu undo function.",
 			"priority": 4503599627370500,
 			"attachments": [],
 			"comments": [],
-			"history": []
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552139972020,
+			}]
 		},
 		{
-			"_id": "1551886231234850e",
-			"parentid": "1551886230582194f",
+			"_id": "1552139986318cf68",
+			"productId": "15521398069875394",
 			"type": 4,
 			"subtype": 0,
 			"state": 4,
@@ -748,14 +772,80 @@ const initData = {
 			"reqarea": null,
 			"title": "Enable item insertion",
 			"followers": [],
-			"description": "As PO or developer I want to create new items right at the spot with the anticipated priority",
+			"description": "As a user with the appropiate permission I want to create new items",
 			"acceptanceCriteria": "Please don't forget",
 			"priority": 4503599627370500,
 			"attachments": [],
 			"comments": [],
-			"history": []
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552139986318,
+			}]
 		},
 
+		{
+			"_id": "1552152600149c2ac",
+			"productId": "1552152600149c2ac",
+			"type": 1,
+			"subtype": null,
+			"state": 1,
+			"tssize": 1,
+			"spsize": null,
+			"reqarea": null,
+			"title": "Another great product",
+			"followers": [],
+			"description": "As the CEO I want ... so that we as a company can ...",
+			"acceptanceCriteria": "Must be awesome",
+			"priority": 4503599627370500,
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552139806988,
+			}]
+		},
+		{
+			"_id": "155215264241301dd",
+			"productId": "1552152600149c2ac",
+			"type": 2,
+			"subtype": null,
+			"state": 2,
+			"tssize": 3,
+			"spsize": null,
+			"reqarea": "15521397677068926",
+			"title": "Epic nr.1 for awesome",
+			"followers": [],
+			"description": "The fist Epic for this awesome product",
+			"acceptanceCriteria": "Please don't forget",
+			"priority": 4503599627370500,
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552139903514,
+			}]
+		},
+		{
+			"_id": "1552152658206bb2f",
+			"productId": "1552152600149c2ac",
+			"type": 3,
+			"subtype": null,
+			"state": 4,
+			"tssize": 3,
+			"spsize": null,
+			"reqarea": "15521397677068926",
+			"title": "First awesome feature",
+			"followers": [],
+			"description": "Create an awesome login so that it is super easy to do.",
+			"acceptanceCriteria": "Just be awesome",
+			"priority": 4503599627370500,
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552139972020,
+			}]
+		},
 	]
 }
 /* Above some data to create a sample database */
