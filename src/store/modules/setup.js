@@ -387,8 +387,9 @@ const actions = {
 				data: {
 					"views": {
 						// Sort on the negative value of the priority so that the highest priority comes op top
+						// Skip the requirements area documents with type 0 in this view
 						"sortedFilter": {
-							"map": 'function (doc) {if (doc.type >= 0)  emit([doc.type, doc.priority*-1], 1);}'
+							"map": 'function (doc) {if (doc.type > 0)  emit([doc.type, doc.priority*-1], 1);}'
 						}
 					},
 					"language": "javascript"
@@ -669,7 +670,7 @@ const initData = {
 		},
 		{
 			"_id": "1551886229110f080",
-			"parentid": null,
+			"parentid": "1551886228205955e",
 			"type": 0,
 			"state": 0,
 			"tssize": 0,
@@ -687,7 +688,7 @@ const initData = {
 			"parentid": null,
 			"type": 1,
 			"subtype": null,
-			"state": 2,
+			"state": 1,
 			"tssize": 1,
 			"spsize": null,
 			"reqarea": null,
