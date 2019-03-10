@@ -235,7 +235,9 @@ const getters = {
 		if (state.currentDoc != null) return state.currentDoc.title
 	},
 	getCurrentDocTsSize(state) {
-		if (state.currentDoc != null) return state.currentDoc.tssize
+		if (state.currentDoc != null) {
+			return state.config.tsSize[state.currentDoc.tssize]
+		}
 	},
 	getCurrentDocType(state) {
 		if (state.currentDoc != null) return state.currentDoc.type

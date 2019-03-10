@@ -9,8 +9,11 @@
 					</div>
 					<div class="d-table-cell w-100 tac">
 						<div>
-							<h3>Product T-Shirt size:
-								<input type="text" size="3" maxlength="3" id="productTitle" v-model="tShirtSize" />
+							<h3 v-if="itemType <= 2" >{{ getLevelText(itemType + 1) }} T-Shirt size:
+								<input type="text" size="3" maxlength="3" id="productTitle" v-model="tsSize" />
+							</h3>
+							<h3 v-if="itemType > 2" >{{ getLevelText(itemType + 1) }} Story points:
+								<input type="text" size="3" maxlength="4" id="productTitle" v-model="spSize" />
 							</h3>
 						</div>
 					</div>
@@ -78,7 +81,7 @@
 							<div class="d-table w-100">
 								<h5 class="title is-6">Description</h5>
 								<div class="d-table-cell tar">
-									<h5 class="title is-6">Created by {{ history[0].createdBy }} at {{ new Date(history[0].creationDate).toString().substring(0, 33) }} </h5>
+									<h6 class="title is-6">Created by {{ history[0].createdBy }} at {{ new Date(history[0].creationDate).toString().substring(0, 33) }} </h6>
 								</div>
 							</div>
 						</div>
