@@ -173,7 +173,8 @@ const testNodes = [{
 
 const state = {
 	databases: [],
-	products: [],
+	treeNodes: [],
+	userAssignedProducts: [],
 	currentProduct: null,
 	config: null,
 	currentDb: null,
@@ -182,20 +183,19 @@ const state = {
 	batchSize: 3,
 	offset: 0,
 	batch: [],
-	nodes: [],
 	lastInsertedNodeParent: null,
 	lastInsertedNode: null,
 	lastLevel: 0
 }
 
 const getters = {
-	getCurrendDb(state) {
+	getCurrentDb(state) {
 		return state.currentDb
 	},
 	getProducts(state) {
-		return state.products
+		return state.userAssignedProducts
 	},
-	getCurrendProduct(state) {
+	getCurrentProduct(state) {
 		return state.currentProduct
 	},
 	getCurrentDocId(state) {
@@ -218,6 +218,12 @@ const getters = {
 	},
 	getCurrentDocHistory(state) {
 		if (state.currentDoc != null) return state.currentDoc.history
+	},
+	getCurrentDocPriority(state) {
+		if (state.currentDoc != null) return state.currentDoc.priority
+	},
+	getCurrentDocProductId(state) {
+		if (state.currentDoc != null) return state.currentDoc.productId
 	},
 	getCurrentDocReqArea(state) {
 		if (state.currentDoc != null) return state.currentDoc.reqarea
@@ -245,6 +251,10 @@ const getters = {
 }
 
 const mutations = {
+	setCurrentDocTitle(state, payload) {
+		state.currentDoc.title = payload.newTitle
+	},
+
 	processBatch: (state) => {
 		for (let i = 0; i < state.batch.length; i++) {
 			/*
@@ -262,8 +272,8 @@ const mutations = {
 			console.log('Create new node at level ' + level + ' and title ' + state.batch[i].doc.title)
 			if (level == 1) {
 				// Found a new level 1 item, usually a product
-				state.lastInsertedNodeParent = state.nodes[0]
-				state.lastInsertedNode = state.nodes[0]
+				state.lastInsertedNodeParent = state.treeNodes[0]
+				state.lastInsertedNode = state.treeNodes[0]
 			}
 			let newNode = {
 				title: state.batch[i].doc.title,
@@ -312,7 +322,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log('The configuration is loaded')
 					// prepare for loading the first batch; add the root node for the database name
-					state.nodes = [
+					state.treeNodes = [
 						{
 							"title": state.currentDb,
 							"isSelected": false,
@@ -320,8 +330,8 @@ const actions = {
 							"children": []
 						},
 					]
-					state.lastInsertedNodeParent = state.nodes[0]
-					state.lastInsertedNode = state.nodes[0]
+					state.lastInsertedNodeParent = state.treeNodes[0]
+					state.lastInsertedNode = state.treeNodes[0]
 					dispatch('getFirstDocsBatch')
 				}
 			})
@@ -347,9 +357,9 @@ const actions = {
 				state.email = res.data.email
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb
-				state.products = res.data.products
-				state.currentProduct = state.products[res.data.currentProductIdx]
-				// load the currect project document
+				state.userAssignedProducts = res.data.products
+				state.currentProduct = state.userAssignedProducts[res.data.currentProductIdx]
+				// load the current product document
 				dispatch('loadDoc', state.currentProduct)
 				// eslint-disable-next-line no-console
 				console.log('getOtherUserData: database ' + state.currentDb + ' is set for user ' + rootState.user)
@@ -433,12 +443,32 @@ const actions = {
 					console.log(res)
 					state.currentDoc = res.data
 					// eslint-disable-next-line no-console
-					console.log('loadDoc: docoment with _id + ' + _id + ' is loaded.')
-
+					console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+
+	// Update current document
+	updateDoc({
+		state
+	}) {
+		globalAxios({
+				method: 'PUT',
+				url: state.currentDb + '/' + state.currentDoc._id,
+				withCredentials: true,
+				data: state.currentDoc
+			}).then(res => {
+				if (res.status == 200) {
+					// eslint-disable-next-line no-console
+					console.log(res)
+					// eslint-disable-next-line no-console
+					console.log('loadDoc: docoment with _id + ' + state.currentDoc._id + ' is updated.')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + state.currentDoc._id + '. Error = ' + error))
 	},
 
 }
