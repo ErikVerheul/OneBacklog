@@ -174,7 +174,8 @@ const testNodes = [{
 const state = {
 	databases: [],
 	treeNodes: [],
-	userAssignedProducts: [],
+	userAssignedProductIds: [],
+	userAssignedProductNames: '',
 	currentProduct: null,
 	config: null,
 	currentDb: null,
@@ -185,17 +186,21 @@ const state = {
 	batch: [],
 	lastInsertedNodeParent: null,
 	lastInsertedNode: null,
-	lastLevel: 0
+	lastLevel: 0,
+	counter: 0
 }
 
 const getters = {
 	getCurrentDb(state) {
 		return state.currentDb
 	},
-	getProducts(state) {
-		return state.userAssignedProducts
+	getProductIds(state) {
+		return state.userAssignedProductIds
 	},
-	getCurrentProduct(state) {
+	getUserAssignedProductNames(state) {
+		return state.userAssignedProductNames.substr(0, state.userAssignedProductNames.length - 2)
+	},
+	getCurrentProductId(state) {
 		return state.currentProduct
 	},
 	getCurrentDocId(state) {
@@ -358,8 +363,9 @@ const actions = {
 				state.email = res.data.email
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb
-				state.userAssignedProducts = res.data.products
-				state.currentProduct = state.userAssignedProducts[res.data.currentProductIdx]
+				state.userAssignedProductIds = res.data.products
+				state.currentProduct = state.userAssignedProductIds[res.data.currentProductIdx]
+				this.dispatch('fetchProductNames')
 				// load the current product document
 				dispatch('loadDoc', state.currentProduct)
 				// eslint-disable-next-line no-console
@@ -430,7 +436,31 @@ const actions = {
 			.catch(error => console.log('Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
 	},
 
-	// Load one document on _id
+	// Fetch the assigned product document names
+	fetchProductNames({
+		state
+	}, payload) {
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + state.userAssignedProductIds[state.counter],
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					// eslint-disable-next-line no-console
+					console.log(res)
+					state.counter++
+					state.userAssignedProductNames = state.userAssignedProductNames + res.data.title.substr(0, 40) + '... , '
+					// eslint-disable-next-line no-console
+					console.log('loadDoc: document with _id + ' + state.userAssignedProductIds[state.counter] + ' is loaded.')
+					if (state.counter < state.userAssignedProductIds.length) this.dispatch('fetchProductNames')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + state.userAssignedProductIds[state.counter] + '. Error = ' + error))
+	},
+
+
+	// Load current document by _id
 	loadDoc({
 		state
 	}, _id) {

@@ -23,7 +23,7 @@
 			<!-- vertical panes -->
 			<multipane class="custom-resizer" layout="vertical">
 				<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-					<h2>Sl-vue-tree - tree view</h2>
+					<h6>Your assigned products are {{ userAssignedProductNames }}</h6>
 
 					<div class='last-event'>
 						Last event: {{ lastEvent }}
@@ -237,8 +237,9 @@
 				userName: 'getUser',
 				currentDb: 'getCurrentDb',
 				userRoles: 'getRoles',
-				userProducts: 'userAssignedProducts',
-				currentProduct: 'getCurrentProduct',
+				userProductsIds: 'getProductIds',
+				userAssignedProductNames: 'getUserAssignedProductNames',
+				currentProductId: 'getCurrentProductId',
 				isServerAdmin: 'isServerAdmin',
 				isAuthenticated: 'isAuthenticated',
 
