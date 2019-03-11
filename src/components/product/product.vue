@@ -9,11 +9,11 @@
 					</div>
 					<div class="d-table-cell w-100 tac">
 						<div>
-							<h3 v-if="itemType <= 2" >{{ getLevelText(itemType + 1) }} T-Shirt size:
-								<input type="text" size="3" maxlength="3" id="productTitle" v-model="tsSize" />
+							<h3 v-if="itemType <= 2">{{ getLevelText(itemType + 1) }} T-Shirt size:
+								<input type="text" size="3" maxlength="3" id="productTitle" :value="tsSize" />
 							</h3>
-							<h3 v-if="itemType > 2" >{{ getLevelText(itemType + 1) }} Story points:
-								<input type="text" size="3" maxlength="4" id="productTitle" v-model="spSize" />
+							<h3 v-if="itemType > 2">{{ getLevelText(itemType + 1) }} Story points:
+								<input type="text" size="3" maxlength="4" id="productTitle" :value="spSize" />
 							</h3>
 						</div>
 					</div>
@@ -31,7 +31,7 @@
 
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="tree-container" @mousedown.stop>
-						<sl-vue-tree v-model="nodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+						<sl-vue-tree v-model="treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 
 							<template slot="title" slot-scope="{ node }">
 								<span class="item-icon">
@@ -70,7 +70,7 @@
 					<multipane class="horizontal-panes" layout="horizontal">
 						<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 							<div class="d-table w-100">
-								<b-input class="d-table-cell" type="text" maxlength="10" id="productTitle" v-model.lazy="itemTitle">
+								<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="itemTitle" @blur="updateTitle()">
 								</b-input>
 								<div class="d-table-cell tar">
 									<b-button href="#">(Un)Subscribe to change notices</b-button>
@@ -193,7 +193,7 @@
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
 
-				nodes: this.$store.state.load.nodes,
+				treeNodes: this.$store.state.load.treeNodes,
 
 				customToolbar: [
 					[{
@@ -235,10 +235,13 @@
 		computed: {
 			...mapGetters({
 				userName: 'getUser',
-				currentDb: 'getCurrendDb',
+				currentDb: 'getCurrentDb',
 				userRoles: 'getRoles',
+				userProducts: 'userAssignedProducts',
+				currentProduct: 'getCurrentProduct',
 				isServerAdmin: 'isServerAdmin',
 				isAuthenticated: 'isAuthenticated',
+
 				docId: 'getCurrentDocId',
 				acceptanceCriteria: 'getCurrentDocAcceptanceCriteria',
 				attachments: 'getCurrentDocAttachments',
@@ -246,6 +249,8 @@
 				description: 'getCurrentDocDescription',
 				followers: 'getCurrentDocFollowers',
 				history: 'getCurrentDocHistory',
+				priority: 'getCurrentDocPriority',
+				productId: 'getCurrentDocProductId',
 				reqAreaId: 'getCurrentDocReqArea',
 				spSize: 'getCurrentDocSpSize',
 				itemState: 'getCurrentDocState',
@@ -257,6 +262,21 @@
 		},
 
 		methods: {
+			updateTitle() {
+				const newTitle = document.getElementById("titleField")
+				// update the tree
+				const $slVueTree = this.$refs.slVueTree;
+				const paths = $slVueTree.getSelected().map(node => node.path);
+				$slVueTree.updateNode(paths[0], {
+					title: newTitle.value,
+				})
+				// update current document
+				const payload = {
+					'newTitle': newTitle.value
+				}
+				this.$store.commit('setCurrentDocTitle', payload)
+			},
+
 			/* mappings from config */
 			getLevelText(level) {
 				// note that in the tree model the first level is 1 (not zero)
@@ -318,12 +338,11 @@
 			},
 
 			nodeSelected(selNodes) {
-				this.nodeIsSelected = true;
+				this.nodeIsSelected = true
 				this.numberOfNodesSelected = selNodes.length
 				this.firstNodeSelected = selNodes[0]
 				// read the document
 				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
-
 				this.selectedNodesTitle = this.itemTitleTrunc(60, selNodes.map(node => node.title).join(', '))
 				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`
 			},
@@ -517,8 +536,6 @@
 				return options
 			},
 
-
-
 			prepareInsert() {
 				var clickedLevel = this.firstNodeSelected.level
 				var insertLevel = clickedLevel
@@ -577,6 +594,7 @@
 			doCancelInsert() {
 				this.insertOptionSelected = 1; //Restore default
 			}
+
 		},
 
 		components: {
