@@ -253,6 +253,7 @@ const getters = {
 const mutations = {
 	setCurrentDocTitle(state, payload) {
 		state.currentDoc.title = payload.newTitle
+		this.dispatch('updateDoc')
 	},
 
 	processBatch: (state) => {
