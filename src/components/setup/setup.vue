@@ -90,7 +90,7 @@
 		computed: {
 			...mapGetters({
 				name: 'getUser',
-				db: 'getCurrendDb',
+				db: 'getCurrentDb',
 				roles: 'getRoles',
 				message: 'returnMessage',
 				comment: 'returnComment',
