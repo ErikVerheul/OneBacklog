@@ -176,7 +176,7 @@ const state = {
 	treeNodes: [],
 	userAssignedProductIds: [],
 	userAssignedProductNames: '',
-	currentProduct: null,
+	currentProductId: null,
 	config: null,
 	currentDb: null,
 	currentDoc: null,
@@ -197,11 +197,8 @@ const getters = {
 	getProductIds(state) {
 		return state.userAssignedProductIds
 	},
-	getUserAssignedProductNames(state) {
-		return state.userAssignedProductNames.substr(0, state.userAssignedProductNames.length - 2)
-	},
 	getCurrentProductId(state) {
-		return state.currentProduct
+		return state.currentProductId
 	},
 	getCurrentDocId(state) {
 		if (state.currentDoc != null) return state.currentDoc._id
@@ -260,6 +257,14 @@ const mutations = {
 		state.currentDoc.title = payload.newTitle
 		this.dispatch('updateDoc')
 	},
+	setCurrentDescription(state, payload) {
+		state.currentDoc.description = payload.newDescription
+		this.dispatch('updateDoc')
+	},
+	setCurrentAcceptanceCriteria(state, payload) {
+		state.currentDoc.acceptanceCriteria = payload.newAcceptanceCriteria
+		this.dispatch('updateDoc')
+	},
 
 	processBatch: (state) => {
 		for (let i = 0; i < state.batch.length; i++) {
@@ -289,7 +294,7 @@ const mutations = {
 				isdraggable: true,
 				isSelectable: true,
 				// As the product document is initially loaded show it as selected
-				isSelected: (state.batch[i].doc._id == state.currentProduct) ? true : false,
+				isSelected: (state.batch[i].doc._id == state.currentProductId) ? true : false,
 				data: {
 					"_id": state.batch[i].doc._id
 				}
@@ -364,10 +369,9 @@ const actions = {
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb
 				state.userAssignedProductIds = res.data.products
-				state.currentProduct = state.userAssignedProductIds[res.data.currentProductIdx]
-				this.dispatch('fetchProductNames')
+				state.currentProductId = state.userAssignedProductIds[res.data.currentProductIdx]
 				// load the current product document
-				dispatch('loadDoc', state.currentProduct)
+				dispatch('loadDoc', state.currentProductId)
 				// eslint-disable-next-line no-console
 				console.log('getOtherUserData: database ' + state.currentDb + ' is set for user ' + rootState.user)
 				dispatch('getConfig')
@@ -436,30 +440,6 @@ const actions = {
 			.catch(error => console.log('Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
 	},
 
-	// Fetch the assigned product document names
-	fetchProductNames({
-		state
-	}, payload) {
-		globalAxios({
-				method: 'GET',
-				url: state.currentDb + '/' + state.userAssignedProductIds[state.counter],
-				withCredentials: true,
-			}).then(res => {
-				if (res.status == 200) {
-					// eslint-disable-next-line no-console
-					console.log(res)
-					state.counter++
-					state.userAssignedProductNames = state.userAssignedProductNames + res.data.title.substr(0, 40) + '... , '
-					// eslint-disable-next-line no-console
-					console.log('loadDoc: document with _id + ' + state.userAssignedProductIds[state.counter] + ' is loaded.')
-					if (state.counter < state.userAssignedProductIds.length) this.dispatch('fetchProductNames')
-				}
-			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + state.userAssignedProductIds[state.counter] + '. Error = ' + error))
-	},
-
-
 	// Load current document by _id
 	loadDoc({
 		state
@@ -483,7 +463,8 @@ const actions = {
 
 	// Update current document
 	updateDoc({
-		state
+		state,
+		dispatch
 	}) {
 		globalAxios({
 				method: 'PUT',
@@ -491,15 +472,17 @@ const actions = {
 				withCredentials: true,
 				data: state.currentDoc
 			}).then(res => {
-				if (res.status == 200) {
+				if (res.status == 201) {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					// eslint-disable-next-line no-console
 					console.log('loadDoc: docoment with _id + ' + state.currentDoc._id + ' is updated.')
+					// reload the doc to get the latest revision number
+					dispatch('loadDoc', state.currentDoc._id)
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + state.currentDoc._id + '. Error = ' + error))
+			.catch(error => console.log('Could not write document with url ' + state.currentDb + '/' + state.currentDoc._id + '. Error = ' + error))
 	},
 
 }

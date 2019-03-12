@@ -23,7 +23,7 @@
 			<!-- vertical panes -->
 			<multipane class="custom-resizer" layout="vertical">
 				<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-					<h6>Your assigned products are {{ userAssignedProductNames }}</h6>
+					<h3>Your current database is set to {{ currentDb }}. You have {{ userProductsIds.length }} product(s)</h3>
 
 					<div class='last-event'>
 						Last event: {{ lastEvent }}
@@ -86,7 +86,7 @@
 							</div>
 						</div>
 						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<vue-editor :value="description" :editorToolbar="customToolbar"></vue-editor>
+							<vue-editor :value="description" :editorToolbar="customToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
 						</div>
 						<multipane-resizer></multipane-resizer>
 						<div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
@@ -95,7 +95,7 @@
 							</div>
 						</div>
 						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<vue-editor :value="acceptanceCriteria" :editorToolbar="customToolbar"></vue-editor>
+							<vue-editor :value="acceptanceCriteria" :editorToolbar="customToolbar" id="acceptanceCriteriaField" @blur="updateAcceptanceCriteria()"></vue-editor>
 						</div>
 						<multipane-resizer></multipane-resizer>
 						<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
@@ -238,7 +238,6 @@
 				currentDb: 'getCurrentDb',
 				userRoles: 'getRoles',
 				userProductsIds: 'getProductIds',
-				userAssignedProductNames: 'getUserAssignedProductNames',
 				currentProductId: 'getCurrentProductId',
 				isServerAdmin: 'isServerAdmin',
 				isAuthenticated: 'isAuthenticated',
@@ -276,6 +275,24 @@
 					'newTitle': newTitle.value
 				}
 				this.$store.commit('setCurrentDocTitle', payload)
+			},
+			updateDescription() {
+				const newDescription = document.getElementById("descriptionField").innerText
+				console.log('newDescription = ' + newDescription)
+				// update current document
+				const payload = {
+					'newDescription': newDescription
+				}
+				this.$store.commit('setCurrentDescription', payload)
+			},
+			updateAcceptanceCriteria() {
+				const newAcceptanceCriteria = document.getElementById("acceptanceCriteriaField").innerText
+				console.log('newAcceptanceCriteria = ' + newAcceptanceCriteria)
+				// update current document
+				const payload = {
+					'newAcceptanceCriteria': newAcceptanceCriteria
+				}
+				this.$store.commit('setCurrentAcceptanceCriteria', payload)
 			},
 
 			/* mappings from config */
