@@ -42,7 +42,7 @@
 										<font-awesome-icon icon="folder" />
 									</i>
 								</span>
-								{{ node.title }}
+								{{ node.title }} + {{ node.data.priority}}
 							</template>
 
 							<template slot="toggle" slot-scope="{ node }">
@@ -431,42 +431,99 @@
 				}
 			},
 
+			/*
+			 * Calculate the priority as the average value of the predecessor and the successor.
+			 * When the predecessor is the parent the predecessor priority is Maxint.
+			 * When no successor exists the successor priority is 0.
+			 * returns the calculated priority
+			 */
+			calcNewPriority(node) {
+				const path = node.path
+				const $slVueTree = this.$refs.slVueTree
+				var predecessorPrio
+				var successorPrio
+
+				if (node.isFirstChild) {
+					predecessorPrio = Number.MAX_SAFE_INTEGER
+				} else {
+					predecessorPrio = $slVueTree.getPrevNode(path).data.priority
+				}
+
+				if (node.isLastChild) {
+					successorPrio = 0
+				} else {
+					successorPrio = $slVueTree.getNextNode(path).data.priority
+				}
+				console.log('calcNewPriority: for node.title ' + node.title + ' isFirstChild = ' + node.isFirstChild + ' isLastChild = ' + node.isLastChild +
+					'\n prevnode = ' + $slVueTree.getPrevNode(path).title +
+					'\n nextnode.title = ' + $slVueTree.getNextNode(path).title +
+					'\n predecessorPrio = ' + predecessorPrio +
+					'\n successorPrio = ' + successorPrio)
+				return (predecessorPrio + successorPrio) / 2
+			},
+
+			/*
+			 * updates the priority value in the tree and
+			 */
+			updatePriorityInTree(currentNode, newPriority) {
+				const $slVueTree = this.$refs.slVueTree
+				$slVueTree.updateNode(currentNode.path, {
+					data: {
+						priority: newPriority
+					}
+				})
+			},
+
+			/*
+			 * updates the priority value in the document in the database
+			 */
+			updatePriorityInDb(newPriority) {
+				// update current document
+				const payload = {
+					'priority': newPriority
+				}
+				this.$store.commit('setNewPriority', payload)
+			},
+
 			nodeDropped(draggingNodes, position) {
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = this.calcDropLevel(position)
 				let levelChange = Math.abs(clickedLevel - dropLevel)
-				const $slVueTree = this.$refs.slVueTree;
-				const paths = $slVueTree.getSelected().map(node => node.path);
-				for (let i = 0; i < paths.length; i++) {
+				const $slVueTree = this.$refs.slVueTree
+				const selectedNodes = $slVueTree.getSelected()
+				for (let i = 0; i < selectedNodes.length; i++) {
 					if (levelChange === 0) {
-						// for now the PBI level is the highest level and always a leaf
+						// for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
 						if (dropLevel === 5) {
-							$slVueTree.updateNode(paths[i], {
+							$slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
 							})
 						} else {
 							// lower levels are not a leaf
-							$slVueTree.updateNode(paths[i], {
+							$slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: false,
 								isExpanded: false,
 							})
 						}
 					} else {
-						// warn the user when he dropped the node(s) on another level
+						// the user dropped the node(s) on another level
 						if (dropLevel === 5) {
-							$slVueTree.updateNode(paths[i], {
+							$slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
 							})
 						} else {
-							// lower levels are not a leave
-							$slVueTree.updateNode(paths[i], {
+							// lower levels (= higher in the hiearchy) are not a leave
+							$slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: false,
 								isExpanded: false,
 							})
 						}
 					}
+					let newPriority = this.calcNewPriority(selectedNodes[i])
+					this.updatePriorityInTree(selectedNodes[i], newPriority)
+					this.updatePriorityInDb(newPriority)
 				}
 				if ((draggingNodes.length) === 1) {
 					this.lastEvent = `Node: ${this.itemTitleTrunc(60, draggingNodes.map(node => node.title).join(', '))} is dropped ${position.placement} ${position.node.title}`
@@ -600,18 +657,29 @@
 			doInsert() {
 				this.lastEvent = 'Node is inserted';
 				const $slVueTree = this.$refs.slVueTree;
-				$slVueTree.insert(this.newNodeLocation, this.newNode);
-				this.insertOptionSelected = 1; //Restore default
-				// Unselect the node that was clicked before the insert
+				$slVueTree.insert(this.newNodeLocation, this.newNode)
+				// restore default
+				this.insertOptionSelected = 1
+				// unselect the node that was clicked before the insert
 				const paths = $slVueTree.getSelected().map(node => node.path);
 				$slVueTree.updateNode(paths[0], {
 					isSelected: false
 				})
+				// now the node is inserted get the full ISlTreeNode data and set priority
+				const selectedNodes = $slVueTree.getSelected()
+				const insertedNode = selectedNodes[0]
+				let setPriority = this.calcNewPriority(insertedNode)
+				$slVueTree.updateNode(insertedNode.path, {
+					data: {
+						priority: setPriority
+					}
+				})
+				// TODO: create and save new document
 			},
 
 			doCancelInsert() {
 				this.insertOptionSelected = 1; //Restore default
-			}
+			},
 
 		},
 

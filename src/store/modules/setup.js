@@ -782,6 +782,27 @@ const initData = {
 				"creationDate": 1552139986318,
 			}]
 		},
+		{
+			"_id": "1552406429497867d",
+			"productId": "15521398069875394",
+			"type": 4,
+			"subtype": 0,
+			"state": 4,
+			"tssize": 0,
+			"spsize": 5,
+			"reqarea": null,
+			"title": "Enable item deletion",
+			"followers": [],
+			"description": "As a user with the appropiate permission I want to delete items",
+			"acceptanceCriteria": "Please don't forget",
+			"priority": 2251799813685250,
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createdBy": "erik@mycompany.nl",
+				"creationDate": 1552406429497,
+			}]
+		},
 
 		{
 			"_id": "1552152600149c2ac",

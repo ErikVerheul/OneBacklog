@@ -265,6 +265,10 @@ const mutations = {
 		state.currentDoc.acceptanceCriteria = payload.newAcceptanceCriteria
 		this.dispatch('updateDoc')
 	},
+	setNewPriority(state, payload) {
+		state.currentDoc.priority = payload.priority
+		this.dispatch('updateDoc')
+	},
 
 	processBatch: (state) => {
 		for (let i = 0; i < state.batch.length; i++) {
@@ -296,7 +300,8 @@ const mutations = {
 				// As the product document is initially loaded show it as selected
 				isSelected: (state.batch[i].doc._id == state.currentProductId) ? true : false,
 				data: {
-					"_id": state.batch[i].doc._id
+					"_id": state.batch[i].doc._id,
+					"priority": state.batch[i].doc.priority
 				}
 			}
 
