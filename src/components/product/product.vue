@@ -262,6 +262,7 @@
 		},
 
 		methods: {
+			/* Database update methods */
 			updateTitle() {
 				const newTitle = document.getElementById("titleField")
 				// update the tree
@@ -274,25 +275,31 @@
 				const payload = {
 					'newTitle': newTitle.value
 				}
-				this.$store.commit('setCurrentDocTitle', payload)
+				this.$store.dispatch('setCurrentDocTitle', payload)
 			},
 			updateDescription() {
 				const newDescription = document.getElementById("descriptionField").innerText
-				console.log('newDescription = ' + newDescription)
 				// update current document
 				const payload = {
 					'newDescription': newDescription
 				}
-				this.$store.commit('setCurrentDescription', payload)
+				this.$store.dispatch('setCurrentDescription', payload)
 			},
 			updateAcceptanceCriteria() {
 				const newAcceptanceCriteria = document.getElementById("acceptanceCriteriaField").innerText
-				console.log('newAcceptanceCriteria = ' + newAcceptanceCriteria)
 				// update current document
 				const payload = {
 					'newAcceptanceCriteria': newAcceptanceCriteria
 				}
-				this.$store.commit('setCurrentAcceptanceCriteria', payload)
+				this.$store.dispatch('setCurrentAcceptanceCriteria', payload)
+			},
+			updatePriorityInDb(_id, newPriority) {
+				// update current document
+				const payload = {
+					'_id': _id,
+					'priority': newPriority,
+				}
+				this.$store.dispatch('setNewPriority', payload)
 			},
 
 			/* mappings from config */
@@ -453,7 +460,7 @@
 				for (let i = 0; i < destSiblings.length; i++) {
 					let newPriority = Number.MAX_SAFE_INTEGER - (i + 1) * stepSize
 					this.updatePriorityInTree(destSiblings[i], newPriority)
-					//					updatePriorityInDb(newPriority)
+					this.updatePriorityInDb(destSiblings[i].data._id, newPriority)
 				}
 
 			},
@@ -470,17 +477,6 @@
 						priority: newPriority,
 					}
 				})
-			},
-
-			/*
-			 * Updates the priority value in the document in the database
-			 */
-			updatePriorityInDb(newPriority) {
-				// update current document
-				const payload = {
-					'priority': newPriority,
-				}
-				this.$store.commit('setNewPriority', payload)
 			},
 
 			/*

@@ -180,6 +180,7 @@ const state = {
 	config: null,
 	currentDb: null,
 	currentDoc: null,
+	tmpDoc: null,
 	email: null,
 	batchSize: 3,
 	offset: 0,
@@ -253,22 +254,6 @@ const getters = {
 }
 
 const mutations = {
-	setCurrentDocTitle(state, payload) {
-		state.currentDoc.title = payload.newTitle
-		this.dispatch('updateDoc')
-	},
-	setCurrentDescription(state, payload) {
-		state.currentDoc.description = payload.newDescription
-		this.dispatch('updateDoc')
-	},
-	setCurrentAcceptanceCriteria(state, payload) {
-		state.currentDoc.acceptanceCriteria = payload.newAcceptanceCriteria
-		this.dispatch('updateDoc')
-	},
-	setNewPriority(state, payload) {
-		state.currentDoc.priority = payload.priority
-		this.dispatch('updateDoc')
-	},
 
 	processBatch: (state) => {
 		for (let i = 0; i < state.batch.length; i++) {
@@ -283,8 +268,6 @@ const mutations = {
 			 * This will change when tasks become the lowest level
 			 */
 			let pbiLevel = state.config.itemType.length - 1
-			// eslint-disable-next-line no-console
-			console.log('Create new node at level ' + level + ' and title ' + state.batch[i].doc.title)
 			if (level == 1) {
 				// Found a new level 1 item, usually a product
 				state.lastInsertedNodeParent = state.treeNodes[0]
@@ -321,6 +304,88 @@ const mutations = {
 }
 
 const actions = {
+	/*
+	 * When updating the database first load the document with the actual revision number and changes by other users.
+	 * Then apply the update to the field and write the updated document back to the database.
+	 */
+	setCurrentDocTitle({
+		state,
+		dispatch
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					state.tmpDoc = res.data
+					state.tmpDoc.title = payload.newTitle
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	setCurrentDescription({
+		state,
+		dispatch
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					state.tmpDoc = res.data
+					state.tmpDoc.description = payload.newDescription
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	setCurrentAcceptanceCriteria({
+		state,
+		dispatch
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					state.tmpDoc = res.data
+					state.tmpDoc.acceptanceCriteria = payload.newAcceptanceCriteria
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	setNewPriority({
+		state,
+		dispatch
+	}, payload) {
+		const _id = payload._id
+		console.log('setNewPriority: _id = ' + _id)
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					state.tmpDoc = res.data
+					state.tmpDoc.priority = payload.priority
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+
 	// Load the config file from this database
 	getConfig({
 		state,
@@ -373,6 +438,7 @@ const actions = {
 				state.email = res.data.email
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb
+				console.log('getOtherUserData: state.currentDb = ' + state.currentDb)
 				state.userAssignedProductIds = res.data.products
 				state.currentProductId = state.userAssignedProductIds[res.data.currentProductIdx]
 				// load the current product document
@@ -445,7 +511,7 @@ const actions = {
 			.catch(error => console.log('Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
 	},
 
-	// Load current document by _id
+	// Load current document by _id to the current document
 	loadDoc({
 		state
 	}, _id) {
@@ -468,26 +534,25 @@ const actions = {
 
 	// Update current document
 	updateDoc({
-		state,
-		dispatch
+		state
 	}) {
+		const _id = state.tmpDoc._id
+		console.log('updateDoc: updating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
-				url: state.currentDb + '/' + state.currentDoc._id,
+				url: state.currentDb + '/' + state.tmpDoc._id,
 				withCredentials: true,
-				data: state.currentDoc
+				data: state.tmpDoc
 			}).then(res => {
 				if (res.status == 201) {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					// eslint-disable-next-line no-console
-					console.log('loadDoc: document with _id + ' + state.currentDoc._id + ' is updated.')
-					// reload the doc to get the latest revision number
-					dispatch('loadDoc', state.currentDoc._id)
+					console.log('updateDoc: document with _id + ' + _id + ' is updated.')
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not write document with url ' + state.currentDb + '/' + state.currentDoc._id + '. Error = ' + error))
+			.catch(error => console.log('Could not write document with url ' + state.currentDb + '/' + _id + '. Error = ' + error))
 	},
 
 }
