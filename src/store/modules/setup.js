@@ -672,7 +672,7 @@ const initData = {
 			"followers": [],
 			"description": "As PO or developer I want to create new items right at the spot with the anticipated priority",
 			"acceptanceCriteria": "Please don't forget",
-			"priority": 6755399441055750,
+			"priority": 4503599627370495,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -690,7 +690,7 @@ const initData = {
 			"followers": [],
 			"description": "Describe your requirements area here...",
 			"acceptanceCriteria": "Please don't forget",
-			"priority": 4503599627370500,
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -711,7 +711,7 @@ const initData = {
 			"followers": [],
 			"description": "As super PO I need one integrated tool to manage the product backlog of all my products so that: etc.",
 			"acceptanceCriteria": "Please don't forget",
-			"priority": 4503599627370500,
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -732,7 +732,7 @@ const initData = {
 			"followers": [],
 			"description": "As PO I want to see a MPV version of the GUI so that I can feel the product and come with improvements",
 			"acceptanceCriteria": "Please don't forget",
-			"priority": 4503599627370500,
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -753,7 +753,7 @@ const initData = {
 			"followers": [],
 			"description": "As a PO I want a tree structure to walk over the products and all of its descendants",
 			"acceptanceCriteria": "Must be able to sort, create new, and delete items. Want to to be able to up or downgrade an item over 1 level: eg. a pbi to a feature, or a epic to a feature. Warn the user before deletion. For now there is nu undo function.",
-			"priority": 4503599627370500,
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -774,7 +774,7 @@ const initData = {
 			"followers": [],
 			"description": "As a user with the appropiate permission I want to create new items",
 			"acceptanceCriteria": "Please don't forget",
-			"priority": 4503599627370500,
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -795,7 +795,7 @@ const initData = {
 			"followers": [],
 			"description": "As a user with the appropiate permission I want to delete items",
 			"acceptanceCriteria": "Please don't forget",
-			"priority": 2251799813685250,
+			"priority": -4503599627370495,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -817,7 +817,7 @@ const initData = {
 			"followers": [],
 			"description": "As the CEO I want ... so that we as a company can ...",
 			"acceptanceCriteria": "Must be awesome",
-			"priority": 4503599627370500,
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -838,7 +838,7 @@ const initData = {
 			"followers": [],
 			"description": "The fist Epic for this awesome product",
 			"acceptanceCriteria": "Please don't forget",
-			"priority": 4503599627370500,
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -859,7 +859,7 @@ const initData = {
 			"followers": [],
 			"description": "Create an awesome login so that it is super easy to do.",
 			"acceptanceCriteria": "Just be awesome",
-			"priority": 4503599627370500,
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
