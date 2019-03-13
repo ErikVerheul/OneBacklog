@@ -360,6 +360,7 @@
 				this.numberOfNodesSelected = selNodes.length
 				this.firstNodeSelected = selNodes[0]
 				// read the document
+				console.log('nodeSelected: load document with this.firstNodeSelected.data._id = ' + this.firstNodeSelected.data._id)
 				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
 				this.selectedNodesTitle = this.itemTitleTrunc(60, selNodes.map(node => node.title).join(', '))
 				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`
@@ -431,6 +432,57 @@
 				}
 			},
 
+			getParent(node) {
+				const $slVueTree = this.$refs.slVueTree
+				let currentLevel = node.level
+				let foundLevel = currentLevel
+				while (foundLevel == currentLevel) {
+					node = $slVueTree.getPrevNode(node.path)
+					foundLevel = node.level
+				}
+				return node
+			},
+
+			/*
+			 * Recalculate, change and save the priorities of the inserted nodes and all siblings
+			 * precondition: all moved nodes have the same parent
+			 */
+			processPriorities(destSiblings) {
+				console.log('processPriorities: destSiblings.length = ' + destSiblings.length)
+				const stepSize = Number.MAX_SAFE_INTEGER / destSiblings.length
+				for (let i = 0; i < destSiblings.length; i++) {
+					let newPriority = Number.MAX_SAFE_INTEGER - (i + 1) * stepSize
+					this.updatePriorityInTree(destSiblings[i], newPriority)
+					//					updatePriorityInDb(newPriority)
+				}
+
+			},
+
+			/*
+			 * updates the priority value in the tree
+			 */
+			updatePriorityInTree(node, newPriority) {
+				const $slVueTree = this.$refs.slVueTree
+				const id = node.data._id
+				$slVueTree.updateNode(node.path, {
+					data: {
+						_id : id,
+						priority: newPriority,
+					}
+				})
+			},
+
+			/*
+			 * Updates the priority value in the document in the database
+			 */
+			updatePriorityInDb(newPriority) {
+				// update current document
+				const payload = {
+					'priority': newPriority,
+				}
+				this.$store.commit('setNewPriority', payload)
+			},
+
 			/*
 			 * Calculate the priority as the average value of the predecessor and the successor.
 			 * When the predecessor is the parent the predecessor priority is Maxint.
@@ -462,34 +514,20 @@
 				return (predecessorPrio + successorPrio) / 2
 			},
 
-			/*
-			 * updates the priority value in the tree and
-			 */
-			updatePriorityInTree(currentNode, newPriority) {
-				const $slVueTree = this.$refs.slVueTree
-				$slVueTree.updateNode(currentNode.path, {
-					data: {
-						priority: newPriority
-					}
-				})
+			getNodeSiblings(nodes, path) {
+				if (path.length === 1) return nodes;
+				return this.getNodeSiblings(nodes[path[0]].children, path.slice(1));
 			},
 
 			/*
-			 * updates the priority value in the document in the database
+			 * Update the tree when one or more nodes are dropped on another location
 			 */
-			updatePriorityInDb(newPriority) {
-				// update current document
-				const payload = {
-					'priority': newPriority
-				}
-				this.$store.commit('setNewPriority', payload)
-			},
-
 			nodeDropped(draggingNodes, position) {
+				const $slVueTree = this.$refs.slVueTree
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = this.calcDropLevel(position)
 				let levelChange = Math.abs(clickedLevel - dropLevel)
-				const $slVueTree = this.$refs.slVueTree
+
 				const selectedNodes = $slVueTree.getSelected()
 				for (let i = 0; i < selectedNodes.length; i++) {
 					if (levelChange === 0) {
@@ -521,10 +559,23 @@
 							})
 						}
 					}
-					let newPriority = this.calcNewPriority(selectedNodes[i])
-					this.updatePriorityInTree(selectedNodes[i], newPriority)
-					this.updatePriorityInDb(newPriority)
 				}
+
+				/*
+				 * When nodes are dropped to another position the priorities must be changed
+				 */
+				if (selectedNodes.length == 1) {
+					// if and only if we dropped one node we can recalculate its priority stand-alone
+					let newPriority = this.calcNewPriority(selectedNodes[0])
+					this.updatePriorityInTree(selectedNodes[0], newPriority)
+					this.updatePriorityInDb(newPriority)
+				} else {
+					// recalculate the priorities of the dropped nodes and all siblings
+					const destNode = position.node
+					const destSiblings = this.getNodeSiblings($slVueTree.nodes, destNode.path)
+					this.processPriorities(destSiblings)
+				}
+				// create the event message
 				if ((draggingNodes.length) === 1) {
 					this.lastEvent = `Node: ${this.itemTitleTrunc(60, draggingNodes.map(node => node.title).join(', '))} is dropped ${position.placement} ${position.node.title}`
 				} else {
@@ -666,14 +717,16 @@
 					isSelected: false
 				})
 				// now the node is inserted get the full ISlTreeNode data and set priority
-				const selectedNodes = $slVueTree.getSelected()
-				const insertedNode = selectedNodes[0]
-				let setPriority = this.calcNewPriority(insertedNode)
-				$slVueTree.updateNode(insertedNode.path, {
-					data: {
-						priority: setPriority
-					}
-				})
+//				const selectedNodes = $slVueTree.getSelected()
+//				const insertedNode = selectedNodes[0]
+//				let setPriority = this.calcNewPriority(insertedNode)
+//				let id = this.firstNodeSelected.data._id
+//				$slVueTree.updateNode(insertedNode.path, {
+//					data: {
+//						_id: id,
+//						priority: setPriority
+//					}
+//				})
 				// TODO: create and save new document
 			},
 
