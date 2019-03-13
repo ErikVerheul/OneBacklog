@@ -309,8 +309,7 @@ const actions = {
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
 	setCurrentDocTitle({
-		state,
-		dispatch
+		state
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -328,8 +327,7 @@ const actions = {
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setCurrentDescription({
-		state,
-		dispatch
+		state
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -347,8 +345,7 @@ const actions = {
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setCurrentAcceptanceCriteria({
-		state,
-		dispatch
+		state
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -366,11 +363,9 @@ const actions = {
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setNewPriority({
-		state,
-		dispatch
+		state
 	}, payload) {
 		const _id = payload._id
-		console.log('setNewPriority: _id = ' + _id)
 		globalAxios({
 				method: 'GET',
 				url: state.currentDb + '/' + _id,
@@ -438,7 +433,6 @@ const actions = {
 				state.email = res.data.email
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb
-				console.log('getOtherUserData: state.currentDb = ' + state.currentDb)
 				state.userAssignedProductIds = res.data.products
 				state.currentProductId = state.userAssignedProductIds[res.data.currentProductIdx]
 				// load the current product document
@@ -537,6 +531,7 @@ const actions = {
 		state
 	}) {
 		const _id = state.tmpDoc._id
+		// eslint-disable-next-line no-console
 		console.log('updateDoc: updating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
