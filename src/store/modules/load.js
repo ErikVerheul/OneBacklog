@@ -300,8 +300,8 @@ const mutations = {
 				// As the product document is initially loaded show it as selected
 				isSelected: (state.batch[i].doc._id == state.currentProductId) ? true : false,
 				data: {
-					"_id": state.batch[i].doc._id,
-					"priority": state.batch[i].doc.priority
+					_id: state.batch[i].doc._id,
+					priority: state.batch[i].doc.priority
 				}
 			}
 
@@ -481,7 +481,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					// eslint-disable-next-line no-console
-					console.log('loadDoc: docoment with _id + ' + state.currentDoc._id + ' is updated.')
+					console.log('loadDoc: document with _id + ' + state.currentDoc._id + ' is updated.')
 					// reload the doc to get the latest revision number
 					dispatch('loadDoc', state.currentDoc._id)
 				}
