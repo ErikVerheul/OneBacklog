@@ -367,7 +367,6 @@
 				this.numberOfNodesSelected = selNodes.length
 				this.firstNodeSelected = selNodes[0]
 				// read the document
-				console.log('nodeSelected: load document with this.firstNodeSelected.data._id = ' + this.firstNodeSelected.data._id)
 				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
 				this.selectedNodesTitle = this.itemTitleTrunc(60, selNodes.map(node => node.title).join(', '))
 				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`
@@ -396,16 +395,7 @@
 				}
 			},
 
-			calcDropLevel(position) {
-				if (position.placement == 'before' || position.placement == 'after') {
-					return position.node.level
-				} else {
-					// inside
-					return position.node.level + 1
-				}
-			},
-
-			/**
+			/*
 			/ Use undocumented event to:
 			/ - cancel drag of items on different levels
 			/ - cancel drop on other level (change of type) when having children
@@ -418,7 +408,7 @@
 				}
 
 				let clickedLevel = draggingNodes[0].level
-				let dropLevel = this.calcDropLevel(position)
+				let dropLevel = position.node.level
 
 				let levelChange = Math.abs(clickedLevel - dropLevel)
 				if (levelChange === 0) {
@@ -455,8 +445,10 @@
 			 * precondition: all moved nodes have the same parent
 			 */
 			processPriorities(destSiblings) {
+				// eslint-disable-next-line no-console
 				console.log('processPriorities: destSiblings.length = ' + destSiblings.length)
-				const stepSize = Number.MAX_SAFE_INTEGER / destSiblings.length
+				// use the full integer range
+				const stepSize = ((Number.MAX_SAFE_INTEGER - 1) / destSiblings.length) * 2
 				for (let i = 0; i < destSiblings.length; i++) {
 					let newPriority = Number.MAX_SAFE_INTEGER - (i + 1) * stepSize
 					this.updatePriorityInTree(destSiblings[i], newPriority)
@@ -473,7 +465,7 @@
 				const id = node.data._id
 				$slVueTree.updateNode(node.path, {
 					data: {
-						_id : id,
+						_id: id,
 						priority: newPriority,
 					}
 				})
@@ -502,6 +494,7 @@
 				} else {
 					successorPrio = $slVueTree.getNextNode(path).data.priority
 				}
+				// eslint-disable-next-line no-console
 				console.log('calcNewPriority: for node.title ' + node.title + ' isFirstChild = ' + node.isFirstChild + ' isLastChild = ' + node.isLastChild +
 					'\n prevnode = ' + $slVueTree.getPrevNode(path).title +
 					'\n nextnode.title = ' + $slVueTree.getNextNode(path).title +
@@ -521,14 +514,22 @@
 			nodeDropped(draggingNodes, position) {
 				const $slVueTree = this.$refs.slVueTree
 				let clickedLevel = draggingNodes[0].level
-				let dropLevel = this.calcDropLevel(position)
+				let dropLevel = position.node.level
 				let levelChange = Math.abs(clickedLevel - dropLevel)
-
 				const selectedNodes = $slVueTree.getSelected()
+
+				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
+				console.log('nodeDropped: dropLevel = ' + dropLevel)
+				console.log('nodeDropped: levelChange = ' + levelChange)
+				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
+
+
+
 				for (let i = 0; i < selectedNodes.length; i++) {
+					console.log('nodeDropped in loop: i, dropLevel = ' + i + ', ' + dropLevel)
 					if (levelChange === 0) {
 						// for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-						if (dropLevel === 5) {
+						if (dropLevel + levelChange === 5) {
 							$slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
@@ -542,7 +543,7 @@
 						}
 					} else {
 						// the user dropped the node(s) on another level
-						if (dropLevel === 5) {
+						if (dropLevel + levelChange === 5) {
 							$slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
@@ -568,8 +569,19 @@
 				} else {
 					// recalculate the priorities of the dropped nodes and all siblings
 					const destNode = position.node
-					const destSiblings = this.getNodeSiblings($slVueTree.nodes, destNode.path)
-					this.processPriorities(destSiblings)
+
+
+					if (levelChange == 0) {
+						// drop on the the same level as the moved nodes
+						const destSiblings = this.getNodeSiblings($slVueTree.nodes, destNode.path)
+						this.processPriorities(destSiblings)
+					} else {
+						if (clickedLevel - dropLevel  == 1) {
+							// drop on the parent of the moved nodes
+							this.processPriorities(position.node.children)
+						}
+					}
+
 				}
 				// create the event message
 				if ((draggingNodes.length) === 1) {
@@ -713,16 +725,16 @@
 					isSelected: false
 				})
 				// now the node is inserted get the full ISlTreeNode data and set priority
-//				const selectedNodes = $slVueTree.getSelected()
-//				const insertedNode = selectedNodes[0]
-//				let setPriority = this.calcNewPriority(insertedNode)
-//				let id = this.firstNodeSelected.data._id
-//				$slVueTree.updateNode(insertedNode.path, {
-//					data: {
-//						_id: id,
-//						priority: setPriority
-//					}
-//				})
+				//				const selectedNodes = $slVueTree.getSelected()
+				//				const insertedNode = selectedNodes[0]
+				//				let setPriority = this.calcNewPriority(insertedNode)
+				//				let id = this.firstNodeSelected.data._id
+				//				$slVueTree.updateNode(insertedNode.path, {
+				//					data: {
+				//						_id: id,
+				//						priority: setPriority
+				//					}
+				//				})
 				// TODO: create and save new document
 			},
 
