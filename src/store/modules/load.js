@@ -2,175 +2,6 @@ import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../../router'
 
-const testNodes = [{
-	"title": "Database-1",
-	"isSelected": false,
-	"isExpanded": true,
-	"children": [{
-			"title": "Product-1",
-			"isExpanded": true,
-			"children": [{
-					"title": "Epic-A",
-					"children": [{
-						"title": "Feature-A1",
-						"children": [{
-								"title": "PBI-A1-1",
-								"children": [],
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-A1-2",
-								"children": [],
-								"isLeaf": true,
-								"data": {
-									"visible": true
-								},
-								"isSelected": false
-											},
-							{
-								"title": "PBI-A1-3",
-								"children": [],
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-A1-4",
-								"children": [],
-								"isLeaf": true,
-								"isSelected": false
-											}
-										],
-						"isSelected": false,
-						"isExpanded": true
-									}],
-					"isSelected": false
-								},
-				{
-					"title": "Epic-B",
-					"isExpanded": true,
-					"isSelected": false,
-					"children": [{
-						"title": "Feature-B1",
-						"children": [{
-								"title": "PBI-B1-1",
-								"children": [],
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-B1-2",
-								"children": [],
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-B1-3",
-								"children": [],
-								"isLeaf": true,
-								"data": {
-									"visible": true
-								},
-								"isSelected": true
-											},
-							{
-								"title": "PBI-B1-4",
-								"children": [],
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-B1-5",
-								"children": [],
-								"isLeaf": true,
-								"isSelected": false
-											}
-										],
-						"isSelected": false
-									}]
-								}
-							],
-			"isSelected": false
-						},
-		{
-			"title": "Product-2",
-			"isExpanded": true,
-			"children": [{
-					"title": "Epic-C",
-					"children": [{
-						"title": "Feature-C1",
-						"children": [{
-								"title": "PBI-C1-1",
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-C1-2",
-								"isLeaf": true,
-								"data": {
-									"visible": true
-								},
-								"isSelected": false
-											},
-							{
-								"title": "PBI-C1-3",
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-C1-4",
-								"isLeaf": true,
-								"isSelected": false
-											}
-										],
-						"isSelected": false,
-						"isExpanded": true
-									}],
-					"isSelected": false
-								},
-				{
-					"title": "Epic-D",
-					"isExpanded": true,
-					"isSelected": false,
-					"children": [{
-						"title": "Feature-D1",
-						"children": [{
-								"title": "PBI-D1-1",
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-D1-2",
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-D1-3",
-								"isLeaf": true,
-								"data": {
-									"visible": true
-								},
-								"isSelected": true
-											},
-							{
-								"title": "PBI-D1-4",
-								"isLeaf": true,
-								"isSelected": false
-											},
-							{
-								"title": "PBI-D1-5",
-								"isLeaf": true,
-								"isSelected": false
-											}
-										],
-						"isSelected": false
-									}]
-								}
-							],
-			"isSelected": false
-						},
-					]
-				}, ]
 var tmpDoc = null
 const batchSize = 3
 var offset = 0
@@ -178,6 +9,7 @@ var batch = []
 var lastLevel = 0
 var lastInsertedNodeParent = null
 var lastInsertedNode = null
+const leafLevel = 5
 
 const state = {
 	config: null,
@@ -234,9 +66,7 @@ const getters = {
 		if (state.currentDoc != null) return state.currentDoc.title
 	},
 	getCurrentDocTsSize(state) {
-		if (state.currentDoc != null) {
-			return state.config.tsSize[state.currentDoc.tssize]
-		}
+		if (state.currentDoc != null) return state.config.tsSize[state.currentDoc.tssize]
 	},
 	getCurrentDocType(state) {
 		if (state.currentDoc != null) return state.currentDoc.type
@@ -268,17 +98,16 @@ const mutations = {
 			 * Note that for now the PBI level is the lowest level (highest type number)
 			 * This will change when tasks become the lowest level
 			 */
-			let pbiLevel = state.config.itemType.length - 1
-			if (level == 1) {
-				// Found a new level 1 item, usually a product
+			if (level == 2) {
+				// Found a new level 2 item, usually a product
 				lastInsertedNodeParent = state.treeNodes[0]
 				lastInsertedNode = state.treeNodes[0]
 			}
 			let newNode = {
 				title: batch[i].doc.title,
-				isLeaf: (level < pbiLevel) ? false : true, // for now PBI's have no children
+				isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
 				children: [],
-				isExpanded: (level < pbiLevel - 1) ? true : false, // expand the tree up to the feature level (assuming the feature level is 1 above the PBI level)
+				isExpanded: (level < leafLevel) ? true : false, // expand the tree up to the feature level
 				isdraggable: true,
 				isSelectable: true,
 				// As the product document is initially loaded show it as selected

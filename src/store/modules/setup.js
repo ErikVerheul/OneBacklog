@@ -285,6 +285,7 @@ const actions = {
 			"changeDate": 1551940535871,
 
 			"itemType": [
+					"Database",
 					"RequirementArea",
 					"Product",
 					"Epic",
@@ -662,7 +663,7 @@ const initData = {
 		{
 			"_id": "1552140438968e1e9",
 			"productId": "15521398069875394",
-			"type": 4,
+			"type": 5,
 			"subtype": 0,
 			"state": 4,
 			"tssize": 0,
@@ -683,7 +684,7 @@ const initData = {
 		{
 			"_id": "15521397677068926",
 			"productId": null,
-			"type": 0,
+			"type": 1,
 			"state": 0,
 			"tssize": 0,
 			"title": "The 'One Backlog' user interface",
@@ -701,7 +702,7 @@ const initData = {
 		{
 			"_id": "15521398069875394",
 			"productId": "15521398069875394",
-			"type": 1,
+			"type": 2,
 			"subtype": null,
 			"state": 1,
 			"tssize": 1,
@@ -722,7 +723,7 @@ const initData = {
 		{
 			"_id": "15521399035145bef",
 			"productId": "15521398069875394",
-			"type": 2,
+			"type": 3,
 			"subtype": null,
 			"state": 2,
 			"tssize": 3,
@@ -743,7 +744,7 @@ const initData = {
 		{
 			"_id": "1552139972020f641",
 			"productId": "15521398069875394",
-			"type": 3,
+			"type": 4,
 			"subtype": null,
 			"state": 4,
 			"tssize": 3,
@@ -764,7 +765,7 @@ const initData = {
 		{
 			"_id": "1552139986318cf68",
 			"productId": "15521398069875394",
-			"type": 4,
+			"type": 5,
 			"subtype": 0,
 			"state": 4,
 			"tssize": 0,
@@ -785,7 +786,7 @@ const initData = {
 		{
 			"_id": "1552406429497867d",
 			"productId": "15521398069875394",
-			"type": 4,
+			"type": 5,
 			"subtype": 0,
 			"state": 4,
 			"tssize": 0,
@@ -807,7 +808,7 @@ const initData = {
 		{
 			"_id": "1552152600149c2ac",
 			"productId": "1552152600149c2ac",
-			"type": 1,
+			"type": 2,
 			"subtype": null,
 			"state": 1,
 			"tssize": 1,
@@ -828,7 +829,7 @@ const initData = {
 		{
 			"_id": "155215264241301dd",
 			"productId": "1552152600149c2ac",
-			"type": 2,
+			"type": 3,
 			"subtype": null,
 			"state": 2,
 			"tssize": 3,
@@ -849,7 +850,7 @@ const initData = {
 		{
 			"_id": "1552152658206bb2f",
 			"productId": "1552152600149c2ac",
-			"type": 3,
+			"type": 4,
 			"subtype": null,
 			"state": 4,
 			"tssize": 3,

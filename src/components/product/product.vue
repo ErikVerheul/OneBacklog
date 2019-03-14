@@ -9,10 +9,10 @@
 					</div>
 					<div class="d-table-cell w-100 tac">
 						<div>
-							<h3 v-if="itemType <= 2">{{ getLevelText(itemType + 1) }} T-Shirt size:
+							<h3 v-if="itemType <= epicLevel">{{ getLevelText(itemType) }} T-Shirt size:
 								<input type="text" size="3" maxlength="3" id="productTitle" :value="tsSize" />
 							</h3>
-							<h3 v-if="itemType > 2">{{ getLevelText(itemType + 1) }} Story points:
+							<h3 v-if="itemType > epicLevel">{{ getLevelText(itemType) }} Story points:
 								<input type="text" size="3" maxlength="4" id="productTitle" :value="spSize" />
 							</h3>
 						</div>
@@ -163,6 +163,19 @@
 	</div>
 </template>
 
+/*
+* NOTE on itemType and level numbering with the current config definition
+*
+* type ...............in database level ....... in tree
+* -----------------------------------------------------------------------
+* Database ............... 0 ................... n/a
+* RequirementArea ........ 1 ................... n/a
+* Product ................ 2 ................... 2
+* Epic .. ................ 3 ................... 3
+* Feature ................ 4 ................... 4
+* PBI ... ................ 5 ................... 5
+*/
+
 <script>
 	import {
 		mapGetters
@@ -182,13 +195,16 @@
 
 	var numberOfNodesSelected = 0
 	var firstNodeSelected = null
-	var firstNodeSelected = {}
 	var newNode = {}
-	const isLeafLevel = 5
+	var leafLevel = 5
 
 	export default {
 		data() {
 			return {
+				productLevel: 2,
+				epicLevel: 3,
+				featureLevel: 4,
+
 				nodeIsSelected: false,
 				removeTitle: '',
 				insertOptionSelected: 1, //default to sibling node (no creation of descendant)
@@ -306,13 +322,13 @@
 
 			/* mappings from config */
 			getLevelText(level) {
-				if (level < 0 || level >= this.$store.state.load.config.itemType.length) {
+				if (level < 0 || level > leafLevel) {
 					return 'Error: unknown level'
 				}
 				return this.$store.state.load.config.itemType[level]
 			},
 			getItemState(idx) {
-				if (idx < 0 || idx >= this.$store.state.load.config.itemType.length) {
+				if (idx < 0 || idx > leafLevel) {
 					return 'Error: unknown state'
 				}
 				return this.$store.state.load.config.itemState[idx]
@@ -364,10 +380,10 @@
 
 			nodeSelected(selNodes) {
 				this.nodeIsSelected = true
-				this.numberOfNodesSelected = selNodes.length
-				this.firstNodeSelected = selNodes[0]
+				numberOfNodesSelected = selNodes.length
+				firstNodeSelected = selNodes[0]
 				// read the document
-				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
+				this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
 
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {
@@ -435,16 +451,6 @@
 				}
 			},
 
-			getParent(node) {
-				let currentLevel = node.level
-				let foundLevel = currentLevel
-				while (foundLevel == currentLevel) {
-					node = this.$refs.slVueTree.getPrevNode(node.path)
-					foundLevel = node.level
-				}
-				return node
-			},
-
 			/*
 			 * Recalculate, change and save the priorities of the inserted nodes and all siblings
 			 * precondition: all moved nodes have the same parent
@@ -498,11 +504,11 @@
 					successorPrio = this.$refs.slVueTree.getNextNode(path).data.priority
 				}
 				// eslint-disable-next-line no-console
-//				console.log('calcNewPriority: for node.title ' + node.title + ' isFirstChild = ' + node.isFirstChild + ' isLastChild = ' + node.isLastChild +
-//					'\n prevnode = ' + this.$refs.slVueTree.getPrevNode(path).title +
-//					'\n nextnode.title = ' + this.$refs.slVueTree.getNextNode(path).title +
-//					'\n predecessorPrio = ' + predecessorPrio +
-//					'\n successorPrio = ' + successorPrio)
+				//				console.log('calcNewPriority: for node.title ' + node.title + ' isFirstChild = ' + node.isFirstChild + ' isLastChild = ' + node.isLastChild +
+				//					'\n prevnode = ' + this.$refs.slVueTree.getPrevNode(path).title +
+				//					'\n nextnode.title = ' + this.$refs.slVueTree.getNextNode(path).title +
+				//					'\n predecessorPrio = ' + predecessorPrio +
+				//					'\n successorPrio = ' + successorPrio)
 				return (predecessorPrio + successorPrio) / 2
 			},
 
@@ -520,16 +526,15 @@
 				let levelChange = Math.abs(clickedLevel - dropLevel)
 				const selectedNodes = this.$refs.slVueTree.getSelected()
 
-//				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
-//				console.log('nodeDropped: dropLevel = ' + dropLevel)
-//				console.log('nodeDropped: levelChange = ' + levelChange)
-//				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
+				//				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
+				//				console.log('nodeDropped: dropLevel = ' + dropLevel)
+				//				console.log('nodeDropped: levelChange = ' + levelChange)
+				//				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
 
 				for (let i = 0; i < selectedNodes.length; i++) {
-					console.log('nodeDropped in loop: i, dropLevel = ' + i + ', ' + dropLevel)
 					if (levelChange === 0) {
 						// for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-						if (dropLevel + levelChange === isLeafLevel) {
+						if (dropLevel + levelChange === leafLevel) {
 							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
@@ -543,7 +548,7 @@
 						}
 					} else {
 						// the user dropped the node(s) on another level
-						if (dropLevel + levelChange === isLeafLevel) {
+						if (dropLevel + levelChange === leafLevel) {
 							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
@@ -617,8 +622,8 @@
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
-				// Node must be selected first && User cannot remove on the database level && Only one node can be selected
-				if (this.nodeIsSelected && node.level > 1 && this.numberOfNodesSelected === 1) {
+				// Node must be selected first && user cannot remove on the database level && only one node can be selected
+				if (this.nodeIsSelected && node.level > 1 && numberOfNodesSelected === 1) {
 					this.removeTitle = `This ${this.getLevelText(node.level)} and ${this.countDescendants(node.path)} descendants will be removed`
 					this.$refs.removeModalRef.show();
 				}
@@ -636,8 +641,8 @@
 			showInsertModal(node, event) {
 				event.preventDefault();
 				if (this.nodeIsSelected) {
-					let clickedLevel = this.firstNodeSelected.level;
-					if (clickedLevel === isLeafLevel) {
+					let clickedLevel = firstNodeSelected.level;
+					if (clickedLevel === leafLevel) {
 						this.insertOptionSelected = 1; //Cannot create child below PBI
 					}
 					if (clickedLevel === 1) {
@@ -659,28 +664,28 @@
 						disabled: false
 					}
 				];
-				var clickedLevel = this.firstNodeSelected.level;
+				var clickedLevel = firstNodeSelected.level
 				options[0].text = this.getLevelText(clickedLevel);
 				options[1].text = this.getLevelText(clickedLevel + 1);
 				// Disable the option to create a node below a PBI
-				if (clickedLevel === isLeafLevel) options[1].disabled = true;
+				if (clickedLevel === leafLevel) options[1].disabled = true;
 				// Disable the option to create a new database
 				if (clickedLevel === 1) options[0].disabled = true;
 				return options
 			},
 
 			prepareInsert() {
-				var clickedLevel = this.firstNodeSelected.level
+				var clickedLevel = firstNodeSelected.level
 				var insertLevel = clickedLevel
 				if (this.insertOptionSelected === 1) {
 					// New node is a sibling placed below (after) the selected node
 					this.newNodeLocation = {
-						node: this.firstNodeSelected,
+						node: firstNodeSelected,
 						placement: 'after'
 					}
-					this.newNode = {
+					newNode = {
 						title: 'New ' + this.getLevelText(insertLevel),
-						isLeaf: (insertLevel < isLeafLevel) ? false : true, // for now PBI's (isLeafLevel) have no children
+						isLeaf: (insertLevel < leafLevel) ? false : true, // for now PBI's (leafLevel) have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
@@ -694,12 +699,12 @@
 					// New node is a child placed a level lower (inside) than the selected node
 					insertLevel = clickedLevel + 1
 					this.newNodeLocation = {
-						node: this.firstNodeSelected,
+						node: firstNodeSelected,
 						placement: 'inside'
 					}
-					this.newNode = {
+					newNode = {
 						title: 'New ' + this.getLevelText(insertLevel),
-						isLeaf: (insertLevel < isLeafLevel) ? false : true, // for now PBI's (isLeafLevel) have no children
+						isLeaf: (insertLevel < leafLevel) ? false : true, // for now PBI's (leafLevel) have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
@@ -714,7 +719,7 @@
 
 			doInsert() {
 				this.lastEvent = 'Node is inserted';
-				this.$refs.slVueTree.insert(this.newNodeLocation, this.newNode)
+				this.$refs.slVueTree.insert(this.newNodeLocation, newNode)
 				// restore default
 				this.insertOptionSelected = 1
 				// unselect the node that was clicked before the insert
@@ -726,7 +731,7 @@
 				//				const selectedNodes = this.$refs.slVueTree.getSelected()
 				//				const insertedNode = selectedNodes[0]
 				//				let setPriority = this.calcNewPriority(insertedNode)
-				//				let id = this.firstNodeSelected.data._id
+				//				let id = firstNodeSelected.data._id
 				//				this.$refs.slVueTree.updateNode(insertedNode.path, {
 				//					data: {
 				//						_id: id,
