@@ -42,7 +42,7 @@
 										<font-awesome-icon icon="folder" />
 									</i>
 								</span>
-								{{ node.title }} + {{ node.data.priority}}
+								{{ node.title }}; prio = {{ node.data.priority}}
 							</template>
 
 							<template slot="toggle" slot-scope="{ node }">
@@ -266,9 +266,8 @@
 			updateTitle() {
 				const newTitle = document.getElementById("titleField")
 				// update the tree
-				const $slVueTree = this.$refs.slVueTree;
-				const paths = $slVueTree.getSelected().map(node => node.path);
-				$slVueTree.updateNode(paths[0], {
+				const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
+				this.$refs.slVueTree.updateNode(paths[0], {
 					title: newTitle.value,
 				})
 				// update current document
@@ -430,11 +429,10 @@
 			},
 
 			getParent(node) {
-				const $slVueTree = this.$refs.slVueTree
 				let currentLevel = node.level
 				let foundLevel = currentLevel
 				while (foundLevel == currentLevel) {
-					node = $slVueTree.getPrevNode(node.path)
+					node = this.$refs.slVueTree.getPrevNode(node.path)
 					foundLevel = node.level
 				}
 				return node
@@ -448,7 +446,7 @@
 				// eslint-disable-next-line no-console
 				console.log('processPriorities: destSiblings.length = ' + destSiblings.length)
 				// use the full integer range
-				const stepSize = ((Number.MAX_SAFE_INTEGER - 1) / destSiblings.length) * 2
+				const stepSize = Math.floor((Number.MAX_SAFE_INTEGER / (destSiblings.length + 1)) * 2)
 				for (let i = 0; i < destSiblings.length; i++) {
 					let newPriority = Number.MAX_SAFE_INTEGER - (i + 1) * stepSize
 					this.updatePriorityInTree(destSiblings[i], newPriority)
@@ -461,9 +459,8 @@
 			 * updates the priority value in the tree
 			 */
 			updatePriorityInTree(node, newPriority) {
-				const $slVueTree = this.$refs.slVueTree
 				const id = node.data._id
-				$slVueTree.updateNode(node.path, {
+				this.$refs.slVueTree.updateNode(node.path, {
 					data: {
 						_id: id,
 						priority: newPriority,
@@ -479,25 +476,24 @@
 			 */
 			calcNewPriority(node) {
 				const path = node.path
-				const $slVueTree = this.$refs.slVueTree
 				var predecessorPrio
 				var successorPrio
 
 				if (node.isFirstChild) {
 					predecessorPrio = Number.MAX_SAFE_INTEGER
 				} else {
-					predecessorPrio = $slVueTree.getPrevNode(path).data.priority
+					predecessorPrio = this.$refs.slVueTree.getPrevNode(path).data.priority
 				}
 
 				if (node.isLastChild) {
 					successorPrio = 0
 				} else {
-					successorPrio = $slVueTree.getNextNode(path).data.priority
+					successorPrio = this.$refs.slVueTree.getNextNode(path).data.priority
 				}
 				// eslint-disable-next-line no-console
 				console.log('calcNewPriority: for node.title ' + node.title + ' isFirstChild = ' + node.isFirstChild + ' isLastChild = ' + node.isLastChild +
-					'\n prevnode = ' + $slVueTree.getPrevNode(path).title +
-					'\n nextnode.title = ' + $slVueTree.getNextNode(path).title +
+					'\n prevnode = ' + this.$refs.slVueTree.getPrevNode(path).title +
+					'\n nextnode.title = ' + this.$refs.slVueTree.getNextNode(path).title +
 					'\n predecessorPrio = ' + predecessorPrio +
 					'\n successorPrio = ' + successorPrio)
 				return (predecessorPrio + successorPrio) / 2
@@ -512,11 +508,10 @@
 			 * Update the tree when one or more nodes are dropped on another location
 			 */
 			nodeDropped(draggingNodes, position) {
-				const $slVueTree = this.$refs.slVueTree
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = position.node.level
 				let levelChange = Math.abs(clickedLevel - dropLevel)
-				const selectedNodes = $slVueTree.getSelected()
+				const selectedNodes = this.$refs.slVueTree.getSelected()
 
 				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
 				console.log('nodeDropped: dropLevel = ' + dropLevel)
@@ -530,13 +525,13 @@
 					if (levelChange === 0) {
 						// for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
 						if (dropLevel + levelChange === 5) {
-							$slVueTree.updateNode(selectedNodes[i].path, {
+							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
 							})
 						} else {
 							// lower levels are not a leaf
-							$slVueTree.updateNode(selectedNodes[i].path, {
+							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: false,
 								isExpanded: false,
 							})
@@ -544,13 +539,13 @@
 					} else {
 						// the user dropped the node(s) on another level
 						if (dropLevel + levelChange === 5) {
-							$slVueTree.updateNode(selectedNodes[i].path, {
+							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
 							})
 						} else {
 							// lower levels (= higher in the hiearchy) are not a leave
-							$slVueTree.updateNode(selectedNodes[i].path, {
+							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: false,
 								isExpanded: false,
 							})
@@ -565,7 +560,7 @@
 					// if and only if we dropped one node we can recalculate its priority stand-alone
 					let newPriority = this.calcNewPriority(selectedNodes[0])
 					this.updatePriorityInTree(selectedNodes[0], newPriority)
-					this.updatePriorityInDb(newPriority)
+					this.updatePriorityInDb(selectedNodes[0].data._id, newPriority)
 				} else {
 					// recalculate the priorities of the dropped nodes and all siblings
 					const destNode = position.node
@@ -573,7 +568,7 @@
 
 					if (levelChange == 0) {
 						// drop on the the same level as the moved nodes
-						const destSiblings = this.getNodeSiblings($slVueTree.nodes, destNode.path)
+						const destSiblings = this.getNodeSiblings(this.$refs.slVueTree.nodes, destNode.path)
 						this.processPriorities(destSiblings)
 					} else {
 						if (clickedLevel - dropLevel  == 1) {
@@ -593,19 +588,18 @@
 			},
 
 			countDescendants(path) {
-				const $slVueTree = this.$refs.slVueTree
 				let count = 0
 				let doCount = false
 				let initLevel = 0
 
-				$slVueTree.traverse((node) => {
-					if ($slVueTree.comparePaths(node.path, path) == 0) {
+				this.$refs.slVueTree.traverse((node) => {
+					if (this.$refs.slVueTree.comparePaths(node.path, path) == 0) {
 						initLevel = node.level
 						doCount = true
 					} else {
 						if (node.level <= initLevel) return false
 
-						if ($slVueTree.comparePaths(node.path, path) == 1) {
+						if (this.$refs.slVueTree.comparePaths(node.path, path) == 1) {
 							if (doCount) {
 								count++
 							}
@@ -625,11 +619,10 @@
 			},
 
 			doRemove() {
-				const $slVueTree = this.$refs.slVueTree
-				const selectedNodes = $slVueTree.getSelected()
+				const selectedNodes = this.$refs.slVueTree.getSelected()
 				this.lastEvent = `The ${this.getLevelText(selectedNodes[0].level)} and ${this.countDescendants(selectedNodes[0].path)} descendants are removed`
 				const paths = selectedNodes.map(node => node.path)
-				$slVueTree.remove(paths)
+				this.$refs.slVueTree.remove(paths)
 				// After removal no node is selected
 				this.nodeIsSelected = false
 			},
@@ -715,21 +708,20 @@
 
 			doInsert() {
 				this.lastEvent = 'Node is inserted';
-				const $slVueTree = this.$refs.slVueTree;
-				$slVueTree.insert(this.newNodeLocation, this.newNode)
+				this.$refs.slVueTree.insert(this.newNodeLocation, this.newNode)
 				// restore default
 				this.insertOptionSelected = 1
 				// unselect the node that was clicked before the insert
-				const paths = $slVueTree.getSelected().map(node => node.path);
-				$slVueTree.updateNode(paths[0], {
+				const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
+				this.$refs.slVueTree.updateNode(paths[0], {
 					isSelected: false
 				})
 				// now the node is inserted get the full ISlTreeNode data and set priority
-				//				const selectedNodes = $slVueTree.getSelected()
+				//				const selectedNodes = this.$refs.slVueTree.getSelected()
 				//				const insertedNode = selectedNodes[0]
 				//				let setPriority = this.calcNewPriority(insertedNode)
 				//				let id = this.firstNodeSelected.data._id
-				//				$slVueTree.updateNode(insertedNode.path, {
+				//				this.$refs.slVueTree.updateNode(insertedNode.path, {
 				//					data: {
 				//						_id: id,
 				//						priority: setPriority
