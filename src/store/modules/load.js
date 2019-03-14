@@ -1,5 +1,6 @@
 import globalAxios from 'axios'
-import router from '../../router' //Here ../router/index is imported
+//Here ../router/index is imported
+import router from '../../router'
 
 const testNodes = [{
 	"title": "Database-1",
@@ -170,37 +171,26 @@ const testNodes = [{
 						},
 					]
 				}, ]
+var tmpDoc = null
+const batchSize = 3
+var offset = 0
+var batch = []
+var lastLevel = 0
+var lastInsertedNodeParent = null
+var lastInsertedNode = null
 
 const state = {
-	databases: [],
-	treeNodes: [],
-	userAssignedProductIds: [],
-	userAssignedProductNames: '',
-	currentProductId: null,
 	config: null,
 	currentDb: null,
 	currentDoc: null,
-	tmpDoc: null,
+	currentProductId: null,
+	databases: [],
 	email: null,
-	batchSize: 3,
-	offset: 0,
-	batch: [],
-	lastInsertedNodeParent: null,
-	lastInsertedNode: null,
-	lastLevel: 0,
-	counter: 0
+	treeNodes: [],
+	userAssignedProductIds: [],
 }
 
 const getters = {
-	getCurrentDb(state) {
-		return state.currentDb
-	},
-	getProductIds(state) {
-		return state.userAssignedProductIds
-	},
-	getCurrentProductId(state) {
-		return state.currentProductId
-	},
 	getCurrentDocId(state) {
 		if (state.currentDoc != null) return state.currentDoc._id
 	},
@@ -250,18 +240,29 @@ const getters = {
 	},
 	getCurrentDocType(state) {
 		if (state.currentDoc != null) return state.currentDoc.type
+	},
+	getCurrentDb(state) {
+		return state.currentDb
+	},
+	getCurrentProductId(state) {
+		return state.currentProductId
+	},
+	getEmail(state) {
+		return state.email
+	},
+	getProductIds(state) {
+		return state.userAssignedProductIds
 	}
 }
 
 const mutations = {
-
 	processBatch: (state) => {
-		for (let i = 0; i < state.batch.length; i++) {
+		for (let i = 0; i < batch.length; i++) {
 			/*
 			 * Compute the level the new node is at
 			 * Note that the database is at level 0 and requirement area documents are skipped in the database view
 			 */
-			let level = state.batch[i].doc.type
+			let level = batch[i].doc.type
 			/*
 			 * Compute the level the PBI is at
 			 * Note that for now the PBI level is the lowest level (highest type number)
@@ -270,35 +271,35 @@ const mutations = {
 			let pbiLevel = state.config.itemType.length - 1
 			if (level == 1) {
 				// Found a new level 1 item, usually a product
-				state.lastInsertedNodeParent = state.treeNodes[0]
-				state.lastInsertedNode = state.treeNodes[0]
+				lastInsertedNodeParent = state.treeNodes[0]
+				lastInsertedNode = state.treeNodes[0]
 			}
 			let newNode = {
-				title: state.batch[i].doc.title,
+				title: batch[i].doc.title,
 				isLeaf: (level < pbiLevel) ? false : true, // for now PBI's have no children
 				children: [],
 				isExpanded: (level < pbiLevel - 1) ? true : false, // expand the tree up to the feature level (assuming the feature level is 1 above the PBI level)
 				isdraggable: true,
 				isSelectable: true,
 				// As the product document is initially loaded show it as selected
-				isSelected: (state.batch[i].doc._id == state.currentProductId) ? true : false,
+				isSelected: (batch[i].doc._id == state.currentProductId) ? true : false,
 				data: {
-					_id: state.batch[i].doc._id,
-					priority: state.batch[i].doc.priority
+					_id: batch[i].doc._id,
+					priority: batch[i].doc.priority
 				}
 			}
 
-			if (level == state.lastLevel) {
+			if (level == lastLevel) {
 				// New node is a sibling placed below (after = same level) the selected node
-				state.lastInsertedNodeParent.children.push(newNode)
+				lastInsertedNodeParent.children.push(newNode)
 			} else {
 				// New node is a child placed a level lower (inside = higher level) than the selected node
-				state.lastInsertedNode.children.push(newNode)
-				state.lastInsertedNodeParent = state.lastInsertedNode
+				lastInsertedNode.children.push(newNode)
+				lastInsertedNodeParent = lastInsertedNode
 			}
 
-			state.lastLevel = level
-			state.lastInsertedNode = newNode
+			lastLevel = level
+			lastInsertedNode = newNode
 		}
 	}
 }
@@ -318,8 +319,8 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					state.tmpDoc = res.data
-					state.tmpDoc.title = payload.newTitle
+					tmpDoc = res.data
+					tmpDoc.title = payload.newTitle
 					this.dispatch('updateDoc')
 				}
 			})
@@ -336,8 +337,8 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					state.tmpDoc = res.data
-					state.tmpDoc.description = payload.newDescription
+					tmpDoc = res.data
+					tmpDoc.description = payload.newDescription
 					this.dispatch('updateDoc')
 				}
 			})
@@ -354,8 +355,8 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					state.tmpDoc = res.data
-					state.tmpDoc.acceptanceCriteria = payload.newAcceptanceCriteria
+					tmpDoc = res.data
+					tmpDoc.acceptanceCriteria = payload.newAcceptanceCriteria
 					this.dispatch('updateDoc')
 				}
 			})
@@ -372,8 +373,8 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					state.tmpDoc = res.data
-					state.tmpDoc.priority = payload.priority
+					tmpDoc = res.data
+					tmpDoc.priority = payload.priority
 					this.dispatch('updateDoc')
 				}
 			})
@@ -406,8 +407,8 @@ const actions = {
 							"children": []
 						},
 					]
-					state.lastInsertedNodeParent = state.treeNodes[0]
-					state.lastInsertedNode = state.treeNodes[0]
+					lastInsertedNodeParent = state.treeNodes[0]
+					lastInsertedNode = state.treeNodes[0]
 					dispatch('getFirstDocsBatch')
 				}
 			})
@@ -455,21 +456,21 @@ const actions = {
 	}) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + state.batchSize + '&skip=' + state.offset,
+				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + offset,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
 					console.log(res)
-					state.batch = res.data.rows
+					batch = res.data.rows
 					commit('processBatch')
-					if (state.batch.length == state.batchSize) {
-						state.offset += state.batchSize
+					if (batch.length == batchSize) {
+						offset += batchSize
 						// recurse until all read
 						dispatch('getNextDocsBatch')
 					}
 					// eslint-disable-next-line no-console
-					console.log('Another batch of ' + state.batch.length + ' documents is loaded')
+					console.log('Another batch of ' + batch.length + ' documents is loaded')
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -484,20 +485,20 @@ const actions = {
 	}) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + state.batchSize + '&skip=' + state.offset,
+				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + offset,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
 					console.log(res)
-					state.batch = res.data.rows
+					batch = res.data.rows
 					commit('processBatch')
-					if (state.batch.length == state.batchSize) {
-						state.offset += state.batchSize
+					if (batch.length == batchSize) {
+						offset += batchSize
 						dispatch('getNextDocsBatch')
 					}
 					// eslint-disable-next-line no-console
-					console.log('A first batch of ' + state.batch.length + ' documents is loaded. Move to the product page')
+					console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
 					router.push('/product')
 				}
 			})
@@ -505,7 +506,7 @@ const actions = {
 			.catch(error => console.log('Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
 	},
 
-	// Load current document by _id to the current document
+	// Load current document by _id
 	loadDoc({
 		state
 	}, _id) {
@@ -530,14 +531,14 @@ const actions = {
 	updateDoc({
 		state
 	}) {
-		const _id = state.tmpDoc._id
+		const _id = tmpDoc._id
 		// eslint-disable-next-line no-console
 		console.log('updateDoc: updating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
-				url: state.currentDb + '/' + state.tmpDoc._id,
+				url: state.currentDb + '/' + tmpDoc._id,
 				withCredentials: true,
-				data: state.tmpDoc
+				data: tmpDoc
 			}).then(res => {
 				if (res.status == 201) {
 					// eslint-disable-next-line no-console
