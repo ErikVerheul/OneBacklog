@@ -1,6 +1,7 @@
 <template>
   <b-navbar toggleable="md" type="dark" variant="dark">
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+		<b-img class="logo" :src="require('../../assets/logo.png')" alt="OneBacklog logo" />
     <b-navbar-brand href="https://verheulconsultants.nl">OneBacklog version 0.2.0</b-navbar-brand>
     <b-collapse is-nav id="nav_collapse">
       <b-navbar-nav>
@@ -59,28 +60,11 @@ export default {
 </script>
 
 <style scoped>
-#header {
-  height: 56px;
-  display: flex;
-  flex-flow: row;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #521751;
-  padding: 0 20px;
-}
 
 .logo {
-  font-weight: bold;
-  color: white;
-}
-
-.logo a {
-  text-decoration: none;
-  color: white;
-}
-
-nav {
-  height: 100%;
+	width: 62px;
+	hight: 50px;
+	margin-right: 20px;
 }
 
 ul {
