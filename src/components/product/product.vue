@@ -7,13 +7,25 @@
 					<div class="d-table-cell tal clearfix">
 						<b-img left :src="require('../../assets/logo.png')" height="100%" alt="OneBacklog logo" />
 					</div>
-					<div class="d-table-cell w-100 tac">
+
+					<div class="d-table-cell w-50 tac">
 						<div>
 							<h3 v-if="itemType <= epicLevel">{{ getLevelText(itemType) }} T-Shirt size:
 								<input type="text" size="3" maxlength="3" id="productTitle" :value="tsSize" />
 							</h3>
 							<h3 v-if="itemType > epicLevel">{{ getLevelText(itemType) }} Story points:
 								<input type="text" size="3" maxlength="4" id="productTitle" :value="spSize" />
+							</h3>
+						</div>
+					</div>
+					<div class="d-table-cell w-50 tar">
+						<div>
+							<h3>State:
+								<b-dropdown id="ddown-right" right text="Right align" variant="primary" class="m-2">
+									<b-dropdown-item href="#">Action</b-dropdown-item>
+									<b-dropdown-item href="#">Another action</b-dropdown-item>
+									<b-dropdown-item href="#">Something else here</b-dropdown-item>
+								</b-dropdown>
 							</h3>
 						</div>
 					</div>
@@ -837,6 +849,10 @@
 		width: 100%;
 	}
 
+	.w-50 {
+		width: 50%;
+	}
+
 	.tar {
 		text-align: right;
 	}
@@ -847,6 +863,12 @@
 
 	.tal {
 		text-align: left;
+	}
+
+	.positioned {
+		position: relative;
+		background: yellow;
+		z-index: 4000;
 	}
 
 	//tree stuff
