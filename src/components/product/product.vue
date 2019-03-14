@@ -180,16 +180,17 @@
 	//Bug? Do not put this import in curly braces
 	import SlVueTree from 'sl-vue-tree'
 
+	var numberOfNodesSelected = 0
+	var firstNodeSelected = null
+	var firstNodeSelected = {}
+	var newNode = {}
+
 	export default {
 		data() {
 			return {
 				nodeIsSelected: false,
-				numberOfNodesSelected: 0,
-				firstNodeSelected: null,
 				removeTitle: '',
-				newNodeLocation: {},
 				insertOptionSelected: 1, //default to sibling node (no creation of descendant)
-				newNode: {},
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
 
@@ -213,7 +214,7 @@
 					['link', 'image', 'code-block']
 				],
 
-				tShirtSize: 'XL', // ToDo: make dynamic
+				tShirtSize: 'XL',
 
 				selected: 'comments',
 				options: [{
@@ -239,6 +240,7 @@
 				userRoles: 'getRoles',
 				userProductsIds: 'getProductIds',
 				currentProductId: 'getCurrentProductId',
+				email: 'getEmail',
 				isServerAdmin: 'isServerAdmin',
 				isAuthenticated: 'isAuthenticated',
 
