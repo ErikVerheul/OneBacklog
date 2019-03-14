@@ -1,37 +1,25 @@
 <template>
 	<div>
-		<!-- horizontal panes -->
-		<multipane class="horizontal-panes" layout="horizontal">
-			<div class="pane" :style="{ minHeight: '120px', height: '120px', maxHeight: '120px' }">
-				<div class="d-table ">
-					<div class="d-table-cell tal clearfix">
-						<b-img left :src="require('../../assets/logo.png')" height="100%" alt="OneBacklog logo" />
-					</div>
-
-					<div class="d-table-cell w-50 tac">
-						<div>
-							<h3 v-if="itemType <= epicLevel">{{ getLevelText(itemType) }} T-Shirt size:
-								<input type="text" size="3" maxlength="3" id="productTitle" :value="tsSize" />
-							</h3>
-							<h3 v-if="itemType > epicLevel">{{ getLevelText(itemType) }} Story points:
-								<input type="text" size="3" maxlength="4" id="productTitle" :value="spSize" />
-							</h3>
-						</div>
-					</div>
-					<div class="d-table-cell w-50 tar">
-						<div>
-							<h3>State:
-								<b-dropdown id="ddown-right" right text="Right align" variant="primary" class="m-2">
-									<b-dropdown-item href="#">Action</b-dropdown-item>
-									<b-dropdown-item href="#">Another action</b-dropdown-item>
-									<b-dropdown-item href="#">Something else here</b-dropdown-item>
-								</b-dropdown>
-							</h3>
-						</div>
-					</div>
-				</div>
-			</div>
-
+		<div>
+			<span class="inline align-left">
+				<h3 v-if="itemType <= epicLevel">{{ getLevelText(itemType) }} T-Shirt size:
+					<input type="text" size="3" maxlength="3" id="productTitle" :value="tsSize" />
+				</h3>
+				<h3 v-if="itemType > epicLevel">{{ getLevelText(itemType) }} Story points:
+					<input type="text" size="3" maxlength="4" id="productTitle" :value="spSize" />
+				</h3>
+			</span>
+			<span class="inline align-right">
+				<h3>State:
+					<b-dropdown id="ddown-right" right text="Right align" variant="primary" class="m-2">
+						<b-dropdown-item href="#">Action</b-dropdown-item>
+						<b-dropdown-item href="#">Another action</b-dropdown-item>
+						<b-dropdown-item href="#">Something else here</b-dropdown-item>
+					</b-dropdown>
+				</h3>
+			</span>
+		</div>
+		<div>
 			<!-- vertical panes -->
 			<multipane class="custom-resizer" layout="vertical">
 				<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
@@ -151,27 +139,28 @@
 					</multipane>
 				</div>
 			</multipane>
-		</multipane>
-		<template v-if="this.nodeIsSelected">
-			<div>
-				<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
-					<div class="d-block text-center">
-						<h3>This operation cannot be undone!</h3>
-					</div>
-					<b-button class="mt-3" variant="outline-danger" block @click="doRemove">Remove now!</b-button>
-				</b-modal>
-			</div>
-		</template>
-		<template v-if="this.nodeIsSelected">
-			<div>
-				<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
-					<b-form-group label="Select what node type to insert:">
-						<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
-					</b-form-group>
-					<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
-				</b-modal>
-			</div>
-		</template>
+
+			<template v-if="this.nodeIsSelected">
+				<div>
+					<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
+						<div class="d-block text-center">
+							<h3>This operation cannot be undone!</h3>
+						</div>
+						<b-button class="mt-3" variant="outline-danger" block @click="doRemove">Remove now!</b-button>
+					</b-modal>
+				</div>
+			</template>
+			<template v-if="this.nodeIsSelected">
+				<div>
+					<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
+						<b-form-group label="Select what node type to insert:">
+							<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
+						</b-form-group>
+						<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
+					</b-modal>
+				</div>
+			</template>
+		</div>
 	</div>
 </template>
 
@@ -779,35 +768,34 @@
 		border: 1px solid #ccc;
 	}
 
-	// Use deep selecor here and below. See https://vue-loader.vuejs.org/guide/scoped-css.html#deep-selectors -->
-	.horizontal-panes>>>.pane {
+	.horizontal-panes>.pane {
 		text-align: left;
 		padding: 5px;
 		overflow: hidden;
 		background: white;
 	}
 
-	.horizontal-panes>>>.pane~.pane {
+	.horizontal-panes>.pane~.pane {
 		border-top: 1px solid #ccc;
 	}
 
 	// vertical panes
 	.custom-resizer {
 		width: 100%;
-		height: 100%;
+		height: 900px;
 	}
 
-	.custom-resizer>>>.pane {
+	.custom-resizer>.pane {
 		text-align: left;
-		padding: 3px;
+		padding: 15px;
 		overflow: hidden;
 		background: #eee;
-		border: 2px solid #ccc;
+		border: 1px solid #ccc;
 	}
 
-	.custom-resizer>>>.pane~.pane {}
+	.custom-resizer>.pane~.pane {}
 
-	.custom-resizer>>>.multipane-resizer {
+	.custom-resizer>.multipane-resizer {
 		margin: 0;
 		left: 0;
 		position: relative;
@@ -826,13 +814,11 @@
 			border-right: 1px solid #ccc;
 		}
 
-		/*
 		&:hover {
 			&:before {
 				border-color: #999;
 			}
 		}
-*/
 	}
 
 	// other stuff
@@ -865,12 +851,6 @@
 		text-align: left;
 	}
 
-	.positioned {
-		position: relative;
-		background: yellow;
-		z-index: 4000;
-	}
-
 	//tree stuff
 
 	.last-event {
@@ -897,6 +877,22 @@
 		overflow-x: hidden;
 		overflow-y: auto;
 		height: 100%;
+	}
+
+	//my stuff
+
+	.inline {
+		display: inline-block;
+	}
+
+	.align-left {
+		float: left;
+		margin-top: 10px;
+	}
+
+	.align-right {
+		float: right;
+		margin-top: 10px;
 	}
 
 </style>
