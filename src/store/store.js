@@ -40,12 +40,16 @@ export default new Vuex.Store({
 		clearAuthData(state) {
 			state.user = null
 			state.roles = []
-			state.load.databases = []
-			state.load.currentDb = null
-			state.load.offset = 0
-			state.load.nodes = []
-			state.load.email = null
 			state.load.config = null
+			state.load.currentDb = null
+			state.load.currentDoc = null
+			state.load.databases = []
+			state.load.email = null
+			state.load.offset = 0,
+				console.log('clearAuthData: state.load.offset = ' + state.load.offset)
+			state.load.treeNodes = []
+			state.load.userAssignedProductIds = []
+
 			clearTimeout(state.runningTimeout)
 		}
 	},

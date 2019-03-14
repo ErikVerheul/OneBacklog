@@ -4,7 +4,6 @@ import router from '../../router'
 
 var tmpDoc = null
 const batchSize = 3
-var offset = 0
 var batch = []
 var lastType = 0
 var lastInsertedNodeParent = null
@@ -18,6 +17,7 @@ const state = {
 	currentProductId: null,
 	databases: [],
 	email: null,
+	offset: 0,
 	treeNodes: [],
 	userAssignedProductIds: [],
 }
@@ -288,7 +288,7 @@ const actions = {
 	}) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + offset,
+				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -297,7 +297,7 @@ const actions = {
 					batch = res.data.rows
 					commit('processBatch')
 					if (batch.length == batchSize) {
-						offset += batchSize
+						state.offset += batchSize
 						// recurse until all read
 						dispatch('getNextDocsBatch')
 					}
@@ -317,7 +317,7 @@ const actions = {
 	}) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + offset,
+				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -326,7 +326,7 @@ const actions = {
 					batch = res.data.rows
 					commit('processBatch')
 					if (batch.length == batchSize) {
-						offset += batchSize
+						state.offset += batchSize
 						dispatch('getNextDocsBatch')
 					}
 					// eslint-disable-next-line no-console
