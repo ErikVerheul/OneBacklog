@@ -184,6 +184,7 @@
 	var firstNodeSelected = null
 	var firstNodeSelected = {}
 	var newNode = {}
+	const isLeafLevel = 5
 
 	export default {
 		data() {
@@ -305,12 +306,10 @@
 
 			/* mappings from config */
 			getLevelText(level) {
-				// note that in the tree model the first level is 1 (not zero)
-				let treeLevel = level - 1
-				if (treeLevel < 0 || treeLevel >= this.$store.state.load.config.itemType.length) {
+				if (level < 0 || level >= this.$store.state.load.config.itemType.length) {
 					return 'Error: unknown level'
 				}
-				return this.$store.state.load.config.itemType[treeLevel]
+				return this.$store.state.load.config.itemType[level]
 			},
 			getItemState(idx) {
 				if (idx < 0 || idx >= this.$store.state.load.config.itemType.length) {
@@ -369,7 +368,13 @@
 				this.firstNodeSelected = selNodes[0]
 				// read the document
 				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
-				this.selectedNodesTitle = this.itemTitleTrunc(60, selNodes.map(node => node.title).join(', '))
+
+				const title = this.itemTitleTrunc(60, selNodes[0].title)
+				if (selNodes.length == 1) {
+					this.selectedNodesTitle = title
+				} else {
+					this.selectedNodesTitle = title + ' + ' + (selNodes.length - 1) + ' other items'
+				}
 				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`
 			},
 
@@ -493,11 +498,11 @@
 					successorPrio = this.$refs.slVueTree.getNextNode(path).data.priority
 				}
 				// eslint-disable-next-line no-console
-				console.log('calcNewPriority: for node.title ' + node.title + ' isFirstChild = ' + node.isFirstChild + ' isLastChild = ' + node.isLastChild +
-					'\n prevnode = ' + this.$refs.slVueTree.getPrevNode(path).title +
-					'\n nextnode.title = ' + this.$refs.slVueTree.getNextNode(path).title +
-					'\n predecessorPrio = ' + predecessorPrio +
-					'\n successorPrio = ' + successorPrio)
+//				console.log('calcNewPriority: for node.title ' + node.title + ' isFirstChild = ' + node.isFirstChild + ' isLastChild = ' + node.isLastChild +
+//					'\n prevnode = ' + this.$refs.slVueTree.getPrevNode(path).title +
+//					'\n nextnode.title = ' + this.$refs.slVueTree.getNextNode(path).title +
+//					'\n predecessorPrio = ' + predecessorPrio +
+//					'\n successorPrio = ' + successorPrio)
 				return (predecessorPrio + successorPrio) / 2
 			},
 
@@ -515,18 +520,16 @@
 				let levelChange = Math.abs(clickedLevel - dropLevel)
 				const selectedNodes = this.$refs.slVueTree.getSelected()
 
-				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
-				console.log('nodeDropped: dropLevel = ' + dropLevel)
-				console.log('nodeDropped: levelChange = ' + levelChange)
-				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
-
-
+//				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
+//				console.log('nodeDropped: dropLevel = ' + dropLevel)
+//				console.log('nodeDropped: levelChange = ' + levelChange)
+//				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
 
 				for (let i = 0; i < selectedNodes.length; i++) {
 					console.log('nodeDropped in loop: i, dropLevel = ' + i + ', ' + dropLevel)
 					if (levelChange === 0) {
 						// for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-						if (dropLevel + levelChange === 5) {
+						if (dropLevel + levelChange === isLeafLevel) {
 							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
@@ -540,7 +543,7 @@
 						}
 					} else {
 						// the user dropped the node(s) on another level
-						if (dropLevel + levelChange === 5) {
+						if (dropLevel + levelChange === isLeafLevel) {
 							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
@@ -573,7 +576,7 @@
 						const destSiblings = this.getNodeSiblings(this.$refs.slVueTree.nodes, destNode.path)
 						this.processPriorities(destSiblings)
 					} else {
-						if (clickedLevel - dropLevel  == 1) {
+						if (clickedLevel - dropLevel == 1) {
 							// drop on the parent of the moved nodes
 							this.processPriorities(position.node.children)
 						}
@@ -581,10 +584,11 @@
 
 				}
 				// create the event message
-				if ((draggingNodes.length) === 1) {
-					this.lastEvent = `Node: ${this.itemTitleTrunc(60, draggingNodes.map(node => node.title).join(', '))} is dropped ${position.placement} ${position.node.title}`
+				const title = this.itemTitleTrunc(60, draggingNodes[0].title)
+				if (draggingNodes.length == 1) {
+					this.lastEvent = `Node '${title}' is dropped ${position.placement} '${position.node.title}'`
 				} else {
-					this.lastEvent = `Nodes: ${this.itemTitleTrunc(60, draggingNodes.map(node => node.title).join(', '))} are dropped ${position.placement} ${position.node.title}`
+					this.lastEvent = `Nodes '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
 				}
 				if (levelChange > 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
 			},
@@ -633,7 +637,7 @@
 				event.preventDefault();
 				if (this.nodeIsSelected) {
 					let clickedLevel = this.firstNodeSelected.level;
-					if (clickedLevel === 5) {
+					if (clickedLevel === isLeafLevel) {
 						this.insertOptionSelected = 1; //Cannot create child below PBI
 					}
 					if (clickedLevel === 1) {
@@ -659,7 +663,7 @@
 				options[0].text = this.getLevelText(clickedLevel);
 				options[1].text = this.getLevelText(clickedLevel + 1);
 				// Disable the option to create a node below a PBI
-				if (clickedLevel === 5) options[1].disabled = true;
+				if (clickedLevel === isLeafLevel) options[1].disabled = true;
 				// Disable the option to create a new database
 				if (clickedLevel === 1) options[0].disabled = true;
 				return options
@@ -676,7 +680,7 @@
 					}
 					this.newNode = {
 						title: 'New ' + this.getLevelText(insertLevel),
-						isLeaf: (insertLevel < 5) ? false : true, // for now PBI's (level 5) have no children
+						isLeaf: (insertLevel < isLeafLevel) ? false : true, // for now PBI's (isLeafLevel) have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
@@ -695,7 +699,7 @@
 					}
 					this.newNode = {
 						title: 'New ' + this.getLevelText(insertLevel),
-						isLeaf: (insertLevel < 5) ? false : true, // for now PBI's (level 5) have no children
+						isLeaf: (insertLevel < isLeafLevel) ? false : true, // for now PBI's (isLeafLevel) have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
