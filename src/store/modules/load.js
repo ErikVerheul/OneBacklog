@@ -6,10 +6,10 @@ var tmpDoc = null
 const batchSize = 3
 var offset = 0
 var batch = []
-var lastLevel = 0
+var lastType = 0
 var lastInsertedNodeParent = null
 var lastInsertedNode = null
-const leafLevel = 5
+const leafType = 5
 
 const state = {
 	config: null,
@@ -89,46 +89,49 @@ const mutations = {
 	processBatch: (state) => {
 		for (let i = 0; i < batch.length; i++) {
 			/*
-			 * Compute the level the new node is at
-			 * Note that the database is at level 0 and requirement area documents are skipped in the database view
+			 * Compute the type the new node is at
+			 * Note that the database is at type 0 and requirement area documents are skipped in the database view
 			 */
-			let level = batch[i].doc.type
-			/*
-			 * Compute the level the PBI is at
-			 * Note that for now the PBI level is the lowest level (highest type number)
-			 * This will change when tasks become the lowest level
-			 */
-			if (level == 2) {
-				// Found a new level 2 item, usually a product
-				lastInsertedNodeParent = state.treeNodes[0]
-				lastInsertedNode = state.treeNodes[0]
-			}
-			let newNode = {
-				title: batch[i].doc.title,
-				isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
-				children: [],
-				isExpanded: (level < leafLevel) ? true : false, // expand the tree up to the feature level
-				isdraggable: true,
-				isSelectable: true,
-				// As the product document is initially loaded show it as selected
-				isSelected: (batch[i].doc._id == state.currentProductId) ? true : false,
-				data: {
-					_id: batch[i].doc._id,
-					priority: batch[i].doc.priority
+			let type = batch[i].doc.type
+			// Skip the requirent area types
+			if (type != 1) {
+				/*
+				 * Compute the type the PBI is at
+				 * Note that for now the PBI type is the lowest type (highest type number)
+				 * This will change when tasks become the lowest type
+				 */
+				if (type == 2) {
+					// Found a new type 2 item, usually a product
+					lastInsertedNodeParent = state.treeNodes[0]
+					lastInsertedNode = state.treeNodes[0]
 				}
-			}
+				let newNode = {
+					title: batch[i].doc.title,
+					isLeaf: (type == leafType) ? true : false, // for now PBI's have no children
+					children: [],
+					isExpanded: (type < leafType) ? true : false, // expand the tree up to the feature type
+					isdraggable: true,
+					isSelectable: true,
+					// As the product document is initially loaded show it as selected
+					isSelected: (batch[i].doc._id == state.currentProductId) ? true : false,
+					data: {
+						_id: batch[i].doc._id,
+						priority: batch[i].doc.priority
+					}
+				}
 
-			if (level == lastLevel) {
-				// New node is a sibling placed below (after = same level) the selected node
-				lastInsertedNodeParent.children.push(newNode)
-			} else {
-				// New node is a child placed a level lower (inside = higher level) than the selected node
-				lastInsertedNode.children.push(newNode)
-				lastInsertedNodeParent = lastInsertedNode
-			}
+				if (type == lastType) {
+					// New node is a sibling placed below (after = same type) the selected node
+					lastInsertedNodeParent.children.push(newNode)
+				} else {
+					// New node is a child placed a type lower (inside = higher type) than the selected node
+					lastInsertedNode.children.push(newNode)
+					lastInsertedNodeParent = lastInsertedNode
+				}
 
-			lastLevel = level
-			lastInsertedNode = newNode
+				lastType = type
+				lastInsertedNode = newNode
+			}
 		}
 	}
 }
