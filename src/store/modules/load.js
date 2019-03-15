@@ -210,6 +210,7 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					tmpDoc.title = payload.newTitle
+					state.currentDoc.title = payload.newTitle
 					this.dispatch('updateDoc')
 				}
 			})
@@ -228,6 +229,7 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					tmpDoc.description = payload.newDescription
+					state.currentDoc.description = payload.newDescription
 					this.dispatch('updateDoc')
 				}
 			})
@@ -246,6 +248,7 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					tmpDoc.acceptanceCriteria = payload.newAcceptanceCriteria
+					state.currentDoc.acceptanceCriteria = payload.newAcceptanceCriteria
 					this.dispatch('updateDoc')
 				}
 			})
@@ -264,6 +267,7 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					tmpDoc.priority = payload.priority
+					state.currentDoc.priority = payload.priority
 					this.dispatch('updateDoc')
 				}
 			})
