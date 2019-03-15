@@ -82,6 +82,9 @@ const getters = {
 	},
 	getProductIds(state) {
 		return state.userAssignedProductIds
+	},
+	getTreeNodes(state) {
+		return state.treeNodes
 	}
 }
 
@@ -141,7 +144,7 @@ const actions = {
 	 * When updating the database first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
-		setSize({
+	setSize({
 		state
 	}, payload) {
 		const _id = state.currentDoc._id
@@ -211,6 +214,26 @@ const actions = {
 					tmpDoc = res.data
 					tmpDoc.title = payload.newTitle
 					state.currentDoc.title = payload.newTitle
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	setSubType({
+		state
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					tmpDoc.subtype = payload.newSubType
+					state.currentDoc.subtype = payload.newSubType
+					console.log('setSubType: subtype saved as ' + payload.newSubType)
 					this.dispatch('updateDoc')
 				}
 			})

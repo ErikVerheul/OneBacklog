@@ -5,7 +5,7 @@
 				<h3 v-if="itemType <= epicLevel">{{ getLevelText(itemType) }} T-Shirt size:
 					<input type="text" size="3" maxlength="3" id="tShirtSize" :value="tsSize" @blur="updateTsSize()" />
 				</h3>
-				<h3 v-if="itemType > epicLevel">{{ getLevelText(itemType) }} Story points:
+				<h3 v-if="itemType > epicLevel">Story points:
 					<input type="number" min="0" max="9999" id="storyPoints" :value="spSize" @blur="updateStoryPoints()" />
 				</h3>
 			</span>
@@ -37,7 +37,7 @@
 
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="tree-container" @mousedown.stop>
-						<sl-vue-tree v-model="treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+						<sl-vue-tree :value="treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 
 							<template slot="title" slot-scope="{ node }">
 								<span class="item-icon">
@@ -83,16 +83,28 @@
 								</div>
 							</div>
 						</div>
+
+						<div v-if="itemType==this.pbiLevel" class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
+							<div class="d-table w-100">
+								<p class="title is-6">This item is of type '{{ this.getSubType(subType) }}'. Change it here -> </p>
+								<div class="d-table-cell tar">
+									<b-form-group>
+										<b-form-radio-group v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
+									</b-form-group>
+								</div>
+							</div>
+						</div>
+
 						<div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
 							<div class="d-table w-100">
 								<h5 class="title is-6">Description</h5>
 								<div class="d-table-cell tar">
-									<h6 class="title is-6">Created by {{ history[0].createdBy }} at {{ new Date(history[0].creationDate).toString().substring(0, 33) }} </h6>
+									<p class="title is-6">Created by {{ history[0].createdBy }} @ {{ new Date(history[0].creationDate).toString().substring(0, 33) }} </p>
 								</div>
 							</div>
 						</div>
 						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<vue-editor :value="description" :editorToolbar="customToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
+							<vue-editor :value="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
 						</div>
 						<multipane-resizer></multipane-resizer>
 						<div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
@@ -101,40 +113,40 @@
 							</div>
 						</div>
 						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<vue-editor :value="acceptanceCriteria" :editorToolbar="customToolbar" id="acceptanceCriteriaField" @blur="updateAcceptanceCriteria()"></vue-editor>
+							<vue-editor :value="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptanceCriteria()"></vue-editor>
 						</div>
 						<multipane-resizer></multipane-resizer>
 						<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 							<div class="d-table w-100">
 								<div class="d-table-cell tal">
-									<b-button href="#">Add {{ selected }}</b-button>
+									<b-button href="#">Add {{ selectedForView }}</b-button>
 								</div>
 								<div class="d-table-cell tac">
 									<b-form-group label="Select to see">
-										<b-form-radio-group v-model="selected" :options="options" plain name="plainInline" />
+										<b-form-radio-group v-model="selectedForView" :options="getViewOptions()" plain name="viewOptions" />
 									</b-form-group>
 								</div>
 								<div class="d-table-cell tar">
-									<b-button href="#">Find {{ selected }}</b-button>
+									<b-button href="#">Find {{ selectedForView }}</b-button>
 								</div>
 							</div>
 						</div>
 						<div class="pane" :style="{ flexGrow: 1 }">
-							<ul v-if="selected==='comments'">
+							<ul v-if="selectedForView==='comments'">
 								<li v-for="comment in comments" :key=comment.authorAndIssueDate>
 									<div v-for="(value, key) in comment" :key=key>
 										{{ key }} {{ value }}
 									</div>
 								</li>
 							</ul>
-							<ul v-if="selected==='attachments'">
+							<ul v-if="selectedForView==='attachments'">
 								<li v-for="attach in attachments" :key=attach.authorAndIssueDate>
 									<div v-for="(value, key) in attach" :key=key>
 										{{ key }} {{ value }}
 									</div>
 								</li>
 							</ul>
-							<ul v-if="selected==='history'">
+							<ul v-if="selectedForView==='history'">
 								<li v-for="hist in history" :key=hist.authorAndIssueDate>
 									<div v-for="(value, key) in hist" :key=key>
 										{{ key }} {{ value }}
@@ -160,7 +172,7 @@
 				<div>
 					<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
 						<b-form-group label="Select what node type to insert:">
-							<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type"></b-form-radio-group>
+							<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type" />
 						</b-form-group>
 						<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
 					</b-modal>
@@ -203,7 +215,6 @@
 	var numberOfNodesSelected = 0
 	var firstNodeSelected = null
 	var newNode = {}
-	var leafLevel = 5
 
 	export default {
 		data() {
@@ -211,16 +222,15 @@
 				productLevel: 2,
 				epicLevel: 3,
 				featureLevel: 4,
+				pbiLevel: 5,
 
 				nodeIsSelected: false,
 				removeTitle: '',
-				insertOptionSelected: 1, //default to sibling node (no creation of descendant)
+				insertOptionSelected: 1, // default to sibling node (no creation of descendant)
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
 
-				treeNodes: this.$store.state.load.treeNodes,
-
-				customToolbar: [
+				editorToolbar: [
 					[{
 						header: [false, 1, 2, 3, 4, 5, 6]
 					}],
@@ -238,22 +248,8 @@
 					['link', 'image', 'code-block']
 				],
 
-				tShirtSize: 'XL',
-
-				selected: 'comments',
-				options: [{
-						text: 'Comments',
-						value: 'comments',
-					},
-					{
-						text: 'Attachments',
-						value: 'attachments',
-					},
-					{
-						text: 'History',
-						value: 'history',
-					}
-				],
+				selectedPbiType: -1, // set to an invalid value; must be updated before use
+				selectedForView: 'comments',
 			}
 		},
 
@@ -275,16 +271,31 @@
 				description: 'getCurrentDocDescription',
 				followers: 'getCurrentDocFollowers',
 				history: 'getCurrentDocHistory',
+				itemState: 'getCurrentDocState',
+				itemTitle: 'getCurrentDocTitle',
+				itemType: 'getCurrentDocType',
 				priority: 'getCurrentDocPriority',
 				productId: 'getCurrentDocProductId',
 				reqAreaId: 'getCurrentDocReqArea',
 				spSize: 'getCurrentDocSpSize',
-				itemState: 'getCurrentDocState',
 				subType: 'getCurrentDocSubType',
-				itemTitle: 'getCurrentDocTitle',
+				treeNodes: 'getTreeNodes',
 				tsSize: 'getCurrentDocTsSize',
-				itemType: 'getCurrentDocType'
+
 			}),
+		},
+
+		watch: {
+			'selectedPbiType': function(val, oldVal) {
+				// prevent looping
+				if (val != this.subType) {
+					console.log('watch: selectedPbiType has changed from ' + oldVal + ' to ' + val + ' subType = ' + this.subType)
+					const payload = {
+						'newSubType': val
+					}
+					this.$store.dispatch('setSubType', payload)
+				}
+			}
 		},
 
 		methods: {
@@ -364,13 +375,13 @@
 
 			/* mappings from config */
 			getLevelText(level) {
-				if (level < 0 || level > leafLevel) {
+				if (level < 0 || level > this.pbiLevel) {
 					return 'Error: unknown level'
 				}
 				return this.$store.state.load.config.itemType[level]
 			},
 			getItemStateText(idx) {
-				if (idx < 0 || idx > leafLevel) {
+				if (idx < 0 || idx > this.pbiLevel) {
 					return 'Error: unknown state'
 				}
 				return this.$store.state.load.config.itemState[idx]
@@ -424,9 +435,9 @@
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				firstNodeSelected = selNodes[0]
+
 				// read the document
 				this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
-
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {
 					this.selectedNodesTitle = title
@@ -576,7 +587,7 @@
 				for (let i = 0; i < selectedNodes.length; i++) {
 					if (levelChange === 0) {
 						// for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-						if (dropLevel + levelChange === leafLevel) {
+						if (dropLevel + levelChange === this.pbiLevel) {
 							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
@@ -590,7 +601,7 @@
 						}
 					} else {
 						// the user dropped the node(s) on another level
-						if (dropLevel + levelChange === leafLevel) {
+						if (dropLevel + levelChange === this.pbiLevel) {
 							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
 								isLeaf: true,
 								isExpanded: false,
@@ -684,7 +695,7 @@
 				event.preventDefault();
 				if (this.nodeIsSelected) {
 					let clickedLevel = firstNodeSelected.level;
-					if (clickedLevel === leafLevel) {
+					if (clickedLevel === this.pbiLevel) {
 						this.insertOptionSelected = 1; //Cannot create child below PBI
 					}
 					if (clickedLevel === 1) {
@@ -692,6 +703,24 @@
 					}
 					this.$refs.insertModalRef.show();
 				}
+			},
+
+			getPbiOptions() {
+				this.selectedPbiType = this.subType
+				let options = [{
+						text: 'User story',
+						value: 0,
+					},
+					{
+						text: 'Spike',
+						value: 1,
+					},
+					{
+						text: 'Defect',
+						value: 2,
+					}
+				]
+				return options
 			},
 
 			getNodeTypeOptions() {
@@ -707,12 +736,29 @@
 					}
 				];
 				var clickedLevel = firstNodeSelected.level
-				options[0].text = this.getLevelText(clickedLevel);
-				options[1].text = this.getLevelText(clickedLevel + 1);
+				options[0].text = this.getLevelText(clickedLevel)
+				options[1].text = this.getLevelText(clickedLevel + 1)
 				// Disable the option to create a node below a PBI
-				if (clickedLevel === leafLevel) options[1].disabled = true;
+				if (clickedLevel === this.pbiLevel) options[1].disabled = true;
 				// Disable the option to create a new database
 				if (clickedLevel === 1) options[0].disabled = true;
+				return options
+			},
+
+			getViewOptions() {
+				let options = [{
+						text: 'Comments',
+						value: 'comments',
+					},
+					{
+						text: 'Attachments',
+						value: 'attachments',
+					},
+					{
+						text: 'History',
+						value: 'history',
+					}
+				]
 				return options
 			},
 
@@ -727,7 +773,7 @@
 					}
 					newNode = {
 						title: 'New ' + this.getLevelText(insertLevel),
-						isLeaf: (insertLevel < leafLevel) ? false : true, // for now PBI's (leafLevel) have no children
+						isLeaf: (insertLevel < this.pbiLevel) ? false : true, // for now PBI's have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
@@ -746,7 +792,7 @@
 					}
 					newNode = {
 						title: 'New ' + this.getLevelText(insertLevel),
-						isLeaf: (insertLevel < leafLevel) ? false : true, // for now PBI's (leafLevel) have no children
+						isLeaf: (insertLevel < this.pbiLevel) ? false : true, // for now PBI's have no children
 						children: [],
 						isExpanded: false,
 						isdraggable: true,
