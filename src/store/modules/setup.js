@@ -773,7 +773,7 @@ const initData = {
 			"reqarea": null,
 			"title": "Enable item insertion",
 			"followers": [],
-			"description": "As a user with the appropiate permission I want to create new items",
+			"description": "As a user with the appropriate permission I want to create new items",
 			"acceptanceCriteria": "Please don't forget",
 			"priority": 0,
 			"attachments": [],
