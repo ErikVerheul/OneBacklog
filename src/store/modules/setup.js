@@ -731,7 +731,7 @@ const initData = {
 			"reqarea": "15521397677068926",
 			"title": "The GUI",
 			"followers": [],
-			"description": "As PO I want to see a MPV version of the GUI so that I can feel the product and come with improvements",
+			"description": "As PO I want to see a MVP version of the GUI so that I can feel the product and come with improvements",
 			"acceptanceCriteria": "Please don't forget",
 			"priority": 0,
 			"attachments": [],
