@@ -3,10 +3,10 @@
 		<div>
 			<span class="inline align-left">
 				<h3 v-if="itemType <= epicLevel">{{ getLevelText(itemType) }} T-Shirt size:
-					<input type="text" size="3" maxlength="3" id="productTitle" :value="tsSize" />
+					<input type="text" size="3" maxlength="3" id="tShirtSize" :value="tsSize" @blur="updateTsSize()" />
 				</h3>
 				<h3 v-if="itemType > epicLevel">{{ getLevelText(itemType) }} Story points:
-					<input type="text" size="3" maxlength="4" id="productTitle" :value="spSize" />
+					<input type="number" min="0" max="9999" id="storyPoints" :value="spSize" @blur="updateStoryPoints()" />
 				</h3>
 			</span>
 			<span class="inline align-right">
@@ -289,6 +289,33 @@
 
 		methods: {
 			/* Database update methods */
+			updateTsSize() {
+				var size = document.getElementById("tShirtSize").value.toUpperCase()
+				const sizeArray = this.$store.state.load.config.tsSize
+				if (sizeArray.indexOf(size) != -1) {
+					console.log('updateTsSize: input = ' + size)
+					// update current document
+					const payload = {
+						'newSizeIdx': sizeArray.indexOf(size)
+					}
+					this.$store.dispatch('setSize', payload)
+				} else {
+					var sizes = ''
+					for (let i = 0; i < sizeArray.length - 1; i++) {
+						sizes += sizeArray[i] + ', '
+					}
+					alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
+				}
+			},
+			updateStoryPoints() {
+				var points = document.getElementById("storyPoints").value
+				console.log('updateStoryPoints: input = ' + points)
+				const payload = {
+					'newPoints': points
+				}
+				this.$store.dispatch('setStoryPoints', payload)
+
+			},
 			onStateChange(idx) {
 				console.log('onStateChange: idx = ' + idx)
 				// update current document
@@ -297,7 +324,6 @@
 				}
 				this.$store.dispatch('setState', payload)
 			},
-
 			updateTitle() {
 				const newTitle = document.getElementById("titleField")
 				// update the tree
@@ -895,6 +921,10 @@
 	}
 
 	//my stuff
+
+	input[type="number"] {
+		width: 80px;
+	}
 
 	.inline {
 		display: inline-block;

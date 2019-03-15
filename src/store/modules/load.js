@@ -141,6 +141,44 @@ const actions = {
 	 * When updating the database first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
+		setSize({
+		state
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					tmpDoc.tssize = payload.newSizeIdx
+					state.currentDoc.tssize = payload.newSizeIdx
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	setStoryPoints({
+		state
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					tmpDoc.spsize = payload.newPoints
+					state.currentDoc.spsize = payload.newPoints
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
 	setState({
 		state
 	}, payload) {
