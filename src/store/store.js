@@ -46,7 +46,6 @@ export default new Vuex.Store({
 			state.load.databases = []
 			state.load.email = null
 			state.load.offset = 0,
-				console.log('clearAuthData: state.load.offset = ' + state.load.offset)
 			state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
 

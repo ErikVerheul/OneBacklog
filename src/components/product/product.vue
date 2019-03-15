@@ -11,10 +11,16 @@
 			</span>
 			<span class="inline align-right">
 				<h3>State:
-					<b-dropdown id="ddown-right" right text="Right align" variant="primary" class="m-2">
-						<b-dropdown-item href="#">Action</b-dropdown-item>
-						<b-dropdown-item href="#">Another action</b-dropdown-item>
-						<b-dropdown-item href="#">Something else here</b-dropdown-item>
+					<b-dropdown id="ddown-right" right variant="primary" class="m-2">
+						<template slot="button-content">
+							{{ getItemStateText(itemState) }}
+						</template>
+						<b-dropdown-item @click="onStateChange(0)">{{ getItemStateText(0) }}</b-dropdown-item>
+						<b-dropdown-item @click="onStateChange(1)">{{ getItemStateText(1) }}</b-dropdown-item>
+						<b-dropdown-item @click="onStateChange(2)">{{ getItemStateText(2) }}</b-dropdown-item>
+						<b-dropdown-item @click="onStateChange(3)">{{ getItemStateText(3) }}</b-dropdown-item>
+						<b-dropdown-item @click="onStateChange(4)">{{ getItemStateText(4) }}</b-dropdown-item>
+						<b-dropdown-item @click="onStateChange(5)">{{ getItemStateText(5) }}</b-dropdown-item>
 					</b-dropdown>
 				</h3>
 			</span>
@@ -283,6 +289,15 @@
 
 		methods: {
 			/* Database update methods */
+			onStateChange(idx) {
+				console.log('onStateChange: idx = ' + idx)
+				// update current document
+				const payload = {
+					'newStateIdx': idx
+				}
+				this.$store.dispatch('setState', payload)
+			},
+
 			updateTitle() {
 				const newTitle = document.getElementById("titleField")
 				// update the tree
@@ -294,7 +309,7 @@
 				const payload = {
 					'newTitle': newTitle.value
 				}
-				this.$store.dispatch('setCurrentDocTitle', payload)
+				this.$store.dispatch('setDocTitle', payload)
 			},
 			updateDescription() {
 				const newDescription = document.getElementById("descriptionField").innerText
@@ -302,7 +317,7 @@
 				const payload = {
 					'newDescription': newDescription
 				}
-				this.$store.dispatch('setCurrentDescription', payload)
+				this.$store.dispatch('setDescription', payload)
 			},
 			updateAcceptanceCriteria() {
 				const newAcceptanceCriteria = document.getElementById("acceptanceCriteriaField").innerText
@@ -310,7 +325,7 @@
 				const payload = {
 					'newAcceptanceCriteria': newAcceptanceCriteria
 				}
-				this.$store.dispatch('setCurrentAcceptanceCriteria', payload)
+				this.$store.dispatch('setAcceptanceCriteria', payload)
 			},
 			updatePriorityInDb(_id, newPriority) {
 				// update current document
@@ -318,7 +333,7 @@
 					'_id': _id,
 					'priority': newPriority,
 				}
-				this.$store.dispatch('setNewPriority', payload)
+				this.$store.dispatch('setPriority', payload)
 			},
 
 			/* mappings from config */
@@ -328,7 +343,7 @@
 				}
 				return this.$store.state.load.config.itemType[level]
 			},
-			getItemState(idx) {
+			getItemStateText(idx) {
 				if (idx < 0 || idx > leafLevel) {
 					return 'Error: unknown state'
 				}

@@ -141,7 +141,26 @@ const actions = {
 	 * When updating the database first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
-	setCurrentDocTitle({
+	setState({
+		state
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					tmpDoc.state = payload.newStateIdx
+					state.currentDoc.state = payload.newStateIdx
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	setDocTitle({
 		state
 	}, payload) {
 		const _id = state.currentDoc._id
@@ -159,7 +178,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
-	setCurrentDescription({
+	setDescription({
 		state
 	}, payload) {
 		const _id = state.currentDoc._id
@@ -177,7 +196,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
-	setCurrentAcceptanceCriteria({
+	setAcceptanceCriteria({
 		state
 	}, payload) {
 		const _id = state.currentDoc._id
@@ -195,7 +214,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
-	setNewPriority({
+	setPriority({
 		state
 	}, payload) {
 		const _id = payload._id
