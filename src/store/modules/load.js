@@ -488,6 +488,32 @@ const actions = {
 			.catch(error => console.log('Could not write document with url ' + state.currentDb + '/' + _id + '. Error = ' + error))
 	},
 
+	// Create document and reload it to currentDoc
+	createDoc({
+		state,
+		dispatch
+	}, payload) {
+		const _id = payload._id
+		// eslint-disable-next-line no-console
+		console.log('createDoc: creating document with _id = ' + _id)
+		globalAxios({
+				method: 'PUT',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+				data: payload.initData
+			}).then(res => {
+				if (res.status == 201) {
+					// eslint-disable-next-line no-console
+					console.log(res)
+					// eslint-disable-next-line no-console
+					console.log('createDoc: document with _id + ' + _id + ' is created.')
+					dispatch('loadDoc', _id)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not create document with url ' + state.currentDb + '/' + _id + '. Error = ' + error))
+	},
+
 }
 
 export default {

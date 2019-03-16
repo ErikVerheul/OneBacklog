@@ -512,6 +512,7 @@
 
 			/*
 			 * Recalculate, change and save the priorities of the inserted nodes
+			 * When only one node is prioritized (as when inserting a node) return the calculated priority
 			 * precondition: all moved nodes have the same parent
 			 */
 			processPrioritiesRange(nodes) {
@@ -521,6 +522,7 @@
 				var successorPrio
 				var predecessorTitle
 				var successorTitle
+				var newPriority
 
 				if (nodes[0].isFirstChild) {
 					predecessorPrio = Number.MAX_SAFE_INTEGER
@@ -547,11 +549,14 @@
 					'\n successorPrio = ' + successorPrio +
 					'\n stepSize = ' + stepSize)
 				for (let i = 0; i < nodes.length; i++) {
-					let newPriority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+					newPriority = Math.floor(predecessorPrio - (i + 1) * stepSize)
 					//eslint-disable-next-line no-console
 					console.log('processPrioritiesRange: newPriority = ' + newPriority)
 					this.updatePriorityInTree(nodes[i], newPriority)
 					this.updatePriorityInDb(nodes[i].data._id, newPriority)
+				}
+				if (nodes.length == 1) {
+					return newPriority
 				}
 			},
 
@@ -790,17 +795,40 @@
 					isSelected: false
 				})
 				// now the node is inserted get the full ISlTreeNode data and set priority
-				//				const selectedNodes = this.$refs.slVueTree.getSelected()
-				//				const insertedNode = selectedNodes[0]
-				//				let setPriority = this.calcNewPriority(insertedNode)
-				//				let id = firstNodeSelected.data._id
-				//				this.$refs.slVueTree.updateNode(insertedNode.path, {
-				//					data: {
-				//						_id: id,
-				//						priority: setPriority
-				//					}
-				//				})
-				// TODO: create and save new document
+				const selectedNodes = this.$refs.slVueTree.getSelected()
+				const insertedNode = selectedNodes.slice(0, 1)
+				const newId = Date.now() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
+				const setPriority = this.processPrioritiesRange(insertedNode)
+				// create a new document, save and reload it
+				const initData = {
+					"_id": newId,
+					"productId": this.productId,
+					"type": insertedNode[0].level,
+					"subtype": 0,
+					"state": 0,
+					"tssize": 0,
+					"spsize": 0,
+					"spikepersonhours": 0,
+					"reqarea": null,
+					"title": insertedNode[0].title,
+					"followers": [],
+					"description": "",
+					"acceptanceCriteria": "Please don't forget",
+					"priority": setPriority,
+					"attachments": [],
+					"comments": [],
+					"history": [{
+						"createdBy": "erik@mycompany.nl",
+						"creationDate": Date.now()
+					}]
+				}
+				const payload = {
+					'_id': newId,
+					'initData': initData
+				}
+				this.$store.dispatch('createDoc', payload)
+				// update the node data
+				this.updatePriorityInTree(insertedNode[0], setPriority)
 			},
 
 			doCancelInsert() {
