@@ -291,6 +291,7 @@
 			'selectedPbiType': function(val, oldVal) {
 				// prevent looping
 				if (val != this.subType) {
+					//eslint-disable-next-line no-console
 					console.log('watch: selectedPbiType has changed from ' + oldVal + ' to ' + val + ' subType = ' + this.subType)
 					const payload = {
 						'newSubType': val
@@ -306,7 +307,6 @@
 				var size = document.getElementById("tShirtSizeId").value.toUpperCase()
 				const sizeArray = this.$store.state.load.config.tsSize
 				if (sizeArray.indexOf(size) != -1) {
-					console.log('updateTsSize: input = ' + size)
 					// update current document
 					const payload = {
 						'newSizeIdx': sizeArray.indexOf(size)
@@ -322,7 +322,6 @@
 			},
 			updateStoryPoints() {
 				var points = document.getElementById("storyPointsId").value
-				console.log('updateStoryPoints: input = ' + points)
 				const payload = {
 					'newPoints': points
 				}
@@ -330,14 +329,12 @@
 			},
 			updatePersonHours() {
 				var hrs = document.getElementById("personHoursId").value
-				console.log('updatePersonHours: input = ' + hrs)
 				const payload = {
 					'newHrs': hrs
 				}
 				this.$store.dispatch('setPersonHours', payload)
 			},
 			onStateChange(idx) {
-				console.log('onStateChange: idx = ' + idx)
 				// update current document
 				const payload = {
 					'newStateIdx': idx
@@ -514,20 +511,48 @@
 			},
 
 			/*
-			 * Recalculate, change and save the priorities of the inserted nodes and all siblings
+			 * Recalculate, change and save the priorities of the inserted nodes
 			 * precondition: all moved nodes have the same parent
 			 */
-			processPriorities(destSiblings) {
-				// eslint-disable-next-line no-console
-				console.log('processPriorities: destSiblings.length = ' + destSiblings.length)
-				// use the full integer range
-				const stepSize = Math.floor((Number.MAX_SAFE_INTEGER / (destSiblings.length + 1)) * 2)
-				for (let i = 0; i < destSiblings.length; i++) {
-					let newPriority = Number.MAX_SAFE_INTEGER - (i + 1) * stepSize
-					this.updatePriorityInTree(destSiblings[i], newPriority)
-					this.updatePriorityInDb(destSiblings[i].data._id, newPriority)
+			processPrioritiesRange(nodes) {
+				const firstNodePath = nodes[0].path
+				const lastNodePath = nodes[nodes.length - 1].path
+				var predecessorPrio
+				var successorPrio
+				var predecessorTitle
+				var successorTitle
+
+				if (nodes[0].isFirstChild) {
+					predecessorPrio = Number.MAX_SAFE_INTEGER
+					predecessorTitle = 'parent'
+				} else {
+					predecessorPrio = this.$refs.slVueTree.getPrevNode(firstNodePath).data.priority
+					predecessorTitle = this.$refs.slVueTree.getPrevNode(firstNodePath).title
 				}
 
+				if (nodes[nodes.length - 1].isLastChild) {
+					successorPrio = Number.MIN_SAFE_INTEGER
+					successorTitle = 'none existant'
+				} else {
+					successorPrio = this.$refs.slVueTree.getNextNode(lastNodePath).data.priority
+					successorTitle = this.$refs.slVueTree.getNextNode(lastNodePath).title
+				}
+
+				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+				//eslint-disable-next-line no-console
+				console.log('processPrioritiesRange: for "' + nodes[0].title + '" and ' + (nodes.length - 1) + ' siblings' +
+					'\n predecessorTitle = ' + predecessorTitle +
+					'\n successorTitle = ' + successorTitle +
+					'\n predecessorPrio = ' + predecessorPrio +
+					'\n successorPrio = ' + successorPrio +
+					'\n stepSize = ' + stepSize)
+				for (let i = 0; i < nodes.length; i++) {
+					let newPriority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+					//eslint-disable-next-line no-console
+					console.log('processPrioritiesRange: newPriority = ' + newPriority)
+					this.updatePriorityInTree(nodes[i], newPriority)
+					this.updatePriorityInDb(nodes[i].data._id, newPriority)
+				}
 			},
 
 			/*
@@ -544,42 +569,6 @@
 			},
 
 			/*
-			 * Calculate the priority as the average value of the predecessor and the successor.
-			 * When the predecessor is the parent the predecessor priority is Maxint.
-			 * When no successor exists the successor priority is 0.
-			 * returns the calculated priority
-			 */
-			calcNewPriority(node) {
-				const path = node.path
-				var predecessorPrio
-				var successorPrio
-
-				if (node.isFirstChild) {
-					predecessorPrio = Number.MAX_SAFE_INTEGER
-				} else {
-					predecessorPrio = this.$refs.slVueTree.getPrevNode(path).data.priority
-				}
-
-				if (node.isLastChild) {
-					successorPrio = 0
-				} else {
-					successorPrio = this.$refs.slVueTree.getNextNode(path).data.priority
-				}
-				// eslint-disable-next-line no-console
-				//				console.log('calcNewPriority: for node.title ' + node.title + ' isFirstChild = ' + node.isFirstChild + ' isLastChild = ' + node.isLastChild +
-				//					'\n prevnode = ' + this.$refs.slVueTree.getPrevNode(path).title +
-				//					'\n nextnode.title = ' + this.$refs.slVueTree.getNextNode(path).title +
-				//					'\n predecessorPrio = ' + predecessorPrio +
-				//					'\n successorPrio = ' + successorPrio)
-				return Math.floor((predecessorPrio + successorPrio) / 2)
-			},
-
-			getNodeSiblings(nodes, path) {
-				if (path.length === 1) return nodes;
-				return this.getNodeSiblings(nodes[path[0]].children, path.slice(1));
-			},
-
-			/*
 			 * Update the tree when one or more nodes are dropped on another location
 			 */
 			nodeDropped(draggingNodes, position) {
@@ -588,10 +577,10 @@
 				let levelChange = Math.abs(clickedLevel - dropLevel)
 				const selectedNodes = this.$refs.slVueTree.getSelected()
 
-				//				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
-				//				console.log('nodeDropped: dropLevel = ' + dropLevel)
-				//				console.log('nodeDropped: levelChange = ' + levelChange)
-				//				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
+				//								console.log('nodeDropped: clickedLevel = ' + clickedLevel)
+				//								console.log('nodeDropped: dropLevel = ' + dropLevel)
+				//								console.log('nodeDropped: levelChange = ' + levelChange)
+				//								console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
 
 				for (let i = 0; i < selectedNodes.length; i++) {
 					if (levelChange === 0) {
@@ -624,33 +613,9 @@
 						}
 					}
 				}
-
-				/*
-				 * When nodes are dropped to another position the priorities must be changed
-				 */
-				if (selectedNodes.length == 1) {
-					// if and only if we dropped one node we can recalculate its priority stand-alone
-					let newPriority = this.calcNewPriority(selectedNodes[0])
-					this.updatePriorityInTree(selectedNodes[0], newPriority)
-					this.updatePriorityInDb(selectedNodes[0].data._id, newPriority)
-				} else {
-					// recalculate the priorities of the dropped nodes and all siblings
-					const destNode = position.node
-
-
-					if (levelChange == 0) {
-						// drop on the the same level as the moved nodes
-						const destSiblings = this.getNodeSiblings(this.$refs.slVueTree.nodes, destNode.path)
-						this.processPriorities(destSiblings)
-					} else {
-						if (clickedLevel - dropLevel == 1) {
-							// drop on the parent of the moved nodes
-							this.processPriorities(position.node.children)
-						}
-					}
-
-				}
-				// create the event message
+				// When nodes are dropped to another position the priorities must be updated
+				// Recalculate the priorities of the dropped nodes and create the event message
+				this.processPrioritiesRange(selectedNodes)
 				const title = this.itemTitleTrunc(60, draggingNodes[0].title)
 				if (draggingNodes.length == 1) {
 					this.lastEvent = `Node '${title}' is dropped ${position.placement} '${position.node.title}'`
@@ -678,7 +643,7 @@
 							}
 						}
 					}
-				});
+				})
 				return count;
 			},
 

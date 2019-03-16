@@ -255,7 +255,6 @@ const actions = {
 					tmpDoc = res.data
 					tmpDoc.subtype = payload.newSubType
 					state.currentDoc.subtype = payload.newSubType
-					console.log('setSubType: subtype saved as ' + payload.newSubType)
 					this.dispatch('updateDoc')
 				}
 			})
