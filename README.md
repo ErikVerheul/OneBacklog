@@ -49,6 +49,10 @@ Products and epics are estimated in T-shirt sizes.
 <b>Feature effort estimate:</b><br />
 Features are estimated in story points using the Fibonacci scale. When all pbi's belonging to a feature are refined the feature effort is the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.
 
+<b>Spike effort estimate:</b><br />
+A spike is a study, investigation or try out with a set maximum effort. The result is what is ready when the time set is spent.
+Spikes are estimated in person hours eliminating the need to translate story points to hours which can be a long discussion.
+
 NOT IN MVP: <b>Pbi's of kind Defects:</b><br />
 Note: When a defect is found before a Pbi is set to done a task is created for its resolution.<br />
 When a defect is found after a Pbi is set to done a defect Pbi is created with an estimated effort. Note that this effort was not accounted for when the pbi was estimated. This effort is considered as a measure of lack of quality in the refinement or the realization.

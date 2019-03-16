@@ -3,10 +3,13 @@
 		<div>
 			<span class="inline align-left">
 				<h3 v-if="itemType <= epicLevel">{{ getLevelText(itemType) }} T-Shirt size:
-					<input type="text" size="3" maxlength="3" id="tShirtSize" :value="tsSize" @blur="updateTsSize()" />
+					<input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="tsSize" @blur="updateTsSize()" />
 				</h3>
-				<h3 v-if="itemType > epicLevel">Story points:
-					<input type="number" min="0" max="9999" id="storyPoints" :value="spSize" @blur="updateStoryPoints()" />
+				<h3 v-if="itemType == featureLevel || (itemType == pbiLevel && subType != 1)">Story points:
+					<input type="number" min="0" max="9999" id="storyPointsId" :value="spSize" @blur="updateStoryPoints()" />
+				</h3>
+				<h3 v-if="itemType == pbiLevel && subType == 1">Person hours:
+					<input type="number" min="0" max="9999" id="personHoursId" :value="personHours" @blur="updatePersonHours()" />
 				</h3>
 			</span>
 			<span class="inline align-right">
@@ -83,8 +86,7 @@
 								</div>
 							</div>
 						</div>
-
-						<div v-if="itemType==this.pbiLevel" class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
+						<div v-if="itemType==this.pbiLevel" class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
 							<div class="d-table w-100">
 								<p class="title is-6">This item is of type '{{ this.getSubType(subType) }}'. Change it here -> </p>
 								<div class="d-table-cell tar">
@@ -94,7 +96,6 @@
 								</div>
 							</div>
 						</div>
-
 						<div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
 							<div class="d-table w-100">
 								<h5 class="title is-6">Description</h5>
@@ -274,6 +275,7 @@
 				itemState: 'getCurrentDocState',
 				itemTitle: 'getCurrentDocTitle',
 				itemType: 'getCurrentDocType',
+				personHours: 'getCurrentPersonHours',
 				priority: 'getCurrentDocPriority',
 				productId: 'getCurrentDocProductId',
 				reqAreaId: 'getCurrentDocReqArea',
@@ -301,7 +303,7 @@
 		methods: {
 			/* Database update methods */
 			updateTsSize() {
-				var size = document.getElementById("tShirtSize").value.toUpperCase()
+				var size = document.getElementById("tShirtSizeId").value.toUpperCase()
 				const sizeArray = this.$store.state.load.config.tsSize
 				if (sizeArray.indexOf(size) != -1) {
 					console.log('updateTsSize: input = ' + size)
@@ -319,13 +321,20 @@
 				}
 			},
 			updateStoryPoints() {
-				var points = document.getElementById("storyPoints").value
+				var points = document.getElementById("storyPointsId").value
 				console.log('updateStoryPoints: input = ' + points)
 				const payload = {
 					'newPoints': points
 				}
 				this.$store.dispatch('setStoryPoints', payload)
-
+			},
+			updatePersonHours() {
+				var hrs = document.getElementById("personHoursId").value
+				console.log('updatePersonHours: input = ' + hrs)
+				const payload = {
+					'newHrs': hrs
+				}
+				this.$store.dispatch('setPersonHours', payload)
 			},
 			onStateChange(idx) {
 				console.log('onStateChange: idx = ' + idx)
@@ -562,7 +571,7 @@
 				//					'\n nextnode.title = ' + this.$refs.slVueTree.getNextNode(path).title +
 				//					'\n predecessorPrio = ' + predecessorPrio +
 				//					'\n successorPrio = ' + successorPrio)
-				return (predecessorPrio + successorPrio) / 2
+				return Math.floor((predecessorPrio + successorPrio) / 2)
 			},
 
 			getNodeSiblings(nodes, path) {

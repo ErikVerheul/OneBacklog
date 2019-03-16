@@ -71,6 +71,9 @@ const getters = {
 	getCurrentDocType(state) {
 		if (state.currentDoc != null) return state.currentDoc.type
 	},
+	getCurrentPersonHours() {
+		if (state.currentDoc != null) return state.currentDoc.spikepersonhours
+	},
 	getCurrentDb(state) {
 		return state.currentDb
 	},
@@ -157,6 +160,25 @@ const actions = {
 					tmpDoc = res.data
 					tmpDoc.tssize = payload.newSizeIdx
 					state.currentDoc.tssize = payload.newSizeIdx
+					this.dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	setPersonHours({
+		state
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					tmpDoc.spikepersonhours = payload.newHrs
+					state.currentDoc.spsize = payload.newHrs
 					this.dispatch('updateDoc')
 				}
 			})
