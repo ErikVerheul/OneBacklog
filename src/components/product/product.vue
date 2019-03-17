@@ -511,18 +511,16 @@
 			},
 
 			/*
-			 * Recalculate, change and save the priorities of the inserted nodes
-			 * When only one node is prioritized (as when inserting a node) return the calculated priority
-			 * precondition: all moved nodes have the same parent
+			 * Calculate the priorities of newly inserted nodes
 			 */
-			processPrioritiesRange(nodes) {
+			calculatePriorities(nodes) {
 				const firstNodePath = nodes[0].path
 				const lastNodePath = nodes[nodes.length - 1].path
 				var predecessorPrio
 				var successorPrio
 				var predecessorTitle
 				var successorTitle
-				var newPriority
+				var newPriorities = []
 
 				if (nodes[0].isFirstChild) {
 					predecessorPrio = Number.MAX_SAFE_INTEGER
@@ -542,21 +540,28 @@
 
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
 				//eslint-disable-next-line no-console
-				console.log('processPrioritiesRange: for "' + nodes[0].title + '" and ' + (nodes.length - 1) + ' siblings' +
+				console.log('calculatePriorities: for "' + nodes[0].title + '" and ' + (nodes.length - 1) + ' siblings' +
 					'\n predecessorTitle = ' + predecessorTitle +
 					'\n successorTitle = ' + successorTitle +
 					'\n predecessorPrio = ' + predecessorPrio +
 					'\n successorPrio = ' + successorPrio +
 					'\n stepSize = ' + stepSize)
 				for (let i = 0; i < nodes.length; i++) {
-					newPriority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-					//eslint-disable-next-line no-console
-					console.log('processPrioritiesRange: newPriority = ' + newPriority)
-					this.updatePriorityInTree(nodes[i], newPriority)
-					this.updatePriorityInDb(nodes[i].data._id, newPriority)
+					newPriorities.push(Math.floor(predecessorPrio - (i + 1) * stepSize))
 				}
-				if (nodes.length == 1) {
-					return newPriority
+				return newPriorities
+			},
+
+			/*
+			 * Recalculate, change and save the priorities of the inserted nodes
+			 * Update the value in the tree and the database
+			 * precondition: all moved nodes have the same parent
+			 */
+			resetPriorities(nodes) {
+				let newPriorities = this.calculatePriorities(nodes)
+				for (let i = 0; i < nodes.length; i++) {
+					this.updatePriorityInTree(nodes[i], newPriorities[i])
+					this.updatePriorityInDb(nodes[i].data._id, newPriorities[i])
 				}
 			},
 
@@ -620,7 +625,7 @@
 				}
 				// When nodes are dropped to another position the priorities must be updated
 				// Recalculate the priorities of the dropped nodes and create the event message
-				this.processPrioritiesRange(selectedNodes)
+				this.resetPriorities(selectedNodes)
 				const title = this.itemTitleTrunc(60, draggingNodes[0].title)
 				if (draggingNodes.length == 1) {
 					this.lastEvent = `Node '${title}' is dropped ${position.placement} '${position.node.title}'`
@@ -797,8 +802,9 @@
 				// now the node is inserted get the full ISlTreeNode data and set priority
 				const selectedNodes = this.$refs.slVueTree.getSelected()
 				const insertedNode = selectedNodes.slice(0, 1)
-				const newId = Date.now() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
-				const setPriority = this.processPrioritiesRange(insertedNode)
+				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
+				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
+				const setPriority = this.calculatePriorities(insertedNode)[0]
 				// create a new document, save and reload it
 				const initData = {
 					"_id": newId,
