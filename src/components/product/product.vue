@@ -6,10 +6,10 @@
 					<input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="tsSize" @blur="updateTsSize()" />
 				</h3>
 				<h3 v-if="itemType == featureLevel || (itemType == pbiLevel && subType != 1)">Story points:
-					<input type="number" min="0" max="9999" id="storyPointsId" :value="spSize" @blur="updateStoryPoints()" />
+					<input type="text" size="3" maxlength="3" id="storyPointsId" :value="spSize" @blur="updateStoryPoints()" />
 				</h3>
 				<h3 v-if="itemType == pbiLevel && subType == 1">Person hours:
-					<input type="number" min="0" max="9999" id="personHoursId" :value="personHours" @blur="updatePersonHours()" />
+					<input type="text" size="3" maxlength="3" id="personHoursId" :value="personHours" @blur="updatePersonHours()" />
 				</h3>
 			</span>
 			<span class="inline align-right">
@@ -306,11 +306,18 @@
 				if (key == "setSizeEvent") {
 					return 'event: T-Shirt estimate changed from ' + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
 				}
+				if (key == "setPointsEvent") {
+					return 'event: Storypoints estimate changed from ' + value[0] + ' to ' + value[1]
+				}
+				if (key == "setHrsEvent") {
+					return 'event: Spike estimate hours changed from ' + value[0] + ' to ' + value[1]
+				}
 				if (key == "timestamp") {
 					return key + ": " + new Date(value).toString()
 				}
 				return key + ": " + value
 			},
+
 			/* Database update methods */
 			updateTsSize() {
 				var size = document.getElementById("tShirtSizeId").value.toUpperCase()
@@ -332,16 +339,28 @@
 				}
 			},
 			updateStoryPoints() {
-				var points = document.getElementById("storyPointsId").value
+				var el = document.getElementById("storyPointsId")
+				if (isNaN(el.value) || el.value < 0) {
+					el.value = '?'
+					return
+				}
 				const payload = {
-					'newPoints': points
+					'userName': this.userName,
+					'email': this.email,
+					'newPoints': el.value
 				}
 				this.$store.dispatch('setStoryPoints', payload)
 			},
 			updatePersonHours() {
-				var hrs = document.getElementById("personHoursId").value
+				var el = document.getElementById("personHoursId")
+				if (isNaN(el.value) || el.value < 0) {
+					el.value = '?'
+					return
+				}
 				const payload = {
-					'newHrs': hrs
+					'userName': this.userName,
+					'email': this.email,
+					'newHrs': el.value
 				}
 				this.$store.dispatch('setPersonHours', payload)
 			},
@@ -993,6 +1012,7 @@
 	//my stuff
 
 	input[type="number"] {
+		-moz-appearance: numberfield;
 		width: 80px;
 	}
 

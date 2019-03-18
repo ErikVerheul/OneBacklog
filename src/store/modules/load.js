@@ -197,7 +197,7 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.history.push(newHist)
-					state.currentDoc.spsize = payload.newHrs
+					state.currentDoc.spikepersonhours = payload.newHrs
 					state.currentDoc.history.push(newHist)
 					this.dispatch('updateDoc')
 				}
