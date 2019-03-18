@@ -28,158 +28,157 @@
 				</h3>
 			</span>
 		</div>
-		<div>
-			<!-- vertical panes -->
-			<multipane class="custom-resizer" layout="vertical">
-				<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-					<h3>Your current database is set to {{ currentDb }}. You have {{ userProductsIds.length }} product(s)</h3>
 
-					<div class='last-event'>
-						Last event: {{ lastEvent }}
+		<!-- vertical panes -->
+		<multipane class="custom-resizer" layout="vertical">
+			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
+				<h3>Your current database is set to {{ currentDb }}. You have {{ userProductsIds.length }} product(s)</h3>
+
+				<div class='last-event'>
+					Last event: {{ lastEvent }}
+				</div>
+
+				<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
+				<div class="tree-container" @mousedown.stop>
+					<sl-vue-tree :value="treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+
+						<template slot="title" slot-scope="{ node }">
+							<span class="item-icon">
+								<i v-if="node.isLeaf">
+									<font-awesome-icon icon="file" />
+								</i>
+								<i v-if="!node.isLeaf">
+									<font-awesome-icon icon="folder" />
+								</i>
+							</span>
+							{{ node.title }}; prio = {{ node.data.priority}}
+						</template>
+
+						<template slot="toggle" slot-scope="{ node }">
+							<span v-if="!node.isLeaf">
+								<i v-if="node.isExpanded">
+									<font-awesome-icon icon="chevron-down" />
+								</i>
+								<i v-if="!node.isExpanded">
+									<font-awesome-icon icon="chevron-right" />
+								</i>
+							</span>
+						</template>
+
+						<template slot="draginfo">
+							{{ selectedNodesTitle }}
+						</template>
+
+					</sl-vue-tree>
+				</div>
+			</div>
+
+			<multipane-resizer></multipane-resizer>
+			<div class="pane" :style="{ flexGrow: 1, minWidth: '30%', width: '50%', minHeight: '100%' }">
+				<!-- inner horizontal panes -->
+				<multipane class="horizontal-panes" layout="horizontal">
+					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
+						<div class="d-table w-100">
+							<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="itemTitle" @blur="updateTitle()">
+							</b-input>
+							<div class="d-table-cell tar">
+								<b-button href="#">(Un)Subscribe to change notices</b-button>
+							</div>
+						</div>
 					</div>
-
-					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
-					<div class="tree-container" @mousedown.stop>
-						<sl-vue-tree :value="treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
-
-							<template slot="title" slot-scope="{ node }">
-								<span class="item-icon">
-									<i v-if="node.isLeaf">
-										<font-awesome-icon icon="file" />
-									</i>
-									<i v-if="!node.isLeaf">
-										<font-awesome-icon icon="folder" />
-									</i>
-								</span>
-								{{ node.title }}; prio = {{ node.data.priority}}
-							</template>
-
-							<template slot="toggle" slot-scope="{ node }">
-								<span v-if="!node.isLeaf">
-									<i v-if="node.isExpanded">
-										<font-awesome-icon icon="chevron-down" />
-									</i>
-									<i v-if="!node.isExpanded">
-										<font-awesome-icon icon="chevron-right" />
-									</i>
-								</span>
-							</template>
-
-							<template slot="draginfo">
-								{{ selectedNodesTitle }}
-							</template>
-
-						</sl-vue-tree>
+					<div v-if="itemType==this.pbiLevel" class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+						<div class="d-table w-100">
+							<p class="title is-6">This item is of type '{{ this.getSubType(subType) }}'. Change it here -> </p>
+							<div class="d-table-cell tar">
+								<b-form-group>
+									<b-form-radio-group v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
+								</b-form-group>
+							</div>
+						</div>
 					</div>
-				</div>
+					<div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
+						<div class="d-table w-100">
+							<h5 class="title is-6">Description</h5>
+							<div class="d-table-cell tar">
+								<p class="title is-6">Created by {{ history[0].by }} @ {{ new Date(history[0].timestamp).toString().substring(0, 33) }} </p>
+							</div>
+						</div>
+					</div>
+					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
+						<vue-editor :value="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
+					</div>
+					<multipane-resizer></multipane-resizer>
+					<div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+						<div>
+							<h5 class="title is-6">Acceptance criteria</h5>
+						</div>
+					</div>
+					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
+						<vue-editor :value="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptanceCriteria()"></vue-editor>
+					</div>
+					<multipane-resizer></multipane-resizer>
+					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
+						<div class="d-table w-100">
+							<div class="d-table-cell tal">
+								<b-button href="#">Add {{ selectedForView }}</b-button>
+							</div>
+							<div class="d-table-cell tac">
+								<b-form-group label="Select to see">
+									<b-form-radio-group v-model="selectedForView" :options="getViewOptions()" plain name="viewOptions" />
+								</b-form-group>
+							</div>
+							<div class="d-table-cell tar">
+								<b-button href="#">Find {{ selectedForView }}</b-button>
+							</div>
+						</div>
+					</div>
+					<div class="pane" :style="{ flexGrow: 1 }">
+						<ul v-if="selectedForView==='comments'">
+							<li v-for="comment in comments" :key=comment.timestamp>
+								<div v-for="(value, key) in comment" :key=key>
+									{{ key }} {{ value }}
+								</div>
+							</li>
+						</ul>
+						<ul v-if="selectedForView==='attachments'">
+							<li v-for="attach in attachments" :key=attach.timestamp>
+								<div v-for="(value, key) in attach" :key=key>
+									{{ key }} {{ value }}
+								</div>
+							</li>
+						</ul>
+						<ul v-if="selectedForView==='history'">
+							<li v-for="hist in history" :key="hist.timestamp">
+								<div v-for="(value, key) in hist" :key=key>
+									{{ prepHistoryOut(key, value) }}
+								</div>
+							</li>
+						</ul>
+					</div>
+				</multipane>
+			</div>
+		</multipane>
 
-				<multipane-resizer></multipane-resizer>
-				<div class="pane" :style="{ flexGrow: 1, minWidth: '30%', width: '50%', minHeight: '100%' }">
-					<!-- inner horizontal panes -->
-					<multipane class="horizontal-panes" layout="horizontal">
-						<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
-							<div class="d-table w-100">
-								<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="itemTitle" @blur="updateTitle()">
-								</b-input>
-								<div class="d-table-cell tar">
-									<b-button href="#">(Un)Subscribe to change notices</b-button>
-								</div>
-							</div>
-						</div>
-						<div v-if="itemType==this.pbiLevel" class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
-							<div class="d-table w-100">
-								<p class="title is-6">This item is of type '{{ this.getSubType(subType) }}'. Change it here -> </p>
-								<div class="d-table-cell tar">
-									<b-form-group>
-										<b-form-radio-group v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
-									</b-form-group>
-								</div>
-							</div>
-						</div>
-						<div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
-							<div class="d-table w-100">
-								<h5 class="title is-6">Description</h5>
-								<div class="d-table-cell tar">
-									<p class="title is-6">Created by {{ history[0].createdBy }} @ {{ new Date(history[0].creationDate).toString().substring(0, 33) }} </p>
-								</div>
-							</div>
-						</div>
-						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<vue-editor :value="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
-						</div>
-						<multipane-resizer></multipane-resizer>
-						<div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
-							<div>
-								<h5 class="title is-6">Acceptance criteria</h5>
-							</div>
-						</div>
-						<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-							<vue-editor :value="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptanceCriteria()"></vue-editor>
-						</div>
-						<multipane-resizer></multipane-resizer>
-						<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
-							<div class="d-table w-100">
-								<div class="d-table-cell tal">
-									<b-button href="#">Add {{ selectedForView }}</b-button>
-								</div>
-								<div class="d-table-cell tac">
-									<b-form-group label="Select to see">
-										<b-form-radio-group v-model="selectedForView" :options="getViewOptions()" plain name="viewOptions" />
-									</b-form-group>
-								</div>
-								<div class="d-table-cell tar">
-									<b-button href="#">Find {{ selectedForView }}</b-button>
-								</div>
-							</div>
-						</div>
-						<div class="pane" :style="{ flexGrow: 1 }">
-							<ul v-if="selectedForView==='comments'">
-								<li v-for="comment in comments" :key=comment.authorAndIssueDate>
-									<div v-for="(value, key) in comment" :key=key>
-										{{ key }} {{ value }}
-									</div>
-								</li>
-							</ul>
-							<ul v-if="selectedForView==='attachments'">
-								<li v-for="attach in attachments" :key=attach.authorAndIssueDate>
-									<div v-for="(value, key) in attach" :key=key>
-										{{ key }} {{ value }}
-									</div>
-								</li>
-							</ul>
-							<ul v-if="selectedForView==='history'">
-								<li v-for="hist in history" :key=hist.authorAndIssueDate>
-									<div v-for="(value, key) in hist" :key=key>
-										{{ key }} {{ value }}
-									</div>
-								</li>
-							</ul>
-						</div>
-					</multipane>
-				</div>
-			</multipane>
-
-			<template v-if="this.nodeIsSelected">
-				<div>
-					<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
-						<div class="d-block text-center">
-							<h3>This operation cannot be undone!</h3>
-						</div>
-						<b-button class="mt-3" variant="outline-danger" block @click="doRemove">Remove now!</b-button>
-					</b-modal>
-				</div>
-			</template>
-			<template v-if="this.nodeIsSelected">
-				<div>
-					<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
-						<b-form-group label="Select what node type to insert:">
-							<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type" />
-						</b-form-group>
-						<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
-					</b-modal>
-				</div>
-			</template>
-		</div>
+		<template v-if="this.nodeIsSelected">
+			<div>
+				<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
+					<div class="d-block text-center">
+						<h3>This operation cannot be undone!</h3>
+					</div>
+					<b-button class="mt-3" variant="outline-danger" block @click="doRemove">Remove now!</b-button>
+				</b-modal>
+			</div>
+		</template>
+		<template v-if="this.nodeIsSelected">
+			<div>
+				<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
+					<b-form-group label="Select what node type to insert:">
+						<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type" />
+					</b-form-group>
+					<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
+				</b-modal>
+			</div>
+		</template>
 	</div>
 </template>
 
@@ -302,6 +301,16 @@
 		},
 
 		methods: {
+			/* Presentation methods */
+			prepHistoryOut(key, value) {
+				if (key == "setSizeEvent") {
+					return 'event: T-Shirt estimate changed from ' + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
+				}
+				if (key == "timestamp") {
+					return key + ": " + new Date(value).toString()
+				}
+				return key + ": " + value
+			},
 			/* Database update methods */
 			updateTsSize() {
 				var size = document.getElementById("tShirtSizeId").value.toUpperCase()
@@ -309,6 +318,8 @@
 				if (sizeArray.indexOf(size) != -1) {
 					// update current document
 					const payload = {
+						'userName': this.userName,
+						'email': this.email,
 						'newSizeIdx': sizeArray.indexOf(size)
 					}
 					this.$store.dispatch('setSize', payload)
@@ -396,7 +407,7 @@
 				if (idx < 0 || idx >= this.$store.state.load.config.tsSize.length) {
 					return 'Error: unknown T-shirt size'
 				}
-				return this.$store.state.load.config.tsSize(idx)
+				return this.$store.state.load.config.tsSize[idx]
 			},
 			getSubType(idx) {
 				if (idx < 0 || idx >= this.$store.state.load.config.subtype.length) {
@@ -671,6 +682,8 @@
 				this.lastEvent = `The ${this.getLevelText(selectedNodes[0].level)} and ${this.countDescendants(selectedNodes[0].path)} descendants are removed`
 				const paths = selectedNodes.map(node => node.path)
 				this.$refs.slVueTree.remove(paths)
+				// set remove mark in current document in the database
+				this.$store.dispatch('removeDoc')
 				// After removal no node is selected
 				this.nodeIsSelected = false
 			},
@@ -824,9 +837,12 @@
 					"attachments": [],
 					"comments": [],
 					"history": [{
-						"createdBy": "erik@mycompany.nl",
-						"creationDate": Date.now()
-					}]
+						"event": this.getLevelText(insertedNode[0].level) + " created",
+						"by": this.userName,
+						"email": this.email,
+						"timestamp": Date.now()
+					}],
+					"delmark": false
 				}
 				const payload = {
 					'_id': newId,
@@ -877,7 +893,7 @@
 	// vertical panes
 	.custom-resizer {
 		width: 100%;
-		height: 900px;
+		height: 100%;
 	}
 
 	.custom-resizer>.pane {
@@ -901,7 +917,7 @@
 			width: 3px;
 			height: 40px;
 			position: absolute;
-			top: 50%;
+			top: 400px;
 			left: 50%;
 			margin-top: -20px;
 			margin-left: -1.5px;
