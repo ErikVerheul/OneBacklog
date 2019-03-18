@@ -45,22 +45,23 @@ When multiple databases are created projects defined in different databases are 
 
 <b>Product and epic size estimate:</b><br />
 Products and epics are estimated in T-shirt sizes.
+Features and pbi's are estimated in story points using the Fibonacci scale.
 
 <b>Feature effort estimate:</b><br />
-Features are estimated in story points using the Fibonacci scale. When all pbi's belonging to a feature are refined the feature effort is the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.
+Both features and pbi's are estimated in story points. When all pbi's belonging to a feature are refined the feature effort should be the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.
 
 <b>Spike effort estimate:</b><br />
-A spike is a study, investigation or try out with a set maximum effort. The result is what is ready when the time set is spent.
+A spike is a study, investigation or try out with a set maximum effort. The result is what is available when the time set is spent.
 Spikes are estimated in person hours eliminating the need to translate story points to hours which can be a long discussion.
 
-NOT IN MVP: <b>Pbi's of kind Defects:</b><br />
+<b>Pbi's of kind Defects:</b><br />
 Note: When a defect is found before a Pbi is set to done a task is created for its resolution.<br />
 When a defect is found after a Pbi is set to done a defect Pbi is created with an estimated effort. Note that this effort was not accounted for when the pbi was estimated. This effort is considered as a measure of lack of quality in the refinement or the realization.
 
 <b>Backlog refinement:</b>
 - the preferred order for refinement is by feature. The tool supports a feature view of the backlog
 - the team that refines a pbi becomes the owner of that pbi
-- pbi's are estimated by the owning team in story points on the Fibonacci scale
+- pbi's are estimated by the that team
 
 NOT IN MVP: <b>Sprint backlog and planning board:</b><br />
 The use of the electronic planning board is optional and only advised for use when team members are remote
@@ -83,11 +84,11 @@ Is-dependent-on is the only type. When B is dependent on A then B must have a lo
 Circular dependencies are not allowed; The tool should enforce this also.
 
 NOT IN MVP: <b>Automatic update of multi user updates</b><br />
-When more users work on the backlog of the same product the client presentation is updated automatically of changes made by other users.
+When more users work on the backlog of the same product the client presentation is updated automatically (no screen refresh needed) of changes made by other users.
 
 <b>Role based authorization:</b><br />
-The super admin has all privileges. The product admins have all privileges for their product(s).
-Developers can create new Pbi's for their product(s) but not change priorities in the backlog.
+The server admin has the privileges as set by CouchDB. The product admins have all privileges for their product(s) like user assignment. Product owners have the rights to change priorities for their products. A superPO has admin rights for all products and can create new products.
+Developers can create new pbi's for their product(s) but not change priorities in the backlog.
 Viewers can only read the information of the products assigned to them.
 
 <b>Non functional requirements:</b>
