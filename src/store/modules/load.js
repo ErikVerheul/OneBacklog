@@ -168,7 +168,9 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.history.push(newHist)
+					// update the current document
 					state.currentDoc.tssize = payload.newSizeIdx
+					state.currentDoc.history.push(newHist)
 					this.dispatch('updateDoc')
 				}
 			})
@@ -186,8 +188,17 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
+					const oldHrs = tmpDoc.spikepersonhours
 					tmpDoc.spikepersonhours = payload.newHrs
+					const newHist = {
+						"setHrsEvent": [oldHrs, payload.newHrs],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
 					state.currentDoc.spsize = payload.newHrs
+					state.currentDoc.history.push(newHist)
 					this.dispatch('updateDoc')
 				}
 			})
@@ -205,8 +216,17 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
+					const oldPoints = tmpDoc.spsize
 					tmpDoc.spsize = payload.newPoints
+					const newHist = {
+						"setPointsEvent": [oldPoints, payload.newPoints],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
 					state.currentDoc.spsize = payload.newPoints
+					state.currentDoc.history.push(newHist)
 					this.dispatch('updateDoc')
 				}
 			})
