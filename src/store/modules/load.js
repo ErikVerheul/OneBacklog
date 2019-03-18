@@ -160,15 +160,14 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					const oldSize = tmpDoc.tssize
-					tmpDoc.tssize = payload.newSizeIdx
 					const newHist = {
 						"setSizeEvent": [oldSize, payload.newSizeIdx],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
+					tmpDoc.tssize = payload.newSizeIdx
 					tmpDoc.history.push(newHist)
-					// update the current document
 					state.currentDoc.tssize = payload.newSizeIdx
 					state.currentDoc.history.push(newHist)
 					this.dispatch('updateDoc')
@@ -189,13 +188,13 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					const oldHrs = tmpDoc.spikepersonhours
-					tmpDoc.spikepersonhours = payload.newHrs
 					const newHist = {
 						"setHrsEvent": [oldHrs, payload.newHrs],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
+					tmpDoc.spikepersonhours = payload.newHrs
 					tmpDoc.history.push(newHist)
 					state.currentDoc.spikepersonhours = payload.newHrs
 					state.currentDoc.history.push(newHist)
@@ -217,13 +216,13 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					const oldPoints = tmpDoc.spsize
-					tmpDoc.spsize = payload.newPoints
 					const newHist = {
 						"setPointsEvent": [oldPoints, payload.newPoints],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
+					tmpDoc.spsize = payload.newPoints
 					tmpDoc.history.push(newHist)
 					state.currentDoc.spsize = payload.newPoints
 					state.currentDoc.history.push(newHist)
@@ -251,8 +250,8 @@ const actions = {
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
-					tmpDoc.history.push(newHist)
 					tmpDoc.state = payload.newState
+					tmpDoc.history.push(newHist)
 					state.currentDoc.state = payload.newState
 					state.currentDoc.history.push(newHist)
 					this.dispatch('updateDoc')
@@ -271,7 +270,16 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
+					const oldTitle = state.currentDoc.title
 					tmpDoc = res.data
+					const newHist = {
+						"setTitleEvent": [oldTitle, payload.newTitle],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
+					state.currentDoc.history.push(newHist)
 					tmpDoc.title = payload.newTitle
 					state.currentDoc.title = payload.newTitle
 					this.dispatch('updateDoc')

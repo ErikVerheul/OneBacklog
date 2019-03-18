@@ -315,6 +315,9 @@
 				if (key == "setStateEvent") {
 					return 'event: The state of the item has changed from ' + this.getItemStateText(value[0]) + ' to ' + this.getItemStateText(value[1])
 				}
+				if (key == "setTitleEvent") {
+					return 'event: The item  title has changed from: "' + value[0] + '" to "' + value[1] + '"'
+				}
 				if (key == "timestamp") {
 					return key + ": " + new Date(value).toString()
 				}
@@ -385,6 +388,8 @@
 				})
 				// update current document
 				const payload = {
+					'userName': this.userName,
+					'email': this.email,
 					'newTitle': newTitle.value
 				}
 				this.$store.dispatch('setDocTitle', payload)
