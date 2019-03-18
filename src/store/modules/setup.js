@@ -677,10 +677,15 @@ const initData = {
 			"priority": 4503599627370495,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552140438969
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552140438968
+				},
+			],
+			"delmark": false
 		},
 		{
 			"_id": "15521397677068926",
@@ -695,10 +700,15 @@ const initData = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552139767707
-			}],
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552139767706
+				},
+			],
+			"delmark": false
 		},
 		{
 			"_id": "15521398069875394",
@@ -717,10 +727,15 @@ const initData = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552139806988,
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552139806987
+				},
+			],
+			"delmark": false
 		},
 		{
 			"_id": "15521399035145bef",
@@ -739,10 +754,15 @@ const initData = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552139903514,
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552139903514
+				},
+			],
+			"delmark": false
 		},
 		{
 			"_id": "1552139972020f641",
@@ -761,10 +781,15 @@ const initData = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552139972020,
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552139972020
+				},
+			],
+			"delmark": false
 		},
 		{
 			"_id": "1552139986318cf68",
@@ -783,10 +808,15 @@ const initData = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552139986318,
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552139986318
+				},
+			],
+			"delmark": false
 		},
 		{
 			"_id": "1552406429497867d",
@@ -805,10 +835,15 @@ const initData = {
 			"priority": -4503599627370495,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552406429497,
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552406429497
+				},
+			],
+			"delmark": false
 		},
 
 		{
@@ -828,10 +863,15 @@ const initData = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552139806988,
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552152600149
+				},
+			],
+			"delmark": false
 		},
 		{
 			"_id": "155215264241301dd",
@@ -850,10 +890,15 @@ const initData = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552139903514,
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552152642413
+				},
+			],
+			"delmark": false
 		},
 		{
 			"_id": "1552152658206bb2f",
@@ -872,10 +917,15 @@ const initData = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
-			"history": [{
-				"createdBy": "erik@mycompany.nl",
-				"creationDate": 1552139972020,
-			}]
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552152658206
+				},
+			],
+			"delmark": false
 		},
 	]
 }
