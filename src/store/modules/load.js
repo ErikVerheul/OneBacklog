@@ -244,8 +244,17 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
-					tmpDoc.state = payload.newStateIdx
-					state.currentDoc.state = payload.newStateIdx
+					const oldState = tmpDoc.state
+					const newHist = {
+						"setStateEvent": [oldState, payload.newState],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
+					tmpDoc.state = payload.newState
+					state.currentDoc.state = payload.newState
+					state.currentDoc.history.push(newHist)
 					this.dispatch('updateDoc')
 				}
 			})
