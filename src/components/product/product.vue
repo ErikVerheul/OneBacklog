@@ -927,7 +927,7 @@
 
 	.custom-resizer>.pane {
 		text-align: left;
-		padding: 15px;
+		padding: 2px;
 		overflow: hidden;
 		background: #eee;
 		border: 1px solid #ccc;
