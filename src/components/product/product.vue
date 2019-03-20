@@ -104,8 +104,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-						<vue-editor :value="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
+					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
+					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
+						<vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
 					</div>
 					<multipane-resizer></multipane-resizer>
 					<div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
@@ -113,8 +114,9 @@
 							<h5 class="title is-6">Acceptance criteria</h5>
 						</div>
 					</div>
-					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-						<vue-editor :value="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptanceCriteria()"></vue-editor>
+					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
+					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
+						<vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptanceCriteria()"></vue-editor>
 					</div>
 					<multipane-resizer></multipane-resizer>
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
@@ -265,10 +267,10 @@
 				isAuthenticated: 'isAuthenticated',
 
 				docId: 'getCurrentDocId',
-				acceptanceCriteria: 'getCurrentDocAcceptanceCriteria',
+				getAcceptanceCriteria: 'getCurrentDocAcceptanceCriteria',
 				attachments: 'getCurrentDocAttachments',
 				comments: 'getCurrentDocComments',
-				description: 'getCurrentDocDescription',
+				getDescription: 'getCurrentDocDescription',
 				followers: 'getCurrentDocFollowers',
 				history: 'getCurrentDocHistory',
 				itemState: 'getCurrentDocState',
@@ -284,6 +286,22 @@
 				tsSize: 'getCurrentDocTsSize',
 
 			}),
+			description: {
+				get() {
+					return this.getDescription
+				},
+				set(newDescription) {
+					this.$store.state.load.currentDoc.description = newDescription
+				}
+			},
+			acceptanceCriteria: {
+				get() {
+					return this.getAcceptanceCriteria
+				},
+				set(newAcceptanceCriteria) {
+					this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
+				}
+			}
 		},
 
 		watch: {
@@ -386,7 +404,7 @@
 				this.$refs.slVueTree.updateNode(paths[0], {
 					title: newTitle.value,
 				})
-				// update current document
+				// update current document in database
 				const payload = {
 					'userName': this.userName,
 					'email': this.email,
@@ -395,23 +413,18 @@
 				this.$store.dispatch('setDocTitle', payload)
 			},
 			updateDescription() {
-				const newDescription = document.getElementById("descriptionField").innerText
-				// update current document
 				const payload = {
-					'newDescription': newDescription
+					'newDescription': this.description
 				}
 				this.$store.dispatch('setDescription', payload)
 			},
 			updateAcceptanceCriteria() {
-				const newAcceptanceCriteria = document.getElementById("acceptanceCriteriaField").innerText
-				// update current document
 				const payload = {
-					'newAcceptanceCriteria': newAcceptanceCriteria
+					'newAcceptanceCriteria': this.acceptanceCriteria
 				}
 				this.$store.dispatch('setAcceptanceCriteria', payload)
 			},
 			updatePriorityInDb(_id, newPriority) {
-				// update current document
 				const payload = {
 					'_id': _id,
 					'priority': newPriority,

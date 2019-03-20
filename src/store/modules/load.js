@@ -318,7 +318,8 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
-					tmpDoc.description = payload.newDescription
+					// encode to base64
+					tmpDoc.description = window.btoa(payload.newDescription)
 					state.currentDoc.description = payload.newDescription
 					this.dispatch('updateDoc')
 				}
@@ -337,7 +338,8 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
-					tmpDoc.acceptanceCriteria = payload.newAcceptanceCriteria
+					// encode to base64
+					tmpDoc.acceptanceCriteria = window.btoa(payload.newAcceptanceCriteria)
 					state.currentDoc.acceptanceCriteria = payload.newAcceptanceCriteria
 					this.dispatch('updateDoc')
 				}
@@ -520,6 +522,9 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					state.currentDoc = res.data
+					// decode from base64
+					state.currentDoc.description = window.atob(res.data.description)
+					state.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 					// eslint-disable-next-line no-console
 					console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
 				}
