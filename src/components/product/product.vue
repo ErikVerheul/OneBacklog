@@ -2,21 +2,21 @@
 	<div>
 		<div>
 			<span class="inline align-left">
-				<h3 v-if="itemType <= epicLevel">{{ getLevelText(itemType) }} T-Shirt size:
-					<input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="tsSize" @blur="updateTsSize()" />
+				<h3 v-if="getCurrentDocType <= epicLevel">{{ getLevelText(getCurrentDocType) }} T-Shirt size:
+					<input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentDocTsSize" @blur="updateTsSize()" />
 				</h3>
-				<h3 v-if="itemType == featureLevel || (itemType == pbiLevel && subType != 1)">Story points:
-					<input type="text" size="3" maxlength="3" id="storyPointsId" :value="spSize" @blur="updateStoryPoints()" />
+				<h3 v-if="getCurrentDocType == featureLevel || (getCurrentDocType == pbiLevel && getCurrentDocSubType != 1)">Story points:
+					<input type="text" size="3" maxlength="3" id="storyPointsId" :value="getCurrentDocSpSize" @blur="updateStoryPoints()" />
 				</h3>
-				<h3 v-if="itemType == pbiLevel && subType == 1">Person hours:
-					<input type="text" size="3" maxlength="3" id="personHoursId" :value="personHours" @blur="updatePersonHours()" />
+				<h3 v-if="getCurrentDocType == pbiLevel && getCurrentDocSubType == 1">Person hours:
+					<input type="text" size="3" maxlength="3" id="personHoursId" :value="getCurrentPersonHours" @blur="updatePersonHours()" />
 				</h3>
 			</span>
 			<span class="inline align-right">
 				<h3>State:
 					<b-dropdown id="ddown-right" right variant="primary" class="m-2">
 						<template slot="button-content">
-							{{ getItemStateText(itemState) }}
+							{{ getItemStateText(getCurrentDocState) }}
 						</template>
 						<b-dropdown-item @click="onStateChange(0)">{{ getItemStateText(0) }}</b-dropdown-item>
 						<b-dropdown-item @click="onStateChange(1)">{{ getItemStateText(1) }}</b-dropdown-item>
@@ -32,7 +32,7 @@
 		<!-- vertical panes -->
 		<multipane class="custom-resizer" layout="vertical">
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-				<h3>Your current database is set to {{ currentDb }}. You have {{ userProductsIds.length }} product(s)</h3>
+				<h3>Your current database is set to {{ getCurrentDb }}. You have {{ getProductIds.length }} product(s)</h3>
 
 				<div class='last-event'>
 					Last event: {{ lastEvent }}
@@ -40,7 +40,7 @@
 
 				<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 				<div class="tree-container" @mousedown.stop>
-					<sl-vue-tree :value="treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+					<sl-vue-tree :value="getTreeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 
 						<template slot="title" slot-scope="{ node }">
 							<span class="item-icon">
@@ -79,16 +79,16 @@
 				<multipane class="horizontal-panes" layout="horizontal">
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 						<div class="d-table w-100">
-							<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="itemTitle" @blur="updateTitle()">
+							<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="getCurrentDocTitle" @blur="updateTitle()">
 							</b-input>
 							<div class="d-table-cell tar">
 								<b-button href="#">(Un)Subscribe to change notices</b-button>
 							</div>
 						</div>
 					</div>
-					<div v-if="itemType==this.pbiLevel" class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+					<div v-if="getCurrentDocType==this.pbiLevel" class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
 						<div class="d-table w-100">
-							<p class="title is-6">This item is of type '{{ this.getSubType(subType) }}'. Change it here -> </p>
+							<p class="title is-6">This item is of type '{{ this.getSubType(getCurrentDocSubType) }}'. Change it here -> </p>
 							<div class="d-table-cell tar">
 								<b-form-group>
 									<b-form-radio-group v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
@@ -100,7 +100,7 @@
 						<div class="d-table w-100">
 							<h5 class="title is-6">Description</h5>
 							<div class="d-table-cell tar">
-								<p class="title is-6">Created by {{ history[0].by }} @ {{ new Date(history[0].timestamp).toString().substring(0, 33) }} </p>
+								<p class="title is-6">Created by {{ getCurrentDocHistory[0].by }} @ {{ new Date(getCurrentDocHistory[0].timestamp).toString().substring(0, 33) }} </p>
 							</div>
 						</div>
 					</div>
@@ -136,21 +136,21 @@
 					</div>
 					<div class="pane" :style="{ flexGrow: 1 }">
 						<ul v-if="selectedForView==='comments'">
-							<li v-for="comment in comments" :key=comment.timestamp>
+							<li v-for="comment in getCurrentDocComments" :key=comment.timestamp>
 								<div v-for="(value, key) in comment" :key=key>
 									{{ key }} {{ value }}
 								</div>
 							</li>
 						</ul>
 						<ul v-if="selectedForView==='attachments'">
-							<li v-for="attach in attachments" :key=attach.timestamp>
+							<li v-for="attach in getCurrentDocAttachments" :key=attach.timestamp>
 								<div v-for="(value, key) in attach" :key=key>
 									{{ key }} {{ value }}
 								</div>
 							</li>
 						</ul>
 						<ul v-if="selectedForView==='history'">
-							<li v-for="hist in history" :key="hist.timestamp">
+							<li v-for="hist in getCurrentDocHistory" :key="hist.timestamp">
 								<div v-for="(value, key) in hist" :key=key>
 									{{ prepHistoryOut(key, value) }}
 								</div>
@@ -256,39 +256,38 @@
 		},
 
 		computed: {
-			...mapGetters({
-				userName: 'getUser',
-				currentDb: 'getCurrentDb',
-				userRoles: 'getRoles',
-				userProductsIds: 'getProductIds',
-				currentProductId: 'getCurrentProductId',
-				email: 'getEmail',
-				isServerAdmin: 'isServerAdmin',
-				isAuthenticated: 'isAuthenticated',
+			...mapGetters([
+				'getUser',
+				'getCurrentDb',
+				'getRoles',
+				'getProductIds',
+				'getCurrentProductId',
+				'getEmail',
+				'isServerAdmin',
+				'isAuthenticated',
 
-				docId: 'getCurrentDocId',
-				getAcceptanceCriteria: 'getCurrentDocAcceptanceCriteria',
-				attachments: 'getCurrentDocAttachments',
-				comments: 'getCurrentDocComments',
-				getDescription: 'getCurrentDocDescription',
-				followers: 'getCurrentDocFollowers',
-				history: 'getCurrentDocHistory',
-				itemState: 'getCurrentDocState',
-				itemTitle: 'getCurrentDocTitle',
-				itemType: 'getCurrentDocType',
-				personHours: 'getCurrentPersonHours',
-				priority: 'getCurrentDocPriority',
-				productId: 'getCurrentDocProductId',
-				reqAreaId: 'getCurrentDocReqArea',
-				spSize: 'getCurrentDocSpSize',
-				subType: 'getCurrentDocSubType',
-				treeNodes: 'getTreeNodes',
-				tsSize: 'getCurrentDocTsSize',
-
-			}),
+				'getCurrentDocId',
+				'getCurrentDocAcceptanceCriteria',
+				'getCurrentDocAttachments',
+				'getCurrentDocComments',
+				'getCurrentDocDescription',
+				'getCurrentDocFollowers',
+				'getCurrentDocHistory',
+				'getCurrentDocState',
+				'getCurrentDocTitle',
+				'getCurrentDocType',
+				'getCurrentPersonHours',
+				'getCurrentDocPriority',
+				'getCurrentDocProductId',
+				'getCurrentDocReqArea',
+				'getCurrentDocSpSize',
+				'getCurrentDocSubType',
+				'getTreeNodes',
+				'getCurrentDocTsSize',
+			]),
 			description: {
 				get() {
-					return this.getDescription
+					return this.getCurrentDocDescription
 				},
 				set(newDescription) {
 					this.$store.state.load.currentDoc.description = newDescription
@@ -296,7 +295,7 @@
 			},
 			acceptanceCriteria: {
 				get() {
-					return this.getAcceptanceCriteria
+					return this.getCurrentDocAcceptanceCriteria
 				},
 				set(newAcceptanceCriteria) {
 					this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
@@ -307,9 +306,9 @@
 		watch: {
 			'selectedPbiType': function(val, oldVal) {
 				// prevent looping
-				if (val != this.subType) {
+				if (val != this.getCurrentDocSubType) {
 					//eslint-disable-next-line no-console
-					console.log('watch: selectedPbiType has changed from ' + oldVal + ' to ' + val + ' subType = ' + this.subType)
+					console.log('watch: selectedPbiType has changed from ' + oldVal + ' to ' + val + ' subType = ' + this.getCurrentDocSubType)
 					const payload = {
 						'newSubType': val
 					}
@@ -349,8 +348,8 @@
 				if (sizeArray.indexOf(size) != -1) {
 					// update current document
 					const payload = {
-						'userName': this.userName,
-						'email': this.email,
+						'userName': this.getUser,
+						'email': this.getEmail,
 						'newSizeIdx': sizeArray.indexOf(size)
 					}
 					this.$store.dispatch('setSize', payload)
@@ -369,8 +368,8 @@
 					return
 				}
 				const payload = {
-					'userName': this.userName,
-					'email': this.email,
+					'userName': this.getUser,
+					'email': this.getEmail,
 					'newPoints': el.value
 				}
 				this.$store.dispatch('setStoryPoints', payload)
@@ -382,8 +381,8 @@
 					return
 				}
 				const payload = {
-					'userName': this.userName,
-					'email': this.email,
+					'userName': this.getUser,
+					'email': this.getEmail,
 					'newHrs': el.value
 				}
 				this.$store.dispatch('setPersonHours', payload)
@@ -391,8 +390,8 @@
 			onStateChange(idx) {
 				// update current document
 				const payload = {
-					'userName': this.userName,
-					'email': this.email,
+					'userName': this.getUser,
+					'email': this.getEmail,
 					'newState': idx
 				}
 				this.$store.dispatch('setState', payload)
@@ -406,8 +405,8 @@
 				})
 				// update current document in database
 				const payload = {
-					'userName': this.userName,
-					'email': this.email,
+					'userName': this.getUser,
+					'email': this.getEmail,
 					'newTitle': newTitle.value
 				}
 				this.$store.dispatch('setDocTitle', payload)
@@ -745,7 +744,7 @@
 			},
 
 			getPbiOptions() {
-				this.selectedPbiType = this.subType
+				this.selectedPbiType = this.getCurrentDocSubType
 				let options = [{
 						text: 'User story',
 						value: 0,
@@ -863,7 +862,7 @@
 				// create a new document, save and reload it
 				const initData = {
 					"_id": newId,
-					"productId": this.productId,
+					"productId": this.getCurrentDocProductId,
 					"type": insertedNode[0].level,
 					"subtype": 0,
 					"state": 0,
@@ -880,8 +879,8 @@
 					"comments": [],
 					"history": [{
 						"event": this.getLevelText(insertedNode[0].level) + " created",
-						"by": this.userName,
-						"email": this.email,
+						"by": this.getUser,
+						"email": this.getEmail,
 						"timestamp": Date.now()
 					}],
 					"delmark": false
