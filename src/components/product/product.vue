@@ -613,7 +613,7 @@
 			resetPriorities(nodes) {
 				let newPriorities = this.calculatePriorities(nodes)
 				for (let i = 0; i < nodes.length; i++) {
-					this.updatePriorityInTree(nodes[i], newPriorities[i])
+					this.updatePriorityInTree(nodes[i].data._id, nodes[i], newPriorities[i])
 					this.updatePriorityInDb(nodes[i].data._id, newPriorities[i])
 				}
 			},
@@ -621,8 +621,7 @@
 			/*
 			 * updates the priority value in the tree
 			 */
-			updatePriorityInTree(node, newPriority) {
-				const id = node.data._id
+			updatePriorityInTree(id, node, newPriority) {
 				this.$refs.slVueTree.updateNode(node.path, {
 					data: {
 						_id: id,
@@ -874,7 +873,7 @@
 					"title": insertedNode[0].title,
 					"followers": [],
 					"description": "",
-					"acceptanceCriteria": "Please don't forget",
+					"acceptanceCriteria": window.btoa("Please don't forget"),
 					"priority": setPriority,
 					"attachments": [],
 					"comments": [],
@@ -892,7 +891,7 @@
 				}
 				this.$store.dispatch('createDoc', payload)
 				// update the node data
-				this.updatePriorityInTree(insertedNode[0], setPriority)
+				this.updatePriorityInTree(newId, insertedNode[0], setPriority)
 			},
 
 			doCancelInsert() {
