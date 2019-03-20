@@ -23,52 +23,52 @@ const state = {
 }
 
 const getters = {
-	getCurrentDocId(state) {
+	getCurrentItemId(state) {
 		if (state.currentDoc != null) return state.currentDoc._id
 	},
-	getCurrentDocAcceptanceCriteria(state) {
+	getCurrentItemAcceptanceCriteria(state) {
 		if (state.currentDoc != null) return state.currentDoc.acceptanceCriteria
 	},
-	getCurrentDocAttachments(state) {
+	getCurrentItemAttachments(state) {
 		if (state.currentDoc != null) return state.currentDoc.attachments
 	},
-	getCurrentDocComments(state) {
+	getCurrentItemComments(state) {
 		if (state.currentDoc != null) return state.currentDoc.comments
 	},
-	getCurrentDocDescription(state) {
+	getCurrentItemDescription(state) {
 		if (state.currentDoc != null) return state.currentDoc.description
 	},
-	getCurrentDocFollowers(state) {
+	getCurrentItemFollowers(state) {
 		if (state.currentDoc != null) return state.currentDoc.followers
 	},
-	getCurrentDocHistory(state) {
+	getCurrentItemHistory(state) {
 		if (state.currentDoc != null) return state.currentDoc.history
 	},
-	getCurrentDocPriority(state) {
+	getCurrentItemPriority(state) {
 		if (state.currentDoc != null) return state.currentDoc.priority
 	},
-	getCurrentDocProductId(state) {
+	getCurrentItemProductId(state) {
 		if (state.currentDoc != null) return state.currentDoc.productId
 	},
-	getCurrentDocReqArea(state) {
+	getCurrentItemReqArea(state) {
 		if (state.currentDoc != null) return state.currentDoc.reqarea
 	},
-	getCurrentDocSpSize(state) {
+	getCurrentItemSpSize(state) {
 		if (state.currentDoc != null) return state.currentDoc.spsize
 	},
-	getCurrentDocState(state) {
+	getCurrentItemState(state) {
 		if (state.currentDoc != null) return state.currentDoc.state
 	},
-	getCurrentDocSubType(state) {
+	getCurrentItemSubType(state) {
 		if (state.currentDoc != null) return state.currentDoc.subtype
 	},
-	getCurrentDocTitle(state) {
+	getCurrentItemTitle(state) {
 		if (state.currentDoc != null) return state.currentDoc.title
 	},
-	getCurrentDocTsSize(state) {
+	getCurrentItemTsSize(state) {
 		if (state.currentDoc != null) return state.config.tsSize[state.currentDoc.tssize]
 	},
-	getCurrentDocType(state) {
+	getCurrentItemType(state) {
 		if (state.currentDoc != null) return state.currentDoc.type
 	},
 	getCurrentPersonHours() {
