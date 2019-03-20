@@ -257,33 +257,34 @@
 
 		computed: {
 			...mapGetters([
+				//from store.js
 				'getUser',
-				'getCurrentDb',
 				'getRoles',
-				'getProductIds',
-				'getCurrentProductId',
-				'getEmail',
-				'isServerAdmin',
 				'isAuthenticated',
-
-				'getCurrentItemId',
+				'isServerAdmin',
+				// from load.js
+				'getCurrentDb',
 				'getCurrentItemAcceptanceCriteria',
 				'getCurrentItemAttachments',
 				'getCurrentItemComments',
 				'getCurrentItemDescription',
 				'getCurrentItemFollowers',
 				'getCurrentItemHistory',
+				'getCurrentItemId',
+				'getCurrentItemPriority',
+				'getCurrentItemProductId',
 				'getCurrentItemState',
 				'getCurrentItemTitle',
 				'getCurrentItemType',
-				'getCurrentPersonHours',
-				'getCurrentItemPriority',
-				'getCurrentItemProductId',
 				'getCurrentItemReqArea',
 				'getCurrentItemSpSize',
 				'getCurrentItemSubType',
-				'getTreeNodes',
 				'getCurrentItemTsSize',
+				'getCurrentPersonHours',
+				'getCurrentProductId',
+				'getEmail',
+				'getProductIds',
+				'getTreeNodes',
 			]),
 			description: {
 				get() {
