@@ -39,6 +39,7 @@ export default new Vuex.Store({
 
 		clearAuthData(state) {
 			state.user = null
+			state.load.teams = null
 			state.roles = []
 			state.load.config = null
 			state.load.currentDb = null

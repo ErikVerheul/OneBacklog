@@ -577,6 +577,7 @@ const initUsers = {
 		{
 			"name": "Jan Klaassen",
 			"password": "Jan",
+			"teams": ["Ghost busters", "A-team"],
 			"roles": ["admin", "superPO"],
 			"type": "user",
 			"email": "jan@mycompany.nl",
@@ -587,6 +588,7 @@ const initUsers = {
 		{
 			"name": "Herman",
 			"password": "Herman",
+			"teams": ["Ghost busters", "A-team"],
 			"roles": ["admin", "PO"],
 			"type": "user",
 			"email": "herman@mycompany.nl",
@@ -597,6 +599,7 @@ const initUsers = {
 		{
 			"name": "Piet",
 			"password": "Piet",
+			"teams": ["Ghost busters"],
 			"roles": ["developer"],
 			"type": "user",
 			"email": "piet@mycompany.nl",
@@ -607,6 +610,7 @@ const initUsers = {
 		{
 			"name": "Mechteld",
 			"password": "Mechteld",
+			"teams": ["Ghost busters"],
 			"roles": ["developer"],
 			"type": "user",
 			"email": "mechteld@mycompany.nl",
@@ -663,6 +667,7 @@ const initData = {
 		{
 			"_id": "1552140438968e1e9",
 			"productId": "15521398069875394",
+			"team": "Ghost busters",
 			"type": 5,
 			"subtype": 0,
 			"state": 4,
@@ -794,6 +799,7 @@ const initData = {
 		{
 			"_id": "1552139986318cf68",
 			"productId": "15521398069875394",
+			"team": "Ghost busters",
 			"type": 5,
 			"subtype": 0,
 			"state": 4,
@@ -821,6 +827,7 @@ const initData = {
 		{
 			"_id": "1552406429497867d",
 			"productId": "15521398069875394",
+			"team": "Ghost busters",
 			"type": 5,
 			"subtype": 0,
 			"state": 4,

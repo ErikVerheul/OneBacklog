@@ -16,6 +16,7 @@ const state = {
 	currentDoc: null,
 	currentProductId: null,
 	databases: [],
+	myTeams: [],
 	email: null,
 	offset: 0,
 	treeNodes: [],
@@ -62,6 +63,9 @@ const getters = {
 	getCurrentItemSubType(state) {
 		if (state.currentDoc != null) return state.currentDoc.subtype
 	},
+	getCurrentItemTeam(state) {
+		if (state.currentDoc != null) return state.currentDoc.team
+	},
 	getCurrentItemTitle(state) {
 		if (state.currentDoc != null) return state.currentDoc.title
 	},
@@ -85,6 +89,13 @@ const getters = {
 	},
 	getProductIds(state) {
 		return state.userAssignedProductIds
+	},
+	getTeams(state) {
+		if (state.myTeams != null) {
+			return state.myTeams
+		} else {
+			return []
+		}
 	},
 	getTreeNodes(state) {
 		return state.treeNodes
@@ -434,6 +445,7 @@ const actions = {
 				console.log(res)
 				// eslint-disable-next-line no-console
 				console.log('getOtherUserData called for user = ' + rootState.user)
+				state.myTeams = res.data.teams
 				state.email = res.data.email
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb

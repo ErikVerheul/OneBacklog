@@ -1,7 +1,7 @@
 <template>
 	<div>
-		<div>
-			<span class="inline align-left">
+		<div class="d-table w-100">
+			<span class="d-table-cell tal">
 				<h3 v-if="getCurrentItemType <= epicLevel">{{ getLevelText(getCurrentItemType) }} T-Shirt size:
 					<input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
 				</h3>
@@ -12,7 +12,10 @@
 					<input type="text" size="3" maxlength="3" id="personHoursId" :value="getCurrentPersonHours" @blur="updatePersonHours()" />
 				</h3>
 			</span>
-			<span class="inline align-right">
+			<span class="d-table-cell tac">
+				<h1 v-if='getCurrentItemTeam'>Team: {{ getCurrentItemTeam }}</h1>
+			</span>
+			<span class="d-table-cell tar">
 				<h3>State:
 					<b-dropdown id="ddown-right" right variant="primary" class="m-2">
 						<template slot="button-content">
@@ -279,6 +282,7 @@
 				'getCurrentItemReqArea',
 				'getCurrentItemSpSize',
 				'getCurrentItemSubType',
+				'getCurrentItemTeam',
 				'getCurrentItemTsSize',
 				'getCurrentPersonHours',
 				'getCurrentProductId',

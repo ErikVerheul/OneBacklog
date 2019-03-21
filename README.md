@@ -34,18 +34,18 @@ a product consists of:
 - <b>features</b> which consists of
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
 - <b>tasks</b> (NOT IN MVP) and
-- <b>multiple requirement areas</b> can be maintained on the feature level across products.
+- <b>multiple requirement areas</b> (NOT IN MVP) can be maintained on the feature level across products.
 
 <b>Other design choices:</b><br />
 The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
 Features have (business) value. Delivering the high priority features first is the aim of all participants.<br />
 Priorities are set on pbi level. It is the responsibility of the PO to select the pbi's of the most important feature first.<br />
-The owning team is an attribute of the pbi and used for filtering.<br />
+The owning team is an attribute of the pbi and used for filtering. A user can be member of one or more teams. A guest is not a member of a team.<br />
 When multiple databases are created projects defined in different databases are considered completely independent.<br />
 
 <b>Product and epic size estimate:</b><br />
 Products and epics are estimated in T-shirt sizes.
-Features and pbi's are estimated in story points using the Fibonacci scale.
+Features and pbi's are estimated in story points using the. A common practise is to use the Fibonacci scale. However this is not enforced.
 
 <b>Feature effort estimate:</b><br />
 Both features and pbi's are estimated in story points. When all pbi's belonging to a feature are refined the feature effort should be the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.
@@ -99,7 +99,8 @@ Viewers can only read the information of the products assigned to them.
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/example-screen.png)
 
 - Product, epic, feature, pbi, task and requirement area names are mapped to a key. That key is used for reference purposes so that the name can be updated independently.
-- The history of products, epics, features, pbi's are stored and easily accessible. The type of epic, feature and pbi can be changed among each other.
+- The history of products, epics, features, pbi's are stored and easily accessible. 
+- The type of product, epic, feature and pbi can be changed among each other over one level. In theory a pbi can be upgraded to a feature. That feature to an epic and the epic to a product. The reverse can also be done. 
 - A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
 - Users can add comments to an item.
 - NOT IN MVP: Attachments can be added to each backlog item type.
