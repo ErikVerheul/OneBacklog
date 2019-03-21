@@ -3,7 +3,7 @@ import globalAxios from 'axios'
 import router from '../../router'
 
 var tmpDoc = null
-const batchSize = 3
+const batchSize = 100
 var batch = []
 var lastType = 0
 var lastInsertedNodeParent = null
