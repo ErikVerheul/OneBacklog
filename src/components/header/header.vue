@@ -33,9 +33,16 @@
 						<em>User</em>
 					</template>
 					<b-dropdown-item v-if="!auth">No options here when not signed in</b-dropdown-item>
-					<b-dropdown-item v-if="myTeams.length > 1" href="#">Change team</b-dropdown-item>
+					<b-dropdown-item v-if="auth && myTeams.length > 1" href="#">Change team</b-dropdown-item>
 					<b-dropdown-item v-if="auth" href="#">Change password</b-dropdown-item>
 					<b-dropdown-item v-if="auth" @click="onLogout">Sign Out</b-dropdown-item>
+				</b-nav-item-dropdown>
+				<b-nav-item-dropdown right>
+					<!-- Using button-content slot -->
+					<template slot="button-content">
+						<em>About</em>
+					</template>
+					<b-dropdown-item href="https://www.gnu.org/licenses/gpl-3.0.html">Licence information</b-dropdown-item>
 				</b-nav-item-dropdown>
 			</b-navbar-nav>
 		</b-collapse>

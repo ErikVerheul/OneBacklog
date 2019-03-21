@@ -1,6 +1,6 @@
 # OneBacklog
 
-> A Vue.js project
+> A Vue.js project. Licenced under GPL-3.0-or-later See LICENCE.txt
 
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
 
