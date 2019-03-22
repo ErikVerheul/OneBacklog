@@ -500,7 +500,10 @@
 				firstNodeSelected = selNodes[0]
 
 				// read the document
-				this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
+				if (selNodes[0].data._id != 0) {
+					// read the document unless it is the root which has no document
+					this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
+				}
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {
 					this.selectedNodesTitle = title

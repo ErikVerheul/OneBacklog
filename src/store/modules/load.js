@@ -423,7 +423,10 @@ const actions = {
 							"title": state.currentDb,
 							"isSelected": false,
 							"isExpanded": true,
-							"children": []
+							"children": [],
+							"data": {
+								"_id": 0
+							}
 						},
 					]
 					lastInsertedNodeParent = state.treeNodes[0]
