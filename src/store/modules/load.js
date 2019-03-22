@@ -24,6 +24,9 @@ const state = {
 }
 
 const getters = {
+	canChangePriorities(state) {
+		if (state.currentDoc != null) return true
+	},
 	getCurrentItemId(state) {
 		if (state.currentDoc != null) return state.currentDoc._id
 	},
@@ -102,59 +105,61 @@ const getters = {
 	}
 }
 
-const mutations = {
+const actions = {
 	/*
 	 * Compute the type the new node is at
 	 * Note that the database is at type 0 and requirement area documents are skipped in the database view
 	 */
-	processBatch: (state) => {
-		for (let i = 0; i < batch.length; i++) {
-			let type = batch[i].doc.type
-			let delmark = batch[i].doc.delmark
-			// Skip the requirent area types
-			if (type != 1 && !delmark) {
-				/*
-				 * Compute the type the PBI is at
-				 * Note that for now the PBI type is the lowest type (highest type number)
-				 * This will change when tasks become the lowest type
-				 */
-				if (type == 2) {
-					// Found a new type 2 item, usually a product
-					lastInsertedNodeParent = state.treeNodes[0]
-					lastInsertedNode = state.treeNodes[0]
-				}
-				let newNode = {
-					title: batch[i].doc.title,
-					isLeaf: (type == leafType) ? true : false, // for now PBI's have no children
-					children: [],
-					isExpanded: (type < leafType) ? true : false, // expand the tree up to the feature type
-					isdraggable: true,
-					isSelectable: true,
-					// As the product document is initially loaded show it as selected
-					isSelected: (batch[i].doc._id == state.currentProductId) ? true : false,
-					data: {
-						_id: batch[i].doc._id,
-						priority: batch[i].doc.priority
+	processBatch: ({
+		state
+	}) => {
+		for (let i = 1; i < batch.length; i++) {
+			// Load the items of the products the user is authorized to
+			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+				let type = batch[i].doc.type
+				let delmark = batch[i].doc.delmark
+				// Skip the requirent area types
+				if (type != 1 && !delmark) {
+					/*
+					 * Process according to the type of the item
+					 * Note that for now the pbi type is the lowest in hierarchy type (highest type number)
+					 * This will change when tasks become the lowest in hierarchy type
+					 */
+					if (type == 2) {
+						// Found a new type 2 item, usually a product
+						lastInsertedNodeParent = state.treeNodes[0]
+						lastInsertedNode = state.treeNodes[0]
 					}
-				}
+					let newNode = {
+						title: batch[i].doc.title,
+						isLeaf: (type == leafType) ? true : false, // for now PBI's have no children
+						children: [],
+						isExpanded: (type < leafType) ? true : false, // expand the tree up to the feature type
+						isdraggable: true,
+						isSelectable: true,
+						// As the product document is initially loaded show it as selected
+						isSelected: (batch[i].doc._id == state.currentProductId) ? true : false,
+						data: {
+							_id: batch[i].doc._id,
+							priority: batch[i].doc.priority
+						}
+					}
 
-				if (type == lastType) {
-					// New node is a sibling placed below (after = same type) the selected node
-					lastInsertedNodeParent.children.push(newNode)
-				} else {
-					// New node is a child placed a type lower (inside = higher type) than the selected node
-					lastInsertedNode.children.push(newNode)
-					lastInsertedNodeParent = lastInsertedNode
-				}
+					if (type == lastType) {
+						// New node is a sibling placed below (after = same type) the selected node
+						lastInsertedNodeParent.children.push(newNode)
+					} else {
+						// New node is a child placed a type lower (inside = higher type) than the selected node
+						lastInsertedNode.children.push(newNode)
+						lastInsertedNodeParent = lastInsertedNode
+					}
 
-				lastType = type
-				lastInsertedNode = newNode
+					lastType = type
+					lastInsertedNode = newNode
+				}
 			}
 		}
-	}
-}
-
-const actions = {
+	},
 	/*
 	 * When updating the database first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
@@ -466,7 +471,6 @@ const actions = {
 	// Load next #batchSize documents from this database skipping #offset
 	getNextDocsBatch({
 		state,
-		commit,
 		dispatch
 	}) {
 		globalAxios({
@@ -478,7 +482,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					batch = res.data.rows
-					commit('processBatch')
+					dispatch('processBatch')
 					if (batch.length == batchSize) {
 						state.offset += batchSize
 						// recurse until all read
@@ -495,7 +499,6 @@ const actions = {
 	// Load #batchSize documents from this database skipping #offset
 	getFirstDocsBatch({
 		state,
-		commit,
 		dispatch
 	}) {
 		globalAxios({
@@ -507,7 +510,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					batch = res.data.rows
-					commit('processBatch')
+					dispatch('processBatch')
 					if (batch.length == batchSize) {
 						state.offset += batchSize
 						dispatch('getNextDocsBatch')
@@ -600,6 +603,5 @@ const actions = {
 export default {
 	state,
 	getters,
-	mutations,
 	actions
 }
