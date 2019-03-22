@@ -350,7 +350,7 @@
 			updateTsSize() {
 				var size = document.getElementById("tShirtSizeId").value.toUpperCase()
 				const sizeArray = this.$store.state.load.config.tsSize
-				if (sizeArray.indexOf(size) != -1) {
+				if (sizeArray.includes(size)) {
 					// update current document
 					const payload = {
 						'userName': this.getUser,
