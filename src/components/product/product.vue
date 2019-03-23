@@ -234,7 +234,6 @@
 				insertOptionSelected: 1, // default to sibling node (no creation of descendant)
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
-				descriptionHasChanged: false,
 
 				editorToolbar: [
 					[{
@@ -297,7 +296,7 @@
 				},
 				set(newDescription) {
 					if (newDescription != this.getCurrentItemDescription) {
-						this.descriptionHasChanged = true
+						this.$store.descriptionHasChanged = true
 						console.log('description has changed')
 						this.$store.state.load.currentDoc.description = newDescription
 					}
@@ -349,7 +348,6 @@
 					return 'event: The pbi subtype has changed from: "' + this.getSubType(value[0]) + '" to "' + this.getSubType(value[1]) + '"'
 				}
 				if (key == "descriptionEvent") {
-					console.log('descriptionEvent')
 					return 'event: The description of the item has changed:<hr>' + value[0] + "<hr>" + value[1] + "<hr>"
 				}
 				if (key == "timestamp") {
@@ -507,7 +505,7 @@
 
 				// read the document unless it is the root, which has no document
 				if (selNodes[0].data._id != 0) {
-					if (this.descriptionHasChanged) {
+					if (this.$store.descriptionHasChanged) {
 						const payload = {
 							'userName': this.getUser,
 							'email': this.getEmail,
@@ -515,7 +513,7 @@
 							'newId': firstNodeSelected.data._id
 						}
 						this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
-						this.descriptionHasChanged = false
+						this.$store.descriptionHasChanged = false
 					} else
 						this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
 				}

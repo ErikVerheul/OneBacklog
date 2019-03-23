@@ -13,6 +13,7 @@ export default new Vuex.Store({
 		user: null,
 		roles: [],
 		runningTimeout: null,
+		descriptionHasChanged: false,
 	},
 
 	getters: {

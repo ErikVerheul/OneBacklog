@@ -541,7 +541,7 @@ const actions = {
 					// encode to base64
 					tmpDoc.description = window.btoa(payload.newDescription)
 					state.currentDoc.description = payload.newDescription
-					this.dispatch('updateDocAndLoadNew', payload.newId)
+					dispatch('updateDocAndLoadNew', payload.newId)
 				}
 			})
 			// eslint-disable-next-line no-console
