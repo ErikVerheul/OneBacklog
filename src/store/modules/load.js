@@ -105,14 +105,12 @@ const getters = {
 	}
 }
 
-const actions = {
+const mutations = {
 	/*
 	 * Compute the type the new node is at
 	 * Note that the database is at type 0 and requirement area documents are skipped in the database view
 	 */
-	processBatch: ({
-		state
-	}) => {
+	processBatch: (state) => {
 		for (let i = 0; i < batch.length; i++) {
 			// Load the items of the products the user is authorized to
 			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
@@ -159,7 +157,10 @@ const actions = {
 				}
 			}
 		}
-	},
+	}
+}
+
+const actions = {
 	/*
 	 * When updating the database first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
@@ -332,27 +333,6 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
-
-	setAcceptanceCriteria({
-		state
-	}, payload) {
-		const _id = state.currentDoc._id
-		globalAxios({
-				method: 'GET',
-				url: state.currentDb + '/' + _id,
-				withCredentials: true,
-			}).then(res => {
-				if (res.status == 200) {
-					tmpDoc = res.data
-					// encode to base64
-					tmpDoc.acceptanceCriteria = window.btoa(payload.newAcceptanceCriteria)
-					state.currentDoc.acceptanceCriteria = payload.newAcceptanceCriteria
-					this.dispatch('updateDoc')
-				}
-			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
-	},
 	setPriority({
 		state
 	}, payload) {
@@ -464,6 +444,7 @@ const actions = {
 	// Load next #batchSize documents from this database skipping #offset
 	getNextDocsBatch({
 		state,
+		commit,
 		dispatch
 	}) {
 		globalAxios({
@@ -475,9 +456,9 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					batch = res.data.rows
-					dispatch('processBatch')
+					commit('processBatch')
 					if (batch.length == batchSize) {
-						state.offset += batchSize
+						offset += batchSize
 						// recurse until all read
 						dispatch('getNextDocsBatch')
 					}
@@ -492,6 +473,7 @@ const actions = {
 	// Load #batchSize documents from this database skipping #offset
 	getFirstDocsBatch({
 		state,
+		commit,
 		dispatch
 	}) {
 		globalAxios({
@@ -503,7 +485,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					batch = res.data.rows
-					dispatch('processBatch')
+					commit('processBatch')
 					if (batch.length == batchSize) {
 						state.offset += batchSize
 						dispatch('getNextDocsBatch')
@@ -540,7 +522,36 @@ const actions = {
 					state.currentDoc.history.push(newHist)
 					// encode to base64
 					tmpDoc.description = window.btoa(payload.newDescription)
-					state.currentDoc.description = payload.newDescription
+					dispatch('updateDocAndLoadNew', payload.newId)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+
+	saveAcceptanceAndLoadDoc({
+		state,
+		dispatch
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					const oldAcceptance = window.atob(res.data.acceptanceCriteria)
+					const newHist = {
+						"acceptanceEvent": [oldAcceptance, payload.newAcceptance],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
+					state.currentDoc.history.push(newHist)
+					// encode to base64
+					tmpDoc.acceptanceCriteria = window.btoa(payload.newAcceptance)
 					dispatch('updateDocAndLoadNew', payload.newId)
 				}
 			})
@@ -653,5 +664,6 @@ const actions = {
 export default {
 	state,
 	getters,
+	mutations,
 	actions
 }

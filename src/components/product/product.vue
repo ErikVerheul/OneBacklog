@@ -119,7 +119,7 @@
 					</div>
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
-						<vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptanceCriteria()"></vue-editor>
+						<vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField"></vue-editor>
 					</div>
 					<multipane-resizer></multipane-resizer>
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
@@ -307,7 +307,11 @@
 					return this.getCurrentItemAcceptanceCriteria
 				},
 				set(newAcceptanceCriteria) {
-					this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
+					if (newAcceptanceCriteria != this.getCurrentItemAcceptanceCriteria) {
+						this.$store.acceptanceHasChanged = true
+						console.log('AcceptanceCriteria have changed')
+						this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
+					}
 				}
 			}
 		},
@@ -330,28 +334,31 @@
 			/* Presentation methods */
 			prepHistoryOut(key, value) {
 				if (key == "setSizeEvent") {
-					return 'event: T-Shirt estimate changed from ' + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
+					return "<h5>T-Shirt estimate changed from </h5>" + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
 				}
 				if (key == "setPointsEvent") {
-					return 'event: Storypoints estimate changed from ' + value[0] + ' to ' + value[1]
+					return "<h5>Storypoints estimate changed from </h5>" + value[0] + ' to ' + value[1]
 				}
 				if (key == "setHrsEvent") {
-					return 'event: Spike estimate hours changed from ' + value[0] + ' to ' + value[1]
+					return "<h5>Spike estimate hours changed from </h5>" + value[0] + ' to ' + value[1]
 				}
 				if (key == "setStateEvent") {
-					return 'event: The state of the item has changed from ' + this.getItemStateText(value[0]) + ' to ' + this.getItemStateText(value[1])
+					return "<h5>The state of the item has changed from </h5>'" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'"
 				}
 				if (key == "setTitleEvent") {
-					return 'event: The item  title has changed from: "' + value[0] + '" to "' + value[1] + '"'
+					return "<h5>The item  title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'"
 				}
 				if (key == "setSubTypeEvent") {
-					return 'event: The pbi subtype has changed from: "' + this.getSubType(value[0]) + '" to "' + this.getSubType(value[1]) + '"'
+					return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'"
 				}
 				if (key == "descriptionEvent") {
-					return 'event: The description of the item has changed:<hr>' + value[0] + "<hr>" + value[1] + "<hr>"
+					return "<h5>The description of the item has changed:<hr></h5>" + value[0] + "<hr>" + value[1] + "<hr>"
+				}
+				if (key == "acceptanceEvent") {
+					return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + value[0] + "<hr>" + value[1] + "<hr>"
 				}
 				if (key == "timestamp") {
-					return key + ": " + new Date(value).toString()
+					return key + ": " + new Date(value).toString() + "<br><br>"
 				}
 				return key + ": " + value
 			},
@@ -426,12 +433,6 @@
 				}
 				this.$store.dispatch('setDocTitle', payload)
 			},
-			updateAcceptanceCriteria() {
-				const payload = {
-					'newAcceptanceCriteria': this.acceptanceCriteria
-				}
-				this.$store.dispatch('setAcceptanceCriteria', payload)
-			},
 			updatePriorityInDb(_id, newPriority) {
 				const payload = {
 					'_id': _id,
@@ -499,6 +500,8 @@
 			},
 
 			nodeSelected(selNodes) {
+				console.log('nodeSelected: this.$store.descriptionHasChanged = ' + this.$store.descriptionHasChanged)
+				console.log('nodeSelected: this.$store.acceptanceHasChanged = ' + this.$store.acceptanceHasChanged)
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				firstNodeSelected = selNodes[0]
@@ -514,8 +517,20 @@
 						}
 						this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
 						this.$store.descriptionHasChanged = false
-					} else
-						this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
+					} else {
+						if (this.$store.acceptanceHasChanged) {
+							const payload = {
+								'userName': this.getUser,
+								'email': this.getEmail,
+								'newAcceptance': this.getCurrentItemAcceptanceCriteria,
+								'newId': firstNodeSelected.data._id
+							}
+							this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
+							this.$store.acceptanceHasChanged = false
+						} else {
+							this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
+						}
+					}
 				}
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {
