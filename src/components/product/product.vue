@@ -109,7 +109,7 @@
 					</div>
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
-						<vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
+						<vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField"></vue-editor>
 					</div>
 					<multipane-resizer></multipane-resizer>
 					<div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
@@ -155,7 +155,7 @@
 						<ul v-if="selectedForView==='history'">
 							<li v-for="hist in getCurrentItemHistory" :key="hist.timestamp">
 								<div v-for="(value, key) in hist" :key=key>
-									{{ prepHistoryOut(key, value) }}
+									<div v-html="prepHistoryOut(key, value)"></div>
 								</div>
 							</li>
 						</ul>
@@ -234,6 +234,7 @@
 				insertOptionSelected: 1, // default to sibling node (no creation of descendant)
 				lastEvent: 'No last event',
 				selectedNodesTitle: '',
+				descriptionHasChanged: false,
 
 				editorToolbar: [
 					[{
@@ -295,7 +296,11 @@
 					return this.getCurrentItemDescription
 				},
 				set(newDescription) {
-					this.$store.state.load.currentDoc.description = newDescription
+					if (newDescription != this.getCurrentItemDescription) {
+						this.descriptionHasChanged = true
+						console.log('description has changed')
+						this.$store.state.load.currentDoc.description = newDescription
+					}
 				}
 			},
 			acceptanceCriteria: {
@@ -312,9 +317,9 @@
 			'selectedPbiType': function(val, oldVal) {
 				// prevent looping
 				if (val != this.getCurrentItemSubType) {
-					//eslint-disable-next-line no-console
-					console.log('watch: selectedPbiType has changed from ' + oldVal + ' to ' + val + ' subType = ' + this.getCurrentItemSubType)
 					const payload = {
+						'userName': this.getUser,
+						'email': this.getEmail,
 						'newSubType': val
 					}
 					this.$store.dispatch('setSubType', payload)
@@ -339,6 +344,13 @@
 				}
 				if (key == "setTitleEvent") {
 					return 'event: The item  title has changed from: "' + value[0] + '" to "' + value[1] + '"'
+				}
+				if (key == "setSubTypeEvent") {
+					return 'event: The pbi subtype has changed from: "' + this.getSubType(value[0]) + '" to "' + this.getSubType(value[1]) + '"'
+				}
+				if (key == "descriptionEvent") {
+					console.log('descriptionEvent')
+					return 'event: The description of the item has changed:<hr>' + value[0] + "<hr>" + value[1] + "<hr>"
 				}
 				if (key == "timestamp") {
 					return key + ": " + new Date(value).toString()
@@ -415,12 +427,6 @@
 					'newTitle': newTitle.value
 				}
 				this.$store.dispatch('setDocTitle', payload)
-			},
-			updateDescription() {
-				const payload = {
-					'newDescription': this.description
-				}
-				this.$store.dispatch('setDescription', payload)
 			},
 			updateAcceptanceCriteria() {
 				const payload = {
@@ -499,10 +505,19 @@
 				numberOfNodesSelected = selNodes.length
 				firstNodeSelected = selNodes[0]
 
-				// read the document
+				// read the document unless it is the root, which has no document
 				if (selNodes[0].data._id != 0) {
-					// read the document unless it is the root which has no document
-					this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
+					if (this.descriptionHasChanged) {
+						const payload = {
+							'userName': this.getUser,
+							'email': this.getEmail,
+							'newDescription': this.getCurrentItemDescription,
+							'newId': firstNodeSelected.data._id
+						}
+						this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
+						this.descriptionHasChanged = false
+					} else
+						this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
 				}
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {

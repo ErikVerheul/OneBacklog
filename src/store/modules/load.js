@@ -113,7 +113,7 @@ const actions = {
 	processBatch: ({
 		state
 	}) => {
-		for (let i = 1; i < batch.length; i++) {
+		for (let i = 0; i < batch.length; i++) {
 			// Load the items of the products the user is authorized to
 			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
 				let type = batch[i].doc.type
@@ -314,7 +314,16 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
+					const oldSubType = state.currentDoc.subtype
 					tmpDoc = res.data
+					const newHist = {
+						"setSubTypeEvent": [oldSubType, payload.newSubType],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
+					state.currentDoc.history.push(newHist)
 					tmpDoc.subtype = payload.newSubType
 					state.currentDoc.subtype = payload.newSubType
 					this.dispatch('updateDoc')
@@ -323,26 +332,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
-	setDescription({
-		state
-	}, payload) {
-		const _id = state.currentDoc._id
-		globalAxios({
-				method: 'GET',
-				url: state.currentDb + '/' + _id,
-				withCredentials: true,
-			}).then(res => {
-				if (res.status == 200) {
-					tmpDoc = res.data
-					// encode to base64
-					tmpDoc.description = window.btoa(payload.newDescription)
-					state.currentDoc.description = payload.newDescription
-					this.dispatch('updateDoc')
-				}
-			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
-	},
+
 	setAcceptanceCriteria({
 		state
 	}, payload) {
@@ -527,6 +517,37 @@ const actions = {
 			.catch(error => console.log('Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
 	},
 
+	saveDescriptionAndLoadDoc({
+		state,
+		dispatch
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					const oldDescription = window.atob(res.data.description)
+					const newHist = {
+						"descriptionEvent": [oldDescription, payload.newDescription],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
+					state.currentDoc.history.push(newHist)
+					// encode to base64
+					tmpDoc.description = window.btoa(payload.newDescription)
+					state.currentDoc.description = payload.newDescription
+					this.dispatch('updateDocAndLoadNew', payload.newId)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+
 	// Load current document by _id
 	loadDoc({
 		state
@@ -569,6 +590,32 @@ const actions = {
 					console.log(res)
 					// eslint-disable-next-line no-console
 					console.log('updateDoc: document with _id + ' + _id + ' is updated.')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not write document with url ' + state.currentDb + '/' + _id + '. Error = ' + error))
+	},
+
+	// Update current document and load new
+	updateDocAndLoadNew({
+		state,
+		dispatch
+	}, newId) {
+		const _id = tmpDoc._id
+		// eslint-disable-next-line no-console
+		console.log('updateDoc: updating document with _id = ' + _id)
+		globalAxios({
+				method: 'PUT',
+				url: state.currentDb + '/' + tmpDoc._id,
+				withCredentials: true,
+				data: tmpDoc
+			}).then(res => {
+				if (res.status == 201) {
+					// eslint-disable-next-line no-console
+					console.log(res)
+					// eslint-disable-next-line no-console
+					console.log('updateDoc: document with _id + ' + _id + ' is updated.')
+					dispatch('loadDoc', newId)
 				}
 			})
 			// eslint-disable-next-line no-console
