@@ -458,7 +458,7 @@ const actions = {
 					batch = res.data.rows
 					commit('processBatch')
 					if (batch.length == batchSize) {
-						offset += batchSize
+						state.offset += batchSize
 						// recurse until all read
 						dispatch('getNextDocsBatch')
 					}
@@ -577,6 +577,7 @@ const actions = {
 					state.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 					// eslint-disable-next-line no-console
 					console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
+					state.changedByTreeComponent = true
 				}
 			})
 			// eslint-disable-next-line no-console

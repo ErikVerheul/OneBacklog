@@ -295,10 +295,14 @@
 					return this.getCurrentItemDescription
 				},
 				set(newDescription) {
-					if (newDescription != this.getCurrentItemDescription) {
-						this.$store.descriptionHasChanged = true
-						console.log('description has changed')
-						this.$store.state.load.currentDoc.description = newDescription
+					if (!this.$store.changedByTreeComponent) {
+						if (newDescription != this.getCurrentItemDescription) {
+							this.$store.descriptionHasChanged = true
+							console.log('description has changed')
+							this.$store.state.load.currentDoc.description = newDescription
+						}
+					} else {
+						this.$store.changedByTreeComponent = false
 					}
 				}
 			},
@@ -307,10 +311,14 @@
 					return this.getCurrentItemAcceptanceCriteria
 				},
 				set(newAcceptanceCriteria) {
-					if (newAcceptanceCriteria != this.getCurrentItemAcceptanceCriteria) {
-						this.$store.acceptanceHasChanged = true
-						console.log('AcceptanceCriteria have changed')
-						this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
+					if (!this.$store.changedByTreeComponent) {
+						if (newAcceptanceCriteria != this.getCurrentItemAcceptanceCriteria) {
+							this.$store.acceptanceHasChanged = true
+							console.log('AcceptanceCriteria have changed')
+							this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
+						}
+					} else {
+						this.$store.changedByTreeComponent = false
 					}
 				}
 			}
@@ -502,6 +510,7 @@
 			nodeSelected(selNodes) {
 				console.log('nodeSelected: this.$store.descriptionHasChanged = ' + this.$store.descriptionHasChanged)
 				console.log('nodeSelected: this.$store.acceptanceHasChanged = ' + this.$store.acceptanceHasChanged)
+				console.log('nodeSelected: this.$store.changedByTreeComponent = ' + this.$store.changedByTreeComponent)
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				firstNodeSelected = selNodes[0]
@@ -517,6 +526,7 @@
 						}
 						this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
 						this.$store.descriptionHasChanged = false
+						this.$store.changedByTreeComponent = true
 					} else {
 						if (this.$store.acceptanceHasChanged) {
 							const payload = {
@@ -527,6 +537,7 @@
 							}
 							this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
 							this.$store.acceptanceHasChanged = false
+							this.$store.changedByTreeComponent = true
 						} else {
 							this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
 						}

@@ -14,7 +14,8 @@ export default new Vuex.Store({
 		roles: [],
 		runningTimeout: null,
 		descriptionHasChanged: false,
-		acceptanceHasChanged: false
+		acceptanceHasChanged: false,
+		changedByTreeComponent: true
 	},
 
 	getters: {

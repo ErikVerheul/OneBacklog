@@ -29,5 +29,6 @@ new Vue({
 		console.log('beforeCreate')
 		this.$store.descriptionHasChanged = false
 		this.$store.acceptanceHasChanged = false
+		this.$store.changedByTreeComponent = true
 	}
 })
