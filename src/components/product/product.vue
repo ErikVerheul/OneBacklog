@@ -295,14 +295,10 @@
 					return this.getCurrentItemDescription
 				},
 				set(newDescription) {
-					if (!this.$store.changedByTreeComponent) {
-						if (newDescription != this.getCurrentItemDescription) {
-							this.$store.descriptionHasChanged = true
-							console.log('description has changed')
-							this.$store.state.load.currentDoc.description = newDescription
-						}
-					} else {
-						this.$store.changedByTreeComponent = false
+					if (newDescription != this.getCurrentItemDescription) {
+						this.$store.descriptionHasChanged++
+						console.log('description has changed ' + this.$store.descriptionHasChanged + ' times')
+						this.$store.state.load.currentDoc.description = newDescription
 					}
 				}
 			},
@@ -311,14 +307,10 @@
 					return this.getCurrentItemAcceptanceCriteria
 				},
 				set(newAcceptanceCriteria) {
-					if (!this.$store.changedByTreeComponent) {
-						if (newAcceptanceCriteria != this.getCurrentItemAcceptanceCriteria) {
-							this.$store.acceptanceHasChanged = true
-							console.log('AcceptanceCriteria have changed')
-							this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
-						}
-					} else {
-						this.$store.changedByTreeComponent = false
+					if (newAcceptanceCriteria != this.getCurrentItemAcceptanceCriteria) {
+						this.$store.acceptanceHasChanged++
+						console.log('AcceptanceCriteria have changed ' + this.$store.acceptanceHasChanged + ' times')
+						this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
 					}
 				}
 			}
@@ -510,39 +502,55 @@
 			nodeSelected(selNodes) {
 				console.log('nodeSelected: this.$store.descriptionHasChanged = ' + this.$store.descriptionHasChanged)
 				console.log('nodeSelected: this.$store.acceptanceHasChanged = ' + this.$store.acceptanceHasChanged)
-				console.log('nodeSelected: this.$store.changedByTreeComponent = ' + this.$store.changedByTreeComponent)
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				firstNodeSelected = selNodes[0]
 
 				// read the document unless it is the root, which has no document
 				if (selNodes[0].data._id != 0) {
-					if (this.$store.descriptionHasChanged) {
-						const payload = {
-							'userName': this.getUser,
-							'email': this.getEmail,
-							'newDescription': this.getCurrentItemDescription,
-							'newId': firstNodeSelected.data._id
-						}
-						this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
-						this.$store.descriptionHasChanged = false
-						this.$store.changedByTreeComponent = true
-					} else {
-						if (this.$store.acceptanceHasChanged) {
+					// save item with both changed description and acceptance criteria and load the selected item
+					if (this.$store.descriptionHasChanged > 1 && this.$store.acceptanceHasChanged > 1) {
+						if (this.$store.descriptionHasChanged > 1) {
 							const payload = {
 								'userName': this.getUser,
 								'email': this.getEmail,
+								'newDescription': this.getCurrentItemDescription,
 								'newAcceptance': this.getCurrentItemAcceptanceCriteria,
 								'newId': firstNodeSelected.data._id
 							}
-							this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
-							this.$store.acceptanceHasChanged = false
-							this.$store.changedByTreeComponent = true
-						} else {
-							this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
+							this.$store.dispatch('saveDescAndAccAndLoadDoc', payload)
 						}
+					} else {
+						// save an item with a changed description and load the selected item
+						if (this.$store.descriptionHasChanged > 1) {
+							const payload = {
+								'userName': this.getUser,
+								'email': this.getEmail,
+								'newDescription': this.getCurrentItemDescription,
+								'newId': firstNodeSelected.data._id
+							}
+							this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
+						} else
+							// save an item with changed acceptance criteria and load the selected item
+							if (this.$store.acceptanceHasChanged > 1) {
+								const payload = {
+									'userName': this.getUser,
+									'email': this.getEmail,
+									'newAcceptance': this.getCurrentItemAcceptanceCriteria,
+									'newId': firstNodeSelected.data._id
+								}
+								this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
+							} else {
+								// only load the selected item
+								this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
+							}
 					}
+					// a new item is loaded, start counting editor changes again
+					console.log('nodeSelected: reset counters to 0')
+					this.$store.descriptionHasChanged = 0
+					this.$store.acceptanceHasChanged = 0
 				}
+
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {
 					this.selectedNodesTitle = title

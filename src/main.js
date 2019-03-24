@@ -26,9 +26,7 @@ new Vue({
   store,
   render: h => h(App),
 	beforeCreate: function () {
-		console.log('beforeCreate')
-		this.$store.descriptionHasChanged = false
-		this.$store.acceptanceHasChanged = false
-		this.$store.changedByTreeComponent = true
+		this.$store.descriptionHasChanged = 0
+		this.$store.acceptanceHasChanged = 0
 	}
 })

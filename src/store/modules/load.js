@@ -559,6 +559,47 @@ const actions = {
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 
+	saveDescAndAccAndLoadDoc({
+		state,
+		dispatch
+	}, payload) {
+		const _id = state.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					const oldDescription = window.atob(res.data.description)
+					const oldAcceptance = window.atob(res.data.acceptanceCriteria)
+					const newHist1 = {
+						"descriptionEvent": [oldDescription, payload.newDescription],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					const newHist2 = {
+						"acceptanceEvent": [oldAcceptance, payload.newAcceptance],
+						"by": payload.userName,
+						"email": payload.email,
+						// avoid duplicate keys by adding 1
+						"timestamp": Date.now() + 1
+					}
+					tmpDoc.history.push(newHist1)
+					tmpDoc.history.push(newHist2)
+					state.currentDoc.history.push(newHist1)
+					state.currentDoc.history.push(newHist2)
+					// encode to base64
+					tmpDoc.description = window.btoa(payload.newDescription)
+					tmpDoc.acceptanceCriteria = window.btoa(payload.newAcceptance)
+					dispatch('updateDocAndLoadNew', payload.newId)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+
 	// Load current document by _id
 	loadDoc({
 		state
@@ -577,7 +618,6 @@ const actions = {
 					state.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 					// eslint-disable-next-line no-console
 					console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
-					state.changedByTreeComponent = true
 				}
 			})
 			// eslint-disable-next-line no-console
