@@ -139,7 +139,8 @@ const mutations = {
 						isSelected: (batch[i].doc._id == state.currentProductId) ? true : false,
 						data: {
 							_id: batch[i].doc._id,
-							priority: batch[i].doc.priority
+							priority: batch[i].doc.priority,
+							productId: batch[i].doc.productId
 						}
 					}
 
@@ -333,7 +334,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
-	setPriority({
+	setProductIdAndPriority({
 		state
 	}, payload) {
 		const _id = payload._id
@@ -344,6 +345,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
+					tmpDoc.productId = payload.productId
 					tmpDoc.priority = payload.priority
 					state.currentDoc.priority = payload.priority
 					this.dispatch('updateDoc')
