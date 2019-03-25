@@ -109,7 +109,7 @@
 					</div>
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
-						<vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField"></vue-editor>
+						<vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
 					</div>
 					<multipane-resizer></multipane-resizer>
 					<div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
@@ -119,7 +119,7 @@
 					</div>
 					<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 					<div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
-						<vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField"></vue-editor>
+						<vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur=updateAcceptance></vue-editor>
 					</div>
 					<multipane-resizer></multipane-resizer>
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
@@ -295,11 +295,7 @@
 					return this.getCurrentItemDescription
 				},
 				set(newDescription) {
-					if (newDescription != this.getCurrentItemDescription) {
-						this.$store.descriptionHasChanged++
-						console.log('description has changed ' + this.$store.descriptionHasChanged + ' times')
-						this.$store.state.load.currentDoc.description = newDescription
-					}
+					this.$store.state.load.currentDoc.description = newDescription
 				}
 			},
 			acceptanceCriteria: {
@@ -307,17 +303,13 @@
 					return this.getCurrentItemAcceptanceCriteria
 				},
 				set(newAcceptanceCriteria) {
-					if (newAcceptanceCriteria != this.getCurrentItemAcceptanceCriteria) {
-						this.$store.acceptanceHasChanged++
-						console.log('AcceptanceCriteria have changed ' + this.$store.acceptanceHasChanged + ' times')
-						this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
-					}
+					this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
 				}
 			}
 		},
 
 		watch: {
-			'selectedPbiType': function(val, oldVal) {
+			'selectedPbiType': function(val) {
 				// prevent looping
 				if (val != this.getCurrentItemSubType) {
 					const payload = {
@@ -364,6 +356,24 @@
 			},
 
 			/* Database update methods */
+			updateDescription() {
+				const payload = {
+					'userName': this.getUser,
+					'email': this.getEmail,
+					'newDescription': this.getCurrentItemDescription,
+					'newId': firstNodeSelected.data._id
+				}
+				this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
+			},
+			updateAcceptance() {
+				const payload = {
+					'userName': this.getUser,
+					'email': this.getEmail,
+					'newAcceptance': this.getCurrentItemAcceptanceCriteria,
+					'newId': firstNodeSelected.data._id
+				}
+				this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
+			},
 			updateTsSize() {
 				var size = document.getElementById("tShirtSizeId").value.toUpperCase()
 				const sizeArray = this.$store.state.load.config.tsSize
@@ -419,17 +429,20 @@
 				this.$store.dispatch('setState', payload)
 			},
 			updateTitle() {
-				const newTitle = document.getElementById("titleField")
+				const oldTitle = this.$store.state.load.currentDoc.title
+				const newTitle = document.getElementById("titleField").value
+				if (oldTitle == newTitle) return
+
 				// update the tree
 				const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
 				this.$refs.slVueTree.updateNode(paths[0], {
-					title: newTitle.value,
+					title: newTitle
 				})
 				// update current document in database
 				const payload = {
 					'userName': this.getUser,
 					'email': this.getEmail,
-					'newTitle': newTitle.value
+					'newTitle': newTitle
 				}
 				this.$store.dispatch('setDocTitle', payload)
 			},
@@ -500,55 +513,14 @@
 			},
 
 			nodeSelected(selNodes) {
-				console.log('nodeSelected: this.$store.descriptionHasChanged = ' + this.$store.descriptionHasChanged)
-				console.log('nodeSelected: this.$store.acceptanceHasChanged = ' + this.$store.acceptanceHasChanged)
-				this.nodeIsSelected = true
+				// set the focus on titleField so that the vue2editors loose focus, regain focus when selected and blur when exited
+				document.getElementById("titleField").focus()
 				numberOfNodesSelected = selNodes.length
 				firstNodeSelected = selNodes[0]
 
 				// read the document unless it is the root, which has no document
 				if (selNodes[0].data._id != 0) {
-					// save item with both changed description and acceptance criteria and load the selected item
-					if (this.$store.descriptionHasChanged > 1 && this.$store.acceptanceHasChanged > 1) {
-						if (this.$store.descriptionHasChanged > 1) {
-							const payload = {
-								'userName': this.getUser,
-								'email': this.getEmail,
-								'newDescription': this.getCurrentItemDescription,
-								'newAcceptance': this.getCurrentItemAcceptanceCriteria,
-								'newId': firstNodeSelected.data._id
-							}
-							this.$store.dispatch('saveDescAndAccAndLoadDoc', payload)
-						}
-					} else {
-						// save an item with a changed description and load the selected item
-						if (this.$store.descriptionHasChanged > 1) {
-							const payload = {
-								'userName': this.getUser,
-								'email': this.getEmail,
-								'newDescription': this.getCurrentItemDescription,
-								'newId': firstNodeSelected.data._id
-							}
-							this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
-						} else
-							// save an item with changed acceptance criteria and load the selected item
-							if (this.$store.acceptanceHasChanged > 1) {
-								const payload = {
-									'userName': this.getUser,
-									'email': this.getEmail,
-									'newAcceptance': this.getCurrentItemAcceptanceCriteria,
-									'newId': firstNodeSelected.data._id
-								}
-								this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
-							} else {
-								// only load the selected item
-								this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
-							}
-					}
-					// a new item is loaded, start counting editor changes again
-					console.log('nodeSelected: reset counters to 0')
-					this.$store.descriptionHasChanged = 0
-					this.$store.acceptanceHasChanged = 0
+					this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
 				}
 
 				const title = this.itemTitleTrunc(60, selNodes[0].title)

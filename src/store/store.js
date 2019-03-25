@@ -13,8 +13,6 @@ export default new Vuex.Store({
 		user: null,
 		roles: [],
 		runningTimeout: null,
-		descriptionHasChanged: 0,
-		acceptanceHasChanged: 0
 	},
 
 	getters: {
@@ -29,8 +27,7 @@ export default new Vuex.Store({
 		},
 		isAuthenticated(state) {
 			return state.user !== null
-		},
-
+		}
 	},
 
 	mutations: {

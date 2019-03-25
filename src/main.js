@@ -24,9 +24,5 @@ new Vue({
   el: '#app',
   router,
   store,
-  render: h => h(App),
-	beforeCreate: function () {
-		this.$store.descriptionHasChanged = 0
-		this.$store.acceptanceHasChanged = 0
-	}
+  render: h => h(App)
 })
