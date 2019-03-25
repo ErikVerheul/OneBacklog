@@ -515,6 +515,7 @@
 			nodeSelected(selNodes) {
 				// set the focus on titleField so that the vue2editors loose focus, regain focus when selected and blur when exited
 				document.getElementById("titleField").focus()
+				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				firstNodeSelected = selNodes[0]
 
@@ -665,10 +666,10 @@
 				let levelChange = Math.abs(clickedLevel - dropLevel)
 				const selectedNodes = this.$refs.slVueTree.getSelected()
 
-				//								console.log('nodeDropped: clickedLevel = ' + clickedLevel)
-				//								console.log('nodeDropped: dropLevel = ' + dropLevel)
-				//								console.log('nodeDropped: levelChange = ' + levelChange)
-				//								console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
+				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
+				console.log('nodeDropped: dropLevel = ' + dropLevel)
+				console.log('nodeDropped: levelChange = ' + levelChange)
+				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
 
 				for (let i = 0; i < selectedNodes.length; i++) {
 					if (levelChange === 0) {
