@@ -914,26 +914,26 @@
 				})
 				// now the node is inserted get the full ISlTreeNode data and set priority
 				const selectedNodes = this.$refs.slVueTree.getSelected()
-				// warning: insertedNode is and should be an array to be handled by calculatePriorities
-				const insertedNode = selectedNodes.slice(0, 1)
+				const insertedNodeArray = selectedNodes.slice(0, 1)
+				const insertedNode = insertedNodeArray[0]
 				// get the productId the node is inserted under
-				let prevNode = this.$refs.slVueTree.getPrevNode(insertedNode[0].path)
+				let prevNode = this.$refs.slVueTree.getPrevNode(insertedNode.path)
 				const prevNodeProductId = prevNode.data.productId
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
-				const setPriority = this.calculatePriorities(insertedNode)
+				const setPriority = this.calculatePriorities(insertedNodeArray)
 				// create a new document, save and reload it
 				const initData = {
 					"_id": newId,
 					"productId": prevNodeProductId,
-					"type": insertedNode[0].level,
+					"type": insertedNode.level,
 					"subtype": 0,
 					"state": 0,
 					"tssize": 0,
 					"spsize": 0,
 					"spikepersonhours": 0,
 					"reqarea": null,
-					"title": insertedNode[0].title,
+					"title": insertedNode.title,
 					"followers": [],
 					"description": "",
 					"acceptanceCriteria": window.btoa("Please don't forget"),
@@ -941,7 +941,7 @@
 					"attachments": [],
 					"comments": [],
 					"history": [{
-						"event": this.getLevelText(insertedNode[0].level) + " created",
+						"event": this.getLevelText(insertedNode.level) + " created",
 						"by": this.getUser,
 						"email": this.getEmail,
 						"timestamp": Date.now()
@@ -949,7 +949,7 @@
 					"delmark": false
 				}
 				// update the node data
-				this.updateTree(newId, insertedNode[0], setPriority)
+				this.updateTree(newId, insertedNode, setPriority)
 				// update the database
 				const payload = {
 					'_id': newId,
