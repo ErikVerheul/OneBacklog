@@ -334,7 +334,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
-	setProductIdAndPriority({
+	updateDropped({
 		state
 	}, payload) {
 		const _id = payload._id
@@ -345,8 +345,11 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
+					tmpDoc.type = payload.newLevel
 					tmpDoc.productId = payload.productId
 					tmpDoc.priority = payload.priority
+					state.currentDoc.type = payload.newLevel
+					state.currentDoc.productId = payload.productId
 					state.currentDoc.priority = payload.priority
 					this.dispatch('updateDoc')
 				}
@@ -574,7 +577,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					state.currentDoc = res.data
-					// decode from base64
+					// decode from base64 + replace the encoded data
 					state.currentDoc.description = window.atob(res.data.description)
 					state.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 					// eslint-disable-next-line no-console

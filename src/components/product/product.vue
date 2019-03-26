@@ -238,6 +238,7 @@
 	var firstNodeSelected = null
 	var newNode = {}
 	var newNodeLocation = null
+	var insertLevel = null
 
 	export default {
 		data() {
@@ -464,14 +465,6 @@
 				}
 				this.$store.dispatch('setDocTitle', payload)
 			},
-			updateDb(_id, productId, newPriority) {
-				const payload = {
-					'_id': _id,
-					'productId': productId,
-					'priority': newPriority
-				}
-				this.$store.dispatch('setProductIdAndPriority', payload)
-			},
 
 			/* mappings from config */
 			getLevelText(level) {
@@ -578,49 +571,59 @@
 			/*
 			/ Use this event to:
 			/ - Disallow drag of multiple items which are on different levels
-			/ - Allow sorting on the same level
-			/ - Disallow drop on another level than the same or inside the parent (resulting in a change of type) when having children
-			/ - Disallow drop when moving over more than 2 levels. Changing type over more levels must be done one level by level
+			/ - For now: Disallow drag of node(s) with children
+			/ - Disallow drop when moving over more than 1 level. Changing type over more levels must be done one level by level
+			/ - Have an extra check if we are dropping to a level higher than than the pbi level. Should not happen if pbi's are all leafes
 			*/
 			beforeNodeDropped(draggingNodes, position, cancel) {
+				// Disallow drag of multiple items which are on different levels
 				if (!this.haveSameLevel(draggingNodes)) {
 					cancel(true)
 					return
 				}
-
-				let clickedLevel = draggingNodes[0].level
-				let dropLevel = position.node.level
-				let levelChange = Math.abs(clickedLevel - dropLevel)
-
-				if (levelChange === 0) {
-					// just sorting
-					return
-				}
-
-				if (levelChange > 1 && this.haveDescendants(draggingNodes)) {
-					// change of type only allowed without children
+				// For now: Disallow dragging of node(s) with children
+				if (this.haveDescendants(draggingNodes)) {
 					cancel(true)
 					return
 				}
-
-				if (levelChange > 2) {
-					cancel(true)
-					return
+				// some variables
+				const sourceLevel = draggingNodes[0].level
+				let targetLevel = sourceLevel
+				// are we dropping 'inside' a node creating children to that node?
+				if (position.placement == 'inside') {
+					targetLevel = position.node.level + 1
+					const levelChange = Math.abs(targetLevel - sourceLevel)
+					// Disallow drop when moving over more than 1 level. Changing type over more levels must be done one level by level
+					if (levelChange > 1 || targetLevel > this.pbiLevel) {
+						cancel(true)
+						return
+					}
+				} else {
+					// a drop before of after an existing sibling
+					targetLevel = position.node.level
+					const levelChange = Math.abs(targetLevel - sourceLevel)
+					// Disallow drop when moving over more than 1 level. Changing type over more levels must be done one level by level
+					if (levelChange > 1 || targetLevel > this.pbiLevel) {
+						cancel(true)
+						return
+					}
 				}
 			},
 
 			/*
-			 * Calculate the priorities of newly inserted nodes
+			 * Recalculate the priorities of the moved or inserted node(s)
+			 * Get the productId of the node(s) in case they are dopped on another product
+			 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children
+			 * Update the values in the tree
+			 * precondition: all moved nodes have the same parent (same level) and have no children
 			 */
-			calculatePriorities(nodes) {
+			updateTree(nodes, level) {
 				const firstNodePath = nodes[0].path
 				const lastNodePath = nodes[nodes.length - 1].path
 				var predecessorPrio
 				var successorPrio
 				var predecessorTitle
 				var successorTitle
-				var newPriorities = []
-
 				if (nodes[0].isFirstChild) {
 					predecessorPrio = Number.MAX_SAFE_INTEGER
 					predecessorTitle = 'parent'
@@ -638,108 +641,71 @@
 				}
 
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+				// find the productId of the nodes
+				const prevNode = this.$refs.slVueTree.getPrevNode(nodes[0].path)
+				const prevNodeProductId = prevNode.data.productId
 				//eslint-disable-next-line no-console
-				console.log('calculatePriorities: for "' + nodes[0].title + '" and ' + (nodes.length - 1) + ' siblings' +
+				console.log('updateTree: for "' + nodes[0].title + '" and ' + (nodes.length - 1) + ' siblings' +
 					'\n predecessorTitle = ' + predecessorTitle +
 					'\n successorTitle = ' + successorTitle +
 					'\n predecessorPrio = ' + predecessorPrio +
 					'\n successorPrio = ' + successorPrio +
-					'\n stepSize = ' + stepSize +
-					'\n prevNode = ' + this.$refs.slVueTree.getPrevNode(firstNodePath).title +
-					'\n parent = ' + this.$refs.slVueTree.getParent())
+					'\n stepSize = ' + stepSize)
 				for (let i = 0; i < nodes.length; i++) {
-					newPriorities.push(Math.floor(predecessorPrio - (i + 1) * stepSize))
-				}
-				return newPriorities
-			},
-
-			/*
-			 * update the productId and priority value in the tree
-			 */
-			updateTree(id, node, newPriority) {
-				let prevNode = this.$refs.slVueTree.getPrevNode(node.path)
-				let prevNodeProductId = prevNode.data.productId
-				let data = node.data
-				data._id = id
-				data.priority = newPriority
-				data.productId = prevNodeProductId
-				this.$refs.slVueTree.updateNode(node.path, {
-					data
-				})
-			},
-
-			/*
-			 * Update the productId of the node in case it is dopped on another product
-			 * Recalculate, change and save the priorities of the inserted nodes
-			 * Update the value in the tree and the database
-			 * precondition: all moved nodes have the same parent
-			 */
-			resetProductIdAndPriorities(nodes) {
-				let newPriorities = this.calculatePriorities(nodes)
-				let prevNode = this.$refs.slVueTree.getPrevNode(nodes[0].path)
-				let prevNodeProductId = prevNode.data.productId
-				for (let i = 0; i < nodes.length; i++) {
-					this.updateTree(nodes[i].data._id, nodes[i], newPriorities[i])
-					this.updateDb(nodes[i].data._id, prevNodeProductId, newPriorities[i])
+					// update the tree
+					let data = nodes[i].data
+					data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+					data.productId = prevNodeProductId
+					this.$refs.slVueTree.updateNode(nodes[i].path, {
+						level: level,
+						isLeaf: (level < this.pbiLevel) ? false : true,
+						isExpanded: false,
+						data
+					})
 				}
 			},
 
 			/*
 			 * Update the tree when one or more nodes are dropped on another location
+			 * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
+			 * precondition: all draggingNodes are on the same level and have no children (exluded by beforeNodeDropped())
+			 * ToDo: expand the parent if a node is dropped inside that parent
 			 */
 			nodeDropped(draggingNodes, position) {
+				// cannot use draggingnodes, use selectedNodes as the dropped nodes are all selected
+				const selectedNodes = this.$refs.slVueTree.getSelected()
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = position.node.level
-				let levelChange = Math.abs(clickedLevel - dropLevel)
-				const selectedNodes = this.$refs.slVueTree.getSelected()
-
-				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
-				console.log('nodeDropped: dropLevel = ' + dropLevel)
-				console.log('nodeDropped: levelChange = ' + levelChange)
-				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
-				console.log('nodeDropped: has children = ' + this.haveDescendants(draggingNodes))
-
+				// drop inside?
+				if (position.placement == 'inside') dropLevel++
+				let levelChange = clickedLevel - dropLevel
+				//				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
+				//				console.log('nodeDropped: dropLevel = ' + dropLevel)
+				//				console.log('nodeDropped: selectedNodes[0].level = ' + selectedNodes[0].level)
+				//				console.log('nodeDropped: levelChange (positive is up hierarchy) = ' + levelChange)
+				//				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
+				//				console.log('nodeDropped: has children = ' + this.haveDescendants(selectedNodes))
+				// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
+				this.updateTree(selectedNodes, dropLevel)
+				// update the nodes in the database
 				for (let i = 0; i < selectedNodes.length; i++) {
-					if (levelChange === 0) {
-						// for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-						if (dropLevel + levelChange === this.pbiLevel) {
-							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
-								isLeaf: true,
-								isExpanded: false,
-							})
-						} else {
-							// lower levels are not a leaf
-							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
-								isLeaf: false,
-								isExpanded: false,
-							})
-						}
-					} else {
-						// the user dropped the node(s) on another level
-						if (dropLevel + levelChange === this.pbiLevel) {
-							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
-								isLeaf: true,
-								isExpanded: false,
-							})
-						} else {
-							// lower levels (= higher in the hiearchy) are not a leave
-							this.$refs.slVueTree.updateNode(selectedNodes[i].path, {
-								isLeaf: false,
-								isExpanded: false,
-							})
-						}
+					const nodeData = selectedNodes[i].data
+					const payload = {
+						'_id': nodeData._id,
+						'productId': nodeData.productId,
+						'priority': nodeData.priority,
+						'newLevel': dropLevel
 					}
+					this.$store.dispatch('updateDropped', payload)
 				}
-				// When nodes are dropped to another position the priorities must be updated
-				// Recalculate the priorities of the dropped nodes and create the event message
-				this.resetProductIdAndPriorities(selectedNodes)
-				const title = this.itemTitleTrunc(60, draggingNodes[0].title)
-				if (draggingNodes.length == 1) {
+				// create the event message
+				const title = this.itemTitleTrunc(60, selectedNodes[0].title)
+				if (selectedNodes.length == 1) {
 					this.lastEvent = `Node '${title}' is dropped ${position.placement} '${position.node.title}'`
 				} else {
-					this.lastEvent = `Nodes '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
+					this.lastEvent = `Nodes '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
 				}
-				if (levelChange > 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
+				if (levelChange != 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
 			},
 
 			countDescendants(path) {
@@ -789,10 +755,12 @@
 				if (this.nodeIsSelected) {
 					let clickedLevel = firstNodeSelected.level;
 					if (clickedLevel === this.pbiLevel) {
-						this.insertOptionSelected = 1; //Cannot create child below PBI
+						//Cannot create child below PBI
+						this.insertOptionSelected = 1;
 					}
 					if (clickedLevel === 1) {
-						this.insertOptionSelected = 2; //Cannot create a database here
+						//Cannot create a database here, ask server admin
+						this.insertOptionSelected = 2;
 					}
 					this.$refs.insertModalRef.show();
 				}
@@ -856,32 +824,35 @@
 			},
 
 			/*
-			* Prepare a new node for insertion
-			*/
+			 * Prepare a new node for insertion
+			 * note: for now PBI's have no children
+			 */
 			prepareInsert() {
 				var clickedLevel = firstNodeSelected.level
-				var insertLevel = clickedLevel
 				// prepare the new node for insertion later
 				newNode = {
-						title: 'New ' + this.getLevelText(insertLevel),
-						isLeaf: (insertLevel < this.pbiLevel) ? false : true, // for now PBI's have no children
-						children: [],
-						isExpanded: false,
-						isdraggable: true,
-						isSelectable: true,
-						isSelected: true,
-						data: {
-							_id: null,
-							priority: null,
-							productId: null
-						}
+					title: 'is calculated in this method',
+					isLeaf: 'is calculated in this method',
+					children: [],
+					isExpanded: false,
+					isdraggable: true,
+					isSelectable: true,
+					isSelected: true,
+					data: {
+						_id: null,
+						priority: null,
+						productId: null
 					}
+				}
 				if (this.insertOptionSelected === 1) {
 					// New node is a sibling placed below (after) the selected node
+					insertLevel = clickedLevel
 					newNodeLocation = {
 						node: firstNodeSelected,
 						placement: 'after'
 					}
+					newNode.title = 'New ' + this.getLevelText(insertLevel)
+					newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
 					return "Insert " + this.getLevelText(insertLevel) + " below the selected node"
 				}
 
@@ -892,6 +863,8 @@
 						node: firstNodeSelected,
 						placement: 'inside'
 					}
+					newNode.title = 'New ' + this.getLevelText(insertLevel)
+					newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
 					return "Insert " + this.getLevelText(insertLevel) + " as a child node"
 				}
 
@@ -899,34 +872,41 @@
 			},
 
 			/*
-			* Insert the prepared node in the tree and create a document for this new item
-			*/
+			 * Insert the prepared node in the tree and create a document for this new item
+			 * Only one new node can be created under one existing node
+			 */
 			doInsert() {
-				this.lastEvent = 'Node is inserted';
+				this.lastEvent = 'Node is inserted'
 				this.$refs.slVueTree.insert(newNodeLocation, newNode)
-
 				// restore default
 				this.insertOptionSelected = 1
-				// unselect the node that was clicked before the insert
+				// unselect the node that was clicked before the insert (index = 0)
 				const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
 				this.$refs.slVueTree.updateNode(paths[0], {
 					isSelected: false
 				})
-				// now the node is inserted get the full ISlTreeNode data and set priority
-				const selectedNodes = this.$refs.slVueTree.getSelected()
-				const insertedNodeArray = selectedNodes.slice(0, 1)
-				const insertedNode = insertedNodeArray[0]
+				// now the node is inserted get the full ISlTreeNode data and set data fields
+				const insertedNode = this.$refs.slVueTree.getSelected()[0]
 				// get the productId the node is inserted under
 				let prevNode = this.$refs.slVueTree.getPrevNode(insertedNode.path)
 				const prevNodeProductId = prevNode.data.productId
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
-				const setPriority = this.calculatePriorities(insertedNodeArray)
-				// create a new document, save and reload it
+				insertedNode.data._id = newId
+				insertedNode.data.productId = prevNodeProductId
+				this.updateTree([insertedNode], insertLevel)
+//				const testNode = this.$refs.slVueTree.getSelected()[0]
+//				console.log('doInsert(): testNode.title = ' + testNode.title +
+//					'\n testNode.level = ' + testNode.level +
+//					'\n testNode.data._id = ' + testNode.data._id +
+//					'\n testNode.data.priority = ' + testNode.data.priority +
+//					'\n testNode.data.productId = ' + testNode.data.productId +
+//					'\n testNode.path = ' + testNode.path)
+				// create a new document and store it
 				const initData = {
 					"_id": newId,
 					"productId": prevNodeProductId,
-					"type": insertedNode.level,
+					"type": insertLevel,
 					"subtype": 0,
 					"state": 0,
 					"tssize": 0,
@@ -937,7 +917,7 @@
 					"followers": [],
 					"description": "",
 					"acceptanceCriteria": window.btoa("Please don't forget"),
-					"priority": setPriority,
+					"priority": insertedNode.data.priority,
 					"attachments": [],
 					"comments": [],
 					"history": [{
@@ -948,8 +928,6 @@
 					}],
 					"delmark": false
 				}
-				// update the node data
-				this.updateTree(newId, insertedNode, setPriority)
 				// update the database
 				const payload = {
 					'_id': newId,
