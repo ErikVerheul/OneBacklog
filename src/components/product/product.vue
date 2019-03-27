@@ -13,7 +13,7 @@
 				</h3>
 			</span>
 			<span class="d-table-cell tac">
-				<h1 v-if='getCurrentItemTeam'>Team: {{ getCurrentItemTeam }}</h1>
+				<h1>{{ getCurrentProductTitle }}</h1>
 			</span>
 			<span class="d-table-cell tar">
 				<h3>State:
@@ -305,6 +305,7 @@
 				'getCurrentItemTsSize',
 				'getCurrentPersonHours',
 				'getCurrentProductId',
+				'getCurrentProductTitle',
 				'getEmail',
 				'getProductIds',
 				'getTreeNodes',

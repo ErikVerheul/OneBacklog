@@ -14,7 +14,9 @@ const state = {
 	config: null,
 	currentDb: null,
 	currentDoc: null,
+	currentUserProductId: null,
 	currentProductId: null,
+	currentProductTitle: "",
 	databases: [],
 	myTeams: [],
 	email: null,
@@ -87,6 +89,9 @@ const getters = {
 	getCurrentProductId(state) {
 		return state.currentProductId
 	},
+	getCurrentProductTitle(state) {
+		return state.currentProductTitle
+	},
 	getEmail(state) {
 		return state.email
 	},
@@ -136,7 +141,7 @@ const mutations = {
 						isdraggable: true,
 						isSelectable: true,
 						// As the product document is initially loaded show it as selected
-						isSelected: (batch[i].doc._id == state.currentProductId) ? true : false,
+						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
 						data: {
 							_id: batch[i].doc._id,
 							priority: batch[i].doc.priority,
@@ -433,9 +438,9 @@ const actions = {
 				state.databases = res.data.databases
 				state.currentDb = res.data.currentDb
 				state.userAssignedProductIds = res.data.products
-				state.currentProductId = state.userAssignedProductIds[res.data.currentProductIdx]
+				state.currentUserProductId = state.userAssignedProductIds[res.data.currentProductIdx]
 				// load the current product document
-				dispatch('loadDoc', state.currentProductId)
+				dispatch('loadDoc', state.currentUserProductId)
 				// eslint-disable-next-line no-console
 				console.log('getOtherUserData: database ' + state.currentDb + ' is set for user ' + rootState.user)
 				dispatch('getConfig')
@@ -564,9 +569,32 @@ const actions = {
 			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 
+	// Read the current product title
+	readProduct({
+		state
+	}, product_id) {
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + product_id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					// eslint-disable-next-line no-console
+					console.log(res)
+					state.currentProductTitle = res.data.title
+					state.currentProductId = res.data.productId
+					// eslint-disable-next-line no-console
+					console.log('loadDoc: current product name + ' + res.data.title + ' is fetched.')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('Could not read document with _id ' + product_id + '. Error = ' + error))
+	},
+
 	// Load current document by _id
 	loadDoc({
-		state
+		state,
+		dispatch
 	}, _id) {
 		globalAxios({
 				method: 'GET',
@@ -582,6 +610,10 @@ const actions = {
 					state.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 					// eslint-disable-next-line no-console
 					console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
+					// read the current product title if not available
+					if (res.data.productId != state.currentProductId) {
+						dispatch('readProduct', res.data.productId)
+					}
 				}
 			})
 			// eslint-disable-next-line no-console
