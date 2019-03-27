@@ -695,6 +695,7 @@ const initData = {
 		{
 			"_id": "15521397677068926",
 			"productId": null,
+			"team": "Ghost busters",
 			"type": 1,
 			"state": 0,
 			"tssize": 0,
@@ -718,6 +719,7 @@ const initData = {
 		{
 			"_id": "15521398069875394",
 			"productId": "15521398069875394",
+			"team": "Ghost busters",
 			"type": 2,
 			"subtype": null,
 			"state": 1,
@@ -745,6 +747,7 @@ const initData = {
 		{
 			"_id": "15521399035145bef",
 			"productId": "15521398069875394",
+			"team": "Ghost busters",
 			"type": 3,
 			"subtype": null,
 			"state": 2,
@@ -772,6 +775,7 @@ const initData = {
 		{
 			"_id": "1552139972020f641",
 			"productId": "15521398069875394",
+			"team": "Ghost busters",
 			"type": 4,
 			"subtype": null,
 			"state": 4,
@@ -856,6 +860,7 @@ const initData = {
 		{
 			"_id": "1552152600149c2ac",
 			"productId": "1552152600149c2ac",
+			"team": "A-team",
 			"type": 2,
 			"subtype": null,
 			"state": 1,
@@ -883,6 +888,7 @@ const initData = {
 		{
 			"_id": "155215264241301dd",
 			"productId": "1552152600149c2ac",
+			"team": "A-team",
 			"type": 3,
 			"subtype": null,
 			"state": 2,
@@ -910,6 +916,7 @@ const initData = {
 		{
 			"_id": "1552152658206bb2f",
 			"productId": "1552152600149c2ac",
+			"team": "A-team",
 			"type": 4,
 			"subtype": null,
 			"state": 4,
