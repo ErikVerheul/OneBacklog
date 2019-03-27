@@ -192,8 +192,8 @@
 *
 * type ...............in database level ....... in tree
 * -----------------------------------------------------------------------
-* Database ............... 0 ................... n/a
-* RequirementArea ........ 1 ................... n/a
+* RequirementArea ........ 0 ................... n/a
+* Database ............... 1 ................... n/a
 * Product ................ 2 ................... 2
 * Epic .. ................ 3 ................... 3
 * Feature ................ 4 ................... 4
@@ -540,14 +540,15 @@
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {
 					this.selectedNodesTitle = title
+					this.lastEvent = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected`
 				} else {
-					this.selectedNodesTitle = title + ' + ' + (selNodes.length - 1) + ' other items'
+					this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
+					this.lastEvent = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected`
 				}
-				this.lastEvent = `Selected node: ${this.selectedNodesTitle}`
 			},
 
 			nodeToggled(node) {
-				this.lastEvent = `Node ${node.title} is ${ node.isExpanded ? 'collapsed' : 'expanded'}`;
+				this.lastEvent = `Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`;
 			},
 
 			haveDescendants(nodes) {
@@ -702,9 +703,9 @@
 				// create the event message
 				const title = this.itemTitleTrunc(60, selectedNodes[0].title)
 				if (selectedNodes.length == 1) {
-					this.lastEvent = `Node '${title}' is dropped ${position.placement} '${position.node.title}'`
+					this.lastEvent = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.node.title}'`
 				} else {
-					this.lastEvent = `Nodes '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
+					this.lastEvent = `${this.getLevelText(clickedLevel)} '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
 				}
 				if (levelChange != 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
 			},
@@ -877,7 +878,7 @@
 			 * Only one new node can be created under one existing node
 			 */
 			doInsert() {
-				this.lastEvent = 'Node is inserted'
+				this.lastEvent = 'Item of type ' + this.getLevelText(insertLevel) + ' is inserted'
 				this.$refs.slVueTree.insert(newNodeLocation, newNode)
 				// restore default
 				this.insertOptionSelected = 1

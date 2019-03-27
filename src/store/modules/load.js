@@ -121,8 +121,8 @@ const mutations = {
 			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
 				let type = batch[i].doc.type
 				let delmark = batch[i].doc.delmark
-				// Skip the requirent area types
-				if (type != 1 && !delmark) {
+				// Skip the requirent area and database types
+				if (type > 1 && !delmark) {
 					/*
 					 * Process according to the type of the item
 					 * Note that for now the pbi type is the lowest in hierarchy type (highest type number)

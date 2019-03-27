@@ -285,8 +285,8 @@ const actions = {
 			"changeDate": 1551940535871,
 
 			"itemType": [
-					"Database",
 					"RequirementArea",
+					"Database",
 					"Product",
 					"Epic",
 					"Feature",
@@ -696,7 +696,7 @@ const initData = {
 			"_id": "15521397677068926",
 			"productId": null,
 			"team": "Ghost busters",
-			"type": 1,
+			"type": 0,
 			"state": 0,
 			"tssize": 0,
 			"title": "The 'One Backlog' user interface",
@@ -772,6 +772,7 @@ const initData = {
 			],
 			"delmark": false
 		},
+
 		{
 			"_id": "1552139972020f641",
 			"productId": "15521398069875394",
