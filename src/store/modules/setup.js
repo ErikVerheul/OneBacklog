@@ -389,11 +389,10 @@ const actions = {
 					"views": {
 						/*
 						 * Sort on productId first to separate items from different products. Sort on type to build the intem tree top down.
-						 * Sort on the negative value of the priority so that the highest priority comes on top.
-						 * Skip the requirements area documents with type 0 in this view. Requirements areas can overlook multiple products.
+						 * Skip the requirements area documents and database descriptions with type 0 and 1 in this view.
 						 */
 						"sortedFilter": {
-							"map": 'function (doc) {if (doc.type > 0) emit([doc.productId, doc.type, doc.priority*-1], 1);}'
+							"map": 'function (doc) {if (doc.type > 1) emit([doc.productId, doc.type, doc.priority*-1], 1);}'
 						}
 					},
 					"language": "javascript"
@@ -667,6 +666,7 @@ const initData = {
 		{
 			"_id": "1552140438968e1e9",
 			"productId": "15521398069875394",
+			"parentId": "1552139972020f641",
 			"team": "Ghost busters",
 			"type": 5,
 			"subtype": 0,
@@ -695,6 +695,7 @@ const initData = {
 		{
 			"_id": "15521397677068926",
 			"productId": null,
+			"parentId": "root",
 			"team": "Ghost busters",
 			"type": 0,
 			"state": 0,
@@ -719,6 +720,7 @@ const initData = {
 		{
 			"_id": "15521398069875394",
 			"productId": "15521398069875394",
+			"parentId": "root",
 			"team": "Ghost busters",
 			"type": 2,
 			"subtype": null,
@@ -747,6 +749,7 @@ const initData = {
 		{
 			"_id": "15521399035145bef",
 			"productId": "15521398069875394",
+			"parentId": "15521398069875394",
 			"team": "Ghost busters",
 			"type": 3,
 			"subtype": null,
@@ -759,7 +762,7 @@ const initData = {
 			"followers": [],
 			"description": "QXMgUE8gSSB3YW50IHRvIHNlZSBhIE1WUCB2ZXJzaW9uIG9mIHRoZSBHVUkgc28gdGhhdCBJIGNhbiBmZWVsIHRoZSBwcm9kdWN0IGFuZCBjb21lIHdpdGggaW1wcm92ZW1lbnRz",
 			"acceptanceCriteria": "UGxlYXNlIGRvbid0IGZvcmdldA==",
-			"priority": 0,
+			"priority": -3002399751580331,
 			"attachments": [],
 			"comments": [],
 			"history": [
@@ -772,10 +775,39 @@ const initData = {
 			],
 			"delmark": false
 		},
-
+		{
+			"_id": "15537241758603a32",
+			"productId": "15521398069875394",
+			"parentId": "15521398069875394",
+			"team": "Ghost busters",
+			"type": 3,
+			"subtype": null,
+			"state": 2,
+			"tssize": 3,
+			"spsize": null,
+			"spikepersonhours": 0,
+			"reqarea": "15521397677068926",
+			"title": "User feedback",
+			"followers": [],
+			"description": "QXMgUE8gYW5kIGRldmVsb3BlciBJIGFtIGludGVyZXN0ZWQgaW4gdXNlciBmZWVkYmFjayBmb3IgcHJvZHVjdCBlbmhhbmNlbWVudC4=",
+			"acceptanceCriteria": "VGhlIGlkZWEgbXVzdCBiZSBmZWFzaWJsZSBhbmQgb2YgdmFsdWUgZm9yIHRoZSBtYWpvcml0eSBvZiB1c2Vycy4gT3IgaXQgY2FuIGJlIGEgZmVhdHVyZSBmb3IgaGVhdnkgdXNlcnMgYnV0IHRoZSBpbXBsZW1lbnRhdGlvbiBzaG91bGQgaHVydCB0aGUgZWFzZSBvZiB1c2UgZm9yIHRoZSBvdGhlciB1c2Vycy4=",
+			"priority": 3002399751580330,
+			"attachments": [],
+			"comments": [],
+			"history": [
+				{
+					"event": "Item created",
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1553724175860
+				},
+			],
+			"delmark": false
+		},
 		{
 			"_id": "1552139972020f641",
 			"productId": "15521398069875394",
+			"parentId": "15521399035145bef",
 			"team": "Ghost busters",
 			"type": 4,
 			"subtype": null,
@@ -804,6 +836,7 @@ const initData = {
 		{
 			"_id": "1552139986318cf68",
 			"productId": "15521398069875394",
+			"parentId": "1552139972020f641",
 			"team": "Ghost busters",
 			"type": 5,
 			"subtype": 0,
@@ -832,6 +865,7 @@ const initData = {
 		{
 			"_id": "1552406429497867d",
 			"productId": "15521398069875394",
+			"parentId": "1552139972020f641",
 			"team": "Ghost busters",
 			"type": 5,
 			"subtype": 0,
@@ -861,6 +895,7 @@ const initData = {
 		{
 			"_id": "1552152600149c2ac",
 			"productId": "1552152600149c2ac",
+			"parentId": "root",
 			"team": "A-team",
 			"type": 2,
 			"subtype": null,
@@ -889,6 +924,7 @@ const initData = {
 		{
 			"_id": "155215264241301dd",
 			"productId": "1552152600149c2ac",
+			"parentId": "1552152600149c2ac",
 			"team": "A-team",
 			"type": 3,
 			"subtype": null,
@@ -917,6 +953,7 @@ const initData = {
 		{
 			"_id": "1552152658206bb2f",
 			"productId": "1552152600149c2ac",
+			"parentId": "155215264241301dd",
 			"team": "A-team",
 			"type": 4,
 			"subtype": null,

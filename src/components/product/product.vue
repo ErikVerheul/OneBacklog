@@ -43,7 +43,7 @@
 
 				<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 				<div class="tree-container" @mousedown.stop>
-					<sl-vue-tree :value="getTreeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+					<sl-vue-tree :value="getTreeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelectedEvent" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 
 						<template slot="title" slot-scope="{ node }">
 							<span class="item-icon">
@@ -54,7 +54,7 @@
 									<font-awesome-icon icon="folder" />
 								</i>
 							</span>
-							{{ node.title }}
+							{{ node.title }}; _id = {{ node.data._id}} prio = {{ node.data.priority }}
 						</template>
 
 						<template slot="toggle" slot-scope="{ node }">
@@ -213,7 +213,8 @@
 * data: {
 * _id: doc._id,
 * priority: doc.priority,
-* productId: doc.productId
+* productId: doc.productId,
+* parentId: doc.parentId
 * }
 */
 
@@ -364,10 +365,10 @@
 					return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'"
 				}
 				if (key == "descriptionEvent") {
-					return "<h5>The description of the item has changed:<hr></h5>" + value[0] + "<hr>" + value[1] + "<hr>"
+					return "<h5>The description of the item has changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
 				}
 				if (key == "acceptanceEvent") {
-					return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + value[0] + "<hr>" + value[1] + "<hr>"
+					return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
 				}
 				if (key == "timestamp") {
 					return key + ": " + new Date(value).toString() + "<br><br>"
@@ -525,7 +526,7 @@
 				return title.substring(0, length - 4) + '...';
 			},
 
-			nodeSelected(selNodes) {
+			nodeSelectedEvent(selNodes) {
 				// set the focus on titleField so that the vue2editors loose focus, regain focus when selected and blur when exited
 				document.getElementById("titleField").focus()
 				this.nodeIsSelected = true
@@ -533,7 +534,7 @@
 				firstNodeSelected = selNodes[0]
 
 				// read the document unless it is the root, which has no document
-				if (selNodes[0].data._id != 0) {
+				if (selNodes[0].data._id != 'root') {
 					this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
 				}
 
@@ -614,52 +615,71 @@
 
 			/*
 			 * Recalculate the priorities of the moved or inserted node(s)
-			 * Get the productId of the node(s) in case they are dopped on another product
+			 * Get the productId of the node(s) in case they are dopped on another product. Determine the parentId.
 			 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children
 			 * Update the values in the tree
 			 * precondition: all moved nodes have the same parent (same level) and have no children
 			 */
-			updateTree(nodes, level) {
+			updateTree(nodes) {
+				const level = nodes[0].level
 				const firstNodePath = nodes[0].path
+				const prevNode = this.$refs.slVueTree.getPrevNode(firstNodePath)
 				const lastNodePath = nodes[nodes.length - 1].path
+				const nextNode = this.$refs.slVueTree.getNextNode(lastNodePath)
+				var localProductId
+				var localParentId
 				var predecessorPrio
 				var successorPrio
 				var predecessorTitle
 				var successorTitle
+
 				if (nodes[0].isFirstChild) {
 					predecessorPrio = Number.MAX_SAFE_INTEGER
 					predecessorTitle = 'parent'
+					localParentId = prevNode.data._id
+					if (localParentId == 'root') {
+						// when creating a new product
+						localProductId = nodes[0].data._id
+					} else {
+						localProductId = prevNode.data.productId
+					}
 				} else {
-					predecessorPrio = this.$refs.slVueTree.getPrevNode(firstNodePath).data.priority
-					predecessorTitle = this.$refs.slVueTree.getPrevNode(firstNodePath).title
+					// copy the data from a sibling
+					predecessorPrio = prevNode.data.priority
+					predecessorTitle = prevNode.title
+					localProductId = prevNode.data.productId
+					localParentId = prevNode.data.parentId
 				}
 
 				if (nodes[nodes.length - 1].isLastChild) {
 					successorPrio = Number.MIN_SAFE_INTEGER
 					successorTitle = 'none existant'
 				} else {
-					successorPrio = this.$refs.slVueTree.getNextNode(lastNodePath).data.priority
-					successorTitle = this.$refs.slVueTree.getNextNode(lastNodePath).title
+					// copy the data from a sibling
+					successorPrio = nextNode.data.priority
+					successorTitle = nextNode.title
 				}
 
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-				// find the productId of the nodes
-				const prevNode = this.$refs.slVueTree.getPrevNode(nodes[0].path)
-				const prevNodeProductId = prevNode.data.productId
+
 				//eslint-disable-next-line no-console
 				console.log('updateTree: for "' + nodes[0].title + '" and ' + (nodes.length - 1) + ' siblings' +
+					'\n level = ' + level +
+					'\n localProductId = ' + localProductId +
+					'\n localParentId = ' + localParentId +
 					'\n predecessorTitle = ' + predecessorTitle +
 					'\n successorTitle = ' + successorTitle +
 					'\n predecessorPrio = ' + predecessorPrio +
 					'\n successorPrio = ' + successorPrio +
 					'\n stepSize = ' + stepSize)
+
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
 					let data = nodes[i].data
 					data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-					data.productId = prevNodeProductId
+					data.productId = localProductId
+					data.parentId = localParentId
 					this.$refs.slVueTree.updateNode(nodes[i].path, {
-						level: level,
 						isLeaf: (level < this.pbiLevel) ? false : true,
 						isExpanded: false,
 						data
@@ -679,16 +699,19 @@
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = position.node.level
 				// drop inside?
-				if (position.placement == 'inside') dropLevel++
+				if (position.placement == 'inside') {
+					dropLevel++
+				}
 				let levelChange = clickedLevel - dropLevel
-				//				console.log('nodeDropped: clickedLevel = ' + clickedLevel)
-				//				console.log('nodeDropped: dropLevel = ' + dropLevel)
-				//				console.log('nodeDropped: selectedNodes[0].level = ' + selectedNodes[0].level)
-				//				console.log('nodeDropped: levelChange (positive is up hierarchy) = ' + levelChange)
-				//				console.log('nodeDropped: selectedNodes.length = ' + selectedNodes.length)
-				//				console.log('nodeDropped: has children = ' + this.haveDescendants(selectedNodes))
+				console.log('nodeDropped: clickedLevel = ' + clickedLevel +
+					'nodeDropped: dropLevel = ' + dropLevel +
+					'nodeDropped: selectedNodes[0].level = ' + selectedNodes[0].level +
+					'nodeDropped: levelChange (positive is up hierarchy) = ' + levelChange +
+					'nodeDropped: selectedNodes.length = ' + selectedNodes.length +
+					'nodeDropped: has children = ' + this.haveDescendants(selectedNodes))
+
 				// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
-				this.updateTree(selectedNodes, dropLevel)
+				this.updateTree(selectedNodes)
 				// update the nodes in the database
 				for (let i = 0; i < selectedNodes.length; i++) {
 					const nodeData = selectedNodes[i].data
@@ -710,44 +733,53 @@
 				if (levelChange != 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
 			},
 
-			countDescendants(path) {
-				let count = 0
-				let doCount = false
+			getDescendants(path) {
+				let descendants = []
 				let initLevel = 0
 
 				this.$refs.slVueTree.traverse((node) => {
 					if (this.$refs.slVueTree.comparePaths(node.path, path) == 0) {
 						initLevel = node.level
-						doCount = true
 					} else {
 						if (node.level <= initLevel) return false
 
 						if (this.$refs.slVueTree.comparePaths(node.path, path) == 1) {
-							if (doCount) {
-								count++
-							}
+							descendants.push(node)
 						}
 					}
 				})
-				return count;
+				return descendants;
+			},
+
+			countDescendants(path) {
+				return this.getDescendants(path).length
 			},
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
-				// Node must be selected first && user cannot remove on the database level && only one node can be selected
+				// Node must be selected first && user cannot the database && only one node can be selected
 				if (this.nodeIsSelected && node.level > 1 && numberOfNodesSelected === 1) {
 					this.removeTitle = `This ${this.getLevelText(node.level)} and ${this.countDescendants(node.path)} descendants will be removed`
 					this.$refs.removeModalRef.show();
 				}
 			},
 
+			/*
+			 * Both the clicked node and all its descendants will be tagged with a delmark
+			 */
 			doRemove() {
 				const selectedNodes = this.$refs.slVueTree.getSelected()
 				this.lastEvent = `The ${this.getLevelText(selectedNodes[0].level)} and ${this.countDescendants(selectedNodes[0].path)} descendants are removed`
 				const paths = selectedNodes.map(node => node.path)
+				const descendants = this.getDescendants(paths[0])
+				// now we can remove the nodes
 				this.$refs.slVueTree.remove(paths)
-				// set remove mark in current document in the database
-				this.$store.dispatch('removeDoc')
+				// set remove mark on the clicked item
+				this.$store.dispatch('removeDoc', [selectedNodes[0].data._id])
+				// and remove the descendants
+				for (let i = 0; i < descendants.length; i++) {
+					this.$store.dispatch('removeDoc', descendants[i].data._id)
+				}
 				// After removal no node is selected
 				this.nodeIsSelected = false
 			},
@@ -843,7 +875,8 @@
 					data: {
 						_id: null,
 						priority: null,
-						productId: null
+						productId: null,
+						parentId: null
 					}
 				}
 				if (this.insertOptionSelected === 1) {
@@ -875,40 +908,49 @@
 
 			/*
 			 * Insert the prepared node in the tree and create a document for this new item
-			 * Only one new node can be created under one existing node
 			 */
 			doInsert() {
 				this.lastEvent = 'Item of type ' + this.getLevelText(insertLevel) + ' is inserted'
 				this.$refs.slVueTree.insert(newNodeLocation, newNode)
 				// restore default
 				this.insertOptionSelected = 1
-				// unselect the node that was clicked before the insert (index = 0)
-				const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
-				this.$refs.slVueTree.updateNode(paths[0], {
-					isSelected: false
+
+				// unselect the node that was clicked before the insert and expand it to show the inserted node
+				const clickedPath = this.$refs.slVueTree.getSelected()[0].path
+				this.$refs.slVueTree.updateNode(clickedPath, {
+					isSelected: false,
+					isExpanded: true
 				})
-				// now the node is inserted get the full ISlTreeNode data and set data fields
-				const insertedNode = this.$refs.slVueTree.getSelected()[0]
-				// get the productId the node is inserted under
-				let prevNode = this.$refs.slVueTree.getPrevNode(insertedNode.path)
-				const prevNodeProductId = prevNode.data.productId
+
+				// now the node is inserted get the full ISlTreeNode data and set data fields and select the inserted node
+				const insertedNode = this.$refs.slVueTree.getNextNode(clickedPath)
+				this.$refs.slVueTree.updateNode(insertedNode.path, {
+					isSelected: true,
+					isExpanded: false
+				})
+
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
 				insertedNode.data._id = newId
-				insertedNode.data.productId = prevNodeProductId
-				this.updateTree([insertedNode], insertLevel)
-//				const testNode = this.$refs.slVueTree.getSelected()[0]
-//				console.log('doInsert(): testNode.title = ' + testNode.title +
-//					'\n testNode.level = ' + testNode.level +
-//					'\n testNode.data._id = ' + testNode.data._id +
-//					'\n testNode.data.priority = ' + testNode.data.priority +
-//					'\n testNode.data.productId = ' + testNode.data.productId +
-//					'\n testNode.path = ' + testNode.path)
+
+				// productId and parentId are set in this routine
+				this.updateTree([insertedNode])
+
+				const testNode = this.$refs.slVueTree.getSelected()[0]
+				console.log('doInsert(): testNode.title = ' + testNode.title +
+					'\n testNode.level = ' + testNode.level +
+					'\n testNode.data._id = ' + testNode.data._id +
+					'\n testNode.data.priority = ' + testNode.data.priority +
+					'\n testNode.data.productId = ' + testNode.data.productId +
+					'\n testNode.data.parentId = ' + testNode.data.parentId)
+
 				// create a new document and store it
 				const initData = {
 					"_id": newId,
-					"productId": prevNodeProductId,
-					"type": insertLevel,
+					"productId": insertedNode.data.productId,
+					"parentId": insertedNode.data.parentId,
+					"team": "not assigned yet",
+					"type": insertedNode.level,
 					"subtype": 0,
 					"state": 0,
 					"tssize": 0,

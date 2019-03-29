@@ -5,10 +5,8 @@ import router from '../../router'
 var tmpDoc = null
 const batchSize = 100
 var batch = []
-var lastType = 0
-var lastInsertedNodeParent = null
-var lastInsertedNode = null
 const leafType = 5
+var parentNodes = {}
 
 const state = {
 	config: null,
@@ -112,56 +110,45 @@ const getters = {
 
 const mutations = {
 	/*
-	 * Compute the type the new node is at
-	 * Note that the database is at type 0 and requirement area documents are skipped in the database view
+	 * The database is sorted by productId, type (level) and priority.
+	 * The documents are read top down by type. In parentNodes the read items are linked to to their id's.
+	 * The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
+	 * Note that the database is of type 0, and requirement area documents of type 1 are excluded in the database view
 	 */
 	processBatch: (state) => {
 		for (let i = 0; i < batch.length; i++) {
 			// Load the items of the products the user is authorized to
-			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
-				let type = batch[i].doc.type
-				let delmark = batch[i].doc.delmark
-				// Skip the requirent area and database types
-				if (type > 1 && !delmark) {
-					/*
-					 * Process according to the type of the item
-					 * Note that for now the pbi type is the lowest in hierarchy type (highest type number)
-					 * This will change when tasks become the lowest in hierarchy type
-					 */
-					if (type == 2) {
-						// Found a new type 2 item, usually a product
-						lastInsertedNodeParent = state.treeNodes[0]
-						lastInsertedNode = state.treeNodes[0]
+			//ToDo: restore this
+			//			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+			let type = batch[i].doc.type
+			let parentId = batch[i].doc.parentId
+			let delmark = batch[i].doc.delmark
+			// Skip the requirent area and database types
+			if (type > 1 && !delmark) {
+				let newNode = {
+					title: batch[i].doc.title,
+					// for now PBI's have no children
+					isLeaf: (type == leafType) ? true : false,
+					children: [],
+					// expand the tree up to the feature type
+					isExpanded: (type < leafType) ? true : false,
+					isdraggable: true,
+					isSelectable: true,
+					// As the product document is initially loaded show it as selected
+					isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
+					data: {
+						_id: batch[i].doc._id,
+						priority: batch[i].doc.priority,
+						productId: batch[i].doc.productId,
+						parentId: parentId
 					}
-					let newNode = {
-						title: batch[i].doc.title,
-						isLeaf: (type == leafType) ? true : false, // for now PBI's have no children
-						children: [],
-						isExpanded: (type < leafType) ? true : false, // expand the tree up to the feature type
-						isdraggable: true,
-						isSelectable: true,
-						// As the product document is initially loaded show it as selected
-						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
-						data: {
-							_id: batch[i].doc._id,
-							priority: batch[i].doc.priority,
-							productId: batch[i].doc.productId
-						}
-					}
-
-					if (type == lastType) {
-						// New node is a sibling placed below (after = same type) the selected node
-						lastInsertedNodeParent.children.push(newNode)
-					} else {
-						// New node is a child placed a type lower (inside = higher type) than the selected node
-						lastInsertedNode.children.push(newNode)
-						lastInsertedNodeParent = lastInsertedNode
-					}
-
-					lastType = type
-					lastInsertedNode = newNode
 				}
+//				console.log('processBatch: Adding batch[i].doc._id = ' + batch[i].doc._id + ", parentId = " + parentId)
+				let parentNode = parentNodes[parentId]
+				parentNode.children.push(newNode)
+				parentNodes[batch[i].doc._id] = newNode
 			}
+			//			}
 		}
 	}
 }
@@ -197,7 +184,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('setSize: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setPersonHours({
 		state
@@ -225,7 +212,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('setPersonHours: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setStoryPoints({
 		state
@@ -253,7 +240,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setState({
 		state
@@ -281,7 +268,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('setState: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setDocTitle({
 		state
@@ -309,7 +296,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('setDocTitle: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setSubType({
 		state
@@ -337,7 +324,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('setSubType: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	updateDropped({
 		state
@@ -360,12 +347,11 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('updateDropped: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	removeDoc({
 		state
-	}) {
-		const _id = state.currentDoc._id
+	}, _id) {
 		globalAxios({
 				method: 'GET',
 				url: state.currentDb + '/' + _id,
@@ -378,7 +364,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('removeDoc: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 
 	// Load the config file from this database
@@ -405,17 +391,16 @@ const actions = {
 							"isExpanded": true,
 							"children": [],
 							"data": {
-								"_id": 0
+								"_id": "root"
 							}
 						},
 					]
-					lastInsertedNodeParent = state.treeNodes[0]
-					lastInsertedNode = state.treeNodes[0]
+					parentNodes.root = state.treeNodes[0]
 					dispatch('getFirstDocsBatch')
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Config doc missing in database ' + state.currentDb + '. Error = ' + error))
+			.catch(error => console.log('getConfig:Config doc missing in database ' + state.currentDb + '. Error = ' + error))
 	},
 
 	// Get the current DB name etc. for this user. Note that the user roles are already fetched
@@ -471,13 +456,16 @@ const actions = {
 						state.offset += batchSize
 						// recurse until all read
 						dispatch('getNextDocsBatch')
+					} else {
+						// done, release memory
+						parentNodes = null
 					}
 					// eslint-disable-next-line no-console
 					console.log('Another batch of ' + batch.length + ' documents is loaded')
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read a batch of documents ' + state.currentDb + '. Error = ' + error))
+			.catch(error => console.log('getNextDocsBatch: Could not read a batch of documents ' + state.currentDb + '. Error = ' + error))
 	},
 
 	// Load #batchSize documents from this database skipping #offset
@@ -506,7 +494,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
+			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
 	},
 
 	saveDescriptionAndLoadDoc({
@@ -521,22 +509,22 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
-					const oldDescription = window.atob(res.data.description)
+					// encode to base64
+					const newEncodedDescription = window.btoa(payload.newDescription)
 					const newHist = {
-						"descriptionEvent": [oldDescription, payload.newDescription],
+						"descriptionEvent": [res.data.description, newEncodedDescription],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
 					tmpDoc.history.push(newHist)
 					state.currentDoc.history.push(newHist)
-					// encode to base64
-					tmpDoc.description = window.btoa(payload.newDescription)
+					tmpDoc.description = newEncodedDescription
 					dispatch('updateDocAndLoadNew', payload.newId)
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('saveDescriptionAndLoadDoc: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 
 	saveAcceptanceAndLoadDoc({
@@ -551,22 +539,22 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
-					const oldAcceptance = window.atob(res.data.acceptanceCriteria)
+					// encode to base64
+					const newEncodedAcceptance = window.btoa(payload.newAcceptance)
 					const newHist = {
-						"acceptanceEvent": [oldAcceptance, payload.newAcceptance],
+						"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
 					tmpDoc.history.push(newHist)
 					state.currentDoc.history.push(newHist)
-					// encode to base64
-					tmpDoc.acceptanceCriteria = window.btoa(payload.newAcceptance)
+					tmpDoc.acceptanceCriteria = newEncodedAcceptance
 					dispatch('updateDocAndLoadNew', payload.newId)
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('saveAcceptanceAndLoadDoc: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 
 	// Read the current product title
@@ -588,7 +576,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + product_id + '. Error = ' + error))
+			.catch(error => console.log('readProduct: Could not read document with _id ' + product_id + '. Error = ' + error))
 	},
 
 	// Load current document by _id
@@ -617,7 +605,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('loadDoc: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 
 	// Update current document
