@@ -188,6 +188,8 @@
 </template>
 
 /*
+* Definitions: items are PBI's or Product Backlog Items which are stored in the database as documents and presented on screen as nodes in a tree.
+*
 * NOTE on itemType and level numbering with the current config definition
 *
 * type ...............in database level ....... in tree
@@ -278,6 +280,10 @@
 			}
 		},
 
+		mounted: function() {
+			this.setFirstNodeSelected()
+		},
+
 		computed: {
 			...mapGetters([
 				//from store.js
@@ -344,6 +350,10 @@
 		},
 
 		methods: {
+			setFirstNodeSelected() {
+				firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
+			},
+
 			/* Presentation methods */
 			prepHistoryOut(key, value) {
 				if (key == "setSizeEvent") {
