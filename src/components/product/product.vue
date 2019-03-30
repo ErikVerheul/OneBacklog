@@ -38,7 +38,7 @@
 				<h3>Your current database is set to {{ getCurrentDb }}. You have {{ getProductIds.length }} product(s)</h3>
 
 				<div class='last-event'>
-					Last event: {{ lastEvent }}
+					Last event: {{ this.$store.state.load.lastEvent }}
 				</div>
 
 				<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
@@ -254,7 +254,6 @@
 				nodeIsSelected: false,
 				removeTitle: '',
 				insertOptionSelected: 1, // default to sibling node (no creation of descendant)
-				lastEvent: 'No last event',
 				selectedNodesTitle: '',
 
 				editorToolbar: [
@@ -551,15 +550,15 @@
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {
 					this.selectedNodesTitle = title
-					this.lastEvent = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected`
+					this.$store.state.load.lastEvent = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected`
 				} else {
 					this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-					this.lastEvent = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected`
+					this.$store.state.load.lastEvent = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected`
 				}
 			},
 
 			nodeToggled(node) {
-				this.lastEvent = `Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`;
+				this.$store.state.load.lastEvent = `Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`;
 			},
 
 			haveDescendants(nodes) {
@@ -736,11 +735,11 @@
 				// create the event message
 				const title = this.itemTitleTrunc(60, selectedNodes[0].title)
 				if (selectedNodes.length == 1) {
-					this.lastEvent = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.node.title}'`
+					this.$store.state.load.lastEvent = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.node.title}'`
 				} else {
-					this.lastEvent = `${this.getLevelText(clickedLevel)} '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
+					this.$store.state.load.lastEvent = `${this.getLevelText(clickedLevel)} '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
 				}
-				if (levelChange != 0) this.lastEvent = this.lastEvent + ' as ' + this.getLevelText(dropLevel)
+				if (levelChange != 0) this.$store.state.load.lastEvent = this.$store.state.load.lastEvent + ' as ' + this.getLevelText(dropLevel)
 			},
 
 			getDescendants(path) {
@@ -779,7 +778,7 @@
 			 */
 			doRemove() {
 				const selectedNodes = this.$refs.slVueTree.getSelected()
-				this.lastEvent = `The ${this.getLevelText(selectedNodes[0].level)} and ${this.countDescendants(selectedNodes[0].path)} descendants are removed`
+				this.$store.state.load.lastEvent = `The ${this.getLevelText(selectedNodes[0].level)} and ${this.countDescendants(selectedNodes[0].path)} descendants are removed`
 				const paths = selectedNodes.map(node => node.path)
 				const descendants = this.getDescendants(paths[0])
 				// now we can remove the nodes
@@ -920,7 +919,7 @@
 			 * Insert the prepared node in the tree and create a document for this new item
 			 */
 			doInsert() {
-				this.lastEvent = 'Item of type ' + this.getLevelText(insertLevel) + ' is inserted'
+				this.$store.state.load.lastEvent = 'Item of type ' + this.getLevelText(insertLevel) + ' is inserted'
 				this.$refs.slVueTree.insert(newNodeLocation, newNode)
 				// restore default
 				this.insertOptionSelected = 1

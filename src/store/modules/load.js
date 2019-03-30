@@ -3,12 +3,16 @@ import globalAxios from 'axios'
 import router from '../../router'
 
 var tmpDoc = null
-const batchSize = 100
+const batchSize = 3
 var batch = []
 const leafType = 5
 var parentNodes = {}
+var docsCount = 0
+var itemsCount = 0
+var orphansCount = 0
 
 const state = {
+	lastEvent: '',
 	config: null,
 	currentDb: null,
 	currentDoc: null,
@@ -117,6 +121,7 @@ const mutations = {
 	 */
 	processBatch: (state) => {
 		for (let i = 0; i < batch.length; i++) {
+			docsCount++
 			// Load the items of the products the user is authorized to
 			//ToDo: restore this
 			//			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
@@ -145,10 +150,12 @@ const mutations = {
 				}
 				//				console.log('processBatch: Adding batch[i].doc._id = ' + batch[i].doc._id + ", parentId = " + parentId)
 				if (parentNodes[parentId] != null) {
+					itemsCount++
 					let parentNode = parentNodes[parentId]
 					parentNode.children.push(newNode)
 					parentNodes[batch[i].doc._id] = newNode
 				} else {
+					orphansCount++
 					console.log('processBatch: orphan detected with _id = ' + batch[i].doc._id + ' The missing parent has _id = ' + parentId)
 				}
 			}
@@ -464,6 +471,7 @@ const actions = {
 						// done, release memory
 						parentNodes = null
 					}
+					state.lastEvent = `${docsCount} docs are read. ${itemsCount} items are inserted. ${orphansCount} orphans are skipped`
 					// eslint-disable-next-line no-console
 					console.log('Another batch of ' + batch.length + ' documents is loaded')
 				}
@@ -494,6 +502,7 @@ const actions = {
 					}
 					// eslint-disable-next-line no-console
 					console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
+					state.lastEvent = `${docsCount} docs are read. ${itemsCount} items are inserted. ${orphansCount} orphans are skipped`
 					router.push('/product')
 				}
 			})
