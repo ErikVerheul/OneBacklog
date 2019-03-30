@@ -144,9 +144,13 @@ const mutations = {
 					}
 				}
 				//				console.log('processBatch: Adding batch[i].doc._id = ' + batch[i].doc._id + ", parentId = " + parentId)
-				let parentNode = parentNodes[parentId]
-				parentNode.children.push(newNode)
-				parentNodes[batch[i].doc._id] = newNode
+				if (parentNodes[parentId] != null) {
+					let parentNode = parentNodes[parentId]
+					parentNode.children.push(newNode)
+					parentNodes[batch[i].doc._id] = newNode
+				} else {
+					console.log('processBatch: orphan detected with _id = ' + batch[i].doc._id + ' The missing parent has _id = ' + parentId)
+				}
 			}
 			//			}
 		}
