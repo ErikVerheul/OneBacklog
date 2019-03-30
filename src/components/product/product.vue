@@ -13,7 +13,7 @@
 				</h3>
 			</span>
 			<span class="d-table-cell tac">
-				<h1>{{ getCurrentProductTitle }}</h1>
+				<h3>{{ getCurrentProductTitle }}</h3>
 			</span>
 			<span class="d-table-cell tar">
 				<h3>State:
@@ -35,7 +35,7 @@
 		<!-- vertical panes -->
 		<multipane class="custom-resizer" layout="vertical">
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-				<h3>Your current database is set to {{ getCurrentDb }}. You have {{ getProductIds.length }} product(s)</h3>
+				<h4>Your current database is set to {{ getCurrentDb }}. You have {{ getProductIds.length }} product(s)</h4>
 
 				<div class='last-event'>
 					Last event: {{ this.$store.state.load.lastEvent }}
@@ -54,7 +54,7 @@
 									<font-awesome-icon icon="folder" />
 								</i>
 							</span>
-							{{ node.title }}; _id = {{ node.data._id}} prio = {{ node.data.priority }}
+							{{ node.title }}
 						</template>
 
 						<template slot="toggle" slot-scope="{ node }">
