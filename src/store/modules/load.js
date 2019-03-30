@@ -143,7 +143,7 @@ const mutations = {
 						parentId: parentId
 					}
 				}
-//				console.log('processBatch: Adding batch[i].doc._id = ' + batch[i].doc._id + ", parentId = " + parentId)
+				//				console.log('processBatch: Adding batch[i].doc._id = ' + batch[i].doc._id + ", parentId = " + parentId)
 				let parentNode = parentNodes[parentId]
 				parentNode.children.push(newNode)
 				parentNodes[batch[i].doc._id] = newNode
@@ -511,16 +511,19 @@ const actions = {
 					tmpDoc = res.data
 					// encode to base64
 					const newEncodedDescription = window.btoa(payload.newDescription)
-					const newHist = {
-						"descriptionEvent": [res.data.description, newEncodedDescription],
-						"by": payload.userName,
-						"email": payload.email,
-						"timestamp": Date.now()
+					// update only when changed
+					if (newEncodedDescription != res.data.description) {
+						const newHist = {
+							"descriptionEvent": [res.data.description, newEncodedDescription],
+							"by": payload.userName,
+							"email": payload.email,
+							"timestamp": Date.now()
+						}
+						tmpDoc.history.push(newHist)
+						state.currentDoc.history.push(newHist)
+						tmpDoc.description = newEncodedDescription
+						dispatch('updateDocAndLoadNew', payload.newId)
 					}
-					tmpDoc.history.push(newHist)
-					state.currentDoc.history.push(newHist)
-					tmpDoc.description = newEncodedDescription
-					dispatch('updateDocAndLoadNew', payload.newId)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -541,16 +544,19 @@ const actions = {
 					tmpDoc = res.data
 					// encode to base64
 					const newEncodedAcceptance = window.btoa(payload.newAcceptance)
-					const newHist = {
-						"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
-						"by": payload.userName,
-						"email": payload.email,
-						"timestamp": Date.now()
+					// update only when changed
+					if (newEncodedAcceptance != res.data.acceptanceCriteria) {
+						const newHist = {
+							"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
+							"by": payload.userName,
+							"email": payload.email,
+							"timestamp": Date.now()
+						}
+						tmpDoc.history.push(newHist)
+						state.currentDoc.history.push(newHist)
+						tmpDoc.acceptanceCriteria = newEncodedAcceptance
+						dispatch('updateDocAndLoadNew', payload.newId)
 					}
-					tmpDoc.history.push(newHist)
-					state.currentDoc.history.push(newHist)
-					tmpDoc.acceptanceCriteria = newEncodedAcceptance
-					dispatch('updateDocAndLoadNew', payload.newId)
 				}
 			})
 			// eslint-disable-next-line no-console
