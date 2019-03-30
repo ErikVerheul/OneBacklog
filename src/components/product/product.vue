@@ -379,6 +379,13 @@
 				if (key == "acceptanceEvent") {
 					return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
 				}
+				if (key == "nodeDroppedEvent") {
+					if (value[0] == value[1]) {
+						return "<h5>The item changed priority to position " + (value[2] + 1) + "</h5>"
+					} else {
+						return "<h5>The item type changed from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ". New position is " + (value[2] + 1) + "</h5>"
+					}
+				}
 				if (key == "timestamp") {
 					return key + ": " + new Date(value).toString() + "<br><br>"
 				}
@@ -723,12 +730,15 @@
 				this.updateTree(selectedNodes)
 				// update the nodes in the database
 				for (let i = 0; i < selectedNodes.length; i++) {
-					const nodeData = selectedNodes[i].data
 					const payload = {
-						'_id': nodeData._id,
-						'productId': nodeData.productId,
-						'priority': nodeData.priority,
-						'newLevel': dropLevel
+						'_id': selectedNodes[i].data._id,
+						'productId': selectedNodes[i].data.productId,
+						'newParent': selectedNodes[i].data.parentId,
+						'oldLevel': clickedLevel,
+						'newLevel': selectedNodes[i].level,
+						'newInd': selectedNodes[i].ind,
+						'userName': this.getUser,
+						'email': this.getEmail
 					}
 					this.$store.dispatch('updateDropped', payload)
 				}

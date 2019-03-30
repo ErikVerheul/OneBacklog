@@ -319,10 +319,9 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					const oldSubType = state.currentDoc.subtype
 					tmpDoc = res.data
 					const newHist = {
-						"setSubTypeEvent": [oldSubType, payload.newSubType],
+						"setSubTypeEvent": [state.currentDoc.subtype, payload.newSubType],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
@@ -348,11 +347,21 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
+					const newHist = {
+						"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
+					state.currentDoc.history.push(newHist)
 					tmpDoc.type = payload.newLevel
 					tmpDoc.productId = payload.productId
+					tmpDoc.parentId = payload.newParent
 					tmpDoc.priority = payload.priority
 					state.currentDoc.type = payload.newLevel
 					state.currentDoc.productId = payload.productId
+					state.currentDoc.parentId = payload.newParent
 					state.currentDoc.priority = payload.priority
 					this.dispatch('updateDoc')
 				}
