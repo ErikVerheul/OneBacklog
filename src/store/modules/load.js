@@ -128,7 +128,7 @@ const mutations = {
 			let type = batch[i].doc.type
 			let parentId = batch[i].doc.parentId
 			let delmark = batch[i].doc.delmark
-			// Skip the requirent area and database types
+			// Skip the database/requirement area types and the removed items
 			if (type > 1 && !delmark) {
 				let newNode = {
 					title: batch[i].doc.title,
@@ -712,14 +712,33 @@ const actions = {
 			.catch(error => console.log('Could not write document with url ' + state.currentDb + '/' + _id + '. Error = ' + error))
 	},
 
-	// Create document and reload it to currentDoc
+	// Read the parent title before creating the document
 	createDoc({
 		state,
 		dispatch
 	}, payload) {
-		const _id = payload._id
+		const _id = payload.initData.parentId
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					payload.initData.history[0]['createEvent'] = [payload.initData.type, res.data.title]
+					dispatch('createDoc2', payload)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('createDoc: Could not read parent document with id ' + _id + '. Error = ' + error))
+	},
+	// Create document and reload it to currentDoc
+	createDoc2({
+		state,
+		dispatch
+	}, payload) {
+		const _id = payload.initData._id
 		// eslint-disable-next-line no-console
-		console.log('createDoc: creating document with _id = ' + _id)
+		console.log('createDoc2: creating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
 				url: state.currentDb + '/' + _id,
@@ -727,15 +746,16 @@ const actions = {
 				data: payload.initData
 			}).then(res => {
 				if (res.status == 201) {
+//					console.log('createDoc2: got history with payload.initData.history[0]["createEvent"][0] = ' + payload.initData.history[0]['createEvent'][0] +
+//											'\nand payload.initData.history[0]["createEvent"][0] = ' + payload.initData.history[0]['createEvent'][1])
 					// eslint-disable-next-line no-console
 					console.log(res)
 					// eslint-disable-next-line no-console
-					console.log('createDoc: document with _id + ' + _id + ' is created.')
-					dispatch('loadDoc', _id)
+					console.log('createDoc2: document with _id + ' + _id + ' is created.')
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not create document with url ' + state.currentDb + '/' + _id + '. Error = ' + error))
+			.catch(error => console.log('createDoc2: Could not create document with id ' + _id + '. Error = ' + error))
 	},
 
 }

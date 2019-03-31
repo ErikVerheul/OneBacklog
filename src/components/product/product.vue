@@ -54,7 +54,7 @@
 									<font-awesome-icon icon="folder" />
 								</i>
 							</span>
-							{{ node.title }}
+							{{ node.title }}; _id = {{ node.data._id}}
 						</template>
 
 						<template slot="toggle" slot-scope="{ node }">
@@ -355,7 +355,7 @@
 			/* Presentation methods */
 			prepHistoryOut(key, value) {
 				if (key == "createEvent") {
-					return "<h5>This " + this.getLevelText(value[0]) + " was created</h5>"
+					return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'</h5>"
 				}
 				if (key == "setSizeEvent") {
 					return "<h5>T-Shirt estimate changed from </h5>" + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
@@ -490,7 +490,7 @@
 			/* mappings from config */
 			getLevelText(level) {
 				if (level < 0 || level > this.pbiLevel) {
-					return 'Error: unknown level'
+					return 'Level non-existent'
 				}
 				return this.$store.state.load.config.itemType[level]
 			},
@@ -629,21 +629,16 @@
 				var predecessorTitle
 				var successorTitle
 
+				localProductId = prevNode.data.productId
+
 				if (nodes[0].isFirstChild) {
 					predecessorPrio = Number.MAX_SAFE_INTEGER
 					predecessorTitle = 'parent'
 					localParentId = prevNode.data._id
-					if (localParentId == 'root') {
-						// when creating a new product
-						localProductId = nodes[0].data._id
-					} else {
-						localProductId = prevNode.data.productId
-					}
 				} else {
 					// copy the data from a sibling
 					predecessorPrio = prevNode.data.priority
 					predecessorTitle = prevNode.title
-					localProductId = prevNode.data.productId
 					localParentId = prevNode.data.parentId
 				}
 
@@ -784,17 +779,19 @@
 				this.nodeIsSelected = false
 			},
 
+			/*
+			 * Cannot create a database here, ask server admin
+			 * Cannot create product here, ask the superPO
+			 */
 			showInsertModal(node, event) {
 				event.preventDefault();
 				if (this.nodeIsSelected) {
-					let clickedLevel = firstNodeSelected.level;
+					let clickedLevel = firstNodeSelected.level
+					if (clickedLevel === 1) return
+
 					if (clickedLevel === this.pbiLevel) {
-						//Cannot create child below PBI
+						// cannot create child below PBI
 						this.insertOptionSelected = 1;
-					}
-					if (clickedLevel === 1) {
-						// cannot create a database here, ask server admin
-						this.insertOptionSelected = 2;
 					}
 					this.$refs.insertModalRef.show();
 				}
@@ -834,9 +831,14 @@
 				options[0].text = this.getLevelText(clickedLevel)
 				options[1].text = this.getLevelText(clickedLevel + 1)
 				// Disable the option to create a node below a PBI
-				if (clickedLevel === this.pbiLevel) options[1].disabled = true;
-				// Disable the option to create a new database
-				if (clickedLevel === 1) options[0].disabled = true;
+				if (clickedLevel >= this.pbiLevel) {
+					options[1].disabled = true
+				}
+				// Disable the option to create a product
+				if (clickedLevel == 2) {
+					options[0].disabled = true
+					this.insertOptionSelected = 2
+				}
 				return options
 			},
 
@@ -859,7 +861,7 @@
 
 			/*
 			 * Prepare a new node for insertion
-			 * note: for now PBI's have no children
+			 * note: You cannot create new projects here
 			 */
 			prepareInsert() {
 				var clickedLevel = firstNodeSelected.level
@@ -882,6 +884,8 @@
 				if (this.insertOptionSelected === 1) {
 					// New node is a sibling placed below (after) the selected node
 					insertLevel = clickedLevel
+					if (insertLevel == this.productLevel) return
+
 					newNodeLocation = {
 						node: firstNodeSelected,
 						placement: 'after'
@@ -894,6 +898,8 @@
 				if (this.insertOptionSelected === 2) {
 					// new node is a child placed a level lower (inside) than the selected node
 					insertLevel = clickedLevel + 1
+					if (insertLevel == this.productLevel) return
+
 					newNodeLocation = {
 						node: firstNodeSelected,
 						placement: 'inside'
@@ -965,23 +971,23 @@
 					"attachments": [],
 					"comments": [],
 					"history": [{
-						"createEvent": [insertedNode.level],
-						"by": this.getUser,
-						"email": this.getEmail,
-						"timestamp": Date.now()
+						"createEvent": null,
+						'by': this.getUser,
+						'email': this.getEmail,
+						'timestamp': Date.now()
 					}],
 					"delmark": false
 				}
 				// update the database
 				const payload = {
-					'_id': newId,
 					'initData': initData
 				}
 				this.$store.dispatch('createDoc', payload)
 			},
 
 			doCancelInsert() {
-				this.insertOptionSelected = 1; //Restore default
+				// restore default
+				this.insertOptionSelected = 1;
 			},
 
 		},
