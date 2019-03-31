@@ -664,6 +664,26 @@ const dbPermissions = {
 const initData = {
 	"docs": [
 		{
+			"_id": "root",
+			"type": 1,
+			"title": "The root of all projects in this database",
+			"followers": [],
+			"description": "PHA+ZGVtb2RiPC9wPg==",
+			"acceptanceCriteria": "PHA+PC9wPg==",
+			"priority": 0,
+			"attachments": [],
+			"comments": [],
+			"history": [
+				{
+					"createEvent": [1, "root"],
+					"by": "Erik",
+					"email": "erik@mycompany.nl",
+					"timestamp": 1552140438968
+				},
+			],
+			"delmark": false
+		},
+		{
 			"_id": "1552140438968e1e9",
 			"productId": "15521398069875394",
 			"parentId": "1552139972020f641",
