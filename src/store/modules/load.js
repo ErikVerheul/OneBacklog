@@ -339,6 +339,23 @@ const actions = {
 	updateDropped({
 		state
 	}, payload) {
+		const _id = payload.newParentId
+		globalAxios({
+				method: 'GET',
+				url: state.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					payload['newParentTitle'] = res.data.title
+					this.dispatch('updateDropped2', payload)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('updateDropped: Could not read parent document with _id ' + _id + '. Error = ' + error))
+	},
+	updateDropped2({
+		state
+	}, payload) {
 		const _id = payload._id
 		globalAxios({
 				method: 'GET',
@@ -348,7 +365,7 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					const newHist = {
-						"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd],
+						"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
@@ -357,17 +374,17 @@ const actions = {
 					state.currentDoc.history.push(newHist)
 					tmpDoc.type = payload.newLevel
 					tmpDoc.productId = payload.productId
-					tmpDoc.parentId = payload.newParent
+					tmpDoc.parentId = payload.newParentId
 					tmpDoc.priority = payload.priority
 					state.currentDoc.type = payload.newLevel
 					state.currentDoc.productId = payload.productId
-					state.currentDoc.parentId = payload.newParent
+					state.currentDoc.parentId = payload.newParentId
 					state.currentDoc.priority = payload.priority
 					this.dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('updateDropped: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('updateDropped2: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	removeDoc({
 		state

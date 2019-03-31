@@ -684,7 +684,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [5],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552140438968
@@ -709,7 +709,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [0],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139767706
@@ -738,7 +738,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [2],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139806987
@@ -767,7 +767,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [3],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139903514
@@ -796,7 +796,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [3],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1553724175860
@@ -825,7 +825,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [4],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139972020
@@ -854,7 +854,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [5],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139986318
@@ -883,7 +883,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [5],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552406429497
@@ -913,7 +913,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [2],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152600149
@@ -942,7 +942,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [3],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152642413
@@ -971,7 +971,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"event": "Item created",
+					"createEvent": [4],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152658206

@@ -203,7 +203,7 @@
 */
 
 /*
-* The nodes in the tree have these data elements:
+* The nodes in the tree have these data elements and values:
 *
 * title: doc.title,
 * isLeaf: (type == leafType) ? true : false, // for now PBI's have no children
@@ -213,10 +213,10 @@
 * isSelectable: true,
 * isSelected: true || false
 * data: {
-* _id: doc._id,
-* priority: doc.priority,
-* productId: doc.productId,
-* parentId: doc.parentId
+* 	_id: doc._id,
+* 	priority: doc.priority,
+* 	productId: doc.productId,
+* 	parentId: doc.parentId
 * }
 */
 
@@ -355,6 +355,9 @@
 
 			/* Presentation methods */
 			prepHistoryOut(key, value) {
+				if (key == "createEvent") {
+					return "<h5>This " + this.getLevelText(value[0]) + " was created</h5>"
+				}
 				if (key == "setSizeEvent") {
 					return "<h5>T-Shirt estimate changed from </h5>" + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
 				}
@@ -365,7 +368,7 @@
 					return "<h5>Spike estimate hours changed from </h5>" + value[0] + ' to ' + value[1]
 				}
 				if (key == "setStateEvent") {
-					return "<h5>The state of the item has changed from </h5>'" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'"
+					return "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'</h5>"
 				}
 				if (key == "setTitleEvent") {
 					return "<h5>The item  title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'"
@@ -381,9 +384,10 @@
 				}
 				if (key == "nodeDroppedEvent") {
 					if (value[0] == value[1]) {
-						return "<h5>The item changed priority to position " + (value[2] + 1) + "</h5>"
+						return "<h5>The item changed priority to position " + (value[2] + 1) + " under parent '" + value[3] + "'</h5>"
 					} else {
-						return "<h5>The item type changed from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ". New position is " + (value[2] + 1) + "</h5>"
+						return "<h5>The item changed type from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ".</h5>" +
+							"<p>The new position is " + (value[2] + 1) + " under parent '" + value[3] + "'</p>"
 					}
 				}
 				if (key == "timestamp") {
@@ -733,7 +737,8 @@
 					const payload = {
 						'_id': selectedNodes[i].data._id,
 						'productId': selectedNodes[i].data.productId,
-						'newParent': selectedNodes[i].data.parentId,
+						'newParentId': selectedNodes[i].data.parentId,
+						'newParentTitle': null,
 						'oldLevel': clickedLevel,
 						'newLevel': selectedNodes[i].level,
 						'newInd': selectedNodes[i].ind,
@@ -984,7 +989,7 @@
 					"attachments": [],
 					"comments": [],
 					"history": [{
-						"event": this.getLevelText(insertedNode.level) + " created",
+						"createEvent": [insertedNode.level],
 						"by": this.getUser,
 						"email": this.getEmail,
 						"timestamp": Date.now()
