@@ -170,7 +170,8 @@ const actions = {
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
 	setSize({
-		state
+		state,
+		dispatch
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -191,14 +192,15 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					state.currentDoc.tssize = payload.newSizeIdx
 					state.currentDoc.history.push(newHist)
-					this.dispatch('updateDoc')
+					dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('setSize: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setPersonHours({
-		state
+		state,
+		dispatch
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -219,14 +221,15 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					state.currentDoc.spikepersonhours = payload.newHrs
 					state.currentDoc.history.push(newHist)
-					this.dispatch('updateDoc')
+					dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('setPersonHours: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setStoryPoints({
-		state
+		state,
+		dispatch
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -247,14 +250,15 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					state.currentDoc.spsize = payload.newPoints
 					state.currentDoc.history.push(newHist)
-					this.dispatch('updateDoc')
+					dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setState({
-		state
+		state,
+		dispatch
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -275,14 +279,15 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					state.currentDoc.state = payload.newState
 					state.currentDoc.history.push(newHist)
-					this.dispatch('updateDoc')
+					dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('setState: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setDocTitle({
-		state
+		state,
+		dispatch
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -303,14 +308,15 @@ const actions = {
 					state.currentDoc.history.push(newHist)
 					tmpDoc.title = payload.newTitle
 					state.currentDoc.title = payload.newTitle
-					this.dispatch('updateDoc')
+					dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('setDocTitle: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setSubType({
-		state
+		state,
+		dispatch
 	}, payload) {
 		const _id = state.currentDoc._id
 		globalAxios({
@@ -330,14 +336,15 @@ const actions = {
 					state.currentDoc.history.push(newHist)
 					tmpDoc.subtype = payload.newSubType
 					state.currentDoc.subtype = payload.newSubType
-					this.dispatch('updateDoc')
+					dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('setSubType: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	updateDropped({
-		state
+		state,
+		dispatch
 	}, payload) {
 		const _id = payload.newParentId
 		globalAxios({
@@ -347,14 +354,15 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					payload['newParentTitle'] = res.data.title
-					this.dispatch('updateDropped2', payload)
+					dispatch('updateDropped2', payload)
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('updateDropped: Could not read parent document with _id ' + _id + '. Error = ' + error))
 	},
 	updateDropped2({
-		state
+		state,
+		dispatch
 	}, payload) {
 		const _id = payload._id
 		globalAxios({
@@ -380,14 +388,15 @@ const actions = {
 					state.currentDoc.productId = payload.productId
 					state.currentDoc.parentId = payload.newParentId
 					state.currentDoc.priority = payload.priority
-					this.dispatch('updateDoc')
+					dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('updateDropped2: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	removeDoc({
-		state
+		state,
+		dispatch
 	}, _id) {
 		globalAxios({
 				method: 'GET',
@@ -397,7 +406,7 @@ const actions = {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					tmpDoc.delmark = true
-					this.dispatch('updateDoc')
+					dispatch('updateDoc')
 				}
 			})
 			// eslint-disable-next-line no-console

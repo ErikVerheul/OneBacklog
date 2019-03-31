@@ -200,9 +200,7 @@
 * Epic .. ................ 3 ................... 3
 * Feature ................ 4 ................... 4
 * PBI ... ................ 5 ................... 5
-*/
-
-/*
+*
 * The nodes in the tree have these data elements and values:
 *
 * title: doc.title,
@@ -213,10 +211,10 @@
 * isSelectable: true,
 * isSelected: true || false
 * data: {
-* 	_id: doc._id,
-* 	priority: doc.priority,
-* 	productId: doc.productId,
-* 	parentId: doc.parentId
+* ...._id: doc._id,
+* ....priority: doc.priority,
+* ....productId: doc.productId,
+* ....parentId: doc.parentId
 * }
 */
 
@@ -234,7 +232,7 @@
 		VueEditor
 	} from 'vue2-editor'
 
-	//Bug? Do not put this import in curly braces
+	// bug? Do not put this import in curly braces
 	import SlVueTree from 'sl-vue-tree'
 
 	var numberOfNodesSelected = 0
@@ -253,7 +251,8 @@
 
 				nodeIsSelected: false,
 				removeTitle: '',
-				insertOptionSelected: 1, // default to sibling node (no creation of descendant)
+				// default to sibling node (no creation of descendant)
+				insertOptionSelected: 1,
 				selectedNodesTitle: '',
 
 				editorToolbar: [
@@ -273,8 +272,8 @@
 					}], // outdent/indent
 					['link', 'image', 'code-block']
 				],
-
-				selectedPbiType: -1, // set to an invalid value; must be updated before use
+				// set to an invalid value; must be updated before use
+				selectedPbiType: -1,
 				selectedForView: 'comments',
 			}
 		},
@@ -516,36 +515,13 @@
 			getKnownRoles() {
 				return this.$store.state.load.config.knownRoles
 			},
-			getItemStateDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.load.config.itemStateDefinitions.length) {
-					return 'Error: unknown state'
-				}
-				return this.$store.state.load.config.itemStateDefinitions[idx]
-			},
-			getTsSizeDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.load.config.tsSizeDefinitions.length) {
-					return 'Error: unknown T-shirt size'
-				}
-				return this.$store.state.load.config.tsSizeDefinitions(idx)
-			},
-			getSubTypeDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.load.config.subtypeDefinitions.length) {
-					return 'Error: unknown subtype'
-				}
-				return this.$store.state.load.config.subtypeDefinitions[idx]
-			},
-			getKnownRoleDef(idx) {
-				if (idx < 0 || idx >= this.$store.state.load.config.knownRolesDefinitions.length) {
-					return 'Error: unknown role'
-				}
-				return this.$store.state.load.config.knownRolesDefinitions[idx]
-			},
 
 			itemTitleTrunc(length, title) {
 				if (title.length <= length) return title;
 				return title.substring(0, length - 4) + '...';
 			},
 
+			/* event handling */
 			nodeSelectedEvent(selNodes) {
 				// set the focus on titleField so that the vue2editors loose focus, regain focus when selected and blur when exited
 				document.getElementById("titleField").focus()
@@ -599,12 +575,12 @@
 			/ - Have an extra check if we are dropping to a level higher than than the pbi level. Should not happen if pbi's are all leafes
 			*/
 			beforeNodeDropped(draggingNodes, position, cancel) {
-				// Disallow drag of multiple items which are on different levels
+				// disallow drag of multiple items which are on different levels
 				if (!this.haveSameLevel(draggingNodes)) {
 					cancel(true)
 					return
 				}
-				// For now: Disallow dragging of node(s) with children
+				// for now: Disallow dragging of node(s) with children
 				if (this.haveDescendants(draggingNodes)) {
 					cancel(true)
 					return
@@ -781,7 +757,7 @@
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
-				// Node must be selected first && user cannot the database && only one node can be selected
+				// node must be selected first && user cannot the database && only one node can be selected
 				if (this.nodeIsSelected && node.level > 1 && numberOfNodesSelected === 1) {
 					this.removeTitle = `This ${this.getLevelText(node.level)} and ${this.countDescendants(node.path)} descendants will be removed`
 					this.$refs.removeModalRef.show();
@@ -817,7 +793,7 @@
 						this.insertOptionSelected = 1;
 					}
 					if (clickedLevel === 1) {
-						//Cannot create a database here, ask server admin
+						// cannot create a database here, ask server admin
 						this.insertOptionSelected = 2;
 					}
 					this.$refs.insertModalRef.show();
@@ -916,7 +892,7 @@
 				}
 
 				if (this.insertOptionSelected === 2) {
-					// New node is a child placed a level lower (inside) than the selected node
+					// new node is a child placed a level lower (inside) than the selected node
 					insertLevel = clickedLevel + 1
 					newNodeLocation = {
 						node: firstNodeSelected,
@@ -1015,8 +991,7 @@
 			MultipaneResizer,
 			VueEditor,
 			SlVueTree,
-		},
-
+		}
 	}
 
 </script>
