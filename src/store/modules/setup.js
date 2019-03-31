@@ -684,7 +684,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [5],
+					"createEvent": [5, "1552139972020f641"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552140438968
@@ -709,7 +709,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [0],
+					"createEvent": [0, "root"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139767706
@@ -738,7 +738,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [2],
+					"createEvent": [2, "root"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139806987
@@ -767,7 +767,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [3],
+					"createEvent": [3, "15521398069875394"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139903514
@@ -796,7 +796,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [3],
+					"createEvent": [3, "15521398069875394"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1553724175860
@@ -825,7 +825,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [4],
+					"createEvent": [4, "15521399035145bef"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139972020
@@ -854,7 +854,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [5],
+					"createEvent": [5, "1552139972020f641"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139986318
@@ -883,7 +883,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [5],
+					"createEvent": [5, "1552139972020f641"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552406429497
@@ -913,7 +913,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [2],
+					"createEvent": [2, "1552152600149c2ac"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152600149
@@ -942,7 +942,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [3],
+					"createEvent": [3, "1552152600149c2ac"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152642413
@@ -971,7 +971,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [4],
+					"createEvent": [4, "155215264241301dd"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152658206
