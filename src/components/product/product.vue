@@ -43,7 +43,7 @@
 
 				<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 				<div class="tree-container" @mousedown.stop>
-					<sl-vue-tree v-model="treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelectedEvent" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+					<sl-vue-tree v-model="$store.state.load.treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelectedEvent" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 
 						<template slot="title" slot-scope="{ node }">
 							<span class="item-icon">
@@ -317,16 +317,7 @@
 				'getCurrentProductTitle',
 				'getEmail',
 				'getProductIds',
-				'getTreeNodes',
 			]),
-			treeNodes: {
-				get() {
-					return this.getTreeNodes
-				},
-				set(newTreeNodes) {
-					this.$store.state.load.treeNodes = newTreeNodes
-				}
-			},
 			description: {
 				get() {
 					return this.getCurrentItemDescription
@@ -649,14 +640,6 @@
 				var predecessorTitle
 				var successorTitle
 
-				//eslint-disable-next-line no-console
-				for (var prop in firstNode) {
-					console.log('firstNode@entry -> ' + prop, firstNode[prop]);
-				}
-				//eslint-disable-next-line no-console
-				for (var prop in firstNode.data) {
-					console.log('firstNode.data@entry -> ' + prop, firstNode.data[prop]);
-				}
 				if (firstNode.isFirstChild) {
 					// the previous node must be the parent
 					predecessorPrio = Number.MAX_SAFE_INTEGER
@@ -676,7 +659,6 @@
 					} else {
 						sibling = this.$refs.slVueTree.getPrevNode(firstNode.path)
 					}
-					console.log('updateTree: sibling = ' + sibling.title)
 					predecessorPrio = sibling.data.priority
 					predecessorTitle = sibling.title
 					localParentId = sibling.data.parentId
@@ -713,11 +695,11 @@
 				}
 				//eslint-disable-next-line no-console
 				for (var prop in firstNode) {
-					console.log('firstNode@ready -> ' + prop, firstNode[prop]);
+					console.log('updateTree@ready -> ' + prop, firstNode[prop]);
 				}
 				//eslint-disable-next-line no-console
 				for (var prop in firstNode.data) {
-					console.log('firstNode.data@ready -> ' + prop, firstNode.data[prop]);
+					console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
 				}
 
 			},

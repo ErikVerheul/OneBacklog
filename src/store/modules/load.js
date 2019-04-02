@@ -105,9 +105,6 @@ const getters = {
 		} else {
 			return []
 		}
-	},
-	getTreeNodes(state) {
-		return state.treeNodes
 	}
 }
 
