@@ -675,7 +675,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [1, "root"],
+					"createEvent": [1, "demodb"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552140438968
@@ -704,7 +704,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [5, "1552139972020f641"],
+					"createEvent": [5, "The tree stucture"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552140438968
@@ -729,7 +729,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [0, "root"],
+					"createEvent": [0, "demodb"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139767706
@@ -758,7 +758,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [2, "root"],
+					"createEvent": [2, "demodb"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139806987
@@ -787,7 +787,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [3, "15521398069875394"],
+					"createEvent": [3, "One Backlog: the ultimate solution for multiteam companies"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139903514
@@ -816,7 +816,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [3, "15521398069875394"],
+					"createEvent": [3, "One Backlog: the ultimate solution for multiteam companies"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1553724175860
@@ -845,7 +845,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [4, "15521399035145bef"],
+					"createEvent": [4, "The GUI"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139972020
@@ -874,7 +874,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [5, "1552139972020f641"],
+					"createEvent": [5, "The tree structure"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552139986318
@@ -903,7 +903,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [5, "1552139972020f641"],
+					"createEvent": [5, "The tree structure"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552406429497
@@ -933,7 +933,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [2, "1552152600149c2ac"],
+					"createEvent": [2, "demodb"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152600149
@@ -962,7 +962,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [3, "1552152600149c2ac"],
+					"createEvent": [3, "Another great product"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152642413
@@ -991,7 +991,7 @@ const initData = {
 			"comments": [],
 			"history": [
 				{
-					"createEvent": [4, "155215264241301dd"],
+					"createEvent": [4, "Epic nr.1 for awesome"],
 					"by": "Erik",
 					"email": "erik@mycompany.nl",
 					"timestamp": 1552152658206

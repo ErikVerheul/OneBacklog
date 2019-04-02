@@ -746,12 +746,13 @@ const actions = {
 				data: payload.initData
 			}).then(res => {
 				if (res.status == 201) {
-//					console.log('createDoc2: got history with payload.initData.history[0]["createEvent"][0] = ' + payload.initData.history[0]['createEvent'][0] +
-//											'\nand payload.initData.history[0]["createEvent"][0] = ' + payload.initData.history[0]['createEvent'][1])
+					console.log('createDoc2: got history with payload.initData.history[0]["createEvent"][0] = ' + payload.initData.history[0]['createEvent'][0] +
+											'\nand payload.initData.history[0]["createEvent"][0] = ' + payload.initData.history[0]['createEvent'][1])
 					// eslint-disable-next-line no-console
 					console.log(res)
 					// eslint-disable-next-line no-console
 					console.log('createDoc2: document with _id + ' + _id + ' is created.')
+					dispatch('loadDoc', _id)
 				}
 			})
 			// eslint-disable-next-line no-console
