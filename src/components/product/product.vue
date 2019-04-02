@@ -621,10 +621,15 @@
 				}
 			},
 
-			getParent(path) {
-				var parentPath = path.splice(0, path.length - 2)
-				parentPath.push(0)
-				return this.$refs.slVueTree.getNode(parentPath)
+			getSibling(path) {
+				console.log('getSibling: in = ' + path)
+				var siblingPath = []
+				for (let i = 0; i < path.length - 1; i++) {
+					siblingPath.push(path[i])
+				}
+				siblingPath.push(0)
+				console.log('getSibling: out = ' + siblingPath)
+				return this.$refs.slVueTree.getNode(siblingPath)
 			},
 
 			/*
@@ -634,7 +639,7 @@
 			 * Update the values in the tree
 			 * precondition: all created or moved nodes have the same parent (same level) and have no children
 			 */
-			updateTree(nodes) {
+			updateTree(nodes, inserting) {
 				const firstNode = nodes[0]
 				const level = firstNode.level
 				var localProductId
@@ -665,8 +670,13 @@
 						localProductId = parent.data.productId
 					}
 				} else {
-					// copy the data from a sibling
-					const sibling = this.getParent(firstNode.path).children[0]
+					var sibling
+					if (inserting) {
+						sibling = this.getSibling(firstNode.path)
+					} else {
+						sibling = this.$refs.slVueTree.getPrevNode(firstNode.path)
+					}
+					console.log('updateTree: sibling = ' + sibling.title)
 					predecessorPrio = sibling.data.priority
 					predecessorTitle = sibling.title
 					localParentId = sibling.data.parentId
@@ -689,6 +699,7 @@
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
 
 				for (let i = 0; i < nodes.length; i++) {
+					console.log('updateTree: node updated = ' + nodes[i].title)
 					// update the tree
 					let newData = Object.assign(nodes[i].data)
 					newData.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
@@ -735,7 +746,7 @@
 					'nodeDropped: has children = ' + this.haveDescendants(selectedNodes))
 
 				// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
-				this.updateTree(selectedNodes)
+				this.updateTree(selectedNodes, false)
 				// update the nodes in the database
 				for (let i = 0; i < selectedNodes.length; i++) {
 					const payload = {
@@ -965,7 +976,7 @@
 				const insertedNode = this.$refs.slVueTree.getSelected()[0]
 
 				// productId, parentId and priority are set in this routine
-				this.updateTree([insertedNode])
+				this.updateTree([insertedNode], true)
 
 				const testNode = this.$refs.slVueTree.getSelected()[0]
 				//eslint-disable-next-line no-console
