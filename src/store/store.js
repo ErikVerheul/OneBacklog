@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import globalAxios from 'axios'
 import router from '../router' //Here ../router/index is imported
 import load from './modules/load'
+import update from './modules/update'
 import setup from './modules/setup'
 
 Vue.use(Vuex)
@@ -128,6 +129,7 @@ export default new Vuex.Store({
 
 	modules: {
 		load,
+		update,
 		setup
 	}
 
