@@ -219,8 +219,6 @@
 */
 
 <script>
-	import Vue from 'vue'
-
 	import {
 		mapGetters
 	} from 'vuex'
@@ -323,7 +321,7 @@
 					return this.getCurrentItemDescription
 				},
 				set(newDescription) {
-					this.$store.state.load.currentDoc.description = newDescription
+					this.$store.state.currentDoc.description = newDescription
 				}
 			},
 			acceptanceCriteria: {
@@ -331,7 +329,7 @@
 					return this.getCurrentItemAcceptanceCriteria
 				},
 				set(newAcceptanceCriteria) {
-					this.$store.state.load.currentDoc.acceptanceCriteria = newAcceptanceCriteria
+					this.$store.state.currentDoc.acceptanceCriteria = newAcceptanceCriteria
 				}
 			}
 		},
@@ -419,7 +417,7 @@
 			},
 			updateTsSize() {
 				var size = document.getElementById("tShirtSizeId").value.toUpperCase()
-				const sizeArray = this.$store.state.load.config.tsSize
+				const sizeArray = this.$store.state.config.tsSize
 				if (sizeArray.includes(size)) {
 					// update current document
 					const payload = {
@@ -472,7 +470,7 @@
 				this.$store.dispatch('setState', payload)
 			},
 			updateTitle() {
-				const oldTitle = this.$store.state.load.currentDoc.title
+				const oldTitle = this.$store.state.currentDoc.title
 				const newTitle = document.getElementById("titleField").value
 				if (oldTitle == newTitle) return
 
@@ -495,28 +493,28 @@
 				if (level < 0 || level > this.pbiLevel) {
 					return 'Level not supported'
 				}
-				return this.$store.state.load.config.itemType[level]
+				return this.$store.state.config.itemType[level]
 			},
 			getItemStateText(idx) {
 				if (idx < 0 || idx > this.pbiLevel) {
 					return 'Error: unknown state'
 				}
-				return this.$store.state.load.config.itemState[idx]
+				return this.$store.state.config.itemState[idx]
 			},
 			getTsSize(idx) {
-				if (idx < 0 || idx >= this.$store.state.load.config.tsSize.length) {
+				if (idx < 0 || idx >= this.$store.state.config.tsSize.length) {
 					return 'Error: unknown T-shirt size'
 				}
-				return this.$store.state.load.config.tsSize[idx]
+				return this.$store.state.config.tsSize[idx]
 			},
 			getSubType(idx) {
-				if (idx < 0 || idx >= this.$store.state.load.config.subtype.length) {
+				if (idx < 0 || idx >= this.$store.state.config.subtype.length) {
 					return 'Error: unknown subtype'
 				}
-				return this.$store.state.load.config.subtype[idx]
+				return this.$store.state.config.subtype[idx]
 			},
 			getKnownRoles() {
-				return this.$store.state.load.config.knownRoles
+				return this.$store.state.config.knownRoles
 			},
 
 			itemTitleTrunc(length, title) {
@@ -613,13 +611,11 @@
 			},
 
 			getSibling(path) {
-				console.log('getSibling: in = ' + path)
 				var siblingPath = []
 				for (let i = 0; i < path.length - 1; i++) {
 					siblingPath.push(path[i])
 				}
 				siblingPath.push(0)
-				console.log('getSibling: out = ' + siblingPath)
 				return this.$refs.slVueTree.getNode(siblingPath)
 			},
 
@@ -681,7 +677,6 @@
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
 
 				for (let i = 0; i < nodes.length; i++) {
-					console.log('updateTree: node updated = ' + nodes[i].title)
 					// update the tree
 					let newData = Object.assign(nodes[i].data)
 					newData.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
@@ -698,7 +693,7 @@
 					console.log('updateTree@ready -> ' + prop, firstNode[prop]);
 				}
 				//eslint-disable-next-line no-console
-				for (var prop in firstNode.data) {
+				for (prop in firstNode.data) {
 					console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
 				}
 
@@ -966,7 +961,7 @@
 					console.log('doInsert@test -> ' + prop, testNode[prop]);
 				}
 				//eslint-disable-next-line no-console
-				for (var prop in testNode.data) {
+				for (prop in testNode.data) {
 					console.log('doInsert.data@test -> ' + prop, testNode.data[prop]);
 				}
 

@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import globalAxios from 'axios'
-import router from '../router' //Here ../router/index is imported
+//Here ../router/index is imported
+import router from '../router'
 import load from './modules/load'
 import update from './modules/update'
 import setup from './modules/setup'
@@ -14,6 +15,9 @@ export default new Vuex.Store({
 		user: null,
 		roles: [],
 		runningTimeout: null,
+		config: null,
+		currentDb: null,
+		currentDoc: null
 	},
 
 	getters: {
@@ -28,6 +32,66 @@ export default new Vuex.Store({
 		},
 		isAuthenticated(state) {
 			return state.user !== null
+		},
+		canChangePriorities(state) {
+			if (state.currentDoc != null) return true
+		},
+		getCurrentItemId(state) {
+			if (state.currentDoc != null) return state.currentDoc._id
+		},
+		getCurrentItemAcceptanceCriteria(state) {
+			if (state.currentDoc != null) return state.currentDoc.acceptanceCriteria
+		},
+		getCurrentItemAttachments(state) {
+			if (state.currentDoc != null) return state.currentDoc.attachments
+		},
+		getCurrentItemComments(state) {
+			if (state.currentDoc != null) return state.currentDoc.comments
+		},
+		getCurrentItemDescription(state) {
+			if (state.currentDoc != null) return state.currentDoc.description
+		},
+		getCurrentItemFollowers(state) {
+			if (state.currentDoc != null) return state.currentDoc.followers
+		},
+		getCurrentItemHistory(state) {
+			if (state.currentDoc != null) return state.currentDoc.history
+		},
+		getCurrentItemPriority(state) {
+			if (state.currentDoc != null) return state.currentDoc.priority
+		},
+		getCurrentItemProductId(state) {
+			if (state.currentDoc != null) return state.currentDoc.productId
+		},
+		getCurrentItemReqArea(state) {
+			if (state.currentDoc != null) return state.currentDoc.reqarea
+		},
+		getCurrentItemSpSize(state) {
+			if (state.currentDoc != null) return state.currentDoc.spsize
+		},
+		getCurrentItemState(state) {
+			if (state.currentDoc != null) return state.currentDoc.state
+		},
+		getCurrentItemSubType(state) {
+			if (state.currentDoc != null) return state.currentDoc.subtype
+		},
+		getCurrentItemTeam(state) {
+			if (state.currentDoc != null) return state.currentDoc.team
+		},
+		getCurrentItemTitle(state) {
+			if (state.currentDoc != null) return state.currentDoc.title
+		},
+		getCurrentItemTsSize(state) {
+			if (state.currentDoc != null) return state.config.tsSize[state.currentDoc.tssize]
+		},
+		getCurrentItemType(state) {
+			if (state.currentDoc != null) return state.currentDoc.type
+		},
+		getCurrentPersonHours(state) {
+			if (state.currentDoc != null) return state.currentDoc.spikepersonhours
+		},
+		getCurrentDb(state) {
+			return state.currentDb
 		}
 	},
 
@@ -42,12 +106,12 @@ export default new Vuex.Store({
 			state.load.teams = null
 			state.roles = []
 			state.load.config = null
-			state.load.currentDb = null
-			state.load.currentDoc = null
+			state.currentDb = null
+			state.currentDoc = null
 			state.load.databases = []
 			state.load.email = null
 			state.load.offset = 0,
-			state.load.treeNodes = []
+				state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
 
 			clearTimeout(state.runningTimeout)

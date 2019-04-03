@@ -8,12 +8,13 @@ const actions = {
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
 	setSize({
+		rootState,
 		dispatch
 	}, payload) {
-		const _id = this.state.load.currentDoc._id
+		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -27,8 +28,8 @@ const actions = {
 					}
 					tmpDoc.tssize = payload.newSizeIdx
 					tmpDoc.history.push(newHist)
-					this.state.load.currentDoc.tssize = payload.newSizeIdx
-					this.state.load.currentDoc.history.push(newHist)
+					rootState.currentDoc.tssize = payload.newSizeIdx
+					rootState.currentDoc.history.push(newHist)
 					dispatch('updateDoc')
 				}
 			})
@@ -36,12 +37,13 @@ const actions = {
 			.catch(error => console.log('setSize: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setPersonHours({
+		rootState,
 		dispatch
 	}, payload) {
-		const _id = this.state.load.currentDoc._id
+		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -55,8 +57,8 @@ const actions = {
 					}
 					tmpDoc.spikepersonhours = payload.newHrs
 					tmpDoc.history.push(newHist)
-					this.state.load.currentDoc.spikepersonhours = payload.newHrs
-					this.state.load.currentDoc.history.push(newHist)
+					rootState.currentDoc.spikepersonhours = payload.newHrs
+					rootState.currentDoc.history.push(newHist)
 					dispatch('updateDoc')
 				}
 			})
@@ -64,12 +66,13 @@ const actions = {
 			.catch(error => console.log('setPersonHours: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setStoryPoints({
+		rootState,
 		dispatch
 	}, payload) {
-		const _id = this.state.load.currentDoc._id
+		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -83,8 +86,8 @@ const actions = {
 					}
 					tmpDoc.spsize = payload.newPoints
 					tmpDoc.history.push(newHist)
-					this.state.load.currentDoc.spsize = payload.newPoints
-					this.state.load.currentDoc.history.push(newHist)
+					rootState.currentDoc.spsize = payload.newPoints
+					rootState.currentDoc.history.push(newHist)
 					dispatch('updateDoc')
 				}
 			})
@@ -92,12 +95,13 @@ const actions = {
 			.catch(error => console.log('setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setState({
+		rootState,
 		dispatch
 	}, payload) {
-		const _id = this.state.load.currentDoc._id
+		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -111,8 +115,8 @@ const actions = {
 					}
 					tmpDoc.state = payload.newState
 					tmpDoc.history.push(newHist)
-					this.state.load.currentDoc.state = payload.newState
-					this.state.load.currentDoc.history.push(newHist)
+					rootState.currentDoc.state = payload.newState
+					rootState.currentDoc.history.push(newHist)
 					dispatch('updateDoc')
 				}
 			})
@@ -120,16 +124,17 @@ const actions = {
 			.catch(error => console.log('setState: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setDocTitle({
+		rootState,
 		dispatch
 	}, payload) {
-		const _id = this.state.load.currentDoc._id
+		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					const oldTitle = this.state.load.currentDoc.title
+					const oldTitle = rootState.currentDoc.title
 					tmpDoc = res.data
 					const newHist = {
 						"setTitleEvent": [oldTitle, payload.newTitle],
@@ -138,9 +143,9 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.history.push(newHist)
-					this.state.load.currentDoc.history.push(newHist)
+					rootState.currentDoc.history.push(newHist)
 					tmpDoc.title = payload.newTitle
-					this.state.load.currentDoc.title = payload.newTitle
+					rootState.currentDoc.title = payload.newTitle
 					dispatch('updateDoc')
 				}
 			})
@@ -148,26 +153,27 @@ const actions = {
 			.catch(error => console.log('setDocTitle: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	setSubType({
+		rootState,
 		dispatch
 	}, payload) {
-		const _id = this.state.load.currentDoc._id
+		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
 					tmpDoc = res.data
 					const newHist = {
-						"setSubTypeEvent": [this.state.load.currentDoc.subtype, payload.newSubType],
+						"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
 					tmpDoc.history.push(newHist)
-					this.state.load.currentDoc.history.push(newHist)
+					rootState.currentDoc.history.push(newHist)
 					tmpDoc.subtype = payload.newSubType
-					this.state.load.currentDoc.subtype = payload.newSubType
+					rootState.currentDoc.subtype = payload.newSubType
 					dispatch('updateDoc')
 				}
 			})
@@ -175,12 +181,13 @@ const actions = {
 			.catch(error => console.log('setSubType: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	updateDropped({
+		rootState,
 		dispatch
 	}, payload) {
 		const _id = payload.newParentId
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -192,12 +199,13 @@ const actions = {
 			.catch(error => console.log('updateDropped: Could not read parent document with _id ' + _id + '. Error = ' + error))
 	},
 	updateDropped2({
+		rootState,
 		dispatch
 	}, payload) {
 		const _id = payload._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -209,15 +217,15 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.history.push(newHist)
-					this.state.load.currentDoc.history.push(newHist)
+					rootState.currentDoc.history.push(newHist)
 					tmpDoc.type = payload.newLevel
 					tmpDoc.productId = payload.productId
 					tmpDoc.parentId = payload.newParentId
 					tmpDoc.priority = payload.priority
-					this.state.load.currentDoc.type = payload.newLevel
-					this.state.load.currentDoc.productId = payload.productId
-					this.state.load.currentDoc.parentId = payload.newParentId
-					this.state.load.currentDoc.priority = payload.priority
+					rootState.currentDoc.type = payload.newLevel
+					rootState.currentDoc.productId = payload.productId
+					rootState.currentDoc.parentId = payload.newParentId
+					rootState.currentDoc.priority = payload.priority
 					dispatch('updateDoc')
 				}
 			})
@@ -225,11 +233,12 @@ const actions = {
 			.catch(error => console.log('updateDropped2: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	removeDoc({
+		rootState,
 		dispatch
 	}, _id) {
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -243,12 +252,13 @@ const actions = {
 	},
 
 	saveDescriptionAndLoadDoc({
+		rootState,
 		dispatch
 	}, payload) {
-		const _id = this.state.load.currentDoc._id
+		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -264,7 +274,7 @@ const actions = {
 							"timestamp": Date.now()
 						}
 						tmpDoc.history.push(newHist)
-						this.state.load.currentDoc.history.push(newHist)
+						rootState.currentDoc.history.push(newHist)
 						tmpDoc.description = newEncodedDescription
 						dispatch('updateDocAndLoadNew', payload.newId)
 					}
@@ -275,12 +285,13 @@ const actions = {
 	},
 
 	saveAcceptanceAndLoadDoc({
+		rootState,
 		dispatch
 	}, payload) {
-		const _id = this.state.load.currentDoc._id
+		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
-				url: this.state.load.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -296,7 +307,7 @@ const actions = {
 							"timestamp": Date.now()
 						}
 						tmpDoc.history.push(newHist)
-						this.state.load.currentDoc.history.push(newHist)
+						rootState.currentDoc.history.push(newHist)
 						tmpDoc.acceptanceCriteria = newEncodedAcceptance
 						dispatch('updateDocAndLoadNew', payload.newId)
 					}
@@ -307,13 +318,15 @@ const actions = {
 	},
 
 	// Update current document
-	updateDoc() {
+	updateDoc({
+		rootState
+	}) {
 		const _id = tmpDoc._id
 		// eslint-disable-next-line no-console
 		console.log('updateDoc: updating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
-				url: this.state.load.currentDb + '/' + tmpDoc._id,
+				url: rootState.currentDb + '/' + tmpDoc._id,
 				withCredentials: true,
 				data: tmpDoc
 			}).then(res => {
@@ -325,11 +338,12 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not write document with url ' + this.state.load.currentDb + '/' + _id + '. Error = ' + error))
+			.catch(error => console.log('Could not write document with url ' + rootState.currentDb + '/' + _id + '. Error = ' + error))
 	},
 
 	// Update current document and load new
 	updateDocAndLoadNew({
+		rootState,
 		dispatch
 	}, newId) {
 		const _id = tmpDoc._id
@@ -337,7 +351,7 @@ const actions = {
 		console.log('updateDoc: updating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
-				url: this.state.load.currentDb + '/' + tmpDoc._id,
+				url: rootState.currentDb + '/' + tmpDoc._id,
 				withCredentials: true,
 				data: tmpDoc
 			}).then(res => {
@@ -350,7 +364,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not write document with url ' + this.state.load.currentDb + '/' + _id + '. Error = ' + error))
+			.catch(error => console.log('Could not write document with url ' + rootState.currentDb + '/' + _id + '. Error = ' + error))
 	},
 
 }

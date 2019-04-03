@@ -12,9 +12,6 @@ var orphansCount = 0
 
 const state = {
 	lastEvent: '',
-	config: null,
-	currentDb: null,
-	currentDoc: null,
 	currentUserProductId: null,
 	currentProductId: null,
 	currentProductTitle: "",
@@ -27,66 +24,6 @@ const state = {
 }
 
 const getters = {
-	canChangePriorities(state) {
-		if (state.currentDoc != null) return true
-	},
-	getCurrentItemId(state) {
-		if (state.currentDoc != null) return state.currentDoc._id
-	},
-	getCurrentItemAcceptanceCriteria(state) {
-		if (state.currentDoc != null) return state.currentDoc.acceptanceCriteria
-	},
-	getCurrentItemAttachments(state) {
-		if (state.currentDoc != null) return state.currentDoc.attachments
-	},
-	getCurrentItemComments(state) {
-		if (state.currentDoc != null) return state.currentDoc.comments
-	},
-	getCurrentItemDescription(state) {
-		if (state.currentDoc != null) return state.currentDoc.description
-	},
-	getCurrentItemFollowers(state) {
-		if (state.currentDoc != null) return state.currentDoc.followers
-	},
-	getCurrentItemHistory(state) {
-		if (state.currentDoc != null) return state.currentDoc.history
-	},
-	getCurrentItemPriority(state) {
-		if (state.currentDoc != null) return state.currentDoc.priority
-	},
-	getCurrentItemProductId(state) {
-		if (state.currentDoc != null) return state.currentDoc.productId
-	},
-	getCurrentItemReqArea(state) {
-		if (state.currentDoc != null) return state.currentDoc.reqarea
-	},
-	getCurrentItemSpSize(state) {
-		if (state.currentDoc != null) return state.currentDoc.spsize
-	},
-	getCurrentItemState(state) {
-		if (state.currentDoc != null) return state.currentDoc.state
-	},
-	getCurrentItemSubType(state) {
-		if (state.currentDoc != null) return state.currentDoc.subtype
-	},
-	getCurrentItemTeam(state) {
-		if (state.currentDoc != null) return state.currentDoc.team
-	},
-	getCurrentItemTitle(state) {
-		if (state.currentDoc != null) return state.currentDoc.title
-	},
-	getCurrentItemTsSize(state) {
-		if (state.currentDoc != null) return state.config.tsSize[state.currentDoc.tssize]
-	},
-	getCurrentItemType(state) {
-		if (state.currentDoc != null) return state.currentDoc.type
-	},
-	getCurrentPersonHours() {
-		if (state.currentDoc != null) return state.currentDoc.spikepersonhours
-	},
-	getCurrentDb(state) {
-		return state.currentDb
-	},
 	getCurrentProductId(state) {
 		return state.currentProductId
 	},
@@ -163,24 +100,24 @@ const mutations = {
 const actions = {
 	// Load the config file from this database
 	getConfig({
-		state,
+		rootState,
 		dispatch
 	}) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/config',
+				url: rootState.currentDb + '/config',
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
 					console.log(res)
-					state.config = res.data
+					rootState.config = res.data
 					// eslint-disable-next-line no-console
 					console.log('The configuration is loaded')
 					// prepare for loading the first batch; add the root node for the database name
 					state.treeNodes = [
 						{
-							"title": state.currentDb,
+							"title": rootState.currentDb,
 							"isSelected": false,
 							"isExpanded": true,
 							"children": [],
@@ -194,7 +131,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('getConfig:Config doc missing in database ' + state.currentDb + '. Error = ' + error))
+			.catch(error => console.log('getConfig:Config doc missing in database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 	// Get the current DB name etc. for this user. Note that the user roles are already fetched
@@ -215,13 +152,13 @@ const actions = {
 				state.myTeams = res.data.teams
 				state.email = res.data.email
 				state.databases = res.data.databases
-				state.currentDb = res.data.currentDb
+				rootState.currentDb = res.data.currentDb
 				state.userAssignedProductIds = res.data.products
 				state.currentUserProductId = state.userAssignedProductIds[res.data.currentProductIdx]
 				// load the current product document
 				dispatch('loadDoc', state.currentUserProductId)
 				// eslint-disable-next-line no-console
-				console.log('getOtherUserData: database ' + state.currentDb + ' is set for user ' + rootState.user)
+				console.log('getOtherUserData: database ' + rootState.currentDb + ' is set for user ' + rootState.user)
 				dispatch('getConfig')
 			})
 			.catch(error => {
@@ -232,13 +169,14 @@ const actions = {
 
 	// Load next #batchSize documents from this database skipping #offset
 	getNextDocsBatch({
+		rootState,
 		state,
 		commit,
 		dispatch
 	}) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
+				url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -260,18 +198,19 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('getNextDocsBatch: Could not read a batch of documents ' + state.currentDb + '. Error = ' + error))
+			.catch(error => console.log('getNextDocsBatch: Could not read a batch of documents ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 	// Load #batchSize documents from this database skipping #offset
 	getFirstDocsBatch({
+		rootState,
 		state,
 		commit,
 		dispatch
 	}) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
+				url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -290,16 +229,17 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + state.currentDb + '. Error = ' + error))
+			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 	// Read the current product title
 	readProduct({
+		rootState,
 		state
 	}, product_id) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/' + product_id,
+				url: rootState.currentDb + '/' + product_id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -317,21 +257,21 @@ const actions = {
 
 	// Load current document by _id
 	loadDoc({
-		state,
+		rootState,
 		dispatch
 	}, _id) {
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
 					console.log(res)
-					state.currentDoc = res.data
+					rootState.currentDoc = res.data
 					// decode from base64 + replace the encoded data
-					state.currentDoc.description = window.atob(res.data.description)
-					state.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+					rootState.currentDoc.description = window.atob(res.data.description)
+					rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 					// eslint-disable-next-line no-console
 					console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
 					// read the current product title if not available
@@ -346,13 +286,13 @@ const actions = {
 
 	// Read the parent title before creating the document
 	createDoc({
-		state,
+		rootState,
 		dispatch
 	}, payload) {
 		const _id = payload.initData.parentId
 		globalAxios({
 				method: 'GET',
-				url: state.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
@@ -365,7 +305,7 @@ const actions = {
 	},
 	// Create document and reload it to currentDoc
 	createDoc2({
-		state,
+		rootState,
 		dispatch
 	}, payload) {
 		const _id = payload.initData._id
@@ -373,7 +313,7 @@ const actions = {
 		console.log('createDoc2: creating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
-				url: state.currentDb + '/' + _id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 				data: payload.initData
 			}).then(res => {
