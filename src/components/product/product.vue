@@ -633,15 +633,12 @@
 				var localParentId
 				var predecessorPrio
 				var successorPrio
-				var predecessorTitle
-				var successorTitle
 
 				if (firstNode.isFirstChild) {
 					// the previous node must be the parent
 					predecessorPrio = Number.MAX_SAFE_INTEGER
 					let parent = this.$refs.slVueTree.getPrevNode(firstNode.path)
 					localParentId = parent.data._id
-					predecessorTitle = parent.title
 					if (localParentId == 'root') {
 						// when creating a new product
 						localProductId = firstNode.data._id
@@ -656,7 +653,6 @@
 						sibling = this.$refs.slVueTree.getPrevNode(firstNode.path)
 					}
 					predecessorPrio = sibling.data.priority
-					predecessorTitle = sibling.title
 					localParentId = sibling.data.parentId
 					if (localParentId == 'root') {
 						// when creating a new product
@@ -668,10 +664,8 @@
 				const lastNode = nodes[nodes.length - 1]
 				if (!lastNode.isLastChild) {
 					successorPrio = lastNode.data.priority
-					successorTitle = lastNode.title
 				} else {
 					successorPrio = Number.MIN_SAFE_INTEGER
-					successorTitle = 'not existant'
 				}
 
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
@@ -688,12 +682,13 @@
 						newData
 					})
 				}
-				//eslint-disable-next-line no-console
+
 				for (var prop in firstNode) {
+					//eslint-disable-next-line no-console
 					console.log('updateTree@ready -> ' + prop, firstNode[prop]);
 				}
-				//eslint-disable-next-line no-console
 				for (prop in firstNode.data) {
+					//eslint-disable-next-line no-console
 					console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
 				}
 
@@ -715,6 +710,7 @@
 					dropLevel++
 				}
 				let levelChange = clickedLevel - dropLevel
+				//eslint-disable-next-line no-console
 				console.log('nodeDropped: clickedLevel = ' + clickedLevel +
 					'nodeDropped: dropLevel = ' + dropLevel +
 					'nodeDropped: selectedNodes[0].level = ' + selectedNodes[0].level +
@@ -956,12 +952,12 @@
 				this.updateTree([insertedNode], true)
 
 				const testNode = this.$refs.slVueTree.getSelected()[0]
-				//eslint-disable-next-line no-console
 				for (var prop in testNode) {
+					//eslint-disable-next-line no-console
 					console.log('doInsert@test -> ' + prop, testNode[prop]);
 				}
-				//eslint-disable-next-line no-console
 				for (prop in testNode.data) {
+					//eslint-disable-next-line no-console
 					console.log('doInsert.data@test -> ' + prop, testNode.data[prop]);
 				}
 
