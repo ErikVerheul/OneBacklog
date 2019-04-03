@@ -35,7 +35,7 @@
 		<!-- vertical panes -->
 		<multipane class="custom-resizer" layout="vertical">
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-				<h4>Your current database is set to {{ getCurrentDb }}. You have {{ getProductIds.length }} product(s)</h4>
+				<h4>Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} product(s)</h4>
 
 				<div class='last-event'>
 					Last event: {{ this.$store.state.load.lastEvent }}
@@ -54,7 +54,7 @@
 									<font-awesome-icon icon="folder" />
 								</i>
 							</span>
-							{{ node.title }}; _id = {{ node.data._id }}
+							{{ node.title }}; _id = {{ node.data._id }} , prio = {{ node.data.priority }}
 						</template>
 
 						<template slot="toggle" slot-scope="{ node }">
@@ -314,7 +314,7 @@
 				'getCurrentProductId',
 				'getCurrentProductTitle',
 				'getEmail',
-				'getProductIds',
+				'getUserAssignedProductIds',
 			]),
 			description: {
 				get() {
@@ -529,11 +529,7 @@
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				firstNodeSelected = selNodes[0]
-
-				// read the document unless it is the root, which has no document
-				if (selNodes[0].data._id != 'root') {
-					this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
-				}
+				this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
 
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				if (selNodes.length == 1) {
@@ -619,6 +615,38 @@
 				return this.$refs.slVueTree.getNode(siblingPath)
 			},
 
+			addNewProductToUser(productId) {
+				let prodsArray = this.$store.state.load.userAssignedProductIds
+				if (!prodsArray.includes(productId)) prodsArray.push(productId)
+			},
+
+			assignNewPrios(nodes, predecessorNode, successorNode) {
+				var predecessorPrio
+				var successorPrio
+
+				if (predecessorNode != null) {
+					predecessorPrio = predecessorNode.data.priority
+				} else {
+					predecessorPrio = Number.MAX_SAFE_INTEGER
+				}
+				if (successorNode != null) {
+					successorPrio = successorNode.data.priority
+				} else {
+					successorPrio = Number.MIN_SAFE_INTEGER
+				}
+
+				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+
+				for (let i = 0; i < nodes.length; i++) {
+					// update the tree
+					let newData = Object.assign(nodes[i].data)
+					newData.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+					this.$refs.slVueTree.updateNode(nodes[i].path, {
+						data: newData
+					})
+				}
+			},
+
 			/*
 			 * Recalculate the priorities of the created(inserted) or moved node(s)
 			 * Get the productId of the node(s) in case they are dopped on another product. Determine the parentId.
@@ -631,55 +659,55 @@
 				const level = firstNode.level
 				var localProductId
 				var localParentId
-				var predecessorPrio
-				var successorPrio
+				var predecessorNode
+				var successorNode
 
 				if (firstNode.isFirstChild) {
 					// the previous node must be the parent
-					predecessorPrio = Number.MAX_SAFE_INTEGER
+					predecessorNode = null
 					let parent = this.$refs.slVueTree.getPrevNode(firstNode.path)
 					localParentId = parent.data._id
 					if (localParentId == 'root') {
-						// when creating a new product
+						// a product has its own id as productId
 						localProductId = firstNode.data._id
+						this.addNewProductToUser(localProductId)
 					} else {
 						localProductId = parent.data.productId
 					}
 				} else {
-					var sibling
 					if (inserting) {
-						sibling = this.getSibling(firstNode.path)
+						predecessorNode = this.getSibling(firstNode.path)
 					} else {
-						sibling = this.$refs.slVueTree.getPrevNode(firstNode.path)
+						predecessorNode = this.$refs.slVueTree.getPrevNode(firstNode.path)
 					}
-					predecessorPrio = sibling.data.priority
-					localParentId = sibling.data.parentId
+					localParentId = predecessorNode.data.parentId
 					if (localParentId == 'root') {
-						// when creating a new product
+						// a product has its own id as productId
 						localProductId = firstNode.data._id
+						this.addNewProductToUser(localProductId)
 					} else {
-						localProductId = sibling.data.productId
+						localProductId = predecessorNode.data.productId
 					}
 				}
 				const lastNode = nodes[nodes.length - 1]
 				if (!lastNode.isLastChild) {
-					successorPrio = lastNode.data.priority
+					successorNode = this.$refs.slVueTree.getNextNode(lastNode.path)
 				} else {
-					successorPrio = Number.MIN_SAFE_INTEGER
+					successorNode = null
 				}
 
-				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+				// PRIORITY FOR PROJECTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
+				if (localParentId != 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
 
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
 					let newData = Object.assign(nodes[i].data)
-					newData.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
 					newData.productId = localProductId
 					newData.parentId = localParentId
 					this.$refs.slVueTree.updateNode(nodes[i].path, {
 						isLeaf: (level < this.pbiLevel) ? false : true,
 						isExpanded: false,
-						newData
+						data: newData
 					})
 				}
 
@@ -712,11 +740,11 @@
 				let levelChange = clickedLevel - dropLevel
 				//eslint-disable-next-line no-console
 				console.log('nodeDropped: clickedLevel = ' + clickedLevel +
-					'nodeDropped: dropLevel = ' + dropLevel +
-					'nodeDropped: selectedNodes[0].level = ' + selectedNodes[0].level +
-					'nodeDropped: levelChange (positive is up hierarchy) = ' + levelChange +
-					'nodeDropped: selectedNodes.length = ' + selectedNodes.length +
-					'nodeDropped: has children = ' + this.haveDescendants(selectedNodes))
+					'\nnodeDropped: dropLevel = ' + dropLevel +
+					'\nnodeDropped: selectedNodes[0].level = ' + selectedNodes[0].level +
+					'\nnodeDropped: levelChange (positive is up hierarchy) = ' + levelChange +
+					'\nnodeDropped: selectedNodes.length = ' + selectedNodes.length +
+					'\nnodeDropped: has children = ' + this.haveDescendants(selectedNodes))
 
 				// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
 				this.updateTree(selectedNodes, false)
@@ -726,6 +754,7 @@
 						'_id': selectedNodes[i].data._id,
 						'productId': selectedNodes[i].data.productId,
 						'newParentId': selectedNodes[i].data.parentId,
+						'newPriority': selectedNodes[i].data.priority,
 						'newParentTitle': null,
 						'oldLevel': clickedLevel,
 						'newLevel': selectedNodes[i].level,

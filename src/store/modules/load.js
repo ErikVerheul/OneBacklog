@@ -33,7 +33,7 @@ const getters = {
 	getEmail(state) {
 		return state.email
 	},
-	getProductIds(state) {
+	getUserAssignedProductIds(state) {
 		return state.userAssignedProductIds
 	},
 	getTeams(state) {
@@ -89,7 +89,6 @@ const mutations = {
 					parentNodes[batch[i].doc._id] = newNode
 				} else {
 					orphansCount++
-					console.log('processBatch: orphan detected with _id = ' + batch[i].doc._id + ' The missing parent has _id = ' + parentId)
 				}
 			}
 			//			}
@@ -248,7 +247,7 @@ const actions = {
 					state.currentProductTitle = res.data.title
 					state.currentProductId = res.data.productId
 					// eslint-disable-next-line no-console
-					console.log('loadDoc: current product name + ' + res.data.title + ' is fetched.')
+					console.log("loadDoc: current product name '" + res.data.title + "' is fetched.")
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -318,8 +317,6 @@ const actions = {
 				data: payload.initData
 			}).then(res => {
 				if (res.status == 201) {
-					console.log('createDoc2: got history with payload.initData.history[0]["createEvent"][0] = ' + payload.initData.history[0]['createEvent'][0] +
-											'\nand payload.initData.history[0]["createEvent"][0] = ' + payload.initData.history[0]['createEvent'][1])
 					// eslint-disable-next-line no-console
 					console.log(res)
 					// eslint-disable-next-line no-console

@@ -753,7 +753,7 @@ const initData = {
 			"followers": [],
 			"description": "PHA+QXMgc3VwZXIgUE8gSSBuZWVkIG9uZSBpbnRlZ3JhdGVkIHRvb2wgdG8gbWFuYWdlIHRoZSBwcm9kdWN0IGJhY2tsb2cgb2YgYWxsIG15IHByb2R1Y3RzIHNvIHRoYXQ6IGV0Yy48L3A+",
 			"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
-			"priority": 0,
+			"priority": 3002399751580330,
 			"attachments": [],
 			"comments": [],
 			"history": [
@@ -928,7 +928,7 @@ const initData = {
 			"followers": [],
 			"description": "PHA+QXMgdGhlIENFTyBJIHdhbnQgLi4uIHNvIHRoYXQgd2UgYXMgYSBjb21wYW55IGNhbiAuLi48L3A+",
 			"acceptanceCriteria": "PHA+TXVzdCBiZSBhd2Vzb21lPC9wPg==",
-			"priority": 0,
+			"priority": -3002399751580331,
 			"attachments": [],
 			"comments": [],
 			"history": [
