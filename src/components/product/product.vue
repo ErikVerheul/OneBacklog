@@ -626,6 +626,8 @@
 			addNewProductToUser(productId) {
 				let prodsArray = this.$store.state.load.userAssignedProductIds
 				if (!prodsArray.includes(productId)) prodsArray.push(productId)
+				// also update the user profile
+//				this.$store.dispatch('addProductId', productId)
 			},
 
 			calcProductId(firstNode, predecessorNode) {
