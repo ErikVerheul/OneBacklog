@@ -4,7 +4,7 @@ import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../router'
 import load from './modules/load'
-//import user from './modules/user'
+import useracc from './modules/useracc'
 import update from './modules/update'
 import setup from './modules/setup'
 
@@ -194,7 +194,7 @@ export default new Vuex.Store({
 
 	modules: {
 		load,
-//		user,
+		useracc,
 		update,
 		setup
 	}
