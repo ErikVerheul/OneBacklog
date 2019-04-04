@@ -606,24 +606,43 @@
 				}
 			},
 
-			getSibling(path) {
+			/*
+			 * Get the first sibling between the node and its parent
+			 * precondition: the node is NOT firstChild
+			 */
+			getSibling(node) {
+				let path = node.path
 				var siblingPath = []
 				for (let i = 0; i < path.length - 1; i++) {
 					siblingPath.push(path[i])
 				}
-				siblingPath.push(0)
+				siblingPath.push(path[path.length - 1] - 1)
 				return this.$refs.slVueTree.getNode(siblingPath)
 			},
 
+			/*
+			 * When this user created a new product this user gets access rights automatically
+			 */
 			addNewProductToUser(productId) {
 				let prodsArray = this.$store.state.load.userAssignedProductIds
 				if (!prodsArray.includes(productId)) prodsArray.push(productId)
 			},
 
+			calcProductId(firstNode, predecessorNode) {
+				var productId
+				if (predecessorNode.data.parentId == 'root') {
+					// a product has its own id as productId
+					productId = firstNode.data._id
+					this.addNewProductToUser(productId)
+				} else {
+					productId = predecessorNode.data.productId
+				}
+				return productId
+			},
+
 			assignNewPrios(nodes, predecessorNode, successorNode) {
 				var predecessorPrio
 				var successorPrio
-
 				if (predecessorNode != null) {
 					predecessorPrio = predecessorNode.data.priority
 				} else {
@@ -634,9 +653,7 @@
 				} else {
 					successorPrio = Number.MIN_SAFE_INTEGER
 				}
-
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
 					let newData = Object.assign(nodes[i].data)
@@ -648,46 +665,30 @@
 			},
 
 			/*
-			 * Recalculate the priorities of the created(inserted) or moved node(s)
+			 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
 			 * Get the productId of the node(s) in case they are dopped on another product. Determine the parentId.
 			 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children
 			 * Update the values in the tree
-			 * precondition: all created or moved nodes have the same parent (same level) and have no children
+			 * precondition: the nodes are inserted in the tree  and all created or moved nodes have the same parent (same level) and have no children
 			 */
-			updateTree(nodes, inserting) {
+			updateTree(nodes) {
 				const firstNode = nodes[0]
 				const level = firstNode.level
 				var localProductId
 				var localParentId
 				var predecessorNode
 				var successorNode
-
 				if (firstNode.isFirstChild) {
 					// the previous node must be the parent
 					predecessorNode = null
 					let parent = this.$refs.slVueTree.getPrevNode(firstNode.path)
+					localProductId = this.calcProductId(firstNode, parent)
 					localParentId = parent.data._id
-					if (localParentId == 'root') {
-						// a product has its own id as productId
-						localProductId = firstNode.data._id
-						this.addNewProductToUser(localProductId)
-					} else {
-						localProductId = parent.data.productId
-					}
 				} else {
-					if (inserting) {
-						predecessorNode = this.getSibling(firstNode.path)
-					} else {
-						predecessorNode = this.$refs.slVueTree.getPrevNode(firstNode.path)
-					}
+					// firstNode has a sibling between the parent and itself
+					predecessorNode = this.getSibling(firstNode)
+					localProductId = this.calcProductId(firstNode, predecessorNode)
 					localParentId = predecessorNode.data.parentId
-					if (localParentId == 'root') {
-						// a product has its own id as productId
-						localProductId = firstNode.data._id
-						this.addNewProductToUser(localProductId)
-					} else {
-						localProductId = predecessorNode.data.productId
-					}
 				}
 				const lastNode = nodes[nodes.length - 1]
 				if (!lastNode.isLastChild) {
@@ -695,10 +696,8 @@
 				} else {
 					successorNode = null
 				}
-
 				// PRIORITY FOR PROJECTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
 				if (localParentId != 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
-
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
 					let newData = Object.assign(nodes[i].data)
@@ -747,7 +746,7 @@
 					'\nnodeDropped: has children = ' + this.haveDescendants(selectedNodes))
 
 				// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
-				this.updateTree(selectedNodes, false)
+				this.updateTree(selectedNodes)
 				// update the nodes in the database
 				for (let i = 0; i < selectedNodes.length; i++) {
 					const payload = {
@@ -978,7 +977,7 @@
 				const insertedNode = this.$refs.slVueTree.getSelected()[0]
 
 				// productId, parentId and priority are set in this routine
-				this.updateTree([insertedNode], true)
+				this.updateTree([insertedNode])
 
 				const testNode = this.$refs.slVueTree.getSelected()[0]
 				for (var prop in testNode) {
