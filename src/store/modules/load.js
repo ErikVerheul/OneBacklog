@@ -56,42 +56,41 @@ const mutations = {
 		for (let i = 0; i < batch.length; i++) {
 			docsCount++
 			// Load the items of the products the user is authorized to
-			//ToDo: restore this
-			//			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
-			let type = batch[i].doc.type
-			let parentId = batch[i].doc.parentId
-			let delmark = batch[i].doc.delmark
-			// Skip the database/requirement area types and the removed items
-			if (type > 1 && !delmark) {
-				let newNode = {
-					title: batch[i].doc.title,
-					// for now PBI's have no children
-					isLeaf: (type == leafType) ? true : false,
-					children: [],
-					// expand the tree up to the feature type
-					isExpanded: (type < leafType) ? true : false,
-					isdraggable: true,
-					isSelectable: true,
-					// As the product document is initially loaded show it as selected
-					isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
-					data: {
-						_id: batch[i].doc._id,
-						priority: batch[i].doc.priority,
-						productId: batch[i].doc.productId,
-						parentId: parentId
+			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+				let type = batch[i].doc.type
+				let parentId = batch[i].doc.parentId
+				let delmark = batch[i].doc.delmark
+				// Skip the database/requirement area types and the removed items
+				if (type > 1 && !delmark) {
+					let newNode = {
+						title: batch[i].doc.title,
+						// for now PBI's have no children
+						isLeaf: (type == leafType) ? true : false,
+						children: [],
+						// expand the tree up to the feature type
+						isExpanded: (type < leafType) ? true : false,
+						isdraggable: true,
+						isSelectable: true,
+						// As the product document is initially loaded show it as selected
+						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
+						data: {
+							_id: batch[i].doc._id,
+							priority: batch[i].doc.priority,
+							productId: batch[i].doc.productId,
+							parentId: parentId
+						}
+					}
+					//				console.log('processBatch: Adding batch[i].doc._id = ' + batch[i].doc._id + ", parentId = " + parentId)
+					if (parentNodes[parentId] != null) {
+						itemsCount++
+						let parentNode = parentNodes[parentId]
+						parentNode.children.push(newNode)
+						parentNodes[batch[i].doc._id] = newNode
+					} else {
+						orphansCount++
 					}
 				}
-				//				console.log('processBatch: Adding batch[i].doc._id = ' + batch[i].doc._id + ", parentId = " + parentId)
-				if (parentNodes[parentId] != null) {
-					itemsCount++
-					let parentNode = parentNodes[parentId]
-					parentNode.children.push(newNode)
-					parentNodes[batch[i].doc._id] = newNode
-				} else {
-					orphansCount++
-				}
 			}
-			//			}
 		}
 	}
 }
@@ -121,7 +120,10 @@ const actions = {
 							"isExpanded": true,
 							"children": [],
 							"data": {
-								"_id": "root"
+								"_id": "root",
+								"productId": "root",
+								"parentId": "root",
+								"priority": null
 							}
 						},
 					]

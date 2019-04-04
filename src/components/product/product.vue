@@ -291,7 +291,7 @@
 				'getRoles',
 				'isAuthenticated',
 				'isServerAdmin',
-				// from load.js
+				'canChangePriorities',
 				'getCurrentDb',
 				'getCurrentItemAcceptanceCriteria',
 				'getCurrentItemAttachments',
@@ -311,10 +311,12 @@
 				'getCurrentItemTeam',
 				'getCurrentItemTsSize',
 				'getCurrentPersonHours',
+				// from load.js
 				'getCurrentProductId',
 				'getCurrentProductTitle',
 				'getEmail',
 				'getUserAssignedProductIds',
+				'getTeams'
 			]),
 			description: {
 				get() {
@@ -607,10 +609,10 @@
 			},
 
 			/*
-			 * Get the first sibling between the node and its parent
+			 * Get the next sibling above the node and its parent
 			 * precondition: the node is NOT firstChild
 			 */
-			getSibling(node) {
+			getPrevSibling(node) {
 				let path = node.path
 				var siblingPath = []
 				for (let i = 0; i < path.length - 1; i++) {
@@ -625,9 +627,11 @@
 			 */
 			addNewProductToUser(productId) {
 				let prodsArray = this.$store.state.load.userAssignedProductIds
-				if (!prodsArray.includes(productId)) prodsArray.push(productId)
-				// also update the user profile
-				this.$store.dispatch('addProductId', productId)
+				if (!prodsArray.includes(productId)) {
+					prodsArray.push(productId)
+					// also update the user profile
+					this.$store.dispatch('addProductId', productId)
+				}
 			},
 
 			calcProductId(firstNode, predecessorNode) {
@@ -688,7 +692,7 @@
 					localParentId = parent.data._id
 				} else {
 					// firstNode has a sibling between the parent and itself
-					predecessorNode = this.getSibling(firstNode)
+					predecessorNode = this.getPrevSibling(firstNode)
 					localProductId = this.calcProductId(firstNode, predecessorNode)
 					localParentId = predecessorNode.data.parentId
 				}
@@ -907,7 +911,6 @@
 			 * Prepare a new node for insertion
 			 */
 			prepareInsert() {
-				var clickedLevel = firstNodeSelected.level
 				// prepare the new node for insertion later
 				newNode = {
 					title: 'is calculated in this method',
@@ -925,10 +928,7 @@
 					}
 				}
 
-				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
-				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
-				newNode.data._id = newId
-
+				var clickedLevel = firstNodeSelected.level
 				if (this.insertOptionSelected === 1) {
 					// New node is a sibling placed below (after) the selected node
 					insertLevel = clickedLevel
@@ -962,6 +962,10 @@
 			 * Insert the prepared node in the tree and create a document for this new item
 			 */
 			doInsert() {
+				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
+				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
+				newNode.data._id = newId
+
 				this.$store.state.load.lastEvent = 'Item of type ' + this.getLevelText(insertLevel) + ' is inserted'
 				// inserting the node also selects it
 				this.$refs.slVueTree.insert(newNodeLocation, newNode)
@@ -977,7 +981,6 @@
 
 				// now the node is inserted and selected get the full ISlTreeNode data and set data fields
 				const insertedNode = this.$refs.slVueTree.getSelected()[0]
-
 				// productId, parentId and priority are set in this routine
 				this.updateTree([insertedNode])
 

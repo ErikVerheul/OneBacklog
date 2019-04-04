@@ -28,14 +28,20 @@ export default new Vuex.Store({
 		getRoles(state) {
 			return state.roles
 		},
-		isServerAdmin(state) {
-			return state.roles.includes("_admin")
-		},
 		isAuthenticated(state) {
 			return state.user !== null
 		},
+		isServerAdmin(state) {
+			return state.roles.includes("_admin")
+		},
 		canChangePriorities(state) {
-			if (state.currentDoc != null) return true
+			if (state.currentDoc != null) {
+				// ToDo: for now everyone can do all
+				return true
+			}
+		},
+		getCurrentDb(state) {
+			return state.currentDb
 		},
 		getCurrentItemId(state) {
 			if (state.currentDoc != null) return state.currentDoc._id
@@ -90,9 +96,6 @@ export default new Vuex.Store({
 		},
 		getCurrentPersonHours(state) {
 			if (state.currentDoc != null) return state.currentDoc.spikepersonhours
-		},
-		getCurrentDb(state) {
-			return state.currentDb
 		}
 	},
 
