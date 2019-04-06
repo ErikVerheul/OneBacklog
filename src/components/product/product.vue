@@ -752,26 +752,29 @@
 					dropLevel++
 				}
 				let levelChange = clickedLevel - dropLevel
-				// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
-				this.updateTree(selectedNodes, true)
-				// update the nodes in the database
-				for (let i = 0; i < selectedNodes.length; i++) {
-					const payload = {
-						'_id': selectedNodes[i].data._id,
-						'productId': selectedNodes[i].data.productId,
-						'newParentId': selectedNodes[i].data.parentId,
-						'newPriority': selectedNodes[i].data.priority,
-						'newParentTitle': null,
-						'oldParentTitle': selectedNodes[i].title,
-						'oldLevel': clickedLevel,
-						'newLevel': selectedNodes[i].level,
-						'newInd': selectedNodes[i].ind,
-						'userName': this.getUser,
-						'by': this.getUser,
-						'email': this.getEmail,
-						'descendants': this.getDescendantsInfo(selectedNodes[i].path).descendants
+				// no action required when replacing a product in the tree
+				if (!(clickedLevel == this.productLevel && dropLevel == this.productLevel)) {
+					// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
+					this.updateTree(selectedNodes, true)
+					// update the nodes in the database
+					for (let i = 0; i < selectedNodes.length; i++) {
+						const payload = {
+							'_id': selectedNodes[i].data._id,
+							'productId': selectedNodes[i].data.productId,
+							'newParentId': selectedNodes[i].data.parentId,
+							'newPriority': selectedNodes[i].data.priority,
+							'newParentTitle': null,
+							'oldParentTitle': selectedNodes[i].title,
+							'oldLevel': clickedLevel,
+							'newLevel': selectedNodes[i].level,
+							'newInd': selectedNodes[i].ind,
+							'userName': this.getUser,
+							'by': this.getUser,
+							'email': this.getEmail,
+							'descendants': this.getDescendantsInfo(selectedNodes[i].path).descendants
+						}
+						this.$store.dispatch('updateDropped', payload)
 					}
-					this.$store.dispatch('updateDropped', payload)
 				}
 				// create the event message
 				const title = this.itemTitleTrunc(60, selectedNodes[0].title)
