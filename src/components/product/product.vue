@@ -805,13 +805,23 @@
 				const descendants = this.getDescendantsInfo(paths[0]).descendants
 				// now we can remove the nodes
 				this.$refs.slVueTree.remove(paths)
-				// set remove mark on the clicked item
+				// when removing a product
+				if (selectedNodes[0].level == 2) {
+					var newProducts = this.getUserAssignedProductIds
+					var idx = newProducts.indexOf(selectedNodes[0].data._id)
+					if (idx > -1) {
+						newProducts.splice(idx, 1)
+					}
+					this.$store.state.load.userAssignedProductIds = newProducts
+					this.$store.dispatch('removeProductId', newProducts)
+				}
+				// set remove mark in the database on the clicked item
 				this.$store.dispatch('removeDoc', [selectedNodes[0].data._id])
 				// and remove the descendants
 				for (let i = 0; i < descendants.length; i++) {
 					this.$store.dispatch('removeDoc', descendants[i].data._id)
 				}
-				// After removal no node is selected
+				// after removal no node is selected
 				this.nodeIsSelected = false
 			},
 

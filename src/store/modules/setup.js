@@ -349,14 +349,60 @@ const actions = {
           "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
         ],
 
-			// These are the roles known by this application despite settings in the _users database otherwise.
+			/* These are the roles known by this application despite settings in the _users database otherwise.
+			 * Write access is dependant on role from and including the given level
+			 * type ...............in database level ....... in tree
+			 * -----------------------------------------------------------------------
+			 * RequirementArea ........ 0 ................... n/a
+			 * Database ............... 1 ................... n/a
+			 * Product ................ 2 ................... 2
+			 * Epic .. ................ 3 ................... 3
+			 * Feature ................ 4 ................... 4
+			 * PBI ... ................ 5 ................... 5
+			 */
 			"knownRoles": {
-				"_admin": "_admin: Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
-				"admin": "admin: Can create and assign users to products. Is also a guest to all products.",
-				"superPO": "superPO: Can create and maintain products and epics for all products. Can change priorities at these levels.",
-				"PO": "PO: Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.",
-				"developer": "developer: Can create and maintain pbi's and features for the assigned products.",
-				"guest": "guest: Can only view the items of the assigned products. Has no access to the requirements area view."
+				"_admin": {
+					description: "Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
+					products: "all",
+					writeAccessLevel: null,
+					maintainUsers: true
+				},
+				"reqArea": {
+					description: "Can access the requirements area with full read and write access to only the level 0 requirements area items. Is also a guest to all products.",
+					products: "all",
+					writeAccessLevel: null,
+					maintainUsers: false
+				},
+				"admin": {
+					description: "Can create and assign users to products. Is also a guest to all products.",
+					products: "all",
+					writeAccessLevel: null,
+					maintainUsers: true
+				},
+				"superPO": {
+					description: "Can create and maintain products and epics for all products. Can change priorities at these levels. Is also a guest to all products.",
+					products: "all",
+					writeAccessLevel: 2,
+					maintainUsers: false
+				},
+				"PO": {
+					description: "Can create and maintain epics, features and pbi's for the assigned products. Can change priorities at these levels.",
+					products: "assigned",
+					writeAccessLevel: 3,
+					maintainUsers: false
+				},
+				"developer": {
+					description: "Can create and maintain pbi's and features for the assigned products.",
+					products: "assigned",
+					writeAccessLevel: 4,
+					maintainUsers: false
+				},
+				"guest": {
+					description: "Can only view the items of the assigned products. Has no access to the requirements area view.",
+					products: "assigned",
+					writeAccessLevel: null,
+					maintainUsers: false
+				}
 			},
 		}
 
