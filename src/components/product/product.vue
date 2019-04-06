@@ -392,6 +392,9 @@
 							"<p>The new position is " + (value[2] + 1) + " under parent '" + value[3] + "'</p>"
 					}
 				}
+				if (key == "descendantMoved") {
+					return "<h5>Item was moved as descendant from '" + value[0] + "'</h5>"
+				}
 				if (key == "timestamp") {
 					return key + ": " + new Date(value).toString() + "<br><br>"
 				}
@@ -616,7 +619,7 @@
 			},
 
 			/*
-			 * Get the next sibling above the node and its parent
+			 * Get the next sibling above the node with the same level as the node itself
 			 * precondition: the node is NOT firstChild
 			 */
 			getPrevSibling(node) {
@@ -641,11 +644,12 @@
 				}
 			},
 
-			calcProductId(firstNode, predecessorNode) {
+			calcProductId(insertedNode, predecessorNode) {
 				var productId
-				if (predecessorNode.data.parentId == 'root') {
+				// if the node is on the project level ...
+				if (insertedNode.level == this.productLevel) {
 					// a product has its own id as productId
-					productId = firstNode.data._id
+					productId = insertedNode.data._id
 					this.addNewProductToUser(productId)
 				} else {
 					productId = predecessorNode.data.productId
@@ -722,14 +726,14 @@
 						data: newData
 					})
 				}
-//				for (var prop in firstNode) {
-//					//eslint-disable-next-line no-console
-//					console.log('updateTree@ready -> ' + prop, firstNode[prop]);
-//				}
-//				for (prop in firstNode.data) {
-//					//eslint-disable-next-line no-console
-//					console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
-//				}
+				//				for (var prop in firstNode) {
+				//					//eslint-disable-next-line no-console
+				//					console.log('updateTree@ready -> ' + prop, firstNode[prop]);
+				//				}
+				//				for (prop in firstNode.data) {
+				//					//eslint-disable-next-line no-console
+				//					console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
+				//				}
 			},
 
 			/*
@@ -749,7 +753,7 @@
 				}
 				let levelChange = clickedLevel - dropLevel
 				// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
-				this.updateTree(selectedNodes)
+				this.updateTree(selectedNodes, true)
 				// update the nodes in the database
 				for (let i = 0; i < selectedNodes.length; i++) {
 					const payload = {
@@ -758,11 +762,14 @@
 						'newParentId': selectedNodes[i].data.parentId,
 						'newPriority': selectedNodes[i].data.priority,
 						'newParentTitle': null,
+						'oldParentTitle': selectedNodes[i].title,
 						'oldLevel': clickedLevel,
 						'newLevel': selectedNodes[i].level,
 						'newInd': selectedNodes[i].ind,
 						'userName': this.getUser,
-						'email': this.getEmail
+						'by': this.getUser,
+						'email': this.getEmail,
+						'descendants': this.getDescendantsInfo(selectedNodes[i].path).descendants
 					}
 					this.$store.dispatch('updateDropped', payload)
 				}
@@ -957,7 +964,7 @@
 				// now the node is inserted and selected get the full ISlTreeNode data and set data fields
 				const insertedNode = this.$refs.slVueTree.getSelected()[0]
 				// productId, parentId and priority are set in this routine
-				this.updateTree([insertedNode])
+				this.updateTree([insertedNode], false)
 				// create a new document and store it
 				const initData = {
 					"_id": insertedNode.data._id,

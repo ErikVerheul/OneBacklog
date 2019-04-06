@@ -193,6 +193,17 @@ const actions = {
 				if (res.status == 200) {
 					payload['newParentTitle'] = res.data.title
 					dispatch('updateDropped2', payload)
+					for (let i = 0; i < payload.descendants.length; i++) {
+						let descendantPayload = {
+							"_id": payload.descendants[i].data._id,
+							"oldParentTitle": payload.oldParentTitle,
+							"productId": payload.productId,
+							"newLevel": payload.descendants[i].level,
+							"by": payload.userName,
+							"email": payload.email
+						}
+						dispatch('updateDescendants', descendantPayload)
+					}
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -231,6 +242,33 @@ const actions = {
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('updateDropped2: Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	updateDescendants({
+		rootState,
+		dispatch
+	}, payload) {
+		const _id = payload._id
+		globalAxios({
+				method: 'GET',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					tmpDoc = res.data
+					const newHist = {
+						"descendantMoved": [payload.oldParentTitle],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
+					tmpDoc.type = payload.newLevel
+					tmpDoc.productId = payload.productId
+					dispatch('updateDoc')
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('updateDescendants: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	removeDoc({
 		rootState,

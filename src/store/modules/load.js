@@ -122,7 +122,7 @@ const actions = {
 							"data": {
 								"_id": "root",
 								"productId": "root",
-								"parentId": "root",
+								"parentId": null,
 								"priority": null
 							}
 						},
@@ -275,8 +275,8 @@ const actions = {
 					rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 					// eslint-disable-next-line no-console
 					console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
-					// read the current product title if not available
-					if (res.data.productId != state.currentProductId) {
+					// read the current product title if not available; root is not part of a product
+					if (res.data.productId != state.currentProductId && _id != 'root') {
 						dispatch('readProduct', res.data.productId)
 					}
 				}
