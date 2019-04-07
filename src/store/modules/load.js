@@ -2,7 +2,7 @@ import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../../router'
 
-const batchSize = 3
+const batchSize = 100
 var batch = []
 const leafType = 5
 var parentNodes = {}
@@ -67,11 +67,11 @@ const mutations = {
 						// for now PBI's have no children
 						isLeaf: (type == leafType) ? true : false,
 						children: [],
-						// expand the tree up to the feature type
-						isExpanded: (type < leafType) ? true : false,
+						// expand the tree of the default product
+						isExpanded: (batch[i].doc.productId == state.currentUserProductId) ? true : false,
 						isdraggable: true,
 						isSelectable: true,
-						// As the product document is initially loaded show it as selected
+						// select the default product
 						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
 						data: {
 							_id: batch[i].doc._id,
