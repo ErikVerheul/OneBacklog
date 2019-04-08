@@ -187,6 +187,9 @@ export default new Vuex.Store({
 		},
 
 		clearAuthData(state) {
+			state.load.docsCount = 0
+			state.load.itemsCount = 0
+			state.load.orphansCount = 0
 			state.user = null
 			state.load.teams = null
 			state.myRoles = []
@@ -196,7 +199,7 @@ export default new Vuex.Store({
 			state.load.databases = []
 			state.load.email = null
 			state.load.offset = 0,
-				state.load.treeNodes = []
+			state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
 
 			clearTimeout(state.runningTimeout)

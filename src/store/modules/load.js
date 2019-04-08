@@ -6,11 +6,11 @@ const batchSize = 100
 var batch = []
 const leafType = 5
 var parentNodes = {}
-var docsCount = 0
-var itemsCount = 0
-var orphansCount = 0
 
 const state = {
+	docsCount: 0,
+	itemsCount: 0,
+	orphansCount: 0,
 	lastEvent: '',
 	currentUserProductId: null,
 	currentProductId: null,
@@ -54,7 +54,7 @@ const mutations = {
 	 */
 	processBatch(state, payload) {
 		for (let i = 0; i < batch.length; i++) {
-			docsCount++
+			state.docsCount++
 			// Load the items of the products the user is authorized to
 			if (payload.roles.includes('_admin') || payload.roles.includes('reqArea') || payload.roles.includes('admin') || payload.roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
 				let type = batch[i].doc.type
@@ -81,12 +81,12 @@ const mutations = {
 						}
 					}
 					if (parentNodes[parentId] != null) {
-						itemsCount++
+						state.itemsCount++
 						let parentNode = parentNodes[parentId]
 						parentNode.children.push(newNode)
 						parentNodes[batch[i].doc._id] = newNode
 					} else {
-						orphansCount++
+						state.orphansCount++
 					}
 				}
 			}
@@ -197,7 +197,7 @@ const actions = {
 						// done, release memory
 						parentNodes = null
 					}
-					state.lastEvent = `${docsCount} docs are read. ${itemsCount} items are inserted. ${orphansCount} orphans are skipped`
+					state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 					// eslint-disable-next-line no-console
 					console.log('Another batch of ' + batch.length + ' documents is loaded')
 				}
@@ -234,7 +234,7 @@ const actions = {
 					}
 					// eslint-disable-next-line no-console
 					console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
-					state.lastEvent = `${docsCount} docs are read. ${itemsCount} items are inserted. ${orphansCount} orphans are skipped`
+					state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 					router.push('/product')
 				}
 			})
