@@ -291,7 +291,6 @@
 				'getMyRoles',
 				'isAuthenticated',
 				'isServerAdmin',
-				'canChangePriorities',
 				'canWriteLevels',
 				'getCurrentDb',
 				'getCurrentItemAcceptanceCriteria',

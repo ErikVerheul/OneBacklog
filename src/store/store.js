@@ -11,7 +11,7 @@ import setup from './modules/setup'
 Vue.use(Vuex)
 
 /* These are the roles known by this application despite settings in the _users database otherwise.
- * Write access is dependant on role from and including the given level
+ * Write access is dependant on role and level. Write access includes deletion.
  * For readability the access the role dependant values are hard coded.
  *
  * type ...............in database level ....... in tree
@@ -27,7 +27,6 @@ Vue.use(Vuex)
  *	"_admin": {
  *		description: "Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
  *		products: "all",
- *		canChangePriorities: false,
  *		writeAccessLevel: null,
  *		maintainUsers: true
  *	},
@@ -35,42 +34,36 @@ Vue.use(Vuex)
  *		description: "Can access the requirements area with full read and write access to only the level 0 requirements area items. Is also a guest to all
  *    products.",
  *		products: "all",
- *		canChangePriorities: false,
  *		writeAccessLevel: null,
  *		maintainUsers: false
  *	},
  *	"admin": {
  *		description: "Can create and assign users to products. Is also a guest to all products.",
  *		products: "all",
- *		canChangePriorities: false,
  *		writeAccessLevel: null,
  *		maintainUsers: true
  *	},
  *	"superPO": {
  *		description: "Can create and maintain products and epics for all products. Can change priorities at these levels. Is also a guest to all products.",
  *		products: "all",
- *		canChangePriorities: true,
  *		writeAccessLevel: 2,
  *		maintainUsers: false
  *	},
  *	"PO": {
  *		description: "Can create and maintain epics, features and pbi's for the assigned products. Can change priorities at these levels.",
  *		products: "assigned",
- *		canChangePriorities: true,
  *		writeAccessLevel: 3,
  *		maintainUsers: false
  *	},
  *	"developer": {
  *		description: "Can create and maintain pbi's and features for the assigned products.",
  *		products: "assigned",
- *		canChangePriorities: true,
  *		writeAccessLevel: 4,
  *		maintainUsers: false
  *	},
  *	"guest": {
  *		description: "Can only view the items of the assigned products. Has no access to the requirements area view.",
  *		products: "assigned",
- *		canChangePriorities: false,
  *		writeAccessLevel: null,
  *		maintainUsers: false
  *	}
@@ -100,9 +93,6 @@ export default new Vuex.Store({
 		},
 		isServerAdmin(state) {
 			return state.myRoles.includes("_admin")
-		},
-		canChangePriorities(state) {
-			return state.myRoles.includes('superPO') || state.myRoles.includes('PO') || state.myRoles.includes('developer')
 		},
 		canWriteLevels(state) {
 			return state.canWriteLevels
