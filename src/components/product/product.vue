@@ -845,10 +845,10 @@
 					this.$store.dispatch('removeProductId', newProducts)
 				}
 				// set remove mark in the database on the clicked item
-				this.$store.dispatch('removeDoc', [selectedNodes[0].data._id])
+				this.$store.dispatch('removeDoc', selectedNodes[0])
 				// and remove the descendants
 				for (let i = 0; i < descendants.length; i++) {
-					this.$store.dispatch('removeDoc', descendants[i].data._id)
+					this.$store.dispatch('removeDoc', descendants[i])
 				}
 				// after removal no node is selected
 				this.nodeIsSelected = false
@@ -986,60 +986,64 @@
 			 * Insert the prepared node in the tree and create a document for this new item
 			 */
 			doInsert() {
-				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
-				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
-				newNode.data._id = newId
+				if (this.canWriteLevels[insertLevel]) {
+					// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
+					const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
+					newNode.data._id = newId
 
-				this.$store.state.load.lastEvent = 'Item of type ' + this.getLevelText(insertLevel) + ' is inserted'
-				// inserting the node also selects it
-				this.$refs.slVueTree.insert(newNodeLocation, newNode)
-				// restore default
-				this.insertOptionSelected = 1
+					this.$store.state.load.lastEvent = 'Item of type ' + this.getLevelText(insertLevel) + ' is inserted'
+					// inserting the node also selects it
+					this.$refs.slVueTree.insert(newNodeLocation, newNode)
+					// restore default
+					this.insertOptionSelected = 1
 
-				// unselect the node that was clicked before the insert and expand it to show the inserted node
-				const clickedPath = this.$refs.slVueTree.getSelected()[0].path
-				this.$refs.slVueTree.updateNode(clickedPath, {
-					isSelected: false,
-					isExpanded: true
-				})
+					// unselect the node that was clicked before the insert and expand it to show the inserted node
+					const clickedPath = this.$refs.slVueTree.getSelected()[0].path
+					this.$refs.slVueTree.updateNode(clickedPath, {
+						isSelected: false,
+						isExpanded: true
+					})
 
-				// now the node is inserted and selected get the full ISlTreeNode data and set data fields
-				const insertedNode = this.$refs.slVueTree.getSelected()[0]
-				// productId, parentId and priority are set in this routine
-				this.updateTree([insertedNode], false)
-				// create a new document and store it
-				const initData = {
-					"_id": insertedNode.data._id,
-					"productId": insertedNode.data.productId,
-					"parentId": insertedNode.data.parentId,
-					"team": "not assigned yet",
-					"type": insertLevel,
-					"subtype": 0,
-					"state": 0,
-					"tssize": 0,
-					"spsize": 0,
-					"spikepersonhours": 0,
-					"reqarea": null,
-					"title": insertedNode.title,
-					"followers": [],
-					"description": "",
-					"acceptanceCriteria": window.btoa("Please don't forget"),
-					"priority": insertedNode.data.priority,
-					"attachments": [],
-					"comments": [],
-					"history": [{
-						"createEvent": null,
-						'by': this.getUser,
-						'email': this.getEmail,
-						'timestamp': Date.now()
-					}],
-					"delmark": false
+					// now the node is inserted and selected get the full ISlTreeNode data and set data fields
+					const insertedNode = this.$refs.slVueTree.getSelected()[0]
+					// productId, parentId and priority are set in this routine
+					this.updateTree([insertedNode], false)
+					// create a new document and store it
+					const initData = {
+						"_id": insertedNode.data._id,
+						"productId": insertedNode.data.productId,
+						"parentId": insertedNode.data.parentId,
+						"team": "not assigned yet",
+						"type": insertLevel,
+						"subtype": 0,
+						"state": 0,
+						"tssize": 0,
+						"spsize": 0,
+						"spikepersonhours": 0,
+						"reqarea": null,
+						"title": insertedNode.title,
+						"followers": [],
+						"description": "",
+						"acceptanceCriteria": window.btoa("Please don't forget"),
+						"priority": insertedNode.data.priority,
+						"attachments": [],
+						"comments": [],
+						"history": [{
+							"createEvent": null,
+							'by': this.getUser,
+							'email': this.getEmail,
+							'timestamp': Date.now()
+						}],
+						"delmark": false
+					}
+					// update the database
+					const payload = {
+						'initData': initData
+					}
+					this.$store.dispatch('createDoc', payload)
+				} else {
+					this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to create new items of this type"
 				}
-				// update the database
-				const payload = {
-					'initData': initData
-				}
-				this.$store.dispatch('createDoc', payload)
 			},
 
 			doCancelInsert() {

@@ -273,7 +273,8 @@ const actions = {
 	removeDoc({
 		rootState,
 		dispatch
-	}, _id) {
+	}, node) {
+		const _id = node.data._id
 		globalAxios({
 				method: 'GET',
 				url: rootState.currentDb + '/' + _id,
