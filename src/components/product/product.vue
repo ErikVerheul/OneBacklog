@@ -593,12 +593,13 @@
 			*/
 			beforeNodeDropped(draggingNodes, position, cancel) {
 				/*
+				 * Disallow drop on node were the user has no write authority
 				 * Disallow drop when moving over more than 1 level.
 				 * Dropping items with descendants is not possible when any descendant would land lower than the lowest level (pbilevel).
 				 */
 				var checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 					const levelChange = Math.abs(targetLevel - sourceLevel)
-					return levelChange > 1 || (targetLevel + this.getDescendantsInfo(node.path).depth) > this.pbiLevel
+					return !this.canWriteLevels[position.node.level] || levelChange > 1 || (targetLevel + this.getDescendantsInfo(node.path).depth) > this.pbiLevel
 				}
 
 				const sourceLevel = draggingNodes[0].level
