@@ -395,6 +395,9 @@
 				if (key == "descendantMoved") {
 					return "<h5>Item was moved as descendant from '" + value[0] + "'</h5>"
 				}
+				if (key == "nodeRemoveEvent") {
+					return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' was removed by:</h5>"
+				}
 				if (key == "timestamp") {
 					return key + ": " + new Date(value).toString() + "<br><br>"
 				}
@@ -844,11 +847,17 @@
 					this.$store.state.load.userAssignedProductIds = newProducts
 					this.$store.dispatch('removeProductId', newProducts)
 				}
+				let payload = {
+					'userName': this.getUser,
+					'email': this.getEmail,
+					'node': selectedNodes[0]
+				}
 				// set remove mark in the database on the clicked item
-				this.$store.dispatch('removeDoc', selectedNodes[0])
+				this.$store.dispatch('removeDoc', payload)
 				// and remove the descendants
 				for (let i = 0; i < descendants.length; i++) {
-					this.$store.dispatch('removeDoc', descendants[i])
+					payload.node = descendants[i]
+					this.$store.dispatch('removeDoc', payload)
 				}
 				// after removal no node is selected
 				this.nodeIsSelected = false

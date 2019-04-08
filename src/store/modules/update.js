@@ -1,7 +1,5 @@
 import globalAxios from 'axios'
 
-var tmpDoc = null
-
 const actions = {
 	/*
 	 * When updating the database first load the document with the actual revision number and changes by other users.
@@ -18,7 +16,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					const oldSize = tmpDoc.tssize
 					const newHist = {
 						"setSizeEvent": [oldSize, payload.newSizeIdx],
@@ -30,7 +28,7 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					rootState.currentDoc.tssize = payload.newSizeIdx
 					rootState.currentDoc.history.push(newHist)
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -47,7 +45,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					const oldHrs = tmpDoc.spikepersonhours
 					const newHist = {
 						"setHrsEvent": [oldHrs, payload.newHrs],
@@ -59,7 +57,7 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					rootState.currentDoc.spikepersonhours = payload.newHrs
 					rootState.currentDoc.history.push(newHist)
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -76,7 +74,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					const oldPoints = tmpDoc.spsize
 					const newHist = {
 						"setPointsEvent": [oldPoints, payload.newPoints],
@@ -88,7 +86,7 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					rootState.currentDoc.spsize = payload.newPoints
 					rootState.currentDoc.history.push(newHist)
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -105,7 +103,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					const oldState = tmpDoc.state
 					const newHist = {
 						"setStateEvent": [oldState, payload.newState],
@@ -117,7 +115,7 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					rootState.currentDoc.state = payload.newState
 					rootState.currentDoc.history.push(newHist)
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -135,7 +133,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					const oldTitle = rootState.currentDoc.title
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					const newHist = {
 						"setTitleEvent": [oldTitle, payload.newTitle],
 						"by": payload.userName,
@@ -146,7 +144,7 @@ const actions = {
 					rootState.currentDoc.history.push(newHist)
 					tmpDoc.title = payload.newTitle
 					rootState.currentDoc.title = payload.newTitle
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -163,7 +161,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					const newHist = {
 						"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
 						"by": payload.userName,
@@ -174,7 +172,7 @@ const actions = {
 					rootState.currentDoc.history.push(newHist)
 					tmpDoc.subtype = payload.newSubType
 					rootState.currentDoc.subtype = payload.newSubType
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -220,7 +218,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					const newHist = {
 						"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle],
 						"by": payload.userName,
@@ -237,7 +235,7 @@ const actions = {
 					rootState.currentDoc.productId = payload.productId
 					rootState.currentDoc.parentId = payload.newParentId
 					rootState.currentDoc.priority = payload.priority
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -254,7 +252,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					const newHist = {
 						"descendantMoved": [payload.oldParentTitle],
 						"by": payload.userName,
@@ -264,7 +262,7 @@ const actions = {
 					tmpDoc.history.push(newHist)
 					tmpDoc.type = payload.newLevel
 					tmpDoc.productId = payload.productId
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -273,21 +271,47 @@ const actions = {
 	removeDoc({
 		rootState,
 		dispatch
-	}, node) {
-		const _id = node.data._id
+	}, payload) {
+		const _id = payload.node.data._id
 		globalAxios({
 				method: 'GET',
 				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					tmpDoc.delmark = true
-					dispatch('updateDoc')
+					dispatch('updateDoc', tmpDoc)
+					dispatch('registerRemoveHist', payload)
 				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('removeDoc: Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	registerRemoveHist({
+		rootState,
+		dispatch
+	}, payload) {
+		const _id = payload.node.data.parentId
+		globalAxios({
+				method: 'GET',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					var tmpDoc = res.data
+					const newHist = {
+						"nodeRemoveEvent": [payload.node.level, payload.node.title],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.push(newHist)
+					dispatch('updateDoc', tmpDoc)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('registerRemoveHist: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 
 	saveDescriptionAndLoadDoc({
@@ -301,7 +325,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					// encode to base64
 					const newEncodedDescription = window.btoa(payload.newDescription)
 					// update only when changed
@@ -315,7 +339,11 @@ const actions = {
 						tmpDoc.history.push(newHist)
 						rootState.currentDoc.history.push(newHist)
 						tmpDoc.description = newEncodedDescription
-						dispatch('updateDocAndLoadNew', payload.newId)
+						const newPayload = {
+							newId: payload.newId,
+							doc: tmpDoc
+						}
+						dispatch('updateDocAndLoadNew', newPayload)
 					}
 				}
 			})
@@ -334,7 +362,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					tmpDoc = res.data
+					var tmpDoc = res.data
 					// encode to base64
 					const newEncodedAcceptance = window.btoa(payload.newAcceptance)
 					// update only when changed
@@ -348,7 +376,11 @@ const actions = {
 						tmpDoc.history.push(newHist)
 						rootState.currentDoc.history.push(newHist)
 						tmpDoc.acceptanceCriteria = newEncodedAcceptance
-						dispatch('updateDocAndLoadNew', payload.newId)
+						const newPayload = {
+							newId: payload.newId,
+							doc: tmpDoc
+						}
+						dispatch('updateDocAndLoadNew', newPayload)
 					}
 				}
 			})
@@ -359,7 +391,7 @@ const actions = {
 	// Update current document
 	updateDoc({
 		rootState
-	}) {
+	}, tmpDoc) {
 		const _id = tmpDoc._id
 		// eslint-disable-next-line no-console
 		console.log('updateDoc: updating document with _id = ' + _id)
@@ -384,10 +416,12 @@ const actions = {
 	updateDocAndLoadNew({
 		rootState,
 		dispatch
-	}, newId) {
+	}, payload) {
+		const newId = payload.newId
+		var tmpDoc = payload.doc
 		const _id = tmpDoc._id
 		// eslint-disable-next-line no-console
-		console.log('updateDoc: updating document with _id = ' + _id)
+		console.log('updateDocAndLoadNew: updating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
 				url: rootState.currentDb + '/' + tmpDoc._id,
@@ -398,7 +432,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					// eslint-disable-next-line no-console
-					console.log('updateDoc: document with _id + ' + _id + ' is updated.')
+					console.log('updateDocAndLoadNew: document with _id + ' + _id + ' is updated.')
 					dispatch('loadDoc', newId)
 				}
 			})
