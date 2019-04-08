@@ -292,6 +292,7 @@
 				'isAuthenticated',
 				'isServerAdmin',
 				'canChangePriorities',
+				'canWriteLevelRange',
 				'getCurrentDb',
 				'getCurrentItemAcceptanceCriteria',
 				'getCurrentItemAttachments',

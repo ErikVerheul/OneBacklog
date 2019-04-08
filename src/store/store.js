@@ -10,15 +10,82 @@ import setup from './modules/setup'
 
 Vue.use(Vuex)
 
+/* These are the roles known by this application despite settings in the _users database otherwise.
+ * Write access is dependant on role from and including the given level
+ * For readability the access the role dependant values are hard coded.
+ *
+ * type ...............in database level ....... in tree
+ * -----------------------------------------------------------------------
+ * RequirementArea ........ 0 ................... n/a
+ * Database ............... 1 ................... n/a
+ * Product ................ 2 ................... 2
+ * Epic .. ................ 3 ................... 3
+ * Feature ................ 4 ................... 4
+ * PBI ... ................ 5 ................... 5
+ *
+ *"knownRoles":
+ *	"_admin": {
+ *		description: "Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.",
+ *		products: "all",
+ *		canChangePriorities: false,
+ *		writeAccessLevel: null,
+ *		maintainUsers: true
+ *	},
+ *	"reqArea": {
+ *		description: "Can access the requirements area with full read and write access to only the level 0 requirements area items. Is also a guest to all
+ *    products.",
+ *		products: "all",
+ *		canChangePriorities: false,
+ *		writeAccessLevel: null,
+ *		maintainUsers: false
+ *	},
+ *	"admin": {
+ *		description: "Can create and assign users to products. Is also a guest to all products.",
+ *		products: "all",
+ *		canChangePriorities: false,
+ *		writeAccessLevel: null,
+ *		maintainUsers: true
+ *	},
+ *	"superPO": {
+ *		description: "Can create and maintain products and epics for all products. Can change priorities at these levels. Is also a guest to all products.",
+ *		products: "all",
+ *		canChangePriorities: true,
+ *		writeAccessLevel: 2,
+ *		maintainUsers: false
+ *	},
+ *	"PO": {
+ *		description: "Can create and maintain epics, features and pbi's for the assigned products. Can change priorities at these levels.",
+ *		products: "assigned",
+ *		canChangePriorities: true,
+ *		writeAccessLevel: 3,
+ *		maintainUsers: false
+ *	},
+ *	"developer": {
+ *		description: "Can create and maintain pbi's and features for the assigned products.",
+ *		products: "assigned",
+ *		canChangePriorities: true,
+ *		writeAccessLevel: 4,
+ *		maintainUsers: false
+ *	},
+ *	"guest": {
+ *		description: "Can only view the items of the assigned products. Has no access to the requirements area view.",
+ *		products: "assigned",
+ *		canChangePriorities: false,
+ *		writeAccessLevel: null,
+ *		maintainUsers: false
+ *	}
+ */
+
 export default new Vuex.Store({
 
 	state: {
 		user: null,
 		myRoles: [],
+		canWriteLevelRange: [],
 		runningTimeout: null,
 		config: null,
 		currentDb: null,
-		currentDoc: null
+		currentDoc: null,
 	},
 
 	getters: {
@@ -35,74 +102,98 @@ export default new Vuex.Store({
 			return state.myRoles.includes("_admin")
 		},
 		canChangePriorities(state) {
-			if (state.currentDoc != null) {
-				// ToDo: for now everyone can do all
-				return true
-			}
+			return state.myRoles.includes('superPO') || state.myRoles.includes('PO') || state.myRoles.includes('developer')
+		},
+		canWriteLevelRange(state) {
+			return state.canWriteLevelRange
 		},
 		getCurrentDb(state) {
 			return state.currentDb
 		},
 		getCurrentItemId(state) {
-			if (state.currentDoc != null) return state.currentDoc._id
+			return state.currentDoc._id
 		},
 		getCurrentItemAcceptanceCriteria(state) {
-			if (state.currentDoc != null) return state.currentDoc.acceptanceCriteria
+			return state.currentDoc.acceptanceCriteria
 		},
 		getCurrentItemAttachments(state) {
-			if (state.currentDoc != null) return state.currentDoc.attachments
+			return state.currentDoc.attachments
 		},
 		getCurrentItemComments(state) {
-			if (state.currentDoc != null) return state.currentDoc.comments
+			return state.currentDoc.comments
 		},
 		getCurrentItemDescription(state) {
-			if (state.currentDoc != null) return state.currentDoc.description
+			return state.currentDoc.description
 		},
 		getCurrentItemFollowers(state) {
-			if (state.currentDoc != null) return state.currentDoc.followers
+			return state.currentDoc.followers
 		},
 		getCurrentItemHistory(state) {
-			if (state.currentDoc != null) return state.currentDoc.history
+			return state.currentDoc.history
 		},
 		getCurrentItemPriority(state) {
-			if (state.currentDoc != null) return state.currentDoc.priority
+			return state.currentDoc.priority
 		},
 		getCurrentItemProductId(state) {
-			if (state.currentDoc != null) return state.currentDoc.productId
+			return state.currentDoc.productId
 		},
 		getCurrentItemReqArea(state) {
-			if (state.currentDoc != null) return state.currentDoc.reqarea
+			return state.currentDoc.reqarea
 		},
 		getCurrentItemSpSize(state) {
-			if (state.currentDoc != null) return state.currentDoc.spsize
+			return state.currentDoc.spsize
 		},
 		getCurrentItemState(state) {
-			if (state.currentDoc != null) return state.currentDoc.state
+			return state.currentDoc.state
 		},
 		getCurrentItemSubType(state) {
-			if (state.currentDoc != null) return state.currentDoc.subtype
+			return state.currentDoc.subtype
 		},
 		getCurrentItemTeam(state) {
-			if (state.currentDoc != null) return state.currentDoc.team
+			return state.currentDoc.team
 		},
 		getCurrentItemTitle(state) {
-			if (state.currentDoc != null) return state.currentDoc.title
+			return state.currentDoc.title
 		},
 		getCurrentItemTsSize(state) {
-			if (state.currentDoc != null) return state.config.tsSize[state.currentDoc.tssize]
+			return state.config.tsSize[state.currentDoc.tssize]
 		},
 		getCurrentItemType(state) {
-			if (state.currentDoc != null) return state.currentDoc.type
+			return state.currentDoc.type
 		},
 		getCurrentPersonHours(state) {
-			if (state.currentDoc != null) return state.currentDoc.spikepersonhours
+			return state.currentDoc.spikepersonhours
 		}
 	},
 
 	mutations: {
 		authUser(state, userData) {
+			const maxlevel = 5
 			state.user = userData.user
 			state.myRoles = userData.roles
+			var range = [maxlevel + 1, 0]
+			// expand the range depending on the user's roles
+			if (state.myRoles.includes('_admin')) {
+				range[0] = 1 < range[0] ? 1 : range[0]
+				range[1] = range[1] > 1 ? range[1] : 1
+			}
+			if (state.myRoles.includes('reqArea')) {
+				range[0] = 0 < range[0] ? 0 : range[0]
+				range[1] = range[1] > 0 ? range[1] : 0
+			}
+			if (state.myRoles.includes('superPO')) {
+				range[0] = 2 < range[0] ? 2 : range[0]
+				range[1] = maxlevel
+			}
+			if (state.myRoles.includes('PO')) {
+				range[0] = 3 < range[0] ? 3 : range[0]
+				range[1] = maxlevel
+			}
+			if (state.myRoles.includes('developer')) {
+				range[0] = 4 < range[0] ? 4 : range[0]
+				range[1] = maxlevel
+			}
+			state.canWriteLevelRange = range
 		},
 
 		clearAuthData(state) {
@@ -115,7 +206,7 @@ export default new Vuex.Store({
 			state.load.databases = []
 			state.load.email = null
 			state.load.offset = 0,
-			state.load.treeNodes = []
+				state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
 
 			clearTimeout(state.runningTimeout)

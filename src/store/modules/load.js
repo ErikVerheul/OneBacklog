@@ -52,12 +52,12 @@ const mutations = {
 	 * The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
 	 * Note that the database is of type 0, and requirement area documents of type 1 are excluded in the database view
 	 */
-	processBatch(state, roles) {
-		console.log('processBatch: this = ' + this)
+	processBatch(state, payload) {
 		for (let i = 0; i < batch.length; i++) {
+			console.log('processBatch: type = ' + batch[i].doc.type + ' payload.writeRange = ' + payload.writeRange + ' result = ' + (batch[i].doc.type >= payload.writeRange[0] && batch[i].doc.type <= payload.writeRange[1]))
 			docsCount++
 			// Load the items of the products the user is authorized to
-			if (roles.includes('_admin') || roles.includes('reqArea') || roles.includes('admin') || roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+			if (payload.roles.includes('_admin') || payload.roles.includes('reqArea') || payload.roles.includes('admin') || payload.roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
 				let type = batch[i].doc.type
 				let parentId = batch[i].doc.parentId
 				let delmark = batch[i].doc.delmark
@@ -70,7 +70,7 @@ const mutations = {
 						children: [],
 						// expand the tree of the default product
 						isExpanded: (batch[i].doc.productId == state.currentUserProductId) ? true : false,
-						isdraggable: true,
+						isdraggable: batch[i].doc.type >= payload.writeRange[0] && batch[i].doc.type <= payload.writeRange[1],
 						isSelectable: true,
 						// select the default product
 						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
@@ -184,7 +184,12 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					batch = res.data.rows
-					commit('processBatch', rootState.myRoles)
+
+					const payload = {
+						roles: rootState.myRoles,
+						writeRange: rootState.canWriteLevelRange
+					}
+					commit('processBatch', payload)
 					if (batch.length == batchSize) {
 						state.offset += batchSize
 						// recurse until all read
@@ -218,7 +223,12 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					batch = res.data.rows
-					commit('processBatch', rootState.myRoles)
+
+					const payload = {
+						roles: rootState.myRoles,
+						writeRange: rootState.canWriteLevelRange
+					}
+					commit('processBatch', payload)
 					if (batch.length == batchSize) {
 						state.offset += batchSize
 						dispatch('getNextDocsBatch')
