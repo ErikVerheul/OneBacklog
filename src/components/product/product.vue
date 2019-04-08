@@ -403,94 +403,121 @@
 
 			/* Database update methods */
 			updateDescription() {
-				const payload = {
-					'userName': this.getUser,
-					'email': this.getEmail,
-					'newDescription': this.getCurrentItemDescription,
-					'newId': firstNodeSelected.data._id
-				}
-				this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
-			},
-			updateAcceptance() {
-				const payload = {
-					'userName': this.getUser,
-					'email': this.getEmail,
-					'newAcceptance': this.getCurrentItemAcceptanceCriteria,
-					'newId': firstNodeSelected.data._id
-				}
-				this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
-			},
-			updateTsSize() {
-				var size = document.getElementById("tShirtSizeId").value.toUpperCase()
-				const sizeArray = this.$store.state.config.tsSize
-				if (sizeArray.includes(size)) {
-					// update current document
+				if (this.canWriteLevels[this.getCurrentItemType]) {
 					const payload = {
 						'userName': this.getUser,
 						'email': this.getEmail,
-						'newSizeIdx': sizeArray.indexOf(size)
+						'newDescription': this.getCurrentItemDescription,
+						'newId': firstNodeSelected.data._id
 					}
-					this.$store.dispatch('setSize', payload)
+					this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
 				} else {
-					var sizes = ''
-					for (let i = 0; i < sizeArray.length - 1; i++) {
-						sizes += sizeArray[i] + ', '
+					this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to change the description of this item"
+				}
+			},
+			updateAcceptance() {
+				if (this.canWriteLevels[this.getCurrentItemType]) {
+					const payload = {
+						'userName': this.getUser,
+						'email': this.getEmail,
+						'newAcceptance': this.getCurrentItemAcceptanceCriteria,
+						'newId': firstNodeSelected.data._id
 					}
-					alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
+					this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
+				} else {
+					this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item"
+				}
+			},
+			updateTsSize() {
+				if (this.canWriteLevels[this.getCurrentItemType]) {
+					var size = document.getElementById("tShirtSizeId").value.toUpperCase()
+					const sizeArray = this.$store.state.config.tsSize
+					if (sizeArray.includes(size)) {
+						// update current document
+						const payload = {
+							'userName': this.getUser,
+							'email': this.getEmail,
+							'newSizeIdx': sizeArray.indexOf(size)
+						}
+						this.$store.dispatch('setSize', payload)
+					} else {
+						var sizes = ''
+						for (let i = 0; i < sizeArray.length - 1; i++) {
+							sizes += sizeArray[i] + ', '
+						}
+						alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
+					}
+				} else {
+					this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to change the t-shirt size of this item"
 				}
 			},
 			updateStoryPoints() {
-				var el = document.getElementById("storyPointsId")
-				if (isNaN(el.value) || el.value < 0) {
-					el.value = '?'
-					return
+				if (this.canWriteLevels[this.getCurrentItemType]) {
+					var el = document.getElementById("storyPointsId")
+					if (isNaN(el.value) || el.value < 0) {
+						el.value = '?'
+						return
+					}
+					const payload = {
+						'userName': this.getUser,
+						'email': this.getEmail,
+						'newPoints': el.value
+					}
+					this.$store.dispatch('setStoryPoints', payload)
+				} else {
+					this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to change the story points size of this item"
 				}
-				const payload = {
-					'userName': this.getUser,
-					'email': this.getEmail,
-					'newPoints': el.value
-				}
-				this.$store.dispatch('setStoryPoints', payload)
 			},
 			updatePersonHours() {
-				var el = document.getElementById("personHoursId")
-				if (isNaN(el.value) || el.value < 0) {
-					el.value = '?'
-					return
+				if (this.canWriteLevels[this.getCurrentItemType]) {
+					var el = document.getElementById("personHoursId")
+					if (isNaN(el.value) || el.value < 0) {
+						el.value = '?'
+						return
+					}
+					const payload = {
+						'userName': this.getUser,
+						'email': this.getEmail,
+						'newHrs': el.value
+					}
+					this.$store.dispatch('setPersonHours', payload)
+				} else {
+					this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to change the person hours of this item"
 				}
-				const payload = {
-					'userName': this.getUser,
-					'email': this.getEmail,
-					'newHrs': el.value
-				}
-				this.$store.dispatch('setPersonHours', payload)
 			},
 			onStateChange(idx) {
-				// update current document
-				const payload = {
-					'userName': this.getUser,
-					'email': this.getEmail,
-					'newState': idx
+				if (this.canWriteLevels[this.getCurrentItemType]) {
+					const payload = {
+						'userName': this.getUser,
+						'email': this.getEmail,
+						'newState': idx
+					}
+					this.$store.dispatch('setState', payload)
+				} else {
+					this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to change the state of this item"
 				}
-				this.$store.dispatch('setState', payload)
 			},
 			updateTitle() {
-				const oldTitle = this.$store.state.currentDoc.title
-				const newTitle = document.getElementById("titleField").value
-				if (oldTitle == newTitle) return
+				if (this.canWriteLevels[this.getCurrentItemType]) {
+					const oldTitle = this.$store.state.currentDoc.title
+					const newTitle = document.getElementById("titleField").value
+					if (oldTitle == newTitle) return
 
-				// update the tree
-				const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
-				this.$refs.slVueTree.updateNode(paths[0], {
-					title: newTitle
-				})
-				// update current document in database
-				const payload = {
-					'userName': this.getUser,
-					'email': this.getEmail,
-					'newTitle': newTitle
+					// update the tree
+					const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
+					this.$refs.slVueTree.updateNode(paths[0], {
+						title: newTitle
+					})
+					// update current document in database
+					const payload = {
+						'userName': this.getUser,
+						'email': this.getEmail,
+						'newTitle': newTitle
+					}
+					this.$store.dispatch('setDocTitle', payload)
+				} else {
+					this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to change the title of this item"
 				}
-				this.$store.dispatch('setDocTitle', payload)
 			},
 
 			/* mappings from config */
