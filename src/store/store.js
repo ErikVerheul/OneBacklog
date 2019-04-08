@@ -34,7 +34,7 @@ Vue.use(Vuex)
  *		description: "Can access the requirements area with full read and write access to only the level 0 requirements area items. Is also a guest to all
  *    products.",
  *		products: "all",
- *		writeAccessLevel: null,
+ *		writeAccessLevel: 0,
  *		maintainUsers: false
  *	},
  *	"admin": {
@@ -46,19 +46,19 @@ Vue.use(Vuex)
  *	"superPO": {
  *		description: "Can create and maintain products and epics for all products. Can change priorities at these levels. Is also a guest to all products.",
  *		products: "all",
- *		writeAccessLevel: 2,
+ *		writeAccessLevel: 2,3
  *		maintainUsers: false
  *	},
  *	"PO": {
  *		description: "Can create and maintain epics, features and pbi's for the assigned products. Can change priorities at these levels.",
  *		products: "assigned",
- *		writeAccessLevel: 3,
+ *		writeAccessLevel: 3,4,5
  *		maintainUsers: false
  *	},
  *	"developer": {
  *		description: "Can create and maintain pbi's and features for the assigned products.",
  *		products: "assigned",
- *		writeAccessLevel: 4,
+ *		writeAccessLevel: 4,5
  *		maintainUsers: false
  *	},
  *	"guest": {
