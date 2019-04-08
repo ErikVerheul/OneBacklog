@@ -81,7 +81,7 @@ export default new Vuex.Store({
 	state: {
 		user: null,
 		myRoles: [],
-		canWriteLevelRange: [],
+		canWriteLevels: [],
 		runningTimeout: null,
 		config: null,
 		currentDb: null,
@@ -104,8 +104,8 @@ export default new Vuex.Store({
 		canChangePriorities(state) {
 			return state.myRoles.includes('superPO') || state.myRoles.includes('PO') || state.myRoles.includes('developer')
 		},
-		canWriteLevelRange(state) {
-			return state.canWriteLevelRange
+		canWriteLevels(state) {
+			return state.canWriteLevels
 		},
 		getCurrentDb(state) {
 			return state.currentDb
@@ -168,32 +168,32 @@ export default new Vuex.Store({
 
 	mutations: {
 		authUser(state, userData) {
-			const maxlevel = 5
+			const maxLevel = 5
 			state.user = userData.user
 			state.myRoles = userData.roles
-			var range = [maxlevel + 1, 0]
-			// expand the range depending on the user's roles
-			if (state.myRoles.includes('_admin')) {
-				range[0] = 1 < range[0] ? 1 : range[0]
-				range[1] = range[1] > 1 ? range[1] : 1
+			var levels = []
+			for (let i = 0; i <= maxLevel; i++) {
+				levels.push(false)
 			}
 			if (state.myRoles.includes('reqArea')) {
-				range[0] = 0 < range[0] ? 0 : range[0]
-				range[1] = range[1] > 0 ? range[1] : 0
+				levels[0] = true
 			}
 			if (state.myRoles.includes('superPO')) {
-				range[0] = 2 < range[0] ? 2 : range[0]
-				range[1] = maxlevel
+				for (let i = 2; i <= 3; i++) {
+					levels[i] = true
+				}
 			}
 			if (state.myRoles.includes('PO')) {
-				range[0] = 3 < range[0] ? 3 : range[0]
-				range[1] = maxlevel
+				for (let i = 3; i <= maxLevel; i++) {
+					levels[i] = true
+				}
 			}
 			if (state.myRoles.includes('developer')) {
-				range[0] = 4 < range[0] ? 4 : range[0]
-				range[1] = maxlevel
+				for (let i = 4; i <= maxLevel; i++) {
+					levels[i] = true
+				}
 			}
-			state.canWriteLevelRange = range
+			state.canWriteLevels = levels
 		},
 
 		clearAuthData(state) {

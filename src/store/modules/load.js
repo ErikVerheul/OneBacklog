@@ -69,7 +69,7 @@ const mutations = {
 						children: [],
 						// expand the tree of the default product
 						isExpanded: (batch[i].doc.productId == state.currentUserProductId) ? true : false,
-						isDraggable: batch[i].doc.type >= payload.writeRange[0] && batch[i].doc.type <= payload.writeRange[1],
+						isDraggable: payload.writeLevels[batch[i].doc.type],
 						isSelectable: true,
 						// select the default product
 						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
@@ -186,7 +186,7 @@ const actions = {
 
 					const payload = {
 						roles: rootState.myRoles,
-						writeRange: rootState.canWriteLevelRange
+						writeLevels: rootState.canWriteLevels
 					}
 					commit('processBatch', payload)
 					if (batch.length == batchSize) {
@@ -225,7 +225,7 @@ const actions = {
 
 					const payload = {
 						roles: rootState.myRoles,
-						writeRange: rootState.canWriteLevelRange
+						writeLevels: rootState.canWriteLevels
 					}
 					commit('processBatch', payload)
 					if (batch.length == batchSize) {
