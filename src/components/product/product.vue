@@ -288,7 +288,7 @@
 			...mapGetters([
 				//from store.js
 				'getUser',
-				'getRoles',
+				'getMyRoles',
 				'isAuthenticated',
 				'isServerAdmin',
 				'canChangePriorities',

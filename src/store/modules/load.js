@@ -52,11 +52,12 @@ const mutations = {
 	 * The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
 	 * Note that the database is of type 0, and requirement area documents of type 1 are excluded in the database view
 	 */
-	processBatch: (state) => {
+	processBatch(state, roles) {
+		console.log('processBatch: this = ' + this)
 		for (let i = 0; i < batch.length; i++) {
 			docsCount++
 			// Load the items of the products the user is authorized to
-			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+			if (roles.includes('_admin') || roles.includes('reqArea') || roles.includes('admin') || roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
 				let type = batch[i].doc.type
 				let parentId = batch[i].doc.parentId
 				let delmark = batch[i].doc.delmark
@@ -80,7 +81,6 @@ const mutations = {
 							parentId: parentId
 						}
 					}
-					//				console.log('processBatch: Adding batch[i].doc._id = ' + batch[i].doc._id + ", parentId = " + parentId)
 					if (parentNodes[parentId] != null) {
 						itemsCount++
 						let parentNode = parentNodes[parentId]
@@ -184,7 +184,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					batch = res.data.rows
-					commit('processBatch')
+					commit('processBatch', rootState.myRoles)
 					if (batch.length == batchSize) {
 						state.offset += batchSize
 						// recurse until all read
@@ -218,7 +218,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					console.log(res)
 					batch = res.data.rows
-					commit('processBatch')
+					commit('processBatch', rootState.myRoles)
 					if (batch.length == batchSize) {
 						state.offset += batchSize
 						dispatch('getNextDocsBatch')

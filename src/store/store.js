@@ -14,7 +14,7 @@ export default new Vuex.Store({
 
 	state: {
 		user: null,
-		roles: [],
+		myRoles: [],
 		runningTimeout: null,
 		config: null,
 		currentDb: null,
@@ -25,14 +25,14 @@ export default new Vuex.Store({
 		getUser(state) {
 			return state.user
 		},
-		getRoles(state) {
-			return state.roles
+		getMyRoles(state) {
+			return state.myRoles
 		},
 		isAuthenticated(state) {
 			return state.user !== null
 		},
 		isServerAdmin(state) {
-			return state.roles.includes("_admin")
+			return state.myRoles.includes("_admin")
 		},
 		canChangePriorities(state) {
 			if (state.currentDoc != null) {
@@ -102,20 +102,20 @@ export default new Vuex.Store({
 	mutations: {
 		authUser(state, userData) {
 			state.user = userData.user
-			state.roles = userData.roles
+			state.myRoles = userData.roles
 		},
 
 		clearAuthData(state) {
 			state.user = null
 			state.load.teams = null
-			state.roles = []
+			state.myRoles = []
 			state.load.config = null
 			state.currentDb = null
 			state.currentDoc = null
 			state.load.databases = []
 			state.load.email = null
 			state.load.offset = 0,
-				state.load.treeNodes = []
+			state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
 
 			clearTimeout(state.runningTimeout)

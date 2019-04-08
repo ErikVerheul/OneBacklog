@@ -3,7 +3,7 @@
 		<div class="row">
 			<div class="col-lg-12 col-sm-12">
 				<h4 v-if="name">As a server administrator you're authenticated to setup the database for OneBacklog.
-					Your user name is: {{ name }}, and your roles are: {{ roles }}. Your default database is {{ db }}</h4>
+					Your user name is: {{ name }}, and your roles are: {{ myRoles }}. Your default database is {{ db }}</h4>
 				<h6>Note that users with their roles must be created in the protected _users database to sign in.<br />
 					Create and initialize the database for OneBacklog first. Then can assign known users and/or roles to it.</h6>
 			</div>
@@ -91,7 +91,7 @@
 			...mapGetters({
 				name: 'getUser',
 				db: 'getCurrentDb',
-				roles: 'getRoles',
+				myRoles: 'getMyRoles',
 				message: 'returnMessage',
 				comment: 'returnComment',
 				errorMessage: 'returnErrorMsg'
