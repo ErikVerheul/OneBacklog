@@ -790,8 +790,8 @@
 
 			showRemoveModal(node, event) {
 				event.preventDefault();
-				// node must be selected first && user cannot the database && only one node can be selected
-				if (this.nodeIsSelected && node.level > 1 && numberOfNodesSelected === 1) {
+				// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
+				if (this.canWriteLevels[node.level] && this.nodeIsSelected && node.level > 1 && numberOfNodesSelected === 1) {
 					this.removeTitle = `This ${this.getLevelText(node.level)} and ${this.getDescendantsInfo(node.path).count} descendants will be removed`
 					this.$refs.removeModalRef.show();
 				}
