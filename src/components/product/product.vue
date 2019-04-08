@@ -38,7 +38,7 @@
 				<h4>Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} product(s)</h4>
 
 				<div class='last-event'>
-					Last event: {{ this.$store.state.load.lastEvent }}
+					{{ this.$store.state.load.lastEvent }}
 				</div>
 
 				<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
@@ -564,12 +564,13 @@
 				this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
 
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
+				const warning = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 				if (selNodes.length == 1) {
 					this.selectedNodesTitle = title
-					this.$store.state.load.lastEvent = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected`
+					this.$store.state.load.lastEvent = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warning
 				} else {
 					this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-					this.$store.state.load.lastEvent = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected`
+					this.$store.state.load.lastEvent = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warning
 				}
 			},
 
