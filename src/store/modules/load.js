@@ -54,7 +54,6 @@ const mutations = {
 	 */
 	processBatch(state, payload) {
 		for (let i = 0; i < batch.length; i++) {
-			console.log('processBatch: type = ' + batch[i].doc.type + ' payload.writeRange = ' + payload.writeRange + ' result = ' + (batch[i].doc.type >= payload.writeRange[0] && batch[i].doc.type <= payload.writeRange[1]))
 			docsCount++
 			// Load the items of the products the user is authorized to
 			if (payload.roles.includes('_admin') || payload.roles.includes('reqArea') || payload.roles.includes('admin') || payload.roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
@@ -70,7 +69,7 @@ const mutations = {
 						children: [],
 						// expand the tree of the default product
 						isExpanded: (batch[i].doc.productId == state.currentUserProductId) ? true : false,
-						isdraggable: batch[i].doc.type >= payload.writeRange[0] && batch[i].doc.type <= payload.writeRange[1],
+						isDraggable: batch[i].doc.type >= payload.writeRange[0] && batch[i].doc.type <= payload.writeRange[1],
 						isSelectable: true,
 						// select the default product
 						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,

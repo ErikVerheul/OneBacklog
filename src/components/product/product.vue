@@ -207,7 +207,7 @@
 * isLeaf: (type == leafType) ? true : false, // for now PBI's have no children
 * children: [],
 * isExpanded: true || false, // initially the tree is expanded up to the feature type
-* isdraggable: true,
+* isDraggable: true || false, // depending on the user roles
 * isSelectable: true,
 * isSelected: true || false
 * data: {
@@ -913,7 +913,7 @@
 					isLeaf: 'is calculated in this method',
 					children: [],
 					isExpanded: false,
-					isdraggable: true,
+					isDraggable: true,
 					isSelectable: true,
 					isSelected: true,
 					data: {
