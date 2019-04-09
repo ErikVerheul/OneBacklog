@@ -31,10 +31,10 @@ Vue.use(Vuex)
  *		maintainUsers: true
  *	},
  *	"reqArea": {
- *		description: "Can access the requirements area with full read and write access to only the level 0 requirements area items. Is also a guest to all
- *    products.",
+ *		description: "Can access the requirements area with write access to the level 0 requirements area items and can prioritise features (level 4).
+ *    Is also a guest to all products.",
  *		products: "all",
- *		writeAccessLevel: 0,
+ *		writeAccessLevel: 0,4
  *		maintainUsers: false
  *	},
  *	"admin": {
@@ -167,6 +167,7 @@ export default new Vuex.Store({
 			}
 			if (state.myRoles.includes('reqArea')) {
 				levels[0] = true
+				levels[4] = true
 			}
 			if (state.myRoles.includes('superPO')) {
 				for (let i = 2; i <= 3; i++) {

@@ -7,6 +7,7 @@
 <b>The product vision:</b><br />
 As super PO I need one integrated tool to manage the product backlog of all my products so that:
 - I can map my portfolio in one tool
+- NOT IN MVP: The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get alligned to deliver the highest value first
 - My PO's can manage their products
 - NOT IN MVP: Dependencies within products are made visible so that the team, their PO or myself can act upon it
 - NOT IN MVP: Scrum teams can use the tool to do their refinements and run their sprints
@@ -24,6 +25,7 @@ The CouchDB build-in authentication is used
 <b>Authorization :</b><br />
 The authorization is based on the following roles:
 - '_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.
+- 'reqArea': The requirement area manager maintains the requirements area backlog and can prioritise features in the teams backlog
 - 'admin': Can create and assign users to products. Is also a guest to all products.
 - 'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.
 - 'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.
