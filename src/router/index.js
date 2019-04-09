@@ -11,7 +11,6 @@ import SetupPage from '../components/setup/setup.vue'
 import SigninPage from '../components/auth/signin.vue'
 import ProductPage from '../components/product/product.vue'
 import ReqsAreaPage from '../components/reqsarea/reqsarea.vue'
-import EditorPage from '../components/editor/editor.vue'
 
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
@@ -50,17 +49,6 @@ const routes = [
 	{
 		path: '/reqsarea',
 		component: ReqsAreaPage,
-		beforeEnter(to, from, next) {
-			if (store.state.user) {
-				next()
-			} else {
-				next('/signin')
-			}
-		}
-	},
-	{
-		path: '/editor',
-		component: EditorPage,
 		beforeEnter(to, from, next) {
 			if (store.state.user) {
 				next()

@@ -125,7 +125,7 @@
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 						<div class="d-table w-100">
 							<div class="d-table-cell tal">
-								<b-button to="../../editor">Add {{ selectedForView }}</b-button>
+								<b-button href="#">Add {{ selectedForView }}</b-button>
 							</div>
 							<div class="d-table-cell tac">
 								<b-form-group label="Select to see">
