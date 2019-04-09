@@ -282,7 +282,9 @@ const actions = {
 					var tmpDoc = res.data
 					tmpDoc.delmark = true
 					dispatch('updateDoc', tmpDoc)
-					dispatch('registerRemoveHist', payload)
+					if (payload.doRegHist) {
+						dispatch('registerRemoveHist', payload)
+					}
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -301,7 +303,7 @@ const actions = {
 				if (res.status == 200) {
 					var tmpDoc = res.data
 					const newHist = {
-						"nodeRemoveEvent": [payload.node.level, payload.node.title],
+						"nodeRemoveEvent": [payload.node.level, payload.node.title, payload.descendantsCount],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
