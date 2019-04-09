@@ -17,7 +17,7 @@
 			</span>
 			<span class="d-table-cell tar">
 				<h3>State:
-					<b-dropdown id="ddown-right" right variant="primary" class="m-2">
+					<b-dropdown id="ddown-right" right class="m-2">
 						<template slot="button-content">
 							{{ getItemStateText(getCurrentItemState) }}
 						</template>
