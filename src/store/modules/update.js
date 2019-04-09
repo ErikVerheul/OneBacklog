@@ -25,9 +25,9 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.tssize = payload.newSizeIdx
-					tmpDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.tssize = payload.newSizeIdx
-					rootState.currentDoc.history.push(newHist)
+					rootState.currentDoc.history.unshift(newHist)
 					dispatch('updateDoc', tmpDoc)
 				}
 			})
@@ -54,9 +54,9 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.spikepersonhours = payload.newHrs
-					tmpDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.spikepersonhours = payload.newHrs
-					rootState.currentDoc.history.push(newHist)
+					rootState.currentDoc.history.unshift(newHist)
 					dispatch('updateDoc', tmpDoc)
 				}
 			})
@@ -83,9 +83,9 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.spsize = payload.newPoints
-					tmpDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.spsize = payload.newPoints
-					rootState.currentDoc.history.push(newHist)
+					rootState.currentDoc.history.unshift(newHist)
 					dispatch('updateDoc', tmpDoc)
 				}
 			})
@@ -112,9 +112,9 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.state = payload.newState
-					tmpDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.state = payload.newState
-					rootState.currentDoc.history.push(newHist)
+					rootState.currentDoc.history.unshift(newHist)
 					dispatch('updateDoc', tmpDoc)
 				}
 			})
@@ -140,8 +140,8 @@ const actions = {
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
-					tmpDoc.history.push(newHist)
-					rootState.currentDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
+					rootState.currentDoc.history.unshift(newHist)
 					tmpDoc.title = payload.newTitle
 					rootState.currentDoc.title = payload.newTitle
 					dispatch('updateDoc', tmpDoc)
@@ -168,8 +168,8 @@ const actions = {
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
-					tmpDoc.history.push(newHist)
-					rootState.currentDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
+					rootState.currentDoc.history.unshift(newHist)
 					tmpDoc.subtype = payload.newSubType
 					rootState.currentDoc.subtype = payload.newSubType
 					dispatch('updateDoc', tmpDoc)
@@ -225,8 +225,8 @@ const actions = {
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
-					tmpDoc.history.push(newHist)
-					rootState.currentDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
+					rootState.currentDoc.history.unshift(newHist)
 					tmpDoc.type = payload.newLevel
 					tmpDoc.productId = payload.productId
 					tmpDoc.parentId = payload.newParentId
@@ -259,7 +259,7 @@ const actions = {
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
-					tmpDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
 					tmpDoc.type = payload.newLevel
 					tmpDoc.productId = payload.productId
 					dispatch('updateDoc', tmpDoc)
@@ -308,7 +308,7 @@ const actions = {
 						"email": payload.email,
 						"timestamp": Date.now()
 					}
-					tmpDoc.history.push(newHist)
+					tmpDoc.history.unshift(newHist)
 					dispatch('updateDoc', tmpDoc)
 				}
 			})
@@ -338,8 +338,8 @@ const actions = {
 							"email": payload.email,
 							"timestamp": Date.now()
 						}
-						tmpDoc.history.push(newHist)
-						rootState.currentDoc.history.push(newHist)
+						tmpDoc.history.unshift(newHist)
+						rootState.currentDoc.history.unshift(newHist)
 						tmpDoc.description = newEncodedDescription
 						const newPayload = {
 							newId: payload.newId,
@@ -375,8 +375,8 @@ const actions = {
 							"email": payload.email,
 							"timestamp": Date.now()
 						}
-						tmpDoc.history.push(newHist)
-						rootState.currentDoc.history.push(newHist)
+						tmpDoc.history.unshift(newHist)
+						rootState.currentDoc.history.unshift(newHist)
 						tmpDoc.acceptanceCriteria = newEncodedAcceptance
 						const newPayload = {
 							newId: payload.newId,
