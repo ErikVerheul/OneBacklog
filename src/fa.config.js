@@ -11,14 +11,18 @@ import {
 	faFolder,
 	faFile,
 	faChevronDown,
-	faChevronRight
+	faChevronRight,
+	faBug,
+	faHourglassStart
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
 	faFolder,
 	faFile,
 	faChevronDown,
-	faChevronRight
+	faChevronRight,
+	faBug,
+	faHourglassStart
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon); // registered globally
