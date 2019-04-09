@@ -141,7 +141,7 @@
 						<ul v-if="selectedForView==='comments'">
 							<li v-for="comment in getCurrentItemComments" :key=comment.timestamp>
 								<div v-for="(value, key) in comment" :key=key>
-									{{ key }} {{ value }}
+									<div v-html="prepHistoryOut(key, value)"></div>
 								</div>
 							</li>
 						</ul>
@@ -380,10 +380,20 @@
 
 		methods: {
 			insertComment() {
-				console.log('insertComment executed')
+				const payload = {
+					'comment': this.newComment,
+					'userName': this.getUser,
+					'email': this.getEmail
+				}
+				this.$store.dispatch('addComment', payload)
 			},
 			insertHist() {
-				console.log('insertHist executed')
+				const payload = {
+					'comment': this.newHistory,
+					'userName': this.getUser,
+					'email': this.getEmail
+				}
+				this.$store.dispatch('addHistoryComment', payload)
 			},
 			setFirstNodeSelected() {
 				firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
@@ -430,6 +440,9 @@
 				}
 				if (key == "nodeRemoveEvent") {
 					return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are removed</h5>"
+				}
+				if (key == "comment") {
+					return window.atob(value[0])
 				}
 				if (key == "timestamp") {
 					return key + ": " + new Date(value).toString() + "<br><br>"

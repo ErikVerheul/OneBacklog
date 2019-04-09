@@ -389,6 +389,62 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('saveAcceptanceAndLoadDoc: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
+	addComment({
+		rootState,
+		dispatch
+	}, payload) {
+		const _id = rootState.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					var tmpDoc = res.data
+					// encode to base64
+					const newComment = window.btoa(payload.comment)
+					const newEntry = {
+						"comment": [newComment],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.comments.unshift(newEntry)
+					rootState.currentDoc.comments.unshift(newEntry)
+					dispatch('updateDoc', tmpDoc)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('addComment: Could not read document with _id ' + _id + '. Error = ' + error))
+	},
+	addHistoryComment({
+		rootState,
+		dispatch
+	}, payload) {
+		const _id = rootState.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					var tmpDoc = res.data
+					// encode to base64
+					const newComment = window.btoa(payload.comment)
+					const newHist = {
+						"comment": [newComment],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.history.unshift(newHist)
+					rootState.currentDoc.history.unshift(newHist)
+					dispatch('updateDoc', tmpDoc)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('addHistoryComment: Could not read document with _id ' + _id + '. Error = ' + error))
+	},
 
 	// Update current document
 	updateDoc({
