@@ -125,7 +125,7 @@
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 						<div class="d-table w-100">
 							<div class="d-table-cell tal">
-								<b-button href="#">Add {{ selectedForView }}</b-button>
+								<b-button :pressed.sync="startEditor">Add {{ selectedForView }}</b-button>
 							</div>
 							<div class="d-table-cell tac">
 								<b-form-group label="Select to see">
@@ -181,6 +181,24 @@
 						<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type" />
 					</b-form-group>
 					<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
+				</b-modal>
+			</div>
+		</template>
+		<template>
+			<div>
+				<b-modal size="lg" ref='commentsEditorRef' @ok="insertComment" title='Compose a comment'>
+					<b-form-group>
+						<vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
+					</b-form-group>
+				</b-modal>
+			</div>
+		</template>
+		<template>
+			<div>
+				<b-modal size="lg" ref='historyEditorRef' @ok="insertHist" title='Comment on last history event'>
+					<b-form-group>
+						<vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
+					</b-form-group>
 				</b-modal>
 			</div>
 		</template>
@@ -275,6 +293,9 @@
 				// set to an invalid value; must be updated before use
 				selectedPbiType: -1,
 				selectedForView: 'comments',
+				startEditor: false,
+				newComment: "",
+				newHistory: ""
 			}
 		},
 
@@ -347,14 +368,26 @@
 					}
 					this.$store.dispatch('setSubType', payload)
 				}
+			},
+			'startEditor': function(val) {
+				if (val == true) {
+					this.startEditor = false
+					if (this.selectedForView == 'comments') this.$refs.commentsEditorRef.show()
+					if (this.selectedForView == 'history') this.$refs.historyEditorRef.show()
+				}
 			}
 		},
 
 		methods: {
+			insertComment() {
+				console.log('insertComment executed')
+			},
+			insertHist() {
+				console.log('insertHist executed')
+			},
 			setFirstNodeSelected() {
 				firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
 			},
-
 			/* Presentation methods */
 			prepHistoryOut(key, value) {
 				if (key == "createEvent") {
@@ -886,7 +919,7 @@
 						// cannot create a database here, ask server admin
 						this.insertOptionSelected = 2;
 					}
-					this.$refs.insertModalRef.show();
+					this.$refs.insertModalRef.show()
 				}
 			},
 
