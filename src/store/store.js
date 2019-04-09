@@ -30,7 +30,7 @@ Vue.use(Vuex)
  *		writeAccessLevel: null,
  *		maintainUsers: true
  *	},
- *	"reqArea": {
+ *	"areaPO": {
  *		description: "Can access the requirements area with write access to the level 0 requirements area items and can prioritise features (level 4).
  *    Is also a guest to all products.",
  *		products: "all",
@@ -165,7 +165,7 @@ export default new Vuex.Store({
 			for (let i = 0; i <= maxLevel; i++) {
 				levels.push(false)
 			}
-			if (state.myRoles.includes('reqArea')) {
+			if (state.myRoles.includes('areaPO')) {
 				levels[0] = true
 				levels[4] = true
 			}

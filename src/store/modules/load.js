@@ -56,7 +56,7 @@ const mutations = {
 		for (let i = 0; i < batch.length; i++) {
 			state.docsCount++
 			// Load the items of the products the user is authorized to
-			if (payload.roles.includes('_admin') || payload.roles.includes('reqArea') || payload.roles.includes('admin') || payload.roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+			if (payload.roles.includes('_admin') || payload.roles.includes('areaPO') || payload.roles.includes('admin') || payload.roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
 				let type = batch[i].doc.type
 				let parentId = batch[i].doc.parentId
 				let delmark = batch[i].doc.delmark
