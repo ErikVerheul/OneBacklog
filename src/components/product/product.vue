@@ -133,15 +133,15 @@
 								</b-form-group>
 							</div>
 							<div class="d-table-cell tar">
-								<b-button href="#">Find {{ selectedForView }}</b-button>
+								<b-button href="#">Filter {{ selectedForView }}</b-button>
 							</div>
 						</div>
 					</div>
 					<div class="pane" :style="{ flexGrow: 1 }">
 						<ul v-if="selectedForView==='comments'">
-							<li v-for="comment in getCurrentItemComments" :key=comment.timestamp>
+							<li v-for="comment in getFilteredComments" :key=comment.timestamp>
 								<div v-for="(value, key) in comment" :key=key>
-									<div v-html="prepHistoryOut(key, value)"></div>
+									<div v-html="prepCommentsText(key, value)"></div>
 								</div>
 							</li>
 						</ul>
@@ -153,9 +153,9 @@
 							</li>
 						</ul>
 						<ul v-if="selectedForView==='history'">
-							<li v-for="hist in getCurrentItemHistory" :key="hist.timestamp">
+							<li v-for="hist in getFilteredHistory" :key="hist.timestamp">
 								<div v-for="(value, key) in hist" :key=key>
-									<div v-html="prepHistoryOut(key, value)"></div>
+									<div v-html="prepHistoryText(key, value)"></div>
 								</div>
 							</li>
 						</ul>
@@ -292,10 +292,13 @@
 				],
 				// set to an invalid value; must be updated before use
 				selectedPbiType: -1,
+				// comments, history and attachments
 				selectedForView: 'comments',
 				startEditor: false,
 				newComment: "",
-				newHistory: ""
+				newHistory: "",
+				filterForComment: "",
+				filterForHistory: ""
 			}
 		},
 
@@ -354,6 +357,48 @@
 				set(newAcceptanceCriteria) {
 					this.$store.state.currentDoc.acceptanceCriteria = newAcceptanceCriteria
 				}
+			},
+			getFilteredComments() {
+				var filteredComments = []
+				for (let i = 0; i < this.getCurrentItemComments.length; i++) {
+					let allText = window.atob(this.getCurrentItemComments[i].comment)
+					allText += this.getCurrentItemComments[i].by
+					allText += this.getCurrentItemComments[i].email
+					allText += this.mkTimestamp(this.getCurrentItemComments[i].timestamp)
+					if (allText.includes(this.filterForComment)) {
+						filteredComments.push(this.getCurrentItemComments[i])
+					}
+				}
+				return filteredComments
+			},
+			getFilteredHistory() {
+				var filteredComments = []
+				for (let i = 0; i < this.getCurrentItemHistory.length; i++) {
+					let histItem = this.getCurrentItemHistory[i]
+					let allText = ""
+					let keys = Object.keys(histItem)
+					for (let j = 0; j < keys.length - 1; j++) {
+						if (keys[j] == "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
+						if (keys[j] == "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
+						if (keys[j] == "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
+						if (keys[j] == "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
+						if (keys[j] == "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
+						if (keys[j] == "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
+						if (keys[j] == "setSubTypeEvent") allText += this.mkSetSubTypeEvent(histItem[keys[j]])
+						if (keys[j] == "descriptionEvent") allText += this.mkDescriptionEvent(histItem[keys[j]])
+						if (keys[j] == "acceptanceEvent") allText += this.mkAcceptanceEvent(histItem[keys[j]])
+						if (keys[j] == "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
+						if (keys[j] == "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
+						if (keys[j] == "nodeRemoveEvent") allText += this.mkNodeRemoveEvent(histItem[keys[j]])
+						if (keys[j] == "by") allText += this.mkBy(histItem[keys[j]])
+						if (keys[j] == "email") allText += this.mkEmail(histItem[keys[j]])
+						if (keys[j] == "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
+					}
+					if (allText.includes(this.filterForHistory)) {
+						filteredComments.push(histItem)
+					}
+				}
+				return filteredComments
 			}
 		},
 
@@ -399,54 +444,82 @@
 				firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
 			},
 			/* Presentation methods */
-			prepHistoryOut(key, value) {
-				if (key == "createEvent") {
-					return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'</h5>"
+			mkCreateEvent(value) {
+				return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'</h5>"
+			},
+			mkSetSizeEvent(value) {
+				return "<h5>T-Shirt estimate changed from </h5>" + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
+			},
+			mkSetPointsEvent(value) {
+				return "<h5>Storypoints estimate changed from </h5>" + value[0] + ' to ' + value[1]
+			},
+			mkSetHrsEvent(value) {
+				return "<h5>Spike estimate hours changed from </h5>" + value[0] + ' to ' + value[1]
+			},
+			mkSetStateEvent(value) {
+				return "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'</h5>"
+			},
+			mkSetTitleEvent(value) {
+				return "<h5>The item  title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'"
+			},
+			mkSetSubTypeEvent(value) {
+				return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'"
+			},
+			mkDescriptionEvent(value) {
+				return "<h5>The description of the item has changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
+			},
+			mkAcceptanceEvent(value) {
+				return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
+			},
+			mkNodeDroppedEvent(value) {
+				if (value[0] == value[1]) {
+					return "<h5>The item changed priority to position " + (value[2] + 1) + " under parent '" + value[3] + "'</h5>"
+				} else {
+					return "<h5>The item changed type from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ".</h5>" +
+						"<p>The new position is " + (value[2] + 1) + " under parent '" + value[3] + "'</p>"
 				}
-				if (key == "setSizeEvent") {
-					return "<h5>T-Shirt estimate changed from </h5>" + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
-				}
-				if (key == "setPointsEvent") {
-					return "<h5>Storypoints estimate changed from </h5>" + value[0] + ' to ' + value[1]
-				}
-				if (key == "setHrsEvent") {
-					return "<h5>Spike estimate hours changed from </h5>" + value[0] + ' to ' + value[1]
-				}
-				if (key == "setStateEvent") {
-					return "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'</h5>"
-				}
-				if (key == "setTitleEvent") {
-					return "<h5>The item  title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'"
-				}
-				if (key == "setSubTypeEvent") {
-					return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'"
-				}
-				if (key == "descriptionEvent") {
-					return "<h5>The description of the item has changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
-				}
-				if (key == "acceptanceEvent") {
-					return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
-				}
-				if (key == "nodeDroppedEvent") {
-					if (value[0] == value[1]) {
-						return "<h5>The item changed priority to position " + (value[2] + 1) + " under parent '" + value[3] + "'</h5>"
-					} else {
-						return "<h5>The item changed type from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ".</h5>" +
-							"<p>The new position is " + (value[2] + 1) + " under parent '" + value[3] + "'</p>"
-					}
-				}
-				if (key == "descendantMoved") {
-					return "<h5>Item was moved as descendant from '" + value[0] + "'</h5>"
-				}
-				if (key == "nodeRemoveEvent") {
-					return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are removed</h5>"
-				}
-				if (key == "comment") {
-					return window.atob(value[0])
-				}
-				if (key == "timestamp") {
-					return key + ": " + new Date(value).toString() + "<br><br>"
-				}
+			},
+			mkDescendantMoved(value) {
+				return "<h5>Item was moved as descendant from '" + value[0] + "'</h5>"
+			},
+			mkNodeRemoveEvent(value) {
+				return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are removed</h5>"
+			},
+			mkBy(value) {
+				return "by: " + value
+			},
+			mkEmail(value) {
+				return "email: " + value
+			},
+			mkTimestamp(value) {
+				return "timestamp: " + new Date(value).toString() + "<br><br>"
+			},
+
+			mkComment(value) {
+				return window.atob(value[0])
+			},
+			prepCommentsText(key, value) {
+				if (key == "comment") return this.mkComment(value)
+				if (key == "by") return this.mkBy(value)
+				if (key == "email") return this.mkEmail(value)
+				if (key == "timestamp") return this.mkTimestamp(value)
+			},
+			prepHistoryText(key, value) {
+				if (key == "createEvent") return this.mkCreateEvent(value)
+				if (key == "setSizeEvent") return this.mkSetSizeEvent(value)
+				if (key == "setPointsEvent") return this.mkSetPointsEvent(value)
+				if (key == "setHrsEvent") return this.mkSetHrsEvent(value)
+				if (key == "setStateEvent") return this.mkSetStateEvent(value)
+				if (key == "setTitleEvent") return this.mkSetTitleEvent(value)
+				if (key == "setSubTypeEvent") return this.mkSetSubTypeEvent(value)
+				if (key == "descriptionEvent") return this.mkDescriptionEvent(value)
+				if (key == "acceptanceEvent") return this.mkAcceptanceEvent(value)
+				if (key == "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
+				if (key == "descendantMoved") return this.mkDescendantMoved(value)
+				if (key == "nodeRemoveEvent") return this.mkNodeRemoveEvent(value)
+				if (key == "by") return this.mkBy(value)
+				if (key == "email") return this.mkEmail(value)
+				if (key == "timestamp") return this.mkTimestamp(value)
 				return key + ": " + value
 			},
 
