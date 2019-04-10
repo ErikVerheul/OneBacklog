@@ -133,7 +133,7 @@
 								</b-form-group>
 							</div>
 							<div class="d-table-cell tar">
-								<b-button href="#">Filter {{ selectedForView }}</b-button>
+								<b-button :pressed.sync="startFiltering">Filter {{ selectedForView }}</b-button>
 							</div>
 						</div>
 					</div>
@@ -163,44 +163,46 @@
 				</multipane>
 			</div>
 		</multipane>
-
+		<!-- Modals -->
 		<template v-if="this.nodeIsSelected">
-			<div>
-				<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
-					<div class="d-block text-center">
-						<h3>This operation cannot be undone!</h3>
-					</div>
-					<b-button class="mt-3" variant="outline-danger" block @click="doRemove">Remove now!</b-button>
-				</b-modal>
-			</div>
+			<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
+				<div class="d-block text-center">
+					<h3>This operation cannot be undone!</h3>
+				</div>
+				<b-button class="mt-3" variant="outline-danger" block @click="doRemove">Remove now!</b-button>
+			</b-modal>
 		</template>
 		<template v-if="this.nodeIsSelected">
-			<div>
-				<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
-					<b-form-group label="Select what node type to insert:">
-						<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type" />
-					</b-form-group>
-					<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
-				</b-modal>
-			</div>
+			<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
+				<b-form-group label="Select what node type to insert:">
+					<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type" />
+				</b-form-group>
+				<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
+			</b-modal>
 		</template>
 		<template>
-			<div>
-				<b-modal size="lg" ref='commentsEditorRef' @ok="insertComment" title='Compose a comment'>
-					<b-form-group>
-						<vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
-					</b-form-group>
-				</b-modal>
-			</div>
+			<b-modal size="lg" ref='commentsEditorRef' @ok="insertComment" title='Compose a comment'>
+				<b-form-group>
+					<vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
+				</b-form-group>
+			</b-modal>
 		</template>
 		<template>
-			<div>
-				<b-modal size="lg" ref='historyEditorRef' @ok="insertHist" title='Comment on last history event'>
-					<b-form-group>
-						<vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
-					</b-form-group>
-				</b-modal>
-			</div>
+			<b-modal size="lg" ref='historyEditorRef' @ok="insertHist" title='Comment on last history event'>
+				<b-form-group>
+					<vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
+				</b-form-group>
+			</b-modal>
+		</template>
+		<template>
+			<b-modal size="lg" ref='commentsFilterRef' @ok="filterComments" title='Filter comments'>
+				<b-form-input v-model=filterForCommentPrep placeholder="Enter a text to filter on"></b-form-input>
+			</b-modal>
+		</template>
+		<template>
+			<b-modal size="lg" ref='historyFilterRef' @ok="filterHistory" title='Filter history'>
+				<b-form-input v-model=filterForHistoryPrep placeholder="Enter a text to filter on"></b-form-input>
+			</b-modal>
 		</template>
 	</div>
 </template>
@@ -297,7 +299,10 @@
 				startEditor: false,
 				newComment: "",
 				newHistory: "",
+				startFiltering: false,
+				filterForCommentPrep: "",
 				filterForComment: "",
+				filterForHistoryPrep: "",
 				filterForHistory: ""
 			}
 		},
@@ -377,7 +382,7 @@
 					let histItem = this.getCurrentItemHistory[i]
 					let allText = ""
 					let keys = Object.keys(histItem)
-					for (let j = 0; j < keys.length - 1; j++) {
+					for (let j = 0; j < keys.length; j++) {
 						if (keys[j] == "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
 						if (keys[j] == "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
 						if (keys[j] == "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
@@ -420,10 +425,23 @@
 					if (this.selectedForView == 'comments') this.$refs.commentsEditorRef.show()
 					if (this.selectedForView == 'history') this.$refs.historyEditorRef.show()
 				}
+			},
+			'startFiltering': function(val) {
+				if (val == true) {
+					this.startFiltering = false
+					if (this.selectedForView == 'comments') this.$refs.commentsFilterRef.show()
+					if (this.selectedForView == 'history') this.$refs.historyFilterRef.show()
+				}
 			}
 		},
 
 		methods: {
+			filterComments() {
+				this.filterForComment = this.filterForCommentPrep
+			},
+			filterHistory() {
+				this.filterForHistory = this.filterForHistoryPrep
+			},
 			insertComment() {
 				const payload = {
 					'comment': this.newComment,
@@ -520,7 +538,6 @@
 				if (key == "by") return this.mkBy(value)
 				if (key == "email") return this.mkEmail(value)
 				if (key == "timestamp") return this.mkTimestamp(value)
-				return key + ": " + value
 			},
 
 			/* Database update methods */
