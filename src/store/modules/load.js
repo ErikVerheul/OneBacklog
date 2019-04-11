@@ -37,11 +37,7 @@ const getters = {
 		return state.userAssignedProductIds
 	},
 	getTeams(state) {
-		if (state.myTeams != null) {
-			return state.myTeams
-		} else {
-			return []
-		}
+		return state.myTeams
 	}
 }
 
