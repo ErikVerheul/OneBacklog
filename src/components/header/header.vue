@@ -691,7 +691,6 @@
 <style scoped>
 	.logo {
 		width: 62px;
-		hight: 50px;
 		margin-right: 20px;
 	}
 
