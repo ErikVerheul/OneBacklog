@@ -13,7 +13,7 @@ const actions = {
 				withCredentials: true
 			}).then(res => {
 				// eslint-disable-next-line no-console
-				console.log(res)
+				if (rootState.debug) console.log(res)
 				tmpUserData = res.data
 				tmpUserData["products"].push(productId)
 				dispatch("updateUser2")
@@ -32,7 +32,7 @@ const actions = {
 				withCredentials: true
 			}).then(res => {
 				// eslint-disable-next-line no-console
-				console.log(res)
+				if (rootState.debug) console.log(res)
 				tmpUserData = res.data
 				tmpUserData["products"] = products
 				dispatch("updateUser2")
@@ -51,7 +51,7 @@ const actions = {
 				data: tmpUserData
 			}).then(res => {
 				// eslint-disable-next-line no-console
-				console.log(res)
+				if (rootState.debug) console.log(res)
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('updateUser: Could not update user data for user ' + rootState.user + '. Error = ' + error))

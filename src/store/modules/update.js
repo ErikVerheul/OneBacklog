@@ -461,7 +461,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 201) {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (rootState.debug) console.log(res)
 					// eslint-disable-next-line no-console
 					console.log('updateDoc: document with _id + ' + _id + ' is updated.')
 				}
@@ -488,7 +488,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 201) {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (rootState.debug) console.log(res)
 					// eslint-disable-next-line no-console
 					console.log('updateDocAndLoadNew: document with _id + ' + _id + ' is updated.')
 					dispatch('loadDoc', newId)

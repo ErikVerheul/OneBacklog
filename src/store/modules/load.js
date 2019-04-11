@@ -107,7 +107,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (rootState.debug) console.log(res)
 					rootState.config = res.data
 					// eslint-disable-next-line no-console
 					console.log('The configuration is loaded')
@@ -146,7 +146,7 @@ const actions = {
 				withCredentials: true
 			}).then(res => {
 				// eslint-disable-next-line no-console
-				console.log(res)
+				if (rootState.debug) console.log(res)
 				// eslint-disable-next-line no-console
 				console.log('getOtherUserData called for user = ' + rootState.user)
 				state.myTeams = res.data.teams
@@ -181,7 +181,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (rootState.debug) console.log(res)
 					batch = res.data.rows
 
 					const payload = {
@@ -220,7 +220,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (rootState.debug) console.log(res)
 					batch = res.data.rows
 
 					const payload = {
@@ -254,7 +254,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (rootState.debug) console.log(res)
 					state.currentProductTitle = res.data.title
 					state.currentProductId = res.data.productId
 					// eslint-disable-next-line no-console
@@ -277,7 +277,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (rootState.debug) console.log(res)
 					rootState.currentDoc = res.data
 					// decode from base64 + replace the encoded data
 					rootState.currentDoc.description = window.atob(res.data.description)
@@ -329,7 +329,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 201) {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (rootState.debug) console.log(res)
 					// eslint-disable-next-line no-console
 					console.log('createDoc2: document with _id + ' + _id + ' is created.')
 					dispatch('loadDoc', _id)

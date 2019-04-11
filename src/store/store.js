@@ -72,6 +72,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 
 	state: {
+		debug: false,
 		user: null,
 		myRoles: [],
 		canWriteLevels: [],
@@ -225,7 +226,7 @@ export default new Vuex.Store({
 						}
 					}).then(res => {
 						// eslint-disable-next-line no-console
-						console.log(res)
+						if (state.debug) console.log(res)
 						// eslint-disable-next-line no-console
 						console.log("recurse refreshCookie")
 						//Recurse
@@ -251,7 +252,7 @@ export default new Vuex.Store({
 					}
 				}).then(res => {
 					// eslint-disable-next-line no-console
-					console.log(res)
+					if (state.debug) console.log(res)
 					if (res.status == 200) {
 						state.user = res.data.name
 						commit('authUser', {
