@@ -22,13 +22,9 @@
 				</div>
 				<div class="text-center">
 					No account yet? Ask your SM or PO to create one.
-					<br/>
-					<br/>
-					<br/>
-					<br/>
-					<br/>
+					<br/><br/><br/><br/><br/>
 					This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-					MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the About menu item for the GNU General Public License for more details.
+					MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu.
 				</div>
 			</div>
 		</div>
