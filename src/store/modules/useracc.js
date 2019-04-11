@@ -19,7 +19,7 @@ const actions = {
 				dispatch("updateUser2")
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('addProductId: Could not productId ' + productId + ' to user ' + rootState.user + '. Error = ' + error))
+			.catch(error => console.log('addProductId: Could not assign productId ' + productId + ' to user ' + rootState.user + '. Error = ' + error))
 	},
 
 	removeProductId({
