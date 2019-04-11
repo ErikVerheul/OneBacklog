@@ -103,7 +103,7 @@
 						<div class="d-table w-100">
 							<h5 class="title is-6">Description</h5>
 							<div class="d-table-cell tar">
-								<p class="title is-6">Created by {{ getCurrentItemHistory[0].by }} @ {{ new Date(getCurrentItemHistory[0].timestamp).toString().substring(0, 33) }} </p>
+								<p class="title is-6">Last update by {{ getCurrentItemHistory[0].by }} @ {{ new Date(getCurrentItemHistory[0].timestamp).toString().substring(0, 33) }} </p>
 							</div>
 						</div>
 					</div>
@@ -377,6 +377,16 @@
 				return filteredComments
 			},
 			getFilteredHistory() {
+				function removeImages(text) {
+					let pos1 = text.indexOf('<img src="')
+					if (pos1 == -1) return text
+					else {
+						let pos2 = text.indexOf('">', pos1 + 1)
+						let image = text.slice(pos1, pos2 + 1)
+						text = text.replace(image, '')
+						return removeImages(text)
+					}
+				}
 				var filteredComments = []
 				for (let i = 0; i < this.getCurrentItemHistory.length; i++) {
 					let histItem = this.getCurrentItemHistory[i]
@@ -390,8 +400,8 @@
 						if (keys[j] == "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
 						if (keys[j] == "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
 						if (keys[j] == "setSubTypeEvent") allText += this.mkSetSubTypeEvent(histItem[keys[j]])
-						if (keys[j] == "descriptionEvent") allText += this.mkDescriptionEvent(histItem[keys[j]])
-						if (keys[j] == "acceptanceEvent") allText += this.mkAcceptanceEvent(histItem[keys[j]])
+						if (keys[j] == "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
+						if (keys[j] == "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
 						if (keys[j] == "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
 						if (keys[j] == "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
 						if (keys[j] == "nodeRemoveEvent") allText += this.mkNodeRemoveEvent(histItem[keys[j]])
