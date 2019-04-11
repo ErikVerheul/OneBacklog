@@ -85,7 +85,7 @@
 							<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="getCurrentItemTitle" @blur="updateTitle()">
 							</b-input>
 							<div class="d-table-cell tar">
-								<b-button href="#">(Un)Subscribe to change notices</b-button>
+								<b-button @click="subscribeClicked">{{ subsribeTitle }}</b-button>
 							</div>
 						</div>
 					</div>
@@ -319,6 +319,7 @@
 				'getUser',
 				'getMyRoles',
 				'isAuthenticated',
+				'isFollower',
 				'isServerAdmin',
 				'canWriteLevels',
 				'getCurrentDb',
@@ -347,6 +348,13 @@
 				'getUserAssignedProductIds',
 				'getTeams'
 			]),
+			subsribeTitle() {
+				if (this.isFollower) {
+					return "Unsubscribe to change notices"
+				} else {
+					return "Subscribe to change notices"
+				}
+			},
 			description: {
 				get() {
 					return this.getCurrentItemDescription
@@ -393,6 +401,7 @@
 					let allText = ""
 					let keys = Object.keys(histItem)
 					for (let j = 0; j < keys.length; j++) {
+						if (keys[j] == "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
 						if (keys[j] == "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
 						if (keys[j] == "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
 						if (keys[j] == "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
@@ -446,6 +455,13 @@
 		},
 
 		methods: {
+			subscribeClicked() {
+				const payload = {
+					'userName': this.getUser,
+					'email': this.getEmail
+				}
+				this.$store.dispatch('changeSubsription', payload)
+			},
 			filterComments() {
 				this.filterForComment = this.filterForCommentPrep
 			},
@@ -472,6 +488,13 @@
 				firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
 			},
 			/* Presentation methods */
+			mkSubscribeEvent(value) {
+				if (value[0]) {
+					return "<h5>You unsubscribed for messages about this backlog item.</h5>"
+				} else {
+					return "<h5>You subscribed to receive messages about this backlog item.</h5>"
+				}
+			},
 			mkCreateEvent(value) {
 				return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'</h5>"
 			},
@@ -533,6 +556,7 @@
 				if (key == "timestamp") return this.mkTimestamp(value)
 			},
 			prepHistoryText(key, value) {
+				if (key == "subscribeEvent") return this.mkSubscribeEvent(value)
 				if (key == "createEvent") return this.mkCreateEvent(value)
 				if (key == "setSizeEvent") return this.mkSetSizeEvent(value)
 				if (key == "setPointsEvent") return this.mkSetPointsEvent(value)

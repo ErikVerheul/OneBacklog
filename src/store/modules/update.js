@@ -5,6 +5,46 @@ const actions = {
 	 * When updating the database first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
+	changeSubsription({
+		rootState,
+		rootGetters,
+		dispatch
+	}, payload) {
+		const _id = rootState.currentDoc._id
+		globalAxios({
+				method: 'GET',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				if (res.status == 200) {
+					var tmpDoc = res.data
+					const wasFollower = rootGetters.isFollower
+					let tmpFollowers = tmpDoc.followers
+					if (rootGetters.isFollower) {
+						for (let i = 0; i < tmpFollowers.length; i++) {
+							if (tmpFollowers[i] == rootGetters.getEmail) {
+								tmpFollowers.splice(i, 1)
+							}
+						}
+					} else {
+						tmpFollowers.push(rootGetters.getEmail)
+					}
+					const newHist = {
+						"subscribeEvent": [wasFollower],
+						"by": payload.userName,
+						"email": payload.email,
+						"timestamp": Date.now()
+					}
+					tmpDoc.followers = tmpFollowers
+					tmpDoc.history.unshift(newHist)
+					rootState.currentDoc.followers = tmpFollowers
+					rootState.currentDoc.history.unshift(newHist)
+					dispatch('updateDoc', tmpDoc)
+				}
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('changeSubsription: Could not read document with _id ' + _id + '. Error = ' + error))
+	},
 	setSize({
 		rootState,
 		dispatch

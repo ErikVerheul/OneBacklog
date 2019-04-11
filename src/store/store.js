@@ -92,6 +92,9 @@ export default new Vuex.Store({
 		isAuthenticated(state) {
 			return state.user !== null
 		},
+		isFollower(state) {
+			return state.currentDoc.followers.includes(state.load.email)
+		},
 		isServerAdmin(state) {
 			return state.myRoles.includes("_admin")
 		},
