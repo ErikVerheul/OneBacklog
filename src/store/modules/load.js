@@ -73,7 +73,8 @@ const mutations = {
 							_id: batch[i].doc._id,
 							priority: batch[i].doc.priority,
 							productId: batch[i].doc.productId,
-							parentId: parentId
+							parentId: parentId,
+							subtype: batch[i].doc.subtype
 						}
 					}
 					if (parentNodes[parentId] != null) {

@@ -44,11 +44,16 @@
 				<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 				<div class="tree-container" @mousedown.stop>
 					<sl-vue-tree v-model="$store.state.load.treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelectedEvent" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
-
 						<template slot="title" slot-scope="{ node }">
 							<span class="item-icon">
-								<i v-if="node.isLeaf">
+								<i v-if="node.isLeaf && node.data.subtype == 0">
 									<font-awesome-icon icon="file" />
+								</i>
+								<i v-if="node.isLeaf && node.data.subtype == 1">
+									<font-awesome-icon icon="hourglass-start" />
+								</i>
+								<i class="colorRed" v-if="node.isLeaf && node.data.subtype == 2">
+									<font-awesome-icon icon="bug" />
 								</i>
 								<i v-if="!node.isLeaf">
 									<font-awesome-icon icon="folder" />
@@ -234,7 +239,8 @@
 * ...._id: doc._id,
 * ....priority: doc.priority,
 * ....productId: doc.productId,
-* ....parentId: doc.parentId
+* ....parentId: doc.parentId,
+* ....subtype: doc.subtype
 * }
 */
 
@@ -256,7 +262,6 @@
 	import SlVueTree from 'sl-vue-tree'
 
 	var numberOfNodesSelected = 0
-	var firstNodeSelected = null
 	var newNode = {}
 	var newNodeLocation = null
 	var insertLevel = null
@@ -268,7 +273,7 @@
 				epicLevel: 3,
 				featureLevel: 4,
 				pbiLevel: 5,
-
+				firstNodeSelected: null,
 				nodeIsSelected: false,
 				removeTitle: '',
 				// default to sibling node (no creation of descendant)
@@ -428,9 +433,10 @@
 		},
 
 		watch: {
-			'selectedPbiType': function(val) {
+			'selectedPbiType': function(val, oldval) {
 				// prevent looping
 				if (val != this.getCurrentItemSubType) {
+					this.firstNodeSelected.data.subtype = val
 					const payload = {
 						'userName': this.getUser,
 						'email': this.getEmail,
@@ -488,7 +494,7 @@
 				this.$store.dispatch('addHistoryComment', payload)
 			},
 			setFirstNodeSelected() {
-				firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
+				this.firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
 			},
 			/* Presentation methods */
 			mkSubscribeEvent(value) {
@@ -584,7 +590,7 @@
 						'userName': this.getUser,
 						'email': this.getEmail,
 						'newDescription': this.getCurrentItemDescription,
-						'newId': firstNodeSelected.data._id
+						'newId': this.firstNodeSelected.data._id
 					}
 					this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
 				} else {
@@ -597,7 +603,7 @@
 						'userName': this.getUser,
 						'email': this.getEmail,
 						'newAcceptance': this.getCurrentItemAcceptanceCriteria,
-						'newId': firstNodeSelected.data._id
+						'newId': this.firstNodeSelected.data._id
 					}
 					this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
 				} else {
@@ -736,8 +742,8 @@
 				document.getElementById("titleField").focus()
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
-				firstNodeSelected = selNodes[0]
-				this.$store.dispatch('loadDoc', firstNodeSelected.data._id)
+				this.firstNodeSelected = selNodes[0]
+				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
 
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				const warning = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
@@ -1049,7 +1055,7 @@
 			showInsertModal(node, event) {
 				event.preventDefault();
 				if (this.nodeIsSelected) {
-					let clickedLevel = firstNodeSelected.level
+					let clickedLevel = this.firstNodeSelected.level
 
 					if (clickedLevel === this.pbiLevel) {
 						// cannot create child below PBI
@@ -1093,7 +1099,7 @@
 						disabled: false
 					}
 				];
-				var clickedLevel = firstNodeSelected.level
+				var clickedLevel = this.firstNodeSelected.level
 				options[0].text = this.getLevelText(clickedLevel)
 				options[1].text = this.getLevelText(clickedLevel + 1)
 				// Disable the option to create a node below a PBI
@@ -1137,17 +1143,18 @@
 						_id: null,
 						priority: null,
 						productId: null,
-						parentId: null
+						parentId: null,
+						subtype: 0
 					}
 				}
 
-				var clickedLevel = firstNodeSelected.level
+				var clickedLevel = this.firstNodeSelected.level
 				if (this.insertOptionSelected === 1) {
 					// New node is a sibling placed below (after) the selected node
 					insertLevel = clickedLevel
 
 					newNodeLocation = {
-						node: firstNodeSelected,
+						node: this.firstNodeSelected,
 						placement: 'after'
 					}
 					newNode.title = 'New ' + this.getLevelText(insertLevel)
@@ -1160,7 +1167,7 @@
 					insertLevel = clickedLevel + 1
 
 					newNodeLocation = {
-						node: firstNodeSelected,
+						node: this.firstNodeSelected,
 						placement: 'inside'
 					}
 					newNode.title = 'New ' + this.getLevelText(insertLevel)
@@ -1373,6 +1380,9 @@
 	}
 
 	//my stuff
+	.colorRed {
+		color: red;
+	}
 
 	input[type="number"] {
 		-moz-appearance: numberfield;
