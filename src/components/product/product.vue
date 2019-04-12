@@ -436,14 +436,17 @@
 			'selectedPbiType': function(val, oldval) {
 				// prevent looping
 				if (val != this.getCurrentItemSubType) {
-					this.firstNodeSelected.data.subtype = val
-					const payload = {
-						'userName': this.getUser,
-						'email': this.getEmail,
-						'newSubType': val
-					}
-					this.$store.dispatch('setSubType', payload)
+					if (this.canWriteLevels[this.getCurrentItemType]) {
+						this.firstNodeSelected.data.subtype = val
+						const payload = {
+							'userName': this.getUser,
+							'email': this.getEmail,
+							'newSubType': val
+						}
+						this.$store.dispatch('setSubType', payload)
+					} else this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you change the pbi type"
 				}
+
 			},
 			'startEditor': function(val) {
 				if (val == true) {
