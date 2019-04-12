@@ -101,6 +101,9 @@ export default new Vuex.Store({
 		canWriteLevels(state) {
 			return state.canWriteLevels
 		},
+		canCreateComments(state) {
+			return state.myRoles.includes("_admin") || state.myRoles.includes("areaPO") || state.myRoles.includes("admin") || state.myRoles.includes("superPO") || state.myRoles.includes("PO") || state.myRoles.includes("developer")
+		},
 		getCurrentDb(state) {
 			return state.currentDb
 		},

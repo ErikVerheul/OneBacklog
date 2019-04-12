@@ -321,6 +321,7 @@
 				'isAuthenticated',
 				'isFollower',
 				'isServerAdmin',
+				'canCreateComments',
 				'canWriteLevels',
 				'getCurrentDb',
 				'getCurrentItemAcceptanceCriteria',
@@ -441,8 +442,10 @@
 			'startEditor': function(val) {
 				if (val == true) {
 					this.startEditor = false
-					if (this.selectedForView == 'comments') this.$refs.commentsEditorRef.show()
-					if (this.selectedForView == 'history') this.$refs.historyEditorRef.show()
+					if (this.canCreateComments) {
+						if (this.selectedForView == 'comments') this.$refs.commentsEditorRef.show()
+						if (this.selectedForView == 'history') this.$refs.historyEditorRef.show()
+					} else this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to create comments"
 				}
 			},
 			'startFiltering': function(val) {
