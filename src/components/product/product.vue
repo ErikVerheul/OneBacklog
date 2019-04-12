@@ -37,7 +37,7 @@
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
 				<h4>Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} product(s)</h4>
 
-				<div class='last-event'>
+				<div class='last-event' v-bind:style="{'background-color': eventBgColor}">
 					{{ this.$store.state.load.lastEvent }}
 				</div>
 
@@ -273,6 +273,7 @@
 				epicLevel: 3,
 				featureLevel: 4,
 				pbiLevel: 5,
+				eventBgColor: '#408FAE',
 				firstNodeSelected: null,
 				nodeIsSelected: false,
 				removeTitle: '',
@@ -433,10 +434,10 @@
 		},
 
 		watch: {
-			'selectedPbiType': function(val, oldval) {
+			'selectedPbiType': function(val) {
 				// prevent looping
 				if (val != this.getCurrentItemSubType) {
-					if (this.canWriteLevels[this.getCurrentItemType]) {
+					if (this.canWriteLevelsAndWarn(this.getCurrentItemType)) {
 						this.firstNodeSelected.data.subtype = val
 						const payload = {
 							'userName': this.getUser,
@@ -444,7 +445,9 @@
 							'newSubType': val
 						}
 						this.$store.dispatch('setSubType', payload)
-					} else this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you change the pbi type"
+					} else {
+						this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you change the pbi type"
+					}
 				}
 
 			},
@@ -454,7 +457,11 @@
 					if (this.canCreateComments) {
 						if (this.selectedForView == 'comments') this.$refs.commentsEditorRef.show()
 						if (this.selectedForView == 'history') this.$refs.historyEditorRef.show()
-					} else this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to create comments"
+						this.eventBgColor = '#408FAE'
+					} else {
+						this.$store.state.load.lastEvent = "Sorry, your assigned role(s) disallow you to create comments"
+						this.eventBgColor = 'red'
+					}
 				}
 			},
 			'startFiltering': function(val) {
@@ -467,6 +474,15 @@
 		},
 
 		methods: {
+			canWriteLevelsAndWarn(level) {
+				if (this.canWriteLevels[level]) {
+					this.eventBgColor = '#408FAE'
+					return true
+				} else {
+					this.eventBgColor = 'red'
+					return false
+				}
+			},
 			subscribeClicked() {
 				const payload = {
 					'userName': this.getUser,
@@ -588,7 +604,7 @@
 
 			/* Database update methods */
 			updateDescription() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevelsAndWarn(this.getCurrentItemType)) {
 					const payload = {
 						'userName': this.getUser,
 						'email': this.getEmail,
@@ -601,7 +617,7 @@
 				}
 			},
 			updateAcceptance() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevelsAndWarn(this.getCurrentItemType)) {
 					const payload = {
 						'userName': this.getUser,
 						'email': this.getEmail,
@@ -614,7 +630,7 @@
 				}
 			},
 			updateTsSize() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevelsAndWarn(this.getCurrentItemType)) {
 					var size = document.getElementById("tShirtSizeId").value.toUpperCase()
 					const sizeArray = this.$store.state.config.tsSize
 					if (sizeArray.includes(size)) {
@@ -637,7 +653,7 @@
 				}
 			},
 			updateStoryPoints() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevelsAndWarn(this.getCurrentItemType)) {
 					var el = document.getElementById("storyPointsId")
 					if (isNaN(el.value) || el.value < 0) {
 						el.value = '?'
@@ -654,7 +670,7 @@
 				}
 			},
 			updatePersonHours() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevelsAndWarn(this.getCurrentItemType)) {
 					var el = document.getElementById("personHoursId")
 					if (isNaN(el.value) || el.value < 0) {
 						el.value = '?'
@@ -671,7 +687,7 @@
 				}
 			},
 			onStateChange(idx) {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevelsAndWarn(this.getCurrentItemType)) {
 					const payload = {
 						'userName': this.getUser,
 						'email': this.getEmail,
@@ -683,7 +699,7 @@
 				}
 			},
 			updateTitle() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevelsAndWarn(this.getCurrentItemType)) {
 					const oldTitle = this.$store.state.currentDoc.title
 					const newTitle = document.getElementById("titleField").value
 					if (oldTitle == newTitle) return
@@ -747,9 +763,8 @@
 				numberOfNodesSelected = selNodes.length
 				this.firstNodeSelected = selNodes[0]
 				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
-
+				const warning = !this.canWriteLevelsAndWarn(selNodes[0].level) ? " You only have READ permission" : ""
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
-				const warning = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 				if (selNodes.length == 1) {
 					this.selectedNodesTitle = title
 					this.$store.state.load.lastEvent = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warning
@@ -760,7 +775,8 @@
 			},
 
 			nodeToggled(node) {
-				this.$store.state.load.lastEvent = `Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`;
+				this.$store.state.load.lastEvent = `Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`
+				this.eventBgColor = '#408FAE'
 			},
 
 			haveSameLevel(nodes) {
@@ -811,7 +827,7 @@
 				 */
 				var checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 					const levelChange = Math.abs(targetLevel - sourceLevel)
-					return !this.canWriteLevels[position.node.level] || levelChange > 1 || (targetLevel + this.getDescendantsInfo(node.path).depth) > this.pbiLevel
+					return !this.canWriteLevelsAndWarn(position.node.level) || levelChange > 1 || (targetLevel + this.getDescendantsInfo(node.path).depth) > this.pbiLevel
 				}
 
 				const sourceLevel = draggingNodes[0].level
@@ -992,6 +1008,7 @@
 				}
 				// create the event message
 				const title = this.itemTitleTrunc(60, selectedNodes[0].title)
+				this.eventBgColor = '#408FAE'
 				if (selectedNodes.length == 1) {
 					this.$store.state.load.lastEvent = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.node.title}'`
 				} else {
@@ -1003,7 +1020,7 @@
 			showRemoveModal(node, event) {
 				event.preventDefault();
 				// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-				if (this.canWriteLevels[node.level] && this.nodeIsSelected && node.level > 1 && numberOfNodesSelected === 1) {
+				if (this.canWriteLevelsAndWarn(node.level) && this.nodeIsSelected && node.level > 1 && numberOfNodesSelected === 1) {
 					this.removeTitle = `This ${this.getLevelText(node.level)} and ${this.getDescendantsInfo(node.path).count} descendants will be removed`
 					this.$refs.removeModalRef.show();
 				}
@@ -1014,6 +1031,7 @@
 			 */
 			doRemove() {
 				const selectedNodes = this.$refs.slVueTree.getSelected()
+				this.eventBgColor = '#408FAE'
 				this.$store.state.load.lastEvent = `The ${this.getLevelText(selectedNodes[0].level)} and ${this.getDescendantsInfo(selectedNodes[0].path).count} descendants are removed`
 				const paths = selectedNodes.map(node => node.path)
 				const descendants = this.getDescendantsInfo(paths[0]).descendants
@@ -1185,11 +1203,10 @@
 			 * Insert the prepared node in the tree and create a document for this new item
 			 */
 			doInsert() {
-				if (this.canWriteLevels[insertLevel]) {
+				if (this.canWriteLevelsAndWarn(insertLevel)) {
 					// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 					const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
 					newNode.data._id = newId
-
 					this.$store.state.load.lastEvent = 'Item of type ' + this.getLevelText(insertLevel) + ' is inserted'
 					// inserting the node also selects it
 					this.$refs.slVueTree.insert(newNodeLocation, newNode)
