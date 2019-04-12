@@ -28,7 +28,7 @@
 							<em>User</em>
 						</template>
 						<b-dropdown-item v-if="!auth">No options here when not signed in</b-dropdown-item>
-						<b-dropdown-item v-if="auth && myTeams.length > 1" href="#">Change team</b-dropdown-item>
+						<b-dropdown-item v-if="auth && this.myTeams.length > 1" href="#">Change team</b-dropdown-item>
 						<b-dropdown-item v-if="auth" href="#">Change password</b-dropdown-item>
 						<b-dropdown-item v-if="auth" @click="onLogout">Sign Out</b-dropdown-item>
 						<b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
