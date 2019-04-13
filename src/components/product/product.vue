@@ -551,11 +551,17 @@
 				return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
 			},
 			mkNodeDroppedEvent(value) {
+				let txt = ""
 				if (value[0] == value[1]) {
-					return "<h5>The item changed priority to position " + (value[2] + 1) + " under parent '" + value[3] + "'</h5>"
+					txt = "<h5>The item changed priority to position " + (value[2] + 1) + " under parent '" + value[3] + "'</h5>"
+					txt += (value[4] > 0) ? "<p>" + value[4] + " descendants were alse moved.</p>": ""
+					return txt
 				} else {
-					return "<h5>The item changed type from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ".</h5>" +
-						"<p>The new position is " + (value[2] + 1) + " under parent '" + value[3] + "'</p>"
+					let txt = ""
+					txt = "<h5>The item changed type from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ".</h5>"
+					txt += "<p>The new position is " + (value[2] + 1) + " under parent '" + value[3] + "'</p>"
+					txt += (value[4] > 0) ? "<p>" + value[4] + " descendants also changed type.</p>": ""
+					return txt
 				}
 			},
 			mkDescendantMoved(value) {
@@ -999,7 +1005,6 @@
 							'newLevel': selectedNodes[i].level,
 							'newInd': selectedNodes[i].ind,
 							'userName': this.getUser,
-							'by': this.getUser,
 							'email': this.getEmail,
 							'descendants': this.getDescendantsInfo(selectedNodes[i].path).descendants
 						}

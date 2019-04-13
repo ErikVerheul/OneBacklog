@@ -230,6 +230,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					payload['newParentTitle'] = res.data.title
+					payload['nrOfDescendants'] = payload.descendants.length
 					dispatch('updateDropped2', payload)
 					for (let i = 0; i < payload.descendants.length; i++) {
 						let descendantPayload = {
@@ -237,10 +238,10 @@ const actions = {
 							"oldParentTitle": payload.oldParentTitle,
 							"productId": payload.productId,
 							"newLevel": payload.descendants[i].level,
-							"by": payload.userName,
+							"userName": payload.userName,
 							"email": payload.email
 						}
-						dispatch('updateDescendants', descendantPayload)
+						dispatch('updateDescendant', descendantPayload)
 					}
 				}
 			})
@@ -258,9 +259,9 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const newHist = {
-						"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle],
+						"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle, payload.nrOfDescendants],
 						"by": payload.userName,
 						"email": payload.email,
 						"timestamp": Date.now()
@@ -281,7 +282,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('updateDropped2: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
-	updateDescendants({
+	updateDescendant({
 		rootState,
 		dispatch
 	}, payload) {
@@ -292,7 +293,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const newHist = {
 						"descendantMoved": [payload.oldParentTitle],
 						"by": payload.userName,
@@ -306,7 +307,7 @@ const actions = {
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('updateDescendants: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('updateDescendant: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 	removeDoc({
 		rootState,
