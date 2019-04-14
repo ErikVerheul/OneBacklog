@@ -656,7 +656,7 @@ const initData = {
 		{
 			"_id": "root",
 			"type": 1,
-			"title": "The root of all projects in this database",
+			"title": "The root of all products in this database",
 			"followers": [],
 			"description": "PHA+ZGVtb2RiPC9wPg==",
 			"acceptanceCriteria": "PHA+PC9wPg==",

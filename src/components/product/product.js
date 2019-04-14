@@ -633,7 +633,7 @@
 			},
 			calcProductId(insertedNode, predecessorNode) {
 				var productId
-				// if the node is on the project level ...
+				// if the node is on the product level ...
 				if (insertedNode.level == this.productLevel) {
 					// a product has its own id as productId
 					productId = insertedNode.data._id
@@ -698,7 +698,7 @@
 				} else {
 					successorNode = null
 				}
-				// PRIORITY FOR PROJECTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
+				// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
 				if (localParentId != 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree

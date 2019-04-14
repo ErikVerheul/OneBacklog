@@ -1,6 +1,6 @@
 # OneBacklog
 
-> A Vue.js project. Licenced under GPL-3.0-or-later See LICENCE.txt
+> A Vue.js application. Licenced under GPL-3.0-or-later See LICENCE.txt
 
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
 
@@ -46,7 +46,7 @@ The scope is the selected product. The tool assumes that products are independen
 Features have (business) value. Delivering the high priority features first is the aim of all participants.<br />
 Priorities are set on pbi level. It is the responsibility of the PO to select the pbi's of the most important feature first.<br />
 The owning team is an attribute of the pbi and used for filtering. A user can be member of one or more teams. A guest is not a member of a team.<br />
-When multiple databases are created projects defined in different databases are considered completely independent.<br />
+When multiple databases are created products defined in different databases are considered completely independent.<br />
 
 <b>Product and epic size estimate:</b><br />
 Products and epics are estimated in T-shirt sizes.
