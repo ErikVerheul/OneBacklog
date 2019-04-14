@@ -18,6 +18,10 @@
 	const WARNING = 1
 	const ERROR = 2
 	const DEBUG = 3
+	const PRODUCTLEVEL = 2
+	const EPICLEVEL = 3
+	const FEATURELEVEL = 4
+	const PBILEVEL = 5
 	var numberOfNodesSelected = 0
 	var newNode = {}
 	var newNodeLocation = null
@@ -26,10 +30,10 @@
 	export default {
 		data() {
 			return {
-				productLevel: 2,
-				epicLevel: 3,
-				featureLevel: 4,
-				pbiLevel: 5,
+				productLevel: PRODUCTLEVEL,
+				epicLevel: EPICLEVEL,
+				featureLevel: FEATURELEVEL,
+				pbiLevel: PBILEVEL,
 				eventBgColor: '#408FAE',
 				firstNodeSelected: null,
 				nodeIsSelected: false,
@@ -71,8 +75,6 @@
 		},
 
 		mounted() {
-			// expose instance to the global namespace
-			window.slVueTree = this.$refs.slVueTree;
 			this.setFirstNodeSelected()
 		},
 
@@ -341,7 +343,6 @@
 			mkTimestamp(value) {
 				return "timestamp: " + new Date(value).toString() + "<br><br>"
 			},
-
 			mkComment(value) {
 				return window.atob(value[0])
 			},
@@ -369,7 +370,6 @@
 				if (key == "email") return this.mkEmail(value)
 				if (key == "timestamp") return this.mkTimestamp(value)
 			},
-
 			/* Database update methods */
 			updateDescription() {
 				if (this.canWriteLevels[this.getCurrentItemType]) {
@@ -789,7 +789,7 @@
 				// now we can remove the nodes
 				this.$refs.slVueTree.remove(paths)
 				// when removing a product
-				if (selectedNodes[0].level == 2) {
+				if (selectedNodes[0].level == this.productLevel) {
 					var newProducts = this.getUserAssignedProductIds
 					var idx = newProducts.indexOf(selectedNodes[0].data._id)
 					if (idx > -1) {
