@@ -146,12 +146,16 @@ const actions = {
 				if (rootState.debug) console.log(res)
 				// eslint-disable-next-line no-console
 				console.log('getOtherUserData called for user = ' + rootState.user)
-				state.myTeams = res.data.teams
+				if (res.data.teams != null) {
+					state.myTeams = res.data.teams
+				} else {
+					state.myTeams = "none assigned"
+				}
 				state.email = res.data.email
 				state.databases = res.data.databases
 				rootState.currentDb = res.data.currentDb
 				state.userAssignedProductIds = res.data.products
-				state.currentUserProductId = state.userAssignedProductIds[res.data.currentProductIdx]
+				state.currentUserProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
 				// load the current product document
 				dispatch('loadDoc', state.currentUserProductId)
 				// eslint-disable-next-line no-console

@@ -567,56 +567,61 @@ const initUsers = {
 			"name": "DemoUser",
 			"password": "DemoUser",
 			"teams": ["Ghost busters", "A-team"],
+			"currentTeamsIdx": 0,
 			"roles": ["superPO", "PO", "developer", "guest"],
 			"type": "user",
 			"email": "demouser@mycompany.nl",
 			"currentDb": 'demodb',
 			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductIdx": 0
+			"currentProductsIdx": 0
 		},
 		{
 			"name": "Jan Klaassen",
 			"password": "Jan",
 			"teams": ["Ghost busters", "A-team"],
+			"currentTeamsIdx": 0,
 			"roles": ["admin", "superPO"],
 			"type": "user",
 			"email": "jan@mycompany.nl",
 			"currentDb": 'demodb',
 			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductIdx": 0
+			"currentProductsIdx": 0
 		},
 		{
 			"name": "Herman",
 			"password": "Herman",
 			"teams": ["Ghost busters", "A-team"],
+			"currentTeamsIdx": 0,
 			"roles": ["admin", "PO"],
 			"type": "user",
 			"email": "herman@mycompany.nl",
 			"currentDb": 'demodb',
 			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductIdx": 1
+			"currentProductsIdx": 1
 		},
 		{
 			"name": "Piet",
 			"password": "Piet",
 			"teams": ["Ghost busters"],
+			"currentTeamsIdx": 0,
 			"roles": ["developer"],
 			"type": "user",
 			"email": "piet@mycompany.nl",
 			"currentDb": 'demodb',
 			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductIdx": 0
+			"currentProductsIdx": 0
 		},
 		{
 			"name": "Mechteld",
 			"password": "Mechteld",
 			"teams": ["Ghost busters"],
+			"currentTeamsIdx": 0,
 			"roles": ["developer"],
 			"type": "user",
 			"email": "mechteld@mycompany.nl",
 			"currentDb": 'demodb',
 			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductIdx": 0
+			"currentProductsIdx": 0
 		},
 		{
 			"name": "Henk",
@@ -626,7 +631,7 @@ const initUsers = {
 			"email": "henk@mycompany.nl",
 			"currentDb": 'demodb',
 			"products": ["15521398069875394"],
-			"currentProductIdx": 0
+			"currentProductsIdx": 0
 		},
 		{
 			"name": "guest",
@@ -636,7 +641,7 @@ const initUsers = {
 			"email": "guest@mycompany.nl",
 			"currentDb": 'demodb',
 			"products": ["1552152600149c2ac"],
-			"currentProductIdx": 0
+			"currentProductsIdx": 0
 		}]
 }
 
