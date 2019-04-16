@@ -112,7 +112,8 @@
 				'getCurrentProductTitle',
 				'getEmail',
 				'getUserAssignedProductIds',
-				'getTeams'
+				'getMyTeams',
+				'getMyCurrentTeam'
 			]),
 			subsribeTitle() {
 				if (this.isFollower) {

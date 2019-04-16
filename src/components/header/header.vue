@@ -673,7 +673,7 @@
 				return this.$store.getters.isAuthenticated
 			},
 			myTeams() {
-				return this.$store.getters.getTeams
+				return this.$store.getters.getMyTeams
 			},
 			serverAdmin() {
 				return this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin

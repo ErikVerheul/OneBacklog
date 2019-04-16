@@ -17,6 +17,7 @@ const state = {
 	currentProductTitle: "",
 	databases: [],
 	myTeams: [],
+	myCurrentTeam: "",
 	email: null,
 	offset: 0,
 	treeNodes: [],
@@ -36,8 +37,11 @@ const getters = {
 	getUserAssignedProductIds(state) {
 		return state.userAssignedProductIds
 	},
-	getTeams(state) {
+	getMyTeams(state) {
 		return state.myTeams
+	},
+	getMyCurrentTeam(state) {
+		return state.myCurrentTeam
 	}
 }
 
@@ -148,8 +152,10 @@ const actions = {
 				console.log('getOtherUserData called for user = ' + rootState.user)
 				if (res.data.teams != null) {
 					state.myTeams = res.data.teams
+					state.myCurrentTeam = res.data.teams[res.data.currentTeamsIdx]
 				} else {
-					state.myTeams = "none assigned"
+					state.myTeams = []
+					state.myCurrentTeam = "none assigned"
 				}
 				state.email = res.data.email
 				state.databases = res.data.databases
