@@ -59,7 +59,7 @@
 									<font-awesome-icon icon="folder" />
 								</i>
 							</span>
-							{{ node.title }}; _id = {{ node.data._id }}
+							{{ node.title }}
 						</template>
 
 						<template slot="toggle" slot-scope="{ node }">

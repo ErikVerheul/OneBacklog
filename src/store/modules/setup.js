@@ -564,6 +564,17 @@ const actions = {
 const initUsers = {
 	"data": [
 		{
+			"name": "DemoUser",
+			"password": "DemoUser",
+			"teams": ["Ghost busters", "A-team"],
+			"roles": ["superPO", "PO", "developer", "guest"],
+			"type": "user",
+			"email": "demouser@mycompany.nl",
+			"currentDb": 'demodb',
+			"products": ["15521398069875394", "1552152600149c2ac"],
+			"currentProductIdx": 0
+		},
+		{
 			"name": "Jan Klaassen",
 			"password": "Jan",
 			"teams": ["Ghost busters", "A-team"],
@@ -906,7 +917,7 @@ const initData = {
 			"team": "A-team",
 			"type": 2,
 			"subtype": null,
-			"state": 1,
+			"state": 0,
 			"tssize": 1,
 			"spsize": null,
 			"spikepersonhours": 0,
@@ -934,7 +945,7 @@ const initData = {
 			"team": "A-team",
 			"type": 3,
 			"subtype": null,
-			"state": 2,
+			"state": 0,
 			"tssize": 3,
 			"spsize": null,
 			"spikepersonhours": 0,
@@ -962,7 +973,7 @@ const initData = {
 			"team": "A-team",
 			"type": 4,
 			"subtype": null,
-			"state": 4,
+			"state": 0,
 			"tssize": 3,
 			"spsize": null,
 			"spikepersonhours": 0,

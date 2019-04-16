@@ -45,8 +45,6 @@
 					name: this.name,
 					password: this.password,
 				}
-				// eslint-disable-next-line no-console
-				console.log(formData)
 				this.$store.dispatch('login', {
 					name: formData.name,
 					password: formData.password

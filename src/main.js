@@ -7,7 +7,7 @@ import store from './store/store'
 
 import './fa.config';
 
-axios.defaults.baseURL = 'https://localhost:6984'
+axios.defaults.baseURL = 'https://onebacklog.net:6984'
 //axios.defaults.headers.get['Accepts'] = 'application/json'
 
 const reqInterceptor = axios.interceptors.request.use(config => {
