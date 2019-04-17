@@ -43,7 +43,7 @@ const actions = {
 				url: '/_users/org.couchdb.user:' + rootState.user,
 				withCredentials: true,
 				data: tmpUserData
-			}).then(res => {
+			}).then(() => {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('updateUser2: user ' + rootState.user + ' is updated')
 			})

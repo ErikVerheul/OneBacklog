@@ -72,15 +72,15 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 
 	state: {
-		demo: true,
-		debug: true,
-		user: null,
-		myRoles: [],
 		canWriteLevels: [],
-		runningTimeout: null,
 		config: null,
 		currentDb: null,
 		currentDoc: null,
+		debug: true,
+		demo: true,
+		myRoles: [],
+		runningTimeout: null,
+		user: null
 	},
 
 	getters: {
@@ -201,21 +201,28 @@ export default new Vuex.Store({
 			state.canWriteLevels = levels
 		},
 
-		clearAuthData(state) {
+		resetData(state) {
 			state.load.docsCount = 0
 			state.load.itemsCount = 0
 			state.load.orphansCount = 0
-			state.user = null
-			state.load.teams = null
-			state.myRoles = []
-			state.load.config = null
-			state.currentDb = null
-			state.currentDoc = null
+			state.load.lastEvent = ''
+			state.load.currentUserProductId = null
+			state.load.currentProductId = null
+			state.load.currentProductTitle = ''
 			state.load.databases = []
+			state.load.myTeams = null
+			state.load.myCurrentTeam = null
 			state.load.email = null
 			state.load.offset = 0,
 			state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
+
+			state.canWriteLevels = []
+			state.config = null
+			state.currentDb = null
+			state.currentDoc = null
+			state.myRoles = []
+			state.user = null
 
 			clearTimeout(state.runningTimeout)
 		}
@@ -284,7 +291,7 @@ export default new Vuex.Store({
 		logout({
 			commit
 		}) {
-			commit('clearAuthData')
+			commit('resetData')
 			router.replace('/')
 		}
 	},
