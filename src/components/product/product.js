@@ -113,7 +113,8 @@
 				'getEmail',
 				'getUserAssignedProductIds',
 				'getMyTeams',
-				'getMyCurrentTeam'
+				'getMyCurrentTeam',
+				'onDebug'
 			]),
 			subsribeTitle() {
 				if (this.isFollower) {

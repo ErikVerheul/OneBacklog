@@ -10,8 +10,6 @@ const actions = {
 				url: '/_users/org.couchdb.user:' + rootState.user,
 				withCredentials: true
 			}).then(res => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(res)
 				let tmpUserData = res.data
 				tmpUserData["products"].push(productId)
 				dispatch("updateUser2", tmpUserData)
@@ -29,8 +27,6 @@ const actions = {
 				url: '/_users/org.couchdb.user:' + rootState.user,
 				withCredentials: true
 			}).then(res => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(res)
 				let tmpUserData = res.data
 				tmpUserData["products"] = products
 				dispatch("updateUser2", tmpUserData)
@@ -49,7 +45,7 @@ const actions = {
 				data: tmpUserData
 			}).then(res => {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(res)
+				if (rootState.debug) console.log('updateUser2: user ' + rootState.user + ' is updated')
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('updateUser: Could not update user data for user ' + rootState.user + '. Error = ' + error))

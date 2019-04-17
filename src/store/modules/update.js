@@ -502,9 +502,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 201) {
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log(res)
-					// eslint-disable-next-line no-console
-					console.log('updateDoc: document with _id + ' + _id + ' is updated.')
+					if (rootState.debug) console.log('updateDoc: document with _id + ' + _id + ' is updated.')
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -529,9 +527,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 201) {
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log(res)
-					// eslint-disable-next-line no-console
-					console.log('updateDocAndLoadNew: document with _id + ' + _id + ' is updated.')
+					if (rootState.debug) console.log('updateDocAndLoadNew: document with _id + ' + _id + ' is updated.')
 					dispatch('loadDoc', newId)
 				}
 			})

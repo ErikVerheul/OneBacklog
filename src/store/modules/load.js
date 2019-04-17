@@ -107,11 +107,9 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log(res)
 					rootState.config = res.data
 					// eslint-disable-next-line no-console
-					console.log('The configuration is loaded')
+					if (rootState.debug) console.log('The configuration is loaded')
 					// prepare for loading the first batch; add the root node for the database name
 					state.treeNodes = [
 						{
@@ -147,9 +145,7 @@ const actions = {
 				withCredentials: true
 			}).then(res => {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(res)
-				// eslint-disable-next-line no-console
-				console.log('getOtherUserData called for user = ' + rootState.user)
+				if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
 				if (res.data.teams != null) {
 					state.myTeams = res.data.teams
 					state.myCurrentTeam = res.data.teams[res.data.currentTeamsIdx]
@@ -165,7 +161,7 @@ const actions = {
 				// load the current product document
 				dispatch('loadDoc', state.currentUserProductId)
 				// eslint-disable-next-line no-console
-				console.log('getOtherUserData: database ' + rootState.currentDb + ' is set for user ' + rootState.user)
+				if (rootState.debug) console.log('getOtherUserData: database ' + rootState.currentDb + ' is set for user ' + rootState.user)
 				dispatch('getConfig')
 			})
 			.catch(error => {
@@ -187,10 +183,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log(res)
 					batch = res.data.rows
-
 					const payload = {
 						roles: rootState.myRoles,
 						writeLevels: rootState.canWriteLevels
@@ -206,7 +199,7 @@ const actions = {
 					}
 					state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 					// eslint-disable-next-line no-console
-					console.log('Another batch of ' + batch.length + ' documents is loaded')
+					if (rootState.debug) console.log('Another batch of ' + batch.length + ' documents is loaded')
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -226,10 +219,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log(res)
 					batch = res.data.rows
-
 					const payload = {
 						roles: rootState.myRoles,
 						writeLevels: rootState.canWriteLevels
@@ -240,7 +230,7 @@ const actions = {
 						dispatch('getNextDocsBatch')
 					}
 					// eslint-disable-next-line no-console
-					console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
+					if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
 					state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 					router.push('/product')
 				}
@@ -260,12 +250,10 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log(res)
 					state.currentProductTitle = res.data.title
 					state.currentProductId = res.data.productId
 					// eslint-disable-next-line no-console
-					console.log("loadDoc: current product name '" + res.data.title + "' is fetched.")
+					if (rootState.debug) console.log("loadDoc: current product name '" + res.data.title + "' is fetched.")
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -283,14 +271,12 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log(res)
 					rootState.currentDoc = res.data
 					// decode from base64 + replace the encoded data
 					rootState.currentDoc.description = window.atob(res.data.description)
 					rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 					// eslint-disable-next-line no-console
-					console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
+					if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
 					// read the current product title if not available; root is not part of a product
 					if (res.data.productId != state.currentProductId && _id != 'root') {
 						dispatch('readProduct', res.data.productId)
@@ -336,9 +322,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 201) {
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log(res)
-					// eslint-disable-next-line no-console
-					console.log('createDoc2: document with _id + ' + _id + ' is created.')
+					if (rootState.debug) console.log('createDoc2: document with _id + ' + _id + ' is created.')
 					dispatch('loadDoc', _id)
 				}
 			})

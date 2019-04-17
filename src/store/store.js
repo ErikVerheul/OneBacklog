@@ -73,7 +73,7 @@ export default new Vuex.Store({
 
 	state: {
 		demo: true,
-		debug: false,
+		debug: true,
 		user: null,
 		myRoles: [],
 		canWriteLevels: [],
@@ -164,6 +164,9 @@ export default new Vuex.Store({
 		},
 		getCurrentPersonHours(state) {
 			return state.currentDoc.spikepersonhours
+		},
+		onDebug(state) {
+			return state.debug
 		}
 	},
 
@@ -172,7 +175,7 @@ export default new Vuex.Store({
 			const maxLevel = 5
 			state.user = userData.user
 			state.myRoles = userData.roles
-			var levels = []
+			let levels = []
 			for (let i = 0; i <= maxLevel; i++) {
 				levels.push(false)
 			}
@@ -224,7 +227,7 @@ export default new Vuex.Store({
 			state
 		}, payload) {
 			// eslint-disable-next-line no-console
-			console.log("refreshcookie: afterSeconds= " + payload.afterSeconds)
+			if (state.debug) console.log("refreshcookie: afterSeconds= " + payload.afterSeconds)
 			state.runningTimeout = setTimeout(() => {
 				globalAxios({
 						method: 'POST',
@@ -234,11 +237,9 @@ export default new Vuex.Store({
 							name: payload.authData.name,
 							password: payload.authData.password
 						}
-					}).then(res => {
+					}).then(() => {
 						// eslint-disable-next-line no-console
-						if (state.debug) console.log(res)
-						// eslint-disable-next-line no-console
-						console.log("recurse refreshCookie")
+						if (state.debug) console.log("recurse refreshCookie")
 						//Recurse
 						dispatch('refreshCookie', payload)
 					})
@@ -261,8 +262,6 @@ export default new Vuex.Store({
 						password: authData.password
 					}
 				}).then(res => {
-					// eslint-disable-next-line no-console
-					if (state.debug) console.log(res)
 					if (res.status == 200) {
 						state.user = res.data.name
 						commit('authUser', {
@@ -281,7 +280,6 @@ export default new Vuex.Store({
 				// eslint-disable-next-line no-console
 				.catch(error => console.log(error))
 		},
-
 
 		logout({
 			commit
