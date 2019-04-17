@@ -139,7 +139,7 @@
 				}
 			},
 			getFilteredComments() {
-				var filteredComments = []
+				let filteredComments = []
 				for (let i = 0; i < this.getCurrentItemComments.length; i++) {
 					let allText = window.atob(this.getCurrentItemComments[i].comment)
 					allText += this.getCurrentItemComments[i].by
@@ -162,7 +162,7 @@
 						return removeImages(text)
 					}
 				}
-				var filteredComments = []
+				let filteredComments = []
 				for (let i = 0; i < this.getCurrentItemHistory.length; i++) {
 					let histItem = this.getCurrentItemHistory[i]
 					let allText = ""
@@ -400,7 +400,7 @@
 			},
 			updateTsSize() {
 				if (this.canWriteLevels[this.getCurrentItemType]) {
-					var size = document.getElementById("tShirtSizeId").value.toUpperCase()
+					let size = document.getElementById("tShirtSizeId").value.toUpperCase()
 					const sizeArray = this.$store.state.config.tsSize
 					if (sizeArray.includes(size)) {
 						// update current document
@@ -411,7 +411,7 @@
 						}
 						this.$store.dispatch('setSize', payload)
 					} else {
-						var sizes = ''
+						let sizes = ''
 						for (let i = 0; i < sizeArray.length - 1; i++) {
 							sizes += sizeArray[i] + ', '
 						}
@@ -423,7 +423,7 @@
 			},
 			updateStoryPoints() {
 				if (this.canWriteLevels[this.getCurrentItemType]) {
-					var el = document.getElementById("storyPointsId")
+					let el = document.getElementById("storyPointsId")
 					if (isNaN(el.value) || el.value < 0) {
 						el.value = '?'
 						return
@@ -440,7 +440,7 @@
 			},
 			updatePersonHours() {
 				if (this.canWriteLevels[this.getCurrentItemType]) {
-					var el = document.getElementById("personHoursId")
+					let el = document.getElementById("personHoursId")
 					if (isNaN(el.value) || el.value < 0) {
 						el.value = '?'
 						return
@@ -545,7 +545,7 @@
 				this.showLastEvent(`Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
 			},
 			haveSameLevel(nodes) {
-				var level = nodes[0].level
+				let level = nodes[0].level
 				for (let i = 0; i < nodes.length; i++) {
 					if (nodes[i].level != level) {
 						return false
@@ -587,7 +587,7 @@
 				 * Disallow drop when moving over more than 1 level.
 				 * Dropping items with descendants is not possible when any descendant would land lower than the lowest level (pbilevel).
 				 */
-				var checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
+				let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 					const levelChange = Math.abs(targetLevel - sourceLevel)
 					return !this.canWriteLevels[position.node.level] || levelChange > 1 || (targetLevel + this.getDescendantsInfo(node.path).depth) > this.pbiLevel
 				}
@@ -614,7 +614,7 @@
 			 */
 			getPrevSibling(node) {
 				let path = node.path
-				var siblingPath = []
+				let siblingPath = []
 				for (let i = 0; i < path.length - 1; i++) {
 					siblingPath.push(path[i])
 				}
@@ -633,7 +633,7 @@
 				}
 			},
 			calcProductId(insertedNode, predecessorNode) {
-				var productId
+				let productId
 				// if the node is on the product level ...
 				if (insertedNode.level == this.productLevel) {
 					// a product has its own id as productId
@@ -645,8 +645,8 @@
 				return productId
 			},
 			assignNewPrios(nodes, predecessorNode, successorNode) {
-				var predecessorPrio
-				var successorPrio
+				let predecessorPrio
+				let successorPrio
 				if (predecessorNode != null) {
 					predecessorPrio = predecessorNode.data.priority
 				} else {
@@ -677,10 +677,10 @@
 			updateTree(nodes) {
 				const firstNode = nodes[0]
 				const level = firstNode.level
-				var localProductId
-				var localParentId
-				var predecessorNode
-				var successorNode
+				let localProductId
+				let localParentId
+				let predecessorNode
+				let successorNode
 				if (firstNode.isFirstChild) {
 					// the previous node must be the parent
 					predecessorNode = null

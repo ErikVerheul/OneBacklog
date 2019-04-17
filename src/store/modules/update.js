@@ -17,7 +17,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const wasFollower = rootGetters.isFollower
 					let tmpFollowers = tmpDoc.followers
 					if (rootGetters.isFollower) {
@@ -56,7 +56,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const oldSize = tmpDoc.tssize
 					const newHist = {
 						"setSizeEvent": [oldSize, payload.newSizeIdx],
@@ -85,7 +85,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const oldHrs = tmpDoc.spikepersonhours
 					const newHist = {
 						"setHrsEvent": [oldHrs, payload.newHrs],
@@ -114,7 +114,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const oldPoints = tmpDoc.spsize
 					const newHist = {
 						"setPointsEvent": [oldPoints, payload.newPoints],
@@ -143,7 +143,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const oldState = tmpDoc.state
 					const newHist = {
 						"setStateEvent": [oldState, payload.newState],
@@ -173,7 +173,7 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					const oldTitle = rootState.currentDoc.title
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const newHist = {
 						"setTitleEvent": [oldTitle, payload.newTitle],
 						"by": payload.userName,
@@ -201,7 +201,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const newHist = {
 						"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
 						"by": payload.userName,
@@ -320,7 +320,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					tmpDoc.delmark = true
 					dispatch('updateDoc', tmpDoc)
 					if (payload.doRegHist) {
@@ -342,7 +342,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					const newHist = {
 						"nodeRemoveEvent": [payload.node.level, payload.node.title, payload.descendantsCount],
 						"by": payload.userName,
@@ -368,7 +368,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					// encode to base64
 					const newEncodedDescription = window.btoa(payload.newDescription)
 					// update only when changed
@@ -405,7 +405,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					// encode to base64
 					const newEncodedAcceptance = window.btoa(payload.newAcceptance)
 					// update only when changed
@@ -441,7 +441,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					// encode to base64
 					const newComment = window.btoa(payload.comment)
 					const newEntry = {
@@ -469,7 +469,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					var tmpDoc = res.data
+					let tmpDoc = res.data
 					// encode to base64
 					const newComment = window.btoa(payload.comment)
 					const newHist = {
@@ -517,7 +517,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		const newId = payload.newId
-		var tmpDoc = payload.doc
+		let tmpDoc = payload.doc
 		const _id = tmpDoc._id
 		// eslint-disable-next-line no-console
 		console.log('updateDocAndLoadNew: updating document with _id = ' + _id)

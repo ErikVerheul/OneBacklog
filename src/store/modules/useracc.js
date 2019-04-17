@@ -1,7 +1,5 @@
 import globalAxios from 'axios'
 
-var tmpUserData = null
-
 const actions = {
 	addProductId({
 		rootState,
@@ -14,9 +12,9 @@ const actions = {
 			}).then(res => {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(res)
-				tmpUserData = res.data
+				let tmpUserData = res.data
 				tmpUserData["products"].push(productId)
-				dispatch("updateUser2")
+				dispatch("updateUser2", tmpUserData)
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('addProductId: Could not assign productId ' + productId + ' to user ' + rootState.user + '. Error = ' + error))
@@ -33,9 +31,9 @@ const actions = {
 			}).then(res => {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(res)
-				tmpUserData = res.data
+				let tmpUserData = res.data
 				tmpUserData["products"] = products
-				dispatch("updateUser2")
+				dispatch("updateUser2", tmpUserData)
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('removeProductId: Could not reset allowed products for user ' + rootState.user + '. Error = ' + error))
@@ -43,7 +41,7 @@ const actions = {
 
 	updateUser2({
 		rootState
-	}) {
+	}, tmpUserData) {
 		globalAxios({
 				method: 'PUT',
 				url: '/_users/org.couchdb.user:' + rootState.user,
