@@ -72,6 +72,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 
 	state: {
+		demo: true,
 		debug: false,
 		user: null,
 		myRoles: [],
@@ -91,6 +92,9 @@ export default new Vuex.Store({
 		},
 		isAuthenticated(state) {
 			return state.user !== null
+		},
+		isDemoVersion(state) {
+			return state.demo
 		},
 		isFollower(state) {
 			return state.currentDoc.followers.includes(state.load.email)
