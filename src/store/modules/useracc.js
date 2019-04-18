@@ -35,7 +35,24 @@ const actions = {
 			.catch(error => console.log('removeProductId: Could not reset allowed products for user ' + rootState.user + '. Error = ' + error))
 	},
 
-	updateUser2({
+	changePassword({
+		rootState,
+		dispatch
+	}, newPassword) {
+		globalAxios({
+				method: 'GET',
+				url: '/_users/org.couchdb.user:' + rootState.user,
+				withCredentials: true
+			}).then(res => {
+				let tmpUserData = res.data
+				tmpUserData["password"] = newPassword
+				dispatch("updateUser2", tmpUserData)
+			})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('changePW: Could not change password for user ' + rootState.user + '. Error = ' + error))
+	},
+
+updateUser2({
 		rootState
 	}, tmpUserData) {
 		globalAxios({
@@ -49,7 +66,8 @@ const actions = {
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('updateUser: Could not update user data for user ' + rootState.user + '. Error = ' + error))
-	}
+	},
+
 }
 
 export default {

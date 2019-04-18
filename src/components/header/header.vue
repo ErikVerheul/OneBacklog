@@ -39,6 +39,18 @@
 		<appLicence>
 			<slot name='licence'></slot>
 		</appLicence>
+		<template>
+			<b-modal size="lg" ref='changePwRef' @ok="doChangePw" title='Change your password'>
+				<b-container align-v="true">
+					<b-row><input class="input-field" v-model.lazy="oldPassword" type="password" placeholder="Your current password"></b-row>
+					<p>oldPassword is: {{ oldPassword }}</p>
+					<b-row><input class="input-field" v-model.lazy="newPassword1" type="password" placeholder="Your new password"></b-row>
+					<p>newPassword1 is: {{ newPassword1 }}</p>
+					<b-row><input class="input-field" v-model.lazy="newPassword2" type="password" placeholder="Repeat new password"></b-row>
+					<p>newPassword2 is: {{ newPassword2 }}</p>
+				</b-container>
+			</b-modal>
+		</template>
 	</div>
 </template>
 
@@ -47,6 +59,13 @@
 	import licence from './licence.vue'
 
 	export default {
+		data() {
+			return {
+				oldPassword: '',
+				newPassword1: '',
+				newPassword2: ''
+			}
+		},
 		computed: {
 			auth() {
 				return this.$store.getters.isAuthenticated
@@ -58,6 +77,15 @@
 		methods: {
 			changePassword() {
 				if (this.$store.getters.isDemoVersion) alert("Sorry, is this demo version you cannot change passwords")
+				else {
+					if (this.$store.getters.isServerAdmin) alert("As a 'server admin' you cannot change your password here. Use Fauxton instead")
+					else {
+						this.$refs.changePwRef.show()
+					}
+				}
+			},
+			doChangePw() {
+
 			},
 			onLogout() {
 				this.$store.dispatch('logout')
@@ -71,6 +99,10 @@
 </script>
 
 <style scoped>
+	.input-field {
+		margin: 10px;
+	}
+
 	.logo {
 		width: 62px;
 		margin-right: 20px;
