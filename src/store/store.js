@@ -77,7 +77,7 @@ export default new Vuex.Store({
 		currentDb: null,
 		currentDoc: null,
 		debug: true,
-		demo: true,
+		demo: false,
 		myRoles: [],
 		runningTimeout: null,
 		user: null
@@ -210,8 +210,8 @@ export default new Vuex.Store({
 			state.load.currentProductId = null
 			state.load.currentProductTitle = ''
 			state.load.databases = []
-			state.load.myTeams = null
-			state.load.myCurrentTeam = null
+			state.load.myTeams = []
+			state.load.myCurrentTeam = ''
 			state.load.email = null
 			state.load.offset = 0,
 			state.load.treeNodes = []

@@ -153,6 +153,7 @@ const actions = {
 					state.myTeams = []
 					state.myCurrentTeam = "none assigned"
 				}
+				if (rootState.debug) console.log('getOtherUserData: state.myCurrentTeam = ' + state.myCurrentTeam)
 				state.email = res.data.email
 				state.databases = res.data.databases
 				rootState.currentDb = res.data.currentDb
