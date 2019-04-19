@@ -160,8 +160,8 @@ export default new Vuex.Store({
 		getCurrentItemTsSize(state) {
 			if (state.config) return state.config.tsSize[state.currentDoc.tssize]
 		},
-		getCurrentItemType(state) {
-			if (state.currentDoc) return state.currentDoc.type
+		getCurrentItemLevel(state) {
+			if (state.currentDoc) return state.currentDoc.level
 		},
 		getCurrentPersonHours(state) {
 			if (state.currentDoc) return state.currentDoc.spikepersonhours

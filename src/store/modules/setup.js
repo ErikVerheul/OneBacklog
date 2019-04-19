@@ -378,11 +378,11 @@ const actions = {
 				data: {
 					"views": {
 						/*
-						 * Sort on productId first to separate items from different products. Sort on type to build the intem tree top down.
-						 * Skip the requirements area documents and database descriptions with type 0 and 1 in this view.
+						 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
+						 * Skip the requirements area documents and database descriptions with level 0 and 1 in this view.
 						 */
 						"sortedFilter": {
-							"map": 'function (doc) {if (doc.type > 1) emit([doc.productId, doc.type, doc.priority*-1], 1);}'
+							"map": 'function (doc) {if (doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
 						}
 					},
 					"language": "javascript"
@@ -671,7 +671,8 @@ const initData = {
 	"docs": [
 		{
 			"_id": "root",
-			"type": 1,
+			"type": "backlogItem",
+			"level": 1,
 			"title": "The root of all products in this database",
 			"followers": [],
 			"description": "PHA+ZGVtb2RiPC9wPg==",
@@ -691,10 +692,11 @@ const initData = {
 		},
 		{
 			"_id": "1552140438968e1e9",
+			"type": "backlogItem",
 			"productId": "15521398069875394",
 			"parentId": "1552139972020f641",
 			"team": "Ghost busters",
-			"type": 5,
+			"level": 5,
 			"subtype": 0,
 			"state": 4,
 			"tssize": 0,
@@ -720,10 +722,11 @@ const initData = {
 		},
 		{
 			"_id": "15521397677068926",
+			"type": "backlogItem",
 			"productId": null,
 			"parentId": "root",
 			"team": "Ghost busters",
-			"type": 0,
+			"level": 0,
 			"state": 0,
 			"tssize": 0,
 			"title": "The cross product...",
@@ -745,10 +748,11 @@ const initData = {
 		},
 		{
 			"_id": "15521398069875394",
+			"type": "backlogItem",
 			"productId": "15521398069875394",
 			"parentId": "root",
 			"team": "Ghost busters",
-			"type": 2,
+			"level": 2,
 			"subtype": null,
 			"state": 1,
 			"tssize": 1,
@@ -773,10 +777,11 @@ const initData = {
 		},
 		{
 			"_id": "15521399035145bef",
+			"type": "backlogItem",
 			"productId": "15521398069875394",
 			"parentId": "15521398069875394",
 			"team": "Ghost busters",
-			"type": 3,
+			"level": 3,
 			"subtype": null,
 			"state": 2,
 			"tssize": 3,
@@ -801,10 +806,11 @@ const initData = {
 		},
 		{
 			"_id": "15537241758603a32",
+			"type": "backlogItem",
 			"productId": "15521398069875394",
 			"parentId": "15521398069875394",
 			"team": "Ghost busters",
-			"type": 3,
+			"level": 3,
 			"subtype": null,
 			"state": 2,
 			"tssize": 3,
@@ -829,10 +835,11 @@ const initData = {
 		},
 		{
 			"_id": "1552139972020f641",
+			"type": "backlogItem",
 			"productId": "15521398069875394",
 			"parentId": "15521399035145bef",
 			"team": "Ghost busters",
-			"type": 4,
+			"level": 4,
 			"subtype": null,
 			"state": 4,
 			"tssize": 3,
@@ -858,10 +865,11 @@ const initData = {
 		},
 		{
 			"_id": "1552139986318cf68",
+			"type": "backlogItem",
 			"productId": "15521398069875394",
 			"parentId": "1552139972020f641",
 			"team": "Ghost busters",
-			"type": 5,
+			"level": 5,
 			"subtype": 0,
 			"state": 4,
 			"tssize": 0,
@@ -887,10 +895,11 @@ const initData = {
 		},
 		{
 			"_id": "1552406429497867d",
+			"type": "backlogItem",
 			"productId": "15521398069875394",
 			"parentId": "1552139972020f641",
 			"team": "Ghost busters",
-			"type": 5,
+			"level": 5,
 			"subtype": 0,
 			"state": 4,
 			"tssize": 0,
@@ -917,10 +926,11 @@ const initData = {
 
 		{
 			"_id": "1552152600149c2ac",
+			"type": "backlogItem",
 			"productId": "1552152600149c2ac",
 			"parentId": "root",
 			"team": "A-team",
-			"type": 2,
+			"level": 2,
 			"subtype": null,
 			"state": 0,
 			"tssize": 1,
@@ -945,10 +955,11 @@ const initData = {
 		},
 		{
 			"_id": "155215264241301dd",
+			"type": "backlogItem",
 			"productId": "1552152600149c2ac",
 			"parentId": "1552152600149c2ac",
 			"team": "A-team",
-			"type": 3,
+			"level": 3,
 			"subtype": null,
 			"state": 0,
 			"tssize": 3,
@@ -973,10 +984,11 @@ const initData = {
 		},
 		{
 			"_id": "1552152658206bb2f",
+			"type": "backlogItem",
 			"productId": "1552152600149c2ac",
 			"parentId": "155215264241301dd",
 			"team": "A-team",
-			"type": 4,
+			"level": 4,
 			"subtype": null,
 			"state": 0,
 			"tssize": 3,

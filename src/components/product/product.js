@@ -75,6 +75,8 @@
 		},
 
 		mounted() {
+			// expose instance to the global namespace
+			window.slVueTree = this.$refs.slVueTree
 			this.setFirstNodeSelected()
 		},
 
@@ -100,7 +102,7 @@
 				'getCurrentItemProductId',
 				'getCurrentItemState',
 				'getCurrentItemTitle',
-				'getCurrentItemType',
+				'getCurrentItemLevel',
 				'getCurrentItemReqArea',
 				'getCurrentItemSpSize',
 				'getCurrentItemSubType',
@@ -198,7 +200,7 @@
 			'selectedPbiType': function (val) {
 				// prevent looping
 				if (val != this.getCurrentItemSubType) {
-					if (this.canWriteLevels[this.getCurrentItemType]) {
+					if (this.canWriteLevels[this.getCurrentItemLevel]) {
 						this.firstNodeSelected.data.subtype = val
 						const payload = {
 							'userName': this.getUser,
@@ -374,7 +376,7 @@
 			},
 			/* Database update methods */
 			updateDescription() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					const payload = {
 						'userName': this.getUser,
 						'email': this.getEmail,
@@ -387,7 +389,7 @@
 				}
 			},
 			updateAcceptance() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					const payload = {
 						'userName': this.getUser,
 						'email': this.getEmail,
@@ -400,7 +402,7 @@
 				}
 			},
 			updateTsSize() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					let size = document.getElementById("tShirtSizeId").value.toUpperCase()
 					const sizeArray = this.$store.state.config.tsSize
 					if (sizeArray.includes(size)) {
@@ -423,7 +425,7 @@
 				}
 			},
 			updateStoryPoints() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					let el = document.getElementById("storyPointsId")
 					if (isNaN(el.value) || el.value < 0) {
 						el.value = '?'
@@ -440,7 +442,7 @@
 				}
 			},
 			updatePersonHours() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					let el = document.getElementById("personHoursId")
 					if (isNaN(el.value) || el.value < 0) {
 						el.value = '?'
@@ -457,7 +459,7 @@
 				}
 			},
 			onStateChange(idx) {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					const payload = {
 						'userName': this.getUser,
 						'email': this.getEmail,
@@ -469,7 +471,7 @@
 				}
 			},
 			updateTitle() {
-				if (this.canWriteLevels[this.getCurrentItemType]) {
+				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					const oldTitle = this.$store.state.currentDoc.title
 					const newTitle = document.getElementById("titleField").value
 					if (oldTitle == newTitle) return
@@ -970,10 +972,11 @@
 					// create a new document and store it
 					const initData = {
 						"_id": insertedNode.data._id,
+						"type": "backlogItem",
 						"productId": insertedNode.data.productId,
 						"parentId": insertedNode.data.parentId,
 						"team": "not assigned yet",
-						"type": insertLevel,
+						"level": insertLevel,
 						"subtype": 0,
 						"state": 0,
 						"tssize": 0,

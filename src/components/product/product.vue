@@ -2,13 +2,13 @@
 	<div>
 		<div class="d-table w-100">
 			<span class="d-table-cell tal">
-				<h3 v-if="getCurrentItemType <= epicLevel">{{ getLevelText(getCurrentItemType) }} T-Shirt size:
+				<h3 v-if="getCurrentItemLevel <= epicLevel">{{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
 					<input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
 				</h3>
-				<h3 v-if="getCurrentItemType == featureLevel || (getCurrentItemType == pbiLevel && getCurrentItemSubType != 1)">Story points:
+				<h3 v-if="getCurrentItemLevel == featureLevel || (getCurrentItemLevel == pbiLevel && getCurrentItemSubType != 1)">Story points:
 					<input type="text" size="3" maxlength="3" id="storyPointsId" :value="getCurrentItemSpSize" @blur="updateStoryPoints()" />
 				</h3>
-				<h3 v-if="getCurrentItemType == pbiLevel && getCurrentItemSubType == 1">Person hours:
+				<h3 v-if="getCurrentItemLevel == pbiLevel && getCurrentItemSubType == 1">Person hours:
 					<input type="text" size="3" maxlength="3" id="personHoursId" :value="getCurrentPersonHours" @blur="updatePersonHours()" />
 				</h3>
 			</span>
@@ -94,7 +94,7 @@
 							</div>
 						</div>
 					</div>
-					<div v-if="getCurrentItemType==this.pbiLevel" class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+					<div v-if="getCurrentItemLevel==this.pbiLevel" class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
 						<div class="d-table w-100">
 							<p class="title is-6">This item is of type '{{ this.getSubType(getCurrentItemSubType) }}'. Change it here -> </p>
 							<div class="d-table-cell tar">
@@ -217,7 +217,7 @@
 *
 * NOTE on itemType and level numbering with the current config definition
 *
-* type ...............in database level ....... in tree
+* level ...............in database level ....... in tree
 * -----------------------------------------------------------------------
 * RequirementArea ........ 0 ................... n/a
 * Database ............... 1 ................... n/a
@@ -229,9 +229,9 @@
 * The nodes in the tree have these data elements and values:
 *
 * title: doc.title,
-* isLeaf: (type == leafType) ? true : false, // for now PBI's have no children
+* isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
 * children: [],
-* isExpanded: true || false, // initially the tree is expanded up to the feature type
+* isExpanded: true || false, // initially the tree is expanded up to the feature level
 * isDraggable: true || false, // depending on the user roles
 * isSelectable: true,
 * isSelected: true || false

@@ -4,7 +4,7 @@ import router from '../../router'
 
 const batchSize = 100
 var batch = []
-const leafType = 5
+const leafLevel = 5
 var parentNodes = {}
 
 const state = {
@@ -21,7 +21,7 @@ const state = {
 	email: null,
 	offset: 0,
 	treeNodes: [],
-	userAssignedProductIds: [],
+	userAssignedProductIds: []
 }
 
 const getters = {
@@ -47,29 +47,29 @@ const getters = {
 
 const mutations = {
 	/*
-	 * The database is sorted by productId, type (level) and priority.
-	 * The documents are read top down by type. In parentNodes the read items are linked to to their id's.
+	 * The database is sorted by productId, level and priority.
+	 * The documents are read top down by level. In parentNodes the read items are linked to to their id's.
 	 * The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
-	 * Note that the database is of type 0, and requirement area documents of type 1 are excluded in the database view
+	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
 	 */
 	processBatch(state, payload) {
 		for (let i = 0; i < batch.length; i++) {
 			state.docsCount++
 			// Load the items of the products the user is authorized to
 			if (payload.roles.includes('_admin') || payload.roles.includes('areaPO') || payload.roles.includes('admin') || payload.roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
-				let type = batch[i].doc.type
+				let level = batch[i].doc.level
 				let parentId = batch[i].doc.parentId
 				let delmark = batch[i].doc.delmark
-				// Skip the database/requirement area types and the removed items
-				if (type > 1 && !delmark) {
+				// Skip the database/requirement area levels and the removed items
+				if (level > 1 && !delmark) {
 					let newNode = {
 						title: batch[i].doc.title,
 						// for now PBI's have no children
-						isLeaf: (type == leafType) ? true : false,
+						isLeaf: (level == leafLevel) ? true : false,
 						children: [],
 						// expand the tree of the default product
 						isExpanded: (batch[i].doc.productId == state.currentUserProductId) ? true : false,
-						isDraggable: payload.writeLevels[batch[i].doc.type],
+						isDraggable: payload.writeLevels[batch[i].doc.level],
 						isSelectable: true,
 						// select the default product
 						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
@@ -153,7 +153,6 @@ const actions = {
 					state.myTeams = []
 					state.myCurrentTeam = "none assigned"
 				}
-				if (rootState.debug) console.log('getOtherUserData: state.myCurrentTeam = ' + state.myCurrentTeam)
 				state.email = res.data.email
 				state.databases = res.data.databases
 				rootState.currentDb = res.data.currentDb
@@ -195,6 +194,7 @@ const actions = {
 						// recurse until all read
 						dispatch('getNextDocsBatch')
 					} else {
+						dispatch('listenForChanges')
 						// done, release memory
 						parentNodes = null
 					}
@@ -229,6 +229,8 @@ const actions = {
 					if (batch.length == batchSize) {
 						state.offset += batchSize
 						dispatch('getNextDocsBatch')
+					} else {
+						dispatch('listenForChanges')
 					}
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
@@ -239,6 +241,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
+
 
 	// Read the current product title
 	readProduct({
@@ -254,7 +257,7 @@ const actions = {
 					state.currentProductTitle = res.data.title
 					state.currentProductId = res.data.productId
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log("loadDoc: current product name '" + res.data.title + "' is fetched.")
+					if (rootState.debug) console.log("readProduct: current product name '" + res.data.title + "' is fetched.")
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -300,7 +303,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				if (res.status == 200) {
-					payload.initData.history[0]['createEvent'] = [payload.initData.type, res.data.title]
+					payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
 					dispatch('createDoc2', payload)
 				}
 			})
