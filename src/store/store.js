@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../router'
 import load from './modules/load'
+import sync from './modules/sync'
 import useracc from './modules/useracc'
 import update from './modules/update'
 import setup from './modules/setup'
@@ -97,7 +98,7 @@ export default new Vuex.Store({
 			return state.demo
 		},
 		isFollower(state) {
-			return state.currentDoc.followers.includes(state.load.email)
+			if (state.currentDoc) return state.currentDoc.followers.includes(state.load.email)
 		},
 		isServerAdmin(state) {
 			return state.myRoles.includes("_admin")
@@ -112,58 +113,58 @@ export default new Vuex.Store({
 			return state.currentDb
 		},
 		getCurrentItemId(state) {
-			return state.currentDoc._id
+			if (state.currentDoc) return state.currentDoc._id
 		},
 		getCurrentItemAcceptanceCriteria(state) {
-			return state.currentDoc.acceptanceCriteria
+			if (state.currentDoc) return state.currentDoc.acceptanceCriteria
 		},
 		getCurrentItemAttachments(state) {
-			return state.currentDoc.attachments
+			if (state.currentDoc) return state.currentDoc.attachments
 		},
 		getCurrentItemComments(state) {
-			return state.currentDoc.comments
+			if (state.currentDoc) return state.currentDoc.comments
 		},
 		getCurrentItemDescription(state) {
-			return state.currentDoc.description
+			if (state.currentDoc) return state.currentDoc.description
 		},
 		getCurrentItemFollowers(state) {
-			return state.currentDoc.followers
+			if (state.currentDoc) return state.currentDoc.followers
 		},
 		getCurrentItemHistory(state) {
-			return state.currentDoc.history
+			if (state.currentDoc) return state.currentDoc.history
 		},
 		getCurrentItemPriority(state) {
-			return state.currentDoc.priority
+			if (state.currentDoc) return state.currentDoc.priority
 		},
 		getCurrentItemProductId(state) {
-			return state.currentDoc.productId
+			if (state.currentDoc) return state.currentDoc.productId
 		},
 		getCurrentItemReqArea(state) {
-			return state.currentDoc.reqarea
+			if (state.currentDoc) return state.currentDoc.reqarea
 		},
 		getCurrentItemSpSize(state) {
-			return state.currentDoc.spsize
+			if (state.currentDoc) return state.currentDoc.spsize
 		},
 		getCurrentItemState(state) {
-			return state.currentDoc.state
+			if (state.currentDoc) return state.currentDoc.state
 		},
 		getCurrentItemSubType(state) {
-			return state.currentDoc.subtype
+			if (state.currentDoc) return state.currentDoc.subtype
 		},
 		getCurrentItemTeam(state) {
-			return state.currentDoc.team
+			if (state.currentDoc) return state.currentDoc.team
 		},
 		getCurrentItemTitle(state) {
-			return state.currentDoc.title
+			if (state.currentDoc) return state.currentDoc.title
 		},
 		getCurrentItemTsSize(state) {
-			return state.config.tsSize[state.currentDoc.tssize]
+			if (state.config) return state.config.tsSize[state.currentDoc.tssize]
 		},
 		getCurrentItemType(state) {
-			return state.currentDoc.type
+			if (state.currentDoc) return state.currentDoc.type
 		},
 		getCurrentPersonHours(state) {
-			return state.currentDoc.spikepersonhours
+			if (state.currentDoc) return state.currentDoc.spikepersonhours
 		},
 		onDebug(state) {
 			return state.debug
@@ -276,11 +277,11 @@ export default new Vuex.Store({
 							roles: res.data.roles
 						})
 						dispatch('getOtherUserData')
-						//Refresh the session cookie after 6 minutes
+						//Refresh the session cookie after 50 seconds
 						dispatch('refreshCookie', {
 							authData,
 							loggedOut: state.loggedOut,
-							afterSeconds: 360
+							afterSeconds: 50
 						})
 					}
 				})
@@ -298,6 +299,7 @@ export default new Vuex.Store({
 
 	modules: {
 		load,
+		sync,
 		useracc,
 		update,
 		setup
