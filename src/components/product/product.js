@@ -14,7 +14,7 @@
 	// bug? Do not put this import in curly braces
 	import SlVueTree from 'sl-vue-tree'
 
-	const INFO= 0
+	const INFO = 0
 	const WARNING = 1
 	const ERROR = 2
 	const DEBUG = 3
@@ -209,7 +209,7 @@
 						}
 						this.$store.dispatch('setSubType', payload)
 					} else {
-						this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type",WARNING)
+						this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type", WARNING)
 					}
 				}
 
@@ -221,7 +221,7 @@
 						if (this.selectedForView == 'comments') this.$refs.commentsEditorRef.show()
 						if (this.selectedForView == 'history') this.$refs.historyEditorRef.show()
 					} else {
-						this.showLastEvent("Sorry, your assigned role(s) disallow you to create comments",WARNING)
+						this.showLastEvent("Sorry, your assigned role(s) disallow you to create comments", WARNING)
 					}
 				}
 			},
@@ -385,7 +385,7 @@
 					}
 					this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
 				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item",WARNING)
+					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item", WARNING)
 				}
 			},
 			updateAcceptance() {
@@ -398,7 +398,7 @@
 					}
 					this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
 				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item",WARNING)
+					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item", WARNING)
 				}
 			},
 			updateTsSize() {
@@ -421,7 +421,7 @@
 						alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
 					}
 				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the t-shirt size of this item",WARNING)
+					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the t-shirt size of this item", WARNING)
 				}
 			},
 			updateStoryPoints() {
@@ -438,7 +438,7 @@
 					}
 					this.$store.dispatch('setStoryPoints', payload)
 				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item",WARNING)
+					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)
 				}
 			},
 			updatePersonHours() {
@@ -455,7 +455,7 @@
 					}
 					this.$store.dispatch('setPersonHours', payload)
 				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item",WARNING)
+					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item", WARNING)
 				}
 			},
 			onStateChange(idx) {
@@ -467,7 +467,7 @@
 					}
 					this.$store.dispatch('setState', payload)
 				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item",WARNING)
+					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
 				}
 			},
 			updateTitle() {
@@ -489,7 +489,7 @@
 					}
 					this.$store.dispatch('setDocTitle', payload)
 				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the title of this item",WARNING)
+					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the title of this item", WARNING)
 				}
 			},
 			/* mappings from config */
@@ -542,7 +542,7 @@
 					this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
 					evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
 				}
-				this.showLastEvent(evt, warnMsg == "" ? INFO: WARNING)
+				this.showLastEvent(evt, warnMsg == "" ? INFO : WARNING)
 			},
 			nodeToggled(node) {
 				this.showLastEvent(`Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
@@ -715,14 +715,14 @@
 						data: newData
 					})
 				}
-				//				for (var prop in firstNode) {
-				//					//eslint-disable-next-line no-console
-				//					console.log('updateTree@ready -> ' + prop, firstNode[prop]);
-				//				}
-				//				for (prop in firstNode.data) {
-				//					//eslint-disable-next-line no-console
-				//					console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
-				//				}
+				//								for (var prop in firstNode) {
+				//									//eslint-disable-next-line no-console
+				//									console.log('updateTree@ready -> ' + prop, firstNode[prop]);
+				//								}
+				//								for (prop in firstNode.data) {
+				//									//eslint-disable-next-line no-console
+				//									console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
+				//								}
 			},
 			/*
 			 * Update the tree when one or more nodes are dropped on another location
@@ -1004,7 +1004,7 @@
 					}
 					this.$store.dispatch('createDoc', payload)
 				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to create new items of this type",WARNING)
+					this.showLastEvent("Sorry, your assigned role(s) disallow you to create new items of this type", WARNING)
 				}
 			},
 			doCancelInsert() {
