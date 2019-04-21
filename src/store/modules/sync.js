@@ -97,58 +97,60 @@ const actions = {
 					if (rootState.debug) console.log('processDoc: document with _id + ' + _id + ' is loaded.')
 					// process only documents which are a product backlog item
 					if (doc.type == 'backlogItem') {
-						// skip changes made by the user him/her self
-						if (doc.history[0].email != rootGetters.getEmail) {
-							let parentNode = getNodeById(doc.parentId)
-							//eslint-disable-next-line no-console
-							if (rootState.debug) console.log('processDoc: doc.parentId = ' + doc.parentId + ' parent node title = ' + parentNode.title)
-							let node = getNodeById(doc._id)
-							if (node != null) {
-								// the node exists (is not new)
-								if (doc.parentId == node.data.parentId) {
-									// the node has not changed parent
-									let locationInfo = getLocationInfo(node, doc.priority)
-									// update the node's priority after that the location info is determined
-									node.data.priority = doc.priority
-									let newInd = locationInfo.newInd
-									if (newInd == node.ind) {
-										// the node has not changed location w/r to its siblings
-										updateFields(doc, node)
-									} else {
-										// move the node to the new position w/r to its siblings
-										if (newInd == 0) {
-											// the node is the first node under its parent; remove from old position
-											window.slVueTree.remove([node.path])
-											// insert under the parent
-											window.slVueTree.insert({
-												node: parentNode,
-												placement: 'inside'
-											}, node)
+						if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
+							// skip changes made by the user him/her self
+							if (doc.history[0].email != rootGetters.getEmail) {
+								let parentNode = getNodeById(doc.parentId)
+								//eslint-disable-next-line no-console
+								if (rootState.debug) console.log('processDoc: doc.parentId = ' + doc.parentId + ' parent node title = ' + parentNode.title)
+								let node = getNodeById(doc._id)
+								if (node != null) {
+									// the node exists (is not new)
+									if (doc.parentId == node.data.parentId) {
+										// the node has not changed parent
+										let locationInfo = getLocationInfo(node, doc.priority)
+										// update the node's priority after that the location info is determined
+										node.data.priority = doc.priority
+										let newInd = locationInfo.newInd
+										if (newInd == node.ind) {
+											// the node has not changed location w/r to its siblings
+											updateFields(doc, node)
 										} else {
-											if (newInd < node.ind) {
-												// move up: remove from old position
+											// move the node to the new position w/r to its siblings
+											if (newInd == 0) {
+												// the node is the first node under its parent; remove from old position
 												window.slVueTree.remove([node.path])
-												// insert after prevNode
+												// insert under the parent
 												window.slVueTree.insert({
-													node: locationInfo.prevNode,
-													placement: 'after'
+													node: parentNode,
+													placement: 'inside'
 												}, node)
 											} else {
-												// move down: insert after prevNode
-												window.slVueTree.insert({
-													node: locationInfo.prevNode,
-													placement: 'after'
-												}, node)
-												// remove from old position
-												window.slVueTree.remove([node.path])
+												if (newInd < node.ind) {
+													// move up: remove from old position
+													window.slVueTree.remove([node.path])
+													// insert after prevNode
+													window.slVueTree.insert({
+														node: locationInfo.prevNode,
+														placement: 'after'
+													}, node)
+												} else {
+													// move down: insert after prevNode
+													window.slVueTree.insert({
+														node: locationInfo.prevNode,
+														placement: 'after'
+													}, node)
+													// remove from old position
+													window.slVueTree.remove([node.path])
+												}
 											}
 										}
+									} else {
+										// move to other parent
 									}
 								} else {
-									// move to other parent
+									// new node
 								}
-							} else {
-								// new node
 							}
 						}
 					}
