@@ -33,7 +33,8 @@ const actions = {
 						"subscribeEvent": [wasFollower],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.followers = tmpFollowers
 					tmpDoc.history.unshift(newHist)
@@ -61,8 +62,8 @@ const actions = {
 					const newHist = {
 						"setSizeEvent": [oldSize, payload.newSizeIdx],
 						"by": payload.userName,
-						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.tssize = payload.newSizeIdx
 					tmpDoc.history.unshift(newHist)
@@ -91,7 +92,8 @@ const actions = {
 						"setHrsEvent": [oldHrs, payload.newHrs],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.spikepersonhours = payload.newHrs
 					tmpDoc.history.unshift(newHist)
@@ -120,7 +122,8 @@ const actions = {
 						"setPointsEvent": [oldPoints, payload.newPoints],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.spsize = payload.newPoints
 					tmpDoc.history.unshift(newHist)
@@ -149,7 +152,8 @@ const actions = {
 						"setStateEvent": [oldState, payload.newState],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.state = payload.newState
 					tmpDoc.history.unshift(newHist)
@@ -178,7 +182,8 @@ const actions = {
 						"setTitleEvent": [oldTitle, payload.newTitle],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)
@@ -206,7 +211,8 @@ const actions = {
 						"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)
@@ -264,7 +270,8 @@ const actions = {
 						"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle, payload.nrOfDescendants],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)
@@ -298,7 +305,8 @@ const actions = {
 						"descendantMoved": [payload.oldParentTitle],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.history.unshift(newHist)
 					tmpDoc.level = payload.newLevel
@@ -347,7 +355,8 @@ const actions = {
 						"nodeRemoveEvent": [payload.node.level, payload.node.title, payload.descendantsCount],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.history.unshift(newHist)
 					dispatch('updateDoc', tmpDoc)
@@ -377,7 +386,8 @@ const actions = {
 							"descriptionEvent": [res.data.description, newEncodedDescription],
 							"by": payload.userName,
 							"email": payload.email,
-							"timestamp": Date.now()
+							"timestamp": Date.now(),
+							"sessionId": rootState.sessionId
 						}
 						tmpDoc.history.unshift(newHist)
 						rootState.currentDoc.history.unshift(newHist)
@@ -414,7 +424,8 @@ const actions = {
 							"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
 							"by": payload.userName,
 							"email": payload.email,
-							"timestamp": Date.now()
+							"timestamp": Date.now(),
+							"sessionId": rootState.sessionId
 						}
 						tmpDoc.history.unshift(newHist)
 						rootState.currentDoc.history.unshift(newHist)
@@ -448,7 +459,8 @@ const actions = {
 						"comment": [newComment],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.comments.unshift(newEntry)
 					rootState.currentDoc.comments.unshift(newEntry)
@@ -476,7 +488,8 @@ const actions = {
 						"comment": [newComment],
 						"by": payload.userName,
 						"email": payload.email,
-						"timestamp": Date.now()
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId
 					}
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)

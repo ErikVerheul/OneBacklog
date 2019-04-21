@@ -464,9 +464,369 @@ const actions = {
 	},
 
 	createExampleDB({
-		state
+		state,
+		rootState
 	}, payload) {
 		this.commit('clearAll')
+		const initData = {
+			"docs": [
+				{
+					"_id": "root",
+					"type": "backlogItem",
+					"level": 1,
+					"title": "The root of all products in this database",
+					"followers": [],
+					"description": "PHA+ZGVtb2RiPC9wPg==",
+					"acceptanceCriteria": "PHA+PC9wPg==",
+					"priority": 0,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [1, "demodb"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552140438968,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "1552140438968e1e9",
+					"type": "backlogItem",
+					"productId": "15521398069875394",
+					"parentId": "1552139972020f641",
+					"team": "Ghost busters",
+					"level": 5,
+					"subtype": 0,
+					"state": 4,
+					"tssize": 0,
+					"spsize": 5,
+					"spikepersonhours": 0,
+					"reqarea": "15521397677068926",
+					"title": "Use modals for item insertion and deletion",
+					"followers": [],
+					"description": "PHA+QXMgUE8gb3IgZGV2ZWxvcGVyIEkgd2FudCB0byBjcmVhdGUgbmV3IGl0ZW1zIHJpZ2h0IGF0IHRoZSBzcG90IHdpdGggdGhlIGFudGljaXBhdGVkIHByaW9yaXR5PC9wPg==",
+					"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
+					"priority": 4503599627370495,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [5, "The tree stucture"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552140438968,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "15521397677068926",
+					"type": "backlogItem",
+					"productId": null,
+					"parentId": "root",
+					"team": "Ghost busters",
+					"level": 0,
+					"state": 0,
+					"tssize": 0,
+					"title": "The cross product...",
+					"followers": [],
+					"description": "PHA+RGVzY3JpYmUgeW91ciByZXF1aXJlbWVudHMgYXJlYSBoZXJlLi4uPC9wPg==",
+					"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
+					"priority": 0,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [0, "demodb"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552139767706,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "15521398069875394",
+					"type": "backlogItem",
+					"productId": "15521398069875394",
+					"parentId": "root",
+					"team": "Ghost busters",
+					"level": 2,
+					"subtype": null,
+					"state": 1,
+					"tssize": 1,
+					"spsize": null,
+					"spikepersonhours": 0,
+					"title": "One Backlog: the ultimate solution for multiteam companies",
+					"followers": [],
+					"description": "PHA+QXMgc3VwZXIgUE8gSSBuZWVkIG9uZSBpbnRlZ3JhdGVkIHRvb2wgdG8gbWFuYWdlIHRoZSBwcm9kdWN0IGJhY2tsb2cgb2YgYWxsIG15IHByb2R1Y3RzIHNvIHRoYXQ6IGV0Yy48L3A+",
+					"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
+					"priority": 3002399751580330,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [2, "demodb"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552139806987,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "15521399035145bef",
+					"type": "backlogItem",
+					"productId": "15521398069875394",
+					"parentId": "15521398069875394",
+					"team": "Ghost busters",
+					"level": 3,
+					"subtype": null,
+					"state": 2,
+					"tssize": 3,
+					"spsize": null,
+					"spikepersonhours": 0,
+					"title": "The GUI",
+					"followers": [],
+					"description": "PHA+QXMgUE8gSSB3YW50IHRvIHNlZSBhIE1WUCB2ZXJzaW9uIG9mIHRoZSBHVUkgc28gdGhhdCBJIGNhbiBmZWVsIHRoZSBwcm9kdWN0IGFuZCBjb21lIHdpdGggaW1wcm92ZW1lbnRzPC9wPg==",
+					"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
+					"priority": -3002399751580331,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [3, "One Backlog: the ultimate solution for multiteam companies"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552139903514,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "15537241758603a32",
+					"type": "backlogItem",
+					"productId": "15521398069875394",
+					"parentId": "15521398069875394",
+					"team": "Ghost busters",
+					"level": 3,
+					"subtype": null,
+					"state": 2,
+					"tssize": 3,
+					"spsize": null,
+					"spikepersonhours": 0,
+					"title": "User feedback",
+					"followers": [],
+					"description": "PHA+QXMgUE8gYW5kIGRldmVsb3BlciBJIGFtIGludGVyZXN0ZWQgaW4gdXNlciBmZWVkYmFjayBmb3IgcHJvZHVjdCBlbmhhbmNlbWVudC48L3A+",
+					"acceptanceCriteria": "PHA+VGhlIGlkZWEgbXVzdCBiZSBmZWFzaWJsZSBhbmQgb2YgdmFsdWUgZm9yIHRoZSBtYWpvcml0eSBvZiB1c2Vycy4gT3IgaXQgY2FuIGJlIGEgZmVhdHVyZSBmb3IgaGVhdnkgdXNlcnMgYnV0IHRoZSBpbXBsZW1lbnRhdGlvbiBzaG91bGQgaHVydCB0aGUgZWFzZSBvZiB1c2UgZm9yIHRoZSBvdGhlciB1c2Vycy48L3A+",
+					"priority": 3002399751580330,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [3, "One Backlog: the ultimate solution for multiteam companies"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1553724175860,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "1552139972020f641",
+					"type": "backlogItem",
+					"productId": "15521398069875394",
+					"parentId": "15521399035145bef",
+					"team": "Ghost busters",
+					"level": 4,
+					"subtype": null,
+					"state": 4,
+					"tssize": 3,
+					"spikepersonhours": 0,
+					"spsize": null,
+					"reqarea": "15521397677068926",
+					"title": "The tree structure",
+					"followers": [],
+					"description": "PHA+QXMgYSBQTyBJIHdhbnQgYSB0cmVlIHN0cnVjdHVyZSB0byB3YWxrIG92ZXIgdGhlIHByb2R1Y3RzIGFuZCBhbGwgb2YgaXRzIGRlc2NlbmRhbnRzPC9wPg==",
+					"acceptanceCriteria": "PHA+TXVzdCBiZSBhYmxlIHRvIHNvcnQsIGNyZWF0ZSBuZXcsIGFuZCBkZWxldGUgaXRlbXMuIFdhbnQgdG8gdG8gYmUgYWJsZSB0byB1cCBvciBkb3duZ3JhZGUgYW4gaXRlbSBvdmVyIDEgbGV2ZWw6IGVnLiBhIHBiaSB0byBhIGZlYXR1cmUsIG9yIGEgZXBpYyB0byBhIGZlYXR1cmUuIFdhcm4gdGhlIHVzZXIgYmVmb3JlIGRlbGV0aW9uLiBGb3Igbm93IHRoZXJlIGlzIG51IHVuZG8gZnVuY3Rpb24uPC9wPg==",
+					"priority": 0,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [4, "The GUI"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552139972020,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "1552139986318cf68",
+					"type": "backlogItem",
+					"productId": "15521398069875394",
+					"parentId": "1552139972020f641",
+					"team": "Ghost busters",
+					"level": 5,
+					"subtype": 0,
+					"state": 4,
+					"tssize": 0,
+					"spsize": 5,
+					"spikepersonhours": 0,
+					"reqarea": "15521397677068926",
+					"title": "Enable item insertion",
+					"followers": [],
+					"description": "PHA+QXMgYSB1c2VyIHdpdGggdGhlIGFwcHJvcHJpYXRlIHBlcm1pc3Npb24gSSB3YW50IHRvIGNyZWF0ZSBuZXcgaXRlbXM8L3A+",
+					"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
+					"priority": 0,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [5, "The tree structure"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552139986318,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "1552406429497867d",
+					"type": "backlogItem",
+					"productId": "15521398069875394",
+					"parentId": "1552139972020f641",
+					"team": "Ghost busters",
+					"level": 5,
+					"subtype": 0,
+					"state": 4,
+					"tssize": 0,
+					"spsize": 5,
+					"spikepersonhours": 0,
+					"reqarea": "15521397677068926",
+					"title": "Enable item deletion",
+					"followers": [],
+					"description": "PHA+QXMgYSB1c2VyIHdpdGggdGhlIGFwcHJvcHJpYXRlIHBlcm1pc3Npb24gSSB3YW50IHRvIGRlbGV0ZSBpdGVtczwvcD4=",
+					"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
+					"priority": -4503599627370495,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [5, "The tree structure"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552406429497,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+
+				{
+					"_id": "1552152600149c2ac",
+					"type": "backlogItem",
+					"productId": "1552152600149c2ac",
+					"parentId": "root",
+					"team": "A-team",
+					"level": 2,
+					"subtype": null,
+					"state": 0,
+					"tssize": 1,
+					"spsize": null,
+					"spikepersonhours": 0,
+					"title": "Another great product",
+					"followers": [],
+					"description": "PHA+QXMgdGhlIENFTyBJIHdhbnQgLi4uIHNvIHRoYXQgd2UgYXMgYSBjb21wYW55IGNhbiAuLi48L3A+",
+					"acceptanceCriteria": "PHA+TXVzdCBiZSBhd2Vzb21lPC9wPg==",
+					"priority": -3002399751580331,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [2, "demodb"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552152600149,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "155215264241301dd",
+					"type": "backlogItem",
+					"productId": "1552152600149c2ac",
+					"parentId": "1552152600149c2ac",
+					"team": "A-team",
+					"level": 3,
+					"subtype": null,
+					"state": 0,
+					"tssize": 3,
+					"spsize": null,
+					"spikepersonhours": 0,
+					"title": "Epic nr.1 for awesome",
+					"followers": [],
+					"description": "PHA+VGhlIGZpc3QgRXBpYyBmb3IgdGhpcyBhd2Vzb21lIHByb2R1Y3Q8L3A+",
+					"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
+					"priority": 0,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [3, "Another great product"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552152642413,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+				{
+					"_id": "1552152658206bb2f",
+					"type": "backlogItem",
+					"productId": "1552152600149c2ac",
+					"parentId": "155215264241301dd",
+					"team": "A-team",
+					"level": 4,
+					"subtype": null,
+					"state": 0,
+					"tssize": 3,
+					"spsize": null,
+					"spikepersonhours": 0,
+					"reqarea": "15521397677068926",
+					"title": "First awesome feature",
+					"followers": [],
+					"description": "PHA+Q3JlYXRlIGFuIGF3ZXNvbWUgbG9naW4gc28gdGhhdCBpdCBpcyBzdXBlciBlYXN5IHRvIGRvLlg8L3A+",
+					"acceptanceCriteria": "PHA+SnVzdCBiZSBhd2Vzb21lPC9wPg==",
+					"priority": 0,
+					"attachments": [],
+					"comments": [],
+					"history": [
+						{
+							"createEvent": [4, "Epic nr.1 for awesome"],
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552152658206,
+							"sessionId": rootState.sessionId
+						},
+					],
+					"delmark": false
+				},
+			]
+		}
 		globalAxios({
 				method: 'POST',
 				url: payload.dbName + '/_bulk_docs',
@@ -666,355 +1026,6 @@ const dbPermissions = {
 		"roles": ["PO", "guest"]
 	}
 }
-
-const initData = {
-	"docs": [
-		{
-			"_id": "root",
-			"type": "backlogItem",
-			"level": 1,
-			"title": "The root of all products in this database",
-			"followers": [],
-			"description": "PHA+ZGVtb2RiPC9wPg==",
-			"acceptanceCriteria": "PHA+PC9wPg==",
-			"priority": 0,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [1, "demodb"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552140438968
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "1552140438968e1e9",
-			"type": "backlogItem",
-			"productId": "15521398069875394",
-			"parentId": "1552139972020f641",
-			"team": "Ghost busters",
-			"level": 5,
-			"subtype": 0,
-			"state": 4,
-			"tssize": 0,
-			"spsize": 5,
-			"spikepersonhours": 0,
-			"reqarea": "15521397677068926",
-			"title": "Use modals for item insertion and deletion",
-			"followers": [],
-			"description": "PHA+QXMgUE8gb3IgZGV2ZWxvcGVyIEkgd2FudCB0byBjcmVhdGUgbmV3IGl0ZW1zIHJpZ2h0IGF0IHRoZSBzcG90IHdpdGggdGhlIGFudGljaXBhdGVkIHByaW9yaXR5PC9wPg==",
-			"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
-			"priority": 4503599627370495,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [5, "The tree stucture"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552140438968
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "15521397677068926",
-			"type": "backlogItem",
-			"productId": null,
-			"parentId": "root",
-			"team": "Ghost busters",
-			"level": 0,
-			"state": 0,
-			"tssize": 0,
-			"title": "The cross product...",
-			"followers": [],
-			"description": "PHA+RGVzY3JpYmUgeW91ciByZXF1aXJlbWVudHMgYXJlYSBoZXJlLi4uPC9wPg==",
-			"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
-			"priority": 0,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [0, "demodb"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552139767706
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "15521398069875394",
-			"type": "backlogItem",
-			"productId": "15521398069875394",
-			"parentId": "root",
-			"team": "Ghost busters",
-			"level": 2,
-			"subtype": null,
-			"state": 1,
-			"tssize": 1,
-			"spsize": null,
-			"spikepersonhours": 0,
-			"title": "One Backlog: the ultimate solution for multiteam companies",
-			"followers": [],
-			"description": "PHA+QXMgc3VwZXIgUE8gSSBuZWVkIG9uZSBpbnRlZ3JhdGVkIHRvb2wgdG8gbWFuYWdlIHRoZSBwcm9kdWN0IGJhY2tsb2cgb2YgYWxsIG15IHByb2R1Y3RzIHNvIHRoYXQ6IGV0Yy48L3A+",
-			"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
-			"priority": 3002399751580330,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [2, "demodb"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552139806987
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "15521399035145bef",
-			"type": "backlogItem",
-			"productId": "15521398069875394",
-			"parentId": "15521398069875394",
-			"team": "Ghost busters",
-			"level": 3,
-			"subtype": null,
-			"state": 2,
-			"tssize": 3,
-			"spsize": null,
-			"spikepersonhours": 0,
-			"title": "The GUI",
-			"followers": [],
-			"description": "PHA+QXMgUE8gSSB3YW50IHRvIHNlZSBhIE1WUCB2ZXJzaW9uIG9mIHRoZSBHVUkgc28gdGhhdCBJIGNhbiBmZWVsIHRoZSBwcm9kdWN0IGFuZCBjb21lIHdpdGggaW1wcm92ZW1lbnRzPC9wPg==",
-			"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
-			"priority": -3002399751580331,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [3, "One Backlog: the ultimate solution for multiteam companies"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552139903514
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "15537241758603a32",
-			"type": "backlogItem",
-			"productId": "15521398069875394",
-			"parentId": "15521398069875394",
-			"team": "Ghost busters",
-			"level": 3,
-			"subtype": null,
-			"state": 2,
-			"tssize": 3,
-			"spsize": null,
-			"spikepersonhours": 0,
-			"title": "User feedback",
-			"followers": [],
-			"description": "PHA+QXMgUE8gYW5kIGRldmVsb3BlciBJIGFtIGludGVyZXN0ZWQgaW4gdXNlciBmZWVkYmFjayBmb3IgcHJvZHVjdCBlbmhhbmNlbWVudC48L3A+",
-			"acceptanceCriteria": "PHA+VGhlIGlkZWEgbXVzdCBiZSBmZWFzaWJsZSBhbmQgb2YgdmFsdWUgZm9yIHRoZSBtYWpvcml0eSBvZiB1c2Vycy4gT3IgaXQgY2FuIGJlIGEgZmVhdHVyZSBmb3IgaGVhdnkgdXNlcnMgYnV0IHRoZSBpbXBsZW1lbnRhdGlvbiBzaG91bGQgaHVydCB0aGUgZWFzZSBvZiB1c2UgZm9yIHRoZSBvdGhlciB1c2Vycy48L3A+",
-			"priority": 3002399751580330,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [3, "One Backlog: the ultimate solution for multiteam companies"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1553724175860
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "1552139972020f641",
-			"type": "backlogItem",
-			"productId": "15521398069875394",
-			"parentId": "15521399035145bef",
-			"team": "Ghost busters",
-			"level": 4,
-			"subtype": null,
-			"state": 4,
-			"tssize": 3,
-			"spikepersonhours": 0,
-			"spsize": null,
-			"reqarea": "15521397677068926",
-			"title": "The tree structure",
-			"followers": [],
-			"description": "PHA+QXMgYSBQTyBJIHdhbnQgYSB0cmVlIHN0cnVjdHVyZSB0byB3YWxrIG92ZXIgdGhlIHByb2R1Y3RzIGFuZCBhbGwgb2YgaXRzIGRlc2NlbmRhbnRzPC9wPg==",
-			"acceptanceCriteria": "PHA+TXVzdCBiZSBhYmxlIHRvIHNvcnQsIGNyZWF0ZSBuZXcsIGFuZCBkZWxldGUgaXRlbXMuIFdhbnQgdG8gdG8gYmUgYWJsZSB0byB1cCBvciBkb3duZ3JhZGUgYW4gaXRlbSBvdmVyIDEgbGV2ZWw6IGVnLiBhIHBiaSB0byBhIGZlYXR1cmUsIG9yIGEgZXBpYyB0byBhIGZlYXR1cmUuIFdhcm4gdGhlIHVzZXIgYmVmb3JlIGRlbGV0aW9uLiBGb3Igbm93IHRoZXJlIGlzIG51IHVuZG8gZnVuY3Rpb24uPC9wPg==",
-			"priority": 0,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [4, "The GUI"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552139972020
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "1552139986318cf68",
-			"type": "backlogItem",
-			"productId": "15521398069875394",
-			"parentId": "1552139972020f641",
-			"team": "Ghost busters",
-			"level": 5,
-			"subtype": 0,
-			"state": 4,
-			"tssize": 0,
-			"spsize": 5,
-			"spikepersonhours": 0,
-			"reqarea": "15521397677068926",
-			"title": "Enable item insertion",
-			"followers": [],
-			"description": "PHA+QXMgYSB1c2VyIHdpdGggdGhlIGFwcHJvcHJpYXRlIHBlcm1pc3Npb24gSSB3YW50IHRvIGNyZWF0ZSBuZXcgaXRlbXM8L3A+",
-			"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
-			"priority": 0,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [5, "The tree structure"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552139986318
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "1552406429497867d",
-			"type": "backlogItem",
-			"productId": "15521398069875394",
-			"parentId": "1552139972020f641",
-			"team": "Ghost busters",
-			"level": 5,
-			"subtype": 0,
-			"state": 4,
-			"tssize": 0,
-			"spsize": 5,
-			"spikepersonhours": 0,
-			"reqarea": "15521397677068926",
-			"title": "Enable item deletion",
-			"followers": [],
-			"description": "PHA+QXMgYSB1c2VyIHdpdGggdGhlIGFwcHJvcHJpYXRlIHBlcm1pc3Npb24gSSB3YW50IHRvIGRlbGV0ZSBpdGVtczwvcD4=",
-			"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
-			"priority": -4503599627370495,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [5, "The tree structure"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552406429497
-				},
-			],
-			"delmark": false
-		},
-
-		{
-			"_id": "1552152600149c2ac",
-			"type": "backlogItem",
-			"productId": "1552152600149c2ac",
-			"parentId": "root",
-			"team": "A-team",
-			"level": 2,
-			"subtype": null,
-			"state": 0,
-			"tssize": 1,
-			"spsize": null,
-			"spikepersonhours": 0,
-			"title": "Another great product",
-			"followers": [],
-			"description": "PHA+QXMgdGhlIENFTyBJIHdhbnQgLi4uIHNvIHRoYXQgd2UgYXMgYSBjb21wYW55IGNhbiAuLi48L3A+",
-			"acceptanceCriteria": "PHA+TXVzdCBiZSBhd2Vzb21lPC9wPg==",
-			"priority": -3002399751580331,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [2, "demodb"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552152600149
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "155215264241301dd",
-			"type": "backlogItem",
-			"productId": "1552152600149c2ac",
-			"parentId": "1552152600149c2ac",
-			"team": "A-team",
-			"level": 3,
-			"subtype": null,
-			"state": 0,
-			"tssize": 3,
-			"spsize": null,
-			"spikepersonhours": 0,
-			"title": "Epic nr.1 for awesome",
-			"followers": [],
-			"description": "PHA+VGhlIGZpc3QgRXBpYyBmb3IgdGhpcyBhd2Vzb21lIHByb2R1Y3Q8L3A+",
-			"acceptanceCriteria": "PHA+UGxlYXNlIGRvbid0IGZvcmdldDwvcD4=",
-			"priority": 0,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [3, "Another great product"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552152642413
-				},
-			],
-			"delmark": false
-		},
-		{
-			"_id": "1552152658206bb2f",
-			"type": "backlogItem",
-			"productId": "1552152600149c2ac",
-			"parentId": "155215264241301dd",
-			"team": "A-team",
-			"level": 4,
-			"subtype": null,
-			"state": 0,
-			"tssize": 3,
-			"spsize": null,
-			"spikepersonhours": 0,
-			"reqarea": "15521397677068926",
-			"title": "First awesome feature",
-			"followers": [],
-			"description": "PHA+Q3JlYXRlIGFuIGF3ZXNvbWUgbG9naW4gc28gdGhhdCBpdCBpcyBzdXBlciBlYXN5IHRvIGRvLlg8L3A+",
-			"acceptanceCriteria": "PHA+SnVzdCBiZSBhd2Vzb21lPC9wPg==",
-			"priority": 0,
-			"attachments": [],
-			"comments": [],
-			"history": [
-				{
-					"createEvent": [4, "Epic nr.1 for awesome"],
-					"by": "Erik",
-					"email": "erik@mycompany.nl",
-					"timestamp": 1552152658206
-				},
-			],
-			"delmark": false
-		},
-	]
-}
-/* Above some data to create a sample database */
 
 export default {
 	state,

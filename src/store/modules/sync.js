@@ -18,6 +18,10 @@ const actions = {
 			}).then(res => {
 				if (res.status == 200) {
 					let data = res.data
+					for (var prop in data) {
+						//eslint-disable-next-line no-console
+						if (rootState.debug) console.log('listenForChanges -> ' + prop, data[prop])
+					}
 					let changedIds = []
 					if (since && data.results.length > 0) {
 						for (let i = 0; i < data.results.length; i++) {
@@ -64,8 +68,8 @@ const actions = {
 		 * - the previous node (can be the parent)
 		 * - the index in the array of siblings the node should have based on its priority
 		 */
-		function getLocationInfo(node, newPrio) {
-			let parentNode = getNodeById(node.data.parentId)
+		function getLocationInfo(node, newPrio, parentId) {
+			let parentNode = getNodeById(parentId)
 			let siblings = parentNode.children
 			let i = 0
 			while (i < siblings.length && siblings[i].data.priority > newPrio) {
@@ -99,54 +103,49 @@ const actions = {
 					if (doc.type == 'backlogItem') {
 						if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
 							// skip changes made by the user him/her self
-							if (doc.history[0].email != rootGetters.getEmail) {
+							if (doc.history[0].sessionId != rootState.sessionId) {
 								let parentNode = getNodeById(doc.parentId)
 								//eslint-disable-next-line no-console
 								if (rootState.debug) console.log('processDoc: doc.parentId = ' + doc.parentId + ' parent node title = ' + parentNode.title)
 								let node = getNodeById(doc._id)
 								if (node != null) {
 									// the node exists (is not new)
-									if (doc.parentId == node.data.parentId) {
-										// the node has not changed parent
-										let locationInfo = getLocationInfo(node, doc.priority)
-										// update the node's priority after that the location info is determined
-										node.data.priority = doc.priority
-										let newInd = locationInfo.newInd
-										if (newInd == node.ind) {
-											// the node has not changed location w/r to its siblings
-											updateFields(doc, node)
+									let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
+									// update the node's priority after that the location info is determined
+									node.data.priority = doc.priority
+									let newInd = locationInfo.newInd
+									if (newInd == node.ind) {
+										// the node has not changed location w/r to its siblings
+										updateFields(doc, node)
+									} else {
+										// move the node to the new position w/r to its siblings
+										if (newInd == 0) {
+											// the node is the first node under its parent; remove from old position
+											window.slVueTree.remove([node.path])
+											// insert under the parent
+											window.slVueTree.insert({
+												node: parentNode,
+												placement: 'inside'
+											}, node)
 										} else {
-											// move the node to the new position w/r to its siblings
-											if (newInd == 0) {
-												// the node is the first node under its parent; remove from old position
+											if (newInd < node.ind) {
+												// move up: remove from old position
 												window.slVueTree.remove([node.path])
-												// insert under the parent
+												// insert after prevNode
 												window.slVueTree.insert({
-													node: parentNode,
-													placement: 'inside'
+													node: locationInfo.prevNode,
+													placement: 'after'
 												}, node)
 											} else {
-												if (newInd < node.ind) {
-													// move up: remove from old position
-													window.slVueTree.remove([node.path])
-													// insert after prevNode
-													window.slVueTree.insert({
-														node: locationInfo.prevNode,
-														placement: 'after'
-													}, node)
-												} else {
-													// move down: insert after prevNode
-													window.slVueTree.insert({
-														node: locationInfo.prevNode,
-														placement: 'after'
-													}, node)
-													// remove from old position
-													window.slVueTree.remove([node.path])
-												}
+												// move down: insert after prevNode
+												window.slVueTree.insert({
+													node: locationInfo.prevNode,
+													placement: 'after'
+												}, node)
+												// remove from old position
+												window.slVueTree.remove([node.path])
 											}
 										}
-									} else {
-										// move to other parent
 									}
 								} else {
 									// new node

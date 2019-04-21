@@ -73,6 +73,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 
 	state: {
+		sessionId: null,
 		canWriteLevels: [],
 		config: null,
 		currentDb: null,
@@ -173,6 +174,8 @@ export default new Vuex.Store({
 
 	mutations: {
 		authUser(state, userData) {
+			state.sessionId = userData.sessionId
+
 			const maxLevel = 5
 			state.user = userData.user
 			state.myRoles = userData.roles
@@ -214,7 +217,7 @@ export default new Vuex.Store({
 			state.load.myTeams = []
 			state.load.myCurrentTeam = ''
 			state.load.email = null
-			state.load.offset = 0,
+			state.load.offset = 0
 			state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
 
@@ -261,6 +264,17 @@ export default new Vuex.Store({
 			dispatch,
 			state
 		}, authData) {
+
+			function create_UUID() {
+				var dt = new Date().getTime()
+				var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+					let r = (dt + Math.random() * 16) % 16 | 0
+					dt = Math.floor(dt / 16)
+					return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+				})
+				return uuid
+			}
+
 			globalAxios({
 					method: 'POST',
 					url: '/_session',
@@ -274,7 +288,8 @@ export default new Vuex.Store({
 						state.user = res.data.name
 						commit('authUser', {
 							user: res.data.name,
-							roles: res.data.roles
+							roles: res.data.roles,
+							sessionId: create_UUID()
 						})
 						dispatch('getOtherUserData')
 						//Refresh the session cookie after 50 seconds

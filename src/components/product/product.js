@@ -994,7 +994,8 @@
 							"createEvent": null,
 							'by': this.getUser,
 							'email': this.getEmail,
-							'timestamp': Date.now()
+							'timestamp': Date.now(),
+							'sessionId': this.$store.state.sessionId
 						}],
 						"delmark": false
 					}
