@@ -284,21 +284,19 @@ export default new Vuex.Store({
 						password: authData.password
 					}
 				}).then(res => {
-					if (res.status == 200) {
-						state.user = res.data.name
-						commit('authUser', {
-							user: res.data.name,
-							roles: res.data.roles,
-							sessionId: create_UUID()
-						})
-						dispatch('getOtherUserData')
-						//Refresh the session cookie after 50 seconds
-						dispatch('refreshCookie', {
-							authData,
-							loggedOut: state.loggedOut,
-							afterSeconds: 50
-						})
-					}
+					state.user = res.data.name
+					commit('authUser', {
+						user: res.data.name,
+						roles: res.data.roles,
+						sessionId: create_UUID()
+					})
+					dispatch('getOtherUserData')
+					//Refresh the session cookie after 50 seconds
+					dispatch('refreshCookie', {
+						authData,
+						loggedOut: state.loggedOut,
+						afterSeconds: 50
+					})
 				})
 				// eslint-disable-next-line no-console
 				.catch(error => console.log(error))

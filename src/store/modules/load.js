@@ -106,28 +106,26 @@ const actions = {
 				url: rootState.currentDb + '/config',
 				withCredentials: true,
 			}).then(res => {
-				if (res.status == 200) {
-					rootState.config = res.data
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('The configuration is loaded')
-					// prepare for loading the first batch; add the root node for the database name
-					state.treeNodes = [
-						{
-							"title": rootState.currentDb,
-							"isSelected": false,
-							"isExpanded": true,
-							"children": [],
-							"data": {
-								"_id": "root",
-								"productId": "root",
-								"parentId": null,
-								"priority": null
-							}
+				rootState.config = res.data
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('The configuration is loaded')
+				// prepare for loading the first batch; add the root node for the database name
+				state.treeNodes = [
+					{
+						"title": rootState.currentDb,
+						"isSelected": false,
+						"isExpanded": true,
+						"children": [],
+						"data": {
+							"_id": "root",
+							"productId": "root",
+							"parentId": null,
+							"priority": null
+						}
 						},
 					]
-					parentNodes.root = state.treeNodes[0]
-					dispatch('getFirstDocsBatch')
-				}
+				parentNodes.root = state.treeNodes[0]
+				dispatch('getFirstDocsBatch')
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getConfig:Config doc missing in database ' + rootState.currentDb + '. Error = ' + error))
@@ -182,26 +180,24 @@ const actions = {
 				url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
 				withCredentials: true,
 			}).then(res => {
-				if (res.status == 200) {
-					batch = res.data.rows
-					const payload = {
-						roles: rootState.myRoles,
-						writeLevels: rootState.canWriteLevels
-					}
-					commit('processBatch', payload)
-					if (batch.length == batchSize) {
-						state.offset += batchSize
-						// recurse until all read
-						dispatch('getNextDocsBatch')
-					} else {
-						dispatch('listenForChanges')
-						// done, release memory
-						parentNodes = null
-					}
-					state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('Another batch of ' + batch.length + ' documents is loaded')
+				batch = res.data.rows
+				const payload = {
+					roles: rootState.myRoles,
+					writeLevels: rootState.canWriteLevels
 				}
+				commit('processBatch', payload)
+				if (batch.length == batchSize) {
+					state.offset += batchSize
+					// recurse until all read
+					dispatch('getNextDocsBatch')
+				} else {
+					dispatch('listenForChanges')
+					// done, release memory
+					parentNodes = null
+				}
+				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('Another batch of ' + batch.length + ' documents is loaded')
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getNextDocsBatch: Could not read a batch of documents ' + rootState.currentDb + '. Error = ' + error))
@@ -219,24 +215,22 @@ const actions = {
 				url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
 				withCredentials: true,
 			}).then(res => {
-				if (res.status == 200) {
-					batch = res.data.rows
-					const payload = {
-						roles: rootState.myRoles,
-						writeLevels: rootState.canWriteLevels
-					}
-					commit('processBatch', payload)
-					if (batch.length == batchSize) {
-						state.offset += batchSize
-						dispatch('getNextDocsBatch')
-					} else {
-						dispatch('listenForChanges')
-					}
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
-					state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
-					router.push('/product')
+				batch = res.data.rows
+				const payload = {
+					roles: rootState.myRoles,
+					writeLevels: rootState.canWriteLevels
 				}
+				commit('processBatch', payload)
+				if (batch.length == batchSize) {
+					state.offset += batchSize
+					dispatch('getNextDocsBatch')
+				} else {
+					dispatch('listenForChanges')
+				}
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
+				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+				router.push('/product')
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
@@ -253,12 +247,10 @@ const actions = {
 				url: rootState.currentDb + '/' + product_id,
 				withCredentials: true,
 			}).then(res => {
-				if (res.status == 200) {
-					state.currentProductTitle = res.data.title
-					state.currentProductId = res.data.productId
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log("readProduct: current product name '" + res.data.title + "' is fetched.")
-				}
+				state.currentProductTitle = res.data.title
+				state.currentProductId = res.data.productId
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log("readProduct: current product name '" + res.data.title + "' is fetched.")
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('readProduct: Could not read document with _id ' + product_id + '. Error = ' + error))
@@ -274,17 +266,15 @@ const actions = {
 				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
-				if (res.status == 200) {
-					rootState.currentDoc = res.data
-					// decode from base64 + replace the encoded data
-					rootState.currentDoc.description = window.atob(res.data.description)
-					rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
-					// read the current product title if not available; root is not part of a product
-					if (res.data.productId != state.currentProductId && _id != 'root') {
-						dispatch('readProduct', res.data.productId)
-					}
+				rootState.currentDoc = res.data
+				// decode from base64 + replace the encoded data
+				rootState.currentDoc.description = window.atob(res.data.description)
+				rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
+				// read the current product title if not available; root is not part of a product
+				if (res.data.productId != state.currentProductId && _id != 'root') {
+					dispatch('readProduct', res.data.productId)
 				}
 			})
 			// eslint-disable-next-line no-console
@@ -302,10 +292,8 @@ const actions = {
 				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
-				if (res.status == 200) {
-					payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
-					dispatch('createDoc2', payload)
-				}
+				payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
+				dispatch('createDoc2', payload)
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('createDoc: Could not read parent document with id ' + _id + '. Error = ' + error))
@@ -323,12 +311,10 @@ const actions = {
 				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 				data: payload.initData
-			}).then(res => {
-				if (res.status == 201) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('createDoc2: document with _id + ' + _id + ' is created.')
-					dispatch('loadDoc', _id)
-				}
+			}).then(() => {
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('createDoc2: document with _id + ' + _id + ' is created.')
+				dispatch('loadDoc', _id)
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('createDoc2: Could not create document with id ' + _id + '. Error = ' + error))

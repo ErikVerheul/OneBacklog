@@ -135,10 +135,8 @@ const actions = {
 			withCredentials: true,
 		}).then(res => {
 			state.message = res.data
-			if (res.status == 201) {
 				rootState.currentDb = dbName
 				state.comment = 'New database ' + dbName + ' is created. Note that subsequent actions will be performed on this database'
-			}
 			// eslint-disable-next-line no-console
 			console.log(res)
 		}).catch(error => {
@@ -159,11 +157,9 @@ const actions = {
 			method: 'GET',
 			url: dbName,
 			withCredentials: true,
-		}).then(res => {
-			if (res.status == 200) {
+		}).then(() => {
 				rootState.currentDb = dbName
 				state.comment = 'The database ' + dbName + ' exists already. Note that subsequent actions will be performed on this database'
-			}
 		}).catch(error => {
 			if (error.response.status === 404) {
 				dispatch("createDB", dbName)
