@@ -203,8 +203,6 @@
 					if (this.canWriteLevels[this.getCurrentItemLevel]) {
 						this.firstNodeSelected.data.subtype = val
 						const payload = {
-							'userName': this.getUser,
-							'email': this.getEmail,
 							'newSubType': val
 						}
 						this.$store.dispatch('setSubType', payload)
@@ -252,11 +250,7 @@
 				this.$store.state.load.lastEvent = txt
 			},
 			subscribeClicked() {
-				const payload = {
-					'userName': this.getUser,
-					'email': this.getEmail
-				}
-				this.$store.dispatch('changeSubsription', payload)
+				this.$store.dispatch('changeSubsription')
 			},
 			filterComments() {
 				this.filterForComment = this.filterForCommentPrep
@@ -266,16 +260,12 @@
 			},
 			insertComment() {
 				const payload = {
-					'comment': this.newComment,
-					'userName': this.getUser,
 					'email': this.getEmail
 				}
 				this.$store.dispatch('addComment', payload)
 			},
 			insertHist() {
 				const payload = {
-					'comment': this.newHistory,
-					'userName': this.getUser,
 					'email': this.getEmail
 				}
 				this.$store.dispatch('addHistoryComment', payload)
@@ -378,8 +368,6 @@
 			updateDescription() {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					const payload = {
-						'userName': this.getUser,
-						'email': this.getEmail,
 						'newDescription': this.getCurrentItemDescription,
 						'newId': this.firstNodeSelected.data._id
 					}
@@ -391,8 +379,6 @@
 			updateAcceptance() {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					const payload = {
-						'userName': this.getUser,
-						'email': this.getEmail,
 						'newAcceptance': this.getCurrentItemAcceptanceCriteria,
 						'newId': this.firstNodeSelected.data._id
 					}
@@ -408,8 +394,6 @@
 					if (sizeArray.includes(size)) {
 						// update current document
 						const payload = {
-							'userName': this.getUser,
-							'email': this.getEmail,
 							'newSizeIdx': sizeArray.indexOf(size)
 						}
 						this.$store.dispatch('setSize', payload)
@@ -432,8 +416,6 @@
 						return
 					}
 					const payload = {
-						'userName': this.getUser,
-						'email': this.getEmail,
 						'newPoints': el.value
 					}
 					this.$store.dispatch('setStoryPoints', payload)
@@ -449,8 +431,6 @@
 						return
 					}
 					const payload = {
-						'userName': this.getUser,
-						'email': this.getEmail,
 						'newHrs': el.value
 					}
 					this.$store.dispatch('setPersonHours', payload)
@@ -461,8 +441,6 @@
 			onStateChange(idx) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					const payload = {
-						'userName': this.getUser,
-						'email': this.getEmail,
 						'newState': idx
 					}
 					this.$store.dispatch('setState', payload)
@@ -483,8 +461,6 @@
 					})
 					// update current document in database
 					const payload = {
-						'userName': this.getUser,
-						'email': this.getEmail,
 						'newTitle': newTitle
 					}
 					this.$store.dispatch('setDocTitle', payload)
@@ -756,8 +732,6 @@
 							'oldLevel': clickedLevel,
 							'newLevel': selectedNodes[i].level,
 							'newInd': selectedNodes[i].ind,
-							'userName': this.getUser,
-							'email': this.getEmail,
 							'descendants': this.getDescendantsInfo(selectedNodes[i].path).descendants
 						}
 						this.$store.dispatch('updateDropped', payload)
@@ -804,8 +778,6 @@
 				}
 				// set remove mark in the database on the clicked item
 				const payload = {
-					'userName': this.getUser,
-					'email': this.getEmail,
 					'node': selectedNodes[0],
 					'descendantsCount': descendants.length,
 					'doRegHist': true
@@ -814,8 +786,6 @@
 				// and remove the descendants without registering history in parents which are removed anyway
 				for (let i = 0; i < descendants.length; i++) {
 					const payload2 = {
-						'userName': this.getUser,
-						'email': this.getEmail,
 						'node': descendants[i],
 						'doRegHist': false
 					}
@@ -992,10 +962,10 @@
 						"comments": [],
 						"history": [{
 							"createEvent": null,
-							'by': this.getUser,
-							'email': this.getEmail,
-							'timestamp': Date.now(),
-							'sessionId': this.$store.state.sessionId
+							"by": this.$store.state.user,
+							"email": this.getEmail,
+							"timestamp": Date.now(),
+							"sessionId": this.$store.state.sessionId
 						}],
 						"delmark": false
 					}

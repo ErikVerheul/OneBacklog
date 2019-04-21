@@ -9,7 +9,7 @@ const actions = {
 		rootState,
 		rootGetters,
 		dispatch
-	}, payload) {
+	} ) {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
@@ -30,8 +30,8 @@ const actions = {
 				}
 				const newHist = {
 					"subscribeEvent": [wasFollower],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -58,7 +58,8 @@ const actions = {
 				const oldSize = tmpDoc.tssize
 				const newHist = {
 					"setSizeEvent": [oldSize, payload.newSizeIdx],
-					"by": payload.userName,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -85,8 +86,8 @@ const actions = {
 				const oldHrs = tmpDoc.spikepersonhours
 				const newHist = {
 					"setHrsEvent": [oldHrs, payload.newHrs],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -113,8 +114,8 @@ const actions = {
 				const oldPoints = tmpDoc.spsize
 				const newHist = {
 					"setPointsEvent": [oldPoints, payload.newPoints],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -141,8 +142,8 @@ const actions = {
 				const oldState = tmpDoc.state
 				const newHist = {
 					"setStateEvent": [oldState, payload.newState],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -169,8 +170,8 @@ const actions = {
 				let tmpDoc = res.data
 				const newHist = {
 					"setTitleEvent": [oldTitle, payload.newTitle],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -196,8 +197,8 @@ const actions = {
 				let tmpDoc = res.data
 				const newHist = {
 					"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -229,7 +230,7 @@ const actions = {
 						"oldParentTitle": payload.oldParentTitle,
 						"productId": payload.productId,
 						"newLevel": payload.descendants[i].level,
-						"userName": payload.userName,
+						"userName": rootState.user,
 						"email": payload.email
 					}
 					dispatch('updateDescendant', descendantPayload)
@@ -251,8 +252,8 @@ const actions = {
 				let tmpDoc = res.data
 				const newHist = {
 					"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle, payload.nrOfDescendants],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -284,8 +285,8 @@ const actions = {
 				let tmpDoc = res.data
 				const newHist = {
 					"descendantMoved": [payload.oldParentTitle],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -330,8 +331,8 @@ const actions = {
 				let tmpDoc = res.data
 				const newHist = {
 					"nodeRemoveEvent": [payload.node.level, payload.node.title, payload.descendantsCount],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -359,8 +360,8 @@ const actions = {
 				if (newEncodedDescription != res.data.description) {
 					const newHist = {
 						"descriptionEvent": [res.data.description, newEncodedDescription],
-						"by": payload.userName,
-						"email": payload.email,
+						"by": rootState.user,
+						"email": rootState.load.email,
 						"timestamp": Date.now(),
 						"sessionId": rootState.sessionId
 					}
@@ -395,8 +396,8 @@ const actions = {
 				if (newEncodedAcceptance != res.data.acceptanceCriteria) {
 					const newHist = {
 						"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
-						"by": payload.userName,
-						"email": payload.email,
+						"by": rootState.user,
+						"email": rootState.load.email,
 						"timestamp": Date.now(),
 						"sessionId": rootState.sessionId
 					}
@@ -428,8 +429,8 @@ const actions = {
 				const newComment = window.btoa(payload.comment)
 				const newEntry = {
 					"comment": [newComment],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
@@ -455,8 +456,8 @@ const actions = {
 				const newComment = window.btoa(payload.comment)
 				const newHist = {
 					"comment": [newComment],
-					"by": payload.userName,
-					"email": payload.email,
+					"by": rootState.user,
+					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId
 				}
