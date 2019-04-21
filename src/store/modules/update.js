@@ -268,11 +268,11 @@ const actions = {
 					}
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)
-					tmpDoc.type = payload.newLevel
+					tmpDoc.level = payload.newLevel
 					tmpDoc.productId = payload.productId
 					tmpDoc.parentId = payload.newParentId
 					tmpDoc.priority = payload.newPriority
-					rootState.currentDoc.type = payload.newLevel
+					rootState.currentDoc.level = payload.newLevel
 					rootState.currentDoc.productId = payload.productId
 					rootState.currentDoc.parentId = payload.newParentId
 					rootState.currentDoc.priority = payload.priority
@@ -301,7 +301,7 @@ const actions = {
 						"timestamp": Date.now()
 					}
 					tmpDoc.history.unshift(newHist)
-					tmpDoc.type = payload.newLevel
+					tmpDoc.level = payload.newLevel
 					tmpDoc.productId = payload.productId
 					dispatch('updateDoc', tmpDoc)
 				}

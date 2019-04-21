@@ -55,6 +55,9 @@ const actions = {
 		rootState,
 		rootGetters
 	}, _id) {
+		/*
+		 * Returns the node or null when it does not exist
+		 */
 		function getNodeById(id) {
 			let resultNode = null
 			window.slVueTree.traverse((node) => {
@@ -76,11 +79,39 @@ const actions = {
 			return i
 		}
 
+		/*
+		 * When the node exists this function returns an object with:
+		 * - the previous node (can be the parent)
+		 * - the index in the array of siblings the node should have based on its priority
+		 */
+		function getLocationInfo(node, newPrio) {
+			let parentNode = getNodeById(node.data.parentId)
+			let siblings = parentNode.children
+			let i = 0
+			console.log('getLocationInfo: siblings[i].data.priority > newPrio -> ' + siblings[i].data.priority + ' > ' + newPrio)
+			while (i < siblings.length && siblings[i].data.priority > newPrio) {
+				console.log('getLocationInfo: siblings[i].data.priority > newPrio -> ' + siblings[i].data.priority + ' > ' + newPrio)
+				i++
+			}
+			return {
+				prevNode: i == 0 ? parentNode : siblings[i - 1],
+				newInd: i
+			}
+		}
+
 		function updateFields(doc, node) {
 			let newData = Object.assign(node.data)
 			newData.subtype = doc.subtype
 			window.slVueTree.updateNode(node.path, {
 				"title": doc.title,
+				"data": newData
+			})
+		}
+
+		function updatePriority(doc, node) {
+			let newData = Object.assign(node.data)
+			newData.priority = doc.priority
+			window.slVueTree.updateNode(node.path, {
 				"data": newData
 			})
 		}
@@ -106,21 +137,56 @@ const actions = {
 								// the node exists (is not new)
 								if (doc.parentId == node.data.parentId) {
 									// the node has not changed parent
-									let newInd = getNewChildIndex(doc.parentId, doc.priority)
-									//eslint-disable-next-line no-console
-									if (rootState.debug) console.log('processDoc: doc._id = ' + doc._id + ' new ind = ' + newInd)
+
+
+									let locationInfo = getLocationInfo(node, doc.priority)
+									node.data.priority = doc.priority
+
+									let newInd = locationInfo.newInd
+									console.log('processDoc: newInd = ' + newInd + ' node.ind = ' + node.ind)
 									if (newInd == node.ind) {
 										// the node has not changed location w/r to its siblings
 										updateFields(doc, node)
 									} else {
 										// move the node to the new position w/r to its siblings
 										if (newInd == 0) {
-											// the node is the first node under its parent
-
+											// the node is the first node under its parent; remove from old position
+											window.slVueTree.remove([node.path])
+											// insert under the parent
+											let position = {
+												node: parentNode,
+												placement: 'inside'
+											}
+											window.slVueTree.insert(position, node)
+										} else {
+											if (newInd < node.ind) {
+												// move up; remove from old position
+												window.slVueTree.remove([node.path])
+												// insert under prevNode
+												window.slVueTree.insert({
+													node: locationInfo.prevNode,
+													placement: 'after'
+												}, node)
+											} else {
+												// move down
+												let prevNode = locationInfo.prevNode
+												console.log('processDoc: prevNode.title = ' + prevNode)
+												// insert under prevNode
+												window.slVueTree.insert({
+													node: prevNode,
+													placement: 'after'
+												}, node)
+												// remove from old position
+												console.log('processDoc: remove from node.path = ' + node.path)
+												window.slVueTree.remove([node.path])
+											}
 										}
-
 									}
+								} else {
+									// move to other parent
 								}
+							} else {
+								// new node
 							}
 						}
 					}
