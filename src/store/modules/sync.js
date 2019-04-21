@@ -1,9 +1,5 @@
 import globalAxios from 'axios'
 
-const state = {
-	test: 'Erik'
-}
-
 const actions = {
 	listenForChanges({
 		rootState,
@@ -162,6 +158,5 @@ const actions = {
 }
 
 export default {
-	state,
 	actions
 }
