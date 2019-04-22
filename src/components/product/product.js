@@ -470,13 +470,13 @@
 			},
 			/* mappings from config */
 			getLevelText(level) {
-				if (level < 0 || level > this.pbiLevel) {
+				if (level < 0 || level > PBILEVEL) {
 					return 'Level not supported'
 				}
 				return this.$store.state.config.itemType[level]
 			},
 			getItemStateText(idx) {
-				if (idx < 0 || idx > this.pbiLevel) {
+				if (idx < 0 || idx > PBILEVEL) {
 					return 'Error: unknown state'
 				}
 				return this.$store.state.config.itemState[idx]
@@ -568,7 +568,7 @@
 				 */
 				let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 					const levelChange = Math.abs(targetLevel - sourceLevel)
-					return !this.canWriteLevels[position.node.level] || levelChange > 1 || (targetLevel + this.getDescendantsInfo(node.path).depth) > this.pbiLevel
+					return !this.canWriteLevels[position.node.level] || levelChange > 1 || (targetLevel + this.getDescendantsInfo(node.path).depth) > PBILEVEL
 				}
 				const sourceLevel = draggingNodes[0].level
 				let targetLevel = position.node.level
@@ -686,7 +686,7 @@
 					newData.productId = localProductId
 					newData.parentId = localParentId
 					this.$refs.slVueTree.updateNode(nodes[i].path, {
-						isLeaf: (level < this.pbiLevel) ? false : true,
+						isLeaf: (level < PBILEVEL) ? false : true,
 						isExpanded: true,
 						data: newData
 					})
@@ -802,7 +802,7 @@
 				if (this.nodeIsSelected) {
 					let clickedLevel = this.firstNodeSelected.level
 
-					if (clickedLevel === this.pbiLevel) {
+					if (clickedLevel === PBILEVEL) {
 						// cannot create child below PBI
 						this.insertOptionSelected = 1;
 					}
@@ -846,7 +846,7 @@
 				options[0].text = this.getLevelText(clickedLevel)
 				options[1].text = this.getLevelText(clickedLevel + 1)
 				// Disable the option to create a node below a PBI
-				if (clickedLevel === this.pbiLevel) options[1].disabled = true
+				if (clickedLevel === PBILEVEL) options[1].disabled = true
 				// Disable the option to create a new database
 				if (clickedLevel === 1) options[0].disabled = true
 				return options
@@ -898,7 +898,7 @@
 						placement: 'after'
 					}
 					newNode.title = 'New ' + this.getLevelText(insertLevel)
-					newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
+					newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
 					return "Insert new " + this.getLevelText(insertLevel) + " below the selected node"
 				}
 				if (this.insertOptionSelected === 2) {
@@ -910,7 +910,7 @@
 						placement: 'inside'
 					}
 					newNode.title = 'New ' + this.getLevelText(insertLevel)
-					newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
+					newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
 					return "Insert new " + this.getLevelText(insertLevel) + " as a child node"
 				}
 				return '' // Should never happen
