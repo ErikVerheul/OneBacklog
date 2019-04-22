@@ -128,9 +128,10 @@ const actions = {
 								if (!doc.delmark) {
 									// update the parent as it can be changed
 									let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
-									// update priority and parent
+									// update priority, parent and product
 									node.data.priority = doc.priority
 									node.data.parentId = doc.parentId
+									node.data.productId = doc.productId
 									if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) == 0) {
 										// the node has not changed parent nor changed location w/r to its siblings
 										updateFields(doc, node)
