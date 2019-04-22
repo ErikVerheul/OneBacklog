@@ -33,7 +33,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.followers = tmpFollowers
 				tmpDoc.history.unshift(newHist)
@@ -61,7 +62,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.tssize = payload.newSizeIdx
 				tmpDoc.history.unshift(newHist)
@@ -89,7 +91,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.spikepersonhours = payload.newHrs
 				tmpDoc.history.unshift(newHist)
@@ -117,7 +120,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.spsize = payload.newPoints
 				tmpDoc.history.unshift(newHist)
@@ -145,7 +149,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.state = payload.newState
 				tmpDoc.history.unshift(newHist)
@@ -173,7 +178,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": true
 				}
 				tmpDoc.history.unshift(newHist)
 				rootState.currentDoc.history.unshift(newHist)
@@ -200,7 +206,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": true
 				}
 				tmpDoc.history.unshift(newHist)
 				rootState.currentDoc.history.unshift(newHist)
@@ -255,7 +262,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": true
 				}
 				tmpDoc.history.unshift(newHist)
 				rootState.currentDoc.history.unshift(newHist)
@@ -288,7 +296,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.history.unshift(newHist)
 				tmpDoc.level = payload.newLevel
@@ -334,7 +343,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
@@ -363,7 +373,8 @@ const actions = {
 						"by": rootState.user,
 						"email": rootState.load.email,
 						"timestamp": Date.now(),
-						"sessionId": rootState.sessionId
+						"sessionId": rootState.sessionId,
+						"distributeEvent": false
 					}
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)
@@ -399,7 +410,8 @@ const actions = {
 						"by": rootState.user,
 						"email": rootState.load.email,
 						"timestamp": Date.now(),
-						"sessionId": rootState.sessionId
+						"sessionId": rootState.sessionId,
+						"distributeEvent": false
 					}
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)
@@ -432,7 +444,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.comments.unshift(newEntry)
 				rootState.currentDoc.comments.unshift(newEntry)
@@ -459,7 +472,8 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
 				tmpDoc.history.unshift(newHist)
 				rootState.currentDoc.history.unshift(newHist)

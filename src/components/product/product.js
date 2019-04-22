@@ -885,7 +885,9 @@
 						priority: null,
 						productId: null,
 						parentId: null,
-						subtype: 0
+						subtype: 0,
+						sessionId: this.$store.state.sessionId,
+						distributeEvent: true
 					}
 				}
 				var clickedLevel = this.firstNodeSelected.level
@@ -965,7 +967,8 @@
 							"by": this.$store.state.user,
 							"email": this.getEmail,
 							"timestamp": Date.now(),
-							"sessionId": this.$store.state.sessionId
+							"sessionId": this.$store.state.sessionId,
+							"distributeEvent": true
 						}],
 						"delmark": false
 					}

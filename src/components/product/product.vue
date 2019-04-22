@@ -240,7 +240,9 @@
 * ....priority: doc.priority,
 * ....productId: doc.productId,
 * ....parentId: doc.parentId,
-* ....subtype: doc.subtype
+* ....subtype: doc.subtype,
+* ....sessionId: rootState.sessionId,
+* ....distributeEvent: true | false
 * }
 */
 

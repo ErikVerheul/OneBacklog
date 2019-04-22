@@ -121,7 +121,7 @@ const actions = {
 				if (doc.type == 'backlogItem') {
 					if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
 						// skip changes made by the user him/her self
-						if (doc.history[0].sessionId != rootState.sessionId) {
+						if (doc.history[0].sessionId != rootState.sessionId && doc.history[0].distributeEvent) {
 							let node = getNodeById(doc._id)
 							if (node != null) {
 								// the node exists (is not new)
@@ -186,7 +186,9 @@ const actions = {
 										"_id": doc._id,
 										"productId": doc.productId,
 										"parentId": doc.parentId,
-										"subtype": 0
+										"subtype": 0,
+										"sessionId": rootState.sessionId,
+										"distributeEvent": true
 									}
 								}
 								let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
