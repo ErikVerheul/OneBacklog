@@ -1,5 +1,7 @@
 import globalAxios from 'axios'
 
+const PBILEVEL = 5
+
 const actions = {
 	listenForChanges({
 		rootState,
@@ -61,17 +63,40 @@ const actions = {
 		 * When the node exists this function returns an object with:
 		 * - the previous node (can be the parent)
 		 * - the index in the array of siblings the node should have based on its priority
+		 * Note: when the node travels to a new parent that parent can have no children
 		 */
 		function getLocationInfo(node, newPrio, parentId) {
 			let parentNode = getNodeById(parentId)
-			let siblings = parentNode.children
-			let i = 0
-			while (i < siblings.length && siblings[i].data.priority > newPrio) {
-				i++
-			}
-			return {
-				prevNode: i == 0 ? parentNode : siblings[i - 1],
-				newInd: i
+			let newPath = []
+			if (parentNode.children.length > 0) {
+				let siblings = parentNode.children
+				let i = 0
+				while (i < siblings.length && siblings[i].data.priority > newPrio) i++
+				let prevNode = null
+				if (i == 0) {
+					prevNode = parentNode
+					newPath = parentNode.path.slice()
+					newPath.push(0)
+				} else {
+					prevNode = siblings[i - 1]
+					newPath = prevNode.path.slice(0, -1)
+					newPath.push(i)
+				}
+				return {
+					prevNode: prevNode,
+					newPath: newPath,
+					newLevel: newPath.length,
+					newInd: i
+				}
+			} else {
+				newPath = parentNode.path.slice()
+				newPath.push(0)
+				return {
+					prevNode: parentNode,
+					newPath: newPath,
+					newLevel: newPath.length,
+					newInd: 0
+				}
 			}
 		}
 
@@ -97,47 +122,50 @@ const actions = {
 					if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
 						// skip changes made by the user him/her self
 						if (doc.history[0].sessionId != rootState.sessionId) {
-							let parentNode = getNodeById(doc.parentId)
-							//eslint-disable-next-line no-console
-							if (rootState.debug) console.log('processDoc: doc.parentId = ' + doc.parentId + ' parent node title = ' + parentNode.title)
 							let node = getNodeById(doc._id)
 							if (node != null) {
-								// the node exists (is not new)
+								// the node exists (is not new); update the parent as it can be changed
 								let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
-								// update the node's priority after that the location info is determined
+								// update priority an parent
 								node.data.priority = doc.priority
-								let newInd = locationInfo.newInd
-								if (newInd == node.ind) {
-									// the node has not changed location w/r to its siblings
+								node.data.parentId = doc.parentId
+								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) == 0) {
+									// the node has not changed parent nor changed location w/r to its siblings
 									updateFields(doc, node)
 								} else {
 									// move the node to the new position w/r to its siblings
-									if (newInd == 0) {
-										// the node is the first node under its parent; remove from old position
+									if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) == -1) {
+										// move up: remove from old position first
+										node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
 										window.slVueTree.remove([node.path])
-										// insert under the parent
-										window.slVueTree.insert({
-											node: parentNode,
-											placement: 'inside'
-										}, node)
-									} else {
-										if (newInd < node.ind) {
-											// move up: remove from old position
-											window.slVueTree.remove([node.path])
+										if (locationInfo.newInd == 0) {
+											window.slVueTree.insert({
+												node: locationInfo.prevNode,
+												placement: 'inside'
+											}, node)
+										} else {
 											// insert after prevNode
 											window.slVueTree.insert({
 												node: locationInfo.prevNode,
 												placement: 'after'
 											}, node)
+										}
+									} else {
+										// move down: insert first
+										node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
+										if (locationInfo.newInd == 0) {
+											window.slVueTree.insert({
+												node: locationInfo.prevNode,
+												placement: 'inside'
+											}, node)
 										} else {
-											// move down: insert after prevNode
 											window.slVueTree.insert({
 												node: locationInfo.prevNode,
 												placement: 'after'
 											}, node)
-											// remove from old position
-											window.slVueTree.remove([node.path])
 										}
+										// remove from old position
+										window.slVueTree.remove([node.path])
 									}
 								}
 							} else {
