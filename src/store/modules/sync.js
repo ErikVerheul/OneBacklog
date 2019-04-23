@@ -3,7 +3,7 @@ import globalAxios from 'axios'
 const PBILEVEL = 5
 
 const state = {
-	eventSyncColor: 'black'
+	eventSyncColor: '#004466'
 }
 
 const actions = {
@@ -48,9 +48,9 @@ const actions = {
 	doBlinck({
 		state
 	}) {
-		state.eventSyncColor = 'yellow'
+		state.eventSyncColor = '#e6f7ff'
 		setTimeout(function () {
-			state.eventSyncColor = 'black'
+			state.eventSyncColor = '#004466'
 		}, 1000)
 	},
 

@@ -35,7 +35,7 @@
 		<!-- vertical panes -->
 		<multipane class="custom-resizer" layout="vertical">
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-				<h4>Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} product(s)</h4>
+				<h5>Welcome {{ getUser }}. Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} product(s)</h5>
 				<span class="square" v-bind:style="{'background-color': this.$store.state.sync.eventSyncColor}">sync</span>
 				<div class='last-event' v-bind:style="{'background-color': eventBgColor}">
 					{{ this.$store.state.load.lastEvent }}
@@ -371,9 +371,8 @@
 	//my stuff
 	.square {
 		float: right;
-		heigth: 40px;
-		margin: 10px;
-		background-color: black;
+		padding: 5px;
+		margin: 5px;
 	}
 
 	.colorRed {
