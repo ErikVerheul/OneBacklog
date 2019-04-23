@@ -88,7 +88,7 @@ NOT IN MVP: <b>Dependencies:</b><br />
 Is-dependent-on is the only type. When B is dependent on A then B must have a lower priority than A; The tool should enforce this.
 Circular dependencies are not allowed; The tool should enforce this also.
 
-NOT IN MVP: <b>Automatic update of multi user updates</b><br />
+<b>Automatic sync with other user's updates</b><br />
 When more users work on the backlog of the same product the client presentation is updated automatically (no screen refresh needed) of changes made by other users.
 
 <b>Role based authorization:</b><br />

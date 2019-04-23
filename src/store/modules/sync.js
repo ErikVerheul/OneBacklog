@@ -9,6 +9,10 @@ const actions = {
 	}, since) {
 		let url = rootState.currentDb + '/_changes?feed=longpoll'
 		if (since) url += '&since=' + since
+		else {
+			// initially get the last change only
+			url += '&descending=true&limit=1'
+		}
 		globalAxios({
 				method: 'GET',
 				url: url,
@@ -120,7 +124,7 @@ const actions = {
 				// process only documents which are a product backlog item
 				if (doc.type === 'backlogItem') {
 					if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
-						// skip changes made by the user him/her self
+						// only process changes not made by the user him/her self and ment for distribution
 						if (doc.history[0].sessionId != rootState.sessionId && doc.history[0].distributeEvent) {
 							let node = getNodeById(doc._id)
 							if (node != null) {

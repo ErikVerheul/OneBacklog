@@ -192,7 +192,7 @@ const actions = {
 					dispatch('getNextDocsBatch')
 				} else {
 					dispatch('listenForChanges')
-					// done, release memory
+					// all documents are read, release memory
 					parentNodes = null
 				}
 				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
@@ -225,6 +225,7 @@ const actions = {
 					state.offset += batchSize
 					dispatch('getNextDocsBatch')
 				} else {
+					// all documents are read
 					dispatch('listenForChanges')
 				}
 				// eslint-disable-next-line no-console
