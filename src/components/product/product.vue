@@ -17,7 +17,7 @@
 			</span>
 			<span class="d-table-cell tar">
 				<h3>State:
-					<b-dropdown id="ddown-right" right class="m-2">
+					<b-dropdown id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
 						<template slot="button-content">
 							{{ getItemStateText(getCurrentItemState) }}
 						</template>
@@ -35,7 +35,8 @@
 		<!-- vertical panes -->
 		<multipane class="custom-resizer" layout="vertical">
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-				<h5>Welcome {{ getUser }}. Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} product(s)</h5>
+				<h6 v-if="getUserAssignedProductIds.length==1">Welcome {{ getUser }}. Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} product</h6>
+				<h6 v-if="getUserAssignedProductIds.length >1">Welcome {{ getUser }}. Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} products</h6>
 				<span class="square" v-bind:style="{'background-color': this.$store.state.sync.eventSyncColor}">sync</span>
 				<div class='last-event' v-bind:style="{'background-color': eventBgColor}">
 					{{ this.$store.state.load.lastEvent }}
@@ -90,7 +91,7 @@
 							<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="getCurrentItemTitle" @blur="updateTitle()">
 							</b-input>
 							<div class="d-table-cell tar">
-								<b-button @click="subscribeClicked">{{ subsribeTitle }}</b-button>
+								<b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
 							</div>
 						</div>
 					</div>
@@ -130,7 +131,7 @@
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 						<div class="d-table w-100">
 							<div class="d-table-cell tal">
-								<b-button :pressed.sync="startEditor">Add {{ selectedForView }}</b-button>
+								<b-button variant="seablue" :pressed.sync="startEditor">Add {{ selectedForView }}</b-button>
 							</div>
 							<div class="d-table-cell tac">
 								<b-form-group label="Select to see">
@@ -138,7 +139,7 @@
 								</b-form-group>
 							</div>
 							<div class="d-table-cell tar">
-								<b-button :pressed.sync="startFiltering">Filter {{ selectedForView }}</b-button>
+								<b-button variant="seablue" :pressed.sync="startFiltering">Filter {{ selectedForView }}</b-button>
 							</div>
 						</div>
 					</div>
@@ -247,6 +248,23 @@
 */
 
 <script src="./product.js"></script>
+<style>
+	<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
+	#dropdownMenuButton>button {
+		width: 100%;
+	}
+
+	#dropdownMenuButton__BV_toggle_ {
+		width: 100%;
+	}
+
+	.btn.btn-secondary.dropdown-toggle {
+		background-color: #408FAE;
+		color: white;
+		border-radius: 0.25rem;
+	}
+
+</style>
 
 <style lang="scss" scoped>
 	@import "../../css/sl-vue-tree-dark.css";
@@ -377,6 +395,11 @@
 
 	.colorRed {
 		color: red;
+	}
+
+	.btn-seablue {
+		background-color: #408FAE;
+		color: white;
 	}
 
 	input[type="number"] {
