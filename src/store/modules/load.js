@@ -65,14 +65,14 @@ const mutations = {
 					let newNode = {
 						title: batch[i].doc.title,
 						// for now PBI's have no children
-						isLeaf: (level == leafLevel) ? true : false,
+						isLeaf: (level === leafLevel) ? true : false,
 						children: [],
 						// expand the tree of the default product
-						isExpanded: (batch[i].doc.productId == state.currentUserProductId) ? true : false,
+						isExpanded: (batch[i].doc.productId === state.currentUserProductId) ? true : false,
 						isDraggable: payload.writeLevels[batch[i].doc.level],
 						isSelectable: true,
 						// select the default product
-						isSelected: (batch[i].doc._id == state.currentUserProductId) ? true : false,
+						isSelected: (batch[i].doc._id === state.currentUserProductId) ? true : false,
 						data: {
 							_id: batch[i].doc._id,
 							priority: batch[i].doc.priority,
@@ -186,7 +186,7 @@ const actions = {
 					writeLevels: rootState.canWriteLevels
 				}
 				commit('processBatch', payload)
-				if (batch.length == batchSize) {
+				if (batch.length === batchSize) {
 					state.offset += batchSize
 					// recurse until all read
 					dispatch('getNextDocsBatch')
@@ -221,7 +221,7 @@ const actions = {
 					writeLevels: rootState.canWriteLevels
 				}
 				commit('processBatch', payload)
-				if (batch.length == batchSize) {
+				if (batch.length === batchSize) {
 					state.offset += batchSize
 					dispatch('getNextDocsBatch')
 				} else {

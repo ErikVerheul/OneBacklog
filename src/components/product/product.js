@@ -157,7 +157,7 @@
 			getFilteredHistory() {
 				function removeImages(text) {
 					let pos1 = text.indexOf('<img src="')
-					if (pos1 == -1) return text
+					if (pos1 === -1) return text
 					else {
 						let pos2 = text.indexOf('">', pos1 + 1)
 						let image = text.slice(pos1, pos2 + 1)
@@ -171,22 +171,22 @@
 					let allText = ""
 					let keys = Object.keys(histItem)
 					for (let j = 0; j < keys.length; j++) {
-						if (keys[j] == "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
-						if (keys[j] == "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
-						if (keys[j] == "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
-						if (keys[j] == "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
-						if (keys[j] == "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
-						if (keys[j] == "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
-						if (keys[j] == "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
-						if (keys[j] == "setSubTypeEvent") allText += this.mkSetSubTypeEvent(histItem[keys[j]])
-						if (keys[j] == "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
-						if (keys[j] == "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
-						if (keys[j] == "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
-						if (keys[j] == "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
-						if (keys[j] == "nodeRemoveEvent") allText += this.mkNodeRemoveEvent(histItem[keys[j]])
-						if (keys[j] == "by") allText += this.mkBy(histItem[keys[j]])
-						if (keys[j] == "email") allText += this.mkEmail(histItem[keys[j]])
-						if (keys[j] == "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
+						if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
+						if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
+						if (keys[j] === "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
+						if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
+						if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
+						if (keys[j] === "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
+						if (keys[j] === "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
+						if (keys[j] === "setSubTypeEvent") allText += this.mkSetSubTypeEvent(histItem[keys[j]])
+						if (keys[j] === "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
+						if (keys[j] === "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
+						if (keys[j] === "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
+						if (keys[j] === "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
+						if (keys[j] === "nodeRemoveEvent") allText += this.mkNodeRemoveEvent(histItem[keys[j]])
+						if (keys[j] === "by") allText += this.mkBy(histItem[keys[j]])
+						if (keys[j] === "email") allText += this.mkEmail(histItem[keys[j]])
+						if (keys[j] === "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
 					}
 					if (allText.includes(this.filterForHistory)) {
 						filteredComments.push(histItem)
@@ -213,21 +213,21 @@
 
 			},
 			'startEditor': function (val) {
-				if (val == true) {
+				if (val === true) {
 					this.startEditor = false
 					if (this.canCreateComments) {
-						if (this.selectedForView == 'comments') this.$refs.commentsEditorRef.show()
-						if (this.selectedForView == 'history') this.$refs.historyEditorRef.show()
+						if (this.selectedForView === 'comments') this.$refs.commentsEditorRef.show()
+						if (this.selectedForView === 'history') this.$refs.historyEditorRef.show()
 					} else {
 						this.showLastEvent("Sorry, your assigned role(s) disallow you to create comments", WARNING)
 					}
 				}
 			},
 			'startFiltering': function (val) {
-				if (val == true) {
+				if (val === true) {
 					this.startFiltering = false
-					if (this.selectedForView == 'comments') this.$refs.commentsFilterRef.show()
-					if (this.selectedForView == 'history') this.$refs.historyFilterRef.show()
+					if (this.selectedForView === 'comments') this.$refs.commentsFilterRef.show()
+					if (this.selectedForView === 'history') this.$refs.historyFilterRef.show()
 				}
 			}
 		},
@@ -310,7 +310,7 @@
 			},
 			mkNodeDroppedEvent(value) {
 				let txt = ""
-				if (value[0] == value[1]) {
+				if (value[0] === value[1]) {
 					txt = "<h5>The item changed priority to position " + (value[2] + 1) + " under parent '" + value[3] + "'</h5>"
 					txt += (value[4] > 0) ? "<p>" + value[4] + " descendants were alse moved.</p>" : ""
 					return txt
@@ -341,28 +341,28 @@
 				return window.atob(value[0])
 			},
 			prepCommentsText(key, value) {
-				if (key == "comment") return this.mkComment(value)
-				if (key == "by") return this.mkBy(value)
-				if (key == "email") return this.mkEmail(value)
-				if (key == "timestamp") return this.mkTimestamp(value)
+				if (key === "comment") return this.mkComment(value)
+				if (key === "by") return this.mkBy(value)
+				if (key === "email") return this.mkEmail(value)
+				if (key === "timestamp") return this.mkTimestamp(value)
 			},
 			prepHistoryText(key, value) {
-				if (key == "subscribeEvent") return this.mkSubscribeEvent(value)
-				if (key == "createEvent") return this.mkCreateEvent(value)
-				if (key == "setSizeEvent") return this.mkSetSizeEvent(value)
-				if (key == "setPointsEvent") return this.mkSetPointsEvent(value)
-				if (key == "setHrsEvent") return this.mkSetHrsEvent(value)
-				if (key == "setStateEvent") return this.mkSetStateEvent(value)
-				if (key == "setTitleEvent") return this.mkSetTitleEvent(value)
-				if (key == "setSubTypeEvent") return this.mkSetSubTypeEvent(value)
-				if (key == "descriptionEvent") return this.mkDescriptionEvent(value)
-				if (key == "acceptanceEvent") return this.mkAcceptanceEvent(value)
-				if (key == "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
-				if (key == "descendantMoved") return this.mkDescendantMoved(value)
-				if (key == "nodeRemoveEvent") return this.mkNodeRemoveEvent(value)
-				if (key == "by") return this.mkBy(value)
-				if (key == "email") return this.mkEmail(value)
-				if (key == "timestamp") return this.mkTimestamp(value)
+				if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
+				if (key === "createEvent") return this.mkCreateEvent(value)
+				if (key === "setSizeEvent") return this.mkSetSizeEvent(value)
+				if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
+				if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
+				if (key === "setStateEvent") return this.mkSetStateEvent(value)
+				if (key === "setTitleEvent") return this.mkSetTitleEvent(value)
+				if (key === "setSubTypeEvent") return this.mkSetSubTypeEvent(value)
+				if (key === "descriptionEvent") return this.mkDescriptionEvent(value)
+				if (key === "acceptanceEvent") return this.mkAcceptanceEvent(value)
+				if (key === "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
+				if (key === "descendantMoved") return this.mkDescendantMoved(value)
+				if (key === "nodeRemoveEvent") return this.mkNodeRemoveEvent(value)
+				if (key === "by") return this.mkBy(value)
+				if (key === "email") return this.mkEmail(value)
+				if (key === "timestamp") return this.mkTimestamp(value)
 			},
 			/* Database update methods */
 			updateDescription() {
@@ -452,7 +452,7 @@
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					const oldTitle = this.$store.state.currentDoc.title
 					const newTitle = document.getElementById("titleField").value
-					if (oldTitle == newTitle) return
+					if (oldTitle === newTitle) return
 
 					// update the tree
 					const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
@@ -511,14 +511,14 @@
 				const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				let evt = ""
-				if (selNodes.length == 1) {
+				if (selNodes.length === 1) {
 					this.selectedNodesTitle = title
 					evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
 				} else {
 					this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
 					evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
 				}
-				this.showLastEvent(evt, warnMsg == "" ? INFO : WARNING)
+				this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
 			},
 			nodeToggled(node) {
 				this.showLastEvent(`Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
@@ -538,13 +538,13 @@
 				let count = 0
 				let maxDepth = 0
 				this.$refs.slVueTree.traverse((node) => {
-					if (this.$refs.slVueTree.comparePaths(node.path, path) == 0) {
+					if (this.$refs.slVueTree.comparePaths(node.path, path) === 0) {
 						initLevel = node.level
 						maxDepth = node.level
 					} else {
 						if (node.level <= initLevel) return false
 
-						if (this.$refs.slVueTree.comparePaths(node.path, path) == 1) {
+						if (this.$refs.slVueTree.comparePaths(node.path, path) === 1) {
 							descendants.push(node)
 							count++
 							if (node.level > maxDepth) maxDepth = node.level
@@ -573,7 +573,7 @@
 				const sourceLevel = draggingNodes[0].level
 				let targetLevel = position.node.level
 				// are we dropping 'inside' a node creating children to that node?
-				if (position.placement == 'inside') {
+				if (position.placement === 'inside') {
 					targetLevel++
 					if (checkDropNotAllowed(draggingNodes[0], sourceLevel, targetLevel)) {
 						cancel(true)
@@ -614,7 +614,7 @@
 			calcProductId(insertedNode, predecessorNode) {
 				let productId
 				// if the node is on the product level ...
-				if (insertedNode.level == this.productLevel) {
+				if (insertedNode.level === this.productLevel) {
 					// a product has its own id as productId
 					productId = insertedNode.data._id
 					this.addNewProductToUser(productId)
@@ -712,12 +712,12 @@
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = position.node.level
 				// drop inside?
-				if (position.placement == 'inside') {
+				if (position.placement === 'inside') {
 					dropLevel++
 				}
 				let levelChange = clickedLevel - dropLevel
 				// no action required when replacing a product in the tree
-				if (!(clickedLevel == this.productLevel && dropLevel == this.productLevel)) {
+				if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
 					// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
 					this.updateTree(selectedNodes, true)
 					// update the nodes in the database
@@ -740,7 +740,7 @@
 				// create the event message
 				const title = this.itemTitleTrunc(60, selectedNodes[0].title)
 				let evt = ""
-				if (selectedNodes.length == 1) {
+				if (selectedNodes.length === 1) {
 					evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.node.title}'`
 				} else {
 					evt = `${this.getLevelText(clickedLevel)} '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
@@ -767,7 +767,7 @@
 				// now we can remove the nodes
 				this.$refs.slVueTree.remove(paths)
 				// when removing a product
-				if (selectedNodes[0].level == this.productLevel) {
+				if (selectedNodes[0].level === this.productLevel) {
 					var newProducts = this.getUserAssignedProductIds
 					var idx = newProducts.indexOf(selectedNodes[0].data._id)
 					if (idx > -1) {

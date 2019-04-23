@@ -21,7 +21,7 @@ const actions = {
 				let tmpFollowers = tmpDoc.followers
 				if (rootGetters.isFollower) {
 					for (let i = 0; i < tmpFollowers.length; i++) {
-						if (tmpFollowers[i] == rootGetters.getEmail) {
+						if (tmpFollowers[i] === rootGetters.getEmail) {
 							tmpFollowers.splice(i, 1)
 						}
 					}
