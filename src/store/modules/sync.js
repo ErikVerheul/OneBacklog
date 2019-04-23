@@ -2,6 +2,10 @@ import globalAxios from 'axios'
 
 const PBILEVEL = 5
 
+const state = {
+	eventSyncColor: 'black'
+}
+
 const actions = {
 	listenForChanges({
 		rootState,
@@ -39,6 +43,15 @@ const actions = {
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('listenForChanges: Error = ' + error))
+	},
+
+	doBlinck({
+		state
+	}) {
+		state.eventSyncColor = 'yellow'
+		setTimeout(function () {
+			state.eventSyncColor = 'black'
+		}, 1000)
 	},
 
 	processDocs({
@@ -126,6 +139,7 @@ const actions = {
 					if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
 						// only process changes not made by the user him/her self and ment for distribution
 						if (doc.history[0].sessionId != rootState.sessionId && doc.history[0].distributeEvent) {
+							dispatch('doBlinck')
 							let node = getNodeById(doc._id)
 							if (node != null) {
 								// the node exists (is not new)
@@ -226,5 +240,6 @@ const actions = {
 }
 
 export default {
+	state,
 	actions
 }
