@@ -291,11 +291,11 @@ export default new Vuex.Store({
 						sessionId: create_UUID()
 					})
 					dispatch('getOtherUserData')
-					//Refresh the session cookie after 50 seconds
+					// refresh the session cookie after 9 minutes (CouchDB defaults at 10 min.)
 					dispatch('refreshCookie', {
 						authData,
 						loggedOut: state.loggedOut,
-						afterSeconds: 50
+						afterSeconds: 540
 					})
 				})
 				// eslint-disable-next-line no-console
