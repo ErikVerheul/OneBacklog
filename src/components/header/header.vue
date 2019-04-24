@@ -3,7 +3,7 @@
 		<b-navbar toggleable="md" type="dark" variant="dark">
 			<b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 			<b-img class="logo" :src="require('../../assets/logo.png')" alt="OneBacklog logo" />
-			<b-navbar-brand href="https://verheulconsultants.nl">OneBacklog version 0.3.6</b-navbar-brand>
+			<b-navbar-brand href="https://verheulconsultants.nl">OneBacklog version 0.4.0 MVP</b-navbar-brand>
 			<b-collapse is-nav id="nav_collapse">
 				<b-navbar-nav>
 					<b-nav-item href="#">User guide</b-nav-item>
@@ -11,7 +11,7 @@
 
 				<b-nav-form>
 					<b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search on key word" />
-					<b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+					<b-button size="sm" class="my-2 my-sm-0">Search</b-button>
 				</b-nav-form>
 
 				<!-- Right aligned nav items -->
