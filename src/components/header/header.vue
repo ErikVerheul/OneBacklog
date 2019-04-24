@@ -105,7 +105,7 @@
 
 	.logo {
 		width: 62px;
-		margin-right: 20px;
+		margin-right: 10px;
 	}
 
 	ul {
@@ -124,21 +124,13 @@
 
 	li a {
 		text-decoration: none;
-		color: lightblue;
+		color: #408FAE;
 	}
 
 	li a:hover,
 	li a:active,
 	li a.router-link-active {
-		color: #fa923f;
-	}
-
-	.logout {
-		background-color: transparent;
-		border: none;
-		font: inherit;
-		color: white;
-		cursor: pointer;
+		color: #004466;
 	}
 
 </style>
