@@ -558,7 +558,7 @@
 				}
 			},
 			/*
-			/ Use this event to check if the drag is allowed. If not, cancel silently.
+			/ Use this event to check if the drag is allowed. If not, issue a warning.
 			*/
 			beforeNodeDropped(draggingNodes, position, cancel) {
 				/*
@@ -568,7 +568,13 @@
 				 */
 				let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 					const levelChange = Math.abs(targetLevel - sourceLevel)
-					return !this.canWriteLevels[position.node.level] || levelChange > 1 || (targetLevel + this.getDescendantsInfo(node.path).depth) > PBILEVEL
+					let check1 = !this.canWriteLevels[position.node.level]
+					let check2 = levelChange > 1
+					let check3 = (targetLevel + this.getDescendantsInfo(node.path).depth) > PBILEVEL
+					if (check1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
+					if (check2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
+					if (check3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
+					return check1 || check2 || check3
 				}
 				const sourceLevel = draggingNodes[0].level
 				let targetLevel = position.node.level
