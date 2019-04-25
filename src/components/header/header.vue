@@ -28,7 +28,7 @@
 							<em>User</em>
 						</template>
 						<b-dropdown-item v-if="!auth">No options here when not signed in</b-dropdown-item>
-						<b-dropdown-item v-if="auth && this.$store.getters.getMyTeams.length > 1" href="#">Change team</b-dropdown-item>
+						<b-dropdown-item v-if="auth && this.$store.getters.getMyTeams.length > 1" @click="changeTeam">Change team</b-dropdown-item>
 						<b-dropdown-item v-if="auth" @click="changePassword">Change password</b-dropdown-item>
 						<b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
 						<b-dropdown-item v-if="auth" @click="onLogout">Sign Out</b-dropdown-item>
@@ -40,14 +40,16 @@
 			<slot name='licence'></slot>
 		</appLicence>
 		<template>
+			<b-modal size="lg" ref='changeTeamRef' @ok="doChangeTeam" title='Change your team'>
+				<b-container align-v="true">
+					<h1>Not in MVP</h1>
+				</b-container>
+			</b-modal>
+		</template>
+		<template>
 			<b-modal size="lg" ref='changePwRef' @ok="doChangePw" title='Change your password'>
 				<b-container align-v="true">
-					<b-row><input class="input-field" v-model.lazy="oldPassword" type="password" placeholder="Your current password"></b-row>
-					<p>oldPassword is: {{ oldPassword }}</p>
-					<b-row><input class="input-field" v-model.lazy="newPassword1" type="password" placeholder="Your new password"></b-row>
-					<p>newPassword1 is: {{ newPassword1 }}</p>
-					<b-row><input class="input-field" v-model.lazy="newPassword2" type="password" placeholder="Repeat new password"></b-row>
-					<p>newPassword2 is: {{ newPassword2 }}</p>
+					<h1>Not in MVP</h1>
 				</b-container>
 			</b-modal>
 		</template>
@@ -75,14 +77,17 @@
 			}
 		},
 		methods: {
+			changeTeam() {
+				this.$refs.changeTeamRef.show()
+			},
 			changePassword() {
-				if (this.$store.getters.isDemoVersion) alert("Sorry, is this demo version you cannot change passwords")
+				if (this.$store.getters.isServerAdmin) alert("As a 'server admin' you cannot change your password here. Use Fauxton instead")
 				else {
-					if (this.$store.getters.isServerAdmin) alert("As a 'server admin' you cannot change your password here. Use Fauxton instead")
-					else {
-						this.$refs.changePwRef.show()
-					}
+					this.$refs.changePwRef.show()
 				}
+			},
+			doChangeTeam() {
+
 			},
 			doChangePw() {
 
