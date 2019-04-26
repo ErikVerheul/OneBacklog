@@ -23,6 +23,9 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				let data = res.data
+				let dateStr = new Date(Date.now())
+				//eslint-disable-next-line no-console
+				if (rootState.debug) console.log('listenForChanges time = ' + dateStr)
 				for (var prop in data) {
 					//eslint-disable-next-line no-console
 					if (rootState.debug) console.log('listenForChanges -> ' + prop, data[prop])
