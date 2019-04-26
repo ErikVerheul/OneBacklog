@@ -318,7 +318,16 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				let tmpDoc = res.data
+				const newHist = {
+					"docRemoved": [tmpDoc.title],
+					"by": rootState.user,
+					"email": rootState.load.email,
+					"timestamp": Date.now(),
+					"sessionId": rootState.sessionId,
+					"distributeEvent": true
+				}
 				tmpDoc.delmark = true
+				tmpDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 				if (payload.doRegHist) {
 					dispatch('registerRemoveHist', payload)
