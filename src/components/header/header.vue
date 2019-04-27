@@ -31,7 +31,7 @@
 						<b-dropdown-item v-if="auth && this.$store.getters.getMyTeams.length > 1" @click="changeTeam">Change team</b-dropdown-item>
 						<b-dropdown-item v-if="auth" @click="changePassword">Change password</b-dropdown-item>
 						<b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
-						<b-dropdown-item v-if="auth" @click="onLogout">Sign Out</b-dropdown-item>
+						<b-dropdown-item v-if="auth" @click="onSignout">Sign Out</b-dropdown-item>
 					</b-nav-item-dropdown>
 				</b-navbar-nav>
 			</b-collapse>
@@ -92,8 +92,8 @@
 			doChangePw() {
 
 			},
-			onLogout() {
-				this.$store.dispatch('logout')
+			onSignout() {
+				this.$store.dispatch('signout')
 			}
 		},
 		components: {
