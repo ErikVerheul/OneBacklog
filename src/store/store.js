@@ -259,7 +259,7 @@ export default new Vuex.Store({
 			}, payload.afterSeconds * 1000)
 		},
 
-		login({
+		signin({
 			commit,
 			dispatch,
 			state
@@ -302,7 +302,7 @@ export default new Vuex.Store({
 				.catch(error => console.log(error))
 		},
 
-		logout({
+		signout({
 			commit
 		}) {
 			commit('resetData')
