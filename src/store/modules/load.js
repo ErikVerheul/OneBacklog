@@ -125,10 +125,49 @@ const actions = {
 						},
 					]
 				parentNodes.root = state.treeNodes[0]
+				// load the current product document
+				dispatch('loadCurrentProduct')
+			})
+			.catch(error => {
+				let msg = 'getConfig: Config doc missing in database ' + rootState.currentDb + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
+
+	// Load current user product and start loading the tree
+	loadCurrentProduct({
+		rootState,
+		state,
+		dispatch
+	}) {
+		let _id = state.currentUserProductId
+		globalAxios({
+				method: 'GET',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				rootState.currentDoc = res.data
+				// decode from base64 + replace the encoded data
+				rootState.currentDoc.description = window.atob(res.data.description)
+				rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
 				dispatch('getFirstDocsBatch')
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('getConfig:Config doc missing in database ' + rootState.currentDb + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'loadCurrentProduct: Could not read document with _id ' + _id + '. Error = ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	// Get the current DB name etc. for this user. Note that the user roles are already fetched
@@ -154,17 +193,30 @@ const actions = {
 				state.email = res.data.email
 				state.databases = res.data.databases
 				rootState.currentDb = res.data.currentDb
-				state.userAssignedProductIds = res.data.products
-				state.currentUserProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
-				// load the current product document
-				dispatch('loadDoc', state.currentUserProductId)
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('getOtherUserData: database ' + rootState.currentDb + ' is set for user ' + rootState.user)
+				let msg = rootState.user + ' has logged in and the watchdog is started to recover from network outings.'
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				// now that the database is known the log file is available
+				dispatch('doLog', {
+					"event": msg,
+					"level": 'INFO'
+				})
+				dispatch('watchdog')
+
+				state.userAssignedProductIds = res.data.products
+				state.currentUserProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
 				dispatch('getConfig')
 			})
 			.catch(error => {
+				let msg = 'getOtherUserData: Could not read user date for user ' + rootState.user + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log('getOtherUserData error= ', error)
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
 			})
 	},
 
@@ -241,7 +293,8 @@ const actions = {
 	// Read the current product title
 	readProduct({
 		rootState,
-		state
+		state,
+		dispatch
 	}, product_id) {
 		globalAxios({
 				method: 'GET',
@@ -253,8 +306,15 @@ const actions = {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log("readProduct: current product name '" + res.data.title + "' is fetched.")
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('readProduct: Could not read document with _id ' + product_id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'readProduct: Could not read document for thr product with _id ' + product_id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	// Load current document by _id
@@ -278,8 +338,15 @@ const actions = {
 					dispatch('readProduct', res.data.productId)
 				}
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('loadDoc: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	// Read the parent title before creating the document
@@ -296,8 +363,15 @@ const actions = {
 				payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
 				dispatch('createDoc2', payload)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('createDoc: Could not read parent document with id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	// Create document and reload it to currentDoc
 	createDoc2({
@@ -317,8 +391,15 @@ const actions = {
 				if (rootState.debug) console.log('createDoc2: document with _id + ' + _id + ' is created.')
 				dispatch('loadDoc', _id)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('createDoc2: Could not create document with id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	}
 }
 

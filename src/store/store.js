@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../router'
+import logging from './modules/logging'
 import load from './modules/load'
 import sync from './modules/sync'
 import useracc from './modules/useracc'
@@ -73,6 +74,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 
 	state: {
+		listenForChangesRunning: false,
+		lastSyncSeq: null,
 		sessionId: null,
 		canWriteLevels: [],
 		config: null,
@@ -81,7 +84,7 @@ export default new Vuex.Store({
 		debug: true,
 		demo: false,
 		myRoles: [],
-		runningTimeout: null,
+		runningCookieRefreshId: null,
 		user: null
 	},
 
@@ -228,18 +231,20 @@ export default new Vuex.Store({
 			state.myRoles = []
 			state.user = null
 
-			clearTimeout(state.runningTimeout)
+			clearInterval(state.runningCookieRefreshId)
+			clearInterval(state.logging.runningWatchdogId)
 		}
 	},
 
 	actions: {
 		refreshCookie({
+			rootState,
 			dispatch,
 			state
 		}, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log("refreshcookie: afterSeconds= " + payload.afterSeconds)
-			state.runningTimeout = setTimeout(() => {
+			state.runningCookieRefreshId = setInterval(() => {
 				globalAxios({
 						method: 'POST',
 						url: '/_session',
@@ -250,12 +255,17 @@ export default new Vuex.Store({
 						}
 					}).then(() => {
 						// eslint-disable-next-line no-console
-						if (state.debug) console.log("recurse refreshCookie")
-						//Recurse
-						dispatch('refreshCookie', payload)
+						if (state.debug) console.log("repeat refreshCookie")
 					})
-					// eslint-disable-next-line no-console
-					.catch(error => console.log(error))
+					.catch(error => {
+						let msg = 'Refresh of the authentication cookie failed with ' + error
+						// eslint-disable-next-line no-console
+						console.log(msg)
+						if (rootState.currentDb) dispatch('doLog', {
+							event: msg,
+							level: "CRITICAL"
+						})
+					})
 			}, payload.afterSeconds * 1000)
 		},
 
@@ -299,7 +309,7 @@ export default new Vuex.Store({
 					})
 				})
 				// eslint-disable-next-line no-console
-				.catch(error => console.log(error))
+				.catch(error => console.log('Sign in failed with ' + error))
 		},
 
 		signout({
@@ -311,6 +321,7 @@ export default new Vuex.Store({
 	},
 
 	modules: {
+		logging,
 		load,
 		sync,
 		useracc,

@@ -378,7 +378,7 @@ const actions = {
 						 * Skip the requirements area documents and database descriptions with level 0 and 1 in this view.
 						 */
 						"sortedFilter": {
-							"map": 'function (doc) {if (doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
+							"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
 						}
 					},
 					"language": "javascript"
@@ -466,6 +466,19 @@ const actions = {
 		this.commit('clearAll')
 		const initData = {
 			"docs": [
+				{
+					"_id": "log",
+					"type": "logging",
+					"entries": [
+						{
+							"event": "example event",
+							"level": "INFO",
+							"by": "Erik",
+							"email": "erik@mycompany.nl",
+							"timestamp": 1552140438968
+						},
+					]
+				},
 				{
 					"_id": "root",
 					"type": "backlogItem",

@@ -23,6 +23,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				let data = res.data
+				rootState.lastSyncSeq = data.last_seq
 				let dateStr = new Date(Date.now())
 				//eslint-disable-next-line no-console
 				if (rootState.debug) console.log('listenForChanges time = ' + dateStr)
@@ -39,13 +40,22 @@ const actions = {
 						changedIds: changedIds,
 						next: 0
 					}
-					dispatch('processDocs', payload)
+					dispatch('processChangedDocs', payload)
 				}
+				rootState.listenForChangesRunning = true
 				// recurse
-				dispatch('listenForChanges', data.last_seq)
+				dispatch('listenForChanges', rootState.lastSyncSeq)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('listenForChanges: Error = ' + error))
+			.catch(error => {
+				let msg = 'Listening for changes made by other users failed with ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "WARNING"
+				})
+				rootState.listenForChangesRunning = false
+			})
 	},
 
 	doBlinck({
@@ -57,13 +67,15 @@ const actions = {
 		}, 1000)
 	},
 
-	processDocs({
+	processChangedDocs({
 		rootState,
 		rootGetters,
 		dispatch
 	}, payload) {
 
 		let _id = payload.changedIds[payload.next]
+		// skip the log changes
+		if (_id == 'log') return
 
 		/*
 		 * Returns the node or null when it does not exist
@@ -136,14 +148,14 @@ const actions = {
 			}).then(res => {
 				let doc = res.data
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('processDoc: document with _id + ' + _id + ' is loaded.')
+				if (rootState.debug) console.log('processChangedDocs: document with _id ' + _id + ' is loaded.')
 				// process only documents which are a product backlog item
 				if (doc.type === 'backlogItem') {
 					if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
 						// only process changes not made by the user him/her self and ment for distribution
 						if (doc.history[0].sessionId != rootState.sessionId && doc.history[0].distributeEvent) {
 							dispatch('doBlinck')
-							let node = getNodeById(doc._id)
+							let node = getNodeById(_id)
 							if (node != null) {
 								// the node exists (is not new)
 								if (!doc.delmark) {
@@ -234,11 +246,11 @@ const actions = {
 				payload.next++
 				if (payload.next < payload.changedIds.length) {
 					// recurse
-					dispatch('processDocs', payload)
+					dispatch('processChangedDocs', payload)
 				}
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('processDoc: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => console.log('processChangedDocs: Could not read document with _id ' + _id + '. Error = ' + error))
 	},
 }
 
