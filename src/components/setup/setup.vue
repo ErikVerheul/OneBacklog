@@ -12,7 +12,7 @@
 			</div>
 			<div class="col-lg-8 col-sm-8">
 				<button @click="showCredentials" class="myButton">0. Show my credentials</button>
-				<button @click="chPassword" class="myButton">1. Change my password</button>
+				<button @click="creRdmProduct" class="myButton">1. Create random product</button>
 				<button @click="createUser" class="myButton">2. Create user</button>
 				<button @click="crateDB" class="myButton">3. Choose or Create a database</button>
 				<button @click="initDB" class="myButton">4. Initialize the database</button>
@@ -104,7 +104,7 @@
 						this.showCredentialsExe()
 						break
 					case 1:
-						this.chPasswordExe()
+						this.creRdmProductExe()
 						break
 					case 2:
 						this.createUserExe()
@@ -150,23 +150,25 @@
 			showCredentialsExe() {
 				this.$store.dispatch('showCreds')
 			},
-			chPassword() {
+			creRdmProduct() {
 				this.$store.commit('clearAll')
 				this.selectionMade = true
 				this.row = {
-					field1: "new password",
-					field2: "field not used",
-					field3: "field not used",
-					field4: "field not used",
+					field1: "Product name",
+					field2: "Nr of epics",
+					field3: "Av nr of features",
+					field4: "Av nr of US",
 				}
 				this.commandNr = 1
 			},
-			chPasswordExe() {
+			creRdmProductExe() {
 				var payload = {
-					newPW: this.row.field1,
-					userData: {}
+					productName: this.row.field1,
+					epics: this.row.field2,
+					features: this.row.field3,
+					userStories: this.row.field4,
 				}
-				this.$store.dispatch('changePW', payload)
+				this.$store.dispatch('creRdmProduct', payload)
 			},
 			createUser() {
 				this.$store.commit('clearAll')

@@ -2,7 +2,7 @@ import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../../router'
 
-const batchSize = 100
+const batchSize = 500
 var batch = []
 const leafLevel = 5
 var parentNodes = {}

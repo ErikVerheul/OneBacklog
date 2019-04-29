@@ -149,7 +149,7 @@ const actions = {
 				if (doc.type === 'backlogItem') {
 					if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
 						// only process changes not made by the user him/her self and ment for distribution
-						if (doc.history[0].sessionId != rootState.sessionId && doc.history[0].distributeEvent) {
+						if (doc.history[0].sessionId != rootState.sessionId && doc.history[0].distributeEvent == true) {
 							dispatch('doBlinck')
 							let node = getNodeById(_id)
 							if (node != null) {

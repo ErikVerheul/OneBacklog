@@ -1,5 +1,16 @@
 import globalAxios from 'axios'
 
+// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
+function newId() {
+	return Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
+}
+
+// Calculate the priority with lower idx highest
+function calcPrio(idx, n) {
+	let step = Math.floor(Number.MAX_SAFE_INTEGER / (n + 1))
+	return Number.MAX_SAFE_INTEGER - (idx + 1) * step * 2
+}
+
 const state = {
 	message: '',
 	comment: '',
@@ -70,30 +81,276 @@ const actions = {
 			})
 	},
 
-	changePW({
-		dispatch,
-		state
+	// Create new product
+	createNewProduct({
+		rootState,
+		dispatch
 	}, payload) {
-		this.commit('clearAll')
+		const _id = newId()
+		// create a new document and store it
+		const newDoc = {
+			"_id": _id,
+			"type": "backlogItem",
+			"productId": _id,
+			"parentId": 'root',
+			"team": "not assigned yet",
+			"level": 2,
+			"subtype": 0,
+			"state": 0,
+			"tssize": 0,
+			"spsize": 0,
+			"spikepersonhours": 0,
+			"reqarea": "15521397677068926",
+			"title": "Random created product " + payload.productName,
+			"followers": [],
+			"description": "",
+			"acceptanceCriteria": window.btoa("Please don't forget"),
+			"priority": calcPrio(payload.counter, payload.epics),
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createEvent": [2, rootState.currentDb],
+				"by": rootState.user,
+				"email": this.getEmail,
+				"timestamp": Date.now(),
+				"sessionId": rootState.sessionId,
+				"distributeEvent": false
+				}],
+			"delmark": false
+		}
+
 		globalAxios({
-				method: 'GET',
-				url: '/_users/org.couchdb.user:' + this.state.user,
-				withCredentials: true
-			}).then(res => {
+				method: 'PUT',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+				data: newDoc
+			}).then(() => {
 				// eslint-disable-next-line no-console
-				console.log(res)
-				var newUserData = res.data
-				newUserData["password"] = payload.newPW
-				payload.userData = newUserData
-				dispatch("updateUser", payload)
+				if (rootState.debug) console.log('createNewProduct: Product document with _id + ' + _id + ' is created.')
+				payload.productId = newDoc.productId
+				payload.parentId = newDoc._id
+				payload.counter = 1
+				dispatch('createNewEpics', payload)
 			})
 			.catch(error => {
+				let msg = 'createNewProduct: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(error)
-				state.message = error.response.data
-				state.errorMessage = error.message
-				state.comment = "As a 'server admin' you cannot change your password here. Use Fauxton instead"
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
 			})
+	},
+
+	// Create new epics
+	createNewEpics({
+		rootState,
+		dispatch
+	}, payload) {
+		if (payload.counter > payload.epics) return
+
+		const _id = newId()
+
+		// create a new document and store it
+		const newDoc = {
+			"_id": _id,
+			"type": "backlogItem",
+			"productId": payload.productId,
+			"parentId": payload.parentId,
+			"team": "not assigned yet",
+			"level": 3,
+			"subtype": 0,
+			"state": 0,
+			"tssize": 0,
+			"spsize": 0,
+			"spikepersonhours": 0,
+			"reqarea": "15521397677068926",
+			"title": "Random created epic " + payload.counter,
+			"followers": [],
+			"description": "",
+			"acceptanceCriteria": window.btoa("Please don't forget"),
+			"priority": calcPrio(payload.counter, payload.epics),
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createEvent": [3, rootState.currentDb],
+				"by": rootState.user,
+				"email": this.getEmail,
+				"timestamp": Date.now(),
+				"sessionId": rootState.sessionId,
+				"distributeEvent": false
+				}],
+			"delmark": false
+		}
+
+		globalAxios({
+				method: 'PUT',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+				data: newDoc
+			}).then(() => {
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('createNewEpics: Epic document with _id + ' + _id + ' is created.')
+				payload.productId = newDoc.productId
+				payload.parentId2 = _id
+				dispatch('createNewFeatures', payload)
+				// recurse, execute sequentially
+				payload.counter++
+				dispatch('createNewEpics', payload)
+			})
+			.catch(error => {
+				let msg = 'createNewEpics: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
+
+	// Create new features
+	createNewFeatures({
+		rootState,
+		dispatch
+	}, payload) {
+		let featureNumber = Math.floor(Math.random() * payload.features * 2) + 1
+		// execute in parallel
+		for (let i = 0; i < featureNumber; i++) {
+			const _id = newId()
+			// create a new document and store it
+			const newDoc = {
+				"_id": _id,
+				"type": "backlogItem",
+				"productId": payload.productId,
+				"parentId": payload.parentId2,
+				"team": "not assigned yet",
+				"level": 4,
+				"subtype": 0,
+				"state": 0,
+				"tssize": 0,
+				"spsize": 0,
+				"spikepersonhours": 0,
+				"reqarea": "15521397677068926",
+				"title": "Random created feature " + i,
+				"followers": [],
+				"description": "",
+				"acceptanceCriteria": window.btoa("Please don't forget"),
+				"priority": calcPrio(i, payload.features),
+				"attachments": [],
+				"comments": [],
+				"history": [{
+					"createEvent": [4, rootState.currentDb],
+					"by": rootState.user,
+					"email": this.getEmail,
+					"timestamp": Date.now(),
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
+				}],
+				"delmark": false
+			}
+
+			globalAxios({
+					method: 'PUT',
+					url: rootState.currentDb + '/' + _id,
+					withCredentials: true,
+					data: newDoc
+				}).then(() => {
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('createNewFeatures: document with _id + ' + _id + ' is created.')
+					payload.productId = newDoc.productId
+					payload.parentId3 = _id
+					dispatch('createNewStories', payload)
+				})
+				.catch(error => {
+					let msg = 'createNewFeatures: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+					// eslint-disable-next-line no-console
+					console.log(msg)
+					if (rootState.currentDb) dispatch('doLog', {
+						event: msg,
+						level: "ERROR"
+					})
+				})
+		}
+	},
+
+	// Create new features
+	createNewStories({
+		rootState,
+		dispatch
+	}, payload) {
+		let storiesNumber = Math.floor(Math.random() * payload.userStories * 2) + 1
+		// execute in parallel
+		for (let i = 0; i < storiesNumber; i++) {
+			const _id = newId()
+			// create a new document and store it
+			const newDoc = {
+				"_id": _id,
+				"type": "backlogItem",
+				"productId": payload.productId,
+				"parentId": payload.parentId3,
+				"team": "not assigned yet",
+				"level": 5,
+				"subtype": 0,
+				"state": 0,
+				"tssize": 0,
+				"spsize": 0,
+				"spikepersonhours": 0,
+				"reqarea": "15521397677068926",
+				"title": "Random created user story " + i,
+				"followers": [],
+				"description": "",
+				"acceptanceCriteria": window.btoa("Please don't forget"),
+				"priority": calcPrio(i, payload.userStories),
+				"attachments": [],
+				"comments": [],
+				"history": [{
+					"createEvent": [5, rootState.currentDb],
+					"by": rootState.user,
+					"email": this.getEmail,
+					"timestamp": Date.now(),
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
+				}],
+				"delmark": false
+			}
+
+			globalAxios({
+					method: 'PUT',
+					url: rootState.currentDb + '/' + _id,
+					withCredentials: true,
+					data: newDoc
+				}).then(() => {
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('createNewStories: document with _id + ' + _id + ' is created.')
+				})
+				.catch(error => {
+					let msg = 'createNewStories: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+					// eslint-disable-next-line no-console
+					console.log(msg)
+					if (rootState.currentDb) dispatch('doLog', {
+						event: msg,
+						level: "ERROR"
+					})
+				})
+		}
+	},
+
+	creRdmProduct({
+		rootState,
+		state,
+		dispatch
+	}, payload) {
+		this.commit('clearAll')
+		if (rootState.currentDb) {
+			state.message = 'Creating product ' + payload.productName + ' in database ' + rootState.currentDb
+		} else {
+			state.message = 'Please select or create the database first'
+			return
+		}
+		// create product
+		dispatch('createNewProduct', payload)
 	},
 
 	createUser({
@@ -135,8 +392,8 @@ const actions = {
 			withCredentials: true,
 		}).then(res => {
 			state.message = res.data
-				rootState.currentDb = dbName
-				state.comment = 'New database ' + dbName + ' is created. Note that subsequent actions will be performed on this database'
+			rootState.currentDb = dbName
+			state.comment = 'New database ' + dbName + ' is created. Note that subsequent actions will be performed on this database'
 			// eslint-disable-next-line no-console
 			console.log(res)
 		}).catch(error => {
@@ -158,8 +415,8 @@ const actions = {
 			url: dbName,
 			withCredentials: true,
 		}).then(() => {
-				rootState.currentDb = dbName
-				state.comment = 'The database ' + dbName + ' exists already. Note that subsequent actions will be performed on this database'
+			rootState.currentDb = dbName
+			state.comment = 'The database ' + dbName + ' exists already. Note that subsequent actions will be performed on this database'
 		}).catch(error => {
 			if (error.response.status === 404) {
 				dispatch("createDB", dbName)
