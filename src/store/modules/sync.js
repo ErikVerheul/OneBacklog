@@ -26,11 +26,7 @@ const actions = {
 				rootState.lastSyncSeq = data.last_seq
 				let dateStr = new Date(Date.now())
 				//eslint-disable-next-line no-console
-				if (rootState.debug) console.log('listenForChanges time = ' + dateStr)
-				for (var prop in data) {
-					//eslint-disable-next-line no-console
-					if (rootState.debug) console.log('listenForChanges -> ' + prop, data[prop])
-				}
+				if (rootState.debug) console.log('listenForChanges: time = ' + dateStr)
 				let changedIds = []
 				if (since && data.results.length > 0) {
 					for (let i = 0; i < data.results.length; i++) {
@@ -249,8 +245,16 @@ const actions = {
 					dispatch('processChangedDocs', payload)
 				}
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('processChangedDocs: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'processChangedDocs: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "WARNING"
+				})
+				rootState.listenForChangesRunning = false
+			})
 	},
 }
 

@@ -1,5 +1,6 @@
 import globalAxios from 'axios'
 
+const LOGFILENAME = 'log'
 const MAXLOGSIZE = 1000
 const WATCHDOGINTERVAL = 30
 var unsavedLogs = []
@@ -12,8 +13,8 @@ const actions = {
 	/*
 	 * Logging is not possible without network connection to the database.
 	 * When logging fails the entries are stored in the unsavedLogs array.
-	 * This watchdog test in intervals if the browser is online. If so then:
-	 * - saves the stored log entries
+	 * This watchdog tests in intervals if the browser becomes online. If so then:
+	 * - saves the stored log entries if available
 	 * - restarts the synchronization service if stopped
 	 */
 	watchdog({
@@ -25,15 +26,16 @@ const actions = {
 			let online = navigator.onLine
 			let logsToSave = unsavedLogs.length
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('watchdog: online = ' + online +
-				'\nunsavedLogs = ' + logsToSave +
-				'\nrootState.listenForChangesRunning = ' + rootState.listenForChangesRunning)
+			if (rootState.debug) console.log('watchdog:' +
+				'\nOnline = ' + online +
+				'\nUnsavedLogs = ' + logsToSave +
+				'\nListenForChangesRunning = ' + rootState.listenForChangesRunning)
 			if (online) {
 				// catch up the logging
 				if (logsToSave > 0 || !rootState.listenForChangesRunning) {
 					globalAxios({
 							method: 'GET',
-							url: rootState.currentDb + '/log',
+							url: rootState.currentDb + '/' + LOGFILENAME,
 							withCredentials: true,
 						}).then(res => {
 							let log = res.data
@@ -44,7 +46,7 @@ const actions = {
 								}
 								let now = Date.now()
 								let newLog = {
-									"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them now',
+									"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them',
 									"level": "INFO",
 									"by": rootState.user,
 									"email": rootState.load.email,
@@ -76,10 +78,9 @@ const actions = {
 						})
 						.catch(error => {
 							// eslint-disable-next-line no-console
-							console.log('watchdog: Could not read the log from ' + (rootState.currentDb + ' log') + ', ' + error)
+							console.log('watchdog: Could not read the log from ' + (rootState.currentDb + ' ' + LOGFILENAME) + ', ' + error)
 						})
 				}
-
 			}
 		}, WATCHDOGINTERVAL * 1000)
 	},
@@ -94,7 +95,7 @@ const actions = {
 	}, payload) {
 		globalAxios({
 				method: 'GET',
-				url: rootState.currentDb + '/log',
+				url: rootState.currentDb + '/' + LOGFILENAME,
 				withCredentials: true,
 			}).then(res => {
 				let log = res.data
@@ -124,10 +125,10 @@ const actions = {
 					"timestampStr": new Date(now)
 				}
 				//eslint-disable-next-line no-console
-				if (rootState.debug) console.log('doLog: pushed to unsavedLogs:')
+				if (rootState.debug) console.log('doLog: Pushed log entry to unsavedLogs:')
 				unsavedLogs.push(newLog)
 				// eslint-disable-next-line no-console
-				console.log('doLog: Could not read the log from ' + (rootState.currentDb + ' log') + ' A retry is pending , ' + error)
+				console.log('doLog: Could not read the log from ' + (rootState.currentDb + ' ' + LOGFILENAME) + ' A retry is pending , ' + error)
 			})
 	},
 
@@ -137,7 +138,7 @@ const actions = {
 	}, log) {
 		globalAxios({
 				method: 'PUT',
-				url: rootState.currentDb + '/log',
+				url: rootState.currentDb + '/' + LOGFILENAME,
 				withCredentials: true,
 				data: log
 			}).then(() => {
@@ -146,7 +147,6 @@ const actions = {
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => {
-				// no attempt is made to store an unsaved log entry here
 				// eslint-disable-next-line no-console
 				console.log('saveLog: Could not save the log. The log entry is lost, ' + error)
 			})

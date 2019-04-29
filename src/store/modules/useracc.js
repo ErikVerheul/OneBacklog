@@ -14,8 +14,15 @@ const actions = {
 				tmpUserData["products"].push(productId)
 				dispatch("updateUser2", tmpUserData)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('addProductId: Could not assign productId ' + productId + ' to user ' + rootState.user + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'addProductId: Could not assign productId ' + productId + ' to user ' + rootState.user + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	removeProductId({
@@ -31,8 +38,15 @@ const actions = {
 				tmpUserData["products"] = products
 				dispatch("updateUser2", tmpUserData)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('removeProductId: Could not reset allowed products for user ' + rootState.user + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'removeProductId: Could not reset allowed products for user ' + rootState.user + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	changePassword({
@@ -48,12 +62,20 @@ const actions = {
 				tmpUserData["password"] = newPassword
 				dispatch("updateUser2", tmpUserData)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('changePW: Could not change password for user ' + rootState.user + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'changePW: Could not change password for user ' + rootState.user + '. Error = ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 updateUser2({
-		rootState
+		rootState,
+		dispatch
 	}, tmpUserData) {
 		globalAxios({
 				method: 'PUT',
@@ -64,8 +86,15 @@ updateUser2({
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('updateUser2: user ' + rootState.user + ' is updated')
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('updateUser: Could not update user data for user ' + rootState.user + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'updateUser2: Could not update user data for user ' + rootState.user + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 }

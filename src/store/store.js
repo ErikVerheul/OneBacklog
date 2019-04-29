@@ -255,7 +255,7 @@ export default new Vuex.Store({
 						}
 					}).then(() => {
 						// eslint-disable-next-line no-console
-						if (state.debug) console.log("repeat refreshCookie")
+						if (state.debug) console.log("refreshCookie: Authentication cookie refresh.")
 					})
 					.catch(error => {
 						let msg = 'Refresh of the authentication cookie failed with ' + error
@@ -308,6 +308,7 @@ export default new Vuex.Store({
 						afterSeconds: 540
 					})
 				})
+				// Cannot log failure here as the database name is unknown yet
 				// eslint-disable-next-line no-console
 				.catch(error => console.log('Sign in failed with ' + error))
 		},

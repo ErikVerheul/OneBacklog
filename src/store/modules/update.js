@@ -42,8 +42,15 @@ const actions = {
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('changeSubsription: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'changeSubsription: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	setSize({
 		rootState,
@@ -71,8 +78,15 @@ const actions = {
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('setSize: Could not read document with _id ' + _id + '. Error = ' + error))
+		.catch(error => {
+				let msg = 'setSize: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	setPersonHours({
 		rootState,
@@ -100,8 +114,15 @@ const actions = {
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('setPersonHours: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'setPersonHours: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	setStoryPoints({
 		rootState,
@@ -129,8 +150,15 @@ const actions = {
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	setState({
 		rootState,
@@ -158,8 +186,15 @@ const actions = {
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('setState: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'setState: Could not read document with _id ' + _id + '. Error = ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	setDocTitle({
 		rootState,
@@ -187,8 +222,15 @@ const actions = {
 				rootState.currentDoc.title = payload.newTitle
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('setDocTitle: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'setDocTitle: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	setSubType({
 		rootState,
@@ -215,8 +257,15 @@ const actions = {
 				rootState.currentDoc.subtype = payload.newSubType
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('setSubType: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'setSubType: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	updateDropped({
 		rootState,
@@ -243,8 +292,15 @@ const actions = {
 					dispatch('updateDescendant', descendantPayload)
 				}
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('updateDropped: Could not read parent document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'updateDropped: Could not read parent document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	updateDropped2({
 		rootState,
@@ -277,8 +333,15 @@ const actions = {
 				rootState.currentDoc.priority = payload.priority
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('updateDropped2: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'updateDropped2: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	updateDescendant({
 		rootState,
@@ -304,8 +367,15 @@ const actions = {
 				tmpDoc.productId = payload.productId
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('updateDescendant: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'updateDescendant: Could not read document with _id ' + _id + '. Error = ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	removeDoc({
 		rootState,
@@ -333,8 +403,15 @@ const actions = {
 					dispatch('registerRemoveHist', payload)
 				}
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('removeDoc: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'removeDoc: Could not read document with _id ' + _id + ',' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	registerRemoveHist({
 		rootState,
@@ -358,8 +435,15 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('registerRemoveHist: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'registerRemoveHist: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	saveDescriptionAndLoadDoc({
@@ -395,8 +479,15 @@ const actions = {
 					dispatch('updateDocAndLoadNew', newPayload)
 				}
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('saveDescriptionAndLoadDoc: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'saveDescriptionAndLoadDoc: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	saveAcceptanceAndLoadDoc({
@@ -432,8 +523,15 @@ const actions = {
 					dispatch('updateDocAndLoadNew', newPayload)
 				}
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('saveAcceptanceAndLoadDoc: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'saveAcceptanceAndLoadDoc: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	addComment({
 		rootState,
@@ -460,8 +558,15 @@ const actions = {
 				rootState.currentDoc.comments.unshift(newEntry)
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('addComment: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'addComment: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 	addHistoryComment({
 		rootState,
@@ -488,13 +593,21 @@ const actions = {
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('addHistoryComment: Could not read document with _id ' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'addHistoryComment: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	// Update current document
 	updateDoc({
-		rootState
+		rootState,
+		dispatch
 	}, tmpDoc) {
 		const _id = tmpDoc._id
 		// eslint-disable-next-line no-console
@@ -508,8 +621,15 @@ const actions = {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('updateDoc: document with _id + ' + _id + ' is updated.')
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not write document with url ' + rootState.currentDb + '/' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'updateDoc: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	// Update current document and load new
@@ -532,8 +652,15 @@ const actions = {
 				if (rootState.debug) console.log('updateDocAndLoadNew: document with _id + ' + _id + ' is updated.')
 				dispatch('loadDoc', newId)
 			})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('Could not write document with url ' + rootState.currentDb + '/' + _id + '. Error = ' + error))
+			.catch(error => {
+				let msg = 'updateDocAndLoadNew: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 }
