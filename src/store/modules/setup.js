@@ -636,6 +636,12 @@ const actions = {
 						 */
 						"sortedFilter": {
 							"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
+						},
+						/*
+						 * Filter on document type 'backlogItem', then filter the changes which need distributed to other users.
+						 */
+						"changesFilter": {
+							"map": 'function (doc) {if (doc.type == "backlogItem" && doc.history[0].distributeEvent) emit(doc._id, 1);}'
 						}
 					},
 					"language": "javascript"
