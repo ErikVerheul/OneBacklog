@@ -632,10 +632,10 @@ const actions = {
 					"views": {
 						/*
 						 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
-						 * Skip the requirements area documents and database descriptions with level 0 and 1 in this view.
+						 * Select the 'backlogitem' document type and skip removed, requirements-area and database description documents (level 0 and 1).
 						 */
 						"sortedFilter": {
-							"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
+							"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
 						}
 					},
 					"language": "javascript"
