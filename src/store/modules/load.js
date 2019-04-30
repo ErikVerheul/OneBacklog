@@ -245,7 +245,7 @@ const actions = {
 				} else {
 					dispatch('listenForChanges')
 					// all documents are read, release memory
-					parentNodes = null
+					parentNodes = []
 				}
 				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 				// eslint-disable-next-line no-console
