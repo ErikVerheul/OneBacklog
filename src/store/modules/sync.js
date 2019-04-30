@@ -9,6 +9,7 @@ const state = {
 const actions = {
 	listenForChanges({
 		rootState,
+		rootGetters,
 		dispatch
 	}, since) {
 		let url = rootState.currentDb + '/_changes?feed=longpoll&filter=_view&view=design1/changesFilter&include_docs=true'
@@ -22,7 +23,6 @@ const actions = {
 				url: url,
 				withCredentials: true
 			}).then(res => {
-				console.log(res)
 				let data = res.data
 				rootState.lastSyncSeq = data.last_seq
 				let dateStr = new Date(Date.now())
@@ -31,13 +31,25 @@ const actions = {
 				let changedDocs = []
 				if (since && data.results.length > 0) {
 					for (let i = 0; i < data.results.length; i++) {
-						changedDocs.push(data.results[i].doc)
+						/*
+						 * Select only documents which are a product backlog item and
+						 * changes not made by the user him/her self and ment for distribution (if not filtered out by the _design filter)
+						 */
+						let doc = data.results[i].doc
+						if (doc.type === 'backlogItem' &&
+							doc.history[0].distributeEvent == true &&
+							doc.history[0].sessionId != rootState.sessionId &&
+							rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
+							changedDocs.push(doc)
+						}
 					}
-					const payload = {
-						changes: changedDocs,
-						next: 0
+					if (changedDocs.length > 0) {
+						const payload = {
+							changes: changedDocs,
+							next: 0
+						}
+						dispatch('processChangedDocs', payload)
 					}
-					dispatch('processChangedDocs', payload)
 				}
 				rootState.listenForChangesRunning = true
 				// recurse
@@ -66,15 +78,8 @@ const actions = {
 
 	processChangedDocs({
 		rootState,
-		rootGetters,
 		dispatch
 	}, payload) {
-
-		let doc = payload.changes[payload.next]
-		let _id = doc._id
-		// skip the log changes
-		if (_id == 'log') return
-
 		/*
 		 * Returns the node or null when it does not exist
 		 */
@@ -139,86 +144,43 @@ const actions = {
 			})
 		}
 
+		let doc = payload.changes[payload.next]
 		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('processChangedDocs: document with _id ' + _id + ' is processed.')
-		// process only documents which are a product backlog item
-		if (doc.type === 'backlogItem') {
-			if (rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
-				// only process changes not made by the user him/her self and ment for distribution (if not filtered out by the _design filter)
-				if (doc.history[0].sessionId != rootState.sessionId && doc.history[0].distributeEvent == true) {
-					dispatch('doBlinck')
-					let node = getNodeById(_id)
-					if (node != null) {
-						// the node exists (is not new)
-						if (!doc.delmark) {
-							// update the parent as it can be changed
-							let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
-							// update priority, parent and product
-							node.data.priority = doc.priority
-							node.data.parentId = doc.parentId
-							node.data.productId = doc.productId
-							if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {
-								// the node has not changed parent nor changed location w/r to its siblings
-								updateFields(doc, node)
-							} else {
-								// move the node to the new position w/r to its siblings
-								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === -1) {
-									// move up: remove from old position first
-									node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
-									window.slVueTree.remove([node.path])
-									if (locationInfo.newInd === 0) {
-										window.slVueTree.insert({
-											node: locationInfo.prevNode,
-											placement: 'inside'
-										}, node)
-									} else {
-										// insert after prevNode
-										window.slVueTree.insert({
-											node: locationInfo.prevNode,
-											placement: 'after'
-										}, node)
-									}
-								} else {
-									// move down: insert first
-									node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
-									if (locationInfo.newInd === 0) {
-										window.slVueTree.insert({
-											node: locationInfo.prevNode,
-											placement: 'inside'
-										}, node)
-									} else {
-										window.slVueTree.insert({
-											node: locationInfo.prevNode,
-											placement: 'after'
-										}, node)
-									}
-									// remove from old position
-									window.slVueTree.remove([node.path])
-								}
-							}
+		if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed.')
+		dispatch('doBlinck')
+		let node = getNodeById(doc._id)
+		if (node != null) {
+			// the node exists (is not new)
+			if (!doc.delmark) {
+				// update the parent as it can be changed
+				let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
+				// update priority, parent and product
+				node.data.priority = doc.priority
+				node.data.parentId = doc.parentId
+				node.data.productId = doc.productId
+				if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {
+					// the node has not changed parent nor changed location w/r to its siblings
+					updateFields(doc, node)
+				} else {
+					// move the node to the new position w/r to its siblings
+					if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === -1) {
+						// move up: remove from old position first
+						node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
+						window.slVueTree.remove([node.path])
+						if (locationInfo.newInd === 0) {
+							window.slVueTree.insert({
+								node: locationInfo.prevNode,
+								placement: 'inside'
+							}, node)
 						} else {
-							// remove the node
-							window.slVueTree.remove([node.path])
+							// insert after prevNode
+							window.slVueTree.insert({
+								node: locationInfo.prevNode,
+								placement: 'after'
+							}, node)
 						}
 					} else {
-						// new node
-						let node = {
-							"title": doc.title,
-							"isSelected": false,
-							"isExpanded": true,
-							"children": [],
-							"data": {
-								"_id": doc._id,
-								"productId": doc.productId,
-								"parentId": doc.parentId,
-								"subtype": 0,
-								"sessionId": rootState.sessionId,
-								"distributeEvent": true
-							}
-						}
-						let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
-						// update priority
-						node.data.priority = doc.priority
+						// move down: insert first
 						node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
 						if (locationInfo.newInd === 0) {
 							window.slVueTree.insert({
@@ -231,8 +193,44 @@ const actions = {
 								placement: 'after'
 							}, node)
 						}
+						// remove from old position
+						window.slVueTree.remove([node.path])
 					}
 				}
+			} else {
+				// remove the node
+				window.slVueTree.remove([node.path])
+			}
+		} else {
+			// new node
+			let node = {
+				"title": doc.title,
+				"isSelected": false,
+				"isExpanded": true,
+				"children": [],
+				"data": {
+					"_id": doc._id,
+					"productId": doc.productId,
+					"parentId": doc.parentId,
+					"subtype": 0,
+					"sessionId": rootState.sessionId,
+					"distributeEvent": true
+				}
+			}
+			let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
+			// update priority
+			node.data.priority = doc.priority
+			node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
+			if (locationInfo.newInd === 0) {
+				window.slVueTree.insert({
+					node: locationInfo.prevNode,
+					placement: 'inside'
+				}, node)
+			} else {
+				window.slVueTree.insert({
+					node: locationInfo.prevNode,
+					placement: 'after'
+				}, node)
 			}
 		}
 		payload.next++
