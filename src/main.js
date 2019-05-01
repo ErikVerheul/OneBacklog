@@ -5,7 +5,9 @@ import axios from 'axios'
 import router from './router'
 import store from './store/store'
 
-import './fa.config';
+import './fa.config'
+
+Vue.component('slVueTree', require('./components/sl-vue-tree/sl-vue-tree.vue'))
 
 axios.defaults.baseURL = 'https://onebacklog.net:6984'
 //axios.defaults.headers.get['Accepts'] = 'application/json'

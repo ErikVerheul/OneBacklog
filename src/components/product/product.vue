@@ -248,6 +248,7 @@
 */
 
 <script src="./product.js"></script>
+
 <style>
 	<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
 	#dropdownMenuButton>button {

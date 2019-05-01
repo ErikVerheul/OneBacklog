@@ -11,8 +11,7 @@
 		VueEditor
 	} from 'vue2-editor'
 
-	// bug? Do not put this import in curly braces
-	import SlVueTree from 'sl-vue-tree'
+	import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 
 	const INFO = 0
 	const WARNING = 1
@@ -998,6 +997,6 @@
 			Multipane,
 			MultipaneResizer,
 			VueEditor,
-			SlVueTree,
+			slVueTree
 		}
 	}
