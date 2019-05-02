@@ -244,6 +244,8 @@ const actions = {
 					dispatch('getNextDocsBatch')
 				} else {
 					dispatch('listenForChanges')
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('getNextDocsBatch: listenForChanges started')
 					// all documents are read, release memory
 					parentNodes = []
 				}
@@ -279,6 +281,8 @@ const actions = {
 				} else {
 					// all documents are read
 					dispatch('listenForChanges')
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
 				}
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
