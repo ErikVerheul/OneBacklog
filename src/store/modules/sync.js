@@ -80,6 +80,8 @@ const actions = {
 			// initially get the last change only
 			url += '&descending=true&limit=1'
 		}
+		// set this state as early as possible so that the watchdog does not start a second instance
+		rootState.listenForChangesRunning = true
 		globalAxios({
 				method: 'GET',
 				url: url,
@@ -189,7 +191,6 @@ const actions = {
 						}
 					} // end of loop
 				}
-				rootState.listenForChangesRunning = true
 				// recurse
 				dispatch('listenForChanges', rootState.lastSyncSeq)
 			})
