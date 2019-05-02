@@ -772,36 +772,37 @@ export default {
 			return JSON.stringify(destPath.slice(0, sourceNode.path.length)) == sourceNode.pathStr;
 		},
 
-		copy(entity) {
-      return JSON.parse(JSON.stringify(entity));
-    }
+//		copy(entity) {
+//      return JSON.parse(JSON.stringify(entity));
+//    }
 
 		/*
 		* See function deepCopyInlineFor at https://jsperf.com/deep-copy-vs-json-stringify-json-parse/102
 		*/
-//		copy(v) {
-//			if (Array.isArray(v)) {
-//				let i = 0;
-//				const n = v.length;
-//				const r = [];
-//				for (i, n; i < n; i = i + 1) {
-//					const c = v[i];
-//					r.push(deepCopyInlineFor(c));
-//				}
-//				return r;
-//			}
-//
-//			if ((v || false) instanceof Object) {
-//				const r = {};
-//				for (k in v) {
-//					const c = v[k];
-//					r[k] = deepCopyInlineFor(c);
-//				}
-//				return r;
-//			}
-//
-//			return v;
-//		}
+		copy(v) {
+			if (Array.isArray(v)) {
+				let i = 0;
+				const n = v.length;
+				const r = [];
+				for (i, n; i < n; i = i + 1) {
+					const c = v[i];
+					r.push(this.copy(c));
+				}
+				return r;
+			}
+
+			if ((v || false) instanceof Object) {
+				const r = {};
+				let k
+				for (k in v) {
+					const c = v[k];
+					r[k] = this.copy(c);
+				}
+				return r;
+			}
+
+			return v;
+		}
 
 	},
 }
