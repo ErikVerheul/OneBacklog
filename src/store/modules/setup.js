@@ -7,8 +7,8 @@ function newId() {
 
 // Calculate the priority with lower idx highest
 function calcPrio(idx, n) {
-	let step = Math.floor(Number.MAX_SAFE_INTEGER / (n + 1))
-	return Number.MAX_SAFE_INTEGER - (idx + 1) * step * 2
+	let step = Math.floor(Number.MAX_SAFE_INTEGER / (n + 1)) * 2
+	return Number.MAX_SAFE_INTEGER - (idx + 1) * step
 }
 
 const state = {
@@ -101,11 +101,11 @@ const actions = {
 			"spsize": 0,
 			"spikepersonhours": 0,
 			"reqarea": "15521397677068926",
-			"title": "Random created product " + payload.productName,
+			"title": payload.productName,
 			"followers": [],
 			"description": "",
 			"acceptanceCriteria": window.btoa("Please don't forget"),
-			"priority": calcPrio(payload.counter, payload.epics),
+			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
@@ -129,7 +129,7 @@ const actions = {
 				if (rootState.debug) console.log('createNewProduct: Product document with _id + ' + _id + ' is created.')
 				payload.productId = newDoc.productId
 				payload.parentId = newDoc._id
-				payload.counter = 1
+				payload.counter = 0
 				dispatch('createNewEpics', payload)
 			})
 			.catch(error => {
@@ -148,10 +148,9 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		if (payload.counter > payload.epics) return
+		if (payload.counter >= payload.epics) return
 
 		const _id = newId()
-
 		// create a new document and store it
 		const newDoc = {
 			"_id": _id,
@@ -194,6 +193,8 @@ const actions = {
 				if (rootState.debug) console.log('createNewEpics: Epic document with _id + ' + _id + ' is created.')
 				payload.productId = newDoc.productId
 				payload.parentId2 = _id
+				payload.counter2 = 0
+				payload.featuresNumber = Math.floor(Math.random() * payload.features * 2) + 1
 				dispatch('createNewFeatures', payload)
 				// recurse, execute sequentially
 				payload.counter++
@@ -215,126 +216,130 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		let featureNumber = Math.floor(Math.random() * payload.features * 2) + 1
-		// execute in parallel
-		for (let i = 0; i < featureNumber; i++) {
-			const _id = newId()
-			// create a new document and store it
-			const newDoc = {
-				"_id": _id,
-				"type": "backlogItem",
-				"productId": payload.productId,
-				"parentId": payload.parentId2,
-				"team": "not assigned yet",
-				"level": 4,
-				"subtype": 0,
-				"state": 0,
-				"tssize": 0,
-				"spsize": 0,
-				"spikepersonhours": 0,
-				"reqarea": "15521397677068926",
-				"title": "Random created feature " + i,
-				"followers": [],
-				"description": "",
-				"acceptanceCriteria": window.btoa("Please don't forget"),
-				"priority": calcPrio(i, payload.features),
-				"attachments": [],
-				"comments": [],
-				"history": [{
-					"createEvent": [4, rootState.currentDb],
-					"by": rootState.user,
-					"email": this.getEmail,
-					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId,
-					"distributeEvent": false
-				}],
-				"delmark": false
-			}
+		if (payload.counter2 >= payload.featuresNumber) return
 
-			globalAxios({
-					method: 'PUT',
-					url: rootState.currentDb + '/' + _id,
-					withCredentials: true,
-					data: newDoc
-				}).then(() => {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('createNewFeatures: document with _id + ' + _id + ' is created.')
-					payload.productId = newDoc.productId
-					payload.parentId3 = _id
-					dispatch('createNewStories', payload)
-				})
-				.catch(error => {
-					let msg = 'createNewFeatures: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
-					// eslint-disable-next-line no-console
-					console.log(msg)
-					if (rootState.currentDb) dispatch('doLog', {
-						event: msg,
-						level: "ERROR"
-					})
-				})
+		const _id = newId()
+		// create a new document and store it
+		const newDoc = {
+			"_id": _id,
+			"type": "backlogItem",
+			"productId": payload.productId,
+			"parentId": payload.parentId2,
+			"team": "not assigned yet",
+			"level": 4,
+			"subtype": 0,
+			"state": 0,
+			"tssize": 0,
+			"spsize": 0,
+			"spikepersonhours": 0,
+			"reqarea": "15521397677068926",
+			"title": "Random created feature " + payload.counter2,
+			"followers": [],
+			"description": "",
+			"acceptanceCriteria": window.btoa("Please don't forget"),
+			"priority": calcPrio(payload.counter2, payload.featuresNumber),
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createEvent": [4, rootState.currentDb],
+				"by": rootState.user,
+				"email": this.getEmail,
+				"timestamp": Date.now(),
+				"sessionId": rootState.sessionId,
+				"distributeEvent": false
+				}],
+			"delmark": false
 		}
+
+		globalAxios({
+				method: 'PUT',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+				data: newDoc
+			}).then(() => {
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('createNewFeatures: document with _id + ' + _id + ' is created.')
+				payload.productId = newDoc.productId
+				payload.parentId3 = _id
+				payload.counter3 = 0
+				payload.storiesNumber = Math.floor(Math.random() * payload.userStories * 2) + 1
+				dispatch('createNewStories', payload)
+				// recurse, execute sequentially
+				payload.counter2++
+				dispatch('createNewFeatures', payload)
+			})
+			.catch(error => {
+				let msg = 'createNewFeatures: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
-	// Create new features
+	// Create new stories
 	createNewStories({
 		rootState,
 		dispatch
 	}, payload) {
-		let storiesNumber = Math.floor(Math.random() * payload.userStories * 2) + 1
-		// execute in parallel
-		for (let i = 0; i < storiesNumber; i++) {
-			const _id = newId()
-			// create a new document and store it
-			const newDoc = {
-				"_id": _id,
-				"type": "backlogItem",
-				"productId": payload.productId,
-				"parentId": payload.parentId3,
-				"team": "not assigned yet",
-				"level": 5,
-				"subtype": 0,
-				"state": 0,
-				"tssize": 0,
-				"spsize": 0,
-				"spikepersonhours": 0,
-				"reqarea": "15521397677068926",
-				"title": "Random created user story " + i,
-				"followers": [],
-				"description": "",
-				"acceptanceCriteria": window.btoa("Please don't forget"),
-				"priority": calcPrio(i, payload.userStories),
-				"attachments": [],
-				"comments": [],
-				"history": [{
-					"createEvent": [5, rootState.currentDb],
-					"by": rootState.user,
-					"email": this.getEmail,
-					"timestamp": Date.now(),
-					"sessionId": rootState.sessionId,
-					"distributeEvent": false
-				}],
-				"delmark": false
-			}
+		if (payload.counter3 >= payload.storiesNumber) return
 
-			globalAxios({
-					method: 'PUT',
-					url: rootState.currentDb + '/' + _id,
-					withCredentials: true,
-					data: newDoc
-				}).then(() => {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('createNewStories: document with _id + ' + _id + ' is created.')
-				})
-				.catch(error => {
-					let msg = 'createNewStories: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
-					// eslint-disable-next-line no-console
-					console.log(msg)
-					if (rootState.currentDb) dispatch('doLog', {
-						event: msg,
-						level: "ERROR"
-					})
-				})
+		const _id = newId()
+		// create a new document and store it
+		const newDoc = {
+			"_id": _id,
+			"type": "backlogItem",
+			"productId": payload.productId,
+			"parentId": payload.parentId3,
+			"team": "not assigned yet",
+			"level": 5,
+			"subtype": 0,
+			"state": 0,
+			"tssize": 0,
+			"spsize": 0,
+			"spikepersonhours": 0,
+			"reqarea": "15521397677068926",
+			"title": "Random created user story " + payload.counter3,
+			"followers": [],
+			"description": "",
+			"acceptanceCriteria": window.btoa("Please don't forget"),
+			"priority": calcPrio(payload.counter3, payload.storiesNumber),
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createEvent": [5, rootState.currentDb],
+				"by": rootState.user,
+				"email": this.getEmail,
+				"timestamp": Date.now(),
+				"sessionId": rootState.sessionId,
+				"distributeEvent": false
+				}],
+			"delmark": false
 		}
+
+		globalAxios({
+				method: 'PUT',
+				url: rootState.currentDb + '/' + _id,
+				withCredentials: true,
+				data: newDoc
+			}).then(() => {
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('createNewStories: document with _id + ' + _id + ' is created.')
+				// recurse, execute sequentially
+				payload.counter3++
+				dispatch('createNewStories', payload)
+			})
+			.catch(error => {
+				let msg = 'createNewStories: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
 	},
 
 	creRdmProduct({
@@ -738,7 +743,8 @@ const actions = {
 							"level": "INFO",
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
-							"timestamp": 1552140438968
+							"timestamp": 1552140438968,
+							"distributeEvent": true
 						},
 					]
 				},
@@ -759,7 +765,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552140438968,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -790,7 +797,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552140438968,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -817,7 +825,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139767706,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -847,7 +856,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139806987,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -877,7 +887,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139903514,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -907,7 +918,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1553724175860,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -938,7 +950,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139972020,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -969,7 +982,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139986318,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -1000,7 +1014,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552406429497,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -1031,7 +1046,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552152600149,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -1061,7 +1077,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552152642413,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
@@ -1092,7 +1109,8 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552152658206,
-							"sessionId": rootState.sessionId
+							"sessionId": rootState.sessionId,
+							"distributeEvent": false
 						},
 					],
 					"delmark": false
