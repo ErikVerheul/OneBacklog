@@ -84,6 +84,7 @@ const actions = {
 	// Create new product
 	createNewProduct({
 		rootState,
+		rootGetters,
 		dispatch
 	}, payload) {
 		const _id = newId()
@@ -111,7 +112,7 @@ const actions = {
 			"history": [{
 				"createEvent": [2, rootState.currentDb],
 				"by": rootState.user,
-				"email": this.getEmail,
+				"email": rootGetters.getEmail,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -127,10 +128,17 @@ const actions = {
 			}).then(() => {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('createNewProduct: Product document with _id + ' + _id + ' is created.')
-				payload.productId = newDoc.productId
-				payload.parentId = newDoc._id
-				payload.counter = 0
-				dispatch('createNewEpics', payload)
+				// note that a curious fix was neede to get correct priority numbers: Math.floor(payload.epics) instead of payload.epics
+				let newPayload = {
+					productId: newDoc.productId,
+					parentId: newDoc._id,
+					parentName: newDoc.title,
+					features: payload.features,
+					userStories: payload.userStories,
+					counter1: 0,
+					epicsNumber: Math.floor(payload.epics)
+				}
+				dispatch('createNewEpics', newPayload)
 			})
 			.catch(error => {
 				let msg = 'createNewProduct: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
@@ -143,13 +151,12 @@ const actions = {
 			})
 	},
 
-	// Create new epics
 	createNewEpics({
 		rootState,
+		rootGetters,
 		dispatch
 	}, payload) {
-		if (payload.counter >= payload.epics) return
-
+		if (payload.counter1 >= payload.epicsNumber) return
 		const _id = newId()
 		// create a new document and store it
 		const newDoc = {
@@ -165,17 +172,17 @@ const actions = {
 			"spsize": 0,
 			"spikepersonhours": 0,
 			"reqarea": "15521397677068926",
-			"title": "Random created epic " + payload.counter,
+			"title": "Random created epic " + payload.counter1,
 			"followers": [],
 			"description": "",
 			"acceptanceCriteria": window.btoa("Please don't forget"),
-			"priority": calcPrio(payload.counter, payload.epics),
+			"priority": calcPrio(payload.counter1, payload.epicsNumber),
 			"attachments": [],
 			"comments": [],
 			"history": [{
-				"createEvent": [3, rootState.currentDb],
+				"createEvent": [3, payload.parentName],
 				"by": rootState.user,
-				"email": this.getEmail,
+				"email": rootGetters.getEmail,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -190,14 +197,18 @@ const actions = {
 				data: newDoc
 			}).then(() => {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('createNewEpics: Epic document with _id + ' + _id + ' is created.')
-				payload.productId = newDoc.productId
-				payload.parentId2 = _id
-				payload.counter2 = 0
-				payload.featuresNumber = Math.floor(Math.random() * payload.features * 2) + 1
-				dispatch('createNewFeatures', payload)
+				if (rootState.debug) console.log('createNewEpics: Epic document with _id + ' + _id + ' is created. Counter1 = ' + payload.counter1)
+				let newPayload = {
+					productId: newDoc.productId,
+					parentId: newDoc._id,
+					parentName: newDoc.title,
+					userStories: payload.userStories,
+					counter2: 0,
+					featuresNumber: Math.floor(Math.random() * payload.features * 2) + 1
+				}
+				dispatch('createNewFeatures', newPayload)
 				// recurse, execute sequentially
-				payload.counter++
+				payload.counter1++
 				dispatch('createNewEpics', payload)
 			})
 			.catch(error => {
@@ -211,9 +222,9 @@ const actions = {
 			})
 	},
 
-	// Create new features
 	createNewFeatures({
 		rootState,
+		rootGetters,
 		dispatch
 	}, payload) {
 		if (payload.counter2 >= payload.featuresNumber) return
@@ -224,7 +235,7 @@ const actions = {
 			"_id": _id,
 			"type": "backlogItem",
 			"productId": payload.productId,
-			"parentId": payload.parentId2,
+			"parentId": payload.parentId,
 			"team": "not assigned yet",
 			"level": 4,
 			"subtype": 0,
@@ -241,9 +252,9 @@ const actions = {
 			"attachments": [],
 			"comments": [],
 			"history": [{
-				"createEvent": [4, rootState.currentDb],
+				"createEvent": [4, payload.parentName],
 				"by": rootState.user,
-				"email": this.getEmail,
+				"email": rootGetters.getEmail,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -258,12 +269,15 @@ const actions = {
 				data: newDoc
 			}).then(() => {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('createNewFeatures: document with _id + ' + _id + ' is created.')
-				payload.productId = newDoc.productId
-				payload.parentId3 = _id
-				payload.counter3 = 0
-				payload.storiesNumber = Math.floor(Math.random() * payload.userStories * 2) + 1
-				dispatch('createNewStories', payload)
+				if (rootState.debug) console.log('createNewFeatures: document with _id + ' + _id + ' is created. Counter2 = ' + payload.counter2)
+				let newPayload = {
+					productId: newDoc.productId,
+					parentId: newDoc._id,
+					parentName: newDoc.title,
+					counter3: 0,
+					storiesNumber: Math.floor(Math.random() * payload.userStories * 2) + 1
+				}
+				dispatch('createNewStories', newPayload)
 				// recurse, execute sequentially
 				payload.counter2++
 				dispatch('createNewFeatures', payload)
@@ -279,9 +293,9 @@ const actions = {
 			})
 	},
 
-	// Create new stories
 	createNewStories({
 		rootState,
+		rootGetters,
 		dispatch
 	}, payload) {
 		if (payload.counter3 >= payload.storiesNumber) return
@@ -292,7 +306,7 @@ const actions = {
 			"_id": _id,
 			"type": "backlogItem",
 			"productId": payload.productId,
-			"parentId": payload.parentId3,
+			"parentId": payload.parentId,
 			"team": "not assigned yet",
 			"level": 5,
 			"subtype": 0,
@@ -309,9 +323,9 @@ const actions = {
 			"attachments": [],
 			"comments": [],
 			"history": [{
-				"createEvent": [5, rootState.currentDb],
+				"createEvent": [5, payload.parentName],
 				"by": rootState.user,
-				"email": this.getEmail,
+				"email": rootGetters.getEmail,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -326,7 +340,7 @@ const actions = {
 				data: newDoc
 			}).then(() => {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('createNewStories: document with _id + ' + _id + ' is created.')
+				if (rootState.debug) console.log('createNewStories: document with _id + ' + _id + ' is created. Counter3 = ' + payload.counter3)
 				// recurse, execute sequentially
 				payload.counter3++
 				dispatch('createNewStories', payload)
@@ -793,7 +807,7 @@ const actions = {
 					"comments": [],
 					"history": [
 						{
-							"createEvent": [5, "The tree stucture"],
+							"createEvent": [5, "The tree structure"],
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552140438968,
