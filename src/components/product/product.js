@@ -606,6 +606,18 @@
 				return this.$refs.slVueTree.getNode(siblingPath)
 			},
 			/*
+			 * Get the next sibling below the node with the same level as the node itself
+			 * precondition: the node is NOT lastChild
+			 */
+			getNextSibling(path) {
+				let siblingPath = []
+				for (let i = 0; i < path.length - 1; i++) {
+					siblingPath.push(path[i])
+				}
+				siblingPath.push(path[path.length - 1] + 1)
+				return this.$refs.slVueTree.getNode(siblingPath)
+			},
+			/*
 			 * When this user created a new product this user gets access rights automatically
 			 */
 			addNewProductToUser(productId) {
@@ -656,7 +668,7 @@
 			 * Get the productId of the node(s) in case they are dopped on another product. Determine the parentId.
 			 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children
 			 * Update the values in the tree
-			 * precondition: the nodes are inserted in the tree  and all created or moved nodes have the same parent (same level) and have no children
+			 * precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level)
 			 */
 			updateTree(nodes) {
 				const firstNode = nodes[0]
@@ -679,7 +691,7 @@
 				}
 				const lastNode = nodes[nodes.length - 1]
 				if (!lastNode.isLastChild) {
-					successorNode = this.$refs.slVueTree.getNextNode(lastNode.path)
+					successorNode = this.getNextSibling(lastNode.path)
 				} else {
 					successorNode = null
 				}
