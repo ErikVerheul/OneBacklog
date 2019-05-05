@@ -536,7 +536,6 @@ export default {
 		},
 
 		onNodeMouseupHandler(event, targetNode = null) {
-
 			// handle only left mouse button
 			if (event.button !== 0) return;
 
@@ -546,21 +545,17 @@ export default {
 			}
 
 			this.mouseIsDown = false;
-
 			if (!this.isDragging && targetNode && !this.preventDrag) {
 				this.select(targetNode.path, false, event);
 			}
 
 			this.preventDrag = false;
-
 			if (!this.cursorPosition) {
 				this.stopDrag();
 				return;
 			}
 
-
 			const draggingNodes = this.getDraggable();
-
 			// check that nodes is possible to insert
 			for (let draggingNode of draggingNodes) {
 				if (draggingNode.pathStr == this.cursorPosition.node.pathStr) {
@@ -572,16 +567,26 @@ export default {
 					this.stopDrag();
 					return;
 				}
+
+				// prevent confusion when the user selects a target node to insert before when that node has a lower level (higher in the hierarchy)
+				if (this.cursorPosition.placement === 'before' && this.cursorPosition.node.level < draggingNode.level) {
+					this.stopDrag()
+					return
+				}
 			}
 
-			const newNodes = this.copy(this.currentValue);
-			const nodeModelsSubjectToInsert = [];
-
-			// find dragging model to delete
+			const newNodes = this.copy(this.currentValue)
+			const nodeModelsSubjectToDelete = []
+			const nodeModelsSubjectToInsert = []
+			// find dragging model to delete and to insert
+			const firstNodeLevel = draggingNodes[0].level
 			for (let draggingNode of draggingNodes) {
-				const sourceSiblings = this.getNodeSiblings(newNodes, draggingNode.path);
-				const draggingNodeModel = sourceSiblings[draggingNode.ind];
-				nodeModelsSubjectToInsert.push(draggingNodeModel);
+				const sourceSiblings = this.getNodeSiblings(newNodes, draggingNode.path)
+				nodeModelsSubjectToDelete.push(sourceSiblings[draggingNode.ind])
+				// no need to insert the children as they are part of the higher level nodes anyway
+				if (draggingNode.level === firstNodeLevel) {
+					nodeModelsSubjectToInsert.push(draggingNode)
+				}
 			}
 
 			// allow the drop to be cancelled
@@ -593,17 +598,19 @@ export default {
 				return;
 			}
 
-			const nodeModelsToInsert = [];
-
 			// mark dragging model to delete
-			for (let draggingNodeModel of nodeModelsSubjectToInsert) {
-				nodeModelsToInsert.push(this.copy(draggingNodeModel));
+			for (let draggingNodeModel of nodeModelsSubjectToDelete) {
 				draggingNodeModel['_markToDelete'] = true;
+			}
+
+			const nodeModelsToInsert = [];
+			// set dragging models to insert
+			for (let draggingNodeModel of nodeModelsSubjectToInsert) {
+				nodeModelsToInsert.push(this.copy(draggingNodeModel))
 			}
 
 			// insert dragging nodes to the new place
 			this.insertModels(this.cursorPosition, nodeModelsToInsert, newNodes);
-
 
 			// delete dragging node from the old place
 			this.traverseModels((nodeModel, siblings, ind) => {
@@ -611,13 +618,11 @@ export default {
 				siblings.splice(ind, 1);
 			}, newNodes);
 
-
 			this.lastSelectedNode = null;
 			this.emitInput(newNodes);
 			this.emitDrop(draggingNodes, this.cursorPosition, event);
 			this.stopDrag();
 		},
-
 
 		onToggleHandler(event, node) {
 			if (!this.allowToggleBranch) return;
@@ -635,7 +640,6 @@ export default {
 			this.setCursorPosition(null);
 			this.stopScroll();
 		},
-
 
 		getParent() {
 			return this.$parent;
@@ -740,20 +744,19 @@ export default {
 
 			this.emitInput(newNodes);
 		},
-
+		/*
+		 * Inserts the nodes in array nodeModels after (when moving down)
+		 * or before (when moving up) node cursorposition in the newNodes array model
+		 */
 		insertModels(cursorPosition, nodeModels, newNodes) {
 			const destNode = cursorPosition.node;
 			const destSiblings = this.getNodeSiblings(newNodes, destNode.path);
 			const destNodeModel = destSiblings[destNode.ind];
-
 			if (cursorPosition.placement === 'inside') {
 				destNodeModel.children = destNodeModel.children || [];
 				destNodeModel.children.unshift(...nodeModels);
 			} else {
-				const insertInd = cursorPosition.placement === 'before' ?
-					destNode.ind :
-					destNode.ind + 1;
-
+				const insertInd = cursorPosition.placement === 'before' ? destNode.ind : destNode.ind + 1;
 				destSiblings.splice(insertInd, 0, ...nodeModels);
 			}
 		},
@@ -772,13 +775,9 @@ export default {
 			return JSON.stringify(destPath.slice(0, sourceNode.path.length)) == sourceNode.pathStr;
 		},
 
-//		copy(entity) {
-//      return JSON.parse(JSON.stringify(entity));
-//    }
-
 		/*
-		* See function deepCopyInlineFor at https://jsperf.com/deep-copy-vs-json-stringify-json-parse/102
-		*/
+		 * See function deepCopyInlineFor at https://jsperf.com/deep-copy-vs-json-stringify-json-parse/102
+		 */
 		copy(v) {
 			if (Array.isArray(v)) {
 				let i = 0;
@@ -803,6 +802,5 @@ export default {
 
 			return v;
 		}
-
 	},
 }
