@@ -731,7 +731,7 @@ export default {
 		remove(paths) {
 			const pathsStr = paths.map(path => JSON.stringify(path));
 			const newNodes = this.copy(this.currentValue);
-			this.traverse((node, nodeModel, siblings) => {
+			this.traverse((node, nodeModel) => {
 				for (const pathStr of pathsStr) {
 					if (node.pathStr === pathStr) nodeModel._markToDelete = true;
 				}
