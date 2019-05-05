@@ -9,7 +9,7 @@ const actions = {
 		rootState,
 		rootGetters,
 		dispatch
-	} ) {
+	}) {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 				method: 'GET',
@@ -78,7 +78,7 @@ const actions = {
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', tmpDoc)
 			})
-		.catch(error => {
+			.catch(error => {
 				let msg = 'setSize: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
@@ -271,26 +271,36 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const _id = payload.newParentId
+		if (payload.next >= payload.payloadArray.length) return
+
+		let payloadItem = payload.payloadArray[payload.next]
+		const _id = payloadItem.newParentId
+
 		globalAxios({
 				method: 'GET',
 				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
-				payload['newParentTitle'] = res.data.title
-				payload['nrOfDescendants'] = payload.descendants.length
-				dispatch('updateDropped2', payload)
-				for (let i = 0; i < payload.descendants.length; i++) {
-					let descendantPayload = {
-						"_id": payload.descendants[i].data._id,
-						"oldParentTitle": payload.oldParentTitle,
-						"productId": payload.productId,
-						"newLevel": payload.descendants[i].level,
-						"userName": rootState.user,
-						"email": payload.email
+				payloadItem['newParentTitle'] = res.data.title
+				payloadItem['nrOfDescendants'] = payloadItem.descendants.length
+				dispatch('updateDropped2', payloadItem)
+				let payloadArray2 = []
+				for (let i = 0; i < payloadItem.descendants.length; i++) {
+					const payloadItem2 = {
+						"_id": payloadItem.descendants[i].data._id,
+						"oldParentTitle": payloadItem.oldParentTitle,
+						"productId": payloadItem.productId,
+						"newLevel": payloadItem.descendants[i].level
 					}
-					dispatch('updateDescendant', descendantPayload)
+					payloadArray2.push(payloadItem2)
 				}
+				dispatch('updateDescendants', {
+					next: 0,
+					payloadArray: payloadArray2
+				})
+				payload.next++
+				// recurse
+				dispatch('updateDropped', payload)
 			})
 			.catch(error => {
 				let msg = 'updateDropped: Could not read parent document with _id ' + _id + ', ' + error
@@ -343,11 +353,14 @@ const actions = {
 				})
 			})
 	},
-	updateDescendant({
+	updateDescendants({
 		rootState,
 		dispatch
 	}, payload) {
-		const _id = payload._id
+		if (payload.next >= payload.payloadArray.length) return
+
+		let payloadItem = payload.payloadArray[payload.next]
+		const _id = payloadItem._id
 		globalAxios({
 				method: 'GET',
 				url: rootState.currentDb + '/' + _id,
@@ -355,7 +368,7 @@ const actions = {
 			}).then(res => {
 				let tmpDoc = res.data
 				const newHist = {
-					"descendantMoved": [payload.oldParentTitle],
+					"descendantMoved": [payloadItem.oldParentTitle],
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
@@ -363,12 +376,15 @@ const actions = {
 					"distributeEvent": false
 				}
 				tmpDoc.history.unshift(newHist)
-				tmpDoc.level = payload.newLevel
-				tmpDoc.productId = payload.productId
+				tmpDoc.level = payloadItem.newLevel
+				tmpDoc.productId = payloadItem.productId
 				dispatch('updateDoc', tmpDoc)
+				payload.next++
+				// recurse
+				dispatch('updateDescendants', payload)
 			})
 			.catch(error => {
-				let msg = 'updateDescendant: Could not read document with _id ' + _id + '. Error = ' + error
+				let msg = 'updateDescendants: Could not read document with _id ' + _id + '. Error = ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
