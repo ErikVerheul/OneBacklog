@@ -704,15 +704,14 @@
 					newData.parentId = localParentId
 					this.$refs.slVueTree.updateNode(nodes[i].path, {
 						isLeaf: (level < PBILEVEL) ? false : true,
-						isExpanded: true,
 						data: newData
 					})
 				}
-				//								for (var prop in firstNode) {
+				//								for (let prop in firstNode) {
 				//									//eslint-disable-next-line no-console
 				//									console.log('updateTree@ready -> ' + prop, firstNode[prop]);
 				//								}
-				//								for (prop in firstNode.data) {
+				//								for (let prop in firstNode.data) {
 				//									//eslint-disable-next-line no-console
 				//									console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
 				//								}
@@ -724,8 +723,6 @@
 			 * ToDo: expand the parent if a node is dropped inside that parent
 			 */
 			nodeDropped(draggingNodes, position) {
-				// cannot use draggingnodes, use selectedNodes as the dropped nodes are all selected
-				const selectedNodes = this.$refs.slVueTree.getSelected()
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = position.node.level
 				// drop inside?
@@ -733,34 +730,48 @@
 					dropLevel++
 				}
 				let levelChange = clickedLevel - dropLevel
+
+				// ignore the descendants of the selected nodes
+				let movedNodes = []
+				for (let i = 0; i < draggingNodes.length; i++) {
+					if (draggingNodes[i].level === clickedLevel) {
+						movedNodes.push(draggingNodes[i])
+					}
+				}
+
 				// no action required when replacing a product in the tree
 				if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
 					// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
-					this.updateTree(selectedNodes, true)
+					this.updateTree(movedNodes)
 					// update the nodes in the database
-					for (let i = 0; i < selectedNodes.length; i++) {
-						const payload = {
-							'_id': selectedNodes[i].data._id,
-							'productId': selectedNodes[i].data.productId,
-							'newParentId': selectedNodes[i].data.parentId,
-							'newPriority': selectedNodes[i].data.priority,
+					let payloadArray = []
+					for (let i = 0; i < movedNodes.length; i++) {
+						const payloadItem = {
+							'_id': movedNodes[i].data._id,
+							'productId': movedNodes[i].data.productId,
+							'newParentId': movedNodes[i].data.parentId,
+							'newPriority': movedNodes[i].data.priority,
 							'newParentTitle': null,
-							'oldParentTitle': selectedNodes[i].title,
+							'oldParentTitle': movedNodes[i].title,
 							'oldLevel': clickedLevel,
-							'newLevel': selectedNodes[i].level,
-							'newInd': selectedNodes[i].ind,
-							'descendants': this.getDescendantsInfo(selectedNodes[i].path).descendants
+							'newLevel': movedNodes[i].level,
+							'newInd': movedNodes[i].ind,
+							'descendants': this.getDescendantsInfo(movedNodes[i].path).descendants
 						}
-						this.$store.dispatch('updateDropped', payload)
+						payloadArray.push(payloadItem)
 					}
+					this.$store.dispatch('updateDropped', {
+						next: 0,
+						payloadArray: payloadArray
+					})
 				}
 				// create the event message
-				const title = this.itemTitleTrunc(60, selectedNodes[0].title)
+				const title = this.itemTitleTrunc(60, movedNodes[0].title)
 				let evt = ""
-				if (selectedNodes.length === 1) {
+				if (movedNodes.length === 1) {
 					evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.node.title}'`
 				} else {
-					evt = `${this.getLevelText(clickedLevel)} '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
+					evt = `${this.getLevelText(clickedLevel)} '${title}' and ${movedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
 				}
 				if (levelChange != 0) evt += ' as ' + this.getLevelText(dropLevel)
 				this.showLastEvent(evt, INFO)
@@ -957,7 +968,7 @@
 					// now the node is inserted and selected get the full ISlTreeNode data and set data fields
 					const insertedNode = this.$refs.slVueTree.getSelected()[0]
 					// productId, parentId and priority are set in this routine
-					this.updateTree([insertedNode], false)
+					this.updateTree([insertedNode])
 					// create a new document and store it
 					const initData = {
 						"_id": insertedNode.data._id,
@@ -1001,8 +1012,7 @@
 			doCancelInsert() {
 				// restore default
 				this.insertOptionSelected = 1;
-			},
-
+			}
 		},
 
 		components: {
