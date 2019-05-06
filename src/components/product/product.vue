@@ -60,7 +60,7 @@
 									<font-awesome-icon icon="folder" />
 								</i>
 							</span>
-							{{ node.title }}
+							{{ node.title }}; prio = {{node.data.priority}}
 						</template>
 
 						<template slot="toggle" slot-scope="{ node }">
