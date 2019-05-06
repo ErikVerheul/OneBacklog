@@ -128,7 +128,7 @@ const actions = {
 			}).then(() => {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('createNewProduct: Product document with _id + ' + _id + ' is created.')
-				// note that a curious fix was neede to get correct priority numbers: Math.floor(payload.epics) instead of payload.epics
+				// note that a curious fix was needed to get correct priority numbers: Math.floor(payload.epics) instead of payload.epics
 				let newPayload = {
 					productId: newDoc.productId,
 					parentId: newDoc._id,
