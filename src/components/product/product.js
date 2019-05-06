@@ -719,10 +719,11 @@
 			/*
 			 * Update the tree when one or more nodes are dropped on another location
 			 * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-			 * precondition: all draggingNodes are on the same level and have no children (exluded by beforeNodeDropped())
 			 * ToDo: expand the parent if a node is dropped inside that parent
 			 */
 			nodeDropped(draggingNodes, position) {
+				// get the nodes after being dropped
+				const selectedNodes = this.$refs.slVueTree.getSelected()
 				let clickedLevel = draggingNodes[0].level
 				let dropLevel = position.node.level
 				// drop inside?
@@ -731,11 +732,11 @@
 				}
 				let levelChange = clickedLevel - dropLevel
 
-				// ignore the descendants of the selected nodes
+				// ignore nodes on another level than the first selected node including the descendants of the selected nodes
 				let movedNodes = []
-				for (let i = 0; i < draggingNodes.length; i++) {
-					if (draggingNodes[i].level === clickedLevel) {
-						movedNodes.push(draggingNodes[i])
+				for (let i = 0; i < selectedNodes.length; i++) {
+					if (selectedNodes[i].level === clickedLevel) {
+						movedNodes.push(selectedNodes[i])
 					}
 				}
 
