@@ -267,6 +267,10 @@ const actions = {
 				})
 			})
 	},
+	/*
+	* Fetch the parent te get the parent title for the history registration
+	* Then dispatch the update of the moved nodes and the update of the history of their descendants
+	*/
 	updateDropped({
 		rootState,
 		dispatch
@@ -274,6 +278,7 @@ const actions = {
 		if (payload.next >= payload.payloadArray.length) return
 
 		let payloadItem = payload.payloadArray[payload.next]
+		// newParentId can be the old parent
 		const _id = payloadItem.newParentId
 
 		globalAxios({
@@ -281,6 +286,7 @@ const actions = {
 				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
+			// add two new items to the payload
 				payloadItem['newParentTitle'] = res.data.title
 				payloadItem['nrOfDescendants'] = payloadItem.descendants.length
 				dispatch('updateDropped2', payloadItem)
@@ -312,6 +318,9 @@ const actions = {
 				})
 			})
 	},
+	/*
+	* Update the dropped node
+	*/
 	updateDropped2({
 		rootState,
 		dispatch
