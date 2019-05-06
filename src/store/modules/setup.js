@@ -1,5 +1,7 @@
 import globalAxios from 'axios'
 
+let text2004 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras placerat ut mauris quis porttitor. Nulla scelerisque turpis vel ultrices suscipit. Integer hendrerit neque vitae nisi tempor tincidunt. Aenean sit amet est vel mauris maximus semper ac ut risus. Quisque non molestie leo. Curabitur at aliquet dolor, id imperdiet enim. Fusce vehicula, ipsum a ultricies sollicitudin, metus nisl consectetur risus, non aliquam metus magna et massa. In maximus placerat scelerisque. Etiam interdum ante a imperdiet pulvinar. Suspendisse potenti. Nam bibendum egestas purus, id rhoncus felis ullamcorper a. Donec aliquam ante ut tincidunt pulvinar. Donec tincidunt eros felis, ut consequat nibh suscipit ut. Cras lectus sem, interdum non arcu ut, auctor congue justo. Proin lobortis purus vitae nunc condimentum imperdiet. Cras in dolor mauris. Nulla facilisi. In sollicitudin libero ac dui suscipit, at tincidunt elit accumsan. Suspendisse ac bibendum ligula. Donec varius nulla eu tortor dignissim ultrices sit amet quis enim. In laoreet consequat nibh, in vehicula arcu dictum eget. In ac pretium nulla. Phasellus interdum pulvinar odio, nec porta nulla maximus a. Vestibulum condimentum congue lectus in semper. Proin efficitur scelerisque ante sed iaculis. Suspendisse elementum lorem vitae lorem consectetur, id convallis ligula scelerisque. Nam non mattis risus. Integer dapibus pulvinar laoreet. Sed facilisis dui vitae quam dictum, sit amet semper tortor malesuada. Quisque at risus eu velit luctus vestibulum. Sed id luctus turpis, sed lobortis tellus. Curabitur semper id urna sed congue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Curabitur vitae purus ex. Fusce tellus metus, viverra blandit ipsum in, aliquam facilisis dui. Quisque venenatis tempus eros, quis interdum nisi suscipit malesuada. Aliquam id ipsum commodo, ornare lorem in, sodales leo. Fusce ac pellentesque nisi. Pellentesque condimentum a tortor in sodales. Nulla scelerisque orci nullam."
+
 // create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 function newId() {
 	return Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
@@ -104,8 +106,8 @@ const actions = {
 			"reqarea": "15521397677068926",
 			"title": payload.productName,
 			"followers": [],
-			"description": "",
-			"acceptanceCriteria": window.btoa("Please don't forget"),
+			"description": window.btoa(text2004.substring(0, Math.floor(Math.random() * 1984 + 20))),
+			"acceptanceCriteria": window.btoa(text2004.substring(0, Math.floor(Math.random() * 1984 + 20))),
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
@@ -174,8 +176,8 @@ const actions = {
 			"reqarea": "15521397677068926",
 			"title": "Random created epic " + payload.counter1,
 			"followers": [],
-			"description": "",
-			"acceptanceCriteria": window.btoa("Please don't forget"),
+			"description": window.btoa(text2004.substring(0, Math.floor(Math.random() * 1984 + 20))),
+			"acceptanceCriteria": window.btoa(text2004.substring(0, Math.floor(Math.random() * 1984 + 20))),
 			"priority": calcPrio(payload.counter1, payload.epicsNumber),
 			"attachments": [],
 			"comments": [],
@@ -246,8 +248,8 @@ const actions = {
 			"reqarea": "15521397677068926",
 			"title": "Random created feature " + payload.counter2,
 			"followers": [],
-			"description": "",
-			"acceptanceCriteria": window.btoa("Please don't forget"),
+			"description": window.btoa(text2004.substring(0, Math.floor(Math.random() * 1984 + 20))),
+			"acceptanceCriteria": window.btoa(text2004.substring(0, Math.floor(Math.random() * 1984 + 20))),
 			"priority": calcPrio(payload.counter2, payload.featuresNumber),
 			"attachments": [],
 			"comments": [],
@@ -317,8 +319,8 @@ const actions = {
 			"reqarea": "15521397677068926",
 			"title": "Random created user story " + payload.counter3,
 			"followers": [],
-			"description": "",
-			"acceptanceCriteria": window.btoa("Please don't forget"),
+			"description": window.btoa(text2004.substring(0, Math.floor(Math.random() * 1984 + 20))),
+			"acceptanceCriteria": window.btoa(text2004.substring(0, Math.floor(Math.random() * 1984 + 20))),
 			"priority": calcPrio(payload.counter3, payload.storiesNumber),
 			"attachments": [],
 			"comments": [],
