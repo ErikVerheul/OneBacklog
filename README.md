@@ -13,17 +13,17 @@ As super PO I need one integrated tool to manage the product backlog of all my p
 - NOT IN MVP: Scrum teams can use the tool to do their refinements and run their sprints
 - Only PO's are authorized to change priorities
 - The tool runs in a browser and is accessible only by authorized users
-- Basic security is in place
+- Full security is in place
 - The tool must be intuitive and self explaining, advanced features should not decrease usability for basic usage
 
 <b>Security:</b><br />
-The database has secure https access
+The database and the web server have secure https access.
 
 <b>Authentication:</b><br />
 The CouchDB build-in authentication is used
 
 <b>Authorization :</b><br />
-The authorization is based on the following roles:
+The authorization is set per product and based on the following roles:
 - '_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.
 - 'areaPO': The requirement area PO maintains the requirements area backlog and can prioritise features in the teams backlog
 - 'admin': Can create and assign users to products. Is also a guest to all products.
