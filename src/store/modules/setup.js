@@ -1230,39 +1230,48 @@ const actions = {
 const initUsers = {
 	"data": [
 		{
-			"name": "DemoUser",
-			"password": "DemoUser",
+			"name": "demoUser",
+			"password": "demoUser",
 			"teams": ["Ghost busters", "A-team"],
 			"currentTeamsIdx": 0,
 			"roles": ["superPO", "PO", "developer", "guest"],
 			"type": "user",
 			"email": "demouser@mycompany.nl",
 			"currentDb": 'demodb',
-			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductsIdx": 0
+			"productsRoles": {
+				"15521398069875394": ["guest"],
+				"1552152600149c2ac": ["superPO", "PO", "developer", "guest"]
+			},
+			"currentProductsIdx": 1
 		},
 		{
 			"name": "Jan Klaassen",
 			"password": "Jan",
 			"teams": ["Ghost busters", "A-team"],
 			"currentTeamsIdx": 0,
-			"roles": ["admin", "superPO"],
+			"roles": ["admin", "superPO", "guest"],
 			"type": "user",
 			"email": "jan@mycompany.nl",
 			"currentDb": 'demodb',
-			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductsIdx": 0
+			"productsRoles": {
+				"15521398069875394": ["guest"],
+				"1552152600149c2ac": ["admin", "superPO"]
+			},
+			"currentProductsIdx": 1
 		},
 		{
 			"name": "Herman",
 			"password": "Herman",
 			"teams": ["Ghost busters", "A-team"],
 			"currentTeamsIdx": 0,
-			"roles": ["admin", "PO"],
+			"roles": ["PO", "guest"],
 			"type": "user",
 			"email": "herman@mycompany.nl",
 			"currentDb": 'demodb',
-			"products": ["15521398069875394", "1552152600149c2ac"],
+			"productsRoles": {
+				"15521398069875394": ["guest"],
+				"1552152600149c2ac": ["PO"]
+			},
 			"currentProductsIdx": 1
 		},
 		{
@@ -1270,24 +1279,30 @@ const initUsers = {
 			"password": "Piet",
 			"teams": ["Ghost busters"],
 			"currentTeamsIdx": 0,
-			"roles": ["developer"],
+			"roles": ["areaPO", "guest"],
 			"type": "user",
 			"email": "piet@mycompany.nl",
 			"currentDb": 'demodb',
-			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductsIdx": 0
+			"productsRoles": {
+				"15521398069875394": ["guest"],
+				"1552152600149c2ac": ["areaPO"]
+			},
+			"currentProductsIdx": 1
 		},
 		{
 			"name": "Mechteld",
 			"password": "Mechteld",
 			"teams": ["Ghost busters"],
 			"currentTeamsIdx": 0,
-			"roles": ["developer"],
+			"roles": ["developer", "guest"],
 			"type": "user",
 			"email": "mechteld@mycompany.nl",
 			"currentDb": 'demodb',
-			"products": ["15521398069875394", "1552152600149c2ac"],
-			"currentProductsIdx": 0
+			"productsRoles": {
+				"15521398069875394": ["guest"],
+				"1552152600149c2ac": ["developer"]
+			},
+			"currentProductsIdx": 1
 		},
 		{
 			"name": "Henk",
@@ -1296,7 +1311,9 @@ const initUsers = {
 			"type": "user",
 			"email": "henk@mycompany.nl",
 			"currentDb": 'demodb',
-			"products": ["15521398069875394"],
+			"productsRoles": {
+				"15521398069875394": ["guest"]
+			},
 			"currentProductsIdx": 0
 		},
 		{
@@ -1306,7 +1323,9 @@ const initUsers = {
 			"type": "user",
 			"email": "guest@mycompany.nl",
 			"currentDb": 'demodb',
-			"products": ["1552152600149c2ac"],
+			"productsRoles": {
+				"1552152600149c2ac": ["guest"]
+			},
 			"currentProductsIdx": 0
 		}]
 }
@@ -1318,18 +1337,18 @@ const usersDbPermissions = {
 	},
 	"members": {
 		"names": [],
-		"roles": ['superPO', 'PO', 'developer', 'guest']
+		"roles": []
 	}
 }
 
 const dbPermissions = {
 	"admins": {
-		"names": ["Jan", "Herman"],
-		"roles": ["superPO", "admin"]
+		"names": [],
+		"roles": ["admin"]
 	},
 	"members": {
-		"names": ["Piet", "Mechteld", "Henk"],
-		"roles": ["PO", "guest"]
+		"names": [],
+		"roles": ["areaPO", "superPO", "PO", "developer", "guest"]
 	}
 }
 

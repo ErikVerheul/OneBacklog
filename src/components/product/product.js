@@ -83,12 +83,11 @@
 			...mapGetters([
 				//from store.js
 				'getUser',
-				'getMyRoles',
+				'getMyDefaultRoles',
 				'isAuthenticated',
 				'isFollower',
 				'isServerAdmin',
 				'canCreateComments',
-				'canWriteLevels',
 				'getCurrentDb',
 				'getCurrentItemAcceptanceCriteria',
 				'getCurrentItemAttachments',
@@ -109,6 +108,7 @@
 				'getCurrentItemTsSize',
 				'getCurrentPersonHours',
 				// from load.js
+				'canWriteLevels',
 				'getCurrentProductId',
 				'getCurrentProductTitle',
 				'getEmail',
@@ -506,6 +506,8 @@
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				this.firstNodeSelected = selNodes[0]
+				// set the current ProductId so that canWriteLevels is actual
+				this.$store.state.load.currentProductId = this.firstNodeSelected.data.productId
 				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
 				const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 				const title = this.itemTitleTrunc(60, selNodes[0].title)

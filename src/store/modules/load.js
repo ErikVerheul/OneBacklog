@@ -21,10 +21,47 @@ const state = {
 	email: null,
 	offset: 0,
 	treeNodes: [],
-	userAssignedProductIds: []
+	userAssignedProductIds: [],
+	myProductsRoles: {}
 }
 
 const getters = {
+	canWriteLevels(state) {
+		const maxLevel = 5
+		let levels = []
+
+		if (state.currentProductId) {
+			if (state.userAssignedProductIds.includes(state.currentProductId)) {
+				let myRoles = state.myProductsRoles[state.currentProductId]
+				console.log('canWriteLevels: state.currentProductId = ' + state.currentProductId)
+				console.log('canWriteLevels: myRoles = ' + myRoles)
+				for (let i = 0; i <= maxLevel; i++) {
+					levels.push(false)
+				}
+				if (myRoles.includes('areaPO')) {
+					levels[0] = true
+					levels[4] = true
+				}
+				if (myRoles.includes('superPO')) {
+					for (let i = 2; i <= 3; i++) {
+						levels[i] = true
+					}
+				}
+				if (myRoles.includes('PO')) {
+					for (let i = 3; i <= maxLevel; i++) {
+						levels[i] = true
+					}
+				}
+				if (myRoles.includes('developer')) {
+					for (let i = 4; i <= maxLevel; i++) {
+						levels[i] = true
+					}
+				}
+			}
+		}
+		return levels
+	},
+
 	getCurrentProductId(state) {
 		return state.currentProductId
 	},
@@ -52,11 +89,11 @@ const mutations = {
 	 * The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
 	 */
-	processBatch(state, payload) {
+	processBatch(state, myDefaultRoles) {
 		for (let i = 0; i < batch.length; i++) {
 			state.docsCount++
 			// Load the items of the products the user is authorized to
-			if (payload.roles.includes('_admin') || payload.roles.includes('areaPO') || payload.roles.includes('admin') || payload.roles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+			if (myDefaultRoles.includes('_admin') || myDefaultRoles.includes('areaPO') || myDefaultRoles.includes('admin') || myDefaultRoles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
 				let level = batch[i].doc.level
 				let parentId = batch[i].doc.parentId
 				let delmark = batch[i].doc.delmark
@@ -69,7 +106,7 @@ const mutations = {
 						children: [],
 						// expand the tree of the default product
 						isExpanded: (batch[i].doc.productId === state.currentUserProductId) ? true : false,
-						isDraggable: payload.writeLevels[batch[i].doc.level],
+						isDraggable: getters.canWriteLevels[batch[i].doc.level],
 						isSelectable: true,
 						// select the default product
 						isSelected: (batch[i].doc._id === state.currentUserProductId) ? true : false,
@@ -181,6 +218,8 @@ const actions = {
 				url: '_users/org.couchdb.user:' + rootState.user,
 				withCredentials: true
 			}).then(res => {
+				state.myProductsRoles = res.data.productsRoles
+				console.log('getOtherUserData: state.myProductsRoles is set')
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
 				if (res.data.teams != null) {
@@ -205,7 +244,7 @@ const actions = {
 				})
 				dispatch('watchdog')
 
-				state.userAssignedProductIds = res.data.products
+				state.userAssignedProductIds = Object.keys(res.data.productsRoles)
 				state.currentUserProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
 				dispatch('getConfig')
 			})
@@ -233,11 +272,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				batch = res.data.rows
-				const payload = {
-					roles: rootState.myRoles,
-					writeLevels: rootState.canWriteLevels
-				}
-				commit('processBatch', payload)
+				commit('processBatch', rootState.myDefaultRoles)
 				if (batch.length === batchSize) {
 					state.offset += batchSize
 					// recurse until all read
@@ -270,11 +305,7 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				batch = res.data.rows
-				const payload = {
-					roles: rootState.myRoles,
-					writeLevels: rootState.canWriteLevels
-				}
-				commit('processBatch', payload)
+				commit('processBatch', rootState.myDefaultRoles)
 				if (batch.length === batchSize) {
 					state.offset += batchSize
 					dispatch('getNextDocsBatch')
@@ -290,11 +321,11 @@ const actions = {
 				router.push('/product')
 			})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
+//			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 
-	// Read the current product title
+	// Read the current product id and title
 	readProduct({
 		rootState,
 		state,

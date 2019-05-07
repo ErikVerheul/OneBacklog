@@ -91,7 +91,7 @@
 			...mapGetters({
 				name: 'getUser',
 				db: 'getCurrentDb',
-				myRoles: 'getMyRoles',
+				myRoles: 'getMyDefaultRoles',
 				message: 'returnMessage',
 				comment: 'returnComment',
 				errorMessage: 'returnErrorMsg'

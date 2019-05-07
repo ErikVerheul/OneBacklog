@@ -77,13 +77,12 @@ export default new Vuex.Store({
 		listenForChangesRunning: false,
 		lastSyncSeq: null,
 		sessionId: null,
-		canWriteLevels: [],
 		config: null,
 		currentDb: null,
 		currentDoc: null,
 		debug: true,
 		demo: false,
-		myRoles: [],
+		myDefaultRoles: [],
 		runningCookieRefreshId: null,
 		user: null
 	},
@@ -92,8 +91,8 @@ export default new Vuex.Store({
 		getUser(state) {
 			return state.user
 		},
-		getMyRoles(state) {
-			return state.myRoles
+		getMyDefaultRoles(state) {
+			return state.myDefaultRoles
 		},
 		isAuthenticated(state) {
 			return state.user !== null
@@ -105,13 +104,10 @@ export default new Vuex.Store({
 			if (state.currentDoc) return state.currentDoc.followers.includes(state.load.email)
 		},
 		isServerAdmin(state) {
-			return state.myRoles.includes("_admin")
-		},
-		canWriteLevels(state) {
-			return state.canWriteLevels
+			return state.myDefaultRoles.includes("_admin")
 		},
 		canCreateComments(state) {
-			return state.myRoles.includes("_admin") || state.myRoles.includes("areaPO") || state.myRoles.includes("admin") || state.myRoles.includes("superPO") || state.myRoles.includes("PO") || state.myRoles.includes("developer")
+			return state.myDefaultRoles.includes("_admin") || state.myDefaultRoles.includes("areaPO") || state.myDefaultRoles.includes("admin") || state.myDefaultRoles.includes("superPO") || state.myDefaultRoles.includes("PO") || state.myDefaultRoles.includes("developer")
 		},
 		getCurrentDb(state) {
 			return state.currentDb
@@ -177,35 +173,10 @@ export default new Vuex.Store({
 
 	mutations: {
 		authUser(state, userData) {
-			state.sessionId = userData.sessionId
-
-			const maxLevel = 5
 			state.user = userData.user
-			state.myRoles = userData.roles
-			let levels = []
-			for (let i = 0; i <= maxLevel; i++) {
-				levels.push(false)
-			}
-			if (state.myRoles.includes('areaPO')) {
-				levels[0] = true
-				levels[4] = true
-			}
-			if (state.myRoles.includes('superPO')) {
-				for (let i = 2; i <= 3; i++) {
-					levels[i] = true
-				}
-			}
-			if (state.myRoles.includes('PO')) {
-				for (let i = 3; i <= maxLevel; i++) {
-					levels[i] = true
-				}
-			}
-			if (state.myRoles.includes('developer')) {
-				for (let i = 4; i <= maxLevel; i++) {
-					levels[i] = true
-				}
-			}
-			state.canWriteLevels = levels
+			state.myDefaultRoles = userData.roles
+			console.log('store.mutations: state.myDefaultRoles is set to ' + state.myDefaultRoles)
+			state.sessionId = userData.sessionId
 		},
 
 		resetData(state) {
@@ -224,11 +195,10 @@ export default new Vuex.Store({
 			state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
 
-			state.canWriteLevels = []
 			state.config = null
 			state.currentDb = null
 			state.currentDoc = null
-			state.myRoles = []
+			state.myDefaultRoles = []
 			state.user = null
 
 			clearInterval(state.runningCookieRefreshId)
