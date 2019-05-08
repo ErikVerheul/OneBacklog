@@ -7,7 +7,7 @@
 <b>The product vision:</b><br />
 As super PO I need one integrated tool to manage the product backlog of all my products so that:
 - I can map my portfolio in one tool
-- NOT IN MVP: The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get alligned to deliver the highest value first
+- NOT IN MVP: The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
 - My PO's can manage their products
 - NOT IN MVP: Dependencies within products are made visible so that the team, their PO or myself can act upon it
 - NOT IN MVP: Scrum teams can use the tool to do their refinements and run their sprints
@@ -97,7 +97,7 @@ Developers can create new pbi's for their product(s) but not change priorities i
 Viewers can only read the information of the products assigned to them.
 
 <b>Non functional requirements:</b>
-100 simultaneous users, 1 update per second, updates by other users should be available within 1 second (either by page refresh or automatically)
+100 simultaneous users, updates by other users should be available within 1 second.
 
 <b>Implementation:</b>
 

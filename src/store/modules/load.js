@@ -5,7 +5,7 @@ import router from '../../router'
 const batchSize = 250
 var batch = []
 const leafLevel = 5
-var parentNodes = {}
+var parentNodes = []
 
 const state = {
 	docsCount: 0,
@@ -33,8 +33,8 @@ const getters = {
 		if (state.currentProductId) {
 			if (state.userAssignedProductIds.includes(state.currentProductId)) {
 				let myRoles = state.myProductsRoles[state.currentProductId]
-				console.log('canWriteLevels: state.currentProductId = ' + state.currentProductId)
-				console.log('canWriteLevels: myRoles = ' + myRoles)
+				// eslint-disable-next-line no-console
+				console.log('canWriteLevels: for ProductId ' + state.currentProductId + ' myRoles are ' + myRoles)
 				for (let i = 0; i <= maxLevel; i++) {
 					levels.push(false)
 				}
@@ -194,6 +194,12 @@ const actions = {
 				rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
+				// initialize load parameters in case getFirstDocsBatch is called without signing out first
+				batch = []
+				state.docsCount = 0
+				state.itemsCount = 0
+				state.orphansCount = 0
+				state.offset = 0
 				dispatch('getFirstDocsBatch')
 			})
 			.catch(error => {
@@ -219,7 +225,6 @@ const actions = {
 				withCredentials: true
 			}).then(res => {
 				state.myProductsRoles = res.data.productsRoles
-				console.log('getOtherUserData: state.myProductsRoles is set')
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
 				if (res.data.teams != null) {
@@ -281,8 +286,9 @@ const actions = {
 					dispatch('listenForChanges')
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('getNextDocsBatch: listenForChanges started')
-					// all documents are read, release memory
+					// reset load parameters
 					parentNodes = []
+					this.offset = 0
 				}
 				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 				// eslint-disable-next-line no-console
@@ -300,28 +306,31 @@ const actions = {
 		dispatch
 	}) {
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
-				withCredentials: true,
-			}).then(res => {
-				batch = res.data.rows
-				commit('processBatch', rootState.myDefaultRoles)
-				if (batch.length === batchSize) {
-					state.offset += batchSize
-					dispatch('getNextDocsBatch')
-				} else {
-					// all documents are read
-					dispatch('listenForChanges')
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
-				}
+			method: 'GET',
+			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
+			withCredentials: true,
+		}).then(res => {
+			batch = res.data.rows
+			commit('processBatch', rootState.myDefaultRoles)
+			if (batch.length === batchSize) {
+				state.offset += batchSize
+				dispatch('getNextDocsBatch')
+			} else {
+				// all documents are read
+				dispatch('listenForChanges')
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
-				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
-				router.push('/product')
-			})
+				if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
+				// reset load parameters
+				parentNodes = []
+				this.offset = 0
+			}
 			// eslint-disable-next-line no-console
-//			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
+			if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
+			state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+			router.push('/product')
+		})
+		// eslint-disable-next-line no-console
+		//			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 

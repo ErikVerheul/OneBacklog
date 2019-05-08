@@ -7,17 +7,20 @@
       <div class="col-lg-12 col-sm-12 cta">
         <router-link to="/signin">Sign In</router-link>
       </div>
-      <div class="col-lg-12 col-sm-12">
+      <div class="col-lg-12 col-sm-12 text-center">
         <h3>Welcome to the OneBacklog Minimal Viable Product</h3>
-        <p>This application is intended for Product Owners who own one ore more products as well as for developers and viewers.
-          Your role determines what you can do. This MVP is not intended for productive use yet. It is in developement.</p>
+        <p>This application is intended for Product Owners who own one ore more products as well as for developers and viewers.<br>
+           Your role determines what you can do. This MVP is not intended for productive use yet. It is in developement.</p>
+				<p>Signin with demoUser and password demoUser.</p>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-
+	.text-center {
+		text-align: center;
+	}
   .cta {
     width: 300px;
     margin: auto;

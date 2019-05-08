@@ -81,7 +81,7 @@ export default new Vuex.Store({
 		currentDb: null,
 		currentDoc: null,
 		debug: true,
-		demo: false,
+		demo: true,
 		myDefaultRoles: [],
 		runningCookieRefreshId: null,
 		user: null
@@ -175,7 +175,6 @@ export default new Vuex.Store({
 		authUser(state, userData) {
 			state.user = userData.user
 			state.myDefaultRoles = userData.roles
-			console.log('store.mutations: state.myDefaultRoles is set to ' + state.myDefaultRoles)
 			state.sessionId = userData.sessionId
 		},
 

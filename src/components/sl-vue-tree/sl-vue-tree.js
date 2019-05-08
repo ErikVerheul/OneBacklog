@@ -1,3 +1,7 @@
+/*
+* This component is an improved version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
+*/
+
 export default {
 	name: 'sl-vue-tree',
 	props: {

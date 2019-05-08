@@ -20,11 +20,19 @@
 						</div>
 					</form>
 				</div>
-				<div class="text-center">
+				<div v-if=!this.$store.state.demo class="text-center big-margin">
 					No account yet? Ask your SM or PO to create one.
-					<br/><br/><br/><br/><br/>
+				</div>
+				<div v-if=!this.$store.state.demo class="text-center">
 					This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 					MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu.
+				</div>
+				<div v-if=this.$store.state.demo class="text-center">
+					<p>This is a demo / test version of the application. DO NOT USE FOR PRODUCTION.<br>
+					Please leave your findings in this applications register or e-mail to tech@verheulconsultants.nl.</p>
+					<p>Signin with demoUser and password demoUser.</p>
+					<p>Note that demoUser has the permissions of "superPO", "PO", "developer" and "guest" for the ' Register...' and Generated product.<br>
+						So you can do almost everything. Please do not remove other peoples entries.</p>
 				</div>
 			</div>
 		</div>
@@ -70,6 +78,10 @@
 
 	.text-center {
 		text-align: center;
+	}
+
+	.big-margin {
+		margin-bottom: 6em;
 	}
 
 	.input label {

@@ -85,6 +85,7 @@
 				'getUser',
 				'getMyDefaultRoles',
 				'isAuthenticated',
+				'isDemoVersion',
 				'isFollower',
 				'isServerAdmin',
 				'canCreateComments',
