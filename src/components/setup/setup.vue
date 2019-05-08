@@ -22,6 +22,7 @@
 				<button @click="showDocById" class="myButton">8. Show a document by id</button>
 				<button @click="deleteDB" class="myButton">9. Delete the selected || created database</button>
 				<button @click="exampleDB" class="myButton">10. Create an example database with demo users</button>
+				<button @click="copyDB" class="myButton">11. Copy a database including permissions</button>
 			</div>
 
 			<div class="col-lg-12 col-sm-12">
@@ -132,6 +133,9 @@
 						break
 					case 10:
 						this.exampleDBExe()
+						break
+					case 11:
+						this.copyDBExe()
 						break
 					default:
 				}
@@ -330,6 +334,24 @@
 				this.$store.dispatch('setUsersDbPermissions')
 				this.$store.dispatch('setDbPermissions', payload)
 				this.$store.dispatch('createExampleDB', payload)
+			},
+			copyDB() {
+				this.$store.commit('clearAll')
+				this.selectionMade = true
+				this.row = {
+					field1: "Source DB name",
+					field2: "Target DB name",
+					field3: "field not used",
+					field4: "field not used",
+				}
+				this.commandNr = 11
+			},
+			copyDBExe() {
+				var payload = {
+					dbSourceName: this.row.field1,
+					dbTargetName: this.row.field2,
+				}
+				this.$store.dispatch('copyDB', payload)
 			},
 		}
 	}

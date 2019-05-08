@@ -546,6 +546,40 @@ const actions = {
 			})
 	},
 
+	copyDB({
+		state,
+		dispatch
+	}, payload) {
+		this.commit('clearAll')
+		// eslint-disable-next-line no-console
+		let copyData = {
+			"create_target": true,
+			"source": payload.dbSourceName,
+			"target": payload.dbTargetName
+		}
+		// eslint-disable-next-line no-console
+		console.log('Copy DB: from ' + payload.dbSourceName + ' to ' + payload.dbTargetName)
+		globalAxios({
+				method: 'POST',
+				url: "_replicate",
+				withCredentials: true,
+				data: copyData
+			}).then(res => {
+				state.message = res.data
+				// eslint-disable-next-line no-console
+				console.log(res)
+				dispatch('setDbPermissions', {
+					dbName: payload.dbTargetName
+				})
+			})
+			.catch(error => {
+				// eslint-disable-next-line no-console
+				console.log(error)
+				state.message = error.response.data
+				state.errorMessage = error.message
+			})
+	},
+
 	initializeDB({
 		state
 	}, payload) {
