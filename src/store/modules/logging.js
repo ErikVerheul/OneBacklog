@@ -122,7 +122,7 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": now,
-					"timestampStr": new Date(now)
+					"timestampStr": new Date(now).toString()
 				}
 				//eslint-disable-next-line no-console
 				if (rootState.debug) console.log('doLog: Pushed log entry to unsavedLogs:')
