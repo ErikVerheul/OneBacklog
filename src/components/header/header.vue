@@ -6,7 +6,7 @@
 			<b-navbar-brand href="https://verheulconsultants.nl">OneBacklog version 0.4.3 MVP</b-navbar-brand>
 			<b-collapse is-nav id="nav_collapse">
 				<b-navbar-nav>
-					<b-nav-item href="#">User guide</b-nav-item>
+					<b-nav-item to="../../userguide">User guide</b-nav-item>
 				</b-navbar-nav>
 
 				<b-nav-form>
