@@ -25,7 +25,7 @@ The CouchDB build-in authentication is used
 <b>Authorization :</b><br />
 The authorization is set per product and based on the following roles:
 - '_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.
-- 'areaPO': The requirement area PO maintains the requirements area backlog and can prioritise features in the teams backlog
+- 'areaPO': The requirement area PO maintains the requirements area backlog and can prioritize features in the teams backlog
 - 'admin': Can create and assign users to products. Is also a guest to all products.
 - 'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.
 - 'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.
@@ -50,7 +50,7 @@ When multiple databases are created products defined in different databases are 
 
 <b>Product and epic size estimate:</b><br />
 Products and epics are estimated in T-shirt sizes.
-Features and pbi's are estimated in story points using the. A common practise is to use the Fibonacci scale. However this is not enforced.
+Features and pbi's are estimated in story points using the. A common practice is to use the Fibonacci scale. However this is not enforced.
 
 <b>Feature effort estimate:</b><br />
 Both features and pbi's are estimated in story points. When all pbi's belonging to a feature are refined the feature effort should be the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.
