@@ -121,7 +121,7 @@ Viewers can only read the information of the products assigned to them.
 Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the real role the product owner has.
 
 ## Demo
-The MVP is online. Try https://onebacklog.net , signin as demo user and give me your feedback by registering your most wanted features and defects in the application itself.
+The MVP is online. Try https://onebacklog.net , signin as demo user and give me your feedback by registering your most wanted features and defects to fix in the application itself.
 
 ## Build Setup
 
