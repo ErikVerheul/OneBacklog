@@ -115,6 +115,7 @@ const mutations = {
 							priority: batch[i].doc.priority,
 							productId: batch[i].doc.productId,
 							parentId: parentId,
+							state: batch[i].doc.state,
 							subtype: batch[i].doc.subtype
 						}
 					}
