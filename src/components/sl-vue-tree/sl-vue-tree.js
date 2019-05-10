@@ -1,6 +1,6 @@
 /*
-* This component is an improved version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
-*/
+ * This component is an improved version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
+ */
 
 export default {
 	name: 'sl-vue-tree',
@@ -166,7 +166,6 @@ export default {
 			const isSelectable = nodeModel.isSelectable == void 0 ? true : !!nodeModel.isSelectable;
 
 			const node = {
-
 				// define the all ISlTreeNodeModel props
 				title: nodeModel.title,
 				isLeaf: !!nodeModel.isLeaf,
@@ -266,8 +265,6 @@ export default {
 			let shiftSelectionStarted = false;
 
 			this.traverse((node, nodeModel) => {
-
-
 				if (shiftSelectionMode) {
 					if (node.pathStr === selectedNode.pathStr || node.pathStr === this.lastSelectedNode.pathStr) {
 						nodeModel.isSelected = node.isSelectable;
@@ -283,7 +280,6 @@ export default {
 				if (nodeModel.isSelected) selectedNodes.push(node);
 
 			}, newNodes);
-
 
 			this.lastSelectedNode = selectedNode;
 			this.emitInput(newNodes);
