@@ -368,22 +368,18 @@
 			/* Database update methods */
 			updateDescription() {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					const payload = {
-						'newDescription': this.getCurrentItemDescription,
-						'newId': this.firstNodeSelected.data._id
-					}
-					this.$store.dispatch('saveDescriptionAndLoadDoc', payload)
+					this.$store.dispatch('saveDescription', {
+						'newDescription': this.getCurrentItemDescription
+					})
 				} else {
 					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item", WARNING)
 				}
 			},
 			updateAcceptance() {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					const payload = {
-						'newAcceptance': this.getCurrentItemAcceptanceCriteria,
-						'newId': this.firstNodeSelected.data._id
-					}
-					this.$store.dispatch('saveAcceptanceAndLoadDoc', payload)
+					this.$store.dispatch('saveAcceptance', {
+						'newAcceptance': this.getCurrentItemAcceptanceCriteria
+					})
 				} else {
 					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item", WARNING)
 				}
@@ -441,20 +437,27 @@
 			},
 			onStateChange(idx) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					const payload = {
+					// update the tree
+					let node = this.$refs.slVueTree.getSelected()[0]
+					let newData = Object.assign(node.data)
+					newData.state = idx
+					this.$refs.slVueTree.updateNode(node.path, {
+						state: newData
+					})
+					// update current document in database
+					this.$store.dispatch('setState', {
 						'newState': idx
-					}
-					this.$store.dispatch('setState', payload)
+					})
 				} else {
 					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
 				}
 			},
 			updateTitle() {
-				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					const oldTitle = this.$store.state.currentDoc.title
-					const newTitle = document.getElementById("titleField").value
-					if (oldTitle === newTitle) return
+				const oldTitle = this.$store.state.currentDoc.title
+				const newTitle = document.getElementById("titleField").value
+				if (oldTitle === newTitle) return
 
+				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					// update the tree
 					const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
 					this.$refs.slVueTree.updateNode(paths[0], {
@@ -918,6 +921,7 @@
 						priority: null,
 						productId: null,
 						parentId: null,
+						state: 0,
 						subtype: 0,
 						sessionId: this.$store.state.sessionId,
 						distributeEvent: true
