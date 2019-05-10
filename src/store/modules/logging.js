@@ -51,7 +51,7 @@ const actions = {
 									"by": rootState.user,
 									"email": rootState.load.email,
 									"timestamp": now,
-									"timestampStr": new Date(now)
+									"timestampStr": new Date(now).toString()
 								}
 								log.entries.unshift(newLog)
 								unsavedLogs = []
@@ -69,7 +69,7 @@ const actions = {
 									"by": rootState.user,
 									"email": rootState.load.email,
 									"timestamp": now,
-									"timestampStr": new Date(now)
+									"timestampStr": new Date(now).toString()
 								}
 								log.entries.unshift(newLog)
 							}
@@ -108,7 +108,7 @@ const actions = {
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": now,
-					"timestampStr": new Date(now)
+					"timestampStr": new Date(now).toString()
 				}
 				log.entries.unshift(newLog)
 				log.entries = log.entries.slice(0, MAXLOGSIZE)
