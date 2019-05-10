@@ -88,7 +88,7 @@
 					<p class="indent10">Select the item type to create and press OK.</p>
 					<p class="indent10">To remove an item with all of its descendants first selcet it with a <b>left-click</b> then do a <b>right-click</b>. You will see a modal like this:</p>
 					<b-img class="indent10" :src="require('./remove-item.png')" alt="Example item removal"/>
-					<p class="indent10">Click on Cancel or the small X when uncertain. After removal the items are still in the database. Only the server admin can recover them.</p>
+					<p class="indent10">Click on the small X when uncertain. After removal the items are still in the database. Only the server admin can recover them.</p>
 					<h4>Drag &amp; drop in the backlog item tree</h4>
 					<p class="indent10">This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product and even between products. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>
 					<h4>The title input field</h4>
