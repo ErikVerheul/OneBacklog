@@ -60,7 +60,7 @@
 									<font-awesome-icon icon="folder" />
 								</i>
 							</span>
-							{{ node.title }}
+							{{ node.title }} <b-badge variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
 						</template>
 
 						<template slot="toggle" slot-scope="{ node }">
@@ -241,6 +241,7 @@
 * ....priority: doc.priority,
 * ....productId: doc.productId,
 * ....parentId: doc.parentId,
+* ....state: doc.state,
 * ....subtype: doc.subtype,
 * ....sessionId: rootState.sessionId,
 * ....distributeEvent: true | false
