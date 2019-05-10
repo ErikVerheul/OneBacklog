@@ -178,7 +178,7 @@ const actions = {
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.sessionId,
-					"distributeEvent": false
+					"distributeEvent": true
 				}
 				tmpDoc.state = payload.newState
 				tmpDoc.history.unshift(newHist)
