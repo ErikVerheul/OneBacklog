@@ -69,6 +69,7 @@ const actions = {
 		function updateFields(doc, node) {
 			let newData = Object.assign(node.data)
 			newData.subtype = doc.subtype
+			newData.state = doc.state
 			window.slVueTree.updateNode(node.path, {
 				"title": doc.title,
 				"data": newData
@@ -168,6 +169,7 @@ const actions = {
 										"productId": doc.productId,
 										"parentId": doc.parentId,
 										"subtype": 0,
+										"state": 0,
 										"sessionId": rootState.sessionId,
 										"distributeEvent": true
 									}
