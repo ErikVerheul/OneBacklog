@@ -260,13 +260,13 @@
 			},
 			insertComment() {
 				const payload = {
-					'email': this.getEmail
+					'comment': this.newComment
 				}
 				this.$store.dispatch('addComment', payload)
 			},
 			insertHist() {
 				const payload = {
-					'email': this.getEmail
+					'comment': this.newHistory
 				}
 				this.$store.dispatch('addHistoryComment', payload)
 			},
@@ -347,6 +347,7 @@
 				if (key === "timestamp") return this.mkTimestamp(value)
 			},
 			prepHistoryText(key, value) {
+				if (key === "comment") return this.mkComment(value)
 				if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
 				if (key === "createEvent") return this.mkCreateEvent(value)
 				if (key === "setSizeEvent") return this.mkSetSizeEvent(value)
@@ -727,7 +728,7 @@
 			nodeDropped(draggingNodes, position) {
 				// get the nodes after being dropped
 				const selectedNodes = this.$refs.slVueTree.getSelected()
-				let clickedLevel = draggingNodes[0].level
+				let clickedLevel = selectedNodes[0].level
 				let dropLevel = position.node.level
 				// drop inside?
 				if (position.placement === 'inside') {
