@@ -471,7 +471,7 @@ const actions = {
 			})
 	},
 
-	saveDescriptionAndLoadDoc({
+	saveDescription({
 		rootState,
 		dispatch
 	}, payload) {
@@ -497,15 +497,11 @@ const actions = {
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)
 					tmpDoc.description = newEncodedDescription
-					const newPayload = {
-						newId: payload.newId,
-						doc: tmpDoc
-					}
-					dispatch('updateDocAndLoadNew', newPayload)
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			.catch(error => {
-				let msg = 'saveDescriptionAndLoadDoc: Could not read document with _id ' + _id + ', ' + error
+				let msg = 'saveDescription: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
@@ -515,7 +511,7 @@ const actions = {
 			})
 	},
 
-	saveAcceptanceAndLoadDoc({
+	saveAcceptance({
 		rootState,
 		dispatch
 	}, payload) {
@@ -541,15 +537,11 @@ const actions = {
 					tmpDoc.history.unshift(newHist)
 					rootState.currentDoc.history.unshift(newHist)
 					tmpDoc.acceptanceCriteria = newEncodedAcceptance
-					const newPayload = {
-						newId: payload.newId,
-						doc: tmpDoc
-					}
-					dispatch('updateDocAndLoadNew', newPayload)
+					dispatch('updateDoc', tmpDoc)
 				}
 			})
 			.catch(error => {
-				let msg = 'saveAcceptanceAndLoadDoc: Could not read document with _id ' + _id + ', ' + error
+				let msg = 'saveAcceptance: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
@@ -639,7 +631,7 @@ const actions = {
 		console.log('updateDoc: updating document with _id = ' + _id)
 		globalAxios({
 				method: 'PUT',
-				url: rootState.currentDb + '/' + tmpDoc._id,
+				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 				data: tmpDoc
 			}).then(() => {
@@ -657,36 +649,6 @@ const actions = {
 			})
 	},
 
-	// Update current document and load new
-	updateDocAndLoadNew({
-		rootState,
-		dispatch
-	}, payload) {
-		const newId = payload.newId
-		let tmpDoc = payload.doc
-		const _id = tmpDoc._id
-		// eslint-disable-next-line no-console
-		console.log('updateDocAndLoadNew: updating document with _id = ' + _id)
-		globalAxios({
-				method: 'PUT',
-				url: rootState.currentDb + '/' + tmpDoc._id,
-				withCredentials: true,
-				data: tmpDoc
-			}).then(() => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('updateDocAndLoadNew: document with _id + ' + _id + ' is updated.')
-				dispatch('loadDoc', newId)
-			})
-			.catch(error => {
-				let msg = 'updateDocAndLoadNew: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
-				// eslint-disable-next-line no-console
-				console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: "ERROR"
-				})
-			})
-	},
 
 }
 
