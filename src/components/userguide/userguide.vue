@@ -9,7 +9,7 @@
 					<p class="indent10">Always mention the version number located after the app name when reporting issues.</p>
 					<h5>User guide</h5>
 					<p class="indent10">This text</p>
-					<h5>Search on key word</h5>
+					<h5>Search on key word [planned for version 0.4.5]</h5>
 					<p class="indent10">Input field for the search button. Searches for the keyword in the title of all items of the current product. That is the product for which an item is selected.</p>
 					<h5>Search button</h5>
 					<p class="indent10">When clicked all items in the current product with the keyword in the title will expand and highlighted.</p>
@@ -26,7 +26,7 @@
 						<h4>Products view</h4>
 						<p class="indent10">The products view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
 						<b-img class="indent10" :src="require('./example-screen.png')" alt="Example screen"/>
-						<p class="indent10">Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different measures:</p>
+						<p class="indent10">Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different units:</p>
 						<p class="indent20">Product and epic size estimate:<br>
 							Products and epics are estimated in T-shirt sizes. Features and pbi's are estimated in story points using the. A common practice is to use the Fibonacci scale. However this is not enforced.</p>
 						<p class="indent20">Feature effort estimate:<br>
