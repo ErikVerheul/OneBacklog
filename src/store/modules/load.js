@@ -12,8 +12,9 @@ const state = {
 	itemsCount: 0,
 	orphansCount: 0,
 	lastEvent: '',
-	currentUserProductId: null,
+	currentDefaultProductId: null,
 	currentProductId: null,
+	currentProductPath: [0,0],
 	currentProductTitle: "",
 	databases: [],
 	myTeams: [],
@@ -105,11 +106,11 @@ const mutations = {
 						isLeaf: (level === leafLevel) ? true : false,
 						children: [],
 						// expand the tree of the default product
-						isExpanded: (batch[i].doc.productId === state.currentUserProductId) ? true : false,
+						isExpanded: (batch[i].doc.productId === state.currentDefaultProductId) ? true : false,
 						isDraggable: getters.canWriteLevels[batch[i].doc.level],
 						isSelectable: true,
 						// select the default product
-						isSelected: (batch[i].doc._id === state.currentUserProductId) ? true : false,
+						isSelected: (batch[i].doc._id === state.currentDefaultProductId) ? true : false,
 						data: {
 							_id: batch[i].doc._id,
 							priority: batch[i].doc.priority,
@@ -183,7 +184,7 @@ const actions = {
 		state,
 		dispatch
 	}) {
-		let _id = state.currentUserProductId
+		let _id = state.currentDefaultProductId
 		globalAxios({
 				method: 'GET',
 				url: rootState.currentDb + '/' + _id,
@@ -194,7 +195,7 @@ const actions = {
 				rootState.currentDoc.description = window.atob(res.data.description)
 				rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
+				if (rootState.debug) console.log('loadCurrentProduct: product root document with _id + ' + _id + ' is loaded.')
 				// initialize load parameters in case getFirstDocsBatch is called without signing out first
 				batch = []
 				state.docsCount = 0
@@ -204,7 +205,7 @@ const actions = {
 				dispatch('getFirstDocsBatch')
 			})
 			.catch(error => {
-				let msg = 'loadCurrentProduct: Could not read document with _id ' + _id + '. Error = ' + error
+				let msg = 'loadCurrentProduct: Could not read product root document with _id ' + _id + '. Error = ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
@@ -251,7 +252,7 @@ const actions = {
 				dispatch('watchdog')
 
 				state.userAssignedProductIds = Object.keys(res.data.productsRoles)
-				state.currentUserProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
+				state.currentDefaultProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
 				dispatch('getConfig')
 			})
 			.catch(error => {
@@ -307,36 +308,36 @@ const actions = {
 		dispatch
 	}) {
 		globalAxios({
-			method: 'GET',
-			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
-			withCredentials: true,
-		}).then(res => {
-			batch = res.data.rows
-			commit('processBatch', rootState.myDefaultRoles)
-			if (batch.length === batchSize) {
-				state.offset += batchSize
-				dispatch('getNextDocsBatch')
-			} else {
-				// all documents are read
-				dispatch('listenForChanges')
+				method: 'GET',
+				url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
+				withCredentials: true,
+			}).then(res => {
+				batch = res.data.rows
+				commit('processBatch', rootState.myDefaultRoles)
+				if (batch.length === batchSize) {
+					state.offset += batchSize
+					dispatch('getNextDocsBatch')
+				} else {
+					// all documents are read
+					dispatch('listenForChanges')
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
+					// reset load parameters
+					parentNodes = []
+					this.offset = 0
+				}
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
-				// reset load parameters
-				parentNodes = []
-				this.offset = 0
-			}
+				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
+				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+				router.push('/product')
+			})
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
-			state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
-			router.push('/product')
-		})
-		// eslint-disable-next-line no-console
-		//			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
+			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 
-	// Read the current product id and title
-	readProduct({
+	// Read the current product title
+	readProductTitle({
 		rootState,
 		state,
 		dispatch
@@ -347,12 +348,11 @@ const actions = {
 				withCredentials: true,
 			}).then(res => {
 				state.currentProductTitle = res.data.title
-				state.currentProductId = res.data.productId
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log("readProduct: current product name '" + res.data.title + "' is fetched.")
+				if (rootState.debug) console.log("readProductTitle: current product name '" + res.data.title + "' is fetched.")
 			})
 			.catch(error => {
-				let msg = 'readProduct: Could not read document for thr product with _id ' + product_id + ', ' + error
+				let msg = 'readProductTitle: Could not read document for thr product with _id ' + product_id + ', ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
@@ -378,10 +378,6 @@ const actions = {
 				rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
-				// read the current product title if not available; root is not part of a product
-				if (res.data.productId != state.currentProductId && _id != 'root') {
-					dispatch('readProduct', res.data.productId)
-				}
 			})
 			.catch(error => {
 				let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
