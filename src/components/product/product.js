@@ -272,6 +272,7 @@
 			},
 			setFirstNodeSelected() {
 				this.firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
+				this.nodeIsSelected = true
 			},
 			/* Presentation methods */
 			mkSubscribeEvent(value) {
@@ -437,7 +438,7 @@
 			},
 			onStateChange(idx) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					// update the tree
+					// update the tree; must select to force nodeUpdate not to neglect subsequent changes
 					let node = this.$refs.slVueTree.getSelected()[0]
 					let newData = Object.assign(node.data)
 					newData.state = idx
@@ -459,8 +460,7 @@
 
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					// update the tree
-					const paths = this.$refs.slVueTree.getSelected().map(node => node.path);
-					this.$refs.slVueTree.updateNode(paths[0], {
+					this.$refs.slVueTree.updateNode(this.firstNodeSelected.path, {
 						title: newTitle
 					})
 					// update current document in database
@@ -516,13 +516,6 @@
 					this.$store.state.load.currentProductId = this.firstNodeSelected.data.productId
 					// also update the title
 					this.$store.dispatch('readProductTitle', this.firstNodeSelected.data.productId)
-					// and update the currentProductPath
-					this.$refs.slVueTree.traverse((node) => {
-						if (node.data._id === this.$store.state.load.currentProductId) {
-							this.$store.state.load.currentProductPath = node.path
-							return false
-						}
-					})
 				}
 				// load the document
 				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
@@ -540,15 +533,6 @@
 			},
 			nodeToggled(node) {
 				this.showLastEvent(`Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
-			},
-			haveSameLevel(nodes) {
-				let level = nodes[0].level
-				for (let i = 0; i < nodes.length; i++) {
-					if (nodes[i].level != level) {
-						return false
-					}
-					return true
-				}
 			},
 			getDescendantsInfo(path) {
 				let descendants = []
@@ -568,7 +552,7 @@
 							if (node.level > maxDepth) maxDepth = node.level
 						}
 					}
-				})
+				}, undefined, undefined, 'product.js:getDescendantsInfo')
 				return {
 					descendants: descendants,
 					count: count,
@@ -582,17 +566,17 @@
 				/*
 				 * Disallow drop on node were the user has no write authority
 				 * Disallow drop when moving over more than 1 level.
-				 * Dropping items with descendants is not possible when any descendant would land lower than the lowest level (pbilevel).
+				 * Dropping items with descendants is not possible when any descendant would land higher than the highest level (pbilevel).
 				 */
 				let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 					const levelChange = Math.abs(targetLevel - sourceLevel)
-					let check1 = !this.canWriteLevels[position.node.level]
-					let check2 = levelChange > 1
-					let check3 = (targetLevel + this.getDescendantsInfo(node.path).depth) > PBILEVEL
-					if (check1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
-					if (check2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
-					if (check3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
-					return check1 || check2 || check3
+					let failedCheck1 = !this.canWriteLevels[position.node.level]
+					let failedCheck2 = levelChange > 1
+					let failedCheck3 = (targetLevel + this.getDescendantsInfo(node.path).depth) > PBILEVEL
+					if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
+					if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
+					if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
+					return failedCheck1 || failedCheck2 || failedCheck3
 				}
 				const sourceLevel = draggingNodes[0].level
 				let targetLevel = position.node.level
@@ -741,7 +725,7 @@
 			 * ToDo: expand the parent if a node is dropped inside that parent
 			 */
 			nodeDropped(draggingNodes, position) {
-				// get the nodes after being dropped
+				// get the nodes after being dropped with the full IDlTreeNode properties (draggingNodes only have IslNodeModel properties)
 				const selectedNodes = this.$refs.slVueTree.getSelected()
 				let clickedLevel = selectedNodes[0].level
 				let dropLevel = position.node.level
@@ -808,16 +792,17 @@
 			 * Both the clicked node and all its descendants will be tagged with a delmark
 			 */
 			doRemove() {
-				const selectedNodes = this.$refs.slVueTree.getSelected()
-				this.showLastEvent(`The ${this.getLevelText(selectedNodes[0].level)} and ${this.getDescendantsInfo(selectedNodes[0].path).count} descendants are removed`, INFO)
-				const paths = selectedNodes.map(node => node.path)
-				const descendants = this.getDescendantsInfo(paths[0]).descendants
+				const selectedNode = this.firstNodeSelected
+				const descendantsInfo = this.getDescendantsInfo(selectedNode.path)
+				this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
+				const path = this.firstNodeSelected.path
+				const descendants = descendantsInfo.descendants
 				// now we can remove the nodes
-				this.$refs.slVueTree.remove(paths)
+				this.$refs.slVueTree.remove([path])
 				// when removing a product
-				if (selectedNodes[0].level === this.productLevel) {
+				if (selectedNode.level === this.productLevel) {
 					var newProducts = this.getUserAssignedProductIds
-					var idx = newProducts.indexOf(selectedNodes[0].data._id)
+					var idx = newProducts.indexOf(selectedNode.data._id)
 					if (idx > -1) {
 						newProducts.splice(idx, 1)
 					}
@@ -826,7 +811,7 @@
 				}
 				// set remove mark in the database on the clicked item
 				const payload = {
-					'node': selectedNodes[0],
+					'node': selectedNode,
 					'descendantsCount': descendants.length,
 					'doRegHist': true
 				}
@@ -975,17 +960,16 @@
 					const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
 					newNode.data._id = newId
 					this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
-					// inserting the node also selects it
-					this.$refs.slVueTree.insert(newNodeLocation, newNode)
-					// restore default
-					this.insertOptionSelected = 1
-
 					// unselect the node that was clicked before the insert and expand it to show the inserted node
-					const clickedPath = this.$refs.slVueTree.getSelected()[0].path
-					this.$refs.slVueTree.updateNode(clickedPath, {
+					this.$refs.slVueTree.updateNode(this.firstNodeSelected.path, {
 						isSelected: false,
 						isExpanded: true
 					})
+					// inserting the node also selects it
+					this.$refs.slVueTree.insert(newNodeLocation, newNode)
+					this.firstNodeSelected = newNode
+					// restore default
+					this.insertOptionSelected = 1
 					// now the node is inserted and selected get the full ISlTreeNode data and set data fields
 					const insertedNode = this.$refs.slVueTree.getSelected()[0]
 					// productId, parentId and priority are set in this routine
