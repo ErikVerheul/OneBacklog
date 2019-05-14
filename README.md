@@ -40,6 +40,7 @@ a product consists of:
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
 - <b>tasks</b> (NOT IN MVP) and
 - <b>multiple requirement areas</b> (NOT IN MVP) can be maintained on the feature level across products.
+All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to to fix these relationships as a afterthought.
 
 <b>Other design choices:</b><br />
 The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
@@ -121,7 +122,7 @@ Viewers can only read the information of the products assigned to them.
 Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the real role the product owner has.
 
 ## Demo
-The MVP is online. Try https://onebacklog.net , signin as demo user and give me your feedback by registering your most wanted features and defects to fix in the application itself.
+The MVP is online. Try https://onebacklog.net, signin as demo user and give me your feedback by registering your most wanted features and found defects in the application itself.
 
 ## Build Setup
 
