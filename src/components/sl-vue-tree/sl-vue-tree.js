@@ -279,7 +279,7 @@ export default {
 
 				if (nodeModel.isSelected) selectedNodes.push(node);
 
-			}, newNodes);
+			}, newNodes, undefined, 'sl-vue-tree.js:select');
 
 			this.lastSelectedNode = selectedNode;
 			this.emitInput(newNodes);
@@ -432,7 +432,7 @@ export default {
 			let lastNode = null;
 			this.traverse((node) => {
 				lastNode = node;
-			});
+			}, undefined, undefined, 'sl-vue-tree.js:getLastNode');
 			return lastNode;
 		},
 
@@ -452,7 +452,7 @@ export default {
 					return false; // stop traverse
 				}
 
-			});
+			}, undefined, undefined, 'sl-vue-tree.js:getNextNode');
 
 			return resultNode;
 		},
@@ -465,7 +465,7 @@ export default {
 					return false;
 				}
 				prevNodes.push(node);
-			});
+			}, undefined, undefined, 'sl-vue-tree.js:getPrevNode');
 
 			let i = prevNodes.length;
 			while (i--) {
@@ -613,6 +613,8 @@ export default {
 			this.insertModels(this.cursorPosition, nodeModelsToInsert, newNodes);
 
 			// delete dragging node from the old place
+			//eslint-disable-next-line no-console
+			console.log('TRAVERSEMODELS is called by delete dragging node from the old place')
 			this.traverseModels((nodeModel, siblings, ind) => {
 				if (!nodeModel._markToDelete) return;
 				siblings.splice(ind, 1);
@@ -667,16 +669,25 @@ export default {
 			this.traverse((node, nodeModel) => {
 				if (node.pathStr !== pathStr) return;
 				Object.assign(nodeModel, patch);
-			}, newNodes);
+			}, newNodes, undefined, 'sl-vue-tree.js:updateNode');
 
 			this.emitInput(newNodes);
 		},
 
+		// allow selection on the same node level only
 		getSelected() {
+			let level = null
 			const selectedNodes = [];
 			this.traverse((node) => {
-				if (node.isSelected) selectedNodes.push(node);
-			});
+				if (node.isSelected) {
+					if (!level) level = node.level
+					if (node.level === level) {
+						selectedNodes.push(node)
+					} else {
+						node.isSelected = false
+					}
+				}
+			}, undefined, undefined, 'sl-vue-tree.js:getSelected');
 			return selectedNodes;
 		},
 
@@ -684,7 +695,7 @@ export default {
 			const selectedNodes = [];
 			this.traverse((node) => {
 				if (node.isSelected && node.isDraggable) selectedNodes.push(node);
-			});
+			}, undefined, undefined, 'sl-vue-tree.js:getDraggable');
 			return selectedNodes;
 		},
 
@@ -692,9 +703,14 @@ export default {
 		traverse(
 			cb,
 			nodeModels = null,
-			parentPath = []
+			parentPath = [],
+			caller = '?'
 		) {
-			if (!nodeModels) nodeModels = this.currentValue;
+			if (!nodeModels) {
+				nodeModels = this.currentValue;
+				//eslint-disable-next-line no-console
+				console.log('TRAVERSE is called by ' + caller)
+			}
 
 			let shouldStop = false;
 
@@ -703,6 +719,7 @@ export default {
 			for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
 				const nodeModel = nodeModels[nodeInd];
 				const itemPath = parentPath.concat(nodeInd);
+				//				console.log('traverse: itemPath = ', itemPath + ' title = ' + nodeModel.title)
 				const node = this.getNode(itemPath, nodeModel, nodeModels);
 				shouldStop = cb(node, nodeModel, nodeModels) === false;
 				nodes.push(node);
@@ -735,8 +752,9 @@ export default {
 				for (const pathStr of pathsStr) {
 					if (node.pathStr === pathStr) nodeModel._markToDelete = true;
 				}
-			}, newNodes);
-
+			}, newNodes, undefined, 'sl-vue-tree.js:remove1');
+			//eslint-disable-next-line no-console
+			console.log('TRAVERSEMODELS is called by remove(paths)')
 			this.traverseModels((nodeModel, siblings, ind) => {
 				if (!nodeModel._markToDelete) return;
 				siblings.splice(ind, 1);
