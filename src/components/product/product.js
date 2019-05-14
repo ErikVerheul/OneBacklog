@@ -504,9 +504,24 @@
 				if (title.length <= length) return title;
 				return title.substring(0, length - 4) + '...';
 			},
+			haveSameParent(nodes) {
+				let parentId = nodes[0].data.parentId
+				if (nodes.length > 0) {
+					for (let i = 1; i < nodes.length; i++) {
+						if (nodes[i].data.parentId != parentId) {
+							return false
+						}
+					}
+				}
+				return true
+			},
 			/* event handling */
 			nodeSelectedEvent(selNodes) {
-				// set the focus on titleField so that the vue2editors loose focus, regain focus when selected and blur when exited
+				if (!this.haveSameParent(selNodes)) {
+					this.showLastEvent('You can only select nodes with the same parent.', WARNING)
+					return
+				}
+				// set the focus on titleField so that the vue2editors loose focus, regain focus when selected and blur on exit
 				document.getElementById("titleField").focus()
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
@@ -567,6 +582,7 @@
 				 * Disallow drop on node were the user has no write authority
 				 * Disallow drop when moving over more than 1 level.
 				 * Dropping items with descendants is not possible when any descendant would land higher than the highest level (pbilevel).
+				 * precondition: the selected nodes have all the same parent (same level)
 				 */
 				let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 					const levelChange = Math.abs(targetLevel - sourceLevel)
