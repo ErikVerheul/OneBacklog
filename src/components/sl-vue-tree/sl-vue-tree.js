@@ -674,19 +674,10 @@ export default {
 			this.emitInput(newNodes);
 		},
 
-		// allow selection on the same node level only
 		getSelected() {
-			let level = null
 			const selectedNodes = [];
 			this.traverse((node) => {
-				if (node.isSelected) {
-					if (!level) level = node.level
-					if (node.level === level) {
-						selectedNodes.push(node)
-					} else {
-						node.isSelected = false
-					}
-				}
+				if (node.isSelected) selectedNodes.push(node);
 			}, undefined, undefined, 'sl-vue-tree.js:getSelected');
 			return selectedNodes;
 		},
