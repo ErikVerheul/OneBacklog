@@ -112,14 +112,13 @@
 							}
 							return false
 						}
-					})
+					}, undefined, undefined, 'showSelection:expandNodes')
 				}
 
-				let currentProductPath = this.$store.state.load.currentProductPath
 				// unselect all
 				window.slVueTree.traverse((node, nodeModel) => {
 					Vue.set(nodeModel, 'isSelected', false)
-				})
+				}, undefined, undefined, 'showSelection:unselect-all')
 
 				let count = 0
 				window.slVueTree.traverse((node, nodeModel) => {
@@ -128,7 +127,7 @@
 						Vue.set(nodeModel, 'isSelected', true)
 						count++
 					}
-				}, undefined, undefined, [0,1])
+				}, undefined, undefined, 'showSelection:find')
 
 				if (count === 1) {
 					this.showLastEvent(`${count} item title matches your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
