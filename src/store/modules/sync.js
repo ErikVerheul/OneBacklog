@@ -22,7 +22,7 @@ const actions = {
 					resultNode = node
 					return false
 				}
-			})
+			}, undefined, undefined, 'sync.js:getNodeById')
 			return resultNode
 		}
 		/*
