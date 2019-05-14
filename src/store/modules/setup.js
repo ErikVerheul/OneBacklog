@@ -1273,8 +1273,15 @@ const initUsers = {
 			"email": "demouser@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": ["guest"],
-				"1552152600149c2ac": ["superPO", "PO", "developer", "guest"]
+				"15521398069875394": [
+				"guest"
+				],
+				"1552152600149c2ac": [
+				"superPO",
+				"PO",
+				"developer",
+				"guest"
+				]
 			},
 			"currentProductsIdx": 1
 		},
@@ -1288,8 +1295,13 @@ const initUsers = {
 			"email": "jan@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": ["guest"],
-				"1552152600149c2ac": ["admin", "superPO"]
+				"15521398069875394": [
+				"guest"
+				],
+				"1552152600149c2ac": [
+				"admin",
+				"superPO"
+				]
 			},
 			"currentProductsIdx": 1
 		},
@@ -1303,8 +1315,12 @@ const initUsers = {
 			"email": "herman@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": ["guest"],
-				"1552152600149c2ac": ["PO"]
+				"15521398069875394": [
+				"guest"
+				],
+				"1552152600149c2ac": [
+					"PO"
+				]
 			},
 			"currentProductsIdx": 1
 		},
@@ -1318,8 +1334,12 @@ const initUsers = {
 			"email": "piet@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": ["guest"],
-				"1552152600149c2ac": ["areaPO"]
+				"15521398069875394": [
+					"guest"
+				],
+				"1552152600149c2ac": [
+					"areaPO"
+				]
 			},
 			"currentProductsIdx": 1
 		},
@@ -1333,8 +1353,11 @@ const initUsers = {
 			"email": "mechteld@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": ["guest"],
-				"1552152600149c2ac": ["developer"]
+				"15521398069875394": [
+					"guest"],
+				"1552152600149c2ac": [
+					"developer"
+				]
 			},
 			"currentProductsIdx": 1
 		},
@@ -1346,7 +1369,9 @@ const initUsers = {
 			"email": "henk@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": ["guest"]
+				"15521398069875394": [
+					"guest"
+				]
 			},
 			"currentProductsIdx": 0
 		},
@@ -1358,7 +1383,9 @@ const initUsers = {
 			"email": "guest@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"1552152600149c2ac": ["guest"]
+				"1552152600149c2ac": [
+					"guest"
+				]
 			},
 			"currentProductsIdx": 0
 		}]
