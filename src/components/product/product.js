@@ -511,8 +511,20 @@
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				this.firstNodeSelected = selNodes[0]
-				// set the current ProductId so that canWriteLevels is actual
-				this.$store.state.load.currentProductId = this.firstNodeSelected.data.productId
+				// set the current productId so that canWriteLevels is actual
+				if (this.$store.state.load.currentProductId != this.firstNodeSelected.data.productId) {
+					this.$store.state.load.currentProductId = this.firstNodeSelected.data.productId
+					// also update the title
+					this.$store.dispatch('readProductTitle', this.firstNodeSelected.data.productId)
+					// and update the currentProductPath
+					this.$refs.slVueTree.traverse((node) => {
+						if (node.data._id === this.$store.state.load.currentProductId) {
+							this.$store.state.load.currentProductPath = node.path
+							return false
+						}
+					})
+				}
+				// load the document
 				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
 				const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
