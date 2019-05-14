@@ -27,7 +27,7 @@ const state = {
 }
 
 const getters = {
-	canWriteLevels(state) {
+	canWriteLevels(state, rootState) {
 		const maxLevel = 5
 		let levels = []
 
@@ -35,7 +35,7 @@ const getters = {
 			if (state.userAssignedProductIds.includes(state.currentProductId)) {
 				let myRoles = state.myProductsRoles[state.currentProductId]
 				// eslint-disable-next-line no-console
-				console.log('canWriteLevels: for ProductId ' + state.currentProductId + ' myRoles are ' + myRoles)
+				if (rootState.debug) console.log('canWriteLevels: for ProductId ' + state.currentProductId + ' myRoles are ' + myRoles)
 				for (let i = 0; i <= maxLevel; i++) {
 					levels.push(false)
 				}
