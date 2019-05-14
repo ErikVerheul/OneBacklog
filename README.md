@@ -40,7 +40,7 @@ a product consists of:
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
 - <b>tasks</b> (NOT IN MVP) and
 - <b>multiple requirement areas</b> (NOT IN MVP) can be maintained on the feature level across products.
-All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to to fix these relationships as a afterthought.
+<p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to to fix these relationships as a afterthought.</p>
 
 <b>Other design choices:</b><br />
 The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
