@@ -14,7 +14,6 @@ const state = {
 	lastEvent: '',
 	currentDefaultProductId: null,
 	currentProductId: null,
-	currentProductPath: [0,0],
 	currentProductTitle: "",
 	databases: [],
 	myTeams: [],
@@ -190,6 +189,7 @@ const actions = {
 				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
+				state.currentProductId = _id
 				rootState.currentDoc = res.data
 				// decode from base64 + replace the encoded data
 				rootState.currentDoc.description = window.atob(res.data.description)
