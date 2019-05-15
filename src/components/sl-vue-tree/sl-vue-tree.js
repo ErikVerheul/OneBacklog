@@ -95,7 +95,8 @@ export default {
 
 		nodes() {
 			if (this.isRoot) {
-				const nodeModels = this.copy(this.currentValue);
+				//				const nodeModels = this.copy(this.currentValue); try without copy
+				const nodeModels = this.currentValue
 				return this.getNodes(nodeModels);
 			}
 
@@ -115,10 +116,6 @@ export default {
 
 		isRoot() {
 			return !this.level
-		},
-
-		selectionSize() {
-			return this.getSelected().length;
 		},
 
 		dragSize() {
@@ -259,7 +256,8 @@ export default {
 
 			const selectedNode = this.getNode(path);
 			if (!selectedNode) return null;
-			const newNodes = this.copy(this.currentValue);
+			//			const newNodes = this.copy(this.currentValue); try without copy
+			const newNodes = this.currentValue
 			const shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && this.lastSelectedNode;
 			const selectedNodes = [];
 			let shiftSelectionStarted = false;
@@ -575,7 +573,8 @@ export default {
 				}
 			}
 
-			const newNodes = this.copy(this.currentValue)
+			//			const newNodes = this.copy(this.currentValue) try without copy
+			const newNodes = this.currentValue
 			const nodeModelsSubjectToDelete = []
 			const nodeModelsSubjectToInsert = []
 			// find dragging model to delete and to insert
@@ -606,7 +605,8 @@ export default {
 			const nodeModelsToInsert = [];
 			// set dragging models to insert
 			for (let draggingNodeModel of nodeModelsSubjectToInsert) {
-				nodeModelsToInsert.push(this.copy(draggingNodeModel))
+				//				nodeModelsToInsert.push(this.copy(draggingNodeModel)) try without copy
+				nodeModelsToInsert.push(draggingNodeModel)
 			}
 
 			// insert dragging nodes to the new place
@@ -665,7 +665,8 @@ export default {
 			}
 
 			const pathStr = JSON.stringify(path);
-			const newNodes = this.copy(this.currentValue);
+			//			const newNodes = this.copy(this.currentValue); try without copy
+			const newNodes = this.currentValue;
 			this.traverse((node, nodeModel) => {
 				if (node.pathStr !== pathStr) return;
 				Object.assign(nodeModel, patch);
@@ -676,20 +677,24 @@ export default {
 
 		getSelected() {
 			const selectedNodes = [];
-			this.traverse((node) => {
-				if (node.isSelected) selectedNodes.push(node);
+			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+				if (nodeModel.isSelected) {
+					selectedNodes.push(this.getNode(nodePath, nodeModel, nodeModels))
+				}
 			}, undefined, undefined, 'sl-vue-tree.js:getSelected');
 			return selectedNodes;
 		},
 
 		getDraggable() {
 			const selectedNodes = [];
-			this.traverse((node) => {
-				if (node.isSelected && node.isDraggable) selectedNodes.push(node);
+			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+				const isDraggable = nodeModel.isDraggable == void 0 ? true : !!nodeModel.isDraggable
+				if (nodeModel.isSelected && isDraggable) {
+					selectedNodes.push(this.getNode(nodePath, nodeModel, nodeModels))
+				}
 			}, undefined, undefined, 'sl-vue-tree.js:getDraggable');
 			return selectedNodes;
 		},
-
 
 		traverse(
 			cb,
@@ -726,6 +731,36 @@ export default {
 			return !shouldStop ? nodes : false;
 		},
 
+		/* A faster version of the original */
+		traverseLight(
+			cb,
+			nodeModels = null,
+			parentPath = [],
+			caller = '?'
+		) {
+			if (!nodeModels) {
+				nodeModels = this.currentValue;
+				//eslint-disable-next-line no-console
+				console.log('TRAVERSELIGHT is called by ' + caller)
+			}
+
+			let shouldStop = false;
+
+			for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
+				const nodeModel = nodeModels[nodeInd];
+				const itemPath = parentPath.concat(nodeInd);
+				//				console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
+				shouldStop = cb(itemPath, nodeModel, nodeModels) === false;
+
+				if (shouldStop) break;
+
+				if (nodeModel.children) {
+					shouldStop = this.traverseLight(cb, nodeModel.children, itemPath) === false;
+					if (shouldStop) break;
+				}
+			}
+		},
+
 		traverseModels(cb, nodeModels) {
 			let i = nodeModels.length;
 			while (i--) {
@@ -738,7 +773,8 @@ export default {
 
 		remove(paths) {
 			const pathsStr = paths.map(path => JSON.stringify(path));
-			const newNodes = this.copy(this.currentValue);
+			//			const newNodes = this.copy(this.currentValue); try without copy
+			const newNodes = this.currentValue
 			this.traverse((node, nodeModel) => {
 				for (const pathStr of pathsStr) {
 					if (node.pathStr === pathStr) nodeModel._markToDelete = true;
@@ -772,7 +808,8 @@ export default {
 
 		insert(cursorPosition, nodeModel) {
 			const nodeModels = Array.isArray(nodeModel) ? nodeModel : [nodeModel];
-			const newNodes = this.copy(this.currentValue);
+			//			const newNodes = this.copy(this.currentValue); try without copy
+			const newNodes = this.currentValue
 
 			this.insertModels(cursorPosition, nodeModels, newNodes);
 
