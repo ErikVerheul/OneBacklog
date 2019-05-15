@@ -883,7 +883,7 @@
 						disabled: false
 					}
 				];
-				var clickedLevel = PRODUCTLEVEL
+				var clickedLevel = this.firstNodeSelected.level
 				options[0].text = this.getLevelText(clickedLevel)
 				options[1].text = this.getLevelText(clickedLevel + 1)
 				// Disable the option to create a node below a PBI
