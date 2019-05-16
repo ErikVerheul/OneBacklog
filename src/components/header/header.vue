@@ -8,14 +8,12 @@
 				<b-navbar-nav>
 					<b-nav-item to="../../userguide">User guide</b-nav-item>
 				</b-navbar-nav>
-
-				<b-nav-form>
-					<b-form-input id="searchInput" v-model="keyword" size="sm" class="mr-sm-2" placeholder="Enter a key word" />
-					<b-button id="searchBtn" type="button" @click="showSelection()" size="sm" class="my-2 my-sm-0">Search</b-button>
-				</b-nav-form>
-
 				<!-- Right aligned nav items -->
 				<b-navbar-nav class="ml-auto">
+					<b-nav-form>
+						<b-form-input id="searchInput" v-model="keyword" size="sm" class="mr-sm-2" placeholder="Enter a key word" />
+						<b-button id="searchBtn" type="button" @click="showSelection()" size="sm" class="my-2 my-sm-0">Search</b-button>
+					</b-nav-form>
 					<b-nav-item-dropdown text="Select your view" right>
 						<b-dropdown-item to="../../product">Products</b-dropdown-item>
 						<b-dropdown-item to="../../reqsarea">Requirement areas</b-dropdown-item>
