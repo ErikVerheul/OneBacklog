@@ -120,7 +120,7 @@ const mutations = {
 							subtype: batch[i].doc.subtype
 						}
 					}
-					if (parentNodes[parentId] != null) {
+					if (parentNodes[parentId] !== undefined) {
 						state.itemsCount++
 						let parentNode = parentNodes[parentId]
 						parentNode.children.push(newNode)
@@ -231,7 +231,7 @@ const actions = {
 				state.myProductsRoles = res.data.productsRoles
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
-				if (res.data.teams != null) {
+				if (res.data.teams !== undefined) {
 					state.myTeams = res.data.teams
 					state.myCurrentTeam = res.data.teams[res.data.currentTeamsIdx]
 				} else {

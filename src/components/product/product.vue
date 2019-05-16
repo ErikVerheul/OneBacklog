@@ -5,10 +5,10 @@
 				<h3 v-if="getCurrentItemLevel <= epicLevel">{{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
 					<input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
 				</h3>
-				<h3 v-if="getCurrentItemLevel == featureLevel || (getCurrentItemLevel == pbiLevel && getCurrentItemSubType != 1)">Story points:
+				<h3 v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && getCurrentItemSubType !== 1)">Story points:
 					<input type="text" size="3" maxlength="3" id="storyPointsId" :value="getCurrentItemSpSize" @blur="updateStoryPoints()" />
 				</h3>
-				<h3 v-if="getCurrentItemLevel == pbiLevel && getCurrentItemSubType == 1">Person hours:
+				<h3 v-if="getCurrentItemLevel === pbiLevel && getCurrentItemSubType === 1">Person hours:
 					<input type="text" size="3" maxlength="3" id="personHoursId" :value="getCurrentPersonHours" @blur="updatePersonHours()" />
 				</h3>
 			</span>

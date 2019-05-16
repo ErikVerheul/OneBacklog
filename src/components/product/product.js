@@ -205,7 +205,7 @@
 		watch: {
 			'selectedPbiType': function (val) {
 				// prevent looping
-				if (val != this.getCurrentItemSubType) {
+				if (val !== this.getCurrentItemSubType) {
 					if (this.canWriteLevels[this.getCurrentItemLevel]) {
 						this.firstNodeSelected.data.subtype = val
 						const payload = {
@@ -510,7 +510,7 @@
 				let parentId = nodes[0].data.parentId
 				if (nodes.length > 0) {
 					for (let i = 1; i < nodes.length; i++) {
-						if (nodes[i].data.parentId != parentId) {
+						if (nodes[i].data.parentId !== parentId) {
 							return false
 						}
 					}
@@ -529,7 +529,7 @@
 				numberOfNodesSelected = selNodes.length
 				this.firstNodeSelected = selNodes[0]
 				// set the current productId so that canWriteLevels is actual
-				if (this.$store.state.load.currentProductId != this.firstNodeSelected.data.productId) {
+				if (this.$store.state.load.currentProductId !== this.firstNodeSelected.data.productId) {
 					this.$store.state.load.currentProductId = this.firstNodeSelected.data.productId
 					// also update the title
 					this.$store.dispatch('readProductTitle', this.firstNodeSelected.data.productId)
@@ -664,12 +664,12 @@
 			assignNewPrios(nodes, predecessorNode, successorNode) {
 				let predecessorPrio
 				let successorPrio
-				if (predecessorNode != null) {
+				if (predecessorNode !== null) {
 					predecessorPrio = predecessorNode.data.priority
 				} else {
 					predecessorPrio = Number.MAX_SAFE_INTEGER
 				}
-				if (successorNode != null) {
+				if (successorNode !== null) {
 					successorPrio = successorNode.data.priority
 				} else {
 					successorPrio = Number.MIN_SAFE_INTEGER
@@ -717,7 +717,7 @@
 					successorNode = null
 				}
 				// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
-				if (localParentId != 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
+				if (localParentId !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
 					let newData = Object.assign(nodes[i].data)
@@ -788,7 +788,7 @@
 				} else {
 					evt = `${this.getLevelText(clickedLevel)} '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
 				}
-				if (levelChange != 0) evt += ' as ' + this.getLevelText(dropLevel)
+				if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
 				this.showLastEvent(evt, INFO)
 			},
 			showRemoveModal(node, event) {

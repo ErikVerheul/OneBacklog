@@ -76,7 +76,7 @@
 		mounted() {
 			// fire the search button on pressing enter in the one and only input field (instead of submitting the form)
 			document.getElementById('searchInput').addEventListener('keypress', function(event) {
-				if (event.keyCode == 13) {
+				if (event.keyCode === 13) {
 					event.preventDefault()
 					document.getElementById("searchBtn").click()
 				}

@@ -99,13 +99,13 @@ const actions = {
 						// changes not made by the user him/her self and ment for distribution (if not filtered out by the _design filter)
 						if (doc.type === 'backlogItem' &&
 							doc.history[0].distributeEvent == true &&
-							doc.history[0].sessionId != rootState.sessionId &&
+							doc.history[0].sessionId !== rootState.sessionId &&
 							rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
 							// eslint-disable-next-line no-console
 							if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed.')
 							dispatch('doBlinck')
 							let node = getNodeById(doc._id)
-							if (node != null) {
+							if (node !== null) {
 								// the node exists (is not new)
 								if (!doc.delmark) {
 									// update the parent as it can be changed

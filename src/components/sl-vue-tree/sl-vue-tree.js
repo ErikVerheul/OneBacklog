@@ -152,15 +152,15 @@ export default {
 			siblings = siblings || this.getNodeSiblings(this.currentValue, path);
 			nodeModel = nodeModel || (siblings && siblings[ind]) || null;
 
-			if (isVisible == null) {
+			if (isVisible === null) {
 				isVisible = this.isVisible(path);
 			}
 
 			if (!nodeModel) return null;
 
-			const isExpanded = nodeModel.isExpanded == void 0 ? true : !!nodeModel.isExpanded;
-			const isDraggable = nodeModel.isDraggable == void 0 ? true : !!nodeModel.isDraggable;
-			const isSelectable = nodeModel.isSelectable == void 0 ? true : !!nodeModel.isSelectable;
+			const isExpanded = nodeModel.isExpanded === undefined ? true : !!nodeModel.isExpanded;
+			const isDraggable = nodeModel.isDraggable === undefined ? true : !!nodeModel.isDraggable;
+			const isSelectable = nodeModel.isSelectable === undefined ? true : !!nodeModel.isSelectable;
 
 			const node = {
 				// define the all ISlTreeNodeModel props
@@ -179,7 +179,7 @@ export default {
 				pathStr: JSON.stringify(path),
 				level: path.length,
 				ind,
-				isFirstChild: ind == 0,
+				isFirstChild: ind === 0,
 				isLastChild: ind === siblings.length - 1
 			};
 			return node;
@@ -478,7 +478,7 @@ export default {
 		/**
 		 * returns 1 if path1 > path2
 		 * returns -1 if path1 < path2
-		 * returns 0 if path1 == path2
+		 * returns 0 if path1 === path2
 		 *
 		 * examples
 		 *
@@ -491,11 +491,11 @@ export default {
 		 */
 		comparePaths(path1, path2) {
 			for (let i = 0; i < path1.length; i++) {
-				if (path2[i] == void 0) return 1;
+				if (path2[i] === undefined) return 1;
 				if (path1[i] > path2[i]) return 1;
 				if (path1[i] < path2[i]) return -1;
 			}
-			return path2[path1.length] == void 0 ? 0 : -1;
+			return path2[path1.length] === undefined ? 0 : -1;
 		},
 
 		onNodeMousedownHandler(event, node) {
@@ -557,7 +557,7 @@ export default {
 			const draggingNodes = this.getDraggable();
 			// check that nodes is possible to insert
 			for (let draggingNode of draggingNodes) {
-				if (draggingNode.pathStr == this.cursorPosition.node.pathStr) {
+				if (draggingNode.pathStr === this.cursorPosition.node.pathStr) {
 					this.stopDrag();
 					return;
 				}
@@ -703,7 +703,7 @@ export default {
 			parentPath = [],
 			caller = '?'
 		) {
-			if (caller != '?') {
+			if (caller !== '?') {
 				//eslint-disable-next-line no-console
 				console.log('TRAVERSELIGHT is called by ' + caller)
 			}
@@ -741,7 +741,7 @@ export default {
 			parentPath = [],
 			caller = '?'
 		) {
-			if (caller != '?') {
+			if (caller !== '?') {
 				//eslint-disable-next-line no-console
 				console.log('TRAVERSELIGHT is called by ' + caller)
 			}
