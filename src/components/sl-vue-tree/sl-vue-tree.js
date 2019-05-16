@@ -703,10 +703,12 @@ export default {
 			parentPath = [],
 			caller = '?'
 		) {
+			if (caller != '?') {
+				//eslint-disable-next-line no-console
+				console.log('TRAVERSELIGHT is called by ' + caller)
+			}
 			if (!nodeModels) {
 				nodeModels = this.currentValue;
-				//eslint-disable-next-line no-console
-				console.log('TRAVERSE is called by ' + caller)
 			}
 
 			let shouldStop = false;
@@ -739,10 +741,12 @@ export default {
 			parentPath = [],
 			caller = '?'
 		) {
-			if (!nodeModels) {
-				nodeModels = this.currentValue;
+			if (caller != '?') {
 				//eslint-disable-next-line no-console
 				console.log('TRAVERSELIGHT is called by ' + caller)
+			}
+			if (!nodeModels) {
+				nodeModels = this.currentValue;
 			}
 
 			let shouldStop = false;
@@ -778,7 +782,7 @@ export default {
 			const newNodes = this.currentValue
 			this.traverseLight((nodePath, nodeModel) => {
 				for (const pathStr of pathsStr) {
-					if (nodePath === pathStr) nodeModel._markToDelete = true;
+					if (JSON.stringify(nodePath) === pathStr) nodeModel._markToDelete = true;
 				}
 			}, newNodes, undefined, 'sl-vue-tree.js:remove1');
 
