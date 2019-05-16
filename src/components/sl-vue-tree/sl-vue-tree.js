@@ -95,7 +95,6 @@ export default {
 
 		nodes() {
 			if (this.isRoot) {
-				//				const nodeModels = this.copy(this.currentValue); try without copy
 				const nodeModels = this.currentValue
 				return this.getNodes(nodeModels);
 			}
@@ -256,7 +255,6 @@ export default {
 
 			const selectedNode = this.getNode(path);
 			if (!selectedNode) return null;
-			//			const newNodes = this.copy(this.currentValue); try without copy
 			const newNodes = this.currentValue
 			const shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && this.lastSelectedNode;
 			const selectedNodes = [];
@@ -574,7 +572,6 @@ export default {
 				}
 			}
 
-			//			const newNodes = this.copy(this.currentValue) try without copy
 			const newNodes = this.currentValue
 			const nodeModelsSubjectToDelete = []
 			const nodeModelsSubjectToInsert = []
@@ -606,7 +603,6 @@ export default {
 			const nodeModelsToInsert = [];
 			// set dragging models to insert
 			for (let draggingNodeModel of nodeModelsSubjectToInsert) {
-				//				nodeModelsToInsert.push(this.copy(draggingNodeModel)) try without copy
 				nodeModelsToInsert.push(draggingNodeModel)
 			}
 
@@ -666,7 +662,6 @@ export default {
 			}
 
 			const pathStr = JSON.stringify(path);
-			//			const newNodes = this.copy(this.currentValue); try without copy
 			const newNodes = this.currentValue;
 			this.traverseLight((nodePath, nodeModel) => {
 				if (JSON.stringify(nodePath) !== pathStr) return;
@@ -778,7 +773,6 @@ export default {
 
 		remove(paths) {
 			const pathsStr = paths.map(path => JSON.stringify(path));
-			//			const newNodes = this.copy(this.currentValue); try without copy
 			const newNodes = this.currentValue
 			this.traverseLight((nodePath, nodeModel) => {
 				for (const pathStr of pathsStr) {
@@ -812,7 +806,6 @@ export default {
 
 		insert(cursorPosition, nodeModel) {
 			const nodeModels = Array.isArray(nodeModel) ? nodeModel : [nodeModel];
-			//			const newNodes = this.copy(this.currentValue); try without copy
 			const newNodes = this.currentValue
 
 			this.insertModels(cursorPosition, nodeModels, newNodes);
