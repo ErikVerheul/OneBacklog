@@ -17,9 +17,9 @@ const actions = {
 		 */
 		function getNodeById(id) {
 			let resultNode = null
-			window.slVueTree.traverse((node) => {
-				if (node.data._id === id) {
-					resultNode = node
+			window.slVueTree.traverseLight((nodePath, nodeModel, nodeModels) => {
+				if (nodeModel.data._id === id) {
+					resultNode = window.slVueTree.getNode(nodePath, nodeModel, nodeModels)
 					return false
 				}
 			}, undefined, undefined, 'sync.js:getNodeById')
@@ -31,7 +31,7 @@ const actions = {
 		 * - the index in the array of siblings the node should have based on its priority
 		 * Note: when the node travels to a new parent that parent can have no children
 		 */
-		function getLocationInfo(node, newPrio, parentId) {
+		function getLocationInfo(newPrio, parentId) {
 			let parentNode = getNodeById(parentId)
 			let newPath = []
 			if (parentNode.children.length > 0) {
@@ -109,7 +109,7 @@ const actions = {
 								// the node exists (is not new)
 								if (!doc.delmark) {
 									// update the parent as it can be changed
-									let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
+									let locationInfo = getLocationInfo(doc.priority, doc.parentId)
 									// update priority, parent and product
 									node.data.priority = doc.priority
 									node.data.parentId = doc.parentId
@@ -174,7 +174,7 @@ const actions = {
 										"distributeEvent": true
 									}
 								}
-								let locationInfo = getLocationInfo(node, doc.priority, doc.parentId)
+								let locationInfo = getLocationInfo(doc.priority, doc.parentId)
 								// update priority
 								node.data.priority = doc.priority
 								node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
