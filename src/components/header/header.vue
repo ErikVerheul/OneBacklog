@@ -102,10 +102,10 @@
 			showSelection() {
 
 				function expandNodes(id) {
-					window.slVueTree.traverse((node, nodeModel) => {
-						if (node.data._id === id) {
+					window.slVueTree.traverseLight((itemPath, nodeModel) => {
+						if (nodeModel.data._id === id) {
 							Vue.set(nodeModel, 'isExpanded', true)
-							let parentId = node.data.parentId
+							let parentId = nodeModel.data.parentId
 							if (parentId !== 'root') {
 								// recurse
 								expandNodes(parentId)
@@ -116,13 +116,13 @@
 				}
 
 				// unselect all
-				window.slVueTree.traverse((node, nodeModel) => {
+				window.slVueTree.traverseLight((itemPath, nodeModel) => {
 					Vue.set(nodeModel, 'isSelected', false)
 				}, undefined, undefined, 'showSelection:unselect-all')
 
 				let count = 0
-				window.slVueTree.traverse((node, nodeModel) => {
-					if (nodeModel.data.productId === this.$store.state.load.currentProductId && node.title.toLowerCase().includes(this.keyword.toLowerCase())) {
+				window.slVueTree.traverseLight((itemPath, nodeModel) => {
+					if (nodeModel.data.productId === this.$store.state.load.currentProductId && nodeModel.title.toLowerCase().includes(this.keyword.toLowerCase())) {
 						expandNodes(nodeModel.data.parentId)
 						Vue.set(nodeModel, 'isSelected', true)
 						count++
