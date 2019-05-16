@@ -485,7 +485,7 @@ const actions = {
 				// encode to base64
 				const newEncodedDescription = window.btoa(payload.newDescription)
 				// update only when changed
-				if (newEncodedDescription != res.data.description) {
+				if (newEncodedDescription !== res.data.description) {
 					const newHist = {
 						"descriptionEvent": [res.data.description, newEncodedDescription],
 						"by": rootState.user,
@@ -525,7 +525,7 @@ const actions = {
 				// encode to base64
 				const newEncodedAcceptance = window.btoa(payload.newAcceptance)
 				// update only when changed
-				if (newEncodedAcceptance != res.data.acceptanceCriteria) {
+				if (newEncodedAcceptance !== res.data.acceptanceCriteria) {
 					const newHist = {
 						"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
 						"by": rootState.user,
