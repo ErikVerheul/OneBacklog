@@ -442,9 +442,10 @@ export default {
 
 			let resultNode = null;
 
-			this.traverse((node) => {
-				if (this.comparePaths(node.path, path) < 1) return;
+			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+				if (this.comparePaths(nodePath, path) < 1) return;
 
+				let node = this.getNode(nodePath, nodeModel, nodeModels)
 				if (!filter || filter(node)) {
 					resultNode = node;
 					return false; // stop traverse
@@ -458,11 +459,11 @@ export default {
 		getPrevNode(path, filter) {
 			let prevNodes = [];
 
-			this.traverse((node) => {
-				if (this.comparePaths(node.path, path) >= 0) {
+			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+				if (this.comparePaths(nodePath, path) >= 0) {
 					return false;
 				}
-				prevNodes.push(node);
+				prevNodes.push(this.getNode(nodePath, nodeModel, nodeModels));
 			}, undefined, undefined, 'sl-vue-tree.js:getPrevNode');
 
 			let i = prevNodes.length;
@@ -667,8 +668,8 @@ export default {
 			const pathStr = JSON.stringify(path);
 			//			const newNodes = this.copy(this.currentValue); try without copy
 			const newNodes = this.currentValue;
-			this.traverse((node, nodeModel) => {
-				if (node.pathStr !== pathStr) return;
+			this.traverseLight((nodePath, nodeModel) => {
+				if (JSON.stringify(nodePath) !== pathStr) return;
 				Object.assign(nodeModel, patch);
 			}, newNodes, undefined, 'sl-vue-tree.js:updateNode');
 
@@ -775,13 +776,12 @@ export default {
 			const pathsStr = paths.map(path => JSON.stringify(path));
 			//			const newNodes = this.copy(this.currentValue); try without copy
 			const newNodes = this.currentValue
-			this.traverse((node, nodeModel) => {
+			this.traverseLight((nodePath, nodeModel) => {
 				for (const pathStr of pathsStr) {
-					if (node.pathStr === pathStr) nodeModel._markToDelete = true;
+					if (nodePath === pathStr) nodeModel._markToDelete = true;
 				}
 			}, newNodes, undefined, 'sl-vue-tree.js:remove1');
-			//eslint-disable-next-line no-console
-			console.log('TRAVERSEMODELS is called by remove(paths)')
+
 			this.traverseModels((nodeModel, siblings, ind) => {
 				if (!nodeModel._markToDelete) return;
 				siblings.splice(ind, 1);
