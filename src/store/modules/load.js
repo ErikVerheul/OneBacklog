@@ -116,6 +116,7 @@ const mutations = {
 							productId: batch[i].doc.productId,
 							parentId: parentId,
 							state: batch[i].doc.state,
+							level: batch[i].doc.level,
 							subtype: batch[i].doc.subtype
 						}
 					}
@@ -158,6 +159,7 @@ const actions = {
 							"_id": "root",
 							"productId": "root",
 							"parentId": null,
+							"level": 1,
 							"priority": null
 						}
 						},

@@ -17,6 +17,7 @@
 	const WARNING = 1
 	const ERROR = 2
 	const DEBUG = 3
+	const DATABASELEVEL = 1
 	const PRODUCTLEVEL = 2
 	const EPICLEVEL = 3
 	const FEATURELEVEL = 4
@@ -29,6 +30,7 @@
 	export default {
 		data() {
 			return {
+				databaseLevel: DATABASELEVEL,
 				productLevel: PRODUCTLEVEL,
 				epicLevel: EPICLEVEL,
 				featureLevel: FEATURELEVEL,
@@ -685,7 +687,7 @@
 			/*
 			 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
 			 * Get the productId of the node(s) in case they are dopped on another product. Determine the parentId.
-			 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children
+			 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children. Update the level of the item in the tree node.
 			 * Update the values in the tree
 			 * precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level)
 			 */
@@ -721,6 +723,7 @@
 					let newData = Object.assign(nodes[i].data)
 					newData.productId = localProductId
 					newData.parentId = localParentId
+					newData.level = level
 					this.$refs.slVueTree.updateNode(nodes[i].path, {
 						isLeaf: (level < PBILEVEL) ? false : true,
 						data: newData
@@ -927,6 +930,7 @@
 						productId: null,
 						parentId: null,
 						state: 0,
+						level: this.$store.state.currentDoc.level,
 						subtype: 0,
 						sessionId: this.$store.state.sessionId,
 						distributeEvent: true

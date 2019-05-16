@@ -47,7 +47,19 @@
 					<sl-vue-tree :value="$store.state.load.treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelectedEvent" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 						<template slot="title" slot-scope="{ node }">
 							<span class="item-icon">
-								<i v-if="node.isLeaf && node.data.subtype == 0">
+								<i class="colorSeaBlue" v-if="node.data.level == databaseLevel">
+									<font-awesome-icon icon="folder" />
+								</i>
+								<i class="colorBlue" v-if="node.data.level == productLevel">
+									<font-awesome-icon icon="folder" />
+								</i>
+								<i class="colorGreen" v-if="node.data.level == epicLevel">
+									<font-awesome-icon icon="folder" />
+								</i>
+								<i class="colorOrange" v-if="node.data.level == featureLevel">
+									<font-awesome-icon icon="folder" />
+								</i>
+								<i class="colorYellow" v-if="node.isLeaf && node.data.subtype == 0">
 									<font-awesome-icon icon="file" />
 								</i>
 								<i v-if="node.isLeaf && node.data.subtype == 1">
@@ -56,11 +68,9 @@
 								<i class="colorRed" v-if="node.isLeaf && node.data.subtype == 2">
 									<font-awesome-icon icon="bug" />
 								</i>
-								<i v-if="!node.isLeaf">
-									<font-awesome-icon icon="folder" />
-								</i>
 							</span>
-							{{ node.title }} <b-badge variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
+							{{ node.title }}
+							<b-badge variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
 						</template>
 
 						<template slot="toggle" slot-scope="{ node }">
@@ -233,15 +243,17 @@
 * isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
 * children: [],
 * isExpanded: true || false, // initially the tree is expanded up to the feature level
+* isSelected: true || false
 * isDraggable: true || false, // depending on the user roles
 * isSelectable: true,
-* isSelected: true || false
+*
 * data: {
 * ...._id: doc._id,
 * ....priority: doc.priority,
 * ....productId: doc.productId,
 * ....parentId: doc.parentId,
 * ....state: doc.state,
+* ....level: doc.level,
 * ....subtype: doc.subtype,
 * ....sessionId: rootState.sessionId,
 * ....distributeEvent: true | false
@@ -251,20 +263,46 @@
 <script src="./product.js"></script>
 
 <style>
-	<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
-	#dropdownMenuButton>button {
-		width: 100%;
+	<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue
+	-->
+	#dropdownMenuButton>button
+
+	{
+
+	width:
+
+	100%;
+
 	}
 
-	#dropdownMenuButton__BV_toggle_ {
-		width: 100%;
+	#dropdownMenuButton__BV_toggle_
+
+	{
+
+	width:
+
+	100%;
+
 	}
 
-	.btn.btn-secondary.dropdown-toggle {
-		background-color: #408FAE;
-		color: white;
-		border-radius: 0.25rem;
+	.btn.btn-secondary.dropdown-toggle
+
+	{
+
+	background-color:
+
+	#408FAE;
+
+	color:
+
+	white;
+
+	border-radius:
+
+	0.25rem;
+
 	}
+
 
 </style>
 
@@ -397,6 +435,26 @@
 
 	.colorRed {
 		color: red;
+	}
+
+	.colorSeaBlue {
+		color: #408FAE;
+	}
+
+	.colorBlue {
+		color: #0099ff;
+	}
+
+	.colorGreen {
+		color: #00ffcc;
+	}
+
+	.colorOrange {
+		color: #ff9900;
+	}
+
+	.colorYellow {
+		color: #ffff00;
 	}
 
 	.btn-seablue {
