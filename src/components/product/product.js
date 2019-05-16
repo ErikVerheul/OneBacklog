@@ -915,7 +915,7 @@
 			 * Prepare a new node for insertion
 			 */
 			prepareInsert() {
-				// prepare the new node for insertion later
+				// prepare the new node of type ISlTreeNodeModel for insertion later
 				newNode = {
 					title: 'is calculated in this method',
 					isLeaf: 'is calculated in this method',
