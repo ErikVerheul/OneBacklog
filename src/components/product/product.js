@@ -82,7 +82,7 @@
 			this.firstNodeSelected = this.$refs.slVueTree.getSelected('product.js:mounted')[0]
 			this.nodeIsSelected = true
 			//eslint-disable-next-line no-console
-			if (this.$store.state.debug) console.log('this.firstNodeSelected is set to product = ' + this.firstNodeSelected.title)
+			if (this.$store.state.debug) console.log('product.js:mounted: this.firstNodeSelected is set to product = ' + this.firstNodeSelected.title)
 		},
 
 		computed: {
