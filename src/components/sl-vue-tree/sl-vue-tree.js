@@ -171,7 +171,7 @@ export default {
 				isVisible,
 				isDraggable,
 				isSelectable,
-				data: nodeModel.data !== void 0 ? nodeModel.data : {},
+				data: nodeModel.data !== undefined ? nodeModel.data : {},
 
 				// define the all ISlTreeNode computed props
 				path: path,
@@ -191,7 +191,7 @@ export default {
 			for (let i = 0; i < path.length - 1; i++) {
 				let ind = path[i];
 				let nodeModel = nodeModels[ind];
-				let isExpanded = nodeModel.isExpanded == void 0 ? true : !!nodeModel.isExpanded;
+				let isExpanded = nodeModel.isExpanded === undefined ? true : !!nodeModel.isExpanded;
 				if (!isExpanded) return false;
 				nodeModels = nodeModel.children;
 			}
@@ -323,12 +323,12 @@ export default {
 			if (isDragStarted && !destNode.isSelected) {
 				this.select(destNode.path, false, event);
 			}
-
-			const draggableNodes = this.getDraggable();
-			if (!draggableNodes.length) {
-				this.preventDrag = true;
-				return;
-			}
+			// This a very expensive check!
+//			const draggableNodes = this.getDraggable();
+//			if (!draggableNodes.length) {
+//				this.preventDrag = true;
+//				return;
+//			}
 
 			this.isDragging = isDragging;
 
@@ -684,7 +684,7 @@ export default {
 		getDraggable() {
 			const selectedNodes = [];
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
-				const isDraggable = nodeModel.isDraggable == void 0 ? true : !!nodeModel.isDraggable
+				const isDraggable = nodeModel.isDraggable === undefined ? true : !!nodeModel.isDraggable
 				if (nodeModel.isSelected && isDraggable) {
 					selectedNodes.push(this.getNode(nodePath, nodeModel, nodeModels))
 				}
