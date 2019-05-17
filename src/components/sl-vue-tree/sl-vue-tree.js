@@ -570,6 +570,12 @@ export default {
 					this.stopDrag()
 					return
 				}
+
+				// prevent placement on wrong level when the user selects the parent as target node to insert after
+				if (this.cursorPosition.placement === 'after' && this.cursorPosition.node.level < draggingNode.level) {
+					this.stopDrag()
+					return
+				}
 			}
 
 			const newNodes = this.currentValue
@@ -610,8 +616,6 @@ export default {
 			this.insertModels(this.cursorPosition, nodeModelsToInsert, newNodes);
 
 			// delete dragging node from the old place
-			//eslint-disable-next-line no-console
-			console.log('TRAVERSEMODELS is called by delete dragging node from the old place')
 			this.traverseModels((nodeModel, siblings, ind) => {
 				if (!nodeModel._markToDelete) return;
 				siblings.splice(ind, 1);
@@ -675,7 +679,8 @@ export default {
 			const selectedNodes = [];
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
 				if (nodeModel.isSelected) {
-					selectedNodes.push(this.getNode(nodePath, nodeModel, nodeModels))
+					let node = this.getNode(nodePath, nodeModel, nodeModels)
+					selectedNodes.push(node)
 				}
 			}, undefined, undefined, 'sl-vue-tree.js:getSelected');
 			return selectedNodes;
@@ -700,7 +705,7 @@ export default {
 		) {
 			if (caller !== '?') {
 				//eslint-disable-next-line no-console
-				console.log('TRAVERSELIGHT is called by ' + caller)
+				console.log('TRAVERSE is called by ' + caller)
 			}
 			if (!nodeModels) {
 				nodeModels = this.currentValue;
