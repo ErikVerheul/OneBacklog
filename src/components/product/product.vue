@@ -47,16 +47,16 @@
 					<sl-vue-tree :value="$store.state.load.treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelectedEvent" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
 						<template slot="title" slot-scope="{ node }">
 							<span class="item-icon">
-								<i class="colorSeaBlue" v-if="node.data.level == databaseLevel">
+								<i class="colorSeaBlue" v-if="node.level == databaseLevel">
 									<font-awesome-icon icon="folder" />
 								</i>
-								<i class="colorBlue" v-if="node.data.level == productLevel">
+								<i class="colorBlue" v-if="node.level == productLevel">
 									<font-awesome-icon icon="folder" />
 								</i>
-								<i class="colorGreen" v-if="node.data.level == epicLevel">
+								<i class="colorGreen" v-if="node.level == epicLevel">
 									<font-awesome-icon icon="folder" />
 								</i>
-								<i class="colorOrange" v-if="node.data.level == featureLevel">
+								<i class="colorOrange" v-if="node.level == featureLevel">
 									<font-awesome-icon icon="folder" />
 								</i>
 								<i class="colorYellow" v-if="node.isLeaf && node.data.subtype == 0">
@@ -253,7 +253,6 @@
 * ....productId: doc.productId,
 * ....parentId: doc.parentId,
 * ....state: doc.state,
-* ....level: doc.level,
 * ....subtype: doc.subtype,
 * ....sessionId: rootState.sessionId,
 * ....distributeEvent: true | false
