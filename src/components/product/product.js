@@ -723,20 +723,19 @@
 					let newData = Object.assign(nodes[i].data)
 					newData.productId = localProductId
 					newData.parentId = localParentId
-					newData.level = level
 					this.$refs.slVueTree.updateNode(nodes[i].path, {
 						isLeaf: (level < PBILEVEL) ? false : true,
 						data: newData
 					})
 				}
-				//								for (let prop in firstNode) {
-				//									//eslint-disable-next-line no-console
-				//									console.log('updateTree@ready -> ' + prop, firstNode[prop]);
-				//								}
-				//								for (let prop in firstNode.data) {
-				//									//eslint-disable-next-line no-console
-				//									console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
-				//								}
+//												for (let prop in firstNode) {
+//													//eslint-disable-next-line no-console
+//													console.log('updateTree@ready -> ' + prop, firstNode[prop]);
+//												}
+//												for (let prop in firstNode.data) {
+//													//eslint-disable-next-line no-console
+//													console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
+//												}
 			},
 			/*
 			 * Update the tree when one or more nodes are dropped on another location
