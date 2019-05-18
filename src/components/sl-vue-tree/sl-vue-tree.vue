@@ -3,12 +3,11 @@
 	<div class="sl-vue-tree" :class="{'sl-vue-tree-root': isRoot }" @mousemove="onMousemoveHandler" @mouseleave="onMouseleaveHandler" @dragend="onDragendHandler(null, $event)">
 		<div ref="nodes" class="sl-vue-tree-nodes-list">
 			<div class="sl-vue-tree-node" v-for="(node, nodeInd) in nodes" :class="{'sl-vue-tree-selected': node.isSelected}" :key="node.pathStr">
-				<div class="sl-vue-tree-cursor sl-vue-tree-cursor_before" @dragover.prevent :style="{ visibility:
+				<div class="sl-vue-tree-cursor sl-vue-tree-cursor_before" @dragover.prevent :style="{
+						visibility:
             cursorPosition &&
             cursorPosition.node.pathStr === node.pathStr &&
-            cursorPosition.placement === 'before' ?
-             'visible' :
-             'hidden'
+            cursorPosition.placement === 'before' ? 'visible' : 'hidden'
            }">
 					<!-- suggested place for node insertion  -->
 				</div>
@@ -86,11 +85,9 @@
 
 				<div class="sl-vue-tree-cursor sl-vue-tree-cursor_after" @dragover.prevent :style="{
               visibility:
-               cursorPosition &&
+               cursorPosition && isDragging &&
                cursorPosition.node.pathStr === node.pathStr &&
-               cursorPosition.placement === 'after' ?
-               'visible' :
-               'hidden'
+               cursorPosition.placement === 'after' ? 'visible' : 'hidden'
              }">
 					<!-- suggested place for node insertion  -->
 				</div>
