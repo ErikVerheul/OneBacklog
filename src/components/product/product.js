@@ -222,8 +222,14 @@
 				if (val === true) {
 					this.startEditor = false
 					if (this.canCreateComments) {
-						if (this.selectedForView === 'comments') this.$refs.commentsEditorRef.show()
-						if (this.selectedForView === 'history') this.$refs.historyEditorRef.show()
+						if (this.selectedForView === 'comments') {
+							this.newComment = ''
+							this.$refs.commentsEditorRef.show()
+						}
+						if (this.selectedForView === 'history') {
+							this.newHistory = ''
+							this.$refs.historyEditorRef.show()
+						}
 					} else {
 						this.showLastEvent("Sorry, your assigned role(s) disallow you to create comments", WARNING)
 					}
@@ -265,16 +271,14 @@
 				this.filterForHistory = this.filterForHistoryPrep
 			},
 			insertComment() {
-				const payload = {
+				this.$store.dispatch('addComment', {
 					'comment': this.newComment
-				}
-				this.$store.dispatch('addComment', payload)
+				})
 			},
 			insertHist() {
-				const payload = {
+				this.$store.dispatch('addHistoryComment', {
 					'comment': this.newHistory
-				}
-				this.$store.dispatch('addHistoryComment', payload)
+				})
 			},
 			/* Presentation methods */
 			mkSubscribeEvent(value) {
@@ -929,7 +933,6 @@
 						productId: null,
 						parentId: null,
 						state: 0,
-						level: this.$store.state.currentDoc.level,
 						subtype: 0,
 						sessionId: this.$store.state.sessionId,
 						distributeEvent: true
@@ -995,7 +998,7 @@
 						"level": insertLevel,
 						"subtype": 0,
 						"state": 0,
-						"tssize": 0,
+						"tssize": 3,
 						"spsize": 0,
 						"spikepersonhours": 0,
 						"reqarea": null,
@@ -1017,10 +1020,9 @@
 						"delmark": false
 					}
 					// update the database
-					const payload = {
+					this.$store.dispatch('createDoc', {
 						'initData': initData
-					}
-					this.$store.dispatch('createDoc', payload)
+					})
 				} else {
 					this.showLastEvent("Sorry, your assigned role(s) disallow you to create new items of this type", WARNING)
 				}
