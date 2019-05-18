@@ -352,7 +352,7 @@ const actions = {
 				if (rootState.debug) console.log("readProductTitle: current product name '" + res.data.title + "' is fetched.")
 			})
 			.catch(error => {
-				let msg = 'readProductTitle: Could not read document for thr product with _id ' + product_id + ', ' + error
+				let msg = 'readProductTitle: Could not read document for the product with _id ' + product_id + ', ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
