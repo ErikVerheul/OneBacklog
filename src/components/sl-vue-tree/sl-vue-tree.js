@@ -426,8 +426,8 @@ export default {
 
 		getLastNode() {
 			let lastNode = null;
-			this.traverse((node) => {
-				lastNode = node;
+			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+				lastNode = this.getNode(nodePath, nodeModel, nodeModels)
 			}, undefined, undefined, 'sl-vue-tree.js:getLastNode');
 			return lastNode;
 		},
