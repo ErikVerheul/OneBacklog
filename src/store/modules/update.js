@@ -268,9 +268,9 @@ const actions = {
 			})
 	},
 	/*
-	* Fetch the parent te get the parent title for the history registration
-	* Then dispatch the update of the moved nodes and the update of the history of their descendants
-	*/
+	 * Fetch the parent te get the parent title for the history registration
+	 * Then dispatch the update of the moved nodes and the update of the history of their descendants
+	 */
 	updateDropped({
 		rootState,
 		dispatch
@@ -286,7 +286,7 @@ const actions = {
 				url: rootState.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
-			// add two new items to the payload
+				// add two new items to the payload
 				payloadItem['newParentTitle'] = res.data.title
 				payloadItem['nrOfDescendants'] = payloadItem.descendants.length
 				dispatch('updateDropped2', payloadItem)
@@ -319,8 +319,8 @@ const actions = {
 			})
 	},
 	/*
-	* Update the dropped node
-	*/
+	 * Update the dropped node
+	 */
 	updateDropped2({
 		rootState,
 		dispatch
@@ -484,21 +484,18 @@ const actions = {
 				let tmpDoc = res.data
 				// encode to base64
 				const newEncodedDescription = window.btoa(payload.newDescription)
-				// update only when changed
-				if (newEncodedDescription !== res.data.description) {
-					const newHist = {
-						"descriptionEvent": [res.data.description, newEncodedDescription],
-						"by": rootState.user,
-						"email": rootState.load.email,
-						"timestamp": Date.now(),
-						"sessionId": rootState.sessionId,
-						"distributeEvent": false
-					}
-					tmpDoc.history.unshift(newHist)
-					rootState.currentDoc.history.unshift(newHist)
-					tmpDoc.description = newEncodedDescription
-					dispatch('updateDoc', tmpDoc)
+				const newHist = {
+					"descriptionEvent": [res.data.description, newEncodedDescription],
+					"by": rootState.user,
+					"email": rootState.load.email,
+					"timestamp": Date.now(),
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
+				tmpDoc.history.unshift(newHist)
+				rootState.currentDoc.history.unshift(newHist)
+				tmpDoc.description = newEncodedDescription
+				dispatch('updateDoc', tmpDoc)
 			})
 			.catch(error => {
 				let msg = 'saveDescription: Could not read document with _id ' + _id + ', ' + error
@@ -524,21 +521,18 @@ const actions = {
 				let tmpDoc = res.data
 				// encode to base64
 				const newEncodedAcceptance = window.btoa(payload.newAcceptance)
-				// update only when changed
-				if (newEncodedAcceptance !== res.data.acceptanceCriteria) {
-					const newHist = {
-						"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
-						"by": rootState.user,
-						"email": rootState.load.email,
-						"timestamp": Date.now(),
-						"sessionId": rootState.sessionId,
-						"distributeEvent": false
-					}
-					tmpDoc.history.unshift(newHist)
-					rootState.currentDoc.history.unshift(newHist)
-					tmpDoc.acceptanceCriteria = newEncodedAcceptance
-					dispatch('updateDoc', tmpDoc)
+				const newHist = {
+					"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
+					"by": rootState.user,
+					"email": rootState.load.email,
+					"timestamp": Date.now(),
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
 				}
+				tmpDoc.history.unshift(newHist)
+				rootState.currentDoc.history.unshift(newHist)
+				tmpDoc.acceptanceCriteria = newEncodedAcceptance
+				dispatch('updateDoc', tmpDoc)
 			})
 			.catch(error => {
 				let msg = 'saveAcceptance: Could not read document with _id ' + _id + ', ' + error
