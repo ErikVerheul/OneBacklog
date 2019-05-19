@@ -37,6 +37,8 @@
 				pbiLevel: PBILEVEL,
 				eventBgColor: '#408FAE',
 				firstNodeSelected: null,
+				newDescription: '',
+				newAcceptance: '',
 				nodeIsSelected: false,
 				removeTitle: '',
 				// default to sibling node (no creation of descendant)
@@ -76,6 +78,7 @@
 		},
 
 		mounted() {
+			window.history.scrollRestoration = "manual"
 			// expose instance to the global namespace
 			window.slVueTree = this.$refs.slVueTree
 			// the product is selected in load.js
@@ -136,7 +139,7 @@
 					return this.getCurrentItemDescription
 				},
 				set(newDescription) {
-					this.$store.state.currentDoc.description = newDescription
+					this.newDescription = newDescription
 				}
 			},
 			acceptanceCriteria: {
@@ -144,7 +147,7 @@
 					return this.getCurrentItemAcceptanceCriteria
 				},
 				set(newAcceptanceCriteria) {
-					this.$store.state.currentDoc.acceptanceCriteria = newAcceptanceCriteria
+					this.newAcceptance = newAcceptanceCriteria
 				}
 			},
 			getFilteredComments() {
@@ -374,21 +377,33 @@
 			},
 			/* Database update methods */
 			updateDescription() {
-				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					this.$store.dispatch('saveDescription', {
-						'newDescription': this.getCurrentItemDescription
-					})
-				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item", WARNING)
+				// skip update when not changed
+				if (this.$store.state.currentDoc.description !== this.newDescription) {
+					if (this.canWriteLevels[this.getCurrentItemLevel]) {
+						// update the current doc in memory
+						this.$store.state.currentDoc.description = this.newDescription
+						// update the doc in the database
+						this.$store.dispatch('saveDescription', {
+							'newDescription': this.newDescription
+						})
+					} else {
+						this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item", WARNING)
+					}
 				}
 			},
 			updateAcceptance() {
-				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					this.$store.dispatch('saveAcceptance', {
-						'newAcceptance': this.getCurrentItemAcceptanceCriteria
-					})
-				} else {
-					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item", WARNING)
+				// skip update when not changed
+				if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
+					if (this.canWriteLevels[this.getCurrentItemLevel]) {
+						// update the current doc in memory
+						this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
+						// update the doc in the database
+						this.$store.dispatch('saveAcceptance', {
+							'newAcceptance': this.newAcceptance
+						})
+					} else {
+						this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item", WARNING)
+					}
 				}
 			},
 			updateTsSize() {
@@ -523,23 +538,26 @@
 			},
 			/* event handling */
 			nodeSelectedEvent(selNodes) {
+				// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
+				this.updateDescription()
+				this.updateAcceptance()
 				if (!this.haveSameParent(selNodes)) {
 					this.showLastEvent('You can only select nodes with the same parent.', WARNING)
 					return
 				}
-				// set the focus on titleField so that the vue2editors loose focus, regain focus when selected and blur on exit
-				document.getElementById("titleField").focus()
 				this.nodeIsSelected = true
 				numberOfNodesSelected = selNodes.length
 				this.firstNodeSelected = selNodes[0]
 				// set the current productId so that canWriteLevels is actual
 				if (this.$store.state.load.currentProductId !== this.firstNodeSelected.data.productId) {
 					this.$store.state.load.currentProductId = this.firstNodeSelected.data.productId
-					// also update the title
+					// also update the product title
 					this.$store.dispatch('readProductTitle', this.firstNodeSelected.data.productId)
 				}
-				// load the document
-				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
+				// load the document if not already in memory
+				if (this.firstNodeSelected.data._id !== this.$store.state.currentDoc._id) {
+					this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
+				}
 				const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 				const title = this.itemTitleTrunc(60, selNodes[0].title)
 				let evt = ""
@@ -732,14 +750,14 @@
 						data: newData
 					})
 				}
-//												for (let prop in firstNode) {
-//													//eslint-disable-next-line no-console
-//													console.log('updateTree@ready -> ' + prop, firstNode[prop]);
-//												}
-//												for (let prop in firstNode.data) {
-//													//eslint-disable-next-line no-console
-//													console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
-//												}
+				//												for (let prop in firstNode) {
+				//													//eslint-disable-next-line no-console
+				//													console.log('updateTree@ready -> ' + prop, firstNode[prop]);
+				//												}
+				//												for (let prop in firstNode.data) {
+				//													//eslint-disable-next-line no-console
+				//													console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
+				//												}
 			},
 			/*
 			 * Update the tree when one or more nodes are dropped on another location
