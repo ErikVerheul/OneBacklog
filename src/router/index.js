@@ -7,6 +7,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import store from '../store/store'
 
 import WelcomePage from '../components/welcome/welcome.vue'
+import RelNotesPage from '../components/rel-notes/rel-notes.vue'
 import UserGuidePage from '../components/userguide/userguide.vue'
 import SetupPage from '../components/setup/setup.vue'
 import SigninPage from '../components/auth/signin.vue'
@@ -20,6 +21,10 @@ const routes = [
 	{
 		path: '/',
 		component: WelcomePage
+	},
+	{
+		path: '/rel-notes',
+		component: RelNotesPage
 	},
 	{
 		path: '/userguide',
