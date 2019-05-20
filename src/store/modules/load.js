@@ -117,7 +117,7 @@ const mutations = {
 							parentId: parentId,
 							state: batch[i].doc.state,
 							subtype: batch[i].doc.subtype,
-							lastChange: batch[i].doc.history[batch[i].doc.history.length - 1].timestamp
+							lastChange: batch[i].doc.history[0].timestamp
 						}
 					}
 					if (parentNodes[parentId] !== undefined) {
