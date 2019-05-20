@@ -116,7 +116,8 @@ const mutations = {
 							productId: batch[i].doc.productId,
 							parentId: parentId,
 							state: batch[i].doc.state,
-							subtype: batch[i].doc.subtype
+							subtype: batch[i].doc.subtype,
+							lastChange: batch[i].doc.history[batch[i].doc.history.length - 1].timestamp
 						}
 					}
 					if (parentNodes[parentId] !== undefined) {
@@ -253,6 +254,7 @@ const actions = {
 
 				state.userAssignedProductIds = Object.keys(res.data.productsRoles)
 				state.currentDefaultProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
+				dispatch('readProductTitle', state.currentDefaultProductId)
 				dispatch('getConfig')
 			})
 			.catch(error => {
