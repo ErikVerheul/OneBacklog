@@ -82,7 +82,7 @@
 			// expose instance to the global namespace
 			window.slVueTree = this.$refs.slVueTree
 			// the product is selected in load.js
-			this.firstNodeSelected = this.$refs.slVueTree.getSelected('product.js:mounted')[0]
+			this.firstNodeSelected = this.$refs.slVueTree.getSelected()[0]
 			this.nodeIsSelected = true
 			//eslint-disable-next-line no-console
 			if (this.$store.state.debug) console.log('product.js:mounted: this.firstNodeSelected is set to product = ' + this.firstNodeSelected.title)
@@ -211,10 +211,10 @@
 				if (val !== this.getCurrentItemSubType) {
 					if (this.canWriteLevels[this.getCurrentItemLevel]) {
 						this.firstNodeSelected.data.subtype = val
-						const payload = {
+						this.firstNodeSelected.data.lastChange = Date.now()
+						this.$store.dispatch('setSubType', {
 							'newSubType': val
-						}
-						this.$store.dispatch('setSubType', payload)
+						})
 					} else {
 						this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type", WARNING)
 					}
@@ -382,6 +382,7 @@
 					if (this.canWriteLevels[this.getCurrentItemLevel]) {
 						// update the current doc in memory
 						this.$store.state.currentDoc.description = this.newDescription
+						this.firstNodeSelected.data.lastChange = Date.now()
 						// update the doc in the database
 						this.$store.dispatch('saveDescription', {
 							'newDescription': this.newDescription
@@ -397,6 +398,7 @@
 					if (this.canWriteLevels[this.getCurrentItemLevel]) {
 						// update the current doc in memory
 						this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
+						this.firstNodeSelected.data.lastChange = Date.now()
 						// update the doc in the database
 						this.$store.dispatch('saveAcceptance', {
 							'newAcceptance': this.newAcceptance
@@ -411,11 +413,10 @@
 					let size = document.getElementById("tShirtSizeId").value.toUpperCase()
 					const sizeArray = this.$store.state.config.tsSize
 					if (sizeArray.includes(size)) {
-						// update current document
-						const payload = {
+						this.firstNodeSelected.data.lastChange = Date.now()
+						this.$store.dispatch('setSize', {
 							'newSizeIdx': sizeArray.indexOf(size)
-						}
-						this.$store.dispatch('setSize', payload)
+						})
 					} else {
 						let sizes = ''
 						for (let i = 0; i < sizeArray.length - 1; i++) {
@@ -434,10 +435,10 @@
 						el.value = '?'
 						return
 					}
-					const payload = {
+					this.firstNodeSelected.data.lastChange = Date.now()
+					this.$store.dispatch('setStoryPoints', {
 						'newPoints': el.value
-					}
-					this.$store.dispatch('setStoryPoints', payload)
+					})
 				} else {
 					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)
 				}
@@ -449,23 +450,19 @@
 						el.value = '?'
 						return
 					}
-					const payload = {
+					this.firstNodeSelected.data.lastChange = Date.now()
+					this.$store.dispatch('setPersonHours', {
 						'newHrs': el.value
-					}
-					this.$store.dispatch('setPersonHours', payload)
+					})
 				} else {
 					this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item", WARNING)
 				}
 			},
 			onStateChange(idx) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					// update the tree; must select to force nodeUpdate not to neglect subsequent changes
-					let node = this.$refs.slVueTree.getSelected('product.js:onStateChange')[0]
-					let newData = Object.assign(node.data)
-					newData.state = idx
-					this.$refs.slVueTree.updateNode(node.path, {
-						state: newData
-					})
+					// update the tree
+					this.firstNodeSelected.data.state = idx
+					this.firstNodeSelected.data.lastChange = Date.now()
 					// update current document in database
 					this.$store.dispatch('setState', {
 						'newState': idx
@@ -480,10 +477,14 @@
 				if (oldTitle === newTitle) return
 
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					// update the tree
-					this.$refs.slVueTree.updateNode(this.$refs.slVueTree.getSelected('product.js:updateTitle')[0].path, {
-						title: newTitle
-					})
+					// update the tree; must use an explicit updateNode
+					let node = this.firstNodeSelected
+					let newData = Object.assign(node.data)
+					newData.lastChange = Date.now()
+					this.$refs.slVueTree.updateNode(node.path, {
+            title: newTitle,
+						data: newData
+          })
 					// update current document in database
 					const payload = {
 						'newTitle': newTitle
@@ -529,6 +530,7 @@
 				let parentId = nodes[0].data.parentId
 				if (nodes.length > 0) {
 					for (let i = 1; i < nodes.length; i++) {
+						console.log('haveSameParent: title = ' + nodes[i].title + ' parentId = ' + nodes[i].data.parentId)
 						if (nodes[i].data.parentId !== parentId) {
 							return false
 						}
@@ -699,11 +701,8 @@
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
-					let newData = Object.assign(nodes[i].data)
-					newData.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-					this.$refs.slVueTree.updateNode(nodes[i].path, {
-						data: newData
-					})
+					nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+					nodes[i].data.lastChange = Date.now()
 				}
 			},
 			/*
@@ -742,13 +741,15 @@
 				if (localParentId !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
-					let newData = Object.assign(nodes[i].data)
-					newData.productId = localProductId
-					newData.parentId = localParentId
-					this.$refs.slVueTree.updateNode(nodes[i].path, {
-						isLeaf: (level < PBILEVEL) ? false : true,
-						data: newData
-					})
+					nodes[i].isLeaf = (level < PBILEVEL) ? false : true
+					if (nodes[i].data.productId !== localProductId) {
+						nodes[i].data.productId = localProductId
+						nodes[i].data.lastChange = Date.now()
+					}
+					if (nodes[i].data.parentId !== localParentId) {
+						nodes[i].data.parentId = localParentId
+						nodes[i].data.lastChange = Date.now()
+					}
 				}
 				//												for (let prop in firstNode) {
 				//													//eslint-disable-next-line no-console
@@ -766,7 +767,7 @@
 			 */
 			nodeDropped(draggingNodes, position) {
 				// get the nodes after being dropped with the full IDlTreeNode properties (draggingNodes only have IslNodeModel properties)
-				const selectedNodes = this.$refs.slVueTree.getSelected('product.js:nodeDropped')
+				const selectedNodes = this.$refs.slVueTree.getSelected()
 				let clickedLevel = selectedNodes[0].level
 				let dropLevel = position.node.level
 				// drop inside?
@@ -952,6 +953,7 @@
 						parentId: null,
 						state: 0,
 						subtype: 0,
+						lastChange: Date.now(),
 						sessionId: this.$store.state.sessionId,
 						distributeEvent: true
 					}
@@ -1002,7 +1004,7 @@
 					// inserting the node also selects it
 					this.$refs.slVueTree.insert(newNodeLocation, newNode)
 					// now the node is inserted and selected get the full ISlTreeNode data
-					const insertedNode = this.$refs.slVueTree.getSelected('product.js:doInsert')[0]
+					const insertedNode = this.$refs.slVueTree.getSelected()[0]
 					this.firstNodeSelected = insertedNode
 					// productId, parentId and priority are set in this routine
 					this.updateTree([insertedNode])
