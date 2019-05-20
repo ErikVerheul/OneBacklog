@@ -254,6 +254,7 @@
 * ....parentId: doc.parentId,
 * ....state: doc.state,
 * ....subtype: doc.subtype,
+* ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
 * ....sessionId: rootState.sessionId,
 * ....distributeEvent: true | false
 * }
