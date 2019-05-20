@@ -262,11 +262,13 @@ export default {
 
 			this.traverse((node, nodeModel) => {
 				if (shiftSelectionMode) {
-					if (node.pathStr === selectedNode.pathStr || node.pathStr === this.lastSelectedNode.pathStr) {
+					// only select nodes on the same level
+					if (node.level === this.lastSelectedNode.level && (node.pathStr === selectedNode.pathStr || node.pathStr === this.lastSelectedNode.pathStr)) {
 						nodeModel.isSelected = node.isSelectable;
 						shiftSelectionStarted = !shiftSelectionStarted;
 					}
-					if (shiftSelectionStarted) nodeModel.isSelected = node.isSelectable;
+					// only select nodes on the same level
+					if (shiftSelectionStarted && node.level === this.lastSelectedNode.level) nodeModel.isSelected = node.isSelectable;
 				} else if (node.pathStr === selectedNode.pathStr) {
 					nodeModel.isSelected = node.isSelectable;
 				} else if (!addToSelection) {
