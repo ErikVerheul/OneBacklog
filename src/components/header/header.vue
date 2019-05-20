@@ -3,7 +3,7 @@
 		<b-navbar toggleable="md" type="dark" variant="dark">
 			<b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 			<b-img class="logo" :src="require('../../assets/logo.png')" alt="OneBacklog logo" />
-			<b-navbar-brand to="../../rel-notes">OneBacklog version 0.4.6 MVP</b-navbar-brand>
+			<b-navbar-brand to="../../rel-notes">{{ appVersion }}</b-navbar-brand>
 			<b-collapse is-nav id="nav_collapse">
 				<b-navbar-nav>
 					<b-nav-item to="../../userguide">User guide</b-nav-item>
@@ -64,6 +64,7 @@
 	export default {
 		data() {
 			return {
+				appVersion: 'OneBackLog v.0.4.6',
 				eventBgColor: '#408FAE',
 				keyword: '',
 				oldPassword: '',
@@ -72,6 +73,8 @@
 			}
 		},
 		mounted() {
+			// Add tag when DEMO version
+			if (this.$store.state.demo) this.appVersion = this.appVersion + ' DEMO'
 			// fire the search button on pressing enter in the one and only input field (instead of submitting the form)
 			document.getElementById('searchInput').addEventListener('keypress', function(event) {
 				if (event.keyCode === 13) {
