@@ -530,7 +530,6 @@
 				let parentId = nodes[0].data.parentId
 				if (nodes.length > 0) {
 					for (let i = 1; i < nodes.length; i++) {
-						console.log('haveSameParent: title = ' + nodes[i].title + ' parentId = ' + nodes[i].data.parentId)
 						if (nodes[i].data.parentId !== parentId) {
 							return false
 						}
@@ -946,6 +945,7 @@
 					isDraggable: true,
 					isSelectable: true,
 					isSelected: true,
+					doShow: true,
 					data: {
 						_id: null,
 						priority: null,
