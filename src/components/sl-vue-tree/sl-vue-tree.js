@@ -93,14 +93,16 @@ export default {
 			return this.getParent().cursorPosition;
 		},
 
-		nodes() {
+		filteredNodes() {
 			if (this.isRoot) {
-				const nodeModels = this.currentValue
+				const nodeModels = this.currentValue.filter(node => {
+					return node.doShow
+				})
 				return this.getNodes(nodeModels);
 			}
-
-			return this.getParent().nodes[this.parentInd].children;
+			return this.getParent().filteredNodes[this.parentInd].children;
 		},
+
 		/**
 		 * gaps is using for nodes indentation
 		 * @returns {number[]}
@@ -172,6 +174,7 @@ export default {
 				isDraggable,
 				isSelectable,
 				doShow: !!nodeModel.doShow,
+				highlighted: !!nodeModel.highlighted,
 				data: nodeModel.data !== undefined ? nodeModel.data : {},
 
 				// define the all ISlTreeNode computed props
@@ -249,8 +252,7 @@ export default {
 		},
 
 		select(path, addToSelection = false, event = null) {
-			const multiselectKeys = Array.isArray(this.multiselectKey) ?
-				this.multiselectKey : [this.multiselectKey];
+			const multiselectKeys = Array.isArray(this.multiselectKey) ? this.multiselectKey : [this.multiselectKey];
 			const multiselectKeyIsPressed = event && !!multiselectKeys.find(key => event[key]);
 			addToSelection = (multiselectKeyIsPressed || addToSelection) && this.allowMultiselect;
 
@@ -326,12 +328,6 @@ export default {
 			if (isDragStarted && !destNode.isSelected) {
 				this.select(destNode.path, false, event);
 			}
-			// This a very expensive check!
-//			const draggableNodes = this.getDraggable();
-//			if (!draggableNodes.length) {
-//				this.preventDrag = true;
-//				return;
-//			}
 
 			this.isDragging = isDragging;
 
