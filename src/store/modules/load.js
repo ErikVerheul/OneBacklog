@@ -106,10 +106,11 @@ const mutations = {
 						children: [],
 						// expand the tree of the default product
 						isExpanded: (batch[i].doc.productId === state.currentDefaultProductId) ? true : false,
-						isDraggable: getters.canWriteLevels[batch[i].doc.level],
 						isSelectable: true,
+						isDraggable: getters.canWriteLevels[batch[i].doc.level],
 						// select the default product
 						isSelected: (batch[i].doc._id === state.currentDefaultProductId) ? true : false,
+						doShow: true,
 						data: {
 							_id: batch[i].doc._id,
 							priority: batch[i].doc.priority,
@@ -152,14 +153,17 @@ const actions = {
 				state.treeNodes = [
 					{
 						"title": rootState.currentDb,
+						"children": [],
 						"isSelected": false,
 						"isExpanded": true,
-						"children": [],
+						"isDraggable": false,
+						"doShow": true,
 						"data": {
 							"_id": "root",
 							"productId": "root",
 							"parentId": null,
-							"priority": null
+							"priority": null,
+							"lastChange": 0
 						}
 						},
 					]
