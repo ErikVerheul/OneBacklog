@@ -322,7 +322,7 @@
 				let txt = ""
 				if (value[0] === value[1]) {
 					txt = "<h5>The item changed priority to position " + (value[2] + 1) + " under parent '" + value[3] + "'</h5>"
-					txt += (value[4] > 0) ? "<p>" + value[4] + " descendants were alse moved.</p>" : ""
+					txt += (value[4] > 0) ? "<p>" + value[4] + " descendants were also moved.</p>" : ""
 					return txt
 				} else {
 					let txt = ""
