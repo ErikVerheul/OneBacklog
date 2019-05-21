@@ -4,7 +4,8 @@ import router from '../../router'
 
 const batchSize = 250
 var batch = []
-const leafLevel = 5
+const FEATURELEVEL = 4
+const LEAFLEVEL = 5
 var parentNodes = []
 
 const state = {
@@ -102,10 +103,10 @@ const mutations = {
 					let newNode = {
 						title: batch[i].doc.title,
 						// for now PBI's have no children
-						isLeaf: (level === leafLevel) ? true : false,
+						isLeaf: (level === LEAFLEVEL) ? true : false,
 						children: [],
 						// expand the tree of the default product
-						isExpanded: (batch[i].doc.productId === state.currentDefaultProductId) ? true : false,
+						isExpanded: (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL ) ? true : false,
 						isSelectable: true,
 						isDraggable: getters.canWriteLevels[batch[i].doc.level],
 						// select the default product
