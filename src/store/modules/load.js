@@ -112,6 +112,7 @@ const mutations = {
 						// select the default product
 						isSelected: (batch[i].doc._id === state.currentDefaultProductId) ? true : false,
 						doShow: true,
+						highlighted: false,
 						data: {
 							_id: batch[i].doc._id,
 							priority: batch[i].doc.priority,

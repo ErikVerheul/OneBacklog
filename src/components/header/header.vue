@@ -8,6 +8,14 @@
 				<b-navbar-nav>
 					<b-nav-item to="../../userguide">User guide</b-nav-item>
 				</b-navbar-nav>
+				<b-dropdown split class="m-2" @click="clearFilter()">
+					<template slot="button-content">
+						{{ filterText }}
+					</template>
+					<b-dropdown-item @click="filterSince(10)">Changes &lt; 10 min.</b-dropdown-item>
+					<b-dropdown-item @click="filterSince(60)">Changes last hour</b-dropdown-item>
+					<b-dropdown-item @click="filterSince(1440)">Changes last 24 hrs.</b-dropdown-item>
+				</b-dropdown>
 				<!-- Right aligned nav items -->
 				<b-navbar-nav class="ml-auto">
 					<b-nav-form>
@@ -64,7 +72,8 @@
 	export default {
 		data() {
 			return {
-				appVersion: 'OneBackLog v.0.4.6',
+				appVersion: 'OneBackLog v.0.5.0',
+				filterText: 'Set Filter',
 				eventBgColor: '#408FAE',
 				keyword: '',
 				oldPassword: '',
@@ -92,6 +101,60 @@
 			}
 		},
 		methods: {
+			clearFilter() {
+				this.filterText = "Set Filter"
+				window.slVueTree.traverseLight((itemPath, nodeModel) => {
+					if (nodeModel.data.productId === this.$store.state.load.currentProductId) {
+						Vue.set(nodeModel, 'doShow', false)
+						Vue.set(nodeModel, 'highlighted', false)
+					}
+				}, undefined, undefined, 'header.vue:clearFilter')
+
+				this.showLastEvent(`Your filter in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
+			},
+
+			filterSince(since) {
+				function showParents(path) {
+					let parentPath = path.slice(0, -1)
+					// do not touch the database and product level
+					if (parentPath.length < 3) return
+
+					window.slVueTree.traverseLight((itemPath, nodeModel) => {
+						if (JSON.stringify(itemPath) !== JSON.stringify(parentPath)) return
+
+						Vue.set(nodeModel, 'doShow', true)
+						Vue.set(nodeModel, 'isExpanded', true)
+						return false
+					}, undefined, undefined, 'filterSince:showParents')
+					// recurse
+					showParents(path.slice(0, -1))
+				}
+
+				this.filterText = "Clear filter"
+				let sinceMilis = since * 60000
+				let count = 0
+				window.slVueTree.traverseLight((itemPath, nodeModel) => {
+					// limit to current product and levels higher than product
+					if (nodeModel.data.productId === this.$store.state.load.currentProductId && itemPath.length > 2) {
+						if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
+							Vue.set(nodeModel, 'doShow', true)
+							Vue.set(nodeModel, 'highlighted', true)
+							showParents(itemPath)
+							count++
+						} else {
+							Vue.set(nodeModel, 'doShow', false)
+							Vue.set(nodeModel, 'highlighted', false)
+						}
+					}
+				}, undefined, undefined, 'header.vue:filterSince')
+				// show event
+				if (count === 1) {
+					this.showLastEvent(`${count} item title matches your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+				} else {
+					this.showLastEvent(`${count} item titles match your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+				}
+			},
+
 			showLastEvent(txt, level) {
 				switch (level) {
 					case INFO:
@@ -101,7 +164,6 @@
 			},
 
 			showSelection() {
-
 				function expandNodes(id) {
 					window.slVueTree.traverseLight((itemPath, nodeModel) => {
 						if (nodeModel.data._id === id) {
@@ -115,21 +177,22 @@
 						}
 					}, undefined, undefined, 'showSelection:expandNodes')
 				}
-
 				// unselect all
 				window.slVueTree.traverseLight((itemPath, nodeModel) => {
-					Vue.set(nodeModel, 'isSelected', false)
+					Vue.set(nodeModel, 'highlighted', false)
 				}, undefined, undefined, 'showSelection:unselect-all')
 
 				let count = 0
 				window.slVueTree.traverseLight((itemPath, nodeModel) => {
-					if (nodeModel.data.productId === this.$store.state.load.currentProductId && nodeModel.title.toLowerCase().includes(this.keyword.toLowerCase())) {
+					if (this.keyword !== '' &&
+							nodeModel.data.productId === this.$store.state.load.currentProductId &&
+							nodeModel.title.toLowerCase().includes(this.keyword.toLowerCase())) {
 						expandNodes(nodeModel.data.parentId)
-						Vue.set(nodeModel, 'isSelected', true)
+						Vue.set(nodeModel, 'highlighted', true)
 						count++
 					}
 				}, undefined, undefined, 'showSelection:find')
-
+				// show event
 				if (count === 1) {
 					this.showLastEvent(`${count} item title matches your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
 				} else {
