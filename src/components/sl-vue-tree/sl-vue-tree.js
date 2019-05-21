@@ -171,6 +171,7 @@ export default {
 				isVisible,
 				isDraggable,
 				isSelectable,
+				doShow: !!nodeModel.doShow,
 				data: nodeModel.data !== undefined ? nodeModel.data : {},
 
 				// define the all ISlTreeNode computed props
