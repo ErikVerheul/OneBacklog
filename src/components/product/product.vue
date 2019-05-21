@@ -246,6 +246,7 @@
 * isSelected: true || false
 * isDraggable: true || false, // depending on the user roles
 * isSelectable: true,
+* highlighted: false, // true for temporary attention
 * doShow: true, // false if filtered out
 *
 * data: {
