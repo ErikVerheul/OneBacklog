@@ -116,8 +116,8 @@
 			filterSince(since) {
 				function showParents(path) {
 					let parentPath = path.slice(0, -1)
-					// do not touch the database and product level
-					if (parentPath.length < 3) return
+					// do not touch the database level
+					if (parentPath.length < 2) return
 
 					window.slVueTree.traverseLight((itemPath, nodeModel) => {
 						if (JSON.stringify(itemPath) !== JSON.stringify(parentPath)) return
