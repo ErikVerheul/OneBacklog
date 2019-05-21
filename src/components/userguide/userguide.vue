@@ -5,11 +5,11 @@
 				<h1>USER GUIDE</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<h4>The header</h4>
-				<p class="indent10">Always mention the version number located after the app name when reporting issues.</p>
+				<p class="indent10">Always mention the version number located after the app name when reporting issues. When you click on the release number you will get the <b>realease notes</b>.</p>
 				<h5>User guide</h5>
 				<p class="indent10">This text</p>
 				<h5>Filter on time</h5>
-				<p class="indent10">With the split button next to the 'user guide' you can open a drop down list with 3 choices: Show the changes in the last 10 minutes, in the last hour and in the last 24 hours. After selecting an option the items changed in the chosen time frame will be highlighted. Branches not changed will not show. To return to the normal view press the button which now has the test 'Reset'</p>
+				<p class="indent10">With the split button next to the 'user guide' you can open a drop down list with 3 choices: Show the changes in the last 10 minutes, in the last hour and in the last 24 hours. After selecting an option the items changed in the chosen time frame will be highlighted. Branches not changed will not show. To return to the normal view press the button which now has the text 'Clear filter'</p>
 				<h5>Search on key word.</h5>
 				<p class="indent10">Input field for the search button. Searches for the keyword in the title of all items of the current product. That is the product for which an item is selected. To return to the normal view empty the search field en press the search button.</p>
 				<h5>Search button</h5>
