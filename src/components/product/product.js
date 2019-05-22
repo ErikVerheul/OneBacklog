@@ -942,10 +942,12 @@
 					isLeaf: 'is calculated in this method',
 					children: [],
 					isExpanded: false,
+					savedIsExpanded: false,
 					isDraggable: true,
 					isSelectable: true,
 					isSelected: true,
 					doShow: true,
+					savedDoShow: true,
 					data: {
 						_id: null,
 						priority: null,

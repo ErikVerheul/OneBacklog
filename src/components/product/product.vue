@@ -243,11 +243,13 @@
 * isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
 * children: [],
 * isExpanded: true || false, // initially the tree is expanded up to the feature level
+* savedIsExpanded: isExpanded, // to restore the original view after applying a filter
 * isSelected: true || false
 * isDraggable: true || false, // depending on the user roles
 * isSelectable: true,
 * highlighted: false, // true for temporary attention
 * doShow: true, // false if filtered out
+* savedDoShow: doShow, // to restore the original view after applying a filter
 *
 * data: {
 * ...._id: doc._id,

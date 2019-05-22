@@ -19,8 +19,8 @@
 				<!-- Right aligned nav items -->
 				<b-navbar-nav class="ml-auto">
 					<b-nav-form>
-						<b-form-input id="searchInput" v-model="keyword" size="sm" class="mr-sm-2" placeholder="Enter a key word" />
-						<b-button id="searchBtn" type="button" @click="showSelection()" size="sm" class="my-2 my-sm-0">Search</b-button>
+						<b-form-input id="searchInput" v-model="keyword" class="m-2" placeholder="Enter a key word" />
+						<b-button id="searchBtn" type="button" class="m-2" @click="showSelection()">{{ searchText }}</b-button>
 					</b-nav-form>
 					<b-nav-item-dropdown text="Select your view" right>
 						<b-dropdown-item to="../../product">Products</b-dropdown-item>
@@ -68,12 +68,17 @@
 	import licence from './licence.vue'
 
 	const INFO = 0
+	const FILTERBUTTONTEXT = 'Set filter'
+	const RESETFILTERBUTTONTEXT = 'Clear filter'
+	const SEARCHBUTTONTEXT = 'Search'
+	const RESETSEARCHBUTTONTEXT = 'Clear search'
 
 	export default {
 		data() {
 			return {
-				appVersion: 'OneBackLog v.0.5.0',
-				filterText: 'Set Filter',
+				appVersion: 'OneBackLog v.0.5.1',
+				filterText: FILTERBUTTONTEXT,
+				searchText: SEARCHBUTTONTEXT,
 				eventBgColor: '#408FAE',
 				keyword: '',
 				oldPassword: '',
@@ -101,36 +106,62 @@
 			}
 		},
 		methods: {
-			clearFilter() {
-				this.filterText = "Set Filter"
+			showLastEvent(txt, level) {
+				switch (level) {
+					case INFO:
+						this.eventBgColor = '#408FAE'
+				}
+				this.$store.state.load.lastEvent = txt
+			},
+
+			resetTree() {
 				window.slVueTree.traverseLight((itemPath, nodeModel) => {
-					if (nodeModel.data.productId === this.$store.state.load.currentProductId) {
-						Vue.set(nodeModel, 'doShow', false)
+					// limit to current product and levels higher than product
+					if (nodeModel.data.productId === this.$store.state.load.currentProductId && itemPath.length > 2) {
+						Vue.set(nodeModel, 'doShow', nodeModel.savedDoShow)
+						Vue.set(nodeModel, 'isExpanded', nodeModel.savedIsExpanded)
 						Vue.set(nodeModel, 'highlighted', false)
 					}
-				}, undefined, undefined, 'header.vue:clearFilter')
+				}, undefined, undefined, 'header.vue:resetTree')
+			},
 
+			clearFilter() {
+				if (this.filterText !== RESETFILTERBUTTONTEXT) {
+					return
+				}
+				this.filterText = FILTERBUTTONTEXT
+				this.resetTree()
 				this.showLastEvent(`Your filter in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 			},
 
+			clearSearch() {
+				this.searchText = SEARCHBUTTONTEXT
+				this.keyword = ""
+				this.resetTree()
+				this.showLastEvent(`Your search in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
+			},
+
+			showParents(path) {
+				let parentPath = path.slice(0, -1)
+				// do not touch the database level
+				if (parentPath.length < 2) return
+
+				window.slVueTree.traverseLight((itemPath, nodeModel) => {
+					if (JSON.stringify(itemPath) !== JSON.stringify(parentPath)) {
+						return
+					}
+					Vue.set(nodeModel, 'doShow', true)
+					Vue.set(nodeModel, 'isExpanded', true)
+					return false
+				}, undefined, undefined, 'filterSince:showParents')
+				// recurse
+				this.showParents(parentPath)
+			},
+
 			filterSince(since) {
-				function showParents(path) {
-					let parentPath = path.slice(0, -1)
-					// do not touch the database level
-					if (parentPath.length < 2) return
+				// reset the other selection first
+				if (this.searchText !== SEARCHBUTTONTEXT) this.clearSearch()
 
-					window.slVueTree.traverseLight((itemPath, nodeModel) => {
-						if (JSON.stringify(itemPath) !== JSON.stringify(parentPath)) return
-
-						Vue.set(nodeModel, 'doShow', true)
-						Vue.set(nodeModel, 'isExpanded', true)
-						return false
-					}, undefined, undefined, 'filterSince:showParents')
-					// recurse
-					showParents(path.slice(0, -1))
-				}
-
-				this.filterText = "Clear filter"
 				let sinceMilis = since * 60000
 				let count = 0
 				window.slVueTree.traverseLight((itemPath, nodeModel) => {
@@ -139,7 +170,7 @@
 						if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
 							Vue.set(nodeModel, 'doShow', true)
 							Vue.set(nodeModel, 'highlighted', true)
-							showParents(itemPath)
+							this.showParents(itemPath)
 							count++
 						} else {
 							Vue.set(nodeModel, 'doShow', false)
@@ -153,43 +184,32 @@
 				} else {
 					this.showLastEvent(`${count} item titles match your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
 				}
-			},
-
-			showLastEvent(txt, level) {
-				switch (level) {
-					case INFO:
-						this.eventBgColor = '#408FAE'
-				}
-				this.$store.state.load.lastEvent = txt
+				this.filterText = RESETFILTERBUTTONTEXT
 			},
 
 			showSelection() {
-				function expandNodes(id) {
-					window.slVueTree.traverseLight((itemPath, nodeModel) => {
-						if (nodeModel.data._id === id) {
-							Vue.set(nodeModel, 'isExpanded', true)
-							let parentId = nodeModel.data.parentId
-							if (parentId !== 'root') {
-								// recurse
-								expandNodes(parentId)
-							}
-							return false
-						}
-					}, undefined, undefined, 'showSelection:expandNodes')
+				if (this.searchText === RESETSEARCHBUTTONTEXT) {
+					this.clearSearch()
+					return
 				}
-				// unselect all
-				window.slVueTree.traverseLight((itemPath, nodeModel) => {
-					Vue.set(nodeModel, 'highlighted', false)
-				}, undefined, undefined, 'showSelection:unselect-all')
+
+				// reset the other selection first
+				if (this.searchText !== FILTERBUTTONTEXT) this.clearFilter()
 
 				let count = 0
 				window.slVueTree.traverseLight((itemPath, nodeModel) => {
-					if (this.keyword !== '' &&
-							nodeModel.data.productId === this.$store.state.load.currentProductId &&
+					// limit to current product and levels higher than product
+					if (itemPath.length > 2) {
+						if (nodeModel.data.productId === this.$store.state.load.currentProductId &&
 							nodeModel.title.toLowerCase().includes(this.keyword.toLowerCase())) {
-						expandNodes(nodeModel.data.parentId)
-						Vue.set(nodeModel, 'highlighted', true)
-						count++
+							Vue.set(nodeModel, 'doShow', true)
+							Vue.set(nodeModel, 'highlighted', true)
+							this.showParents(itemPath)
+							count++
+						} else {
+							Vue.set(nodeModel, 'doShow', false)
+							Vue.set(nodeModel, 'highlighted', false)
+						}
 					}
 				}, undefined, undefined, 'showSelection:find')
 				// show event
@@ -198,6 +218,7 @@
 				} else {
 					this.showLastEvent(`${count} item titles match your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
 				}
+				this.searchText = RESETSEARCHBUTTONTEXT
 			},
 
 			changeTeam() {

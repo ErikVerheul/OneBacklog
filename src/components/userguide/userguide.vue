@@ -9,11 +9,13 @@
 				<h5>User guide</h5>
 				<p class="indent10">This text</p>
 				<h5>Filter on time</h5>
-				<p class="indent10">With the split button next to the 'user guide' you can open a drop down list with 3 choices: Show the changes in the last 10 minutes, in the last hour and in the last 24 hours. After selecting an option the items changed in the chosen time frame will be highlighted. Branches not changed will not show. To return to the normal view press the button which now has the text 'Clear filter'</p>
-				<h5>Search on key word.</h5>
-				<p class="indent10">Input field for the search button. Searches for the keyword in the title of all items of the current product. That is the product for which an item is selected. To return to the normal view empty the search field en press the search button.</p>
+				<p class="indent10">With the split button next to the 'user guide' you can open a drop down list with 3 choices: Show the changes in the last 10 minutes, in the last hour and in the last 24 hours. After selecting an option the items changed in the chosen time frame will be highlighted. Branches not changed will not show. To return to the normal view press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on one of its nodes.</p>
+				<h5>Search on key word</h5>
+				<p class="indent10">Input field for the search button. Searches for the keyword in the title of all items of the current product. That is the product for which an item is selected. To return to the normal view press the search button (now with title 'Clear search') again.</p>
 				<h5>Search button</h5>
 				<p class="indent10">When clicked all items in the current product with the keyword in the title will expand and highlighted.</p>
+				<h5>Filter on time + Search on key word</h5>
+				<p class="indent10">When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 				<h5>Select your view</h5>
 				<p class="indent10"><a href="#pv">Products view</a></p>
 				<p class="indent10"><a href="#rv">Requirements areas view</a></p>

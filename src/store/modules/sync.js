@@ -96,7 +96,7 @@ const actions = {
 					for (let i = 0; i < data.results.length; i++) {
 						let doc = data.results[i].doc
 						// Select only documents which are a product backlog item and
-						// changes not made by the user him/her self and ment for distribution (if not filtered out by the _design filter)
+						// changes not made by the user him/her self and ment for distribution (if not filtered out by the CouchDB _design filter)
 						if (doc.type === 'backlogItem' &&
 							doc.history[0].distributeEvent == true &&
 							doc.history[0].sessionId !== rootState.sessionId &&
@@ -114,6 +114,8 @@ const actions = {
 									node.data.priority = doc.priority
 									node.data.parentId = doc.parentId
 									node.data.productId = doc.productId
+									// set lastChange to now
+									node.data.lastChange = Date.now()
 									if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {
 										// the node has not changed parent nor changed location w/r to its siblings
 										updateFields(doc, node)
@@ -161,21 +163,28 @@ const actions = {
 								// new node
 								let node = {
 									"title": doc.title,
+									"children": [],
 									"isSelected": false,
 									"isExpanded": true,
-									"children": [],
+									"savedIsExpanded": true,
+									"isSelectable": true,
+									"isDraggable": rootGetters.canWriteLevels[doc.level],
+									"highlighted": false,
+									"doShow": true,
+									"savedDoShow": true,
 									"data": {
 										"_id": doc._id,
 										"productId": doc.productId,
 										"parentId": doc.parentId,
+										"state": doc.state,
 										"subtype": 0,
-										"state": 0,
+										"lastChange": Date.now(),
 										"sessionId": rootState.sessionId,
 										"distributeEvent": true
 									}
 								}
 								let locationInfo = getLocationInfo(doc.priority, doc.parentId)
-								// update priority
+								// set priority and isLeaf field
 								node.data.priority = doc.priority
 								node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
 								if (locationInfo.newInd === 0) {

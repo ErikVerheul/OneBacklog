@@ -100,7 +100,9 @@ export default {
 				})
 				return this.getNodes(nodeModels);
 			}
-			return this.getParent().filteredNodes[this.parentInd].children;
+			return this.getParent().filteredNodes[this.parentInd].children.filter(node => {
+				return node.doShow
+			})
 		},
 
 		/**
@@ -159,9 +161,13 @@ export default {
 
 			if (!nodeModel) return null;
 
-			const isExpanded = nodeModel.isExpanded === undefined ? true : !!nodeModel.isExpanded;
+			const doShow = nodeModel.doShow === undefined ? true : !!nodeModel.doShow
+			const savedDoShow = nodeModel.savedDoShow === undefined ? true : !!nodeModel.savedDoShow
+			const isExpanded = nodeModel.isExpanded === undefined ? true : !!nodeModel.isExpanded
+			const savedIsExpanded = nodeModel.savedIsExpanded === undefined ? true : !!nodeModel.savedIsExpanded
 			const isDraggable = nodeModel.isDraggable === undefined ? true : !!nodeModel.isDraggable;
 			const isSelectable = nodeModel.isSelectable === undefined ? true : !!nodeModel.isSelectable;
+			const highlighted = nodeModel.highlighted === undefined ? true : !!nodeModel.highlighted
 
 			const node = {
 				// define the all ISlTreeNodeModel props
@@ -170,11 +176,13 @@ export default {
 				children: nodeModel.children ? this.getNodes(nodeModel.children, path, isExpanded) : [],
 				isSelected: !!nodeModel.isSelected,
 				isExpanded,
+				savedIsExpanded,
 				isVisible,
 				isDraggable,
 				isSelectable,
-				doShow: !!nodeModel.doShow,
-				highlighted: !!nodeModel.highlighted,
+				doShow,
+				savedDoShow,
+				highlighted,
 				data: nodeModel.data !== undefined ? nodeModel.data : {},
 
 				// define the all ISlTreeNode computed props
@@ -630,6 +638,8 @@ export default {
 			if (!this.allowToggleBranch) return;
 
 			this.updateNode(node.path, {
+				// save the state so that filters can revert to it
+				savedIsExpanded: !node.isExpanded,
 				isExpanded: !node.isExpanded
 			});
 			this.emitToggle(node, event);
