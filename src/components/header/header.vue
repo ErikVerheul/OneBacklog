@@ -76,7 +76,7 @@
 	export default {
 		data() {
 			return {
-				appVersion: 'OneBackLog v.0.5.1',
+				appVersion: 'OneBackLog v.0.5.0',
 				filterText: FILTERBUTTONTEXT,
 				searchText: SEARCHBUTTONTEXT,
 				eventBgColor: '#408FAE',
