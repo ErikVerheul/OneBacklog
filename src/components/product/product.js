@@ -1,5 +1,3 @@
-import Vue from 'vue'
-
 import {
 	mapGetters
 } from 'vuex'
@@ -545,13 +543,6 @@ export default {
 			this.updateDescription()
 			// both an update of the description and the acceptance criteria should NOT happen
 			this.updateAcceptance()
-			// clear any highlighted nodes
-			window.slVueTree.traverseLight((itemPath, nodeModel) => {
-				// limit to current product and levels higher than product
-				if (nodeModel.data.productId === this.$store.state.load.currentProductId && itemPath.length > 2) {
-					Vue.set(nodeModel, 'highlighted', false)
-				}
-			}, undefined, undefined, 'product.js:nodeSelectedEvent')
 			if (!this.haveSameParent(selNodes)) {
 				this.showLastEvent('You can only select nodes with the same parent.', WARNING)
 				return

@@ -120,7 +120,6 @@
 					if (nodeModel.data.productId === this.$store.state.load.currentProductId && itemPath.length > 2) {
 						Vue.set(nodeModel, 'doShow', nodeModel.savedDoShow)
 						Vue.set(nodeModel, 'isExpanded', nodeModel.savedIsExpanded)
-						Vue.set(nodeModel, 'highlighted', false)
 					}
 				}, undefined, undefined, 'header.vue:resetTree')
 			},
@@ -169,12 +168,10 @@
 					if (nodeModel.data.productId === this.$store.state.load.currentProductId && itemPath.length > 2) {
 						if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
 							Vue.set(nodeModel, 'doShow', true)
-							Vue.set(nodeModel, 'highlighted', true)
 							this.showParents(itemPath)
 							count++
 						} else {
 							Vue.set(nodeModel, 'doShow', false)
-							Vue.set(nodeModel, 'highlighted', false)
 						}
 					}
 				}, undefined, undefined, 'header.vue:filterSince')
@@ -203,12 +200,10 @@
 						if (nodeModel.data.productId === this.$store.state.load.currentProductId &&
 							nodeModel.title.toLowerCase().includes(this.keyword.toLowerCase())) {
 							Vue.set(nodeModel, 'doShow', true)
-							Vue.set(nodeModel, 'highlighted', true)
 							this.showParents(itemPath)
 							count++
 						} else {
 							Vue.set(nodeModel, 'doShow', false)
-							Vue.set(nodeModel, 'highlighted', false)
 						}
 					}
 				}, undefined, undefined, 'showSelection:find')
