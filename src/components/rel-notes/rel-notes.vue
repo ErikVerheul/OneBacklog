@@ -5,7 +5,7 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<hr>
-				<h3>v.0.5.0 - 22 May 2019 Feature update</h3>
+				<h3>v.0.5.0 - 23 May 2019 Feature update</h3>
 				<p>New features:</p>
 				<ul>
 					<li>[USER REQUEST] Filter the tree on changed items since</li>
