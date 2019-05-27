@@ -22,7 +22,7 @@ const actions = {
 					resultNode = window.slVueTree.getNode(nodePath, nodeModel, nodeModels)
 					return false
 				}
-			}, undefined, undefined, 'sync.js:getNodeById')
+			}, undefined, undefined, undefined, 'sync.js:getNodeById')
 			return resultNode
 		}
 		/*
@@ -102,64 +102,68 @@ const actions = {
 							doc.history[0].sessionId !== rootState.sessionId &&
 							rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
 							// eslint-disable-next-line no-console
-							if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed.')
+							if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed')
 							dispatch('doBlinck')
 							let node = getNodeById(doc._id)
 							if (node !== null) {
 								// the node exists (is not new)
-								if (!doc.delmark) {
-									// update the parent as it can be changed
-									let locationInfo = getLocationInfo(doc.priority, doc.parentId)
-									// update priority, parent and product
-									node.data.priority = doc.priority
-									node.data.parentId = doc.parentId
-									node.data.productId = doc.productId
-									// set lastChange to now
-									node.data.lastChange = Date.now()
-									if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {
-										// the node has not changed parent nor changed location w/r to its siblings
-										updateFields(doc, node)
-									} else {
-										// move the node to the new position w/r to its siblings
-										if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === -1) {
-											// move up: remove from old position first
-											node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
-											window.slVueTree.remove([node.path])
-											if (locationInfo.newInd === 0) {
-												window.slVueTree.insert({
-													node: locationInfo.prevNode,
-													placement: 'inside'
-												}, node)
-											} else {
-												// insert after prevNode
-												window.slVueTree.insert({
-													node: locationInfo.prevNode,
-													placement: 'after'
-												}, node)
-											}
-										} else {
-											// move down: insert first
-											node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
-											if (locationInfo.newInd === 0) {
-												window.slVueTree.insert({
-													node: locationInfo.prevNode,
-													placement: 'inside'
-												}, node)
-											} else {
-												window.slVueTree.insert({
-													node: locationInfo.prevNode,
-													placement: 'after'
-												}, node)
-											}
-											// remove from old position
-											window.slVueTree.remove([node.path])
-										}
-									}
-								} else {
+								if (doc.delmark) {
 									// remove the node
 									window.slVueTree.remove([node.path])
+									continue
+								}
+								// update the parent as it can be changed
+								let locationInfo = getLocationInfo(doc.priority, doc.parentId)
+								// update priority, parent and product
+								node.data.priority = doc.priority
+								node.data.parentId = doc.parentId
+								node.data.productId = doc.productId
+								// set lastChange to now
+								node.data.lastChange = Date.now()
+								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {
+									// the node has not changed parent nor changed location w/r to its siblings
+									updateFields(doc, node)
+								} else {
+									// move the node to the new position w/r to its siblings
+									if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === -1) {
+										// move up: remove from old position first
+										node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
+										window.slVueTree.remove([node.path])
+										if (locationInfo.newInd === 0) {
+											window.slVueTree.insert({
+												node: locationInfo.prevNode,
+												placement: 'inside'
+											}, node)
+										} else {
+											// insert after prevNode
+											window.slVueTree.insert({
+												node: locationInfo.prevNode,
+												placement: 'after'
+											}, node)
+										}
+									} else {
+										// move down: insert first
+										node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
+										if (locationInfo.newInd === 0) {
+											window.slVueTree.insert({
+												node: locationInfo.prevNode,
+												placement: 'inside'
+											}, node)
+										} else {
+											window.slVueTree.insert({
+												node: locationInfo.prevNode,
+												placement: 'after'
+											}, node)
+										}
+										// remove from old position
+										window.slVueTree.remove([node.path])
+									}
 								}
 							} else {
+								if (doc.delmark) {
+									// do not insert a removed node
+									continue
+								}
 								// new node
 								let node = {
 									"title": doc.title,
@@ -169,7 +173,6 @@ const actions = {
 									"savedIsExpanded": true,
 									"isSelectable": true,
 									"isDraggable": rootGetters.canWriteLevels[doc.level],
-									"highlighted": false,
 									"doShow": true,
 									"savedDoShow": true,
 									"data": {

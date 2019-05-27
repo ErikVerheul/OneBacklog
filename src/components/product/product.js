@@ -550,10 +550,19 @@ export default {
 			this.nodeIsSelected = true
 			numberOfNodesSelected = selNodes.length
 			this.firstNodeSelected = selNodes[0]
-			// set the current productId so that canWriteLevels is actual
+			// if the user clicked on a node of another product
 			if (this.$store.state.load.currentProductId !== this.firstNodeSelected.data.productId) {
+				// clear any outstanding filters
+				if (this.$store.state.filterOn || this.$store.state.searchOn) {
+					window.slVueTree.resetFilters('nodeSelectedEvent')
+				}
+				// collapse the previously selected product
+				window.slVueTree.collapseTree()
+				// update current productId
 				this.$store.state.load.currentProductId = this.firstNodeSelected.data.productId
-				// also update the product title
+				// expand the newly selected product up to the feature level
+				window.slVueTree.expandTree(FEATURELEVEL)
+				// update the product title
 				this.$store.dispatch('readProductTitle', this.firstNodeSelected.data.productId)
 			}
 			// load the document if not already in memory
@@ -593,7 +602,7 @@ export default {
 						if (nodePath.length > maxDepth) maxDepth = nodePath.length
 					}
 				}
-			}, undefined, undefined, 'product.js:getDescendantsInfo')
+			}, undefined, undefined, this.$store.state.load.currentProductId, 'product.js:getDescendantsInfo')
 			return {
 				descendants: descendants,
 				count: count,
@@ -1004,7 +1013,7 @@ export default {
 				})
 				// restore default
 				this.insertOptionSelected = 1
-				// inserting the node also selects it
+				// insert the node that has the property isSelected = true
 				window.slVueTree.insert(newNodeLocation, newNode)
 				// now the node is inserted and selected get the full ISlTreeNode data
 				const insertedNode = window.slVueTree.getSelected()[0]

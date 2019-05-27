@@ -1,8 +1,8 @@
-<!-- This component is an improved version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree -->
+<!-- This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree -->
 <template>
 	<div class="sl-vue-tree" :class="{'sl-vue-tree-root': isRoot }" @mousemove="onMousemoveHandler" @mouseleave="onMouseleaveHandler" @dragend="onDragendHandler(null, $event)">
 		<div ref="nodes" class="sl-vue-tree-nodes-list">
-			<div class="sl-vue-tree-node" v-for="(node, nodeInd) in filteredNodes" :class="{'sl-vue-tree-selected': node.isSelected || node.highlighted}" :key="node.pathStr">
+			<div class="sl-vue-tree-node" v-for="(node, nodeInd) in filteredNodes" :class="{'sl-vue-tree-selected': node.isSelected}" :key="node.pathStr">
 				<div class="sl-vue-tree-cursor sl-vue-tree-cursor_before" @dragover.prevent :style="{
 						visibility:
             cursorPosition &&

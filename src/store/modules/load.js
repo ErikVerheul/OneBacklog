@@ -98,6 +98,7 @@ const mutations = {
 				let level = batch[i].doc.level
 				let parentId = batch[i].doc.parentId
 				let delmark = batch[i].doc.delmark
+				let expanded = (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL) ? true : false
 				// Skip the database/requirement area levels and the removed items
 				if (level > 1 && !delmark) {
 					let newNode = {
@@ -106,15 +107,14 @@ const mutations = {
 						isLeaf: (level === LEAFLEVEL) ? true : false,
 						children: [],
 						// expand the tree of the default product
-						isExpanded: (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL ) ? true : false,
-						savedIsExpanded: (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL ) ? true : false,
+						isExpanded: expanded,
+						savedIsExpanded: expanded,
 						isSelectable: true,
 						isDraggable: getters.canWriteLevels[batch[i].doc.level],
 						// select the default product
 						isSelected: (batch[i].doc._id === state.currentDefaultProductId) ? true : false,
 						doShow: true,
 						savedDoShow: true,
-						highlighted: false,
 						data: {
 							_id: batch[i].doc._id,
 							priority: batch[i].doc.priority,

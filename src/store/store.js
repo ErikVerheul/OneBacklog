@@ -71,9 +71,17 @@ Vue.use(Vuex)
  *	}
  */
 
+const FILTERBUTTONTEXT = 'Set filter'
+const SEARCHBUTTONTEXT = 'Search'
+
 export default new Vuex.Store({
 
 	state: {
+		filterText: FILTERBUTTONTEXT,
+		filterOn: false,
+		searchText: SEARCHBUTTONTEXT,
+		searchOn: false,
+		keyword: '',
 		listenForChangesRunning: false,
 		lastSyncSeq: null,
 		sessionId: null,

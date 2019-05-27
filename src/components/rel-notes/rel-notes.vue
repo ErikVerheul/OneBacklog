@@ -5,6 +5,15 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<hr>
+				<h3>v.0.5.1 - 24 May 2019 Minor update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Collapse current and expand other product on click</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Filter should reset when jump to other product</li>
+				</ul>
 				<h3>v.0.5.0 - 23 May 2019 Feature update</h3>
 				<p>New features:</p>
 				<ul>
@@ -74,7 +83,8 @@
 		color: black;
 	}
 
-	p, li {
+	p,
+	li {
 		color: black;
 	}
 
