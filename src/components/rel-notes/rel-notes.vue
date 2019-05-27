@@ -5,15 +5,24 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<hr>
-				<h3>v.0.5.1 - 24 May 2019 Minor update</h3>
+				<h3>v.0.5.1 - 27 May 2019 Minor update</h3>
 				<p>New features:</p>
 				<ul>
 					<li>Collapse current and expand other product on click</li>
+					<li>Return the tree as I left it in the previous session</li>
+					<li>On load expand the tree up to the feature level</li>
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>
+					<li>Clear filter not working after jump to other product</li>
+					<li>Removed items do reappear</li>
 					<li>Filter should reset when jump to other product</li>
 				</ul>
+				<p>Performance improvements:</p>
+				<ul>
+					<li>Decrease number of nodes rendered</li>
+				</ul>
+				<hr>
 				<h3>v.0.5.0 - 23 May 2019 Feature update</h3>
 				<p>New features:</p>
 				<ul>
