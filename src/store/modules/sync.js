@@ -13,6 +13,7 @@ const actions = {
 		dispatch
 	}, since) {
 		/*
+		 * Traverse all products in the tree
 		 * Returns the node or null when it does not exist
 		 */
 		function getNodeById(id) {
@@ -95,7 +96,7 @@ const actions = {
 				if (since) {
 					for (let i = 0; i < data.results.length; i++) {
 						let doc = data.results[i].doc
-						// Select only documents which are a product backlog item and
+						// Select only documents which are a product backlog item, belong to the the user assigned products and
 						// changes not made by the user him/her self and ment for distribution (if not filtered out by the CouchDB _design filter)
 						if (doc.type === 'backlogItem' &&
 							doc.history[0].distributeEvent == true &&
