@@ -677,15 +677,6 @@ export default {
 			}, undefined, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:updateNode');
 		},
 
-		//		unselectAll() {
-		//			this.traverseLight((nodePath, nodeModel) => {
-		//				if (nodeModel.isSelected) {
-		//					nodeModel.isSelected = false
-		//					console.log('unselectAll: node ' + nodeModel.title + ' is unselected')
-		//				}
-		//			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:unselectAll');
-		//		},
-
 		getSelected() {
 			const selectedNodes = [];
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
