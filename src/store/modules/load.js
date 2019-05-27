@@ -297,9 +297,12 @@ const actions = {
 					// recurse until all read
 					dispatch('getNextDocsBatch')
 				} else {
-					dispatch('listenForChanges')
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('getNextDocsBatch: listenForChanges started')
+					// do not start again after sign-out/in
+					if (!rootState.listenForChangesRunning) {
+						dispatch('listenForChanges')
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log('getNextDocsBatch: listenForChanges started')
+					}
 					// reset load parameters
 					parentNodes = []
 					this.offset = 0
@@ -330,10 +333,12 @@ const actions = {
 					state.offset += batchSize
 					dispatch('getNextDocsBatch')
 				} else {
-					// all documents are read
-					dispatch('listenForChanges')
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
+					// all documents are read & do not start again after sign-out/in
+					if (!rootState.listenForChangesRunning) {
+						dispatch('listenForChanges')
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
+					}
 					// reset load parameters
 					parentNodes = []
 					this.offset = 0
