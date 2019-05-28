@@ -25,7 +25,6 @@ const PBILEVEL = 5
 var numberOfNodesSelected = 0
 var newNode = {}
 var newNodeLocation = null
-var insertLevel = null
 
 export default {
 	data() {
@@ -40,7 +39,14 @@ export default {
 			newDescription: '',
 			newAcceptance: '',
 			nodeIsSelected: false,
-			removeTitle: '',
+			contextNodeSelected: undefined,
+			contextNodeTitle: '',
+			contextNodeLevel: 0,
+			contextNodeType: '',
+			contextChildType: '',
+			contextSelected: undefined,
+			contextWarning: undefined,
+			removeDescendantsCount: 0,
 			// default to sibling node (no creation of descendant)
 			insertOptionSelected: 1,
 			selectedNodesTitle: '',
@@ -822,19 +828,66 @@ export default {
 			if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
 			this.showLastEvent(evt, INFO)
 		},
-		showRemoveModal(node, event) {
-			event.preventDefault();
+		showContextMenu(node, event) {
+			event.preventDefault()
+			this.contextSelected = undefined
+			this.insertOptionSelected = 1
 			// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-			if (this.canWriteLevels[node.level] && this.nodeIsSelected && node.level > 1 && numberOfNodesSelected === 1) {
-				this.removeTitle = `This ${this.getLevelText(node.level)} and ${this.getDescendantsInfo(node.path).count} descendants will be removed`
-				this.$refs.removeModalRef.show();
+			if (this.canWriteLevels[node.level] && node.data._id === this.firstNodeSelected.data._id && node.level > 1 && numberOfNodesSelected === 1) {
+				this.contextNodeSelected = node
+				this.contextNodeTitle = node.title
+				this.contextNodeLevel = node.level
+				this.contextNodeType = this.getLevelText(node.level)
+				this.contextChildType = this.getLevelText(node.level + 1)
+				this.removeDescendantsCount = this.getDescendantsInfo(node.path).count
+				this.$refs.contextMenuRef.show()
 			}
 		},
+		showSelected() {
+			switch (this.contextSelected) {
+				case 0:
+					this.contextWarning = undefined
+					this.insertOptionSelected = 1
+					return 'Insert a ' + this.contextNodeType + ' below this item'
+				case 1:
+					this.insertOptionSelected = 2
+					this.contextWarning = undefined
+					return 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
+				case 2:
+					this.contextWarning = undefined
+					return 'Move this item to another product'
+				case 3:
+					this.contextWarning = 'WARNING: this action cannot be undone!'
+					return `Remove this ${this.contextNodeType} and ${this.removeDescendantsCount} descendants`
+				default:
+					this.contextWarning = undefined
+					return 'nothing selected as yet'
+			}
+		},
+		procSelected() {
+			switch (this.contextSelected) {
+				case 0:
+					this.doInsert()
+					break
+				case 1:
+					this.doInsert()
+					break
+				case 2:
+					this.moveItem()
+					break
+				case 3:
+					this.doRemove()
+					break
+			}
+		},
+		moveItem() {
+
+		},
 		/*
-		 * Both the clicked node and all its descendants will be tagged with a delmark
+		 * Both the selected node and all its descendants will be tagged with a delmark
 		 */
 		doRemove() {
-			const selectedNode = this.firstNodeSelected
+			const selectedNode = this.contextNodeSelected
 			const descendantsInfo = this.getDescendantsInfo(selectedNode.path)
 			this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
 			const path = selectedNode.path
@@ -869,25 +922,6 @@ export default {
 			// after removal no node is selected
 			this.nodeIsSelected = false
 		},
-		/*
-		 * Cannot create a database here, ask server admin
-		 */
-		showInsertModal(node, event) {
-			event.preventDefault();
-			if (this.nodeIsSelected) {
-				let clickedLevel = this.firstNodeSelected.level
-
-				if (clickedLevel === PBILEVEL) {
-					// cannot create child below PBI
-					this.insertOptionSelected = 1;
-				}
-				if (clickedLevel === 1) {
-					// cannot create a database here, ask server admin
-					this.insertOptionSelected = 2;
-				}
-				this.$refs.insertModalRef.show()
-			}
-		},
 		getPbiOptions() {
 			this.selectedPbiType = this.getCurrentItemSubType
 			let options = [{
@@ -903,27 +937,6 @@ export default {
 					value: 2,
 					}
 				]
-			return options
-		},
-		getNodeTypeOptions() {
-			let options = [{
-					text: 'Option 1',
-					value: 1,
-					disabled: false
-					},
-				{
-					text: 'Option 2',
-					value: 2,
-					disabled: false
-					}
-				];
-			var clickedLevel = this.firstNodeSelected.level
-			options[0].text = this.getLevelText(clickedLevel)
-			options[1].text = this.getLevelText(clickedLevel + 1)
-			// Disable the option to create a node below a PBI
-			if (clickedLevel === PBILEVEL) options[1].disabled = true
-			// Disable the option to create a new database
-			if (clickedLevel === 1) options[0].disabled = true
 			return options
 		},
 		getViewOptions() {
@@ -942,11 +955,12 @@ export default {
 				]
 			return options
 		},
+
 		/*
-		 * Prepare a new node for insertion
+		 * Create and insert a new node in the tree and create a document for this new item
 		 */
-		prepareInsert() {
-			// prepare the new node of type ISlTreeNodeModel for insertion later
+		doInsert() {
+			// prepare the new node of type ISlTreeNodeModel for insertion
 			newNode = {
 				title: 'is calculated in this method',
 				isLeaf: 'is calculated in this method',
@@ -970,37 +984,26 @@ export default {
 					distributeEvent: true
 				}
 			}
-			var clickedLevel = this.firstNodeSelected.level
+			let insertLevel = this.contextNodeSelected.level
 			if (this.insertOptionSelected === 1) {
 				// New node is a sibling placed below (after) the selected node
-				insertLevel = clickedLevel
-
 				newNodeLocation = {
-					node: this.firstNodeSelected,
+					node: this.contextNodeSelected,
 					placement: 'after'
 				}
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
-				return "Insert new " + this.getLevelText(insertLevel) + " below the selected node"
-			}
-			if (this.insertOptionSelected === 2) {
+			} else {
 				// new node is a child placed a level lower (inside) than the selected node
-				insertLevel = clickedLevel + 1
+				insertLevel += 1
 
 				newNodeLocation = {
-					node: this.firstNodeSelected,
+					node: this.contextNodeSelected,
 					placement: 'inside'
 				}
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
-				return "Insert new " + this.getLevelText(insertLevel) + " as a child node"
 			}
-			return '' // Should never happen
-		},
-		/*
-		 * Insert the prepared node in the tree and create a document for this new item
-		 */
-		doInsert() {
 			if (this.canWriteLevels[insertLevel]) {
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
@@ -1011,8 +1014,6 @@ export default {
 					isSelected: false,
 					isExpanded: true
 				})
-				// restore default
-				this.insertOptionSelected = 1
 				// insert the node that has the property isSelected = true
 				window.slVueTree.insert(newNodeLocation, newNode)
 				// now the node is inserted and selected get the full ISlTreeNode data
@@ -1059,9 +1060,8 @@ export default {
 				this.showLastEvent("Sorry, your assigned role(s) disallow you to create new items of this type", WARNING)
 			}
 		},
-		doCancelInsert() {
-			// restore default
-			this.insertOptionSelected = 1;
+		doCancel() {
+			// do nothing
 		}
 	},
 

@@ -674,7 +674,7 @@ export default {
 			this.traverseLight((nodePath, nodeModel) => {
 				if (JSON.stringify(nodePath) !== pathStr) return;
 				Object.assign(nodeModel, patch);
-			}, undefined, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:updateNode');
+			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:updateNode');
 		},
 
 		getSelected() {
@@ -758,7 +758,7 @@ export default {
 				const nodeModel = nodeModels[nodeInd];
 				if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
 					const itemPath = parentPath.concat(nodeInd);
-					//					if (caller === 'header.vue:resetFilters') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
+					//					if (caller === 'sl-vue-tree:resetFilters') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
 					shouldStop = cb(itemPath, nodeModel, nodeModels) === false;
 
 					if (shouldStop) break;
@@ -787,7 +787,7 @@ export default {
 				for (const pathStr of pathsStr) {
 					if (JSON.stringify(nodePath) === pathStr) nodeModel._markToDelete = true;
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:remove@mark');
+			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:remove');
 
 			this.traverseModels((nodeModel, siblings, ind) => {
 				if (!nodeModel._markToDelete) return;
@@ -847,7 +847,7 @@ export default {
 					nodeModel.savedDoShow = nodeModel.doShow
 					nodeModel.doShow = false
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'header.vue:collapseTree')
+			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree:collapseTree')
 			//			this.showVisibility('expandTree')
 		},
 
@@ -861,7 +861,7 @@ export default {
 				} else {
 					nodeModel.doShow = true
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'header.vue:expandTree')
+			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree:expandTree')
 			//			this.showVisibility('expandTree')
 		},
 
@@ -874,7 +874,7 @@ export default {
 				vm.traverseLight((itemPath, nodeModel) => {
 					nodeModel.doShow = nodeModel.savedDoShow
 					nodeModel.isExpanded = nodeModel.savedIsExpanded
-				}, undefined, undefined, productId, 'header.vue:resetFilters')
+				}, undefined, undefined, productId, 'sl-vue-tree:resetFilters')
 			}
 
 			if (this.$store.state.filterOn) {
@@ -926,7 +926,7 @@ export default {
 						nodeModel.doShow = false
 					}
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'header.vue:filterSince')
+			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree:filterSince')
 			// show event
 			if (count === 1) {
 				this.showLastEvent(`${count} item title matches your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)

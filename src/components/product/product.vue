@@ -44,7 +44,7 @@
 
 				<!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
 				<div class="tree-container" @mousedown.stop>
-					<sl-vue-tree :value="$store.state.load.treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelectedEvent" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodedblclick="showInsertModal" @nodecontextmenu="showRemoveModal">
+					<sl-vue-tree :value="$store.state.load.treeNodes" ref="slVueTree" :allow-multiselect="true" @select="nodeSelectedEvent" @beforedrop="beforeNodeDropped" @drop="nodeDropped" @toggle="nodeToggled" @nodecontextmenu="showContextMenu">
 						<template slot="title" slot-scope="{ node }">
 							<span class="item-icon">
 								<i class="colorSeaBlue" v-if="node.level == databaseLevel">
@@ -181,19 +181,26 @@
 		</multipane>
 		<!-- Modals -->
 		<template v-if="this.nodeIsSelected">
-			<b-modal ref='removeModalRef' hide-footer :title=this.removeTitle>
-				<div class="d-block text-center">
-					<h3>This operation cannot be undone!</h3>
-				</div>
-				<b-button class="mt-3" variant="outline-danger" block @click="doRemove">Remove now!</b-button>
-			</b-modal>
-		</template>
-		<template v-if="this.nodeIsSelected">
-			<b-modal ref='insertModalRef' @ok="doInsert" @cancel="doCancelInsert" title='Insert a new item to your backlog'>
-				<b-form-group label="Select what node type to insert:">
-					<b-form-radio-group v-model="insertOptionSelected" :options="getNodeTypeOptions()" stacked name="Select new node type" />
-				</b-form-group>
-				<div class="mt-3">Selected: <strong>{{ prepareInsert() }}</strong></div>
+			<b-modal ref='contextMenuRef' @ok="procSelected()" @cancel="doCancel" :title="contextNodeTitle">
+				<b-list-group>
+					<b-list-group-item v-if="contextNodeLevel !== productLevel" button variant="dark" v-on:click="contextSelected = 0">
+						Insert a {{ contextNodeType }} below this node
+					</b-list-group-item>
+					<b-list-group-item v-if="contextNodeLevel < pbiLevel" button variant="dark" v-on:click="contextSelected = 1">
+						Insert a {{ contextChildType }} inside this {{ contextNodeType }}
+					</b-list-group-item>
+					<b-list-group-item button variant="dark" v-on:click="contextSelected = 2">
+						Move this item to another product
+					</b-list-group-item>
+					<b-list-group-item button variant="danger" v-on:click="contextSelected = 3">
+						Remove this {{ contextNodeType }} and {{ removeDescendantsCount }} descendants
+					</b-list-group-item>
+					<hr>
+					<div class="d-block text-center">
+						{{ showSelected() }}
+						<div v-if="contextWarning" class="colorRed"> {{ contextWarning }}</div>
+					</div>
+				</b-list-group>
 			</b-modal>
 		</template>
 		<template>
@@ -300,9 +307,7 @@
 
 	white;
 
-	border-radius:
-
-	0.25rem;
+	border-radius:0.25rem;
 
 	}
 
