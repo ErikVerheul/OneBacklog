@@ -6,6 +6,7 @@ const PRODUCTLEVEL = 2
 const FILTERBUTTONTEXT = 'Set filter'
 const RESETFILTERBUTTONTEXT = 'Clear filter'
 const INFO = 0
+var done = false
 
 export default {
 	name: 'sl-vue-tree',
@@ -268,26 +269,32 @@ export default {
 			const selectedNodes = [];
 			let shiftSelectionStarted = false;
 
-			this.traverse((node, nodeModel) => {
+			this.traverseLight((itemPath, nodeModel) => {
 				if (shiftSelectionMode) {
 					// only select nodes on the same level
-					if (node.level === this.lastSelectedNode.level && (node.pathStr === selectedNode.pathStr || node.pathStr === this.lastSelectedNode.pathStr)) {
-						nodeModel.isSelected = node.isSelectable;
+					if (itemPath.length === this.lastSelectedNode.level &&
+						(this.comparePaths(itemPath, selectedNode.path) === 0 ||
+							this.comparePaths(itemPath, this.lastSelectedNode.path) === 0)) {
+						nodeModel.isSelected = nodeModel.isSelectable;
 						shiftSelectionStarted = !shiftSelectionStarted;
 					}
 					// only select nodes on the same level
-					if (shiftSelectionStarted && node.level === this.lastSelectedNode.level) {
-						nodeModel.isSelected = node.isSelectable
+					if (shiftSelectionStarted && itemPath.length === this.lastSelectedNode.level) {
+						nodeModel.isSelected = nodeModel.isSelectable
 					}
-				} else if (node.pathStr === selectedNode.pathStr) {
-					nodeModel.isSelected = node.isSelectable;
+				} else if (this.comparePaths(itemPath, selectedNode.path) === 0) {
+					nodeModel.isSelected = nodeModel.isSelectable;
 				} else if (!addToSelection) {
-					if (nodeModel.isSelected) nodeModel.isSelected = false;
+					if (nodeModel.isSelected) {
+						nodeModel.isSelected = false
+					}
 				}
 
-				if (nodeModel.isSelected) selectedNodes.push(node);
-
-			}, undefined, undefined, 'sl-vue-tree.js:select');
+				if (nodeModel.isSelected) {
+					let node = this.getNode(itemPath, nodeModel)
+					selectedNodes.push(node)
+				}
+			}, undefined, 'sl-vue-tree.js:select');
 
 			this.lastSelectedNode = selectedNode;
 			this.emitSelect(selectedNodes, event);
@@ -433,7 +440,7 @@ export default {
 			let lastNode = null;
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
 				lastNode = this.getNode(nodePath, nodeModel, nodeModels)
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getLastNode');
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getLastNode');
 			return lastNode;
 		},
 
@@ -454,7 +461,7 @@ export default {
 					return false; // stop traverse
 				}
 
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getNextNode');
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getNextNode');
 
 			return resultNode;
 		},
@@ -467,7 +474,7 @@ export default {
 					return false;
 				}
 				prevNodes.push(this.getNode(nodePath, nodeModel, nodeModels));
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getPrevNode');
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getPrevNode');
 
 			let i = prevNodes.length;
 			while (i--) {
@@ -674,18 +681,18 @@ export default {
 			this.traverseLight((nodePath, nodeModel) => {
 				if (JSON.stringify(nodePath) !== pathStr) return;
 				Object.assign(nodeModel, patch);
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:updateNode');
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:updateNode');
 		},
 
 		getSelected() {
 			const selectedNodes = [];
-			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+			this.traverseLight((nodePath, nodeModel) => {
 				if (nodeModel.isSelected) {
-					let node = this.getNode(nodePath, nodeModel, nodeModels)
+					let node = this.getNode(nodePath, nodeModel)
 					selectedNodes.push(node)
 				}
-			}, undefined, undefined, undefined, 'sl-vue-tree.js:getSelected');
-			return selectedNodes;
+			}, undefined, 'sl-vue-tree.js:getSelected')
+			return selectedNodes
 		},
 
 		getDraggable() {
@@ -695,80 +702,58 @@ export default {
 				if (nodeModel.isSelected && isDraggable) {
 					selectedNodes.push(this.getNode(nodePath, nodeModel, nodeModels))
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getDraggable');
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getDraggable');
 			return selectedNodes;
-		},
-
-		traverse(
-			cb,
-			nodeModels = null,
-			parentPath = [],
-			caller = '?'
-		) {
-			if (caller !== '?') {
-				//eslint-disable-next-line no-console
-				console.log('TRAVERSE is called by ' + caller)
-			}
-			if (!nodeModels) {
-				nodeModels = this.currentValue;
-			}
-
-			let shouldStop = false;
-
-			const nodes = [];
-
-			for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
-				const nodeModel = nodeModels[nodeInd];
-				const itemPath = parentPath.concat(nodeInd);
-				//				console.log('traverse: itemPath = ', itemPath + ' title = ' + nodeModel.title)
-				const node = this.getNode(itemPath, nodeModel, nodeModels);
-				shouldStop = cb(node, nodeModel, nodeModels) === false;
-				nodes.push(node);
-
-				if (shouldStop) break;
-
-				if (nodeModel.children) {
-					shouldStop = this.traverse(cb, nodeModel.children, itemPath) === false;
-					if (shouldStop) break;
-				}
-			}
-
-			return !shouldStop ? nodes : false;
 		},
 
 		/* A faster version of the original */
 		traverseLight(
 			cb,
-			nodeModels = null,
-			parentPath = [],
 			productId = undefined,
-			caller = '?'
-		) {
-			if (caller !== '?') {
-				//eslint-disable-next-line no-console
-				console.log('TRAVERSELIGHT is called by ' + caller)
-			}
-			if (!nodeModels) {
-				nodeModels = this.currentValue;
-			}
+			caller) {
 
-			let shouldStop = false;
+			//eslint-disable-next-line no-console
+			console.log('TRAVERSELIGHT is called by ' + caller)
 
-			for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
-				const nodeModel = nodeModels[nodeInd];
-				if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
-					const itemPath = parentPath.concat(nodeInd);
-					//					if (caller === 'sl-vue-tree:resetFilters') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
-					shouldStop = cb(itemPath, nodeModel, nodeModels) === false;
+			done = false
 
-					if (shouldStop) break;
+			function traverse(
+				cb,
+				nodeModels = null,
+				parentPath = [],
+				productId = undefined
+			) {
 
-					if (nodeModel.children) {
-						shouldStop = this.traverseLight(cb, nodeModel.children, itemPath, productId) === false;
-						if (shouldStop) break;
+				if (done) return
+
+				let shouldStop = false
+				let count = 1
+				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
+					const nodeModel = nodeModels[nodeInd];
+					if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
+						const itemPath = parentPath.concat(nodeInd);
+						//					if (caller === 'sl-vue-tree:resetFilters') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
+						shouldStop = cb(itemPath, nodeModel, nodeModels) === false
+						count++
+						if (shouldStop) {
+							done = true
+							break
+						}
+
+						if (!done && nodeModel.children) {
+							shouldStop = traverse(cb, nodeModel.children, itemPath, productId) === false
+							if (shouldStop) {
+								done = true
+								break
+							}
+						}
 					}
 				}
+//				console.log('TRAVERSELIGHT is called ' + count + ' times, done = ' + done)
 			}
+
+			traverse(cb, this.currentValue, undefined, productId)
+
 		},
 
 		traverseModels(cb, nodeModels) {
@@ -787,7 +772,7 @@ export default {
 				for (const pathStr of pathsStr) {
 					if (JSON.stringify(nodePath) === pathStr) nodeModel._markToDelete = true;
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree.js:remove');
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:remove');
 
 			this.traverseModels((nodeModel, siblings, ind) => {
 				if (!nodeModel._markToDelete) return;
@@ -829,7 +814,7 @@ export default {
 					// eslint-disable-next-line no-console
 					console.log('showVisibility: level = ' + itemPath.length + ' isExpanded = ' + nodeModel.isExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
 				}
-			}, undefined, undefined, undefined, 'showVisibility')
+			}, undefined, 'showVisibility')
 		},
 
 		showLastEvent(txt, level) {
@@ -847,7 +832,7 @@ export default {
 					nodeModel.savedDoShow = nodeModel.doShow
 					nodeModel.doShow = false
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree:collapseTree')
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree:collapseTree')
 			//			this.showVisibility('expandTree')
 		},
 
@@ -861,7 +846,7 @@ export default {
 				} else {
 					nodeModel.doShow = true
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree:expandTree')
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree:expandTree')
 			//			this.showVisibility('expandTree')
 		},
 
@@ -874,7 +859,7 @@ export default {
 				vm.traverseLight((itemPath, nodeModel) => {
 					nodeModel.doShow = nodeModel.savedDoShow
 					nodeModel.isExpanded = nodeModel.savedIsExpanded
-				}, undefined, undefined, productId, 'sl-vue-tree:resetFilters')
+				}, productId, 'sl-vue-tree:resetFilters')
 			}
 
 			if (this.$store.state.filterOn) {
@@ -905,7 +890,7 @@ export default {
 				nodeModel.doShow = true
 				nodeModel.isExpanded = true
 				return false
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'showParents')
+			}, this.$store.state.load.currentProductId, 'showParents')
 			// recurse
 			this.showParents(parentPath)
 		},
@@ -926,7 +911,7 @@ export default {
 						nodeModel.doShow = false
 					}
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'sl-vue-tree:filterSince')
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree:filterSince')
 			// show event
 			if (count === 1) {
 				this.showLastEvent(`${count} item title matches your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
@@ -956,7 +941,7 @@ export default {
 						nodeModel.doShow = false
 					}
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'filterOnKeyword')
+			}, this.$store.state.load.currentProductId, 'filterOnKeyword')
 			// show event
 			if (count === 1) {
 				this.showLastEvent(`${count} item title matches your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)

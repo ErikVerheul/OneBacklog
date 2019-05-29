@@ -23,7 +23,7 @@ const actions = {
 					resultNode = window.slVueTree.getNode(nodePath, nodeModel, nodeModels)
 					return false
 				}
-			}, undefined, undefined, undefined, 'sync.js:getNodeById')
+			}, undefined, 'sync.js:getNodeById')
 			return resultNode
 		}
 		/*

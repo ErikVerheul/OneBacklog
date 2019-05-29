@@ -608,7 +608,7 @@ export default {
 						if (nodePath.length > maxDepth) maxDepth = nodePath.length
 					}
 				}
-			}, undefined, undefined, this.$store.state.load.currentProductId, 'product.js:getDescendantsInfo')
+			}, this.$store.state.load.currentProductId, 'product.js:getDescendantsInfo')
 			return {
 				descendants: descendants,
 				count: count,
