@@ -6,7 +6,7 @@ const batchSize = 250
 var batch = []
 const FEATURELEVEL = 4
 const LEAFLEVEL = 5
-var parentNodes = []
+var parentNodes = {}
 
 const state = {
 	docsCount: 0,
@@ -91,47 +91,50 @@ const mutations = {
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
 	 */
 	processBatch(state, myDefaultRoles) {
-		for (let i = 0; i < batch.length; i++) {
-			state.docsCount++
-			// Load the items of the products the user is authorized to
-			if (myDefaultRoles.includes('_admin') || myDefaultRoles.includes('areaPO') || myDefaultRoles.includes('admin') || myDefaultRoles.includes('superPO') || state.userAssignedProductIds.includes(batch[i].doc.productId)) {
-				let level = batch[i].doc.level
-				let parentId = batch[i].doc.parentId
-				let delmark = batch[i].doc.delmark
-				let expanded = (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL) ? true : false
-				// Skip the database/requirement area levels and the removed items
-				if (level > 1 && !delmark) {
-					let newNode = {
-						title: batch[i].doc.title,
-						// for now PBI's have no children
-						isLeaf: (level === LEAFLEVEL) ? true : false,
-						children: [],
-						// expand the tree of the default product
-						isExpanded: expanded,
-						savedIsExpanded: expanded,
-						isSelectable: true,
-						isDraggable: getters.canWriteLevels[batch[i].doc.level],
-						// select the default product
-						isSelected: (batch[i].doc._id === state.currentDefaultProductId) ? true : false,
-						doShow: true,
-						savedDoShow: true,
-						data: {
-							_id: batch[i].doc._id,
-							priority: batch[i].doc.priority,
-							productId: batch[i].doc.productId,
-							parentId: parentId,
-							state: batch[i].doc.state,
-							subtype: batch[i].doc.subtype,
-							lastChange: batch[i].doc.history[0].timestamp
+		// Check authorization
+		if (myDefaultRoles.includes('_admin') || myDefaultRoles.includes('areaPO') || myDefaultRoles.includes('admin') || myDefaultRoles.includes('superPO')) {
+			for (let i = 0; i < batch.length; i++) {
+				state.docsCount++
+				// Load the items of the products the user is authorized to
+				if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+					let level = batch[i].doc.level
+					let parentId = batch[i].doc.parentId
+					let delmark = batch[i].doc.delmark
+					let expanded = (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL) ? true : false
+					// Skip the database/requirement area levels and the removed items
+					if (level > 1 && !delmark) {
+						let newNode = {
+							title: batch[i].doc.title,
+							// for now PBI's have no children
+							isLeaf: (level === LEAFLEVEL) ? true : false,
+							children: [],
+							// expand the tree of the default product
+							isExpanded: expanded,
+							savedIsExpanded: expanded,
+							isSelectable: true,
+							isDraggable: getters.canWriteLevels[batch[i].doc.level],
+							// select the default product
+							isSelected: (batch[i].doc._id === state.currentDefaultProductId) ? true : false,
+							doShow: true,
+							savedDoShow: true,
+							data: {
+								_id: batch[i].doc._id,
+								priority: batch[i].doc.priority,
+								productId: batch[i].doc.productId,
+								parentId: parentId,
+								state: batch[i].doc.state,
+								subtype: batch[i].doc.subtype,
+								lastChange: batch[i].doc.history[0].timestamp
+							}
 						}
-					}
-					if (parentNodes[parentId] !== undefined) {
-						state.itemsCount++
-						let parentNode = parentNodes[parentId]
-						parentNode.children.push(newNode)
-						parentNodes[batch[i].doc._id] = newNode
-					} else {
-						state.orphansCount++
+						if (parentNodes[parentId] !== undefined) {
+							state.itemsCount++
+							let parentNode = parentNodes[parentId]
+							parentNode.children.push(newNode)
+							parentNodes[batch[i].doc._id] = newNode
+						} else {
+							state.orphansCount++
+						}
 					}
 				}
 			}
@@ -304,7 +307,7 @@ const actions = {
 						if (rootState.debug) console.log('getNextDocsBatch: listenForChanges started')
 					}
 					// reset load parameters
-					parentNodes = []
+					parentNodes = {}
 					this.offset = 0
 				}
 				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
@@ -330,17 +333,18 @@ const actions = {
 				batch = res.data.rows
 				commit('processBatch', rootState.myDefaultRoles)
 				if (batch.length === batchSize) {
+					// more documents to read
 					state.offset += batchSize
 					dispatch('getNextDocsBatch')
 				} else {
-					// all documents are read & do not start again after sign-out/in
+					// do not start listenForChanges again after sign-out/in
 					if (!rootState.listenForChangesRunning) {
 						dispatch('listenForChanges')
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
 					}
 					// reset load parameters
-					parentNodes = []
+					parentNodes = {}
 					this.offset = 0
 				}
 				// eslint-disable-next-line no-console
