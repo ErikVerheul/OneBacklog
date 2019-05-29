@@ -7,6 +7,8 @@ var batch = []
 const FEATURELEVEL = 4
 const LEAFLEVEL = 5
 var parentNodes = {}
+var productPageLounched = false
+var defaultProductIsSelected = false
 
 const state = {
 	docsCount: 0,
@@ -101,6 +103,8 @@ const mutations = {
 					let parentId = batch[i].doc.parentId
 					let delmark = batch[i].doc.delmark
 					let expanded = (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL) ? true : false
+					let isSelected = (batch[i].doc._id === state.currentDefaultProductId) ? true : false
+					if (isSelected) defaultProductIsSelected = true
 					// Skip the database/requirement area levels and the removed items
 					if (level > 1 && !delmark) {
 						let newNode = {
@@ -114,7 +118,7 @@ const mutations = {
 							isSelectable: true,
 							isDraggable: getters.canWriteLevels[batch[i].doc.level],
 							// select the default product
-							isSelected: (batch[i].doc._id === state.currentDefaultProductId) ? true : false,
+							isSelected: isSelected,
 							doShow: true,
 							savedDoShow: true,
 							data: {
@@ -313,6 +317,10 @@ const actions = {
 				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('Another batch of ' + batch.length + ' documents is loaded')
+				if (!productPageLounched && defaultProductIsSelected) {
+					router.push('/product')
+					productPageLounched = true
+				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getNextDocsBatch: Could not read a batch of documents ' + rootState.currentDb + '. Error = ' + error))
@@ -348,9 +356,12 @@ const actions = {
 					this.offset = 0
 				}
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded. Move to the product page')
+				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded.')
 				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
-				router.push('/product')
+				if (!productPageLounched && defaultProductIsSelected) {
+					router.push('/product')
+					productPageLounched = true
+				}
 			})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
