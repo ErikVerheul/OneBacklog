@@ -135,7 +135,7 @@ export default {
 			for (let i = 0; i < comments.length; i++) {
 				let allText = window.atob(comments[i].comment)
 				allText += comments[i].by
-				allText += this.getCur$store.state.currentDoc.commentsrentItemComments[i].email
+				allText += comments[i].email
 				allText += this.mkTimestamp(comments[i].timestamp)
 				if (allText.includes(this.filterForComment)) {
 					filteredComments.push(comments[i])
