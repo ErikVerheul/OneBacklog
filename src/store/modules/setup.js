@@ -86,7 +86,6 @@ const actions = {
 	// Create new product
 	createNewProduct({
 		rootState,
-		rootGetters,
 		dispatch
 	}, payload) {
 		const _id = newId()
@@ -114,7 +113,7 @@ const actions = {
 			"history": [{
 				"createEvent": [2, rootState.currentDb],
 				"by": rootState.user,
-				"email": rootGetters.getEmail,
+				"email": this.$store.state.load.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -155,7 +154,6 @@ const actions = {
 
 	createNewEpics({
 		rootState,
-		rootGetters,
 		dispatch
 	}, payload) {
 		if (payload.counter1 >= payload.epicsNumber) return
@@ -184,7 +182,7 @@ const actions = {
 			"history": [{
 				"createEvent": [3, payload.parentName],
 				"by": rootState.user,
-				"email": rootGetters.getEmail,
+				"email": this.$store.state.load.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -226,7 +224,6 @@ const actions = {
 
 	createNewFeatures({
 		rootState,
-		rootGetters,
 		dispatch
 	}, payload) {
 		if (payload.counter2 >= payload.featuresNumber) return
@@ -256,7 +253,7 @@ const actions = {
 			"history": [{
 				"createEvent": [4, payload.parentName],
 				"by": rootState.user,
-				"email": rootGetters.getEmail,
+				"email": this.$store.state.load.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -297,7 +294,6 @@ const actions = {
 
 	createNewStories({
 		rootState,
-		rootGetters,
 		dispatch
 	}, payload) {
 		if (payload.counter3 >= payload.storiesNumber) return
@@ -327,7 +323,7 @@ const actions = {
 			"history": [{
 				"createEvent": [5, payload.parentName],
 				"by": rootState.user,
-				"email": rootGetters.getEmail,
+				"email": this.$store.state.load.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false

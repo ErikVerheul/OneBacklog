@@ -97,41 +97,14 @@ export default {
 	computed: {
 		...mapGetters([
 				//from store.js
-				'getUser',
-				'getMyDefaultRoles',
 				'isAuthenticated',
-				'isDemoVersion',
 				'isFollower',
 				'isServerAdmin',
 				'canCreateComments',
-				'getCurrentDb',
-				'getCurrentItemAcceptanceCriteria',
-				'getCurrentItemAttachments',
-				'getCurrentItemComments',
-				'getCurrentItemDescription',
-				'getCurrentItemFollowers',
-				'getCurrentItemHistory',
-				'getCurrentItemId',
-				'getCurrentItemPriority',
-				'getCurrentItemProductId',
-				'getCurrentItemState',
-				'getCurrentItemTitle',
 				'getCurrentItemLevel',
-				'getCurrentItemReqArea',
-				'getCurrentItemSpSize',
-				'getCurrentItemSubType',
-				'getCurrentItemTeam',
 				'getCurrentItemTsSize',
-				'getCurrentPersonHours',
 				// from load.js
-				'canWriteLevels',
-				'getCurrentProductId',
-				'getCurrentProductTitle',
-				'getEmail',
-				'getUserAssignedProductIds',
-				'getMyTeams',
-				'getMyCurrentTeam',
-				'onDebug'
+				'canWriteLevels'
 			]),
 		subsribeTitle() {
 			if (this.isFollower) {
@@ -142,7 +115,7 @@ export default {
 		},
 		description: {
 			get() {
-				return this.getCurrentItemDescription
+				return this.$store.state.currentDoc.description
 			},
 			set(newDescription) {
 				this.newDescription = newDescription
@@ -150,7 +123,7 @@ export default {
 		},
 		acceptanceCriteria: {
 			get() {
-				return this.getCurrentItemAcceptanceCriteria
+				return this.$store.state.currentDoc.acceptanceCriteria
 			},
 			set(newAcceptanceCriteria) {
 				this.newAcceptance = newAcceptanceCriteria
@@ -158,13 +131,14 @@ export default {
 		},
 		getFilteredComments() {
 			let filteredComments = []
-			for (let i = 0; i < this.getCurrentItemComments.length; i++) {
-				let allText = window.atob(this.getCurrentItemComments[i].comment)
-				allText += this.getCurrentItemComments[i].by
-				allText += this.getCurrentItemComments[i].email
-				allText += this.mkTimestamp(this.getCurrentItemComments[i].timestamp)
+			let comments = this.$store.state.currentDoc.comments
+			for (let i = 0; i < comments.length; i++) {
+				let allText = window.atob(comments[i].comment)
+				allText += comments[i].by
+				allText += this.getCur$store.state.currentDoc.commentsrentItemComments[i].email
+				allText += this.mkTimestamp(comments[i].timestamp)
 				if (allText.includes(this.filterForComment)) {
-					filteredComments.push(this.getCurrentItemComments[i])
+					filteredComments.push(comments[i])
 				}
 			}
 			return filteredComments
@@ -181,8 +155,8 @@ export default {
 				}
 			}
 			let filteredComments = []
-			for (let i = 0; i < this.getCurrentItemHistory.length; i++) {
-				let histItem = this.getCurrentItemHistory[i]
+			for (let i = 0; i < this.$store.state.currentDoc.history.length; i++) {
+				let histItem = this.$store.state.currentDoc.history[i]
 				let allText = ""
 				let keys = Object.keys(histItem)
 				for (let j = 0; j < keys.length; j++) {
@@ -214,7 +188,7 @@ export default {
 	watch: {
 		'selectedPbiType': function (val) {
 			// prevent looping
-			if (val !== this.getCurrentItemSubType) {
+			if (val !== this.$store.state.currentDoc.subtype) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					this.firstNodeSelected.data.subtype = val
 					this.firstNodeSelected.data.lastChange = Date.now()
@@ -869,7 +843,7 @@ export default {
 			window.slVueTree.remove([path])
 			// when removing a product
 			if (selectedNode.level === this.productLevel) {
-				var newProducts = this.getUserAssignedProductIds
+				var newProducts = this.$store.state.load.userAssignedProductIds
 				var idx = newProducts.indexOf(selectedNode.data._id)
 				if (idx > -1) {
 					newProducts.splice(idx, 1)
@@ -896,7 +870,7 @@ export default {
 			this.nodeIsSelected = false
 		},
 		getPbiOptions() {
-			this.selectedPbiType = this.getCurrentItemSubType
+			this.selectedPbiType = this.$store.state.currentDoc.subtype
 			let options = [{
 					text: 'User story',
 					value: 0,
@@ -1018,7 +992,7 @@ export default {
 					"history": [{
 						"createEvent": null,
 						"by": this.$store.state.user,
-						"email": this.getEmail,
+						"email": this.$store.state.load.email,
 						"timestamp": Date.now(),
 						"sessionId": this.$store.state.sessionId,
 						"distributeEvent": true

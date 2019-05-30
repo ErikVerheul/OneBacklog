@@ -101,7 +101,7 @@ const actions = {
 						if (doc.type === 'backlogItem' &&
 							doc.history[0].distributeEvent == true &&
 							doc.history[0].sessionId !== rootState.sessionId &&
-							rootGetters.getUserAssignedProductIds.includes(doc.productId)) {
+							this.$store.state.load.userAssignedProductIds.includes(doc.productId)) {
 							// eslint-disable-next-line no-console
 							if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed')
 							dispatch('doBlinck')

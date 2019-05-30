@@ -34,7 +34,7 @@
 							<em>User</em>
 						</template>
 						<b-dropdown-item v-if="!auth">No options here when not signed in</b-dropdown-item>
-						<b-dropdown-item v-if="auth && this.$store.getters.getMyTeams.length > 1" @click="changeTeam">Change team</b-dropdown-item>
+						<b-dropdown-item v-if="auth && this.$store.state.load.myTeams.length > 1" @click="changeTeam">Change team</b-dropdown-item>
 						<b-dropdown-item v-if="auth" @click="changePassword">Change password</b-dropdown-item>
 						<b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
 						<b-dropdown-item v-if="auth" @click="onSignout">Sign Out</b-dropdown-item>

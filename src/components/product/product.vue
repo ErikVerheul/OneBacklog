@@ -5,21 +5,21 @@
 				<h3 v-if="getCurrentItemLevel <= epicLevel">{{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
 					<input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
 				</h3>
-				<h3 v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && getCurrentItemSubType !== 1)">Story points:
-					<input type="text" size="3" maxlength="3" id="storyPointsId" :value="getCurrentItemSpSize" @blur="updateStoryPoints()" />
+				<h3 v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype !== 1)">Story points:
+					<input type="text" size="3" maxlength="3" id="storyPointsId" :value="$store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
 				</h3>
-				<h3 v-if="getCurrentItemLevel === pbiLevel && getCurrentItemSubType === 1">Person hours:
-					<input type="text" size="3" maxlength="3" id="personHoursId" :value="getCurrentPersonHours" @blur="updatePersonHours()" />
+				<h3 v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === 1">Person hours:
+					<input type="text" size="3" maxlength="3" id="personHoursId" :value="$store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
 				</h3>
 			</span>
 			<span class="d-table-cell tac">
-				<h3>{{ getCurrentProductTitle }}</h3>
+				<h3>{{ $store.state.load.currentProductTitle }}</h3>
 			</span>
 			<span class="d-table-cell tar">
 				<h3>State:
 					<b-dropdown id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
 						<template slot="button-content">
-							{{ getItemStateText(getCurrentItemState) }}
+							{{ getItemStateText($store.state.currentDoc.state) }}
 						</template>
 						<b-dropdown-item @click="onStateChange(0)">{{ getItemStateText(0) }}</b-dropdown-item>
 						<b-dropdown-item @click="onStateChange(1)">{{ getItemStateText(1) }}</b-dropdown-item>
@@ -35,8 +35,8 @@
 		<!-- vertical panes -->
 		<multipane class="custom-resizer" layout="vertical">
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-				<h6 v-if="getUserAssignedProductIds.length==1">Welcome {{ getUser }}. Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} product</h6>
-				<h6 v-if="getUserAssignedProductIds.length >1">Welcome {{ getUser }}. Your current database is set to {{ getCurrentDb }}. You have {{ getUserAssignedProductIds.length }} products</h6>
+				<h6 v-if="$store.state.load.userAssignedProductIds.length==1">Welcome {{ $store.state.load.user }}. Your current database is set to {{ $store.state.currentDb }}. You have {{ $store.state.load.userAssignedProductIds.length }} product</h6>
+				<h6 v-if="$store.state.load.userAssignedProductIds.length >1">Welcome {{ $store.state.load.user }}. Your current database is set to {{ $store.state.currentDb }}. You have {{ $store.state.load.userAssignedProductIds.length }} products</h6>
 				<span class="square" v-bind:style="{'background-color': this.$store.state.sync.eventSyncColor}">sync</span>
 				<div class='last-event' v-bind:style="{'background-color': eventBgColor}">
 					{{ this.$store.state.load.lastEvent }}
@@ -98,7 +98,7 @@
 				<multipane class="horizontal-panes" layout="horizontal">
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 						<div class="d-table w-100">
-							<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="getCurrentItemTitle" @blur="updateTitle()">
+							<b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="$store.state.currentDoc.title" @blur="updateTitle()">
 							</b-input>
 							<div class="d-table-cell tar">
 								<b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
@@ -107,7 +107,7 @@
 					</div>
 					<div v-if="getCurrentItemLevel==this.pbiLevel" class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
 						<div class="d-table w-100">
-							<p class="title is-6">This item is of type '{{ this.getSubType(getCurrentItemSubType) }}'. Change it here -> </p>
+							<p class="title is-6">This item is of type '{{ this.getSubType($store.state.currentDoc.subtype) }}'. Change it here -> </p>
 							<div class="d-table-cell tar">
 								<b-form-group>
 									<b-form-radio-group v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
@@ -119,7 +119,7 @@
 						<div class="d-table w-100">
 							<h5 class="title is-6">Description</h5>
 							<div class="d-table-cell tar">
-								<p class="title is-6">Last update by {{ getCurrentItemHistory[0].by }} @ {{ new Date(getCurrentItemHistory[0].timestamp).toString().substring(0, 33) }} </p>
+								<p class="title is-6">Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }} </p>
 							</div>
 						</div>
 					</div>
@@ -162,7 +162,7 @@
 							</li>
 						</ul>
 						<ul v-if="selectedForView==='attachments'">
-							<li v-for="attach in getCurrentItemAttachments" :key=attach.timestamp>
+							<li v-for="attach in $store.state.currentDoc.attachments" :key=attach.timestamp>
 								<div v-for="(value, key) in attach" :key=key>
 									{{ key }} {{ value }}
 								</div>

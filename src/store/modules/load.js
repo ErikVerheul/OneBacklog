@@ -63,25 +63,6 @@ const getters = {
 			}
 		}
 		return levels
-	},
-
-	getCurrentProductId(state) {
-		return state.currentProductId
-	},
-	getCurrentProductTitle(state) {
-		return state.currentProductTitle
-	},
-	getEmail(state) {
-		return state.email
-	},
-	getUserAssignedProductIds(state) {
-		return state.userAssignedProductIds
-	},
-	getMyTeams(state) {
-		return state.myTeams
-	},
-	getMyCurrentTeam(state) {
-		return state.myCurrentTeam
 	}
 }
 

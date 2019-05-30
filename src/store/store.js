@@ -96,17 +96,8 @@ export default new Vuex.Store({
 	},
 
 	getters: {
-		getUser(state) {
-			return state.user
-		},
-		getMyDefaultRoles(state) {
-			return state.myDefaultRoles
-		},
 		isAuthenticated(state) {
 			return state.user !== null
-		},
-		isDemoVersion(state) {
-			return state.demo
 		},
 		isFollower(state) {
 			if (state.currentDoc) return state.currentDoc.followers.includes(state.load.email)
@@ -117,65 +108,11 @@ export default new Vuex.Store({
 		canCreateComments(state) {
 			return state.myDefaultRoles.includes("_admin") || state.myDefaultRoles.includes("areaPO") || state.myDefaultRoles.includes("admin") || state.myDefaultRoles.includes("superPO") || state.myDefaultRoles.includes("PO") || state.myDefaultRoles.includes("developer")
 		},
-		getCurrentDb(state) {
-			return state.currentDb
-		},
-		getCurrentItemId(state) {
-			if (state.currentDoc) return state.currentDoc._id
-		},
-		getCurrentItemAcceptanceCriteria(state) {
-			if (state.currentDoc) return state.currentDoc.acceptanceCriteria
-		},
-		getCurrentItemAttachments(state) {
-			if (state.currentDoc) return state.currentDoc.attachments
-		},
-		getCurrentItemComments(state) {
-			if (state.currentDoc) return state.currentDoc.comments
-		},
-		getCurrentItemDescription(state) {
-			if (state.currentDoc) return state.currentDoc.description
-		},
-		getCurrentItemFollowers(state) {
-			if (state.currentDoc) return state.currentDoc.followers
-		},
-		getCurrentItemHistory(state) {
-			if (state.currentDoc) return state.currentDoc.history
-		},
-		getCurrentItemPriority(state) {
-			if (state.currentDoc) return state.currentDoc.priority
-		},
-		getCurrentItemProductId(state) {
-			if (state.currentDoc) return state.currentDoc.productId
-		},
-		getCurrentItemReqArea(state) {
-			if (state.currentDoc) return state.currentDoc.reqarea
-		},
-		getCurrentItemSpSize(state) {
-			if (state.currentDoc) return state.currentDoc.spsize
-		},
-		getCurrentItemState(state) {
-			if (state.currentDoc) return state.currentDoc.state
-		},
-		getCurrentItemSubType(state) {
-			if (state.currentDoc) return state.currentDoc.subtype
-		},
-		getCurrentItemTeam(state) {
-			if (state.currentDoc) return state.currentDoc.team
-		},
-		getCurrentItemTitle(state) {
-			if (state.currentDoc) return state.currentDoc.title
-		},
 		getCurrentItemTsSize(state) {
 			if (state.config) return state.config.tsSize[state.currentDoc.tssize]
 		},
 		getCurrentItemLevel(state) {
 			if (state.currentDoc) return state.currentDoc.level
-		},
-		getCurrentPersonHours(state) {
-			if (state.currentDoc) return state.currentDoc.spikepersonhours
-		},
-		onDebug(state) {
-			return state.debug
 		}
 	},
 
