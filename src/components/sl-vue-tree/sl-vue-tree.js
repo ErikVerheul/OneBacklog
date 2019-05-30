@@ -305,7 +305,7 @@ export default {
 			}, productId, 'sl-vue-tree.js:select')
 
 			this.lastSelectedNode = selectedNode
-			this.emitSelect(selectedNodes, event)
+			if (selectedNodes.length > 0) this.emitSelect(selectedNodes, event)
 		},
 
 		onMousemoveHandler(event) {
@@ -730,7 +730,7 @@ export default {
 				productId = undefined
 			) {
 				if (done) return
-
+				let count = 1
 				let shouldStop = false
 				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
 					const nodeModel = nodeModels[nodeInd];
@@ -738,6 +738,7 @@ export default {
 						const itemPath = parentPath.concat(nodeInd);
 //						if (caller === 'sl-vue-tree.js:getSelected') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
 						shouldStop = cb(itemPath, nodeModel, nodeModels) === false
+						count++
 						if (shouldStop) {
 							done = true
 							return
@@ -748,6 +749,7 @@ export default {
 						}
 					}
 				}
+//				console.log('TRAVERSELIGHT is called ' + count + ' times, done = ' + done)
 			}
 
 			traverse(cb, this.currentValue, undefined, productId)
