@@ -21,12 +21,12 @@ const actions = {
 				let tmpFollowers = tmpDoc.followers
 				if (rootGetters.isFollower) {
 					for (let i = 0; i < tmpFollowers.length; i++) {
-						if (tmpFollowers[i] === this.$store.state.load.email) {
+						if (tmpFollowers[i] === rootState.load.email) {
 							tmpFollowers.splice(i, 1)
 						}
 					}
 				} else {
-					tmpFollowers.push(this.$store.state.load.email)
+					tmpFollowers.push(rootState.load.email)
 				}
 				const newHist = {
 					"subscribeEvent": [wasFollower],
