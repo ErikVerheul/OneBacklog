@@ -688,18 +688,6 @@ export default {
 				this.$store.dispatch('addProductId', productId)
 			}
 		},
-		calcProductId(insertedNode, predecessorNode) {
-			let productId
-			// if the node is on the product level ...
-			if (insertedNode.level === this.productLevel) {
-				// a product has its own id as productId
-				productId = insertedNode.data._id
-				this.addNewProductToUser(productId)
-			} else {
-				productId = predecessorNode.data.productId
-			}
-			return productId
-		},
 		assignNewPrios(nodes, predecessorNode, successorNode) {
 			let predecessorPrio
 			let successorPrio
@@ -722,7 +710,7 @@ export default {
 		},
 		/*
 		 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
-		 * Get the productId of the node(s) in case they are dopped on another product. Determine the parentId.
+		 * Determine the parentId.
 		 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children. Update the level of the item in the tree node.
 		 * Update the values in the tree
 		 * precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level)
@@ -730,7 +718,6 @@ export default {
 		updateTree(nodes) {
 			const firstNode = nodes[0]
 			const level = firstNode.level
-			let localProductId
 			let localParentId
 			let predecessorNode
 			let successorNode
@@ -738,12 +725,10 @@ export default {
 				// the previous node must be the parent
 				predecessorNode = null
 				let parent = window.slVueTree.getPrevNode(firstNode.path)
-				localProductId = this.calcProductId(firstNode, parent)
 				localParentId = parent.data._id
 			} else {
 				// firstNode has a sibling between the parent and itself
 				predecessorNode = this.getPrevSibling(firstNode)
-				localProductId = this.calcProductId(firstNode, predecessorNode)
 				localParentId = predecessorNode.data.parentId
 			}
 			const lastNode = nodes[nodes.length - 1]
@@ -757,23 +742,11 @@ export default {
 			for (let i = 0; i < nodes.length; i++) {
 				// update the tree
 				nodes[i].isLeaf = (level < PBILEVEL) ? false : true
-				if (nodes[i].data.productId !== localProductId) {
-					nodes[i].data.productId = localProductId
-					nodes[i].data.lastChange = Date.now()
-				}
 				if (nodes[i].data.parentId !== localParentId) {
 					nodes[i].data.parentId = localParentId
 					nodes[i].data.lastChange = Date.now()
 				}
 			}
-			//												for (let prop in firstNode) {
-			//													//eslint-disable-next-line no-console
-			//													console.log('updateTree@ready -> ' + prop, firstNode[prop]);
-			//												}
-			//												for (let prop in firstNode.data) {
-			//													//eslint-disable-next-line no-console
-			//													console.log('updateTree.data@ready -> ' + prop, firstNode.data[prop]);
-			//												}
 		},
 		/*
 		 * Update the tree when one or more nodes are dropped on another location
@@ -793,7 +766,7 @@ export default {
 
 			// no action required when replacing a product in the tree
 			if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
-				// when nodes are dropped to another position the type, the priorities and possibly the owning productId must be updated
+				// when nodes are dropped to another position the type and the priorities must be updated
 				this.updateTree(selectedNodes)
 				// update the nodes in the database
 				let payloadArray = []
@@ -975,7 +948,7 @@ export default {
 				data: {
 					_id: null,
 					priority: null,
-					productId: null,
+					productId: this.$store.state.load.currentProductId,
 					parentId: null,
 					state: 0,
 					subtype: 0,
@@ -1019,7 +992,7 @@ export default {
 				// now the node is inserted and selected get the full ISlTreeNode data
 				const insertedNode = window.slVueTree.getSelected()[0]
 				this.firstNodeSelected = insertedNode
-				// productId, parentId and priority are set in this routine
+				// parentId and priority are set in this routine
 				this.updateTree([insertedNode])
 				// create a new document and store it
 				const initData = {
