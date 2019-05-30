@@ -113,7 +113,7 @@ const actions = {
 			"history": [{
 				"createEvent": [2, rootState.currentDb],
 				"by": rootState.user,
-				"email": this.$store.state.load.email,
+				"email": rootState.load.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -182,7 +182,7 @@ const actions = {
 			"history": [{
 				"createEvent": [3, payload.parentName],
 				"by": rootState.user,
-				"email": this.$store.state.load.email,
+				"email": rootState.load.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -253,7 +253,7 @@ const actions = {
 			"history": [{
 				"createEvent": [4, payload.parentName],
 				"by": rootState.user,
-				"email": this.$store.state.load.email,
+				"email": rootState.load.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
@@ -323,7 +323,7 @@ const actions = {
 			"history": [{
 				"createEvent": [5, payload.parentName],
 				"by": rootState.user,
-				"email": this.$store.state.load.email,
+				"email": rootState.load.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
