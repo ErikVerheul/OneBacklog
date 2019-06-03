@@ -577,18 +577,20 @@ export default {
 					this.stopDrag();
 					return;
 				}
-
 				if (this.checkNodeIsParent(draggingNode, this.cursorPosition.node)) {
 					this.stopDrag();
 					return;
 				}
-
+				// prevent drag to other product
+				if (this.cursorPosition.node.data.productId !== this.$store.state.load.currentProductId) {
+					this.stopDrag();
+					return;
+				}
 				// prevent confusion when the user selects a target node to insert before when that node has a lower level (higher in the hierarchy)
 				if (this.cursorPosition.placement === 'before' && this.cursorPosition.node.level < draggingNode.level) {
 					this.stopDrag()
 					return
 				}
-
 				// prevent placement on wrong level when the user selects the parent as target node to insert after
 				if (this.cursorPosition.placement === 'after' && this.cursorPosition.node.level < draggingNode.level) {
 					this.stopDrag()
@@ -624,7 +626,7 @@ export default {
 			}
 
 			const nodeModelsToInsert = [];
-			// set dragging models to insert
+			// collect dragging models to insert
 			for (let draggingNodeModel of nodeModelsSubjectToInsert) {
 				nodeModelsToInsert.push(draggingNodeModel)
 			}
@@ -736,7 +738,7 @@ export default {
 					const nodeModel = nodeModels[nodeInd];
 					if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
 						const itemPath = parentPath.concat(nodeInd);
-//						if (caller === 'sl-vue-tree.js:getSelected') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
+						//						if (caller === 'sl-vue-tree.js:getSelected') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
 						shouldStop = cb(itemPath, nodeModel, nodeModels) === false
 						count++
 						if (shouldStop) {
