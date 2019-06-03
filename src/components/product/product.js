@@ -713,14 +713,19 @@ export default {
 			}
 			// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
 			if (localParentId !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
-			for (let i = 0; i < nodes.length; i++) {
-				// update the tree
-				nodes[i].isLeaf = (level < PBILEVEL) ? false : true
-				if (nodes[i].data.parentId !== localParentId) {
-					nodes[i].data.parentId = localParentId
-					nodes[i].data.lastChange = Date.now()
+			// update the tree
+			window.slVueTree.traverseLight((nodePath, nodeModel) => {
+				switch (window.slVueTree.comparePaths(nodePath, firstNode.path)) {
+					case -1:
+						return
+					case 0:
+						nodeModel.data.parentId = localParentId
+						nodeModel.isLeaf = (level < PBILEVEL) ? false : true
+						break
+					case 1:
+						nodeModel.isLeaf = (nodePath.length < PBILEVEL) ? false : true
 				}
-			}
+			}, this.$store.state.load.currentProductId, 'product.js:updateTree')
 		},
 		/*
 		 * Update the tree when one or more nodes are dropped on another location
@@ -738,7 +743,7 @@ export default {
 			}
 			let levelChange = clickedLevel - dropLevel
 
-			// no action required when replacing a product in the tree
+			// no action required when moving a product in the tree
 			if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
 				// when nodes are dropped to another position the type and the priorities must be updated
 				this.updateTree(selectedNodes)
