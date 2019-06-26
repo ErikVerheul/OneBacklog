@@ -13,7 +13,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.5",
     "ajv": "^6.10.0",
     "ajv-keywords": "^3.4.0",
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "bootstrap-vue": "^2.0.0-rc.12",
     "jquery": "^3.4.0",
     "serve": "^11.0.1",
