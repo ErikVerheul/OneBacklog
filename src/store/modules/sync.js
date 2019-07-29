@@ -71,6 +71,7 @@ const actions = {
 			let newData = Object.assign(node.data)
 			newData.subtype = doc.subtype
 			newData.state = doc.state
+			newData.productId = doc.productId
 			window.slVueTree.updateNode(node.path, {
 				"title": doc.title,
 				"data": newData

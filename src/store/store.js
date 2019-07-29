@@ -92,7 +92,8 @@ export default new Vuex.Store({
 		demo: true,
 		myDefaultRoles: [],
 		runningCookieRefreshId: null,
-		user: null
+		user: null,
+		moveOngoing: false
 	},
 
 	getters: {

@@ -69,7 +69,7 @@
 									<font-awesome-icon icon="bug" />
 								</i>
 							</span>
-							{{ node.title }}
+							{{ node.title }} : {{ node.data._id}} : {{ node.path }} : {{ node.data.productId }}
 							<b-badge variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
 						</template>
 
@@ -189,8 +189,11 @@
 					<b-list-group-item v-if="contextNodeLevel < pbiLevel" button variant="dark" v-on:click="contextSelected = 1">
 						Insert a {{ contextChildType }} inside this {{ contextNodeType }}
 					</b-list-group-item>
-					<b-list-group-item button variant="dark" v-on:click="contextSelected = 2">
-						Move this item to another product
+					<b-list-group-item v-if="!$store.state.moveOngoing" button variant="dark" v-on:click="contextSelected = 2">
+							Move this item to another product
+					</b-list-group-item>
+					<b-list-group-item v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.load.currentProductId" button variant="dark" v-on:click="contextSelected = 2">
+							Insert the moved item here
 					</b-list-group-item>
 					<b-list-group-item button variant="danger" v-on:click="contextSelected = 3">
 						Remove this {{ contextNodeType }} and {{ removeDescendantsCount }} descendants
@@ -310,6 +313,8 @@
 	border-radius:0.25rem;
 
 	}
+
+
 
 
 </style>

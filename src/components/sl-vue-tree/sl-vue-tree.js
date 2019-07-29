@@ -72,7 +72,8 @@ export default {
 				y: 0
 			},
 			preventDrag: false,
-			currentValue: this.value
+			currentValue: this.value,
+			lastSelectCursorPosition: null
 		};
 	},
 
@@ -138,6 +139,10 @@ export default {
 				return;
 			}
 			this.getParent().setCursorPosition(pos);
+		},
+
+		saveSelectCursorPosition(pos) {
+			this.lastSelectCursorPosition = pos
 		},
 
 		getNodes(nodeModels, parentPath = [], isVisible = true) {
@@ -257,16 +262,25 @@ export default {
 			this.setCursorPosition(null);
 		},
 
-		// select any node from current product or on another product node
+		/* select a node from the current product only or select the top node of another product*/
 		select(path, addToSelection = false, event = null) {
-			let productId
-			if (path.length === 2) {
-				// click on product node
-				productId = undefined
-			} else {
-				// click on any other node within current product
-				productId = this.$store.state.load.currentProductId
-			}
+
+			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY);
+			const destNode = cursorPosition.node;
+			const placement = cursorPosition.placement;
+
+			this.setCursorPosition({
+				node: destNode,
+				placement
+			})
+			// ToDo: refactor this
+			this.saveSelectCursorPosition({
+				node: destNode,
+				placement
+			})
+			// set the current productId. emitSelect will set it globally
+			let productId = destNode.data.productId
+
 			const multiselectKeys = Array.isArray(this.multiselectKey) ? this.multiselectKey : [this.multiselectKey]
 			const multiselectKeyIsPressed = event && !!multiselectKeys.find(key => event[key])
 			addToSelection = (multiselectKeyIsPressed || addToSelection) && this.allowMultiselect
@@ -293,6 +307,7 @@ export default {
 				} else if (this.comparePaths(itemPath, selectedNode.path) === 0) {
 					nodeModel.isSelected = nodeModel.isSelectable
 				} else if (!addToSelection) {
+					// ToDo: refactor this
 					if (nodeModel.isSelected) {
 						nodeModel.isSelected = false
 					}
@@ -303,7 +318,14 @@ export default {
 					selectedNodes.push(node)
 				}
 			}, productId, 'sl-vue-tree.js:select')
-
+			// when shifting to another product deselect all but the selected top node
+			if (productId !== this.$store.state.load.currentProductId) {
+				this.traverseLight((itemPath, nodeModel) => {
+					if (nodeModel.data._id !== selectedNode.data._id) {
+						nodeModel.isSelected = false
+					}
+				}, undefined, 'sl-vue-tree.js:select.deselect')
+			}
 			this.lastSelectedNode = selectedNode
 			if (selectedNodes.length > 0) this.emitSelect(selectedNodes, event)
 		},
@@ -550,6 +572,36 @@ export default {
 			if (this.isDragging) this.onNodeMouseupHandler(event);
 		},
 
+		/* Move the nodes to the position designated by cursorPosition */
+		moveNodes(cursorPosition, nodes) {
+			const nodeModelsSubjectToDelete = []
+			const nodeModelsSubjectToInsert = []
+			// find model to delete and to insert
+			const firstNodeLevel = nodes[0].level
+			for (let node of nodes) {
+				const sourceSiblings = this.getNodeSiblings(this.currentValue, node.path)
+				nodeModelsSubjectToDelete.push(sourceSiblings[node.ind])
+				// no need to insert the children as they are part of the higher level nodes anyway
+				if (node.level === firstNodeLevel) {
+					nodeModelsSubjectToInsert.push(node)
+				}
+			}
+
+			// mark nodes in model to delete
+			for (let nodeModel of nodeModelsSubjectToDelete) {
+				nodeModel['_markToDelete'] = true;
+			}
+
+			// insert nodes to the new place
+			this.insertModels(cursorPosition, nodeModelsSubjectToInsert, this.currentValue);
+
+			// delete nodes from the old place
+			this.traverseModels((nodeModel, siblings, ind) => {
+				if (!nodeModel._markToDelete) return;
+				siblings.splice(ind, 1);
+			}, this.currentValue);
+		},
+
 		onNodeMouseupHandler(event, targetNode = null) {
 			// handle only left mouse button
 			if (event.button !== 0) return;
@@ -569,6 +621,9 @@ export default {
 				this.stopDrag();
 				return;
 			}
+
+			// if not dragging or moving an item to another product
+			if (!this.isDragging || this.$store.state.moveOngoing) return
 
 			const draggingNodes = this.getDraggable();
 			// check that nodes is possible to insert
@@ -598,19 +653,6 @@ export default {
 				}
 			}
 
-			const nodeModelsSubjectToDelete = []
-			const nodeModelsSubjectToInsert = []
-			// find dragging model to delete and to insert
-			const firstNodeLevel = draggingNodes[0].level
-			for (let draggingNode of draggingNodes) {
-				const sourceSiblings = this.getNodeSiblings(this.currentValue, draggingNode.path)
-				nodeModelsSubjectToDelete.push(sourceSiblings[draggingNode.ind])
-				// no need to insert the children as they are part of the higher level nodes anyway
-				if (draggingNode.level === firstNodeLevel) {
-					nodeModelsSubjectToInsert.push(draggingNode)
-				}
-			}
-
 			// allow the drop to be cancelled
 			let cancelled = false;
 			this.emitBeforeDrop(draggingNodes, this.cursorPosition, () => cancelled = true);
@@ -620,25 +662,7 @@ export default {
 				return;
 			}
 
-			// mark dragging model to delete
-			for (let draggingNodeModel of nodeModelsSubjectToDelete) {
-				draggingNodeModel['_markToDelete'] = true;
-			}
-
-			const nodeModelsToInsert = [];
-			// collect dragging models to insert
-			for (let draggingNodeModel of nodeModelsSubjectToInsert) {
-				nodeModelsToInsert.push(draggingNodeModel)
-			}
-
-			// insert dragging nodes to the new place
-			this.insertModels(this.cursorPosition, nodeModelsToInsert, this.currentValue);
-
-			// delete dragging node from the old place
-			this.traverseModels((nodeModel, siblings, ind) => {
-				if (!nodeModel._markToDelete) return;
-				siblings.splice(ind, 1);
-			}, this.currentValue);
+			this.moveNodes(this.cursorPosition, draggingNodes)
 
 			this.lastSelectedNode = null;
 			this.emitDrop(draggingNodes, this.cursorPosition, event);
@@ -693,6 +717,7 @@ export default {
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:updateNode');
 		},
 
+		/* Collects any node in all products that are selected */
 		getSelected() {
 			const selectedNodes = [];
 			this.traverseLight((nodePath, nodeModel) => {
@@ -700,7 +725,7 @@ export default {
 					let node = this.getNode(nodePath, nodeModel)
 					selectedNodes.push(node)
 				}
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getSelected')
+			}, undefined, 'sl-vue-tree.js:getSelected')
 			return selectedNodes
 		},
 
@@ -716,6 +741,7 @@ export default {
 		},
 
 		/* A faster version of the original */
+		// ToDo: use parentPath instead of productId to filter
 		traverseLight(
 			cb,
 			productId = undefined,
@@ -732,15 +758,93 @@ export default {
 				productId = undefined
 			) {
 				if (done) return
-				let count = 1
+				//	let count = 1
 				let shouldStop = false
 				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
 					const nodeModel = nodeModels[nodeInd];
 					if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
 						const itemPath = parentPath.concat(nodeInd);
-						//						if (caller === 'sl-vue-tree.js:getSelected') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title)
+						// if (caller === 'product.js:getDescendantsInfo') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId )
 						shouldStop = cb(itemPath, nodeModel, nodeModels) === false
-						count++
+						//	count++
+						if (shouldStop) {
+							done = true
+							return
+						}
+
+						if (nodeModel.children && nodeModel.children.length > 0) {
+							traverse(cb, nodeModel.children, itemPath, productId)
+						}
+					}
+				}
+				//	console.log('TRAVERSELIGHT is called ' + count + ' times, done = ' + done)
+			}
+
+			traverse(cb, this.currentValue, undefined, productId)
+		},
+
+		traverseLight2(
+			cb,
+			startId,
+			caller) {
+			//eslint-disable-next-line no-console
+			console.log('TRAVERSELIGHT2 is called by ' + caller)
+
+			function traverse(
+				cb,
+				nodeModels,
+				parentPath = [],
+				foundStartId = false
+			) {
+				console.log('\n\ntraverseLight2: nodeModels.length = ' + nodeModels.length + '\n')
+
+				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
+					const nodeModel = nodeModels[nodeInd]
+					foundStartId = foundStartId || (nodeModel.data._id === startId)
+					const itemPath = parentPath.concat(nodeInd)
+					// if the id's match the callback will be called until the end of this iteration in this for-loop
+					if (foundStartId) {
+						console.log('traverseLight2: cb called for itemPath = ', itemPath + ' title = ' + nodeModel.title)
+						if (cb(itemPath, nodeModel, nodeModels) === false) {
+							console.log('traverseLight2: shouldStop!')
+							break
+						}
+					}
+
+					if (nodeModel.children && nodeModel.children.length > 0) {
+						traverse(cb, nodeModel.children, itemPath, foundStartId)
+					}
+
+				}
+			}
+
+			traverse(cb, this.currentValue)
+		},
+
+		/* A faster version of the original */
+		// ToDo: use parentPath instead of productId to filter
+		traverseNew(
+			cb,
+			productId = undefined,
+			caller) {
+			//eslint-disable-next-line no-console
+			console.log('TRAVERSELIGHT is called by ' + caller)
+
+			let done = false
+
+			function traverse(
+				cb,
+				nodeModels = null,
+				parentPath = [],
+				productId = undefined
+			) {
+				if (done) return
+				let shouldStop = false
+				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
+					const nodeModel = nodeModels[nodeInd];
+					if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
+						const itemPath = parentPath.concat(nodeInd);
+						shouldStop = cb(itemPath, nodeModel, nodeModels) === false
 						if (shouldStop) {
 							done = true
 							return
@@ -751,7 +855,6 @@ export default {
 						}
 					}
 				}
-//				console.log('TRAVERSELIGHT is called ' + count + ' times, done = ' + done)
 			}
 
 			traverse(cb, this.currentValue, undefined, productId)
@@ -826,6 +929,7 @@ export default {
 			this.$store.state.load.lastEvent = txt
 		},
 
+		/* collapse all products */
 		collapseTree() {
 			this.traverseLight((itemPath, nodeModel) => {
 				// collapse to the product level
@@ -833,22 +937,22 @@ export default {
 					nodeModel.savedDoShow = nodeModel.doShow
 					nodeModel.doShow = false
 				}
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree:collapseTree')
-			//			this.showVisibility('expandTree')
+			}, undefined, 'sl-vue-tree:collapseTree')
+			// this.showVisibility('collapseTree')
 		},
 
 		expandTree(level) {
 			this.traverseLight((itemPath, nodeModel) => {
-				// expand to level and show the node
+				// expand to level
 				if (itemPath.length < level) {
 					nodeModel.isExpanded = true
 					nodeModel.savedIsExpanded = true
 					nodeModel.doShow = true
-				} else {
-					nodeModel.doShow = true
 				}
+				// show the node
+				nodeModel.doShow = true
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree:expandTree')
-			//			this.showVisibility('expandTree')
+			// this.showVisibility('expandTree')
 		},
 
 		/* clear any outstanding filters */

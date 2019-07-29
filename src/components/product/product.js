@@ -25,6 +25,7 @@ const PBILEVEL = 5
 var numberOfNodesSelected = 0
 var newNode = {}
 var newNodeLocation = null
+var movedNode = null
 
 export default {
 	data() {
@@ -50,24 +51,25 @@ export default {
 			// default to sibling node (no creation of descendant)
 			insertOptionSelected: 1,
 			selectedNodesTitle: '',
+			moveSourceProductId: '',
 
 			editorToolbar: [
-					[{
+				[{
 					header: [false, 1, 2, 3, 4, 5, 6]
-					}],
-					['bold', 'italic', 'underline', 'strike'],
-					[{
+				}],
+				['bold', 'italic', 'underline', 'strike'],
+				[{
 					'list': 'ordered'
-					}, {
+				}, {
 					'list': 'bullet'
-					}],
-					[{
+				}],
+				[{
 					indent: "-1"
-					}, {
+				}, {
 					indent: "+1"
-					}], // outdent/indent
-					['link', 'image', 'code-block']
-				],
+				}], // outdent/indent
+				['link', 'image', 'code-block']
+			],
 			// set to an invalid value; must be updated before use
 			selectedPbiType: -1,
 			// comments, history and attachments
@@ -96,16 +98,16 @@ export default {
 
 	computed: {
 		...mapGetters([
-				//from store.js
-				'isAuthenticated',
-				'isFollower',
-				'isServerAdmin',
-				'canCreateComments',
-				'getCurrentItemLevel',
-				'getCurrentItemTsSize',
-				// from load.js
-				'canWriteLevels'
-			]),
+			//from store.js
+			'isAuthenticated',
+			'isFollower',
+			'isServerAdmin',
+			'canCreateComments',
+			'getCurrentItemLevel',
+			'getCurrentItemTsSize',
+			// from load.js
+			'canWriteLevels'
+		]),
 		subsribeTitle() {
 			if (this.isFollower) {
 				return "Unsubscribe to change notices"
@@ -562,7 +564,7 @@ export default {
 			this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
 		},
 		nodeToggled(node) {
-			this.showLastEvent(`Node '${node.title}' is ${ node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
+			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
 		},
 		getDescendantsInfo(path) {
 			let descendants = []
@@ -684,12 +686,12 @@ export default {
 		},
 		/*
 		 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
-		 * Determine the parentId.
+		 * Determine the parentId and set the productId.
 		 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children. Update the level of the item in the tree node.
 		 * Update the values in the tree
 		 * precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level)
 		 */
-		updateTree(nodes) {
+		updateTree(nodes, parentNode) {
 			const firstNode = nodes[0]
 			const level = firstNode.level
 			let localParentId
@@ -698,8 +700,7 @@ export default {
 			if (firstNode.isFirstChild) {
 				// the previous node must be the parent
 				predecessorNode = null
-				let parent = window.slVueTree.getPrevNode(firstNode.path)
-				localParentId = parent.data._id
+				localParentId = parentNode.data._id
 			} else {
 				// firstNode has a sibling between the parent and itself
 				predecessorNode = this.getPrevSibling(firstNode)
@@ -714,23 +715,101 @@ export default {
 			// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
 			if (localParentId !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
 			// update the tree
+			let initLevel = firstNode.path.length
+			// note that traverseLight must scan all products
 			window.slVueTree.traverseLight((nodePath, nodeModel) => {
 				switch (window.slVueTree.comparePaths(nodePath, firstNode.path)) {
 					case -1:
+						// skip top levels but expand and deselect the parent
+						if (window.slVueTree.comparePaths(nodePath, parentNode.path) === 0) {
+							nodeModel.isExpanded = true
+							nodeModel.isSelected = false
+						}
 						return
 					case 0:
+						nodeModel.data.productId = this.$store.state.load.currentProductId
 						nodeModel.data.parentId = localParentId
+						nodeModel.data.sessionId = this.$store.state.sessionId
+						nodeModel.data.distributeEvent = true
+						nodeModel.isExpanded = false
+						nodeModel.isSelected = true
 						nodeModel.isLeaf = (level < PBILEVEL) ? false : true
-						break
+						return
 					case 1:
+						if (nodePath.length < initLevel) return
+
+						// initLevel = nodePath.length
+						// process descendant
+						nodeModel.data.productId = this.$store.state.load.currentProductId
+						// parent has not changed
+						nodeModel.data.sessionId = this.$store.state.sessionId
+						nodeModel.data.distributeEvent = true
 						nodeModel.isLeaf = (nodePath.length < PBILEVEL) ? false : true
 				}
-			}, this.$store.state.load.currentProductId, 'product.js:updateTree')
+			}, undefined, 'product.js:updateTree')
+		},
+		updateTree2(nodes, parentNode) {
+			const firstNode = nodes[0]
+			const level = firstNode.level
+			let localParentId
+			let predecessorNode
+			let successorNode
+			if (firstNode.isFirstChild) {
+				// the previous node must be the parent
+				predecessorNode = null
+				localParentId = parentNode.data._id
+			} else {
+				// firstNode has a sibling between the parent and itself
+				predecessorNode = this.getPrevSibling(firstNode)
+				localParentId = predecessorNode.data.parentId
+			}
+			const lastNode = nodes[nodes.length - 1]
+			if (!lastNode.isLastChild) {
+				successorNode = this.getNextSibling(lastNode.path)
+			} else {
+				successorNode = null
+			}
+			// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
+			if (localParentId !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
+			// update the tree
+			let initLevel = firstNode.path.length
+			// note that traverseLight must scan all products
+			window.slVueTree.traverseLight2((nodePath, nodeModel) => {
+				// exit at the first encountered sibling of the first node
+				if (nodePath.length === initLevel && nodePath.slice(-1) > firstNode.path.slice(-1) ) return false
+
+				switch (window.slVueTree.comparePaths(nodePath, firstNode.path)) {
+					case -1:
+						// skip top levels but expand and deselect the parent
+						if (window.slVueTree.comparePaths(nodePath, parentNode.path) === 0) {
+							nodeModel.isExpanded = true
+							nodeModel.isSelected = false
+						}
+						return
+					case 0:
+						nodeModel.data.productId = this.$store.state.load.currentProductId
+						console.log('updateTree2: productId ' + this.$store.state.load.currentProductId + ' is set to path ' + nodePath)
+						nodeModel.data.parentId = localParentId
+						nodeModel.data.sessionId = this.$store.state.sessionId
+						nodeModel.data.distributeEvent = true
+						nodeModel.isExpanded = false
+						nodeModel.isSelected = true
+						nodeModel.isLeaf = (level < PBILEVEL) ? false : true
+						return
+					case 1:
+					// process descendant
+						nodeModel.data.productId = this.$store.state.load.currentProductId
+						console.log('updateTree2: productId ' + this.$store.state.load.currentProductId + ' is set to descendant path ' + nodePath)
+						// parent has not changed
+						nodeModel.data.sessionId = this.$store.state.sessionId
+						nodeModel.data.distributeEvent = true
+						nodeModel.isLeaf = (nodePath.length < PBILEVEL) ? false : true
+				}
+			}, firstNode.data._id, 'product.js:updateTree2')
 		},
 		/*
 		 * Update the tree when one or more nodes are dropped on another location
 		 * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-		 * ToDo: expand the parent if a node is dropped inside that parent
 		 */
 		nodeDropped(draggingNodes, position) {
 			// get the nodes after being dropped with the full IDlTreeNode properties (draggingNodes only have IslNodeModel properties)
@@ -746,10 +825,11 @@ export default {
 			// no action required when moving a product in the tree
 			if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
 				// when nodes are dropped to another position the type and the priorities must be updated
-				this.updateTree(selectedNodes)
+				this.updateTree(selectedNodes, position.node)
 				// update the nodes in the database
 				let payloadArray = []
 				for (let i = 0; i < selectedNodes.length; i++) {
+					let descendants = this.getDescendantsInfo(selectedNodes[i].path).descendants
 					const payloadItem = {
 						'_id': selectedNodes[i].data._id,
 						'productId': selectedNodes[i].data.productId,
@@ -760,7 +840,7 @@ export default {
 						'oldLevel': clickedLevel,
 						'newLevel': selectedNodes[i].level,
 						'newInd': selectedNodes[i].ind,
-						'descendants': this.getDescendantsInfo(selectedNodes[i].path).descendants
+						'descendants': descendants
 					}
 					payloadArray.push(payloadItem)
 				}
@@ -807,7 +887,11 @@ export default {
 					return 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
 				case 2:
 					this.contextWarning = undefined
-					return 'Move this item to another product'
+					if (!this.$store.state.moveOngoing) {
+						return 'Item selected. Choose drop position in any other product'
+					} else {
+						return 'Drop position is set'
+					}
 				case 3:
 					this.contextWarning = 'WARNING: this action cannot be undone!'
 					return `Remove this ${this.contextNodeType} and ${this.removeDescendantsCount} descendants`
@@ -832,8 +916,85 @@ export default {
 					break
 			}
 		},
-		moveItem() {
+		getDescendantsInfo2(path) {
+			let descendants = []
+			let initLevel = 0
+			let count = 0
+			let maxDepth = 0
+			window.slVueTree.traverseLight((nodePath, nodeModel, nodeModels) => {
+				console.log('getDescendantsInfo2: nodePath = ' + nodePath + ' path = ' + path)
+				if (window.slVueTree.comparePaths(nodePath, path) === 0) {
+					initLevel = path.length
+					maxDepth = path.length
+				} else {
+					if (nodePath.length <= initLevel) return false
 
+					if (window.slVueTree.comparePaths(nodePath, path) === 1) {
+						descendants.push(window.slVueTree.getNode(nodePath, nodeModel, nodeModels))
+						count++
+						if (nodePath.length > maxDepth) maxDepth = nodePath.length
+					}
+				}
+			}, this.$store.state.load.currentProductId, 'product.js:getDescendantsInfo2')
+			return {
+				descendants: descendants,
+				count: count,
+				depth: maxDepth - initLevel
+			}
+		},
+		moveItem() {
+			if (this.$store.state.moveOngoing) {
+				let cursorPosition = window.slVueTree.lastSelectCursorPosition
+				// only allow move to new parent 1 level higher (lower value) than the source node
+				if (cursorPosition.node.path.length !== movedNode.path.length - 1) {
+					console.log('moveItem: cursorPosition.node.path.length = ' + cursorPosition.node.path.length)
+					console.log('moveItem: movedNode.path.length = ' + movedNode.path.length)
+					console.log('moveItem: Error = only allow move to new parent 1 level higher than the source node')
+					return
+				}
+				console.log('moveItem:cursorPosition.node.path = ' + cursorPosition.node.path)
+				console.log('moveItem:cursorPosition.placement = ' + cursorPosition.placement)
+				console.log('moveItem:cursorPosition.node.data.productId = ' + cursorPosition.node.data.productId)
+
+				// insert the node in the new place
+				window.slVueTree.moveNodes(cursorPosition, [movedNode])
+				const selectedNode = window.slVueTree.getSelected()[0]
+				// the path to new node is immediately below the selected node
+				const newPath = selectedNode.path.concat([0])
+				console.log('moveItem: newPath = ' + newPath)
+				const newNode = window.slVueTree.getNode(newPath)
+				console.log('moveItem: newNode.path = ' + newNode.path + ' newNode.title = ' + newNode.title)
+
+				// productId, parentId and priority are set in this routine
+				this.updateTree2([newNode], selectedNode)
+				const descendants = this.getDescendantsInfo(newPath).descendants
+				for (let i = 0; i < descendants.length; i++) {
+					console.log('moveItem: descendant[' + i + '] = ' + descendants[i].path + ' productId = ' + descendants[i].data.productId + ' ' + descendants[i].title)
+				}
+				const payloadItem = {
+					'_id': newNode.data._id,
+					'oldProductId': this.moveSourceProductId, // ToDo: use this field in the history record
+					'productId': this.$store.state.load.currentProductId,
+					'newParentId': newNode.data.parentId,
+					'newPriority': newNode.data.priority,
+					'newParentTitle': null, // will be set by 'updateDropped'
+					'oldParentTitle': newNode.title,
+					'oldLevel': newNode.level,
+					'newLevel': newNode.level, // the level cannot change
+					'newInd': 0, // immediately below the parent
+					'descendants': descendants
+				}
+				// update the database
+				this.$store.dispatch('updateDropped', {
+					next: 0,
+					payloadArray: [payloadItem]
+				})
+				this.$store.state.moveOngoing = false
+			} else {
+				this.$store.state.moveOngoing = true
+				this.moveSourceProductId = this.$store.state.load.currentProductId
+				movedNode = this.contextNodeSelected
+			}
 		},
 		/*
 		 * Both the selected node and all its descendants will be tagged with a delmark
@@ -877,34 +1038,34 @@ export default {
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
 			let options = [{
-					text: 'User story',
-					value: 0,
-					},
-				{
-					text: 'Spike',
-					value: 1,
-					},
-				{
-					text: 'Defect',
-					value: 2,
-					}
-				]
+				text: 'User story',
+				value: 0,
+			},
+			{
+				text: 'Spike',
+				value: 1,
+			},
+			{
+				text: 'Defect',
+				value: 2,
+			}
+			]
 			return options
 		},
 		getViewOptions() {
 			let options = [{
-					text: 'Comments',
-					value: 'comments',
-					},
-				{
-					text: 'Attachments',
-					value: 'attachments',
-					},
-				{
-					text: 'History',
-					value: 'history',
-					}
-				]
+				text: 'Comments',
+				value: 'comments',
+			},
+			{
+				text: 'Attachments',
+				value: 'attachments',
+			},
+			{
+				text: 'History',
+				value: 'history',
+			}
+			]
 			return options
 		},
 
@@ -972,7 +1133,7 @@ export default {
 				const insertedNode = window.slVueTree.getSelected()[0]
 				this.firstNodeSelected = insertedNode
 				// parentId and priority are set in this routine
-				this.updateTree([insertedNode])
+				this.updateTree([insertedNode], newNodeLocation.node)
 				// create a new document and store it
 				const initData = {
 					"_id": insertedNode.data._id,
@@ -1001,7 +1162,7 @@ export default {
 						"timestamp": Date.now(),
 						"sessionId": this.$store.state.sessionId,
 						"distributeEvent": true
-						}],
+					}],
 					"delmark": false
 				}
 				// update the database
@@ -1013,7 +1174,7 @@ export default {
 			}
 		},
 		doCancel() {
-			// do nothing
+			this.$store.state.moveOngoing = false
 		}
 	},
 
