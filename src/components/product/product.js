@@ -688,80 +688,32 @@ export default {
 		 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
 		 * Determine the parentId and set the productId.
 		 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children. Update the level of the item in the tree node.
-		 * Update the values in the tree
-		 * precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level)
+		 * Update the values in the tree.
+		 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
 		 */
-		updateTree(nodes, parentNode) {
+		updateTree2(nodes) {
+			for (let i = 0; i < nodes.length; i++) {
+				console.log('updateTree2: nodes [' + i + '] title = ' + nodes[i].title + ' path = ' + nodes[i].path + ' parentId = ' + nodes[i].data.parentId)
+			}
 			const firstNode = nodes[0]
 			const level = firstNode.level
+			const parentPath = firstNode.path.slice(0, firstNode.path.length - 1)
 			let localParentId
-			let predecessorNode
-			let successorNode
-			if (firstNode.isFirstChild) {
-				// the previous node must be the parent
-				predecessorNode = null
-				localParentId = parentNode.data._id
-			} else {
-				// firstNode has a sibling between the parent and itself
-				predecessorNode = this.getPrevSibling(firstNode)
-				localParentId = predecessorNode.data.parentId
-			}
-			const lastNode = nodes[nodes.length - 1]
-			if (!lastNode.isLastChild) {
-				successorNode = this.getNextSibling(lastNode.path)
-			} else {
-				successorNode = null
-			}
-			// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
-			if (localParentId !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
-			// update the tree
-			let initLevel = firstNode.path.length
-			// note that traverseLight must scan all products
 			window.slVueTree.traverseLight((nodePath, nodeModel) => {
-				switch (window.slVueTree.comparePaths(nodePath, firstNode.path)) {
-					case -1:
-						// skip top levels but expand and deselect the parent
-						if (window.slVueTree.comparePaths(nodePath, parentNode.path) === 0) {
-							nodeModel.isExpanded = true
-							nodeModel.isSelected = false
-						}
-						return
-					case 0:
-						nodeModel.data.productId = this.$store.state.load.currentProductId
-						nodeModel.data.parentId = localParentId
-						nodeModel.data.sessionId = this.$store.state.sessionId
-						nodeModel.data.distributeEvent = true
-						nodeModel.isExpanded = false
-						nodeModel.isSelected = true
-						nodeModel.isLeaf = (level < PBILEVEL) ? false : true
-						return
-					case 1:
-						if (nodePath.length < initLevel) return
-
-						// initLevel = nodePath.length
-						// process descendant
-						nodeModel.data.productId = this.$store.state.load.currentProductId
-						// parent has not changed
-						nodeModel.data.sessionId = this.$store.state.sessionId
-						nodeModel.data.distributeEvent = true
-						nodeModel.isLeaf = (nodePath.length < PBILEVEL) ? false : true
+				if (window.slVueTree.comparePaths(nodePath, parentPath) === 0) {
+					localParentId = nodeModel.data._id
+					return false
 				}
-			}, undefined, 'product.js:updateTree')
-		},
-		updateTree2(nodes, parentNode) {
-			const firstNode = nodes[0]
-			const level = firstNode.level
-			let localParentId
+			}, undefined, 'product.js:updateTree2-findParentId')
+			console.log('updateTree2: parentPath = ' + parentPath + ' localParentId = '+ localParentId)
 			let predecessorNode
 			let successorNode
 			if (firstNode.isFirstChild) {
 				// the previous node must be the parent
 				predecessorNode = null
-				localParentId = parentNode.data._id
 			} else {
 				// firstNode has a sibling between the parent and itself
 				predecessorNode = this.getPrevSibling(firstNode)
-				localParentId = predecessorNode.data.parentId
 			}
 			const lastNode = nodes[nodes.length - 1]
 			if (!lastNode.isLastChild) {
@@ -773,22 +725,21 @@ export default {
 			if (localParentId !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
 			// update the tree
 			let initLevel = firstNode.path.length
-			// note that traverseLight must scan all products
 			window.slVueTree.traverseLight2((nodePath, nodeModel) => {
 				// exit at the first encountered sibling of the first node
-				if (nodePath.length === initLevel && nodePath.slice(-1) > firstNode.path.slice(-1) ) return false
+				if (nodePath.length === initLevel && nodePath.slice(-1) > firstNode.path.slice(-1)) return false
 
 				switch (window.slVueTree.comparePaths(nodePath, firstNode.path)) {
 					case -1:
 						// skip top levels but expand and deselect the parent
-						if (window.slVueTree.comparePaths(nodePath, parentNode.path) === 0) {
+						if (nodeModel.data._id === localParentId) {
 							nodeModel.isExpanded = true
 							nodeModel.isSelected = false
 						}
 						return
 					case 0:
 						nodeModel.data.productId = this.$store.state.load.currentProductId
-						console.log('updateTree2: productId ' + this.$store.state.load.currentProductId + ' is set to path ' + nodePath)
+						console.log('updateTree2: parentId ' + localParentId + ' is set to ' + nodeModel.title)
 						nodeModel.data.parentId = localParentId
 						nodeModel.data.sessionId = this.$store.state.sessionId
 						nodeModel.data.distributeEvent = true
@@ -797,9 +748,8 @@ export default {
 						nodeModel.isLeaf = (level < PBILEVEL) ? false : true
 						return
 					case 1:
-					// process descendant
+						// process descendant
 						nodeModel.data.productId = this.$store.state.load.currentProductId
-						console.log('updateTree2: productId ' + this.$store.state.load.currentProductId + ' is set to descendant path ' + nodePath)
 						// parent has not changed
 						nodeModel.data.sessionId = this.$store.state.sessionId
 						nodeModel.data.distributeEvent = true
@@ -825,7 +775,7 @@ export default {
 			// no action required when moving a product in the tree
 			if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
 				// when nodes are dropped to another position the type and the priorities must be updated
-				this.updateTree(selectedNodes, position.node)
+				this.updateTree2(selectedNodes, position.node)
 				// update the nodes in the database
 				let payloadArray = []
 				for (let i = 0; i < selectedNodes.length; i++) {
@@ -1073,6 +1023,7 @@ export default {
 		 * Create and insert a new node in the tree and create a document for this new item
 		 */
 		doInsert() {
+			let newNodeLocation
 			// prepare the new node of type ISlTreeNodeModel for insertion
 			newNode = {
 				title: 'is calculated in this method',
@@ -1121,19 +1072,28 @@ export default {
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
 				newNode.data._id = newId
+				newNode.data.parentId = this.contextNodeSelected.data.parentId
 				this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
-				// unselect the node that was clicked before the insert and expand it to show the inserted node
-				window.slVueTree.updateNode(this.firstNodeSelected.path, {
-					isSelected: false,
-					isExpanded: true
-				})
+				if (newNodeLocation.placement === 'inside') {
+					// unselect the node that was clicked before the insert and expand it to show the inserted node
+					window.slVueTree.updateNode(this.contextNodeSelected.path, {
+						isSelected: false,
+						isExpanded: true
+					})
+				} else {
+					// unselect the node that was clicked before the insert
+					window.slVueTree.updateNode(this.contextNodeSelected.path, {
+						isSelected: false
+					})
+				}
+				newNode.isSelected = true
 				// insert the node that has the property isSelected = true
 				window.slVueTree.insert(newNodeLocation, newNode)
 				// now the node is inserted and selected get the full ISlTreeNode data
 				const insertedNode = window.slVueTree.getSelected()[0]
 				this.firstNodeSelected = insertedNode
 				// parentId and priority are set in this routine
-				this.updateTree([insertedNode], newNodeLocation.node)
+				this.updateTree2([insertedNode])
 				// create a new document and store it
 				const initData = {
 					"_id": insertedNode.data._id,
