@@ -263,7 +263,9 @@ export default {
 		},
 
 		/* select a node from the current product only or select the top node of another product*/
-		select(path, addToSelection = false, event = null) {
+		select(path,
+			addToSelection = false,
+			event = null) {
 
 			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY);
 			const destNode = cursorPosition.node;
@@ -318,11 +320,15 @@ export default {
 					selectedNodes.push(node)
 				}
 			}, productId, 'sl-vue-tree.js:select')
-			// when shifting to another product deselect all but the selected top node
+			// when shifting to another product deselect all but the selected top node and
+			// make the nodes under the product nodes of the selected product visible and the nodes under other product nodes invisible
 			if (productId !== this.$store.state.load.currentProductId) {
 				this.traverseLight((itemPath, nodeModel) => {
 					if (nodeModel.data._id !== selectedNode.data._id) {
 						nodeModel.isSelected = false
+					}
+					if (itemPath.length > PRODUCTLEVEL) {
+						nodeModel.doShow = nodeModel.data.productId === selectedNode.data.productId
 					}
 				}, undefined, 'sl-vue-tree.js:select.deselect')
 			}
@@ -487,7 +493,7 @@ export default {
 				let node = this.getNode(nodePath, nodeModel, nodeModels)
 				if (!filter || filter(node)) {
 					resultNode = node;
-					return false; // stop traverse
+					return false
 				}
 
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getNextNode');
@@ -717,7 +723,7 @@ export default {
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:updateNode');
 		},
 
-		/* Collects any node in all products that are selected */
+		/* Collects all nodes in the current product that are selected */
 		getSelected() {
 			const selectedNodes = [];
 			this.traverseLight((nodePath, nodeModel) => {
@@ -725,7 +731,7 @@ export default {
 					let node = this.getNode(nodePath, nodeModel)
 					selectedNodes.push(node)
 				}
-			}, undefined, 'sl-vue-tree.js:getSelected')
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getSelected')
 			return selectedNodes
 		},
 
@@ -740,36 +746,35 @@ export default {
 			return selectedNodes;
 		},
 
-		/* A faster version of the original */
-		// ToDo: use parentPath instead of productId to filter
+		/*
+		 * A faster version of the original
+		 * Use the optinal parameter productId to limit the callback calls to that product only, or use the value 'undefined' to scan all products
+		 * Use the optinal parameter caller to console log the source of the call.
+		 */
 		traverseLight(
 			cb,
 			productId = undefined,
-			caller) {
+			caller = undefined) {
 			//eslint-disable-next-line no-console
-			console.log('TRAVERSELIGHT is called by ' + caller)
+			if (caller != undefined) console.log('TRAVERSELIGHT is called by ' + caller)
 
-			let done = false
-
+			let shouldStop = false
+			let count = 0
 			function traverse(
 				cb,
 				nodeModels = null,
 				parentPath = [],
 				productId = undefined
 			) {
-				if (done) return
-				//	let count = 1
-				let shouldStop = false
 				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
 					const nodeModel = nodeModels[nodeInd];
 					if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
+						count++
 						const itemPath = parentPath.concat(nodeInd);
 						// if (caller === 'product.js:getDescendantsInfo') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId )
-						shouldStop = cb(itemPath, nodeModel, nodeModels) === false
-						//	count++
-						if (shouldStop) {
-							done = true
-							return
+						if (cb(itemPath, nodeModel, nodeModels) === false) {
+							shouldStop = true
+							break
 						}
 
 						if (nodeModel.children && nodeModel.children.length > 0) {
@@ -777,87 +782,12 @@ export default {
 						}
 					}
 				}
-				//	console.log('TRAVERSELIGHT is called ' + count + ' times, done = ' + done)
 			}
-
 			traverse(cb, this.currentValue, undefined, productId)
-		},
-
-		traverseLight2(
-			cb,
-			startId,
-			caller) {
-			//eslint-disable-next-line no-console
-			console.log('TRAVERSELIGHT2 is called by ' + caller)
-
-			function traverse(
-				cb,
-				nodeModels,
-				parentPath = [],
-				foundStartId = false
-			) {
-				console.log('\n\ntraverseLight2: nodeModels.length = ' + nodeModels.length + '\n')
-
-				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
-					const nodeModel = nodeModels[nodeInd]
-					foundStartId = foundStartId || (nodeModel.data._id === startId)
-					const itemPath = parentPath.concat(nodeInd)
-					// if the id's match the callback will be called until the end of this iteration in this for-loop
-					if (foundStartId) {
-						console.log('traverseLight2: cb called for itemPath = ', itemPath + ' title = ' + nodeModel.title)
-						if (cb(itemPath, nodeModel, nodeModels) === false) {
-							console.log('traverseLight2: shouldStop!')
-							break
-						}
-					}
-
-					if (nodeModel.children && nodeModel.children.length > 0) {
-						traverse(cb, nodeModel.children, itemPath, foundStartId)
-					}
-
-				}
+			if (caller !== undefined) {
+				//eslint-disable-next-line no-console
+				console.log('TRAVERSELIGHT: productId = ' + productId + ' traverse callback is called ' + count + ' times, shouldStop = ' + shouldStop)
 			}
-
-			traverse(cb, this.currentValue)
-		},
-
-		/* A faster version of the original */
-		// ToDo: use parentPath instead of productId to filter
-		traverseNew(
-			cb,
-			productId = undefined,
-			caller) {
-			//eslint-disable-next-line no-console
-			console.log('TRAVERSELIGHT is called by ' + caller)
-
-			let done = false
-
-			function traverse(
-				cb,
-				nodeModels = null,
-				parentPath = [],
-				productId = undefined
-			) {
-				if (done) return
-				let shouldStop = false
-				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
-					const nodeModel = nodeModels[nodeInd];
-					if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
-						const itemPath = parentPath.concat(nodeInd);
-						shouldStop = cb(itemPath, nodeModel, nodeModels) === false
-						if (shouldStop) {
-							done = true
-							return
-						}
-
-						if (nodeModel.children) {
-							traverse(cb, nodeModel.children, itemPath, productId)
-						}
-					}
-				}
-			}
-
-			traverse(cb, this.currentValue, undefined, productId)
 		},
 
 		traverseModels(cb, nodeModels) {
@@ -929,15 +859,15 @@ export default {
 			this.$store.state.load.lastEvent = txt
 		},
 
-		/* collapse all products */
-		collapseTree() {
+		/* collapse all nodes of this product */
+		collapseTree(productId) {
 			this.traverseLight((itemPath, nodeModel) => {
 				// collapse to the product level
 				if (itemPath.length > PRODUCTLEVEL) {
 					nodeModel.savedDoShow = nodeModel.doShow
 					nodeModel.doShow = false
 				}
-			}, undefined, 'sl-vue-tree:collapseTree')
+			}, productId, 'sl-vue-tree:collapseTree')
 			// this.showVisibility('collapseTree')
 		},
 
