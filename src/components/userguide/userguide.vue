@@ -86,14 +86,14 @@
 					</ul>
 					Users can have multiple roles. Users can only access the products that are assigned to them.
 				</div>
-				<p class="indent10">To add an item <b>double click</b> on a node. You will see a modal like this:</p>
-				<b-img class="indent10" :src="require('./new-item.png')" alt="Example item addition" />
-				<p class="indent10">Select the item type to create and press OK.</p>
-				<p class="indent10">To remove an item with all of its descendants first selcet it with a <b>left-click</b> then do a <b>right-click</b>. You will see a modal like this:</p>
-				<b-img class="indent10" :src="require('./remove-item.png')" alt="Example item removal" />
-				<p class="indent10">Click on the small X when uncertain. After removal the items are still in the database. Only the server admin can recover them.</p>
+				<p class="indent10">To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
+				<b-img class="indent10" :src="require('./context-menu.png')" alt="Example context menu" />
+				<p class="indent10">Select the action to execute and press OK.</p>
+				<p class="indent10">Be carefull when removing an item with all of its descendants. You will see a modal like this:</p>
+				<b-img class="indent10" :src="require('./warning-on-remove.png')" alt="Example warning on remove" />
+				<p class="indent10">Click on cancel or the small X when uncertain. After removal the items are still in the database. Only the server admin can recover them.</p>
 				<h4>Drag &amp; drop in the backlog item tree</h4>
-				<p class="indent10">This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product and even between products. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>
+				<p class="indent10">This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product. Use the context menu to move a branche to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>
 				<h4>The title input field</h4>
 				<p class="indent10">On the right side of the screen above the Description field is the input field to change the title of the currently selected item. Th change takes place when you move away from this field and click on another location. You will see the update in the tree view.</p>
 				<h4>Subscribe to change notices</h4>
