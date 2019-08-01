@@ -508,10 +508,10 @@ export default {
 			return title.substring(0, length - 4) + '...';
 		},
 		haveSameParent(nodes) {
-			let parentId = nodes[0].data.parentId
+			let parentId = nodes[0].parentId
 			if (nodes.length > 0) {
 				for (let i = 1; i < nodes.length; i++) {
-					if (nodes[i].data.parentId !== parentId) {
+					if (nodes[i].parentId !== parentId) {
 						return false
 					}
 				}
@@ -532,23 +532,23 @@ export default {
 			numberOfNodesSelected = selNodes.length
 			this.firstNodeSelected = selNodes[0]
 			// if the user clicked on a node of another product
-			if (this.$store.state.load.currentProductId !== this.firstNodeSelected.data.productId) {
+			if (this.$store.state.load.currentProductId !== this.firstNodeSelected.productId) {
 				// clear any outstanding filters
 				if (this.$store.state.filterOn || this.$store.state.searchOn) {
 					window.slVueTree.resetFilters('nodeSelectedEvent')
 				}
 				// collapse the previously selected product
-				window.slVueTree.collapseTree(this.firstNodeSelected.data.productId)
+				window.slVueTree.collapseTree(this.firstNodeSelected.productId)
 				// update current productId
-				this.$store.state.load.currentProductId = this.firstNodeSelected.data.productId
+				this.$store.state.load.currentProductId = this.firstNodeSelected.productId
 				// expand the newly selected product up to the feature level
 				window.slVueTree.expandTree(FEATURELEVEL)
 				// update the product title
-				this.$store.dispatch('readProductTitle', this.firstNodeSelected.data.productId)
+				this.$store.dispatch('readProductTitle', this.firstNodeSelected.productId)
 			}
 			// load the document if not already in memory
-			if (this.firstNodeSelected.data._id !== this.$store.state.currentDoc._id) {
-				this.$store.dispatch('loadDoc', this.firstNodeSelected.data._id)
+			if (this.firstNodeSelected._id !== this.$store.state.currentDoc._id) {
+				this.$store.dispatch('loadDoc', this.firstNodeSelected._id)
 			}
 			const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 			const title = this.itemTitleTrunc(60, selNodes[0].title)
@@ -694,7 +694,7 @@ export default {
 			const firstNode = nodes[0]
 			const level = firstNode.level
 			const parentPath = firstNode.path.slice(0, firstNode.path.length - 1)
-			let localParentId = window.slVueTree.getNode(parentPath).data._id
+			let localParentId = window.slVueTree.getNode(parentPath)._id
 			let predecessorNode
 			let successorNode
 			if (firstNode.isFirstChild) {
@@ -717,14 +717,14 @@ export default {
 				switch (window.slVueTree.comparePaths(nodePath, firstNode.path)) {
 					case -1:
 						// skip top levels but expand and deselect the parent
-						if (nodeModel.data._id === localParentId) {
+						if (nodeModel._id === localParentId) {
 							nodeModel.isExpanded = true
 							nodeModel.isSelected = false
 						}
 						return
 					case 0:
-						nodeModel.data.productId = this.$store.state.load.currentProductId
-						nodeModel.data.parentId = localParentId
+						nodeModel.productId = this.$store.state.load.currentProductId
+						nodeModel.parentId = localParentId
 						nodeModel.data.sessionId = this.$store.state.sessionId
 						nodeModel.data.distributeEvent = true
 						nodeModel.isExpanded = false
@@ -733,7 +733,7 @@ export default {
 						return
 					case 1:
 						// process descendant
-						nodeModel.data.productId = this.$store.state.load.currentProductId
+						nodeModel.productId = this.$store.state.load.currentProductId
 						// parent has not changed
 						nodeModel.data.sessionId = this.$store.state.sessionId
 						nodeModel.data.distributeEvent = true
@@ -765,9 +765,9 @@ export default {
 				for (let i = 0; i < selectedNodes.length; i++) {
 					let descendants = this.getDescendantsInfo(selectedNodes[i].path).descendants
 					const payloadItem = {
-						'_id': selectedNodes[i].data._id,
-						'productId': selectedNodes[i].data.productId,
-						'newParentId': selectedNodes[i].data.parentId,
+						'_id': selectedNodes[i]._id,
+						'productId': selectedNodes[i].productId,
+						'newParentId': selectedNodes[i].parentId,
 						'newPriority': selectedNodes[i].data.priority,
 						'newParentTitle': null,
 						'oldParentTitle': selectedNodes[i].title,
@@ -799,7 +799,7 @@ export default {
 			this.contextSelected = undefined
 			this.insertOptionSelected = 1
 			// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-			if (this.canWriteLevels[node.level] && node.data._id === this.firstNodeSelected.data._id && node.level > 1 && numberOfNodesSelected === 1) {
+			if (this.canWriteLevels[node.level] && node._id === this.firstNodeSelected._id && node.level > 1 && numberOfNodesSelected === 1) {
 				this.contextNodeSelected = node
 				this.contextNodeTitle = node.title
 				this.contextNodeLevel = node.level
@@ -893,10 +893,10 @@ export default {
 				this.updateTree([newNode])
 				const descendants = this.getDescendantsInfo(newPath).descendants
 				const payloadItem = {
-					'_id': newNode.data._id,
+					'_id': newNode._id,
 					'oldProductId': this.moveSourceProductId, // ToDo: use this field in the history record
 					'productId': this.$store.state.load.currentProductId,
-					'newParentId': newNode.data.parentId,
+					'newParentId': newNode.parentId,
 					'newPriority': newNode.data.priority,
 					'newParentTitle': null, // will be set by 'updateDropped'
 					'oldParentTitle': newNode.title,
@@ -931,7 +931,7 @@ export default {
 			// when removing a product
 			if (selectedNode.level === this.productLevel) {
 				var newProducts = this.$store.state.load.userAssignedProductIds
-				var idx = newProducts.indexOf(selectedNode.data._id)
+				var idx = newProducts.indexOf(selectedNode._id)
 				if (idx > -1) {
 					newProducts.splice(idx, 1)
 				}
@@ -1042,8 +1042,8 @@ export default {
 			if (this.canWriteLevels[insertLevel]) {
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
-				newNode.data._id = newId
-				newNode.data.parentId = this.contextNodeSelected.data.parentId
+				newNode._id = newId
+				newNode.parentId = this.contextNodeSelected.parentId
 				this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
 				if (newNodeLocation.placement === 'inside') {
 					// unselect the node that was clicked before the insert and expand it to show the inserted node
@@ -1067,10 +1067,10 @@ export default {
 				this.updateTree([insertedNode])
 				// create a new document and store it
 				const initData = {
-					"_id": insertedNode.data._id,
+					"_id": insertedNode._id,
 					"type": "backlogItem",
-					"productId": insertedNode.data.productId,
-					"parentId": insertedNode.data.parentId,
+					"productId": insertedNode.productId,
+					"parentId": insertedNode.parentId,
 					"team": "not assigned yet",
 					"level": insertLevel,
 					"subtype": 0,

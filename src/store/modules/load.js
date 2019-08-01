@@ -87,9 +87,12 @@ const mutations = {
 				// Skip the database/requirement area levels and the removed items
 				if (level > 1 && !delmark) {
 					let newNode = {
+						productId: batch[i].doc.productId,
+						parentId: parentId,
+						_id: batch[i].doc._id,
 						title: batch[i].doc.title,
-						// for now PBI's have no children
 						isLeaf: (level === LEAFLEVEL) ? true : false,
+						// for now PBI's have no children
 						children: [],
 						// expand the tree of the default product
 						isExpanded: expanded,
@@ -101,10 +104,7 @@ const mutations = {
 						doShow: true,
 						savedDoShow: true,
 						data: {
-							_id: batch[i].doc._id,
 							priority: batch[i].doc.priority,
-							productId: batch[i].doc.productId,
-							parentId: parentId,
 							state: batch[i].doc.state,
 							subtype: batch[i].doc.subtype,
 							lastChange: batch[i].doc.history[0].timestamp
@@ -131,37 +131,37 @@ const actions = {
 		dispatch
 	}) {
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/config',
-				withCredentials: true,
-			}).then(res => {
-				rootState.config = res.data
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('The configuration is loaded')
-				// prepare for loading the first batch; add the root node for the database name
-				state.treeNodes = [
-					{
-						"title": rootState.currentDb,
-						"children": [],
-						"isSelected": false,
-						"isExpanded": true,
-						"savedIsExpanded": true,
-						"isDraggable": false,
-						"doShow": true,
-						"savedDoShow": true,
-						"data": {
-							"_id": "root",
-							"productId": "root",
-							"parentId": null,
-							"priority": null,
-							"lastChange": 0
-						}
-						},
-					]
-				parentNodes.root = state.treeNodes[0]
-				// load the current product document
-				dispatch('loadCurrentProduct')
-			})
+			method: 'GET',
+			url: rootState.currentDb + '/config',
+			withCredentials: true,
+		}).then(res => {
+			rootState.config = res.data
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('The configuration is loaded')
+			// prepare for loading the first batch; add the root node for the database name
+			state.treeNodes = [
+				{
+					"productId": "root",
+					"parentId": null,
+					"_id": "root",
+					"title": rootState.currentDb,
+					"children": [],
+					"isSelected": false,
+					"isExpanded": true,
+					"savedIsExpanded": true,
+					"isDraggable": false,
+					"doShow": true,
+					"savedDoShow": true,
+					"data": {
+						"priority": null,
+						"lastChange": 0
+					}
+				},
+			]
+			parentNodes.root = state.treeNodes[0]
+			// load the current product document
+			dispatch('loadCurrentProduct')
+		})
 			.catch(error => {
 				let msg = 'getConfig: Config doc missing in database ' + rootState.currentDb + ', ' + error
 				// eslint-disable-next-line no-console
@@ -181,25 +181,25 @@ const actions = {
 	}) {
 		let _id = state.currentDefaultProductId
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/' + _id,
-				withCredentials: true,
-			}).then(res => {
-				state.currentProductId = _id
-				rootState.currentDoc = res.data
-				// decode from base64 + replace the encoded data
-				rootState.currentDoc.description = window.atob(res.data.description)
-				rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('loadCurrentProduct: product root document with _id + ' + _id + ' is loaded.')
-				// initialize load parameters in case getFirstDocsBatch is called without signing out first
-				batch = []
-				state.docsCount = 0
-				state.itemsCount = 0
-				state.orphansCount = 0
-				state.offset = 0
-				dispatch('getFirstDocsBatch')
-			})
+			method: 'GET',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			state.currentProductId = _id
+			rootState.currentDoc = res.data
+			// decode from base64 + replace the encoded data
+			rootState.currentDoc.description = window.atob(res.data.description)
+			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('loadCurrentProduct: product root document with _id + ' + _id + ' is loaded.')
+			// initialize load parameters in case getFirstDocsBatch is called without signing out first
+			batch = []
+			state.docsCount = 0
+			state.itemsCount = 0
+			state.orphansCount = 0
+			state.offset = 0
+			dispatch('getFirstDocsBatch')
+		})
 			.catch(error => {
 				let msg = 'loadCurrentProduct: Could not read product root document with _id ' + _id + '. Error = ' + error
 				// eslint-disable-next-line no-console
@@ -218,40 +218,40 @@ const actions = {
 		rootState
 	}) {
 		globalAxios({
-				method: 'GET',
-				url: '_users/org.couchdb.user:' + rootState.user,
-				withCredentials: true
-			}).then(res => {
-				state.myProductsRoles = res.data.productsRoles
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
-				if (res.data.teams !== undefined) {
-					state.myTeams = res.data.teams
-					state.myCurrentTeam = res.data.teams[res.data.currentTeamsIdx]
-				} else {
-					state.myTeams = []
-					state.myCurrentTeam = "none assigned"
-				}
-				state.email = res.data.email
-				state.databases = res.data.databases
-				rootState.currentDb = res.data.currentDb
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('getOtherUserData: database ' + rootState.currentDb + ' is set for user ' + rootState.user)
-				let msg = rootState.user + ' has logged in and the watchdog is started to recover from network outings.'
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				// now that the database is known the log file is available
-				dispatch('doLog', {
-					"event": msg,
-					"level": 'INFO'
-				})
-				dispatch('watchdog')
-
-				state.userAssignedProductIds = Object.keys(res.data.productsRoles)
-				state.currentDefaultProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
-				dispatch('readProductTitle', state.currentDefaultProductId)
-				dispatch('getConfig')
+			method: 'GET',
+			url: '_users/org.couchdb.user:' + rootState.user,
+			withCredentials: true
+		}).then(res => {
+			state.myProductsRoles = res.data.productsRoles
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
+			if (res.data.teams !== undefined) {
+				state.myTeams = res.data.teams
+				state.myCurrentTeam = res.data.teams[res.data.currentTeamsIdx]
+			} else {
+				state.myTeams = []
+				state.myCurrentTeam = "none assigned"
+			}
+			state.email = res.data.email
+			state.databases = res.data.databases
+			rootState.currentDb = res.data.currentDb
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('getOtherUserData: database ' + rootState.currentDb + ' is set for user ' + rootState.user)
+			let msg = rootState.user + ' has logged in and the watchdog is started to recover from network outings.'
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			// now that the database is known the log file is available
+			dispatch('doLog', {
+				"event": msg,
+				"level": 'INFO'
 			})
+			dispatch('watchdog')
+
+			state.userAssignedProductIds = Object.keys(res.data.productsRoles)
+			state.currentDefaultProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
+			dispatch('readProductTitle', state.currentDefaultProductId)
+			dispatch('getConfig')
+		})
 			.catch(error => {
 				let msg = 'getOtherUserData: Could not read user date for user ' + rootState.user + ', ' + error
 				// eslint-disable-next-line no-console
@@ -271,35 +271,35 @@ const actions = {
 		dispatch
 	}) {
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
-				withCredentials: true,
-			}).then(res => {
-				batch = res.data.rows
-				commit('processBatch')
-				if (batch.length === batchSize) {
-					state.offset += batchSize
-					// recurse until all read
-					dispatch('getNextDocsBatch')
-				} else {
-					// do not start again after sign-out/in
-					if (!rootState.listenForChangesRunning) {
-						dispatch('listenForChanges')
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('getNextDocsBatch: listenForChanges started')
-					}
-					// reset load parameters
-					parentNodes = {}
-					this.offset = 0
+			method: 'GET',
+			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
+			withCredentials: true,
+		}).then(res => {
+			batch = res.data.rows
+			commit('processBatch')
+			if (batch.length === batchSize) {
+				state.offset += batchSize
+				// recurse until all read
+				dispatch('getNextDocsBatch')
+			} else {
+				// do not start again after sign-out/in
+				if (!rootState.listenForChangesRunning) {
+					dispatch('listenForChanges')
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('getNextDocsBatch: listenForChanges started')
 				}
-				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('Another batch of ' + batch.length + ' documents is loaded')
-				if (!productPageLounched && defaultProductIsSelected) {
-					router.push('/product')
-					productPageLounched = true
-				}
-			})
+				// reset load parameters
+				parentNodes = {}
+				this.offset = 0
+			}
+			state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('Another batch of ' + batch.length + ' documents is loaded')
+			if (!productPageLounched && defaultProductIsSelected) {
+				router.push('/product')
+				productPageLounched = true
+			}
+		})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getNextDocsBatch: Could not read a batch of documents ' + rootState.currentDb + '. Error = ' + error))
 	},
@@ -312,35 +312,35 @@ const actions = {
 		dispatch
 	}) {
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
-				withCredentials: true,
-			}).then(res => {
-				batch = res.data.rows
-				commit('processBatch')
-				if (batch.length === batchSize) {
-					// more documents to read
-					state.offset += batchSize
-					dispatch('getNextDocsBatch')
-				} else {
-					// do not start listenForChanges again after sign-out/in
-					if (!rootState.listenForChangesRunning) {
-						dispatch('listenForChanges')
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
-					}
-					// reset load parameters
-					parentNodes = {}
-					this.offset = 0
+			method: 'GET',
+			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
+			withCredentials: true,
+		}).then(res => {
+			batch = res.data.rows
+			commit('processBatch')
+			if (batch.length === batchSize) {
+				// more documents to read
+				state.offset += batchSize
+				dispatch('getNextDocsBatch')
+			} else {
+				// do not start listenForChanges again after sign-out/in
+				if (!rootState.listenForChangesRunning) {
+					dispatch('listenForChanges')
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
 				}
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded.')
-				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
-				if (!productPageLounched && defaultProductIsSelected) {
-					router.push('/product')
-					productPageLounched = true
-				}
-			})
+				// reset load parameters
+				parentNodes = {}
+				this.offset = 0
+			}
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded.')
+			state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+			if (!productPageLounched && defaultProductIsSelected) {
+				router.push('/product')
+				productPageLounched = true
+			}
+		})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
@@ -353,14 +353,14 @@ const actions = {
 		dispatch
 	}, product_id) {
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/' + product_id,
-				withCredentials: true,
-			}).then(res => {
-				state.currentProductTitle = res.data.title
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log("readProductTitle: current product name '" + res.data.title + "' is fetched.")
-			})
+			method: 'GET',
+			url: rootState.currentDb + '/' + product_id,
+			withCredentials: true,
+		}).then(res => {
+			state.currentProductTitle = res.data.title
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log("readProductTitle: current product name '" + res.data.title + "' is fetched.")
+		})
 			.catch(error => {
 				let msg = 'readProductTitle: Could not read document for the product with _id ' + product_id + ', ' + error
 				// eslint-disable-next-line no-console
@@ -378,17 +378,17 @@ const actions = {
 		dispatch
 	}, _id) {
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/' + _id,
-				withCredentials: true,
-			}).then(res => {
-				rootState.currentDoc = res.data
-				// decode from base64 + replace the encoded data
-				rootState.currentDoc.description = window.atob(res.data.description)
-				rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
-			})
+			method: 'GET',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			rootState.currentDoc = res.data
+			// decode from base64 + replace the encoded data
+			rootState.currentDoc.description = window.atob(res.data.description)
+			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
+		})
 			.catch(error => {
 				let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
@@ -407,13 +407,13 @@ const actions = {
 	}, payload) {
 		const _id = payload.initData.parentId
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/' + _id,
-				withCredentials: true,
-			}).then(res => {
-				payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
-				dispatch('createDoc2', payload)
-			})
+			method: 'GET',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
+			dispatch('createDoc2', payload)
+		})
 			.catch(error => {
 				let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
@@ -433,15 +433,15 @@ const actions = {
 		// eslint-disable-next-line no-console
 		console.log('createDoc2: creating document with _id = ' + _id)
 		globalAxios({
-				method: 'PUT',
-				url: rootState.currentDb + '/' + _id,
-				withCredentials: true,
-				data: payload.initData
-			}).then(() => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('createDoc2: document with _id + ' + _id + ' is created.')
-				dispatch('loadDoc', _id)
-			})
+			method: 'PUT',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+			data: payload.initData
+		}).then(() => {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('createDoc2: document with _id + ' + _id + ' is created.')
+			dispatch('loadDoc', _id)
+		})
 			.catch(error => {
 				let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console

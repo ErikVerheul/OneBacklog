@@ -180,6 +180,9 @@ export default {
 
 			const node = {
 				// define the all ISlTreeNodeModel props
+				productId: nodeModel.productId,
+				parentId: nodeModel.parentId,
+				_id: nodeModel._id,
 				title: nodeModel.title,
 				isLeaf: !!nodeModel.isLeaf,
 				children: nodeModel.children ? this.getNodes(nodeModel.children, path, isExpanded) : [],
@@ -281,7 +284,7 @@ export default {
 				placement
 			})
 			// set the current productId. emitSelect will set it globally
-			let productId = destNode.data.productId
+			let productId = destNode.productId
 
 			const multiselectKeys = Array.isArray(this.multiselectKey) ? this.multiselectKey : [this.multiselectKey]
 			const multiselectKeyIsPressed = event && !!multiselectKeys.find(key => event[key])
@@ -324,11 +327,11 @@ export default {
 			// make the nodes under the product nodes of the selected product visible and the nodes under other product nodes invisible
 			if (productId !== this.$store.state.load.currentProductId) {
 				this.traverseLight((itemPath, nodeModel) => {
-					if (nodeModel.data._id !== selectedNode.data._id) {
+					if (nodeModel._id !== selectedNode._id) {
 						nodeModel.isSelected = false
 					}
 					if (itemPath.length > PRODUCTLEVEL) {
-						nodeModel.doShow = nodeModel.data.productId === selectedNode.data.productId
+						nodeModel.doShow = nodeModel.productId === selectedNode.productId
 					}
 				}, undefined, 'sl-vue-tree.js:select.deselect')
 			}
@@ -643,7 +646,7 @@ export default {
 					return;
 				}
 				// prevent drag to other product
-				if (this.cursorPosition.node.data.productId !== this.$store.state.load.currentProductId) {
+				if (this.cursorPosition.node.productId !== this.$store.state.load.currentProductId) {
 					this.stopDrag();
 					return;
 				}
@@ -766,12 +769,14 @@ export default {
 				parentPath = [],
 				productId = undefined
 			) {
+				if (shouldStop) return
+
 				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
 					const nodeModel = nodeModels[nodeInd];
-					if (productId === undefined || nodeModel.data.productId === 'root' || nodeModel.data.productId === productId) {
+					if (productId === undefined || nodeModel.productId === 'root' || nodeModel.productId === productId) {
 						count++
 						const itemPath = parentPath.concat(nodeInd);
-						// if (caller === 'product.js:getDescendantsInfo') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId )
+						// if (caller === 'sync.js:getNodeById') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId)
 						if (cb(itemPath, nodeModel, nodeModels) === false) {
 							shouldStop = true
 							break
@@ -783,6 +788,7 @@ export default {
 					}
 				}
 			}
+
 			traverse(cb, this.currentValue, undefined, productId)
 			if (caller !== undefined) {
 				//eslint-disable-next-line no-console

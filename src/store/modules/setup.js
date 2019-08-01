@@ -737,7 +737,7 @@ const actions = {
 		this.commit('clearAll')
 		globalAxios({
 				method: 'GET',
-				url: payload.dbName + '/' + payload.id,
+				url: payload.dbName + '/' + payload._id,
 				withCredentials: true,
 			}).then(res => {
 				state.message = res.data

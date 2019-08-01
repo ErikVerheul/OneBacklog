@@ -355,6 +355,9 @@
 *
 * The nodes in the tree have these data elements and values:
 *
+* productId: doc.productId,
+* parentId: doc.parentId,
+* _id: doc._id,
 * title: doc.title,
 * isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
 * children: [],
@@ -367,10 +370,7 @@
 * savedDoShow: doShow, // to restore the original view after applying a filter
 *
 * data: {
-* ...._id: doc._id,
 * ....priority: doc.priority,
-* ....productId: doc.productId,
-* ....parentId: doc.parentId,
 * ....state: doc.state,
 * ....subtype: doc.subtype,
 * ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description

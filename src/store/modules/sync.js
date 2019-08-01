@@ -19,7 +19,7 @@ const actions = {
 		function getNodeById(id) {
 			let resultNode = null
 			window.slVueTree.traverseLight((nodePath, nodeModel, nodeModels) => {
-				if (nodeModel.data._id === id) {
+				if (nodeModel._id === id) {
 					resultNode = window.slVueTree.getNode(nodePath, nodeModel, nodeModels)
 					return false
 				}
@@ -118,8 +118,8 @@ const actions = {
 								let locationInfo = getLocationInfo(doc.priority, doc.parentId)
 								// update priority, parent and product
 								node.data.priority = doc.priority
-								node.data.parentId = doc.parentId
-								node.data.productId = doc.productId
+								node.parentId = doc.parentId
+								node.productId = doc.productId
 								// set lastChange to now
 								node.data.lastChange = Date.now()
 								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {

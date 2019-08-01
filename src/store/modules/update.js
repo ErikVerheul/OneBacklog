@@ -293,7 +293,7 @@ const actions = {
 				let payloadArray2 = []
 				for (let i = 0; i < payloadItem.descendants.length; i++) {
 					const payloadItem2 = {
-						"_id": payloadItem.descendants[i].data._id,
+						"_id": payloadItem.descendants[i]._id,
 						"oldParentTitle": payloadItem.oldParentTitle,
 						"productId": payloadItem.productId,
 						"newLevel": payloadItem.descendants[i].level
@@ -406,7 +406,7 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const _id = payload.node.data._id
+		const _id = payload.node._id
 		globalAxios({
 				method: 'GET',
 				url: rootState.currentDb + '/' + _id,
@@ -442,7 +442,7 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const _id = payload.node.data.parentId
+		const _id = payload.node.parentId
 		globalAxios({
 				method: 'GET',
 				url: rootState.currentDb + '/' + _id,
