@@ -69,7 +69,7 @@
 	export default {
 		data() {
 			return {
-				appVersion: 'OneBackLog v.0.5.1',
+				appVersion: 'OneBackLog v.0.5.2',
 				eventBgColor: '#408FAE',
 				oldPassword: '',
 				newPassword1: '',
