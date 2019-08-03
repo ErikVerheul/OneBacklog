@@ -117,6 +117,7 @@ const mutations = {
 						parentNodes[batch[i].doc._id] = newNode
 					} else {
 						state.orphansCount++
+						console.log('processBatch: orphan found with parentId = ' + parentId + ' and productId = ' + batch[i].doc.productId)
 					}
 				}
 			}
