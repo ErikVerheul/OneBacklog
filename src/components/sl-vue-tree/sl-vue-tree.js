@@ -136,9 +136,11 @@ export default {
 		setCursorPosition(pos) {
 			if (this.isRoot) {
 				this.rootCursorPosition = pos;
+				this.lastSelectCursorPosition = pos
 				return;
 			}
 			this.getParent().setCursorPosition(pos);
+			this.lastSelectCursorPosition = pos
 		},
 
 		saveSelectCursorPosition(pos) {
@@ -323,7 +325,7 @@ export default {
 					selectedNodes.push(node)
 				}
 			}, productId, 'sl-vue-tree.js:select')
-			// when shifting to another product deselect all but the selected top node and
+			// when moving to another product deselect all but the selected top node and
 			// make the nodes under the product nodes of the selected product visible and the nodes under other product nodes invisible
 			if (productId !== this.$store.state.load.currentProductId) {
 				this.traverseLight((itemPath, nodeModel) => {
@@ -478,7 +480,7 @@ export default {
 			let lastNode = null;
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
 				lastNode = this.getNode(nodePath, nodeModel, nodeModels)
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getLastNode');
+			}, undefined, 'sl-vue-tree.js:getLastNode');
 			return lastNode;
 		},
 
@@ -583,8 +585,42 @@ export default {
 
 		/* Move the nodes to the position designated by cursorPosition */
 		moveNodes(cursorPosition, nodes) {
+			const targetProductId = cursorPosition.node.productId
 			const nodeModelsSubjectToDelete = []
 			const nodeModelsSubjectToInsert = []
+
+			function updateMovedNodes(cb, nodeModels, productId, parentId) {
+				let inRange = false
+				function traverse(
+					cb,
+					nodeModels,
+					parentPath = [],
+					parentId) {
+					for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
+						const nodeModel = nodeModels[nodeInd]
+						const itemPath = parentPath.concat(nodeInd)
+						// skip the root
+						if (nodeModel.productId === 'root') {
+							traverse(cb, nodeModel.children, itemPath, nodeModel._id)
+						} else {
+							if (itemPath.length === PRODUCTLEVEL) {
+								if (inRange && nodeModel.productId !== productId) break
+								inRange = nodeModel.productId === productId
+							}
+							// console.log('updateIds: inRange = ' + inRange + ' nodeModel._id = ' + nodeModel._id + ' nodeModel.productId = ' + nodeModel.productId + ' nodeModel.parentId = ' + nodeModel.parentId)
+
+							if (inRange) cb(nodeModel, productId, parentId)
+
+							if (nodeModel.children && nodeModel.children.length > 0) {
+								traverse(cb, nodeModel.children, itemPath, nodeModel._id)
+							}
+						}
+					}
+				}
+
+				traverse(cb, nodeModels, undefined, parentId)
+			}
+
 			// find model to delete and to insert
 			const firstNodeLevel = nodes[0].level
 			for (let node of nodes) {
@@ -602,7 +638,29 @@ export default {
 			}
 
 			// insert nodes to the new place
-			this.insertModels(cursorPosition, nodeModelsSubjectToInsert, this.currentValue);
+			const targetParentId = this.insertModels(cursorPosition, nodeModelsSubjectToInsert, this.currentValue)
+
+			// console.log('moveNodes: targetProductId = ' + targetProductId + ' targetParentId = ' + targetParentId)
+			// update the product and parent ids; mark the changed nodemodels for distribution
+			updateMovedNodes((nodeModel, productId, parentId) => {
+				let distributeChange = false
+				if (nodeModel.parentId !== parentId) {
+					// children have the id of their parent as parentId
+					nodeModel.parentId = parentId
+					// console.log('updateIds-CB: _id = ' + nodeModel._id + ' parentId is set to ' + nodeModel.parentId + ' title = ' + nodeModel.title)
+					distributeChange = true
+				}
+				if (nodeModel.productId !== productId) {
+					// children have the same productId as the parent
+					nodeModel.productId = productId
+					// console.log('updateIds-CB: _id = ' + nodeModel._id + ' productId is set to ' + nodeModel.productId + ' title = ' + nodeModel.title + ' nodeModel.parentId = ' + nodeModel.parentId)
+					distributeChange = true
+				}
+				if (distributeChange) {
+					nodeModel.data.sessionId = this.$store.state.sessionId
+					nodeModel.data.distributeEvent = true
+				}
+			}, this.currentValue, targetProductId, targetParentId)
 
 			// delete nodes from the old place
 			this.traverseModels((nodeModel, siblings, ind) => {
@@ -827,13 +885,17 @@ export default {
 			const destNode = cursorPosition.node;
 			const destSiblings = this.getNodeSiblings(newNodes, destNode.path);
 			const destNodeModel = destSiblings[destNode.ind];
+			let parentId
 			if (cursorPosition.placement === 'inside') {
+				parentId = destNode._id
 				destNodeModel.children = destNodeModel.children || [];
 				destNodeModel.children.unshift(...nodeModels);
 			} else {
 				const insertInd = cursorPosition.placement === 'before' ? destNode.ind : destNode.ind + 1;
 				destSiblings.splice(insertInd, 0, ...nodeModels);
+				parentId = destNode.parentId
 			}
+			return parentId
 		},
 
 		insert(cursorPosition, nodeModel) {

@@ -550,6 +550,7 @@ export default {
 			if (this.firstNodeSelected._id !== this.$store.state.currentDoc._id) {
 				this.$store.dispatch('loadDoc', this.firstNodeSelected._id)
 			}
+			console.log('nodeSelectedEvent: selNodes[0].level = ' + selNodes[0].level + ' this.canWriteLevels[selNodes[0].level] = ' + this.canWriteLevels[selNodes[0].level] + ' this.$store.state.load.currentProductId = ' + this.$store.state.load.currentProductId)
 			const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 			const title = this.itemTitleTrunc(60, selNodes[0].title)
 			let evt = ""
@@ -685,16 +686,14 @@ export default {
 		},
 		/*
 		 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
-		 * Determine the parentId and set the productId.
-		 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children. Update the level of the item in the tree node.
-		 * Update the values in the tree.
+		 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children.
 		 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
 		 */
 		updateTree(nodes) {
 			const firstNode = nodes[0]
 			const level = firstNode.level
 			const parentPath = firstNode.path.slice(0, firstNode.path.length - 1)
-			let localParentId = window.slVueTree.getNode(parentPath)._id
+			const parentNode = window.slVueTree.getNode(parentPath)
 			let predecessorNode
 			let successorNode
 			if (firstNode.isFirstChild) {
@@ -711,35 +710,30 @@ export default {
 				successorNode = null
 			}
 			// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
-			if (localParentId !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
+			if (parentNode._id !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
 			// update the tree
 			window.slVueTree.traverseLight((nodePath, nodeModel) => {
 				switch (window.slVueTree.comparePaths(nodePath, firstNode.path)) {
 					case -1:
+						// console.log('updateTree: case -1: path = ' + nodePath + ' parentId = ' + nodeModel.parentId)
 						// skip top levels but expand and deselect the parent
-						if (nodeModel._id === localParentId) {
+						if (nodeModel._id === parentNode._id) {
 							nodeModel.isExpanded = true
 							nodeModel.isSelected = false
 						}
 						return
 					case 0:
-						nodeModel.productId = this.$store.state.load.currentProductId
-						nodeModel.parentId = localParentId
-						nodeModel.data.sessionId = this.$store.state.sessionId
-						nodeModel.data.distributeEvent = true
+						// console.log('updateTree: case 0: path = ' + nodePath + ' parentId = ' + nodeModel.parentId)
 						nodeModel.isExpanded = false
 						nodeModel.isSelected = true
 						nodeModel.isLeaf = (level < PBILEVEL) ? false : true
 						return
 					case 1:
 						// process descendant
-						nodeModel.productId = this.$store.state.load.currentProductId
-						// parent has not changed
-						nodeModel.data.sessionId = this.$store.state.sessionId
-						nodeModel.data.distributeEvent = true
+						// console.log('updateTree: case 1: path = ' + nodePath + ' parentId = ' + nodeModel.parentId)
 						nodeModel.isLeaf = (nodePath.length < PBILEVEL) ? false : true
 				}
-			}, undefined, 'product.js:updateTree')
+			}, parentNode.productId, 'product.js:updateTree')
 		},
 		/*
 		 * Update the tree when one or more nodes are dropped on another location
@@ -758,7 +752,7 @@ export default {
 
 			// no action required when moving a product in the tree
 			if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
-				// when nodes are dropped to another position the type and the priorities must be updated
+				// when nodes are dropped to another position the parent, type and the priorities must be updated
 				this.updateTree(selectedNodes)
 				// update the nodes in the database
 				let payloadArray = []
@@ -843,7 +837,7 @@ export default {
 					this.doInsert()
 					break
 				case 2:
-					this.moveItem()
+					this.moveItemToOtherProduct()
 					break
 				case 3:
 					this.doRemove()
@@ -875,27 +869,27 @@ export default {
 				depth: maxDepth - initLevel
 			}
 		},
-		moveItem() {
+		moveItemToOtherProduct() {
 			if (this.$store.state.moveOngoing) {
 				let cursorPosition = window.slVueTree.lastSelectCursorPosition
 				// only allow move to new parent 1 level higher (lower value) than the source node
 				if (cursorPosition.node.path.length !== movedNode.path.length - 1) {
-					this.showLastEvent('You van only move to a new parent 1 level higher than the source node', WARNING)
+					this.showLastEvent('You can only move to a new parent 1 level higher than the source node', WARNING)
 					return
 				}
-				// insert the node in the new place
+				// move the node to the new place and update the productId and parentId
 				window.slVueTree.moveNodes(cursorPosition, [movedNode])
 				const selectedNode = window.slVueTree.getSelected()[0]
 				// the path to new node is immediately below the selected node
 				const newPath = selectedNode.path.concat([0])
 				const newNode = window.slVueTree.getNode(newPath)
-				// productId, parentId and priority are set in this routine
+				// parentId and priority are updated in this routine
 				this.updateTree([newNode])
 				const descendants = this.getDescendantsInfo(newPath).descendants
 				const payloadItem = {
 					'_id': newNode._id,
 					'oldProductId': this.moveSourceProductId, // ToDo: use this field in the history record
-					'productId': this.$store.state.load.currentProductId,
+					'productId': newNode.productId,
 					'newParentId': newNode.parentId,
 					'newPriority': newNode.data.priority,
 					'newParentTitle': null, // will be set by 'updateDropped'
