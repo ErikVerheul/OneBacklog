@@ -589,13 +589,14 @@ export default {
 			const nodeModelsSubjectToDelete = []
 			const nodeModelsSubjectToInsert = []
 
-			function updateMovedNodes(cb, nodeModels, productId, parentId) {
+			function updateMovedNodes(cb, nodeModels, productId) {
+				// inRange means that the recursion processes items of the requested product
 				let inRange = false
 				function traverse(
 					cb,
 					nodeModels,
 					parentPath = [],
-					parentId) {
+					parentId = undefined) {
 					for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
 						const nodeModel = nodeModels[nodeInd]
 						const itemPath = parentPath.concat(nodeInd)
@@ -604,6 +605,7 @@ export default {
 							traverse(cb, nodeModel.children, itemPath, nodeModel._id)
 						} else {
 							if (itemPath.length === PRODUCTLEVEL) {
+								// exit the recursion if the range has been processed
 								if (inRange && nodeModel.productId !== productId) break
 								inRange = nodeModel.productId === productId
 							}
@@ -617,8 +619,7 @@ export default {
 						}
 					}
 				}
-
-				traverse(cb, nodeModels, undefined, parentId)
+				traverse(cb, nodeModels)
 			}
 
 			// find model to delete and to insert
@@ -638,7 +639,7 @@ export default {
 			}
 
 			// insert nodes to the new place
-			const targetParentId = this.insertModels(cursorPosition, nodeModelsSubjectToInsert, this.currentValue)
+			this.insertModels(cursorPosition, nodeModelsSubjectToInsert, this.currentValue)
 
 			// console.log('moveNodes: targetProductId = ' + targetProductId + ' targetParentId = ' + targetParentId)
 			// update the product and parent ids; mark the changed nodemodels for distribution
@@ -660,7 +661,7 @@ export default {
 					nodeModel.data.sessionId = this.$store.state.sessionId
 					nodeModel.data.distributeEvent = true
 				}
-			}, this.currentValue, targetProductId, targetParentId)
+			}, this.currentValue, targetProductId)
 
 			// delete nodes from the old place
 			this.traverseModels((nodeModel, siblings, ind) => {
@@ -879,7 +880,8 @@ export default {
 		},
 		/*
 		 * Inserts the nodes in array nodeModels after (when moving down)
-		 * or before (when moving up) node cursorposition in the newNodes array model
+		 * or before (when moving up) node cursorposition in the newNodes array model.
+		 * Return the parentId the models are inserted under.
 		 */
 		insertModels(cursorPosition, nodeModels, newNodes) {
 			const destNode = cursorPosition.node;
