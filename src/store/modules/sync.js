@@ -168,6 +168,9 @@ const actions = {
 								}
 								// new node
 								let node = {
+									"productId": doc.productId,
+									"parentId": doc.parentId,
+									"_id": doc._id,
 									"title": doc.title,
 									"children": [],
 									"isSelected": false,
@@ -178,9 +181,6 @@ const actions = {
 									"doShow": true,
 									"savedDoShow": true,
 									"data": {
-										"_id": doc._id,
-										"productId": doc.productId,
-										"parentId": doc.parentId,
 										"state": doc.state,
 										"subtype": 0,
 										"lastChange": Date.now(),
