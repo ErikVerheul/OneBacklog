@@ -136,11 +136,9 @@ export default {
 		setCursorPosition(pos) {
 			if (this.isRoot) {
 				this.rootCursorPosition = pos;
-				this.lastSelectCursorPosition = pos
 				return;
 			}
 			this.getParent().setCursorPosition(pos);
-			this.lastSelectCursorPosition = pos
 		},
 
 		saveSelectCursorPosition(pos) {
@@ -280,11 +278,12 @@ export default {
 				node: destNode,
 				placement
 			})
-			// ToDo: refactor this
+
 			this.saveSelectCursorPosition({
 				node: destNode,
 				placement
 			})
+
 			// set the current productId. emitSelect will set it globally
 			let productId = destNode.productId
 
@@ -437,9 +436,11 @@ export default {
 				if (y > rootRect.top + (rootRect.height / 2)) {
 					placement = 'after';
 					destNode = this.getLastNode();
+					console.log('getCursorPositionFromCoords: after: destNode.title = ' + destNode.title)
 				} else {
 					placement = 'before';
 					destNode = this.getFirstNode();
+					console.log('getCursorPositionFromCoords: before: destNode.title = ' + destNode.title)
 				}
 			}
 
@@ -644,20 +645,17 @@ export default {
 			// console.log('moveNodes: targetProductId = ' + targetProductId + ' targetParentId = ' + targetParentId)
 			// update the product and parent ids; mark the changed nodemodels for distribution
 			updateMovedNodes((nodeModel, productId, parentId) => {
-				let distributeChange = false
 				if (nodeModel.parentId !== parentId) {
 					// children have the id of their parent as parentId
 					nodeModel.parentId = parentId
 					// console.log('updateIds-CB: _id = ' + nodeModel._id + ' parentId is set to ' + nodeModel.parentId + ' title = ' + nodeModel.title)
-					distributeChange = true
+					nodeModel.data.sessionId = this.$store.state.sessionId
+					nodeModel.data.distributeEvent = true
 				}
 				if (nodeModel.productId !== productId) {
 					// children have the same productId as the parent
 					nodeModel.productId = productId
 					// console.log('updateIds-CB: _id = ' + nodeModel._id + ' productId is set to ' + nodeModel.productId + ' title = ' + nodeModel.title + ' nodeModel.parentId = ' + nodeModel.parentId)
-					distributeChange = true
-				}
-				if (distributeChange) {
 					nodeModel.data.sessionId = this.$store.state.sessionId
 					nodeModel.data.distributeEvent = true
 				}
