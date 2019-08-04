@@ -550,7 +550,6 @@ export default {
 			if (this.firstNodeSelected._id !== this.$store.state.currentDoc._id) {
 				this.$store.dispatch('loadDoc', this.firstNodeSelected._id)
 			}
-			console.log('nodeSelectedEvent: selNodes[0].level = ' + selNodes[0].level + ' this.canWriteLevels[selNodes[0].level] = ' + this.canWriteLevels[selNodes[0].level] + ' this.$store.state.load.currentProductId = ' + this.$store.state.load.currentProductId)
 			const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 			const title = this.itemTitleTrunc(60, selNodes[0].title)
 			let evt = ""
@@ -991,6 +990,9 @@ export default {
 			let newNodeLocation
 			// prepare the new node of type ISlTreeNodeModel for insertion
 			newNode = {
+				productId: this.$store.state.load.currentProductId,
+				parentId: null,
+				_id: null,
 				title: 'is calculated in this method',
 				isLeaf: 'is calculated in this method',
 				children: [],
@@ -1002,10 +1004,7 @@ export default {
 				doShow: true,
 				savedDoShow: true,
 				data: {
-					_id: null,
 					priority: null,
-					productId: this.$store.state.load.currentProductId,
-					parentId: null,
 					state: 0,
 					subtype: 0,
 					lastChange: Date.now(),
