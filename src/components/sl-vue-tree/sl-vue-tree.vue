@@ -12,7 +12,7 @@
 					<!-- suggested place for node insertion  -->
 				</div>
 
-				<div class="sl-vue-tree-node-item" @mousedown="onNodeMousedownHandler($event, node)" @mouseup="onNodeMouseupHandler($event, node)" @contextmenu="emitNodeContextmenu(node, $event)" @dblclick="emitNodeDblclick(node, $event)" @click="emitNodeClick(node, $event)" @dragover="onExternalDragoverHandler(node, $event)" @drop="onExternalDropHandler(node, $event)" :path="node.pathStr" :class="{
+				<div class="sl-vue-tree-node-item" @mousedown="onNodeMousedownHandler($event, node)" @mouseup="onNodeMouseupHandler($event, node)" @contextmenu="emitNodeContextmenu(node, $event)" @click="emitNodeClick(node, $event)" :path="node.pathStr" :class="{
             'sl-vue-tree-cursor-hover':
               cursorPosition &&
               cursorPosition.node.pathStr === node.pathStr,

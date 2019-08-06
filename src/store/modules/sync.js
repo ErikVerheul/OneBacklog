@@ -1,5 +1,6 @@
 import globalAxios from 'axios'
 
+const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 
 const state = {
@@ -187,7 +188,7 @@ const actions = {
 								"isExpanded": true,
 								"savedIsExpanded": true,
 								"isSelectable": true,
-								"isDraggable": rootGetters.canWriteLevels[doc.level],
+								"isDraggable": doc.level > PRODUCTLEVEL && rootGetters.canWriteLevels[doc.level],
 								"doShow": true,
 								"savedDoShow": true,
 								"data": {

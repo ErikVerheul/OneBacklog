@@ -363,9 +363,9 @@
 * children: [],
 * isExpanded: true || false, // initially the tree is expanded up to the feature level
 * savedIsExpanded: isExpanded, // to restore the original view after applying a filter
-* isSelected: true || false
-* isDraggable: true || false, // depending on the user roles
 * isSelectable: true,
+* isSelected: true only if isSelectable || false
+* isDraggable: true || false, // depending on the user roles
 * doShow: true, // false if filtered out
 * savedDoShow: doShow, // to restore the original view after applying a filter
 *

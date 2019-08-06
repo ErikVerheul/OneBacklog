@@ -1,11 +1,12 @@
 /*
  * This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
  */
-
+const ROOTLEVEL = 1
 const PRODUCTLEVEL = 2
 const FILTERBUTTONTEXT = 'Set filter'
 const RESETFILTERBUTTONTEXT = 'Clear filter'
 const INFO = 0
+var numberOfSelectedNodes = 0
 
 export default {
 	name: 'sl-vue-tree',
@@ -133,6 +134,20 @@ export default {
 	},
 	methods: {
 
+		getProductNodes(treeNodes, productId) {
+			const projectModels = treeNodes[0].children
+			for (let i = 0; i < projectModels.length; i++) {
+				if (projectModels[i].productId === productId) {
+					return {
+						projectNodes: projectModels[i].children,
+						parentPath: [0, i]
+					}
+				}
+			}
+			console.log('getProductNodes: WARNING product with id ' + productId + ' not found')
+			return null
+		},
+
 		setCursorPosition(pos) {
 			if (this.isRoot) {
 				this.rootCursorPosition = pos;
@@ -242,27 +257,8 @@ export default {
 			this.getRoot().$emit('nodeclick', node, event);
 		},
 
-		emitNodeDblclick(node, event) {
-			this.getRoot().$emit('nodedblclick', node, event);
-		},
-
 		emitNodeContextmenu(node, event) {
 			this.getRoot().$emit('nodecontextmenu', node, event);
-		},
-
-		onExternalDragoverHandler(node, event) {
-			event.preventDefault();
-			const root = this.getRoot();
-			const cursorPosition = root.getCursorPositionFromCoords(event.clientX, event.clientY);
-			root.setCursorPosition(cursorPosition);
-			root.$emit('externaldragover', cursorPosition, event);
-		},
-
-		onExternalDropHandler(node, event) {
-			const root = this.getRoot();
-			const cursorPosition = root.getCursorPositionFromCoords(event.clientX, event.clientY);
-			root.$emit('externaldrop', cursorPosition, event);
-			this.setCursorPosition(null);
 		},
 
 		/* select a node from the current product only or select the top node of another product*/
@@ -284,8 +280,8 @@ export default {
 				placement
 			})
 
-			// set the current productId. emitSelect will set it globally
-			let productId = destNode.productId
+			// set the current productId. when not on root level leave as is. emitSelect will set it globally
+			let productId = path.length !== ROOTLEVEL ? destNode.productId : this.$store.state.load.currentProductId
 
 			const multiselectKeys = Array.isArray(this.multiselectKey) ? this.multiselectKey : [this.multiselectKey]
 			const multiselectKeyIsPressed = event && !!multiselectKeys.find(key => event[key])
@@ -293,40 +289,46 @@ export default {
 
 			const selectedNode = this.getNode(path)
 			if (!selectedNode) return null
-			const shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && this.lastSelectedNode
-			const selectedNodes = []
-			let shiftSelectionStarted = false
 
-			this.traverseLight((itemPath, nodeModel) => {
-				if (shiftSelectionMode) {
-					// only select nodes on the same level
-					if (itemPath.length === this.lastSelectedNode.level &&
-						(this.comparePaths(itemPath, selectedNode.path) === 0 ||
-							this.comparePaths(itemPath, this.lastSelectedNode.path) === 0)) {
+			const selectedNodes = []
+			if (path.length > PRODUCTLEVEL) {
+				const shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && this.lastSelectedNode
+				let shiftSelectionStarted = false
+
+				this.traverseLight((itemPath, nodeModel) => {
+					if (shiftSelectionMode) {
+						// only select nodes on the same level
+						if (itemPath.length === this.lastSelectedNode.level &&
+							(this.comparePaths(itemPath, selectedNode.path) === 0 ||
+								this.comparePaths(itemPath, this.lastSelectedNode.path) === 0)) {
+							nodeModel.isSelected = nodeModel.isSelectable
+							shiftSelectionStarted = !shiftSelectionStarted
+						}
+						// only select nodes on the same level
+						if (shiftSelectionStarted && itemPath.length === this.lastSelectedNode.level) {
+							nodeModel.isSelected = nodeModel.isSelectable
+						}
+					} else if (this.comparePaths(itemPath, selectedNode.path) === 0) {
 						nodeModel.isSelected = nodeModel.isSelectable
-						shiftSelectionStarted = !shiftSelectionStarted
-					}
-					// only select nodes on the same level
-					if (shiftSelectionStarted && itemPath.length === this.lastSelectedNode.level) {
-						nodeModel.isSelected = nodeModel.isSelectable
-					}
-				} else if (this.comparePaths(itemPath, selectedNode.path) === 0) {
-					nodeModel.isSelected = nodeModel.isSelectable
-				} else if (!addToSelection) {
-					// ToDo: refactor this
-					if (nodeModel.isSelected) {
+					} else if (!addToSelection) {
 						nodeModel.isSelected = false
 					}
-				}
 
-				if (nodeModel.isSelected) {
-					let node = this.getNode(itemPath, nodeModel)
-					selectedNodes.push(node)
-				}
-			}, productId, 'sl-vue-tree.js:select')
-			// when moving to another product deselect all but the selected top node and
+					if (nodeModel.isSelected) {
+						let node = this.getNode(itemPath, nodeModel)
+						selectedNodes.push(node)
+					}
+				}, productId, 'sl-vue-tree.js:select')
+			} else {
+				// a product top node is selected
+				selectedNodes.push(selectedNode)
+			}
+
+			// when moving to another product deselect all but the selected top node
 			// make the nodes under the product nodes of the selected product visible and the nodes under other product nodes invisible
-			if (productId !== this.$store.state.load.currentProductId) {
+			// collapse the branche of the product that was slected before
+			const previousProductId = this.$store.state.load.currentProductId
+			if (productId !== previousProductId) {
 				this.traverseLight((itemPath, nodeModel) => {
 					if (nodeModel._id !== selectedNode._id) {
 						nodeModel.isSelected = false
@@ -334,10 +336,15 @@ export default {
 					if (itemPath.length > PRODUCTLEVEL) {
 						nodeModel.doShow = nodeModel.productId === selectedNode.productId
 					}
+					if (nodeModel.productId === previousProductId) {
+						nodeModel.isExpanded = false
+					}
 				}, undefined, 'sl-vue-tree.js:select.deselect')
 			}
+
 			this.lastSelectedNode = selectedNode
-			if (selectedNodes.length > 0) this.emitSelect(selectedNodes, event)
+			numberOfSelectedNodes = selectedNodes.length
+			if (numberOfSelectedNodes > 0) this.emitSelect(selectedNodes, event)
 		},
 
 		onMousemoveHandler(event) {
@@ -379,6 +386,12 @@ export default {
 
 			if (isDragStarted && !destNode.isSelected) {
 				this.select(destNode.path, false, event);
+			}
+
+			const draggableNodes = this.getDraggable();
+			if (!draggableNodes.length) {
+				this.preventDrag = true;
+				return;
 			}
 
 			this.isDragging = isDragging;
@@ -443,7 +456,6 @@ export default {
 					console.log('getCursorPositionFromCoords: before: destNode.title = ' + destNode.title)
 				}
 			}
-
 			return {
 				node: destNode,
 				placement
@@ -478,11 +490,16 @@ export default {
 		},
 
 		getLastNode() {
-			let lastNode = null;
-			this.traverseLight((nodePath, nodeModel, nodeModels) => {
-				lastNode = this.getNode(nodePath, nodeModel, nodeModels)
-			}, undefined, 'sl-vue-tree.js:getLastNode');
-			return lastNode;
+			function traverse(nodes) {
+				const lastNode = nodes[nodes.length - 1]
+				const children = lastNode.children
+				if (children && children.length > 0) {
+					traverse(children)
+				} else {
+					return lastNode
+				}
+			}
+			traverse(this.currentValue)
 		},
 
 		getFirstNode() {
@@ -490,9 +507,8 @@ export default {
 		},
 
 		getNextNode(path, filter = null) {
-
 			let resultNode = null;
-
+			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
 				if (this.comparePaths(nodePath, path) < 1) return;
 
@@ -502,7 +518,7 @@ export default {
 					return false
 				}
 
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getNextNode');
+			}, productId, 'sl-vue-tree.js:getNextNode');
 
 			return resultNode;
 		},
@@ -510,12 +526,13 @@ export default {
 		getPrevNode(path, filter) {
 			let prevNodes = [];
 
+			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
 				if (this.comparePaths(nodePath, path) >= 0) {
 					return false;
 				}
 				prevNodes.push(this.getNode(nodePath, nodeModel, nodeModels));
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getPrevNode');
+			}, productId, 'sl-vue-tree.js:getPrevNode');
 
 			let i = prevNodes.length;
 			while (i--) {
@@ -688,8 +705,8 @@ export default {
 				return;
 			}
 
-			// if not dragging or moving an item to another product
-			if (!this.isDragging || this.$store.state.moveOngoing) return
+			// if at root or product level or not dragging or moving an item to another product
+			if (this.cursorPosition.node.path.length <= PRODUCTLEVEL || !this.isDragging || this.$store.state.moveOngoing) return
 
 			const draggingNodes = this.getDraggable();
 			// check that nodes is possible to insert
@@ -776,11 +793,24 @@ export default {
 				return;
 			}
 
-			const pathStr = JSON.stringify(path);
+			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
 			this.traverseLight((nodePath, nodeModel) => {
-				if (JSON.stringify(nodePath) !== pathStr) return;
-				Object.assign(nodeModel, patch);
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:updateNode');
+				if (this.comparePaths(nodePath, path) === 0) {
+					Object.assign(nodeModel, patch)
+					return false
+				}
+			}, productId, 'sl-vue-tree.js:updateNode')
+		},
+
+		getSelectedProduct() {
+			const projectModels = this.currentValue[0].children
+			for (let i = 0; i < projectModels.length; i++) {
+				if (projectModels[i].isSelected) {
+					return this.getNode([0, i], projectModels[i])
+				}
+			}
+			// product is not found
+			return null
 		},
 
 		/* Collects all nodes in the current product that are selected */
@@ -795,12 +825,18 @@ export default {
 			return selectedNodes
 		},
 
+		/*
+		* Is called repeatedly when the mouse moves
+		* All selected nodes must be on the same level
+		*/
 		getDraggable() {
-			const selectedNodes = [];
+			const selectedNodes = []
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
 				const isDraggable = nodeModel.isDraggable === undefined ? true : !!nodeModel.isDraggable
 				if (nodeModel.isSelected && isDraggable) {
 					selectedNodes.push(this.getNode(nodePath, nodeModel, nodeModels))
+					// quit the search if all selected nodes are found
+					if (selectedNodes.length === numberOfSelectedNodes) return false
 				}
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getDraggable');
 			return selectedNodes;
@@ -815,8 +851,6 @@ export default {
 			cb,
 			productId = undefined,
 			caller = undefined) {
-			//eslint-disable-next-line no-console
-			if (caller != undefined) console.log('TRAVERSELIGHT is called by ' + caller)
 
 			let shouldStop = false
 			let count = 0
@@ -830,26 +864,32 @@ export default {
 
 				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
 					const nodeModel = nodeModels[nodeInd];
-					if (productId === undefined || nodeModel.productId === 'root' || nodeModel.productId === productId) {
-						count++
-						const itemPath = parentPath.concat(nodeInd);
-						// if (caller === 'sync.js:getNodeById') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId)
-						if (cb(itemPath, nodeModel, nodeModels) === false) {
-							shouldStop = true
-							break
-						}
+					count++
+					const itemPath = parentPath.concat(nodeInd);
+					// if (caller === 'sl-vue-tree.js:getSelected') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId)
+					if (cb(itemPath, nodeModel, nodeModels) === false) {
+						shouldStop = true
+						break
+					}
 
-						if (nodeModel.children && nodeModel.children.length > 0) {
-							traverse(cb, nodeModel.children, itemPath, productId)
-						}
+					if (nodeModel.children && nodeModel.children.length > 0) {
+						traverse(cb, nodeModel.children, itemPath, productId)
 					}
 				}
 			}
 
-			traverse(cb, this.currentValue, undefined, productId)
+			let parentPath = []
+			let nodeModels = this.currentValue
+			if (productId !== undefined) {
+				// restrict the traversal to the nodes of one product
+				const product = this.getProductNodes(this.currentValue, productId)
+				nodeModels = product.projectNodes
+				parentPath = product.parentPath
+			}
+			traverse(cb, nodeModels, parentPath, productId)
+
 			if (caller !== undefined) {
-				//eslint-disable-next-line no-console
-				console.log('TRAVERSELIGHT: productId = ' + productId + ' traverse callback is called ' + count + ' times, shouldStop = ' + shouldStop)
+				console.log('TRAVERSELIGHT: was called by: ' + caller + ' productId = ' + productId + ' traverse callback is called ' + count + ' times, shouldStop = ' + shouldStop)
 			}
 		},
 

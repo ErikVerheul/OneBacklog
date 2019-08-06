@@ -4,6 +4,7 @@ import router from '../../router'
 
 const batchSize = 250
 var batch = []
+const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const LEAFLEVEL = 5
 var parentNodes = {}
@@ -72,6 +73,7 @@ const mutations = {
 	 * The documents are read top down by level. In parentNodes the read items are linked to to their id's.
 	 * The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
+	 * The root and the top level product nodes are not draggable
 	 */
 	processBatch(state) {
 		for (let i = 0; i < batch.length; i++) {
@@ -98,7 +100,7 @@ const mutations = {
 						isExpanded: expanded,
 						savedIsExpanded: expanded,
 						isSelectable: true,
-						isDraggable: getters.canWriteLevels[batch[i].doc.level],
+						isDraggable: level > PRODUCTLEVEL && getters.canWriteLevels[batch[i].doc.level],
 						// select the default product
 						isSelected: isSelected,
 						doShow: true,
@@ -147,6 +149,7 @@ const actions = {
 					"_id": "root",
 					"title": rootState.currentDb,
 					"children": [],
+					"isSelectable": true,
 					"isSelected": false,
 					"isExpanded": true,
 					"savedIsExpanded": true,

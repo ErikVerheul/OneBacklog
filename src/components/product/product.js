@@ -89,10 +89,8 @@ export default {
 		// expose instance to the global namespace
 		window.slVueTree = this.$refs.slVueTree
 		// the product is selected in load.js
-		this.firstNodeSelected = window.slVueTree.getSelected()[0]
+		this.firstNodeSelected = window.slVueTree.getSelectedProduct()
 		this.nodeIsSelected = true
-		//eslint-disable-next-line no-console
-		if (this.$store.state.debug) console.log('product.js:mounted: this.firstNodeSelected is set to product = ' + this.firstNodeSelected.title)
 	},
 
 	computed: {
@@ -531,20 +529,23 @@ export default {
 			this.nodeIsSelected = true
 			numberOfNodesSelected = selNodes.length
 			this.firstNodeSelected = selNodes[0]
-			// if the user clicked on a node of another product
-			if (this.$store.state.load.currentProductId !== this.firstNodeSelected.productId) {
-				// clear any outstanding filters
-				if (this.$store.state.filterOn || this.$store.state.searchOn) {
-					window.slVueTree.resetFilters('nodeSelectedEvent')
+			// if the root node is selected do nothing
+			if (this.firstNodeSelected._id !== 'root') {
+				// if the user clicked on a node of another product
+				if (this.$store.state.load.currentProductId !== this.firstNodeSelected.productId) {
+					// clear any outstanding filters
+					if (this.$store.state.filterOn || this.$store.state.searchOn) {
+						window.slVueTree.resetFilters('nodeSelectedEvent')
+					}
+					// collapse the previously selected product
+					window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
+					// update current productId
+					this.$store.state.load.currentProductId = this.firstNodeSelected.productId
+					// expand the newly selected product up to the feature level
+					window.slVueTree.expandTree(FEATURELEVEL)
+					// update the product title
+					this.$store.dispatch('readProductTitle', this.firstNodeSelected.productId)
 				}
-				// collapse the previously selected product
-				window.slVueTree.collapseTree(this.firstNodeSelected.productId)
-				// update current productId
-				this.$store.state.load.currentProductId = this.firstNodeSelected.productId
-				// expand the newly selected product up to the feature level
-				window.slVueTree.expandTree(FEATURELEVEL)
-				// update the product title
-				this.$store.dispatch('readProductTitle', this.firstNodeSelected.productId)
 			}
 			// load the document if not already in memory
 			if (this.firstNodeSelected._id !== this.$store.state.currentDoc._id) {
@@ -570,6 +571,7 @@ export default {
 			let initLevel = 0
 			let count = 0
 			let maxDepth = 0
+			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
 			window.slVueTree.traverseLight((nodePath, nodeModel, nodeModels) => {
 				if (window.slVueTree.comparePaths(nodePath, path) === 0) {
 					initLevel = path.length
@@ -583,7 +585,7 @@ export default {
 						if (nodePath.length > maxDepth) maxDepth = nodePath.length
 					}
 				}
-			}, this.$store.state.load.currentProductId, 'product.js:getDescendantsInfo')
+			}, productId, 'product.js:getDescendantsInfo')
 			return {
 				descendants: descendants,
 				count: count,
@@ -843,44 +845,20 @@ export default {
 					break
 			}
 		},
-		getDescendantsInfo2(path) {
-			let descendants = []
-			let initLevel = 0
-			let count = 0
-			let maxDepth = 0
-			window.slVueTree.traverseLight((nodePath, nodeModel, nodeModels) => {
-				if (window.slVueTree.comparePaths(nodePath, path) === 0) {
-					initLevel = path.length
-					maxDepth = path.length
-				} else {
-					if (nodePath.length <= initLevel) return false
 
-					if (window.slVueTree.comparePaths(nodePath, path) === 1) {
-						descendants.push(window.slVueTree.getNode(nodePath, nodeModel, nodeModels))
-						count++
-						if (nodePath.length > maxDepth) maxDepth = nodePath.length
-					}
-				}
-			}, this.$store.state.load.currentProductId, 'product.js:getDescendantsInfo2')
-			return {
-				descendants: descendants,
-				count: count,
-				depth: maxDepth - initLevel
-			}
-		},
 		moveItemToOtherProduct() {
 			if (this.$store.state.moveOngoing) {
-				let cursorPosition = window.slVueTree.lastSelectCursorPosition
+				const targetPosition = window.slVueTree.lastSelectCursorPosition
 				// only allow move to new parent 1 level higher (lower value) than the source node
-				if (cursorPosition.node.path.length !== movedNode.path.length - 1) {
-					this.showLastEvent('You can only move to a new parent 1 level higher than the source node', WARNING)
+				if (targetPosition.node.level !== movedNode.level - 1) {
+					this.showLastEvent('You can only move to a ' + this.getLevelText(movedNode.level - 1), WARNING)
 					return
 				}
 				// move the node to the new place and update the productId and parentId
-				window.slVueTree.moveNodes(cursorPosition, [movedNode])
-				const selectedNode = window.slVueTree.getSelected()[0]
+				window.slVueTree.moveNodes(targetPosition, [movedNode])
+				const targetNode = targetPosition.node
 				// the path to new node is immediately below the selected node
-				const newPath = selectedNode.path.concat([0])
+				const newPath = targetNode.path.concat([0])
 				const newNode = window.slVueTree.getNode(newPath)
 				// parentId and priority are updated in this routine
 				this.updateTree([newNode])
@@ -1019,6 +997,7 @@ export default {
 					node: this.contextNodeSelected,
 					placement: 'after'
 				}
+				newNode.parentId = this.contextNodeSelected.parentId
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
 			} else {
@@ -1029,6 +1008,7 @@ export default {
 					node: this.contextNodeSelected,
 					placement: 'inside'
 				}
+				newNode.parentId = this.contextNodeSelected._id
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
 			}
@@ -1036,7 +1016,7 @@ export default {
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
 				newNode._id = newId
-				newNode.parentId = this.contextNodeSelected.parentId
+
 				this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
 				if (newNodeLocation.placement === 'inside') {
 					// unselect the node that was clicked before the insert and expand it to show the inserted node
