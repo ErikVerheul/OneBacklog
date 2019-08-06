@@ -5,7 +5,7 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<hr>
-				<h3>v.0.5.2 - 1 August 2019 Minor update</h3>
+				<h3>v.0.5.2 - 7 August 2019 Minor update</h3>
 				<p>New features:</p>
 				<ul>
 					<li>Extend context menu (right-click) and move double left-click remove option to this menu</li>
@@ -13,11 +13,13 @@
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>
+					<li>Wrong productId when creating a new item</li>
 					<li>Children of items moved to a lower level not leaf</li>
 					<li>Drag &amp; drop to other product fails => now in context menu</li>
 				</ul>
 				<p>Performance improvements:</p>
 				<ul>
+					<li>Optimized getDraggable when moving the mouse for a better user experience on selecting the drop target</li>
 					<li>Prevent unnecessary update of documents</li>
 					<li>Limit tree traversals to current product when possible</li>
 				</ul>
