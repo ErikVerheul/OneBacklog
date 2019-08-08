@@ -485,16 +485,19 @@ export default {
 		},
 
 		getLastNode() {
+			let lastPath = []
 			let lastNode
 			function traverse(nodes) {
-				lastNode = nodes[nodes.length - 1]
+				const ind = nodes.length - 1
+				lastPath = lastPath.concat(ind)
+				lastNode = nodes[ind]
 				const children = lastNode.children
 				if (children && children.length > 0) {
 					traverse(children)
 				}
 			}
 			traverse(this.currentValue)
-			return lastNode
+			return this.getNode(lastPath, lastNode)
 		},
 
 		getFirstNode() {
@@ -700,12 +703,14 @@ export default {
 				return;
 			}
 
-			// if at root or product level or not dragging or moving an item to another product
-			if (this.cursorPosition.node.path.length <= PRODUCTLEVEL || !this.isDragging || this.$store.state.moveOngoing) return
+			// if no nodes selected or at root or product level or not dragging or moving an item to another product
+			if (draggableNodes.length === 0 || this.cursorPosition.node.path.length <= PRODUCTLEVEL || !this.isDragging || this.$store.state.moveOngoing) {
+				this.stopDrag()
+				return
+			}
 
-			const draggingNodes = this.getDraggable();
 			// check that nodes is possible to insert
-			for (let draggingNode of draggingNodes) {
+			for (let draggingNode of draggableNodes) {
 				if (draggingNode.pathStr === this.cursorPosition.node.pathStr) {
 					this.stopDrag();
 					return;
@@ -733,17 +738,17 @@ export default {
 
 			// allow the drop to be cancelled
 			let cancelled = false;
-			this.emitBeforeDrop(draggingNodes, this.cursorPosition, () => cancelled = true);
+			this.emitBeforeDrop(draggableNodes, this.cursorPosition, () => cancelled = true);
 
 			if (cancelled) {
 				this.stopDrag();
 				return;
 			}
 
-			this.moveNodes(this.cursorPosition, draggingNodes)
+			this.moveNodes(this.cursorPosition, draggableNodes)
 
 			this.lastSelectedNode = null;
-			this.emitDrop(draggingNodes, this.cursorPosition, event);
+			this.emitDrop(draggableNodes, this.cursorPosition, event);
 			this.stopDrag();
 		},
 
