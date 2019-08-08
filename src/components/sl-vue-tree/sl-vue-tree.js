@@ -7,6 +7,7 @@ const FILTERBUTTONTEXT = 'Set filter'
 const RESETFILTERBUTTONTEXT = 'Clear filter'
 const INFO = 0
 var numberOfSelectedNodes = 0
+var draggableNodes = []
 
 export default {
 	name: 'sl-vue-tree',
@@ -129,7 +130,7 @@ export default {
 		},
 
 		dragSize() {
-			return this.getDraggable().length;
+			return draggableNodes.length;
 		}
 	},
 	methods: {
@@ -363,6 +364,8 @@ export default {
 				);
 
 			const isDragStarted = initialDraggingState === false && isDragging === true;
+			// set only once
+			if (isDragStarted) draggableNodes = this.getDraggable()
 
 			this.lastMousePos = {
 				x: event.clientX,
@@ -388,7 +391,6 @@ export default {
 				this.select(destNode.path, false, event);
 			}
 
-			const draggableNodes = this.getDraggable();
 			if (!draggableNodes.length) {
 				this.preventDrag = true;
 				return;
