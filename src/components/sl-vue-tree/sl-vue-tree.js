@@ -913,7 +913,6 @@ export default {
 				// the removed node has a previous sibling
 				prevVisiblePath = path.slice(0, path.length - 1).concat(path.slice(-1)[0] - 1)
 			}
-			console.log('getPrevVisibleNode: prevVisiblePath = ' + prevVisiblePath)
 			this.traverseLight((nodePath, nodeModel) => {
 				if (this.comparePaths(nodePath, prevVisiblePath) === 0) {
 					prevVisibleModel = nodeModel

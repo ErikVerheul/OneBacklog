@@ -262,7 +262,7 @@
       </div>
     </multipane>
     <!-- Modals -->
-    <template v-if="this.nodeIsSelected">
+    <template>
       <b-modal
         ref="contextMenuRef"
         @ok="procSelected()"

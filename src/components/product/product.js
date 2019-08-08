@@ -22,6 +22,7 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+var autoSelectedProduct = true
 var numberOfNodesSelected = 0
 var newNode = {}
 var movedNode = null
@@ -38,7 +39,6 @@ export default {
 			firstNodeSelected: null,
 			newDescription: '',
 			newAcceptance: '',
-			nodeIsSelected: false,
 			contextNodeSelected: undefined,
 			contextNodeTitle: '',
 			contextNodeLevel: 0,
@@ -84,13 +84,13 @@ export default {
 		}
 	},
 
+	/* Select the users default top product node. Note that at all times at least one node must be selected */
 	mounted() {
 		window.history.scrollRestoration = "manual"
 		// expose instance to the global namespace
 		window.slVueTree = this.$refs.slVueTree
 		// the product is selected in load.js
 		this.firstNodeSelected = window.slVueTree.getSelectedProduct()
-		this.nodeIsSelected = true
 	},
 
 	computed: {
@@ -526,9 +526,17 @@ export default {
 				this.showLastEvent('You can only select nodes with the same parent.', WARNING)
 				return
 			}
-			this.nodeIsSelected = true
 			numberOfNodesSelected = selNodes.length
+			let prevSelectedFirstNode = this.firstNodeSelected
 			this.firstNodeSelected = selNodes[0]
+			// if this is the first manual node(s) selection
+			if (autoSelectedProduct) {
+				// unselect that node
+				window.slVueTree.updateNode(prevSelectedFirstNode.path, {
+					isSelected: false
+				});
+				autoSelectedProduct = false
+			}
 			// if the root node is selected do nothing
 			if (this.firstNodeSelected._id !== 'root') {
 				// if the user clicked on a node of another product
