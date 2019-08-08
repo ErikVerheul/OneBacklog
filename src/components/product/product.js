@@ -23,6 +23,7 @@ const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 var autoSelectedProduct = true
+var firstNodeSelected
 var numberOfNodesSelected = 0
 var newNode = {}
 var movedNode = null
@@ -90,7 +91,7 @@ export default {
 		// expose instance to the global namespace
 		window.slVueTree = this.$refs.slVueTree
 		// the product is selected in load.js
-		this.firstNodeSelected = window.slVueTree.getSelectedProduct()
+		firstNodeSelected = window.slVueTree.getSelectedProduct()
 	},
 
 	computed: {
@@ -189,8 +190,8 @@ export default {
 			// prevent looping
 			if (val !== this.$store.state.currentDoc.subtype) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					this.firstNodeSelected.data.subtype = val
-					this.firstNodeSelected.data.lastChange = Date.now()
+					firstNodeSelected.data.subtype = val
+					firstNodeSelected.data.lastChange = Date.now()
 					this.$store.dispatch('setSubType', {
 						'newSubType': val
 					})
@@ -361,7 +362,7 @@ export default {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					// update the current doc in memory
 					this.$store.state.currentDoc.description = this.newDescription
-					this.firstNodeSelected.data.lastChange = Date.now()
+					firstNodeSelected.data.lastChange = Date.now()
 					// update the doc in the database
 					this.$store.dispatch('saveDescription', {
 						'newDescription': this.newDescription
@@ -377,7 +378,7 @@ export default {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					// update the current doc in memory
 					this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
-					this.firstNodeSelected.data.lastChange = Date.now()
+					firstNodeSelected.data.lastChange = Date.now()
 					// update the doc in the database
 					this.$store.dispatch('saveAcceptance', {
 						'newAcceptance': this.newAcceptance
@@ -392,7 +393,7 @@ export default {
 				let size = document.getElementById("tShirtSizeId").value.toUpperCase()
 				const sizeArray = this.$store.state.config.tsSize
 				if (sizeArray.includes(size)) {
-					this.firstNodeSelected.data.lastChange = Date.now()
+					firstNodeSelected.data.lastChange = Date.now()
 					this.$store.dispatch('setSize', {
 						'newSizeIdx': sizeArray.indexOf(size)
 					})
@@ -414,7 +415,7 @@ export default {
 					el.value = '?'
 					return
 				}
-				this.firstNodeSelected.data.lastChange = Date.now()
+				firstNodeSelected.data.lastChange = Date.now()
 				this.$store.dispatch('setStoryPoints', {
 					'newPoints': el.value
 				})
@@ -429,7 +430,7 @@ export default {
 					el.value = '?'
 					return
 				}
-				this.firstNodeSelected.data.lastChange = Date.now()
+				firstNodeSelected.data.lastChange = Date.now()
 				this.$store.dispatch('setPersonHours', {
 					'newHrs': el.value
 				})
@@ -440,8 +441,8 @@ export default {
 		onStateChange(idx) {
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				// update the tree
-				this.firstNodeSelected.data.state = idx
-				this.firstNodeSelected.data.lastChange = Date.now()
+				firstNodeSelected.data.state = idx
+				firstNodeSelected.data.lastChange = Date.now()
 				// update current document in database
 				this.$store.dispatch('setState', {
 					'newState': idx
@@ -457,7 +458,7 @@ export default {
 
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				// update the tree; must use an explicit updateNode
-				let node = this.firstNodeSelected
+				let node = firstNodeSelected
 				let newData = Object.assign(node.data)
 				newData.lastChange = Date.now()
 				window.slVueTree.updateNode(node.path, {
@@ -527,20 +528,20 @@ export default {
 				return
 			}
 			numberOfNodesSelected = selNodes.length
-			let prevSelectedFirstNode = this.firstNodeSelected
-			this.firstNodeSelected = selNodes[0]
 			// if this is the first manual node(s) selection
 			if (autoSelectedProduct) {
 				// unselect that node
-				window.slVueTree.updateNode(prevSelectedFirstNode.path, {
+				window.slVueTree.updateNode(firstNodeSelected.path, {
 					isSelected: false
 				});
 				autoSelectedProduct = false
 			}
+			// update the first (highest in hierarchie) selected node
+			firstNodeSelected = selNodes[0]
 			// if the root node is selected do nothing
-			if (this.firstNodeSelected._id !== 'root') {
+			if (firstNodeSelected._id !== 'root') {
 				// if the user clicked on a node of another product
-				if (this.$store.state.load.currentProductId !== this.firstNodeSelected.productId) {
+				if (this.$store.state.load.currentProductId !== firstNodeSelected.productId) {
 					// clear any outstanding filters
 					if (this.$store.state.filterOn || this.$store.state.searchOn) {
 						window.slVueTree.resetFilters('nodeSelectedEvent')
@@ -548,16 +549,16 @@ export default {
 					// collapse the previously selected product
 					window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
 					// update current productId
-					this.$store.state.load.currentProductId = this.firstNodeSelected.productId
+					this.$store.state.load.currentProductId = firstNodeSelected.productId
 					// expand the newly selected product up to the feature level
 					window.slVueTree.expandTree(FEATURELEVEL)
 					// update the product title
-					this.$store.dispatch('readProductTitle', this.firstNodeSelected.productId)
+					this.$store.dispatch('readProductTitle', firstNodeSelected.productId)
 				}
 			}
 			// load the document if not already in memory
-			if (this.firstNodeSelected._id !== this.$store.state.currentDoc._id) {
-				this.$store.dispatch('loadDoc', this.firstNodeSelected._id)
+			if (firstNodeSelected._id !== this.$store.state.currentDoc._id) {
+				this.$store.dispatch('loadDoc', firstNodeSelected._id)
 			}
 			const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 			const title = this.itemTitleTrunc(60, selNodes[0].title)
@@ -802,7 +803,7 @@ export default {
 			this.contextSelected = undefined
 			this.insertOptionSelected = 1
 			// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-			if (this.canWriteLevels[node.level] && node._id === this.firstNodeSelected._id && node.level > 1 && numberOfNodesSelected === 1) {
+			if (this.canWriteLevels[node.level] && node._id === firstNodeSelected._id && node.level > 1 && numberOfNodesSelected === 1) {
 				this.contextNodeSelected = node
 				this.contextNodeTitle = node.title
 				this.contextNodeLevel = node.level
@@ -937,7 +938,7 @@ export default {
 			window.slVueTree.updateNode(prevNode.path, {
 				isSelected: true
 			})
-			this.firstNodeSelected = prevNode
+			firstNodeSelected = prevNode
 		},
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
@@ -1047,7 +1048,7 @@ export default {
 				window.slVueTree.insert(newNodeLocation, newNode)
 				// now the node is inserted and selected get the full ISlTreeNode data
 				const insertedNode = window.slVueTree.getSelected()[0]
-				this.firstNodeSelected = insertedNode
+				firstNodeSelected = insertedNode
 				// parentId and priority are set in this routine
 				this.updateTree([insertedNode])
 				// create a new document and store it
