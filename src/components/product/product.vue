@@ -381,9 +381,8 @@
 
 <script src="./product.js"></script>
 
+<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
 <style>
-<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue
-	-->
 	#dropdownMenuButton>button {
   width: 100%;
 }
@@ -433,9 +432,6 @@
   overflow: hidden;
   background: #eee;
   border: 1px solid #ccc;
-}
-
-.custom-resizer > .pane ~ .pane {
 }
 
 .custom-resizer > .multipane-resizer {
