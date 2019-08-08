@@ -126,7 +126,6 @@
               </span>
             </template>
 
-            <template slot="draginfo">{{ selectedNodesTitle }}</template>
           </sl-vue-tree>
         </div>
       </div>

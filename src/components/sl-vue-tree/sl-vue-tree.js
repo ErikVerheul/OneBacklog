@@ -376,13 +376,6 @@ export default {
 
 			const $root = this.getRoot().$el;
 			const rootRect = $root.getBoundingClientRect();
-			const $dragInfo = this.$refs.dragInfo;
-			const dragInfoTop = (event.clientY - rootRect.top + $root.scrollTop - ($dragInfo.style.marginBottom | 0));
-			const dragInfoLeft = (event.clientX - rootRect.left);
-
-			$dragInfo.style.top = dragInfoTop + 'px';
-			$dragInfo.style.left = dragInfoLeft + 'px';
-
 			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY);
 			const destNode = cursorPosition.node;
 			const placement = cursorPosition.placement;
@@ -492,16 +485,16 @@ export default {
 		},
 
 		getLastNode() {
+			let lastNode
 			function traverse(nodes) {
-				const lastNode = nodes[nodes.length - 1]
+				lastNode = nodes[nodes.length - 1]
 				const children = lastNode.children
 				if (children && children.length > 0) {
 					traverse(children)
-				} else {
-					return lastNode
 				}
 			}
 			traverse(this.currentValue)
+			return lastNode
 		},
 
 		getFirstNode() {

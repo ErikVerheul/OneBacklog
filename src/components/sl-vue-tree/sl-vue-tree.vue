@@ -88,11 +88,6 @@
 				</div>
 			</div>
 
-			<div v-show="isDragging" v-if="isRoot" ref="dragInfo" class="sl-vue-tree-drag-info">
-				<slot name="draginfo">
-				</slot>
-			</div>
-
 		</div>
 
 	</div>
