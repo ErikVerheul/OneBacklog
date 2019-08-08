@@ -866,7 +866,7 @@ export default {
 					const nodeModel = nodeModels[nodeInd];
 					count++
 					const itemPath = parentPath.concat(nodeInd);
-					// if (caller === 'sl-vue-tree.js:getSelected') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId)
+					// if (caller === 'sl-vue-tree.js:getPrevVisibleNode') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId)
 					if (cb(itemPath, nodeModel, nodeModels) === false) {
 						shouldStop = true
 						break
@@ -901,6 +901,27 @@ export default {
 				cb(nodeModel, nodeModels, i);
 			}
 			return nodeModels;
+		},
+
+		getPrevVisibleNode(path) {
+			let prevVisiblePath
+			let prevVisibleModel
+			if (path.slice(-1)[0] === 0) {
+				// the removed node is a first child
+				prevVisiblePath = path.slice(0, path.length - 1)
+			} else {
+				// the removed node has a previous sibling
+				prevVisiblePath = path.slice(0, path.length - 1).concat(path.slice(-1)[0] - 1)
+			}
+			console.log('getPrevVisibleNode: prevVisiblePath = ' + prevVisiblePath)
+			this.traverseLight((nodePath, nodeModel) => {
+				if (this.comparePaths(nodePath, prevVisiblePath) === 0) {
+					prevVisibleModel = nodeModel
+					return false
+				}
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getPrevVisibleNode');
+
+			return this.getNode(prevVisiblePath, prevVisibleModel)
 		},
 
 		remove(paths) {
@@ -1010,14 +1031,14 @@ export default {
 				this.showLastEvent(`Your filter in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.filterText = FILTERBUTTONTEXT
 				this.$store.state.filterOn = false
-				//				this.showVisibility('resetFilters')
+				// this.showVisibility('resetFilters')
 			}
 			if (this.$store.state.searchOn) {
 				doReset(this, this.$store.state.load.currentProductId)
 				this.showLastEvent(`Your search in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.searchOn = false
 				this.$store.state.keyword = ''
-				//				this.showVisibility('resetFilters')
+				// this.showVisibility('resetFilters')
 			}
 		},
 

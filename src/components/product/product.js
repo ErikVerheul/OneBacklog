@@ -630,7 +630,7 @@ export default {
 			}
 		},
 		/*
-		 * Get the next sibling above the node with the same level as the node itself
+		 * Get the previous sibling above the node with the same level as the node itself
 		 * precondition: the node is NOT firstChild
 		 */
 		getPrevSibling(node) {
@@ -924,8 +924,12 @@ export default {
 				}
 				this.$store.dispatch('removeDoc', payload2)
 			}
-			// after removal no node is selected
-			this.nodeIsSelected = false
+			// after removal select the visible predesessor of the removed node
+			const prevNode = window.slVueTree.getPrevVisibleNode(path)
+			window.slVueTree.updateNode(prevNode.path, {
+				isSelected: true
+			})
+			this.firstNodeSelected = prevNode
 		},
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
