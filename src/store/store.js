@@ -106,6 +106,9 @@ export default new Vuex.Store({
 		isServerAdmin(state) {
 			return state.myDefaultRoles.includes("_admin")
 		},
+		isProductsAdmin(state) {
+			return state.myDefaultRoles.includes("admin")
+		},
 		canCreateComments(state) {
 			return state.myDefaultRoles.includes("_admin") || state.myDefaultRoles.includes("areaPO") || state.myDefaultRoles.includes("admin") || state.myDefaultRoles.includes("superPO") || state.myDefaultRoles.includes("PO") || state.myDefaultRoles.includes("developer")
 		},
