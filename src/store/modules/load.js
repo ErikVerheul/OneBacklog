@@ -6,7 +6,7 @@ const batchSize = 250
 var batch = []
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const LEAFLEVEL = 5
+const PBILEVEL = 5
 var parentNodes = {}
 var productPageLounched = false
 var defaultProductIsSelected = false
@@ -30,16 +30,19 @@ const state = {
 }
 
 const getters = {
-	canWriteLevels(state, rootState) {
-		const maxLevel = 5
+	/*
+	* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
+	* Note that the AreaPO level is 0 and root of the tree starts with level 1
+	* Note that rootState MUST be the third argument. The fourth argument is rootGetters.
+	*/
+	canWriteLevels(state, getters, rootState, rootGetters) {
 		let levels = []
-
 		if (state.currentProductId) {
 			if (state.userAssignedProductIds.includes(state.currentProductId)) {
 				let myRoles = state.myProductsRoles[state.currentProductId]
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('canWriteLevels: for ProductId ' + state.currentProductId + ' myRoles are ' + myRoles)
-				for (let i = 0; i <= maxLevel; i++) {
+				if (rootState.debug) console.log('canWriteLevels: For ProductId ' + state.currentProductId + ' myRoles are ' + myRoles)
+				for (let i = 0; i <= PBILEVEL; i++) {
 					levels.push(false)
 				}
 				if (myRoles.includes('areaPO')) {
@@ -52,17 +55,22 @@ const getters = {
 					}
 				}
 				if (myRoles.includes('PO')) {
-					for (let i = 3; i <= maxLevel; i++) {
+					for (let i = 3; i <= PBILEVEL; i++) {
 						levels[i] = true
 					}
 				}
 				if (myRoles.includes('developer')) {
-					for (let i = 4; i <= maxLevel; i++) {
+					for (let i = 4; i <= PBILEVEL; i++) {
 						levels[i] = true
 					}
 				}
 			}
 		}
+		// A special case, the user is 'admin'. A products admin can create and delete products
+		if (rootGetters.isProductsAdmin) {
+			levels[1] = true
+		}
+
 		return levels
 	}
 }
@@ -93,7 +101,7 @@ const mutations = {
 						parentId: parentId,
 						_id: batch[i].doc._id,
 						title: batch[i].doc.title,
-						isLeaf: (level === LEAFLEVEL) ? true : false,
+						isLeaf: (level === PBILEVEL) ? true : false,
 						// for now PBI's have no children
 						children: [],
 						// expand the tree of the default product
