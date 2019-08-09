@@ -321,7 +321,7 @@ export default {
 					}
 				}, productId, 'sl-vue-tree.js:select')
 			} else {
-				// a product top node is selected
+				// root or a product top node is selected
 				selectedNodes.push(selectedNode)
 			}
 
@@ -364,7 +364,7 @@ export default {
 				);
 
 			const isDragStarted = initialDraggingState === false && isDragging === true;
-			// set only once
+			// calculate only once
 			if (isDragStarted) draggableNodes = this.getDraggable()
 
 			this.lastMousePos = {
@@ -793,7 +793,7 @@ export default {
 				return;
 			}
 
-			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
+			const productId = path.length <= PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
 			this.traverseLight((nodePath, nodeModel) => {
 				if (this.comparePaths(nodePath, path) === 0) {
 					Object.assign(nodeModel, patch)
@@ -825,10 +825,6 @@ export default {
 			return selectedNodes
 		},
 
-		/*
-		* Is called repeatedly when the mouse moves
-		* All selected nodes must be on the same level
-		*/
 		getDraggable() {
 			const selectedNodes = []
 			this.traverseLight((nodePath, nodeModel, nodeModels) => {
@@ -883,8 +879,13 @@ export default {
 			if (productId !== undefined) {
 				// restrict the traversal to the nodes of one product
 				const product = this.getProductNodes(this.currentValue, productId)
-				nodeModels = product.projectNodes
-				parentPath = product.parentPath
+				if (product !== null) {
+					nodeModels = product.projectNodes
+					parentPath = product.parentPath
+				} else {
+					// product not found: traverse the whole tree
+					productId = undefined
+				}
 			}
 			traverse(cb, nodeModels, parentPath, productId)
 
