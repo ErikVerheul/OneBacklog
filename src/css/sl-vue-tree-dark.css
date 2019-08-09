@@ -60,22 +60,10 @@
     width: 20px;
 }
 
-.sl-vue-tree-sidebar {
-    margin-left: auto;
-}
-
 .sl-vue-tree-cursor {
     position: absolute;
     border: 1px solid;
 		border-color: white;
     height: 1px;
     width: 100%;
-}
-
-.sl-vue-tree-drag-info {
-    position: absolute;
-    background-color: rgba(0,0,0,0.5);
-    opacity: 0.5;
-    margin-left: 20px;
-    padding: 5px 10px;
 }
