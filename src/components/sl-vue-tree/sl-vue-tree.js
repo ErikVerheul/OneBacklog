@@ -201,7 +201,7 @@ export default {
 				_id: nodeModel._id,
 				title: nodeModel.title,
 				isLeaf: !!nodeModel.isLeaf,
-				children: nodeModel.children ? this.getNodes(nodeModel.children, path, isExpanded) : [],
+				children: nodeModel.children && nodeModel.children.length > 0 ? this.getNodes(nodeModel.children, path, isExpanded) : [],
 				isSelected: !!nodeModel.isSelected,
 				isExpanded,
 				savedIsExpanded,
