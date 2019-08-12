@@ -106,7 +106,7 @@ export default {
 				const nodeModels = this.currentValue.filter(node => {
 					return node.doShow
 				})
-				return this.getNodes(nodeModels);
+				return this.getNodes(nodeModels)
 			}
 			return this.getParent().filteredNodes[this.parentInd].children.filter(node => {
 				return node.doShow
@@ -360,12 +360,14 @@ export default {
 			const isDragging =
 				this.isDragging || (
 					this.mouseIsDown &&
-					(this.lastMousePos.x !== event.clientX || this.lastMousePos.y !== event.clientY)
+					(this.lastMousePos.y !== event.clientY)
 				);
 
 			const isDragStarted = initialDraggingState === false && isDragging === true;
 			// calculate only once
-			if (isDragStarted) draggableNodes = this.getDraggable()
+			if (isDragStarted) {
+				draggableNodes = this.getDraggable()
+			}
 
 			this.lastMousePos = {
 				x: event.clientX,
@@ -374,8 +376,6 @@ export default {
 
 			if (!isDragging) return;
 
-			const $root = this.getRoot().$el;
-			const rootRect = $root.getBoundingClientRect();
 			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY);
 			const destNode = cursorPosition.node;
 			const placement = cursorPosition.placement;
@@ -395,19 +395,6 @@ export default {
 				node: destNode,
 				placement
 			});
-
-			const scrollBottomLine = rootRect.bottom - this.scrollAreaHeight;
-			const scrollDownSpeed = (event.clientY - scrollBottomLine) / (rootRect.bottom - scrollBottomLine);
-			const scrollTopLine = rootRect.top + this.scrollAreaHeight;
-			const scrollTopSpeed = (scrollTopLine - event.clientY) / (scrollTopLine - rootRect.top);
-
-			if (scrollDownSpeed > 0) {
-				this.startScroll(scrollDownSpeed);
-			} else if (scrollTopSpeed > 0) {
-				this.startScroll(-scrollTopSpeed)
-			} else {
-				this.stopScroll();
-			}
 		},
 
 		getCursorPositionFromCoords(x, y) {
@@ -426,11 +413,11 @@ export default {
 				const edgeSize = this.edgeSize;
 				const offsetY = y - $nodeItem.getBoundingClientRect().top;
 
-
 				if (destNode.isLeaf) {
 					placement = offsetY >= nodeHeight / 2 ? 'after' : 'before';
 				} else {
-					if (offsetY <= edgeSize) {
+					// multiply edgeSize with 2 to enlarge the window for 'before' placement
+					if (offsetY <= edgeSize * 2) {
 						placement = 'before';
 					} else if (offsetY >= nodeHeight - edgeSize) {
 						placement = 'after';
@@ -573,26 +560,6 @@ export default {
 				return;
 			}
 			this.mouseIsDown = true;
-		},
-
-		startScroll(speed) {
-			const $root = this.getRoot().$el;
-			if (this.scrollSpeed === speed) {
-				return;
-			} else if (this.scrollIntervalId) {
-				this.stopScroll();
-			}
-
-			this.scrollSpeed = speed;
-			this.scrollIntervalId = setInterval(() => {
-				$root.scrollTop += this.maxScrollSpeed * speed;
-			}, 20);
-		},
-
-		stopScroll() {
-			clearInterval(this.scrollIntervalId);
-			this.scrollIntervalId = 0;
-			this.scrollSpeed = 0;
 		},
 
 		onDocumentMouseupHandler(event) {
@@ -769,7 +736,6 @@ export default {
 			this.isDragging = false;
 			this.mouseIsDown = false;
 			this.setCursorPosition(null);
-			this.stopScroll();
 		},
 
 		getParent() {
