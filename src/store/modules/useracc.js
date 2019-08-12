@@ -28,14 +28,18 @@ const actions = {
 	removeProductId({
 		rootState,
 		dispatch
-	}, products) {
+	}, productId) {
 		globalAxios({
 				method: 'GET',
 				url: '/_users/org.couchdb.user:' + rootState.user,
 				withCredentials: true
 			}).then(res => {
 				let tmpUserData = res.data
-				tmpUserData["products"] = products
+				delete tmpUserData.productsRoles[productId]
+				// reset to the first product if the current product was deleted
+				if (tmpUserData.currentProductIdx > Object.keys(tmpUserData.productsRoles).length - 1) {
+					tmpUserData.currentProductIdx = 0
+				}
 				dispatch("updateUser2", tmpUserData)
 			})
 			.catch(error => {

@@ -906,8 +906,6 @@ export default {
 			this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
 			const path = selectedNode.path
 			const descendants = descendantsInfo.descendants
-			// now we can remove the nodes
-			window.slVueTree.remove([path])
 			// when removing a product
 			if (selectedNode.level === this.productLevel) {
 				var newProducts = this.$store.state.load.userAssignedProductIds
@@ -916,7 +914,8 @@ export default {
 					newProducts.splice(idx, 1)
 				}
 				this.$store.state.load.userAssignedProductIds = newProducts
-				this.$store.dispatch('removeProductId', newProducts)
+				// remove the product from this productRoles. ToDo: remove for ALL users
+				this.$store.dispatch('removeProductId', selectedNode._id)
 			}
 			// set remove mark in the database on the clicked item
 			const payload = {
@@ -925,20 +924,29 @@ export default {
 				'doRegHist': true
 			}
 			this.$store.dispatch('removeDoc', payload)
-			// and remove the descendants without registering history in parents which are removed anyway
-			for (let i = 0; i < descendants.length; i++) {
-				const payload2 = {
-					'node': descendants[i],
-					'doRegHist': false
+			// for items lower in the hierarchie than product remove the descendants without registering history in parents which are removed anyway
+			if (selectedNode.level > 2) {
+				for (let i = 0; i < descendants.length; i++) {
+					const payload2 = {
+						'node': descendants[i],
+						'doRegHist': false
+					}
+					this.$store.dispatch('removeDoc', payload2)
 				}
-				this.$store.dispatch('removeDoc', payload2)
 			}
+			// collapse the branch and make the removed node invisible
+			window.slVueTree.updateNode(path, {
+				isExpanded: false,
+				doShow: false
+			})
 			// after removal select the visible predesessor of the removed node
 			const prevNode = window.slVueTree.getPrevVisibleNode(path)
 			window.slVueTree.updateNode(prevNode.path, {
 				isSelected: true
 			})
 			firstNodeSelected = prevNode
+			// now we can remove the nodes
+			window.slVueTree.remove([path])
 		},
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
