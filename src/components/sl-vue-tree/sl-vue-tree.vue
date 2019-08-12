@@ -5,7 +5,6 @@
     :class="{'sl-vue-tree-root': isRoot }"
     @mousemove="onMousemoveHandler"
     @mouseleave="onMouseleaveHandler"
-    @dragend="onDragendHandler(null, $event)"
   >
     <div ref="nodes" class="sl-vue-tree-nodes-list">
       <div
@@ -16,9 +15,8 @@
       >
         <div
           class="sl-vue-tree-cursor sl-vue-tree-cursor_before"
-          @dragover.prevent
           :style="{
-			visibility:
+            visibility:
             cursorPosition &&
             cursorPosition.node.pathStr === node.pathStr &&
             cursorPosition.placement === 'before' ? 'visible' : 'hidden'
@@ -49,17 +47,6 @@
         >
           <div class="sl-vue-tree-gap" v-for="gapInd in gaps" :key="gapInd"></div>
 
-          <div class="sl-vue-tree-branch" v-if="level && showBranches">
-            <slot name="branch" :node="node">
-              <span
-                v-if="!node.isLastChild"
-              >{{ String.fromCharCode(0x251C) }}{{ String.fromCharCode(0x2500) }}&nbsp;</span>
-              <span
-                v-if="node.isLastChild"
-              >{{String.fromCharCode(0x2514) }}{{ String.fromCharCode(0x2500) }}&nbsp;</span>
-            </slot>
-          </div>
-
           <div class="sl-vue-tree-title">
             <span
               class="sl-vue-tree-toggle"
@@ -72,12 +59,6 @@
             </span>
 
             <slot name="title" :node="node">{{ node.title }}</slot>
-
-            <slot
-              name="empty-node"
-              :node="node"
-              v-if="!node.isLeaf && node.children.length == 0 && node.isExpanded"
-            ></slot>
           </div>
         </div>
 
@@ -90,7 +71,6 @@
           :allowToggleBranch="allowToggleBranch"
           :edgeSize="edgeSize"
           :showBranches="showBranches"
-          @dragover.prevent
         >
           <template slot="title" slot-scope="{ node }">
             <slot name="title" :node="node">{{ node.title }}</slot>
@@ -101,28 +81,8 @@
               <span>{{ !node.isLeaf ? (node.isExpanded ? '-' : '+') : '' }}</span>
             </slot>
           </template>
-
-          <template slot="empty-node" slot-scope="{ node }">
-            <slot
-              name="empty-node"
-              :node="node"
-              v-if="!node.isLeaf && node.children.length == 0 && node.isExpanded"
-            ></slot>
-          </template>
         </sl-vue-tree>
 
-        <div
-          class="sl-vue-tree-cursor sl-vue-tree-cursor_after"
-          @dragover.prevent
-          :style="{
-              visibility:
-               cursorPosition && isDragging &&
-               cursorPosition.node.pathStr === node.pathStr &&
-               cursorPosition.placement === 'after' ? 'visible' : 'hidden'
-             }"
-        >
-          <!-- suggested place for node insertion  -->
-        </div>
       </div>
     </div>
   </div>
