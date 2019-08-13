@@ -139,9 +139,12 @@ export default new Vuex.Store({
 			state.load.myTeams = []
 			state.load.myCurrentTeam = ''
 			state.load.email = null
-			state.load.offset = 0
 			state.load.treeNodes = []
 			state.load.userAssignedProductIds = []
+			state.load.productIdLoading = null
+			state.load.processedProducts = 0
+			state.load.myProductsRoles = {}
+			state.load.mySubscriptions = []
 
 			state.config = null
 			state.currentDb = null

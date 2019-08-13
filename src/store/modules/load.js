@@ -2,7 +2,6 @@ import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../../router'
 
-const batchSize = 250
 var batch = []
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
@@ -18,15 +17,18 @@ const state = {
 	lastEvent: '',
 	currentDefaultProductId: null,
 	currentProductId: null,
+	productIdLoading: null,
+	processedProducts: 0,
 	currentProductTitle: "",
 	databases: [],
 	myTeams: [],
 	myCurrentTeam: "",
 	email: null,
-	offset: 0,
 	treeNodes: [],
 	userAssignedProductIds: [],
-	myProductsRoles: {}
+	myProductsRoles: {},
+	mySubscriptions: [],
+	rangeString: ''
 }
 
 const getters = {
@@ -76,6 +78,10 @@ const getters = {
 }
 
 const mutations = {
+	composeRangeString(state) {
+		state.rangeString = 'startkey=["' + state.productIdLoading + '",0]&endkey=["' + state.productIdLoading + '",' + (PBILEVEL + 1) + ']'
+	},
+
 	/*
 	 * The database is sorted by productId, level and priority.
 	 * The documents are read top down by level. In parentNodes the read items are linked to to their id's.
@@ -83,7 +89,7 @@ const mutations = {
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
 	 * The root and the top level product nodes are not draggable
 	 */
-	processBatch(state) {
+	processProduct(state) {
 		for (let i = 0; i < batch.length; i++) {
 			state.docsCount++
 			// Load the items of the products the user is authorized to
@@ -127,11 +133,12 @@ const mutations = {
 						parentNodes[batch[i].doc._id] = newNode
 					} else {
 						state.orphansCount++
-						console.log('processBatch: orphan found with parentId = ' + parentId + ' and productId = ' + batch[i].doc.productId)
+						console.log('processProduct: orphan found with parentId = ' + parentId + ' and productId = ' + batch[i].doc.productId)
 					}
 				}
 			}
 		}
+		state.processedProducts++
 	}
 }
 
@@ -189,6 +196,7 @@ const actions = {
 	loadCurrentProduct({
 		rootState,
 		state,
+		commit,
 		dispatch
 	}) {
 		let _id = state.currentDefaultProductId
@@ -198,19 +206,22 @@ const actions = {
 			withCredentials: true,
 		}).then(res => {
 			state.currentProductId = _id
+			state.currentProductTitle = res.data.title
 			rootState.currentDoc = res.data
 			// decode from base64 + replace the encoded data
 			rootState.currentDoc.description = window.atob(res.data.description)
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('loadCurrentProduct: product root document with _id + ' + _id + ' is loaded.')
-			// initialize load parameters in case getFirstDocsBatch is called without signing out first
+			// initialize load parameters in case getFirstProduct is called without signing out first
 			batch = []
 			state.docsCount = 0
 			state.itemsCount = 0
 			state.orphansCount = 0
-			state.offset = 0
-			dispatch('getFirstDocsBatch')
+			// set the range of the documents to load
+			state.productIdLoading = state.currentDefaultProductId
+			commit('composeRangeString')
+			dispatch('getFirstProduct')
 		})
 			.catch(error => {
 				let msg = 'loadCurrentProduct: Could not read product root document with _id ' + _id + '. Error = ' + error
@@ -235,6 +246,7 @@ const actions = {
 			withCredentials: true
 		}).then(res => {
 			state.myProductsRoles = res.data.productsRoles
+			state.mySubscriptions = res.data.subscriptions
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
 			if (res.data.teams !== undefined) {
@@ -260,8 +272,8 @@ const actions = {
 			dispatch('watchdog')
 
 			state.userAssignedProductIds = Object.keys(res.data.productsRoles)
-			state.currentDefaultProductId = state.userAssignedProductIds[res.data.currentProductsIdx]
-			dispatch('readProductTitle', state.currentDefaultProductId)
+			// the first (index 0) product is by definition the current product
+			state.currentDefaultProductId = state.userAssignedProductIds[0]
 			dispatch('getConfig')
 		})
 			.catch(error => {
@@ -275,8 +287,8 @@ const actions = {
 			})
 	},
 
-	// Load next #batchSize documents from this database skipping #offset
-	getNextDocsBatch({
+	// Load next products from the database
+	getNextProduct({
 		rootState,
 		state,
 		commit,
@@ -284,40 +296,42 @@ const actions = {
 	}) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
+			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
 			withCredentials: true,
 		}).then(res => {
 			batch = res.data.rows
-			commit('processBatch')
-			if (batch.length === batchSize) {
-				state.offset += batchSize
-				// recurse until all read
-				dispatch('getNextDocsBatch')
+			commit('processProduct')
+			// process other products here
+			if (state.mySubscriptions.length > 1 && state.processedProducts < state.mySubscriptions.length) {
+				state.productIdLoading = state.userAssignedProductIds[state.processedProducts]
+				commit('composeRangeString')
+				dispatch('getNextProduct')
 			} else {
 				// do not start again after sign-out/in
 				if (!rootState.listenForChangesRunning) {
 					dispatch('listenForChanges')
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('getNextDocsBatch: listenForChanges started')
+					if (rootState.debug) console.log('getNextProduct: listenForChanges started')
 				}
 				// reset load parameters
 				parentNodes = {}
-				this.offset = 0
 			}
 			state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Another batch of ' + batch.length + ' documents is loaded')
 			if (!productPageLounched && defaultProductIsSelected) {
 				router.push('/product')
-				productPageLounched = true
+				// reset before new login
+				productPageLounched = false
+				defaultProductIsSelected = false
 			}
 		})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('getNextDocsBatch: Could not read a batch of documents ' + rootState.currentDb + '. Error = ' + error))
+			.catch(error => console.log('getNextProduct: Could not read a batch of documents ' + rootState.currentDb + '. Error = ' + error))
 	},
 
-	// Load #batchSize documents from this database skipping #offset
-	getFirstDocsBatch({
+	// Load the current product first
+	getFirstProduct({
 		rootState,
 		state,
 		commit,
@@ -325,63 +339,39 @@ const actions = {
 	}) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?include_docs=true&limit=' + batchSize + '&skip=' + state.offset,
+			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
 			withCredentials: true,
 		}).then(res => {
 			batch = res.data.rows
-			commit('processBatch')
-			if (batch.length === batchSize) {
-				// more documents to read
-				state.offset += batchSize
-				dispatch('getNextDocsBatch')
+			commit('processProduct')
+			// process other products here
+			if (state.mySubscriptions.length > 1 && state.processedProducts < state.mySubscriptions.length) {
+				state.productIdLoading = state.userAssignedProductIds[state.processedProducts]
+				commit('composeRangeString')
+				dispatch('getNextProduct')
 			} else {
-				// do not start listenForChanges again after sign-out/in
+				// current product is read, there are no other products; do not start listenForChanges again after sign-out/in
 				if (!rootState.listenForChangesRunning) {
 					dispatch('listenForChanges')
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('getFirstDocsBatch: listenForChanges started')
+					if (rootState.debug) console.log('getFirstProduct: listenForChanges started')
 				}
 				// reset load parameters
 				parentNodes = {}
-				this.offset = 0
-			}
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded.')
-			state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
-			if (!productPageLounched && defaultProductIsSelected) {
-				router.push('/product')
-				productPageLounched = true
-			}
-		})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('getFirstDocsBatch: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
-	},
-
-
-	// Read the current product title
-	readProductTitle({
-		rootState,
-		state,
-		dispatch
-	}, product_id) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.currentDb + '/' + product_id,
-			withCredentials: true,
-		}).then(res => {
-			state.currentProductTitle = res.data.title
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log("readProductTitle: current product name '" + res.data.title + "' is fetched.")
-		})
-			.catch(error => {
-				let msg = 'readProductTitle: Could not read document for the product with _id ' + product_id + ', ' + error
+				// ToDo: refactor this below
 				// eslint-disable-next-line no-console
-				console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: "ERROR"
-				})
-			})
+				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded.')
+				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+				if (!productPageLounched && defaultProductIsSelected) {
+					router.push('/product')
+					// reset before new login
+					productPageLounched = false
+					defaultProductIsSelected = false
+				}
+			}
+		})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('getFirstProduct: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 	// Load current document by _id
