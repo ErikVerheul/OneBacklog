@@ -121,7 +121,14 @@ const actions = {
 								continue
 							}
 							// update the parent as it can be changed
+
 							let locationInfo = getLocationInfo(doc.priority, doc.parentId)
+							// in case
+							if (!locationInfo) {
+								// eslint-disable-next-line no-console
+								console.log('listenForChanges: calling getLocationInfo - doc.productId = ' + doc.productId + ' doc.parentId = ' + doc.parentId)
+								continue
+							}
 							// update priority, parent and product
 							node.data.priority = doc.priority
 							node.parentId = doc.parentId
