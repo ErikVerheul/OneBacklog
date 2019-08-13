@@ -552,8 +552,6 @@ export default {
 					this.$store.state.load.currentProductId = firstNodeSelected.productId
 					// expand the newly selected product up to the feature level
 					window.slVueTree.expandTree(FEATURELEVEL)
-					// update the product title
-					this.$store.dispatch('readProductTitle', firstNodeSelected.productId)
 				}
 			}
 			// load the document if not already in memory
