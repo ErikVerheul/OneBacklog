@@ -45,14 +45,14 @@ const actions = {
 	}) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'GET',
-				url: '/_session',
-				withCredentials: true
-			}).then(res => {
-				// eslint-disable-next-line no-console
-				console.log(res)
-				state.message = res.data
-			})
+			method: 'GET',
+			url: '/_session',
+			withCredentials: true
+		}).then(res => {
+			// eslint-disable-next-line no-console
+			console.log(res)
+			state.message = res.data
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -66,15 +66,15 @@ const actions = {
 	}, payload) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'PUT',
-				url: '/_users/org.couchdb.user:' + this.state.user,
-				withCredentials: true,
-				data: payload.userData
-			}).then(res => {
-				// eslint-disable-next-line no-console
-				console.log(res)
-				state.message = res.data
-			})
+			method: 'PUT',
+			url: '/_users/org.couchdb.user:' + this.state.user,
+			withCredentials: true,
+			data: payload.userData
+		}).then(res => {
+			// eslint-disable-next-line no-console
+			console.log(res)
+			state.message = res.data
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -105,8 +105,8 @@ const actions = {
 			"reqarea": "15521397677068926",
 			"title": payload.productName,
 			"followers": [],
-			"description": window.btoa("<p>"+text2004.substring(0, Math.floor(Math.random() * 1984 + 20))+"</p>"),
-			"acceptanceCriteria": window.btoa("<p>"+text2004.substring(0, Math.floor(Math.random() * 1984 + 20))+"</p>"),
+			"description": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
+			"acceptanceCriteria": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
@@ -117,30 +117,30 @@ const actions = {
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
-				}],
+			}],
 			"delmark": false
 		}
 
 		globalAxios({
-				method: 'PUT',
-				url: rootState.currentDb + '/' + _id,
-				withCredentials: true,
-				data: newDoc
-			}).then(() => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('createNewProduct: Product document with _id + ' + _id + ' is created.')
-				// note that a curious fix was needed to get correct priority numbers: Math.floor(payload.epics) instead of payload.epics
-				let newPayload = {
-					productId: newDoc.productId,
-					parentId: newDoc._id,
-					parentName: newDoc.title,
-					features: payload.features,
-					userStories: payload.userStories,
-					counter1: 0,
-					epicsNumber: Math.floor(payload.epics)
-				}
-				dispatch('createNewEpics', newPayload)
-			})
+			method: 'PUT',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+			data: newDoc
+		}).then(() => {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('createNewProduct: Product document with _id + ' + _id + ' is created.')
+			// note that a curious fix was needed to get correct priority numbers: Math.floor(payload.epics) instead of payload.epics
+			let newPayload = {
+				productId: newDoc.productId,
+				parentId: newDoc._id,
+				parentName: newDoc.title,
+				features: payload.features,
+				userStories: payload.userStories,
+				counter1: 0,
+				epicsNumber: Math.floor(payload.epics)
+			}
+			dispatch('createNewEpics', newPayload)
+		})
 			.catch(error => {
 				let msg = 'createNewProduct: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
@@ -174,8 +174,8 @@ const actions = {
 			"reqarea": "15521397677068926",
 			"title": "Random created epic " + payload.counter1,
 			"followers": [],
-			"description": window.btoa("<p>"+text2004.substring(0, Math.floor(Math.random() * 1984 + 20))+"</p>"),
-			"acceptanceCriteria": window.btoa("<p>"+text2004.substring(0, Math.floor(Math.random() * 1984 + 20))+"</p>"),
+			"description": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
+			"acceptanceCriteria": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
 			"priority": calcPrio(payload.counter1, payload.epicsNumber),
 			"attachments": [],
 			"comments": [],
@@ -186,31 +186,31 @@ const actions = {
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
-				}],
+			}],
 			"delmark": false
 		}
 
 		globalAxios({
-				method: 'PUT',
-				url: rootState.currentDb + '/' + _id,
-				withCredentials: true,
-				data: newDoc
-			}).then(() => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('createNewEpics: Epic document with _id + ' + _id + ' is created. Counter1 = ' + payload.counter1)
-				let newPayload = {
-					productId: newDoc.productId,
-					parentId: newDoc._id,
-					parentName: newDoc.title,
-					userStories: payload.userStories,
-					counter2: 0,
-					featuresNumber: Math.floor(Math.random() * payload.features * 2) + 1
-				}
-				dispatch('createNewFeatures', newPayload)
-				// recurse, execute sequentially
-				payload.counter1++
-				dispatch('createNewEpics', payload)
-			})
+			method: 'PUT',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+			data: newDoc
+		}).then(() => {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('createNewEpics: Epic document with _id + ' + _id + ' is created. Counter1 = ' + payload.counter1)
+			let newPayload = {
+				productId: newDoc.productId,
+				parentId: newDoc._id,
+				parentName: newDoc.title,
+				userStories: payload.userStories,
+				counter2: 0,
+				featuresNumber: Math.floor(Math.random() * payload.features * 2) + 1
+			}
+			dispatch('createNewFeatures', newPayload)
+			// recurse, execute sequentially
+			payload.counter1++
+			dispatch('createNewEpics', payload)
+		})
 			.catch(error => {
 				let msg = 'createNewEpics: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
@@ -245,8 +245,8 @@ const actions = {
 			"reqarea": "15521397677068926",
 			"title": "Random created feature " + payload.counter2,
 			"followers": [],
-			"description": window.btoa("<p>"+text2004.substring(0, Math.floor(Math.random() * 1984 + 20))+"</p>"),
-			"acceptanceCriteria": window.btoa("<p>"+text2004.substring(0, Math.floor(Math.random() * 1984 + 20))+"</p>"),
+			"description": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
+			"acceptanceCriteria": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
 			"priority": calcPrio(payload.counter2, payload.featuresNumber),
 			"attachments": [],
 			"comments": [],
@@ -257,30 +257,30 @@ const actions = {
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
-				}],
+			}],
 			"delmark": false
 		}
 
 		globalAxios({
-				method: 'PUT',
-				url: rootState.currentDb + '/' + _id,
-				withCredentials: true,
-				data: newDoc
-			}).then(() => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('createNewFeatures: document with _id + ' + _id + ' is created. Counter2 = ' + payload.counter2)
-				let newPayload = {
-					productId: newDoc.productId,
-					parentId: newDoc._id,
-					parentName: newDoc.title,
-					counter3: 0,
-					storiesNumber: Math.floor(Math.random() * payload.userStories * 2) + 1
-				}
-				dispatch('createNewStories', newPayload)
-				// recurse, execute sequentially
-				payload.counter2++
-				dispatch('createNewFeatures', payload)
-			})
+			method: 'PUT',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+			data: newDoc
+		}).then(() => {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('createNewFeatures: document with _id + ' + _id + ' is created. Counter2 = ' + payload.counter2)
+			let newPayload = {
+				productId: newDoc.productId,
+				parentId: newDoc._id,
+				parentName: newDoc.title,
+				counter3: 0,
+				storiesNumber: Math.floor(Math.random() * payload.userStories * 2) + 1
+			}
+			dispatch('createNewStories', newPayload)
+			// recurse, execute sequentially
+			payload.counter2++
+			dispatch('createNewFeatures', payload)
+		})
 			.catch(error => {
 				let msg = 'createNewFeatures: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
@@ -315,8 +315,8 @@ const actions = {
 			"reqarea": "15521397677068926",
 			"title": "Random created user story " + payload.counter3,
 			"followers": [],
-			"description": window.btoa("<p>"+text2004.substring(0, Math.floor(Math.random() * 1984 + 20))+"</p>"),
-			"acceptanceCriteria": window.btoa("<p>"+text2004.substring(0, Math.floor(Math.random() * 1984 + 20))+"</p>"),
+			"description": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
+			"acceptanceCriteria": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
 			"priority": calcPrio(payload.counter3, payload.storiesNumber),
 			"attachments": [],
 			"comments": [],
@@ -327,22 +327,22 @@ const actions = {
 				"timestamp": Date.now(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
-				}],
+			}],
 			"delmark": false
 		}
 
 		globalAxios({
-				method: 'PUT',
-				url: rootState.currentDb + '/' + _id,
-				withCredentials: true,
-				data: newDoc
-			}).then(() => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('createNewStories: document with _id + ' + _id + ' is created. Counter3 = ' + payload.counter3)
-				// recurse, execute sequentially
-				payload.counter3++
-				dispatch('createNewStories', payload)
-			})
+			method: 'PUT',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+			data: newDoc
+		}).then(() => {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('createNewStories: document with _id + ' + _id + ' is created. Counter3 = ' + payload.counter3)
+			// recurse, execute sequentially
+			payload.counter3++
+			dispatch('createNewStories', payload)
+		})
 			.catch(error => {
 				let msg = 'createNewStories: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
@@ -375,21 +375,21 @@ const actions = {
 	}, payload) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'PUT',
-				url: '_users/org.couchdb.user:' + payload.name,
-				withCredentials: true,
-				data: {
-					"name": payload.name,
-					"password": payload.name,
-					"roles": payload.role.split(',').map(Function.prototype.call, String.prototype.trim),
-					"type": "user"
-				}
-			}).then(res => {
-				state.message = res.data
-				state.comment = 'Note that the password is made identical to the user name'
-				// eslint-disable-next-line no-console
-				console.log(res)
-			})
+			method: 'PUT',
+			url: '_users/org.couchdb.user:' + payload.name,
+			withCredentials: true,
+			data: {
+				"name": payload.name,
+				"password": payload.name,
+				"roles": payload.role.split(',').map(Function.prototype.call, String.prototype.trim),
+				"type": "user"
+			}
+		}).then(res => {
+			state.message = res.data
+			state.comment = 'Note that the password is made identical to the user name'
+			// eslint-disable-next-line no-console
+			console.log(res)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -451,15 +451,15 @@ const actions = {
 	}, payload) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'PUT',
-				url: payload.dbName + '/_security',
-				withCredentials: true,
-				data: payload.permissions
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res)
-			})
+			method: 'PUT',
+			url: payload.dbName + '/_security',
+			withCredentials: true,
+			data: payload.permissions
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -473,44 +473,44 @@ const actions = {
 	}, payload) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'GET',
-				url: payload.dbName + '/_security',
-				withCredentials: true,
-			}).then(res => {
-				var newPermissions = res.data
-				// If no permissions are set CouchDB returns an empty object
-				// Also only the admins or members can be set
-				if (!newPermissions.hasOwnProperty('admins')) {
-					newPermissions['admins'] = {
-						"names": [],
-						"roles": []
-					}
+			method: 'GET',
+			url: payload.dbName + '/_security',
+			withCredentials: true,
+		}).then(res => {
+			var newPermissions = res.data
+			// If no permissions are set CouchDB returns an empty object
+			// Also only the admins or members can be set
+			if (!newPermissions.hasOwnProperty('admins')) {
+				newPermissions['admins'] = {
+					"names": [],
+					"roles": []
 				}
-				if (!newPermissions.hasOwnProperty('members')) {
-					newPermissions['members'] = {
-						"names": [],
-						"roles": []
-					}
+			}
+			if (!newPermissions.hasOwnProperty('members')) {
+				newPermissions['members'] = {
+					"names": [],
+					"roles": []
 				}
-				//prevent adding empty string when user field was left empty
-				if (payload.memberNames.length > 0) {
-					// assign to                 = the original                  +   members of array of strings splitted by the comma and trimmed from spaces
-					newPermissions.members.names = newPermissions.members.names.concat(payload.memberNames.split(',').map(Function.prototype.call, String.prototype.trim))
-				}
-				if (payload.memberRoles.length > 0) {
-					newPermissions.members.roles = newPermissions.members.roles.concat(payload.memberRoles.split(',').map(Function.prototype.call, String.prototype.trim))
-				}
-				//prevent adding empty string when user field was left empty
-				if (payload.adminNames.length > 0) {
-					newPermissions.admins.names = newPermissions.admins.names.concat(payload.adminNames.split(',').map(Function.prototype.call, String.prototype.trim))
-				}
-				if (payload.adminRoles.length > 0) {
-					newPermissions.admins.roles = newPermissions.admins.roles.concat(payload.adminRoles.split(',').map(Function.prototype.call, String.prototype.trim))
-				}
+			}
+			//prevent adding empty string when user field was left empty
+			if (payload.memberNames.length > 0) {
+				// assign to                 = the original                  +   members of array of strings splitted by the comma and trimmed from spaces
+				newPermissions.members.names = newPermissions.members.names.concat(payload.memberNames.split(',').map(Function.prototype.call, String.prototype.trim))
+			}
+			if (payload.memberRoles.length > 0) {
+				newPermissions.members.roles = newPermissions.members.roles.concat(payload.memberRoles.split(',').map(Function.prototype.call, String.prototype.trim))
+			}
+			//prevent adding empty string when user field was left empty
+			if (payload.adminNames.length > 0) {
+				newPermissions.admins.names = newPermissions.admins.names.concat(payload.adminNames.split(',').map(Function.prototype.call, String.prototype.trim))
+			}
+			if (payload.adminRoles.length > 0) {
+				newPermissions.admins.roles = newPermissions.admins.roles.concat(payload.adminRoles.split(',').map(Function.prototype.call, String.prototype.trim))
+			}
 
-				payload.permissions = newPermissions
-				dispatch("replacePermissions", payload)
-			})
+			payload.permissions = newPermissions
+			dispatch("replacePermissions", payload)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -522,18 +522,18 @@ const actions = {
 	}, payload) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'GET',
-				url: payload.dbName + '/_security',
-				withCredentials: true,
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res.data)
-				//if no permissions are set CouchDB returns an empty object
-				if (Object.keys(res.data).length === 0) {
-					state.message = "If no permissions are set CouchDB returns an empty object"
-				}
-			})
+			method: 'GET',
+			url: payload.dbName + '/_security',
+			withCredentials: true,
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res.data)
+			//if no permissions are set CouchDB returns an empty object
+			if (Object.keys(res.data).length === 0) {
+				state.message = "If no permissions are set CouchDB returns an empty object"
+			}
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -556,18 +556,18 @@ const actions = {
 		// eslint-disable-next-line no-console
 		console.log('Copy DB: from ' + payload.dbSourceName + ' to ' + payload.dbTargetName)
 		globalAxios({
-				method: 'POST',
-				url: "_replicate",
-				withCredentials: true,
-				data: copyData
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res)
-				dispatch('setDbPermissions', {
-					dbName: payload.dbTargetName
-				})
+			method: 'POST',
+			url: "_replicate",
+			withCredentials: true,
+			data: copyData
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res)
+			dispatch('setDbPermissions', {
+				dbName: payload.dbTargetName
 			})
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -589,84 +589,84 @@ const actions = {
 			"changeDate": 1551940535871,
 
 			"itemType": [
-					"RequirementArea",
-					"Database",
-					"Product",
-					"Epic",
-					"Feature",
-					"PBI"
-				],
+				"RequirementArea",
+				"Database",
+				"Product",
+				"Epic",
+				"Feature",
+				"PBI"
+			],
 
 			"ItemTypeDefinitions": [
-					"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
-					"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
-					"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
-					"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
-					"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
-				],
+				"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
+				"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
+				"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
+				"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
+				"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
+			],
 
 			"itemState": [
-          "New",
-          "Ready",
-          "In progress",
-          "On hold",
-          "Done",
-          "Removed"
-        ],
+				"New",
+				"Ready",
+				"In progress",
+				"On hold",
+				"Done",
+				"Removed"
+			],
 			"itemStateDefinitions": [
-          "The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
-          "The state Ready means that the item is understood well enough by the team for realization in a sprint",
-          "The state 'In progress' means that the item is worked on in a (past) sprint",
-          "The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
-          "The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
-          "The state Removed means that work on the item will never start or was cancelled"
-        ],
+				"The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
+				"The state Ready means that the item is understood well enough by the team for realization in a sprint",
+				"The state 'In progress' means that the item is worked on in a (past) sprint",
+				"The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
+				"The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
+				"The state Removed means that work on the item will never start or was cancelled"
+			],
 
 			"tsSize": [
-					"XXL",
-					"XL",
-					"L",
-					"M",
-					"S",
-					"XS",
-					"XXS"
-				],
+				"XXL",
+				"XL",
+				"L",
+				"M",
+				"S",
+				"XS",
+				"XXS"
+			],
 			"tsSizeDefinitions": [
-					"Extra-extra large effort involved",
-					"Extra large effort involved",
-					"Large effort involved",
-					"Medium effort involved",
-					"Small effort involved",
-					"Extra small effort involved",
-					"Almost none effort involved"
-				],
+				"Extra-extra large effort involved",
+				"Extra large effort involved",
+				"Large effort involved",
+				"Medium effort involved",
+				"Small effort involved",
+				"Extra small effort involved",
+				"Almost none effort involved"
+			],
 
 			// For now the subtype field is used only for pbi's
 			"subtype": [
-          "User story",
-          "Spike",
-          "Defect"
-        ],
+				"User story",
+				"Spike",
+				"Defect"
+			],
 			"subtypeDefinitions": [
-          "The product backog item of type 'User story' is the regular type as described in the Scrum guide",
-          "The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
-          "The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
-        ],
+				"The product backog item of type 'User story' is the regular type as described in the Scrum guide",
+				"The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
+				"The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
+			],
 		}
 
 		this.commit('clearAll')
 		// eslint-disable-next-line no-console
 		console.log('Initialize DB: ' + payload.dbName)
 		globalAxios({
-				method: 'POST',
-				url: payload.dbName,
-				withCredentials: true,
-				data: configData
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res)
-			})
+			method: 'POST',
+			url: payload.dbName,
+			withCredentials: true,
+			data: configData
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -676,32 +676,32 @@ const actions = {
 
 		// Add the _design document
 		globalAxios({
-				method: 'PUT',
-				url: payload.dbName + '/_design/design1',
-				withCredentials: true,
-				data: {
-					"views": {
-						/*
-						 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
-						 * Select the 'backlogitem' document type and skip removed, requirements-area and database description documents (level 0 and 1).
-						 */
-						"sortedFilter": {
-							"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
-						},
-						/*
-						 * Filter on document type 'backlogItem', then filter the changes which need distributed to other users.
-						 */
-						"changesFilter": {
-							"map": 'function (doc) {if (doc.type == "backlogItem" && doc.history[0].distributeEvent) emit(doc._id, 1);}'
-						}
+			method: 'PUT',
+			url: payload.dbName + '/_design/design1',
+			withCredentials: true,
+			data: {
+				"views": {
+					/*
+					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
+					 * Select the 'backlogitem' document type and skip removed, requirements-area and database description documents (level 0 and 1).
+					 */
+					"sortedFilter": {
+						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
 					},
-					"language": "javascript"
-				}
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res)
-			})
+					/*
+					 * Filter on document type 'backlogItem', then filter the changes which need distributed to other users.
+					 */
+					"changesFilter": {
+						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.history[0].distributeEvent) emit(doc._id, 1);}'
+					}
+				},
+				"language": "javascript"
+			}
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -715,14 +715,14 @@ const actions = {
 	}, payload) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'GET',
-				url: payload.dbName + '/_all_docs',
-				withCredentials: true,
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res.data)
-			})
+			method: 'GET',
+			url: payload.dbName + '/_all_docs',
+			withCredentials: true,
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res.data)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -736,14 +736,14 @@ const actions = {
 	}, payload) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'GET',
-				url: payload.dbName + '/' + payload._id,
-				withCredentials: true,
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res.data)
-			})
+			method: 'GET',
+			url: payload.dbName + '/' + payload._id,
+			withCredentials: true,
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res.data)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -757,14 +757,14 @@ const actions = {
 	}, payload) {
 		this.commit('clearAll')
 		globalAxios({
-				method: 'DELETE',
-				url: payload.dbName,
-				withCredentials: true,
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res.data)
-			})
+			method: 'DELETE',
+			url: payload.dbName,
+			withCredentials: true,
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res.data)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -1164,15 +1164,15 @@ const actions = {
 			]
 		}
 		globalAxios({
-				method: 'POST',
-				url: payload.dbName + '/_bulk_docs',
-				withCredentials: true,
-				data: initData
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res)
-			})
+			method: 'POST',
+			url: payload.dbName + '/_bulk_docs',
+			withCredentials: true,
+			data: initData
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -1187,15 +1187,15 @@ const actions = {
 		this.commit('clearAll')
 		initUsers.data.forEach(function (el) {
 			globalAxios({
-					method: 'PUT',
-					url: '_users/org.couchdb.user:' + el.name,
-					withCredentials: true,
-					data: el
-				}).then(res => {
-					state.message = res.data
-					// eslint-disable-next-line no-console
-					console.log(res)
-				})
+				method: 'PUT',
+				url: '_users/org.couchdb.user:' + el.name,
+				withCredentials: true,
+				data: el
+			}).then(res => {
+				state.message = res.data
+				// eslint-disable-next-line no-console
+				console.log(res)
+			})
 				.catch(error => {
 					if (error.response.status === 409) {
 						state.comment = state.comment + 'User ' + el.name + ' already exists, '
@@ -1215,15 +1215,15 @@ const actions = {
 		// eslint-disable-next-line no-console
 		console.log('Start executing setUsersDbPermissions')
 		globalAxios({
-				method: 'PUT',
-				url: '/_users/_security',
-				withCredentials: true,
-				data: usersDbPermissions
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log('_users DB permissions are set, response is: ' + res)
-			})
+			method: 'PUT',
+			url: '/_users/_security',
+			withCredentials: true,
+			data: usersDbPermissions
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log('_users DB permissions are set, response is: ' + res)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -1238,15 +1238,15 @@ const actions = {
 		// eslint-disable-next-line no-console
 		console.log('Start executing setDbPermissions')
 		globalAxios({
-				method: 'PUT',
-				url: payload.dbName + '/_security',
-				withCredentials: true,
-				data: dbPermissions
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log('DB permissions are set, response is: ' + res)
-			})
+			method: 'PUT',
+			url: payload.dbName + '/_security',
+			withCredentials: true,
+			data: dbPermissions
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log('DB permissions are set, response is: ' + res)
+		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
 				console.log(error)
@@ -1269,17 +1269,20 @@ const initUsers = {
 			"email": "demouser@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": [
-				"guest"
-				],
 				"1552152600149c2ac": [
-				"superPO",
-				"PO",
-				"developer",
-				"guest"
+					"superPO",
+					"PO",
+					"developer",
+					"guest"
+				],
+				"15521398069875394": [
+					"guest"
 				]
 			},
-			"currentProductsIdx": 1
+			"subscriptions": [
+				0,
+				1
+			]
 		},
 		{
 			"name": "Jan Klaassen",
@@ -1291,15 +1294,18 @@ const initUsers = {
 			"email": "jan@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": [
-				"guest"
-				],
 				"1552152600149c2ac": [
-				"admin",
-				"superPO"
+					"admin",
+					"superPO"
+				],
+				"15521398069875394": [
+					"guest"
 				]
 			},
-			"currentProductsIdx": 1
+			"subscriptions": [
+				0,
+				1
+			]
 		},
 		{
 			"name": "Herman",
@@ -1311,14 +1317,17 @@ const initUsers = {
 			"email": "herman@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": [
-				"guest"
-				],
 				"1552152600149c2ac": [
 					"PO"
+				],
+				"15521398069875394": [
+					"guest"
 				]
 			},
-			"currentProductsIdx": 1
+			"subscriptions": [
+				0,
+				1
+			]
 		},
 		{
 			"name": "Piet",
@@ -1330,14 +1339,17 @@ const initUsers = {
 			"email": "piet@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": [
-					"guest"
-				],
 				"1552152600149c2ac": [
 					"areaPO"
+				],
+				"15521398069875394": [
+					"guest"
 				]
 			},
-			"currentProductsIdx": 1
+			"subscriptions": [
+				0,
+				1
+			]
 		},
 		{
 			"name": "Mechteld",
@@ -1349,13 +1361,16 @@ const initUsers = {
 			"email": "mechteld@mycompany.nl",
 			"currentDb": 'demodb',
 			"productsRoles": {
-				"15521398069875394": [
-					"guest"],
 				"1552152600149c2ac": [
 					"developer"
-				]
+				],
+				"15521398069875394": [
+					"guest"]
 			},
-			"currentProductsIdx": 1
+			"subscriptions": [
+				0,
+				1
+			]
 		},
 		{
 			"name": "Henk",
@@ -1369,7 +1384,9 @@ const initUsers = {
 					"guest"
 				]
 			},
-			"currentProductsIdx": 0
+			"subscriptions": [
+				0
+			]
 		},
 		{
 			"name": "guest",
@@ -1383,7 +1400,9 @@ const initUsers = {
 					"guest"
 				]
 			},
-			"currentProductsIdx": 0
+			"subscriptions": [
+				0
+			]
 		}]
 }
 
