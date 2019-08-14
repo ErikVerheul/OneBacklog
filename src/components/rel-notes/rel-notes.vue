@@ -5,6 +5,22 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<hr>
+				<h3>v.0.5.3 - 14 August 2019 Bug fixes and performance improvements</h3>
+				<p>New features:</p>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Open product view after signin</li>
+					<li>Improve target selection</li>
+					<li>Moving item hard to read when dragging</li>
+					<li>Scroll bar disappears in product view</li>
+				</ul>
+				<p>Performance improvements:</p>
+				<ul>
+					<li>Show extra level on as needed basis</li>
+					<li>Improve rendering performance</li>
+					<li>Optimize heavy routines</li>
+				</ul>
+				<hr>
 				<h3>v.0.5.2 - 7 August 2019 Minor update</h3>
 				<p>New features:</p>
 				<ul>
