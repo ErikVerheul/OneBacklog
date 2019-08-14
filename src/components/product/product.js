@@ -796,8 +796,7 @@ export default {
 			if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
 			this.showLastEvent(evt, INFO)
 		},
-		showContextMenu(node, event) {
-			// event.preventDefault()
+		showContextMenu(node) {
 			this.contextSelected = undefined
 			this.insertOptionSelected = 1
 			// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
