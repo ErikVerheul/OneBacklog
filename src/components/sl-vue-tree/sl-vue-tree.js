@@ -80,6 +80,10 @@ export default {
 	},
 
 	mounted() {
+		// suppress browser default context menu
+		document.oncontextmenu = function () {
+			return false;
+		}
 		if (this.isRoot) {
 			document.addEventListener('mouseup', this.onDocumentMouseupHandler);
 		}
