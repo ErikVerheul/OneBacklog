@@ -318,7 +318,7 @@ const actions = {
 			}
 			state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('Another batch of ' + batch.length + ' documents is loaded')
+			if (rootState.debug) console.log('Another product of ' + batch.length + ' documents is loaded')
 			if (!productPageLounched && defaultProductIsSelected) {
 				router.push('/product')
 				// reset before new login
@@ -344,6 +344,8 @@ const actions = {
 		}).then(res => {
 			batch = res.data.rows
 			commit('processProduct')
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('One product with ' + batch.length + ' documents is loaded')
 			// process other products here
 			if (state.mySubscriptions.length > 1 && state.processedProducts < state.mySubscriptions.length) {
 				state.productIdLoading = state.userAssignedProductIds[state.processedProducts]
@@ -358,9 +360,6 @@ const actions = {
 				}
 				// reset load parameters
 				parentNodes = {}
-				// ToDo: refactor this below
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('A first batch of ' + batch.length + ' documents is loaded.')
 				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
 				if (!productPageLounched && defaultProductIsSelected) {
 					router.push('/product')
