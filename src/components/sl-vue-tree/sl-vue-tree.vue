@@ -82,7 +82,6 @@
             </slot>
           </template>
         </sl-vue-tree>
-
       </div>
     </div>
   </div>

@@ -52,7 +52,7 @@
 .sl-vue-tree-cursor {
     position: absolute;
     border: 1px solid;
-		border-color: white;
+	border-color: white;
     height: 1px;
     width: 100%;
 }
