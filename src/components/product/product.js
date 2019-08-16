@@ -661,17 +661,6 @@ export default {
 			siblingPath.push(path[path.length - 1] + 1)
 			return window.slVueTree.getNode(siblingPath)
 		},
-		/*
-		 * When this user created a new product this user gets access rights automatically
-		 */
-		addNewProductToUser(productId) {
-			let prodsArray = this.$store.state.load.userAssignedProductIds
-			if (!prodsArray.includes(productId)) {
-				prodsArray.push(productId)
-				// also update the user profile
-				this.$store.dispatch('addProductId', productId)
-			}
-		},
 		assignNewPrios(nodes, predecessorNode, successorNode) {
 			let predecessorPrio
 			let successorPrio

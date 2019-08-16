@@ -144,7 +144,9 @@ export default new Vuex.Store({
 			state.load.productIdLoading = null
 			state.load.processedProducts = 0
 			state.load.myProductsRoles = {}
-			state.load.mySubscriptions = []
+			state.load.mySubscriptions = [],
+			state.load.myProductOptions = [],
+			state.load.myProductSubscriptions = [],
 
 			state.config = null
 			state.currentDb = null

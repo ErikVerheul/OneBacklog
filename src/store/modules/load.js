@@ -27,7 +27,8 @@ const state = {
 	treeNodes: [],
 	userAssignedProductIds: [],
 	myProductsRoles: {},
-	mySubscriptions: [],
+	myProductOptions: [],
+	myProductSubscriptions: [],
 	rangeString: ''
 }
 
@@ -234,6 +235,36 @@ const actions = {
 			})
 	},
 
+	setMyProductOptions({
+		rootState,
+		state,
+		dispatch
+	}, idx) {
+		const _id = state.userAssignedProductIds[idx]
+		globalAxios({
+			method: 'GET',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			state.myProductOptions.push({
+				value: _id,
+				text: res.data.title
+			})
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('setMyProductOptions: document with _id + ' + _id + ' is loaded.')
+			if (idx < state.userAssignedProductIds.length - 1) dispatch("setMyProductOptions", (idx + 1))
+		})
+			.catch(error => {
+				let msg = 'setMyProductOptions: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
+
 	// Get the current DB name etc. for this user. Note that the user roles are already fetched
 	getOtherUserData({
 		state,
@@ -246,7 +277,7 @@ const actions = {
 			withCredentials: true
 		}).then(res => {
 			state.myProductsRoles = res.data.productsRoles
-			state.mySubscriptions = res.data.subscriptions
+			state.myProductSubscriptions = res.data.subscriptions
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
 			if (res.data.teams !== undefined) {
@@ -272,8 +303,10 @@ const actions = {
 			dispatch('watchdog')
 
 			state.userAssignedProductIds = Object.keys(res.data.productsRoles)
-			// the first (index 0) product is by definition the current product
-			state.currentDefaultProductId = state.userAssignedProductIds[0]
+			// set the array of options to make a selection of products for the next load on sign-in
+			dispatch("setMyProductOptions", 0)
+			// the first (index 0) product is by definition the default product
+			state.currentDefaultProductId = state.myProductSubscriptions[0]
 			dispatch('getConfig')
 		})
 			.catch(error => {
@@ -302,8 +335,8 @@ const actions = {
 			batch = res.data.rows
 			commit('processProduct')
 			// process other products here
-			if (state.mySubscriptions.length > 1 && state.processedProducts < state.mySubscriptions.length) {
-				state.productIdLoading = state.userAssignedProductIds[state.processedProducts]
+			if (state.myProductSubscriptions.length > 1 && state.processedProducts < state.myProductSubscriptions.length) {
+				state.productIdLoading = state.myProductSubscriptions[state.processedProducts]
 				commit('composeRangeString')
 				dispatch('getNextProduct')
 			} else {
@@ -347,8 +380,8 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('One product with ' + batch.length + ' documents is loaded')
 			// process other products here
-			if (state.mySubscriptions.length > 1 && state.processedProducts < state.mySubscriptions.length) {
-				state.productIdLoading = state.userAssignedProductIds[state.processedProducts]
+			if (state.myProductSubscriptions.length > 1 && state.processedProducts < state.myProductSubscriptions.length) {
+				state.productIdLoading = state.myProductSubscriptions[state.processedProducts]
 				commit('composeRangeString')
 				dispatch('getNextProduct')
 			} else {
