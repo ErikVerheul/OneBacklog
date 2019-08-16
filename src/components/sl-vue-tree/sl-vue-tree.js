@@ -354,11 +354,11 @@ export default {
 
 		onMousemoveHandler(event) {
 			if (!this.isRoot) {
-				this.getRoot().onMousemoveHandler(event);
-				return;
+				this.getRoot().onMousemoveHandler(event)
+				return
 			}
 
-			if (this.preventDrag) return;
+			if (this.preventDrag) return
 
 			const initialDraggingState = this.isDragging;
 			const isDragging =
@@ -378,22 +378,22 @@ export default {
 				y: event.clientY
 			};
 
-			if (!isDragging) return;
-
-			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY);
-			const destNode = cursorPosition.node;
-			const placement = cursorPosition.placement;
-
-			if (isDragStarted && !destNode.isSelected) {
-				this.select(destNode.path, false, event);
-			}
+			if (!isDragging) return
 
 			if (!draggableNodes.length) {
-				this.preventDrag = true;
-				return;
+				this.preventDrag = true
+				return
 			}
 
-			this.isDragging = isDragging;
+			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY)
+			const destNode = cursorPosition.node
+			const placement = cursorPosition.placement
+
+			if (isDragStarted && !destNode.isSelected) {
+				this.select(destNode.path, false, event)
+			}
+
+			this.isDragging = isDragging
 
 			this.setCursorPosition({
 				node: destNode,
