@@ -62,10 +62,10 @@
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6
           v-if="$store.state.load.userAssignedProductIds.length==1"
-        >Welcome {{ $store.state.user }}. Your current database is set to {{ $store.state.currentDb }}. You have {{ $store.state.load.userAssignedProductIds.length }} product</h6>
+        >Welcome {{ $store.state.user }}. Your current database is set to {{ $store.state.currentDb }}. You have {{ $store.state.load.userAssignedProductIds.length }} product.</h6>
         <h6
           v-if="$store.state.load.userAssignedProductIds.length >1"
-        >Welcome {{ $store.state.user }}. Your current database is set to {{ $store.state.currentDb }}. You have {{ $store.state.load.userAssignedProductIds.length }} products</h6>
+        >Welcome {{ $store.state.user }}. Your current database is set to {{ $store.state.currentDb }}. You selected {{ $store.state.load.myProductSubscriptions.length }} from {{ $store.state.load.userAssignedProductIds.length }} products.</h6>
         <span
           class="square"
           v-bind:style="{'background-color': this.$store.state.sync.eventSyncColor}"
