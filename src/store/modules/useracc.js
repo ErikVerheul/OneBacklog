@@ -12,6 +12,11 @@ const actions = {
 		}).then(res => {
 			let tmpUserData = res.data
 			delete tmpUserData.productsRoles[productId]
+			for (let i = 0; i < tmpUserData.subscriptions.length; i++) {
+				if (tmpUserData.subscriptions[i] == productId) {
+					tmpUserData.subscriptions.splice(i, 1)
+				}
+			}
 			dispatch("updateUser2", tmpUserData)
 		})
 			.catch(error => {
