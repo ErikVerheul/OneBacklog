@@ -80,10 +80,6 @@
           multiple
           :select-size="$store.state.load.myProductOptions.length"
         ></b-form-select>
-        <div class="mt-3">
-          Selected:
-          <strong>{{ selectedProducts }}</strong>
-        </div>
       </b-container>
     </b-modal>
 
@@ -99,16 +95,55 @@
           :options="defaultProductOptions"
           :select-size="defaultProductOptions.length"
         ></b-form-select>
-        <div class="mt-3">
-          Selected:
-          <strong>{{ defaultProductId }}</strong>
-        </div>
       </b-container>
     </b-modal>
 
     <b-modal size="lg" ref="changePwRef" @ok="doChangePw" title="Change your password">
       <b-container align-v="true">
-        <h1>Not in MVP</h1>
+        <template v-if="auth && $store.state.demo && $store.state.user === 'demoUser'">
+          <h2>Demo users cannot change the password</h2>
+        </template>
+        <template v-if="auth && this.$store.getters.isServerAdmin">
+          <h2>Demo users cannot change the password</h2>
+        </template>
+        <template v-if="auth && $store.state.demo && $store.state.user !== 'demoUser'">
+          <b-row class="my-1">
+            <b-card bg-variant="light">
+              <b-form-group
+                label-cols-lg="5"
+                label="The new password must have 8 or more characters"
+                label-size="lg"
+                label-class="font-weight-bold pt-0"
+                class="mb-0"
+              >
+                <b-form-group
+                  label-cols-sm="5"
+                  label="Current password:"
+                  label-align-sm="right"
+                  label-for="currentPW"
+                >
+                  <b-form-input v-model="oldPassword" id="currentPW" type="password"></b-form-input>
+                </b-form-group>
+                <b-form-group
+                  label-cols-sm="5"
+                  label="New password:"
+                  label-align-sm="right"
+                  label-for="newPW1"
+                >
+                  <b-form-input v-model="newPassword1" id="newPW1" type="password"></b-form-input>
+                </b-form-group>
+                <b-form-group
+                  label-cols-sm="5"
+                  label="Retype new password:"
+                  label-align-sm="right"
+                  label-for="newPW2"
+                >
+                  <b-form-input v-model="newPassword2" id="newPW2" type="password"></b-form-input>
+                </b-form-group>
+              </b-form-group>
+            </b-card>
+          </b-row>
+        </template>
       </b-container>
     </b-modal>
   </div>
@@ -121,7 +156,7 @@ import licence from "./licence.vue";
 export default {
   data() {
     return {
-      appVersion: "OneBackLog v.0.5.3",
+      appVersion: "OneBackLog v.0.5.4",
       eventBgColor: "#408FAE",
       oldPassword: "",
       newPassword1: "",
@@ -233,7 +268,39 @@ export default {
       this.$store.dispatch('updateSubscriptions', myNewProductSubscriptions)
     },
 
-    doChangePw() { },
+    doChangePw() {
+      /* A direct replacement for Java’s String.hashCode() method implemented in Javascript */
+      function hashCode(s) {
+        var hash = 0, i, chr
+        if (s.length === 0) return hash
+        for (i = 0; i < s.length; i++) {
+          chr = s.charCodeAt(i)
+          hash = ((hash << 5) - hash) + chr;
+          hash |= 0 // Convert to 32bit integer
+        }
+        return hash
+      }
+
+      if (hashCode(this.oldPassword) !== this.$store.state.passwordHash) {
+        alert(
+          "Your current password is incorrect. Please try again."
+        )
+        return
+      }
+      if (this.newPassword1 !== this.newPassword2) {
+        alert(
+          "You entered two differen new passwords. Please try again."
+        )
+        return
+      }
+      if (this.newPassword1.length < 8) {
+        alert(
+          "Your new password must be 8 characters or longer. Please try again."
+        )
+        return
+      }
+      this.$store.dispatch('changePassword', newPassword1)
+    },
 
     onSignout() {
       this.$store.dispatch("signout");

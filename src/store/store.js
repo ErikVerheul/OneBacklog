@@ -93,7 +93,8 @@ export default new Vuex.Store({
 		myDefaultRoles: [],
 		runningCookieRefreshId: null,
 		user: null,
-		moveOngoing: false
+		moveOngoing: false,
+		passwordHash: undefined
 	},
 
 	getters: {
@@ -153,9 +154,25 @@ export default new Vuex.Store({
 			state.currentDoc = null
 			state.myDefaultRoles = []
 			state.user = null
+			state.passwordHash = undefined
 
 			clearInterval(state.runningCookieRefreshId)
 			clearInterval(state.logging.runningWatchdogId)
+		},
+
+		storePwHash(state, pw) {
+			/* A direct replacement for Java’s String.hashCode() method implemented in Javascript */
+			function hashCode(s) {
+				var hash = 0, i, chr
+				if (s.length === 0) return hash
+				for (i = 0; i < s.length; i++) {
+					chr = s.charCodeAt(i)
+					hash = ((hash << 5) - hash) + chr;
+					hash |= 0 // Convert to 32bit integer
+				}
+				return hash
+			}
+			state.passwordHash = hashCode(pw)
 		}
 	},
 
@@ -207,6 +224,9 @@ export default new Vuex.Store({
 				})
 				return uuid
 			}
+
+			// store the password hash
+			commit('storePwHash', authData.password)
 
 			globalAxios({
 					method: 'POST',

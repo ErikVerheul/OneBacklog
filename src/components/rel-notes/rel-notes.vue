@@ -5,6 +5,23 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<hr>
+				<h3>v.0.5.4 - 17 August 2019 Bug fixes and performance improvements</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Password change</li>
+					<li>Remove products</li>
+					<li>User can select his products to open at sign-in</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Product top node selected for dragging</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>Load products as one batch</li>
+					<li>Change _users setup for products</li>
+				</ul>
+				<hr>
 				<h3>v.0.5.3 - 14 August 2019 Bug fixes and performance improvements</h3>
 				<p>New features:</p>
 				<p>Bug fixes:</p>
