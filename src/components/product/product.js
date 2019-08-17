@@ -893,14 +893,22 @@ export default {
 			const path = selectedNode.path
 			const descendants = descendantsInfo.descendants
 			// when removing a product
+			// note that for performance reasons the deletion mark is set for the top level product document only
 			if (selectedNode.level === this.productLevel) {
-				var newProducts = this.$store.state.load.userAssignedProductIds
-				var idx = newProducts.indexOf(selectedNode._id)
+				// remove from the menu options
+				for (let i = 0; i < this.$store.state.load.myProductOptions.length; i++) {
+					if (this.$store.state.load.myProductOptions[i].value === selectedNode._id) {
+						this.$store.state.load.myProductOptions.splice(i, 1)
+					}
+				}
+				// remove from the user assingned products
+				let newProducts = this.$store.state.load.userAssignedProductIds
+				const idx = newProducts.indexOf(selectedNode._id)
 				if (idx > -1) {
 					newProducts.splice(idx, 1)
 				}
 				this.$store.state.load.userAssignedProductIds = newProducts
-				// remove the product from this productRoles. ToDo: remove for ALL users
+				// remove the product from the productRoles and subscriptions list. ToDo: remove for ALL users
 				this.$store.dispatch('removeProductId', selectedNode._id)
 			}
 			// set remove mark in the database on the clicked item
