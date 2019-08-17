@@ -299,7 +299,7 @@ export default {
         )
         return
       }
-      this.$store.dispatch('changePassword', newPassword1)
+      this.$store.dispatch('changePassword', this.newPassword1)
     },
 
     onSignout() {
