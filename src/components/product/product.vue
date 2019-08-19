@@ -282,17 +282,17 @@
             v-on:click="contextSelected = 1"
           >Insert a {{ contextChildType }} inside this {{ contextNodeType }}</b-list-group-item>
           <b-list-group-item
-            v-if="!$store.state.moveOngoing"
+            v-if="!$store.state.moveOngoing && contextNodeLevel > productLevel"
             button
             variant="dark"
             v-on:click="contextSelected = 2"
-          >Move this item to another product</b-list-group-item>
+          >Move this {{ contextNodeType }} to another product</b-list-group-item>
           <b-list-group-item
             v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.load.currentProductId"
             button
             variant="dark"
             v-on:click="contextSelected = 2"
-          >Insert the moved item here</b-list-group-item>
+          >Insert the moved {{ contextChildType }} here</b-list-group-item>
           <b-list-group-item
             button
             variant="danger"
