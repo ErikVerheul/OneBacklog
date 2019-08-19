@@ -156,7 +156,7 @@ import licence from "./licence.vue";
 export default {
   data() {
     return {
-      appVersion: "OneBackLog v.0.5.4",
+      appVersion: "OneBackLog v.0.5.5",
       eventBgColor: "#408FAE",
       oldPassword: "",
       newPassword1: "",

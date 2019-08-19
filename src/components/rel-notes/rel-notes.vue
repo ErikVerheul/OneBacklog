@@ -5,6 +5,13 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<hr>
+				<h3>v.0.5.5 - 19 August 2019 Urgent fix</h3>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Drag &amp; drop cannot select individual nodes</li>
+					<li>Allow drag inside top product node</li>
+				</ul>
+				<hr>
 				<h3>v.0.5.4 - 17 August 2019 Bug fixes and performance improvements</h3>
 				<p>New features:</p>
 				<ul>
