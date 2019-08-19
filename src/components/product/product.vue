@@ -292,7 +292,7 @@
             button
             variant="dark"
             v-on:click="contextSelected = 2"
-          >Insert the moved {{ contextChildType }} here</b-list-group-item>
+          >Insert the moved item here</b-list-group-item>
           <b-list-group-item
             button
             variant="danger"
