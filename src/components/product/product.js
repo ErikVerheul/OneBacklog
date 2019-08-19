@@ -37,7 +37,6 @@ export default {
 			featureLevel: FEATURELEVEL,
 			pbiLevel: PBILEVEL,
 			eventBgColor: '#408FAE',
-			firstNodeSelected: null,
 			newDescription: '',
 			newAcceptance: '',
 			contextNodeSelected: undefined,
