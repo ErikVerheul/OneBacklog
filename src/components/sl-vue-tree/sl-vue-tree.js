@@ -39,18 +39,6 @@ export default {
 			type: Boolean,
 			default: true
 		},
-		multiselectKey: {
-			type: [String, Array],
-			default: function () {
-				return ['ctrlKey', 'metaKey']
-			},
-			validator: function (value) {
-				let allowedKeys = ['ctrlKey', 'metaKey', 'altKey'];
-				let multiselectKeys = Array.isArray(value) ? value : [value];
-				multiselectKeys = multiselectKeys.filter(keyName => allowedKeys.indexOf(keyName) !== -1);
-				return !!multiselectKeys.length;
-			}
-		},
 		scrollAreaHeight: {
 			type: Number,
 			default: 70
@@ -266,58 +254,33 @@ export default {
 			this.getRoot().$emit('nodecontextmenu', node, event);
 		},
 
-		/* select a node from the current product only or select the top node of another product*/
-		select(path,
-			addToSelection = false,
-			event = null) {
-
-			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY);
-			const destNode = cursorPosition.node;
-			const placement = cursorPosition.placement;
-
-			this.setCursorPosition({
-				node: destNode,
-				placement
-			})
+		/* select a node from the current product or select the root or the top node of another product */
+		select(cursorPosition, event) {
+			const selectedNode = cursorPosition.node
+			const path = selectedNode.path
 
 			this.saveSelectCursorPosition({
-				node: destNode,
-				placement
+				node: selectedNode,
+				placement: cursorPosition.placement
 			})
 
-			// set the current productId. when not on root level leave as is. emitSelect will set it globally
-			let productId = path.length !== ROOTLEVEL ? destNode.productId : this.$store.state.load.currentProductId
-
-			const multiselectKeys = Array.isArray(this.multiselectKey) ? this.multiselectKey : [this.multiselectKey]
-			const multiselectKeyIsPressed = event && !!multiselectKeys.find(key => event[key])
-			addToSelection = (multiselectKeyIsPressed || addToSelection) && this.allowMultiselect
-
-			const selectedNode = this.getNode(path)
-			if (!selectedNode) return null
-
+			// set the current productId. when on root level leave as is. emitSelect will set it a change globally
+			let productId = path.length === ROOTLEVEL ? this.$store.state.load.currentProductId : selectedNode.productId
 			const selectedNodes = []
+
 			if (path.length > PRODUCTLEVEL) {
 				const shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && this.lastSelectedNode
-				let shiftSelectionStarted = false
+				// only select nodes on the same level
+				if (shiftSelectionMode && path.length !== this.lastSelectedNode.level) return
 
 				this.traverseLight((itemPath, nodeModel) => {
 					if (shiftSelectionMode) {
-						// only select nodes on the same level
-						if (itemPath.length === this.lastSelectedNode.level &&
-							(this.comparePaths(itemPath, selectedNode.path) === 0 ||
-								this.comparePaths(itemPath, this.lastSelectedNode.path) === 0)) {
-							nodeModel.isSelected = nodeModel.isSelectable
-							shiftSelectionStarted = !shiftSelectionStarted
-						}
-						// only select nodes on the same level
-						if (shiftSelectionStarted && itemPath.length === this.lastSelectedNode.level) {
+						if (this.comparePaths(itemPath, selectedNode.path) === 0) {
 							nodeModel.isSelected = nodeModel.isSelectable
 						}
 					} else if (this.comparePaths(itemPath, selectedNode.path) === 0) {
 						nodeModel.isSelected = nodeModel.isSelectable
-					} else if (!addToSelection) {
-						nodeModel.isSelected = false
-					}
+					} else nodeModel.isSelected = false
 
 					if (nodeModel.isSelected) {
 						let node = this.getNode(itemPath, nodeModel)
@@ -367,7 +330,7 @@ export default {
 					(this.lastMousePos.y !== event.clientY)
 				);
 
-			const isDragStarted = initialDraggingState === false && isDragging === true;
+			const isDragStarted = !initialDraggingState && isDragging
 			// calculate only once
 			if (isDragStarted) {
 				draggableNodes = this.getDraggable()
@@ -390,7 +353,7 @@ export default {
 			const placement = cursorPosition.placement
 
 			if (isDragStarted && !destNode.isSelected) {
-				this.select(destNode.path, false, event)
+				this.select(cursorPosition, event)
 			}
 
 			this.isDragging = isDragging
@@ -452,23 +415,6 @@ export default {
 			if (!$el) return null;
 			if ($el.getAttribute('path')) return $el;
 			return this.getClosetElementWithPath($el.parentElement);
-		},
-
-		onMouseleaveHandler(event) {
-			if (!this.isRoot || !this.isDragging) return;
-			const $root = this.getRoot().$el;
-			const rootRect = $root.getBoundingClientRect();
-			if (event.clientY >= rootRect.bottom) {
-				this.setCursorPosition({
-					node: this.nodes.slice(-1)[0],
-					placement: 'after'
-				});
-			} else if (event.clientY < rootRect.top) {
-				this.setCursorPosition({
-					node: this.getFirstNode(),
-					placement: 'before'
-				});
-			}
 		},
 
 		getNodeEl(path) {
@@ -566,10 +512,6 @@ export default {
 			this.mouseIsDown = true;
 		},
 
-		onDocumentMouseupHandler(event) {
-			if (this.isDragging) this.onNodeMouseupHandler(event);
-		},
-
 		/* Move the nodes to the position designated by cursorPosition */
 		moveNodes(cursorPosition, nodes) {
 			const targetProductId = cursorPosition.node.productId
@@ -628,20 +570,17 @@ export default {
 			// insert nodes to the new place
 			this.insertModels(cursorPosition, nodeModelsSubjectToInsert, this.currentValue)
 
-			// console.log('moveNodes: targetProductId = ' + targetProductId + ' targetParentId = ' + targetParentId)
 			// update the product and parent ids; mark the changed nodemodels for distribution
 			updateMovedNodes((nodeModel, productId, parentId) => {
 				if (nodeModel.parentId !== parentId) {
 					// children have the id of their parent as parentId
 					nodeModel.parentId = parentId
-					// console.log('updateIds-CB: _id = ' + nodeModel._id + ' parentId is set to ' + nodeModel.parentId + ' title = ' + nodeModel.title)
 					nodeModel.data.sessionId = this.$store.state.sessionId
 					nodeModel.data.distributeEvent = true
 				}
 				if (nodeModel.productId !== productId) {
 					// children have the same productId as the parent
 					nodeModel.productId = productId
-					// console.log('updateIds-CB: _id = ' + nodeModel._id + ' productId is set to ' + nodeModel.productId + ' title = ' + nodeModel.title + ' nodeModel.parentId = ' + nodeModel.parentId)
 					nodeModel.data.sessionId = this.$store.state.sessionId
 					nodeModel.data.distributeEvent = true
 				}
@@ -654,28 +593,33 @@ export default {
 			}, this.currentValue);
 		},
 
-		onNodeMouseupHandler(event, targetNode = null) {
+		onNodeMouseupHandler(event) {
 			// handle only left mouse button
 			if (event.button !== 0) return;
 
 			if (!this.isRoot) {
-				this.getRoot().onNodeMouseupHandler(event, targetNode);
+				this.getRoot().onNodeMouseupHandler(event);
 				return;
 			}
 
 			this.mouseIsDown = false;
-			if (!this.isDragging && targetNode && !this.preventDrag) {
-				this.select(targetNode.path, false, event);
+
+			if (!this.isDragging) {
+				// cursorPosition not available
+				const cPos = this.getCursorPositionFromCoords(event.clientX, event.clientY)
+				this.select(cPos, event)
+				return
 			}
 
 			this.preventDrag = false;
+
 			if (!this.cursorPosition) {
 				this.stopDrag();
 				return;
 			}
 
-			// if no nodes selected or at root or product level or not dragging or moving an item to another product
-			if (draggableNodes.length === 0 || this.cursorPosition.node.path.length <= PRODUCTLEVEL || !this.isDragging || this.$store.state.moveOngoing) {
+			// if no nodes selected or at root level or not dragging or moving an item to another product
+			if (draggableNodes.length === 0 || this.cursorPosition.node.path.length === ROOTLEVEL || !this.isDragging || this.$store.state.moveOngoing) {
 				this.stopDrag()
 				return
 			}

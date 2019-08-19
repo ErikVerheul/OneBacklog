@@ -4,7 +4,6 @@
     class="sl-vue-tree"
     :class="{'sl-vue-tree-root': isRoot }"
     @mousemove="onMousemoveHandler"
-    @mouseleave="onMouseleaveHandler"
   >
     <div ref="nodes" class="sl-vue-tree-nodes-list">
       <div
@@ -28,7 +27,7 @@
         <div
           class="sl-vue-tree-node-item"
           @mousedown="onNodeMousedownHandler($event, node)"
-          @mouseup="onNodeMouseupHandler($event, node)"
+          @mouseup="onNodeMouseupHandler($event)"
           @contextmenu="emitNodeContextmenu(node, $event)"
           @click="emitNodeClick(node, $event)"
           :path="node.pathStr"
