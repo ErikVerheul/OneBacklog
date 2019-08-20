@@ -71,7 +71,7 @@
       size="lg"
       ref="selectProductsRef"
       @ok="doSelectProducts"
-      title="Select one or more (hold shift) products to be loaded at sign-in"
+      title="Select one or more (hold shift or Ctrl) products to be loaded at sign-in"
     >
       <b-container align-v="true">
         <b-form-select
@@ -162,7 +162,7 @@ export default {
       newPassword1: "",
       newPassword2: "",
       selectedProducts: [],
-      defaultProductId: "",
+      defaultProductId: undefined,
       defaultProductOptions: []
     };
   },
@@ -243,6 +243,8 @@ export default {
 
       this.defaultProductOptions = []
       if (this.selectedProducts.length === 1) {
+        // if just 1 product is selected that product is the default
+        this.defaultProductId = this.$store.state.load.myProductOptions[0].value
         this.defaultProductOptions.push(this.$store.state.load.myProductOptions[0])
         this.updateProductsSubscription()
       } else {
