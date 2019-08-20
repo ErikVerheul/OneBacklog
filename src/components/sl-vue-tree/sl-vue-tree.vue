@@ -5,15 +5,14 @@
     :class="{'sl-vue-tree-root': isRoot }"
     @mousemove="onMousemoveHandler"
   >
-    <div ref="nodes" class="sl-vue-tree-nodes-list">
+    <div ref="nodes">
       <div
-        class="sl-vue-tree-node"
         v-for="(node, nodeInd) in filteredNodes"
         :class="{'sl-vue-tree-selected': node.isSelected}"
         :key="node.pathStr"
       >
         <div
-          class="sl-vue-tree-cursor sl-vue-tree-cursor_before"
+          class="sl-vue-tree-cursor"
           :style="{
             visibility:
             cursorPosition &&
@@ -52,9 +51,7 @@
               v-if="!node.isLeaf"
               @click="onToggleHandler($event, node)"
             >
-              <slot name="toggle" :node="node">
-                <span>{{ !node.isLeaf ? (node.isExpanded ? '-' : '+') : '' }}</span>
-              </slot>
+              <slot name="toggle" :node="node"></slot>
             </span>
 
             <slot name="title" :node="node">{{ node.title }}</slot>
@@ -76,9 +73,7 @@
           </template>
 
           <template slot="toggle" slot-scope="{ node }">
-            <slot name="toggle" :node="node">
-              <span>{{ !node.isLeaf ? (node.isExpanded ? '-' : '+') : '' }}</span>
-            </slot>
+            <slot name="toggle" :node="node"></slot>
           </template>
         </sl-vue-tree>
       </div>
