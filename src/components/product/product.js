@@ -1069,7 +1069,7 @@ export default {
 					"title": insertedNode.title,
 					"followers": [],
 					"description": "",
-					"acceptanceCriteria": window.btoa("Please don't forget"),
+					"acceptanceCriteria": window.btoa("<p>Please don't forget</p>"),
 					"priority": insertedNode.data.priority,
 					"attachments": [],
 					"comments": [],
