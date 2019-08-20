@@ -1280,8 +1280,8 @@ const initUsers = {
 				]
 			},
 			"subscriptions": [
-				0,
-				1
+				"1552152600149c2ac",
+				"15521398069875394"
 			]
 		},
 		{
@@ -1303,8 +1303,8 @@ const initUsers = {
 				]
 			},
 			"subscriptions": [
-				0,
-				1
+				"1552152600149c2ac",
+				"15521398069875394"
 			]
 		},
 		{
@@ -1325,8 +1325,8 @@ const initUsers = {
 				]
 			},
 			"subscriptions": [
-				0,
-				1
+				"1552152600149c2ac",
+				"15521398069875394"
 			]
 		},
 		{
@@ -1347,8 +1347,8 @@ const initUsers = {
 				]
 			},
 			"subscriptions": [
-				0,
-				1
+				"1552152600149c2ac",
+				"15521398069875394"
 			]
 		},
 		{
@@ -1368,8 +1368,8 @@ const initUsers = {
 					"guest"]
 			},
 			"subscriptions": [
-				0,
-				1
+				"1552152600149c2ac",
+				"15521398069875394"
 			]
 		},
 		{
@@ -1385,7 +1385,7 @@ const initUsers = {
 				]
 			},
 			"subscriptions": [
-				0
+				"15521398069875394"
 			]
 		},
 		{
@@ -1401,7 +1401,7 @@ const initUsers = {
 				]
 			},
 			"subscriptions": [
-				0
+				"1552152600149c2ac"
 			]
 		}]
 }
