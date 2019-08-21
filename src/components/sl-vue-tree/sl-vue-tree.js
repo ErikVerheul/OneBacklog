@@ -3,7 +3,7 @@
  */
 const ROOTLEVEL = 1
 const PRODUCTLEVEL = 2
-const FILTERBUTTONTEXT = 'Set filter'
+const FILTERBUTTONTEXT = 'Recent changes'
 const RESETFILTERBUTTONTEXT = 'Clear filter'
 const INFO = 0
 var numberOfSelectedNodes = 0
@@ -723,7 +723,7 @@ export default {
 					return this.getNode([0, i], projectModels[i])
 				}
 			}
-			// product is not found
+			console.log('getSelectedProduct: ERROR product not found')
 			return null
 		},
 
