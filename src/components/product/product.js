@@ -892,8 +892,12 @@ export default {
 			const path = selectedNode.path
 			const descendants = descendantsInfo.descendants
 			// when removing a product
-			// note that for performance reasons the deletion mark is set for the top level product document only
 			if (selectedNode.level === this.productLevel) {
+				// cannot remove the last assigned product
+				if (this.$store.state.load.userAssignedProductIds.length === 1) {
+					this.showLastEvent("Sorry, you cannot remove your last assigned product, but you can remove the epics", WARNING)
+					return
+				}
 				// remove from the menu options
 				for (let i = 0; i < this.$store.state.load.myProductOptions.length; i++) {
 					if (this.$store.state.load.myProductOptions[i].value === selectedNode._id) {
