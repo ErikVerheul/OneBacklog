@@ -364,6 +364,7 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		// Lookup to not rely on the order of the response being the same as in the request
 		function getPayLoadItem(id) {
 			for (let i = 0; i < payload.length; i++) {
 				if (payload[i]._id === id) {
