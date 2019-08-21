@@ -1,7 +1,5 @@
 import globalAxios from 'axios'
 
-const PBILEVEL = 5
-
 const actions = {
 	/*
 	 * When updating the database first load the document with the actual revision number and changes by other users.
@@ -291,7 +289,7 @@ const actions = {
 			// add two new items to the payload
 			payloadItem['newParentTitle'] = res.data.title
 			payloadItem['nrOfDescendants'] = payloadItem.descendants.length
-			dispatch('updateDropped2', payloadItem)
+			dispatch('updateMovedItems', payloadItem)
 			let payloadArray2 = []
 			for (let i = 0; i < payloadItem.descendants.length; i++) {
 				const payloadItem2 = {
@@ -302,10 +300,7 @@ const actions = {
 				}
 				payloadArray2.push(payloadItem2)
 			}
-			dispatch('updateDescendants', {
-				next: 0,
-				payloadArray: payloadArray2
-			})
+			dispatch('updateDroppedDescendantsBulk', payloadArray2)
 			payload.next++
 			// recurse
 			dispatch('updateDropped', payload)
@@ -323,7 +318,7 @@ const actions = {
 	/*
 	 * Update the dropped node
 	 */
-	updateDropped2({
+	updateMovedItems({
 		rootState,
 		dispatch
 	}, payload) {
@@ -355,7 +350,7 @@ const actions = {
 			dispatch('updateDoc', tmpDoc)
 		})
 			.catch(error => {
-				let msg = 'updateDropped2: Could not read document with _id ' + _id + ', ' + error
+				let msg = 'updateMovedItems: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
@@ -364,38 +359,69 @@ const actions = {
 				})
 			})
 	},
-	updateDescendants({
+
+	updateDroppedDescendantsBulk({
 		rootState,
 		dispatch
 	}, payload) {
-		if (payload.next >= payload.payloadArray.length) return
-
-		let payloadItem = payload.payloadArray[payload.next]
-		const _id = payloadItem._id
-		globalAxios({
-			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
-			withCredentials: true,
-		}).then(res => {
-			let tmpDoc = res.data
-			const newHist = {
-				"descendantMoved": [payloadItem.oldParentTitle],
-				"by": rootState.user,
-				"email": rootState.load.email,
-				"timestamp": Date.now(),
-				"sessionId": rootState.sessionId,
-				"distributeEvent": false
+		function getPayLoadItem(id) {
+			for (let i = 0; i < payload.length; i++) {
+				if (payload[i]._id === id) {
+					return payload[i]
+				}
 			}
-			tmpDoc.history.unshift(newHist)
-			tmpDoc.level = payloadItem.newLevel
-			tmpDoc.productId = payloadItem.productId
-			dispatch('updateDoc', tmpDoc)
-			payload.next++
-			// recurse
-			dispatch('updateDescendants', payload)
+		}
+		const docsToGet = []
+		for (let i = 0; i < payload.length; i++) {
+			docsToGet.push({ "id": payload[i]._id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.currentDb + '/_bulk_get',
+			withCredentials: true,
+			data: { "docs": docsToGet },
+		}).then(res => {
+			// console.log('updateDroppedDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
+			const results = res.data.results
+			const ok = []
+			const error = []
+			for (let i = 0; i < results.length; i++) {
+				if (results[i].docs[0].ok) {
+					const payloadItem = getPayLoadItem(results[i].docs[0].ok._id)
+					const doc = results[i].docs[0].ok
+					// change the document
+					const newHist = {
+						"descendantMoved": [payloadItem.oldParentTitle],
+						"by": rootState.user,
+						"email": rootState.load.email,
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId,
+						"distributeEvent": false
+					}
+					doc.history.unshift(newHist)
+					doc.level = payloadItem.newLevel
+					doc.productId = payloadItem.productId
+					ok.push(doc)
+				}
+				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let i = 0; i < error.length; i++) {
+					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
+				}
+				let msg = 'updateDroppedDescendantsBulk: These descendants cannot be updated: ' + errorStr
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			}
+			dispatch('updateBulk', ok)
 		})
 			.catch(error => {
-				let msg = 'updateDescendants: Could not read document with _id ' + _id + '. Error = ' + error
+				let msg = 'updateDroppedDescendantsBulk: Could not read decendants in bulk. Error = ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
@@ -479,7 +505,7 @@ const actions = {
 					level: "ERROR"
 				})
 			}
-			dispatch('markForRemovalBulk', ok)
+			dispatch('updateBulk', ok)
 		})
 			.catch(error => {
 				let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
@@ -491,21 +517,21 @@ const actions = {
 				})
 			})
 	},
-	markForRemovalBulk({
+	updateBulk({
 		rootState,
 		dispatch
-	}, descendants) {
+	}, docs) {
 		globalAxios({
 			method: 'POST',
 			url: rootState.currentDb + '/_bulk_docs',
 			withCredentials: true,
-			data: { "docs": descendants },
+			data: { "docs": docs },
 		}).then(res => {
 			// eslint-disable-next-line no-console
-			console.log('markForRemoval: ' + res.data.length + ' documents are marked for removal')
+			console.log('updateBulk: ' + res.data.length + ' documents are updated')
 		})
 			.catch(error => {
-				let msg = 'markForRemoval: Could not mark for removal batch of documents: ' + error
+				let msg = 'updateBulk: Could not update batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
