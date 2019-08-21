@@ -918,14 +918,8 @@ export default {
 			}
 			this.$store.dispatch('removeDoc', payload)
 			// for items lower in the hierarchie than product remove the descendants without registering history in parents which are removed anyway
-			if (selectedNode.level > 2) {
-				for (let i = 0; i < descendants.length; i++) {
-					const payload2 = {
-						'node': descendants[i],
-						'doRegHist': false
-					}
-					this.$store.dispatch('removeDoc', payload2)
-				}
+			if (descendants.length > 0) {
+				this.$store.dispatch('removeDescendantsBulk', descendants)
 			}
 			// collapse the branch and make the removed node invisible
 			window.slVueTree.updateNode(path, {
