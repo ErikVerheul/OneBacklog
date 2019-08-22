@@ -235,6 +235,7 @@ const actions = {
 			})
 	},
 
+	/* Set the options to select one or more products */
 	setMyProductOptions({
 		rootState,
 		state,

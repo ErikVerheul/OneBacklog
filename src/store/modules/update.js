@@ -485,7 +485,7 @@ const actions = {
 			const results = res.data.results
 			const ok = []
 			const error = []
-			for (let i = 0; i < res.data.results.length; i++) {
+			for (let i = 0; i < results.length; i++) {
 				if (results[i].docs[0].ok) {
 					// mark for removal
 					results[i].docs[0].ok.delmark = true
