@@ -71,7 +71,7 @@ Vue.use(Vuex)
  *	}
  */
 
-const FILTERBUTTONTEXT = 'Set filter'
+const FILTERBUTTONTEXT = 'Recent changes'
 const SEARCHBUTTONTEXT = 'Search'
 
 export default new Vuex.Store({
