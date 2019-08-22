@@ -161,7 +161,7 @@ export default {
       oldPassword: "",
       newPassword1: "",
       newPassword2: "",
-      selectedProducts: [],
+      selectedProducts: this.$store.state.load.myProductSubscriptions,
       defaultProductId: undefined,
       defaultProductOptions: []
     };
@@ -174,54 +174,51 @@ export default {
       .getElementById("searchInput")
       .addEventListener("keypress", function (event) {
         if (event.keyCode === 13) {
-          event.preventDefault();
-          document.getElementById("searchBtn").click();
+          event.preventDefault()
+          document.getElementById("searchBtn").click()
         }
-      });
+      })
   },
   computed: {
     auth() {
-      return this.$store.getters.isAuthenticated;
+      return this.$store.getters.isAuthenticated
     },
     serverAdmin() {
       return (
         this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin
       );
-    },
-    getProductOptions() {
-      return this.options;
     }
   },
   methods: {
     filterSinceEvent(val) {
       if (this.$store.state.filterOn) {
-        window.slVueTree.resetFilters("filterSinceEvent");
+        window.slVueTree.resetFilters("filterSinceEvent")
       }
       window.slVueTree.filterSince(val);
     },
 
     showSelectionOrClearEvent() {
       if (this.$store.state.keyword !== "") {
-        window.slVueTree.filterOnKeyword();
+        window.slVueTree.filterOnKeyword()
       } else {
         // reset selection on empty input if selection is on
         if (this.$store.state.searchOn) {
-          window.slVueTree.resetFilters("showSelectionOrClearEvent");
+          window.slVueTree.resetFilters("showSelectionOrClearEvent")
         }
       }
     },
 
     clearFilterEvent() {
       if (this.$store.state.filterOn) {
-        window.slVueTree.resetFilters("clearFilterEvent");
+        window.slVueTree.resetFilters("clearFilterEvent")
       }
     },
 
     changeTeam() {
-      this.$refs.changeTeamRef.show();
+      this.$refs.changeTeamRef.show()
     },
     selectProducts() {
-      this.$refs.selectProductsRef.show();
+      this.$refs.selectProductsRef.show()
     },
     changePassword() {
       if (this.$store.getters.isServerAdmin)
@@ -244,9 +241,8 @@ export default {
       this.defaultProductOptions = []
       if (this.selectedProducts.length === 1) {
         // if just 1 product is selected that product is the default
-        this.defaultProductId = this.$store.state.load.myProductOptions[0].value
-        this.defaultProductOptions.push(this.$store.state.load.myProductOptions[0])
-        this.updateProductsSubscription()
+        this.defaultProductId = this.selectedProducts[0]
+        this.$store.dispatch('updateSubscriptions',  [this.defaultProductId])
       } else {
         for (let i = 0; i < this.$store.state.load.myProductOptions.length; i++) {
           if (this.selectedProducts.includes(this.$store.state.load.myProductOptions[i].value)) {
