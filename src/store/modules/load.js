@@ -239,23 +239,33 @@ const actions = {
 		rootState,
 		state,
 		dispatch
-	}, idx) {
-		const _id = state.userAssignedProductIds[idx]
+	}) {
+		const docsToGet = []
+		for (let i = 0; i < state.userAssignedProductIds.length; i++) {
+			docsToGet.push({ "id": state.userAssignedProductIds[i] })
+		}
+
 		globalAxios({
-			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			method: 'POST',
+			url: rootState.currentDb + '/_bulk_get',
 			withCredentials: true,
+			data: { "docs": docsToGet },
 		}).then(res => {
-			state.myProductOptions.push({
-				value: _id,
-				text: res.data.title
-			})
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('setMyProductOptions: document with _id + ' + _id + ' is loaded.')
-			if (idx < state.userAssignedProductIds.length - 1) dispatch("setMyProductOptions", (idx + 1))
+			// console.log('setMyProductOptions: res = ' + JSON.stringify(res, null, 2))
+			const results = res.data.results
+			for (let i = 0; i < results.length; i++) {
+				if (results[i].docs[0].ok) {
+					state.myProductOptions.push({
+						value: results[i].docs[0].ok._id,
+						text: results[i].docs[0].ok.title
+					})
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('setMyProductOptions: The title of document with _id + ' + results[i].docs[0].ok._id + ' is loaded.')
+				}
+			}
 		})
 			.catch(error => {
-				let msg = 'setMyProductOptions: Could not read document with _id ' + _id + ', ' + error
+				let msg = 'setMyProductOptions: Could not read product titles' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
@@ -304,7 +314,7 @@ const actions = {
 
 			state.userAssignedProductIds = Object.keys(res.data.productsRoles)
 			// set the array of options to make a selection of products for the next load on sign-in
-			dispatch("setMyProductOptions", 0)
+			dispatch("setMyProductOptions")
 			// the first (index 0) product is by definition the default product
 			state.currentDefaultProductId = state.myProductSubscriptions[0]
 			dispatch('getConfig')
