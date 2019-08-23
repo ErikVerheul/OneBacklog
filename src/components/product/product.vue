@@ -39,7 +39,7 @@
         </h3>
       </span>
       <span class="d-table-cell tac">
-        <h3>{{ $store.state.load.currentProductTitle }}</h3>
+        <h3>{{ $store.state.load.currentProductTitle }} (Id = {{ $store.state.currentDoc.shortId }})</h3>
       </span>
       <span class="d-table-cell tar">
         <h3>
