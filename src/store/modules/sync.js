@@ -123,8 +123,8 @@ const actions = {
 						if (node !== null) {
 							// the node exists (is not new)
 							if (doc.delmark) {
-								// remove the node
-								window.slVueTree.remove([node.path])
+								// remove the node and its children
+								window.slVueTree.remove(node.path)
 								continue
 							}
 							// update the parent as it can be changed
@@ -133,7 +133,7 @@ const actions = {
 							// in case
 							if (!locationInfo) {
 								// eslint-disable-next-line no-console
-								console.log('listenForChanges: calling getLocationInfo - doc.productId = ' + doc.productId + ' doc.parentId = ' + doc.parentId)
+								console.log('listenForChanges: calling getLocationInfo failed - doc.productId = ' + doc.productId + ' doc.parentId = ' + doc.parentId)
 								continue
 							}
 							// update priority, parent and product
@@ -155,7 +155,8 @@ const actions = {
 								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === -1) {
 									// move up: remove from old position first
 									node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
-									window.slVueTree.remove([node.path])
+									// remove node and its children
+									window.slVueTree.remove(node.path)
 									if (locationInfo.newInd === 0) {
 										window.slVueTree.insert({
 											node: locationInfo.prevNode,
@@ -182,8 +183,8 @@ const actions = {
 											placement: 'after'
 										}, node)
 									}
-									// remove from old position
-									window.slVueTree.remove([node.path])
+									// remove node and its children from old position
+									window.slVueTree.remove(node.path)
 								}
 							}
 						} else {

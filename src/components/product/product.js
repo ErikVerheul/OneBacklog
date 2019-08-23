@@ -911,8 +911,8 @@ export default {
 					newProducts.splice(idx, 1)
 				}
 				this.$store.state.load.userAssignedProductIds = newProducts
-				// remove the product from the productRoles and subscriptions list. ToDo: remove for ALL users
-				this.$store.dispatch('removeProductId', selectedNode._id)
+				// Add the removed product id to the removeProducts list in the config document
+				this.$store.dispatch('addToRemovedProducts', selectedNode._id)
 			}
 			// set remove mark in the database on the clicked item
 			const payload = {
@@ -936,8 +936,8 @@ export default {
 				isSelected: true
 			})
 			firstNodeSelected = prevNode
-			// now we can remove the nodes
-			window.slVueTree.remove([path])
+			// now we can remove the node and its children
+			window.slVueTree.remove(path)
 		},
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
