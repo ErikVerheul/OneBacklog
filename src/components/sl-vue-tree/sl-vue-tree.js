@@ -153,29 +153,24 @@ export default {
 			this.lastSelectCursorPosition = pos
 		},
 
-		getNodes(nodeModels, parentPath = [], isVisible = true) {
+		getNodes(nodeModels, parentPath = []) {
 
 			return nodeModels.map((nodeModel, ind) => {
 				const nodePath = parentPath.concat(ind);
-				return this.getNode(nodePath, nodeModel, nodeModels, isVisible);
+				return this.getNode(nodePath, nodeModel, nodeModels);
 			})
 		},
 
 		getNode(
 			path,
 			nodeModel = null,
-			siblings = null,
-			isVisible = null
+			siblings = null
 		) {
 			const ind = path.slice(-1)[0];
 
-			// calculate nodeModel, siblings, isVisible fields if it is not passed as arguments
+			// calculate nodeModel, siblings fields if it is not passed as arguments
 			siblings = siblings || this.getNodeSiblings(this.currentValue, path);
 			nodeModel = nodeModel || (siblings && siblings[ind]) || null;
-
-			if (isVisible === null) {
-				isVisible = this.isVisible(path);
-			}
 
 			if (!nodeModel) return null;
 
@@ -197,7 +192,6 @@ export default {
 				isSelected: !!nodeModel.isSelected,
 				isExpanded,
 				savedIsExpanded,
-				isVisible,
 				isDraggable,
 				isSelectable,
 				doShow,
@@ -213,21 +207,6 @@ export default {
 				isLastChild: ind === siblings.length - 1
 			};
 			return node;
-		},
-
-		isVisible(path) {
-			if (path.length < 2) return true;
-			let nodeModels = this.currentValue;
-
-			for (let i = 0; i < path.length - 1; i++) {
-				let ind = path[i];
-				let nodeModel = nodeModels[ind];
-				let isExpanded = nodeModel.isExpanded === undefined ? true : !!nodeModel.isExpanded;
-				if (!isExpanded) return false;
-				nodeModels = nodeModel.children;
-			}
-
-			return true;
 		},
 
 		emitSelect(selectedNodes, event) {
