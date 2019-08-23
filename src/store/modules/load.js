@@ -157,6 +157,32 @@ const actions = {
 			rootState.config = res.data
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('The configuration is loaded')
+			// process removed products if any
+			if (res.data.removedProducts && res.data.removedProducts.length > 0) {
+				const sanatizedProductRoles = {}
+				const productIds = Object.keys(state.myProductsRoles)
+				for (let i = 0; i < productIds.length; i++) {
+					if (!res.data.removedProducts.includes(productIds[i])) {
+						sanatizedProductRoles[productIds[i]] = state.myProductsRoles[productIds[i]]
+					}
+				}
+				state.myProductsRoles = sanatizedProductRoles
+
+				const sanatizedProductSubscriptions = []
+				for (let i = 0; i < state.myProductSubscriptions.length; i++) {
+					if (!res.data.removedProducts.includes(state.myProductSubscriptions[i])) {
+						sanatizedProductSubscriptions.push(state.myProductSubscriptions[i])
+					}
+				}
+				state.myProductSubscriptions = sanatizedProductSubscriptions
+			}
+
+			state.userAssignedProductIds = Object.keys(state.myProductsRoles)
+			// set the array of options to make a selection of products for the next load on sign-in
+			dispatch("setMyProductOptions")
+			// the first (index 0) product is by definition the default product
+			state.currentDefaultProductId = state.myProductSubscriptions[0]
+
 			// prepare for loading the first batch; add the root node for the database name
 			state.treeNodes = [
 				{
@@ -213,7 +239,7 @@ const actions = {
 			rootState.currentDoc.description = window.atob(res.data.description)
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('loadCurrentProduct: product root document with _id + ' + _id + ' is loaded.')
+			if (rootState.debug) console.log('loadCurrentProduct: product document with _id + ' + _id + ' is loaded.')
 			// initialize load parameters in case getFirstProduct is called without signing out first
 			batch = []
 			state.docsCount = 0
@@ -235,7 +261,10 @@ const actions = {
 			})
 	},
 
-	/* Set the options to select one or more products */
+	/*
+	* Set the options to select one or more products
+	* Assume error results are 'not found' instances and ignore them
+	*/
 	setMyProductOptions({
 		rootState,
 		state,
@@ -255,10 +284,12 @@ const actions = {
 			// console.log('setMyProductOptions: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
 			for (let i = 0; i < results.length; i++) {
-				if (results[i].docs[0].ok) {
+				const doc = results[i].docs[0].ok
+				// skip undefined and removed products
+				if (doc && !doc.delMark) {
 					state.myProductOptions.push({
-						value: results[i].docs[0].ok._id,
-						text: results[i].docs[0].ok.title
+						value: doc._id,
+						text: doc.title
 					})
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('setMyProductOptions: The title of document with _id + ' + results[i].docs[0].ok._id + ' is loaded.')
@@ -312,12 +343,6 @@ const actions = {
 				"level": 'INFO'
 			})
 			dispatch('watchdog')
-
-			state.userAssignedProductIds = Object.keys(res.data.productsRoles)
-			// set the array of options to make a selection of products for the next load on sign-in
-			dispatch("setMyProductOptions")
-			// the first (index 0) product is by definition the default product
-			state.currentDefaultProductId = state.myProductSubscriptions[0]
 			dispatch('getConfig')
 		})
 			.catch(error => {
