@@ -806,17 +806,18 @@ export default {
 			return this.getNode(prevVisiblePath, prevVisibleModel)
 		},
 
-		remove(paths) {
-			const pathsStr = paths.map(path => JSON.stringify(path));
+		/* Remove the node and its children from the nodeModel*/
+		remove(path) {
+			const productId = path.length <= PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
 			this.traverseLight((nodePath, nodeModel) => {
-				for (const pathStr of pathsStr) {
-					if (JSON.stringify(nodePath) === pathStr) nodeModel._markToDelete = true;
+				if (this.comparePaths(nodePath, path) === 0) {
+					nodeModel._markToDelete = true
 				}
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:remove');
+			}, productId, 'sl-vue-tree.js:remove');
 
-			this.traverseModels((nodeModel, siblings, ind) => {
+			this.traverseModels((nodeModel, children, ind) => {
 				if (!nodeModel._markToDelete) return;
-				siblings.splice(ind, 1);
+				children.splice(ind, 1);
 			}, this.currentValue)
 		},
 		/*
