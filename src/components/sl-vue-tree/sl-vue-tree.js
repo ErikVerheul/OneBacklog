@@ -727,22 +727,16 @@ export default {
 					// quit the search if all selected nodes are found
 					if (selectedNodes.length === numberOfSelectedNodes) return false
 				}
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getDraggable');
-			return selectedNodes;
+			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getDraggable')
+			return selectedNodes
 		},
 
 		/*
 		 * A faster version of the original
 		 * Use the optinal parameter productId to limit the callback calls to that product only, or use the value 'undefined' to scan all products
-		 * Use the optinal parameter caller to console log the source of the call.
 		 */
-		traverseLight(
-			cb,
-			productId = undefined,
-			caller = undefined) {
-
+		traverseLight(cb, productId = undefined) {
 			let shouldStop = false
-			let count = 0
 			function traverse(
 				cb,
 				nodeModels = null,
@@ -753,7 +747,6 @@ export default {
 
 				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
 					const nodeModel = nodeModels[nodeInd];
-					count++
 					const itemPath = parentPath.concat(nodeInd);
 					// if (caller === 'sl-vue-tree.js:getPrevVisibleNode') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId)
 					if (cb(itemPath, nodeModel, nodeModels) === false) {
@@ -781,10 +774,6 @@ export default {
 				}
 			}
 			traverse(cb, nodeModels, parentPath, productId)
-
-			if (caller !== undefined) {
-				console.log('TRAVERSELIGHT: was called by: ' + caller + ' productId = ' + productId + ' traverse callback is called ' + count + ' times, shouldStop = ' + shouldStop)
-			}
 		},
 
 		traverseModels(cb, nodeModels) {
