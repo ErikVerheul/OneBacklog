@@ -1231,7 +1231,69 @@ const actions = {
 				state.message = error.response.data
 				state.errorMessage = error.message
 			})
-	}
+	},
+
+	createShortIds({
+		state,
+		dispatch
+	}, payload) {
+		this.commit('clearAll')
+		globalAxios({
+			method: 'GET',
+			url: payload.dbName + '/_all_docs',
+			withCredentials: true,
+		}).then(res => {
+			// eslint-disable-next-line no-console
+			console.log(res.data)
+			const docsToUpdate = []
+			for (let i = 0; i < res.data.rows.length; i++) {
+				docsToUpdate.push({ "id": res.data.rows[i].id })
+			}
+			dispatch('updateWithShortIds', docsToUpdate)
+		})
+			.catch(error => {
+				// eslint-disable-next-line no-console
+				console.log(error)
+				state.message = error.response.data
+				state.errorMessage = error.message
+			})
+	},
+
+	updateWithShortIds({
+		rootState,
+		dispatch
+	}, docsToUpdate) {
+		globalAxios({
+			method: 'POST',
+			url: rootState.currentDb + '/_bulk_get',
+			withCredentials: true,
+			data: { "docs": docsToUpdate },
+		}).then(res => {
+			// console.log('updateWithShortIds: res = ' + JSON.stringify(res, null, 2))
+			const results = res.data.results
+			const ok = []
+			for (let i = 0; i < results.length; i++) {
+				if (results[i].docs[0].ok) {
+					// mark for removal
+					let shortId = results[i].docs[0].ok._id.slice(-5)
+					results[i].docs[0].ok["shortId"] = shortId
+					ok.push(results[i].docs[0].ok)
+					// console.log('updateWithShortIds: results[i].docs[0].ok.shortId = ' + results[i].docs[0].ok.shortId)
+				}
+			}
+			dispatch('updateBulk', ok)
+		})
+			.catch(error => {
+				let msg = 'updateWithShortIds: Could not read batch of documents: ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
+
 }
 
 /* Below some data to create a sample database */

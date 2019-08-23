@@ -23,6 +23,7 @@
 				<button @click="deleteDB" class="myButton">9. Delete the selected || created database</button>
 				<button @click="exampleDB" class="myButton">10. Create an example database with demo users</button>
 				<button @click="copyDB" class="myButton">11. Copy a database including permissions</button>
+				<button @click="shortId" class="myButton">12. Create shortId to documents of existing database</button>
 			</div>
 
 			<div class="col-lg-12 col-sm-12">
@@ -133,6 +134,9 @@
 						break
 					case 11:
 						this.copyDBExe()
+						break
+					case 12:
+						this.shortIdExe()
 						break
 					default:
 				}
@@ -349,6 +353,23 @@
 					dbTargetName: this.row.field2,
 				}
 				this.$store.dispatch('copyDB', payload)
+			},
+			shortId() {
+				this.$store.commit('clearAll')
+				this.selectionMade = true
+				this.row = {
+					field1: "Source DB name",
+					field2: "field not used",
+					field3: "field not used",
+					field4: "field not used",
+				}
+				this.commandNr = 12
+			},
+			shortIdExe() {
+				var payload = {
+					dbName: this.row.field1
+				}
+				this.$store.dispatch('createShortIds', payload)
 			},
 		}
 	}
