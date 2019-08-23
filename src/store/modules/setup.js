@@ -61,28 +61,6 @@ const actions = {
 			})
 	},
 
-	updateUser({
-		state
-	}, payload) {
-		this.commit('clearAll')
-		globalAxios({
-			method: 'PUT',
-			url: '/_users/org.couchdb.user:' + this.state.user,
-			withCredentials: true,
-			data: payload.userData
-		}).then(res => {
-			// eslint-disable-next-line no-console
-			console.log(res)
-			state.message = res.data
-		})
-			.catch(error => {
-				// eslint-disable-next-line no-console
-				console.log(error)
-				state.message = error.response.data
-				state.errorMessage = error.message
-			})
-	},
-
 	// Create new product
 	createNewProduct({
 		rootState,
