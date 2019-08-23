@@ -467,6 +467,7 @@ const actions = {
 				})
 			})
 	},
+	/* Mark the descendants of the parent for removal. Do not distribute this event as distributing the parent removal will suffice */
 	removeDescendantsBulk({
 		rootState,
 		dispatch
@@ -487,6 +488,15 @@ const actions = {
 			const error = []
 			for (let i = 0; i < results.length; i++) {
 				if (results[i].docs[0].ok) {
+					const newHist = {
+						"docRemoved": [results[i].docs[0].ok.title],
+						"by": rootState.user,
+						"email": rootState.load.email,
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId,
+						"distributeEvent": false
+					}
+					results[i].docs[0].ok.history.unshift(newHist)
 					// mark for removal
 					results[i].docs[0].ok.delmark = true
 					ok.push(results[i].docs[0].ok)
@@ -718,7 +728,35 @@ const actions = {
 			})
 	},
 
-	// Update current document
+	addToRemovedProducts({
+		rootState,
+		dispatch
+	}, productId) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.currentDb + '/config',
+			withCredentials: true,
+		}).then(res => {
+			const tmpConfig = res.data
+			if (tmpConfig.removedProducts) {
+				tmpConfig.removedProducts.push(productId)
+			} else {
+				tmpConfig.removedProducts = [productId]
+			}
+			dispatch('updateDoc', tmpConfig)
+		})
+			.catch(error => {
+				let msg = 'addToRemovedProducts: Could not read config document ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
+
+	// Update document by creating a new revision
 	updateDoc({
 		rootState,
 		dispatch
@@ -745,7 +783,6 @@ const actions = {
 				})
 			})
 	},
-
 
 }
 
