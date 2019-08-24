@@ -18,7 +18,7 @@
           </b-dropdown>
           <b-nav-form>
             <b-form-input v-model="shortId" class="m-1" placeholder="Select on Id" />
-            <b-form-input v-model="$store.state.keyword" class="m-1" placeholder="Enter a key word"/>
+            <b-form-input id="searchInput" v-model="$store.state.keyword" class="m-1" placeholder="Enter a key word"/>
             <b-button
               id="searchBtn"
               type="button"
@@ -168,15 +168,15 @@ export default {
   mounted() {
     // Add tag when DEMO version
     if (this.$store.state.demo) this.appVersion = this.appVersion + " DEMO";
-    // fire the search button on pressing enter in the one and only input field (instead of submitting the form)
-    // document
-    //   .getElementById("searchInput")
-    //   .addEventListener("keypress", function (event) {
-    //     if (event.keyCode === 13) {
-    //       event.preventDefault()
-    //       document.getElementById("searchBtn").click()
-    //     }
-    //   })
+    // fire the search button on pressing enter in the search input field (instead of submitting the form)
+    document
+      .getElementById("searchInput")
+      .addEventListener("keypress", function (event) {
+        if (event.keyCode === 13) {
+          event.preventDefault()
+          document.getElementById("searchBtn").click()
+        }
+      })
   },
   computed: {
     auth() {
