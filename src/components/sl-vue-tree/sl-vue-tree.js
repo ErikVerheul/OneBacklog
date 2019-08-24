@@ -396,10 +396,6 @@ export default {
 			return this.getClosetElementWithPath($el.parentElement);
 		},
 
-		getNodeEl(path) {
-			this.getRoot().$el.querySelector(`[path="${JSON.stringify(path)}"]`);
-		},
-
 		getLastNode() {
 			let lastPath = []
 			let lastNode
@@ -849,7 +845,7 @@ export default {
 
 		checkNodeIsParent(sourceNode, destNode) {
 			const destPath = destNode.path;
-			return JSON.stringify(destPath.slice(0, sourceNode.path.length)) == sourceNode.pathStr;
+			return this.comparePaths(destPath.slice(0, sourceNode.path.length), sourceNode.pathStr) === 0
 		},
 
 		/* test code */
@@ -931,13 +927,13 @@ export default {
 			if (parentPath.length < PRODUCTLEVEL) return
 
 			this.traverseLight((itemPath, nodeModel) => {
-				if (JSON.stringify(itemPath) !== JSON.stringify(parentPath)) {
+				if (this.comparePaths(itemPath, parentPath) !== 0) {
 					return
 				}
 				nodeModel.doShow = true
 				nodeModel.isExpanded = true
 				return false
-			}, this.$store.state.load.currentProductId, 'showParents')
+			}, undefined, 'showParents')
 			// recurse
 			this.showParents(parentPath)
 		},
