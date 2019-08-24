@@ -8,27 +8,25 @@
         <b-navbar-nav>
           <b-nav-item to="../../userguide">User guide</b-nav-item>
         </b-navbar-nav>
-        <b-dropdown split class="m-2" @click="clearFilterEvent()">
-          <template slot="button-content">{{ $store.state.filterText }}</template>
-          <b-dropdown-item @click="filterSinceEvent(10)">Changes &lt; 10 min.</b-dropdown-item>
-          <b-dropdown-item @click="filterSinceEvent(60)">Changes last hour</b-dropdown-item>
-          <b-dropdown-item @click="filterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
-        </b-dropdown>
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
+          <b-dropdown split class="m-1" @click="clearFilterEvent()">
+            <template slot="button-content">{{ $store.state.filterText }}</template>
+            <b-dropdown-item @click="filterSinceEvent(10)">Changes &lt; 10 min.</b-dropdown-item>
+            <b-dropdown-item @click="filterSinceEvent(60)">Changes last hour</b-dropdown-item>
+            <b-dropdown-item @click="filterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
+          </b-dropdown>
           <b-nav-form>
-            <b-form-input
-              id="searchInput"
-              v-model="$store.state.keyword"
-              class="m-2"
-              placeholder="Enter a key word"
-            />
+            <b-form-input v-model="shortId" class="m-1" placeholder="Select on Id" />
+            <b-form-input v-model="$store.state.keyword" class="m-1" placeholder="Enter a key word"/>
             <b-button
               id="searchBtn"
               type="button"
-              class="m-2"
+              class="m-1"
               @click="showSelectionOrClearEvent()"
-            >{{ $store.state.searchText }}</b-button>
+            >
+            {{ $store.state.searchText }}
+            </b-button>
           </b-nav-form>
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../product">Products</b-dropdown-item>
@@ -158,6 +156,7 @@ export default {
     return {
       appVersion: "OneBackLog v.0.5.5",
       eventBgColor: "#408FAE",
+      shortId: '',
       oldPassword: "",
       newPassword1: "",
       newPassword2: "",
@@ -170,14 +169,14 @@ export default {
     // Add tag when DEMO version
     if (this.$store.state.demo) this.appVersion = this.appVersion + " DEMO";
     // fire the search button on pressing enter in the one and only input field (instead of submitting the form)
-    document
-      .getElementById("searchInput")
-      .addEventListener("keypress", function (event) {
-        if (event.keyCode === 13) {
-          event.preventDefault()
-          document.getElementById("searchBtn").click()
-        }
-      })
+    // document
+    //   .getElementById("searchInput")
+    //   .addEventListener("keypress", function (event) {
+    //     if (event.keyCode === 13) {
+    //       event.preventDefault()
+    //       document.getElementById("searchBtn").click()
+    //     }
+    //   })
   },
   computed: {
     auth() {
@@ -242,7 +241,7 @@ export default {
       if (this.selectedProducts.length === 1) {
         // if just 1 product is selected that product is the default
         this.defaultProductId = this.selectedProducts[0]
-        this.$store.dispatch('updateSubscriptions',  [this.defaultProductId])
+        this.$store.dispatch('updateSubscriptions', [this.defaultProductId])
       } else {
         for (let i = 0; i < this.$store.state.load.myProductOptions.length; i++) {
           if (this.selectedProducts.includes(this.$store.state.load.myProductOptions[i].value)) {
