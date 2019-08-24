@@ -930,7 +930,9 @@ export default {
 				if (this.comparePaths(itemPath, parentPath) !== 0) {
 					return
 				}
+				nodeModel.savedDoShow = nodeModel.doShow
 				nodeModel.doShow = true
+				nodeModel.savedIsExpanded = nodeModel.isExpanded
 				nodeModel.isExpanded = true
 				return false
 			}, undefined, 'showParents')
