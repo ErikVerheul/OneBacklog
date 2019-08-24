@@ -18,15 +18,7 @@
           </b-dropdown>
           <b-nav-form>
             <b-form-input v-model="shortId" class="m-1" placeholder="Select on Id" />
-            <b-form-input id="searchInput" v-model="$store.state.keyword" class="m-1" placeholder="Enter a key word"/>
-            <b-button
-              id="searchBtn"
-              type="button"
-              class="m-1"
-              @click="showSelectionOrClearEvent()"
-            >
-            {{ $store.state.searchText }}
-            </b-button>
+            <b-form-input id="searchInput" v-model="$store.state.keyword" class="m-1" placeholder="Search titles on key word"/>
           </b-nav-form>
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../product">Products</b-dropdown-item>
@@ -171,10 +163,10 @@ export default {
     // fire the search button on pressing enter in the search input field (instead of submitting the form)
     document
       .getElementById("searchInput")
-      .addEventListener("keypress", function (event) {
+      .addEventListener("keypress",  (event) => {
         if (event.keyCode === 13) {
           event.preventDefault()
-          document.getElementById("searchBtn").click()
+          this.showSelectionOrClearEvent()
         }
       })
   },
