@@ -39,7 +39,7 @@
         </h3>
       </span>
       <span class="d-table-cell tac">
-        <h3>{{ $store.state.load.currentProductTitle }} (Id = {{ $store.state.currentDoc.shortId }})</h3>
+        <h3>{{ $store.state.load.currentProductTitle }}</h3>
       </span>
       <span class="d-table-cell tar">
         <h3>
@@ -144,6 +144,9 @@
                 :value="$store.state.currentDoc.title"
                 @blur="updateTitle()"
               ></b-input>
+              <div class="d-table-cell tac">
+                Id = {{ $store.state.currentDoc.shortId }}
+               </div>
               <div class="d-table-cell tar">
                 <b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
               </div>
