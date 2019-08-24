@@ -549,6 +549,8 @@ export default {
 					window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
 					// update current productId
 					this.$store.state.load.currentProductId = firstNodeSelected.productId
+					// update the current product title
+					this.$store.state.load.currentProductTitle = firstNodeSelected.title
 					// expand the newly selected product up to the feature level
 					window.slVueTree.expandTree(FEATURELEVEL)
 				}
