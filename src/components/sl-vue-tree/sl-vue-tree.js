@@ -263,8 +263,12 @@ export default {
 					nodeModel.isSelected = nodeModel.isSelectable
 				} else nodeModel.isSelected = false
 
-				if (itemPath.length > PRODUCTLEVEL && nodeModel.productId !== productId) {
-					nodeModel.doShow = false
+				if (itemPath.length > PRODUCTLEVEL) {
+					if (nodeModel.productId === productId) {
+						nodeModel.doShow = true
+					} else {
+						nodeModel.doShow = false
+					}
 				}
 				if (itemPath.length === PRODUCTLEVEL && nodeModel.productId !== productId) {
 					nodeModel.isExpanded = false
