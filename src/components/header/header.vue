@@ -17,8 +17,13 @@
             <b-dropdown-item @click="filterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
           </b-dropdown>
           <b-nav-form>
-            <b-form-input v-model="shortId" class="m-1" placeholder="Select on Id" />
-            <b-form-input id="searchInput" v-model="$store.state.keyword" class="m-1" placeholder="Search titles on key word"/>
+            <b-form-input id="selectOnId" v-model="shortId" class="m-1" placeholder="Select on Id" />
+            <b-form-input
+              id="searchInput"
+              v-model="$store.state.keyword"
+              class="m-1"
+              placeholder="Search titles on key word"
+            />
           </b-nav-form>
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../product">Products</b-dropdown-item>
@@ -141,12 +146,14 @@
 
 
 <script>
-import licence from "./licence.vue";
+import licence from "./licence.vue"
+
+const FEATURELEVEL = 2
 
 export default {
   data() {
     return {
-      appVersion: "OneBackLog v.0.5.5",
+      appVersion: "OneBackLog v.0.6.0",
       eventBgColor: "#408FAE",
       shortId: '',
       oldPassword: "",
@@ -159,16 +166,26 @@ export default {
   },
   mounted() {
     // Add tag when DEMO version
-    if (this.$store.state.demo) this.appVersion = this.appVersion + " DEMO";
-    // fire the search button on pressing enter in the search input field (instead of submitting the form)
-    document
-      .getElementById("searchInput")
-      .addEventListener("keypress",  (event) => {
-        if (event.keyCode === 13) {
-          event.preventDefault()
-          this.showSelectionOrClearEvent()
-        }
-      })
+    if (this.$store.state.demo) this.appVersion = this.appVersion + " DEMO",
+      // fire the search button on pressing enter in the select-on-Id input field (instead of submitting the form)
+      document
+        .getElementById("selectOnId")
+        .addEventListener("keypress", (event) => {
+          if (event.keyCode === 13) {
+            event.preventDefault()
+            // this.$store.dispatch('getItemByShortId', this.shortId)
+            this.selectNode(this.shortId)
+          }
+        }),
+      // fire the search button on pressing enter in the search input field (instead of submitting the form)
+      document
+        .getElementById("searchInput")
+        .addEventListener("keypress", (event) => {
+          if (event.keyCode === 13) {
+            event.preventDefault()
+            this.showSelectionOrClearEvent()
+          }
+        })
   },
   computed: {
     auth() {
@@ -181,6 +198,46 @@ export default {
     }
   },
   methods: {
+    selectNode(shortId) {
+      let node
+      window.slVueTree.traverseLight((nodePath, nodeModel) => {
+        if (nodeModel.shortId === shortId) {
+          node = window.slVueTree.getNode(nodePath, nodeModel)
+          return false
+        }
+      }, undefined, 'header.js:selectNode')
+      if (node) {
+        // if the user clicked on a node of another product
+        if (this.$store.state.load.currentProductId !== node.productId) {
+          // clear any outstanding filters if any
+          if (this.$store.state.filterOn || this.$store.state.searchOn) {
+            window.slVueTree.resetFilters('nodeSelectedEvent')
+          }
+          // collapse the previously selected product
+          window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
+          // update current productId and title
+          this.$store.state.load.currentProductId = node.productId
+          this.$store.state.load.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
+        } else {
+          // collapse the currently selected product
+          window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
+        }
+        // expand the newly selected product up to the found item
+          window.slVueTree.showItem(node)
+        // load the document if not already in memory
+        if (node._id !== this.$store.state.currentDoc._id) {
+          this.$store.dispatch('loadDoc', node._id)
+        }
+
+      }
+
+
+
+
+      node.isSelected = true
+      console.log('selectNode: treeNodeModel.title = ' + node.title)
+    },
+
     filterSinceEvent(val) {
       if (this.$store.state.filterOn) {
         window.slVueTree.resetFilters("filterSinceEvent")
