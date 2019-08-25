@@ -111,7 +111,7 @@
                   <font-awesome-icon icon="bug" />
                 </i>
               </span>
-              {{ node.title }}
+              {{ node.title }} : {{ node.shortId }}
               <b-badge variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
             </template>
 
@@ -360,6 +360,7 @@
 * productId: doc.productId,
 * parentId: doc.parentId,
 * _id: doc._id,
+* shortId: doc.shortId,
 * title: doc.title,
 * isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
 * children: [],
