@@ -186,6 +186,7 @@ export default {
 				productId: nodeModel.productId,
 				parentId: nodeModel.parentId,
 				_id: nodeModel._id,
+				shortId: nodeModel.shortId,
 				title: nodeModel.title,
 				isLeaf: !!nodeModel.isLeaf,
 				children: nodeModel.children && nodeModel.children.length > 0 ? this.getNodes(nodeModel.children, path, isExpanded) : [],
@@ -246,52 +247,38 @@ export default {
 			// set the current productId. when on root level leave as is. emitSelect will set it a change globally
 			let productId = path.length === ROOTLEVEL ? this.$store.state.load.currentProductId : selectedNode.productId
 			const selectedNodes = []
-
+			const shiftSelectionMode = false
+			// only shift-select above productlevel
 			if (path.length > PRODUCTLEVEL) {
 				const shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && this.lastSelectedNode
-				// only select nodes on the same level
+				// only shift select nodes on the same level
 				if (shiftSelectionMode && path.length !== this.lastSelectedNode.level) return
-
-				this.traverseLight((itemPath, nodeModel) => {
-					if (shiftSelectionMode) {
-						if (this.comparePaths(itemPath, selectedNode.path) === 0) {
-							nodeModel.isSelected = nodeModel.isSelectable
-						}
-					} else if (this.comparePaths(itemPath, selectedNode.path) === 0) {
+			}
+			this.traverseLight((itemPath, nodeModel) => {
+				if (shiftSelectionMode) {
+					if (this.comparePaths(itemPath, selectedNode.path) === 0) {
 						nodeModel.isSelected = nodeModel.isSelectable
-					} else nodeModel.isSelected = false
+					}
+				} else if (this.comparePaths(itemPath, selectedNode.path) === 0) {
+					nodeModel.isSelected = nodeModel.isSelectable
+				} else nodeModel.isSelected = false
 
-					if (nodeModel.isSelected) {
-						let node = this.getNode(itemPath, nodeModel)
-						selectedNodes.push(node)
-					}
-				}, productId, 'sl-vue-tree.js:select')
-			} else {
-				// root or a product top node is selected
-				selectedNodes.push(selectedNode)
-			}
-
-			// when moving to another product deselect all but the selected top node
-			// make the nodes under the product nodes of the selected product visible and the nodes under other product nodes invisible
-			// collapse the branche of the product that was slected before
-			const previousProductId = this.$store.state.load.currentProductId
-			if (productId !== previousProductId) {
-				this.traverseLight((itemPath, nodeModel) => {
-					if (nodeModel._id !== selectedNode._id) {
-						nodeModel.isSelected = false
-					}
-					if (itemPath.length > PRODUCTLEVEL) {
-						nodeModel.doShow = nodeModel.productId === selectedNode.productId
-					}
-					if (nodeModel.productId === previousProductId) {
-						nodeModel.isExpanded = false
-					}
-				}, undefined, 'sl-vue-tree.js:select.deselect')
-			}
-
+				if (itemPath.length > PRODUCTLEVEL && nodeModel.productId !== productId) {
+					nodeModel.doShow = false
+				}
+				if (itemPath.length === PRODUCTLEVEL && nodeModel.productId !== productId) {
+					nodeModel.isExpanded = false
+				}
+				if (nodeModel.isSelected) {
+					let node = this.getNode(itemPath, nodeModel)
+					selectedNodes.push(node)
+				}
+			}, undefined, 'sl-vue-tree.js:select')
 			this.lastSelectedNode = selectedNode
 			numberOfSelectedNodes = selectedNodes.length
-			if (numberOfSelectedNodes > 0) this.emitSelect(selectedNodes, event)
+			if (numberOfSelectedNodes > 0) {
+				this.emitSelect(selectedNodes, event)
+			}
 		},
 
 		onMousemoveHandler(event) {
@@ -330,10 +317,6 @@ export default {
 			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY)
 			const destNode = cursorPosition.node
 			const placement = cursorPosition.placement
-
-			if (isDragStarted && !destNode.isSelected) {
-				this.select(cursorPosition, event)
-			}
 
 			this.isDragging = isDragging
 
@@ -394,6 +377,18 @@ export default {
 			if (!$el) return null;
 			if ($el.getAttribute('path')) return $el;
 			return this.getClosetElementWithPath($el.parentElement);
+		},
+
+		getProductTitle(productId) {
+			if (this.currentValue[0].children) {
+				const products = this.currentValue[0].children
+				for (let i = 0; i < products.length; i++) {
+					if (products[i].productId === productId) {
+						return products[i].title
+					}
+				}
+			}
+			return 'product title not found'
 		},
 
 		getLastNode() {
@@ -474,6 +469,15 @@ export default {
 				if (path1[i] < path2[i]) return -1;
 			}
 			return path2[path1.length] === undefined ? 0 : -1;
+		},
+
+		/* Returns true if the path starts with the subPath */
+		isInPath(subPath, path) {
+			if (subPath.length > path.length) return false
+			for (let i = 0; i < subPath.length; i++) {
+				if (subPath[i] !== path[i]) return false
+			}
+			return true
 		},
 
 		onNodeMousedownHandler(event, node) {
@@ -887,9 +891,29 @@ export default {
 					nodeModel.savedIsExpanded = true
 					nodeModel.doShow = true
 				}
-				// show the node
+				// show the nodes
 				nodeModel.doShow = true
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree:expandTree')
+			// this.showVisibility('expandTree')
+		},
+
+		showItem(node) {
+			this.traverseLight((itemPath, nodeModel) => {
+				// unselect previous selections
+				nodeModel.isSelected = false
+				// if on the node path
+				if (this.isInPath(itemPath, node.path)) {
+					nodeModel.savedIsExpanded = nodeModel.isExpanded
+					nodeModel.isExpanded = true
+					nodeModel.savedDoShow = nodeModel.doShow
+					nodeModel.doShow = true
+				}
+				// select the item
+				if (nodeModel.shortId === node.shortId) {
+					nodeModel.isSelected = true
+					return false
+				}
+			}, undefined, 'sl-vue-tree:showItem')
 			// this.showVisibility('expandTree')
 		},
 
@@ -995,6 +1019,6 @@ export default {
 			}
 			this.$store.state.searchOn = true
 			//			this.showVisibility('filterOnKeyword')
-		},
+		}
 	}
 }
