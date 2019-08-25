@@ -547,11 +547,10 @@ export default {
 					}
 					// collapse the previously selected product
 					window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
-					// update current productId
+					// update current productId and title
 					this.$store.state.load.currentProductId = firstNodeSelected.productId
-					// update the current product title
 					this.$store.state.load.currentProductTitle = firstNodeSelected.title
-					// expand the newly selected product up to the feature level
+					// expand the newly selected product up to the feature level and select the product node again
 					window.slVueTree.expandTree(FEATURELEVEL)
 				}
 			}
