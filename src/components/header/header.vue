@@ -17,7 +17,13 @@
             <b-dropdown-item @click="filterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
           </b-dropdown>
           <b-nav-form>
-            <b-form-input id="selectOnId" v-model="shortId" class="m-1" placeholder="Select on Id" />
+            <b-form-input
+              id="selectOnId"
+              v-model="$store.state.shortId"
+              :state="shortIdState"
+              class="m-1"
+              placeholder="Select on Id"
+            />
             <b-form-input
               id="searchInput"
               v-model="$store.state.keyword"
@@ -155,7 +161,6 @@ export default {
     return {
       appVersion: "OneBackLog v.0.6.0",
       eventBgColor: "#408FAE",
-      shortId: '',
       oldPassword: "",
       newPassword1: "",
       newPassword2: "",
@@ -173,8 +178,14 @@ export default {
         .addEventListener("keypress", (event) => {
           if (event.keyCode === 13) {
             event.preventDefault()
-            // this.$store.dispatch('getItemByShortId', this.shortId)
-            this.selectNode(this.shortId)
+            // this.$store.dispatch('getItemByShortId', this.$store.state.shortId)
+            // check for valid input and convert to lowercase
+            if (this.shortIdState) {
+              this.selectNode(this.$store.state.shortId.toLowerCase())
+              // entering an empty string clears the search
+              } else if (this.$store.state.shortId === '') {
+                window.slVueTree.resetFilters('selectOnId')
+              }
           }
         }),
       // fire the search button on pressing enter in the search input field (instead of submitting the form)
@@ -195,10 +206,22 @@ export default {
       return (
         this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin
       );
+    },
+    shortIdState() {
+      if (this.$store.state.shortId.length !== 5) return false
+
+      const digits = '0123456789'
+      const hex = '0123456789abcdefABCDEF'
+      if (!digits.includes(this.$store.state.shortId.substring(0, 1))) return false
+      for (let i = 1; i < this.$store.state.shortId.length; i++) {
+        if (!hex.includes(this.$store.state.shortId.substring(i, i + 1))) return false
+      }
+      return true
     }
   },
   methods: {
     selectNode(shortId) {
+      console.log('selectNode is called')
       let node
       window.slVueTree.traverseLight((nodePath, nodeModel) => {
         if (nodeModel.shortId === shortId) {
@@ -207,9 +230,10 @@ export default {
         }
       }, undefined, 'header.js:selectNode')
       if (node) {
+        this.$store.state.findIdOn = true
         // if the user clicked on a node of another product
         if (this.$store.state.load.currentProductId !== node.productId) {
-          // clear any outstanding filters if any
+          // clear any outstanding filters
           if (this.$store.state.filterOn || this.$store.state.searchOn) {
             window.slVueTree.resetFilters('nodeSelectedEvent')
           }
@@ -219,23 +243,24 @@ export default {
           this.$store.state.load.currentProductId = node.productId
           this.$store.state.load.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
         } else {
-          // collapse the currently selected product
+          // node on current product; collapse the currently selected product
           window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
         }
         // expand the newly selected product up to the found item
-          window.slVueTree.showItem(node)
+        window.slVueTree.showItem(node)
         // load the document if not already in memory
         if (node._id !== this.$store.state.currentDoc._id) {
           this.$store.dispatch('loadDoc', node._id)
         }
+        node.isSelected = true
+        console.log('selectNode: treeNodeModel.title = ' + node.title)
 
       }
 
 
 
 
-      node.isSelected = true
-      console.log('selectNode: treeNodeModel.title = ' + node.title)
+
     },
 
     filterSinceEvent(val) {
