@@ -22,7 +22,6 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
-var autoSelectedProduct = true
 var firstNodeSelected
 var numberOfNodesSelected = 0
 var newNode = {}
@@ -527,14 +526,6 @@ export default {
 				return
 			}
 			numberOfNodesSelected = selNodes.length
-			// if this is the first manual node(s) selection
-			if (autoSelectedProduct) {
-				// unselect that node
-				window.slVueTree.updateNode(firstNodeSelected.path, {
-					isSelected: false
-				});
-				autoSelectedProduct = false
-			}
 			// update the first (highest in hierarchie) selected node
 			firstNodeSelected = selNodes[0]
 			// if the root node is selected do nothing
@@ -984,6 +975,7 @@ export default {
 				productId: this.$store.state.load.currentProductId,
 				parentId: null,
 				_id: null,
+				shortId: null,
 				title: 'is calculated in this method',
 				isLeaf: 'is calculated in this method',
 				children: [],
@@ -1029,6 +1021,7 @@ export default {
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
 				newNode._id = newId
+				newNode.shortId = newId.slice(-5)
 
 				this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
 				if (newNodeLocation.placement === 'inside') {
@@ -1054,6 +1047,7 @@ export default {
 				// create a new document and store it
 				const initData = {
 					"_id": insertedNode._id,
+					"shortId": insertedNode.shortId,
 					"type": "backlogItem",
 					"productId": insertedNode.productId,
 					"parentId": insertedNode.parentId,
