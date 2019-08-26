@@ -72,14 +72,14 @@ Vue.use(Vuex)
  */
 
 const FILTERBUTTONTEXT = 'Recent changes'
-const SEARCHBUTTONTEXT = 'Search'
 
 export default new Vuex.Store({
 
 	state: {
 		filterText: FILTERBUTTONTEXT,
 		filterOn: false,
-		searchText: SEARCHBUTTONTEXT,
+		findIdOn: false,
+		shortId: '',
 		searchOn: false,
 		keyword: '',
 		listenForChangesRunning: false,

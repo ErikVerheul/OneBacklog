@@ -909,7 +909,7 @@ export default {
 				if (this.isInPath(itemPath, node.path)) {
 					nodeModel.savedIsExpanded = nodeModel.isExpanded
 					nodeModel.isExpanded = true
-					nodeModel.savedDoShow = nodeModel.doShow
+					nodeModel.savedDoShow = true
 					nodeModel.doShow = true
 				}
 				// select the item
@@ -922,14 +922,26 @@ export default {
 		},
 
 		/* clear any outstanding filters */
-		resetFilters(caller) {
+		resetFilters(caller, productSwitch = false) {
 			// eslint-disable-next-line no-console
 			console.log('resetFilters is called by ' + caller)
 
 			function doReset(vm, productId) {
 				vm.traverseLight((itemPath, nodeModel) => {
-					nodeModel.doShow = nodeModel.savedDoShow
-					nodeModel.isExpanded = nodeModel.savedIsExpanded
+					if (productSwitch) {
+						if (itemPath.length > PRODUCTLEVEL) {
+							if (nodeModel.productId === productId) {
+								nodeModel.doShow = true
+								nodeModel.isExpanded = nodeModel.savedIsExpanded
+							} else {
+								nodeModel.doShow = false
+							}
+						}
+					} else {
+						nodeModel.doShow = nodeModel.savedDoShow
+						nodeModel.isExpanded = nodeModel.savedIsExpanded
+					}
+
 				}, productId, 'sl-vue-tree:resetFilters')
 			}
 
@@ -946,7 +958,7 @@ export default {
 			}
 			if (this.$store.state.findIdOn) {
 				doReset(this, this.$store.state.load.currentProductId)
-				this.showLastEvent(`Your selection on product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
+				this.showLastEvent(`Your view on product '${this.$store.state.load.currentProductTitle}' is restored`, INFO)
 				this.$store.state.findIdOn = false
 			}
 		},

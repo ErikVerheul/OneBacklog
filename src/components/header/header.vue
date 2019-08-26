@@ -155,6 +155,8 @@
 import licence from "./licence.vue"
 
 const FEATURELEVEL = 2
+const INFO = 0
+var productSwitch = false
 
 export default {
   data() {
@@ -178,13 +180,12 @@ export default {
         .addEventListener("keypress", (event) => {
           if (event.keyCode === 13) {
             event.preventDefault()
-            // this.$store.dispatch('getItemByShortId', this.$store.state.shortId)
             // check for valid input and convert to lowercase
             if (this.shortIdState) {
               this.selectNode(this.$store.state.shortId.toLowerCase())
               // entering an empty string clears the search
               } else if (this.$store.state.shortId === '') {
-                window.slVueTree.resetFilters('selectOnId')
+                window.slVueTree.resetFilters('selectOnId', productSwitch)
               }
           }
         }),
@@ -233,6 +234,7 @@ export default {
         this.$store.state.findIdOn = true
         // if the user clicked on a node of another product
         if (this.$store.state.load.currentProductId !== node.productId) {
+          productSwitch = true
           // clear any outstanding filters
           if (this.$store.state.filterOn || this.$store.state.searchOn) {
             window.slVueTree.resetFilters('nodeSelectedEvent')
@@ -242,7 +244,9 @@ export default {
           // update current productId and title
           this.$store.state.load.currentProductId = node.productId
           this.$store.state.load.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
+          window.slVueTree.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
         } else {
+          productSwitch = false
           // node on current product; collapse the currently selected product
           window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
         }
@@ -253,14 +257,10 @@ export default {
           this.$store.dispatch('loadDoc', node._id)
         }
         node.isSelected = true
-        console.log('selectNode: treeNodeModel.title = ' + node.title)
-
+      } else {
+        // the node is not found in the current product selection; try to find it in the database
+        this.$store.dispatch('getItemByShortId', shortId)
       }
-
-
-
-
-
     },
 
     filterSinceEvent(val) {

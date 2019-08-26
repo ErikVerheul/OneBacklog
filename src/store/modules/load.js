@@ -463,7 +463,7 @@ const actions = {
 				const doc = rows[0].doc
 				if (state.userAssignedProductIds.includes(doc.productId)) {
 					if (rows.length === 1) {
-						state.lastEvent = `The document with id ${shortId} is found.`
+						state.lastEvent = `The document with id ${shortId} is found but not in your selected products.`
 					} else {
 						state.lastEvent = `${rows.length} documents with id ${shortId} are found. The first one is displayed.`
 						let ids = ''
@@ -483,9 +483,9 @@ const actions = {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('getItemByShortId: document with _id + ' + doc._id + ' is loaded.')
 				} else {
-					state.lastEvent = `The document with id ${shortId} is found but not in your assigned products`
+					state.lastEvent = `The document with id ${shortId} is found but not in your assigned products.`
 				}
-			} else state.lastEvent = `The document with id ${shortId} is NOT found.`
+			} else state.lastEvent = `The document with id ${shortId} is NOT found in the database.`
 		})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getItemByShortId: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
