@@ -107,6 +107,7 @@ const mutations = {
 						productId: batch[i].doc.productId,
 						parentId: parentId,
 						_id: batch[i].doc._id,
+						shortId: batch[i].doc.shortId,
 						title: batch[i].doc.title,
 						isLeaf: (level === PBILEVEL) ? true : false,
 						// for now PBI's have no children
@@ -189,6 +190,7 @@ const actions = {
 					"productId": "root",
 					"parentId": null,
 					"_id": "root",
+					"shortId": "0",
 					"title": rootState.currentDb,
 					"children": [],
 					"isSelectable": true,
@@ -440,6 +442,53 @@ const actions = {
 		})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getFirstProduct: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
+	},
+
+	getItemByShortId({
+		rootState,
+		state,
+		dispatch
+	}, shortId) {
+		const rangeStr = '/_design/design1/_view/shortIdFilter?startkey=["' + shortId + '"]&endkey=["' + shortId + '"]&include_docs=true'
+		globalAxios({
+			method: 'GET',
+			url: rootState.currentDb + rangeStr,
+			withCredentials: true,
+		}).then(res => {
+			const rows = res.data.rows
+			if (rows.length > 0) {
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('getItemByShortId: ' + rows.length + ' documents are found')
+				// take the fist document found
+				const doc = rows[0].doc
+				if (state.userAssignedProductIds.includes(doc.productId)) {
+					if (rows.length === 1) {
+						state.lastEvent = `The document with id ${shortId} is found.`
+					} else {
+						state.lastEvent = `${rows.length} documents with id ${shortId} are found. The first one is displayed.`
+						let ids = ''
+						for (let i =0 ; i < rows.length; i++) {
+							ids += rows[i].doc._id + ', '
+						}
+						const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
+						if (rootState.currentDb) dispatch('doLog', {
+							event: msg,
+							level: "WARNING"
+						})
+					}
+					rootState.currentDoc = doc
+					// decode from base64 + replace the encoded data
+					rootState.currentDoc.description = window.atob(doc.description)
+					rootState.currentDoc.acceptanceCriteria = window.atob(doc.acceptanceCriteria)
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('getItemByShortId: document with _id + ' + doc._id + ' is loaded.')
+				} else {
+					state.lastEvent = `The document with id ${shortId} is found but not in your assigned products`
+				}
+			} else state.lastEvent = `The document with id ${shortId} is NOT found.`
+		})
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('getItemByShortId: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 	// Load current document by _id

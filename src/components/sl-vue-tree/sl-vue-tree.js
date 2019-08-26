@@ -127,17 +127,16 @@ export default {
 	},
 	methods: {
 
-		getProductNodes(treeNodes, productId) {
-			const projectModels = treeNodes[0].children
-			for (let i = 0; i < projectModels.length; i++) {
-				if (projectModels[i].productId === productId) {
+		getProductNodels(treeNodes, productId) {
+			const productModels = treeNodes[0].children
+			for (let i = 0; i < productModels.length; i++) {
+				if (productModels[i].productId === productId) {
 					return {
-						projectNodes: projectModels[i].children,
+						productNodes: productModels[i].children,
 						parentPath: [0, i]
 					}
 				}
 			}
-			console.log('getProductNodes: WARNING product with id ' + productId + ' not found')
 			return null
 		},
 
@@ -149,7 +148,7 @@ export default {
 			this.getParent().setCursorPosition(pos);
 		},
 
-		saveSelectCursorPosition(pos) {
+		saveSelectedCursorPosition(pos) {
 			this.lastSelectCursorPosition = pos
 		},
 
@@ -239,7 +238,7 @@ export default {
 			const selectedNode = cursorPosition.node
 			const path = selectedNode.path
 
-			this.saveSelectCursorPosition({
+			this.saveSelectedCursorPosition({
 				node: selectedNode,
 				placement: cursorPosition.placement
 			})
@@ -700,12 +699,13 @@ export default {
 		},
 
 		getSelectedProduct() {
-			const projectModels = this.currentValue[0].children
-			for (let i = 0; i < projectModels.length; i++) {
-				if (projectModels[i].isSelected) {
-					return this.getNode([0, i], projectModels[i])
+			const productModels = this.currentValue[0].children
+			for (let i = 0; i < productModels.length; i++) {
+				if (productModels[i].isSelected) {
+					return this.getNode([0, i], productModels[i])
 				}
 			}
+			// ToDo: write this to the log
 			console.log('getSelectedProduct: ERROR product not found')
 			return null
 		},
@@ -768,9 +768,9 @@ export default {
 			let nodeModels = this.currentValue
 			if (productId !== undefined) {
 				// restrict the traversal to the nodes of one product
-				const product = this.getProductNodes(this.currentValue, productId)
+				const product = this.getProductNodels(this.currentValue, productId)
 				if (product !== null) {
-					nodeModels = product.projectNodes
+					nodeModels = product.productNodes
 					parentPath = product.parentPath
 				} else {
 					// product not found: traverse the whole tree
@@ -938,14 +938,16 @@ export default {
 				this.showLastEvent(`Your filter in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.filterText = FILTERBUTTONTEXT
 				this.$store.state.filterOn = false
-				// this.showVisibility('resetFilters')
 			}
 			if (this.$store.state.searchOn) {
 				doReset(this, this.$store.state.load.currentProductId)
 				this.showLastEvent(`Your search in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.searchOn = false
-				this.$store.state.keyword = ''
-				// this.showVisibility('resetFilters')
+			}
+			if (this.$store.state.findIdOn) {
+				doReset(this, this.$store.state.load.currentProductId)
+				this.showLastEvent(`Your selection on product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
+				this.$store.state.findIdOn = false
 			}
 		},
 
