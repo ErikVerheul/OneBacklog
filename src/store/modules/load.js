@@ -18,7 +18,6 @@ const state = {
 	docsCount: 0,
 	itemsCount: 0,
 	orphansCount: 0,
-	lastEvent: '',
 	currentDefaultProductId: null,
 	currentProductId: null,
 	productIdLoading: null,
