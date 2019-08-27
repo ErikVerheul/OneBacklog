@@ -244,12 +244,12 @@ export default {
           // update current productId and title
           this.$store.state.load.currentProductId = node.productId
           this.$store.state.load.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
-          this.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
         } else {
           productSwitch = false
           // node on current product; collapse the currently selected product
           window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
         }
+        this.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
         // expand the newly selected product up to the found item
         window.slVueTree.showItem(node)
         // load the document if not already in memory

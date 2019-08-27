@@ -70,6 +70,7 @@ const actions = {
 		// create a new document and store it
 		const newDoc = {
 			"_id": _id,
+			"shortId": _id.slice(-5),
 			"type": "backlogItem",
 			"productId": _id,
 			"parentId": 'root',
@@ -139,6 +140,7 @@ const actions = {
 		// create a new document and store it
 		const newDoc = {
 			"_id": _id,
+			"shortId": _id.slice(-5),
 			"type": "backlogItem",
 			"productId": payload.productId,
 			"parentId": payload.parentId,
@@ -210,6 +212,7 @@ const actions = {
 		// create a new document and store it
 		const newDoc = {
 			"_id": _id,
+			"shortId": _id.slice(-5),
 			"type": "backlogItem",
 			"productId": payload.productId,
 			"parentId": payload.parentId,
@@ -280,6 +283,7 @@ const actions = {
 		// create a new document and store it
 		const newDoc = {
 			"_id": _id,
+			"shortId": _id.slice(-5),
 			"type": "backlogItem",
 			"productId": payload.productId,
 			"parentId": payload.parentId,
@@ -652,7 +656,7 @@ const actions = {
 				state.errorMessage = error.message
 			})
 
-		// Add the _design document
+		// Add the _design documents
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/_design/design1',
@@ -671,7 +675,14 @@ const actions = {
 					 */
 					"changesFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.history[0].distributeEvent) emit(doc._id, 1);}'
+					},
+					/*
+					 * Filter on document type 'backlogItem', then sort on shortId.
+					 */
+					"shortIdFilter" : {
+						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.shortId], 1);}'
 					}
+
 				},
 				"language": "javascript"
 			}
@@ -774,6 +785,7 @@ const actions = {
 				},
 				{
 					"_id": "root",
+					"shortId": "0",
 					"type": "backlogItem",
 					"level": 1,
 					"title": "The root of all products in this database",
@@ -797,6 +809,7 @@ const actions = {
 				},
 				{
 					"_id": "1552140438968e1e9",
+					"shortId": "8e1e9",
 					"type": "backlogItem",
 					"productId": "15521398069875394",
 					"parentId": "1552139972020f641",
@@ -829,6 +842,7 @@ const actions = {
 				},
 				{
 					"_id": "15521397677068926",
+					"shortId": "68926",
 					"type": "backlogItem",
 					"productId": null,
 					"parentId": "root",
@@ -857,6 +871,7 @@ const actions = {
 				},
 				{
 					"_id": "15521398069875394",
+					"shortId": "75394",
 					"type": "backlogItem",
 					"productId": "15521398069875394",
 					"parentId": "root",
@@ -888,6 +903,7 @@ const actions = {
 				},
 				{
 					"_id": "15521399035145bef",
+					"shortId": "45bef",
 					"type": "backlogItem",
 					"productId": "15521398069875394",
 					"parentId": "15521398069875394",
@@ -919,6 +935,7 @@ const actions = {
 				},
 				{
 					"_id": "15537241758603a32",
+					"shortId": "03a32",
 					"type": "backlogItem",
 					"productId": "15521398069875394",
 					"parentId": "15521398069875394",
@@ -950,6 +967,7 @@ const actions = {
 				},
 				{
 					"_id": "1552139972020f641",
+					"shortId": "0f641",
 					"type": "backlogItem",
 					"productId": "15521398069875394",
 					"parentId": "15521399035145bef",
@@ -982,6 +1000,7 @@ const actions = {
 				},
 				{
 					"_id": "1552139986318cf68",
+					"shortId": "8cf68",
 					"type": "backlogItem",
 					"productId": "15521398069875394",
 					"parentId": "1552139972020f641",
@@ -1014,6 +1033,7 @@ const actions = {
 				},
 				{
 					"_id": "1552406429497867d",
+					"shortId": "7867d",
 					"type": "backlogItem",
 					"productId": "15521398069875394",
 					"parentId": "1552139972020f641",
@@ -1047,6 +1067,7 @@ const actions = {
 
 				{
 					"_id": "1552152600149c2ac",
+					"shortId": "9c2ac",
 					"type": "backlogItem",
 					"productId": "1552152600149c2ac",
 					"parentId": "root",
@@ -1078,6 +1099,7 @@ const actions = {
 				},
 				{
 					"_id": "155215264241301dd",
+					"shortId": "301dd",
 					"type": "backlogItem",
 					"productId": "1552152600149c2ac",
 					"parentId": "1552152600149c2ac",
@@ -1109,6 +1131,7 @@ const actions = {
 				},
 				{
 					"_id": "1552152658206bb2f",
+					"shortId": "6bb2f",
 					"type": "backlogItem",
 					"productId": "1552152600149c2ac",
 					"parentId": "155215264241301dd",

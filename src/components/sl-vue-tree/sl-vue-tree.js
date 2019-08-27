@@ -334,7 +334,7 @@ export default {
 
 		getCursorPositionFromCoords(x, y) {
 			const $target = document.elementFromPoint(x, y);
-			const $nodeItem = $target.getAttribute('path') ? $target : this.getClosetElementWithPath($target);
+			const $nodeItem = $target.getAttribute('path') ? $target : this.getClosestElementWithPath($target);
 			let destNode;
 			let placement;
 
@@ -379,10 +379,10 @@ export default {
 			};
 		},
 
-		getClosetElementWithPath($el) {
+		getClosestElementWithPath($el) {
 			if (!$el) return null;
 			if ($el.getAttribute('path')) return $el;
-			return this.getClosetElementWithPath($el.parentElement);
+			return this.getClosestElementWithPath($el.parentElement);
 		},
 
 		getProductTitle(productId) {

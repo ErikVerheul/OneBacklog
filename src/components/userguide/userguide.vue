@@ -5,15 +5,24 @@
 				<h1>USER GUIDE</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
 				<h4>The header</h4>
-				<p class="indent10">Always mention the version number located after the app name when reporting issues. When you click on the release number you will get the <b>realease notes</b>.</p>
+				<p class="indent10">Always mention the version number located after the app name when reporting issues. When you click on the release number you will the <b>realease notes </b> will be displayed.</p>
 				<h5>User guide</h5>
 				<p class="indent10">This text</p>
 				<h5>Filter on time</h5>
 				<p class="indent10">With the split button next to the 'user guide' you can open a drop down list with 3 choices: Show the changes in the last 10 minutes, in the last hour and in the last 24 hours. After selecting an option the items changed in the chosen time frame will be selected. Branches not changed will not show. To return to the normal view press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on one of its nodes.</p>
+				<h5>Select on Id</h5>
+				<p class="indent10">All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
+				<ul>
+					<li>The item is found in the currently selected and opened product. The item will be selected and highlighted in the tree view.</li>
+					<li>The item is found in the currently selected product but that product is not opened. The product will be opened and item will be selected and highlighted in the tree view</li>
+					<li>The item is found in a product assigned to you which is not selected. You get a message but the item is displayed anyway.</li>
+					<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessable to you.</li>
+					<li>The item is NOT found in the database. You get a message. Check if you made a mistype.</li>
+					<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin. Contact him/her and agree on which item should become a new short Id.</li>
+				</ul>
+				To undo the select clear the 'Select on Id' input field and press Enter.</p>
 				<h5>Search on key word</h5>
-				<p class="indent10">Input field for the search button. Searches for the keyword in the title of all items of the current product. To return to the normal view empty the search field and press enter or empty the search field and click the search button.</p>
-				<h5>Search button</h5>
-				<p class="indent10">When clicked all items in the current product with the keyword in the title will expand.</p>
+				<p class="indent10">Input field for the search button. Searches for the keyword in the title of all items of the current product. To return to the normal view empty the search field and press enter.</p>
 				<h5>Filter on time + Search on key word</h5>
 				<p class="indent10">When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 				<h5>Select your view</h5>
@@ -21,10 +30,16 @@
 				<p class="indent10"><a href="#rv">Requirements areas view</a></p>
 				<p class="indent10"><a href="#sv">Setup view</a></p>
 				<h5>User</h5>
-				<p class="indent10">Change team: not yet implemented.</p>
-				<p class="indent10">Change password: not yet implemented.</p>
-				<p class="indent10">License information: click to see the license regarding the source code.</p>
-				<p class="indent10">Sign out: Preferred way to sign out. Will stop the cookie authentication and reset the URL to sign in again. When you reset your browser with F5 or Ctrl-F5 you need to reset the URL your self.</p>
+				<p class="indent10">
+				<ul>
+					<li>Change team: Not yet implemented.</li>
+					<li>Select products: If multiple products are assigned to you, you can choose which of the should load on sign-in. You also need to choose which is the default product which loads first and open automatically.</li>
+					<li>Change password: You need to know your old password. The password of user demoUser cannot be changed.</li>
+					<li>License information: click to see the license regarding the source code.</li>
+					<li>Sign out: Preferred way to sign out. Will stop the cookie authentication and reset the URL to sign in again. When you reset your browser with F5 or Ctrl-F5 you need to reset the URL your self.</li>
+				</ul>
+				</p>
+
 				<div id="pv">
 					<h4>Products view</h4>
 					<p class="indent10">The products view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
@@ -114,30 +129,29 @@
 </template>
 
 <style lang="css" scoped>
-	.left-column {
-		text-align: left;
-		background-color: #408FAE;
-		color: white;
-		border: 1px solid black;
-	}
+.left-column {
+  text-align: left;
+  background-color: #408fae;
+  color: white;
+  border: 1px solid black;
+}
 
-	.indent10 {
-		margin-left: 10px;
-		color: black;
-	}
+.indent10 {
+  margin-left: 10px;
+  color: black;
+}
 
-	.indent20 {
-		margin-left: 20px;
-		color: black;
-	}
+.indent20 {
+  margin-left: 20px;
+  color: black;
+}
 
-	a {
-		color: black;
-		text-decoration: underline;
-	}
+a {
+  color: black;
+  text-decoration: underline;
+}
 
-	img {
-		margin-bottom: 10px
-	}
-
+img {
+  margin-bottom: 10px;
+}
 </style>

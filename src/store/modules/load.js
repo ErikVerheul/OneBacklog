@@ -471,7 +471,7 @@ const actions = {
 					} else {
 						commit('showLastEvent', {txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed.`, severity: INFO})
 						let ids = ''
-						for (let i =0 ; i < rows.length; i++) {
+						for (let i = 0 ; i < rows.length; i++) {
 							ids += rows[i].doc._id + ', '
 						}
 						const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
