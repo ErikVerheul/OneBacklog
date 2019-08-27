@@ -13,6 +13,8 @@ import {
 
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 
+import { showLastEvent } from '../mixins/showLastEvent.js'
+
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
@@ -28,6 +30,7 @@ var newNode = {}
 var movedNode = null
 
 export default {
+	mixins: [showLastEvent],
 	data() {
 		return {
 			databaseLevel: DATABASELEVEL,
@@ -35,7 +38,6 @@ export default {
 			epicLevel: EPICLEVEL,
 			featureLevel: FEATURELEVEL,
 			pbiLevel: PBILEVEL,
-			eventBgColor: '#408FAE',
 			newDescription: '',
 			newAcceptance: '',
 			contextNodeSelected: undefined,
@@ -226,22 +228,6 @@ export default {
 	},
 
 	methods: {
-		showLastEvent(txt, level) {
-			switch (level) {
-				case INFO:
-					this.eventBgColor = '#408FAE'
-					break
-				case WARNING:
-					this.eventBgColor = 'orange'
-					break
-				case ERROR:
-					this.eventBgColor = 'red'
-					break
-				case DEBUG:
-					this.eventBgColor = 'yellow'
-			}
-			this.$store.state.load.lastEvent = txt
-		},
 		subscribeClicked() {
 			this.$store.dispatch('changeSubsription')
 		},

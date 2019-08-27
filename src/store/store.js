@@ -10,8 +10,12 @@ import useracc from './modules/useracc'
 import update from './modules/update'
 import setup from './modules/setup'
 
-Vue.use(Vuex)
+const INFO = 0
+const WARNING = 1
+const ERROR = 2
+const DEBUG = 3
 
+Vue.use(Vuex)
 /* These are the roles known by this application despite settings in the _users database otherwise.
  * Write access is dependant on role and level. Write access includes deletion.
  * For readability the access the role dependant values are hard coded.
@@ -76,6 +80,8 @@ const FILTERBUTTONTEXT = 'Recent changes'
 export default new Vuex.Store({
 
 	state: {
+		lastEvent: '',
+		eventBgColor: '#408FAE',
 		filterText: FILTERBUTTONTEXT,
 		filterOn: false,
 		findIdOn: false,
@@ -122,6 +128,23 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
+		showLastEvent(state, payload) {
+            switch (payload.severity) {
+                case INFO:
+                    state.eventBgColor = '#408FAE'
+                    break
+                case WARNING:
+                    state.eventBgColor = 'orange'
+                    break
+                case ERROR:
+                    state.eventBgColor = 'red'
+                    break
+                case DEBUG:
+                    state.eventBgColor = 'yellow'
+            }
+            state.lastEvent = payload.txt
+		},
+
 		authUser(state, userData) {
 			state.user = userData.user
 			state.myDefaultRoles = userData.roles
@@ -132,7 +155,6 @@ export default new Vuex.Store({
 			state.load.docsCount = 0
 			state.load.itemsCount = 0
 			state.load.orphansCount = 0
-			state.load.lastEvent = ''
 			state.load.currentUserProductId = null
 			state.load.currentProductId = null
 			state.load.currentProductTitle = ''
@@ -148,6 +170,7 @@ export default new Vuex.Store({
 			state.load.myProductOptions = [],
 			state.load.myProductSubscriptions = [],
 
+			state.lastEvent = ''
 			state.config = null
 			state.currentDb = null
 			state.currentDoc = null

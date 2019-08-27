@@ -9,8 +9,11 @@ const INFO = 0
 var numberOfSelectedNodes = 0
 var draggableNodes = []
 
+import { showLastEvent } from '../mixins/showLastEvent.js'
+
 export default {
 	name: 'sl-vue-tree',
+	mixins: [showLastEvent],
 	props: {
 		value: {
 			type: Array,
@@ -865,14 +868,6 @@ export default {
 					console.log('showVisibility: level = ' + itemPath.length + ' isExpanded = ' + nodeModel.isExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
 				}
 			}, undefined, 'showVisibility')
-		},
-
-		showLastEvent(txt, level) {
-			switch (level) {
-				case INFO:
-					this.eventBgColor = '#408FAE'
-			}
-			this.$store.state.load.lastEvent = txt
 		},
 
 		/* collapse all nodes of this product */

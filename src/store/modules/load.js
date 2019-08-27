@@ -3,6 +3,10 @@ import globalAxios from 'axios'
 import router from '../../router'
 
 var batch = []
+const INFO = 0
+const WARNING = 1
+const ERROR = 2
+const DEBUG = 3
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
@@ -387,7 +391,7 @@ const actions = {
 				// reset load parameters
 				parentNodes = {}
 			}
-			state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+			commit('showLastEvent', {txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, INFO})
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Another product of ' + batch.length + ' documents is loaded')
 			if (!productPageLounched && defaultProductIsSelected) {
@@ -431,7 +435,7 @@ const actions = {
 				}
 				// reset load parameters
 				parentNodes = {}
-				state.lastEvent = `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`
+				commit('showLastEvent', {txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO})
 				if (!productPageLounched && defaultProductIsSelected) {
 					router.push('/product')
 					// reset before new login
@@ -447,7 +451,8 @@ const actions = {
 	getItemByShortId({
 		rootState,
 		state,
-		dispatch
+		dispatch,
+		commit
 	}, shortId) {
 		const rangeStr = '/_design/design1/_view/shortIdFilter?startkey=["' + shortId + '"]&endkey=["' + shortId + '"]&include_docs=true'
 		globalAxios({
@@ -463,9 +468,9 @@ const actions = {
 				const doc = rows[0].doc
 				if (state.userAssignedProductIds.includes(doc.productId)) {
 					if (rows.length === 1) {
-						state.lastEvent = `The document with id ${shortId} is found but not in your selected products.`
+						commit('showLastEvent', {txt: `The document with id ${shortId} is found but not in your selected products.`, severity: WARNING})
 					} else {
-						state.lastEvent = `${rows.length} documents with id ${shortId} are found. The first one is displayed.`
+						commit('showLastEvent', {txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed.`, severity: INFO})
 						let ids = ''
 						for (let i =0 ; i < rows.length; i++) {
 							ids += rows[i].doc._id + ', '
@@ -483,9 +488,9 @@ const actions = {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('getItemByShortId: document with _id + ' + doc._id + ' is loaded.')
 				} else {
-					state.lastEvent = `The document with id ${shortId} is found but not in your assigned products.`
+					commit('showLastEvent', {txt: `The document with id ${shortId} is found but not in your assigned products.`, severity: WARNING})
 				}
-			} else state.lastEvent = `The document with id ${shortId} is NOT found in the database.`
+			} else commit('showLastEvent', {txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING})
 		})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getItemByShortId: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))

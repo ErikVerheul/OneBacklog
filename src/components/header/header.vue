@@ -153,23 +153,23 @@
 
 <script>
 import licence from "./licence.vue"
+import { showLastEvent } from '../mixins/showLastEvent.js'
 
-const FEATURELEVEL = 2
 const INFO = 0
 var productSwitch = false
 
 export default {
+  mixins: [showLastEvent],
   data() {
     return {
       appVersion: "OneBackLog v.0.6.0",
-      eventBgColor: "#408FAE",
       oldPassword: "",
       newPassword1: "",
       newPassword2: "",
       selectedProducts: this.$store.state.load.myProductSubscriptions,
       defaultProductId: undefined,
       defaultProductOptions: []
-    };
+    }
   },
   mounted() {
     // Add tag when DEMO version
@@ -244,7 +244,7 @@ export default {
           // update current productId and title
           this.$store.state.load.currentProductId = node.productId
           this.$store.state.load.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
-          window.slVueTree.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+          this.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
         } else {
           productSwitch = false
           // node on current product; collapse the currently selected product

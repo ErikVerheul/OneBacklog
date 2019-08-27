@@ -72,8 +72,8 @@
         >sync</span>
         <div
           class="last-event"
-          v-bind:style="{'background-color': eventBgColor}"
-        >{{ this.$store.state.load.lastEvent }}</div>
+          v-bind:style="{'background-color': $store.state.eventBgColor}"
+        >{{ this.$store.state.lastEvent }}</div>
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
