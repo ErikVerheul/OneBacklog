@@ -16,7 +16,7 @@
           :style="{
             visibility:
             cursorPosition &&
-            cursorPosition.node.pathStr === node.pathStr &&
+            cursorPosition.nodeModel.pathStr === node.pathStr &&
             cursorPosition.placement === 'before' ? 'visible' : 'hidden'
            }"
         >
@@ -33,12 +33,12 @@
           :class="{
             'sl-vue-tree-cursor-hover':
               cursorPosition &&
-              cursorPosition.node.pathStr === node.pathStr,
+              cursorPosition.nodeModel.pathStr === node.pathStr,
 
             'sl-vue-tree-cursor-inside':
               cursorPosition &&
               cursorPosition.placement === 'inside' &&
-              cursorPosition.node.pathStr === node.pathStr,
+              cursorPosition.nodeModel.pathStr === node.pathStr,
             'sl-vue-tree-node-is-leaf' : node.isLeaf,
             'sl-vue-tree-node-is-folder' : !node.isLeaf
           }"

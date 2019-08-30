@@ -226,7 +226,7 @@ export default {
       let node
       window.slVueTree.traverseLight((nodePath, nodeModel) => {
         if (nodeModel.shortId === shortId) {
-          node = window.slVueTree.getNode(nodePath, nodeModel)
+          node = nodeModel
           return false
         }
       }, undefined, 'header.js:selectNode')

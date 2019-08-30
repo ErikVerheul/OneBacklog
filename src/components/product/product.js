@@ -556,7 +556,7 @@ export default {
 			let count = 0
 			let maxDepth = 0
 			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
-			window.slVueTree.traverseLight((nodePath, nodeModel, nodeModels) => {
+			window.slVueTree.traverseLight((nodePath, nodeModel) => {
 				if (window.slVueTree.comparePaths(nodePath, path) === 0) {
 					initLevel = path.length
 					maxDepth = path.length
@@ -564,7 +564,7 @@ export default {
 					if (nodePath.length <= initLevel) return false
 
 					if (window.slVueTree.comparePaths(nodePath, path) === 1) {
-						descendants.push(window.slVueTree.getNode(nodePath, nodeModel, nodeModels))
+						descendants.push(nodeModel)
 						count++
 						if (nodePath.length > maxDepth) maxDepth = nodePath.length
 					}
@@ -588,7 +588,7 @@ export default {
 			 */
 			let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
-				let failedCheck1 = !this.canWriteLevels[position.node.level]
+				let failedCheck1 = !this.canWriteLevels[position.nodeModel.level]
 				let failedCheck2 = levelChange > 1
 				let failedCheck3 = (targetLevel + this.getDescendantsInfo(node.path).depth) > PBILEVEL
 				if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
@@ -597,7 +597,7 @@ export default {
 				return failedCheck1 || failedCheck2 || failedCheck3
 			}
 			const sourceLevel = draggingNodes[0].level
-			let targetLevel = position.node.level
+			let targetLevel = position.nodeModel.level
 			// are we dropping 'inside' a node creating children to that node?
 			if (position.placement === 'inside') {
 				targetLevel++
@@ -613,31 +613,25 @@ export default {
 				}
 			}
 		},
+
 		/*
 		 * Get the previous sibling above the node with the same level as the node itself
 		 * precondition: the node is NOT firstChild
 		 */
 		getPrevSibling(node) {
-			let path = node.path
-			let siblingPath = []
-			for (let i = 0; i < path.length - 1; i++) {
-				siblingPath.push(path[i])
-			}
-			siblingPath.push(path[path.length - 1] - 1)
-			return window.slVueTree.getNode(siblingPath)
+			const siblings = window.slVueTree.getNodeSiblings(node.path)
+			return siblings[node.ind - 1]
 		},
+
 		/*
 		 * Get the next sibling below the node with the same level as the node itself
 		 * precondition: the node is NOT lastChild
 		 */
-		getNextSibling(path) {
-			let siblingPath = []
-			for (let i = 0; i < path.length - 1; i++) {
-				siblingPath.push(path[i])
-			}
-			siblingPath.push(path[path.length - 1] + 1)
-			return window.slVueTree.getNode(siblingPath)
+		getNextSibling(node) {
+			const siblings = window.slVueTree.getNodeSiblings(node.path)
+			return siblings[node.ind + 1]
 		},
+
 		assignNewPrios(nodes, predecessorNode, successorNode) {
 			let predecessorPrio
 			let successorPrio
@@ -679,7 +673,7 @@ export default {
 			}
 			const lastNode = nodes[nodes.length - 1]
 			if (!lastNode.isLastChild) {
-				successorNode = this.getNextSibling(lastNode.path)
+				successorNode = this.getNextSibling(lastNode)
 			} else {
 				successorNode = null
 			}
@@ -714,10 +708,8 @@ export default {
 		 * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
 		 */
 		nodeDropped(draggingNodes, position) {
-			// get the nodes after being dropped with the full IDlTreeNode properties (draggingNodes only have IslNodeModel properties)
-			const selectedNodes = window.slVueTree.getSelected()
-			let clickedLevel = selectedNodes[0].level
-			let dropLevel = position.node.level
+			let clickedLevel = draggingNodes[0].level
+			let dropLevel = position.nodeModel.level
 			// drop inside?
 			if (position.placement === 'inside') {
 				dropLevel++
@@ -727,21 +719,21 @@ export default {
 			// no action required when moving a product in the tree
 			if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
 				// when nodes are dropped to another position the parent, type and the priorities must be updated
-				this.updateTree(selectedNodes)
+				this.updateTree(draggingNodes)
 				// update the nodes in the database
 				let payloadArray = []
-				for (let i = 0; i < selectedNodes.length; i++) {
-					let descendants = this.getDescendantsInfo(selectedNodes[i].path).descendants
+				for (let i = 0; i < draggingNodes.length; i++) {
+					let descendants = this.getDescendantsInfo(draggingNodes[i].path).descendants
 					const payloadItem = {
-						'_id': selectedNodes[i]._id,
-						'productId': selectedNodes[i].productId,
-						'newParentId': selectedNodes[i].parentId,
-						'newPriority': selectedNodes[i].data.priority,
+						'_id': draggingNodes[i]._id,
+						'productId': draggingNodes[i].productId,
+						'newParentId': draggingNodes[i].parentId,
+						'newPriority': draggingNodes[i].data.priority,
 						'newParentTitle': null,
-						'oldParentTitle': selectedNodes[i].title,
+						'oldParentTitle': draggingNodes[i].title,
 						'oldLevel': clickedLevel,
-						'newLevel': selectedNodes[i].level,
-						'newInd': selectedNodes[i].ind,
+						'newLevel': draggingNodes[i].level,
+						'newInd': draggingNodes[i].ind,
 						'descendants': descendants
 					}
 					payloadArray.push(payloadItem)
@@ -752,12 +744,12 @@ export default {
 				})
 			}
 			// create the event message
-			const title = this.itemTitleTrunc(60, selectedNodes[0].title)
+			const title = this.itemTitleTrunc(60, draggingNodes[0].title)
 			let evt = ""
-			if (selectedNodes.length === 1) {
-				evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.node.title}'`
+			if (draggingNodes.length === 1) {
+				evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.nodeModel.title}'`
 			} else {
-				evt = `${this.getLevelText(clickedLevel)} '${title}' and ${selectedNodes.length - 1} other item(s) are dropped ${position.placement} '${position.node.title}'`
+				evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
 			}
 			if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
 			this.showLastEvent(evt, INFO)
@@ -822,13 +814,13 @@ export default {
 			if (this.$store.state.moveOngoing) {
 				const targetPosition = window.slVueTree.lastSelectCursorPosition
 				// only allow move to new parent 1 level higher (lower value) than the source node
-				if (targetPosition.node.level !== movedNode.level - 1) {
+				if (targetPosition.nodeModel.level !== movedNode.level - 1) {
 					this.showLastEvent('You can only move to a ' + this.getLevelText(movedNode.level - 1), WARNING)
 					return
 				}
 				// move the node to the new place and update the productId and parentId
 				window.slVueTree.moveNodes(targetPosition, [movedNode])
-				const targetNode = targetPosition.node
+				const targetNode = targetPosition.nodeModel
 				// the path to new node is immediately below the selected node
 				const newPath = targetNode.path.concat([0])
 				const newNode = window.slVueTree.getNode(newPath)
@@ -915,7 +907,7 @@ export default {
 			})
 			firstNodeSelected = prevNode
 			// now we can remove the node and its children
-			window.slVueTree.remove(path)
+			window.slVueTree.remove(selectedNode)
 		},
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
@@ -956,7 +948,7 @@ export default {
 		 */
 		doInsert() {
 			let newNodeLocation
-			// prepare the new node of type ISlTreeNodeModel for insertion
+			// prepare the new node for insertion
 			newNode = {
 				productId: this.$store.state.load.currentProductId,
 				parentId: null,
@@ -985,7 +977,7 @@ export default {
 			if (this.insertOptionSelected === 1) {
 				// New node is a sibling placed below (after) the selected node
 				newNodeLocation = {
-					node: this.contextNodeSelected,
+					nodeModel: this.contextNodeSelected,
 					placement: 'after'
 				}
 				newNode.parentId = this.contextNodeSelected.parentId
@@ -996,7 +988,7 @@ export default {
 				insertLevel += 1
 
 				newNodeLocation = {
-					node: this.contextNodeSelected,
+					nodeModel: this.contextNodeSelected,
 					placement: 'inside'
 				}
 				newNode.parentId = this.contextNodeSelected._id
@@ -1023,7 +1015,7 @@ export default {
 					})
 				}
 				newNode.isSelected = true
-				// insert the node that has the property isSelected = true
+				// insert the node and set the position parameters
 				window.slVueTree.insert(newNodeLocation, newNode)
 				// now the node is inserted and selected get the full ISlTreeNode data
 				const insertedNode = window.slVueTree.getSelected()[0]

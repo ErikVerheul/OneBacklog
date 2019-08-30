@@ -26,9 +26,9 @@ const actions = {
 		 */
 		function getNodeById(id) {
 			let resultNode = null
-			window.slVueTree.traverseLight((nodePath, nodeModel, nodeModels) => {
+			window.slVueTree.traverseLight((nodePath, nodeModel) => {
 				if (nodeModel._id === id) {
-					resultNode = window.slVueTree.getNode(nodePath, nodeModel, nodeModels)
+					resultNode = nodeModel
 					return false
 				}
 			}, undefined, 'sync.js:getNodeById')
@@ -124,7 +124,7 @@ const actions = {
 							// the node exists (is not new)
 							if (doc.delmark) {
 								// remove the node and its children
-								window.slVueTree.remove(node.path)
+								window.slVueTree.remove(node)
 								continue
 							}
 							// update the parent as it can be changed
@@ -156,7 +156,7 @@ const actions = {
 									// move up: remove from old position first
 									node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
 									// remove node and its children
-									window.slVueTree.remove(node.path)
+									window.slVueTree.remove(node)
 									if (locationInfo.newInd === 0) {
 										window.slVueTree.insert({
 											node: locationInfo.prevNode,
@@ -184,7 +184,7 @@ const actions = {
 										}, node)
 									}
 									// remove node and its children from old position
-									window.slVueTree.remove(node.path)
+									window.slVueTree.remove(node)
 								}
 							}
 						} else {

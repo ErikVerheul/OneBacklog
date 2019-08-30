@@ -6,6 +6,7 @@ const PRODUCTLEVEL = 2
 const FILTERBUTTONTEXT = 'Recent changes'
 const RESETFILTERBUTTONTEXT = 'Clear filter'
 const INFO = 0
+var lastSelectedNode = null
 var numberOfSelectedNodes = 0
 var draggableNodes = []
 
@@ -41,14 +42,6 @@ export default {
 		allowToggleBranch: {
 			type: Boolean,
 			default: true
-		},
-		scrollAreaHeight: {
-			type: Number,
-			default: 70
-		},
-		maxScrollSpeed: {
-			type: Number,
-			default: 20
 		}
 	},
 
@@ -57,7 +50,6 @@ export default {
 			rootCursorPosition: null,
 			scrollIntervalId: 0,
 			scrollSpeed: 0,
-			lastSelectedNode: null,
 			mouseIsDown: false,
 			isDragging: false,
 			lastMousePos: {
@@ -98,14 +90,18 @@ export default {
 
 		filteredNodes() {
 			if (this.isRoot) {
-				const nodeModels = this.currentValue.filter(node => {
+				const nodeModels = this.currentValue
+				const retNodes = this.getNodes(nodeModels.filter(node => {
 					return node.doShow
-				})
-				return this.getNodes(nodeModels)
+				}))
+				console.log('filteredNodes1: returning ' + retNodes.length + ' nodes')
+				return retNodes
 			}
-			return this.getParent().filteredNodes[this.parentInd].children.filter(node => {
+			const retNodes = this.getParent().filteredNodes[this.parentInd].children.filter(node => {
 				return node.doShow
 			})
+			console.log('filteredNodes2: returning ' + retNodes.length + ' nodes')
+			return retNodes
 		},
 
 		/**
@@ -129,8 +125,7 @@ export default {
 		}
 	},
 	methods: {
-
-		getProductNodels(treeNodes, productId) {
+		getProductModels(treeNodes, productId) {
 			const productModels = treeNodes[0].children
 			for (let i = 0; i < productModels.length; i++) {
 				if (productModels[i].productId === productId) {
@@ -143,73 +138,30 @@ export default {
 			return null
 		},
 
-		setCursorPosition(pos) {
+		setModelCursorPosition(pos) {
 			if (this.isRoot) {
 				this.rootCursorPosition = pos;
 				return;
 			}
-			this.getParent().setCursorPosition(pos);
+			this.getParent().setModelCursorPosition(pos);
 		},
 
-		saveSelectedCursorPosition(pos) {
-			this.lastSelectCursorPosition = pos
-		},
-
-		getNodes(nodeModels, parentPath = []) {
-
-			return nodeModels.map((nodeModel, ind) => {
-				const nodePath = parentPath.concat(ind);
-				return this.getNode(nodePath, nodeModel, nodeModels);
+		getNodes(nodeModels) {
+			return nodeModels.map((nodeModel) => {
+				return nodeModel
 			})
 		},
 
-		getNode(
-			path,
-			nodeModel = null,
-			siblings = null
-		) {
-			const ind = path.slice(-1)[0];
+		getNodeModel(path, tree = this.currentValue) {
+			const ind = path[0]
+			if (path.length === 1) return tree[ind]
+			return this.getNodeModel(path.slice(1), tree[ind].children)
+		},
 
-			// calculate nodeModel, siblings fields if it is not passed as arguments
-			siblings = siblings || this.getNodeSiblings(this.currentValue, path);
-			nodeModel = nodeModel || (siblings && siblings[ind]) || null;
-
-			if (!nodeModel) return null;
-
-			const doShow = nodeModel.doShow === undefined ? true : !!nodeModel.doShow
-			const savedDoShow = nodeModel.savedDoShow === undefined ? true : !!nodeModel.savedDoShow
-			const isExpanded = nodeModel.isExpanded === undefined ? true : !!nodeModel.isExpanded
-			const savedIsExpanded = nodeModel.savedIsExpanded === undefined ? true : !!nodeModel.savedIsExpanded
-			const isDraggable = nodeModel.isDraggable === undefined ? true : !!nodeModel.isDraggable;
-			const isSelectable = nodeModel.isSelectable === undefined ? true : !!nodeModel.isSelectable;
-
-			const node = {
-				// define the all ISlTreeNodeModel props
-				productId: nodeModel.productId,
-				parentId: nodeModel.parentId,
-				_id: nodeModel._id,
-				shortId: nodeModel.shortId,
-				title: nodeModel.title,
-				isLeaf: !!nodeModel.isLeaf,
-				children: nodeModel.children && nodeModel.children.length > 0 ? this.getNodes(nodeModel.children, path, isExpanded) : [],
-				isSelected: !!nodeModel.isSelected,
-				isExpanded,
-				savedIsExpanded,
-				isDraggable,
-				isSelectable,
-				doShow,
-				savedDoShow,
-				data: nodeModel.data !== undefined ? nodeModel.data : {},
-
-				// define the all ISlTreeNode computed props
-				path: path,
-				pathStr: JSON.stringify(path),
-				level: path.length,
-				ind,
-				isFirstChild: ind === 0,
-				isLastChild: ind === siblings.length - 1
-			};
-			return node;
+		getNode(path) {
+			const ind = path.slice(-1)[0]
+			let siblings = this.getNodeSiblings(path)
+			return (siblings && siblings[ind]) || null
 		},
 
 		emitSelect(selectedNodes, event) {
@@ -238,24 +190,20 @@ export default {
 
 		/* select a node from the current product or select the root or the top node of another product */
 		select(cursorPosition, event) {
-			const selectedNode = cursorPosition.node
-			const path = selectedNode.path
-
-			this.saveSelectedCursorPosition({
-				node: selectedNode,
-				placement: cursorPosition.placement
-			})
+			this.lastSelectCursorPosition = cursorPosition
+			const selectedNode = cursorPosition.nodeModel
 
 			// set the current productId. when on root level leave as is. emitSelect will set it a change globally
-			let productId = path.length === ROOTLEVEL ? this.$store.state.load.currentProductId : selectedNode.productId
+			let productId = selectedNode.path.length === ROOTLEVEL ? this.$store.state.load.currentProductId : selectedNode.productId
 			const selectedNodes = []
-			const shiftSelectionMode = false
+			let shiftSelectionMode = false
 			// only shift-select above productlevel
-			if (path.length > PRODUCTLEVEL) {
-				const shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && this.lastSelectedNode
+			if (selectedNode.path.length > PRODUCTLEVEL) {
+				shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && lastSelectedNode
 				// only shift select nodes on the same level
-				if (shiftSelectionMode && path.length !== this.lastSelectedNode.level) return
+				if (shiftSelectionMode && selectedNode.level !== lastSelectedNode.level) return
 			}
+
 			this.traverseLight((itemPath, nodeModel) => {
 				if (shiftSelectionMode) {
 					if (this.comparePaths(itemPath, selectedNode.path) === 0) {
@@ -276,11 +224,11 @@ export default {
 					nodeModel.isExpanded = false
 				}
 				if (nodeModel.isSelected) {
-					let node = this.getNode(itemPath, nodeModel)
-					selectedNodes.push(node)
+					selectedNodes.push(nodeModel)
 				}
 			}, undefined, 'sl-vue-tree.js:select')
-			this.lastSelectedNode = selectedNode
+
+			lastSelectedNode = selectedNode
 			numberOfSelectedNodes = selectedNodes.length
 			if (numberOfSelectedNodes > 0) {
 				this.emitSelect(selectedNodes, event)
@@ -320,63 +268,43 @@ export default {
 				return
 			}
 
-			const cursorPosition = this.getCursorPositionFromCoords(event.clientX, event.clientY)
-			const destNode = cursorPosition.node
-			const placement = cursorPosition.placement
-
 			this.isDragging = isDragging
-
-			this.setCursorPosition({
-				node: destNode,
-				placement
-			});
+			const cP = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
+			this.setModelCursorPosition(cP)
 		},
 
-		getCursorPositionFromCoords(x, y) {
+		getCursorModelPositionFromCoords(x, y) {
 			const $target = document.elementFromPoint(x, y);
 			const $nodeItem = $target.getAttribute('path') ? $target : this.getClosestElementWithPath($target);
-			let destNode;
-			let placement;
+			if (!$nodeItem) return
 
-			if ($nodeItem) {
+			let placement
+			const pathStr = $nodeItem.getAttribute('path')
+			const path = JSON.parse(pathStr)
+			const nodeModel = this.getNodeModel(path)
+			const nodeHeight = $nodeItem.offsetHeight;
+			const edgeSize = this.edgeSize;
+			const offsetY = y - $nodeItem.getBoundingClientRect().top;
+			const ind = path.slice(-1)[0]
 
-				if (!$nodeItem) return;
-
-				destNode = this.getNode(JSON.parse($nodeItem.getAttribute('path')));
-
-				const nodeHeight = $nodeItem.offsetHeight;
-				const edgeSize = this.edgeSize;
-				const offsetY = y - $nodeItem.getBoundingClientRect().top;
-
-				if (destNode.isLeaf) {
-					placement = offsetY >= nodeHeight / 2 ? 'after' : 'before';
-				} else {
-					// multiply edgeSize with 2 to enlarge the window for 'before' placement
-					if (offsetY <= edgeSize * 2) {
-						placement = 'before';
-					} else if (offsetY >= nodeHeight - edgeSize) {
-						placement = 'after';
-					} else {
-						placement = 'inside';
-					}
-				}
+			if (nodeModel.isLeaf) {
+				placement = offsetY >= nodeHeight / 2 ? 'after' : 'before';
 			} else {
-				const $root = this.getRoot().$el;
-				const rootRect = $root.getBoundingClientRect();
-				if (y > rootRect.top + (rootRect.height / 2)) {
-					placement = 'after';
-					destNode = this.getLastNode();
-					console.log('getCursorPositionFromCoords: after: destNode.title = ' + destNode.title)
-				} else {
+				// multiply edgeSize with 2 to enlarge the window for 'before' placement
+				if (offsetY <= edgeSize * 2) {
 					placement = 'before';
-					destNode = this.getFirstNode();
-					console.log('getCursorPositionFromCoords: before: destNode.title = ' + destNode.title)
+				} else if (offsetY >= nodeHeight - edgeSize) {
+					placement = 'after';
+				} else {
+					placement = 'inside';
 				}
 			}
+			// add the missing field
+			nodeModel.isLastChild = ind === this.getNodeSiblings(path).length - 1
 			return {
-				node: destNode,
+				nodeModel,
 				placement
-			};
+			}
 		},
 
 		getClosestElementWithPath($el) {
@@ -410,20 +338,16 @@ export default {
 				}
 			}
 			traverse(this.currentValue)
-			return this.getNode(lastPath, lastNode)
-		},
-
-		getFirstNode() {
-			return this.getNode([0]);
+			return lastNode
 		},
 
 		getNextNode(path, filter = null) {
 			let resultNode = null;
 			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
-			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+			this.traverseLight((nodePath, nodeModel) => {
 				if (this.comparePaths(nodePath, path) < 1) return;
 
-				let node = this.getNode(nodePath, nodeModel, nodeModels)
+				let node = nodeModel
 				if (!filter || filter(node)) {
 					resultNode = node;
 					return false
@@ -438,11 +362,11 @@ export default {
 			let prevNodes = [];
 
 			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
-			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+			this.traverseLight((nodePath, nodeModel) => {
 				if (this.comparePaths(nodePath, path) >= 0) {
 					return false;
 				}
-				prevNodes.push(this.getNode(nodePath, nodeModel, nodeModels));
+				prevNodes.push(nodeModel);
 			}, productId, 'sl-vue-tree.js:getPrevNode');
 
 			let i = prevNodes.length;
@@ -499,9 +423,7 @@ export default {
 
 		/* Move the nodes to the position designated by cursorPosition */
 		moveNodes(cursorPosition, nodes) {
-			const targetProductId = cursorPosition.node.productId
-			const nodeModelsSubjectToDelete = []
-			const nodeModelsSubjectToInsert = []
+			const targetProductId = cursorPosition.nodeModel.productId
 
 			function updateMovedNodes(cb, nodeModels, productId) {
 				// inRange means that the recursion processes items of the requested product
@@ -523,7 +445,7 @@ export default {
 								if (inRange && nodeModel.productId !== productId) break
 								inRange = nodeModel.productId === productId
 							}
-							// console.log('updateIds: inRange = ' + inRange + ' nodeModel._id = ' + nodeModel._id + ' nodeModel.productId = ' + nodeModel.productId + ' nodeModel.parentId = ' + nodeModel.parentId)
+							// console.log('updateMovedNodes: inRange = ' + inRange + ' nodeModel._id = ' + nodeModel._id + ' nodeModel.productId = ' + nodeModel.productId + ' nodeModel.parentId = ' + nodeModel.parentId)
 
 							if (inRange) cb(nodeModel, productId, parentId)
 
@@ -536,26 +458,14 @@ export default {
 				traverse(cb, nodeModels)
 			}
 
-			// find model to delete and to insert
-			const firstNodeLevel = nodes[0].level
+			// remove from old location and insert in new location
 			for (let node of nodes) {
-				const sourceSiblings = this.getNodeSiblings(this.currentValue, node.path)
-				nodeModelsSubjectToDelete.push(sourceSiblings[node.ind])
-				// no need to insert the children as they are part of the higher level nodes anyway
-				if (node.level === firstNodeLevel) {
-					nodeModelsSubjectToInsert.push(node)
-				}
+				const sourceSiblings = this.getNodeSiblings(node.path)
+				this.remove(sourceSiblings[node.ind])
+				this.insert(cursorPosition, node)
 			}
 
-			// mark nodes in model to delete
-			for (let nodeModel of nodeModelsSubjectToDelete) {
-				nodeModel['_markToDelete'] = true;
-			}
-
-			// insert nodes to the new place
-			this.insertModels(cursorPosition, nodeModelsSubjectToInsert, this.currentValue)
-
-			// update the product and parent ids; mark the changed nodemodels for distribution
+			// if needed update the product and parent ids; mark the changed nodemodels for distribution
 			updateMovedNodes((nodeModel, productId, parentId) => {
 				if (nodeModel.parentId !== parentId) {
 					// children have the id of their parent as parentId
@@ -570,12 +480,6 @@ export default {
 					nodeModel.data.distributeEvent = true
 				}
 			}, this.currentValue, targetProductId)
-
-			// delete nodes from the old place
-			this.traverseModels((nodeModel, siblings, ind) => {
-				if (!nodeModel._markToDelete) return;
-				siblings.splice(ind, 1);
-			}, this.currentValue);
 		},
 
 		onNodeMouseupHandler(event) {
@@ -591,7 +495,7 @@ export default {
 
 			if (!this.isDragging) {
 				// cursorPosition not available
-				const cPos = this.getCursorPositionFromCoords(event.clientX, event.clientY)
+				const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
 				this.select(cPos, event)
 				return
 			}
@@ -604,33 +508,33 @@ export default {
 			}
 
 			// if no nodes selected or at root level or not dragging or moving an item to another product
-			if (draggableNodes.length === 0 || this.cursorPosition.node.path.length === ROOTLEVEL || !this.isDragging || this.$store.state.moveOngoing) {
+			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.path.length === ROOTLEVEL || !this.isDragging || this.$store.state.moveOngoing) {
 				this.stopDrag()
 				return
 			}
 
 			// check that nodes is possible to insert
 			for (let draggingNode of draggableNodes) {
-				if (draggingNode.pathStr === this.cursorPosition.node.pathStr) {
+				if (draggingNode.pathStr === this.cursorPosition.nodeModel.pathStr) {
 					this.stopDrag();
 					return;
 				}
-				if (this.checkNodeIsParent(draggingNode, this.cursorPosition.node)) {
+				if (this.checkNodeIsParent(draggingNode, this.cursorPosition.nodeModel)) {
 					this.stopDrag();
 					return;
 				}
 				// prevent drag to other product
-				if (this.cursorPosition.node.productId !== this.$store.state.load.currentProductId) {
+				if (this.cursorPosition.nodeModel.productId !== this.$store.state.load.currentProductId) {
 					this.stopDrag();
 					return;
 				}
 				// prevent confusion when the user selects a target node to insert before when that node has a lower level (higher in the hierarchy)
-				if (this.cursorPosition.placement === 'before' && this.cursorPosition.node.level < draggingNode.level) {
+				if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel.level < draggingNode.level) {
 					this.stopDrag()
 					return
 				}
 				// prevent placement on wrong level when the user selects the parent as target node to insert after
-				if (this.cursorPosition.placement === 'after' && this.cursorPosition.node.level < draggingNode.level) {
+				if (this.cursorPosition.placement === 'after' && this.cursorPosition.nodeModel.level < draggingNode.level) {
 					this.stopDrag()
 					return
 				}
@@ -644,10 +548,11 @@ export default {
 				this.stopDrag();
 				return;
 			}
-
+			console.log('onNodeMouseupHandler: moveNodes is called, draggableNodes.length = ' + draggableNodes.length)
+			console.log('onNodeMouseupHandler: JSON.stringify(draggableNodes, null, 2) = ' + JSON.stringify(draggableNodes, null, 2))
 			this.moveNodes(this.cursorPosition, draggableNodes)
 
-			this.lastSelectedNode = null;
+			lastSelectedNode = null;
 			this.emitDrop(draggableNodes, this.cursorPosition, event);
 			this.stopDrag();
 		},
@@ -668,7 +573,7 @@ export default {
 		stopDrag() {
 			this.isDragging = false;
 			this.mouseIsDown = false;
-			this.setCursorPosition(null);
+			this.setModelCursorPosition(null);
 		},
 
 		getParent() {
@@ -680,11 +585,10 @@ export default {
 			return this.getParent().getRoot();
 		},
 
-		getNodeSiblings(nodes, path) {
-			if (path.length === 1) return nodes;
-			return this.getNodeSiblings(nodes[path[0]].children, path.slice(1));
+		getNodeSiblings(path, nodes = this.currentValue) {
+			if (path.length === 1) return nodes
+			return this.getNodeSiblings(path.slice(1), nodes[path[0]].children || [])
 		},
-
 
 		updateNode(path, patch) {
 			if (!this.isRoot) {
@@ -705,7 +609,7 @@ export default {
 			const productModels = this.currentValue[0].children
 			for (let i = 0; i < productModels.length; i++) {
 				if (productModels[i].isSelected) {
-					return this.getNode([0, i], productModels[i])
+					return productModels[i]
 				}
 			}
 			// ToDo: write this to the log
@@ -718,7 +622,7 @@ export default {
 			const selectedNodes = [];
 			this.traverseLight((nodePath, nodeModel) => {
 				if (nodeModel.isSelected) {
-					let node = this.getNode(nodePath, nodeModel)
+					let node = nodeModel
 					selectedNodes.push(node)
 				}
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getSelected')
@@ -727,10 +631,10 @@ export default {
 
 		getDraggable() {
 			const selectedNodes = []
-			this.traverseLight((nodePath, nodeModel, nodeModels) => {
+			this.traverseLight((nodePath, nodeModel) => {
 				const isDraggable = nodeModel.isDraggable === undefined ? true : !!nodeModel.isDraggable
 				if (nodeModel.isSelected && isDraggable) {
-					selectedNodes.push(this.getNode(nodePath, nodeModel, nodeModels))
+					selectedNodes.push(nodeModel)
 					// quit the search if all selected nodes are found
 					if (selectedNodes.length === numberOfSelectedNodes) return false
 				}
@@ -771,7 +675,7 @@ export default {
 			let nodeModels = this.currentValue
 			if (productId !== undefined) {
 				// restrict the traversal to the nodes of one product
-				const product = this.getProductNodels(this.currentValue, productId)
+				const product = this.getProductModels(this.currentValue, productId)
 				if (product !== null) {
 					nodeModels = product.productNodes
 					parentPath = product.parentPath
@@ -810,48 +714,82 @@ export default {
 				}
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getPrevVisibleNode');
 
-			return this.getNode(prevVisiblePath, prevVisibleModel)
+			return prevVisibleModel
 		},
 
-		/* Remove the node and its children from the nodeModel*/
-		remove(path) {
-			const productId = path.length <= PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
-			this.traverseLight((nodePath, nodeModel) => {
-				if (this.comparePaths(nodePath, path) === 0) {
-					nodeModel._markToDelete = true
-				}
-			}, productId, 'sl-vue-tree.js:remove');
-
-			this.traverseModels((nodeModel, children, ind) => {
-				if (!nodeModel._markToDelete) return;
-				children.splice(ind, 1);
-			}, this.currentValue)
-		},
 		/*
-		 * Inserts the nodes in array nodeModels after (when moving down)
+		 * Inserts the nodeModel in the tree model after (when moving down)
 		 * or before (when moving up) node cursorposition in the newNodes array model.
 		 * Return the parentId the models are inserted under.
 		 */
-		insertModels(cursorPosition, nodeModels, newNodes) {
-			const destNode = cursorPosition.node;
-			const destSiblings = this.getNodeSiblings(newNodes, destNode.path);
-			const destNodeModel = destSiblings[destNode.ind];
+		insert(cursorPosition, nodeModel) {
+			const destNode = cursorPosition.nodeModel
+			const destSiblings = this.getNodeSiblings(destNode.path)
+			const destNodeModel = destSiblings[destNode.ind]
+			const sourceParentPath = []
+			for (let i = 0; i < nodeModel.path.length - 1; i++) sourceParentPath.push(nodeModel.path[i])
 			let parentId
 			if (cursorPosition.placement === 'inside') {
 				parentId = destNode._id
-				destNodeModel.children = destNodeModel.children || [];
-				destNodeModel.children.unshift(...nodeModels);
+				const targetParentPath = destNode.path
+				destNodeModel.children = destNodeModel.children || []
+				destNodeModel.children.unshift(nodeModel)
+				// update the position of all children including the inserted node
+				for (let i = 0; i < destNodeModel.children.length; i++) {
+					const nm = destNodeModel.children[i]
+					const newPath = targetParentPath.concat(i)
+					nm.path = newPath
+					nm.pathStr = JSON.stringify(newPath)
+					nm.ind = i
+					nm.level = newPath.length
+					nm.isFirstChild = i === 0
+					nm.isLastChild = i === destNodeModel.children.length - 1
+				}
+				// if the parent has changed update the descendants of the inserted node
+				if (this.comparePaths(targetParentPath, sourceParentPath) !== 0) {
+					//do it
+				}
 			} else {
-				const insertInd = cursorPosition.placement === 'before' ? destNode.ind : destNode.ind + 1;
-				destSiblings.splice(insertInd, 0, ...nodeModels);
 				parentId = destNode.parentId
+				const targetParentPath = destNode.path.slice(0, destNode.path.length - 1)
+				const insertInd = cursorPosition.placement === 'before' ? destNode.ind : destNode.ind + 1
+				destSiblings.splice(insertInd, 0, nodeModel)
+				// update the position of the inserted node and its successor siblings
+				for (let i = insertInd; i < destSiblings.length; i++) {
+					const nm = destSiblings[i]
+					const newPath = targetParentPath.concat(i)
+					nm.path = newPath
+					nm.pathStr = JSON.stringify(newPath)
+					nm.ind = i
+					nm.level = newPath.length
+					nm.isFirstChild = i === 0
+					nm.isLastChild = i === destSiblings.length - 1
+				}
+				// if the parent has changed update the descendants of the inserted node
+				if (this.comparePaths(targetParentPath, sourceParentPath) !== 0) {
+					//do it
+				}
 			}
 			return parentId
 		},
 
-		insert(cursorPosition, nodeModel) {
-			const nodeModels = Array.isArray(nodeModel) ? nodeModel : [nodeModel];
-			this.insertModels(cursorPosition, nodeModels, this.currentValue);
+		/* Remove a nodeModel from the tree model */
+		remove(nodeModel) {
+			const siblings = this.getNodeSiblings(nodeModel.path)
+			const removeInd = nodeModel.ind
+			const parentPath = nodeModel.path.slice(0, nodeModel.path.length - 1)
+			siblings.splice(removeInd, 1)
+			// update the position of the successor siblings
+			for (let i = removeInd; i < siblings.length; i++) {
+				const newPath = parentPath.concat(i)
+				const nodeModel = siblings[i]
+				nodeModel.path = newPath
+				nodeModel.pathStr = JSON.stringify(newPath)
+				nodeModel.ind = i
+				nodeModel.level = newPath.length
+				nodeModel.isFirstChild = i === 0
+				nodeModel.isLastChild = i === siblings.length - 1
+			}
 		},
 
 		checkNodeIsParent(sourceNode, destNode) {
@@ -1002,7 +940,7 @@ export default {
 			}
 			this.$store.state.filterText = RESETFILTERBUTTONTEXT
 			this.$store.state.filterOn = true
-			//			this.showVisibility('filterSince')
+			// this.showVisibility('filterSince')
 		},
 
 		filterOnKeyword() {
@@ -1031,7 +969,7 @@ export default {
 				this.showLastEvent(`${count} item titles match your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
 			}
 			this.$store.state.searchOn = true
-			//			this.showVisibility('filterOnKeyword')
+			// this.showVisibility('filterOnKeyword')
 		}
 	}
 }

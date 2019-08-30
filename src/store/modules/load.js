@@ -96,48 +96,60 @@ const mutations = {
 	processProduct(state) {
 		for (let i = 0; i < batch.length; i++) {
 			state.docsCount++
-			// Load the items of the products the user is authorized to
+			// load the items of the products the user is authorized to
 			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
-				let level = batch[i].doc.level
-				let parentId = batch[i].doc.parentId
-				let delmark = batch[i].doc.delmark
-				let expanded = (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL) ? true : false
-				let isSelected = (batch[i].doc._id === state.currentDefaultProductId) ? true : false
+				const level = batch[i].doc.level
+				const parentId = batch[i].doc.parentId
+				const delmark = batch[i].doc.delmark
+				// expand the tree of the default product up to feature level
+				const isExpanded = (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL) ? true : false
+				// select the default product
+				const isSelected = (batch[i].doc._id === state.currentDefaultProductId) ? true : false
+				const isDraggable = level > PRODUCTLEVEL && getters.canWriteLevels[batch[i].doc.level]
+				const doShow = batch[i].doc.level <= PRODUCTLEVEL || batch[i].doc.productId === state.currentDefaultProductId
 				if (isSelected) defaultProductIsSelected = true
-				// Skip the database/requirement area levels and the removed items
-				if (level > 1 && !delmark) {
-					let newNode = {
-						productId: batch[i].doc.productId,
-						parentId: parentId,
-						_id: batch[i].doc._id,
-						shortId: batch[i].doc.shortId,
-						title: batch[i].doc.title,
-						isLeaf: (level === PBILEVEL) ? true : false,
-						// for now PBI's have no children
-						children: [],
-						// expand the tree of the default product
-						isExpanded: expanded,
-						savedIsExpanded: expanded,
-						isSelectable: true,
-						isDraggable: level > PRODUCTLEVEL && getters.canWriteLevels[batch[i].doc.level],
-						// select the default product
-						isSelected: isSelected,
-						doShow: true,
-						savedDoShow: true,
-						data: {
-							priority: batch[i].doc.priority,
-							state: batch[i].doc.state,
-							subtype: batch[i].doc.subtype,
-							lastChange: batch[i].doc.history[0].timestamp
+				if (parentNodes[parentId] !== undefined) {
+					const parentNode = parentNodes[parentId]
+					const ind = parentNode.children.length
+					const parentPath = parentNode.path
+					const path = parentPath.concat(ind)
+					// skip the database/requirement area level and the removed items
+					if (level > 1 && !delmark) {
+						let newNode = {
+							path,
+							pathStr: JSON.stringify(path),
+							ind,
+							level: path.length,
+							isFirstChild: ind === 0,
+							productId: batch[i].doc.productId,
+							parentId,
+							_id: batch[i].doc._id,
+							shortId: batch[i].doc.shortId,
+							title: batch[i].doc.title,
+							isLeaf: (level === PBILEVEL) ? true : false,
+							children: [],
+							isExpanded,
+							savedIsExpanded: isExpanded,
+							isSelectable: true,
+							isDraggable,
+							isSelected: isSelected,
+							doShow,
+							savedDoShow: doShow,
+							data: {
+								priority: batch[i].doc.priority,
+								state: batch[i].doc.state,
+								subtype: batch[i].doc.subtype,
+								lastChange: batch[i].doc.history[0].timestamp
+							}
 						}
-					}
-					if (parentNodes[parentId] !== undefined) {
+
 						state.itemsCount++
-						let parentNode = parentNodes[parentId]
+
 						parentNode.children.push(newNode)
 						parentNodes[batch[i].doc._id] = newNode
 					} else {
 						state.orphansCount++
+						// ToDo: add this to the log
 						console.log('processProduct: orphan found with parentId = ' + parentId + ' and productId = ' + batch[i].doc.productId)
 					}
 				}
@@ -190,17 +202,23 @@ const actions = {
 			// prepare for loading the first batch; add the root node for the database name
 			state.treeNodes = [
 				{
-					"productId": "root",
+					"path": [0],
+					"pathStr": '[0]',
+					"ind": 0,
+					"level": 1,
+					"isFirstChild": true,
+					"productId": 'root',
 					"parentId": null,
-					"_id": "root",
+					"_id": 'root',
 					"shortId": "0",
 					"title": rootState.currentDb,
+					"isLeaf": false,
 					"children": [],
-					"isSelectable": true,
-					"isSelected": false,
 					"isExpanded": true,
 					"savedIsExpanded": true,
+					"isSelectable": true,
 					"isDraggable": false,
+					"isSelected": false,
 					"doShow": true,
 					"savedDoShow": true,
 					"data": {
@@ -390,7 +408,7 @@ const actions = {
 				// reset load parameters
 				parentNodes = {}
 			}
-			commit('showLastEvent', {txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, INFO})
+			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, INFO })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Another product of ' + batch.length + ' documents is loaded')
 			if (!productPageLounched && defaultProductIsSelected) {
@@ -419,7 +437,7 @@ const actions = {
 			batch = res.data.rows
 			commit('processProduct')
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('One product with ' + batch.length + ' documents is loaded')
+			if (rootState.debug) console.log('Current product with ' + batch.length + ' documents is loaded')
 			// process other products here
 			if (state.myProductSubscriptions.length > 1 && state.processedProducts < state.myProductSubscriptions.length) {
 				state.productIdLoading = state.myProductSubscriptions[state.processedProducts]
@@ -434,7 +452,7 @@ const actions = {
 				}
 				// reset load parameters
 				parentNodes = {}
-				commit('showLastEvent', {txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO})
+				commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 				if (!productPageLounched && defaultProductIsSelected) {
 					router.push('/product')
 					// reset before new login
@@ -467,11 +485,11 @@ const actions = {
 				const doc = rows[0].doc
 				if (state.userAssignedProductIds.includes(doc.productId)) {
 					if (rows.length === 1) {
-						commit('showLastEvent', {txt: `The document with id ${shortId} is found but not in your selected products.`, severity: WARNING})
+						commit('showLastEvent', { txt: `The document with id ${shortId} is found but not in your selected products.`, severity: WARNING })
 					} else {
-						commit('showLastEvent', {txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed.`, severity: INFO})
+						commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed.`, severity: INFO })
 						let ids = ''
-						for (let i = 0 ; i < rows.length; i++) {
+						for (let i = 0; i < rows.length; i++) {
 							ids += rows[i].doc._id + ', '
 						}
 						const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
@@ -487,9 +505,9 @@ const actions = {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('getItemByShortId: document with _id + ' + doc._id + ' is loaded.')
 				} else {
-					commit('showLastEvent', {txt: `The document with id ${shortId} is found but not in your assigned products.`, severity: WARNING})
+					commit('showLastEvent', { txt: `The document with id ${shortId} is found but not in your assigned products.`, severity: WARNING })
 				}
-			} else commit('showLastEvent', {txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING})
+			} else commit('showLastEvent', { txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING })
 		})
 			// eslint-disable-next-line no-console
 			.catch(error => console.log('getItemByShortId: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
