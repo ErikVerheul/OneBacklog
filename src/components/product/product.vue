@@ -111,7 +111,7 @@
                   <font-awesome-icon icon="bug" />
                 </i>
               </span>
-              {{ node.title }}
+              {{ node.title }} : {{ node.data.priority }}
               <b-badge variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
             </template>
 
@@ -356,6 +356,13 @@
 * PBI ... ................ 5 ................... 5
 *
 * The nodes in the tree have these data elements and values:
+*
+* path, // the access path in the tree model
+* pathStr: JSON.stringify(path),
+* ind, // the index in the children array
+* level: path.length,
+* isFirstChild: ind === 0,
+* isLastChild, // is set on select
 *
 * productId: doc.productId,
 * parentId: doc.parentId,

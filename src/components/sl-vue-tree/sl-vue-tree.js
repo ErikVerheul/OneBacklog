@@ -3,6 +3,7 @@
  */
 const ROOTLEVEL = 1
 const PRODUCTLEVEL = 2
+const PBILEVEL = 5
 const FILTERBUTTONTEXT = 'Recent changes'
 const RESETFILTERBUTTONTEXT = 'Clear filter'
 const INFO = 0
@@ -423,63 +424,20 @@ export default {
 
 		/* Move the nodes to the position designated by cursorPosition */
 		moveNodes(cursorPosition, nodes) {
-			const targetProductId = cursorPosition.nodeModel.productId
-
-			function updateMovedNodes(cb, nodeModels, productId) {
-				// inRange means that the recursion processes items of the requested product
-				let inRange = false
-				function traverse(
-					cb,
-					nodeModels,
-					parentPath = [],
-					parentId = undefined) {
-					for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
-						const nodeModel = nodeModels[nodeInd]
-						const itemPath = parentPath.concat(nodeInd)
-						// skip the root
-						if (nodeModel.productId === 'root') {
-							traverse(cb, nodeModel.children, itemPath, nodeModel._id)
-						} else {
-							if (itemPath.length === PRODUCTLEVEL) {
-								// exit the recursion if the range has been processed
-								if (inRange && nodeModel.productId !== productId) break
-								inRange = nodeModel.productId === productId
-							}
-							// console.log('updateMovedNodes: inRange = ' + inRange + ' nodeModel._id = ' + nodeModel._id + ' nodeModel.productId = ' + nodeModel.productId + ' nodeModel.parentId = ' + nodeModel.parentId)
-
-							if (inRange) cb(nodeModel, productId, parentId)
-
-							if (nodeModel.children && nodeModel.children.length > 0) {
-								traverse(cb, nodeModel.children, itemPath, nodeModel._id)
-							}
-						}
-					}
-				}
-				traverse(cb, nodeModels)
+			function replace(vm, cursorPosition, node) {
+				vm.remove(node)
+				vm.insert(cursorPosition, node)
 			}
 
-			// remove from old location and insert in new location
-			for (let node of nodes) {
-				const sourceSiblings = this.getNodeSiblings(node.path)
-				this.remove(sourceSiblings[node.ind])
-				this.insert(cursorPosition, node)
+			if (cursorPosition.placement === 'inside') {
+				for (let i = nodes.length - 1; i >= 0; i--) {
+					replace(this, cursorPosition, nodes[i])
+				}
+			} else {
+				for (let node of nodes) {
+					replace(this, cursorPosition, node)
+				}
 			}
-
-			// if needed update the product and parent ids; mark the changed nodemodels for distribution
-			updateMovedNodes((nodeModel, productId, parentId) => {
-				if (nodeModel.parentId !== parentId) {
-					// children have the id of their parent as parentId
-					nodeModel.parentId = parentId
-					nodeModel.data.sessionId = this.$store.state.sessionId
-					nodeModel.data.distributeEvent = true
-				}
-				if (nodeModel.productId !== productId) {
-					// children have the same productId as the parent
-					nodeModel.productId = productId
-					nodeModel.data.sessionId = this.$store.state.sessionId
-					nodeModel.data.distributeEvent = true
-				}
-			}, this.currentValue, targetProductId)
 		},
 
 		onNodeMouseupHandler(event) {
@@ -548,8 +506,8 @@ export default {
 				this.stopDrag();
 				return;
 			}
-			console.log('onNodeMouseupHandler: moveNodes is called, draggableNodes.length = ' + draggableNodes.length)
-			console.log('onNodeMouseupHandler: JSON.stringify(draggableNodes, null, 2) = ' + JSON.stringify(draggableNodes, null, 2))
+			// console.log('onNodeMouseupHandler: moveNodes is called, draggableNodes.length = ' + draggableNodes.length)
+			// console.log('onNodeMouseupHandler: JSON.stringify(draggableNodes, null, 2) = ' + JSON.stringify(draggableNodes, null, 2))
 			this.moveNodes(this.cursorPosition, draggableNodes)
 
 			lastSelectedNode = null;
@@ -646,7 +604,8 @@ export default {
 		 * A faster version of the original
 		 * Use the optinal parameter productId to limit the callback calls to that product only, or use the value 'undefined' to scan all products
 		 */
-		traverseLight(cb, productId = undefined) {
+		traverseLight(cb, productId = undefined, caller) {
+			console.log('traverseLight is called by ' + caller)
 			let shouldStop = false
 			function traverse(
 				cb,
@@ -717,79 +676,68 @@ export default {
 			return prevVisibleModel
 		},
 
-		/*
-		 * Inserts the nodeModel in the tree model after (when moving down)
-		 * or before (when moving up) node cursorposition in the newNodes array model.
-		 * Return the parentId the models are inserted under.
-		 */
-		insert(cursorPosition, nodeModel) {
-			const destNode = cursorPosition.nodeModel
-			const destSiblings = this.getNodeSiblings(destNode.path)
-			const destNodeModel = destSiblings[destNode.ind]
-			const sourceParentPath = []
-			for (let i = 0; i < nodeModel.path.length - 1; i++) sourceParentPath.push(nodeModel.path[i])
-			let parentId
-			if (cursorPosition.placement === 'inside') {
-				parentId = destNode._id
-				const targetParentPath = destNode.path
-				destNodeModel.children = destNodeModel.children || []
-				destNodeModel.children.unshift(nodeModel)
-				// update the position of all children including the inserted node
-				for (let i = 0; i < destNodeModel.children.length; i++) {
-					const nm = destNodeModel.children[i]
-					const newPath = targetParentPath.concat(i)
-					nm.path = newPath
-					nm.pathStr = JSON.stringify(newPath)
-					nm.ind = i
-					nm.level = newPath.length
-					nm.isFirstChild = i === 0
-					nm.isLastChild = i === destNodeModel.children.length - 1
+		// update the descendants of the destination node with (possibly) new parentId and new position
+		updatePaths(parentPath, siblings, insertInd, productId = undefined, parentId = undefined) {
+			for (let i = insertInd; i < siblings.length; i++) {
+				const sibling = siblings[i]
+				const oldPath = sibling.path.slice()
+				const newPath = parentPath.concat(i)
+				// const oldProductId = sibling.productId
+				// const oldParentId = sibling.parentId.slice()
+				if (parentId) sibling.parentId = parentId
+				if (productId) sibling.productId = productId
+				sibling.path = newPath
+				sibling.pathStr = JSON.stringify(newPath)
+				sibling.ind = i
+				sibling.level = newPath.length
+				sibling.isFirstChild = i === 0
+				sibling.isLastChild = i === siblings.length - 1
+				sibling.isLeaf = (sibling.level < PBILEVEL) ? false : true
+				if (this.comparePaths(oldPath, newPath !== 0)) {
+					//mark the changed nodemodels for distribution
+					sibling.data.sessionId = this.$store.state.sessionId
+					sibling.data.distributeEvent = true
 				}
-				// if the parent has changed update the descendants of the inserted node
-				if (this.comparePaths(targetParentPath, sourceParentPath) !== 0) {
-					//do it
-				}
-			} else {
-				parentId = destNode.parentId
-				const targetParentPath = destNode.path.slice(0, destNode.path.length - 1)
-				const insertInd = cursorPosition.placement === 'before' ? destNode.ind : destNode.ind + 1
-				destSiblings.splice(insertInd, 0, nodeModel)
-				// update the position of the inserted node and its successor siblings
-				for (let i = insertInd; i < destSiblings.length; i++) {
-					const nm = destSiblings[i]
-					const newPath = targetParentPath.concat(i)
-					nm.path = newPath
-					nm.pathStr = JSON.stringify(newPath)
-					nm.ind = i
-					nm.level = newPath.length
-					nm.isFirstChild = i === 0
-					nm.isLastChild = i === destSiblings.length - 1
-				}
-				// if the parent has changed update the descendants of the inserted node
-				if (this.comparePaths(targetParentPath, sourceParentPath) !== 0) {
-					//do it
+				// console.log('updatePaths: old path = ' + oldPath + ' new path = ' + newPath + ' old parentId = ' + oldParentId + ' new parentId = ' + parentId)
+				if (sibling.children && sibling.children.length > 0) {
+					this.updatePaths(sibling.path, sibling.children, 0, productId, sibling._id)
 				}
 			}
-			return parentId
+		},
+
+		/*
+		 * Inserts the nodeModel in the tree model inside, after or before the node at cursorposition.
+		 * Updates the productId and parentId when changed.
+		 */
+		insert(cursorPosition, nm) {
+			const destNodeModel = cursorPosition.nodeModel
+			const productId = destNodeModel.productId
+			nm.productId = productId
+			let parentId
+			if (cursorPosition.placement === 'inside') {
+				const destSiblings = destNodeModel.children || []
+				parentId = destNodeModel._id
+				destSiblings.unshift(nm)
+				this.updatePaths(destNodeModel.path, destSiblings, 0, productId, parentId)
+
+			} else {
+				// insert before or after the cursor position
+				const destSiblings = this.getNodeSiblings(nm.path)
+				parentId = destNodeModel.parentId
+				const insertInd = cursorPosition.placement === 'before' ? destNodeModel.ind : destNodeModel.ind + 1
+				destSiblings.splice(insertInd, 0, nm)
+				const parentPath = destNodeModel.path.slice(0, destNodeModel.path.length - 1)
+				this.updatePaths(parentPath, destSiblings, insertInd, productId, parentId)
+			}
 		},
 
 		/* Remove a nodeModel from the tree model */
-		remove(nodeModel) {
-			const siblings = this.getNodeSiblings(nodeModel.path)
-			const removeInd = nodeModel.ind
-			const parentPath = nodeModel.path.slice(0, nodeModel.path.length - 1)
+		remove(nm) {
+			const siblings = this.getNodeSiblings(nm.path)
+			const removeInd = nm.ind
+			const parentPath = nm.path.slice(0, nm.path.length - 1)
 			siblings.splice(removeInd, 1)
-			// update the position of the successor siblings
-			for (let i = removeInd; i < siblings.length; i++) {
-				const newPath = parentPath.concat(i)
-				const nodeModel = siblings[i]
-				nodeModel.path = newPath
-				nodeModel.pathStr = JSON.stringify(newPath)
-				nodeModel.ind = i
-				nodeModel.level = newPath.length
-				nodeModel.isFirstChild = i === 0
-				nodeModel.isLastChild = i === siblings.length - 1
-			}
+			this.updatePaths(parentPath, siblings, removeInd)
 		},
 
 		checkNodeIsParent(sourceNode, destNode) {

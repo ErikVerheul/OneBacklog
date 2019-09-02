@@ -615,93 +615,52 @@ export default {
 		},
 
 		/*
-		 * Get the previous sibling above the node with the same level as the node itself
-		 * precondition: the node is NOT firstChild
-		 */
-		getPrevSibling(node) {
-			const siblings = window.slVueTree.getNodeSiblings(node.path)
-			return siblings[node.ind - 1]
-		},
-
-		/*
-		 * Get the next sibling below the node with the same level as the node itself
-		 * precondition: the node is NOT lastChild
-		 */
-		getNextSibling(node) {
-			const siblings = window.slVueTree.getNodeSiblings(node.path)
-			return siblings[node.ind + 1]
-		},
-
-		assignNewPrios(nodes, predecessorNode, successorNode) {
-			let predecessorPrio
-			let successorPrio
-			if (predecessorNode !== null) {
-				predecessorPrio = predecessorNode.data.priority
-			} else {
-				predecessorPrio = Number.MAX_SAFE_INTEGER
-			}
-			if (successorNode !== null) {
-				successorPrio = successorNode.data.priority
-			} else {
-				successorPrio = Number.MIN_SAFE_INTEGER
-			}
-			const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-			for (let i = 0; i < nodes.length; i++) {
-				// update the tree
-				nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-				nodes[i].data.lastChange = Date.now()
-			}
-		},
-		/*
 		 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
-		 * Set isLeaf depending on the level of the node and set isExanded to false as these nodes have no children.
 		 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
 		 */
-		updateTree(nodes) {
+		updatePriorities(nodes) {
+			// get the previous sibling (above the node)
+			function getPrevSibling(node) {
+				if (node.isFirstChild) return null
+				const siblings = window.slVueTree.getNodeSiblings(node.path)
+				return siblings[node.ind - 1]
+			}
+			// get the next sibling (below the node)
+			function getNextSibling(node) {
+				if (node.isLastChild) return null
+				const siblings = window.slVueTree.getNodeSiblings(node.path)
+				return siblings[node.ind + 1]
+			}
+			function assignNewPrios(nodes, predecessorNode, successorNode) {
+				let predecessorPrio
+				let successorPrio
+				if (predecessorNode !== null) {
+					predecessorPrio = predecessorNode.data.priority
+				} else {
+					predecessorPrio = Number.MAX_SAFE_INTEGER
+				}
+				if (successorNode !== null) {
+					successorPrio = successorNode.data.priority
+				} else {
+					successorPrio = Number.MIN_SAFE_INTEGER
+				}
+				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+				for (let i = 0; i < nodes.length; i++) {
+					// update the tree
+					nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+					nodes[i].data.lastChange = Date.now()
+				}
+			}
+
 			const firstNode = nodes[0]
-			const level = firstNode.level
 			const parentPath = firstNode.path.slice(0, firstNode.path.length - 1)
 			const parentNode = window.slVueTree.getNode(parentPath)
-			let predecessorNode
-			let successorNode
-			if (firstNode.isFirstChild) {
-				// the previous node must be the parent
-				predecessorNode = null
-			} else {
-				// firstNode has a sibling between the parent and itself
-				predecessorNode = this.getPrevSibling(firstNode)
-			}
+			const predecessorNode = getPrevSibling(firstNode)
 			const lastNode = nodes[nodes.length - 1]
-			if (!lastNode.isLastChild) {
-				successorNode = this.getNextSibling(lastNode)
-			} else {
-				successorNode = null
-			}
+			const successorNode = getNextSibling(lastNode)
+
 			// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
-			if (parentNode._id !== 'root') this.assignNewPrios(nodes, predecessorNode, successorNode)
-			// update the tree
-			window.slVueTree.traverseLight((nodePath, nodeModel) => {
-				switch (window.slVueTree.comparePaths(nodePath, firstNode.path)) {
-					case -1:
-						// console.log('updateTree: case -1: path = ' + nodePath + ' parentId = ' + nodeModel.parentId)
-						// skip top levels but expand and deselect the parent
-						if (nodeModel._id === parentNode._id) {
-							nodeModel.isExpanded = true
-							nodeModel.isSelected = false
-						}
-						return
-					case 0:
-						// console.log('updateTree: case 0: path = ' + nodePath + ' parentId = ' + nodeModel.parentId)
-						nodeModel.isExpanded = false
-						nodeModel.isSelected = true
-						nodeModel.isLeaf = (level < PBILEVEL) ? false : true
-						return
-					case 1:
-						// process descendant
-						// console.log('updateTree: case 1: path = ' + nodePath + ' parentId = ' + nodeModel.parentId)
-						nodeModel.isLeaf = (nodePath.length < PBILEVEL) ? false : true
-				}
-			}, parentNode.productId, 'product.js:updateTree')
+			if (parentNode._id !== 'root') assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 		/*
 		 * Update the tree when one or more nodes are dropped on another location
@@ -719,7 +678,7 @@ export default {
 			// no action required when moving a product in the tree
 			if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
 				// when nodes are dropped to another position the parent, type and the priorities must be updated
-				this.updateTree(draggingNodes)
+				this.updatePriorities(draggingNodes)
 				// update the nodes in the database
 				let payloadArray = []
 				for (let i = 0; i < draggingNodes.length; i++) {
@@ -825,7 +784,7 @@ export default {
 				const newPath = targetNode.path.concat([0])
 				const newNode = window.slVueTree.getNode(newPath)
 				// parentId and priority are updated in this routine
-				this.updateTree([newNode])
+				this.updatePriorities([newNode])
 				const descendants = this.getDescendantsInfo(newPath).descendants
 				const payloadItem = {
 					'_id': newNode._id,
@@ -945,17 +904,16 @@ export default {
 
 		/*
 		 * Create and insert a new node in the tree and create a document for this new item
+		 * A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
 		 */
 		doInsert() {
+			const locationPath = this.contextNodeSelected.path
 			let newNodeLocation
+			let path
+			let ind
 			// prepare the new node for insertion
 			newNode = {
 				productId: this.$store.state.load.currentProductId,
-				parentId: null,
-				_id: null,
-				shortId: null,
-				title: 'is calculated in this method',
-				isLeaf: 'is calculated in this method',
 				children: [],
 				isExpanded: false,
 				savedIsExpanded: false,
@@ -980,6 +938,8 @@ export default {
 					nodeModel: this.contextNodeSelected,
 					placement: 'after'
 				}
+				ind = locationPath.slice(-1)[0] + 1
+				path = locationPath.slice(0, locationPath.length - 1).concat(ind)
 				newNode.parentId = this.contextNodeSelected.parentId
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
@@ -991,10 +951,19 @@ export default {
 					nodeModel: this.contextNodeSelected,
 					placement: 'inside'
 				}
+				ind = 0
+				path = this.contextNodeSelected.path.concat(0)
 				newNode.parentId = this.contextNodeSelected._id
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
 			}
+
+			newNode.path = path
+			newNode.pathStr = JSON.stringify(path)
+			newNode.ind = ind
+			newNode.level = path.length
+			newNode.isFirstChild = ind === 0
+
 			if (this.canWriteLevels[insertLevel]) {
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
@@ -1004,31 +973,24 @@ export default {
 				this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
 				if (newNodeLocation.placement === 'inside') {
 					// unselect the node that was clicked before the insert and expand it to show the inserted node
-					window.slVueTree.updateNode(this.contextNodeSelected.path, {
-						isSelected: false,
-						isExpanded: true
-					})
+					this.contextNodeSelected.isSelected = false
+					this.contextNodeSelected.isExpanded = true
 				} else {
 					// unselect the node that was clicked before the insert
-					window.slVueTree.updateNode(this.contextNodeSelected.path, {
-						isSelected: false
-					})
+					this.contextNodeSelected.isSelected = false
 				}
 				newNode.isSelected = true
-				// insert the node and set the position parameters
 				window.slVueTree.insert(newNodeLocation, newNode)
-				// now the node is inserted and selected get the full ISlTreeNode data
-				const insertedNode = window.slVueTree.getSelected()[0]
-				firstNodeSelected = insertedNode
+				firstNodeSelected = newNode
 				// parentId and priority are set in this routine
-				this.updateTree([insertedNode])
+				this.updatePriorities([newNode])
 				// create a new document and store it
 				const initData = {
-					"_id": insertedNode._id,
-					"shortId": insertedNode.shortId,
+					"_id": newNode._id,
+					"shortId": newNode.shortId,
 					"type": "backlogItem",
-					"productId": insertedNode.productId,
-					"parentId": insertedNode.parentId,
+					"productId": newNode.productId,
+					"parentId": newNode.parentId,
 					"team": "not assigned yet",
 					"level": insertLevel,
 					"subtype": 0,
@@ -1037,11 +999,11 @@ export default {
 					"spsize": 0,
 					"spikepersonhours": 0,
 					"reqarea": null,
-					"title": insertedNode.title,
+					"title": newNode.title,
 					"followers": [],
 					"description": "",
 					"acceptanceCriteria": window.btoa("<p>Please don't forget</p>"),
-					"priority": insertedNode.data.priority,
+					"priority": newNode.data.priority,
 					"attachments": [],
 					"comments": [],
 					"history": [{

@@ -115,6 +115,7 @@ const mutations = {
 					const path = parentPath.concat(ind)
 					// skip the database/requirement area level and the removed items
 					if (level > 1 && !delmark) {
+						// isLastNode will be set as the node is selected in getCursorModelPositionFromCoords(x, y)
 						let newNode = {
 							path,
 							pathStr: JSON.stringify(path),
