@@ -542,35 +542,31 @@ export default {
 			}
 			this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
 		},
+
 		nodeToggled(node) {
 			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
 		},
-		getDescendantsInfo(path) {
-			let descendants = []
-			let initLevel = 0
-			let count = 0
-			let maxDepth = 0
-			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
-			window.slVueTree.traverseLight((nodePath, nodeModel) => {
-				if (window.slVueTree.comparePaths(nodePath, path) === 0) {
-					initLevel = path.length
-					maxDepth = path.length
-				} else {
-					if (nodePath.length <= initLevel) return false
 
-					if (window.slVueTree.comparePaths(nodePath, path) === 1) {
-						descendants.push(nodeModel)
-						count++
-						if (nodePath.length > maxDepth) maxDepth = nodePath.length
-					}
+		getDescendantsInfo(node) {
+			const path = node.path
+			const descendants = []
+			let initLevel = node.level
+			let count = 0
+			let maxDepth = node.level
+			window.slVueTree.traverseModels((nodeModel) => {
+				if (window.slVueTree.comparePaths(nodeModel.path, path) === 1) {
+					descendants.push(nodeModel)
+					count++
+					if (nodeModel.level > maxDepth) maxDepth = nodeModel.level
 				}
-			}, productId, 'product.js:getDescendantsInfo')
+			}, [node])
 			return {
 				descendants: descendants,
 				count: count,
 				depth: maxDepth - initLevel
 			}
 		},
+
 		/*
 		/ Use this event to check if the drag is allowed. If not, issue a warning.
 		*/
@@ -585,7 +581,7 @@ export default {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				let failedCheck1 = !this.canWriteLevels[position.nodeModel.level]
 				let failedCheck2 = levelChange > 1
-				let failedCheck3 = (targetLevel + this.getDescendantsInfo(node.path).depth) > PBILEVEL
+				let failedCheck3 = (targetLevel + this.getDescendantsInfo(node).depth) > PBILEVEL
 				if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
 				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
@@ -677,7 +673,7 @@ export default {
 				// update the nodes in the database
 				let payloadArray = []
 				for (let i = 0; i < draggingNodes.length; i++) {
-					let descendants = this.getDescendantsInfo(draggingNodes[i].path).descendants
+					let descendants = this.getDescendantsInfo(draggingNodes[i]).descendants
 					const payloadItem = {
 						'_id': draggingNodes[i]._id,
 						'productId': draggingNodes[i].productId,
@@ -718,7 +714,7 @@ export default {
 				this.contextNodeLevel = node.level
 				this.contextNodeType = this.getLevelText(node.level)
 				this.contextChildType = this.getLevelText(node.level + 1)
-				this.removeDescendantsCount = this.getDescendantsInfo(node.path).count
+				this.removeDescendantsCount = this.getDescendantsInfo(node).count
 				this.$refs.contextMenuRef.show()
 			}
 		},
@@ -780,7 +776,7 @@ export default {
 				const newNode = window.slVueTree.getNodeModel(newPath)
 				// parentId and priority are updated in this routine
 				this.updatePriorities([newNode])
-				const descendants = this.getDescendantsInfo(newPath).descendants
+				const descendants = this.getDescendantsInfo(newNode).descendants
 				const payloadItem = {
 					'_id': newNode._id,
 					'oldProductId': this.moveSourceProductId, // ToDo: use this field in the history record
@@ -811,7 +807,7 @@ export default {
 		 */
 		doRemove() {
 			const selectedNode = this.contextNodeSelected
-			const descendantsInfo = this.getDescendantsInfo(selectedNode.path)
+			const descendantsInfo = this.getDescendantsInfo(selectedNode)
 			this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
 			const path = selectedNode.path
 			const descendants = descendantsInfo.descendants

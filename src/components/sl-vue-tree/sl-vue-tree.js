@@ -518,7 +518,6 @@ export default {
 				if (nodeModel.children) this.traverseModels(cb, nodeModel.children);
 				cb(nodeModel, nodeModels, i);
 			}
-			return nodeModels;
 		},
 
 		getPrevVisibleNode(path) {
