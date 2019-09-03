@@ -76,20 +76,18 @@ const actions = {
 		}
 
 		function updateFields(doc, node) {
-			let newData = Object.assign(node.data)
-			newData.subtype = doc.subtype
-			newData.state = doc.state
-			newData.productId = doc.productId
-			window.slVueTree.updateNode(node.path, {
-				"title": doc.title,
-				"data": newData
-			})
+			node.title = doc.title
+			node.data.subtype = doc.subtype
+			node.data.state = doc.state
+			node.data.productId = doc.productId
 		}
+
 		function updateProductIds(nodes, productId) {
 			window.slVueTree.traverseModels((nodeModel) => {
 				nodeModel.productId = productId
 			}, nodes)
 		}
+
 		let url = rootState.currentDb + '/_changes?feed=longpoll&filter=_view&view=design1/changesFilter&include_docs=true'
 		if (since) url += '&since=' + since
 		else {

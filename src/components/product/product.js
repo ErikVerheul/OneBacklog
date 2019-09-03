@@ -441,19 +441,14 @@ export default {
 			if (oldTitle === newTitle) return
 
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
-				// update the tree; must use an explicit updateNode
+				// update the tree
 				let node = firstNodeSelected
-				let newData = Object.assign(node.data)
-				newData.lastChange = Date.now()
-				window.slVueTree.updateNode(node.path, {
-					title: newTitle,
-					data: newData
-				})
+				node.title = newTitle
+				node.data.lastChange = Date.now()
 				// update current document in database
-				const payload = {
+				this.$store.dispatch('setDocTitle', {
 					'newTitle': newTitle
-				}
-				this.$store.dispatch('setDocTitle', payload)
+				})
 			} else {
 				this.showLastEvent("Sorry, your assigned role(s) disallow you to change the title of this item", WARNING)
 			}
@@ -621,15 +616,15 @@ export default {
 		updatePriorities(nodes) {
 			// get the previous sibling (above the node)
 			function getPrevSibling(node) {
-				if (node.isFirstChild) return null
 				const siblings = window.slVueTree.getNodeSiblings(node.path)
-				return siblings[node.ind - 1]
+				// return null if a previous node does not exist
+				return siblings[node.ind - 1] || null
 			}
 			// get the next sibling (below the node)
 			function getNextSibling(node) {
-				if (node.isLastChild) return null
 				const siblings = window.slVueTree.getNodeSiblings(node.path)
-				return siblings[node.ind + 1]
+				// return null if a next node does not exist
+				return siblings[node.ind + 1] || null
 			}
 			function assignNewPrios(nodes, predecessorNode, successorNode) {
 				let predecessorPrio
@@ -654,7 +649,7 @@ export default {
 
 			const firstNode = nodes[0]
 			const parentPath = firstNode.path.slice(0, firstNode.path.length - 1)
-			const parentNode = window.slVueTree.getNode(parentPath)
+			const parentNode = window.slVueTree.getNodeModel(parentPath)
 			const predecessorNode = getPrevSibling(firstNode)
 			const lastNode = nodes[nodes.length - 1]
 			const successorNode = getNextSibling(lastNode)
@@ -782,7 +777,7 @@ export default {
 				const targetNode = targetPosition.nodeModel
 				// the path to new node is immediately below the selected node
 				const newPath = targetNode.path.concat([0])
-				const newNode = window.slVueTree.getNode(newPath)
+				const newNode = window.slVueTree.getNodeModel(newPath)
 				// parentId and priority are updated in this routine
 				this.updatePriorities([newNode])
 				const descendants = this.getDescendantsInfo(newPath).descendants
@@ -812,7 +807,7 @@ export default {
 			}
 		},
 		/*
-		 * Both the selected node and all its descendants will be tagged with a delmark
+		 * In the database both the selected node and all its descendants will be tagged with a delmark
 		 */
 		doRemove() {
 			const selectedNode = this.contextNodeSelected
@@ -855,15 +850,11 @@ export default {
 				this.$store.dispatch('removeDescendantsBulk', descendants)
 			}
 			// collapse the branch and make the removed node invisible
-			window.slVueTree.updateNode(path, {
-				isExpanded: false,
-				doShow: false
-			})
-			// after removal select the visible predesessor of the removed node
+			selectedNode.isExpanded = false
+			selectedNode.doShow = false
+			// after removal select the visible predecessor of the removed node
 			const prevNode = window.slVueTree.getPrevVisibleNode(path)
-			window.slVueTree.updateNode(prevNode.path, {
-				isSelected: true
-			})
+			prevNode.isSelected = true
 			firstNodeSelected = prevNode
 			// now we can remove the node and its children
 			window.slVueTree.remove(selectedNode)
@@ -910,7 +901,7 @@ export default {
 			const locationPath = this.contextNodeSelected.path
 			let newNodeLocation
 			let path
-			let ind
+			let idx
 			// prepare the new node for insertion
 			newNode = {
 				productId: this.$store.state.load.currentProductId,
@@ -938,8 +929,8 @@ export default {
 					nodeModel: this.contextNodeSelected,
 					placement: 'after'
 				}
-				ind = locationPath.slice(-1)[0] + 1
-				path = locationPath.slice(0, locationPath.length - 1).concat(ind)
+				idx = locationPath.slice(-1)[0] + 1
+				path = locationPath.slice(0, locationPath.length - 1).concat(idx)
 				newNode.parentId = this.contextNodeSelected.parentId
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
@@ -951,7 +942,7 @@ export default {
 					nodeModel: this.contextNodeSelected,
 					placement: 'inside'
 				}
-				ind = 0
+				idx = 0
 				path = this.contextNodeSelected.path.concat(0)
 				newNode.parentId = this.contextNodeSelected._id
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
@@ -960,9 +951,8 @@ export default {
 
 			newNode.path = path
 			newNode.pathStr = JSON.stringify(path)
-			newNode.ind = ind
+			newNode.ind = idx
 			newNode.level = path.length
-			newNode.isFirstChild = ind === 0
 
 			if (this.canWriteLevels[insertLevel]) {
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value

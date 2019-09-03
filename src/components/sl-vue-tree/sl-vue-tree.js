@@ -10,6 +10,7 @@ const INFO = 0
 var lastSelectedNode = null
 var numberOfSelectedNodes = 0
 var draggableNodes = []
+var selectedNodes = []
 
 import { showLastEvent } from '../mixins/showLastEvent.js'
 
@@ -49,8 +50,6 @@ export default {
 	data() {
 		return {
 			rootCursorPosition: null,
-			scrollIntervalId: 0,
-			scrollSpeed: 0,
 			mouseIsDown: false,
 			isDragging: false,
 			lastMousePos: {
@@ -119,26 +118,10 @@ export default {
 
 		isRoot() {
 			return !this.level
-		},
-
-		dragSize() {
-			return draggableNodes.length;
 		}
 	},
-	methods: {
-		getProductModels(treeNodes, productId) {
-			const productModels = treeNodes[0].children
-			for (let i = 0; i < productModels.length; i++) {
-				if (productModels[i].productId === productId) {
-					return {
-						productNodes: productModels[i].children,
-						parentPath: [0, i]
-					}
-				}
-			}
-			return null
-		},
 
+	methods: {
 		setModelCursorPosition(pos) {
 			if (this.isRoot) {
 				this.rootCursorPosition = pos;
@@ -155,14 +138,8 @@ export default {
 
 		getNodeModel(path, tree = this.currentValue) {
 			const ind = path[0]
-			if (path.length === 1) return tree[ind]
+			if (path.length === 1) return tree[ind] || null
 			return this.getNodeModel(path.slice(1), tree[ind].children)
-		},
-
-		getNode(path) {
-			const ind = path.slice(-1)[0]
-			let siblings = this.getNodeSiblings(path)
-			return (siblings && siblings[ind]) || null
 		},
 
 		emitSelect(selectedNodes, event) {
@@ -192,44 +169,23 @@ export default {
 		/* select a node from the current product or select the root or the top node of another product */
 		select(cursorPosition, event) {
 			this.lastSelectCursorPosition = cursorPosition
-			const selectedNode = cursorPosition.nodeModel
+			const selNode = cursorPosition.nodeModel
 
-			// set the current productId. when on root level leave as is. emitSelect will set it a change globally
-			let productId = selectedNode.path.length === ROOTLEVEL ? this.$store.state.load.currentProductId : selectedNode.productId
-			const selectedNodes = []
-			let shiftSelectionMode = false
-			// only shift-select above productlevel
-			if (selectedNode.path.length > PRODUCTLEVEL) {
-				shiftSelectionMode = this.allowMultiselect && event && event.shiftKey && lastSelectedNode
-				// only shift select nodes on the same level
-				if (shiftSelectionMode && selectedNode.level !== lastSelectedNode.level) return
+			// only shift-select above productlevel and selected nodes on the same level
+			if (selNode.level > PRODUCTLEVEL && lastSelectedNode && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey) {
+				selNode.isSelected = selNode.isSelectable
+				selectedNodes.push(selNode)
+			} else {
+				// single selection mode: unselect all currently selected nodes and clear selectedNodes
+				for (let node of selectedNodes) {
+					node.isSelected = false
+				}
+				selectedNodes = []
+				selNode.isSelected = selNode.isSelectable
+				selectedNodes.push(selNode)
 			}
 
-			this.traverseLight((itemPath, nodeModel) => {
-				if (shiftSelectionMode) {
-					if (this.comparePaths(itemPath, selectedNode.path) === 0) {
-						nodeModel.isSelected = nodeModel.isSelectable
-					}
-				} else if (this.comparePaths(itemPath, selectedNode.path) === 0) {
-					nodeModel.isSelected = nodeModel.isSelectable
-				} else nodeModel.isSelected = false
-
-				if (itemPath.length > PRODUCTLEVEL) {
-					if (nodeModel.productId === productId) {
-						nodeModel.doShow = true
-					} else {
-						nodeModel.doShow = false
-					}
-				}
-				if (itemPath.length === PRODUCTLEVEL && nodeModel.productId !== productId) {
-					nodeModel.isExpanded = false
-				}
-				if (nodeModel.isSelected) {
-					selectedNodes.push(nodeModel)
-				}
-			}, undefined, 'sl-vue-tree.js:select')
-
-			lastSelectedNode = selectedNode
+			lastSelectedNode = selNode
 			numberOfSelectedNodes = selectedNodes.length
 			if (numberOfSelectedNodes > 0) {
 				this.emitSelect(selectedNodes, event)
@@ -254,7 +210,12 @@ export default {
 			const isDragStarted = !initialDraggingState && isDragging
 			// calculate only once
 			if (isDragStarted) {
-				draggableNodes = this.getDraggable()
+				draggableNodes = []
+				for (let node of selectedNodes) {
+					if (node.isDraggable) {
+						draggableNodes.push(node)
+					}
+				}
 			}
 
 			this.lastMousePos = {
@@ -274,143 +235,6 @@ export default {
 			this.setModelCursorPosition(cP)
 		},
 
-		getCursorModelPositionFromCoords(x, y) {
-			const $target = document.elementFromPoint(x, y);
-			const $nodeItem = $target.getAttribute('path') ? $target : this.getClosestElementWithPath($target);
-			if (!$nodeItem) return
-
-			let placement
-			const pathStr = $nodeItem.getAttribute('path')
-			const path = JSON.parse(pathStr)
-			const nodeModel = this.getNodeModel(path)
-			const nodeHeight = $nodeItem.offsetHeight;
-			const edgeSize = this.edgeSize;
-			const offsetY = y - $nodeItem.getBoundingClientRect().top;
-			const ind = path.slice(-1)[0]
-
-			if (nodeModel.isLeaf) {
-				placement = offsetY >= nodeHeight / 2 ? 'after' : 'before';
-			} else {
-				// multiply edgeSize with 2 to enlarge the window for 'before' placement
-				if (offsetY <= edgeSize * 2) {
-					placement = 'before';
-				} else if (offsetY >= nodeHeight - edgeSize) {
-					placement = 'after';
-				} else {
-					placement = 'inside';
-				}
-			}
-			// add the missing field
-			nodeModel.isLastChild = ind === this.getNodeSiblings(path).length - 1
-			return {
-				nodeModel,
-				placement
-			}
-		},
-
-		getClosestElementWithPath($el) {
-			if (!$el) return null;
-			if ($el.getAttribute('path')) return $el;
-			return this.getClosestElementWithPath($el.parentElement);
-		},
-
-		getProductTitle(productId) {
-			if (this.currentValue[0].children) {
-				const products = this.currentValue[0].children
-				for (let i = 0; i < products.length; i++) {
-					if (products[i].productId === productId) {
-						return products[i].title
-					}
-				}
-			}
-			return 'product title not found'
-		},
-
-		getLastNode() {
-			let lastPath = []
-			let lastNode
-			function traverse(nodes) {
-				const ind = nodes.length - 1
-				lastPath = lastPath.concat(ind)
-				lastNode = nodes[ind]
-				const children = lastNode.children
-				if (children && children.length > 0) {
-					traverse(children)
-				}
-			}
-			traverse(this.currentValue)
-			return lastNode
-		},
-
-		getNextNode(path, filter = null) {
-			let resultNode = null;
-			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
-			this.traverseLight((nodePath, nodeModel) => {
-				if (this.comparePaths(nodePath, path) < 1) return;
-
-				let node = nodeModel
-				if (!filter || filter(node)) {
-					resultNode = node;
-					return false
-				}
-
-			}, productId, 'sl-vue-tree.js:getNextNode');
-
-			return resultNode;
-		},
-
-		getPrevNode(path, filter) {
-			let prevNodes = [];
-
-			const productId = path.length === PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
-			this.traverseLight((nodePath, nodeModel) => {
-				if (this.comparePaths(nodePath, path) >= 0) {
-					return false;
-				}
-				prevNodes.push(nodeModel);
-			}, productId, 'sl-vue-tree.js:getPrevNode');
-
-			let i = prevNodes.length;
-			while (i--) {
-				const node = prevNodes[i];
-				if (!filter || filter(node)) return node;
-			}
-
-			return null;
-		},
-
-		/**
-		 * returns 1 if path1 > path2
-		 * returns -1 if path1 < path2
-		 * returns 0 if path1 === path2
-		 *
-		 * examples
-		 *
-		 * [1, 2, 3] < [1, 2, 4]
-		 * [1, 1, 3] < [1, 2, 3]
-		 * [1, 2, 3] > [1, 2, 0]
-		 * [1, 2, 3] > [1, 1, 3]
-		 * [1, 2] < [1, 2, 0]
-		 *
-		 */
-		comparePaths(path1, path2) {
-			for (let i = 0; i < path1.length; i++) {
-				if (path2[i] === undefined) return 1;
-				if (path1[i] > path2[i]) return 1;
-				if (path1[i] < path2[i]) return -1;
-			}
-			return path2[path1.length] === undefined ? 0 : -1;
-		},
-
-		/* Returns true if the path starts with the subPath */
-		isInPath(subPath, path) {
-			if (subPath.length > path.length) return false
-			for (let i = 0; i < subPath.length; i++) {
-				if (subPath[i] !== path[i]) return false
-			}
-			return true
-		},
-
 		onNodeMousedownHandler(event, node) {
 			// handle only left mouse button
 			if (event.button !== 0) return;
@@ -420,24 +244,6 @@ export default {
 				return;
 			}
 			this.mouseIsDown = true;
-		},
-
-		/* Move the nodes to the position designated by cursorPosition */
-		moveNodes(cursorPosition, nodes) {
-			function replace(vm, cursorPosition, node) {
-				vm.remove(node)
-				vm.insert(cursorPosition, node)
-			}
-
-			if (cursorPosition.placement === 'inside') {
-				for (let i = nodes.length - 1; i >= 0; i--) {
-					replace(this, cursorPosition, nodes[i])
-				}
-			} else {
-				for (let node of nodes) {
-					replace(this, cursorPosition, node)
-				}
-			}
 		},
 
 		onNodeMouseupHandler(event) {
@@ -517,15 +323,90 @@ export default {
 
 		onToggleHandler(event, node) {
 			if (!this.allowToggleBranch) return;
-			let newVal = !node.isExpanded
-			this.updateNode(node.path, {
-				isExpanded: newVal,
-				// save the state so that filters can revert to it
-				savedDoShow: node.doShow,
-				savedIsExpanded: newVal
-			});
+			node.isExpanded = !node.isExpanded
 			this.emitToggle(node, event);
 			event.stopPropagation();
+		},
+
+		getCursorModelPositionFromCoords(x, y) {
+			function getClosestElementWithPath($el) {
+				if (!$el) return null;
+				if ($el.getAttribute('path')) return $el;
+				return getClosestElementWithPath($el.parentElement);
+			}
+
+			const $target = document.elementFromPoint(x, y);
+			const $nodeItem = $target.getAttribute('path') ? $target : getClosestElementWithPath($target);
+			if (!$nodeItem) return
+
+			let placement
+			const pathStr = $nodeItem.getAttribute('path')
+			const path = JSON.parse(pathStr)
+			const nodeModel = this.getNodeModel(path)
+			const nodeHeight = $nodeItem.offsetHeight
+			const edgeSize = this.edgeSize
+			const offsetY = y - $nodeItem.getBoundingClientRect().top
+
+			if (nodeModel.isLeaf) {
+				placement = offsetY >= nodeHeight / 2 ? 'after' : 'before';
+			} else {
+				// multiply edgeSize with 2 to enlarge the window for 'before' placement
+				if (offsetY <= edgeSize * 2) {
+					placement = 'before';
+				} else if (offsetY >= nodeHeight - edgeSize) {
+					placement = 'after';
+				} else {
+					placement = 'inside';
+				}
+			}
+			return {
+				nodeModel,
+				placement
+			}
+		},
+
+		getProductTitle(productId) {
+			if (this.currentValue[0].children) {
+				const products = this.currentValue[0].children
+				for (let i = 0; i < products.length; i++) {
+					if (products[i].productId === productId) {
+						return products[i].title
+					}
+				}
+			}
+			return 'product title not found'
+		},
+
+		/**
+		 * returns 1 if path1 > path2
+		 * returns -1 if path1 < path2
+		 * returns 0 if path1 === path2
+		 *
+		 * examples
+		 *
+		 * [1, 2, 3] < [1, 2, 4]
+		 * [1, 1, 3] < [1, 2, 3]
+		 * [1, 2, 3] > [1, 2, 0]
+		 * [1, 2, 3] > [1, 1, 3]
+		 * [1, 2] < [1, 2, 0]
+		 *
+		 */
+		comparePaths(path1, path2) {
+			for (let i = 0; i < path1.length; i++) {
+				if (path2[i] === undefined) return 1;
+				if (path1[i] > path2[i]) return 1;
+				if (path1[i] < path2[i]) return -1;
+			}
+			return path2[path1.length] === undefined ? 0 : -1;
+		},
+
+		/* Returns true if the path starts with the subPath */
+		isInPath(subPath, path) {
+			if (subPath.length > path.length) return false
+			for (let i = 0; i < subPath.length; i++) {
+				if (subPath[i] !== path[i]) return false
+			}
+			return true
 		},
 
 		stopDrag() {
@@ -548,21 +429,6 @@ export default {
 			return this.getNodeSiblings(path.slice(1), nodes[path[0]].children || [])
 		},
 
-		updateNode(path, patch) {
-			if (!this.isRoot) {
-				this.getParent().updateNode(path, patch);
-				return;
-			}
-
-			const productId = path.length <= PRODUCTLEVEL ? undefined : this.$store.state.load.currentProductId
-			this.traverseLight((nodePath, nodeModel) => {
-				if (this.comparePaths(nodePath, path) === 0) {
-					Object.assign(nodeModel, patch)
-					return false
-				}
-			}, productId, 'sl-vue-tree.js:updateNode')
-		},
-
 		getSelectedProduct() {
 			const productModels = this.currentValue[0].children
 			for (let i = 0; i < productModels.length; i++) {
@@ -580,23 +446,9 @@ export default {
 			const selectedNodes = [];
 			this.traverseLight((nodePath, nodeModel) => {
 				if (nodeModel.isSelected) {
-					let node = nodeModel
-					selectedNodes.push(node)
+					selectedNodes.push(nodeModel)
 				}
 			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getSelected')
-			return selectedNodes
-		},
-
-		getDraggable() {
-			const selectedNodes = []
-			this.traverseLight((nodePath, nodeModel) => {
-				const isDraggable = nodeModel.isDraggable === undefined ? true : !!nodeModel.isDraggable
-				if (nodeModel.isSelected && isDraggable) {
-					selectedNodes.push(nodeModel)
-					// quit the search if all selected nodes are found
-					if (selectedNodes.length === numberOfSelectedNodes) return false
-				}
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getDraggable')
 			return selectedNodes
 		},
 
@@ -605,6 +457,19 @@ export default {
 		 * Use the optinal parameter productId to limit the callback calls to that product only, or use the value 'undefined' to scan all products
 		 */
 		traverseLight(cb, productId = undefined, caller) {
+			function getProductModels(treeNodes, productId) {
+				const productModels = treeNodes[0].children
+				for (let i = 0; i < productModels.length; i++) {
+					if (productModels[i].productId === productId) {
+						return {
+							productNodes: productModels[i].children,
+							parentPath: [0, i]
+						}
+					}
+				}
+				return null
+			}
+
 			console.log('traverseLight is called by ' + caller)
 			let shouldStop = false
 			function traverse(
@@ -634,7 +499,7 @@ export default {
 			let nodeModels = this.currentValue
 			if (productId !== undefined) {
 				// restrict the traversal to the nodes of one product
-				const product = this.getProductModels(this.currentValue, productId)
+				const product = getProductModels(this.currentValue, productId)
 				if (product !== null) {
 					nodeModels = product.productNodes
 					parentPath = product.parentPath
@@ -690,15 +555,13 @@ export default {
 				sibling.pathStr = JSON.stringify(newPath)
 				sibling.ind = i
 				sibling.level = newPath.length
-				sibling.isFirstChild = i === 0
-				sibling.isLastChild = i === siblings.length - 1
 				sibling.isLeaf = (sibling.level < PBILEVEL) ? false : true
 				if (this.comparePaths(oldPath, newPath !== 0)) {
 					//mark the changed nodemodels for distribution
 					sibling.data.sessionId = this.$store.state.sessionId
 					sibling.data.distributeEvent = true
 				}
-				// console.log('updatePaths: old path = ' + oldPath + ' new path = ' + newPath + ' old parentId = ' + oldParentId + ' new parentId = ' + parentId)
+				// console.log('updatePaths: old path = ' + oldPath + ' new path = ' + newPath + ' old parentId = ' + oldParentId + ' new parentId = ' + parentId + ' ' + sibling.title)
 				if (sibling.children && sibling.children.length > 0) {
 					this.updatePaths(sibling.path, sibling.children, 0, productId, sibling._id)
 				}
@@ -728,6 +591,24 @@ export default {
 				destSiblings.splice(insertInd, 0, nm)
 				const parentPath = destNodeModel.path.slice(0, destNodeModel.path.length - 1)
 				this.updatePaths(parentPath, destSiblings, insertInd, productId, parentId)
+			}
+		},
+
+		/* Move the nodes to the position designated by cursorPosition */
+		moveNodes(cursorPosition, nodes) {
+			function replace(vm, cursorPosition, node) {
+				vm.remove(node)
+				vm.insert(cursorPosition, node)
+			}
+
+			if (cursorPosition.placement === 'inside') {
+				for (let i = nodes.length - 1; i >= 0; i--) {
+					replace(this, cursorPosition, nodes[i])
+				}
+			} else {
+				for (let node of nodes) {
+					replace(this, cursorPosition, node)
+				}
 			}
 		},
 

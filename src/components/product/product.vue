@@ -111,7 +111,7 @@
                   <font-awesome-icon icon="bug" />
                 </i>
               </span>
-              {{ node.title }} : {{ node.data.priority }}
+              {{ node.title }} : {{ node.path }} : {{ node.level }}
               <b-badge variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
             </template>
 
@@ -361,8 +361,6 @@
 * pathStr: JSON.stringify(path),
 * ind, // the index in the children array
 * level: path.length,
-* isFirstChild: ind === 0,
-* isLastChild, // is set on select
 *
 * productId: doc.productId,
 * parentId: doc.parentId,

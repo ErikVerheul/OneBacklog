@@ -105,7 +105,7 @@ const mutations = {
 				const isExpanded = (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL) ? true : false
 				// select the default product
 				const isSelected = (batch[i].doc._id === state.currentDefaultProductId) ? true : false
-				const isDraggable = level > PRODUCTLEVEL && getters.canWriteLevels[batch[i].doc.level]
+				const isDraggable = (level > PRODUCTLEVEL) && this.getters.canWriteLevels[level]
 				const doShow = batch[i].doc.level <= PRODUCTLEVEL || batch[i].doc.productId === state.currentDefaultProductId
 				if (isSelected) defaultProductIsSelected = true
 				if (parentNodes[parentId] !== undefined) {
@@ -115,13 +115,11 @@ const mutations = {
 					const path = parentPath.concat(ind)
 					// skip the database/requirement area level and the removed items
 					if (level > 1 && !delmark) {
-						// isLastNode will be set as the node is selected in getCursorModelPositionFromCoords(x, y)
 						let newNode = {
 							path,
 							pathStr: JSON.stringify(path),
 							ind,
 							level: path.length,
-							isFirstChild: ind === 0,
 							productId: batch[i].doc.productId,
 							parentId,
 							_id: batch[i].doc._id,
@@ -207,7 +205,6 @@ const actions = {
 					"pathStr": '[0]',
 					"ind": 0,
 					"level": 1,
-					"isFirstChild": true,
 					"productId": 'root',
 					"parentId": null,
 					"_id": 'root',
