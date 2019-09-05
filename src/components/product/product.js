@@ -752,7 +752,7 @@ export default {
 			if (selectedNode.level === this.productLevel) {
 				// cannot remove the last assigned product
 				if (this.$store.state.load.userAssignedProductIds.length === 1) {
-					this.showLastEvent("Sorry, you cannot remove your last assigned product, but you can remove the epics", WARNING)
+					this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
 					return
 				}
 				// remove from the menu options

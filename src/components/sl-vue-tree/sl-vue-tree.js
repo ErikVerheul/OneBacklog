@@ -501,7 +501,7 @@ export default {
 
 			let parentPath = []
 			let nodeModels = this.currentValue
-			if (productId !== undefined) {
+			if (productId) {
 				// restrict the traversal to the nodes of one product
 				const product = getProductModels(this.currentValue, productId)
 				if (product !== null) {
@@ -515,7 +515,7 @@ export default {
 			traverse(cb, nodeModels, parentPath, productId)
 		},
 
-		traverseModels(cb, nodeModels) {
+		traverseModels(cb, nodeModels = this.currentValue) {
 			let shouldStop = false
 			function traverse(cb, nodeModels) {
 				if (shouldStop) return
@@ -524,7 +524,7 @@ export default {
 				while (i--) {
 					const nodeModel = nodeModels[i]
 					if (nodeModel.children) traverse(cb, nodeModel.children)
-					if (cb(nodeModel, nodeModels, i) === false) {
+					if (cb(nodeModel) === false) {
 						shouldStop = true
 						break
 					}
@@ -547,7 +547,6 @@ export default {
 
 		getPrevVisibleNode(path) {
 			let prevVisiblePath
-			let prevVisibleModel
 			if (path.slice(-1)[0] === 0) {
 				// the removed node is a first child
 				prevVisiblePath = path.slice(0, path.length - 1)
@@ -555,26 +554,19 @@ export default {
 				// the removed node has a previous sibling
 				prevVisiblePath = path.slice(0, path.length - 1).concat(path.slice(-1)[0] - 1)
 			}
-			this.traverseLight((nodePath, nodeModel) => {
-				if (this.comparePaths(nodePath, prevVisiblePath) === 0) {
-					prevVisibleModel = nodeModel
-					return false
-				}
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getPrevVisibleNode');
-
-			return prevVisibleModel
+			return this.getNodeModel(prevVisiblePath)
 		},
 
-		/* Update the descendants of the source (removal) or destination (insert) node with new position data and (possibly) new parentId and productId */
+		/* Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId */
 		updatePaths(parentPath, siblings, insertInd, productId = undefined, parentId = undefined) {
 			for (let i = insertInd; i < siblings.length; i++) {
 				const sibling = siblings[i]
 				const oldPath = sibling.path.slice()
 				const newPath = parentPath.concat(i)
-				// const oldProductId = sibling.productId
-				// const oldParentId = sibling.parentId.slice()
 				if (parentId) sibling.parentId = parentId
 				if (productId) sibling.productId = productId
+				// if moving to another product show the inserted nodes in the new product
+				if (productId) sibling.doShow = true
 				sibling.path = newPath
 				sibling.pathStr = JSON.stringify(newPath)
 				sibling.ind = i
@@ -585,7 +577,6 @@ export default {
 					sibling.data.sessionId = this.$store.state.sessionId
 					sibling.data.distributeEvent = true
 				}
-				// console.log('updatePaths: old path = ' + oldPath + ' new path = ' + newPath + ' old parentId = ' + oldParentId + ' new parentId = ' + parentId + ' ' + sibling.title)
 				if (sibling.children && sibling.children.length > 0) {
 					this.updatePaths(sibling.path, sibling.children, 0, productId, sibling._id)
 				}
@@ -596,45 +587,25 @@ export default {
 		 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
 		 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
 		 */
-		updatePriorities(nodes) {
-			// get the previous sibling (above the node)
-			function getPrevSibling(vm, node) {
-				const siblings = vm.getNodeSiblings(node.path)
-				// return null if a previous node does not exist
-				return siblings[node.ind - 1] || null
+		assignNewPrios(nodes, predecessorNode, successorNode) {
+			let predecessorPrio
+			let successorPrio
+			if (predecessorNode !== null) {
+				predecessorPrio = predecessorNode.data.priority
+			} else {
+				predecessorPrio = Number.MAX_SAFE_INTEGER
 			}
-			// get the next sibling (below the node)
-			function getNextSibling(vm, node) {
-				const siblings = vm.getNodeSiblings(node.path)
-				// return null if a next node does not exist
-				return siblings[node.ind + 1] || null
+			if (successorNode !== null) {
+				successorPrio = successorNode.data.priority
+			} else {
+				successorPrio = Number.MIN_SAFE_INTEGER
 			}
-			function assignNewPrios(nodes, predecessorNode, successorNode) {
-				let predecessorPrio
-				let successorPrio
-				if (predecessorNode !== null) {
-					predecessorPrio = predecessorNode.data.priority
-				} else {
-					predecessorPrio = Number.MAX_SAFE_INTEGER
-				}
-				if (successorNode !== null) {
-					successorPrio = successorNode.data.priority
-				} else {
-					successorPrio = Number.MIN_SAFE_INTEGER
-				}
-				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-				for (let i = 0; i < nodes.length; i++) {
-					// update the tree
-					nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-					nodes[i].data.lastChange = Date.now()
-				}
+			const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+			for (let i = 0; i < nodes.length; i++) {
+				// update the tree
+				nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+				nodes[i].data.lastChange = Date.now()
 			}
-
-			const firstNode = nodes[0]
-			const predecessorNode = getPrevSibling(this, firstNode)
-			const lastNode = nodes[nodes.length - 1]
-			const successorNode = getNextSibling(this, lastNode)
-			assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 
 		/*
@@ -644,28 +615,32 @@ export default {
 		insert(cursorPosition, nodes) {
 			const destNodeModel = cursorPosition.nodeModel
 			const productId = destNodeModel.productId
+			let destSiblings
 
 			if (cursorPosition.placement === 'inside') {
-				const destSiblings = destNodeModel.children || []
+				destSiblings = destNodeModel.children || []
 				const parentId = destNodeModel._id
 				for (let i = nodes.length - 1; i >= 0; i--) {
-					nodes[i].productId = productId
+					nodes[i].doShow = true
 					destSiblings.unshift(nodes[i])
 				}
 				this.updatePaths(destNodeModel.path, destSiblings, 0, productId, parentId)
 			} else {
 				// insert before or after the cursor position
-				const destSiblings = this.getNodeSiblings(destNodeModel.path)
+				destSiblings = this.getNodeSiblings(destNodeModel.path)
 				const parentId = destNodeModel.parentId
 				const parentPath = destNodeModel.path.slice(0, destNodeModel.path.length - 1)
 				const insertInd = cursorPosition.placement === 'before' ? destNodeModel.ind : destNodeModel.ind + 1
 				for (let nm of nodes) {
-					nm.productId = productId
 					destSiblings.splice(insertInd, 0, nm)
 				}
 				this.updatePaths(parentPath, destSiblings, insertInd, productId, parentId)
 			}
-			this.updatePriorities(nodes)
+			const firstNode = nodes[0]
+			const predecessorNode = destSiblings[firstNode.ind - 1] || null
+			const lastNode = nodes[nodes.length - 1]
+			const successorNode = destSiblings[lastNode.ind + 1] || null
+			this.assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 
 		insertSingle(cursorPosition, node) {
@@ -714,6 +689,7 @@ export default {
 
 		/* collapse all nodes of this product */
 		collapseTree(productId) {
+			this.getNodeById(productId).isExpanded = false
 			this.traverseLight((itemPath, nodeModel) => {
 				// collapse to the product level
 				if (itemPath.length > PRODUCTLEVEL) {
@@ -744,7 +720,7 @@ export default {
 				nodeModel.isSelected = false
 				// if on the node path
 				if (this.isInPath(itemPath, node.path)) {
-					nodeModel.savedIsExpanded = nodeModel.isExpanded
+					nodeModel.savedIsExpanded = true
 					nodeModel.isExpanded = true
 					nodeModel.savedDoShow = true
 					nodeModel.doShow = true
@@ -752,6 +728,7 @@ export default {
 				// select the item
 				if (nodeModel.shortId === node.shortId) {
 					nodeModel.isSelected = true
+					nodeToDeselect = nodeModel
 					return false
 				}
 			}, undefined, 'sl-vue-tree:showItem')

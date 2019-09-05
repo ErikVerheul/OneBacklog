@@ -206,7 +206,7 @@ export default {
     serverAdmin() {
       return (
         this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin
-      );
+      )
     },
     shortIdState() {
       if (this.$store.state.shortId.length !== 5) return false
@@ -222,14 +222,13 @@ export default {
   },
   methods: {
     selectNode(shortId) {
-      console.log('selectNode is called')
       let node
-      window.slVueTree.traverseLight((nodePath, nodeModel) => {
+      window.slVueTree.traverseModels((nodeModel) => {
         if (nodeModel.shortId === shortId) {
           node = nodeModel
           return false
         }
-      }, undefined, 'header.js:selectNode')
+      })
       if (node) {
         this.$store.state.findIdOn = true
         // if the user clicked on a node of another product
@@ -249,6 +248,7 @@ export default {
           // node on current product; collapse the currently selected product
           window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
         }
+
         this.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
         // expand the newly selected product up to the found item
         window.slVueTree.showItem(node)
@@ -256,7 +256,6 @@ export default {
         if (node._id !== this.$store.state.currentDoc._id) {
           this.$store.dispatch('loadDoc', node._id)
         }
-        node.isSelected = true
       } else {
         // the node is not found in the current product selection; try to find it in the database
         this.$store.dispatch('getItemByShortId', shortId)
