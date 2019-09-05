@@ -21,27 +21,13 @@ const actions = {
 		dispatch
 	}, since) {
 		/*
-		 * Traverse all products in the tree
-		 * Returns the node or null when it does not exist
-		 */
-		function getNodeById(id) {
-			let resultNode = null
-			window.slVueTree.traverseLight((nodePath, nodeModel) => {
-				if (nodeModel._id === id) {
-					resultNode = nodeModel
-					return false
-				}
-			}, undefined, 'sync.js:getNodeById')
-			return resultNode
-		}
-		/*
 		 * When the node exists this function returns an object with:
 		 * - the previous node (can be the parent)
 		 * - the index in the array of siblings the node should have based on its priority
 		 * Note: when the node travels to a new parent that parent can have no children
 		 */
 		function getLocationInfo(newPrio, parentId) {
-			let parentNode = getNodeById(parentId)
+			let parentNode = window.slVueTree.getNodeById(parentId)
 			let newPath = []
 			if (parentNode.children.length > 0) {
 				let siblings = parentNode.children
@@ -76,10 +62,10 @@ const actions = {
 		}
 
 		function updateFields(doc, node) {
+			node.productId = doc.productId
 			node.title = doc.title
 			node.data.subtype = doc.subtype
 			node.data.state = doc.state
-			node.data.productId = doc.productId
 		}
 
 		function updateProductIds(nodes, productId) {
@@ -117,12 +103,12 @@ const actions = {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed')
 						dispatch('doBlinck')
-						let node = getNodeById(doc._id)
+						let node = window.slVueTree.getNodeById(doc._id)
 						if (node !== null) {
 							// the node exists (is not new)
 							if (doc.delmark) {
 								// remove the node and its children
-								window.slVueTree.remove(node)
+								window.slVueTree.remove([node])
 								continue
 							}
 							// update the parent as it can be changed
@@ -149,40 +135,19 @@ const actions = {
 								// the node has not changed parent nor changed location w/r to its siblings
 								updateFields(doc, node)
 							} else {
-								// move the node to the new position w/r to its siblings
-								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === -1) {
-									// move up: remove from old position first
-									node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
-									// remove node and its children
-									window.slVueTree.remove(node)
-									if (locationInfo.newInd === 0) {
-										window.slVueTree.insert({
-											node: locationInfo.prevNode,
-											placement: 'inside'
-										}, node)
-									} else {
-										// insert after prevNode
-										window.slVueTree.insert({
-											node: locationInfo.prevNode,
-											placement: 'after'
-										}, node)
-									}
+								// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
+								window.slVueTree.remove([node])
+								if (locationInfo.newInd === 0) {
+									window.slVueTree.insert({
+										nodeModel: locationInfo.prevNode,
+										placement: 'inside'
+									}, [node])
 								} else {
-									// move down: insert first
-									node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
-									if (locationInfo.newInd === 0) {
-										window.slVueTree.insert({
-											node: locationInfo.prevNode,
-											placement: 'inside'
-										}, node)
-									} else {
-										window.slVueTree.insert({
-											node: locationInfo.prevNode,
-											placement: 'after'
-										}, node)
-									}
-									// remove node and its children from old position
-									window.slVueTree.remove(node)
+									// insert after prevNode
+									window.slVueTree.insert({
+										nodeModel: locationInfo.prevNode,
+										placement: 'after'
+									}, [node])
 								}
 							}
 						} else {
@@ -191,7 +156,13 @@ const actions = {
 								continue
 							}
 							// new node
+							let locationInfo = getLocationInfo(doc.priority, doc.parentId)
+
 							let node = {
+								"path": locationInfo.newPath,
+								"pathStr": JSON.stringify(locationInfo.newPath),
+								"ind": locationInfo.newInd,
+								"level": locationInfo.newPath.length,
 								"productId": doc.productId,
 								"parentId": doc.parentId,
 								"_id": doc._id,
@@ -212,20 +183,20 @@ const actions = {
 									"distributeEvent": true
 								}
 							}
-							let locationInfo = getLocationInfo(doc.priority, doc.parentId)
+
 							// set priority and isLeaf field
 							node.data.priority = doc.priority
 							node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
 							if (locationInfo.newInd === 0) {
 								window.slVueTree.insert({
-									node: locationInfo.prevNode,
+									nodeModel: locationInfo.prevNode,
 									placement: 'inside'
-								}, node)
+								}, [node])
 							} else {
 								window.slVueTree.insert({
-									node: locationInfo.prevNode,
+									nodeModel: locationInfo.prevNode,
 									placement: 'after'
-								}, node)
+								}, [node])
 							}
 						}
 					}

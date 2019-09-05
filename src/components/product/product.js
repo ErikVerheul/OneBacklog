@@ -17,14 +17,12 @@ import { showLastEvent } from '../mixins/showLastEvent.js'
 
 const INFO = 0
 const WARNING = 1
-const ERROR = 2
-const DEBUG = 3
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
-var firstNodeSelected
+var nodeSelected
 var numberOfNodesSelected = 0
 var newNode = {}
 var movedNode = null
@@ -91,7 +89,7 @@ export default {
 		// expose instance to the global namespace
 		window.slVueTree = this.$refs.slVueTree
 		// the product is selected in load.js
-		firstNodeSelected = window.slVueTree.getSelectedProduct()
+		nodeSelected = window.slVueTree.getSelectedProduct()
 	},
 
 	computed: {
@@ -190,8 +188,8 @@ export default {
 			// prevent looping
 			if (val !== this.$store.state.currentDoc.subtype) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					firstNodeSelected.data.subtype = val
-					firstNodeSelected.data.lastChange = Date.now()
+					nodeSelected.data.subtype = val
+					nodeSelected.data.lastChange = Date.now()
 					this.$store.dispatch('setSubType', {
 						'newSubType': val
 					})
@@ -346,7 +344,7 @@ export default {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					// update the current doc in memory
 					this.$store.state.currentDoc.description = this.newDescription
-					firstNodeSelected.data.lastChange = Date.now()
+					nodeSelected.data.lastChange = Date.now()
 					// update the doc in the database
 					this.$store.dispatch('saveDescription', {
 						'newDescription': this.newDescription
@@ -362,7 +360,7 @@ export default {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					// update the current doc in memory
 					this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
-					firstNodeSelected.data.lastChange = Date.now()
+					nodeSelected.data.lastChange = Date.now()
 					// update the doc in the database
 					this.$store.dispatch('saveAcceptance', {
 						'newAcceptance': this.newAcceptance
@@ -377,7 +375,7 @@ export default {
 				let size = document.getElementById("tShirtSizeId").value.toUpperCase()
 				const sizeArray = this.$store.state.config.tsSize
 				if (sizeArray.includes(size)) {
-					firstNodeSelected.data.lastChange = Date.now()
+					nodeSelected.data.lastChange = Date.now()
 					this.$store.dispatch('setSize', {
 						'newSizeIdx': sizeArray.indexOf(size)
 					})
@@ -399,7 +397,7 @@ export default {
 					el.value = '?'
 					return
 				}
-				firstNodeSelected.data.lastChange = Date.now()
+				nodeSelected.data.lastChange = Date.now()
 				this.$store.dispatch('setStoryPoints', {
 					'newPoints': el.value
 				})
@@ -414,7 +412,7 @@ export default {
 					el.value = '?'
 					return
 				}
-				firstNodeSelected.data.lastChange = Date.now()
+				nodeSelected.data.lastChange = Date.now()
 				this.$store.dispatch('setPersonHours', {
 					'newHrs': el.value
 				})
@@ -425,8 +423,8 @@ export default {
 		onStateChange(idx) {
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				// update the tree
-				firstNodeSelected.data.state = idx
-				firstNodeSelected.data.lastChange = Date.now()
+				nodeSelected.data.state = idx
+				nodeSelected.data.lastChange = Date.now()
 				// update current document in database
 				this.$store.dispatch('setState', {
 					'newState': idx
@@ -442,7 +440,7 @@ export default {
 
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				// update the tree
-				let node = firstNodeSelected
+				let node = nodeSelected
 				node.title = newTitle
 				node.data.lastChange = Date.now()
 				// update current document in database
@@ -508,11 +506,11 @@ export default {
 			}
 			numberOfNodesSelected = selNodes.length
 			// update the first (highest in hierarchie) selected node
-			firstNodeSelected = selNodes[0]
+			nodeSelected = selNodes[0]
 			// if the root node is selected do nothing
-			if (firstNodeSelected._id !== 'root') {
+			if (nodeSelected._id !== 'root') {
 				// if the user clicked on a node of another product
-				if (this.$store.state.load.currentProductId !== firstNodeSelected.productId) {
+				if (this.$store.state.load.currentProductId !== nodeSelected.productId) {
 					// clear any outstanding filters
 					if (this.$store.state.filterOn || this.$store.state.searchOn) {
 						window.slVueTree.resetFilters('nodeSelectedEvent')
@@ -520,15 +518,15 @@ export default {
 					// collapse the previously selected product
 					window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
 					// update current productId and title
-					this.$store.state.load.currentProductId = firstNodeSelected.productId
-					this.$store.state.load.currentProductTitle = firstNodeSelected.title
+					this.$store.state.load.currentProductId = nodeSelected.productId
+					this.$store.state.load.currentProductTitle = nodeSelected.title
 					// expand the newly selected product up to the feature level and select the product node again
 					window.slVueTree.expandTree(FEATURELEVEL)
 				}
 			}
 			// load the document if not already in memory
-			if (firstNodeSelected._id !== this.$store.state.currentDoc._id) {
-				this.$store.dispatch('loadDoc', firstNodeSelected._id)
+			if (nodeSelected._id !== this.$store.state.currentDoc._id) {
+				this.$store.dispatch('loadDoc', nodeSelected._id)
 			}
 			const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 			const title = this.itemTitleTrunc(60, selNodes[0].title)
@@ -542,11 +540,9 @@ export default {
 			}
 			this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
 		},
-
 		nodeToggled(node) {
 			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
 		},
-
 		getDescendantsInfo(node) {
 			const path = node.path
 			const descendants = []
@@ -566,7 +562,6 @@ export default {
 				depth: maxDepth - initLevel
 			}
 		},
-
 		/*
 		/ Use this event to check if the drag is allowed. If not, issue a warning.
 		*/
@@ -604,55 +599,6 @@ export default {
 				}
 			}
 		},
-
-		/*
-		 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
-		 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
-		 */
-		updatePriorities(nodes) {
-			// get the previous sibling (above the node)
-			function getPrevSibling(node) {
-				const siblings = window.slVueTree.getNodeSiblings(node.path)
-				// return null if a previous node does not exist
-				return siblings[node.ind - 1] || null
-			}
-			// get the next sibling (below the node)
-			function getNextSibling(node) {
-				const siblings = window.slVueTree.getNodeSiblings(node.path)
-				// return null if a next node does not exist
-				return siblings[node.ind + 1] || null
-			}
-			function assignNewPrios(nodes, predecessorNode, successorNode) {
-				let predecessorPrio
-				let successorPrio
-				if (predecessorNode !== null) {
-					predecessorPrio = predecessorNode.data.priority
-				} else {
-					predecessorPrio = Number.MAX_SAFE_INTEGER
-				}
-				if (successorNode !== null) {
-					successorPrio = successorNode.data.priority
-				} else {
-					successorPrio = Number.MIN_SAFE_INTEGER
-				}
-				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-				for (let i = 0; i < nodes.length; i++) {
-					// update the tree
-					nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-					nodes[i].data.lastChange = Date.now()
-				}
-			}
-
-			const firstNode = nodes[0]
-			const parentPath = firstNode.path.slice(0, firstNode.path.length - 1)
-			const parentNode = window.slVueTree.getNodeModel(parentPath)
-			const predecessorNode = getPrevSibling(firstNode)
-			const lastNode = nodes[nodes.length - 1]
-			const successorNode = getNextSibling(lastNode)
-
-			// PRIORITY FOR PRODUCTS DOES NOT WORK. THEY ARE SORTED IN ORDER OF CREATION (OLDEST ON TOP)
-			if (parentNode._id !== 'root') assignNewPrios(nodes, predecessorNode, successorNode)
-		},
 		/*
 		 * Update the tree when one or more nodes are dropped on another location
 		 * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
@@ -665,34 +611,28 @@ export default {
 				dropLevel++
 			}
 			let levelChange = clickedLevel - dropLevel
-
-			// no action required when moving a product in the tree
-			if (!(clickedLevel === this.productLevel && dropLevel === this.productLevel)) {
-				// when nodes are dropped to another position the parent, type and the priorities must be updated
-				this.updatePriorities(draggingNodes)
-				// update the nodes in the database
-				let payloadArray = []
-				for (let i = 0; i < draggingNodes.length; i++) {
-					let descendants = this.getDescendantsInfo(draggingNodes[i]).descendants
-					const payloadItem = {
-						'_id': draggingNodes[i]._id,
-						'productId': draggingNodes[i].productId,
-						'newParentId': draggingNodes[i].parentId,
-						'newPriority': draggingNodes[i].data.priority,
-						'newParentTitle': null,
-						'oldParentTitle': draggingNodes[i].title,
-						'oldLevel': clickedLevel,
-						'newLevel': draggingNodes[i].level,
-						'newInd': draggingNodes[i].ind,
-						'descendants': descendants
-					}
-					payloadArray.push(payloadItem)
+			// update the nodes in the database
+			let payloadArray = []
+			for (let i = 0; i < draggingNodes.length; i++) {
+				let descendants = this.getDescendantsInfo(draggingNodes[i]).descendants
+				const payloadItem = {
+					'_id': draggingNodes[i]._id,
+					'productId': draggingNodes[i].productId,
+					'newParentId': draggingNodes[i].parentId,
+					'newPriority': draggingNodes[i].data.priority,
+					'newParentTitle': null,
+					'oldParentTitle': draggingNodes[i].title,
+					'oldLevel': clickedLevel,
+					'newLevel': draggingNodes[i].level,
+					'newInd': draggingNodes[i].ind,
+					'descendants': descendants
 				}
-				this.$store.dispatch('updateDropped', {
-					next: 0,
-					payloadArray: payloadArray
-				})
+				payloadArray.push(payloadItem)
 			}
+			this.$store.dispatch('updateDropped', {
+				next: 0,
+				payloadArray: payloadArray
+			})
 			// create the event message
 			const title = this.itemTitleTrunc(60, draggingNodes[0].title)
 			let evt = ""
@@ -708,7 +648,7 @@ export default {
 			this.contextSelected = undefined
 			this.insertOptionSelected = 1
 			// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-			if (this.canWriteLevels[node.level] && node._id === firstNodeSelected._id && node.level > 1 && numberOfNodesSelected === 1) {
+			if (this.canWriteLevels[node.level] && node._id === nodeSelected._id && node.level > 1 && numberOfNodesSelected === 1) {
 				this.contextNodeSelected = node
 				this.contextNodeTitle = node.title
 				this.contextNodeLevel = node.level
@@ -759,7 +699,6 @@ export default {
 					break
 			}
 		},
-
 		moveItemToOtherProduct() {
 			if (this.$store.state.moveOngoing) {
 				const targetPosition = window.slVueTree.lastSelectCursorPosition
@@ -774,8 +713,6 @@ export default {
 				// the path to new node is immediately below the selected node
 				const newPath = targetNode.path.concat([0])
 				const newNode = window.slVueTree.getNodeModel(newPath)
-				// parentId and priority are updated in this routine
-				this.updatePriorities([newNode])
 				const descendants = this.getDescendantsInfo(newNode).descendants
 				const payloadItem = {
 					'_id': newNode._id,
@@ -851,9 +788,9 @@ export default {
 			// after removal select the visible predecessor of the removed node
 			const prevNode = window.slVueTree.getPrevVisibleNode(path)
 			prevNode.isSelected = true
-			firstNodeSelected = prevNode
+			nodeSelected = prevNode
 			// now we can remove the node and its children
-			window.slVueTree.remove(selectedNode)
+			window.slVueTree.removeSingle(selectedNode, prevNode)
 		},
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
@@ -888,7 +825,6 @@ export default {
 			]
 			return options
 		},
-
 		/*
 		 * Create and insert a new node in the tree and create a document for this new item
 		 * A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
@@ -898,7 +834,7 @@ export default {
 			let newNodeLocation
 			let path
 			let idx
-			// prepare the new node for insertion
+			// prepare the new node for insertion and set isSelected to true
 			newNode = {
 				productId: this.$store.state.load.currentProductId,
 				children: [],
@@ -920,7 +856,7 @@ export default {
 			}
 			let insertLevel = this.contextNodeSelected.level
 			if (this.insertOptionSelected === 1) {
-				// New node is a sibling placed below (after) the selected node
+				// new node is a sibling placed below (after) the selected node
 				newNodeLocation = {
 					nodeModel: this.contextNodeSelected,
 					placement: 'after'
@@ -944,7 +880,7 @@ export default {
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
 			}
-
+			// add the location values
 			newNode.path = path
 			newNode.pathStr = JSON.stringify(path)
 			newNode.ind = idx
@@ -955,8 +891,6 @@ export default {
 				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
 				newNode._id = newId
 				newNode.shortId = newId.slice(-5)
-
-				this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
 				if (newNodeLocation.placement === 'inside') {
 					// unselect the node that was clicked before the insert and expand it to show the inserted node
 					this.contextNodeSelected.isSelected = false
@@ -965,11 +899,10 @@ export default {
 					// unselect the node that was clicked before the insert
 					this.contextNodeSelected.isSelected = false
 				}
-				newNode.isSelected = true
-				window.slVueTree.insert(newNodeLocation, newNode)
-				firstNodeSelected = newNode
-				// parentId and priority are set in this routine
-				this.updatePriorities([newNode])
+				nodeSelected = newNode
+				// insert the new node in the tree
+				window.slVueTree.insertSingle(newNodeLocation, newNode)
+				this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
 				// create a new document and store it
 				const initData = {
 					"_id": newNode._id,

@@ -111,7 +111,7 @@
                   <font-awesome-icon icon="bug" />
                 </i>
               </span>
-              {{ node.title }} : {{ node.path }} : {{ node.level }}
+              {{ node.title }} : {{ node.path }} : {{ node.data.priority }}
               <b-badge variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
             </template>
 
