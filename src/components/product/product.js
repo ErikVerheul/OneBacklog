@@ -540,9 +540,7 @@ export default {
 			}
 			this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
 		},
-		nodeToggled(node) {
-			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'collapsed' : 'expanded'}`, INFO)
-		},
+
 		getDescendantsInfo(node) {
 			const path = node.path
 			const descendants = []

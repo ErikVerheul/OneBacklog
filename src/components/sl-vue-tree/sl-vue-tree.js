@@ -329,6 +329,7 @@ export default {
 		onToggleHandler(event, node) {
 			if (!this.allowToggleBranch) return;
 			node.isExpanded = !node.isExpanded
+			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'expanded' : 'collapsed'}`, INFO)
 			this.emitToggle(node, event);
 			event.stopPropagation();
 		},

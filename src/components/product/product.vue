@@ -84,7 +84,6 @@
             @select="nodeSelectedEvent"
             @beforedrop="beforeNodeDropped"
             @drop="nodeDropped"
-            @toggle="nodeToggled"
             @nodecontextmenu="showContextMenu"
           >
             <template slot="title" slot-scope="{ node }">
