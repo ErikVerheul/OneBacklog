@@ -182,10 +182,11 @@ export default {
             event.preventDefault()
             // check for valid input and convert to lowercase
             if (this.shortIdState) {
+              window.slVueTree.resetFilters('selectOnId')
               this.selectNode(this.$store.state.shortId.toLowerCase())
               // entering an empty string clears the search
               } else if (this.$store.state.shortId === '') {
-                window.slVueTree.resetFilters('selectOnId', productSwitch)
+                window.slVueTree.resetFilters('selectOnId')
               }
           }
         }),

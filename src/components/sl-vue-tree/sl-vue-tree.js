@@ -179,6 +179,7 @@ export default {
 				selectedNodes.push(selNode)
 			} else {
 				// single selection mode: unselect all currently selected nodes and clear selectedNodes
+				if (lastSelectedNode) console.log('select: lastSelectedNode.title = ' + lastSelectedNode.title)
 				if (lastSelectedNode) lastSelectedNode.isSelected = false
 				if (nodeToDeselect) nodeToDeselect.isSelected = false
 				for (let node of selectedNodes) {
@@ -320,7 +321,7 @@ export default {
 			// console.log('onNodeMouseupHandler: JSON.stringify(draggableNodes, null, 2) = ' + JSON.stringify(draggableNodes, null, 2))
 			this.moveNodes(this.cursorPosition, draggableNodes)
 
-			lastSelectedNode = null;
+			// lastSelectedNode = null; ToDo: why?
 			this.emitDrop(draggableNodes, this.cursorPosition, event);
 			this.stopDrag();
 		},
@@ -436,8 +437,10 @@ export default {
 		getSelectedProduct() {
 			const productModels = this.currentValue[0].children
 			for (let i = 0; i < productModels.length; i++) {
-				if (productModels[i].isSelected) {
-					return productModels[i]
+				const node = productModels[i]
+				if (node.isSelected) {
+					lastSelectedNode = node
+					return node
 				}
 			}
 			// ToDo: write this to the log
@@ -448,71 +451,23 @@ export default {
 		/* Collects all nodes in the current product that are selected */
 		getSelected() {
 			const selectedNodes = [];
-			this.traverseLight((nodePath, nodeModel) => {
+			this.traverseModels((nodeModel) => {
 				if (nodeModel.isSelected) {
 					selectedNodes.push(nodeModel)
 				}
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree.js:getSelected')
+			}, this.getProductModels(this.$store.state.load.currentProductId))
 			return selectedNodes
 		},
 
-		/*
-		 * A faster version of the original
-		 * Use the optinal parameter productId to limit the callback calls to that product only, or use the value 'undefined' to scan all products
-		 */
-		traverseLight(cb, productId = undefined, caller) {
-			function getProductModels(treeNodes, productId) {
-				const productModels = treeNodes[0].children
-				for (let i = 0; i < productModels.length; i++) {
-					if (productModels[i].productId === productId) {
-						return {
-							productNodes: productModels[i].children,
-							parentPath: [0, i]
-						}
-					}
-				}
-				return null
-			}
-
-			console.log('traverseLight is called by ' + caller)
-			let shouldStop = false
-			function traverse(
-				cb,
-				nodeModels = null,
-				parentPath = [],
-				productId = undefined
-			) {
-				if (shouldStop) return
-
-				for (let nodeInd = 0; nodeInd < nodeModels.length; nodeInd++) {
-					const nodeModel = nodeModels[nodeInd];
-					const itemPath = parentPath.concat(nodeInd);
-					// if (caller === 'sl-vue-tree.js:getPrevVisibleNode') console.log('traverseLight: itemPath = ', itemPath + ' title = ' + nodeModel.title + ' productId = ' + productId)
-					if (cb(itemPath, nodeModel, nodeModels) === false) {
-						shouldStop = true
-						break
-					}
-
-					if (nodeModel.children && nodeModel.children.length > 0) {
-						traverse(cb, nodeModel.children, itemPath, productId)
-					}
+		getProductModels(productId) {
+			const productModels = this.currentValue[0].children
+			for (let i = 0; i < productModels.length; i++) {
+				if (productModels[i].productId === productId) {
+					return productModels[i].children
 				}
 			}
-
-			let parentPath = []
-			let nodeModels = this.currentValue
-			if (productId) {
-				// restrict the traversal to the nodes of one product
-				const product = getProductModels(this.currentValue, productId)
-				if (product !== null) {
-					nodeModels = product.productNodes
-					parentPath = product.parentPath
-				} else {
-					// product not found: traverse the whole tree
-					productId = undefined
-				}
-			}
-			traverse(cb, nodeModels, parentPath, productId)
+			// return the full tree if not found
+			return this.currentValue
 		},
 
 		traverseModels(cb, nodeModels = this.currentValue) {
@@ -520,14 +475,12 @@ export default {
 			function traverse(cb, nodeModels) {
 				if (shouldStop) return
 
-				let i = nodeModels.length
-				while (i--) {
-					const nodeModel = nodeModels[i]
-					if (nodeModel.children) traverse(cb, nodeModel.children)
-					if (cb(nodeModel) === false) {
+				for (let nm of nodeModels) {
+					if (cb(nm) === false) {
 						shouldStop = true
 						break
 					}
+					if (nm.children) traverse(cb, nm.children)
 				}
 			}
 
@@ -677,49 +630,50 @@ export default {
 		},
 
 		/* test code */
-		showVisibility(caller) {
-			this.traverseLight((itemPath, nodeModel) => {
+		showVisibility(caller, toLevel = 3) {
+			this.traverseModels((nodeModel) => {
 				// collapse to the product level
-				if (itemPath.length <= 3) {
+				if (nodeModel.level <= toLevel) {
 					// eslint-disable-next-line no-console
-					console.log('showVisibility: level = ' + itemPath.length + ' isExpanded = ' + nodeModel.isExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
+					console.log('showVisibility: path = ' + nodeModel.path + ' level = ' + nodeModel.level +
+					' isExpanded = ' + nodeModel.isExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
 				}
-			}, undefined, 'showVisibility')
+			})
 		},
 
 		/* collapse all nodes of this product */
 		collapseTree(productId) {
 			this.getNodeById(productId).isExpanded = false
-			this.traverseLight((itemPath, nodeModel) => {
+			this.traverseModels((nodeModel) => {
 				// collapse to the product level
-				if (itemPath.length > PRODUCTLEVEL) {
+				if (nodeModel.level > PRODUCTLEVEL) {
 					nodeModel.savedDoShow = nodeModel.doShow
 					nodeModel.doShow = false
 				}
-			}, productId, 'sl-vue-tree:collapseTree')
+			}, this.getProductModels(productId))
 			// this.showVisibility('collapseTree')
 		},
 
 		expandTree(level) {
-			this.traverseLight((itemPath, nodeModel) => {
+			this.traverseModels((nodeModel) => {
 				// expand to level
-				if (itemPath.length < level) {
+				if (nodeModel.level < level) {
 					nodeModel.isExpanded = true
 					nodeModel.savedIsExpanded = true
 					nodeModel.doShow = true
 				}
 				// show the nodes
 				nodeModel.doShow = true
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree:expandTree')
+			}, this.getProductModels(this.$store.state.load.currentProductId))
 			// this.showVisibility('expandTree')
 		},
 
 		showItem(node) {
-			this.traverseLight((itemPath, nodeModel) => {
+			this.traverseModels((nodeModel) => {
 				// unselect previous selections
 				nodeModel.isSelected = false
 				// if on the node path
-				if (this.isInPath(itemPath, node.path)) {
+				if (this.isInPath(nodeModel.path, node.path)) {
 					nodeModel.savedIsExpanded = true
 					nodeModel.isExpanded = true
 					nodeModel.savedDoShow = true
@@ -731,7 +685,7 @@ export default {
 					nodeToDeselect = nodeModel
 					return false
 				}
-			}, undefined, 'sl-vue-tree:showItem')
+			})
 			// this.showVisibility('expandTree')
 		},
 
@@ -741,9 +695,9 @@ export default {
 			console.log('resetFilters is called by ' + caller)
 
 			function doReset(vm, productId) {
-				vm.traverseLight((itemPath, nodeModel) => {
+				vm.traverseModels((nodeModel) => {
 					if (productSwitch) {
-						if (itemPath.length > PRODUCTLEVEL) {
+						if (nodeModel.level > PRODUCTLEVEL) {
 							if (nodeModel.productId === productId) {
 								nodeModel.doShow = true
 								nodeModel.isExpanded = nodeModel.savedIsExpanded
@@ -756,7 +710,7 @@ export default {
 						nodeModel.isExpanded = nodeModel.savedIsExpanded
 					}
 
-				}, productId, 'sl-vue-tree:resetFilters')
+				}, vm.getProductModels(productId))
 			}
 
 			if (this.$store.state.filterOn) {
@@ -777,42 +731,32 @@ export default {
 			}
 		},
 
-		showParents(path) {
-			let parentPath = path.slice(0, -1)
-			// do not touch the database level
-			if (parentPath.length < PRODUCTLEVEL) return
-
-			this.traverseLight((itemPath, nodeModel) => {
-				if (this.comparePaths(itemPath, parentPath) !== 0) {
-					return
-				}
-				nodeModel.savedDoShow = nodeModel.doShow
-				nodeModel.doShow = true
-				nodeModel.savedIsExpanded = nodeModel.isExpanded
-				nodeModel.isExpanded = true
-				return false
-			}, undefined, 'showParents')
-			// recurse
-			this.showParents(parentPath)
+		showPathToNode(node) {
+			let nodeModel = this.currentValue[0]
+			for (let i = PRODUCTLEVEL + 1; i < node.path.length; i++) {
+				const nm = this.getNodeModel(node.path.slice(0, i))
+				nm.savedDoShow = nodeModel.doShow
+				nm.doShow = true
+				nm.savedIsExpanded = nodeModel.isExpanded
+				nm.isExpanded = true
+			}
 		},
 
 		filterSince(since) {
 			// if needed reset the other selection first
-			if (this.$store.state.searchOn) this.resetFilters('filterSince')
+			if (this.$store.state.searchOn || this.$store.state.findIdOn) this.resetFilters('filterSince')
 			let sinceMilis = since * 60000
 			let count = 0
-			this.traverseLight((itemPath, nodeModel) => {
+			this.traverseModels((nodeModel) => {
 				// limit to levels higher than product
-				if (itemPath.length > PRODUCTLEVEL) {
-					if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
-						nodeModel.doShow = true
-						this.showParents(itemPath)
-						count++
-					} else {
-						nodeModel.doShow = false
-					}
+				if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
+					nodeModel.doShow = true
+					this.showPathToNode(nodeModel)
+					count++
+				} else {
+					nodeModel.doShow = false
 				}
-			}, this.$store.state.load.currentProductId, 'sl-vue-tree:filterSince')
+			}, this.getProductModels(this.$store.state.load.currentProductId))
 			// show event
 			if (count === 1) {
 				this.showLastEvent(`${count} item title matches your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
@@ -821,7 +765,7 @@ export default {
 			}
 			this.$store.state.filterText = RESETFILTERBUTTONTEXT
 			this.$store.state.filterOn = true
-			// this.showVisibility('filterSince')
+			// this.showVisibility('filterSince', 4)
 		},
 
 		filterOnKeyword() {
@@ -829,20 +773,17 @@ export default {
 			if (this.$store.state.keyword === '') return
 
 			// if needed reset the other selection first
-			if (this.$store.state.filterOn) this.resetFilters('filterOnKeyword')
+			if (this.$store.state.filterOn || this.$store.state.findIdOn) this.resetFilters('filterOnKeyword')
 			let count = 0
-			this.traverseLight((itemPath, nodeModel) => {
-				// limit to levels higher than product
-				if (itemPath.length > PRODUCTLEVEL) {
-					if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
-						nodeModel.doShow = true
-						this.showParents(itemPath)
-						count++
-					} else {
-						nodeModel.doShow = false
-					}
+			this.traverseModels((nodeModel) => {
+				if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
+					nodeModel.doShow = true
+					this.showPathToNode(nodeModel)
+					count++
+				} else {
+					nodeModel.doShow = false
 				}
-			}, this.$store.state.load.currentProductId, 'filterOnKeyword')
+			}, this.getProductModels(this.$store.state.load.currentProductId))
 			// show event
 			if (count === 1) {
 				this.showLastEvent(`${count} item title matches your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
@@ -850,7 +791,7 @@ export default {
 				this.showLastEvent(`${count} item titles match your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
 			}
 			this.$store.state.searchOn = true
-			// this.showVisibility('filterOnKeyword')
+			// this.showVisibility('filterOnKeyword', 4)
 		}
 	}
 }

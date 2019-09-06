@@ -513,7 +513,7 @@ export default {
 				if (this.$store.state.load.currentProductId !== nodeSelected.productId) {
 					// clear any outstanding filters
 					if (this.$store.state.filterOn || this.$store.state.searchOn) {
-						window.slVueTree.resetFilters('nodeSelectedEvent')
+						window.slVueTree.resetFilters('nodeSelectedEvent', true)
 					}
 					// collapse the previously selected product
 					window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
