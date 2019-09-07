@@ -435,6 +435,7 @@ export default {
 			return this.getNodeSiblings(path.slice(1), nodes[path[0]].children || [])
 		},
 
+		/* Get the product selected during load */
 		getSelectedProduct() {
 			const productModels = this.currentValue[0].children
 			for (let i = 0; i < productModels.length; i++) {
@@ -444,9 +445,6 @@ export default {
 					return node
 				}
 			}
-			// ToDo: write this to the log
-			console.log('getSelectedProduct: ERROR product not found')
-			return null
 		},
 
 		/* Collects all nodes in the current product that are selected */
@@ -732,13 +730,13 @@ export default {
 			}
 		},
 
+		/* Show the path from productlevel to and including the node  */
 		showPathToNode(node) {
-			let nodeModel = this.currentValue[0]
 			for (let i = PRODUCTLEVEL + 1; i < node.path.length; i++) {
 				const nm = this.getNodeModel(node.path.slice(0, i))
-				nm.savedDoShow = nodeModel.doShow
+				nm.savedDoShow = nm.doShow
 				nm.doShow = true
-				nm.savedIsExpanded = nodeModel.isExpanded
+				nm.savedIsExpanded = nm.isExpanded
 				nm.isExpanded = true
 			}
 		},
@@ -751,7 +749,6 @@ export default {
 			this.traverseModels((nodeModel) => {
 				// limit to levels higher than product
 				if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
-					nodeModel.doShow = true
 					this.showPathToNode(nodeModel)
 					count++
 				} else {
@@ -778,7 +775,6 @@ export default {
 			let count = 0
 			this.traverseModels((nodeModel) => {
 				if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
-					nodeModel.doShow = true
 					this.showPathToNode(nodeModel)
 					count++
 				} else {
