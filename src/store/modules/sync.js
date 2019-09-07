@@ -10,9 +10,9 @@ const state = {
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
 *
-* Note: When a user started multiple sessions each session has a different sessionId. These sessions are synced.
-* When a user starts a new session that new session will be sinced with the latest changes of his previous session.
-* This has no effect as the changes are allready loaded from the database.
+* Note: When a user starts multiple sessions each session has a different sessionId. These sessions are not synced.
+* When a user starts a new session that new session will be sinced with the latest changes of his previous and closed sessions.
+* Updates from users with the same email address as the current user are not processed.
 */
 const actions = {
 	listenForChanges({
@@ -95,10 +95,12 @@ const actions = {
 				for (let i = 0; i < data.results.length; i++) {
 					let doc = data.results[i].doc
 					// Select only documents which are a product backlog item, belong to the the user subscribed products and
-					// changes not made by the user him/her self in this session and ment for distribution (if not filtered out by the CouchDB _design filter)
+					// changes not made by the user him/her self in this session or previous sessions and
+					// ment for distribution (if not filtered out by the CouchDB _design filter)
 					if (doc.type === 'backlogItem' &&
 						doc.history[0].distributeEvent == true &&
 						doc.history[0].sessionId !== rootState.sessionId &&
+						doc.history[0].email !== rootState.load.email &&
 						rootState.load.myProductSubscriptions.includes(doc.productId)) {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed')
@@ -111,8 +113,6 @@ const actions = {
 								window.slVueTree.remove([node])
 								continue
 							}
-							// update the parent as it can be changed
-
 							let locationInfo = getLocationInfo(doc.priority, doc.parentId)
 							// in case
 							if (!locationInfo) {
