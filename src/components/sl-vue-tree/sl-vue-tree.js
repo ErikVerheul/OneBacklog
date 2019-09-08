@@ -176,7 +176,8 @@ export default {
 			// if not in shift-select mode
 			if (!(selNode.level > PRODUCTLEVEL && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
 				// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
-				lastSelectedNode.isSelected = false
+				// lastSelectedNode can be null after a recompile without a new load
+				if (lastSelectedNode) lastSelectedNode.isSelected = false
 				if (nodeToDeselect) nodeToDeselect.isSelected = false
 				for (let node of selectedNodes) node.isSelected = false
 				selectedNodes = []
@@ -656,9 +657,9 @@ export default {
 			// this.showVisibility('expandTree')
 		},
 
-		showItem(node) {
+		showAndSelectItem(node) {
 			this.traverseModels((nodeModel) => {
-				// unselect previous selections
+				// unselect any previous selections
 				nodeModel.isSelected = false
 				// if on the node path
 				if (this.isInPath(nodeModel.path, node.path)) {
@@ -679,20 +680,18 @@ export default {
 		},
 
 		/* clear any outstanding filters */
-		resetFilters(caller, productSwitch = false) {
+		resetFilters(caller) {
 			// eslint-disable-next-line no-console
 			console.log('resetFilters is called by ' + caller)
 
 			function doReset(vm, productId) {
 				vm.traverseModels((nodeModel) => {
-					if (productSwitch) {
-						if (nodeModel.level > PRODUCTLEVEL) {
-							if (nodeModel.productId === productId) {
-								nodeModel.doShow = true
-								nodeModel.isExpanded = nodeModel.savedIsExpanded
-							} else {
-								nodeModel.doShow = false
-							}
+					if (nodeModel.level > PRODUCTLEVEL) {
+						if (nodeModel.productId === productId) {
+							nodeModel.doShow = true
+							nodeModel.isExpanded = nodeModel.savedIsExpanded
+						} else {
+							nodeModel.doShow = false
 						}
 					} else {
 						nodeModel.doShow = nodeModel.savedDoShow
@@ -722,7 +721,7 @@ export default {
 
 		/* Show the path from productlevel to and including the node  */
 		showPathToNode(node) {
-			for (let i = PRODUCTLEVEL + 1; i < node.path.length; i++) {
+			for (let i = PRODUCTLEVEL; i < node.path.length; i++) {
 				const nm = this.getNodeModel(node.path.slice(0, i))
 				nm.savedDoShow = nm.doShow
 				nm.doShow = true

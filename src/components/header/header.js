@@ -108,7 +108,7 @@ export default {
 
                 this.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
                 // expand the newly selected product up to the found item
-                window.slVueTree.showItem(node)
+                window.slVueTree.showAndSelectItem(node)
                 // load the document if not already in memory
                 if (node._id !== this.$store.state.currentDoc._id) {
                     this.$store.dispatch('loadDoc', node._id)
@@ -220,6 +220,7 @@ export default {
             this.$store.dispatch('changePassword', this.newPassword1)
         },
 
+        /* Show the items in the current selected product */
         filterSince(since) {
             // if needed reset the other selection first
             if (this.$store.state.searchOn || this.$store.state.findIdOn) window.slVueTree.resetFilters('filterSince')
@@ -235,11 +236,9 @@ export default {
                 }
             }, window.slVueTree.getProductModels(this.$store.state.load.currentProductId))
             // show event
-            if (count === 1) {
-                this.showLastEvent(`${count} item title matches your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-            } else {
-                this.showLastEvent(`${count} item titles match your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-            }
+            let s
+            count === 1 ? s = 'title matches' : s = 'titles match'
+            this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
             this.$store.state.filterText = RESETFILTERBUTTONTEXT
             this.$store.state.filterOn = true
             // this.showVisibility('filterSince', 4)
