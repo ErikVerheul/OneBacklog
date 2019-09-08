@@ -81,6 +81,8 @@ export default new Vuex.Store({
 
 	state: {
 		lastEvent: '',
+		online: true,
+		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
 		filterText: FILTERBUTTONTEXT,
 		filterOn: false,
@@ -231,6 +233,9 @@ export default new Vuex.Store({
 			}, payload.afterSeconds * 1000)
 		},
 
+		/*
+		* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refrehed within 10 minutes
+		*/
 		signin({
 			commit,
 			dispatch,
