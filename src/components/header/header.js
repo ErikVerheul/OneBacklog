@@ -2,6 +2,7 @@ import licence from "./licence.vue"
 import { showLastEvent } from '../mixins/showLastEvent.js'
 
 const INFO = 0
+const RESETFILTERBUTTONTEXT = 'Clear filter'
 
 export default {
   mixins: [showLastEvent],
@@ -110,12 +111,12 @@ export default {
       if (this.$store.state.filterOn) {
         window.slVueTree.resetFilters("filterSinceEvent")
       }
-      window.slVueTree.filterSince(val);
+      this.filterSince(val);
     },
 
     showSelectionOrClearEvent() {
       if (this.$store.state.keyword !== "") {
-        window.slVueTree.filterOnKeyword()
+        this.filterOnKeyword()
       } else {
         // reset selection on empty input if selection is on
         if (this.$store.state.searchOn) {
@@ -214,6 +215,56 @@ export default {
         return
       }
       this.$store.dispatch('changePassword', this.newPassword1)
+    },
+
+    filterSince(since) {
+        // if needed reset the other selection first
+        if (this.$store.state.searchOn || this.$store.state.findIdOn) window.slVueTree.resetFilters('filterSince')
+        let sinceMilis = since * 60000
+        let count = 0
+        window.slVueTree.traverseModels((nodeModel) => {
+            // limit to levels higher than product
+            if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
+                window.slVueTree.showPathToNode(nodeModel)
+                count++
+            } else {
+                nodeModel.doShow = false
+            }
+        }, window.slVueTree.getProductModels(this.$store.state.load.currentProductId))
+        // show event
+        if (count === 1) {
+            this.showLastEvent(`${count} item title matches your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+        } else {
+            this.showLastEvent(`${count} item titles match your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+        }
+        this.$store.state.filterText = RESETFILTERBUTTONTEXT
+        this.$store.state.filterOn = true
+        // this.showVisibility('filterSince', 4)
+    },
+
+    filterOnKeyword() {
+        // cannot search on empty string
+        if (this.$store.state.keyword === '') return
+
+        // if needed reset the other selection first
+        if (this.$store.state.filterOn || this.$store.state.findIdOn) window.slVueTree.resetFilters('filterOnKeyword')
+        let count = 0
+        window.slVueTree.traverseModels((nodeModel) => {
+            if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
+                window.slVueTree.showPathToNode(nodeModel)
+                count++
+            } else {
+                nodeModel.doShow = false
+            }
+        }, window.slVueTree.getProductModels(this.$store.state.load.currentProductId))
+        // show event
+        if (count === 1) {
+            this.showLastEvent(`${count} item title matches your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+        } else {
+            this.showLastEvent(`${count} item titles match your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+        }
+        this.$store.state.searchOn = true
+        // this.showVisibility('filterOnKeyword', 4)
     },
 
     onSignout() {

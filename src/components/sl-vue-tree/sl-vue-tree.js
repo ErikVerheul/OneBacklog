@@ -5,10 +5,8 @@ const ROOTLEVEL = 1
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 const FILTERBUTTONTEXT = 'Recent changes'
-const RESETFILTERBUTTONTEXT = 'Clear filter'
 const INFO = 0
 var lastSelectedNode = null
-var numberOfSelectedNodes = 0
 var draggableNodes = []
 var selectedNodes = []
 var nodeToDeselect = null
@@ -167,34 +165,26 @@ export default {
 			this.getRoot().$emit('nodecontextmenu', node, event);
 		},
 
-		/* select a node from the current product or select the root or the top node of another product */
+		/*
+		* Select a node from the current product or select the root or the top node of another product.
+		* Shift-select mode is allowed only if nodes are above productlevel and on the same level
+		*/
 		select(cursorPosition, event) {
 			this.lastSelectCursorPosition = cursorPosition
 			const selNode = cursorPosition.nodeModel
 			this.preventDrag = false
-
-			// only shift-select above productlevel and selected nodes on the same level
-			if (selNode.level > PRODUCTLEVEL && lastSelectedNode && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey) {
-				selNode.isSelected = selNode.isSelectable
-				selectedNodes.push(selNode)
-			} else {
-				// single selection mode: unselect all currently selected nodes and clear selectedNodes
-				if (lastSelectedNode) console.log('select: lastSelectedNode.title = ' + lastSelectedNode.title)
-				if (lastSelectedNode) lastSelectedNode.isSelected = false
+			// if not in shift-select mode
+			if (!(selNode.level > PRODUCTLEVEL && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
+				// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
+				lastSelectedNode.isSelected = false
 				if (nodeToDeselect) nodeToDeselect.isSelected = false
-				for (let node of selectedNodes) {
-					node.isSelected = false
-				}
+				for (let node of selectedNodes) node.isSelected = false
 				selectedNodes = []
-				selNode.isSelected = selNode.isSelectable
-				selectedNodes.push(selNode)
 			}
-
+			selNode.isSelected = selNode.isSelectable
 			lastSelectedNode = selNode
-			numberOfSelectedNodes = selectedNodes.length
-			if (numberOfSelectedNodes > 0) {
-				this.emitSelect(selectedNodes, event)
-			}
+			selectedNodes.push(selNode)
+			this.emitSelect(selectedNodes, event)
 		},
 
 		onMousemoveHandler(event) {
@@ -276,8 +266,8 @@ export default {
 				return;
 			}
 
-			// stop drag if no nodes selected or at root level or not dragging or moving an item to another product
-			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === ROOTLEVEL || !this.isDragging || this.$store.state.moveOngoing) {
+			// stop drag if no nodes selected or at or at root level or moving an item to another product
+			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === ROOTLEVEL || this.$store.state.moveOngoing) {
 				this.stopDrag()
 				return
 			}
@@ -321,7 +311,6 @@ export default {
 			// console.log('onNodeMouseupHandler: JSON.stringify(draggableNodes, null, 2) = ' + JSON.stringify(draggableNodes, null, 2))
 			this.moveNodes(this.cursorPosition, draggableNodes)
 
-			// lastSelectedNode = null; ToDo: why?
 			this.emitDrop(draggableNodes, this.cursorPosition, event);
 			this.stopDrag();
 		},
@@ -635,7 +624,7 @@ export default {
 				if (nodeModel.level <= toLevel) {
 					// eslint-disable-next-line no-console
 					console.log('showVisibility: path = ' + nodeModel.path + ' level = ' + nodeModel.level +
-					' isExpanded = ' + nodeModel.isExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
+						' isExpanded = ' + nodeModel.isExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
 				}
 			})
 		},
@@ -681,6 +670,7 @@ export default {
 				// select the item
 				if (nodeModel.shortId === node.shortId) {
 					nodeModel.isSelected = true
+					// save this node so that it is deselected on the next select
 					nodeToDeselect = nodeModel
 					return false
 				}
@@ -739,56 +729,6 @@ export default {
 				nm.savedIsExpanded = nm.isExpanded
 				nm.isExpanded = true
 			}
-		},
-
-		filterSince(since) {
-			// if needed reset the other selection first
-			if (this.$store.state.searchOn || this.$store.state.findIdOn) this.resetFilters('filterSince')
-			let sinceMilis = since * 60000
-			let count = 0
-			this.traverseModels((nodeModel) => {
-				// limit to levels higher than product
-				if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
-					this.showPathToNode(nodeModel)
-					count++
-				} else {
-					nodeModel.doShow = false
-				}
-			}, this.getProductModels(this.$store.state.load.currentProductId))
-			// show event
-			if (count === 1) {
-				this.showLastEvent(`${count} item title matches your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-			} else {
-				this.showLastEvent(`${count} item titles match your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-			}
-			this.$store.state.filterText = RESETFILTERBUTTONTEXT
-			this.$store.state.filterOn = true
-			// this.showVisibility('filterSince', 4)
-		},
-
-		filterOnKeyword() {
-			// cannot search on empty string
-			if (this.$store.state.keyword === '') return
-
-			// if needed reset the other selection first
-			if (this.$store.state.filterOn || this.$store.state.findIdOn) this.resetFilters('filterOnKeyword')
-			let count = 0
-			this.traverseModels((nodeModel) => {
-				if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
-					this.showPathToNode(nodeModel)
-					count++
-				} else {
-					nodeModel.doShow = false
-				}
-			}, this.getProductModels(this.$store.state.load.currentProductId))
-			// show event
-			if (count === 1) {
-				this.showLastEvent(`${count} item title matches your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-			} else {
-				this.showLastEvent(`${count} item titles match your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-			}
-			this.$store.state.searchOn = true
-			// this.showVisibility('filterOnKeyword', 4)
 		}
 	}
 }
