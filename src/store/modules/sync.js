@@ -2,17 +2,14 @@ import globalAxios from 'axios'
 
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
-
-const state = {
-	eventSyncColor: '#004466'
-}
+const state = { eventSyncColor: '#004466' }
+var fistCallAfterSignin = true
 
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
 *
 * Note: When a user starts multiple sessions each session has a different sessionId. These sessions are not synced.
-* When a user starts a new session that new session will be sinced with the latest changes of his previous and closed sessions.
-* Updates from users with the same email address as the current user are not processed.
+* After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
 */
 const actions = {
 	listenForChanges({
@@ -98,9 +95,9 @@ const actions = {
 					// changes not made by the user him/her self in this session or previous sessions and
 					// ment for distribution (if not filtered out by the CouchDB _design filter)
 					if (doc.type === 'backlogItem' &&
+						!fistCallAfterSignin &&
 						doc.history[0].distributeEvent == true &&
 						doc.history[0].sessionId !== rootState.sessionId &&
-						doc.history[0].email !== rootState.load.email &&
 						rootState.load.myProductSubscriptions.includes(doc.productId)) {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed')
@@ -201,6 +198,7 @@ const actions = {
 						}
 					}
 				} // end of loop
+				fistCallAfterSignin = false
 			}
 			// recurse
 			dispatch('listenForChanges', rootState.lastSyncSeq)
