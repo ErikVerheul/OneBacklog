@@ -173,10 +173,9 @@ export default {
 			this.lastSelectCursorPosition = cursorPosition
 			const selNode = cursorPosition.nodeModel
 			this.preventDrag = false
-			// if not in shift-select mode
-			if (!(selNode.level > PRODUCTLEVEL && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
+			// if not in shift-select mode; note that lastSelectedNode can be null after a recompile without a new load
+			if (!(selNode.level > PRODUCTLEVEL && selNode.level === lastSelectedNode && lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
 				// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
-				// lastSelectedNode can be null after a recompile without a new load
 				if (lastSelectedNode) lastSelectedNode.isSelected = false
 				if (nodeToDeselect) nodeToDeselect.isSelected = false
 				for (let node of selectedNodes) node.isSelected = false
