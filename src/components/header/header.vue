@@ -10,11 +10,11 @@
         </b-navbar-nav>
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-dropdown split class="m-1" @click="clearFilterEvent()">
+          <b-dropdown split class="m-1" @click="onClearFilterEvent()">
             <template slot="button-content">{{ $store.state.filterText }}</template>
-            <b-dropdown-item @click="filterSinceEvent(10)">Changes &lt; 10 min.</b-dropdown-item>
-            <b-dropdown-item @click="filterSinceEvent(60)">Changes last hour</b-dropdown-item>
-            <b-dropdown-item @click="filterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
+            <b-dropdown-item @click="onFilterSinceEvent(10)">Changes &lt; 10 min.</b-dropdown-item>
+            <b-dropdown-item @click="onFilterSinceEvent(60)">Changes last hour</b-dropdown-item>
+            <b-dropdown-item @click="onFilterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
           </b-dropdown>
           <b-nav-form>
             <b-form-input
