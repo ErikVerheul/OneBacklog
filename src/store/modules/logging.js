@@ -23,14 +23,14 @@ const actions = {
 		dispatch
 	}) {
 		state.runningWatchdogId = setInterval(function () {
-			let online = navigator.onLine
+			rootState.online = navigator.onLine
 			let logsToSave = unsavedLogs.length
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('watchdog:' +
-				'\nOnline = ' + online +
+				'\nOnline = ' + rootState.online +
 				'\nUnsavedLogs = ' + logsToSave +
 				'\nListenForChangesRunning = ' + rootState.listenForChangesRunning)
-			if (online) {
+			if (rootState.online) {
 				// catch up the logging
 				if (logsToSave > 0 || !rootState.listenForChangesRunning) {
 					globalAxios({

@@ -104,6 +104,18 @@ export default {
 			// from load.js
 			'canWriteLevels'
 		]),
+		squareText() {
+			if (this.$store.state.online) {
+				this.showLastEvent("You are online again", INFO)
+				return 'sync'
+			} else {
+				this.showLastEvent("You are offline. Restore the connection or wait to continue", WARNING)
+				return 'offline'
+			}
+		},
+		squareColor() {
+			return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
+		},
 		subsribeTitle() {
 			if (this.isFollower) {
 				return "Unsubscribe to change notices"
@@ -511,9 +523,10 @@ export default {
 			if (nodeSelected._id !== 'root') {
 				// if the user clicked on a node of another product
 				if (this.$store.state.load.currentProductId !== nodeSelected.productId) {
+					const productSwitch = true
 					// clear any outstanding filters
 					if (this.$store.state.filterOn || this.$store.state.searchOn) {
-						window.slVueTree.resetFilters('nodeSelectedEvent', true)
+						window.slVueTree.resetFilters('nodeSelectedEvent', productSwitch)
 					}
 					// collapse the previously selected product
 					window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
@@ -714,7 +727,7 @@ export default {
 				const descendants = this.getDescendantsInfo(newNode).descendants
 				const payloadItem = {
 					'_id': newNode._id,
-					'oldProductId': this.moveSourceProductId, // ToDo: use this field in the history record
+					// 'oldProductTitle':?, // ToDo: use this product title in the history record
 					'productId': newNode.productId,
 					'newParentId': newNode.parentId,
 					'newPriority': newNode.data.priority,

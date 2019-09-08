@@ -2,7 +2,6 @@ import globalAxios from 'axios'
 
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
-const state = { eventSyncColor: '#004466' }
 var fistCallAfterSignin = true
 
 /*
@@ -71,6 +70,9 @@ const actions = {
 			}, nodes)
 		}
 
+		// stop listening if offline. watchdog will start it automatically when online again
+		if (!rootState.online) return
+
 		let url = rootState.currentDb + '/_changes?feed=longpoll&filter=_view&view=design1/changesFilter&include_docs=true'
 		if (since) url += '&since=' + since
 		else {
@@ -88,14 +90,13 @@ const actions = {
 			rootState.lastSyncSeq = data.last_seq
 			//eslint-disable-next-line no-console
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
-			if (since) {
+			if (since && !fistCallAfterSignin) {
 				for (let i = 0; i < data.results.length; i++) {
 					let doc = data.results[i].doc
 					// Select only documents which are a product backlog item, belong to the the user subscribed products and
-					// changes not made by the user him/her self in this session or previous sessions and
+					// changes not made by the user him/her self in a parallel session and
 					// ment for distribution (if not filtered out by the CouchDB _design filter)
 					if (doc.type === 'backlogItem' &&
-						!fistCallAfterSignin &&
 						doc.history[0].distributeEvent == true &&
 						doc.history[0].sessionId !== rootState.sessionId &&
 						rootState.load.myProductSubscriptions.includes(doc.productId)) {
@@ -198,8 +199,8 @@ const actions = {
 						}
 					}
 				} // end of loop
-				fistCallAfterSignin = false
 			}
+			fistCallAfterSignin = false
 			// recurse
 			dispatch('listenForChanges', rootState.lastSyncSeq)
 		})
@@ -216,16 +217,15 @@ const actions = {
 	},
 
 	doBlinck({
-		state
+		rootState
 	}) {
-		state.eventSyncColor = '#e6f7ff'
+		rootState.eventSyncColor = '#e6f7ff'
 		setTimeout(function () {
-			state.eventSyncColor = '#004466'
+			rootState.eventSyncColor = '#004466'
 		}, 1000)
 	}
 }
 
 export default {
-	state,
 	actions
 }

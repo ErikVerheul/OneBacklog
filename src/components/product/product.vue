@@ -68,8 +68,8 @@
         >Welcome {{ $store.state.user }}. Your current database is set to {{ $store.state.currentDb }}. You selected {{ $store.state.load.myProductSubscriptions.length }} from {{ $store.state.load.userAssignedProductIds.length }} products.</h6>
         <span
           class="square"
-          v-bind:style="{'background-color': this.$store.state.sync.eventSyncColor}"
-        >sync</span>
+          v-bind:style="{'background-color': squareColor}"
+        >{{ squareText }}</span>
         <div
           class="last-event"
           v-bind:style="{'background-color': $store.state.eventBgColor}"
