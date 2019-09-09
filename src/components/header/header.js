@@ -3,6 +3,7 @@ import { showLastEvent } from '../mixins/showLastEvent.js'
 
 const INFO = 0
 const RESETFILTERBUTTONTEXT = 'Clear filter'
+const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
 
 export default {
     mixins: [showLastEvent],
@@ -14,7 +15,8 @@ export default {
             newPassword2: "",
             selectedProducts: this.$store.state.load.myProductSubscriptions,
             defaultProductId: undefined,
-            defaultProductOptions: []
+            defaultProductOptions: [],
+            shortId: ""
         }
     },
     mounted() {
@@ -31,9 +33,9 @@ export default {
             if (event.keyCode === 13) {
                 event.preventDefault()
                 // check for valid input and convert to lowercase
-                if (this.shortIdState) {
+                if (this.shortIdCheck) {
                     window.slVueTree.resetFilters('selectOnId')
-                    this.selectNode(this.$store.state.shortId.toLowerCase())
+                    this.selectNode(this.shortId.toLowerCase())
                 }
             }
         })
@@ -67,18 +69,16 @@ export default {
                 this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin
             )
         },
-        shortIdState() {
-            if (this.$store.state.shortId.length !== 5) return false
+        shortIdCheck() {
+            if (this.shortId.length !== 5) return false
 
-            const digits = '0123456789'
-            const hex = '0123456789abcdefABCDEF'
-            if (!digits.includes(this.$store.state.shortId.substring(0, 1))) return false
-            for (let i = 1; i < this.$store.state.shortId.length; i++) {
-                if (!hex.includes(this.$store.state.shortId.substring(i, i + 1))) return false
+            for (let i = 0; i < this.shortId.length; i++) {
+                if (!alphanum.includes(this.shortId.substring(i, i + 1).toLowerCase())) return false
             }
             return true
         }
     },
+
     methods: {
         selectNode(shortId) {
             let node
@@ -142,12 +142,8 @@ export default {
 
         changePassword() {
             if (this.$store.getters.isServerAdmin)
-                alert(
-                    "As a 'server admin' you cannot change your password here. Use Fauxton instead"
-                );
-            else {
-                this.$refs.changePwRef.show()
-            }
+                alert("As a 'server admin' you cannot change your password here. Use Fauxton instead")
+            else this.$refs.changePwRef.show()
         },
 
         doChangeTeam() { },
@@ -260,11 +256,9 @@ export default {
                 }
             }, window.slVueTree.getProductModels(this.$store.state.load.currentProductId))
             // show event
-            if (count === 1) {
-                this.showLastEvent(`${count} item title matches your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-            } else {
-                this.showLastEvent(`${count} item titles match your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-            }
+            let s
+            count === 1 ? s = 'title matches' : s = 'titles match'
+            this.showLastEvent(`${count} item ${s} your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
             this.$store.state.searchOn = true
             // this.showVisibility('filterOnKeyword', 4)
         },

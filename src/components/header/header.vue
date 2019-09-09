@@ -19,8 +19,8 @@
           <b-nav-form>
             <b-form-input
               id="selectOnId"
-              v-model="$store.state.shortId"
-              :state="shortIdState"
+              v-model="shortId"
+              :state="shortIdCheck"
               class="m-1"
               placeholder="Select on Id"
             />
@@ -64,7 +64,7 @@
 
     <b-modal size="lg" ref="changeTeamRef" @ok="doChangeTeam" title="Change your team">
       <b-container align-v="true">
-        <h1>Not in MVP</h1>
+        <h1>Not yet implemented</h1>
       </b-container>
     </b-modal>
 

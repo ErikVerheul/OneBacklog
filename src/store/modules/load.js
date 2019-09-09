@@ -5,8 +5,6 @@ import router from '../../router'
 var batch = []
 const INFO = 0
 const WARNING = 1
-const ERROR = 2
-const DEBUG = 3
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5

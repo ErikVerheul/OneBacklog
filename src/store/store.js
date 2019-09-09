@@ -75,8 +75,6 @@ Vue.use(Vuex)
  *	}
  */
 
-const FILTERBUTTONTEXT = 'Recent changes'
-
 export default new Vuex.Store({
 
 	state: {
@@ -84,7 +82,7 @@ export default new Vuex.Store({
 		online: true,
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
-		filterText: FILTERBUTTONTEXT,
+		filterText: 'Recent changes',
 		filterOn: false,
 		findIdOn: false,
 		shortId: '',

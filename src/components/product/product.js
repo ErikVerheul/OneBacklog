@@ -897,10 +897,11 @@ export default {
 			newNode.level = path.length
 
 			if (this.canWriteLevels[insertLevel]) {
-				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 4 digit hexadecimal random value
-				const newId = Date.now().toString() + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1).toString()
+				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
+				const extension = Math.random().toString(36).replace('0.', '').substr(1, 5)
+				const newId = Date.now().toString().concat(extension)
 				newNode._id = newId
-				newNode.shortId = newId.slice(-5)
+				newNode.shortId = extension
 				if (newNodeLocation.placement === 'inside') {
 					// unselect the node that was clicked before the insert and expand it to show the inserted node
 					this.contextNodeSelected.isSelected = false
