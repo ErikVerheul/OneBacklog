@@ -66,10 +66,7 @@
         <h6
           v-if="$store.state.load.userAssignedProductIds.length >1"
         >Welcome {{ $store.state.user }}. Your current database is set to {{ $store.state.currentDb }}. You selected {{ $store.state.load.myProductSubscriptions.length }} from {{ $store.state.load.userAssignedProductIds.length }} products.</h6>
-        <span
-          class="square"
-          v-bind:style="{'background-color': squareColor}"
-        >{{ squareText }}</span>
+        <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
         <div
           class="last-event"
           v-bind:style="{'background-color': $store.state.eventBgColor}"
@@ -124,7 +121,6 @@
                 </i>
               </span>
             </template>
-
           </sl-vue-tree>
         </div>
       </div>
@@ -143,9 +139,7 @@
                 :value="$store.state.currentDoc.title"
                 @blur="updateTitle()"
               ></b-input>
-              <div class="d-table-cell tac">
-                Id = {{ $store.state.currentDoc.shortId }}
-               </div>
+              <div class="d-table-cell tac">Id = {{ $store.state.currentDoc.shortId }}</div>
               <div class="d-table-cell tar">
                 <b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
               </div>
@@ -303,6 +297,16 @@
           <hr />
           <div class="d-block text-center">
             {{ showSelected() }}
+            <br />
+            <br />
+            <b-button
+              v-if="contextSelected !== undefined"
+              v-show="!showAssistance"
+              size="sm"
+              variant="outline-primary"
+              @click="contextAssistance(contextSelected)"
+            >Need assistance?</b-button>
+            <b-alert class="d-block text-left" :show="showAssistance" v-html="assistanceText"></b-alert>
             <div v-if="contextWarning" class="colorRed">{{ contextWarning }}</div>
           </div>
         </b-list-group>
@@ -390,7 +394,7 @@
 
 <!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
 <style>
-	#dropdownMenuButton>button {
+#dropdownMenuButton > button {
   width: 100%;
 }
 

@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../router'
 import logging from './modules/logging'
+import help from './modules/help'
 import load from './modules/load'
 import sync from './modules/sync'
 import useracc from './modules/useracc'
@@ -291,6 +292,7 @@ export default new Vuex.Store({
 
 	modules: {
 		logging,
+		help,
 		load,
 		sync,
 		useracc,

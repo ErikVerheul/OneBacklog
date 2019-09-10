@@ -45,6 +45,9 @@ export default {
 			contextChildType: '',
 			contextSelected: undefined,
 			contextWarning: undefined,
+			currentAssistanceNr: undefined,
+			assistanceText: "",
+			showAssistance: false,
 			removeDescendantsCount: 0,
 			// default to sibling node (no creation of descendant)
 			insertOptionSelected: 1,
@@ -656,6 +659,7 @@ export default {
 		},
 		showContextMenu(node) {
 			this.contextSelected = undefined
+			this.currentAssistanceNr = undefined
 			this.insertOptionSelected = 1
 			// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
 			if (this.canWriteLevels[node.level] && node._id === nodeSelected._id && node.level > 1 && numberOfNodesSelected === 1) {
@@ -673,13 +677,16 @@ export default {
 				case 0:
 					this.contextWarning = undefined
 					this.insertOptionSelected = 1
+					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
 					return 'Insert a ' + this.contextNodeType + ' below this item'
 				case 1:
 					this.insertOptionSelected = 2
 					this.contextWarning = undefined
+					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
 					return 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
 				case 2:
 					this.contextWarning = undefined
+					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
 					if (!this.$store.state.moveOngoing) {
 						return 'Item selected. Choose drop position in any other product'
 					} else {
@@ -687,13 +694,34 @@ export default {
 					}
 				case 3:
 					this.contextWarning = 'WARNING: this action cannot be undone!'
+					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
 					return `Remove this ${this.contextNodeType} and ${this.removeDescendantsCount} descendants`
 				default:
 					this.contextWarning = undefined
 					return 'nothing selected as yet'
 			}
 		},
+		contextAssistance(opt) {
+			this.currentAssistanceNr = opt
+			switch (opt) {
+				case 0:
+					this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
+					break
+				case 1:
+					this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
+					break
+				case 2:
+					this.assistanceText = this.$store.state.help.help.move
+					break
+				case 3:
+					this.assistanceText = this.$store.state.help.help.remove
+					break
+				default:
+					this.assistanceText = 'No assistance available'
+			}
+		},
 		procSelected() {
+			this.currentAssistanceNr = undefined
 			switch (this.contextSelected) {
 				case 0:
 					this.doInsert()
@@ -898,7 +926,7 @@ export default {
 
 			if (this.canWriteLevels[insertLevel]) {
 				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-				const extension = Math.random().toString(36).replace('0.', '').substr(1, 5)
+				const extension = Math.random().toString(36).replace('0.', '').substr(0, 5)
 				const newId = Date.now().toString().concat(extension)
 				newNode._id = newId
 				newNode.shortId = extension
@@ -955,6 +983,7 @@ export default {
 			}
 		},
 		doCancel() {
+			this.currentAssistanceNr = undefined
 			this.$store.state.moveOngoing = false
 		}
 	},
