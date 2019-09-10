@@ -3,13 +3,43 @@
 		<b-row>
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
-				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
+				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<hr>
+				<h3>v.0.6.1.1 - 10 September 2019 Minor fix</h3>
+				<p>Missed updates:</p>
+				<ul>
+					<li>These release notes</li>
+					<li>Text update on the welcome page. This application is now in beta.</li>
+				</ul>
+				<hr>
+				<h3>v.0.6.1 - 10 September 2019 Major update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Help added for context menu items</li>
+					<li>Show warning when offline</li>
+					<li>Clear the filters automatically when the input field is made empty (no press enter required)</li>
+					<li>Give the cursor travelling the tree view another color than the selected nodes</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Do not sync changes made by any user at sign-in as the database just loaded is allready up-to-date</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>Change to 5 characters alphanumeric short id for more resolution</li>
+					<li>Integrate the ISlTreeNodeModel with the ISlTreeNode to one model</li>
+					<li>Use mixin for displaying an event in components; create a mutation for this functionality for use in the VUEX store</li>
+				</ul>
+				<p>Performance improvements:</p>
+				<ul>
+					<li>Tree view can handle +5000 nodes due to design changes</li>
+				</ul>
 				<hr>
 				<h3>v.0.6.0 - 27 August 2019 Major update</h3>
 				<p>New features:</p>
 				<ul>
 					<li>Load only the products I am interested in now; Let me choose</li>
-					<li>Have a short reference for items for communication and lookup</li>
+					<li>Have a short reference Id for items for communication and lookup</li>
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>

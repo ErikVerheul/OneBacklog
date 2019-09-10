@@ -8,10 +8,10 @@
         <router-link to="/signin">Sign In</router-link>
       </div>
       <div class="col-lg-12 col-sm-12 text-center">
-        <h3>Welcome to the OneBacklog Minimal Viable Product</h3>
+        <h3>Welcome to the OneBacklog single page web application</h3>
         <p>This application is intended for Product Owners who own one ore more products as well as for developers and viewers.<br>
-           Your role determines what you can do. This MVP is not intended for productive use yet. It is in developement.</p>
-				<p>Signin with demoUser and password demoUser.</p>
+           Your role determines what you can do. The application is in beta.</p>
+				<p>Signin with <b>demoUser</b> and password <b>demoUser</b>.</p>
       </div>
     </div>
   </div>
