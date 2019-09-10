@@ -18,11 +18,11 @@
 					<li>Help added for context menu items</li>
 					<li>Show warning when offline</li>
 					<li>Clear the filters automatically when the input field is made empty (no press enter required)</li>
-					<li>Give the cursor travelling the tree view another color than the selected nodes</li>
+					<li>Give the cursor traveling the tree view another color than the selected nodes</li>
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>
-					<li>Do not sync changes made by any user at sign-in as the database just loaded is allready up-to-date</li>
+					<li>Do not sync changes made by any user at sign-in as the database just loaded is already up-to-date</li>
 				</ul>
 				<p>Design changes:</p>
 				<ul>
