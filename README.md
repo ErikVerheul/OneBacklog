@@ -7,10 +7,10 @@
 <b>The product vision:</b><br />
 As super PO I need one integrated tool to manage the product backlog of all my products so that:
 - I can map my portfolio in one tool
-- NOT IN MVP: The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
+- TO DO: The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
 - My PO's can manage their products
-- NOT IN MVP: Dependencies within products are made visible so that the team, their PO or myself can act upon it
-- NOT IN MVP: Scrum teams can use the tool to do their refinements and run their sprints
+- TO DO: Dependencies within products are made visible so that the team, their PO or myself can act upon it
+- TO DO: Scrum teams can use the tool to do their refinements and run their sprints
 - Only PO's are authorized to change priorities
 - The tool runs in a browser and is accessible only by authorized users
 - Full security is in place
@@ -20,7 +20,7 @@ As super PO I need one integrated tool to manage the product backlog of all my p
 The database and the web server have secure https access.
 
 <b>Authentication:</b><br />
-The CouchDB build-in authentication is used
+The CouchDB build-in cookie authentication (RFC 2109) is used
 
 <b>Authorization :</b><br />
 The authorization is set per product and based on the following roles:
@@ -38,16 +38,16 @@ a product consists of:
 - <b>epics</b> which consists of
 - <b>features</b> which consists of
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
-- <b>tasks</b> (NOT IN MVP) and
-- <b>multiple requirement areas</b> (NOT IN MVP) can be maintained on the feature level across products.
+- <b>tasks</b> (TO DO) and
+- <b>multiple requirement areas</b> (TO DO) can be maintained on the feature level across products.
 <p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
 
 <b>Other design choices:</b><br />
 The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
 Features have (business) value. Delivering the high priority features first is the aim of all participants.<br />
-Priorities are set on pbi level. It is the responsibility of the PO to select the pbi's of the most important feature first.<br />
+Priorities are set on every level. Eg. when feature A has a higher priority than feature B all its pbi's have a higher priority than any pbi in feature B. It is the  the PO who selects the most important epics and the features within.<br />
 The owning team is an attribute of the pbi and used for filtering. A user can be member of one or more teams. A guest is not a member of a team.<br />
-When multiple databases are created products defined in different databases are considered completely independent.<br />
+When multiple databases are created, products defined in different databases are considered completely independent. However the user database with the authorizations is shared over all products.<br />
 
 <b>Product and epic size estimate:</b><br />
 Products and epics are estimated in T-shirt sizes.
@@ -67,9 +67,9 @@ When a defect is found after a Pbi is set to done a defect Pbi is created with a
 <b>Backlog refinement:</b>
 - the preferred order for refinement is by feature. The tool supports a feature view of the backlog
 - the team that refines a pbi becomes the owner of that pbi
-- pbi's are estimated by the that team
+- pbi's are estimated by that team
 
-NOT IN MVP: <b>Sprint backlog and planning board:</b><br />
+TO DO: <b>Sprint backlog and planning board:</b><br />
 The use of the electronic planning board is optional and only advised for use when team members are remote
 - a sprint is dedicated to the increment of one product only; The tool should enforce this
 - the team selects the pbi's to work on
@@ -85,7 +85,7 @@ The use of the electronic planning board is optional and only advised for use wh
 - <b>done</b> (delivered wrt the DoD)
 - <b>removed</b>
 
-NOT IN MVP: <b>Dependencies:</b><br />
+TO DO: <b>Dependencies:</b><br />
 Is-dependent-on is the only type. When B is dependent on A then B must have a lower priority than A; The tool should enforce this.
 Circular dependencies are not allowed; The tool should enforce this also.
 
@@ -98,18 +98,20 @@ Developers can create new pbi's for their product(s) but not change priorities i
 Viewers can only read the information of the products assigned to them.
 
 <b>Non functional requirements:</b>
-100 simultaneous users, updates by other users should be available within 1 second.
+Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Updates by other users should be available within 1 second. Notification of network connection loss and automatic recovery.
 
 <b>Implementation:</b>
 
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/example-screen.png)
 
-- Product, epic, feature, pbi, task and requirement area names are mapped to a key. That key is used for reference purposes so that the name can be updated independently.
+- Product, epic, feature, pbi, task and requirement area items are mapped to a key. That key is used for application internal unique identification.
+- A short key of 5 characters alphamumeric are available for the users for direct lookup and reference in communications.
+- When the short key is not unique (chances for a duplicate are 1 in 10.000 in a 5000 item product) the application warns the user.
 - The history of products, epics, features, pbi's are stored and easily accessible. 
 - The type of product, epic, feature and pbi can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature. That feature to an epic and the epic to a product. The reverse can also be done. This feature also works between products.
-- A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
-- Users can add comments to an item.
-- NOT IN MVP: Attachments can be added to each backlog item type.
+- TO DO: A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
+- Users can add comments to an item and to the automatic history log.
+- TO DO: Attachments can be added to each backlog item type.
 
 <b>And avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
 
@@ -122,7 +124,7 @@ Viewers can only read the information of the products assigned to them.
 Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the real role the product owner has.
 
 ## Demo
-The MVP is online. Try https://onebacklog.net, signin as demo user and give me your feedback by registering your most wanted features and found defects in the application itself. See the <b>release nodes</b> by clicking on the version number in the header of the app.
+A demo of the current stable version is online. Try https://onebacklog.net, signin as demo user and give me your feedback by registering your most wanted features and found defects in the application itself. See the <b>release nodes</b> by clicking on the version number in the header of the app.
 
 ## Build Setup
 

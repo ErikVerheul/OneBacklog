@@ -28,9 +28,9 @@
 					MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu.
 				</div>
 				<div v-if=this.$store.state.demo class="text-center">
-					<p>This is a demo / test version of the application. DO NOT USE FOR PRODUCTION.<br>
+					<p>This is a demo / test version of the application in beta stage. It lacks the admin tool for user adminstration and other features.<br>
 					Please leave your findings in this applications register or e-mail to tech@verheulconsultants.nl.</p>
-					<p>Signin with demoUser and password demoUser.</p>
+					<p>Signin with <b>demoUser</b> and password <b>demoUser</b>.</p>
 					<p>Note that demoUser has the permissions of "superPO", "PO", "developer" and "guest" for the ' Register...' and Generated product.<br>
 						So you can do almost everything. Please do not remove other peoples entries.</p>
 				</div>

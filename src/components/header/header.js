@@ -9,7 +9,7 @@ export default {
     mixins: [showLastEvent],
     data() {
         return {
-            appVersion: "OneBackLog v.0.6.0",
+            appVersion: "OneBackLog v.0.6.1",
             oldPassword: "",
             newPassword1: "",
             newPassword2: "",

@@ -3,7 +3,7 @@
 		<b-row>
 			<b-col cols="12" class="left-column">
 				<h1>USER GUIDE</h1>
-				<p v-if=this.$store.state.demo>Note: This is a demo version of the application. Do not use it for production.</p>
+				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
 				<h4>The header</h4>
 				<p class="indent10">Always mention the version number located after the app name when reporting issues. When you click on the release number you will the <b>realease notes </b> will be displayed.</p>
 				<h5>User guide</h5>
@@ -18,7 +18,7 @@
 					<li>The item is found in a product assigned to you which is not selected. You get a message but the item is displayed anyway.</li>
 					<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessable to you.</li>
 					<li>The item is NOT found in the database. You get a message. Check if you made a mistype.</li>
-					<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin. Contact him/her and agree on which item should become a new short Id.</li>
+					<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin.</li>
 				</ul>
 				To undo the select clear the 'Select on Id' input field and press Enter.</p>
 				<h5>Search on key word</h5>
@@ -75,8 +75,9 @@
 				<h4>The welcome bar</h4>
 				<p class="indent10">This bar displays the user name, the database name and the number of products assigned to this user.</p>
 				<h4>The event bar</h4>
-				<p class="indent10">This bar displays the latest event, a selection, a expansion/collaps of a tree branch or a warning.<br>
+				<p class="indent10">This bar displays the latest event, a selection, a expansion/collaps of a tree branch, a warning or an error.<br>
 					On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted. It lights when another user changes a title or the position of one or more items in your tree view below. Your tree is updated instantly.</p>
+					<p>The <b>Sync light</b> will turn red with the the text 'offline' when your connection is lost. In this condition you can not access the database. Wait for automatic recovery or restore the connection.</p>
 				<h4>The backlog item tree</h4>
 				<p class="indent10">This large black field below the event bar shows all the products assigned to the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
 				<div class="indent10">
@@ -85,8 +86,8 @@
 						<li>epics which consists of</li>
 						<li>features which consists of</li>
 						<li>pbi's of kind user-story/defect/spike which are realized by executing</li>
-						<li>tasks (NOT IN MVP) and</li>
-						<li>multiple requirement areas (NOT IN MVP) can be maintained on the feature level across products.</li>
+						<li>tasks (TO DO) and</li>
+						<li>multiple requirement areas (TO DO) can be maintained on the feature level across products.</li>
 					</ul>
 				</div>
 				<div class="indent10">The authorization is set per product and based on the following roles:
@@ -103,26 +104,28 @@
 				</div>
 				<p class="indent10">To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
 				<b-img class="indent10" :src="require('./context-menu.png')" alt="Example context menu" />
-				<p class="indent10">Select the action to execute and press OK.</p>
+				<p class="indent10">Select the action to execute and press OK. But before doing see click the <b>need assistance?</b> button for some valuable tips.</p>
 				<p class="indent10">Be carefull when removing an item with all of its descendants. You will see a modal like this:</p>
 				<b-img class="indent10" :src="require('./warning-on-remove.png')" alt="Example warning on remove" />
-				<p class="indent10">Click on cancel or the small X when uncertain. After removal the items are still in the database. Only the server admin can recover them.</p>
+				<p class="indent10">Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. After removal the items are still in the database. Only the server admin can recover them.</p>
 				<h4>Drag &amp; drop in the backlog item tree</h4>
 				<p class="indent10">This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product. Use the context menu to move a branche to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>
 				<h4>The title input field</h4>
-				<p class="indent10">On the right side of the screen above the Description field is the input field to change the title of the currently selected item. Th change takes place when you move away from this field and click on another location. You will see the update in the tree view.</p>
+				<p class="indent10">On the right side of the screen above the Description field is the input field to change the title of the currently selected item. The change takes place when you move away from this field and click on another location. You will see the update in the tree view.</p>
+				<h4>The item short Id</h4>
+				<p class="indent10">On the right side of the title field the short id of the displayed item is displayed. Use this Id in communications with other users of the application instead of using the title.</p>
 				<h4>Subscribe to change notices</h4>
 				<p class="indent10">When you click on this button all changes to this item will be emailed to you provided you are signed in as a registered user and your provided email adress is correct. This will not work for users of generic accounts like demoUser or guest.</p>
 				<h4>The description input field</h4>
-				<p class="indent10">As the title should short and concise, this the place de describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments (NOT IN MVP) to add documentation.</p>
+				<p class="indent10">As the title should short and concise, this the place de describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments (TO DO) to add documentation.</p>
 				<h4>The acceptance criteria input field</h4>
 				<p class="indent10">A backlog item can only be reported as 'DONE' when all acceptance criteria are met. To be able to estimate the effort the team must know the acceptance criteria up front. They are as important as the description.</p>
 				<h4>Add comments</h4>
-				<p class="indent10">Instead of extending or overwriting the fields above you can start a discussion by using this button. It will open a WYSIWYG editor to write your text. Subscribed users will receive a copy of your comment by email (NOT IN MVP).</p>
+				<p class="indent10">Instead of extending or overwriting the fields above you can start a discussion by using this button. It will open a WYSIWYG editor to write your text. Subscribed users will receive a copy of your comment by email (TO DO).</p>
 				<h4>Filter comments</h4>
 				<p class="indent10">Enter a key word and you will only see comments including this key word.</p>
 				<h4>The Comments, Attachments, History radio buttons</h4>
-				<p class="indent10">When you select Attachments (NOT IN MVP) or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
+				<p class="indent10">When you select Attachments (TO DO) or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 			</b-col>
 		</b-row>
 	</b-container>
