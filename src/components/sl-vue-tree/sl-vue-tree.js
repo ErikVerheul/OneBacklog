@@ -174,7 +174,7 @@ export default {
 			const selNode = cursorPosition.nodeModel
 			this.preventDrag = false
 			// if not in shift-select mode; note that lastSelectedNode can be null after a recompile without a new load
-			if (!(selNode.level > PRODUCTLEVEL && selNode.level === lastSelectedNode && lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
+			if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
 				// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
 				if (lastSelectedNode) lastSelectedNode.isSelected = false
 				if (nodeToDeselect) nodeToDeselect.isSelected = false
@@ -486,16 +486,16 @@ export default {
 			return resultNode
 		},
 
-		getPrevVisibleNode(path) {
-			let prevVisiblePath
+		getPreviousNode(path) {
+			let prevPath
 			if (path.slice(-1)[0] === 0) {
 				// the removed node is a first child
-				prevVisiblePath = path.slice(0, path.length - 1)
+				prevPath = path.slice(0, -1)
 			} else {
 				// the removed node has a previous sibling
-				prevVisiblePath = path.slice(0, path.length - 1).concat(path.slice(-1)[0] - 1)
+				prevPath = path.slice(0, -1).concat(path.slice(-1)[0] - 1)
 			}
-			return this.getNodeModel(prevVisiblePath)
+			return this.getNodeModel(prevPath)
 		},
 
 		/* Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId */
@@ -570,7 +570,7 @@ export default {
 				// insert before or after the cursor position
 				destSiblings = this.getNodeSiblings(destNodeModel.path)
 				const parentId = destNodeModel.parentId
-				const parentPath = destNodeModel.path.slice(0, destNodeModel.path.length - 1)
+				const parentPath = destNodeModel.path.slice(0, -1)
 				const insertInd = cursorPosition.placement === 'before' ? destNodeModel.ind : destNodeModel.ind + 1
 				for (let nm of nodes) {
 					destSiblings.splice(insertInd, 0, nm)
@@ -591,10 +591,11 @@ export default {
 		},
 
 		removeSingle(node, currentSelectedNode) {
+			// save this node so that it is deselected on the next select
 			if (currentSelectedNode) nodeToDeselect = currentSelectedNode
 			const siblings = this.getNodeSiblings(node.path)
 			const removeInd = node.ind
-			const parentPath = node.path.slice(0, node.path.length - 1)
+			const parentPath = node.path.slice(0, -1)
 			siblings.splice(removeInd, 1)
 			this.updatePaths(parentPath, siblings, removeInd)
 		},
