@@ -290,6 +290,7 @@
             v-on:click="contextSelected = 2"
           >Insert the moved item here</b-list-group-item>
           <b-list-group-item
+            v-if="contextNodeLevel > productLevel"
             button
             variant="danger"
             v-on:click="contextSelected = 3"
