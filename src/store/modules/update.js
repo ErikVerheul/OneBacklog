@@ -1,5 +1,13 @@
 import globalAxios from 'axios'
 
+const WARNING = 1
+
+const state = {
+	removeHistory: [],
+	busyRemoving: false
+}
+
+
 const actions = {
 	/*
 	 * When updating the database first load the document with the actual revision number and changes by other users.
@@ -432,9 +440,11 @@ const actions = {
 			})
 	},
 	removeDoc({
+		state,
 		rootState,
 		dispatch
 	}, payload) {
+		state.busyRemoving = true
 		const _id = payload.node._id
 		globalAxios({
 			method: 'GET',
@@ -467,11 +477,118 @@ const actions = {
 				})
 			})
 	},
+	unDoRemove({
+		rootState,
+		commit,
+		dispatch
+	}, entry) {
+		const _id = entry.grandParentId
+		globalAxios({
+			method: 'GET',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			let grandParentDoc = res.data
+			if (!grandParentDoc.delmark) {
+				const newHist = {
+					"docRestoredUnder": [grandParentDoc.title],
+					"nrOfDescendants": entry.descendants.length,
+					"by": rootState.user,
+					"email": rootState.load.email,
+					"timestamp": Date.now(),
+					"sessionId": rootState.sessionId,
+					"distributeEvent": false
+				}
+				grandParentDoc.history.unshift(newHist)
+				dispatch('restoreParentFirst', entry)
+				if (entry.isProductRemoved) {
+					dispatch('removeFromRemovedProducts', entry.descendants[0])
+				}
+			} else {
+				commit('showLastEvent', { txt: `You cannot restore under the removed item with title '${grandParentDoc.title}'`, severity: WARNING })
+			}
+		})
+			.catch(error => {
+				let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
+	restoreParentFirst({
+		rootState,
+		dispatch
+	}, payload) {
+		const _id = payload.parentId
+		globalAxios({
+			method: 'GET',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			let tmpDoc = res.data
+			const newHist = {
+				"docRestored": [tmpDoc.title],
+				"by": rootState.user,
+				"email": rootState.load.email,
+				"timestamp": Date.now(),
+				"sessionId": rootState.sessionId,
+				"distributeEvent": true
+			}
+			tmpDoc.history.unshift(newHist)
+			rootState.currentDoc.history.unshift(newHist)
+			tmpDoc.delmark = false
+			dispatch('undoRemovedParent', {tmpDoc: tmpDoc, entry: payload})
+		})
+			.catch(error => {
+				let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
+	// Update document by creating a new revision
+	undoRemovedParent({
+		state,
+		rootState,
+		dispatch
+	}, payload) {
+		const _id = payload.tmpDoc._id
+		// eslint-disable-next-line no-console
+		console.log('updateDoc: updating document with _id = ' + _id)
+		globalAxios({
+			method: 'PUT',
+			url: rootState.currentDb + '/' + _id,
+			withCredentials: true,
+			data: payload.tmpDoc
+		}).then(() => {
+			dispatch('restoreDescendantsBulk', payload.entry)
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('undoRemovedParent: document with _id + ' + _id + ' is updated.')
+			state.busyRemoving = false
+		})
+			.catch(error => {
+				let msg = 'undoRemovedParent: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
 	/* Mark the descendants of the parent for removal. Do not distribute this event as distributing the parent removal will suffice */
 	removeDescendantsBulk({
+		state,
 		rootState,
 		dispatch
 	}, descendants) {
+		state.busyRemoving = true
 		const docsToGet = []
 		for (let i = 0; i < descendants.length; i++) {
 			docsToGet.push({ "id": descendants[i]._id })
@@ -528,7 +645,70 @@ const actions = {
 				})
 			})
 	},
+	/* Unmark the removed item and its descendants for removal. Do distribute this event and set the selfUpdate property to have the tree updated */
+	restoreDescendantsBulk({
+		rootState,
+		dispatch
+	}, payload) {
+		const descendants = payload.descendants
+		const docsToGet = []
+		for (let i = 0; i < descendants.length; i++) {
+			docsToGet.push({ "id": descendants[i] })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.currentDb + '/_bulk_get',
+			withCredentials: true,
+			data: { "docs": docsToGet },
+		}).then(res => {
+			// console.log('restoreDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
+			const results = res.data.results
+			const ok = []
+			const error = []
+			for (let i = 0; i < results.length; i++) {
+				if (results[i].docs[0].ok) {
+					const newHist = {
+						"docRestored": [results[i].docs[0].ok.title],
+						"by": rootState.user,
+						"email": rootState.load.email,
+						"timestamp": Date.now(),
+						"sessionId": rootState.sessionId,
+						"distributeEvent": false
+					}
+					results[i].docs[0].ok.history.unshift(newHist)
+					// unmark for removal
+					results[i].docs[0].ok.delmark = false
+					ok.push(results[i].docs[0].ok)
+				}
+				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let i = 0; i < error.length; i++) {
+					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
+				}
+				let msg = 'restoreDescendantsBulk: These documents cannot be UNmarked for removal: ' + errorStr
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			}
+			dispatch('updateBulk', ok)
+		})
+			.catch(error => {
+				let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
 	updateBulk({
+		state,
 		rootState,
 		dispatch
 	}, docs) {
@@ -540,8 +720,10 @@ const actions = {
 		}).then(res => {
 			// eslint-disable-next-line no-console
 			console.log('updateBulk: ' + res.data.length + ' documents are updated')
+			state.busyRemoving = false
 		})
 			.catch(error => {
+				state.busyRemoving = false
 				let msg = 'updateBulk: Could not update batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
@@ -756,8 +938,39 @@ const actions = {
 			})
 	},
 
+	removeFromRemovedProducts({
+		rootState,
+		dispatch
+	}, productId) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.currentDb + '/config',
+			withCredentials: true,
+		}).then(res => {
+			const tmpConfig = res.data
+			if (tmpConfig.removedProducts) {
+				for (let i = 0; i < tmpConfig.removedProducts.length; i++) {
+					if (tmpConfig.removedProducts[i] === productId) {
+						tmpConfig.removedProducts.splice(i, 1)
+					}
+				}
+			}
+			dispatch('updateDoc', tmpConfig)
+		})
+			.catch(error => {
+				let msg = 'addToRemovedProducts: Could not read config document ' + error
+				// eslint-disable-next-line no-console
+				console.log(msg)
+				if (rootState.currentDb) dispatch('doLog', {
+					event: msg,
+					level: "ERROR"
+				})
+			})
+	},
+
 	// Update document by creating a new revision
 	updateDoc({
+		state,
 		rootState,
 		dispatch
 	}, tmpDoc) {
@@ -772,8 +985,10 @@ const actions = {
 		}).then(() => {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('updateDoc: document with _id + ' + _id + ' is updated.')
+			state.busyRemoving = false
 		})
 			.catch(error => {
+				state.busyRemoving = false
 				let msg = 'updateDoc: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				console.log(msg)
@@ -787,5 +1002,6 @@ const actions = {
 }
 
 export default {
+	state,
 	actions
 }

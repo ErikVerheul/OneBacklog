@@ -2,7 +2,11 @@ import globalAxios from 'axios'
 
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
+const INFO = 0
+const WARNING = 1
 var fistCallAfterSignin = true
+var missedAdditions = []
+var remoteRemoved = []
 
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
@@ -14,18 +18,18 @@ const actions = {
 	listenForChanges({
 		rootState,
 		rootGetters,
+		commit,
 		dispatch
 	}, since) {
 		/*
-		 * When the node exists this function returns an object with:
+		 * When the parentNode exists this function returns an object with:
 		 * - the previous node (can be the parent)
+		 * - the path of the location in the tree
 		 * - the index in the array of siblings the node should have based on its priority
-		 * Note: when the node travels to a new parent that parent can have no children
 		 */
-		function getLocationInfo(newPrio, parentId) {
-			let parentNode = window.slVueTree.getNodeById(parentId)
+		function getLocationInfo(newPrio, parentNode) {
 			let newPath = []
-			if (parentNode.children.length > 0) {
+			if (parentNode.children && parentNode.children.length > 0) {
 				let siblings = parentNode.children
 				let i = 0
 				while (i < siblings.length && siblings[i].data.priority > newPrio) i++
@@ -42,38 +46,24 @@ const actions = {
 				return {
 					prevNode: prevNode,
 					newPath: newPath,
-					newLevel: newPath.length,
 					newInd: i
 				}
 			} else {
+				parentNode.children = []
 				newPath = parentNode.path.slice()
 				newPath.push(0)
 				return {
 					prevNode: parentNode,
 					newPath: newPath,
-					newLevel: newPath.length,
 					newInd: 0
 				}
 			}
 		}
 
-		function updateFields(doc, node) {
-			node.productId = doc.productId
-			node.title = doc.title
-			node.data.subtype = doc.subtype
-			node.data.state = doc.state
-		}
-
-		function updateProductIds(nodes, productId) {
-			window.slVueTree.traverseModels((nodeModel) => {
-				nodeModel.productId = productId
-			}, nodes)
-		}
-
 		// stop listening if offline. watchdog will start it automatically when online again
 		if (!rootState.online) return
 
-		let url = rootState.currentDb + '/_changes?feed=longpoll&filter=_view&view=design1/changesFilter&include_docs=true'
+		let url = rootState.currentDb + '/_changes?feed=longpoll&include_docs=true'
 		if (since) url += '&since=' + since
 		else {
 			// initially get the last change only
@@ -91,17 +81,17 @@ const actions = {
 			//eslint-disable-next-line no-console
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			if (since && !fistCallAfterSignin) {
-				for (let i = 0; i < data.results.length; i++) {
-					let doc = data.results[i].doc
-					// Select only documents which are a product backlog item, belong to the the user subscribed products and
-					// changes not made by the user him/her self in a parallel session and
-					// ment for distribution (if not filtered out by the CouchDB _design filter)
+				const results = data.results.concat(missedAdditions)
+				for (let i = 0; i < results.length; i++) {
+					let doc = results[i].doc
+					// Select only documents which are a product backlog item, belong to the the user subscribed products and changes not made
+					// by the user him/her self in a parallel session and ment for distribution (if not filtered out by the CouchDB _design filter)
 					if (doc.type === 'backlogItem' &&
 						doc.history[0].distributeEvent == true &&
 						doc.history[0].sessionId !== rootState.sessionId &&
 						rootState.load.myProductSubscriptions.includes(doc.productId)) {
 						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed')
+						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed, title = ' + doc.title)
 						dispatch('doBlinck')
 						let node = window.slVueTree.getNodeById(doc._id)
 						if (node !== null) {
@@ -109,29 +99,18 @@ const actions = {
 							if (doc.delmark) {
 								// remove the node and its children
 								window.slVueTree.remove([node])
+								// save the node for later restoration
+								remoteRemoved.unshift(node)
 								continue
 							}
-							let locationInfo = getLocationInfo(doc.priority, doc.parentId)
-							// in case
-							if (!locationInfo) {
-								// eslint-disable-next-line no-console
-								console.log('listenForChanges: calling getLocationInfo failed - doc.productId = ' + doc.productId + ' doc.parentId = ' + doc.parentId)
-								continue
-							}
-							// update priority, parent and product
-							node.data.priority = doc.priority
-							node.parentId = doc.parentId
-							if (node.productId !== doc.productId) {
-								node.productId = doc.productId
-								if (node.children && node.children.length > 0) {
-									updateProductIds(node.children, doc.productId)
-								}
-							}
-							// set lastChange to now
-							node.data.lastChange = Date.now()
+							let parentNode = window.slVueTree.getNodeModel(node.path.slice(0, -1))
+							let locationInfo = getLocationInfo(doc.priority, parentNode)
 							if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {
 								// the node has not changed parent nor changed location w/r to its siblings
-								updateFields(doc, node)
+								node.productId = doc.productId
+								node.title = doc.title
+								node.data.subtype = doc.subtype
+								node.data.state = doc.state
 							} else {
 								// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
 								window.slVueTree.remove([node])
@@ -153,52 +132,101 @@ const actions = {
 								// do not insert a removed node
 								continue
 							}
-							// new node
-							let locationInfo = getLocationInfo(doc.priority, doc.parentId)
-
-							let node = {
-								"path": locationInfo.newPath,
-								"pathStr": JSON.stringify(locationInfo.newPath),
-								"ind": locationInfo.newInd,
-								"level": locationInfo.newPath.length,
-								"productId": doc.productId,
-								"parentId": doc.parentId,
-								"_id": doc._id,
-								"title": doc.title,
-								"children": [],
-								"isSelected": false,
-								"isExpanded": true,
-								"savedIsExpanded": true,
-								"isSelectable": true,
-								"isDraggable": doc.level > PRODUCTLEVEL && rootGetters.canWriteLevels[doc.level],
-								"doShow": true,
-								"savedDoShow": true,
-								"data": {
-									"state": doc.state,
-									"subtype": 0,
-									"lastChange": Date.now(),
-									"sessionId": rootState.sessionId,
-									"distributeEvent": true
+							// node	is restored from a previous removal
+							if (doc.history[0].docRestored) {
+								commit('showLastEvent', { txt: `Another user restored a removed item.`, severity: INFO })
+								// lookup in remove history
+								for (let i = 0; i < remoteRemoved.length; i++) {
+									const node = remoteRemoved[i]
+									if (node._id === doc._id) {
+										// remove from the array
+										remoteRemoved.splice(i, 1)
+										// ToDo: has the parent changed?
+										const prevNode = window.slVueTree.getPreviousNode(node.path)
+										if (prevNode) {
+											if (node.path.slice(-1)[0] === 0) {
+												// the previous node is the parent
+												const cursorPosition = {
+													nodeModel: prevNode,
+													placement: 'inside'
+												}
+												window.slVueTree.insert(cursorPosition, [node])
+											} else {
+												// the previous node is a sibling
+												const cursorPosition = {
+													nodeModel: prevNode,
+													placement: 'after'
+												}
+												window.slVueTree.insert(cursorPosition, [node])
+											}
+										} else {
+											commit('showLastEvent', { txt: `Another user restored a removed item. Sign out and -in to see the change.`, severity: WARNING })
+										}
+									}
 								}
-							}
-
-							// set priority and isLeaf field
-							node.data.priority = doc.priority
-							node.isLeaf = (locationInfo.newLevel < PBILEVEL) ? false : true
-							if (locationInfo.newInd === 0) {
-								window.slVueTree.insert({
-									nodeModel: locationInfo.prevNode,
-									placement: 'inside'
-								}, [node])
 							} else {
-								window.slVueTree.insert({
-									nodeModel: locationInfo.prevNode,
-									placement: 'after'
-								}, [node])
+								// node is newly created
+								const parentNode = window.slVueTree.getNodeById(doc.parentId)
+								if (parentNode === null) {
+									doc.wasMissing = true
+									// eslint-disable-next-line no-console
+									if (rootState.debug) console.log('listenForChanges: no parent node available yet - doc.productId = ' +
+										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title)
+									missedAdditions.push({ doc })
+									continue
+								}
+								doc.wasMissing = false
+								// initialize the node; to be finalized by updatePath and assignNewPrios in sl-vue-tree
+								const locationInfo = getLocationInfo(doc.priority, parentNode)
+								let node = {
+									"path": locationInfo.newPath,
+									"pathStr": JSON.stringify(locationInfo.newPath),
+									"ind": locationInfo.newInd,
+									"level": locationInfo.newPath.length,
+
+									"productId": doc.productId,
+									"parentId": doc.parentId,
+									"_id": doc._id,
+									"title": doc.title,
+									"isLeaf": (locationInfo.newPath.length < PBILEVEL) ? false : true,
+									"children": [],
+									"isSelected": false,
+									"isExpanded": true,
+									"savedIsExpanded": true,
+									"isSelectable": true,
+									"isDraggable": doc.level > PRODUCTLEVEL && rootGetters.canWriteLevels[doc.level],
+									"doShow": true,
+									"savedDoShow": true,
+									"data": {
+										"state": doc.state,
+										"subtype": 0,
+										"sessionId": rootState.sessionId,
+										"distributeEvent": false
+									}
+								}
+
+								if (locationInfo.newInd === 0) {
+									window.slVueTree.insert({
+										nodeModel: locationInfo.prevNode,
+										placement: 'inside'
+									}, [node])
+								} else {
+									window.slVueTree.insert({
+										nodeModel: locationInfo.prevNode,
+										placement: 'after'
+									}, [node])
+								}
 							}
 						}
 					}
 				} // end of loop
+				// eslint-disable-next-line no-console
+				if (rootState.debug && missedAdditions.length > 0) console.log('listenForChanges: missedAdditions.length = ' + missedAdditions.length)
+				for (let i = 0; i < missedAdditions.length; i++) {
+					if (missedAdditions[i].doc.wasMissing !== undefined && !missedAdditions[i].doc.wasMissing) {
+						missedAdditions.splice(i, 1)
+					}
+				}
 			}
 			fistCallAfterSignin = false
 			// recurse

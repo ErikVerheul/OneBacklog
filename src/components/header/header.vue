@@ -8,6 +8,7 @@
         <b-navbar-nav>
           <b-nav-item to="../../userguide">User guide</b-nav-item>
         </b-navbar-nav>
+        <b-button v-show="$store.state.update.removeHistory.length > 0 && !$store.state.update.busyRemoving" @click="onUndoRemoveEvent()">Undo remove</b-button>
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
           <b-dropdown split class="m-1" @click="onClearFilterEvent()">

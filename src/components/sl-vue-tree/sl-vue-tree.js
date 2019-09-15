@@ -489,10 +489,10 @@ export default {
 		getPreviousNode(path) {
 			let prevPath
 			if (path.slice(-1)[0] === 0) {
-				// the removed node is a first child
+				// the node is a first child
 				prevPath = path.slice(0, -1)
 			} else {
-				// the removed node has a previous sibling
+				// the node has a previous sibling
 				prevPath = path.slice(0, -1).concat(path.slice(-1)[0] - 1)
 			}
 			return this.getNodeModel(prevPath)

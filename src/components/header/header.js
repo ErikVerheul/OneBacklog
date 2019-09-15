@@ -2,6 +2,7 @@ import licence from "./licence.vue"
 import { showLastEvent } from '../mixins/showLastEvent.js'
 
 const INFO = 0
+const WARNING = 1
 const RESETFILTERBUTTONTEXT = 'Clear filter'
 const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
 
@@ -9,7 +10,7 @@ export default {
     mixins: [showLastEvent],
     data() {
         return {
-            appVersion: "OneBackLog v.0.6.1.1",
+            appVersion: "OneBackLog v.0.6.2",
             oldPassword: "",
             newPassword1: "",
             newPassword2: "",
@@ -124,6 +125,34 @@ export default {
                 window.slVueTree.resetFilters("onFilterSinceEvent")
             }
             this.filterSince(val);
+        },
+
+        onUndoRemoveEvent() {
+            const entry = this.$store.state.update.removeHistory.splice(0, 1)[0]
+            this.$store.dispatch("unDoRemove", entry)
+            // restore the removed node but unselect it first
+            entry.removedNode.isSelected = false
+            const prevNode = window.slVueTree.getPreviousNode(entry.removedNode.path)
+            // ToDo: has the parent changed?
+            if (prevNode) {
+                if (entry.removedNode.path.slice(-1)[0] === 0) {
+                    // the previous node is the parent
+                    const cursorPosition = {
+                        nodeModel: prevNode,
+                        placement: 'inside'
+                    }
+                    window.slVueTree.insert(cursorPosition, [entry.removedNode])
+                } else {
+                    // the previous node is a sibling
+                    const cursorPosition = {
+                        nodeModel: prevNode,
+                        placement: 'after'
+                    }
+                    window.slVueTree.insert(cursorPosition, [entry.removedNode])
+                }
+            } else {
+                this.showLastEvent(`Cannot restore the removed items in the tree view. Sign out and -in again to recover'`, WARNING)
+            }
         },
 
         onClearFilterEvent() {

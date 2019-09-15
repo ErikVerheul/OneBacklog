@@ -44,7 +44,6 @@ export default {
 			contextNodeType: '',
 			contextChildType: '',
 			contextSelected: undefined,
-			contextWarning: undefined,
 			currentAssistanceNr: undefined,
 			assistanceText: "",
 			showAssistance: false,
@@ -557,13 +556,12 @@ export default {
 		},
 
 		getDescendantsInfo(node) {
-			const path = node.path
 			const descendants = []
 			let initLevel = node.level
 			let count = 0
 			let maxDepth = node.level
 			window.slVueTree.traverseModels((nodeModel) => {
-				if (window.slVueTree.comparePaths(nodeModel.path, path) === 1) {
+				if (window.slVueTree.comparePaths(nodeModel.path, node.path) === 1) {
 					descendants.push(nodeModel)
 					count++
 					if (nodeModel.level > maxDepth) maxDepth = nodeModel.level
@@ -693,7 +691,7 @@ export default {
 						return 'Drop position is set'
 					}
 				case 3:
-					this.contextWarning = 'WARNING: this action cannot be undone!'
+					this.contextWarning = 'WARNING: do not change the tree if you want to undo the removal!'
 					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
 					return `Remove this ${this.contextNodeType} and ${this.removeDescendantsCount} descendants`
 				default:
@@ -794,18 +792,19 @@ export default {
 					return
 				}
 				// remove from the menu options
-				for (let i = 0; i < this.$store.state.load.myProductOptions.length; i++) {
-					if (this.$store.state.load.myProductOptions[i].value === selectedNode._id) {
-						this.$store.state.load.myProductOptions.splice(i, 1)
-					}
-				}
+				// for (let i = 0; i < this.$store.state.load.myProductOptions.length; i++) {
+				// 	if (this.$store.state.load.myProductOptions[i].value === selectedNode._id) {
+				// 		this.$store.state.load.myProductOptions.splice(i, 1)
+				// 	}
+				// }
 				// remove from the user assingned products
-				let newProducts = this.$store.state.load.userAssignedProductIds
-				const idx = newProducts.indexOf(selectedNode._id)
-				if (idx > -1) {
-					newProducts.splice(idx, 1)
-				}
-				this.$store.state.load.userAssignedProductIds = newProducts
+				// let newProducts = this.$store.state.load.userAssignedProductIds
+				// const idx = newProducts.indexOf(selectedNode._id)
+				// if (idx > -1) {
+				// 	newProducts.splice(idx, 1)
+				// }
+				// this.$store.state.load.userAssignedProductIds = newProducts
+
 				// Add the removed product id to the removeProducts list in the config document
 				this.$store.dispatch('addToRemovedProducts', selectedNode._id)
 			}
@@ -820,11 +819,26 @@ export default {
 			if (descendants.length > 0) {
 				this.$store.dispatch('removeDescendantsBulk', descendants)
 			}
+			// create an entry for undoing the remove in a last-in first-out sequence
+			const entry = {
+				removedNode: selectedNode,
+				isProductRemoved: selectedNode.level === PRODUCTLEVEL,
+				grandParentId: selectedNode.parentId,
+				parentId: selectedNode._id,
+				parentPath: selectedNode.path,
+				descendants: []
+			}
+			if (descendants.length > 0) {
+				for (let descendant of descendants) {
+					entry.descendants.push(descendant._id)
+				}
+			}
+			this.$store.state.update.removeHistory.unshift(entry)
 			// collapse the branch and make the removed node invisible
 			selectedNode.isExpanded = false
 			selectedNode.doShow = false
-			// after removal select the visible predecessor of the removed node
-			const prevNode = window.slVueTree.getPrevVisibleNode(path)
+			// after removal select the predecessor of the removed node (sibling or parent)
+			const prevNode = window.slVueTree.getPreviousNode(path)
 			prevNode.isSelected = true
 			nodeSelected = prevNode
 			// now we can remove the node and its children
@@ -900,7 +914,7 @@ export default {
 					placement: 'after'
 				}
 				idx = locationPath.slice(-1)[0] + 1
-				path = locationPath.slice(0, locationPath.length - 1).concat(idx)
+				path = locationPath.slice(0, -1).concat(idx)
 				newNode.parentId = this.contextNodeSelected.parentId
 				newNode.title = 'New ' + this.getLevelText(insertLevel)
 				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true

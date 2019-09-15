@@ -53,10 +53,7 @@
 					name: this.name,
 					password: this.password,
 				}
-				this.$store.dispatch('signin', {
-					name: formData.name,
-					password: formData.password
-				})
+				this.$store.dispatch('signin', formData)
 			}
 		}
 	}
