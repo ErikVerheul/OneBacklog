@@ -132,9 +132,17 @@ export default {
             this.$store.dispatch("unDoRemove", entry)
             // restore the removed node but unselect it first
             entry.removedNode.isSelected = false
-            const prevNode = window.slVueTree.getPreviousNode(entry.removedNode.path)
-            // ToDo: has the parent changed?
-            if (prevNode) {
+            const parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
+            if (parentNode) {
+                let path
+                if (window.slVueTree.comparePaths(parentNode.path, entry.removedNode.path.slice(0, -1)) === 0) {
+                    // the removed node path has not changed
+                    path = entry.removedNode.path
+                } else {
+                    // the removed node path has changed; correct it for the new parent path
+                    path = parentNode.path.concat(entry.removedNode.path.slice(-1))
+                }
+                const prevNode = window.slVueTree.getPreviousNode(path)
                 if (entry.removedNode.path.slice(-1)[0] === 0) {
                     // the previous node is the parent
                     const cursorPosition = {

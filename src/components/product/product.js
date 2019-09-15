@@ -691,7 +691,7 @@ export default {
 						return 'Drop position is set'
 					}
 				case 3:
-					this.contextWarning = 'WARNING: do not change the tree if you want to undo the removal!'
+					this.contextWarning = undefined
 					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
 					return `Remove this ${this.contextNodeType} and ${this.removeDescendantsCount} descendants`
 				default:

@@ -141,10 +141,18 @@ const actions = {
 									if (node._id === doc._id) {
 										// remove from the array
 										remoteRemoved.splice(i, 1)
-										// ToDo: has the parent changed?
-										const prevNode = window.slVueTree.getPreviousNode(node.path)
-										if (prevNode) {
-											if (node.path.slice(-1)[0] === 0) {
+										const parentNode = window.slVueTree.getNodeById(node.parentId)
+										if (parentNode) {
+											let path
+											if (window.slVueTree.comparePaths(parentNode.path, node.path.slice(0, -1)) === 0) {
+												// the removed node path has not changed
+												path = node.path
+											} else {
+												// the removed node path has changed; correct it for the new parent path
+												path = parentNode.path.concat(node.path.slice(-1))
+											}
+											const prevNode = window.slVueTree.getPreviousNode(path)
+											if (path.slice(-1)[0] === 0) {
 												// the previous node is the parent
 												const cursorPosition = {
 													nodeModel: prevNode,
@@ -160,7 +168,14 @@ const actions = {
 												window.slVueTree.insert(cursorPosition, [node])
 											}
 										} else {
-											commit('showLastEvent', { txt: `Another user restored a removed item. Sign out and -in to see the change.`, severity: WARNING })
+											commit('showLastEvent', { txt: `Cannot restore a removed item. Sign out and -in to see the change.`, severity: WARNING })
+											let msg = 'Sync: a remote restore of the tree view failed. The item id is ' + node._id
+											// eslint-disable-next-line no-console
+											if (rootState.debug) console.log(msg)
+											if (rootState.currentDb) dispatch('doLog', {
+												event: msg,
+												level: "WARNING"
+											})
 										}
 									}
 								}
@@ -169,9 +184,14 @@ const actions = {
 								const parentNode = window.slVueTree.getNodeById(doc.parentId)
 								if (parentNode === null) {
 									doc.wasMissing = true
+									let msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
+										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
 									// eslint-disable-next-line no-console
-									if (rootState.debug) console.log('listenForChanges: no parent node available yet - doc.productId = ' +
-										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title)
+									if (rootState.debug) console.log(msg)
+									if (rootState.currentDb) dispatch('doLog', {
+										event: msg,
+										level: "WARNING"
+									})
 									missedAdditions.push({ doc })
 									continue
 								}
@@ -235,7 +255,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'Listening for changes made by other users failed with ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "WARNING"
