@@ -53,7 +53,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'changeSubsription: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -89,7 +89,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'setSize: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -125,7 +125,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'setPersonHours: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -161,7 +161,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -197,7 +197,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'setState: Could not read document with _id ' + _id + '. Error = ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -233,7 +233,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'setDocTitle: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -268,7 +268,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'setSubType: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -316,7 +316,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'updateDropped: Could not read parent document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -360,7 +360,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'updateMovedItems: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -421,7 +421,7 @@ const actions = {
 				}
 				let msg = 'updateDroppedDescendantsBulk: These descendants cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -432,7 +432,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'updateDroppedDescendantsBulk: Could not read decendants in bulk. Error = ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -470,7 +470,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'removeDoc: Could not read document with _id ' + _id + ',' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -511,7 +511,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -545,7 +545,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -554,7 +554,6 @@ const actions = {
 	},
 	// Update document by creating a new revision
 	undoRemovedParent({
-		state,
 		rootState,
 		dispatch
 	}, payload) {
@@ -570,12 +569,11 @@ const actions = {
 			dispatch('restoreDescendantsBulk', payload.entry)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('undoRemovedParent: document with _id + ' + _id + ' is updated.')
-			state.busyRemoving = false
 		})
 			.catch(error => {
 				let msg = 'undoRemovedParent: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -621,13 +619,14 @@ const actions = {
 				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
 			}
 			if (error.length > 0) {
+				state.busyRemoving = false
 				let errorStr = ''
 				for (let i = 0; i < error.length; i++) {
 					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
 				}
 				let msg = 'removeDescendantsBulk: These documents cannot be marked for removal: ' + errorStr
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -638,7 +637,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -689,7 +688,7 @@ const actions = {
 				}
 				let msg = 'restoreDescendantsBulk: These documents cannot be UNmarked for removal: ' + errorStr
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -700,7 +699,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -726,7 +725,7 @@ const actions = {
 				state.busyRemoving = false
 				let msg = 'updateBulk: Could not update batch of documents: ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -758,7 +757,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'registerRemoveHist: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -795,7 +794,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'saveDescription: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -832,7 +831,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'saveAcceptance: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -867,7 +866,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'addComment: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -902,7 +901,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'addHistoryComment: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -930,7 +929,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'addToRemovedProducts: Could not read config document ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -960,7 +959,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'addToRemovedProducts: Could not read config document ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -991,7 +990,7 @@ const actions = {
 				state.busyRemoving = false
 				let msg = 'updateDoc: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"

@@ -224,7 +224,7 @@ export default new Vuex.Store({
 					.catch(error => {
 						let msg = 'Refresh of the authentication cookie failed with ' + error
 						// eslint-disable-next-line no-console
-						console.log(msg)
+						if (rootState.debug) console.log(msg)
 						if (rootState.currentDb) dispatch('doLog', {
 							event: msg,
 							level: "CRITICAL"

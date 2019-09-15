@@ -123,7 +123,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'createNewProduct: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -194,7 +194,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'createNewEpics: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -265,7 +265,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'createNewFeatures: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -328,7 +328,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'createNewStories: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -1309,7 +1309,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'updateWithShortIds: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"

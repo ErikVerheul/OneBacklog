@@ -17,7 +17,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'changePW: Could not change password for user ' + rootState.user + '. Error = ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -40,7 +40,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'updateSubscriptions: Could not update subscribed products for user ' + rootState.user + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -64,7 +64,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'updateUser: Could not update user data for user ' + rootState.user + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"

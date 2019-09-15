@@ -230,7 +230,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'getConfig: Config doc missing in database ' + rootState.currentDb + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -272,7 +272,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'loadCurrentProduct: Could not read product root document with _id ' + _id + '. Error = ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -318,7 +318,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'setMyProductOptions: Could not read product titles' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -367,7 +367,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'getOtherUserData: Could not read user date for user ' + rootState.user + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -489,6 +489,8 @@ const actions = {
 							ids += rows[i].doc._id + ', '
 						}
 						const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log(msg)
 						if (rootState.currentDb) dispatch('doLog', {
 							event: msg,
 							level: "WARNING"
@@ -529,7 +531,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -554,7 +556,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
@@ -582,7 +584,7 @@ const actions = {
 			.catch(error => {
 				let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
 					level: "ERROR"
