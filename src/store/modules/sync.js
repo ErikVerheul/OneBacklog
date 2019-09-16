@@ -103,7 +103,7 @@ const actions = {
 								remoteRemoved.unshift(node)
 								continue
 							}
-							let parentNode = window.slVueTree.getNodeModel(node.path.slice(0, -1))
+							let parentNode = window.slVueTree.getNodeById(doc.parentId)
 							let locationInfo = getLocationInfo(doc.priority, parentNode)
 							if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {
 								// the node has not changed parent nor changed location w/r to its siblings
