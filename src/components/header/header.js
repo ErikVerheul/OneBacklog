@@ -116,7 +116,7 @@ export default {
                 }
             } else {
                 // the node is not found in the current product selection; try to find it in the database
-                this.$store.dispatch('getItemByShortId', shortId)
+                this.$store.dispatch('loadItemByShortId', shortId)
             }
         },
 
