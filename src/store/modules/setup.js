@@ -679,7 +679,7 @@ const actions = {
 					/*
 					 * Filter on document type 'backlogItem', then sort on shortId.
 					 */
-					"shortIdFilter" : {
+					"shortIdFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.shortId], 1);}'
 					}
 
@@ -1256,7 +1256,7 @@ const actions = {
 			})
 	},
 
-	createShortIds({
+	removeHistory({
 		state,
 		dispatch
 	}, payload) {
@@ -1272,7 +1272,7 @@ const actions = {
 			for (let i = 0; i < res.data.rows.length; i++) {
 				docsToUpdate.push({ "id": res.data.rows[i].id })
 			}
-			dispatch('updateWithShortIds', docsToUpdate)
+			dispatch('updateWithNoHistory', docsToUpdate)
 		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
@@ -1282,7 +1282,7 @@ const actions = {
 			})
 	},
 
-	updateWithShortIds({
+	updateWithNoHistory({
 		rootState,
 		dispatch
 	}, docsToUpdate) {
@@ -1292,22 +1292,25 @@ const actions = {
 			withCredentials: true,
 			data: { "docs": docsToUpdate },
 		}).then(res => {
-			// console.log('updateWithShortIds: res = ' + JSON.stringify(res, null, 2))
+			// console.log('updateWithNoHistory: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
 			const ok = []
 			for (let i = 0; i < results.length; i++) {
 				if (results[i].docs[0].ok) {
-					// mark for removal
-					let shortId = results[i].docs[0].ok._id.slice(-5)
-					results[i].docs[0].ok["shortId"] = shortId
+					results[i].docs[0].ok["history"] = [
+						{
+							"rootEvent": ["history cleared"],
+							"by": rootState.user,
+							"email": rootState.load.email,
+							"timestamp": Date.now(),
+						}]
 					ok.push(results[i].docs[0].ok)
-					// console.log('updateWithShortIds: results[i].docs[0].ok.shortId = ' + results[i].docs[0].ok.shortId)
 				}
 			}
 			dispatch('updateBulk', ok)
 		})
 			.catch(error => {
-				let msg = 'updateWithShortIds: Could not read batch of documents: ' + error
+				let msg = 'updateWithNoHistory: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
