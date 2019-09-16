@@ -461,7 +461,7 @@ const actions = {
 			.catch(error => console.log('getFirstProduct: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
-	getItemByShortId({
+	loadItemByShortId({
 		rootState,
 		state,
 		dispatch,
@@ -476,7 +476,7 @@ const actions = {
 			const rows = res.data.rows
 			if (rows.length > 0) {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('getItemByShortId: ' + rows.length + ' documents are found')
+				if (rootState.debug) console.log('loadItemByShortId: ' + rows.length + ' documents are found')
 				// take the fist document found
 				const doc = rows[0].doc
 				if (state.userAssignedProductIds.includes(doc.productId)) {
@@ -501,14 +501,14 @@ const actions = {
 					rootState.currentDoc.description = window.atob(doc.description)
 					rootState.currentDoc.acceptanceCriteria = window.atob(doc.acceptanceCriteria)
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('getItemByShortId: document with _id + ' + doc._id + ' is loaded.')
+					if (rootState.debug) console.log('loadItemByShortId: document with _id + ' + doc._id + ' is loaded.')
 				} else {
 					commit('showLastEvent', { txt: `The document with id ${shortId} is found but not in your assigned products.`, severity: WARNING })
 				}
 			} else commit('showLastEvent', { txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING })
 		})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('getItemByShortId: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
+			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 	// Load current document by _id

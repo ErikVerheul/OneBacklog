@@ -172,6 +172,7 @@ export default {
 				let allText = ""
 				let keys = Object.keys(histItem)
 				for (let j = 0; j < keys.length; j++) {
+					if (keys[j] === "rootEvent") allText += this.mkRootEvent(histItem[keys[j]])
 					if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
 					if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
 					if (keys[j] === "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
@@ -184,7 +185,12 @@ export default {
 					if (keys[j] === "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
 					if (keys[j] === "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
 					if (keys[j] === "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
-					if (keys[j] === "nodeRemoveEvent") allText += this.mkNodeRemoveEvent(histItem[keys[j]])
+					if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
+					if (keys[j] === "parentDocRemovedEvent") allText += this.mkParentDocRemovedEvent(histItem[keys[j]])
+					if (keys[j] === "docRemovedEvent") allText += this.mkDocRemovedEvent(histItem[keys[j]])
+					if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
+					if (keys[j] === "docRestoredInsideEvent") allText += this.mkDocRestoredInsideEvent(histItem[keys[j]])
+					if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
 					if (keys[j] === "by") allText += this.mkBy(histItem[keys[j]])
 					if (keys[j] === "email") allText += this.mkEmail(histItem[keys[j]])
 					if (keys[j] === "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
@@ -295,14 +301,14 @@ export default {
 			return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
 		},
 		mkNodeDroppedEvent(value) {
-			let txt = ""
+			let txt
+			if (value[5]) { txt = "<h5>The item was moved from product '" + value[5] + "' to this product.</h5>"} else txt = ''
 			if (value[0] === value[1]) {
-				txt = "<h5>The item changed priority to position " + (value[2] + 1) + " under parent '" + value[3] + "'</h5>"
+				txt += "<h5>The item changed priority to position " + (value[2] + 1) + " " + value[6] + " '" + value[3] + "'</h5>"
 				txt += (value[4] > 0) ? "<p>" + value[4] + " descendants were also moved.</p>" : ""
 				return txt
 			} else {
-				let txt = ""
-				txt = "<h5>The item changed type from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ".</h5>"
+				txt += "<h5>The item changed type from " + this.getLevelText(value[0]) + " to " + this.getLevelText(value[1]) + ".</h5>"
 				txt += "<p>The new position is " + (value[2] + 1) + " under parent '" + value[3] + "'</p>"
 				txt += (value[4] > 0) ? "<p>" + value[4] + " descendants also changed type.</p>" : ""
 				return txt
@@ -311,8 +317,23 @@ export default {
 		mkDescendantMoved(value) {
 			return "<h5>Item was moved as descendant from '" + value[0] + "'</h5>"
 		},
-		mkNodeRemoveEvent(value) {
-			return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are removed</h5>"
+		mkRemovedFromParentEvent(value) {
+			return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are removed from this parent</h5>"
+		},
+		mkParentDocRemovedEvent(value) {
+			return "<h5> This item and " + value[0] + " descendants are removed</h5>"
+		},
+		mkDocRemovedEvent(value) {
+			return "<h5>This item has been removed as descendant of " + value[0] + "</h5>"
+		},
+		mkGrandParentDocRestoredEvent(value) {
+			return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are restored from removal</h5>"
+		},
+		mkDocRestoredInsideEvent(value) {
+			return "<h5>This item and " + value[0] + " descendants are restored from removal</h5>"
+		},
+		mkDocRestoredEvent() {
+			return "<h5>This item has been restored from removal</h5>"
 		},
 		mkBy(value) {
 			return "by: " + value
@@ -326,6 +347,9 @@ export default {
 		mkComment(value) {
 			return window.atob(value[0])
 		},
+		mkRootEvent(value) {
+			return "<h5>" + value[0] + "</h5>"
+		},
 		prepCommentsText(key, value) {
 			if (key === "comment") return this.mkComment(value)
 			if (key === "by") return this.mkBy(value)
@@ -333,6 +357,7 @@ export default {
 			if (key === "timestamp") return this.mkTimestamp(value)
 		},
 		prepHistoryText(key, value) {
+			if (key === "rootEvent") return this.mkRootEvent(value)
 			if (key === "comment") return this.mkComment(value)
 			if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
 			if (key === "createEvent") return this.mkCreateEvent(value)
@@ -346,7 +371,12 @@ export default {
 			if (key === "acceptanceEvent") return this.mkAcceptanceEvent(value)
 			if (key === "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
 			if (key === "descendantMoved") return this.mkDescendantMoved(value)
-			if (key === "nodeRemoveEvent") return this.mkNodeRemoveEvent(value)
+			if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
+			if (key === "parentDocRemovedEvent") return this.mkParentDocRemovedEvent(value)
+			if (key === "docRemovedEvent") return this.mkDocRemovedEvent(value)
+			if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
+			if (key === "docRestoredInsideEvent") return this.mkDocRestoredInsideEvent(value)
+			if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
 			if (key === "by") return this.mkBy(value)
 			if (key === "email") return this.mkEmail(value)
 			if (key === "timestamp") return this.mkTimestamp(value)
@@ -615,8 +645,9 @@ export default {
 		 * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
 		 */
 		nodeDropped(draggingNodes, position) {
-			let clickedLevel = draggingNodes[0].level
-			let dropLevel = position.nodeModel.level
+			const targetNode = position.nodeModel
+			const clickedLevel = draggingNodes[0].level
+			let dropLevel = targetNode.level
 			// drop inside?
 			if (position.placement === 'inside') {
 				dropLevel++
@@ -625,18 +656,19 @@ export default {
 			// update the nodes in the database
 			let payloadArray = []
 			for (let i = 0; i < draggingNodes.length; i++) {
-				let descendants = this.getDescendantsInfo(draggingNodes[i]).descendants
 				const payloadItem = {
 					'_id': draggingNodes[i]._id,
+					'oldProductTitle': null,
 					'productId': draggingNodes[i].productId,
 					'newParentId': draggingNodes[i].parentId,
 					'newPriority': draggingNodes[i].data.priority,
-					'newParentTitle': null,
+					'newParentTitle': targetNode.title,
 					'oldParentTitle': draggingNodes[i].title,
 					'oldLevel': clickedLevel,
 					'newLevel': draggingNodes[i].level,
 					'newInd': draggingNodes[i].ind,
-					'descendants': descendants
+					'placement': position.placement,
+					'descendants': this.getDescendantsInfo(draggingNodes[i]).descendants
 				}
 				payloadArray.push(payloadItem)
 			}
@@ -738,30 +770,32 @@ export default {
 		moveItemToOtherProduct() {
 			if (this.$store.state.moveOngoing) {
 				const targetPosition = window.slVueTree.lastSelectCursorPosition
+				const targetNode = targetPosition.nodeModel
 				// only allow move to new parent 1 level higher (lower value) than the source node
 				if (targetPosition.nodeModel.level !== movedNode.level - 1) {
 					this.showLastEvent('You can only move to a ' + this.getLevelText(movedNode.level - 1), WARNING)
 					return
 				}
+				const sourceProductNode = window.slVueTree.getNodeById(movedNode.productId)
 				// move the node to the new place and update the productId and parentId
 				window.slVueTree.moveNodes(targetPosition, [movedNode])
-				const targetNode = targetPosition.nodeModel
 				// the path to new node is immediately below the selected node
 				const newPath = targetNode.path.concat([0])
 				const newNode = window.slVueTree.getNodeModel(newPath)
-				const descendants = this.getDescendantsInfo(newNode).descendants
+				const newParentNode = window.slVueTree.getNodeById(newNode.parentId)
 				const payloadItem = {
 					'_id': newNode._id,
-					// 'oldProductTitle':?, // ToDo: use this product title in the history record
+					'oldProductTitle': sourceProductNode.title,
 					'productId': newNode.productId,
 					'newParentId': newNode.parentId,
 					'newPriority': newNode.data.priority,
-					'newParentTitle': null, // will be set by 'updateDropped'
+					'newParentTitle': newParentNode.title,
 					'oldParentTitle': newNode.title,
 					'oldLevel': newNode.level,
 					'newLevel': newNode.level, // the level cannot change
 					'newInd': 0, // immediately below the parent
-					'descendants': descendants
+					'placement': 'inside',
+					'descendants': this.getDescendantsInfo(newNode).descendants
 				}
 				// update the database
 				this.$store.dispatch('updateDropped', {
@@ -791,34 +825,16 @@ export default {
 					this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
 					return
 				}
-				// remove from the menu options
-				// for (let i = 0; i < this.$store.state.load.myProductOptions.length; i++) {
-				// 	if (this.$store.state.load.myProductOptions[i].value === selectedNode._id) {
-				// 		this.$store.state.load.myProductOptions.splice(i, 1)
-				// 	}
-				// }
-				// remove from the user assingned products
-				// let newProducts = this.$store.state.load.userAssignedProductIds
-				// const idx = newProducts.indexOf(selectedNode._id)
-				// if (idx > -1) {
-				// 	newProducts.splice(idx, 1)
-				// }
-				// this.$store.state.load.userAssignedProductIds = newProducts
-
 				// Add the removed product id to the removeProducts list in the config document
 				this.$store.dispatch('addToRemovedProducts', selectedNode._id)
 			}
-			// set remove mark in the database on the clicked item
+			// set remove mark in the database on the clicked item and decendants (if any)
 			const payload = {
 				'node': selectedNode,
-				'descendantsCount': descendants.length,
-				'doRegHist': true
+				'descendants': descendants
 			}
 			this.$store.dispatch('removeDoc', payload)
-			// for items lower in the hierarchie than product remove the descendants without registering history in parents which are removed anyway
-			if (descendants.length > 0) {
-				this.$store.dispatch('removeDescendantsBulk', descendants)
-			}
+
 			// create an entry for undoing the remove in a last-in first-out sequence
 			const entry = {
 				removedNode: selectedNode,

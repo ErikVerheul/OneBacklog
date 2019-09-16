@@ -133,7 +133,7 @@ const actions = {
 								continue
 							}
 							// node	is restored from a previous removal
-							if (doc.history[0].docRestored) {
+							if (doc.history[0].docRestoredInsideEvent) {
 								commit('showLastEvent', { txt: `Another user restored a removed item.`, severity: INFO })
 								// lookup in remove history
 								for (let i = 0; i < remoteRemoved.length; i++) {

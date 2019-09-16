@@ -7,10 +7,9 @@ const state = {
 	busyRemoving: false
 }
 
-
 const actions = {
 	/*
-	 * When updating the database first load the document with the actual revision number and changes by other users.
+	 * When updating the database, first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
 	changeSubsription({
@@ -275,57 +274,34 @@ const actions = {
 				})
 			})
 	},
-	/*
-	 * Fetch the parent te get the parent title for the history registration
-	 * Then dispatch the update of the moved nodes and the update of the history of their descendants
-	 */
+
+	/* Dispatch the update of the moved nodes and the update of the history of their descendants */
 	updateDropped({
-		rootState,
 		dispatch
 	}, payload) {
 		if (payload.next >= payload.payloadArray.length) return
 
 		let payloadItem = payload.payloadArray[payload.next]
-		// newParentId can be the old parent
-		const _id = payloadItem.newParentId
-
-		globalAxios({
-			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
-			withCredentials: true,
-		}).then(res => {
-			// add two new items to the payload
-			payloadItem['newParentTitle'] = res.data.title
-			payloadItem['nrOfDescendants'] = payloadItem.descendants.length
-			dispatch('updateMovedItems', payloadItem)
-			let payloadArray2 = []
-			for (let i = 0; i < payloadItem.descendants.length; i++) {
-				const payloadItem2 = {
-					"_id": payloadItem.descendants[i]._id,
-					"oldParentTitle": payloadItem.oldParentTitle,
-					"productId": payloadItem.productId,
-					"newLevel": payloadItem.descendants[i].level
-				}
-				payloadArray2.push(payloadItem2)
+		payloadItem['nrOfDescendants'] = payloadItem.descendants.length
+		dispatch('updateMovedItems', payloadItem)
+		let payloadArray2 = []
+		for (let i = 0; i < payloadItem.descendants.length; i++) {
+			const payloadItem2 = {
+				"_id": payloadItem.descendants[i]._id,
+				"oldProductTitle": payloadItem.oldProductTitle,
+				"oldParentTitle": payloadItem.oldParentTitle,
+				"productId": payloadItem.productId,
+				"newLevel": payloadItem.descendants[i].level
 			}
-			dispatch('updateDroppedDescendantsBulk', payloadArray2)
-			payload.next++
-			// recurse
-			dispatch('updateDropped', payload)
-		})
-			.catch(error => {
-				let msg = 'updateDropped: Could not read parent document with _id ' + _id + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: "ERROR"
-				})
-			})
+			payloadArray2.push(payloadItem2)
+		}
+		dispatch('updateDroppedDescendantsBulk', payloadArray2)
+		payload.next++
+		// recurse
+		dispatch('updateDropped', payload)
 	},
-	/*
-	 * Update the dropped node
-	 */
+
+	/* Update the dropped node */
 	updateMovedItems({
 		rootState,
 		dispatch
@@ -338,7 +314,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle, payload.nrOfDescendants],
+				"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle, payload.nrOfDescendants, payload.oldProductTitle, payload.placement],
 				"by": rootState.user,
 				"email": rootState.load.email,
 				"timestamp": Date.now(),
@@ -346,15 +322,10 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
 			tmpDoc.level = payload.newLevel
 			tmpDoc.productId = payload.productId
 			tmpDoc.parentId = payload.newParentId
 			tmpDoc.priority = payload.newPriority
-			rootState.currentDoc.level = payload.newLevel
-			rootState.currentDoc.productId = payload.productId
-			rootState.currentDoc.parentId = payload.newParentId
-			rootState.currentDoc.priority = payload.priority
 			dispatch('updateDoc', tmpDoc)
 		})
 			.catch(error => {
@@ -453,7 +424,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"docRemoved": [tmpDoc.title],
+				"parentDocRemovedEvent": [payload.descendants.length],
 				"by": rootState.user,
 				"email": rootState.load.email,
 				"timestamp": Date.now(),
@@ -463,9 +434,7 @@ const actions = {
 			tmpDoc.delmark = true
 			tmpDoc.history.unshift(newHist)
 			dispatch('updateDoc', tmpDoc)
-			if (payload.doRegHist) {
-				dispatch('registerRemoveHist', payload)
-			}
+			dispatch('registerRemoveHistInParent', payload)
 		})
 			.catch(error => {
 				let msg = 'removeDoc: Could not read document with _id ' + _id + ',' + error
@@ -477,6 +446,7 @@ const actions = {
 				})
 			})
 	},
+	/* Check if restoration is possible: the parent to store under must not be removed */
 	unDoRemove({
 		rootState,
 		commit,
@@ -491,8 +461,7 @@ const actions = {
 			let grandParentDoc = res.data
 			if (!grandParentDoc.delmark) {
 				const newHist = {
-					"docRestoredUnder": [grandParentDoc.title],
-					"nrOfDescendants": entry.descendants.length,
+					"grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.descendants.length],
 					"by": rootState.user,
 					"email": rootState.load.email,
 					"timestamp": Date.now(),
@@ -500,8 +469,10 @@ const actions = {
 					"distributeEvent": false
 				}
 				grandParentDoc.history.unshift(newHist)
+				dispatch('updateDoc', grandParentDoc)
 				dispatch('restoreParentFirst', entry)
 				if (entry.isProductRemoved) {
+					// remove the product from the list of removed products
 					dispatch('removeFromRemovedProducts', entry.descendants[0])
 				}
 			} else {
@@ -530,7 +501,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"docRestored": [tmpDoc.title],
+				"docRestoredInsideEvent": [payload.descendants.length],
 				"by": rootState.user,
 				"email": rootState.load.email,
 				"timestamp": Date.now(),
@@ -538,9 +509,8 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
 			tmpDoc.delmark = false
-			dispatch('undoRemovedParent', {tmpDoc: tmpDoc, entry: payload})
+			dispatch('undoRemovedParent', { tmpDoc: tmpDoc, entry: payload })
 		})
 			.catch(error => {
 				let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
@@ -552,14 +522,14 @@ const actions = {
 				})
 			})
 	},
-	// Update document by creating a new revision
+	// update the parent and restore the descendants
 	undoRemovedParent({
 		rootState,
 		dispatch
 	}, payload) {
 		const _id = payload.tmpDoc._id
 		// eslint-disable-next-line no-console
-		console.log('updateDoc: updating document with _id = ' + _id)
+		if (rootState.debug) console.log('undoRemovedParent: updating document with _id = ' + _id)
 		globalAxios({
 			method: 'PUT',
 			url: rootState.currentDb + '/' + _id,
@@ -585,11 +555,11 @@ const actions = {
 		state,
 		rootState,
 		dispatch
-	}, descendants) {
+	}, payload) {
 		state.busyRemoving = true
 		const docsToGet = []
-		for (let i = 0; i < descendants.length; i++) {
-			docsToGet.push({ "id": descendants[i]._id })
+		for (let i = 0; i < payload.descendants.length; i++) {
+			docsToGet.push({ "id": payload.descendants[i]._id })
 		}
 		globalAxios({
 			method: 'POST',
@@ -604,7 +574,7 @@ const actions = {
 			for (let i = 0; i < results.length; i++) {
 				if (results[i].docs[0].ok) {
 					const newHist = {
-						"docRemoved": [results[i].docs[0].ok.title],
+						"docRemovedEvent": [payload.node.title],
 						"by": rootState.user,
 						"email": rootState.load.email,
 						"timestamp": Date.now(),
@@ -667,7 +637,7 @@ const actions = {
 			for (let i = 0; i < results.length; i++) {
 				if (results[i].docs[0].ok) {
 					const newHist = {
-						"docRestored": [results[i].docs[0].ok.title],
+						"docRestoredEvent": [results[i].docs[0].ok.title],
 						"by": rootState.user,
 						"email": rootState.load.email,
 						"timestamp": Date.now(),
@@ -732,7 +702,7 @@ const actions = {
 				})
 			})
 	},
-	registerRemoveHist({
+	registerRemoveHistInParent({
 		rootState,
 		dispatch
 	}, payload) {
@@ -744,7 +714,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"nodeRemoveEvent": [payload.node.level, payload.node.title, payload.descendantsCount],
+				"removedFromParentEvent": [payload.node.level, payload.node.title, payload.descendants.length],
 				"by": rootState.user,
 				"email": rootState.load.email,
 				"timestamp": Date.now(),
@@ -753,9 +723,12 @@ const actions = {
 			}
 			tmpDoc.history.unshift(newHist)
 			dispatch('updateDoc', tmpDoc)
+			if (payload.descendants.length > 0) {
+				dispatch('removeDescendantsBulk', payload)
+			}
 		})
 			.catch(error => {
-				let msg = 'registerRemoveHist: Could not read document with _id ' + _id + ', ' + error
+				let msg = 'registerRemoveHistInParent: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
