@@ -5,6 +5,16 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
 				<hr>
+				<h3>v.0.6.2 - 17 September 2019 Minor update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Undo for item removals</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>REGRESSION: Shift select not working</li>
+				</ul>
+				<hr>
 				<h3>v.0.6.1.1 - 10 September 2019 Minor fix</h3>
 				<p>Missed updates:</p>
 				<ul>
