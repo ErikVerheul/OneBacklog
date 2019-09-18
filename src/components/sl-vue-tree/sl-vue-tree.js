@@ -84,7 +84,7 @@ export default {
 	computed: {
 		cursorPosition() {
 			if (this.isRoot) return this.rootCursorPosition;
-			return this.getParent().cursorPosition;
+			return this.getParentComponent().cursorPosition;
 		},
 
 		filteredNodes() {
@@ -96,7 +96,7 @@ export default {
 				// console.log('filteredNodes1: returning ' + retNodes.length + ' nodes')
 				return retNodes
 			}
-			const retNodes = this.getParent().filteredNodes[this.parentInd].children.filter(node => {
+			const retNodes = this.getParentComponent().filteredNodes[this.parentInd].children.filter(node => {
 				return node.doShow
 			})
 			// console.log('filteredNodes2: returning ' + retNodes.length + ' nodes')
@@ -116,7 +116,7 @@ export default {
 		},
 
 		isRoot() {
-			return !this.level
+			return this.level === 0
 		}
 	},
 
@@ -126,13 +126,11 @@ export default {
 				this.rootCursorPosition = pos;
 				return;
 			}
-			this.getParent().setModelCursorPosition(pos);
+			this.getParentComponent().setModelCursorPosition(pos);
 		},
 
 		getNodes(nodeModels) {
-			return nodeModels.map((nodeModel) => {
-				return nodeModel
-			})
+			return nodeModels.map((nodeModel) => nodeModel)
 		},
 
 		getNodeModel(path, tree = this.currentValue) {
@@ -142,27 +140,27 @@ export default {
 		},
 
 		emitSelect(selectedNodes, event) {
-			this.getRoot().$emit('select', selectedNodes, event);
+			this.getRootComponent().$emit('select', selectedNodes, event);
 		},
 
 		emitBeforeDrop(draggingNodes, position, cancel) {
-			this.getRoot().$emit('beforedrop', draggingNodes, position, cancel);
+			this.getRootComponent().$emit('beforedrop', draggingNodes, position, cancel);
 		},
 
 		emitDrop(draggingNodes, position, event) {
-			this.getRoot().$emit('drop', draggingNodes, position, event);
+			this.getRootComponent().$emit('drop', draggingNodes, position, event);
 		},
 
 		emitToggle(toggledNode, event) {
-			this.getRoot().$emit('toggle', toggledNode, event);
+			this.getRootComponent().$emit('toggle', toggledNode, event);
 		},
 
 		emitNodeClick(node, event) {
-			this.getRoot().$emit('nodeclick', node, event);
+			this.getRootComponent().$emit('nodeclick', node, event);
 		},
 
 		emitNodeContextmenu(node, event) {
-			this.getRoot().$emit('nodecontextmenu', node, event);
+			this.getRootComponent().$emit('nodecontextmenu', node, event);
 		},
 
 		/*
@@ -189,7 +187,7 @@ export default {
 
 		onMousemoveHandler(event) {
 			if (!this.isRoot) {
-				this.getRoot().onMousemoveHandler(event)
+				this.getRootComponent().onMousemoveHandler(event)
 				return
 			}
 
@@ -235,7 +233,7 @@ export default {
 			if (event.button !== 0) return;
 
 			if (!this.isRoot) {
-				this.getRoot().onNodeMousedownHandler(event, node);
+				this.getRootComponent().onNodeMousedownHandler(event, node);
 				return;
 			}
 			this.mouseIsDown = true;
@@ -246,7 +244,7 @@ export default {
 			if (event.button !== 0) return;
 
 			if (!this.isRoot) {
-				this.getRoot().onNodeMouseupHandler(event);
+				this.getRootComponent().onNodeMouseupHandler(event);
 				return;
 			}
 
@@ -410,13 +408,13 @@ export default {
 			this.setModelCursorPosition(null);
 		},
 
-		getParent() {
+		getParentComponent() {
 			return this.$parent;
 		},
 
-		getRoot() {
+		getRootComponent() {
 			if (this.isRoot) return this;
-			return this.getParent().getRoot();
+			return this.getParentComponent().getRootComponent();
 		},
 
 		getNodeSiblings(path, nodes = this.currentValue) {
