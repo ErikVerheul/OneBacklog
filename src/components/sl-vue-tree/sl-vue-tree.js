@@ -434,17 +434,6 @@ export default {
 			}
 		},
 
-		/* Collects all nodes in the current product that are selected */
-		getSelected() {
-			const selectedNodes = [];
-			this.traverseModels((nodeModel) => {
-				if (nodeModel.isSelected) {
-					selectedNodes.push(nodeModel)
-				}
-			}, this.getProductModels())
-			return selectedNodes
-		},
-
 		getProductModels(productId = this.$store.state.load.currentProductId) {
 			const productModels = this.currentValue[0].children
 			for (let i = 0; i < productModels.length; i++) {
