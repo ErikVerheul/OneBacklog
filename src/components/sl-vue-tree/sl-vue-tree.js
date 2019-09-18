@@ -393,15 +393,6 @@ export default {
 			return path2[path1.length] === undefined ? 0 : -1;
 		},
 
-		/* Returns true if the path starts with the subPath */
-		isInPath(subPath, path) {
-			if (subPath.length > path.length) return false
-			for (let i = 0; i < subPath.length; i++) {
-				if (subPath[i] !== path[i]) return false
-			}
-			return true
-		},
-
 		stopDrag() {
 			this.isDragging = false;
 			this.mouseIsDown = false;
@@ -645,11 +636,19 @@ export default {
 		},
 
 		showAndSelectItem(node) {
+			// returns true if the path starts with the subPath
+			function isInPath(subPath, path) {
+				if (subPath.length > path.length) return false
+				for (let i = 0; i < subPath.length; i++) {
+					if (subPath[i] !== path[i]) return false
+				}
+				return true
+			}
 			this.traverseModels((nodeModel) => {
 				// unselect any previous selections
 				nodeModel.isSelected = false
 				// if on the node path
-				if (this.isInPath(nodeModel.path, node.path)) {
+				if (isInPath(nodeModel.path, node.path)) {
 					nodeModel.savedIsExpanded = true
 					nodeModel.isExpanded = true
 					nodeModel.savedDoShow = true
