@@ -267,7 +267,7 @@ export default {
                 } else {
                     nodeModel.doShow = false
                 }
-            }, window.slVueTree.getProductModels(this.$store.state.load.currentProductId))
+            }, window.slVueTree.getProductModels())
             // show event
             let s
             count === 1 ? s = 'title matches' : s = 'titles match'
@@ -291,7 +291,7 @@ export default {
                 } else {
                     nodeModel.doShow = false
                 }
-            }, window.slVueTree.getProductModels(this.$store.state.load.currentProductId))
+            }, window.slVueTree.getProductModels())
             // show event
             let s
             count === 1 ? s = 'title matches' : s = 'titles match'

@@ -441,11 +441,11 @@ export default {
 				if (nodeModel.isSelected) {
 					selectedNodes.push(nodeModel)
 				}
-			}, this.getProductModels(this.$store.state.load.currentProductId))
+			}, this.getProductModels())
 			return selectedNodes
 		},
 
-		getProductModels(productId) {
+		getProductModels(productId = this.$store.state.load.currentProductId) {
 			const productModels = this.currentValue[0].children
 			for (let i = 0; i < productModels.length; i++) {
 				if (productModels[i].productId === productId) {
@@ -651,7 +651,7 @@ export default {
 				}
 				// show the nodes
 				nodeModel.doShow = true
-			}, this.getProductModels(this.$store.state.load.currentProductId))
+			}, this.getProductModels())
 			// this.showVisibility('expandTree')
 		},
 
