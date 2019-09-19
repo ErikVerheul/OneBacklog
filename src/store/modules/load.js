@@ -5,6 +5,7 @@ import router from '../../router'
 var batch = []
 const INFO = 0
 const WARNING = 1
+const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
@@ -233,7 +234,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -275,7 +276,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -321,7 +322,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -359,7 +360,7 @@ const actions = {
 			// now that the database is known the log file is available
 			dispatch('doLog', {
 				"event": msg,
-				"level": 'INFO'
+				"level": INFO
 			})
 			dispatch('watchdog')
 			dispatch('getConfig')
@@ -370,7 +371,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -493,7 +494,7 @@ const actions = {
 						if (rootState.debug) console.log(msg)
 						if (rootState.currentDb) dispatch('doLog', {
 							event: msg,
-							level: "WARNING"
+							level: WARNING
 						})
 					}
 					rootState.currentDoc = doc
@@ -534,7 +535,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -559,7 +560,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -587,7 +588,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	}

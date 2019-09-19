@@ -1,5 +1,7 @@
 import globalAxios from 'axios'
 
+const ERROR = 2
+
 const actions = {
 	changePassword({
 		rootState,
@@ -20,7 +22,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -43,7 +45,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -67,7 +69,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},

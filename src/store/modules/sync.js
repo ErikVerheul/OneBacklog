@@ -174,7 +174,7 @@ const actions = {
 											if (rootState.debug) console.log(msg)
 											if (rootState.currentDb) dispatch('doLog', {
 												event: msg,
-												level: "WARNING"
+												level: WARNING
 											})
 										}
 									}
@@ -190,7 +190,7 @@ const actions = {
 									if (rootState.debug) console.log(msg)
 									if (rootState.currentDb) dispatch('doLog', {
 										event: msg,
-										level: "WARNING"
+										level: WARNING
 									})
 									missedAdditions.push({ doc })
 									continue
@@ -258,7 +258,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "WARNING"
+					level: WARNING
 				})
 				rootState.listenForChangesRunning = false
 			})

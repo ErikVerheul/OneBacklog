@@ -1,6 +1,7 @@
 import globalAxios from 'axios'
 
 const WARNING = 1
+const ERROR = 2
 
 const state = {
 	removeHistory: [],
@@ -55,7 +56,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -91,7 +92,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -127,7 +128,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -163,7 +164,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -199,7 +200,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -235,7 +236,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -270,7 +271,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -334,7 +335,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -395,7 +396,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			}
 			dispatch('updateBulk', ok)
@@ -406,7 +407,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -442,7 +443,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -485,7 +486,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -518,7 +519,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -546,7 +547,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -599,7 +600,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			}
 			dispatch('updateBulk', ok)
@@ -610,7 +611,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -661,7 +662,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			}
 			dispatch('updateBulk', ok)
@@ -672,7 +673,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -698,7 +699,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -733,7 +734,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -770,7 +771,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -807,7 +808,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -842,7 +843,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -877,7 +878,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -905,7 +906,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -935,7 +936,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},
@@ -966,7 +967,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				if (rootState.currentDb) dispatch('doLog', {
 					event: msg,
-					level: "ERROR"
+					level: ERROR
 				})
 			})
 	},

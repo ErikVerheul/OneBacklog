@@ -4,6 +4,11 @@ const LOGFILENAME = 'log'
 const MAXLOGSIZE = 1000
 const WATCHDOGINTERVAL = 30
 var unsavedLogs = []
+const DEBUG = -1
+const INFO = 0
+const WARNING = 1
+const ERROR = 2
+const CRITICAL = 3
 
 const state = {
 	runningWatchdogId: null
@@ -34,48 +39,48 @@ const actions = {
 				// catch up the logging
 				if (logsToSave > 0 || !rootState.listenForChangesRunning) {
 					globalAxios({
-							method: 'GET',
-							url: rootState.currentDb + '/' + LOGFILENAME,
-							withCredentials: true,
-						}).then(res => {
-							let log = res.data
-							// save the stored logs
-							if (logsToSave > 0) {
-								for (let i = 0; i < unsavedLogs.length; i++) {
-									log.entries.unshift(unsavedLogs[i])
-								}
-								let now = Date.now()
-								let newLog = {
-									"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them',
-									"level": "INFO",
-									"by": rootState.user,
-									"email": rootState.load.email,
-									"timestamp": now,
-									"timestampStr": new Date(now).toString()
-								}
-								log.entries.unshift(newLog)
-								unsavedLogs = []
+						method: 'GET',
+						url: rootState.currentDb + '/' + LOGFILENAME,
+						withCredentials: true,
+					}).then(res => {
+						let log = res.data
+						// save the stored logs
+						if (logsToSave > 0) {
+							for (let i = 0; i < unsavedLogs.length; i++) {
+								log.entries.unshift(unsavedLogs[i])
 							}
-							// restart synchronization if needed
-							if (!rootState.listenForChangesRunning) {
-								dispatch('listenForChanges', rootState.lastSyncSeq)
-								let msg = "Watchdog restarted listening for changes."
-								// eslint-disable-next-line no-console
-								if (rootState.debug) console.log(msg)
-								let now = Date.now()
-								let newLog = {
-									"event": msg,
-									"level": "INFO",
-									"by": rootState.user,
-									"email": rootState.load.email,
-									"timestamp": now,
-									"timestampStr": new Date(now).toString()
-								}
-								log.entries.unshift(newLog)
+							let now = Date.now()
+							let newLog = {
+								"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them',
+								"level": "INFO",
+								"by": rootState.user,
+								"email": rootState.load.email,
+								"timestamp": now,
+								"timestampStr": new Date(now).toString()
 							}
-							log.entries = log.entries.slice(0, MAXLOGSIZE)
-							dispatch('saveLog', log)
-						})
+							log.entries.unshift(newLog)
+							unsavedLogs = []
+						}
+						// restart synchronization if needed
+						if (!rootState.listenForChangesRunning) {
+							dispatch('listenForChanges', rootState.lastSyncSeq)
+							let msg = "Watchdog restarted listening for changes."
+							// eslint-disable-next-line no-console
+							if (rootState.debug) console.log(msg)
+							let now = Date.now()
+							let newLog = {
+								"event": msg,
+								"level": "INFO",
+								"by": rootState.user,
+								"email": rootState.load.email,
+								"timestamp": now,
+								"timestampStr": new Date(now).toString()
+							}
+							log.entries.unshift(newLog)
+						}
+						log.entries = log.entries.slice(0, MAXLOGSIZE)
+						dispatch('saveLog', log)
+					})
 						.catch(error => {
 							// eslint-disable-next-line no-console
 							console.log('watchdog: Could not read the log from ' + (rootState.currentDb + ' ' + LOGFILENAME) + ', ' + error)
@@ -93,37 +98,46 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		let severity = ''
+		switch (payload.severity) {
+			case DEBUG:
+				severity = 'DEBUG'
+				break
+			case INFO:
+				severity = 'INFO'
+				break
+			case WARNING:
+				severity = 'WARNING'
+				break
+			case ERROR:
+				severity = 'ERROR'
+				break
+			case CRITICAL:
+				severity = 'CRITICAL'
+		}
+		const now = Date.now()
+		const newLog = {
+			"event": payload.event,
+			"level": severity,
+			"by": rootState.user,
+			"email": rootState.load.email,
+			"timestamp": now,
+			"timestampStr": new Date(now).toString()
+		}
 		globalAxios({
-				method: 'GET',
-				url: rootState.currentDb + '/' + LOGFILENAME,
-				withCredentials: true,
-			}).then(res => {
-				let log = res.data
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log("doLog: The log is fetched.")
-				let now = Date.now()
-				let newLog = {
-					"event": payload.event,
-					"level": payload.level,
-					"by": rootState.user,
-					"email": rootState.load.email,
-					"timestamp": now,
-					"timestampStr": new Date(now).toString()
-				}
-				log.entries.unshift(newLog)
-				log.entries = log.entries.slice(0, MAXLOGSIZE)
-				dispatch('saveLog', log)
-			})
+			method: 'GET',
+			url: rootState.currentDb + '/' + LOGFILENAME,
+			withCredentials: true,
+		}).then(res => {
+			let log = res.data
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log("doLog: The log is fetched.")
+
+			log.entries.unshift(newLog)
+			log.entries = log.entries.slice(0, MAXLOGSIZE)
+			dispatch('saveLog', log)
+		})
 			.catch(error => {
-				let now = Date.now()
-				let newLog = {
-					"event": payload.event,
-					"level": payload.level,
-					"by": rootState.user,
-					"email": rootState.load.email,
-					"timestamp": now,
-					"timestampStr": new Date(now).toString()
-				}
 				//eslint-disable-next-line no-console
 				if (rootState.debug) console.log('doLog: Pushed log entry to unsavedLogs:')
 				unsavedLogs.push(newLog)
@@ -137,14 +151,14 @@ const actions = {
 		rootState
 	}, log) {
 		globalAxios({
-				method: 'PUT',
-				url: rootState.currentDb + '/' + LOGFILENAME,
-				withCredentials: true,
-				data: log
-			}).then(() => {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log("saveLog: The log is saved.")
-			})
+			method: 'PUT',
+			url: rootState.currentDb + '/' + LOGFILENAME,
+			withCredentials: true,
+			data: log
+		}).then(() => {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log("saveLog: The log is saved.")
+		})
 			// eslint-disable-next-line no-console
 			.catch(error => {
 				// eslint-disable-next-line no-console

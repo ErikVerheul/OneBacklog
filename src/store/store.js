@@ -11,10 +11,11 @@ import useracc from './modules/useracc'
 import update from './modules/update'
 import setup from './modules/setup'
 
+const DEBUG = -1
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
-const DEBUG = 3
+const CRITICAL = 3
 
 Vue.use(Vuex)
 /* These are the roles known by this application despite settings in the _users database otherwise.
@@ -129,22 +130,25 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
-		// a copy of the showLastEvent mixin which van not be used here
+		// a copy of the showLastEvent mixin which can not be used here
 		showLastEvent(state, payload) {
-            switch (payload.severity) {
-                case INFO:
-                    state.eventBgColor = '#408FAE'
-                    break
-                case WARNING:
-                    state.eventBgColor = 'orange'
-                    break
-                case ERROR:
-                    state.eventBgColor = 'red'
-                    break
-                case DEBUG:
-                    state.eventBgColor = 'yellow'
-            }
-            state.lastEvent = payload.txt
+			switch (payload.severity) {
+				case DEBUG:
+					state.eventBgColor = 'yellow'
+					break
+				case INFO:
+					state.eventBgColor = '#408FAE'
+					break
+				case WARNING:
+					state.eventBgColor = 'orange'
+					break
+				case ERROR:
+					state.eventBgColor = 'red'
+					break
+				case CRITICAL:
+					state.eventBgColor = '#ff5c33'
+			}
+			state.lastEvent = payload.txt
 		},
 
 		authUser(state, userData) {
@@ -210,24 +214,24 @@ export default new Vuex.Store({
 			if (state.debug) console.log("refreshcookie: afterSeconds= " + payload.afterSeconds)
 			state.runningCookieRefreshId = setInterval(() => {
 				globalAxios({
-						method: 'POST',
-						url: '/_session',
-						withCredentials: true,
-						data: {
-							name: payload.authData.name,
-							password: payload.authData.password
-						}
-					}).then(() => {
-						// eslint-disable-next-line no-console
-						if (state.debug) console.log("refreshCookie: Authentication cookie refresh.")
-					})
+					method: 'POST',
+					url: '/_session',
+					withCredentials: true,
+					data: {
+						name: payload.authData.name,
+						password: payload.authData.password
+					}
+				}).then(() => {
+					// eslint-disable-next-line no-console
+					if (state.debug) console.log("refreshCookie: Authentication cookie refresh.")
+				})
 					.catch(error => {
 						let msg = 'Refresh of the authentication cookie failed with ' + error
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log(msg)
 						if (rootState.currentDb) dispatch('doLog', {
 							event: msg,
-							level: "CRITICAL"
+							level: CRITICAL
 						})
 					})
 			}, payload.afterSeconds * 1000)
@@ -256,28 +260,28 @@ export default new Vuex.Store({
 			commit('storePwHash', authData.password)
 
 			globalAxios({
-					method: 'POST',
-					url: '/_session',
-					withCredentials: true,
-					data: {
-						name: authData.name,
-						password: authData.password
-					}
-				}).then(res => {
-					state.user = res.data.name
-					commit('authUser', {
-						user: res.data.name,
-						roles: res.data.roles,
-						sessionId: create_UUID()
-					})
-					dispatch('getOtherUserData')
-					// refresh the session cookie after 9 minutes (CouchDB defaults at 10 min.)
-					dispatch('refreshCookie', {
-						authData,
-						loggedOut: state.loggedOut,
-						afterSeconds: 540
-					})
+				method: 'POST',
+				url: '/_session',
+				withCredentials: true,
+				data: {
+					name: authData.name,
+					password: authData.password
+				}
+			}).then(res => {
+				state.user = res.data.name
+				commit('authUser', {
+					user: res.data.name,
+					roles: res.data.roles,
+					sessionId: create_UUID()
 				})
+				dispatch('getOtherUserData')
+				// refresh the session cookie after 9 minutes (CouchDB defaults at 10 min.)
+				dispatch('refreshCookie', {
+					authData,
+					loggedOut: state.loggedOut,
+					afterSeconds: 540
+				})
+			})
 				// Cannot log failure here as the database name is unknown yet
 				// eslint-disable-next-line no-console
 				.catch(error => console.log('Sign in failed with ' + error))
