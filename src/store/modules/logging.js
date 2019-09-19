@@ -99,7 +99,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		let severity = ''
-		switch (payload.severity) {
+		switch (payload.level) {
 			case DEBUG:
 				severity = 'DEBUG'
 				break
@@ -118,7 +118,8 @@ const actions = {
 		const now = Date.now()
 		const newLog = {
 			"event": payload.event,
-			"level": severity,
+			"level": payload.level,
+			"levelStr": severity,
 			"by": rootState.user,
 			"email": rootState.load.email,
 			"timestamp": now,
