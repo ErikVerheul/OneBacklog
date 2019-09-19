@@ -49,14 +49,13 @@ const actions = {
 							for (let i = 0; i < unsavedLogs.length; i++) {
 								log.entries.unshift(unsavedLogs[i])
 							}
-							let now = Date.now()
 							let newLog = {
 								"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them',
 								"level": "INFO",
 								"by": rootState.user,
 								"email": rootState.load.email,
-								"timestamp": now,
-								"timestampStr": new Date(now).toString()
+								"timestamp": Date.now(),
+								"timestampStr": new Date().toString()
 							}
 							log.entries.unshift(newLog)
 							unsavedLogs = []
@@ -67,14 +66,13 @@ const actions = {
 							let msg = "Watchdog restarted listening for changes."
 							// eslint-disable-next-line no-console
 							if (rootState.debug) console.log(msg)
-							let now = Date.now()
 							let newLog = {
 								"event": msg,
 								"level": "INFO",
 								"by": rootState.user,
 								"email": rootState.load.email,
-								"timestamp": now,
-								"timestampStr": new Date(now).toString()
+								"timestamp": Date.now(),
+								"timestampStr": new Date().toString()
 							}
 							log.entries.unshift(newLog)
 						}

@@ -95,6 +95,7 @@ const actions = {
 				"by": rootState.user,
 				"email": rootState.load.email,
 				"timestamp": Date.now(),
+				"timestampStr": new Date().toString(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
 			}],
@@ -165,6 +166,7 @@ const actions = {
 				"by": rootState.user,
 				"email": rootState.load.email,
 				"timestamp": Date.now(),
+				"timestampStr": new Date().toString(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
 			}],
@@ -237,6 +239,7 @@ const actions = {
 				"by": rootState.user,
 				"email": rootState.load.email,
 				"timestamp": Date.now(),
+				"timestampStr": new Date().toString(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
 			}],
@@ -308,6 +311,7 @@ const actions = {
 				"by": rootState.user,
 				"email": rootState.load.email,
 				"timestamp": Date.now(),
+				"timestampStr": new Date().toString(),
 				"sessionId": rootState.sessionId,
 				"distributeEvent": false
 			}],
@@ -1304,6 +1308,7 @@ const actions = {
 							"by": rootState.user,
 							"email": rootState.load.email,
 							"timestamp": Date.now(),
+							"timestampStr": new Date().toString(),
 						}]
 					ok.push(results[i].docs[0].ok)
 				}
