@@ -225,8 +225,8 @@ export default {
 			}
 
 			this.isDragging = isDragging
-			const cP = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
-			this.setModelCursorPosition(cP)
+			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
+			this.setModelCursorPosition(cPos)
 		},
 
 		onNodeMousedownHandler(event, node) {
@@ -265,26 +265,23 @@ export default {
 				return;
 			}
 
-			// stop drag if no nodes selected or at or at root level or moving an item to another product
+			// stop drag if no nodes selected or at root level or moving an item to another product
 			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === ROOTLEVEL || this.$store.state.moveOngoing) {
 				this.stopDrag()
 				return
 			}
 
-			// check that nodes is possible to insert
+			// check if nodes are possible to insert
 			for (let draggingNode of draggableNodes) {
+				// cannot drag to it self
 				if (draggingNode.pathStr === this.cursorPosition.nodeModel.pathStr) {
-					this.stopDrag();
-					return;
-				}
-				if (this.checkNodeIsParent(draggingNode, this.cursorPosition.nodeModel)) {
-					this.stopDrag();
-					return;
+					this.stopDrag()
+					return
 				}
 				// prevent drag to other product
 				if (this.cursorPosition.nodeModel.productId !== this.$store.state.load.currentProductId) {
-					this.stopDrag();
-					return;
+					this.stopDrag()
+					return
 				}
 				// prevent confusion when the user selects a target node to insert before when that node has a lower level (higher in the hierarchy)
 				if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel.level < draggingNode.level) {
@@ -360,23 +357,23 @@ export default {
 		},
 
 		getDescendantsInfo(node) {
-            const descendants = []
-            let initLevel = node.level
-            let count = 0
-            let maxDepth = node.level
-            this.traverseModels((nodeModel) => {
-                if (this.comparePaths(nodeModel.path, node.path) === 1) {
-                    descendants.push(nodeModel)
-                    count++
-                    if (nodeModel.level > maxDepth) maxDepth = nodeModel.level
-                }
-            }, [node])
-            return {
-                descendants: descendants,
-                count: count,
-                depth: maxDepth - initLevel
-            }
-        },
+			const descendants = []
+			let initLevel = node.level
+			let count = 0
+			let maxDepth = node.level
+			this.traverseModels((nodeModel) => {
+				if (this.comparePaths(nodeModel.path, node.path) === 1) {
+					descendants.push(nodeModel)
+					count++
+					if (nodeModel.level > maxDepth) maxDepth = nodeModel.level
+				}
+			}, [node])
+			return {
+				descendants: descendants,
+				count: count,
+				depth: maxDepth - initLevel
+			}
+		},
 
 		getProductTitle(productId) {
 			if (this.currentValue[0].children) {
@@ -523,35 +520,32 @@ export default {
 		},
 
 		/*
-		 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
-		 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
-		 */
-		assignNewPrios(nodes, predecessorNode, successorNode) {
-			let predecessorPrio
-			let successorPrio
-			if (predecessorNode !== null) {
-				predecessorPrio = predecessorNode.data.priority
-			} else {
-				predecessorPrio = Number.MAX_SAFE_INTEGER
-			}
-			if (successorNode !== null) {
-				successorPrio = successorNode.data.priority
-			} else {
-				successorPrio = Number.MIN_SAFE_INTEGER
-			}
-			const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-			for (let i = 0; i < nodes.length; i++) {
-				// update the tree
-				nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-				nodes[i].data.lastChange = Date.now()
-			}
-		},
-
-		/*
 		 * Insert the nodeModels in the tree model inside, after or before the node at cursorposition.
 		 * When creating a new single node (not moving) createNew must be true
 		 */
 		insert(cursorPosition, nodes) {
+			// recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
+			// precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
+			function assignNewPrios(nodes, predecessorNode, successorNode) {
+				let predecessorPrio
+				let successorPrio
+				if (predecessorNode !== null) {
+					predecessorPrio = predecessorNode.data.priority
+				} else {
+					predecessorPrio = Number.MAX_SAFE_INTEGER
+				}
+				if (successorNode !== null) {
+					successorPrio = successorNode.data.priority
+				} else {
+					successorPrio = Number.MIN_SAFE_INTEGER
+				}
+				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+				for (let i = 0; i < nodes.length; i++) {
+					// update the tree
+					nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+					nodes[i].data.lastChange = Date.now()
+				}
+			}
 			const destNodeModel = cursorPosition.nodeModel
 			const productId = destNodeModel.productId
 			let destSiblings
@@ -579,7 +573,7 @@ export default {
 			const predecessorNode = destSiblings[firstNode.ind - 1] || null
 			const lastNode = nodes[nodes.length - 1]
 			const successorNode = destSiblings[lastNode.ind + 1] || null
-			this.assignNewPrios(nodes, predecessorNode, successorNode)
+			assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 
 		insertSingle(cursorPosition, node) {
@@ -609,11 +603,6 @@ export default {
 		moveNodes(cursorPosition, nodes) {
 			this.remove(nodes)
 			this.insert(cursorPosition, nodes)
-		},
-
-		checkNodeIsParent(sourceNode, destNode) {
-			const destPath = destNode.path;
-			return this.comparePaths(destPath.slice(0, sourceNode.path.length), sourceNode.pathStr) === 0
 		},
 
 		/* test code */

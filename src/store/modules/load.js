@@ -26,7 +26,6 @@ const state = {
 	myTeams: [],
 	myCurrentTeam: "",
 	email: null,
-	treeNodes: [],
 	userAssignedProductIds: [],
 	myProductsRoles: {},
 	myProductOptions: [],

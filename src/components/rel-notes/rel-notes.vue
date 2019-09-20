@@ -42,7 +42,7 @@
 				</ul>
 				<p>Performance improvements:</p>
 				<ul>
-					<li>Tree view can handle +5000 nodes due to design changes</li>
+					<li>Tree view can handle 5000+ nodes due to design changes</li>
 				</ul>
 				<hr>
 				<h3>v.0.6.0 - 27 August 2019 Major update</h3>

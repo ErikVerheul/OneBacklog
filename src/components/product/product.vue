@@ -81,7 +81,6 @@
             @select="nodeSelectedEvent"
             @beforedrop="beforeNodeDropped"
             @drop="nodeDropped"
-
           >
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
@@ -256,7 +255,7 @@
         </multipane>
       </div>
     </multipane>
-    <!-- Modals -->
+    <!-- context modals -->
     <context></context>
     <template>
       <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
