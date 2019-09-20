@@ -80,6 +80,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 
 	state: {
+		nodeSelected: null,
+		numberOfNodesSelected: 0,
 		lastEvent: '',
 		online: true,
 		eventSyncColor: '#004466',

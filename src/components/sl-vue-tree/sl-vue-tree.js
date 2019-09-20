@@ -11,11 +11,11 @@ var draggableNodes = []
 var selectedNodes = []
 var nodeToDeselect = null
 
-import { showLastEvent } from '../mixins/showLastEvent.js'
+import { utilities } from '../mixins/utilities.js'
 
 export default {
 	name: 'sl-vue-tree',
-	mixins: [showLastEvent],
+	mixins: [utilities],
 	props: {
 		value: {
 			type: Array,
@@ -159,8 +159,9 @@ export default {
 			this.getRootComponent().$emit('nodeclick', node, event);
 		},
 
+		// trigger the context component via the eventbus
 		emitNodeContextmenu(node, event) {
-			this.getRootComponent().$emit('nodecontextmenu', node, event);
+			this.$root.$emit('context', node, event)
 		},
 
 		/*
@@ -357,6 +358,25 @@ export default {
 				placement
 			}
 		},
+
+		getDescendantsInfo(node) {
+            const descendants = []
+            let initLevel = node.level
+            let count = 0
+            let maxDepth = node.level
+            this.traverseModels((nodeModel) => {
+                if (this.comparePaths(nodeModel.path, node.path) === 1) {
+                    descendants.push(nodeModel)
+                    count++
+                    if (nodeModel.level > maxDepth) maxDepth = nodeModel.level
+                }
+            }, [node])
+            return {
+                descendants: descendants,
+                count: count,
+                depth: maxDepth - initLevel
+            }
+        },
 
 		getProductTitle(productId) {
 			if (this.currentValue[0].children) {

@@ -1,19 +1,9 @@
-import {
-	mapGetters
-} from 'vuex'
-
-import {
-	Multipane,
-	MultipaneResizer
-} from 'vue-multipane'
-
-import {
-	VueEditor
-} from 'vue2-editor'
-
+import { mapGetters } from 'vuex'
+import { Multipane, MultipaneResizer } from 'vue-multipane'
+import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
-
-import { showLastEvent } from '../mixins/showLastEvent.js'
+import { utilities } from '../mixins/utilities.js'
+import context from './context.vue'
 
 const INFO = 0
 const WARNING = 1
@@ -22,13 +12,9 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
-var nodeSelected
-var numberOfNodesSelected = 0
-var newNode = {}
-var movedNode = null
 
 export default {
-	mixins: [showLastEvent],
+	mixins: [utilities],
 	data() {
 		return {
 			databaseLevel: DATABASELEVEL,
@@ -38,15 +24,6 @@ export default {
 			pbiLevel: PBILEVEL,
 			newDescription: '',
 			newAcceptance: '',
-			contextNodeSelected: undefined,
-			contextNodeTitle: '',
-			contextNodeLevel: 0,
-			contextNodeType: '',
-			contextChildType: '',
-			contextSelected: undefined,
-			currentAssistanceNr: undefined,
-			assistanceText: "",
-			showAssistance: false,
 			removeDescendantsCount: 0,
 			// default to sibling node (no creation of descendant)
 			insertOptionSelected: 1,
@@ -91,21 +68,20 @@ export default {
 		// expose instance to the global namespace
 		window.slVueTree = this.$refs.slVueTree
 		// the product is selected in load.js
-		nodeSelected = window.slVueTree.getSelectedProduct()
+		this.$store.state.nodeSelected = window.slVueTree.getSelectedProduct()
 	},
 
 	computed: {
 		...mapGetters([
 			//from store.js
-			'isAuthenticated',
 			'isFollower',
-			'isServerAdmin',
 			'canCreateComments',
 			'getCurrentItemLevel',
 			'getCurrentItemTsSize',
 			// from load.js
 			'canWriteLevels'
 		]),
+
 		squareText() {
 			if (this.$store.state.online) {
 				this.showLastEvent("You are online again", INFO)
@@ -115,9 +91,11 @@ export default {
 				return 'offline'
 			}
 		},
+
 		squareColor() {
 			return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
 		},
+
 		subsribeTitle() {
 			if (this.isFollower) {
 				return "Unsubscribe to change notices"
@@ -125,6 +103,7 @@ export default {
 				return "Subscribe to change notices"
 			}
 		},
+
 		description: {
 			get() {
 				return this.$store.state.currentDoc.description
@@ -133,6 +112,7 @@ export default {
 				this.newDescription = newDescription
 			}
 		},
+
 		acceptanceCriteria: {
 			get() {
 				return this.$store.state.currentDoc.acceptanceCriteria
@@ -141,6 +121,7 @@ export default {
 				this.newAcceptance = newAcceptanceCriteria
 			}
 		},
+
 		getFilteredComments() {
 			let filteredComments = []
 			let comments = this.$store.state.currentDoc.comments
@@ -155,6 +136,7 @@ export default {
 			}
 			return filteredComments
 		},
+
 		getFilteredHistory() {
 			function removeImages(text) {
 				let pos1 = text.indexOf('<img src="')
@@ -208,8 +190,8 @@ export default {
 			// prevent looping
 			if (val !== this.$store.state.currentDoc.subtype) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
-					nodeSelected.data.subtype = val
-					nodeSelected.data.lastChange = Date.now()
+					this.$store.state.nodeSelected.data.subtype = val
+					this.$store.state.nodeSelected.data.lastChange = Date.now()
 					this.$store.dispatch('setSubType', {
 						'newSubType': val
 					})
@@ -219,6 +201,7 @@ export default {
 			}
 
 		},
+
 		'startEditor': function (val) {
 			if (val === true) {
 				this.startEditor = false
@@ -236,6 +219,7 @@ export default {
 				}
 			}
 		},
+
 		'startFiltering': function (val) {
 			if (val === true) {
 				this.startFiltering = false
@@ -249,22 +233,27 @@ export default {
 		subscribeClicked() {
 			this.$store.dispatch('changeSubsription')
 		},
+
 		filterComments() {
 			this.filterForComment = this.filterForCommentPrep
 		},
+
 		filterHistory() {
 			this.filterForHistory = this.filterForHistoryPrep
 		},
+
 		insertComment() {
 			this.$store.dispatch('addComment', {
 				'comment': this.newComment
 			})
 		},
+
 		insertHist() {
 			this.$store.dispatch('addHistoryComment', {
 				'comment': this.newHistory
 			})
 		},
+
 		/* Presentation methods */
 		mkSubscribeEvent(value) {
 			if (value[0]) {
@@ -273,33 +262,43 @@ export default {
 				return "<h5>You subscribed to receive messages about this backlog item.</h5>"
 			}
 		},
+
 		mkCreateEvent(value) {
 			return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'</h5>"
 		},
+
 		mkSetSizeEvent(value) {
 			return "<h5>T-Shirt estimate changed from </h5>" + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
 		},
+
 		mkSetPointsEvent(value) {
 			return "<h5>Storypoints estimate changed from </h5>" + value[0] + ' to ' + value[1]
 		},
+
 		mkSetHrsEvent(value) {
 			return "<h5>Spike estimate hours changed from </h5>" + value[0] + ' to ' + value[1]
 		},
+
 		mkSetStateEvent(value) {
 			return "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'</h5>"
 		},
+
 		mkSetTitleEvent(value) {
 			return "<h5>The item  title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'"
 		},
+
 		mkSetSubTypeEvent(value) {
 			return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'"
 		},
+
 		mkDescriptionEvent(value) {
 			return "<h5>The description of the item has changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
 		},
+
 		mkAcceptanceEvent(value) {
 			return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
 		},
+
 		mkNodeDroppedEvent(value) {
 			let txt
 			if (value[5]) { txt = "<h5>The item was moved from product '" + value[5] + "' to this product.</h5>"} else txt = ''
@@ -314,48 +313,62 @@ export default {
 				return txt
 			}
 		},
+
 		mkDescendantMoved(value) {
 			return "<h5>Item was moved as descendant from '" + value[0] + "'</h5>"
 		},
+
 		mkRemovedFromParentEvent(value) {
 			return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are removed from this parent</h5>"
 		},
+
 		mkParentDocRemovedEvent(value) {
 			return "<h5> This item and " + value[0] + " descendants are removed</h5>"
 		},
+
 		mkDocRemovedEvent(value) {
 			return "<h5>This item has been removed as descendant of " + value[0] + "</h5>"
 		},
+
 		mkGrandParentDocRestoredEvent(value) {
 			return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are restored from removal</h5>"
 		},
+
 		mkDocRestoredInsideEvent(value) {
 			return "<h5>This item and " + value[0] + " descendants are restored from removal</h5>"
 		},
+
 		mkDocRestoredEvent() {
 			return "<h5>This item has been restored from removal</h5>"
 		},
+
 		mkBy(value) {
 			return "by: " + value
 		},
+
 		mkEmail(value) {
 			return "email: " + value
 		},
+
 		mkTimestamp(value) {
 			return "timestamp: " + new Date(value).toString() + "<br><br>"
 		},
+
 		mkComment(value) {
 			return window.atob(value[0])
 		},
+
 		mkRootEvent(value) {
 			return "<h5>" + value[0] + "</h5>"
 		},
+
 		prepCommentsText(key, value) {
 			if (key === "comment") return this.mkComment(value)
 			if (key === "by") return this.mkBy(value)
 			if (key === "email") return this.mkEmail(value)
 			if (key === "timestamp") return this.mkTimestamp(value)
 		},
+
 		prepHistoryText(key, value) {
 			if (key === "rootEvent") return this.mkRootEvent(value)
 			if (key === "comment") return this.mkComment(value)
@@ -381,6 +394,7 @@ export default {
 			if (key === "email") return this.mkEmail(value)
 			if (key === "timestamp") return this.mkTimestamp(value)
 		},
+
 		/* Database update methods */
 		updateDescription() {
 			// skip update when not changed
@@ -388,7 +402,7 @@ export default {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					// update the current doc in memory
 					this.$store.state.currentDoc.description = this.newDescription
-					nodeSelected.data.lastChange = Date.now()
+					this.$store.state.nodeSelected.data.lastChange = Date.now()
 					// update the doc in the database
 					this.$store.dispatch('saveDescription', {
 						'newDescription': this.newDescription
@@ -398,13 +412,14 @@ export default {
 				}
 			}
 		},
+
 		updateAcceptance() {
 			// skip update when not changed
 			if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
 				if (this.canWriteLevels[this.getCurrentItemLevel]) {
 					// update the current doc in memory
 					this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
-					nodeSelected.data.lastChange = Date.now()
+					this.$store.state.nodeSelected.data.lastChange = Date.now()
 					// update the doc in the database
 					this.$store.dispatch('saveAcceptance', {
 						'newAcceptance': this.newAcceptance
@@ -414,12 +429,13 @@ export default {
 				}
 			}
 		},
+
 		updateTsSize() {
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				let size = document.getElementById("tShirtSizeId").value.toUpperCase()
 				const sizeArray = this.$store.state.config.tsSize
 				if (sizeArray.includes(size)) {
-					nodeSelected.data.lastChange = Date.now()
+					this.$store.state.nodeSelected.data.lastChange = Date.now()
 					this.$store.dispatch('setSize', {
 						'newSizeIdx': sizeArray.indexOf(size)
 					})
@@ -434,6 +450,7 @@ export default {
 				this.showLastEvent("Sorry, your assigned role(s) disallow you to change the t-shirt size of this item", WARNING)
 			}
 		},
+
 		updateStoryPoints() {
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				let el = document.getElementById("storyPointsId")
@@ -441,7 +458,7 @@ export default {
 					el.value = '?'
 					return
 				}
-				nodeSelected.data.lastChange = Date.now()
+				this.$store.state.nodeSelected.data.lastChange = Date.now()
 				this.$store.dispatch('setStoryPoints', {
 					'newPoints': el.value
 				})
@@ -449,6 +466,7 @@ export default {
 				this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)
 			}
 		},
+
 		updatePersonHours() {
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				let el = document.getElementById("personHoursId")
@@ -456,7 +474,7 @@ export default {
 					el.value = '?'
 					return
 				}
-				nodeSelected.data.lastChange = Date.now()
+				this.$store.state.nodeSelected.data.lastChange = Date.now()
 				this.$store.dispatch('setPersonHours', {
 					'newHrs': el.value
 				})
@@ -464,11 +482,12 @@ export default {
 				this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item", WARNING)
 			}
 		},
+
 		onStateChange(idx) {
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				// update the tree
-				nodeSelected.data.state = idx
-				nodeSelected.data.lastChange = Date.now()
+				this.$store.state.nodeSelected.data.state = idx
+				this.$store.state.nodeSelected.data.lastChange = Date.now()
 				// update current document in database
 				this.$store.dispatch('setState', {
 					'newState': idx
@@ -477,6 +496,7 @@ export default {
 				this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
 			}
 		},
+
 		updateTitle() {
 			const oldTitle = this.$store.state.currentDoc.title
 			const newTitle = document.getElementById("titleField").value
@@ -484,7 +504,7 @@ export default {
 
 			if (this.canWriteLevels[this.getCurrentItemLevel]) {
 				// update the tree
-				let node = nodeSelected
+				let node = this.$store.state.nodeSelected
 				node.title = newTitle
 				node.data.lastChange = Date.now()
 				// update current document in database
@@ -495,49 +515,7 @@ export default {
 				this.showLastEvent("Sorry, your assigned role(s) disallow you to change the title of this item", WARNING)
 			}
 		},
-		/* mappings from config */
-		getLevelText(level) {
-			if (level < 0 || level > PBILEVEL) {
-				return 'Level not supported'
-			}
-			return this.$store.state.config.itemType[level]
-		},
-		getItemStateText(idx) {
-			if (idx < 0 || idx > PBILEVEL) {
-				return 'Error: unknown state'
-			}
-			return this.$store.state.config.itemState[idx]
-		},
-		getTsSize(idx) {
-			if (idx < 0 || idx >= this.$store.state.config.tsSize.length) {
-				return 'Error: unknown T-shirt size'
-			}
-			return this.$store.state.config.tsSize[idx]
-		},
-		getSubType(idx) {
-			if (idx < 0 || idx >= this.$store.state.config.subtype.length) {
-				return 'Error: unknown subtype'
-			}
-			return this.$store.state.config.subtype[idx]
-		},
-		getKnownRoles() {
-			return this.$store.state.config.knownRoles
-		},
-		itemTitleTrunc(length, title) {
-			if (title.length <= length) return title;
-			return title.substring(0, length - 4) + '...';
-		},
-		haveSameParent(nodes) {
-			let parentId = nodes[0].parentId
-			if (nodes.length > 0) {
-				for (let i = 1; i < nodes.length; i++) {
-					if (nodes[i].parentId !== parentId) {
-						return false
-					}
-				}
-			}
-			return true
-		},
+
 		/* event handling */
 		nodeSelectedEvent(selNodes) {
 			// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
@@ -548,13 +526,13 @@ export default {
 				this.showLastEvent('You can only select nodes with the same parent.', WARNING)
 				return
 			}
-			numberOfNodesSelected = selNodes.length
+			this.$store.state.numberOfNodesSelected = selNodes.length
 			// update the first (highest in hierarchie) selected node
-			nodeSelected = selNodes[0]
+			this.$store.state.nodeSelected = selNodes[0]
 			// if the root node is selected do nothing
-			if (nodeSelected._id !== 'root') {
+			if (this.$store.state.nodeSelected._id !== 'root') {
 				// if the user clicked on a node of another product
-				if (this.$store.state.load.currentProductId !== nodeSelected.productId) {
+				if (this.$store.state.load.currentProductId !== this.$store.state.nodeSelected.productId) {
 					// clear any outstanding filters
 					if (this.$store.state.filterOn || this.$store.state.searchOn) {
 						window.slVueTree.resetFilters('nodeSelectedEvent')
@@ -562,15 +540,15 @@ export default {
 					// collapse the previously selected product
 					window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
 					// update current productId and title
-					this.$store.state.load.currentProductId = nodeSelected.productId
-					this.$store.state.load.currentProductTitle = nodeSelected.title
+					this.$store.state.load.currentProductId = this.$store.state.nodeSelected.productId
+					this.$store.state.load.currentProductTitle = this.$store.state.nodeSelected.title
 					// expand the newly selected product up to the feature level and select the product node again
 					window.slVueTree.expandTree(FEATURELEVEL)
 				}
 			}
 			// load the document if not already in memory
-			if (nodeSelected._id !== this.$store.state.currentDoc._id) {
-				this.$store.dispatch('loadDoc', nodeSelected._id)
+			if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
+				this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
 			}
 			const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
 			const title = this.itemTitleTrunc(60, selNodes[0].title)
@@ -585,24 +563,6 @@ export default {
 			this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
 		},
 
-		getDescendantsInfo(node) {
-			const descendants = []
-			let initLevel = node.level
-			let count = 0
-			let maxDepth = node.level
-			window.slVueTree.traverseModels((nodeModel) => {
-				if (window.slVueTree.comparePaths(nodeModel.path, node.path) === 1) {
-					descendants.push(nodeModel)
-					count++
-					if (nodeModel.level > maxDepth) maxDepth = nodeModel.level
-				}
-			}, [node])
-			return {
-				descendants: descendants,
-				count: count,
-				depth: maxDepth - initLevel
-			}
-		},
 		/*
 		/ Use this event to check if the drag is allowed. If not, issue a warning.
 		*/
@@ -617,7 +577,7 @@ export default {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				let failedCheck1 = !this.canWriteLevels[position.nodeModel.level]
 				let failedCheck2 = levelChange > 1
-				let failedCheck3 = (targetLevel + this.getDescendantsInfo(node).depth) > PBILEVEL
+				let failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > PBILEVEL
 				if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
 				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
@@ -640,6 +600,7 @@ export default {
 				}
 			}
 		},
+
 		/*
 		 * Update the tree when one or more nodes are dropped on another location
 		 * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
@@ -668,7 +629,7 @@ export default {
 					'newLevel': draggingNodes[i].level,
 					'newInd': draggingNodes[i].ind,
 					'placement': position.placement,
-					'descendants': this.getDescendantsInfo(draggingNodes[i]).descendants
+					'descendants': window.slVueTree.getDescendantsInfo(draggingNodes[i]).descendants
 				}
 				payloadArray.push(payloadItem)
 			}
@@ -687,179 +648,7 @@ export default {
 			if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
 			this.showLastEvent(evt, INFO)
 		},
-		showContextMenu(node) {
-			this.contextSelected = undefined
-			this.currentAssistanceNr = undefined
-			this.insertOptionSelected = 1
-			// user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-			if (this.canWriteLevels[node.level] && node._id === nodeSelected._id && node.level > 1 && numberOfNodesSelected === 1) {
-				this.contextNodeSelected = node
-				this.contextNodeTitle = node.title
-				this.contextNodeLevel = node.level
-				this.contextNodeType = this.getLevelText(node.level)
-				this.contextChildType = this.getLevelText(node.level + 1)
-				this.removeDescendantsCount = this.getDescendantsInfo(node).count
-				this.$refs.contextMenuRef.show()
-			}
-		},
-		showSelected() {
-			switch (this.contextSelected) {
-				case 0:
-					this.contextWarning = undefined
-					this.insertOptionSelected = 1
-					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-					return 'Insert a ' + this.contextNodeType + ' below this item'
-				case 1:
-					this.insertOptionSelected = 2
-					this.contextWarning = undefined
-					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-					return 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
-				case 2:
-					this.contextWarning = undefined
-					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-					if (!this.$store.state.moveOngoing) {
-						return 'Item selected. Choose drop position in any other product'
-					} else {
-						return 'Drop position is set'
-					}
-				case 3:
-					this.contextWarning = undefined
-					this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-					return `Remove this ${this.contextNodeType} and ${this.removeDescendantsCount} descendants`
-				default:
-					this.contextWarning = undefined
-					return 'nothing selected as yet'
-			}
-		},
-		contextAssistance(opt) {
-			this.currentAssistanceNr = opt
-			switch (opt) {
-				case 0:
-					this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
-					break
-				case 1:
-					this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
-					break
-				case 2:
-					this.assistanceText = this.$store.state.help.help.move
-					break
-				case 3:
-					this.assistanceText = this.$store.state.help.help.remove
-					break
-				default:
-					this.assistanceText = 'No assistance available'
-			}
-		},
-		procSelected() {
-			this.currentAssistanceNr = undefined
-			switch (this.contextSelected) {
-				case 0:
-					this.doInsert()
-					break
-				case 1:
-					this.doInsert()
-					break
-				case 2:
-					this.moveItemToOtherProduct()
-					break
-				case 3:
-					this.doRemove()
-					break
-			}
-		},
-		moveItemToOtherProduct() {
-			if (this.$store.state.moveOngoing) {
-				const targetPosition = window.slVueTree.lastSelectCursorPosition
-				const targetNode = targetPosition.nodeModel
-				// only allow move to new parent 1 level higher (lower value) than the source node
-				if (targetPosition.nodeModel.level !== movedNode.level - 1) {
-					this.showLastEvent('You can only move to a ' + this.getLevelText(movedNode.level - 1), WARNING)
-					return
-				}
-				const sourceProductNode = window.slVueTree.getNodeById(movedNode.productId)
-				// move the node to the new place and update the productId and parentId
-				window.slVueTree.moveNodes(targetPosition, [movedNode])
-				// the path to new node is immediately below the selected node
-				const newPath = targetNode.path.concat([0])
-				const newNode = window.slVueTree.getNodeModel(newPath)
-				const newParentNode = window.slVueTree.getNodeById(newNode.parentId)
-				const payloadItem = {
-					'_id': newNode._id,
-					'oldProductTitle': sourceProductNode.title,
-					'productId': newNode.productId,
-					'newParentId': newNode.parentId,
-					'newPriority': newNode.data.priority,
-					'newParentTitle': newParentNode.title,
-					'oldParentTitle': newNode.title,
-					'oldLevel': newNode.level,
-					'newLevel': newNode.level, // the level cannot change
-					'newInd': 0, // immediately below the parent
-					'placement': 'inside',
-					'descendants': this.getDescendantsInfo(newNode).descendants
-				}
-				// update the database
-				this.$store.dispatch('updateDropped', {
-					next: 0,
-					payloadArray: [payloadItem]
-				})
-				this.$store.state.moveOngoing = false
-			} else {
-				this.$store.state.moveOngoing = true
-				this.moveSourceProductId = this.$store.state.load.currentProductId
-				movedNode = this.contextNodeSelected
-			}
-		},
-		/*
-		 * In the database both the selected node and all its descendants will be tagged with a delmark
-		 */
-		doRemove() {
-			const selectedNode = this.contextNodeSelected
-			const descendantsInfo = this.getDescendantsInfo(selectedNode)
-			this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
-			const path = selectedNode.path
-			const descendants = descendantsInfo.descendants
-			// when removing a product
-			if (selectedNode.level === this.productLevel) {
-				// cannot remove the last assigned product
-				if (this.$store.state.load.userAssignedProductIds.length === 1) {
-					this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
-					return
-				}
-				// Add the removed product id to the removeProducts list in the config document
-				this.$store.dispatch('addToRemovedProducts', selectedNode._id)
-			}
-			// set remove mark in the database on the clicked item and decendants (if any)
-			const payload = {
-				'node': selectedNode,
-				'descendants': descendants
-			}
-			this.$store.dispatch('removeDoc', payload)
 
-			// create an entry for undoing the remove in a last-in first-out sequence
-			const entry = {
-				removedNode: selectedNode,
-				isProductRemoved: selectedNode.level === PRODUCTLEVEL,
-				grandParentId: selectedNode.parentId,
-				parentId: selectedNode._id,
-				parentPath: selectedNode.path,
-				descendants: []
-			}
-			if (descendants.length > 0) {
-				for (let descendant of descendants) {
-					entry.descendants.push(descendant._id)
-				}
-			}
-			this.$store.state.update.removeHistory.unshift(entry)
-			// collapse the branch and make the removed node invisible
-			selectedNode.isExpanded = false
-			selectedNode.doShow = false
-			// after removal select the predecessor of the removed node (sibling or parent)
-			const prevNode = window.slVueTree.getPreviousNode(path)
-			prevNode.isSelected = true
-			nodeSelected = prevNode
-			// now we can remove the node and its children
-			window.slVueTree.removeSingle(selectedNode, prevNode)
-		},
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
 			let options = [{
@@ -877,6 +666,7 @@ export default {
 			]
 			return options
 		},
+
 		getViewOptions() {
 			let options = [{
 				text: 'Comments',
@@ -893,135 +683,14 @@ export default {
 			]
 			return options
 		},
-		/*
-		 * Create and insert a new node in the tree and create a document for this new item
-		 * A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
-		 */
-		doInsert() {
-			const locationPath = this.contextNodeSelected.path
-			let newNodeLocation
-			let path
-			let idx
-			// prepare the new node for insertion and set isSelected to true
-			newNode = {
-				productId: this.$store.state.load.currentProductId,
-				children: [],
-				isExpanded: false,
-				savedIsExpanded: false,
-				isDraggable: true,
-				isSelectable: true,
-				isSelected: true,
-				doShow: true,
-				savedDoShow: true,
-				data: {
-					priority: null,
-					state: 0,
-					subtype: 0,
-					lastChange: Date.now(),
-					sessionId: this.$store.state.sessionId,
-					distributeEvent: true
-				}
-			}
-			let insertLevel = this.contextNodeSelected.level
-			if (this.insertOptionSelected === 1) {
-				// new node is a sibling placed below (after) the selected node
-				newNodeLocation = {
-					nodeModel: this.contextNodeSelected,
-					placement: 'after'
-				}
-				idx = locationPath.slice(-1)[0] + 1
-				path = locationPath.slice(0, -1).concat(idx)
-				newNode.parentId = this.contextNodeSelected.parentId
-				newNode.title = 'New ' + this.getLevelText(insertLevel)
-				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
-			} else {
-				// new node is a child placed a level lower (inside) than the selected node
-				insertLevel += 1
 
-				newNodeLocation = {
-					nodeModel: this.contextNodeSelected,
-					placement: 'inside'
-				}
-				idx = 0
-				path = this.contextNodeSelected.path.concat(0)
-				newNode.parentId = this.contextNodeSelected._id
-				newNode.title = 'New ' + this.getLevelText(insertLevel)
-				newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
-			}
-			// add the location values
-			newNode.path = path
-			newNode.pathStr = JSON.stringify(path)
-			newNode.ind = idx
-			newNode.level = path.length
-
-			if (this.canWriteLevels[insertLevel]) {
-				// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-				const extension = Math.random().toString(36).replace('0.', '').substr(0, 5)
-				const newId = Date.now().toString().concat(extension)
-				newNode._id = newId
-				newNode.shortId = extension
-				if (newNodeLocation.placement === 'inside') {
-					// unselect the node that was clicked before the insert and expand it to show the inserted node
-					this.contextNodeSelected.isSelected = false
-					this.contextNodeSelected.isExpanded = true
-				} else {
-					// unselect the node that was clicked before the insert
-					this.contextNodeSelected.isSelected = false
-				}
-				nodeSelected = newNode
-				// insert the new node in the tree
-				window.slVueTree.insertSingle(newNodeLocation, newNode)
-				this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
-				// create a new document and store it
-				const initData = {
-					"_id": newNode._id,
-					"shortId": newNode.shortId,
-					"type": "backlogItem",
-					"productId": newNode.productId,
-					"parentId": newNode.parentId,
-					"team": "not assigned yet",
-					"level": insertLevel,
-					"subtype": 0,
-					"state": 0,
-					"tssize": 3,
-					"spsize": 0,
-					"spikepersonhours": 0,
-					"reqarea": null,
-					"title": newNode.title,
-					"followers": [],
-					"description": "",
-					"acceptanceCriteria": window.btoa("<p>Please don't forget</p>"),
-					"priority": newNode.data.priority,
-					"attachments": [],
-					"comments": [],
-					"history": [{
-						"createEvent": null,
-						"by": this.$store.state.user,
-						"email": this.$store.state.load.email,
-						"timestamp": Date.now(),
-						"sessionId": this.$store.state.sessionId,
-						"distributeEvent": true
-					}],
-					"delmark": false
-				}
-				// update the database
-				this.$store.dispatch('createDoc', {
-					'initData': initData
-				})
-			} else {
-				this.showLastEvent("Sorry, your assigned role(s) disallow you to create new items of this type", WARNING)
-			}
-		},
-		doCancel() {
-			this.currentAssistanceNr = undefined
-			this.$store.state.moveOngoing = false
-		}
 	},
 
 	components: {
 		Multipane,
 		MultipaneResizer,
 		VueEditor,
-		slVueTree
+		slVueTree,
+		context
 	}
 }

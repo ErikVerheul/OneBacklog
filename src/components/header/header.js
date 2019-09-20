@@ -1,5 +1,5 @@
 import licence from "./licence.vue"
-import { showLastEvent } from '../mixins/showLastEvent.js'
+import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
@@ -7,7 +7,7 @@ const RESETFILTERBUTTONTEXT = 'Clear filter'
 const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
 
 export default {
-    mixins: [showLastEvent],
+    mixins: [utilities],
     data() {
         return {
             appVersion: "OneBackLog v.0.6.2",
