@@ -29,22 +29,11 @@ export default {
 			insertOptionSelected: 1,
 			selectedNodesTitle: '',
 			moveSourceProductId: '',
-
 			editorToolbar: [
-				[{
-					header: [false, 1, 2, 3, 4, 5, 6]
-				}],
+				[{ header: [false, 1, 2, 3, 4, 5, 6] }],
 				['bold', 'italic', 'underline', 'strike'],
-				[{
-					'list': 'ordered'
-				}, {
-					'list': 'bullet'
-				}],
-				[{
-					indent: "-1"
-				}, {
-					indent: "+1"
-				}], // outdent/indent
+				[{ 'list': 'ordered' }, { 'list': 'bullet' }],
+				[{ indent: "-1" }, { indent: "+1" }], // outdent/indent
 				['link', 'image', 'code-block']
 			],
 			// set to an invalid value; must be updated before use
@@ -64,7 +53,7 @@ export default {
 
 	/* Select the users default top product node. Note that at all times at least one node must be selected */
 	mounted() {
-		window.history.scrollRestoration = "manual"
+		// window.history.scrollRestoration = "manual" ToDo: needed?
 		// expose instance to the global namespace
 		window.slVueTree = this.$refs.slVueTree
 		// the product is selected in load.js
@@ -301,7 +290,7 @@ export default {
 
 		mkNodeDroppedEvent(value) {
 			let txt
-			if (value[5]) { txt = "<h5>The item was moved from product '" + value[5] + "' to this product.</h5>"} else txt = ''
+			if (value[5]) { txt = "<h5>The item was moved from product '" + value[5] + "' to this product.</h5>" } else txt = ''
 			if (value[0] === value[1]) {
 				txt += "<h5>The item changed priority to position " + (value[2] + 1) + " " + value[6] + " '" + value[3] + "'</h5>"
 				txt += (value[4] > 0) ? "<p>" + value[4] + " descendants were also moved.</p>" : ""
@@ -651,35 +640,19 @@ export default {
 
 		getPbiOptions() {
 			this.selectedPbiType = this.$store.state.currentDoc.subtype
-			let options = [{
-				text: 'User story',
-				value: 0,
-			},
-			{
-				text: 'Spike',
-				value: 1,
-			},
-			{
-				text: 'Defect',
-				value: 2,
-			}
+			let options = [
+				{ text: 'User story', value: 0 },
+				{ text: 'Spike', value: 1 },
+				{ text: 'Defect', value: 2 }
 			]
 			return options
 		},
 
 		getViewOptions() {
-			let options = [{
-				text: 'Comments',
-				value: 'comments',
-			},
-			{
-				text: 'Attachments',
-				value: 'attachments',
-			},
-			{
-				text: 'History',
-				value: 'history',
-			}
+			let options = [
+				{ text: 'Comments', value: 'comments' },
+				{ text: 'Attachments', value: 'attachments' },
+				{ text: 'History', value: 'history' }
 			]
 			return options
 		},
