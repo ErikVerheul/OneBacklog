@@ -531,14 +531,12 @@ export default {
 				let successorPrio
 				if (predecessorNode !== null) {
 					predecessorPrio = predecessorNode.data.priority
-				} else {
-					predecessorPrio = Number.MAX_SAFE_INTEGER
-				}
+				} else predecessorPrio = Number.MAX_SAFE_INTEGER
+
 				if (successorNode !== null) {
 					successorPrio = successorNode.data.priority
-				} else {
-					successorPrio = Number.MIN_SAFE_INTEGER
-				}
+				} else successorPrio = Number.MIN_SAFE_INTEGER
+
 				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
@@ -548,31 +546,29 @@ export default {
 			}
 			const destNodeModel = cursorPosition.nodeModel
 			const productId = destNodeModel.productId
-			let destSiblings
-
+			let predecessorNode
+			let successorNode
+			// sort the nodes on priority (highest first)
+			nodes.sort((h, l) => l.data.priority - h.data.priority)
 			if (cursorPosition.placement === 'inside') {
-				destSiblings = destNodeModel.children || []
+				// insert inside a parent -> the nodes become top level children
+				const destSiblings = destNodeModel.children || []
 				const parentId = destNodeModel._id
-				for (let i = nodes.length - 1; i >= 0; i--) {
-					nodes[i].doShow = true
-					destSiblings.unshift(nodes[i])
-				}
+				predecessorNode = null
+				destSiblings.unshift(...nodes)
+				successorNode = destSiblings[nodes.length] || null
 				this.updatePaths(destNodeModel.path, destSiblings, 0, productId, parentId)
 			} else {
 				// insert before or after the cursor position
-				destSiblings = this.getNodeSiblings(destNodeModel.path)
+				const destSiblings = this.getNodeSiblings(destNodeModel.path)
 				const parentId = destNodeModel.parentId
 				const parentPath = destNodeModel.path.slice(0, -1)
 				const insertInd = cursorPosition.placement === 'before' ? destNodeModel.ind : destNodeModel.ind + 1
-				for (let nm of nodes) {
-					destSiblings.splice(insertInd, 0, nm)
-				}
+				predecessorNode = destSiblings[insertInd - 1] || null
+				destSiblings.splice(insertInd, 0, ...nodes)
+				successorNode = destSiblings[insertInd + nodes.length] || null
 				this.updatePaths(parentPath, destSiblings, insertInd, productId, parentId)
 			}
-			const firstNode = nodes[0]
-			const predecessorNode = destSiblings[firstNode.ind - 1] || null
-			const lastNode = nodes[nodes.length - 1]
-			const successorNode = destSiblings[lastNode.ind + 1] || null
 			assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 
