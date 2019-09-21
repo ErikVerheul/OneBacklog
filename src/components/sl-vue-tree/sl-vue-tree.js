@@ -572,14 +572,14 @@ export default {
 			assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 
+		/* Insert the node and save it so that it is deselected on the next select */
 		insertSingle(cursorPosition, node) {
-			// save this node so that it is deselected on the next select
 			nodeToDeselect = node
 			this.insert(cursorPosition, [node])
 		},
 
+		/* Remove the node and save it so that it is deselected on the next select */
 		removeSingle(node, currentSelectedNode) {
-			// save this node so that it is deselected on the next select
 			if (currentSelectedNode) nodeToDeselect = currentSelectedNode
 			const siblings = this.getNodeSiblings(node.path)
 			const removeInd = node.ind
