@@ -578,21 +578,21 @@ export default {
 			this.insert(cursorPosition, [node])
 		},
 
-		/* Remove the node and save it so that it is deselected on the next select */
-		removeSingle(node, currentSelectedNode) {
-			if (currentSelectedNode) nodeToDeselect = currentSelectedNode
-			const siblings = this.getNodeSiblings(node.path)
-			const removeInd = node.ind
-			const parentPath = node.path.slice(0, -1)
-			siblings.splice(removeInd, 1)
-			this.updatePaths(parentPath, siblings, removeInd)
-		},
-
-		/* Remove nodeModels from the tree model */
+		/* Remove nodes from the tree model */
 		remove(nodes) {
 			for (let node of nodes) {
-				this.removeSingle(node)
+				const siblings = this.getNodeSiblings(node.path)
+				const removeInd = node.ind
+				const parentPath = node.path.slice(0, -1)
+				siblings.splice(removeInd, 1)
+				this.updatePaths(parentPath, siblings, removeInd)
 			}
+		},
+
+		/* Remove the node and save the current selected node so that it is deselected on the next select */
+		removeSingle(node, currentSelectedNode) {
+			nodeToDeselect = currentSelectedNode
+			this.remove([node])
 		},
 
 		/* Move the nodes to the position designated by cursorPosition */

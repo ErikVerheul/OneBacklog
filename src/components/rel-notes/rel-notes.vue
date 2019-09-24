@@ -8,7 +8,7 @@
 				<h3>v.0.6.2.1 - 21 September 2019 Bug fix</h3>
 				<p>Bug fixes:</p>
 				<ul>
-					<li>Wrong order when moving mulitiple nodes</li>
+					<li>Wrong order when moving multiple nodes</li>
 				</ul>
 				<hr>
 				<h3>v.0.6.2 - 17 September 2019 Minor update</h3>
@@ -189,7 +189,7 @@
 					<li>Avoid deep copy</li>
 				</ul>
 				<hr>
-				<h3>v.0.4.5 - 11 May 2019 - The first public release on onebacklog.net</h3>
+				<h3>v.0.4.5 - 11 May 2019 - First public release on onebacklog.net</h3>
 			</b-col>
 		</b-row>
 	</b-container>
@@ -203,18 +203,7 @@
 		border: 1px solid black;
 	}
 
-	.indent10 {
-		margin-left: 10px;
-		color: black;
-	}
-
-	.indent20 {
-		margin-left: 20px;
-		color: black;
-	}
-
-	p,
-	li {
+	p, li {
 		color: black;
 	}
 
