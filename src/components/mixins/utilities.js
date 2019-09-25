@@ -5,30 +5,30 @@ const ERROR = 2
 const CRITICAL = 3
 const PBILEVEL = 5
 export const utilities = {
-    methods: {
-        showLastEvent(txt, severity) {
-            let eventBgColor = '#408FAE'
-            switch (severity) {
-                case DEBUG:
-                    eventBgColor = 'yellow'
-                    break
-                case INFO:
-                    eventBgColor = '#408FAE'
-                    break
-                case WARNING:
-                    eventBgColor = 'orange'
-                    break
-                case ERROR:
-                    eventBgColor = 'red'
-                    break
-                case CRITICAL:
-                    eventBgColor = '#ff5c33'
-            }
-            this.$store.state.lastEvent = txt
-            this.$store.state.eventBgColor = eventBgColor
-        },
+	methods: {
+		showLastEvent(txt, severity) {
+			let eventBgColor = '#408FAE'
+			switch (severity) {
+				case DEBUG:
+					eventBgColor = 'yellow'
+					break
+				case INFO:
+					eventBgColor = '#408FAE'
+					break
+				case WARNING:
+					eventBgColor = 'orange'
+					break
+				case ERROR:
+					eventBgColor = 'red'
+					break
+				case CRITICAL:
+					eventBgColor = '#ff5c33'
+			}
+			this.$store.state.lastEvent = txt
+			this.$store.state.eventBgColor = eventBgColor
+		},
 
-        /* mappings from config */
+		/* mappings from config */
 		getLevelText(level) {
 			if (level < 0 || level > PBILEVEL) {
 				return 'Level not supported'
@@ -58,18 +58,16 @@ export const utilities = {
 		},
 		itemTitleTrunc(length, title) {
 			if (title.length <= length) return title;
-			return title.substring(0, length - 4) + '...';
+			return title.substring(0, length - 4) + '...'
 		},
 		haveSameParent(nodes) {
 			let parentId = nodes[0].parentId
-			if (nodes.length > 0) {
-				for (let i = 1; i < nodes.length; i++) {
-					if (nodes[i].parentId !== parentId) {
-						return false
-					}
+			for (let i = 1; i < nodes.length; i++) {
+				if (nodes[i].parentId !== parentId) {
+					return false
 				}
 			}
 			return true
 		}
-    }
+	}
 }

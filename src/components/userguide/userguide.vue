@@ -1,4 +1,6 @@
 <template lang="html">
+	<div>
+	<app-header />
 	<b-container>
 		<b-row>
 			<b-col cols="12" class="left-column">
@@ -127,7 +129,17 @@
 			</b-col>
 		</b-row>
 	</b-container>
+	</div>
 </template>
+
+<script>
+import Header from '../header/header.vue'
+export default {
+  components: {
+    'app-header': Header
+  }
+}
+</script>
 
 <style lang="css" scoped>
 .left-column {

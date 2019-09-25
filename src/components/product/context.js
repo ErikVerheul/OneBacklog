@@ -1,5 +1,5 @@
-import { mapGetters } from 'vuex'
-import { utilities } from '../mixins/utilities.js'
+import mapGetters from 'vuex'
+import utilities from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
