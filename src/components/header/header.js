@@ -1,5 +1,5 @@
 import licence from "./licence.vue"
-import utilities from '../mixins/utilities.js'
+import { utilities } from '../mixins/utilities.js'
 
 export default {
     mixins: [utilities],

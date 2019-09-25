@@ -1,9 +1,9 @@
 import Header from '../header/header.vue'
-import mapGetters from 'vuex'
+import { mapGetters } from 'vuex'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
-import VueEditor from 'vue2-editor'
+import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
-import utilities from '../mixins/utilities.js'
+import { utilities } from '../mixins/utilities.js'
 import context from './context.vue'
 
 const INFO = 0

@@ -365,6 +365,15 @@ const actions = {
 			dispatch('getConfig')
 		})
 			.catch(error => {
+				if (error.message.includes("404")) {
+					// the document does not exist
+					if (rootState.myDefaultRoles.includes("_admin")) {
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
+						router.push('/init')
+						return
+					}
+				}
 				let msg = 'getOtherUserData: Could not read user date for user ' + rootState.user + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)

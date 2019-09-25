@@ -284,7 +284,7 @@ export default new Vuex.Store({
 					afterSeconds: 540
 				})
 			})
-				// Cannot log failure here as the database name is unknown yet
+				// cannot log failure here as the database name is unknown yet
 				// eslint-disable-next-line no-console
 				.catch(error => console.log('Sign in failed with ' + error))
 		},
