@@ -15,23 +15,92 @@ const state = {
 const actions = {
 
 	createDatabase({
-		state
-	}, dbName) {
+		state,
+		dispatch
+	}, payload) {
 		state.createDatabaseResult = ''
 		state.createDatabaseError = ''
 		// eslint-disable-next-line no-console
 		console.log('create database')
 		globalAxios({
 			method: 'PUT',
-			url: dbName,
+			url: payload.dbName,
 			withCredentials: true,
 		}).then(res => {
+			// eslint-disable-next-line no-console
+			console.log(res)
 			state.createDatabaseError = res.data
 			state.dbCreated = true
-			state.createDatabaseResult = 'New database ' + dbName + ' is created. Note that subsequent actions will be performed on this database'
+			state.createDatabaseResult = 'New database ' + payload.dbName + ' is created. Note that subsequent actions will be performed on this database'
+			dispatch('setUsersDatabasePermissions', payload.user)
+			dispatch('setDatabasePermissions', payload.dbName)
 		}).catch(error => {
+			// eslint-disable-next-line no-console
+			console.log(error)
 			state.createDatabaseError = error.response.data
 		})
+	},
+
+	setUsersDatabasePermissions({
+		state
+	}, user) {
+		const dbPermissions = {
+			"admins": {
+				"names": [user],
+				"roles": ["admin"]
+			},
+			"members": {
+				"names": [],
+				"roles": ["areaPO", "superPO", "PO", "developer", "guest"]
+			}
+		}
+		// eslint-disable-next-line no-console
+		console.log('Start executing setUsersDatabasePermissions')
+		globalAxios({
+			method: 'PUT',
+			url: '/_users/_security',
+			withCredentials: true,
+			data: dbPermissions
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res)
+		})
+			.catch(error => {
+				// eslint-disable-next-line no-console
+				console.log(error)
+			})
+	},
+
+	setDatabasePermissions({
+		state
+	}, dbName) {
+		const dbPermissions = {
+			"admins": {
+				"names": [],
+				"roles": ["admin"]
+			},
+			"members": {
+				"names": [],
+				"roles": ["areaPO", "superPO", "PO", "developer", "guest"]
+			}
+		}
+		// eslint-disable-next-line no-console
+		console.log('Start executing setDatabasePermissions')
+		globalAxios({
+			method: 'PUT',
+			url: dbName + '/_security',
+			withCredentials: true,
+			data: dbPermissions
+		}).then(res => {
+			state.message = res.data
+			// eslint-disable-next-line no-console
+			console.log(res)
+		})
+			.catch(error => {
+				// eslint-disable-next-line no-console
+				console.log(error)
+			})
 	},
 
 	createLog({

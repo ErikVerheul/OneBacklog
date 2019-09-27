@@ -101,7 +101,9 @@ export default {
 
   methods: {
     createDatabase() {
-      this.$store.dispatch('createDatabase', this.dbName)
+      this.$store.dispatch('createDatabase', {
+        dbName: this.dbName,
+        user: this.$store.state.user})
     },
 
     createProductAndProfile() {
