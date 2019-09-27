@@ -96,7 +96,7 @@ export default {
 
 	computed: {
 		...mapGetters([
-			//from store.js
+			// from store.js
 			'isFollower',
 			'canCreateComments',
 			'getCurrentItemLevel',
@@ -117,7 +117,8 @@ export default {
 
 		squareText() {
 			if (this.$store.state.online) {
-				this.showLastEvent("You are online again", INFO)
+				if (!this.$store.state.skipOnce) this.showLastEvent("You are online again", INFO)
+				this.$store.state.skipOnce = false
 				return 'sync'
 			} else {
 				this.showLastEvent("You are offline. Restore the connection or wait to continue", WARNING)
