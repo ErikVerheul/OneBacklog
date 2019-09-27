@@ -60,7 +60,6 @@ const getters = {
 	*	},
 	*	"admin": {
 	*		description: "Can create users and assign them to products. This is a permission on the _users database
-	*					  Can also create and delete products",
 	*		products: "n/a",
 	*		writeAccessLevel: null,
 	*	},
