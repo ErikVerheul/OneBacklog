@@ -116,7 +116,7 @@ export default {
         roles: this.selected,
         user: this.$store.state.user
       }
-      this.$store.dispatch('createLog', payload)
+      this.$store.dispatch('initDatabase', payload)
     },
 
     cancel() {

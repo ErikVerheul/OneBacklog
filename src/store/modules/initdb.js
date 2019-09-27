@@ -103,7 +103,7 @@ const actions = {
 			})
 	},
 
-	createLog({
+	initDatabase({
 		dispatch
 	}, payload) {
 		const logDoc = {
