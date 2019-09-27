@@ -82,6 +82,7 @@ export default new Vuex.Store({
 
 	state: {
 		showHeaderDropDowns: true,
+		skipOnce: true,
 		nodeSelected: null,
 		numberOfNodesSelected: 0,
 		lastEvent: '',
@@ -180,6 +181,8 @@ export default new Vuex.Store({
 			state.load.myProductOptions = [],
 			state.load.myProductSubscriptions = [],
 
+			state.showHeaderDropDowns = true,
+			state.skipOnce = true,
 			state.lastEvent = ''
 			state.config = null
 			state.currentDb = null
@@ -279,13 +282,13 @@ export default new Vuex.Store({
 					roles: res.data.roles,
 					sessionId: create_UUID()
 				})
-				dispatch('getOtherUserData')
 				// refresh the session cookie after 9 minutes (CouchDB defaults at 10 min.)
 				dispatch('refreshCookie', {
 					authData,
 					loggedOut: state.loggedOut,
 					afterSeconds: 540
 				})
+				dispatch('getOtherUserData')
 			})
 				// cannot log failure here as the database name is unknown yet
 				// eslint-disable-next-line no-console
