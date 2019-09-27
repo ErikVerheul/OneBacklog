@@ -10,8 +10,6 @@ const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 var parentNodes = {}
-var productPageLounched = false
-var defaultProductIsSelected = false
 
 const state = {
 	docsCount: 0,
@@ -100,12 +98,11 @@ const mutations = {
 				const parentId = batch[i].doc.parentId
 				const delmark = batch[i].doc.delmark
 				// expand the tree of the default product up to feature level
-				const isExpanded = (batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL) ? true : false
+				const isExpanded = batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL
 				// select the default product
-				const isSelected = (batch[i].doc._id === state.currentDefaultProductId) ? true : false
-				const isDraggable = (level > PRODUCTLEVEL) && this.getters.canWriteLevels[level]
+				const isSelected = batch[i].doc._id === state.currentDefaultProductId
+				const isDraggable = (level > PRODUCTLEVEL) && getters.canWriteLevels[level]
 				const doShow = batch[i].doc.level <= PRODUCTLEVEL || batch[i].doc.productId === state.currentDefaultProductId
-				if (isSelected) defaultProductIsSelected = true
 				if (parentNodes[parentId] !== undefined) {
 					const parentNode = parentNodes[parentId]
 					const ind = parentNode.children.length
@@ -366,10 +363,11 @@ const actions = {
 		})
 			.catch(error => {
 				if (error.message.includes("404")) {
-					// the document does not exist
+					// the document does not exist; start one time initialization of a new database
 					if (rootState.myDefaultRoles.includes("_admin")) {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
+						rootState.showHeaderDropDowns = false
 						router.push('/init')
 						return
 					}
@@ -416,15 +414,9 @@ const actions = {
 			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Another product of ' + batch.length + ' documents is loaded')
-			if (!productPageLounched && defaultProductIsSelected) {
-				router.push('/product')
-				// reset before new login
-				productPageLounched = false
-				defaultProductIsSelected = false
-			}
 		})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('getNextProduct: Could not read a batch of documents ' + rootState.currentDb + '. Error = ' + error))
+		// eslint-disable-next-line no-console
+		.catch(error => console.log('getNextProduct: Could not read a product from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 	// Load the current product first
@@ -457,17 +449,12 @@ const actions = {
 				}
 				// reset load parameters
 				parentNodes = {}
-				commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
-				if (!productPageLounched && defaultProductIsSelected) {
-					router.push('/product')
-					// reset before new login
-					productPageLounched = false
-					defaultProductIsSelected = false
-				}
 			}
+			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
+			router.push('/product')
 		})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('getFirstProduct: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
+		// eslint-disable-next-line no-console
+		.catch(error => console.log('getFirstProduct: Could not read a product from database ' + rootState.currentDb + '. Error = ' + error))
 	},
 
 	loadItemByShortId({
