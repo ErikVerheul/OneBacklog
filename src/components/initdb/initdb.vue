@@ -76,6 +76,7 @@
 </template>
 
 <script>
+//ToDo: test this on realy new instance of CouchDB
 import router from '../../router'
 import Header from '../header/header.vue'
 
@@ -119,6 +120,7 @@ export default {
     },
 
     cancel() {
+      this.$store.commit('resetData', null, {root: true})
       router.replace('/')
     }
 
