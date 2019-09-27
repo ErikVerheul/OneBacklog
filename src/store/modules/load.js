@@ -6,7 +6,9 @@ var batch = []
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
+const AREALEVEL = 0
 const PRODUCTLEVEL = 2
+const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 var parentNodes = {}
@@ -36,43 +38,94 @@ const getters = {
 	* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
 	* Note that the AreaPO level is 0 and root of the tree starts with level 1
 	* Note that rootState MUST be the third argument. The fourth argument is rootGetters.
+	*
+	* These are the roles known by this application despite settings in the _users database otherwise.
+	* Write access is dependant on role and level. Write access includes deletion.
+	* All roles have read access to their assigned database (only one) and assigned products in that database.
+	*
+	* type ...............in database level ....... in tree
+	* -----------------------------------------------------------------------
+	* RequirementArea ........ 0 ................... n/a
+	* Database ............... 1 ................... n/a
+	* Product ................ 2 ................... 2
+	* Epic .. ................ 3 ................... 3
+	* Feature ................ 4 ................... 4
+	* PBI ... ................ 5 ................... 5
+	*
+	*"knownRoles":
+	*	"_admin": {
+	*		description: "Is the database administrator. Can setup and delete databases. See the CouchDB documentation.",
+	*		products: "n/a",
+	*		writeAccessLevel: null,
+	*	},
+	*	"admin": {
+	*		description: "Can create users and assign them to products. This is a permission on the _users database
+	*					  Can also create and delete products",
+	*		products: "n/a",
+	*		writeAccessLevel: null,
+	*	},
+	*	"areaPO": {
+	*		description: "Can access the requirements area with write access to the level 0 requirements area items and can prioritise features (level 4)",
+	*		products: "all",
+	*		writeAccessLevel: 0,4
+	*	},
+	*	"superPO": {
+	*		description: "Can create and maintain products and epics for all products. Can change priorities at these levels.",
+	*		products: "all",
+	*		writeAccessLevel: 2,3
+	*	},
+	*	"PO": {
+	*		description: "Can create and maintain epics, features and pbi's for the assigned products. Can change priorities at these levels.",
+	*		products: "assigned",
+	*		writeAccessLevel: 3,4,5
+	*	},
+	*	"developer": {
+	*		description: "Can create and maintain pbi's and features for the assigned products.",
+	*		products: "assigned",
+	*		writeAccessLevel: 4,5
+	*	},
+	*	"guest": {
+	*		description: "Can only view the items of the assigned products. Has no access to the requirements area view.",
+	*		products: "assigned",
+	*		writeAccessLevel: null,
+	*	}
+	*
+	*	Note that this getter returns permissions for the current product or all products (superPO and areaPO)
 	*/
-	canWriteLevels(state, getters, rootState, rootGetters) {
+	haveWritePermission(state, getters, rootState, rootGetters) {
 		let levels = []
+		// initialize with false
+		for (let i = AREALEVEL; i <= PBILEVEL; i++) {
+			levels.push(false)
+		}
 		if (state.currentProductId) {
 			if (state.userAssignedProductIds.includes(state.currentProductId)) {
 				let myRoles = state.myProductsRoles[state.currentProductId]
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('canWriteLevels: For ProductId ' + state.currentProductId + ' myRoles are ' + myRoles)
-				for (let i = 0; i <= PBILEVEL; i++) {
-					levels.push(false)
-				}
-				if (myRoles.includes('areaPO')) {
-					levels[0] = true
-					levels[4] = true
-				}
-				if (myRoles.includes('superPO')) {
-					for (let i = 2; i <= 3; i++) {
-						levels[i] = true
-					}
-				}
+				if (rootState.debug) console.log('haveWritePermission: For productId ' + state.currentProductId + ' my roles are ' + myRoles)
+
 				if (myRoles.includes('PO')) {
-					for (let i = 3; i <= PBILEVEL; i++) {
+					for (let i = EPICLEVEL; i <= PBILEVEL; i++) {
 						levels[i] = true
 					}
 				}
 				if (myRoles.includes('developer')) {
-					for (let i = 4; i <= PBILEVEL; i++) {
+					for (let i = FEATURELEVEL; i <= PBILEVEL; i++) {
 						levels[i] = true
 					}
 				}
 			}
 		}
-		// A special case, the user is 'admin'. A products admin can create and delete products
-		if (rootGetters.isProductsAdmin) {
-			levels[1] = true
+		// the user is 'superPO'. A superPO has write permissions in all products
+		if (rootGetters.isSuperPO) {
+			levels[PRODUCTLEVEL] = true
+			levels[EPICLEVEL] = true
 		}
-
+		// the user is 'areaPO'. An areaPO has write permissions in all products
+		if (rootGetters.isAreaPO) {
+			levels[AREALEVEL] = true
+			levels[FEATURELEVEL] = true
+		}
 		return levels
 	}
 }
@@ -101,7 +154,7 @@ const mutations = {
 				const isExpanded = batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL
 				// select the default product
 				const isSelected = batch[i].doc._id === state.currentDefaultProductId
-				const isDraggable = (level > PRODUCTLEVEL) && getters.canWriteLevels[level]
+				const isDraggable = level > PRODUCTLEVEL
 				const doShow = batch[i].doc.level <= PRODUCTLEVEL || batch[i].doc.productId === state.currentDefaultProductId
 				if (parentNodes[parentId] !== undefined) {
 					const parentNode = parentNodes[parentId]
@@ -120,7 +173,7 @@ const mutations = {
 							_id: batch[i].doc._id,
 							shortId: batch[i].doc.shortId,
 							title: batch[i].doc.title,
-							isLeaf: (level === PBILEVEL) ? true : false,
+							isLeaf: level === PBILEVEL,
 							children: [],
 							isExpanded,
 							savedIsExpanded: isExpanded,

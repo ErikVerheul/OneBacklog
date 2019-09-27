@@ -17,7 +17,6 @@ var remoteRemoved = []
 const actions = {
 	listenForChanges({
 		rootState,
-		rootGetters,
 		commit,
 		dispatch
 	}, since) {
@@ -214,7 +213,7 @@ const actions = {
 									"isExpanded": true,
 									"savedIsExpanded": true,
 									"isSelectable": true,
-									"isDraggable": doc.level > PRODUCTLEVEL && rootGetters.canWriteLevels[doc.level],
+									"isDraggable": doc.level > PRODUCTLEVEL,
 									"doShow": true,
 									"savedDoShow": true,
 									"data": {

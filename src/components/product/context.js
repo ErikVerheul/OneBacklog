@@ -39,7 +39,7 @@ export default {
     computed: {
         ...mapGetters([
             // from load.js
-            'canWriteLevels'
+            'haveWritePermission'
         ]),
     },
 
@@ -49,7 +49,7 @@ export default {
             this.currentAssistanceNr = undefined
             this.insertOptionSelected = 1
             // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-            if (this.canWriteLevels[node.level] && node._id === this.$store.state.nodeSelected._id && node.level > 1 && this.$store.state.numberOfNodesSelected === 1) {
+            if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id && node.level > 1 && this.$store.state.numberOfNodesSelected === 1) {
                 this.contextNodeSelected = node
                 this.contextNodeTitle = node.title
                 this.contextNodeLevel = node.level
@@ -189,7 +189,7 @@ export default {
             newNode.ind = idx
             newNode.level = path.length
 
-            if (this.canWriteLevels[insertLevel]) {
+            if (this.haveWritePermission[insertLevel]) {
                 // create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
                 const extension = Math.random().toString(36).replace('0.', '').substr(0, 5)
                 const newId = Date.now().toString().concat(extension)

@@ -102,7 +102,7 @@ export default {
 			'getCurrentItemLevel',
 			'getCurrentItemTsSize',
 			// from load.js
-			'canWriteLevels'
+			'haveWritePermission'
 		]),
 
 		shortIdCheck() {
@@ -223,7 +223,7 @@ export default {
 		'selectedPbiType': function (val) {
 			// prevent looping
 			if (val !== this.$store.state.currentDoc.subtype) {
-				if (this.canWriteLevels[this.getCurrentItemLevel]) {
+				if (this.haveWritePermission[this.getCurrentItemLevel]) {
 					this.$store.state.nodeSelected.data.subtype = val
 					this.$store.state.nodeSelected.data.lastChange = Date.now()
 					this.$store.dispatch('setSubType', {
@@ -569,7 +569,7 @@ export default {
 		updateDescription() {
 			// skip update when not changed
 			if (this.$store.state.currentDoc.description !== this.newDescription) {
-				if (this.canWriteLevels[this.getCurrentItemLevel]) {
+				if (this.haveWritePermission[this.getCurrentItemLevel]) {
 					// update the current doc in memory
 					this.$store.state.currentDoc.description = this.newDescription
 					this.$store.state.nodeSelected.data.lastChange = Date.now()
@@ -586,7 +586,7 @@ export default {
 		updateAcceptance() {
 			// skip update when not changed
 			if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
-				if (this.canWriteLevels[this.getCurrentItemLevel]) {
+				if (this.haveWritePermission[this.getCurrentItemLevel]) {
 					// update the current doc in memory
 					this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
 					this.$store.state.nodeSelected.data.lastChange = Date.now()
@@ -601,7 +601,7 @@ export default {
 		},
 
 		updateTsSize() {
-			if (this.canWriteLevels[this.getCurrentItemLevel]) {
+			if (this.haveWritePermission[this.getCurrentItemLevel]) {
 				let size = document.getElementById("tShirtSizeId").value.toUpperCase()
 				const sizeArray = this.$store.state.config.tsSize
 				if (sizeArray.includes(size)) {
@@ -622,7 +622,7 @@ export default {
 		},
 
 		updateStoryPoints() {
-			if (this.canWriteLevels[this.getCurrentItemLevel]) {
+			if (this.haveWritePermission[this.getCurrentItemLevel]) {
 				let el = document.getElementById("storyPointsId")
 				if (isNaN(el.value) || el.value < 0) {
 					el.value = '?'
@@ -638,7 +638,7 @@ export default {
 		},
 
 		updatePersonHours() {
-			if (this.canWriteLevels[this.getCurrentItemLevel]) {
+			if (this.haveWritePermission[this.getCurrentItemLevel]) {
 				let el = document.getElementById("personHoursId")
 				if (isNaN(el.value) || el.value < 0) {
 					el.value = '?'
@@ -654,7 +654,7 @@ export default {
 		},
 
 		onStateChange(idx) {
-			if (this.canWriteLevels[this.getCurrentItemLevel]) {
+			if (this.haveWritePermission[this.getCurrentItemLevel]) {
 				// update the tree
 				this.$store.state.nodeSelected.data.state = idx
 				this.$store.state.nodeSelected.data.lastChange = Date.now()
@@ -672,7 +672,7 @@ export default {
 			const newTitle = document.getElementById("titleField").value
 			if (oldTitle === newTitle) return
 
-			if (this.canWriteLevels[this.getCurrentItemLevel]) {
+			if (this.haveWritePermission[this.getCurrentItemLevel]) {
 				// update the tree
 				let node = this.$store.state.nodeSelected
 				node.title = newTitle
@@ -720,7 +720,7 @@ export default {
 			if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
 				this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
 			}
-			const warnMsg = !this.canWriteLevels[selNodes[0].level] ? " You only have READ permission" : ""
+			const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
 			const title = this.itemTitleTrunc(60, selNodes[0].title)
 			let evt = ""
 			if (selNodes.length === 1) {
@@ -745,7 +745,7 @@ export default {
 			 */
 			let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
-				let failedCheck1 = !this.canWriteLevels[position.nodeModel.level]
+				let failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
 				let failedCheck2 = levelChange > 1
 				let failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > PBILEVEL
 				if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
