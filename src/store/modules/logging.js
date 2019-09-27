@@ -151,6 +151,8 @@ const actions = {
 			log.entries.unshift(newLog)
 			log.entries = log.entries.slice(0, MAXLOGSIZE)
 			dispatch('saveLog', log)
+			// check if the cause is the loss of connection to the database
+			dispatch('checkConnection')
 		})
 			.catch(error => {
 				//eslint-disable-next-line no-console
