@@ -13,6 +13,7 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const SHORTKEYLENGTH = 5
 
 export default {
 	mixins: [utilities],
@@ -106,7 +107,7 @@ export default {
 
 		shortIdCheck() {
 			const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-            if (this.shortId.length !== 5) return false
+            if (this.shortId.length !== SHORTKEYLENGTH) return false
 
             for (let i = 0; i < this.shortId.length; i++) {
                 if (!alphanum.includes(this.shortId.substring(i, i + 1).toLowerCase())) return false

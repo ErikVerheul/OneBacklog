@@ -82,6 +82,7 @@ export default {
         },
 
         doChangePw() {
+            // Todo: move to mixin utilities
             /* A direct replacement for Java’s String.hashCode() method implemented in Javascript */
             function hashCode(s) {
                 var hash = 0, i, chr

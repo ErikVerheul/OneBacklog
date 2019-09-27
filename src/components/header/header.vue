@@ -10,7 +10,7 @@
         </b-navbar-nav>
         <!-- view additions go in this slot -->
         <slot></slot>
-        <b-navbar-nav class="ml-auto">
+        <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../product">Products</b-dropdown-item>
             <b-dropdown-item to="../../reqsarea">Requirement areas</b-dropdown-item>
