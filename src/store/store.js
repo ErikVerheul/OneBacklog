@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 //Here ../router/index is imported
 import router from '../router'
 import logging from './modules/logging'
+import initdb from './modules/initdb'
 import help from './modules/help'
 import load from './modules/load'
 import sync from './modules/sync'
@@ -80,6 +81,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 
 	state: {
+		showHeaderDropDowns: true,
 		nodeSelected: null,
 		numberOfNodesSelected: 0,
 		lastEvent: '',
@@ -191,6 +193,7 @@ export default new Vuex.Store({
 		},
 
 		storePwHash(state, pw) {
+			// Todo: move to mixin utilities
 			/* A direct replacement for Java’s String.hashCode() method implemented in Javascript */
 			function hashCode(s) {
 				var hash = 0, i, chr
@@ -289,15 +292,14 @@ export default new Vuex.Store({
 				.catch(error => console.log('Sign in failed with ' + error))
 		},
 
-		signout({
-			commit
-		}) {
+		signout({commit}) {
 			commit('resetData')
 			router.replace('/')
 		}
 	},
 
 	modules: {
+		initdb,
 		logging,
 		help,
 		load,
