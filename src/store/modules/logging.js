@@ -15,6 +15,20 @@ const state = {
 }
 
 const actions = {
+	checkConnection({
+		rootState
+	}) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.currentDb,
+			withCredentials: true,
+		}).then(() => {
+			rootState.online = true
+		}).catch(() => {
+			rootState.online = false
+		})
+	},
+
 	/*
 	 * Logging is not possible without network connection to the database.
 	 * When logging fails the entries are stored in the unsavedLogs array.
@@ -28,13 +42,15 @@ const actions = {
 		dispatch
 	}) {
 		state.runningWatchdogId = setInterval(function () {
-			rootState.online = navigator.onLine
 			let logsToSave = unsavedLogs.length
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('watchdog:' +
-				'\nOnline = ' + rootState.online +
-				'\nUnsavedLogs = ' + logsToSave +
-				'\nListenForChangesRunning = ' + rootState.listenForChangesRunning)
+			dispatch('checkConnection')
+			if (rootState.debug) {
+				// eslint-disable-next-line no-console
+				console.log('watchdog:' +
+					'\nOnline = ' + rootState.online +
+					'\nUnsavedLogs = ' + logsToSave +
+					'\nListenForChangesRunning = ' + rootState.listenForChangesRunning)
+			}
 			if (rootState.online) {
 				// catch up the logging
 				if (logsToSave > 0 || !rootState.listenForChangesRunning) {
@@ -78,13 +94,13 @@ const actions = {
 						}
 						log.entries = log.entries.slice(0, MAXLOGSIZE)
 						dispatch('saveLog', log)
+					}).catch(error => {
+						// eslint-disable-next-line no-console
+						console.log('watchdog: Could not read the log from ' + (rootState.currentDb + ' ' + LOGFILENAME) + ', ' + error)
 					})
-						.catch(error => {
-							// eslint-disable-next-line no-console
-							console.log('watchdog: Could not read the log from ' + (rootState.currentDb + ' ' + LOGFILENAME) + ', ' + error)
-						})
 				}
 			}
+			dispatch('checkConnection')
 		}, WATCHDOGINTERVAL * 1000)
 	},
 
