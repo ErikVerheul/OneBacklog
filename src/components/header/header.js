@@ -14,7 +14,7 @@ export default {
             defaultProductOptions: []
         }
     },
-    mounted() {
+    created() {
         // add tag when DEMO version
         if (this.$store.state.demo) this.appVersion = this.appVersion + " DEMO"
     },
