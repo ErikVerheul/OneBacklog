@@ -1,4 +1,5 @@
 import { mapGetters } from 'vuex'
+import { eventBus } from "../../main"
 import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
@@ -29,9 +30,8 @@ export default {
         }
     },
 
-    mounted() {
-        // create an event bus on the root instance of Vue
-        this.$root.$on('context', (node) => {
+    created() {
+        eventBus.$on('context', (node) => {
             this.showContextMenu(node)
         })
     },

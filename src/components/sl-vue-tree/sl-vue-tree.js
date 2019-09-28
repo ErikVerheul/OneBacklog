@@ -11,6 +11,7 @@ var draggableNodes = []
 var selectedNodes = []
 var nodeToDeselect = null
 
+import { eventBus } from "../../main"
 import { utilities } from '../mixins/utilities.js'
 
 export default {
@@ -161,7 +162,7 @@ export default {
 
 		// trigger the context component via the eventbus
 		emitNodeContextmenu(node, event) {
-			this.$root.$emit('context', node, event)
+			eventBus.$emit('context', node, event)
 		},
 
 		/*
