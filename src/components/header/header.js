@@ -27,6 +27,11 @@ export default {
             return (
                 this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin
             )
+        },
+        admin() {
+            return (
+                this.$store.getters.isAuthenticated && this.$store.getters.isAdmin
+            )
         }
     },
 
