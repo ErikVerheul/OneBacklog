@@ -12,6 +12,7 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + rootState.user,
 			withCredentials: true
 		}).then(res => {
+			rootState.password = newPassword
 			let tmpUserData = res.data
 			tmpUserData["password"] = newPassword
 			dispatch("updateUser", tmpUserData)

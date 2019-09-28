@@ -201,6 +201,7 @@ const actions = {
 	},
 
 	createFirstUser({
+		rootState,
 		state
 	}, payload) {
 		const productsRoles = {
@@ -214,7 +215,7 @@ const actions = {
 			withCredentials: true,
 			data: {
 				"name": payload.user,
-				"password": payload.password,
+				"password": rootState.password,
 				"teams": ['no team assigned'],
 				"currentTeamsIdx": 0,
 				"roles": payload.roles,

@@ -26,16 +26,6 @@
         </b-col>
       </b-row>
 
-      <h4>Your profile needs a password. Use your server admin password to combine your permissions:</h4>
-      <b-row class="my-1">
-        <b-col sm="2">
-          <label> Your password: </label>
-        </b-col>
-        <b-col sm="10">
-          <b-form-input v-model="password" type="password" placeholder="your password"></b-form-input>
-        </b-col>
-      </b-row>
-
       <h4>The new database needs to register a product:</h4>
       <b-row class="my-1">
         <b-col sm="2">
@@ -46,7 +36,7 @@
         </b-col>
       </b-row>
 
-      <div v-if="email !== '' && productName !== '' && password !== ''">
+      <div v-if="email !== '' && productName !== ''">
         <h4>Your roles for this product. Choose admin to create more users later:</h4>
         <b-form-group>
           <b-form-checkbox-group
@@ -85,7 +75,6 @@ export default {
     return {
       dbName: '',
       email: '',
-      password: '',
       productName: '',
       selected: [],
       options: [
@@ -96,7 +85,6 @@ export default {
         { text: 'developer', value: 'developer' },
         { text: 'guest', value: 'guest' }
       ]
-
     }
   },
 
@@ -112,7 +100,6 @@ export default {
         dbName: this.dbName,
         productName: this.productName,
         email: this.email,
-        password: this.password,
         roles: this.selected,
         user: this.$store.state.user
       }
