@@ -43,7 +43,6 @@ const actions = {
 	}) {
 		state.runningWatchdogId = setInterval(function () {
 			let logsToSave = unsavedLogs.length
-			dispatch('checkConnection')
 			if (rootState.debug) {
 				// eslint-disable-next-line no-console
 				console.log('watchdog:' +
