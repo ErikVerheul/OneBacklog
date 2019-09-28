@@ -59,7 +59,7 @@ const getters = {
 	*		writeAccessLevel: null,
 	*	},
 	*	"admin": {
-	*		description: "Can create users and assign them to products. This is a permission on the _users database
+	*		description: "Can create and remove users and teams. Can assign products to teams. The user administration is a permission on the _users database
 	*		products: "n/a",
 	*		writeAccessLevel: null,
 	*	},
@@ -69,12 +69,12 @@ const getters = {
 	*		writeAccessLevel: 0,4
 	*	},
 	*	"superPO": {
-	*		description: "Can create and maintain products and epics for all products. Can change priorities at these levels.",
+	*		description: "Can create, maintain and remove products and epics for all products. Can change priorities at these levels.",
 	*		products: "all",
 	*		writeAccessLevel: 2,3
 	*	},
 	*	"PO": {
-	*		description: "Can create and maintain epics, features and pbi's for the assigned products. Can change priorities at these levels.",
+	*		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels.",
 	*		products: "assigned",
 	*		writeAccessLevel: 3,4,5
 	*	},

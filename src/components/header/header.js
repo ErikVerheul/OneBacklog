@@ -28,6 +28,11 @@ export default {
                 this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin
             )
         },
+        superPO() {
+            return (
+                this.$store.getters.isAuthenticated && this.$store.getters.isSuperPO
+            )
+        },
         admin() {
             return (
                 this.$store.getters.isAuthenticated && this.$store.getters.isAdmin

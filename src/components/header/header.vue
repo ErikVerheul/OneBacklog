@@ -14,6 +14,7 @@
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../product">Products</b-dropdown-item>
             <b-dropdown-item to="../../reqsarea">Requirement areas</b-dropdown-item>
+            <b-dropdown-item v-if="superPO" to="../../superpo">Super PO tasks</b-dropdown-item>
             <b-dropdown-item v-if="admin" to="../../admin">Admin tasks</b-dropdown-item>
             <b-dropdown-item v-if="serverAdmin" to="../../setup">Setup</b-dropdown-item>
           </b-nav-item-dropdown>

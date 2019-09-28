@@ -14,6 +14,7 @@ import SetupPage from '../components/setup/setup.vue'
 import SigninPage from '../components/auth/signin.vue'
 import ProductPage from '../components/product/product.vue'
 import AdminPage from '../components/admin/admin.vue'
+import SuperPOPage from '../components/superpo/superpo.vue'
 import ReqsAreaPage from '../components/reqsarea/reqsarea.vue'
 
 Vue.use(VueRouter)
@@ -72,6 +73,17 @@ const routes = [
 	{
 		path: '/reqsarea',
 		component: ReqsAreaPage,
+		beforeEnter(to, from, next) {
+			if (store.state.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		}
+	},
+	{
+		path: '/superpo',
+		component: SuperPOPage,
 		beforeEnter(to, from, next) {
 			if (store.state.user) {
 				next()
