@@ -1,6 +1,6 @@
 import globalAxios from 'axios'
 
-const LOGFILENAME = 'log'
+const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
 const WATCHDOGINTERVAL = 30
 var unsavedLogs = []
@@ -15,18 +15,47 @@ const state = {
 }
 
 const actions = {
+	/* Check if database access is possible. Restart the cookie authentication if timed out. */
 	checkConnection({
-		rootState
+		rootState,
+		dispatch
 	}) {
+		function restoreAuthentication() {
+			let msg = "CheckConnection restarted cookie authentication."
+			// refresh the authorzation cookie immediately
+			dispatch('refreshCookie')
+			// and start the refresh loop
+			dispatch('refreshCookieLoop', {
+				timeout: 540
+			})
+			let newLog = {
+				"event": msg,
+				"level": "INFO",
+				"by": rootState.user,
+				"email": rootState.load.email,
+				"timestamp": Date.now(),
+				"timestampStr": new Date().toString()
+			}
+			unsavedLogs.push(newLog)
+		}
+
 		globalAxios({
 			method: 'GET',
 			url: rootState.currentDb,
 			withCredentials: true,
 		}).then(() => {
 			rootState.online = true
+			if (!rootState.cookieAutenticated) restoreAuthentication()
 		}).catch(error => {
-			// only when the cookie authentication timed out and error status 401 is returned we are online again
-			rootState.online = error.message.includes('401')
+			rootState.online = false
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('checkConnection: error.message = ' + error.message)
+			// only when the cookie authentication timed out and error status 401 is returned we are online again despite the error condition
+			if (error.message.includes('401')) {
+				rootState.online = true
+				// if not authorized to access the database restart the cookie authentication
+				restoreAuthentication()
+			}
 		})
 	},
 
@@ -35,6 +64,7 @@ const actions = {
 	 * When logging fails the entries are stored in the unsavedLogs array.
 	 * This watchdog tests in intervals if the browser becomes online. If so then:
 	 * - saves the stored log entries if available
+	 * - restarts the cookie authentication service if timed out
 	 * - restarts the synchronization service if stopped
 	 */
 	watchdog({
@@ -42,21 +72,23 @@ const actions = {
 		state,
 		dispatch
 	}) {
-		state.runningWatchdogId = setInterval(function () {
+		state.runningWatchdogId = setInterval(() => {
 			let logsToSave = unsavedLogs.length
 			if (rootState.debug) {
 				// eslint-disable-next-line no-console
 				console.log('watchdog:' +
 					'\nOnline = ' + rootState.online +
 					'\nUnsavedLogs = ' + logsToSave +
-					'\nListenForChangesRunning = ' + rootState.listenForChangesRunning)
+					'\ncookieAutenticated = ' + rootState.cookieAutenticated +
+					'\nListenForChangesRunning = ' + rootState.listenForChangesRunning +
+					'\ntimestamp = ' + new Date().toString())
 			}
 			if (rootState.online) {
-				// catch up the logging
+				// catch up the logging and/or restart listening for changes
 				if (logsToSave > 0 || !rootState.listenForChangesRunning) {
 					globalAxios({
 						method: 'GET',
-						url: rootState.currentDb + '/' + LOGFILENAME,
+						url: rootState.currentDb + '/' + LOGDOCNAME,
 						withCredentials: true,
 					}).then(res => {
 						let log = res.data
@@ -76,7 +108,7 @@ const actions = {
 							log.entries.unshift(newLog)
 							unsavedLogs = []
 						}
-						// restart synchronization if needed
+						// we have a working connection to the database; restart synchronization if needed
 						if (!rootState.listenForChangesRunning) {
 							dispatch('listenForChanges', rootState.lastSyncSeq)
 							let msg = "Watchdog restarted listening for changes."
@@ -96,10 +128,11 @@ const actions = {
 						dispatch('saveLog', log)
 					}).catch(error => {
 						// eslint-disable-next-line no-console
-						console.log('watchdog: Could not read the log from ' + (rootState.currentDb + ' ' + LOGFILENAME) + ', ' + error)
+						console.log('watchdog: Could not read the log, ' + error)
 					})
 				}
 			}
+			// check the connection including the authentication status
 			dispatch('checkConnection')
 		}, WATCHDOGINTERVAL * 1000)
 	},
@@ -141,7 +174,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + LOGFILENAME,
+			url: rootState.currentDb + '/' + LOGDOCNAME,
 			withCredentials: true,
 		}).then(res => {
 			let log = res.data
@@ -159,17 +192,17 @@ const actions = {
 				if (rootState.debug) console.log('doLog: Pushed log entry to unsavedLogs:')
 				unsavedLogs.push(newLog)
 				// eslint-disable-next-line no-console
-				console.log('doLog: Could not read the log from ' + (rootState.currentDb + ' ' + LOGFILENAME) + ' A retry is pending , ' + error)
+				console.log('doLog: Could not read the log. A retry is pending , ' + error)
 			})
 	},
 
-	// Save the log
+	// save the log
 	saveLog({
 		rootState
 	}, log) {
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + LOGFILENAME,
+			url: rootState.currentDb + '/' + LOGDOCNAME,
 			withCredentials: true,
 			data: log
 		}).then(() => {
@@ -181,8 +214,7 @@ const actions = {
 				// eslint-disable-next-line no-console
 				console.log('saveLog: Could not save the log. The log entry is lost, ' + error)
 			})
-	},
-
+	}
 }
 
 export default {

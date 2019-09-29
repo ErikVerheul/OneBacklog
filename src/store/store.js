@@ -23,6 +23,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
 
 	state: {
+		authData: {},
 		showHeaderDropDowns: true,
 		skipOnce: true,
 		nodeSelected: null,
@@ -37,6 +38,7 @@ export default new Vuex.Store({
 		shortId: '',
 		searchOn: false,
 		keyword: '',
+		cookieAutenticated: false,
 		listenForChangesRunning: false,
 		lastSyncSeq: null,
 		sessionId: null,
@@ -48,8 +50,7 @@ export default new Vuex.Store({
 		myDefaultRoles: [],
 		runningCookieRefreshId: null,
 		user: null,
-		moveOngoing: false,
-		password: undefined
+		moveOngoing: false
 	},
 
 	getters: {
@@ -127,54 +128,61 @@ export default new Vuex.Store({
 			state.load.processedProducts = 0
 			state.load.myProductsRoles = {}
 			state.load.myProductOptions = [],
-			state.load.myProductSubscriptions = [],
+				state.load.myProductSubscriptions = [],
 
+				state.authData = {}
 			state.showHeaderDropDowns = true,
-			state.skipOnce = true,
-			state.lastEvent = ''
+				state.skipOnce = true,
+				state.lastEvent = ''
 			state.config = null
 			state.currentDb = null
 			state.currentDoc = null
 			state.myDefaultRoles = []
 			state.user = null
-			state.password = undefined
 
 			clearInterval(state.runningCookieRefreshId)
 			clearInterval(state.logging.runningWatchdogId)
 		}
 	},
 
+	//ToDo: still have to wait approx 5 minutes to see effect when restarting after a network error
 	actions: {
+		/* Refresh the autentication cookie */
 		refreshCookie({
-			rootState,
 			dispatch,
 			state
-		}, payload) {
-			// eslint-disable-next-line no-console
-			if (state.debug) console.log("refreshcookie: afterSeconds= " + payload.afterSeconds)
-			state.runningCookieRefreshId = setInterval(() => {
-				globalAxios({
-					method: 'POST',
-					url: '/_session',
-					withCredentials: true,
-					data: {
-						name: payload.authData.name,
-						password: payload.authData.password
-					}
-				}).then(() => {
-					// eslint-disable-next-line no-console
-					if (state.debug) console.log("refreshCookie: Authentication cookie refresh.")
+		}) {
+			globalAxios({
+				method: 'POST',
+				url: '/_session',
+				withCredentials: true,
+				data: state.authData
+			}).then(() => {
+				state.cookieAutenticated = true
+				// eslint-disable-next-line no-console
+				if (state.debug) console.log("refreshCookie: Authentication cookie refresh is running.")
+			}).catch(error => {
+				// stop the interval function and wait for the watchDog to start again
+				clearInterval(state.runningCookieRefreshId)
+				state.cookieAutenticated = false
+				let msg = 'refreshCookie: Refresh of the authentication cookie failed with ' + error
+				// eslint-disable-next-line no-console
+				if (state.debug) console.log(msg)
+				if (state.currentDb) dispatch('doLog', {
+					event: msg,
+					level: CRITICAL
 				})
-					.catch(error => {
-						let msg = 'Refresh of the authentication cookie failed with ' + error
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log(msg)
-						if (rootState.currentDb) dispatch('doLog', {
-							event: msg,
-							level: CRITICAL
-						})
-					})
-			}, payload.afterSeconds * 1000)
+			})
+		},
+
+		/* Refresh the authentication cookie in a contineous loop starting after the timeout value */
+		refreshCookieLoop({
+			state,
+			dispatch
+		}, payload) {
+			state.runningCookieRefreshId = setInterval(() => {
+				dispatch('refreshCookie')
+			}, payload.timeout * 1000)
 		},
 
 		/*
@@ -196,17 +204,14 @@ export default new Vuex.Store({
 				return uuid
 			}
 
-			// store the password
-			state.password = authData.password
+			// store the credentials
+			state.authData = authData
 
 			globalAxios({
 				method: 'POST',
 				url: '/_session',
 				withCredentials: true,
-				data: {
-					name: authData.name,
-					password: authData.password
-				}
+				data: authData
 			}).then(res => {
 				state.user = res.data.name
 				commit('authUser', {
@@ -214,11 +219,10 @@ export default new Vuex.Store({
 					roles: res.data.roles,
 					sessionId: create_UUID()
 				})
+				state.cookieAutenticated = true
 				// refresh the session cookie after 9 minutes (CouchDB defaults at 10 min.)
-				dispatch('refreshCookie', {
-					authData,
-					loggedOut: state.loggedOut,
-					afterSeconds: 540
+				dispatch('refreshCookieLoop', {
+					timeout: 540
 				})
 				dispatch('getOtherUserData')
 			})
@@ -227,7 +231,7 @@ export default new Vuex.Store({
 				.catch(error => console.log('Sign in failed with ' + error))
 		},
 
-		signout({commit}) {
+		signout({ commit }) {
 			commit('resetData')
 			router.replace('/')
 		}
