@@ -24,8 +24,9 @@ const actions = {
 			withCredentials: true,
 		}).then(() => {
 			rootState.online = true
-		}).catch(() => {
-			rootState.online = false
+		}).catch(error => {
+			// only when the cookie authentication timed out and error status 401 is returned we are online again
+			rootState.online = error.message.includes('401')
 		})
 	},
 
