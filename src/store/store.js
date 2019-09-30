@@ -70,11 +70,11 @@ export default new Vuex.Store({
 		},
 		canCreateComments(state) {
 			return state.userData.roles.includes("_admin") ||
-			state.userData.roles.includes("areaPO") ||
-			state.userData.roles.includes("admin") ||
-			state.userData.roles.includes("superPO") ||
-			state.userData.roles.includes("PO") ||
-			state.userData.roles.includes("developer")
+				state.userData.roles.includes("areaPO") ||
+				state.userData.roles.includes("admin") ||
+				state.userData.roles.includes("superPO") ||
+				state.userData.roles.includes("PO") ||
+				state.userData.roles.includes("developer")
 		},
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
@@ -117,10 +117,10 @@ export default new Vuex.Store({
 			state.load.processedProducts = 0
 			state.load.myProductOptions = [],
 
-			state.userData = {}
+				state.userData = {}
 			state.showHeaderDropDowns = true,
-			state.skipOnce = true,
-			state.lastEvent = ''
+				state.skipOnce = true,
+				state.lastEvent = ''
 			state.configData = null
 			state.currentDoc = null
 
@@ -139,7 +139,7 @@ export default new Vuex.Store({
 				method: 'POST',
 				url: '/_session',
 				withCredentials: true,
-				data: {name: state.userData.user, password: state.userData.password}
+				data: { name: state.userData.user, password: state.userData.password }
 			}).then(() => {
 				state.cookieAutenticated = true
 				// eslint-disable-next-line no-console
@@ -220,6 +220,12 @@ export default new Vuex.Store({
 		signout({ commit }) {
 			commit('resetData')
 			router.replace('/')
+		},
+
+		// prevent this.$refs.key return undefined after hot reload
+		beforeDestroy(state) {
+			clearInterval(state.runningCookieRefreshId)
+			clearInterval(state.logging.runningWatchdogId)
 		}
 	},
 
