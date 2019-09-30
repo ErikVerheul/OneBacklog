@@ -2,8 +2,8 @@
 	<div>
 		<div class="row">
 			<div class="col-lg-12 col-sm-12">
-				<h4 v-if="$store.state.user">As a server administrator you're authenticated to setup the database for OneBacklog.
-					Your user name is: {{ $store.state.user }}, and your roles are: {{ $store.state.myDefaultRoles }}. Your default database is {{ $store.state.currentDb }}</h4>
+				<h4 v-if="$store.state.userData.user">As a server administrator you're authenticated to setup the database for OneBacklog.
+					Your user name is: {{ $store.state.userData.user }}, and your roles are: {{ $store.state.userData.roles }}. Your default database is {{ $store.state.userData.currentDb }}</h4>
 				<h6>Note that users with their roles must be created in the protected _users database to sign in.<br />
 					Create and initialize the database for OneBacklog first. Then can assign known users and/or roles to it.</h6>
 			</div>
@@ -221,7 +221,7 @@
 			},
 			initDBExe() {
 				var payload = {
-					dbName: this.$store.state.currentDb,
+					dbName: this.$store.state.userData.currentDb,
 				}
 				this.$store.dispatch('initializeDB', payload)
 			},
@@ -238,7 +238,7 @@
 			},
 			assignUserExe() {
 				var payload = {
-					dbName: this.$store.state.currentDb,
+					dbName: this.$store.state.userData.currentDb,
 					memberNames: this.row.field1,
 					memberRoles: this.row.field2,
 					adminNames: this.row.field3,
@@ -251,7 +251,7 @@
 				this.$store.commit('clearAll')
 				this.selectionMade = true
 				this.row = {
-					field1: this.$store.state.currentDb,
+					field1: this.$store.state.userData.currentDb,
 					field2: "field not used",
 					field3: "field not used",
 					field4: "field not used",
@@ -268,7 +268,7 @@
 				this.$store.commit('clearAll')
 				this.selectionMade = true
 				this.row = {
-					field1: this.$store.state.currentDb,
+					field1: this.$store.state.userData.currentDb,
 					field2: "field not used",
 					field3: "field not used",
 					field4: "field not used",
@@ -277,7 +277,7 @@
 			},
 			showDocumentsExe() {
 				var payload = {
-					dbName: this.$store.state.currentDb,
+					dbName: this.$store.state.userData.currentDb,
 				}
 				this.$store.dispatch('showAllDocs', payload)
 			},
@@ -285,7 +285,7 @@
 				this.$store.commit('clearAll')
 				this.selectionMade = true
 				this.row = {
-					field1: this.$store.state.currentDb,
+					field1: this.$store.state.userData.currentDb,
 					field2: "paste the id here",
 					field3: "field not used",
 					field4: "field not used",
@@ -303,7 +303,7 @@
 				this.$store.commit('clearAll')
 				this.selectionMade = true
 				this.row = {
-					field1: this.$store.state.currentDb,
+					field1: this.$store.state.userData.currentDb,
 					field2: "field not used",
 					field3: "field not used",
 					field4: "field not used",
@@ -329,7 +329,7 @@
 			},
 			exampleDBExe() {
 				var payload = {
-					dbName: this.$store.state.currentDb,
+					dbName: this.$store.state.userData.currentDb,
 				}
 				this.$store.dispatch('createUsers')
 				this.$store.dispatch('setUsersDbPermissions')

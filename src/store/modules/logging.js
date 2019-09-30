@@ -31,8 +31,8 @@ const actions = {
 			let newLog = {
 				"event": msg,
 				"level": "INFO",
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString()
 			}
@@ -41,7 +41,7 @@ const actions = {
 
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb,
+			url: rootState.userData.currentDb,
 			withCredentials: true,
 		}).then(() => {
 			rootState.online = true
@@ -88,7 +88,7 @@ const actions = {
 				if (logsToSave > 0 || !rootState.listenForChangesRunning) {
 					globalAxios({
 						method: 'GET',
-						url: rootState.currentDb + '/' + LOGDOCNAME,
+						url: rootState.userData.currentDb + '/' + LOGDOCNAME,
 						withCredentials: true,
 					}).then(res => {
 						let log = res.data
@@ -100,8 +100,8 @@ const actions = {
 							let newLog = {
 								"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them',
 								"level": "INFO",
-								"by": rootState.user,
-								"email": rootState.load.email,
+								"by": rootState.userData.user,
+								"email": rootState.userData.email,
 								"timestamp": Date.now(),
 								"timestampStr": new Date().toString()
 							}
@@ -117,8 +117,8 @@ const actions = {
 							let newLog = {
 								"event": msg,
 								"level": "INFO",
-								"by": rootState.user,
-								"email": rootState.load.email,
+								"by": rootState.userData.user,
+								"email": rootState.userData.email,
 								"timestamp": Date.now(),
 								"timestampStr": new Date().toString()
 							}
@@ -167,14 +167,14 @@ const actions = {
 			"event": payload.event,
 			"level": payload.level,
 			"levelStr": severity,
-			"by": rootState.user,
-			"email": rootState.load.email,
+			"by": rootState.userData.user,
+			"email": rootState.userData.email,
 			"timestamp": now,
 			"timestampStr": new Date(now).toString()
 		}
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + LOGDOCNAME,
+			url: rootState.userData.currentDb + '/' + LOGDOCNAME,
 			withCredentials: true,
 		}).then(res => {
 			let log = res.data
@@ -202,7 +202,7 @@ const actions = {
 	}, log) {
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + LOGDOCNAME,
+			url: rootState.userData.currentDb + '/' + LOGDOCNAME,
 			withCredentials: true,
 			data: log
 		}).then(() => {

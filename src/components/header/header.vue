@@ -26,11 +26,11 @@
             </template>
             <b-dropdown-item v-if="!auth">No options here when not signed in</b-dropdown-item>
             <b-dropdown-item
-              v-if="auth && this.$store.state.load.myTeams.length > 1"
+              v-if="auth && this.$store.state.userData.myTeams.length > 1"
               @click="changeTeam"
             >Change team</b-dropdown-item>
             <b-dropdown-item
-              v-if="auth && this.$store.state.load.userAssignedProductIds.length > 1"
+              v-if="auth && this.$store.state.userData.userAssignedProductIds.length > 1"
               @click="selectProducts"
             >Select products</b-dropdown-item>
             <b-dropdown-item v-if="auth" @click="changePassword">Change password</b-dropdown-item>
@@ -83,13 +83,13 @@
 
     <b-modal size="lg" ref="changePwRef" @ok="doChangePw" title="Change your password">
       <b-container align-v="true">
-        <template v-if="auth && $store.state.demo && $store.state.user === 'demoUser'">
+        <template v-if="auth && $store.state.demo && $store.state.userData.user === 'demoUser'">
           <h2>Demo users cannot change the password</h2>
         </template>
         <template v-if="auth && this.$store.getters.isServerAdmin">
           <h2>Demo users cannot change the password</h2>
         </template>
-        <template v-if="auth && $store.state.demo && $store.state.user !== 'demoUser'">
+        <template v-if="auth && $store.state.demo && $store.state.userData.user !== 'demoUser'">
           <b-row class="my-1">
             <b-card bg-variant="light">
               <b-form-group

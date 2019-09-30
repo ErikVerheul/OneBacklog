@@ -91,12 +91,12 @@ const actions = {
 			"attachments": [],
 			"comments": [],
 			"history": [{
-				"createEvent": [2, rootState.currentDb],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"createEvent": [2, rootState.userData.currentDb],
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -104,7 +104,7 @@ const actions = {
 
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 			data: newDoc
 		}).then(() => {
@@ -123,10 +123,10 @@ const actions = {
 			dispatch('createNewEpics', newPayload)
 		})
 			.catch(error => {
-				let msg = 'createNewProduct: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				let msg = 'createNewProduct: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -163,11 +163,11 @@ const actions = {
 			"comments": [],
 			"history": [{
 				"createEvent": [3, payload.parentName],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -175,7 +175,7 @@ const actions = {
 
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 			data: newDoc
 		}).then(() => {
@@ -195,10 +195,10 @@ const actions = {
 			dispatch('createNewEpics', payload)
 		})
 			.catch(error => {
-				let msg = 'createNewEpics: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				let msg = 'createNewEpics: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -236,11 +236,11 @@ const actions = {
 			"comments": [],
 			"history": [{
 				"createEvent": [4, payload.parentName],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -248,7 +248,7 @@ const actions = {
 
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 			data: newDoc
 		}).then(() => {
@@ -267,10 +267,10 @@ const actions = {
 			dispatch('createNewFeatures', payload)
 		})
 			.catch(error => {
-				let msg = 'createNewFeatures: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				let msg = 'createNewFeatures: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -308,11 +308,11 @@ const actions = {
 			"comments": [],
 			"history": [{
 				"createEvent": [5, payload.parentName],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -320,7 +320,7 @@ const actions = {
 
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 			data: newDoc
 		}).then(() => {
@@ -331,10 +331,10 @@ const actions = {
 			dispatch('createNewStories', payload)
 		})
 			.catch(error => {
-				let msg = 'createNewStories: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				let msg = 'createNewStories: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -347,8 +347,8 @@ const actions = {
 		dispatch
 	}, payload) {
 		this.commit('clearAll')
-		if (rootState.currentDb) {
-			state.message = 'Creating product ' + payload.productName + ' in database ' + rootState.currentDb
+		if (rootState.userData.currentDb) {
+			state.message = 'Creating product ' + payload.productName + ' in database ' + rootState.userData.currentDb
 		} else {
 			state.message = 'Please select or create the database first'
 			return
@@ -396,7 +396,7 @@ const actions = {
 			withCredentials: true,
 		}).then(res => {
 			state.message = res.data
-			rootState.currentDb = dbName
+			rootState.userData.currentDb = dbName
 			state.comment = 'New database ' + dbName + ' is created. Note that subsequent actions will be performed on this database'
 			// eslint-disable-next-line no-console
 			console.log(res)
@@ -419,7 +419,7 @@ const actions = {
 			url: dbName,
 			withCredentials: true,
 		}).then(() => {
-			rootState.currentDb = dbName
+			rootState.userData.currentDb = dbName
 			state.comment = 'The database ' + dbName + ' exists already. Note that subsequent actions will be performed on this database'
 		}).catch(error => {
 			if (error.response.status === 404) {
@@ -806,7 +806,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552140438968,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -839,7 +839,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552140438968,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -868,7 +868,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139767706,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -900,7 +900,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139806987,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -932,7 +932,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139903514,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -964,7 +964,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1553724175860,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -997,7 +997,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139972020,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -1030,7 +1030,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552139986318,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -1063,7 +1063,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552406429497,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -1096,7 +1096,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552152600149,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -1128,7 +1128,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552152642413,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -1161,7 +1161,7 @@ const actions = {
 							"by": "Erik",
 							"email": "erik@mycompany.nl",
 							"timestamp": 1552152658206,
-							"sessionId": rootState.sessionId,
+							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
 						},
 					],
@@ -1293,7 +1293,7 @@ const actions = {
 	}, docsToUpdate) {
 		globalAxios({
 			method: 'POST',
-			url: rootState.currentDb + '/_bulk_get',
+			url: rootState.userData.currentDb + '/_bulk_get',
 			withCredentials: true,
 			data: { "docs": docsToUpdate },
 		}).then(res => {
@@ -1305,8 +1305,8 @@ const actions = {
 					results[i].docs[0].ok["history"] = [
 						{
 							"rootEvent": ["history cleared"],
-							"by": rootState.user,
-							"email": rootState.load.email,
+							"by": rootState.userData.user,
+							"email": rootState.userData.email,
 							"timestamp": Date.now(),
 							"timestampStr": new Date().toString(),
 						}]
@@ -1319,7 +1319,7 @@ const actions = {
 				let msg = 'updateWithNoHistory: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})

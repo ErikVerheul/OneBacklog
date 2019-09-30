@@ -9,7 +9,7 @@ export default {
             oldPassword: "",
             newPassword1: "",
             newPassword2: "",
-            selectedProducts: this.$store.state.load.myProductSubscriptions,
+            selectedProducts: this.$store.state.userData.myProductSubscriptions,
             defaultProductId: undefined,
             defaultProductOptions: []
         }
@@ -92,7 +92,7 @@ export default {
         },
 
         doChangePw() {
-            if (this.oldPassword !== this.$store.state.password) {
+            if (this.oldPassword !== this.$store.state.userData.password) {
                 alert(
                     "Your current password is incorrect. Please try again."
                 )

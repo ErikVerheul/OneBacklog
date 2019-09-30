@@ -9,13 +9,13 @@
         </b-navbar-nav>
     </app-header>
     <div v-if="actionNr === 1">
-      <h4>Create a new product in the current database '{{ $store.state.currentDb }}' by entering its title:</h4>
+      <h4>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h4>
       <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
       <b-button class="m-1" @click="doCreateProduct">Create product</b-button>
       <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
     </div>
     <div v-else-if="actionNr === 2">
-      <h4>Remove a product from the current database '{{ $store.state.currentDb }}' by entering its short Id:</h4>
+      <h4>Remove a product from the current database '{{ $store.state.userData.currentDb }}' by entering its short Id:</h4>
       <b-form-input v-model="productTitle" placeholder="Enter the product short Id"></b-form-input>
       <h5>You are about to remove product ... </h5>
       <b-button class="m-1" @click="doRemoveProduct">Remove this product</b-button>

@@ -41,7 +41,7 @@ const routes = [
 		path: '/init',
 		component: InitPage,
 		beforeEnter(to, from, next) {
-			if (store.state.user) {
+			if (store.state.userData.user) {
 				next()
 			} else {
 				next('/signin')
@@ -52,7 +52,7 @@ const routes = [
 		path: '/setup',
 		component: SetupPage,
 		beforeEnter(to, from, next) {
-			if (store.state.user) {
+			if (store.state.userData.user) {
 				next()
 			} else {
 				next('/signin')
@@ -63,7 +63,7 @@ const routes = [
 		path: '/product',
 		component: ProductPage,
 		beforeEnter(to, from, next) {
-			if (store.state.user) {
+			if (store.state.userData.user) {
 				next()
 			} else {
 				next('/signin')
@@ -74,7 +74,7 @@ const routes = [
 		path: '/reqsarea',
 		component: ReqsAreaPage,
 		beforeEnter(to, from, next) {
-			if (store.state.user) {
+			if (store.state.userData.user) {
 				next()
 			} else {
 				next('/signin')
@@ -85,7 +85,7 @@ const routes = [
 		path: '/superpo',
 		component: SuperPOPage,
 		beforeEnter(to, from, next) {
-			if (store.state.user) {
+			if (store.state.userData.user) {
 				next()
 			} else {
 				next('/signin')
@@ -96,7 +96,7 @@ const routes = [
 		path: '/admin',
 		component: AdminPage,
 		beforeEnter(to, from, next) {
-			if (store.state.user) {
+			if (store.state.userData.user) {
 				next()
 			} else {
 				next('/signin')

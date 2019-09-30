@@ -153,7 +153,7 @@ export default {
                     state: 0,
                     subtype: 0,
                     lastChange: Date.now(),
-                    sessionId: this.$store.state.sessionId,
+                    sessionId: this.$store.state.userData.sessionId,
                     distributeEvent: true
                 }
             }
@@ -231,10 +231,10 @@ export default {
                     "comments": [],
                     "history": [{
                         "createEvent": null,
-                        "by": this.$store.state.user,
-                        "email": this.$store.state.load.email,
+                        "by": this.$store.state.userData.user,
+                        "email": this.$store.state.userData.email,
                         "timestamp": Date.now(),
-                        "sessionId": this.$store.state.sessionId,
+                        "sessionId": this.$store.state.userData.sessionId,
                         "distributeEvent": true
                     }],
                     "delmark": false
@@ -260,7 +260,7 @@ export default {
             // when removing a product
             if (selectedNode.level === this.productLevel) {
                 // cannot remove the last assigned product
-                if (this.$store.state.load.userAssignedProductIds.length === 1) {
+                if (this.$store.state.userData.userAssignedProductIds.length === 1) {
                     this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
                     return
                 }

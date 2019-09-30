@@ -2,7 +2,7 @@
   <div>
     <app-header />
     <h1>INITIALIZATION</h1>
-    <p>Initialize the database and setup your profile. Your user name is: {{ $store.state.user }}</p>
+    <p>Initialize the database and setup your profile. Your user name is: {{ $store.state.userData.user }}</p>
     <h4>Enter the database name in small caps, no spaces</h4>
     <b-form-input v-model="dbName" placeholder="Enter the database name"></b-form-input>
     <div>
@@ -92,7 +92,7 @@ export default {
     createDatabase() {
       this.$store.dispatch('createDatabase', {
         dbName: this.dbName,
-        user: this.$store.state.user})
+        user: this.$store.state.userData.user})
     },
 
     createProductAndProfile() {
@@ -101,7 +101,7 @@ export default {
         productName: this.productName,
         email: this.email,
         roles: this.selected,
-        user: this.$store.state.user
+        user: this.$store.state.userData.user
       }
       this.$store.dispatch('initDatabase', payload)
     },

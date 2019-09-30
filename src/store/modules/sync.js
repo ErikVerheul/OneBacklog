@@ -62,7 +62,7 @@ const actions = {
 		// stop listening if offline. watchdog will start it automatically when online again
 		if (!rootState.online) return
 
-		let url = rootState.currentDb + '/_changes?feed=longpoll&include_docs=true'
+		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true'
 		if (since) url += '&since=' + since
 		else {
 			// initially get the last change only
@@ -87,8 +87,8 @@ const actions = {
 					// by the user him/her self in a parallel session and ment for distribution (if not filtered out by the CouchDB _design filter)
 					if (doc.type === 'backlogItem' &&
 						doc.history[0].distributeEvent == true &&
-						doc.history[0].sessionId !== rootState.sessionId &&
-						rootState.load.myProductSubscriptions.includes(doc.productId)) {
+						doc.history[0].sessionId !== rootState.userData.sessionId &&
+						rootState.userData.myProductSubscriptions.includes(doc.productId)) {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed, title = ' + doc.title)
 						dispatch('doBlinck')
@@ -171,7 +171,7 @@ const actions = {
 											let msg = 'Sync: a remote restore of the tree view failed. The item id is ' + node._id
 											// eslint-disable-next-line no-console
 											if (rootState.debug) console.log(msg)
-											if (rootState.currentDb) dispatch('doLog', {
+											if (rootState.userData.currentDb) dispatch('doLog', {
 												event: msg,
 												level: WARNING
 											})
@@ -187,7 +187,7 @@ const actions = {
 										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
 									// eslint-disable-next-line no-console
 									if (rootState.debug) console.log(msg)
-									if (rootState.currentDb) dispatch('doLog', {
+									if (rootState.userData.currentDb) dispatch('doLog', {
 										event: msg,
 										level: WARNING
 									})
@@ -219,7 +219,7 @@ const actions = {
 									"data": {
 										"state": doc.state,
 										"subtype": 0,
-										"sessionId": rootState.sessionId,
+										"sessionId": rootState.userData.sessionId,
 										"distributeEvent": false
 									}
 								}
@@ -255,7 +255,7 @@ const actions = {
 				let msg = 'Listening for changes made by other users failed with ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: WARNING
 				})

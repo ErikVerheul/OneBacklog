@@ -28,33 +28,33 @@ export const utilities = {
 			this.$store.state.eventBgColor = eventBgColor
 		},
 
-		/* mappings from config */
+		/* mappings from config document*/
 		getLevelText(level) {
 			if (level < 0 || level > PBILEVEL) {
 				return 'Level not supported'
 			}
-			return this.$store.state.config.itemType[level]
+			return this.$store.state.configData.itemType[level]
 		},
 		getItemStateText(idx) {
 			if (idx < 0 || idx > PBILEVEL) {
 				return 'Error: unknown state'
 			}
-			return this.$store.state.config.itemState[idx]
+			return this.$store.state.configData.itemState[idx]
 		},
 		getTsSize(idx) {
-			if (idx < 0 || idx >= this.$store.state.config.tsSize.length) {
+			if (idx < 0 || idx >= this.$store.state.configData.tsSize.length) {
 				return 'Error: unknown T-shirt size'
 			}
-			return this.$store.state.config.tsSize[idx]
+			return this.$store.state.configData.tsSize[idx]
 		},
 		getSubType(idx) {
-			if (idx < 0 || idx >= this.$store.state.config.subtype.length) {
+			if (idx < 0 || idx >= this.$store.state.configData.subtype.length) {
 				return 'Error: unknown subtype'
 			}
-			return this.$store.state.config.subtype[idx]
+			return this.$store.state.configData.subtype[idx]
 		},
 		getKnownRoles() {
-			return this.$store.state.config.knownRoles
+			return this.$store.state.configData.knownRoles
 		},
 		itemTitleTrunc(length, title) {
 			if (title.length <= length) return title;

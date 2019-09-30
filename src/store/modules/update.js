@@ -21,7 +21,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
@@ -29,20 +29,20 @@ const actions = {
 			let tmpFollowers = tmpDoc.followers
 			if (rootGetters.isFollower) {
 				for (let i = 0; i < tmpFollowers.length; i++) {
-					if (tmpFollowers[i] === rootState.load.email) {
+					if (tmpFollowers[i] === rootState.userData.email) {
 						tmpFollowers.splice(i, 1)
 					}
 				}
 			} else {
-				tmpFollowers.push(rootState.load.email)
+				tmpFollowers.push(rootState.userData.email)
 			}
 			const newHist = {
 				"subscribeEvent": [wasFollower],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.followers = tmpFollowers
@@ -55,7 +55,7 @@ const actions = {
 				let msg = 'changeSubsription: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -68,18 +68,18 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldSize = tmpDoc.tssize
 			const newHist = {
 				"setSizeEvent": [oldSize, payload.newSizeIdx],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.tssize = payload.newSizeIdx
@@ -92,7 +92,7 @@ const actions = {
 				let msg = 'setSize: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -105,18 +105,18 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldHrs = tmpDoc.spikepersonhours
 			const newHist = {
 				"setHrsEvent": [oldHrs, payload.newHrs],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.spikepersonhours = payload.newHrs
@@ -129,7 +129,7 @@ const actions = {
 				let msg = 'setPersonHours: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -142,18 +142,18 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldPoints = tmpDoc.spsize
 			const newHist = {
 				"setPointsEvent": [oldPoints, payload.newPoints],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.spsize = payload.newPoints
@@ -166,7 +166,7 @@ const actions = {
 				let msg = 'setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -179,18 +179,18 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
 			const newHist = {
 				"setStateEvent": [oldState, payload.newState],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
 			tmpDoc.state = payload.newState
@@ -203,7 +203,7 @@ const actions = {
 				let msg = 'setState: Could not read document with _id ' + _id + '. Error = ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -216,18 +216,18 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			const oldTitle = rootState.currentDoc.title
 			let tmpDoc = res.data
 			const newHist = {
 				"setTitleEvent": [oldTitle, payload.newTitle],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -240,7 +240,7 @@ const actions = {
 				let msg = 'setDocTitle: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -253,17 +253,17 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
 				"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -276,7 +276,7 @@ const actions = {
 				let msg = 'setSubType: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -317,17 +317,17 @@ const actions = {
 		const _id = payload._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
 				"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle, payload.nrOfDescendants, payload.oldProductTitle, payload.placement],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -341,7 +341,7 @@ const actions = {
 				let msg = 'updateMovedItems: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -366,7 +366,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'POST',
-			url: rootState.currentDb + '/_bulk_get',
+			url: rootState.userData.currentDb + '/_bulk_get',
 			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
@@ -381,11 +381,11 @@ const actions = {
 					// change the document
 					const newHist = {
 						"descendantMoved": [payloadItem.oldParentTitle],
-						"by": rootState.user,
-						"email": rootState.load.email,
+						"by": rootState.userData.user,
+						"email": rootState.userData.email,
 						"timestamp": Date.now(),
 						"timestampStr": new Date().toString(),
-						"sessionId": rootState.sessionId,
+						"sessionId": rootState.userData.sessionId,
 						"distributeEvent": false
 					}
 					doc.history.unshift(newHist)
@@ -403,7 +403,7 @@ const actions = {
 				let msg = 'updateDroppedDescendantsBulk: These descendants cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -414,7 +414,7 @@ const actions = {
 				let msg = 'updateDroppedDescendantsBulk: Could not read decendants in bulk. Error = ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -429,17 +429,17 @@ const actions = {
 		const _id = payload.node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
 				"parentDocRemovedEvent": [payload.descendants.length],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
 			tmpDoc.delmark = true
@@ -451,7 +451,7 @@ const actions = {
 				let msg = 'removeDoc: Could not read document with _id ' + _id + ',' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -466,18 +466,18 @@ const actions = {
 		const _id = entry.grandParentId
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let grandParentDoc = res.data
 			if (!grandParentDoc.delmark) {
 				const newHist = {
 					"grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.descendants.length],
-					"by": rootState.user,
-					"email": rootState.load.email,
+					"by": rootState.userData.user,
+					"email": rootState.userData.email,
 					"timestamp": Date.now(),
 					"timestampStr": new Date().toString(),
-					"sessionId": rootState.sessionId,
+					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": false
 				}
 				grandParentDoc.history.unshift(newHist)
@@ -495,7 +495,7 @@ const actions = {
 				let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -508,17 +508,17 @@ const actions = {
 		const _id = payload.parentId
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
 				"docRestoredInsideEvent": [payload.descendants.length],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -529,7 +529,7 @@ const actions = {
 				let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -545,7 +545,7 @@ const actions = {
 		if (rootState.debug) console.log('undoRemovedParent: updating document with _id = ' + _id)
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 			data: payload.tmpDoc
 		}).then(() => {
@@ -554,10 +554,10 @@ const actions = {
 			if (rootState.debug) console.log('undoRemovedParent: document with _id + ' + _id + ' is updated.')
 		})
 			.catch(error => {
-				let msg = 'undoRemovedParent: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				let msg = 'undoRemovedParent: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -576,7 +576,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'POST',
-			url: rootState.currentDb + '/_bulk_get',
+			url: rootState.userData.currentDb + '/_bulk_get',
 			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
@@ -588,11 +588,11 @@ const actions = {
 				if (results[i].docs[0].ok) {
 					const newHist = {
 						"docRemovedEvent": [payload.node.title],
-						"by": rootState.user,
-						"email": rootState.load.email,
+						"by": rootState.userData.user,
+						"email": rootState.userData.email,
 						"timestamp": Date.now(),
 						"timestampStr": new Date().toString(),
-						"sessionId": rootState.sessionId,
+						"sessionId": rootState.userData.sessionId,
 						"distributeEvent": false
 					}
 					results[i].docs[0].ok.history.unshift(newHist)
@@ -611,7 +611,7 @@ const actions = {
 				let msg = 'removeDescendantsBulk: These documents cannot be marked for removal: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -622,7 +622,7 @@ const actions = {
 				let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -640,7 +640,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'POST',
-			url: rootState.currentDb + '/_bulk_get',
+			url: rootState.userData.currentDb + '/_bulk_get',
 			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
@@ -652,11 +652,11 @@ const actions = {
 				if (results[i].docs[0].ok) {
 					const newHist = {
 						"docRestoredEvent": [results[i].docs[0].ok.title],
-						"by": rootState.user,
-						"email": rootState.load.email,
+						"by": rootState.userData.user,
+						"email": rootState.userData.email,
 						"timestamp": Date.now(),
 						"timestampStr": new Date().toString(),
-						"sessionId": rootState.sessionId,
+						"sessionId": rootState.userData.sessionId,
 						"distributeEvent": false
 					}
 					results[i].docs[0].ok.history.unshift(newHist)
@@ -674,7 +674,7 @@ const actions = {
 				let msg = 'restoreDescendantsBulk: These documents cannot be UNmarked for removal: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -685,7 +685,7 @@ const actions = {
 				let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -698,7 +698,7 @@ const actions = {
 	}, docs) {
 		globalAxios({
 			method: 'POST',
-			url: rootState.currentDb + '/_bulk_docs',
+			url: rootState.userData.currentDb + '/_bulk_docs',
 			withCredentials: true,
 			data: { "docs": docs },
 		}).then(res => {
@@ -711,7 +711,7 @@ const actions = {
 				let msg = 'updateBulk: Could not update batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -724,17 +724,17 @@ const actions = {
 		const _id = payload.node.parentId
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
 				"removedFromParentEvent": [payload.node.level, payload.node.title, payload.descendants.length],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
@@ -747,7 +747,7 @@ const actions = {
 				let msg = 'registerRemoveHistInParent: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -761,7 +761,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
@@ -769,11 +769,11 @@ const actions = {
 			const newEncodedDescription = window.btoa(payload.newDescription)
 			const newHist = {
 				"descriptionEvent": [res.data.description, newEncodedDescription],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
@@ -785,7 +785,7 @@ const actions = {
 				let msg = 'saveDescription: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -799,7 +799,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
@@ -807,11 +807,11 @@ const actions = {
 			const newEncodedAcceptance = window.btoa(payload.newAcceptance)
 			const newHist = {
 				"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
@@ -823,7 +823,7 @@ const actions = {
 				let msg = 'saveAcceptance: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -836,7 +836,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then((res) => {
 			let tmpDoc = res.data
@@ -844,10 +844,10 @@ const actions = {
 			const newComment = window.btoa(payload.comment)
 			const newEntry = {
 				"comment": [newComment],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.comments.unshift(newEntry)
@@ -858,7 +858,7 @@ const actions = {
 				let msg = 'addComment: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -871,7 +871,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
@@ -879,11 +879,11 @@ const actions = {
 			const newComment = window.btoa(payload.comment)
 			const newHist = {
 				"comment": [newComment],
-				"by": rootState.user,
-				"email": rootState.load.email,
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
@@ -894,7 +894,7 @@ const actions = {
 				let msg = 'addHistoryComment: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -907,7 +907,7 @@ const actions = {
 	}, productId) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/config',
+			url: rootState.userData.currentDb + '/config',
 			withCredentials: true,
 		}).then(res => {
 			const tmpConfig = res.data
@@ -922,7 +922,7 @@ const actions = {
 				let msg = 'addToRemovedProducts: Could not read config document ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -935,7 +935,7 @@ const actions = {
 	}, productId) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/config',
+			url: rootState.userData.currentDb + '/config',
 			withCredentials: true,
 		}).then(res => {
 			const tmpConfig = res.data
@@ -952,7 +952,7 @@ const actions = {
 				let msg = 'addToRemovedProducts: Could not read config document ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})
@@ -970,7 +970,7 @@ const actions = {
 		console.log('updateDoc: updating document with _id = ' + _id)
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 			data: tmpDoc
 		}).then(() => {
@@ -980,10 +980,10 @@ const actions = {
 		})
 			.catch(error => {
 				state.busyRemoving = false
-				let msg = 'updateDoc: Could not write document with url ' + rootState.currentDb + '/' + _id + ', ' + error
+				let msg = 'updateDoc: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
+				if (rootState.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: ERROR
 				})

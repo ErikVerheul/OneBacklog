@@ -603,7 +603,7 @@ export default {
 		updateTsSize() {
 			if (this.haveWritePermission[this.getCurrentItemLevel]) {
 				let size = document.getElementById("tShirtSizeId").value.toUpperCase()
-				const sizeArray = this.$store.state.config.tsSize
+				const sizeArray = this.$store.state.configData.tsSize
 				if (sizeArray.includes(size)) {
 					this.$store.state.nodeSelected.data.lastChange = Date.now()
 					this.$store.dispatch('setSize', {

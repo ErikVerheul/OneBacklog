@@ -511,7 +511,7 @@ export default {
 				sibling.isLeaf = (sibling.level < PBILEVEL) ? false : true
 				if (this.comparePaths(oldPath, newPath !== 0)) {
 					// mark the changed nodemodels for distribution
-					sibling.data.sessionId = this.$store.state.sessionId
+					sibling.data.sessionId = this.$store.state.userData.sessionId
 					sibling.data.distributeEvent = true
 				}
 				if (sibling.children && sibling.children.length > 0) {

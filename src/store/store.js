@@ -21,9 +21,11 @@ const CRITICAL = 3
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-
 	state: {
-		authData: {},
+		debug: true,
+		demo: true,
+
+		userData: {},
 		showHeaderDropDowns: true,
 		skipOnce: true,
 		nodeSelected: null,
@@ -41,42 +43,41 @@ export default new Vuex.Store({
 		cookieAutenticated: false,
 		listenForChangesRunning: false,
 		lastSyncSeq: null,
-		sessionId: null,
-		config: null,
-		currentDb: null,
+		configData: null,
 		currentDoc: null,
-		debug: true,
-		demo: true,
-		myDefaultRoles: [],
 		runningCookieRefreshId: null,
-		user: null,
 		moveOngoing: false
 	},
 
 	getters: {
 		isAuthenticated(state) {
-			return state.user !== null
+			return state.userData.user !== undefined
 		},
 		isFollower(state) {
-			if (state.currentDoc) return state.currentDoc.followers.includes(state.load.email)
+			if (state.currentDoc) return state.currentDoc.followers.includes(state.userData.email)
 		},
 		isServerAdmin(state) {
-			return state.myDefaultRoles.includes("_admin")
+			return state.userData.roles.includes("_admin")
 		},
 		isAreaPO(state) {
-			return state.myDefaultRoles.includes("areaPO")
+			return state.userData.roles.includes("areaPO")
 		},
 		isSuperPO(state) {
-			return state.myDefaultRoles.includes("superPO")
+			return state.userData.roles.includes("superPO")
 		},
 		isAdmin(state) {
-			return state.myDefaultRoles.includes("admin")
+			return state.userData.roles.includes("admin")
 		},
 		canCreateComments(state) {
-			return state.myDefaultRoles.includes("_admin") || state.myDefaultRoles.includes("areaPO") || state.myDefaultRoles.includes("admin") || state.myDefaultRoles.includes("superPO") || state.myDefaultRoles.includes("PO") || state.myDefaultRoles.includes("developer")
+			return state.userData.roles.includes("_admin") ||
+			state.userData.roles.includes("areaPO") ||
+			state.userData.roles.includes("admin") ||
+			state.userData.roles.includes("superPO") ||
+			state.userData.roles.includes("PO") ||
+			state.userData.roles.includes("developer")
 		},
 		getCurrentItemTsSize(state) {
-			if (state.config) return state.config.tsSize[state.currentDoc.tssize]
+			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
 		},
 		getCurrentItemLevel(state) {
 			if (state.currentDoc) return state.currentDoc.level
@@ -105,47 +106,29 @@ export default new Vuex.Store({
 			state.lastEvent = payload.txt
 		},
 
-		authUser(state, userData) {
-			state.user = userData.user
-			state.myDefaultRoles = userData.roles
-			state.sessionId = userData.sessionId
-		},
-
 		resetData(state) {
 			state.load.docsCount = 0
 			state.load.itemsCount = 0
 			state.load.orphansCount = 0
-			state.load.currentUserProductId = null
 			state.load.currentProductId = null
 			state.load.currentProductTitle = ''
-			state.load.databases = []
-			state.load.myTeams = []
-			state.load.myCurrentTeam = ''
-			state.load.email = null
 			state.load.treeNodes = []
-			state.load.userAssignedProductIds = []
 			state.load.productIdLoading = null
 			state.load.processedProducts = 0
-			state.load.myProductsRoles = {}
 			state.load.myProductOptions = [],
-				state.load.myProductSubscriptions = [],
 
-				state.authData = {}
+			state.userData = {}
 			state.showHeaderDropDowns = true,
-				state.skipOnce = true,
-				state.lastEvent = ''
-			state.config = null
-			state.currentDb = null
+			state.skipOnce = true,
+			state.lastEvent = ''
+			state.configData = null
 			state.currentDoc = null
-			state.myDefaultRoles = []
-			state.user = null
 
 			clearInterval(state.runningCookieRefreshId)
 			clearInterval(state.logging.runningWatchdogId)
 		}
 	},
 
-	//ToDo: still have to wait approx 5 minutes to see effect when restarting after a network error
 	actions: {
 		/* Refresh the autentication cookie */
 		refreshCookie({
@@ -156,7 +139,7 @@ export default new Vuex.Store({
 				method: 'POST',
 				url: '/_session',
 				withCredentials: true,
-				data: state.authData
+				data: {name: state.userData.user, password: state.userData.password}
 			}).then(() => {
 				state.cookieAutenticated = true
 				// eslint-disable-next-line no-console
@@ -168,7 +151,7 @@ export default new Vuex.Store({
 				let msg = 'refreshCookie: Refresh of the authentication cookie failed with ' + error
 				// eslint-disable-next-line no-console
 				if (state.debug) console.log(msg)
-				if (state.currentDb) dispatch('doLog', {
+				if (state.userData.currentDb) dispatch('doLog', {
 					event: msg,
 					level: CRITICAL
 				})
@@ -185,11 +168,8 @@ export default new Vuex.Store({
 			}, payload.timeout * 1000)
 		},
 
-		/*
-		* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refrehed within 10 minutes
-		*/
+		/* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refrehed within 10 minutes */
 		signin({
-			commit,
 			dispatch,
 			state
 		}, authData) {
@@ -204,21 +184,27 @@ export default new Vuex.Store({
 				return uuid
 			}
 
-			// store the credentials
-			state.authData = authData
-
 			globalAxios({
 				method: 'POST',
 				url: '/_session',
 				withCredentials: true,
 				data: authData
 			}).then(res => {
-				state.user = res.data.name
-				commit('authUser', {
+				// email, myTeams, myCurrentTeam, currentDb, myProductsRoles, myProductSubscriptions and userAssignedProductIds
+				// are updated when otherUserData and config are read.
+				state.userData = {
 					user: res.data.name,
+					email: '',
+					myTeams: [],
+					myCurrentTeam: 'none assigned',
+					password: authData.password,
+					currentDb: '',
 					roles: res.data.roles,
+					myProductSubscriptions: [],
+					userAssignedProductIds: [],
+					myProductsRoles: {},
 					sessionId: create_UUID()
-				})
+				}
 				state.cookieAutenticated = true
 				// refresh the session cookie after 9 minutes (CouchDB defaults at 10 min.)
 				dispatch('refreshCookieLoop', {

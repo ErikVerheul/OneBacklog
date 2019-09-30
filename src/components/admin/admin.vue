@@ -12,7 +12,7 @@
         </b-navbar-nav>
     </app-header>
     <div v-if="actionNr === 3">
-      <h4>Create a team for any product within the current database '{{ $store.state.currentDb }}' by entering its name:</h4>
+      <h4>Create a team for any product within the current database '{{ $store.state.userData.currentDb }}' by entering its name:</h4>
       <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
       <b-button class="m-1" @click="doCreateTeam">Create this team</b-button>
       <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>

@@ -174,7 +174,7 @@ const actions = {
 				"email": payload.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
-				"sessionId": rootState.sessionId,
+				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -215,9 +215,8 @@ const actions = {
 			withCredentials: true,
 			data: {
 				"name": payload.user,
-				"password": rootState.password,
-				"teams": ['no team assigned'],
-				"currentTeamsIdx": 0,
+				"password": rootState.userData.password,
+				"teams": [],
 				"roles": payload.roles,
 				"type": "user",
 				"email": payload.email,

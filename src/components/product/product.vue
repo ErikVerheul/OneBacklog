@@ -91,11 +91,11 @@
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6
-          v-if="$store.state.load.userAssignedProductIds.length==1"
-        >Welcome {{ $store.state.user }}. Your current database is set to {{ $store.state.currentDb }}. You have {{ $store.state.load.userAssignedProductIds.length }} product.</h6>
+          v-if="$store.state.userData.userAssignedProductIds.length==1"
+        >Welcome {{ $store.state.userData.user }}. Your current database is set to {{ $store.state.userData.currentDb }}. You have {{ $store.state.userData.userAssignedProductIds.length }} product.</h6>
         <h6
-          v-if="$store.state.load.userAssignedProductIds.length >1"
-        >Welcome {{ $store.state.user }}. Your current database is set to {{ $store.state.currentDb }}. You selected {{ $store.state.load.myProductSubscriptions.length }} from {{ $store.state.load.userAssignedProductIds.length }} products.</h6>
+          v-if="$store.state.userData.userAssignedProductIds.length >1"
+        >Welcome {{ $store.state.userData.user }}. Your current database is set to {{ $store.state.userData.currentDb }}. You selected {{ $store.state.userData.myProductSubscriptions.length }} from {{ $store.state.userData.userAssignedProductIds.length }} products.</h6>
         <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
         <div
           class="last-event"
@@ -360,7 +360,7 @@
 * ....state: doc.state,
 * ....subtype: doc.subtype,
 * ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
-* ....sessionId: rootState.sessionId,
+* ....sessionId: rootState.userData.sessionId,
 * ....distributeEvent: true | false
 * }
 */

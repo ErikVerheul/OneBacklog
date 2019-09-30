@@ -22,14 +22,7 @@ const state = {
 	productIdLoading: null,
 	processedProducts: 0,
 	currentProductTitle: "",
-	databases: [],
-	myTeams: [],
-	myCurrentTeam: "",
-	email: null,
-	userAssignedProductIds: [],
-	myProductsRoles: {},
 	myProductOptions: [],
-	myProductSubscriptions: [],
 	rangeString: ''
 }
 
@@ -98,8 +91,8 @@ const getters = {
 			levels.push(false)
 		}
 		if (state.currentProductId) {
-			if (state.userAssignedProductIds.includes(state.currentProductId)) {
-				let myRoles = state.myProductsRoles[state.currentProductId]
+			if (rootState.userData.userAssignedProductIds.includes(state.currentProductId)) {
+				let myRoles = rootState.userData.myProductsRoles[state.currentProductId]
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('haveWritePermission: For productId ' + state.currentProductId + ' my roles are ' + myRoles)
 
@@ -141,11 +134,11 @@ const mutations = {
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
 	 * The root and the top level product nodes are not draggable
 	 */
-	processProduct(state) {
+	processProduct(state, userAssignedProductIds) {
 		for (let i = 0; i < batch.length; i++) {
 			state.docsCount++
 			// load the items of the products the user is authorized to
-			if (state.userAssignedProductIds.includes(batch[i].doc.productId)) {
+			if (userAssignedProductIds.includes(batch[i].doc.productId)) {
 				const level = batch[i].doc.level
 				const parentId = batch[i].doc.parentId
 				const delmark = batch[i].doc.delmark
@@ -206,44 +199,44 @@ const mutations = {
 }
 
 const actions = {
-	// Load the config file from this database
+	// Load the config document from this database
 	getConfig({
 		rootState,
 		dispatch
 	}) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/config',
+			url: rootState.userData.currentDb + '/config',
 			withCredentials: true,
 		}).then(res => {
-			rootState.config = res.data
+			rootState.configData = res.data
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('The configuration is loaded')
 			// process removed products if any
 			if (res.data.removedProducts && res.data.removedProducts.length > 0) {
 				const sanatizedProductRoles = {}
-				const productIds = Object.keys(state.myProductsRoles)
+				const productIds = Object.keys(rootState.userData.myProductsRoles)
 				for (let i = 0; i < productIds.length; i++) {
 					if (!res.data.removedProducts.includes(productIds[i])) {
-						sanatizedProductRoles[productIds[i]] = state.myProductsRoles[productIds[i]]
+						sanatizedProductRoles[productIds[i]] = rootState.userData.myProductsRoles[productIds[i]]
 					}
 				}
-				state.myProductsRoles = sanatizedProductRoles
+				rootState.userData.myProductsRoles = sanatizedProductRoles
 
 				const sanatizedProductSubscriptions = []
-				for (let i = 0; i < state.myProductSubscriptions.length; i++) {
-					if (!res.data.removedProducts.includes(state.myProductSubscriptions[i])) {
-						sanatizedProductSubscriptions.push(state.myProductSubscriptions[i])
+				for (let i = 0; i < rootState.userData.myProductSubscriptions.length; i++) {
+					if (!res.data.removedProducts.includes(rootState.userData.myProductSubscriptions[i])) {
+						sanatizedProductSubscriptions.push(rootState.userData.myProductSubscriptions[i])
 					}
 				}
-				state.myProductSubscriptions = sanatizedProductSubscriptions
+				rootState.userData.myProductSubscriptions = sanatizedProductSubscriptions
 			}
 
-			state.userAssignedProductIds = Object.keys(state.myProductsRoles)
+			rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
 			// set the array of options to make a selection of products for the next load on sign-in
 			dispatch("setMyProductOptions")
 			// the first (index 0) product is by definition the default product
-			state.currentDefaultProductId = state.myProductSubscriptions[0]
+			state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0]
 
 			// prepare for loading the first batch; add the root node for the database name
 			state.treeNodes = [
@@ -256,7 +249,7 @@ const actions = {
 					"parentId": null,
 					"_id": 'root',
 					"shortId": "0",
-					"title": rootState.currentDb,
+					"title": rootState.userData.currentDb,
 					"isLeaf": false,
 					"children": [],
 					"isExpanded": true,
@@ -275,16 +268,15 @@ const actions = {
 			parentNodes.root = state.treeNodes[0]
 			// load the current product document
 			dispatch('loadCurrentProduct')
-		})
-			.catch(error => {
-				let msg = 'getConfig: Config doc missing in database ' + rootState.currentDb + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (rootState.userData.currentDb) dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 
 	// Load current user product and start loading the tree
@@ -297,7 +289,7 @@ const actions = {
 		let _id = state.currentDefaultProductId
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			state.currentProductId = _id
@@ -317,16 +309,15 @@ const actions = {
 			state.productIdLoading = state.currentDefaultProductId
 			commit('composeRangeString')
 			dispatch('getFirstProduct')
-		})
-			.catch(error => {
-				let msg = 'loadCurrentProduct: Could not read product root document with _id ' + _id + '. Error = ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'loadCurrentProduct: Could not read product root document with _id ' + _id + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (rootState.userData.currentDb) dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 
 	/*
@@ -339,13 +330,13 @@ const actions = {
 		dispatch
 	}) {
 		const docsToGet = []
-		for (let i = 0; i < state.userAssignedProductIds.length; i++) {
-			docsToGet.push({ "id": state.userAssignedProductIds[i] })
+		for (let i = 0; i < rootState.userData.userAssignedProductIds.length; i++) {
+			docsToGet.push({ "id": rootState.userData.userAssignedProductIds[i] })
 		}
 
 		globalAxios({
 			method: 'POST',
-			url: rootState.currentDb + '/_bulk_get',
+			url: rootState.userData.currentDb + '/_bulk_get',
 			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
@@ -363,46 +354,40 @@ const actions = {
 					if (rootState.debug) console.log('setMyProductOptions: The title of document with _id + ' + results[i].docs[0].ok._id + ' is loaded.')
 				}
 			}
-		})
-			.catch(error => {
-				let msg = 'setMyProductOptions: Could not read product titles' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'setMyProductOptions: Could not read product titles' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (rootState.userData.currentDb) dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 
 	// Get the current DB name etc. for this user. Note that the user roles are already fetched
 	getOtherUserData({
-		state,
-		dispatch,
-		rootState
+		rootState,
+		dispatch
 	}) {
 		globalAxios({
 			method: 'GET',
-			url: '_users/org.couchdb.user:' + rootState.user,
+			url: '_users/org.couchdb.user:' + rootState.userData.user,
 			withCredentials: true
 		}).then(res => {
-			state.myProductsRoles = res.data.productsRoles
-			state.myProductSubscriptions = res.data.subscriptions
+			rootState.userData.myProductsRoles = res.data.productsRoles
+			rootState.userData.myProductSubscriptions = res.data.subscriptions
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.user)
-			if (res.data.teams !== undefined) {
-				state.myTeams = res.data.teams
-				state.myCurrentTeam = res.data.teams[res.data.currentTeamsIdx]
-			} else {
-				state.myTeams = []
-				state.myCurrentTeam = "none assigned"
+			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.userData.user)
+			if (res.data.teams && res.data.teams.length > 0) {
+				rootState.userData.myTeams = res.data.teams
+				rootState.userData.myCurrentTeam = res.data.teams[res.data.currentTeamsIdx]
 			}
-			state.email = res.data.email
-			state.databases = res.data.databases
-			rootState.currentDb = res.data.currentDb
+			rootState.userData.email = res.data.email
+			rootState.userData.currentDb = res.data.currentDb
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('getOtherUserData: database ' + rootState.currentDb + ' is set for user ' + rootState.user)
-			let msg = rootState.user + ' has logged in and the watchdog is started to recover from network outings.'
+			if (rootState.debug) console.log('getOtherUserData: database ' + rootState.userData.currentDb + ' is set for user ' + rootState.userData.user)
+			let msg = rootState.userData.user + ' has logged in and the watchdog is started to recover from network outings.'
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			// now that the database is known the log file is available
@@ -412,26 +397,25 @@ const actions = {
 			})
 			dispatch('watchdog')
 			dispatch('getConfig')
-		})
-			.catch(error => {
-				if (error.message.includes("404")) {
-					// the document does not exist; start one time initialization of a new database
-					if (rootState.myDefaultRoles.includes("_admin")) {
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
-						rootState.showHeaderDropDowns = false
-						router.push('/init')
-						return
-					}
+		}).catch(error => {
+			if (error.message.includes("404")) {
+				// the document does not exist; start one time initialization of a new database
+				if (rootState.userData.roles.includes("_admin")) {
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
+					rootState.showHeaderDropDowns = false
+					router.push('/init')
+					return
 				}
-				let msg = 'getOtherUserData: Could not read user date for user ' + rootState.user + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+			}
+			let msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (rootState.userData.currentDb) dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 
 	// Load next products from the database
@@ -443,14 +427,14 @@ const actions = {
 	}) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
+			url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
 			withCredentials: true,
 		}).then(res => {
 			batch = res.data.rows
-			commit('processProduct')
+			commit('processProduct', rootState.userData.userAssignedProductIds)
 			// process other products here
-			if (state.myProductSubscriptions.length > 1 && state.processedProducts < state.myProductSubscriptions.length) {
-				state.productIdLoading = state.myProductSubscriptions[state.processedProducts]
+			if (rootState.userData.myProductSubscriptions.length > 1 && state.processedProducts < rootState.userData.myProductSubscriptions.length) {
+				state.productIdLoading = rootState.userData.myProductSubscriptions[state.processedProducts]
 				commit('composeRangeString')
 				dispatch('getNextProduct')
 			} else {
@@ -468,7 +452,7 @@ const actions = {
 			if (rootState.debug) console.log('Another product of ' + batch.length + ' documents is loaded')
 		})
 		// eslint-disable-next-line no-console
-		.catch(error => console.log('getNextProduct: Could not read a product from database ' + rootState.currentDb + '. Error = ' + error))
+		.catch(error => console.log('getNextProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
 	// Load the current product first
@@ -480,16 +464,16 @@ const actions = {
 	}) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
+			url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
 			withCredentials: true,
 		}).then(res => {
 			batch = res.data.rows
-			commit('processProduct')
+			commit('processProduct', rootState.userData.userAssignedProductIds)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Current product with ' + batch.length + ' documents is loaded')
 			// process other products here
-			if (state.myProductSubscriptions.length > 1 && state.processedProducts < state.myProductSubscriptions.length) {
-				state.productIdLoading = state.myProductSubscriptions[state.processedProducts]
+			if (rootState.userData.myProductSubscriptions.length > 1 && state.processedProducts < rootState.userData.myProductSubscriptions.length) {
+				state.productIdLoading = rootState.userData.myProductSubscriptions[state.processedProducts]
 				commit('composeRangeString')
 				dispatch('getNextProduct')
 			} else {
@@ -506,19 +490,18 @@ const actions = {
 			router.push('/product')
 		})
 		// eslint-disable-next-line no-console
-		.catch(error => console.log('getFirstProduct: Could not read a product from database ' + rootState.currentDb + '. Error = ' + error))
+		.catch(error => console.log('getFirstProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
 	loadItemByShortId({
 		rootState,
-		state,
 		dispatch,
 		commit
 	}, shortId) {
 		const rangeStr = '/_design/design1/_view/shortIdFilter?startkey=["' + shortId + '"]&endkey=["' + shortId + '"]&include_docs=true'
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + rangeStr,
+			url: rootState.userData.currentDb + rangeStr,
 			withCredentials: true,
 		}).then(res => {
 			const rows = res.data.rows
@@ -527,7 +510,7 @@ const actions = {
 				if (rootState.debug) console.log('loadItemByShortId: ' + rows.length + ' documents are found')
 				// take the fist document found
 				const doc = rows[0].doc
-				if (state.userAssignedProductIds.includes(doc.productId)) {
+				if (rootState.userData.userAssignedProductIds.includes(doc.productId)) {
 					if (rows.length === 1) {
 						commit('showLastEvent', { txt: `The document with id ${shortId} is found but not in your selected products.`, severity: WARNING })
 					} else {
@@ -539,7 +522,7 @@ const actions = {
 						const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log(msg)
-						if (rootState.currentDb) dispatch('doLog', {
+						if (rootState.userData.currentDb) dispatch('doLog', {
 							event: msg,
 							level: WARNING
 						})
@@ -555,8 +538,8 @@ const actions = {
 				}
 			} else commit('showLastEvent', { txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING })
 		})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.currentDb + '. Error = ' + error))
+		// eslint-disable-next-line no-console
+		.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
 	// Load current document by _id
@@ -566,7 +549,7 @@ const actions = {
 	}, _id) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			rootState.currentDoc = res.data
@@ -575,16 +558,15 @@ const actions = {
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
-		})
-			.catch(error => {
-				let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (rootState.userData.currentDb) dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 
 	// Read the parent title before creating the document
@@ -595,21 +577,20 @@ const actions = {
 		const _id = payload.initData.parentId
 		globalAxios({
 			method: 'GET',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
 			dispatch('createDoc2', payload)
-		})
-			.catch(error => {
-				let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (rootState.userData.currentDb) dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 	// Create document and reload it to currentDoc
 	createDoc2({
@@ -621,23 +602,22 @@ const actions = {
 		console.log('createDoc2: creating document with _id = ' + _id)
 		globalAxios({
 			method: 'PUT',
-			url: rootState.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 			data: payload.initData
 		}).then(() => {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('createDoc2: document with _id + ' + _id + ' is created.')
 			dispatch('loadDoc', _id)
-		})
-			.catch(error => {
-				let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.currentDb) dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (rootState.userData.currentDb) dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	}
 }
 
