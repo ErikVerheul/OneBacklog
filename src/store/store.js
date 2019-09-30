@@ -117,10 +117,10 @@ export default new Vuex.Store({
 			state.load.processedProducts = 0
 			state.load.myProductOptions = [],
 
-				state.userData = {}
+			state.userData = {}
 			state.showHeaderDropDowns = true,
-				state.skipOnce = true,
-				state.lastEvent = ''
+			state.skipOnce = true,
+			state.lastEvent = ''
 			state.configData = null
 			state.currentDoc = null
 
@@ -221,12 +221,12 @@ export default new Vuex.Store({
 			commit('resetData')
 			router.replace('/')
 		},
+	},
 
-		// prevent this.$refs.key return undefined after hot reload
-		beforeDestroy(state) {
-			clearInterval(state.runningCookieRefreshId)
-			clearInterval(state.logging.runningWatchdogId)
-		}
+	// prevent this.$refs.contextMenuRef return undefined after hot reload
+	beforeDestroy(state) {
+		clearInterval(state.runningCookieRefreshId)
+		clearInterval(state.logging.runningWatchdogId)
 	},
 
 	modules: {

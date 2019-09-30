@@ -30,7 +30,7 @@ export default {
         }
     },
 
-    created() {
+    mounted() {
         eventBus.$on('context', (node) => {
             this.showContextMenu(node)
         })
@@ -44,12 +44,16 @@ export default {
     },
 
     methods: {
+        // ToDo: fix this.$refs.contextMenuRef undefined when routing away and back
         showContextMenu(node) {
             this.contextSelected = undefined
             this.currentAssistanceNr = undefined
             this.insertOptionSelected = 1
             // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-            if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id && node.level > 1 && this.$store.state.numberOfNodesSelected === 1) {
+            if (this.haveWritePermission[node.level] &&
+                node._id === this.$store.state.nodeSelected._id &&
+                node.level > 1 &&
+                this.$store.state.numberOfNodesSelected === 1) {
                 this.contextNodeSelected = node
                 this.contextNodeTitle = node.title
                 this.contextNodeLevel = node.level

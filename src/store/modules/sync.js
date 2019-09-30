@@ -250,17 +250,16 @@ const actions = {
 			fistCallAfterSignin = false
 			// recurse
 			dispatch('listenForChanges', rootState.lastSyncSeq)
-		})
-			.catch(error => {
-				let msg = 'Listening for changes made by other users failed with ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				if (rootState.userData.currentDb) dispatch('doLog', {
-					event: msg,
-					level: WARNING
-				})
-				rootState.listenForChangesRunning = false
+		}).catch(error => {
+			let msg = 'Listening for changes made by other users failed with ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (rootState.userData.currentDb) dispatch('doLog', {
+				event: msg,
+				level: WARNING
 			})
+			rootState.listenForChangesRunning = false
+		})
 	},
 
 	doBlinck({
