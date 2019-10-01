@@ -22,7 +22,7 @@
         class="sl-vue-tree-node-item"
         @mousedown="onNodeMousedownHandler($event, node)"
         @mouseup="onNodeMouseupHandler($event)"
-        @contextmenu="emitNodeContextmenu(node, $event)"
+        @contextmenu="emitNodeContextmenu(node)"
         @click="emitNodeClick(node, $event)"
         :path="node.pathStr"
         :class="{

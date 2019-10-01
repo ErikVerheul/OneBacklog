@@ -161,8 +161,8 @@ export default {
 		},
 
 		// trigger the context component via the eventbus
-		emitNodeContextmenu(node, event) {
-			eventBus.$emit('context', node, event)
+		emitNodeContextmenu(node) {
+			eventBus.$emit('context', node)
 		},
 
 		/*
