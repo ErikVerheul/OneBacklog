@@ -171,7 +171,7 @@ const actions = {
 											let msg = 'Sync: a remote restore of the tree view failed. The item id is ' + node._id
 											// eslint-disable-next-line no-console
 											if (rootState.debug) console.log(msg)
-											if (rootState.userData.currentDb) dispatch('doLog', {
+											dispatch('doLog', {
 												event: msg,
 												level: WARNING
 											})
@@ -187,7 +187,7 @@ const actions = {
 										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
 									// eslint-disable-next-line no-console
 									if (rootState.debug) console.log(msg)
-									if (rootState.userData.currentDb) dispatch('doLog', {
+									dispatch('doLog', {
 										event: msg,
 										level: WARNING
 									})
@@ -254,7 +254,7 @@ const actions = {
 			let msg = 'Listening for changes made by other users failed with ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (rootState.userData.currentDb) dispatch('doLog', {
+			dispatch('doLog', {
 				event: msg,
 				level: WARNING
 			})

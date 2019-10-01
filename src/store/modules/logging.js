@@ -3,7 +3,6 @@ import globalAxios from 'axios'
 const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
 const WATCHDOGINTERVAL = 30
-var unsavedLogs = []
 const DEBUG = -1
 const INFO = 0
 const WARNING = 1
@@ -11,7 +10,27 @@ const ERROR = 2
 const CRITICAL = 3
 
 const state = {
+	unsavedLogs: [],
+	orphansFound: {},
 	runningWatchdogId: null
+}
+
+const mutations = {
+	/* Log any detected orphans while loading in the unsaved logs. Watchdog will persist them in the log document */
+	logOrphansFound(state) {
+		for (let orphan of state.orphansFound.orphans) {
+			const msg = 'Orphan found with productId = ' + orphan.productId + ' and  parentId = ' + orphan.parentId
+			let newLog = {
+				"event": msg,
+				"level": "CRITICAL",
+				"by": state.orphansFound.userData.user,
+				"email": state.orphansFound.userData.email,
+				"timestamp": Date.now(),
+				"timestampStr": new Date().toString()
+			}
+			state.unsavedLogs.push(newLog)
+		}
+	}
 }
 
 const actions = {
@@ -36,7 +55,7 @@ const actions = {
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString()
 			}
-			unsavedLogs.push(newLog)
+			state.unsavedLogs.push(newLog)
 		}
 
 		globalAxios({
@@ -73,12 +92,12 @@ const actions = {
 		dispatch
 	}) {
 		state.runningWatchdogId = setInterval(() => {
-			let logsToSave = unsavedLogs.length
-			if (rootState.debug) {
+			let logsToSave = state.unsavedLogs.length
+			if (rootState.showWatchdogInfo) {
 				// eslint-disable-next-line no-console
 				console.log('watchdog:' +
 					'\nOnline = ' + rootState.online +
-					'\nUnsavedLogs = ' + logsToSave +
+					'\nstate.unsavedLogs = ' + logsToSave +
 					'\ncookieAutenticated = ' + rootState.cookieAutenticated +
 					'\nListenForChangesRunning = ' + rootState.listenForChangesRunning +
 					'\ntimestamp = ' + new Date().toString())
@@ -94,8 +113,8 @@ const actions = {
 						let log = res.data
 						// save the stored logs
 						if (logsToSave > 0) {
-							for (let i = 0; i < unsavedLogs.length; i++) {
-								log.entries.unshift(unsavedLogs[i])
+							for (let i = 0; i < state.unsavedLogs.length; i++) {
+								log.entries.unshift(state.unsavedLogs[i])
 							}
 							let newLog = {
 								"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them',
@@ -106,7 +125,7 @@ const actions = {
 								"timestampStr": new Date().toString()
 							}
 							log.entries.unshift(newLog)
-							unsavedLogs = []
+							state.unsavedLogs = []
 						}
 						// we have a working connection to the database; restart synchronization if needed
 						if (!rootState.listenForChangesRunning) {
@@ -172,28 +191,35 @@ const actions = {
 			"timestamp": now,
 			"timestampStr": new Date(now).toString()
 		}
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + LOGDOCNAME,
-			withCredentials: true,
-		}).then(res => {
-			let log = res.data
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log("doLog: The log is fetched.")
+		if (rootState.userData.currentDb) {
+			globalAxios({
+				method: 'GET',
+				url: rootState.userData.currentDb + '/' + LOGDOCNAME,
+				withCredentials: true,
+			}).then(res => {
+				let log = res.data
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log("doLog: The log is fetched.")
 
-			log.entries.unshift(newLog)
-			log.entries = log.entries.slice(0, MAXLOGSIZE)
-			dispatch('saveLog', log)
-			// check if the cause is the loss of connection to the database
-			dispatch('checkConnection')
-		})
-			.catch(error => {
+				log.entries.unshift(newLog)
+				log.entries = log.entries.slice(0, MAXLOGSIZE)
+				dispatch('saveLog', log)
+				// check if the cause is the loss of connection to the database
+				dispatch('checkConnection')
+			}).catch(error => {
 				//eslint-disable-next-line no-console
 				if (rootState.debug) console.log('doLog: Pushed log entry to unsavedLogs:')
-				unsavedLogs.push(newLog)
+				state.unsavedLogs.push(newLog)
 				// eslint-disable-next-line no-console
 				console.log('doLog: Could not read the log. A retry is pending , ' + error)
 			})
+		} else {
+			//eslint-disable-next-line no-console
+			if (rootState.debug) console.log('doLog: Pushed log entry to unsavedLogs:')
+			state.unsavedLogs.push(newLog)
+			// eslint-disable-next-line no-console
+			console.log('doLog: Could not read the log. A retry is pending , the database name is undefined yet')
+		}
 	},
 
 	// save the log
@@ -219,5 +245,6 @@ const actions = {
 
 export default {
 	state,
+	mutations,
 	actions
 }

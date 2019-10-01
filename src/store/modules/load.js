@@ -23,7 +23,8 @@ const state = {
 	processedProducts: 0,
 	currentProductTitle: "",
 	myProductOptions: [],
-	rangeString: ''
+	rangeString: '',
+	orphansFound: {userData: null, orphans: []}
 }
 
 const getters = {
@@ -188,7 +189,8 @@ const mutations = {
 						parentNodes[batch[i].doc._id] = newNode
 					} else {
 						state.orphansCount++
-						// ToDo: add this to the log
+						state.orphansFound.orphans.push({parentId: parentId, productId: batch[i].doc.productId})
+						// eslint-disable-next-line no-console
 						console.log('processProduct: orphan found with parentId = ' + parentId + ' and productId = ' + batch[i].doc.productId)
 					}
 				}
@@ -272,7 +274,7 @@ const actions = {
 			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (rootState.userData.currentDb) dispatch('doLog', {
+			dispatch('doLog', {
 				event: msg,
 				level: ERROR
 			})
@@ -313,7 +315,7 @@ const actions = {
 			let msg = 'loadCurrentProduct: Could not read product root document with _id ' + _id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (rootState.userData.currentDb) dispatch('doLog', {
+			dispatch('doLog', {
 				event: msg,
 				level: ERROR
 			})
@@ -358,7 +360,7 @@ const actions = {
 			let msg = 'setMyProductOptions: Could not read product titles' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (rootState.userData.currentDb) dispatch('doLog', {
+			dispatch('doLog', {
 				event: msg,
 				level: ERROR
 			})
@@ -411,7 +413,7 @@ const actions = {
 			let msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (rootState.userData.currentDb) dispatch('doLog', {
+			dispatch('doLog', {
 				event: msg,
 				level: ERROR
 			})
@@ -432,6 +434,12 @@ const actions = {
 		}).then(res => {
 			batch = res.data.rows
 			commit('processProduct', rootState.userData.userAssignedProductIds)
+			// log any detected orphans if present
+			if (state.orphansFound.orphans.length > 0) {
+				rootState.logging.orphansFound = state.orphansFound
+				commit('logOrphansFound', null, {root: true})
+				state.orphansFound.orphans = []
+			}
 			// process other products here
 			if (rootState.userData.myProductSubscriptions.length > 1 && state.processedProducts < rootState.userData.myProductSubscriptions.length) {
 				state.productIdLoading = rootState.userData.myProductSubscriptions[state.processedProducts]
@@ -462,6 +470,8 @@ const actions = {
 		commit,
 		dispatch
 	}) {
+		// add a reference to the userData for logging
+		state.orphansFound.userData = rootState.userData
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
@@ -469,6 +479,12 @@ const actions = {
 		}).then(res => {
 			batch = res.data.rows
 			commit('processProduct', rootState.userData.userAssignedProductIds)
+			// log any detected orphans if present
+			if (state.orphansFound.orphans.length > 0) {
+				rootState.logging.orphansFound = state.orphansFound
+				commit('logOrphansFound', null, {root: true})
+				state.orphansFound.orphans = []
+			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Current product with ' + batch.length + ' documents is loaded')
 			// process other products here
@@ -522,7 +538,7 @@ const actions = {
 						const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log(msg)
-						if (rootState.userData.currentDb) dispatch('doLog', {
+						dispatch('doLog', {
 							event: msg,
 							level: WARNING
 						})
@@ -562,7 +578,7 @@ const actions = {
 			let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (rootState.userData.currentDb) dispatch('doLog', {
+			dispatch('doLog', {
 				event: msg,
 				level: ERROR
 			})
@@ -586,7 +602,7 @@ const actions = {
 			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (rootState.userData.currentDb) dispatch('doLog', {
+			dispatch('doLog', {
 				event: msg,
 				level: ERROR
 			})
@@ -613,7 +629,7 @@ const actions = {
 			let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (rootState.userData.currentDb) dispatch('doLog', {
+			dispatch('doLog', {
 				event: msg,
 				level: ERROR
 			})
