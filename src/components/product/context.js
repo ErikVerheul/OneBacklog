@@ -31,6 +31,8 @@ export default {
     },
 
     mounted() {
+        // to fix this.$refs.contextMenuRef undefined when routing away and back, expose instance to the global namespace
+		window.showContextMenuRef = this.$refs.contextMenuRef
         eventBus.$on('context', (node) => {
             this.showContextMenu(node)
         })
@@ -44,7 +46,6 @@ export default {
     },
 
     methods: {
-        // ToDo: fix this.$refs.contextMenuRef undefined when routing away and back
         showContextMenu(node) {
             this.contextSelected = undefined
             this.currentAssistanceNr = undefined
@@ -60,7 +61,7 @@ export default {
                 this.contextNodeType = this.getLevelText(node.level)
                 this.contextChildType = this.getLevelText(node.level + 1)
                 this.removeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
-                this.$refs.contextMenuRef.show()
+                window.showContextMenuRef.show()
             }
         },
 
