@@ -6,7 +6,7 @@
     <h4>Enter the database name in small caps, no spaces</h4>
     <b-form-input v-model="dbName" placeholder="Enter the database name"></b-form-input>
     <div>
-        <b-button class="m-1" @click="createDatabase">Create database</b-button>
+        <b-button v-if="dbName" class="m-1" @click="createDatabase">Create database</b-button>
         <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
     </div>
 
@@ -46,7 +46,7 @@
         </b-form-group>
 
         <div>
-          <b-button class="m-1" @click="createProductAndProfile">Create product and your profile</b-button>
+          <b-button v-if="selected.length > 0" class="m-1" @click="createProductAndProfile">Create product and your profile</b-button>
           <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         </div>
         {{ $store.state.initdb.createProductResult }}
@@ -58,7 +58,7 @@
           {{ $store.state.initdb.createFirstUserError }}
         </div>
         <h4 v-if="$store.state.initdb.productCreated && $store.state.initdb.userCreated">
-           Congratulations. Exit, and sign in again to see the product view. Add other users in the 'admin' view</h4>
+           Succes! Exit, and sign in again to see the product view. Add other users as 'admin' in the 'Admin tasks' view</h4>
         <b-button class="m-1" @click="cancel" variant="outline-primary">Exit</b-button>
       </div>
     </div>
@@ -90,18 +90,14 @@ export default {
 
   methods: {
     createDatabase() {
-      this.$store.dispatch('createDatabase', {
-        dbName: this.dbName,
-        user: this.$store.state.userData.user})
+      this.$store.dispatch('createDatabase', this.dbName)
     },
 
     createProductAndProfile() {
       const payload = {
         dbName: this.dbName,
         productName: this.productName,
-        email: this.email,
-        roles: this.selected,
-        user: this.$store.state.userData.user
+        roles: this.selected
       }
       this.$store.dispatch('initDatabase', payload)
     },
