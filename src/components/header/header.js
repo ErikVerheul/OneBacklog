@@ -1,6 +1,8 @@
 import licence from "./licence.vue"
 import { utilities } from '../mixins/utilities.js'
 
+const MINPASSWORDLENGTH = 8
+
 export default {
     mixins: [utilities],
     data() {
@@ -25,17 +27,17 @@ export default {
         },
         serverAdmin() {
             return (
-                this.$store.getters.isAuthenticated && this.$store.getters.isServerAdmin
+                this.auth && this.$store.getters.isServerAdmin
             )
         },
         superPO() {
             return (
-                this.$store.getters.isAuthenticated && this.$store.getters.isSuperPO
+                this.auth && this.$store.getters.isSuperPO
             )
         },
         admin() {
             return (
-                this.$store.getters.isAuthenticated && this.$store.getters.isAdmin
+                this.auth && this.$store.getters.isAdmin
             )
         }
     },
@@ -104,7 +106,7 @@ export default {
                 )
                 return
             }
-            if (this.newPassword1.length < 8) {
+            if (this.newPassword1.length < MINPASSWORDLENGTH) {
                 alert(
                     "Your new password must be 8 characters or longer. Please try again."
                 )
