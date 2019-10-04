@@ -27,6 +27,32 @@ const actions = {
 				})
 			})
 	},
+	addProductToUser({
+		rootState,
+		dispatch
+	}, newProductId) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			withCredentials: true
+		}).then(res => {
+			let tmpUserData = res.data
+			tmpUserData.subscriptions.push(newProductId)
+			// add all user roles to the new product
+			tmpUserData.productsRoles[newProductId] = rootState.userData.roles
+			dispatch("updateUser", tmpUserData)
+			rootState.superPoMessage = 'The product with Id ' + newProductId + ' is created and added to your profile with roles ' + rootState.userData.roles
+		})
+			.catch(error => {
+				let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', {
+					event: msg,
+					level: ERROR
+				})
+			})
+	},
 	updateSubscriptions({
 		rootState,
 		dispatch

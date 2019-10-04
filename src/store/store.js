@@ -32,6 +32,7 @@ export default new Vuex.Store({
 		nodeSelected: null,
 		numberOfNodesSelected: 0,
 		lastEvent: '',
+		superPoMessage: '',
 		online: true,
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
