@@ -1,5 +1,8 @@
 import globalAxios from 'axios'
 
+const DATABASELEVEL = 1
+const PRODUCTLEVEL = 2
+
 const state = {
 	createDatabaseResult: '',
 	createDatabaseError: '',
@@ -27,15 +30,14 @@ const actions = {
 			method: 'PUT',
 			url: payload.dbName,
 			withCredentials: true,
-		}).then(res => {
-			state.createDatabaseError = res.data
+		}).then(() => {
 			state.dbCreated = true
 			// create root document
 			const rootDoc = {
 				"_id": "root",
 				"shortId": "root",
 				"type": "backlogItem",
-				"level": 1,
+				"level": DATABASELEVEL,
 				"title": "The root of all products in this database",
 				"followers": [],
 				"description": window.btoa("<p>Database root document</p>"),
@@ -44,7 +46,7 @@ const actions = {
 				"attachments": [],
 				"comments": [],
 				"history": [{
-					"createEvent": [1, payload.dbName],
+					"createEvent": [DATABASELEVEL, payload.dbName],
 					"by": rootState.userData.user,
 					"email": payload.email,
 					"timestamp": Date.now(),
@@ -108,6 +110,7 @@ const actions = {
 		}).catch(error => {
 			// eslint-disable-next-line no-console
 			console.log(error)
+			state.createDatabaseError = error.response.data
 		})
 	},
 
@@ -131,12 +134,12 @@ const actions = {
 			url: dbName + '/_security',
 			withCredentials: true,
 			data: dbPermissions
-		}).then(res => {
-			state.message = res.data
+		}).then(() => {
 			// all ok
 		}).catch(error => {
 			// eslint-disable-next-line no-console
 			console.log(error)
+			state.createDatabaseError = error.response.data
 		})
 	},
 
@@ -192,7 +195,7 @@ const actions = {
 			"productId": _id,
 			"parentId": 'root',
 			"team": "not assigned yet",
-			"level": 2,
+			"level": PRODUCTLEVEL,
 			"subtype": 0,
 			"state": 0,
 			"tssize": 0,
@@ -206,7 +209,7 @@ const actions = {
 			"attachments": [],
 			"comments": [],
 			"history": [{
-				"createEvent": [2, payload.dbName],
+				"createEvent": [PRODUCTLEVEL, payload.dbName],
 				"by": rootState.userData.user,
 				"email": payload.email,
 				"timestamp": Date.now(),
