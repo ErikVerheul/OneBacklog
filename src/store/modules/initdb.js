@@ -18,14 +18,14 @@ const actions = {
 		rootState,
 		state,
 		dispatch
-	}, dbName) {
+	}, payload) {
 		state.createDatabaseResult = ''
 		state.createDatabaseError = ''
 		// eslint-disable-next-line no-console
 		console.log('create database')
 		globalAxios({
 			method: 'PUT',
-			url: dbName,
+			url: payload.dbName,
 			withCredentials: true,
 		}).then(res => {
 			state.createDatabaseError = res.data
@@ -38,15 +38,15 @@ const actions = {
 				"level": 1,
 				"title": "The root of all products in this database",
 				"followers": [],
-				"description": window.btoa("<p>" + 'Database root document' + "</p>"),
-				"acceptanceCriteria": window.btoa("<p></p>"),
+				"description": window.btoa("<p>Database root document</p>"),
+				"acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
 				"priority": 0,
 				"attachments": [],
 				"comments": [],
 				"history": [{
-					"createEvent": [1, dbName],
+					"createEvent": [1, payload.dbName],
 					"by": rootState.userData.user,
-					"email": rootState.userData.email,
+					"email": payload.email,
 					"timestamp": Date.now(),
 					"timestampStr": new Date().toString(),
 					"sessionId": rootState.userData.sessionId,
@@ -54,9 +54,9 @@ const actions = {
 				}],
 				"delmark": false
 			}
-			dispatch('createRoot', {dbName: dbName, rootDoc: rootDoc})
+			dispatch('createRoot', {dbName: payload.dbName, rootDoc: rootDoc})
 			dispatch('setUsersDatabasePermissions', rootState.userData.user)
-			dispatch('setDatabasePermissions', dbName)
+			dispatch('setDatabasePermissions', payload.dbName)
 		}).catch(error => {
 			// eslint-disable-next-line no-console
 			console.log(error)
@@ -152,7 +152,7 @@ const actions = {
 					"event": "Log initialization",
 					"level": "INFO",
 					"by": rootState.userData.user,
-					"email": rootState.userData.email,
+					"email": payload.email,
 					"timestamp": Date.now(),
 					"timestampStr": new Date().toString()
 				},
@@ -200,15 +200,15 @@ const actions = {
 			"spikepersonhours": 0,
 			"title": payload.productName,
 			"followers": [],
-			"description": window.btoa("<p></p>"),
-			"acceptanceCriteria": window.btoa("<p></p>"),
+			"description": window.btoa(""),
+			"acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
 				"createEvent": [2, payload.dbName],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
+				"email": payload.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
@@ -255,7 +255,7 @@ const actions = {
 				"teams": [],
 				"roles": payload.roles,
 				"type": "user",
-				"email": rootState.userData.email,
+				"email": payload.email,
 				"currentDb": payload.dbName,
 				"subscriptions": [payload.productId],
 				"productsRoles": productsRoles

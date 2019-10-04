@@ -90,12 +90,17 @@ export default {
 
   methods: {
     createDatabase() {
-      this.$store.dispatch('createDatabase', this.dbName)
+      const payload = {
+        dbName: this.dbName,
+        email: this.email
+      }
+      this.$store.dispatch('createDatabase', payload)
     },
 
     createProductAndProfile() {
       const payload = {
         dbName: this.dbName,
+        email: this.email,
         productName: this.productName,
         roles: this.selected
       }
