@@ -485,21 +485,20 @@ const actions = {
 				dispatch('restoreParentFirst', entry)
 				if (entry.isProductRemoved) {
 					// remove the product from the list of removed products
-					dispatch('removeFromRemovedProducts', entry.descendants[0])
+					dispatch('removeFromRemovedProducts', entry.removedNode._id)
 				}
 			} else {
 				commit('showLastEvent', { txt: `You cannot restore under the removed item with title '${grandParentDoc.title}'`, severity: WARNING })
 			}
-		})
-			.catch(error => {
-				let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 	restoreParentFirst({
 		rootState,
@@ -524,16 +523,15 @@ const actions = {
 			tmpDoc.history.unshift(newHist)
 			tmpDoc.delmark = false
 			dispatch('undoRemovedParent', { tmpDoc: tmpDoc, entry: payload })
-		})
-			.catch(error => {
-				let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 	// update the parent and restore the descendants
 	undoRemovedParent({
@@ -552,16 +550,15 @@ const actions = {
 			dispatch('restoreDescendantsBulk', payload.entry)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('undoRemovedParent: document with _id + ' + _id + ' is updated.')
-		})
-			.catch(error => {
-				let msg = 'undoRemovedParent: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'undoRemovedParent: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 	/* Mark the descendants of the parent for removal. Do not distribute this event as distributing the parent removal will suffice */
 	removeDescendantsBulk({
@@ -680,8 +677,7 @@ const actions = {
 				})
 			}
 			dispatch('updateBulk', ok)
-		})
-			.catch(error => {
+		}).catch(error => {
 				let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
@@ -947,16 +943,15 @@ const actions = {
 				}
 			}
 			dispatch('updateDoc', tmpConfig)
-		})
-			.catch(error => {
-				let msg = 'addToRemovedProducts: Could not read config document ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'addToRemovedProducts: Could not read config document ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 
 	// Update document by creating a new revision

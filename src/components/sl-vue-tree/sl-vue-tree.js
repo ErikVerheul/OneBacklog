@@ -77,8 +77,8 @@ export default {
 	},
 
 	watch: {
-		value: function (newValue) {
-			this.currentValue = newValue;
+		value(newValue) {
+			this.currentValue = newValue
 		}
 	},
 
@@ -454,6 +454,11 @@ export default {
 			return this.currentValue
 		},
 
+		getNrOfProducts() {
+			const productModels = this.currentValue[0].children
+			return productModels.length
+		},
+
 		traverseModels(cb, nodeModels = this.currentValue) {
 			let shouldStop = false
 			function traverse(cb, nodeModels) {
@@ -480,6 +485,11 @@ export default {
 				}
 			}, this.currentValue)
 			return resultNode
+		},
+
+		getNextSibling(path) {
+			const nextPath = path.slice(0, -1).concat(path.slice(-1)[0] + 1)
+			return this.getNodeModel(nextPath)
 		},
 
 		getPreviousNode(path) {
@@ -558,7 +568,10 @@ export default {
 				predecessorNode = null
 				destSiblings.unshift(...nodes)
 				successorNode = destSiblings[nodes.length] || null
-				this.updatePaths(destNodeModel.path, destSiblings, 0, productId, parentId)
+				if (destNodeModel.path.length === 1) {
+					// inserting a product
+					this.updatePaths(destNodeModel.path, destSiblings, 0)
+				} else this.updatePaths(destNodeModel.path, destSiblings, 0, productId, parentId)
 			} else {
 				// insert before or after the cursor position
 				const destSiblings = this.getNodeSiblings(destNodeModel.path)
@@ -568,7 +581,10 @@ export default {
 				predecessorNode = destSiblings[insertInd - 1] || null
 				destSiblings.splice(insertInd, 0, ...nodes)
 				successorNode = destSiblings[insertInd + nodes.length] || null
-				this.updatePaths(parentPath, destSiblings, insertInd, productId, parentId)
+				if (parentPath.length === 1) {
+					// inserting a product
+					this.updatePaths(parentPath, destSiblings, insertInd)
+				} else this.updatePaths(parentPath, destSiblings, insertInd, productId, parentId)
 			}
 			assignNewPrios(nodes, predecessorNode, successorNode)
 		},

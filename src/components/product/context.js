@@ -4,6 +4,7 @@ import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
+const ROOTLEVEL = 1
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 var newNode = {}
@@ -32,7 +33,7 @@ export default {
 
     mounted() {
         // to fix this.$refs.contextMenuRef undefined when routing away and back, expose instance to the global namespace
-		window.showContextMenuRef = this.$refs.contextMenuRef
+        window.showContextMenuRef = this.$refs.contextMenuRef
         eventBus.$on('context', (node) => {
             this.showContextMenu(node)
         })
@@ -208,7 +209,6 @@ export default {
                     // unselect the node that was clicked before the insert
                     this.contextNodeSelected.isSelected = false
                 }
-                this.$store.state.nodeSelected = newNode
                 // insert the new node in the tree
                 window.slVueTree.insertSingle(newNodeLocation, newNode)
                 this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
@@ -229,8 +229,8 @@ export default {
                     "reqarea": null,
                     "title": newNode.title,
                     "followers": [],
-                    "description": "",
-                    "acceptanceCriteria": window.btoa("<p>Please don't forget</p>"),
+                    "description": window.btoa(""),
+                    "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
                     "priority": newNode.data.priority,
                     "attachments": [],
                     "comments": [],
@@ -263,9 +263,9 @@ export default {
             const path = selectedNode.path
             const descendants = descendantsInfo.descendants
             // when removing a product
-            if (selectedNode.level === this.productLevel) {
-                // cannot remove the last assigned product
-                if (this.$store.state.userData.userAssignedProductIds.length === 1) {
+            if (selectedNode.level === PRODUCTLEVEL) {
+                // cannot remove the last assigned product or product in the tree
+                if (this.$store.state.userData.userAssignedProductIds.length === 1 || window.slVueTree.getNrOfProducts() <= 1) {
                     this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
                     return
                 }
@@ -294,15 +294,23 @@ export default {
                 }
             }
             this.$store.state.update.removeHistory.unshift(entry)
-            // collapse the branch and make the removed node invisible
-            selectedNode.isExpanded = false
-            selectedNode.doShow = false
-            // after removal select the predecessor of the removed node (sibling or parent)
+            // before removal select the predecessor or sucessor of the removed node (sibling or parent)
             const prevNode = window.slVueTree.getPreviousNode(path)
-            prevNode.isSelected = true
-            this.$store.state.nodeSelected = prevNode
-            // now we can remove the node and its children
-            window.slVueTree.removeSingle(selectedNode, prevNode)
+            let nowSelectedNode = prevNode
+            if (prevNode.level === ROOTLEVEL) {
+                // if a product is to be removed and the previous node is root, select the next product
+                const nextProduct = window.slVueTree.getNextSibling(path)
+                if (nextProduct === null) {
+                    // there is no next product; cannot remove the last product; note that this action is already blocked with a warming
+                    return
+                }
+                nowSelectedNode = nextProduct
+            }
+            nowSelectedNode.isSelected = true
+            this.$store.state.nodeSelected = nowSelectedNode
+            this.$store.state.load.currentProductId = nowSelectedNode.productId
+            // remove the node and its children
+            window.slVueTree.removeSingle(selectedNode, nowSelectedNode)
         },
 
         doCancel() {

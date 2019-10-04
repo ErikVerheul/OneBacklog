@@ -293,7 +293,7 @@ export default {
             this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
             this.$store.state.filterText = RESETFILTERBUTTONTEXT
             this.$store.state.filterOn = true
-            // this.showVisibility('filterSince', 4)
+            // window.slVueTree.showVisibility('filterSince', FEATURELEVEL)
         },
 
 		selectNode(shortId) {
@@ -355,14 +355,13 @@ export default {
             count === 1 ? s = 'title matches' : s = 'titles match'
             this.showLastEvent(`${count} item ${s} your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
             this.$store.state.searchOn = true
-            // this.showVisibility('filterOnKeyword', 4)
+            // window.slVueTree.showVisibility('filterOnKeyword', FEATURELEVEL)
         },
 
 		onUndoRemoveEvent() {
-            const entry = this.$store.state.update.removeHistory.splice(0, 1)[0]
+			const entry = this.$store.state.update.removeHistory.splice(0, 1)[0]
             this.$store.dispatch("unDoRemove", entry)
-            // restore the removed node but unselect it first
-            entry.removedNode.isSelected = false
+            // restore the removed node
             const parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
             if (parentNode) {
                 let path
@@ -379,19 +378,25 @@ export default {
                     const cursorPosition = {
                         nodeModel: prevNode,
                         placement: 'inside'
-                    }
+					}
                     window.slVueTree.insert(cursorPosition, [entry.removedNode])
                 } else {
                     // the previous node is a sibling
                     const cursorPosition = {
                         nodeModel: prevNode,
                         placement: 'after'
-                    }
+					}
                     window.slVueTree.insert(cursorPosition, [entry.removedNode])
-                }
+				}
+				// select the recovered node
+				this.$store.state.nodeSelected.isSelected = false
+				entry.removedNode.isSelected = true
+                this.$store.state.nodeSelected = entry.removedNode
+                this.$store.state.load.currentProductId = entry.removedNode.productId
             } else {
                 this.showLastEvent(`Cannot restore the removed items in the tree view. Sign out and -in again to recover'`, WARNING)
-            }
+			}
+			// window.slVueTree.showVisibility('onUndoRemoveEvent', FEATURELEVEL)
         },
 
         onClearFilterEvent() {
