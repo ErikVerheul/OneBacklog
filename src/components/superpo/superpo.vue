@@ -3,8 +3,8 @@
     <app-header>
         <b-navbar-nav class="ml-auto">
             <b-dropdown text="Select your action" class="m-md-2">
-                <b-dropdown-item @click="createProduct">Create a product</b-dropdown-item>
-                <b-dropdown-item @click="removeProduct">Remove a product</b-dropdown-item>
+                <b-dropdown-item @click="createProduct()">Create a product</b-dropdown-item>
+                <b-dropdown-item @click="removeProduct()">Remove a product</b-dropdown-item>
             </b-dropdown>
         </b-navbar-nav>
     </app-header>
@@ -12,7 +12,7 @@
       <h4>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h4>
       <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
       <b-button v-if="productTitle !== ''" class="m-1" @click="doCreateProduct()">Create product</b-button>
-      <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+      <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
       <br>
       {{ $store.state.superPoMessage }}
       <div  v-if="$store.state.superPoMessage !==''">
@@ -29,7 +29,7 @@
         <li>When undoing the removal the users who signed-in in the mean time will have no access to the product. An admin must register the product for them.</li>
       </ul>
       <b-button class="m-1" @click="showProductView()">Switch to product view</b-button>
-      <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+      <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
     </div>
   </div>
 </template>
@@ -66,9 +66,9 @@ export default {
         "type": "backlogItem",
         "productId": _id,
         "parentId": "root",
+        "team": "not assigned yet",
         "level": PRODUCTLEVEL,
         "state": 0,
-        "tssize": 14,
         "reqarea": null,
         "title": this.productTitle,
         "followers": [],
