@@ -568,8 +568,8 @@ const actions = {
 	}, payload) {
 		state.busyRemoving = true
 		const docsToGet = []
-		for (let i = 0; i < payload.descendants.length; i++) {
-			docsToGet.push({ "id": payload.descendants[i]._id })
+		for (let desc of payload.descendants) {
+			docsToGet.push({ "id": desc._id })
 		}
 		globalAxios({
 			method: 'POST',
@@ -614,26 +614,24 @@ const actions = {
 				})
 			}
 			dispatch('updateBulk', ok)
-		})
-			.catch(error => {
-				let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 	/* Unmark the removed item and its descendants for removal. Do distribute this event and set the selfUpdate property to have the tree updated */
 	restoreDescendantsBulk({
 		rootState,
 		dispatch
 	}, payload) {
-		const descendants = payload.descendants
 		const docsToGet = []
-		for (let i = 0; i < descendants.length; i++) {
-			docsToGet.push({ "id": descendants[i] })
+		for (let desc of payload.descendants) {
+			docsToGet.push({ "id": desc._id })
 		}
 		globalAxios({
 			method: 'POST',

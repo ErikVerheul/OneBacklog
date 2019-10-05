@@ -286,13 +286,9 @@ export default {
                 grandParentId: selectedNode.parentId,
                 parentId: selectedNode._id,
                 parentPath: selectedNode.path,
-                descendants: []
+                descendants:descendants
             }
-            if (descendants.length > 0) {
-                for (let descendant of descendants) {
-                    entry.descendants.push(descendant._id)
-                }
-            }
+
             this.$store.state.update.removeHistory.unshift(entry)
             // before removal select the predecessor or sucessor of the removed node (sibling or parent)
             const prevNode = window.slVueTree.getPreviousNode(path)

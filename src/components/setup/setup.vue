@@ -369,7 +369,7 @@
 				var payload = {
 					dbName: this.row.field1
 				}
-				this.$store.dispatch('removeHistory', payload)
+				this.$store.dispatch('doRemoveHistory', payload)
 			},
 		}
 	}

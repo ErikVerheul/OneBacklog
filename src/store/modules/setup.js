@@ -1261,7 +1261,7 @@ const actions = {
 			})
 	},
 
-	removeHistory({
+	doRemoveHistory({
 		state,
 		dispatch
 	}, payload) {
