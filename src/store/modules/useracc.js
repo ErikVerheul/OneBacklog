@@ -2,7 +2,37 @@ import globalAxios from 'axios'
 
 const ERROR = 2
 
+const state = {
+	fetchedUserData: null
+}
+
+/* updates roles in payload.products */
 const actions = {
+	getUser({
+		rootState,
+		state,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + payload.name,
+			withCredentials: true
+		}).then(res => {
+			state.fetchedUserData = res.data
+			for (let prod of payload.products) {
+				prod.roles = state.fetchedUserData.productsRoles[prod._id] || []
+			}
+		}).catch(error => {
+			state.fetchedUserData = null
+			let msg = 'getUser: Could not find user ' + payload.name + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
+			})
+		})
+	},
 	changePassword({
 		rootState,
 		dispatch
@@ -16,16 +46,15 @@ const actions = {
 			let tmpUserData = res.data
 			tmpUserData["password"] = newPassword
 			dispatch("updateUser", tmpUserData)
-		})
-			.catch(error => {
-				let msg = 'changePW: Could not change password for user ' + rootState.userData.user + '. Error = ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'changePW: Could not change password for user ' + rootState.userData.user + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 	addProductToUser({
 		rootState,
@@ -80,18 +109,18 @@ const actions = {
 	updateUser({
 		rootState,
 		dispatch
-	}, tmpUserData) {
+	}, newUserData) {
 		globalAxios({
 			method: 'PUT',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: '/_users/org.couchdb.user:' + newUserData.name,
 			withCredentials: true,
-			data: tmpUserData
+			data: newUserData
 		}).then(() => {
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('updateUser: user ' + rootState.userData.user + ' is updated')
+			if (rootState.debug) console.log('updateUser: user ' + newUserData.name + ' is updated')
 		})
 			.catch(error => {
-				let msg = 'updateUser: Could not update user data for user ' + rootState.userData.user + ', ' + error
+				let msg = 'updateUser: Could not update user data for user ' + newUserData.name + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', {
@@ -101,8 +130,63 @@ const actions = {
 			})
 	},
 
+	createUser1({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + payload.name,
+			withCredentials: true
+		}).then(res => {
+			let msg = 'createUser1: Cannot create user "' + res.data.name + '" that already exists'
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
+			})
+		}).catch(error => {
+			if (error.message.includes("404")) {
+				dispatch('createUser2', payload)
+			} else {
+				let msg = 'createUser1: While checking if user "' + payload.user + '" exist an error occurred, ' + error
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', {
+					event: msg,
+					level: ERROR
+				})
+			}
+		})
+	},
+
+	createUser2({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'PUT',
+			url: '/_users/org.couchdb.user:' + payload.name,
+			withCredentials: true,
+			data: payload
+		}).then(() => {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('createUser2: user "' + payload.name + '" is created')
+		}).catch(error => {
+			let msg = 'createUser2: Could not create user "' + payload.user + '", ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
+			})
+		})
+	},
+
 }
 
 export default {
+	state,
 	actions
 }

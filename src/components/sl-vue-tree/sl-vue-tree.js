@@ -454,9 +454,8 @@ export default {
 			return this.currentValue
 		},
 
-		getNrOfProducts() {
-			const productModels = this.currentValue[0].children
-			return productModels.length
+		getProducts() {
+			return this.currentValue[0].children
 		},
 
 		traverseModels(cb, nodeModels = this.currentValue) {

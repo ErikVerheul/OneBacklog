@@ -13,9 +13,11 @@ import InitPage from '../components/initdb/initdb.vue'
 import SetupPage from '../components/setup/setup.vue'
 import SigninPage from '../components/auth/signin.vue'
 import ProductPage from '../components/product/product.vue'
-import AdminPage from '../components/admin/admin.vue'
-import SuperPOPage from '../components/superpo/superpo.vue'
 import ReqsAreaPage from '../components/reqsarea/reqsarea.vue'
+import SuperPOPage from '../components/superpo/superpo.vue'
+import AdminPage from '../components/admin/admin.vue'
+import ServerAdminPage from '../components/serveradmin/serveradmin.vue'
+
 
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
@@ -95,6 +97,17 @@ const routes = [
 	{
 		path: '/admin',
 		component: AdminPage,
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		}
+	},
+	{
+		path: '/serveradmin',
+		component: ServerAdminPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {
 				next()

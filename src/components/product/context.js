@@ -265,7 +265,7 @@ export default {
             // when removing a product
             if (selectedNode.level === PRODUCTLEVEL) {
                 // cannot remove the last assigned product or product in the tree
-                if (this.$store.state.userData.userAssignedProductIds.length === 1 || window.slVueTree.getNrOfProducts() <= 1) {
+                if (this.$store.state.userData.userAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
                     this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
                     return
                 }
