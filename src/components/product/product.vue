@@ -90,12 +90,7 @@
     <!-- vertical panes -->
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
-        <h6
-          v-if="$store.state.userData.userAssignedProductIds.length==1"
-        >Welcome {{ $store.state.userData.user }}. Your current database is set to {{ $store.state.userData.currentDb }}. You have {{ $store.state.userData.userAssignedProductIds.length }} product.</h6>
-        <h6
-          v-if="$store.state.userData.userAssignedProductIds.length >1"
-        >Welcome {{ $store.state.userData.user }}. Your current database is set to {{ $store.state.userData.currentDb }}. You selected {{ $store.state.userData.myProductSubscriptions.length }} from {{ $store.state.userData.userAssignedProductIds.length }} products.</h6>
+        <h6>{{ welcomeMessage }}</h6>
         <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
         <div
           class="last-event"
