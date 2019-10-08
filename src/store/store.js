@@ -192,14 +192,13 @@ export default new Vuex.Store({
 				withCredentials: true,
 				data: authData
 			}).then(res => {
-				// email, myTeam, currentDb, myProductsRoles, myProductSubscriptions and userAssignedProductIds
-				// are updated when otherUserData and config are read.
+				// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds and myProductsRoles are updated when otherUserData and config are read
 				state.userData = {
 					user: res.data.name,
-					email: '',
-					myTeam: 'not assigned',
+					email: undefined,
+					myTeam: undefined,
 					password: authData.password,
-					currentDb: '',
+					currentDb: undefined,
 					roles: res.data.roles,
 					myProductSubscriptions: [],
 					userAssignedProductIds: [],
