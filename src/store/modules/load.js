@@ -381,9 +381,9 @@ const actions = {
 			rootState.userData.myProductSubscriptions = res.data.subscriptions
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.userData.user)
-			if (res.data.teams && res.data.teams.length > 0) {
-				rootState.userData.myTeams = res.data.teams
-				rootState.userData.myCurrentTeam = res.data.teams[res.data.currentTeamsIdx]
+			if (res.data.teams) {
+				// teams is an array with only one item
+				rootState.userData.myTeam = res.data.teams[0]
 			}
 			rootState.userData.email = res.data.email
 			rootState.userData.currentDb = res.data.currentDb
@@ -401,7 +401,7 @@ const actions = {
 			dispatch('getConfig')
 		}).catch(error => {
 			if (error.message.includes("404")) {
-				// the document does not exist; start one time initialization of a new database
+				// the document does not exist; start one time initialization of a new database if a server admin signed in
 				if (rootState.userData.roles.includes("_admin")) {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
