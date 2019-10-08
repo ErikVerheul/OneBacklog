@@ -7,7 +7,7 @@
                 <b-dropdown-item @click="maintainUsers()">Maintain users</b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
                 <b-dropdown-item @click="createTeam()">Create a team</b-dropdown-item>
-                <b-dropdown-item @click="maintainTeams()">Maintain teams</b-dropdown-item>
+                <b-dropdown-item @click="listTeams()">List team names</b-dropdown-item>
             </b-dropdown>
         </b-navbar-nav>
     </app-header>
@@ -44,7 +44,14 @@
         </b-form-group>
       </div>
       <b-button v-if="userName && password" class="m-1" @click="doCreateUser()">Create this user</b-button>
-      <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+      <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+      <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+      <div>
+        {{ $store.state.useracc.backendMessage }}
+      </div>
+      <div>
+        {{ message }}
+      </div>
     </div>
 
     <div v-if="actionNr === 2">
@@ -58,6 +65,7 @@
         </b-col>
       </b-row>
       <b-button class="m-1" @click="doFindUser()">Find this user</b-button>
+      <b-button v-if="canCancelFind" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
       <div v-if="$store.state.useracc.fetchedUserData">
         <b-row class="my-1">
           <b-col sm="2">
@@ -97,8 +105,15 @@
             </b-form-group>
           </div>
           <b-button class="m-1" @click="doUpdateUser()">Update this user</b-button>
-          <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+          <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+          <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
         </div>
+      </div>
+      <div>
+        {{ $store.state.useracc.backendMessage }}
+      </div>
+      <div>
+        {{ message }}
       </div>
     </div>
 
@@ -106,10 +121,23 @@
       <h4>Create a team for any product within the current database '{{ $store.state.userData.currentDb }}' by entering its name:</h4>
       <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
       <b-button class="m-1" @click="doCreateTeam()">Create this team</b-button>
-      <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+      <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+      <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+      <div>
+        {{ $store.state.useracc.backendMessage }}
+      </div>
+      <div>
+        {{ message }}
+      </div>
     </div>
-    <div v-else ></div>
-    {{ message }}
+
+    <div v-if="actionNr === 4">
+      <h4>The current database '{{ $store.state.userData.currentDb }}' knows of these teams:</h4>
+      <div v-for="teamName in $store.state.configData.teams">
+        {{ teamName }}
+      </div>
+      <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+    </div>
   </div>
 </template>
 
@@ -120,9 +148,12 @@ export default {
   data() {
     return {
       actionNr: 0,
+      canCancel: true,
+      canCancelFind: true,
       userName: undefined,
       password: undefined,
       userEmail: undefined,
+      teamName: '',
       options: [
         { text: 'area PO', value: 'areaPO' },
         { text: 'admin', value: 'admin' },
@@ -142,9 +173,12 @@ export default {
     /* Note that the admin can only assign products that are assigned to her/him */
     createUser() {
       this.actionNr = 1
+      this.canCancel = true
       this.userName = undefined
       this.password = undefined
       this.userEmail = undefined
+      this.message = ''
+      this.$store.state.useracc.backendMessage = ''
       this.products = window.slVueTree.getProducts()
       // add a temporary roles array to each product
       for (let prod of this.products) {
@@ -152,6 +186,8 @@ export default {
       }
     },
     doCreateUser() {
+      this.canCancel = false
+      this.message = ''
       let aRoleIsSet = false
       // calculate the association of all assigned roles
       for (let prod of this.products) {
@@ -189,21 +225,29 @@ export default {
 
     maintainUsers() {
       this.actionNr = 2
+      this.canCancel = true
+      this.canCancelFind = true
+      this.message = ''
+      this.$store.state.useracc.backendMessage = ''
       this.$store.state.useracc.fetchedUserData = null
       this.products = window.slVueTree.getProducts()
     },
 
     /* Creates fetchedUserData and have the prod.roles set in products */
     doFindUser() {
+      this.canCancelFind = false
       this.moveDatabase = false
       const payload = {
         name: this.userName,
         products: this.products,
       }
-      this.$store.dispatch('getUser', payload)
+      this.$store.dispatch('getUserRoles', payload)
     },
 
     doUpdateUser() {
+      this.canCancel = false
+      this.message = ''
+      this.$store.state.useracc.backendMessage = ''
       let aRoleIsSet = false
       let newUserData = this.$store.state.useracc.fetchedUserData
       // calculate the association of all assigned roles
@@ -239,11 +283,23 @@ export default {
 
     createTeam() {
       this.actionNr = 3
+      this.canCancel = true
+      this.teamName = ''
+      this.message = ''
+      this.$store.state.useracc.backendMessage = ''
     },
-    doCreateTeam() {
 
+    doCreateTeam() {
+      this.canCancel = false
+      if (!this.$store.state.configData.teams.includes(this.teamName)) {
+        this.$store.state.configData.teams.push(this.teamName)
+        this.$store.dispatch('updateDoc', this.$store.state.configData)
+        // ToDo: assumption is that the dispatch is successful
+        this.message = "Successfully created team '" + this.teamName + "'"
+      } else this.message = 'Cannot create team name twice'
     },
-    maintainTeams() {
+
+    listTeams() {
       this.actionNr = 4
     },
 

@@ -27,11 +27,11 @@
             </template>
             <b-dropdown-item v-if="!auth">No options here when not signed in</b-dropdown-item>
             <b-dropdown-item
-              v-if="auth && this.$store.state.userData.myTeams.length > 1"
+              v-if="auth"
               @click="changeTeam"
             >Change team</b-dropdown-item>
             <b-dropdown-item
-              v-if="auth && this.$store.state.userData.userAssignedProductIds.length > 1"
+              v-if="auth && $store.state.userData.userAssignedProductIds.length > 1"
               @click="selectProducts"
             >Select products</b-dropdown-item>
             <b-dropdown-item v-if="auth" @click="changePassword">Change password</b-dropdown-item>
@@ -47,7 +47,14 @@
 
     <b-modal size="lg" ref="changeTeamRef" @ok="doChangeTeam" title="Change your team">
       <b-container align-v="true">
-        <h1>Not yet implemented</h1>
+        <h5>Select your new team. Your current team is '{{ $store.state.userData.myTeam }}'</h5>
+        <b-form-group>
+          <b-form-radio-group
+            v-model="myTeam"
+            :options="teamOptions"
+            name="teamOptions"
+          ></b-form-radio-group>
+        </b-form-group>
       </b-container>
     </b-modal>
 
@@ -87,7 +94,7 @@
         <template v-if="auth && $store.state.demo && $store.state.userData.user === 'demoUser'">
           <h2>Demo users cannot change the password</h2>
         </template>
-        <template v-if="auth && this.$store.getters.isServerAdmin">
+        <template v-if="auth && $store.getters.isServerAdmin">
           <h2>Demo users cannot change the password</h2>
         </template>
         <template v-if="auth && $store.state.demo && $store.state.userData.user !== 'demoUser'">

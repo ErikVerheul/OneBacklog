@@ -1,14 +1,15 @@
 import globalAxios from 'axios'
-
+const INFO = 0
 const ERROR = 2
 
 const state = {
-	fetchedUserData: null
+	fetchedUserData: null,
+	backendMessage: ''
 }
 
 /* updates roles in payload.products */
 const actions = {
-	getUser({
+	getUserRoles({
 		rootState,
 		state,
 		dispatch
@@ -22,9 +23,41 @@ const actions = {
 			for (let prod of payload.products) {
 				prod.roles = state.fetchedUserData.productsRoles[prod._id] || []
 			}
+			state.backendMessage = 'Successfully fetched the roles of user ' + payload.name
 		}).catch(error => {
 			state.fetchedUserData = null
-			let msg = 'getUser: Could not find user ' + payload.name + '. Error = ' + error
+			let msg = 'getUserRoles: Could not find user ' + payload.name + '. Error = ' + error
+			state.backendMessage = msg
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
+			})
+		})
+	},
+	changeTeam({
+		rootState,
+		dispatch
+	}, newTeam) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			withCredentials: true
+		}).then(res => {
+			rootState.userData.myTeam = newTeam
+			let tmpUserData = res.data
+			tmpUserData.teams = [newTeam]
+			dispatch("updateUser", tmpUserData)
+			let msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + newTeam
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: INFO
+			})
+		}).catch(error => {
+			let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', {
@@ -71,16 +104,16 @@ const actions = {
 			tmpUserData.productsRoles[newProductId] = rootState.userData.roles
 			dispatch("updateUser", tmpUserData)
 			rootState.superPoMessage = 'The product with Id ' + newProductId + ' is created and added to your profile with roles ' + rootState.userData.roles
-		})
-			.catch(error => {
-				let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
+			rootState.superPoMessage = msg
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 	updateSubscriptions({
 		rootState,
@@ -94,16 +127,15 @@ const actions = {
 			let tmpUserData = res.data
 			tmpUserData.subscriptions = newSubscriptions
 			dispatch("updateUser", tmpUserData)
-		})
-			.catch(error => {
-				let msg = 'updateSubscriptions: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+		}).catch(error => {
+			let msg = 'updateSubscriptions: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', {
+				event: msg,
+				level: ERROR
 			})
+		})
 	},
 
 	updateUser({
@@ -116,11 +148,13 @@ const actions = {
 			withCredentials: true,
 			data: newUserData
 		}).then(() => {
+			state.backendMessage = 'User ' + newUserData.name + ' is updated'
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('updateUser: user ' + newUserData.name + ' is updated')
 		})
 			.catch(error => {
 				let msg = 'updateUser: Could not update user data for user ' + newUserData.name + ', ' + error
+				state.backendMessage = msg
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', {
@@ -140,6 +174,7 @@ const actions = {
 			withCredentials: true
 		}).then(res => {
 			let msg = 'createUser1: Cannot create user "' + res.data.name + '" that already exists'
+			state.backendMessage = msg
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', {
@@ -151,6 +186,7 @@ const actions = {
 				dispatch('createUser2', payload)
 			} else {
 				let msg = 'createUser1: While checking if user "' + payload.user + '" exist an error occurred, ' + error
+				state.backendMessage = msg
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', {
@@ -171,10 +207,12 @@ const actions = {
 			withCredentials: true,
 			data: payload
 		}).then(() => {
+			state.backendMessage = 'Successfully created user ' + payload.name
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('createUser2: user "' + payload.name + '" is created')
 		}).catch(error => {
 			let msg = 'createUser2: Could not create user "' + payload.user + '", ' + error
+			state.backendMessage = msg
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', {

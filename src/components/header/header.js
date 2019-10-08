@@ -7,13 +7,15 @@ export default {
     mixins: [utilities],
     data() {
         return {
-            appVersion: "OneBackLog v.0.6.2.1",
+            appVersion: "OneBackLog v.0.7.0",
             oldPassword: "",
             newPassword1: "",
             newPassword2: "",
             selectedProducts: this.$store.state.userData.myProductSubscriptions,
             defaultProductId: undefined,
-            defaultProductOptions: []
+            defaultProductOptions: [],
+            myTeam: '',
+            teamOptions: []
         }
     },
     created() {
@@ -44,7 +46,12 @@ export default {
 
     methods: {
         changeTeam() {
+            this.myTeam = ''
             this.$refs.changeTeamRef.show()
+            this.teamOptions = []
+            for (let team of this.$store.state.configData.teams) {
+                this.teamOptions.push({text: team, value: team})
+            }
         },
 
         selectProducts() {
@@ -57,7 +64,9 @@ export default {
             else this.$refs.changePwRef.show()
         },
 
-        doChangeTeam() { },
+        doChangeTeam() {
+            this.$store.dispatch('changeTeam', this.myTeam)
+         },
 
         /* Return if nothing is selected; set default product if 1 is selected; call selectDefaultProductRef if > 1 is selected */
         doSelectProducts() {

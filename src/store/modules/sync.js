@@ -133,7 +133,7 @@ const actions = {
 							}
 							// node	is restored from a previous removal
 							if (doc.history[0].docRestoredInsideEvent) {
-								commit('showLastEvent', { txt: `Another user restored a removed item.`, severity: INFO })
+								commit('showLastEvent', { txt: 'Another user restored a removed item.', severity: INFO })
 								// lookup in remove history
 								for (let i = 0; i < remoteRemoved.length; i++) {
 									const node = remoteRemoved[i]
@@ -167,7 +167,7 @@ const actions = {
 												window.slVueTree.insert(cursorPosition, [node])
 											}
 										} else {
-											commit('showLastEvent', { txt: `Cannot restore a removed item. Sign out and -in to see the change.`, severity: WARNING })
+											commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
 											let msg = 'Sync: a remote restore of the tree view failed. The item id is ' + node._id
 											// eslint-disable-next-line no-console
 											if (rootState.debug) console.log(msg)
