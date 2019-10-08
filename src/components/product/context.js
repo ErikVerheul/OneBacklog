@@ -211,6 +211,8 @@ export default {
                 }
                 // insert the new node in the tree
                 window.slVueTree.insertSingle(newNodeLocation, newNode)
+                // and select the new node
+                this.$store.state.nodeSelected = newNode
                 this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
                 // create a new document and store it
                 const initData = {
