@@ -133,7 +133,7 @@
 
     <div v-if="actionNr === 4">
       <h4>The current database '{{ $store.state.userData.currentDb }}' knows of these teams:</h4>
-      <div v-for="teamName in $store.state.configData.teams">
+      <div v-for="teamName in $store.state.configData.teams" :key="teamName">
         {{ teamName }}
       </div>
       <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
