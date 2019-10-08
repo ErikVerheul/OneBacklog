@@ -307,6 +307,8 @@ export default {
             nowSelectedNode.isSelected = true
             this.$store.state.nodeSelected = nowSelectedNode
             this.$store.state.load.currentProductId = nowSelectedNode.productId
+            // load the new selected item
+            this.$store.dispatch('loadDoc', nowSelectedNode._id)
             // remove the node and its children
             window.slVueTree.removeSingle(selectedNode, nowSelectedNode)
         },
