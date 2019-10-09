@@ -5,10 +5,25 @@ const ERROR = 2
 
 const state = {
 	removeHistory: [],
-	busyRemoving: false
+	busyRemoving: false,
+	backendMessage: ''
 }
 
 const actions = {
+	/* Executes the callback function passed in the payload when the database exists */
+	executeIfDatabaseExist({
+		state
+	}, payload) {
+		globalAxios({
+			method: 'HEAD',
+			url: payload.dbName,
+			withCredentials: true
+		}).then(() => {
+			payload.cb()
+		}).catch(error => {
+			state.backendMessage = error
+		})
+	},
 	/*
 	 * When updating the database, first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
