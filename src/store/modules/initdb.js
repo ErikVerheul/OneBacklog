@@ -194,7 +194,7 @@ const actions = {
 			"type": "backlogItem",
 			"productId": _id,
 			"parentId": 'root',
-			"team": "not assigned yet",
+			"team": "not in a team",
 			"level": PRODUCTLEVEL,
 			"state": 0,
 			"title": payload.productName,
@@ -251,7 +251,7 @@ const actions = {
 			data: {
 				"name": userName,
 				"password": rootState.userData.password,
-				"teams": [],
+				"teams": ['not in a team'],
 				"roles": payload.roles,
 				"type": "user",
 				"email": payload.email,
