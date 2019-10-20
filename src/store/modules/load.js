@@ -301,7 +301,7 @@ const actions = {
 			rootState.currentDoc.description = window.atob(res.data.description)
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('loadCurrentProduct: product document with _id + ' + _id + ' is loaded.')
+			if (rootState.debug) console.log('loadCurrentProduct: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
 			// initialize load parameters in case getFirstProduct is called without signing out first
 			batch = []
 			state.docsCount = 0
@@ -312,7 +312,8 @@ const actions = {
 			commit('composeRangeString')
 			dispatch('getFirstProduct')
 		}).catch(error => {
-			let msg = 'loadCurrentProduct: Could not read product root document with _id ' + _id + '. Error = ' + error
+			// ToDo: if 404 the database could be deleted
+			let msg = 'loadCurrentProduct: Could not read current product document with _id ' + _id + ' from database ' + rootState.userData.currentDb + '. ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', {
@@ -353,7 +354,7 @@ const actions = {
 						text: doc.title
 					})
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('setMyProductOptions: The title of document with _id + ' + results[i].docs[0].ok._id + ' is loaded.')
+					if (rootState.debug) console.log('setMyProductOptions: The title of document with _id ' + results[i].docs[0].ok._id + ' is loaded.')
 				}
 			}
 		}).catch(error => {
@@ -367,7 +368,7 @@ const actions = {
 		})
 	},
 
-	// Get the current DB name etc. for this user. Note that the user roles are already fetched
+	// Get the current DB name etc. for this user. Note that the user global roles are already fetched
 	getOtherUserData({
 		rootState,
 		dispatch
@@ -377,16 +378,15 @@ const actions = {
 			url: '_users/org.couchdb.user:' + rootState.userData.user,
 			withCredentials: true
 		}).then(res => {
-			rootState.userData.myProductsRoles = res.data.productsRoles
-			rootState.userData.myProductSubscriptions = res.data.subscriptions
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.userData.user)
-			if (res.data.teams) {
-				// teams is an array with only one item
-				rootState.userData.myTeam = res.data.teams[0]
-			}
 			rootState.userData.email = res.data.email
 			rootState.userData.currentDb = res.data.currentDb
+			rootState.userData.myDatabases = Object.keys(res.data.myDatabases)
+			const currentDbSettings = res.data.myDatabases[res.data.currentDb]
+			rootState.userData.myTeam = currentDbSettings.myTeam
+			rootState.userData.myProductsRoles = currentDbSettings.productsRoles
+			rootState.userData.myProductSubscriptions = currentDbSettings.subscriptions
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.userData.user)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('getOtherUserData: database ' + rootState.userData.currentDb + ' is set for user ' + rootState.userData.user)
 			let msg = rootState.userData.user + ' has logged in and the watchdog is started to recover from network outings.'
@@ -548,7 +548,7 @@ const actions = {
 					rootState.currentDoc.description = window.atob(doc.description)
 					rootState.currentDoc.acceptanceCriteria = window.atob(doc.acceptanceCriteria)
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('loadItemByShortId: document with _id + ' + doc._id + ' is loaded.')
+					if (rootState.debug) console.log('loadItemByShortId: document with _id ' + doc._id + ' is loaded.')
 				} else {
 					commit('showLastEvent', { txt: `The document with id ${shortId} is found but not in your assigned products.`, severity: WARNING })
 				}
@@ -573,7 +573,7 @@ const actions = {
 			rootState.currentDoc.description = window.atob(res.data.description)
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('loadDoc: document with _id + ' + _id + ' is loaded.')
+			if (rootState.debug) console.log('loadDoc: document with _id ' + _id + ' is loaded.')
 		}).catch(error => {
 			let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -623,7 +623,7 @@ const actions = {
 			data: payload.initData
 		}).then(() => {
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('createDoc2: document with _id + ' + _id + ' is created.')
+			if (rootState.debug) console.log('createDoc2: document with _id ' + _id + ' is created.')
 			dispatch('loadDoc', _id)
 		}).catch(error => {
 			let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error

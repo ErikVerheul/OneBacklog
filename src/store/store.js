@@ -11,6 +11,7 @@ import sync from './modules/sync'
 import useracc from './modules/useracc'
 import update from './modules/update'
 import setup from './modules/setup'
+import utils from './modules/utils'
 
 const DEBUG = -1
 const INFO = 0
@@ -22,6 +23,17 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
+		removeHistory: [],
+
+		backendMessages: [],
+		backendSuccess: false,
+		userUpdated: false,
+		selectedDatabaseName: '',
+		databaseOptions: undefined,
+		teamCreated: false,
+		fetchedTeams: [],
+		isCurrentDbChanged: false,
+
 		debug: true,
 		demo: true,
 		showWatchdogInfo: false,
@@ -32,7 +44,6 @@ export default new Vuex.Store({
 		nodeSelected: null,
 		numberOfNodesSelected: 0,
 		lastEvent: '',
-		superPoMessage: '',
 		online: true,
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
@@ -198,6 +209,7 @@ export default new Vuex.Store({
 					email: undefined,
 					myTeam: undefined,
 					password: authData.password,
+					myDatabases: [],
 					currentDb: undefined,
 					roles: res.data.roles,
 					myProductSubscriptions: [],
@@ -237,7 +249,8 @@ export default new Vuex.Store({
 		sync,
 		useracc,
 		update,
-		setup
+		setup,
+		utils
 	}
 
 })

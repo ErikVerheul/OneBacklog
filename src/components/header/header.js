@@ -32,6 +32,11 @@ export default {
                 this.auth && this.$store.getters.isServerAdmin
             )
         },
+        areaPO() {
+            return (
+                this.auth && this.$store.getters.isAreaPO
+            )
+        },
         superPO() {
             return (
                 this.auth && this.$store.getters.isSuperPO

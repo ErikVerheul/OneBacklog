@@ -291,7 +291,7 @@ export default {
                 descendants:descendants
             }
 
-            this.$store.state.update.removeHistory.unshift(entry)
+            this.$store.state.removeHistory.unshift(entry)
             // before removal select the predecessor or sucessor of the removed node (sibling or parent)
             const prevNode = window.slVueTree.getPreviousNode(path)
             let nowSelectedNode = prevNode

@@ -2,34 +2,34 @@
   <div>
     <app-header>
       <!-- Right aligned nav items -->
-        <b-navbar-nav class="ml-auto">
-          <b-button
+      <b-navbar-nav class="ml-auto">
+        <b-button
+          class="m-1"
+          v-show="$store.state.removeHistory.length > 0 && !$store.state.update.busyRemoving"
+          @click="onUndoRemoveEvent()"
+        >Undo remove</b-button>
+        <b-dropdown split class="m-1" @click="onClearFilterEvent()">
+          <template slot="button-content">{{ $store.state.filterText }}</template>
+          <b-dropdown-item @click="onFilterSinceEvent(10)">Changes &lt; 10 min.</b-dropdown-item>
+          <b-dropdown-item @click="onFilterSinceEvent(60)">Changes last hour</b-dropdown-item>
+          <b-dropdown-item @click="onFilterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
+        </b-dropdown>
+        <b-nav-form>
+          <b-form-input
+            id="selectOnId"
+            v-model="shortId"
+            :state="shortIdCheck"
             class="m-1"
-            v-show="$store.state.update.removeHistory.length > 0 && !$store.state.update.busyRemoving"
-            @click="onUndoRemoveEvent()"
-          >Undo remove</b-button>
-          <b-dropdown split class="m-1" @click="onClearFilterEvent()">
-            <template slot="button-content">{{ $store.state.filterText }}</template>
-            <b-dropdown-item @click="onFilterSinceEvent(10)">Changes &lt; 10 min.</b-dropdown-item>
-            <b-dropdown-item @click="onFilterSinceEvent(60)">Changes last hour</b-dropdown-item>
-            <b-dropdown-item @click="onFilterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
-          </b-dropdown>
-          <b-nav-form>
-            <b-form-input
-              id="selectOnId"
-              v-model="shortId"
-              :state="shortIdCheck"
-              class="m-1"
-              placeholder="Select on Id"
-            />
-            <b-form-input
-              id="searchInput"
-              v-model="$store.state.keyword"
-              class="m-1"
-              placeholder="Search titles on key word"
-            />
-          </b-nav-form>
-        </b-navbar-nav>
+            placeholder="Select on Id"
+          />
+          <b-form-input
+            id="searchInput"
+            v-model="$store.state.keyword"
+            class="m-1"
+            placeholder="Search titles on key word"
+          />
+        </b-nav-form>
+      </b-navbar-nav>
     </app-header>
     <div class="d-table w-100">
       <span class="d-table-cell tal">

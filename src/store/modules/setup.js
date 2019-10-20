@@ -109,7 +109,7 @@ const actions = {
 			data: newDoc
 		}).then(() => {
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('createNewProduct: Product document with _id + ' + _id + ' is created.')
+			if (rootState.debug) console.log('createNewProduct: Product document with _id ' + _id + ' is created.')
 			// note that a curious fix was needed to get correct priority numbers: Math.floor(payload.epics) instead of payload.epics
 			let newPayload = {
 				productId: newDoc.productId,
@@ -180,7 +180,7 @@ const actions = {
 			data: newDoc
 		}).then(() => {
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('createNewEpics: Epic document with _id + ' + _id + ' is created. Counter1 = ' + payload.counter1)
+			if (rootState.debug) console.log('createNewEpics: Epic document with _id ' + _id + ' is created. Counter1 = ' + payload.counter1)
 			let newPayload = {
 				productId: newDoc.productId,
 				parentId: newDoc._id,
@@ -253,7 +253,7 @@ const actions = {
 			data: newDoc
 		}).then(() => {
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('createNewFeatures: document with _id + ' + _id + ' is created. Counter2 = ' + payload.counter2)
+			if (rootState.debug) console.log('createNewFeatures: document with _id ' + _id + ' is created. Counter2 = ' + payload.counter2)
 			let newPayload = {
 				productId: newDoc.productId,
 				parentId: newDoc._id,
@@ -325,7 +325,7 @@ const actions = {
 			data: newDoc
 		}).then(() => {
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('createNewStories: document with _id + ' + _id + ' is created. Counter3 = ' + payload.counter3)
+			if (rootState.debug) console.log('createNewStories: document with _id ' + _id + ' is created. Counter3 = ' + payload.counter3)
 			// recurse, execute sequentially
 			payload.counter3++
 			dispatch('createNewStories', payload)
@@ -529,181 +529,6 @@ const actions = {
 			})
 	},
 
-	copyDB({
-		state,
-		dispatch
-	}, payload) {
-		this.commit('clearAll')
-		// eslint-disable-next-line no-console
-		let copyData = {
-			"create_target": true,
-			"source": payload.dbSourceName,
-			"target": payload.dbTargetName
-		}
-		// eslint-disable-next-line no-console
-		console.log('Copy DB: from ' + payload.dbSourceName + ' to ' + payload.dbTargetName)
-		globalAxios({
-			method: 'POST',
-			url: "_replicate",
-			withCredentials: true,
-			data: copyData
-		}).then(res => {
-			state.message = res.data
-			// eslint-disable-next-line no-console
-			console.log(res)
-			dispatch('setDbPermissions', {
-				dbName: payload.dbTargetName
-			})
-		})
-			.catch(error => {
-				// eslint-disable-next-line no-console
-				console.log(error)
-				state.message = error.response.data
-				state.errorMessage = error.message
-			})
-	},
-
-	initializeDB({
-		state
-	}, payload) {
-		/* The configuration data can change over time with new versions of this program.
-		 * Once a database is created it is tightly coupled with the configuration is was created with.
-		 */
-		const configData = {
-			"_id": "config",
-			"type": "config",
-			"changedBy": "Erik",
-			"changeDate": 1551940535871,
-
-			"itemType": [
-				"RequirementArea",
-				"Database",
-				"Product",
-				"Epic",
-				"Feature",
-				"PBI"
-			],
-
-			"ItemTypeDefinitions": [
-				"A requirement area is a categorization of the requirements leading to a different view of the Product Backlog",
-				"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
-				"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
-				"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
-				"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
-			],
-
-			"itemState": [
-				"New",
-				"Ready",
-				"In progress",
-				"On hold",
-				"Done",
-				"Removed"
-			],
-			"itemStateDefinitions": [
-				"The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
-				"The state Ready means that the item is understood well enough by the team for realization in a sprint",
-				"The state 'In progress' means that the item is worked on in a (past) sprint",
-				"The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
-				"The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
-				"The state Removed means that work on the item will never start or was cancelled"
-			],
-
-			"tsSize": [
-				"XXL",
-				"XL",
-				"L",
-				"M",
-				"S",
-				"XS",
-				"XXS"
-			],
-			"tsSizeDefinitions": [
-				"Extra-extra large effort involved",
-				"Extra large effort involved",
-				"Large effort involved",
-				"Medium effort involved",
-				"Small effort involved",
-				"Extra small effort involved",
-				"Almost none effort involved"
-			],
-
-			// For now the subtype field is used only for pbi's
-			"subtype": [
-				"User story",
-				"Spike",
-				"Defect"
-			],
-			"subtypeDefinitions": [
-				"The product backog item of type 'User story' is the regular type as described in the Scrum guide",
-				"The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
-				"The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
-			],
-		}
-
-		this.commit('clearAll')
-		// eslint-disable-next-line no-console
-		console.log('Initialize DB: ' + payload.dbName)
-		globalAxios({
-			method: 'POST',
-			url: payload.dbName,
-			withCredentials: true,
-			data: configData
-		}).then(res => {
-			state.message = res.data
-			// eslint-disable-next-line no-console
-			console.log(res)
-		})
-			.catch(error => {
-				// eslint-disable-next-line no-console
-				console.log(error)
-				state.message = error.response.data
-				state.errorMessage = error.message
-			})
-
-		// Add the _design documents
-		globalAxios({
-			method: 'PUT',
-			url: payload.dbName + '/_design/design1',
-			withCredentials: true,
-			data: {
-				"views": {
-					/*
-					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
-					 * Select the 'backlogitem' document type and skip removed, requirements-area and database description documents (level 0 and 1).
-					 */
-					"sortedFilter": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
-					},
-					/*
-					 * Filter on document type 'backlogItem', then filter the changes which need distributed to other users.
-					 */
-					"changesFilter": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.history[0].distributeEvent) emit(doc._id, 1);}'
-					},
-					/*
-					 * Filter on document type 'backlogItem', then sort on shortId.
-					 */
-					"shortIdFilter": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.shortId], 1);}'
-					}
-
-				},
-				"language": "javascript"
-			}
-		}).then(res => {
-			state.message = res.data
-			// eslint-disable-next-line no-console
-			console.log(res)
-		})
-			.catch(error => {
-				// eslint-disable-next-line no-console
-				console.log(error)
-				state.message = error.response.data
-				state.errorMessage = error.message
-			})
-	},
-
 	showAllDocs({
 		state
 	}, payload) {
@@ -758,13 +583,12 @@ const actions = {
 			state.message = res.data
 			// eslint-disable-next-line no-console
 			console.log(res.data)
+		}).catch(error => {
+			// eslint-disable-next-line no-console
+			console.log(error)
+			state.message = error.response.data
+			state.errorMessage = error.message
 		})
-			.catch(error => {
-				// eslint-disable-next-line no-console
-				console.log(error)
-				state.message = error.response.data
-				state.errorMessage = error.message
-			})
 	},
 
 	createExampleDB({
@@ -1187,34 +1011,6 @@ const actions = {
 			})
 	},
 
-	createUsers({
-		state
-	}) {
-		this.commit('clearAll')
-		initUsers.data.forEach(function (el) {
-			globalAxios({
-				method: 'PUT',
-				url: '_users/org.couchdb.user:' + el.name,
-				withCredentials: true,
-				data: el
-			}).then(res => {
-				state.message = res.data
-				// eslint-disable-next-line no-console
-				console.log(res)
-			})
-				.catch(error => {
-					if (error.response.status === 409) {
-						state.comment = state.comment + 'User ' + el.name + ' already exists, '
-					} else {
-						// eslint-disable-next-line no-console
-						console.log(error)
-						state.message = error.response.data
-						state.errorMessage = error.message
-					}
-				})
-		});
-	},
-
 	setUsersDbPermissions({
 		state
 	}) {
@@ -1229,29 +1025,6 @@ const actions = {
 			state.message = res.data
 			// eslint-disable-next-line no-console
 			console.log('_users DB permissions are set, response is: ' + res)
-		})
-			.catch(error => {
-				// eslint-disable-next-line no-console
-				console.log(error)
-				state.message = error.response.data
-				state.errorMessage = error.message
-			})
-	},
-
-	setDbPermissions({
-		state
-	}, payload) {
-		// eslint-disable-next-line no-console
-		console.log('Start executing setDbPermissions')
-		globalAxios({
-			method: 'PUT',
-			url: payload.dbName + '/_security',
-			withCredentials: true,
-			data: dbPermissions
-		}).then(res => {
-			state.message = res.data
-			// eslint-disable-next-line no-console
-			console.log('DB permissions are set, response is: ' + res)
 		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
@@ -1328,151 +1101,6 @@ const actions = {
 
 }
 
-/* Below some data to create a sample database */
-const initUsers = {
-	"data": [
-		{
-			"name": "demoUser",
-			"password": "demoUser",
-			"teams": ["Ghost busters", "A-team"],
-			"roles": ["superPO", "PO", "developer", "guest"],
-			"type": "user",
-			"email": "demouser@mycompany.nl",
-			"currentDb": 'demodb',
-			"productsRoles": {
-				"1552152600149c2ac": [
-					"superPO",
-					"PO",
-					"developer",
-					"guest"
-				],
-				"15521398069875394": [
-					"guest"
-				]
-			},
-			"subscriptions": [
-				"1552152600149c2ac",
-				"15521398069875394"
-			]
-		},
-		{
-			"name": "Jan Klaassen",
-			"password": "Jan",
-			"teams": ["Ghost busters", "A-team"],
-			"roles": ["admin", "superPO", "guest"],
-			"type": "user",
-			"email": "jan@mycompany.nl",
-			"currentDb": 'demodb',
-			"productsRoles": {
-				"1552152600149c2ac": [
-					"admin",
-					"superPO"
-				],
-				"15521398069875394": [
-					"guest"
-				]
-			},
-			"subscriptions": [
-				"1552152600149c2ac",
-				"15521398069875394"
-			]
-		},
-		{
-			"name": "Herman",
-			"password": "Herman",
-			"teams": ["Ghost busters", "A-team"],
-			"roles": ["PO", "guest"],
-			"type": "user",
-			"email": "herman@mycompany.nl",
-			"currentDb": 'demodb',
-			"productsRoles": {
-				"1552152600149c2ac": [
-					"PO"
-				],
-				"15521398069875394": [
-					"guest"
-				]
-			},
-			"subscriptions": [
-				"1552152600149c2ac",
-				"15521398069875394"
-			]
-		},
-		{
-			"name": "Piet",
-			"password": "Piet",
-			"teams": ["Ghost busters"],
-			"roles": ["areaPO", "guest"],
-			"type": "user",
-			"email": "piet@mycompany.nl",
-			"currentDb": 'demodb',
-			"productsRoles": {
-				"1552152600149c2ac": [
-					"areaPO"
-				],
-				"15521398069875394": [
-					"guest"
-				]
-			},
-			"subscriptions": [
-				"1552152600149c2ac",
-				"15521398069875394"
-			]
-		},
-		{
-			"name": "Mechteld",
-			"password": "Mechteld",
-			"teams": ["Ghost busters"],
-			"roles": ["developer", "guest"],
-			"type": "user",
-			"email": "mechteld@mycompany.nl",
-			"currentDb": 'demodb',
-			"productsRoles": {
-				"1552152600149c2ac": [
-					"developer"
-				],
-				"15521398069875394": [
-					"guest"]
-			},
-			"subscriptions": [
-				"1552152600149c2ac",
-				"15521398069875394"
-			]
-		},
-		{
-			"name": "Henk",
-			"password": "Henk",
-			"roles": ["guest"],
-			"type": "user",
-			"email": "henk@mycompany.nl",
-			"currentDb": 'demodb',
-			"productsRoles": {
-				"15521398069875394": [
-					"guest"
-				]
-			},
-			"subscriptions": [
-				"15521398069875394"
-			]
-		},
-		{
-			"name": "guest",
-			"password": "guest",
-			"roles": ["guest"],
-			"type": "user",
-			"email": "guest@mycompany.nl",
-			"currentDb": 'demodb',
-			"productsRoles": {
-				"1552152600149c2ac": [
-					"guest"
-				]
-			},
-			"subscriptions": [
-				"1552152600149c2ac"
-			]
-		}]
-}
-
 const usersDbPermissions = {
 	"admins": {
 		"names": [],
@@ -1481,17 +1109,6 @@ const usersDbPermissions = {
 	"members": {
 		"names": [],
 		"roles": []
-	}
-}
-
-const dbPermissions = {
-	"admins": {
-		"names": [],
-		"roles": ["admin"]
-	},
-	"members": {
-		"names": [],
-		"roles": ["areaPO", "superPO", "PO", "developer", "guest"]
 	}
 }
 

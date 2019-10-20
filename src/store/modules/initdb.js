@@ -1,152 +1,14 @@
 import globalAxios from 'axios'
 
-const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 
-const state = {
-	createDatabaseResult: '',
-	createDatabaseError: '',
-	createProductResult: '',
-	createProductError: '',
-	createFirstUserResult: '',
-	createFirstUserError: '',
-	dbCreated: false,
-	productCreated: false,
-	userCreated: false
-}
-
 const actions = {
-
-	createDatabase({
-		rootState,
-		state,
-		dispatch
-	}, payload) {
-		state.createDatabaseResult = ''
-		state.createDatabaseError = ''
-		// eslint-disable-next-line no-console
-		console.log('create database')
-		globalAxios({
-			method: 'PUT',
-			url: payload.dbName,
-			withCredentials: true,
-		}).then(() => {
-			state.dbCreated = true
-			// create root document
-			const rootDoc = {
-				"_id": "root",
-				"shortId": "root",
-				"type": "backlogItem",
-				"level": DATABASELEVEL,
-				"title": "The root of all products in this database",
-				"followers": [],
-				"description": window.btoa("<p>Database root document</p>"),
-				"acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
-				"priority": 0,
-				"attachments": [],
-				"comments": [],
-				"history": [{
-					"createEvent": [DATABASELEVEL, payload.dbName],
-					"by": rootState.userData.user,
-					"email": payload.email,
-					"timestamp": Date.now(),
-					"timestampStr": new Date().toString(),
-					"sessionId": rootState.userData.sessionId,
-					"distributeEvent": false
-				}],
-				"delmark": false
-			}
-			dispatch('createRoot', {dbName: payload.dbName, rootDoc: rootDoc})
-			dispatch('setUsersDatabasePermissions', rootState.userData.user)
-			dispatch('setDatabasePermissions', payload.dbName)
-		}).catch(error => {
-			// eslint-disable-next-line no-console
-			console.log(error)
-			state.createDatabaseError = error.response.data
-		})
-	},
-
-	createRoot({
-		state
-	}, payload) {
-		globalAxios({
-			method: 'PUT',
-			url: payload.dbName + '/root',
-			withCredentials: true,
-			data: payload.rootDoc
-		}).then(() => {
-			state.createDatabaseResult = 'New database ' + payload.dbName + ' and root document are created. Note that subsequent actions will be performed on this database'
-			// eslint-disable-next-line no-console
-			console.log('createRoot: the root document is created.')
-		}).catch(error => {
-			// eslint-disable-next-line no-console
-			console.log('createRoot: Could not create the root document, ' + error)
-			state.createDatabaseError = error.response.data
-		})
-	},
-
-	setUsersDatabasePermissions({
-		state
-	}, user) {
-		const dbPermissions = {
-			"admins": {
-				"names": [user],
-				"roles": ["admin"]
-			},
-			"members": {
-				"names": [],
-				"roles": ["areaPO", "superPO", "PO", "developer", "guest"]
-			}
-		}
-		// eslint-disable-next-line no-console
-		console.log('Start executing setUsersDatabasePermissions')
-		globalAxios({
-			method: 'PUT',
-			url: '/_users/_security',
-			withCredentials: true,
-			data: dbPermissions
-		}).then(() => {
-			// all ok
-		}).catch(error => {
-			// eslint-disable-next-line no-console
-			console.log(error)
-			state.createDatabaseError = error.response.data
-		})
-	},
-
-	setDatabasePermissions({
-		state
-	}, dbName) {
-		const dbPermissions = {
-			"admins": {
-				"names": [],
-				"roles": ["admin"]
-			},
-			"members": {
-				"names": [],
-				"roles": ["areaPO", "superPO", "PO", "developer", "guest"]
-			}
-		}
-		// eslint-disable-next-line no-console
-		console.log('Start executing setDatabasePermissions')
-		globalAxios({
-			method: 'PUT',
-			url: dbName + '/_security',
-			withCredentials: true,
-			data: dbPermissions
-		}).then(() => {
-			// all ok
-		}).catch(error => {
-			// eslint-disable-next-line no-console
-			console.log(error)
-			state.createDatabaseError = error.response.data
-		})
-	},
-
 	initDatabase({
 		rootState,
 		dispatch
 	}, payload) {
+    rootState.backendMessages = []
+		rootState.backendSuccess = false
 		const logDoc = {
 			"_id": "log",
 			"type": "logging",
@@ -162,7 +24,7 @@ const actions = {
 			]
 		}
 		// eslint-disable-next-line no-console
-		console.log('create log document')
+		if (rootState.debug) console.log('create log document')
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/log',
@@ -170,109 +32,17 @@ const actions = {
 			data: logDoc
 		}).then(() => {
 			dispatch('initializeDatabase', payload)
-			// all ok
 		}).catch(error => {
-			// eslint-disable-next-line no-console
-			console.log(error)
-		})
-	},
-
-	// Create new product
-	createProduct({
-		rootState,
-		dispatch
-	}, payload) {
-		// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 digit alphanumerical random value
-		function newId() {
-			return Date.now().toString() + Math.random().toString(36).replace('0.', '').substr(0, 5)
-		}
-		const _id = newId()
-		// create a new document and store it
-		const newDoc = {
-			"_id": _id,
-			"shortId": _id.slice(-5),
-			"type": "backlogItem",
-			"productId": _id,
-			"parentId": 'root',
-			"team": "not in a team",
-			"level": PRODUCTLEVEL,
-			"state": 0,
-			"title": payload.productName,
-			"followers": [],
-			"description": window.btoa(""),
-			"acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
-			"priority": 0,
-			"attachments": [],
-			"comments": [],
-			"history": [{
-				"createEvent": [PRODUCTLEVEL, payload.dbName],
-				"by": rootState.userData.user,
-				"email": payload.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
-			}],
-			"delmark": false
-		}
-		// eslint-disable-next-line no-console
-		console.log('create new product')
-		globalAxios({
-			method: 'PUT',
-			url: payload.dbName + '/' + _id,
-			withCredentials: true,
-			data: newDoc
-		}).then(() => {
-			state.productCreated = true
-			state.createProductResult = 'Product with _id ' + _id + ' is created.'
-			payload.productId = _id
-			dispatch('createFirstUser', payload)
-		}).catch(error => {
-			// eslint-disable-next-line no-console
-			console.log(error)
-			state.createProductError = 'Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
-		})
-	},
-
-	createFirstUser({
-		rootState,
-		state
-	}, payload) {
-		const productsRoles = {
-			[payload.productId]: payload.roles
-		}
-		// eslint-disable-next-line no-console
-		console.log('create first user')
-		const userName = rootState.userData.user
-		globalAxios({
-			method: 'PUT',
-			url: '_users/org.couchdb.user:' + userName,
-			withCredentials: true,
-			data: {
-				"name": userName,
-				"password": rootState.userData.password,
-				"teams": ['not in a team'],
-				"roles": payload.roles,
-				"type": "user",
-				"email": payload.email,
-				"currentDb": payload.dbName,
-				"subscriptions": [payload.productId],
-				"productsRoles": productsRoles
-			}
-		}).then(() => {
-			state.userCreated = true
-			state.createFirstUserResult = 'User ' + userName + ' is created.'
-		}).catch(error => {
-			// eslint-disable-next-line no-console
-			console.log(error)
-			state.createFirstUserError = 'Could not create user ' + userName + ', ' + error
+			rootState.backendMessages.push('initDatabase: Could not create log document, ' + error)
 		})
 	},
 
 	initializeDatabase({
+		rootState,
 		dispatch
 	}, payload) {
-		/* The configuration data can change over time with new versions of this program.
+		/*
+		 * The configuration data can change over time with new versions of this program.
 		 * Once a database is created it is tightly coupled with the configuration is was created with.
 		 */
 		const configData = {
@@ -348,21 +118,26 @@ const actions = {
 		}
 
 		// eslint-disable-next-line no-console
-		console.log('Initialize DB: install configuration file')
+		if (rootState.debug) console.log('Initialize DB: install configuration file')
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName,
 			withCredentials: true,
 			data: configData
 		}).then(() => {
-			// all ok
+			dispatch('installDesignDoc', payload)
 		}).catch(error => {
 			// eslint-disable-next-line no-console
-			console.log(error)
+			if (rootState.debug) console.log(error)
 		})
+	},
 
+	installDesignDoc({
+		rootState,
+		dispatch
+	}, payload) {
 		// eslint-disable-next-line no-console
-		console.log('Initialize DB: install design documents')
+		if (rootState.debug) console.log('Initialize DB: install design documents')
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/_design/design1',
@@ -387,22 +162,119 @@ const actions = {
 					 */
 					"shortIdFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.shortId], 1);}'
+					},
+					/*
+					 * Filter on document type 'backlogItem', then emit the product id and title.
+					 */
+					"products": {
+						"map": 'function (doc) {if (!doc.delmark && doc.type == "backlogItem" && doc.level === 2) emit(doc._id, doc.title);}'
 					}
-
 				},
 				"language": "javascript"
 			}
 		}).then(() => {
 			dispatch('createProduct', payload)
-			// all ok
 		}).catch(error => {
 			// eslint-disable-next-line no-console
-			console.log(error)
+			if (rootState.debug) console.log(error)
+		})
+	},
+
+	// Create new product
+	createProduct({
+		rootState,
+		dispatch
+	}, payload) {
+		// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 digit alphanumerical random value
+		function newId() {
+			return Date.now().toString() + Math.random().toString(36).replace('0.', '').substr(0, 5)
+		}
+		const _id = newId()
+		// create a new document and store it
+		const newDoc = {
+			"_id": _id,
+			"shortId": _id.slice(-5),
+			"type": "backlogItem",
+			"productId": _id,
+			"parentId": 'root',
+			"team": "not in a team",
+			"level": PRODUCTLEVEL,
+			"state": 0,
+			"title": payload.productName,
+			"followers": [],
+			"description": window.btoa(""),
+			"acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
+			"priority": 0,
+			"attachments": [],
+			"comments": [],
+			"history": [{
+				"createEvent": [PRODUCTLEVEL, payload.dbName],
+				"by": rootState.userData.user,
+				"email": payload.email,
+				"timestamp": Date.now(),
+				"timestampStr": new Date().toString(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": false
+			}],
+			"delmark": false
+		}
+		// eslint-disable-next-line no-console
+		if (rootState.debug) console.log('create new product')
+		globalAxios({
+			method: 'PUT',
+			url: payload.dbName + '/' + _id,
+			withCredentials: true,
+			data: newDoc
+		}).then(() => {
+			rootState.backendMessages.push('Product with _id ' + _id + ' is created.')
+			payload.productId = _id
+			if (payload.updateExistingProfile) {
+				dispatch('addProductToUser', { dbName: payload.dbName, productId: _id })
+			} else dispatch('createFirstUser', payload)
+		}).catch(error => {
+			rootState.backendMessages.push('Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error)
+		})
+	},
+
+	/* Note that the _admin user is made admin (globally) and guest to the first created product */
+	createFirstUser({
+		rootState
+	}, payload) {
+		const productsRoles = {
+			[payload.productId]: ['guest']
+		}
+		// Change the userName here for testing in an existing instance of OneBacklog
+		const userName = rootState.userData.user
+		// eslint-disable-next-line no-console
+		if (rootState.debug) console.log("create first user '" + userName + "'")
+		globalAxios({
+			method: 'PUT',
+			url: '_users/org.couchdb.user:' + userName,
+			withCredentials: true,
+			data: {
+				"name": userName,
+				"password": rootState.userData.password,
+				"type": "user",
+				"roles": ['admin'],
+				"email": payload.email,
+				"currentDb": payload.dbName,
+				"myDatabases": {
+					[payload.dbName]: {
+						"myTeam": 'not in a team',
+						"subscriptions": [payload.productId],
+						"productsRoles": productsRoles
+					}
+				}
+			}
+		}).then(() => {
+			rootState.backendSuccess = true
+			rootState.backendMessages.push("User '" + userName + "' is created")
+		}).catch(error => {
+			rootState.backendMessages.push("Could not create user '" + userName + "', " + error)
 		})
 	},
 }
 
 export default {
-	state,
 	actions
 }

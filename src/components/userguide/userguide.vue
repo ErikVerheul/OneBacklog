@@ -92,15 +92,18 @@
 				</p>
 				<p>The authorization is set per product and based on the following roles:
 					<ul>
-						<li>'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.</li>
 						<li>'areaPO': The requirement area PO maintains the requirements area backlog and can prioritize features in the teams backlog.</li>
-						<li>'admin': Can create and assign users to products. Is also a guest to all products.</li>
 						<li>'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.</li>
 						<li>'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.</li>
 						<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
 						<li>'guest': Can only view the items of the assigned products. Has no access to the requirements area view.</li>
 					</ul>
 					Users can have multiple roles. Users can only access the products that are assigned to them.
+					Two roles are setup globally when the OneBacklog instance is setup:
+					<ul>
+						<li>'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.</li>
+						<li>'admin': Can create and assign users to products. Is also a guest to the products assigned to this user.</li>
+					</ul>
 				</p>
 				<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
 				<b-img :src="require('./context-menu.png')" alt="Example context menu" />

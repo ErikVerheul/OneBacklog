@@ -28,10 +28,10 @@
 					MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu.
 				</div>
 				<div v-if=this.$store.state.demo class="text-center">
-					<p>This is a demo / test version of the application in beta stage. It lacks the admin tool for user adminstration and other features.<br>
-					Please leave your findings in this applications register or e-mail to tech@verheulconsultants.nl.</p>
+					<p>This is a demo / test version of the application in beta stage.<br>
+					Please leave your findings in this applications register or raise an issue at <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github</a></p>
 					<p>Signin with <b>demoUser</b> and password <b>demoUser</b>.</p>
-					<p>Note that demoUser has the permissions of "superPO", "PO", "developer" and "guest" for the ' Register...' and Generated product.<br>
+					<p>Note that demoUser has the permissions of "superPO", "PO", "developer" and "guest" for the 'Register your feature proposals and bug findings here' and 'Feel free to play with this product'.<br>
 						So you can do almost everything. Please do not remove other peoples entries.</p>
 				</div>
 			</div>

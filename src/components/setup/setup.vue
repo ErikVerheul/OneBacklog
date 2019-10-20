@@ -15,13 +15,11 @@
 				<button @click="creRdmProduct" class="myButton">1. Create random product</button>
 				<button @click="createUser" class="myButton">2. Create user</button>
 				<button @click="crateDB" class="myButton">3. Choose or Create a database</button>
-				<button @click="initDB" class="myButton">4. Initialize the database</button>
 				<button @click="assignUser" class="myButton">5. Add new users and roles to the last selected || created database</button>
 				<button @click="showDBsecurity" class="myButton">6. Show the database security info</button>
 				<button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
 				<button @click="showDocById" class="myButton">8. Show a document by id</button>
 				<button @click="deleteDB" class="myButton">9. Delete the selected || created database</button>
-				<button @click="exampleDB" class="myButton">10. Create an example database with demo users</button>
 				<button @click="copyDB" class="myButton">11. Copy a database including permissions</button>
 				<button @click="shortId" class="myButton">12. Remove history from existing database</button>
 			</div>
@@ -111,9 +109,6 @@
 					case 3:
 						this.crateDBExe()
 						break
-					case 4:
-						this.initDBExe()
-						break
 					case 5:
 						this.assignUserExe()
 						break
@@ -128,9 +123,6 @@
 						break
 					case 9:
 						this.deleteDBExe()
-						break
-					case 10:
-						this.exampleDBExe()
 						break
 					case 11:
 						this.copyDBExe()
@@ -207,23 +199,6 @@
 			crateDBExe() {
 				const dbName = this.row.field1
 				this.$store.dispatch('chooseOrCreateDB', dbName)
-			},
-			initDB() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: "field not used",
-					field2: "field not used",
-					field3: "field not used",
-					field4: "field not used",
-				}
-				this.commandNr = 4
-			},
-			initDBExe() {
-				var payload = {
-					dbName: this.$store.state.userData.currentDb,
-				}
-				this.$store.dispatch('initializeDB', payload)
 			},
 			assignUser() {
 				this.$store.commit('clearAll')
@@ -315,26 +290,6 @@
 					dbName: this.row.field1
 				}
 				this.$store.dispatch('delDB', payload)
-			},
-			exampleDB() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: "field not used",
-					field2: "field not used",
-					field3: "field not used",
-					field4: "field not used",
-				}
-				this.commandNr = 10
-			},
-			exampleDBExe() {
-				var payload = {
-					dbName: this.$store.state.userData.currentDb,
-				}
-				this.$store.dispatch('createUsers')
-				this.$store.dispatch('setUsersDbPermissions')
-				this.$store.dispatch('setDbPermissions', payload)
-				this.$store.dispatch('createExampleDB', payload)
 			},
 			copyDB() {
 				this.$store.commit('clearAll')

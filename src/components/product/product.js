@@ -374,7 +374,7 @@ export default {
 		},
 
 		onUndoRemoveEvent() {
-			const entry = this.$store.state.update.removeHistory.splice(0, 1)[0]
+			const entry = this.$store.state.removeHistory.splice(0, 1)[0]
 			this.$store.dispatch("unDoRemove", entry)
 			// restore the removed node
 			const parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
