@@ -5,6 +5,7 @@ const ERROR = 2
 const state = {
   fetchedUserData: null,
   userIsAdmin: 'no',
+  userIsSuperPO: 'no',
   dbProducts: undefined
 }
 
@@ -23,6 +24,7 @@ const actions = {
     }).then(res => {
       state.fetchedUserData = res.data
       state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? 'yes' : 'no'
+      state.userIsSuperPO = state.fetchedUserData.roles.includes('superPO') ? 'yes' : 'no'
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user
       rootState.selectedDatabaseName = state.fetchedUserData.currentDb
@@ -123,11 +125,11 @@ const actions = {
     rootState,
     dispatch
   }, payload) {
-    // copy all roles except 'admin' which is a generic role
+    // copy all roles except 'admin' and 'superPO' which are a generic roles
     function copyRoles(roles) {
       let copiedRoles = []
       for (let r of roles) {
-        if (r !== 'admin') copiedRoles.push(r)
+        if (r !== 'admin' && r !== 'superPO') copiedRoles.push(r)
       }
       return copiedRoles
     }

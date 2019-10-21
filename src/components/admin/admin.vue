@@ -61,14 +61,19 @@
               </b-form-group>
             </div>
             <h5>Make this user an 'admin'?</h5>
-            <b-form-group>
-              <b-form-checkbox
-                v-model="$store.state.useracc.userIsAdmin"
-                value='yes'
-                unchecked-value='no'
-              >Tick to add this role
-              </b-form-checkbox>
-            </b-form-group>
+            <b-form-checkbox
+              v-model="$store.state.useracc.userIsAdmin"
+              value='yes'
+              unchecked-value='no'
+            >Tick to add this role
+            </b-form-checkbox>
+            <h5>Make this user a 'superPO'?</h5>
+            <b-form-checkbox
+              v-model="$store.state.useracc.userIsSuperPO"
+              value='yes'
+              unchecked-value='no'
+            >Tick to add this role
+            </b-form-checkbox>
             <b-button v-if="$store.state.backendSuccess && !userIsUpdated" class="m-1" @click="doCreateUser()">Create this user</b-button>
             <b-button v-if="!userIsUpdated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
           </div>
@@ -109,6 +114,18 @@
               <b-form-group>
                 <b-form-checkbox
                   v-model="$store.state.useracc.userIsAdmin"
+                  value='yes'
+                  unchecked-value='no'
+                >Add or remove this role
+                </b-form-checkbox>
+              </b-form-group>
+            </b-col>
+            <b-col sm="12">
+              <h5 v-if="$store.state.useracc.userIsSuperPO === 'yes'">This user is an 'superPO':</h5>
+              <h5 v-else>This user is not an 'superPO':</h5>
+              <b-form-group>
+                <b-form-checkbox
+                  v-model="$store.state.useracc.userIsSuperPO"
                   value='yes'
                   unchecked-value='no'
                 >Add or remove this role
@@ -212,7 +229,6 @@ export default {
       teamName: '',
       roleOptions: [
         { text: 'area PO', value: 'areaPO' },
-        { text: 'super PO', value: 'superPO' },
         { text: 'PO', value: 'PO' },
         { text: 'developer', value: 'developer' },
         { text: 'guest', value: 'guest' }
@@ -265,6 +281,7 @@ export default {
       this.localMessage = ''
       this.$store.state.useracc.dbProducts = undefined
       this.$store.state.useracc.userIsAdmin = 'no'
+      this.$store.state.useracc.userIsSuperPO = 'no'
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
@@ -274,6 +291,7 @@ export default {
       // calculate the association of all assigned roles
       this.allRoles = []
       if (this.$store.state.useracc.userIsAdmin === 'yes') this.allRoles.push('admin')
+      if (this.$store.state.useracc.userIsSuperPO === 'yes') this.allRoles.push('superPO')
       for (let prod of this.$store.state.useracc.dbProducts) {
         for (let role of prod.roles) {
           if (!this.allRoles.includes(role)) this.allRoles.push(role)
@@ -346,11 +364,11 @@ export default {
         if (prod.roles.length > 0) {
           aRoleIsSet = true
           subscriptions.push(prod.id)
-          // temporarely filter out the 'admin' roles which is generic now (for all products)
+          // temporarely filter out the 'admin' and 'superPO' roles which are generic now (for all products)
           // ToDo: replace with productsRoles[prod.id] = prod.roles
           productsRoles[prod.id] = []
           for (let role of prod.roles) {
-            if (role !== 'admin') productsRoles[prod.id].push(role)
+            if (role !== 'admin' && role !== 'superPO') productsRoles[prod.id].push(role)
           }
         }
       }
@@ -359,6 +377,7 @@ export default {
       // calculate the association of all assigned roles
       this.allRoles = []
       if (this.$store.state.useracc.userIsAdmin === 'yes') this.allRoles.push('admin')
+      if (this.$store.state.useracc.userIsSuperPO === 'yes') this.allRoles.push('superPO')
       for (let database of Object.keys(newUserData.myDatabases)) {
         for (let productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {
           for (let role of newUserData.myDatabases[database].productsRoles[productId]) {

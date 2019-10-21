@@ -63,6 +63,7 @@ import Header from '../header/header.vue'
 import router from '../../router'
 
 const PRODUCTLEVEL = 2
+const ALLBUTSYSTEMANDBACKUPS = 3
 
 export default {
 
@@ -141,11 +142,11 @@ export default {
       this.canCancel = true
       this.localMessage = ''
       // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases')
+      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
 
     doChangeMyDb() {
-      this.$store.dispatch('changeCurrentDb', this.$store.state.selectedDatabaseName)
+      this.$store.dispatch('changeCurrentDb1', this.$store.state.selectedDatabaseName)
     },
 
     cancel() {

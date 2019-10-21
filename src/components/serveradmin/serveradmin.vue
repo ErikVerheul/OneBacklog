@@ -49,7 +49,7 @@
           <li>A database with this name must not already exist</li>
         </ul>
         <b-form-input v-model="newDbName" placeholder="Enter the database name"></b-form-input>
-        <b-button v-if="newDbName === ''"class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="newDbName === ''" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
         <div v-if="newDbName !== '' && !$store.state.userUpdated">
           <p>Database {{ newDbName }} will be created</p>
           <b-button v-if="newDbName !== ''" class="m-1" @click="doCreateNewDb()">Start creation</b-button>
@@ -245,7 +245,7 @@ export default {
     },
 
     doChangeMyDb() {
-      this.$store.dispatch('changeCurrentDb', this.$store.state.selectedDatabaseName)
+      this.$store.dispatch('changeCurrentDb1', this.$store.state.selectedDatabaseName)
     },
 
     deleteDb() {
