@@ -59,8 +59,7 @@ const actions = {
 		}
 
 		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb,
+			method: 'HEAD',
 			withCredentials: true,
 		}).then(() => {
 			rootState.online = true
