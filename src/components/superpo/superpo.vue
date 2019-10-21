@@ -1,61 +1,60 @@
 <template lang="html">
   <div>
     <app-header>
-        <b-navbar-nav class="ml-auto">
-            <b-dropdown text="Select your action" class="m-md-2">
-                <b-dropdown-item @click="createProduct()">Create a product</b-dropdown-item>
-                <b-dropdown-item @click="removeProduct()">Remove a product</b-dropdown-item>
-                <b-dropdown-item @click="changeMyDb()">Change my default database</b-dropdown-item>
-            </b-dropdown>
-        </b-navbar-nav>
     </app-header>
+    <b-container fluid>
+      <h2>Server admin view: {{ optionSelected }}</h2>
+      <b-button block @click="createProduct">Create a product</b-button>
+      <b-button block @click="removeProduct">Remove a product</b-button>
+      <b-button block @click="changeMyDb">Change my default database</b-button>
 
-    <div v-if="actionNr === 1">
-      <h4>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h4>
-      <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
-      <b-button v-if="productTitle !== ''" class="m-1" @click="doCreateProduct()">Create product</b-button>
-      <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-      <div v-if="$store.state.backendSuccess">
-        <b-button class="m-1" @click="signIn()">Sign-out and -in to see the new product</b-button>
+      <div v-if="optionSelected === 'Create a product'">
+        <h2>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h2>
+        <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
+        <b-button v-if="productTitle !== ''" class="m-1" @click="doCreateProduct()">Create product</b-button>
+        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <div v-if="$store.state.backendSuccess">
+          <b-button class="m-1" @click="signIn()">Sign-out and -in to see the new product</b-button>
+        </div>
       </div>
-    </div>
 
-    <div v-if="actionNr === 2">
-      <h4>Remove a product from the current database '{{ $store.state.userData.currentDb }}'</h4>
-      <p>As super Po you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
-      <p>When doing so be aware of:</p>
-      <ul>
-        <li>Online users will see the product and all descendants disappear.</li>
-        <li>Users who sign-in after the removal will miss the product.</li>
-        <li>When undoing the removal the users who signed-in in the mean time will have no access to the product. An admin must register the product for them.</li>
-      </ul>
-      <b-button class="m-1" @click="showProductView()">Switch to product view</b-button>
-      <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-    </div>
-
-    <div v-if="actionNr === 3">
-      <h1>Change my default database</h1>
-       <b-form-group>
-        <h5>Select the database you want to connect to</h5>
-        <b-form-radio-group
-          v-model="$store.state.selectedDatabaseName"
-          :options="$store.state.databaseOptions"
-        ></b-form-radio-group>
-      </b-form-group>
-      <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb()">Change my database</b-button>
-      <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-      <div v-if="$store.state.isCurrentDbChanged">
-        <h4>Succes! Exit, and sign in again to see the product view of the updated database</h4>
-        <b-button class="m-1" @click="signIn()" variant="outline-primary">Exit</b-button>
+      <div v-if="optionSelected === 'Remove a product'">
+        <h2>Remove a product from the current database '{{ $store.state.userData.currentDb }}'</h2>
+        <p>As super Po you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
+        <p>When doing so be aware of:</p>
+        <ul>
+          <li>Online users will see the product and all descendants disappear.</li>
+          <li>Users who sign-in after the removal will miss the product.</li>
+          <li>When undoing the removal the users who signed-in in the mean time will have no access to the product. An admin must register the product for them.</li>
+        </ul>
+        <b-button class="m-1" @click="showProductView()">Switch to product view</b-button>
+        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
       </div>
-    </div>
 
-    <div v-if="$store.state.backendMessages.length > 0">
-      <hr>
-      <div v-for="msg in $store.state.backendMessages" :key="msg">
-        <p>{{ msg }}</p>
+      <div v-if="optionSelected === 'Change my default database'">
+        <h2>Change my default database</h2>
+        <b-form-group>
+          <h5>Select the database you want to connect to</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb()">Change my database</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <div v-if="$store.state.isCurrentDbChanged">
+          <h4>Succes! Exit, and sign in again to see the product view of the updated database</h4>
+          <b-button class="m-1" @click="signIn()" variant="outline-primary">Exit</b-button>
+        </div>
       </div>
-    </div>
+
+      <div v-if="$store.state.backendMessages.length > 0">
+        <hr>
+        <div v-for="msg in $store.state.backendMessages" :key="msg">
+          <p>{{ msg }}</p>
+        </div>
+      </div>
+    </b-container>
   </div>
 </template>
 
@@ -69,7 +68,7 @@ export default {
 
   data() {
     return {
-      actionNr: 0,
+      optionSelected: 'select a task',
       productTitle: ""
     }
   },
@@ -81,7 +80,7 @@ export default {
 
   methods: {
     createProduct() {
-      this.actionNr = 1
+      this.optionSelected = 'Create a product'
       this.$store.state.backendMessages = []
     },
 
@@ -124,11 +123,11 @@ export default {
       // add product to this user's subscriptions and productsRoles
       this.$store.state.backendMessages = []
       this.$store.state.backendSuccess = false
-      this.$store.dispatch('addProductToUser', {dbName: this.$store.userData.currentDb, productId: _id})
+      this.$store.dispatch('addProductToUser', {dbName: this.$store.state.userData.currentDb, productId: _id})
     },
 
     removeProduct() {
-      this.actionNr = 2
+      this.optionSelected = 'Remove a product'
     },
 
     showProductView() {
@@ -136,7 +135,7 @@ export default {
     },
 
     changeMyDb() {
-      this.actionNr = 3
+      this.optionSelected = 'Change my default database'
       this.$store.state.selectedDatabaseName = ''
       this.$store.state.isCurrentDbChanged = false
       this.canCancel = true
@@ -150,7 +149,7 @@ export default {
     },
 
     cancel() {
-      this.actionNr = 0
+      this.optionSelected = 'select a task'
     },
 
     signIn() {

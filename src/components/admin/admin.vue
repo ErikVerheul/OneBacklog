@@ -1,196 +1,195 @@
 <template lang="html">
   <div>
     <app-header>
-        <b-navbar-nav class="ml-auto">
-            <b-dropdown text="Select your action" class="m-md-2">
-                <b-dropdown-item @click="createUser()">Create a user</b-dropdown-item>
-                <b-dropdown-item @click="maintainUsers()">Maintain users</b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="createTeam()">Create a team</b-dropdown-item>
-                <b-dropdown-item @click="listTeams()">List team names</b-dropdown-item>
-            </b-dropdown>
-        </b-navbar-nav>
     </app-header>
-    <div v-if="actionNr === 1">
-      <template v-if="!credentialsReady">
-        <h4>Create a user with access to a selected database and products</h4>
-        <b-row class="my-1">
-          <b-col sm="1">
-            User name:
-          </b-col>
-          <b-col sm="11">
-            <b-form-input v-model="userName" placeholder="Enter the user name"></b-form-input>
-          </b-col>
-          <b-col sm="1">
-            Initial password:
+    <b-container fluid>
+      <h2>Admin view: {{ optionSelected }}</h2>
+      <b-button block @click="createUser()">Create a user</b-button>
+      <b-button block @click="maintainUsers()">Maintain users</b-button>
+      <b-button block @click="createTeam()">Create a team</b-button>
+      <b-button block @click="listTeams()">List team members</b-button>
+
+      <div v-if="optionSelected === 'Create a user'">
+        <template v-if="!credentialsReady">
+          <h4>Create a user with access to a selected database and products</h4>
+          <b-row>
+            <b-col sm="2">
+              User name:
             </b-col>
-          <b-col sm="11">
-          <b-form-input v-model="password" type="password" placeholder="Enter the initial password"></b-form-input>
-          </b-col>
-          <b-col sm="1">
-            Users e-mail:
-          </b-col>
-          <b-col sm="11">
-            <b-form-input v-model="userEmail" type="email" placeholder="Enter the user's e-mail"></b-form-input>
-          </b-col>
-          <b-col sm="12">
-            <b-button v-if="!credentialsReady" class="m-1" @click="checkCredentials">Continue</b-button>
-            <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-          </b-col>
-        </b-row>
-      </template>
-      <b-form-group v-if="!dbSelected && $store.state.backendSuccess && credentialsReady">
-        <h5>Select the database for this user.</h5>
-        <b-form-radio-group
-          v-model="$store.state.selectedDatabaseName"
-          :options="$store.state.databaseOptions"
-        ></b-form-radio-group>
-      </b-form-group>
+            <b-col sm="10">
+              <b-form-input v-model="userName" placeholder="Enter the user name"></b-form-input>
+            </b-col>
+            <b-col sm="2">
+              Initial password:
+              </b-col>
+            <b-col sm="10">
+            <b-form-input v-model="password" type="password" placeholder="Enter the initial password"></b-form-input>
+            </b-col>
+            <b-col sm="2">
+              Users e-mail:
+            </b-col>
+            <b-col sm="10">
+              <b-form-input v-model="userEmail" type="email" placeholder="Enter the user's e-mail"></b-form-input>
+            </b-col>
+            <b-col sm="12">
+              <b-button v-if="!credentialsReady" class="m-1" @click="checkCredentials">Continue</b-button>
+              <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+            </b-col>
+          </b-row>
+        </template>
+        <b-form-group v-if="!dbSelected && $store.state.backendSuccess && credentialsReady">
+          <h5>Select the database for this user.</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+          ></b-form-radio-group>
+        </b-form-group>
 
-      <div v-if="credentialsReady">
-        <b-button v-if="!dbSelected && $store.state.backendSuccess" class="m-1" @click="doGetDbProducts(false)">Continue</b-button>
-        <b-button v-if="!dbSelected" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <div v-if="credentialsReady">
+          <b-button v-if="!dbSelected && $store.state.backendSuccess" class="m-1" @click="doGetDbProducts(false)">Continue</b-button>
+          <b-button v-if="!dbSelected" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
 
-        <div v-if="dbSelected && $store.state.backendSuccess">
-          <h5>Assign the roles to each product in database '{{ $store.state.selectedDatabaseName }}'</h5>
-          <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
-            {{ prod.value }}:
-            <b-form-group>
-              <b-form-checkbox-group
-                v-model="prod.roles"
-                :options="roleOptions"
-              ></b-form-checkbox-group>
-            </b-form-group>
-          </div>
-          <h5>Make this user an 'admin'?</h5>
-          <b-form-group>
-            <b-form-checkbox
-              v-model="$store.state.useracc.userIsAdmin"
-              value='yes'
-              unchecked-value='no'
-            >Tick to add this role
-            </b-form-checkbox>
-          </b-form-group>
-          <b-button v-if="$store.state.backendSuccess && !userIsUpdated" class="m-1" @click="doCreateUser()">Create this user</b-button>
-          <b-button v-if="!userIsUpdated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="actionNr === 2">
-      <h4>Change the permissions of an existing user to products</h4>
-      <b-row class="my-1">
-        <b-col sm="1">
-          User name:
-        </b-col>
-        <b-col sm="11">
-          <b-form-input v-model="userName" placeholder="Enter the user name"></b-form-input>
-        </b-col>
-      </b-row>
-      <b-button class="m-1" @click="doFindUser()">Find this user</b-button>
-
-      <b-button v-if="canCancelFind" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-      <div v-if="!userIsUpdated && $store.state.useracc.fetchedUserData">
-        <b-row class="my-1">
-          <b-col sm="2">
-            Users e-mail address:
-          </b-col>
-          <b-col sm="10">
-            {{ $store.state.useracc.fetchedUserData.email }}
-          </b-col>
-          <b-col sm="2">
-            Users databases:
-          </b-col>
-          <b-col sm="10">
-            {{ $store.state.databaseOptions }}
-          </b-col>
-
-          <b-col sm="12">
-            <h5 v-if="$store.state.useracc.userIsAdmin === 'yes'">This user is an 'admin':</h5>
-            <h5 v-else>This user is not an 'admin':</h5>
+          <div v-if="dbSelected && $store.state.backendSuccess">
+            <h5>Assign the roles to each product in database '{{ $store.state.selectedDatabaseName }}'</h5>
+            <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
+              {{ prod.value }}:
+              <b-form-group>
+                <b-form-checkbox-group
+                  v-model="prod.roles"
+                  :options="roleOptions"
+                ></b-form-checkbox-group>
+              </b-form-group>
+            </div>
+            <h5>Make this user an 'admin'?</h5>
             <b-form-group>
               <b-form-checkbox
                 v-model="$store.state.useracc.userIsAdmin"
                 value='yes'
                 unchecked-value='no'
-              >Add or remove this role
+              >Tick to add this role
               </b-form-checkbox>
             </b-form-group>
-          </b-col>
+            <b-button v-if="$store.state.backendSuccess && !userIsUpdated" class="m-1" @click="doCreateUser()">Create this user</b-button>
+            <b-button v-if="!userIsUpdated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+          </div>
+        </div>
+      </div>
 
-          <b-col v-if="!$store.state.backendSuccess && $store.state.databaseOptions.length > 1" sm="12">
-            <h5>Select the database to apply your changes. The users current database is '{{ $store.state.useracc.fetchedUserData.currentDb }}'</h5>
-            <b-form-group>
-              <b-form-radio-group
-                v-model="$store.state.selectedDatabaseName"
-                :options="$store.state.databaseOptions"
-              ></b-form-radio-group>
-            </b-form-group>
-          </b-col>
+      <div v-if="optionSelected === 'Maintain users'">
+        <h4>Change the permissions of an existing user to products</h4>
+        <b-row class="my-1">
           <b-col sm="2">
-            <b-button class="m-1" @click="doGetDbProducts(true)">Continue</b-button>
-            <b-button  v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+            User name:
+          </b-col>
+          <b-col sm="11">
+            <b-form-input v-model="userName" placeholder="Enter the user name"></b-form-input>
           </b-col>
         </b-row>
+        <b-button class="m-1" @click="doFindUser()">Find this user</b-button>
 
-        <div v-if="$store.state.backendSuccess">
-          <h5>Change the roles of this user to each product in database '{{ $store.state.selectedDatabaseName }}':</h5>
-          <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
-            {{ prod.value }}:
-            <b-form-group>
-              <b-form-checkbox-group
-                v-model="prod.roles"
-                :options="roleOptions"
-              ></b-form-checkbox-group>
-            </b-form-group>
+        <b-button v-if="canCancelFind" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <div v-if="!userIsUpdated && $store.state.useracc.fetchedUserData">
+          <b-row class="my-1">
+            <b-col sm="2">
+              Users e-mail address:
+            </b-col>
+            <b-col sm="10">
+              {{ $store.state.useracc.fetchedUserData.email }}
+            </b-col>
+            <b-col sm="2">
+              Users databases:
+            </b-col>
+            <b-col sm="10">
+              {{ $store.state.databaseOptions }}
+            </b-col>
+
+            <b-col sm="12">
+              <h5 v-if="$store.state.useracc.userIsAdmin === 'yes'">This user is an 'admin':</h5>
+              <h5 v-else>This user is not an 'admin':</h5>
+              <b-form-group>
+                <b-form-checkbox
+                  v-model="$store.state.useracc.userIsAdmin"
+                  value='yes'
+                  unchecked-value='no'
+                >Add or remove this role
+                </b-form-checkbox>
+              </b-form-group>
+            </b-col>
+
+            <b-col v-if="!$store.state.backendSuccess && $store.state.databaseOptions.length > 1" sm="12">
+              <h5>Select the database to apply your changes. The users current database is '{{ $store.state.useracc.fetchedUserData.currentDb }}'</h5>
+              <b-form-group>
+                <b-form-radio-group
+                  v-model="$store.state.selectedDatabaseName"
+                  :options="$store.state.databaseOptions"
+                ></b-form-radio-group>
+              </b-form-group>
+            </b-col>
+            <b-col sm="2">
+              <b-button class="m-1" @click="doGetDbProducts(true)">Continue</b-button>
+              <b-button  v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+            </b-col>
+          </b-row>
+
+          <div v-if="$store.state.backendSuccess">
+            <h5>Change the roles of this user to each product in database '{{ $store.state.selectedDatabaseName }}':</h5>
+            <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
+              {{ prod.value }}:
+              <b-form-group>
+                <b-form-checkbox-group
+                  v-model="prod.roles"
+                  :options="roleOptions"
+                ></b-form-checkbox-group>
+              </b-form-group>
+            </div>
+            <b-button v-if="$store.state.backendSuccess" class="m-1" @click="doUpdateUser()">Update this user</b-button>
+            <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+            <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
           </div>
-          <b-button v-if="$store.state.backendSuccess" class="m-1" @click="doUpdateUser()">Update this user</b-button>
-          <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-          <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
         </div>
       </div>
-    </div>
 
-    <div v-if="actionNr === 3">
-      <h4>Create a team for users with products in the selected database</h4>
-      <p>When created the user of that database can choose to become a member of the team</p>
-      <b-form-group v-if="$store.state.backendSuccess">
-        <h5>Select the database for this team</h5>
-        <b-form-radio-group
-          v-model="$store.state.selectedDatabaseName"
-          :options="$store.state.databaseOptions"
-        ></b-form-radio-group>
-      </b-form-group>
-      <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
-      <b-button v-if="!$store.state.teamCreated" class="m-1" @click="doCreateTeam()">Create this team</b-button>
-      <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-      <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
-    </div>
+      <div v-if="optionSelected === 'Create a team'">
+        <h4>Create a team for users with products in the selected database</h4>
+        <p>When created the user of that database can choose to become a member of the team</p>
+        <b-form-group v-if="$store.state.backendSuccess">
+          <h5>Select the database for this team</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
+        <b-button v-if="!$store.state.teamCreated" class="m-1" @click="doCreateTeam()">Create this team</b-button>
+        <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+      </div>
 
-    <div v-if="actionNr === 4">
-      <h4>List the teams of users with products in the selected database</h4>
-      <b-form-group v-if="$store.state.backendSuccess">
-        <h5>Select the database</h5>
-        <b-form-radio-group
-          v-model="$store.state.selectedDatabaseName"
-          :options="$store.state.databaseOptions"
-        ></b-form-radio-group>
-      </b-form-group>
-      <b-button class="m-1" @click="doGetTeamsOfDb()">List teams</b-button>
-      <div v-if="$store.state.backendSuccess">
-        <div v-for="teamName in $store.state.fetchedTeams" :key="teamName">
-          {{ teamName }}
+      <div v-if="optionSelected === 'List team members'">
+        <h4>List the teams of users with products in the selected database</h4>
+        <b-form-group v-if="$store.state.backendSuccess">
+          <h5>Select the database</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button class="m-1" @click="doGetTeamsOfDb()">List teams</b-button>
+        <div v-if="$store.state.backendSuccess">
+          <div v-for="teamName in $store.state.fetchedTeams" :key="teamName">
+            {{ teamName }}
+          </div>
+          <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
         </div>
-        <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
       </div>
-    </div>
-    <p>{{ localMessage }}</p>
-    <div v-if="$store.state.backendMessages.length > 0">
-      <hr>
-      <div v-for="msg in $store.state.backendMessages" :key="msg">
-       <p>{{ msg }}</p>
+      <p>{{ localMessage }}</p>
+      <div v-if="$store.state.backendMessages.length > 0">
+        <hr>
+        <div v-for="msg in $store.state.backendMessages" :key="msg">
+        <p>{{ msg }}</p>
+        </div>
       </div>
-    </div>
+    </b-container>
   </div>
 </template>
 
@@ -202,7 +201,7 @@ const ALLBUTSYSTEMANDBACKUPS = 3
 export default {
   data() {
     return {
-      actionNr: 0,
+      optionSelected: 'select a task',
       canCancel: true,
       canCancelFind: true,
       userName: undefined,
@@ -255,7 +254,7 @@ export default {
     },
 
     createUser() {
-      this.actionNr = 1
+      this.optionSelected = 'Create a user'
       this.canCancel = true
       this.userName = undefined
       this.password = undefined
@@ -313,7 +312,7 @@ export default {
     },
 
     maintainUsers() {
-      this.actionNr = 2
+      this.optionSelected = 'Maintain users'
       this.canCancel = true
       this.canCancelFind = true
       this.localMessage = ''
@@ -376,7 +375,7 @@ export default {
     },
 
     createTeam() {
-      this.actionNr = 3
+      this.optionSelected = 'Create a team'
       this.canCancel = true
       this.teamName = ''
       this.$store.state.teamCreated = false
@@ -391,7 +390,7 @@ export default {
     },
 
     listTeams() {
-      this.actionNr = 4
+      this.optionSelected = 'List team members'
       this.$store.state.backendMessages = []
       this.$store.state.fetchedTeams = []
       // get all non sytem & non backup databases
@@ -403,8 +402,9 @@ export default {
     },
 
     cancel() {
+      this.optionSelected = 'select a task'
       this.canCancel = true
-      this.actionNr = 0
+      this.$store.state.backendMessages = []
     }
   },
 

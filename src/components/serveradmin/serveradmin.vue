@@ -1,126 +1,124 @@
 <template lang="html">
   <div>
     <app-header>
-        <b-navbar-nav class="ml-auto">
-            <b-dropdown text="Select your action" class="m-md-2">
-                <b-dropdown-item @click="createBackup()"> Create a database backup</b-dropdown-item>
-                <b-dropdown-item @click="restoreBackup()">Restore a database from backup</b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="createNewDb">Create a new database</b-dropdown-item>
-                <b-dropdown-item @click="changeMyDb">Change my default database</b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="deleteDb">Delete a database</b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="fauxton()">All FAUXTON tasks</b-dropdown-item>
-            </b-dropdown>
-        </b-navbar-nav>
     </app-header>
+    <b-container fluid>
+      <h2>Server admin view: {{ optionSelected }}</h2>
+      <b-button block @click="createBackup"> Create a database backup</b-button>
+      <b-button block @click="restoreBackup">Restore a database from backup</b-button>
+      <b-button block @click="createNewDb">Create a new database</b-button>
+      <b-button block @click="changeMyDb">Change my default database</b-button>
+      <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
+      <b-button block @click="fauxton">All FAUXTON tasks</b-button>
 
-    <div v-if="actionNr === 1">
-      <h1>Create a database backup</h1>
-       <b-form-group>
-        <h5>Select the database to backup</h5>
-        <b-form-radio-group
-          v-model="$store.state.selectedDatabaseName"
-          :options="$store.state.databaseOptions"
-        ></b-form-radio-group>
-      </b-form-group>
-      <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doCreateBackup()">Start backup</b-button>
-      <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-    </div>
-
-    <div v-if="actionNr === 2">
-      <h1>Restore a database from backup</h1>
-      <b-form-group>
-        <h5>Select the database to restore</h5>
-        <b-form-radio-group
-          v-model="$store.state.selectedDatabaseName"
-          :options="$store.state.databaseOptions"
-        ></b-form-radio-group>
-      </b-form-group>
-      <p>Database {{ dbToReplace }} will be replaced by the backup</p>
-      <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doRestoreBackup()">Start restore</b-button>
-      <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-    </div>
-
-    <div v-if="actionNr === 3">
-      <h1>Create a new database</h1>
-      <h4>Enter a name following these rules:</h4>
-      <ul>
-        <li>Name must begin with a lowercase letter (a-z)</li>
-        <li>Lowercase characters (a-z)</li>
-        <li>Digits (0-9)</li>
-        <li>Any of the characters _, $, (, ), +, -, and /</li>
-        <li>A database with this name must not already exist</li>
-      </ul>
-      <b-form-input v-model="newDbName" placeholder="Enter the database name"></b-form-input>
-      <div v-if="newDbName !== '' && !$store.state.userUpdated">
-        <p>Database {{ newDbName }} will be created</p>
-        <b-button v-if="newDbName !== ''" class="m-1" @click="doCreateNewDb()">Start creation</b-button>
+      <div v-if="optionSelected === 'Create a database backup'">
+        <h2>Create a database backup</h2>
+        <b-form-group>
+          <h5>Select the database to backup</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doCreateBackup()">Start backup</b-button>
         <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-        <div v-if="$store.state.backendSuccess">
-          <h4>The new database needs to register a product</h4>
-          <b-row class="my-1">
-            <b-col sm="2">
-              <label>The first product name:</label>
-            </b-col>
-            <b-col sm="10">
-              <b-form-input v-model="productName" placeholder="product name"></b-form-input>
-            </b-col>
-          </b-row>
-          <div v-if="productName !== ''">
-            <div>
-              <b-button v-if="!$store.state.userUpdated" class="m-1" @click="createProductAndProfile">Create the product and update your profile</b-button>
+      </div>
+
+      <div v-if="optionSelected === 'Restore a database from backup'">
+        <h2>Restore a database from backup</h2>
+        <b-form-group>
+          <h5>Select the database to restore</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+          ></b-form-radio-group>
+        </b-form-group>
+        <p>Database {{ dbToReplace }} will be replaced by the backup</p>
+        <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doRestoreBackup()">Start restore</b-button>
+        <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+      </div>
+
+      <div v-if="optionSelected === 'Create a new database'">
+        <h2>Create a new database</h2>
+        <h4>Enter a name following these rules:</h4>
+        <ul>
+          <li>Name must begin with a lowercase letter (a-z)</li>
+          <li>Lowercase characters (a-z)</li>
+          <li>Digits (0-9)</li>
+          <li>Any of the characters _, $, (, ), +, -, and /</li>
+          <li>A database with this name must not already exist</li>
+        </ul>
+        <b-form-input v-model="newDbName" placeholder="Enter the database name"></b-form-input>
+        <b-button v-if="newDbName === ''"class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <div v-if="newDbName !== '' && !$store.state.userUpdated">
+          <p>Database {{ newDbName }} will be created</p>
+          <b-button v-if="newDbName !== ''" class="m-1" @click="doCreateNewDb()">Start creation</b-button>
+          <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+          <div v-if="$store.state.backendSuccess">
+            <h4>The new database needs to register a product</h4>
+            <b-row class="my-1">
+              <b-col sm="2">
+                <label>The first product name:</label>
+              </b-col>
+              <b-col sm="10">
+                <b-form-input v-model="productName" placeholder="product name"></b-form-input>
+              </b-col>
+            </b-row>
+            <div v-if="productName !== ''">
+              <div>
+                <b-button v-if="!$store.state.userUpdated" class="m-1" @click="createProductAndProfile">Create the product and update your profile</b-button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="actionNr === 4">
-      <h1>Change my default database</h1>
-       <b-form-group>
-        <h5>Select the database you want to connect to</h5>
-        <b-form-radio-group
-          v-model="$store.state.selectedDatabaseName"
-          :options="$store.state.databaseOptions"
-        ></b-form-radio-group>
-      </b-form-group>
-      <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb()">Change my database</b-button>
-      <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-      <div v-if="$store.state.isCurrentDbChanged">
-        <h4>Succes! Exit, and sign in again to see the product view of the updated database</h4>
-        <b-button class="m-1" @click="signIn()" variant="outline-primary">Exit</b-button>
+      <div v-if="optionSelected === 'Change my default database'">
+        <h2>Change my default database</h2>
+        <b-form-group>
+          <h5>Select the database you want to connect to</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb()">Change my database</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <div v-if="$store.state.isCurrentDbChanged">
+          <h4>Succes! Exit, and sign in again to see the product view of the updated database</h4>
+          <b-button class="m-1" @click="signIn()" variant="outline-primary">Exit</b-button>
+        </div>
       </div>
-    </div>
 
-    <div v-if="actionNr === 5">
-      <h1>Delete a database</h1>
-      <b-form-group>
-        <h5>Select the database you want to connect to</h5>
-        <b-form-radio-group
-          v-model="$store.state.selectedDatabaseName"
-          :options="$store.state.databaseOptions"
-        ></b-form-radio-group>
-      </b-form-group>
-      <b-button variant="danger" class="m-1" @click="doDeleteDb()">Delete selected database</b-button>
-      <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-    </div>
-
-    <div v-if="actionNr === 6">
-      <h1>All other FAUXTON tasks</h1>
-      <h4>As server admin you have all other feautures available in FAUXTON, read the documentation</h4>
-      <b-button class="m-1" @click="doFauxton()">Start FAUXTON</b-button>
-      <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-      <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
-    </div>
-    <p>{{ localMessage }}</p>
-    <div v-if="$store.state.backendMessages.length > 0">
-      <hr>
-      <div v-for="msg in $store.state.backendMessages" :key="msg">
-        <p>{{ msg }}</p>
+      <div v-if="optionSelected === 'Delete a database'">
+        <h2>Delete a database</h2>
+        <b-form-group>
+          <h5>Select the database you want to connect to</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button variant="danger" class="m-1" @click="doDeleteDb()">Delete selected database</b-button>
+        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
       </div>
-    </div>
+
+      <div v-if="optionSelected === 'All FAUXTON tasks'">
+        <h2>All FAUXTON tasks</h2>
+        <h4>As server admin you have all other feautures available in FAUXTON, read the documentation</h4>
+        <b-button class="m-1" @click="doFauxton()">Start FAUXTON</b-button>
+        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
+      </div>
+
+      <p>{{ localMessage }}</p>
+      <div v-if="$store.state.backendMessages.length > 0">
+        <hr>
+        <div v-for="msg in $store.state.backendMessages" :key="msg">
+          <p>{{ msg }}</p>
+        </div>
+      </div>
+    </b-container>
   </div>
 </template>
 
@@ -135,7 +133,7 @@ const ALLBUTSYSTEMANDBACKUPS = 3
 export default {
   data() {
     return {
-      actionNr: 0,
+      optionSelected: 'select a task',
       canCancel: true,
       localMessage: '',
       fauxtonStarted: false,
@@ -158,7 +156,7 @@ export default {
 
   methods: {
     createBackup() {
-      this.actionNr = 1
+      this.optionSelected = 'Create a database backup'
       this.canCancel = true
       this.localMessage = ''
       // get all non sytem & non backup databases
@@ -190,7 +188,7 @@ export default {
     },
 
     restoreBackup() {
-      this.actionNr = 2
+      this.optionSelected = 'Restore a database from backup'
       this.newDbName = ''
       this.canCancel = true
       this.localMessage = ''
@@ -208,7 +206,7 @@ export default {
     },
 
     createNewDb() {
-      this.actionNr = 3
+      this.optionSelected = 'Create a new database'
       this.canCancel = true
       this.localMessage = ''
       this.$store.state.backendSuccess = false
@@ -239,7 +237,7 @@ export default {
     },
 
     changeMyDb() {
-      this.actionNr = 4
+      this.optionSelected = 'Change my default database'
       this.localMessage = ''
       this.$store.state.isCurrentDbChanged = false
       // get all non sytem & non backup databases
@@ -251,7 +249,7 @@ export default {
     },
 
     deleteDb() {
-      this.actionNr = 5
+      this.optionSelected = 'Delete a database'
       this.localMessage = ''
       this.$store.state.selectedDatabaseName = ''
       // get all non sytem databases
@@ -266,8 +264,7 @@ export default {
 
     fauxton() {
       this.fauxtonStarted = false
-      this.actionNr = 6
-
+      this.optionSelected = 'All FAUXTON tasks'
     },
 
     doFauxton() {
@@ -276,7 +273,7 @@ export default {
     },
 
     cancel() {
-      this.actionNr = 0
+      this.optionSelected = 'select a task'
     },
 
     signIn() {
