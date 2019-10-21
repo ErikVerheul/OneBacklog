@@ -23,8 +23,12 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
+		// console log settings
+		debug: true,
+		showWatchdogInfo: false,
+		// undo/redo
 		removeHistory: [],
-
+		// utilities for superAdmin, admin and superPO
 		backendMessages: [],
 		backendSuccess: false,
 		userUpdated: false,
@@ -33,18 +37,16 @@ export default new Vuex.Store({
 		teamCreated: false,
 		fetchedTeams: [],
 		isCurrentDbChanged: false,
-
-		debug: true,
+		// app wide globals
 		demo: true,
-		showWatchdogInfo: false,
-
+		online: true,
 		userData: {},
 		showHeaderDropDowns: true,
 		skipOnce: true,
 		nodeSelected: null,
+		moveOngoing: false,
 		numberOfNodesSelected: 0,
 		lastEvent: '',
-		online: true,
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
 		filterText: 'Recent changes',
@@ -58,8 +60,7 @@ export default new Vuex.Store({
 		lastSyncSeq: null,
 		configData: null,
 		currentDoc: null,
-		runningCookieRefreshId: null,
-		moveOngoing: false
+		runningCookieRefreshId: null
 	},
 
 	getters: {
