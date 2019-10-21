@@ -24,7 +24,7 @@ const state = {
 	currentProductTitle: "",
 	myProductOptions: [],
 	rangeString: '',
-	orphansFound: {userData: null, orphans: []}
+	orphansFound: { userData: null, orphans: [] }
 }
 
 const getters = {
@@ -189,7 +189,7 @@ const mutations = {
 						parentNodes[batch[i].doc._id] = newNode
 					} else {
 						state.orphansCount++
-						state.orphansFound.orphans.push({parentId: parentId, productId: batch[i].doc.productId})
+						state.orphansFound.orphans.push({ parentId: parentId, productId: batch[i].doc.productId })
 						// eslint-disable-next-line no-console
 						console.log('processProduct: orphan found with parentId = ' + parentId + ' and productId = ' + batch[i].doc.productId)
 					}
@@ -201,11 +201,56 @@ const mutations = {
 }
 
 const actions = {
+	// Get the current DB name etc. for this user. Note that the user global roles are already fetched
+	getOtherUserData({
+		rootState,
+		dispatch
+	}) {
+		globalAxios({
+			method: 'GET',
+			url: '_users/org.couchdb.user:' + rootState.userData.user,
+			withCredentials: true
+		}).then(res => {
+			rootState.userData.currentDb = res.data.currentDb
+			rootState.userData.email = res.data.email
+			rootState.userData.myDatabases = Object.keys(res.data.myDatabases)
+			const currentDbSettings = res.data.myDatabases[res.data.currentDb]
+			rootState.userData.myTeam = currentDbSettings.myTeam
+			rootState.userData.myProductsRoles = currentDbSettings.productsRoles
+			rootState.userData.myProductSubscriptions = currentDbSettings.subscriptions
+
+			dispatch('watchdog')
+			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in and the watchdog is started to recover from network outings."
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			// now that the database is known the log file is available
+			dispatch('doLog', { event: msg, level: ERROR })
+			const isProductAssigned = Object.keys(rootState.userData.myProductsRoles).length > 0
+			dispatch('getConfig', isProductAssigned)
+
+		}).catch(error => {
+			if (error.message.includes("404")) {
+				// the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
+				if (rootState.online && rootState.userData.roles.includes("_admin")) {
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
+					rootState.showHeaderDropDowns = false
+					router.push('/init')
+					return
+				}
+			}
+			let msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	// Load the config document from this database
 	getConfig({
 		rootState,
 		dispatch
-	}) {
+	}, isProductAssigned) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/config',
@@ -214,32 +259,53 @@ const actions = {
 			rootState.configData = res.data
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('The configuration is loaded')
-			// process removed products if any
-			if (res.data.removedProducts && res.data.removedProducts.length > 0) {
-				const sanatizedProductRoles = {}
-				const productIds = Object.keys(rootState.userData.myProductsRoles)
-				for (let i = 0; i < productIds.length; i++) {
-					if (!res.data.removedProducts.includes(productIds[i])) {
-						sanatizedProductRoles[productIds[i]] = rootState.userData.myProductsRoles[productIds[i]]
+			if (isProductAssigned) {
+				// process removed products if any
+				if (res.data.removedProducts && res.data.removedProducts.length > 0) {
+					const sanatizedProductRoles = {}
+					const productIds = Object.keys(rootState.userData.myProductsRoles)
+					for (let i = 0; i < productIds.length; i++) {
+						if (!res.data.removedProducts.includes(productIds[i])) {
+							sanatizedProductRoles[productIds[i]] = rootState.userData.myProductsRoles[productIds[i]]
+						}
 					}
-				}
-				rootState.userData.myProductsRoles = sanatizedProductRoles
+					rootState.userData.myProductsRoles = sanatizedProductRoles
 
-				const sanatizedProductSubscriptions = []
-				for (let i = 0; i < rootState.userData.myProductSubscriptions.length; i++) {
-					if (!res.data.removedProducts.includes(rootState.userData.myProductSubscriptions[i])) {
-						sanatizedProductSubscriptions.push(rootState.userData.myProductSubscriptions[i])
+					const sanatizedProductSubscriptions = []
+					for (let i = 0; i < rootState.userData.myProductSubscriptions.length; i++) {
+						if (!res.data.removedProducts.includes(rootState.userData.myProductSubscriptions[i])) {
+							sanatizedProductSubscriptions.push(rootState.userData.myProductSubscriptions[i])
+						}
 					}
+					rootState.userData.myProductSubscriptions = sanatizedProductSubscriptions
 				}
-				rootState.userData.myProductSubscriptions = sanatizedProductSubscriptions
+
+				rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
+				// set the array of options to make a selection of products for the next load on sign-in
+				dispatch("setMyProductOptions")
+				// the first (index 0) product is by definition the default product
+				state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0]
 			}
+			// load the root document
+			dispatch('getRoot', isProductAssigned)
+		}).catch(error => {
+			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
 
-			rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
-			// set the array of options to make a selection of products for the next load on sign-in
-			dispatch("setMyProductOptions")
-			// the first (index 0) product is by definition the default product
-			state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0]
-
+	getRoot({
+		rootState,
+		dispatch
+	}, isProductAssigned) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/root',
+			withCredentials: true,
+		}).then(res => {
+			rootState.currentDoc = res.data
 			// prepare for loading the first batch; add the root node for the database name
 			state.treeNodes = [
 				{
@@ -251,7 +317,7 @@ const actions = {
 					"parentId": null,
 					"_id": 'root',
 					"shortId": "0",
-					"title": rootState.userData.currentDb,
+					"title": res.data.title,
 					"isLeaf": false,
 					"children": [],
 					"isExpanded": true,
@@ -268,16 +334,19 @@ const actions = {
 				},
 			]
 			parentNodes.root = state.treeNodes[0]
-			// load the current product document
-			dispatch('loadCurrentProduct')
+			if (isProductAssigned) {
+				// load the current product document
+				dispatch('loadCurrentProduct')
+			} else {
+				// show the root node
+				router.push('/product')
+			}
 		}).catch(error => {
-			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
+			// ToDo: if 404 the database could be deleted
+			let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -316,10 +385,7 @@ const actions = {
 			let msg = 'loadCurrentProduct: Could not read current product document with _id ' + _id + ' from database ' + rootState.userData.currentDb + '. ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -361,62 +427,7 @@ const actions = {
 			let msg = 'setMyProductOptions: Could not read product titles' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
-		})
-	},
-
-	// Get the current DB name etc. for this user. Note that the user global roles are already fetched
-	getOtherUserData({
-		rootState,
-		dispatch
-	}) {
-		globalAxios({
-			method: 'GET',
-			url: '_users/org.couchdb.user:' + rootState.userData.user,
-			withCredentials: true
-		}).then(res => {
-			rootState.userData.email = res.data.email
-			rootState.userData.currentDb = res.data.currentDb
-			rootState.userData.myDatabases = Object.keys(res.data.myDatabases)
-			const currentDbSettings = res.data.myDatabases[res.data.currentDb]
-			rootState.userData.myTeam = currentDbSettings.myTeam
-			rootState.userData.myProductsRoles = currentDbSettings.productsRoles
-			rootState.userData.myProductSubscriptions = currentDbSettings.subscriptions
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('getOtherUserData called for user = ' + rootState.userData.user)
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('getOtherUserData: database ' + rootState.userData.currentDb + ' is set for user ' + rootState.userData.user)
-			let msg = rootState.userData.user + ' has logged in and the watchdog is started to recover from network outings.'
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			// now that the database is known the log file is available
-			dispatch('doLog', {
-				"event": msg,
-				"level": INFO
-			})
-			dispatch('watchdog')
-			dispatch('getConfig')
-		}).catch(error => {
-			if (error.message.includes("404")) {
-				// the document does not exist; start one time initialization of a new database if a server admin signed in
-				if (rootState.userData.roles.includes("_admin")) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
-					rootState.showHeaderDropDowns = false
-					router.push('/init')
-					return
-				}
-			}
-			let msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -437,7 +448,7 @@ const actions = {
 			// log any detected orphans if present
 			if (state.orphansFound.orphans.length > 0) {
 				rootState.logging.orphansFound = state.orphansFound
-				commit('logOrphansFound', null, {root: true})
+				commit('logOrphansFound', null, { root: true })
 				state.orphansFound.orphans = []
 			}
 			// process other products here
@@ -459,8 +470,8 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Another product of ' + batch.length + ' documents is loaded')
 		})
-		// eslint-disable-next-line no-console
-		.catch(error => console.log('getNextProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('getNextProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
 	// Load the current product first
@@ -482,7 +493,7 @@ const actions = {
 			// log any detected orphans if present
 			if (state.orphansFound.orphans.length > 0) {
 				rootState.logging.orphansFound = state.orphansFound
-				commit('logOrphansFound', null, {root: true})
+				commit('logOrphansFound', null, { root: true })
 				state.orphansFound.orphans = []
 			}
 			// eslint-disable-next-line no-console
@@ -505,8 +516,8 @@ const actions = {
 			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			router.push('/product')
 		})
-		// eslint-disable-next-line no-console
-		.catch(error => console.log('getFirstProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('getFirstProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
 	loadItemByShortId({
@@ -538,10 +549,7 @@ const actions = {
 						const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log(msg)
-						dispatch('doLog', {
-							event: msg,
-							level: WARNING
-						})
+						dispatch('doLog', { event: msg, level: WARNING })
 					}
 					rootState.currentDoc = doc
 					// decode from base64 + replace the encoded data
@@ -554,8 +562,8 @@ const actions = {
 				}
 			} else commit('showLastEvent', { txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING })
 		})
-		// eslint-disable-next-line no-console
-		.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + '. Error = ' + error))
+			// eslint-disable-next-line no-console
+			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
 	// Load current document by _id
@@ -578,10 +586,7 @@ const actions = {
 			let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -602,10 +607,7 @@ const actions = {
 			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	// Create document and reload it to currentDoc
@@ -629,10 +631,7 @@ const actions = {
 			let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	}
 }
