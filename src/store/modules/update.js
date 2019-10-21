@@ -53,10 +53,7 @@ const actions = {
 			let msg = 'changeSubsription: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	setSize({
@@ -89,10 +86,7 @@ const actions = {
 			let msg = 'setSize: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	setPersonHours({
@@ -125,10 +119,7 @@ const actions = {
 			let msg = 'setPersonHours: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	setStoryPoints({
@@ -161,10 +152,7 @@ const actions = {
 			let msg = 'setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	setState({
@@ -197,10 +185,7 @@ const actions = {
 			let msg = 'setState: Could not read document with _id ' + _id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	setDocTitle({
@@ -233,10 +218,7 @@ const actions = {
 			let msg = 'setDocTitle: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	setSubType({
@@ -268,10 +250,7 @@ const actions = {
 			let msg = 'setSubType: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -332,10 +311,7 @@ const actions = {
 			let msg = 'updateMovedItems: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -394,20 +370,14 @@ const actions = {
 				let msg = 'updateDroppedDescendantsBulk: These descendants cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', ok)
 		}).catch(error => {
 			let msg = 'updateDroppedDescendantsBulk: Could not read decendants in bulk. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	removeDoc({
@@ -440,10 +410,7 @@ const actions = {
 			let msg = 'removeDoc: Could not read document with _id ' + _id + ',' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	/* Check if restoration is possible: the parent to store under must not be removed */
@@ -483,10 +450,7 @@ const actions = {
 			let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	restoreParentFirst({
@@ -516,10 +480,7 @@ const actions = {
 			let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	// update the parent and restore the descendants
@@ -543,10 +504,7 @@ const actions = {
 			let msg = 'undoRemovedParent: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	/* Mark the descendants of the parent for removal. Do not distribute this event as distributing the parent removal will suffice */
@@ -596,10 +554,7 @@ const actions = {
 				let msg = 'removeDescendantsBulk: These documents cannot be marked for removal: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', ok)
 		}).catch(error => {
@@ -607,10 +562,7 @@ const actions = {
 			let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	/* Unmark the removed item and its descendants for removal. Do distribute this event and set the selfUpdate property to have the tree updated */
@@ -658,20 +610,14 @@ const actions = {
 				let msg = 'restoreDescendantsBulk: These documents cannot be UNmarked for removal: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', ok)
 		}).catch(error => {
 			let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	updateBulk({
@@ -695,10 +641,7 @@ const actions = {
 			let msg = 'updateBulk: Could not update batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	registerRemoveHistInParent({
@@ -732,10 +675,7 @@ const actions = {
 			let msg = 'registerRemoveHistInParent: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -769,10 +709,7 @@ const actions = {
 			let msg = 'saveDescription: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -806,10 +743,7 @@ const actions = {
 			let msg = 'saveAcceptance: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	addComment({
@@ -840,10 +774,7 @@ const actions = {
 			let msg = 'addComment: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 	addHistoryComment({
@@ -875,10 +806,7 @@ const actions = {
 			let msg = 'addHistoryComment: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -902,10 +830,7 @@ const actions = {
 			let msg = 'addToRemovedProducts: Could not read config document ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -931,10 +856,7 @@ const actions = {
 			const msg = 'removeFromRemovedProducts: Could not read config document ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -963,10 +885,7 @@ const actions = {
 		}).catch(error => {
 			const msg = 'addTeamToDatabase: Could not read config document ' + error
 			rootState.backendMessages.push(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
@@ -992,10 +911,7 @@ const actions = {
 			rootState.backendMessages.push(msg)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
