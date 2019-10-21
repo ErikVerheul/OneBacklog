@@ -32,12 +32,10 @@ const actions = {
       rootState.backendMessages.push(msg)
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
+
   /* Get al products of a database and if presetExistingRoles === true set the assigned roles*/
   getDbProducts({
     rootState,
@@ -69,10 +67,7 @@ const actions = {
       rootState.backendMessages.push(msg)
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 
@@ -94,17 +89,11 @@ const actions = {
       let msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + newTeam
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: INFO
-      })
+      dispatch('doLog', { event: msg, level: INFO })
     }).catch(error => {
       let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + '. Error = ' + error
       rootState.backendMessages.push(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
   changePassword({
@@ -126,10 +115,7 @@ const actions = {
     }).catch(error => {
       let msg = 'changePW: Could not change password for user ' + rootState.userData.user + '. Error = ' + error
       rootState.backendMessages.push(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 
@@ -159,7 +145,7 @@ const actions = {
       } else {
         // add all user roles to the new product
         const newDb = {
-          myteam: 'not a member of a team',
+          myteam: 'not in a team',
           subscriptions: [payload.productId],
           productsRoles: {
             [payload.productId]: copyRoles(tmpUserData.roles)
@@ -174,10 +160,7 @@ const actions = {
       rootState.backendMessages.push(msg)
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 
@@ -197,18 +180,45 @@ const actions = {
       let msg = 'updateSubscriptions: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
-  changeCurrentDb({
+
+  /* Get all products of the database in case they are needed to be registered for this user */
+  changeCurrentDb1({
     rootState,
     dispatch
   }, dbName) {
     rootState.backendMessages = []
     rootState.backendSuccess = false
+    globalAxios({
+      method: 'GET',
+      url: dbName + '/_design/design1/_view/products',
+      withCredentials: true
+    }).then(res => {
+      const ids = []
+      for (let prod of res.data.rows) {
+        ids.push(prod.id)
+      }
+      dispatch('changeCurrentDb2', { dbName: dbName, productIds: ids })
+    }).catch(error => {
+      let msg = 'changeCurrentDb1: Could not find the products of database ' + dbName + '. Error = ' + error
+      rootState.backendMessages.push(msg)
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
+
+  /*
+  * Change the current database to the new value +
+  * If the user is not subscibed to this database, make the user 'guest' for all products in that database or
+  * If the database is newly created and has no products, register the database without products
+  */
+  changeCurrentDb2({
+    rootState,
+    dispatch
+  }, payload) {
     rootState.isCurrentDbChanged = false
     globalAxios({
       method: 'GET',
@@ -216,19 +226,32 @@ const actions = {
       withCredentials: true
     }).then(res => {
       let tmpUserData = res.data
-      if (Object.keys(tmpUserData.myDatabases).includes(dbName)) {
-        tmpUserData.currentDb = dbName
-        dispatch("updateUser", tmpUserData)
-        rootState.backendMessages.push("changeCurrentDb: the default database of user '" + rootState.userData.user + "' is changed to " + dbName)
-        rootState.isCurrentDbChanged = true
-      } else rootState.backendMessages.push('changeCurrentDb: Cannot change the default database. Reason: database ' + dbName + ' is not found in the users profile')
-    }).catch(error => {
-      let msg = 'changeCurrentDb: Could not update the default database for user ' + rootState.userData.user + ', ' + error
+      const newDbEntry = {
+        myTeam: 'not in a team',
+        subscriptions: [],
+        productsRoles: {}
+      }
+      tmpUserData.currentDb = payload.dbName
+      if (!Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
+        // the user is not subscribed to this database
+        if (payload.productIds.length > 0) {
+          // make the user 'guest' of all existing products
+          for (let id of payload.productIds) {
+            newDbEntry.subscriptions.push(id)
+            newDbEntry.productsRoles[id] = ['guest']
+          }
+        }
+        tmpUserData.myDatabases[payload.dbName] = newDbEntry
+      }
+      dispatch("updateUser", tmpUserData)
+      rootState.isCurrentDbChanged = true
+      const msg = "changeCurrentDb2: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
       rootState.backendMessages.push(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: INFO })
+    }).catch(error => {
+      const msg = 'changeCurrentDb2: Could not update the default database for user ' + rootState.userData.user + ', ' + error
+      rootState.backendMessages.push(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 
@@ -250,10 +273,7 @@ const actions = {
       rootState.backendMessages.push(msg)
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 
@@ -272,10 +292,7 @@ const actions = {
       rootState.backendMessages.push(msg)
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     }).catch(error => {
       if (error.message.includes("404")) {
         dispatch('createUser2', payload)
@@ -284,10 +301,7 @@ const actions = {
         rootState.backendMessages.push(msg)
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', {
-          event: msg,
-          level: ERROR
-        })
+        dispatch('doLog', { event: msg, level: ERROR })
       }
     })
   },
@@ -311,10 +325,7 @@ const actions = {
       rootState.backendMessages.push(msg)
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 

@@ -126,10 +126,7 @@ const actions = {
 				let msg = 'createNewProduct: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+				dispatch('doLog', { event: msg, level: ERROR })
 			})
 	},
 
@@ -198,10 +195,7 @@ const actions = {
 				let msg = 'createNewEpics: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+				dispatch('doLog', { event: msg, level: ERROR })
 			})
 	},
 
@@ -270,10 +264,7 @@ const actions = {
 				let msg = 'createNewFeatures: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+				dispatch('doLog', { event: msg, level: ERROR })
 			})
 	},
 
@@ -334,10 +325,7 @@ const actions = {
 				let msg = 'createNewStories: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+				dispatch('doLog', { event: msg, level: ERROR })
 			})
 	},
 
@@ -1092,10 +1080,7 @@ const actions = {
 				let msg = 'updateWithNoHistory: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', {
-					event: msg,
-					level: ERROR
-				})
+				dispatch('doLog', { event: msg, level: ERROR })
 			})
 	},
 

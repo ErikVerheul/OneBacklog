@@ -61,10 +61,7 @@ const actions = {
       rootState.backendMessages.push(msg)
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', {
-        event: msg,
-        level: ERROR
-      })
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 
@@ -254,10 +251,7 @@ const actions = {
       rootState.backendMessages.push(msg)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', {
-				event: msg,
-				level: ERROR
-			})
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 }
