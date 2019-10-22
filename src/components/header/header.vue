@@ -28,9 +28,10 @@
             </template>
             <b-dropdown-item v-if="!auth">No options here when not signed in</b-dropdown-item>
             <b-dropdown-item
-              v-if="auth"
-              @click="changeTeam"
-            >Change team</b-dropdown-item>
+              v-if="auth && $store.state.userData.myDatabases.length > 1"
+              @click="changeDatabase"
+            >Change database</b-dropdown-item>
+            <b-dropdown-item v-if="auth" @click="changeTeam">Change team</b-dropdown-item>
             <b-dropdown-item
               v-if="auth && $store.state.userData.userAssignedProductIds.length > 1"
               @click="selectProducts"
@@ -46,15 +47,21 @@
       <slot name="licence"></slot>
     </appLicence>
 
+    <b-modal size="lg" ref="changeDatabaseRef" @ok="doChangeDatabase" title="Change your database">
+      <b-container align-v="true">
+        <h5>Select another database. Your current database is '{{ $store.state.userData.currentDb }}'</h5>
+        <b-form-group>
+          <b-form-radio-group v-model="myDatabase" :options="databaseOptions" name="databaseOptions"></b-form-radio-group>
+        </b-form-group>
+        <p>After you have changed the database Sign-out and -in again to connect to the selected database</p>
+      </b-container>
+    </b-modal>
+
     <b-modal size="lg" ref="changeTeamRef" @ok="doChangeTeam" title="Change your team">
       <b-container align-v="true">
         <h5>Select your new team. Your current team is '{{ $store.state.userData.myTeam }}'</h5>
         <b-form-group>
-          <b-form-radio-group
-            v-model="myTeam"
-            :options="teamOptions"
-            name="teamOptions"
-          ></b-form-radio-group>
+          <b-form-radio-group v-model="myTeam" :options="teamOptions" name="teamOptions"></b-form-radio-group>
         </b-form-group>
       </b-container>
     </b-modal>

@@ -15,6 +15,9 @@ export default {
             defaultProductId: undefined,
             defaultProductOptions: [],
             myTeam: '',
+            myDatabase: '',
+            databaseOptions: [],
+
             teamOptions: []
         }
     },
@@ -50,12 +53,21 @@ export default {
     },
 
     methods: {
+        changeDatabase() {
+            this.myDatabase = this.$store.state.userData.currentDb
+            this.$refs.changeDatabaseRef.show()
+            this.databaseOptions = []
+            for (let db of this.$store.state.userData.myDatabases) {
+                this.databaseOptions.push(db)
+            }
+        },
+
         changeTeam() {
-            this.myTeam = ''
+            this.myTeam = this.$store.state.userData.myTeam
             this.$refs.changeTeamRef.show()
             this.teamOptions = []
             for (let team of this.$store.state.configData.teams) {
-                this.teamOptions.push({text: team, value: team})
+                this.teamOptions.push(team)
             }
         },
 
@@ -67,6 +79,10 @@ export default {
             if (this.$store.getters.isServerAdmin)
                 alert("As a 'server admin' you cannot change your password here. Use Fauxton instead")
             else this.$refs.changePwRef.show()
+        },
+
+        doChangeDatabase() {
+            this.$store.dispatch('changeCurrentDb2', {dbName: this.myDatabase, products: []})
         },
 
         doChangeTeam() {

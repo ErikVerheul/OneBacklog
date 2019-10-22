@@ -38,6 +38,7 @@
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
+            stacked
           ></b-form-radio-group>
         </b-form-group>
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb()">Change my database</b-button>

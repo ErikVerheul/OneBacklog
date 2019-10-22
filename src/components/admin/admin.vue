@@ -42,6 +42,7 @@
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
+            stacked
           ></b-form-radio-group>
         </b-form-group>
 
@@ -139,6 +140,7 @@
                 <b-form-radio-group
                   v-model="$store.state.selectedDatabaseName"
                   :options="$store.state.databaseOptions"
+                  stacked
                 ></b-form-radio-group>
               </b-form-group>
             </b-col>
@@ -174,6 +176,7 @@
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
+            stacked
           ></b-form-radio-group>
         </b-form-group>
         <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
@@ -189,6 +192,7 @@
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
+            stacked
           ></b-form-radio-group>
         </b-form-group>
         <b-button class="m-1" @click="doGetTeamsOfDb()">List teams</b-button>
