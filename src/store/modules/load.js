@@ -298,6 +298,7 @@ const actions = {
 
 	getRoot({
 		rootState,
+		commit,
 		dispatch
 	}, isProductAssigned) {
 		globalAxios({
@@ -306,6 +307,9 @@ const actions = {
 			withCredentials: true,
 		}).then(res => {
 			rootState.currentDoc = res.data
+			// decode from base64 + replace the encoded data
+			rootState.currentDoc.description = window.atob(res.data.description)
+			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
 			// prepare for loading the first batch; add the root node for the database name
 			state.treeNodes = [
 				{
@@ -338,6 +342,7 @@ const actions = {
 				// load the current product document
 				dispatch('loadCurrentProduct')
 			} else {
+				commit('showLastEvent', { txt: `The root document is read. No products are found. A SuperPO can create products.`, severity: INFO })
 				// show the root node
 				router.push('/product')
 			}

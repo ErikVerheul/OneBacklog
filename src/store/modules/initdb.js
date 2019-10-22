@@ -1,14 +1,62 @@
 import globalAxios from 'axios'
 
-const PRODUCTLEVEL = 2
+const DATABASELEVEL = 1
 
 const actions = {
-	initDatabase({
+	createDatabase({
 		rootState,
 		dispatch
 	}, payload) {
-    rootState.backendMessages = []
 		rootState.backendSuccess = false
+		rootState.backendMessages = []
+		globalAxios({
+			method: 'PUT',
+			url: payload.dbName,
+			withCredentials: true,
+		}).then(() => {
+			rootState.backendMessages.push('createDatabase: Success, empty database ' + payload.dbName + ' is created')
+			dispatch('setDatabasePermissions', payload)
+			dispatch('createLog', payload)
+			if (payload.initDbInstance) {
+				// also makes the applications 'admin' role CouchDB admin
+				dispatch('setUsersDatabasePermissions', rootState.userData.user)
+			}
+		}).catch(error => {
+			rootState.backendMessages.push('createDatabase: Failed to create ' + payload.dbName + ', ' + error)
+		})
+	},
+
+	setDatabasePermissions({
+		rootState,
+		dispatch
+	}, payload) {
+		const dbPermissions = {
+			"admins": {
+				"names": [],
+				"roles": ["admin"]
+			},
+			"members": {
+				"names": [],
+				"roles": ["areaPO", "superPO", "PO", "developer", "guest"]
+			}
+		}
+		globalAxios({
+			method: 'PUT',
+			url: payload.dbName + '/_security',
+			withCredentials: true,
+			data: dbPermissions
+		}).then(() => {
+			rootState.backendMessages.push('setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set')
+			if (payload.createRootDoc) dispatch('createRoot', payload)
+		}).catch(error => {
+			rootState.backendMessages.push('setDatabasePermissions: Failure, could not set database permissions, ' + error)
+		})
+	},
+
+	createLog({
+		rootState,
+		dispatch
+	}, payload) {
 		const logDoc = {
 			"_id": "log",
 			"type": "logging",
@@ -23,21 +71,20 @@ const actions = {
 				},
 			]
 		}
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('create log document')
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/log',
 			withCredentials: true,
 			data: logDoc
 		}).then(() => {
-			dispatch('initializeDatabase', payload)
+			rootState.backendMessages.push('createLog: Success, log for database ' + payload.dbName + ' is created')
+			dispatch('createConfig', payload)
 		}).catch(error => {
-			rootState.backendMessages.push('initDatabase: Could not create log document, ' + error)
+			rootState.backendMessages.push('createLog: Failure, could not create log document, ' + error)
 		})
 	},
 
-	initializeDatabase({
+	createConfig({
 		rootState,
 		dispatch
 	}, payload) {
@@ -116,19 +163,16 @@ const actions = {
 				"The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
 			],
 		}
-
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('Initialize DB: install configuration file')
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName,
 			withCredentials: true,
 			data: configData
 		}).then(() => {
+			rootState.backendMessages.push('createConfig: Success, the configuration document is created')
 			dispatch('installDesignDoc', payload)
 		}).catch(error => {
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(error)
+			rootState.backendMessages.push('createConfig: Failure, could not create the configuration document, ' + error)
 		})
 	},
 
@@ -136,8 +180,6 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('Initialize DB: install design documents')
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/_design/design1',
@@ -173,44 +215,33 @@ const actions = {
 				"language": "javascript"
 			}
 		}).then(() => {
-			dispatch('createProduct', payload)
+			rootState.backendMessages.push('installDesignDoc: Success, the design document is created')
+			dispatch('createRoot', payload)
 		}).catch(error => {
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(error)
+			rootState.backendMessages.push('installDesignDoc: Failure, cannot create the design document, ' + error)
 		})
 	},
 
-	// Create new product
-	createProduct({
+	createRoot({
 		rootState,
 		dispatch
 	}, payload) {
-		// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 digit alphanumerical random value
-		function newId() {
-			return Date.now().toString() + Math.random().toString(36).replace('0.', '').substr(0, 5)
-		}
-		const _id = newId()
-		// create a new document and store it
-		const newDoc = {
-			"_id": _id,
-			"shortId": _id.slice(-5),
+		// create root document
+		const rootDoc = {
+			"_id": "root",
+			"shortId": "root",
 			"type": "backlogItem",
-			"productId": _id,
-			"parentId": 'root',
-			"team": "not in a team",
-			"level": PRODUCTLEVEL,
-			"state": 0,
-			"title": payload.productName,
+			"level": DATABASELEVEL,
+			"title": "The root of all products in this database",
 			"followers": [],
-			"description": window.btoa(""),
+			"description": window.btoa("<p>Database root document</p>"),
 			"acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
 			"priority": 0,
 			"attachments": [],
 			"comments": [],
 			"history": [{
-				"createEvent": [PRODUCTLEVEL, payload.dbName],
+				"createEvent": [DATABASELEVEL, payload.dbName],
 				"by": rootState.userData.user,
-				"email": payload.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
@@ -218,59 +249,54 @@ const actions = {
 			}],
 			"delmark": false
 		}
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('create new product')
 		globalAxios({
 			method: 'PUT',
-			url: payload.dbName + '/' + _id,
+			url: payload.dbName + '/root',
 			withCredentials: true,
-			data: newDoc
+			data: rootDoc
 		}).then(() => {
-			rootState.backendMessages.push('Product with _id ' + _id + ' is created.')
-			payload.productId = _id
-			if (payload.updateExistingProfile) {
-				dispatch('addProductToUser', { dbName: payload.dbName, productId: _id })
-			} else dispatch('createFirstUser', payload)
+			if (payload.initDbInstance) {
+				dispatch('createServerAdminProfile', payload)
+			} else {
+				rootState.backendSuccess = true
+				rootState.userData.myDatabases.push(payload.dbName)
+			}
+			rootState.backendMessages.push('createRoot: Success, the root document is created')
 		}).catch(error => {
-			rootState.backendMessages.push('Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error)
+			rootState.backendMessages.push('createRoot: Failure, cannot create the root document, ' + error)
 		})
 	},
 
-	/* Note that the _admin user is made admin (globally) and guest to the first created product */
-	createFirstUser({
+	/* The server admin attains the roles 'admin' and 'superPO'. No product is set. */
+	createServerAdminProfile({
 		rootState
 	}, payload) {
-		const productsRoles = {
-			[payload.productId]: ['guest']
-		}
 		// Change the userName here for testing in an existing instance of OneBacklog
 		const userName = rootState.userData.user
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log("create first user '" + userName + "'")
 		globalAxios({
 			method: 'PUT',
 			url: '_users/org.couchdb.user:' + userName,
 			withCredentials: true,
 			data: {
-				"name": userName,
-				"password": rootState.userData.password,
-				"type": "user",
-				"roles": ['admin'],
-				"email": payload.email,
-				"currentDb": payload.dbName,
-				"myDatabases": {
+				name: userName,
+				password: rootState.userData.password,
+				type: 'user',
+				roles: ['admin', 'superPO'],
+				email: payload.email,
+				currentDb: payload.dbName,
+				myDatabases: {
 					[payload.dbName]: {
-						"myTeam": 'not in a team',
-						"subscriptions": [payload.productId],
-						"productsRoles": productsRoles
+						myTeam: 'not in a team',
+						subscriptions: [],
+						productsRoles: {}
 					}
 				}
 			}
 		}).then(() => {
 			rootState.backendSuccess = true
-			rootState.backendMessages.push("User '" + userName + "' is created")
+			rootState.backendMessages.push("createServerAdminProfile: Success, user profile for " + userName + " is created with 'admin', 'superPO' roles set")
 		}).catch(error => {
-			rootState.backendMessages.push("Could not create user '" + userName + "', " + error)
+			rootState.backendMessages.push("createServerAdminProfile: Failure, cannot create user profile for 'server admin' '" + userName + "', " + error)
 		})
 	},
 }

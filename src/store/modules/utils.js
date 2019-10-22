@@ -1,21 +1,9 @@
 import globalAxios from 'axios'
 
-const DATABASELEVEL = 1
 const ERROR = 2
 const BACKUPSONLY = 1
 const ALLBUTSYSTEM = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
-
-const dbPermissions = {
-  "admins": {
-    "names": [],
-    "roles": ["admin"]
-  },
-  "members": {
-    "names": [],
-    "roles": ["areaPO", "superPO", "PO", "developer", "guest"]
-  }
-}
 
 const state = {
   backupBusy: false
@@ -65,29 +53,6 @@ const actions = {
     })
   },
 
-  createDatabase({
-    rootState,
-    dispatch
-  }, payload) {
-    rootState.backendSuccess = false
-    rootState.backendMessages = []
-    // eslint-disable-next-line no-console
-    console.log('create database ' + payload.dbName)
-    globalAxios({
-      method: 'PUT',
-      url: payload.dbName,
-      withCredentials: true,
-    }).then(() => {
-      dispatch('setDatabasePermissions', payload)
-      if (payload.doSetUsersDatabasePermissions) {
-        // also makes this user admin
-        dispatch('setUsersDatabasePermissions', rootState.userData.user)
-      }
-    }).catch(error => {
-      rootState.backendMessages.push('createDatabase: failed. ' + error)
-    })
-  },
-
   setUsersDatabasePermissions({
     rootState
   }, user) {
@@ -115,70 +80,6 @@ const actions = {
     })
   },
 
-  setDatabasePermissions({
-		rootState,
-		dispatch
-	}, payload) {
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('Start executing setDatabasePermissions for ' + payload.dbName)
-		globalAxios({
-			method: 'PUT',
-			url: payload.dbName + '/_security',
-			withCredentials: true,
-			data: dbPermissions
-		}).then(() => {
-      rootState.backendSuccess = true
-      rootState.backendMessages.push('setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set')
-			if (payload.createRootDoc) dispatch('createRoot', payload)
-		}).catch(error => {
-      rootState.backendSuccess = false
-			rootState.backendMessages.push('setDatabasePermissions: Could not set database permissions, ' + error)
-		})
-	},
-
-	createRoot({
-		rootState
-	}, payload) {
-    // create root document
-    const rootDoc = {
-      "_id": "root",
-      "shortId": "root",
-      "type": "backlogItem",
-      "level": DATABASELEVEL,
-      "title": "The root of all products in this database",
-      "followers": [],
-      "description": window.btoa("<p>Database root document</p>"),
-      "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
-      "priority": 0,
-      "attachments": [],
-      "comments": [],
-      "history": [{
-        "createEvent": [DATABASELEVEL, payload.dbName],
-        "by": rootState.userData.user,
-        "email": payload.email,
-        "timestamp": Date.now(),
-        "timestampStr": new Date().toString(),
-        "sessionId": rootState.userData.sessionId,
-        "distributeEvent": false
-      }],
-      "delmark": false
-    }
-		globalAxios({
-			method: 'PUT',
-			url: payload.dbName + '/root',
-			withCredentials: true,
-			data: rootDoc
-		}).then(() => {
-			rootState.backendSuccess = true
-			rootState.backendMessages.push('New database ' + payload.dbName + ' and root document are created')
-		}).catch(error => {
-      rootState.backendSuccess = false
-			rootState.backendMessages.push('createRoot: Could not create the root document, ' + error)
-		})
-	},
-
-
-
   copyDB({
     rootState,
     state,
@@ -199,18 +100,16 @@ const actions = {
       url: "_replicate",
       withCredentials: true,
       data: copyData
-    }).then(res => {
+    }).then(() => {
       state.backupBusy = false
-      rootState.backendMessages.push('copyDB: success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName)
-      // eslint-disable-next-line no-console
-      console.log(res)
+      rootState.backendMessages.push('copyDB: Success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName)
       dispatch('setDatabasePermissions', {
         dbName: payload.dbTargetName
       })
     }).catch(error => {
       // eslint-disable-next-line no-console
       console.log(error)
-      rootState.backendMessages.push('copyDB: failure, ' + payload.dbSourceName + ' is NOT copied to ' + payload.dbTargetName +', ' + error)
+      rootState.backendMessages.push('copyDB: Failure, ' + payload.dbSourceName + ' is NOT copied to ' + payload.dbTargetName + ', ' + error)
     })
   },
 

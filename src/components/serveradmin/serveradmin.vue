@@ -18,10 +18,11 @@
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
+            stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doCreateBackup()">Start backup</b-button>
-        <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doCreateBackup">Start backup</b-button>
+        <b-button v-if="canCancel" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
 
       <div v-if="optionSelected === 'Restore a database from backup'">
@@ -31,11 +32,12 @@
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
+            stacked
           ></b-form-radio-group>
         </b-form-group>
         <p>Database {{ dbToReplace }} will be replaced by the backup</p>
-        <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doRestoreBackup()">Start restore</b-button>
-        <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doRestoreBackup">Start restore</b-button>
+        <b-button v-if="canCancel" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
 
       <div v-if="optionSelected === 'Create a new database'">
@@ -49,27 +51,11 @@
           <li>A database with this name must not already exist</li>
         </ul>
         <b-form-input v-model="newDbName" placeholder="Enter the database name"></b-form-input>
-        <b-button v-if="newDbName === ''" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="newDbName === ''" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         <div v-if="newDbName !== '' && !$store.state.userUpdated">
           <p>Database {{ newDbName }} will be created</p>
-          <b-button v-if="newDbName !== ''" class="m-1" @click="doCreateNewDb()">Start creation</b-button>
-          <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-          <div v-if="$store.state.backendSuccess">
-            <h4>The new database needs to register a product</h4>
-            <b-row class="my-1">
-              <b-col sm="2">
-                <label>The first product name:</label>
-              </b-col>
-              <b-col sm="10">
-                <b-form-input v-model="productName" placeholder="product name"></b-form-input>
-              </b-col>
-            </b-row>
-            <div v-if="productName !== ''">
-              <div>
-                <b-button v-if="!$store.state.userUpdated" class="m-1" @click="createProductAndProfile">Create the product and update your profile</b-button>
-              </div>
-            </div>
-          </div>
+          <b-button v-if="!$store.state.backendSuccess && newDbName !== ''" class="m-1" @click="doCreateDatabase">Start creation</b-button>
+          <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         </div>
       </div>
 
@@ -80,13 +66,14 @@
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
+            stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb()">Change my database</b-button>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb">Change my database</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         <div v-if="$store.state.isCurrentDbChanged">
           <h4>Succes! Exit, and sign in again to see the product view of the updated database</h4>
-          <b-button class="m-1" @click="signIn()" variant="outline-primary">Exit</b-button>
+          <b-button class="m-1" @click="signIn" variant="outline-primary">Exit</b-button>
         </div>
       </div>
 
@@ -97,17 +84,18 @@
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
+            stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button variant="danger" class="m-1" @click="doDeleteDb()">Delete selected database</b-button>
-        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
+        <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
 
       <div v-if="optionSelected === 'All FAUXTON tasks'">
         <h2>All FAUXTON tasks</h2>
         <h4>As server admin you have all other feautures available in FAUXTON, read the documentation</h4>
-        <b-button class="m-1" @click="doFauxton()">Start FAUXTON</b-button>
-        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button class="m-1" @click="doFauxton">Start FAUXTON</b-button>
+        <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
       </div>
 
@@ -215,25 +203,13 @@ export default {
       this.$store.state.userUpdated = false
     },
 
-    doCreateNewDb() {
-      this.productName = ''
+    doCreateDatabase() {
       const payload = {
         dbName: this.newDbName,
         email: this.$store.state.userData.email,
-        doSetUsersDatabasePermissions: false,
-        createRootDoc: true
+        initDbInstance: false,
       }
       this.$store.dispatch('createDatabase', payload)
-    },
-
-    createProductAndProfile() {
-      const payload = {
-        dbName: this.newDbName,
-        email: this.$store.state.userData.email,
-        productName: this.productName,
-        updateExistingProfile: true
-      }
-      this.$store.dispatch('initDatabase', payload)
     },
 
     changeMyDb() {
