@@ -15,7 +15,6 @@
 				<button @click="creRdmProduct" class="myButton">1. Create random product</button>
 				<button @click="createUser" class="myButton">2. Create user</button>
 				<button @click="crateDB" class="myButton">3. Choose or Create a database</button>
-				<button @click="assignUser" class="myButton">5. Add new users and roles to the last selected || created database</button>
 				<button @click="showDBsecurity" class="myButton">6. Show the database security info</button>
 				<button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
 				<button @click="showDocById" class="myButton">8. Show a document by id</button>
@@ -199,28 +198,6 @@
 			crateDBExe() {
 				const dbName = this.row.field1
 				this.$store.dispatch('chooseOrCreateDB', dbName)
-			},
-			assignUser() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: "member user name, name...",
-					field2: "member role, role, etc.",
-					field3: "admin user name, name...",
-					field4: "admin role, role, etc.",
-				}
-				this.commandNr = 5
-			},
-			assignUserExe() {
-				var payload = {
-					dbName: this.$store.state.userData.currentDb,
-					memberNames: this.row.field1,
-					memberRoles: this.row.field2,
-					adminNames: this.row.field3,
-					adminRoles: this.row.field4,
-					permissions: {}
-				}
-				this.$store.dispatch('assignUser', payload)
 			},
 			showDBsecurity() {
 				this.$store.commit('clearAll')
