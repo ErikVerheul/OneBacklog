@@ -75,6 +75,7 @@ const actions = {
       data: userDbPermissions
     }).then(() => {
       rootState.backendSuccess = true
+      rootState.backendMessages.push('setUsersDatabasePermissions: Success, system permissions for _users database are set')
     }).catch(error => {
       rootState.backendMessages.push('setUsersDatabasePermissions: Could not set users database permissions, ' + error)
     })
