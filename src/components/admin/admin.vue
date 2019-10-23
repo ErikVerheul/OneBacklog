@@ -291,9 +291,8 @@ export default {
     },
     doCreateUser() {
       this.canCancel = false
-      let aRoleIsSet = false
       // calculate the association of all assigned roles
-      this.allRoles = []
+      this.allRoles = ['guest']
       if (this.$store.state.useracc.userIsAdmin === 'yes') this.allRoles.push('admin')
       if (this.$store.state.useracc.userIsSuperPO === 'yes') this.allRoles.push('superPO')
       for (let prod of this.$store.state.useracc.dbProducts) {
@@ -306,7 +305,6 @@ export default {
       let subscriptions = []
       for (let prod of this.$store.state.useracc.dbProducts) {
         if (prod.roles.length > 0) {
-          aRoleIsSet = true
           productsRoles[prod.id] = prod.roles
           subscriptions.push(prod.id)
         }
@@ -327,10 +325,8 @@ export default {
           }
         }
       }
-      if (aRoleIsSet) {
-        this.$store.dispatch('createUser1', userData)
-        this.userIsUpdated = true
-      } else this.localMessage = 'Cannot create this user. No role to any product is assigned'
+      this.$store.dispatch('createUser1', userData)
+      this.userIsUpdated = true
     },
 
     maintainUsers() {
@@ -358,7 +354,6 @@ export default {
     doUpdateUser() {
       this.canCancel = false
       this.userIsUpdated = false
-      let aRoleIsSet = false
       let newUserData = this.$store.state.useracc.fetchedUserData
       // generate the productsRoles and subscriptions properties
       let productsRoles = {}
@@ -366,7 +361,6 @@ export default {
       // subscribe to ALL assigned products in the current database
       for (let prod of this.$store.state.useracc.dbProducts) {
         if (prod.roles.length > 0) {
-          aRoleIsSet = true
           subscriptions.push(prod.id)
           // temporarely filter out the 'admin' and 'superPO' roles which are generic now (for all products)
           // ToDo: replace with productsRoles[prod.id] = prod.roles
@@ -379,7 +373,7 @@ export default {
       newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles = productsRoles
       newUserData.myDatabases[this.$store.state.selectedDatabaseName].subscriptions = subscriptions
       // calculate the association of all assigned roles
-      this.allRoles = []
+      this.allRoles = ['guest']
       if (this.$store.state.useracc.userIsAdmin === 'yes') this.allRoles.push('admin')
       if (this.$store.state.useracc.userIsSuperPO === 'yes') this.allRoles.push('superPO')
       for (let database of Object.keys(newUserData.myDatabases)) {
@@ -390,11 +384,8 @@ export default {
         }
       }
       newUserData.roles = this.allRoles
-
-      if (aRoleIsSet) {
-        this.$store.dispatch('updateUser', newUserData)
-        this.userIsUpdated = true
-      } else this.localMessage = 'Cannot update this user. No role to any product is assigned'
+			this.$store.dispatch('updateUser', newUserData)
+			this.userIsUpdated = true
     },
 
     createTeam() {
