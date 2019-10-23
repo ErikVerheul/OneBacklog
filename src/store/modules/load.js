@@ -7,6 +7,7 @@ const INFO = 0
 const WARNING = 1
 const ERROR = 2
 const AREALEVEL = 0
+const ROOTLEVEL = 1
 const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
@@ -48,9 +49,9 @@ const getters = {
 	*
 	*"knownRoles":
 	*	"_admin": {
-	*		description: "Is the database administrator. Can setup and delete databases. See the CouchDB documentation.",
+	*		description: "Is the database administrator. Can setup and delete databases. Can update root documents. See the CouchDB documentation.",
 	*		products: "n/a",
-	*		writeAccessLevel: null,
+	*		writeAccessLevel: 1,
 	*	},
 	*	"admin": {
 	*		description: "Can create and remove users and teams. Can assign products to teams. The user administration is a permission on the _users database
@@ -118,6 +119,10 @@ const getters = {
 		if (rootGetters.isAreaPO) {
 			levels[AREALEVEL] = true
 			levels[FEATURELEVEL] = true
+		}
+		// the user is server admin. A server admin can change the root document of the databases
+		if (rootGetters.isServerAdmin) {
+			levels[ROOTLEVEL] = true
 		}
 		return levels
 	}
