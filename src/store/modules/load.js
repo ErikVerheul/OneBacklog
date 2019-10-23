@@ -347,7 +347,7 @@ const actions = {
 				router.push('/product')
 			}
 		}).catch(error => {
-			// ToDo: if 404 the database could be deleted
+			// ToDo: if 404 the database could have been deleted
 			let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -386,7 +386,7 @@ const actions = {
 			commit('composeRangeString')
 			dispatch('getFirstProduct')
 		}).catch(error => {
-			// ToDo: if 404 the database could be deleted
+			// ToDo: if 404 the database could have been deleted
 			let msg = 'loadCurrentProduct: Could not read current product document with _id ' + _id + ' from database ' + rootState.userData.currentDb + '. ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
