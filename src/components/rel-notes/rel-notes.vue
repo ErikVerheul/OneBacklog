@@ -7,6 +7,23 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
 				<hr>
+				<h3>v.0.7.0 - 23 October 2019 Major update</h3>
+				<h5>Note that this release is not backwards compatible with previous releases. The format of the user profile in the _users database now includes database information. An upgrade can be fixed using Fauxton.</h5>
+				<p>New features:</p>
+				<ul>
+					<li>The 'superPO' role now applies to all products in all databases</li>
+					<li>The 'admin' role now applies to all users in all databases</li>
+					<li>Users can switch between databases with assigned products to them</li>
+					<li>Users can change team between teams registered in the current database</li>
+					<li>Expanded 'SuperPO', 'admin' and 'server Admin' views.</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>Application wide support of multiple databases</li>
+					<li>Support for easy backup creation</li>
+					<li>Support for easy restore</li>
+				</ul>
+				<hr>
 				<h3>v.0.6.2.1 - 21 September 2019 Bug fix</h3>
 				<p>Bug fixes:</p>
 				<ul>

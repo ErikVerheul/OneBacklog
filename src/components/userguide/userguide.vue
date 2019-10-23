@@ -6,11 +6,12 @@
 			<b-col cols="12" class="left-column">
 				<h1>USER GUIDE</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+        <p>When you, as CouchDB super admin, have installed CouchDB and the web application you have to <a href="#start_using">initialize the first database</a>.</p>
 				<h4>The header</h4>
-				<p>Always mention the version number located after the app name when reporting issues. When you click on the release number you will the <b>realease notes </b> will be displayed.</p>
+				<p>Always mention the version number located after the app name when reporting issues. When you click on the release number you will the <b>release notes </b> will be displayed.</p>
 				<h5>User guide</h5>
 				<p>This text</p>
-				<h5>Filter on time</h5>
+				<h5>Recent changes</h5>
 				<p>With the split button next to the 'user guide' you can open a drop down list with 3 choices: Show the changes in the last 10 minutes, in the last hour and in the last 24 hours. After selecting an option the items changed in the chosen time frame will be selected. Branches not changed will not show. To return to the normal view press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on one of its nodes.</p>
 				<h5>Select on Id</h5>
 				<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
@@ -18,29 +19,28 @@
 					<li>The item is found in the currently selected and opened product. The item will be selected and highlighted in the tree view.</li>
 					<li>The item is found in the currently selected product but that product is not opened. The product will be opened and item will be selected and highlighted in the tree view</li>
 					<li>The item is found in a product assigned to you which is not selected. You get a message but the item is displayed anyway.</li>
-					<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessable to you.</li>
+					<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessible to you.</li>
 					<li>The item is NOT found in the database. You get a message. Check if you made a mistype.</li>
 					<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin.</li>
 				</ul>
 				To undo the select clear the 'Select on Id' input field and press Enter.</p>
-				<h5>Search on key word</h5>
+				<h5>Search titles on key word</h5>
 				<p>Input field for the search button. Searches for the keyword in the title of all items of the current product. To return to the normal view empty the search field and press enter.</p>
-				<h5>Filter on time + Search on key word</h5>
+				<h5>Recent changes + Search titles on key word</h5>
 				<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 				<h5>Select your view</h5>
 				<p><a href="#pv">Products view</a></p>
 				<p><a href="#rv">Requirements areas view</a></p>
-				<p><a href="#sv">Setup view</a></p>
-				<h5>User</h5>
-				<p>
+        <p><a href="#sv">Special views</a></p>
+				<h5><em>User</em></h5>
 				<ul>
-					<li>Change team: Not yet implemented.</li>
+					<li>Change database: Only applicable for users with products in more than one database.</li>
+					<li>Change team: Its the user and only the user who can switch between teams. This effects the filters over the product backlog.</li>
 					<li>Select products: If multiple products are assigned to you, you can choose which of the should load on sign-in. You also need to choose which is the default product which loads first and open automatically.</li>
 					<li>Change password: You need to know your old password. The password of user demoUser cannot be changed.</li>
 					<li>License information: click to see the license regarding the source code.</li>
 					<li>Sign out: Preferred way to sign out. Will stop the cookie authentication and reset the URL to sign in again. When you reset your browser with F5 or Ctrl-F5 you need to reset the URL your self.</li>
 				</ul>
-				</p>
 
 				<div id="pv">
 					<h4>Products view</h4>
@@ -69,14 +69,27 @@
 					<h4>Requirements areas view</h4>
 					<p>This view is not implemented yet.</p>
 				</div>
-				<div id="sv">
-					<h4>Setup view</h4>
-					<p>This view is only accessible by the server administrator.</p>
-				</div>
+        <div id="sv">
+          <h4>Users with special priviliges will see one or more of these view options:</h4>
+          <ul>
+            <li>
+              <h5>Super PO view</h5>
+              <p>The super PO creates and removes products here.</p>
+            </li>
+            <li>
+              <h5>Admin view</h5>
+              <p>The admin creates and maintains user permissions here. Team names can be added and listed.</p>
+            </li>
+            <li>
+              <h5>Server admin view</h5>
+              <p>The server admin creates backups and restores databases from a backup here. New databases can be created and deleted. A CouchDB FAUXTON session can be started in a separate tab of the browser.</p>
+            </li>
+          </ul>
+        </div>
 				<h4>The welcome bar</h4>
 				<p>This bar displays the user name, the database name and the number of products assigned to this user.</p>
 				<h4>The event bar</h4>
-				<p>This bar displays the latest event, a selection, a expansion/collaps of a tree branch, a warning or an error.<br>
+				<p>This bar displays the latest event, a selection, a expansion/collapse of a tree branch, a warning or an error.<br>
 					On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted. It lights when another user changes a title or the position of one or more items in your tree view below. Your tree is updated instantly.</p>
 					<p>The <b>Sync light</b> will turn red with the the text 'offline' when your connection is lost. In this condition you can not access the database. Wait for automatic recovery or restore the connection.</p>
 				<h4>The backlog item tree</h4>
@@ -108,19 +121,19 @@
 				<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
 				<b-img :src="require('./context-menu.png')" alt="Example context menu" />
 				<p>Select the action to execute and press OK. But before doing see click the <b>need assistance?</b> button for some valuable tips.</p>
-				<p>Be carefull when removing an item with all of its descendants. You will see a modal like this:</p>
+				<p>Be careful when removing an item with all of its descendants. You will see a modal like this:</p>
 				<b-img :src="require('./remove.png')" alt="Example context remove" />
-				<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. After removal a <b>Undo remove</b> button appears in the title bar. Click on this button te reverse your removals (last removel will be restored first).</p>
+				<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. After removal a <b>Undo remove</b> button appears in the title bar. Click on this button to reverse your removals (last removal will be restored first).</p>
 				<h4>Drag &amp; drop in the backlog item tree</h4>
-				<p>This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product. Use the context menu to move a branche to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>
+				<p>This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product. Use the context menu to move a branch to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>
 				<h4>The title input field</h4>
 				<p>On the right side of the screen above the Description field is the input field to change the title of the currently selected item. The change takes place when you move away from this field and click on another location. You will see the update in the tree view.</p>
 				<h4>The item short Id</h4>
 				<p>On the right side of the title field the short id of the displayed item is displayed. Use this Id in communications with other users of the application instead of using the title.</p>
 				<h4>Subscribe to change notices</h4>
-				<p>When you click on this button all changes to this item will be emailed to you provided you are signed in as a registered user and your provided email adress is correct. This will not work for users of generic accounts like demoUser or guest.</p>
+				<p>When you click on this button all changes to this item will be emailed to you provided you are signed in as a registered user and your provided email address is correct. This will not work for users of generic accounts like demoUser or guest.</p>
 				<h4>The description input field</h4>
-				<p>As the title should short and concise, this the place de describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments (TO DO) to add documentation.</p>
+				<p>As the title should be short and concise, this is the place to describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments (TO DO) to add documentation.</p>
 				<h4>The acceptance criteria input field</h4>
 				<p>A backlog item can only be reported as 'DONE' when all acceptance criteria are met. To be able to estimate the effort the team must know the acceptance criteria up front. They are as important as the description.</p>
 				<h4>Add comments</h4>
@@ -129,6 +142,25 @@
 				<p>Enter a key word and you will only see comments including this key word.</p>
 				<h4>The Comments, Attachments, History radio buttons</h4>
 				<p>When you select Attachments (TO DO) or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
+
+        <h2 id="start_using"> START USING THE APPLICATION</h2>
+        <p>When you, as server admin, login with your super admin credentials the application will notice that you are unknown in the _users database. That will trigger a conversation where you name the first database and enter your e-mail address.</p>
+        <p>Click on 'Create database' to start the creation. If you entered a database name erik7 and a valid e-mail address and all goes well you will see:</p>
+        <ul>
+          <li>createDatabase: Success, empty database erikdb7 is created</li>
+          <li>setDatabasePermissions: Success, database permissions for erikdb7 are set</li>
+          <li>setUsersDatabasePermissions: Success, system permissions for _users database are set</li>
+          <li>createLog: Success, log for database erikdb7 is created</li>
+          <li>createConfig: Success, the configuration document is created</li>
+          <li>installDesignDoc: Success, the design document is created</li>
+          <li>createRoot: Success, the root document is created</li>
+          <li>createServerAdminProfile: Success, user profile for erik7 is created with 'admin', 'superPO' roles set</li>
+        </ul>
+        <p>Click on 'Exit' and sign-in again to see the product view with no product but a root document,<br>
+          then:<br>
+          As 'superPO' create at least one product and in the Admin view create the first users and their roles. Assign one or more admins to take over that task.<br>
+          Note: It is a good practice to remove the 'superPO' role from your profile as soon as another user takes this role. Keep your 'admin' role as a backup.
+        </p>
 			</b-col>
 		</b-row>
 	</b-container>
@@ -152,7 +184,7 @@ export default {
   border: 1px solid black;
 }
 
-p {
+p, ul {
   margin-left: 10px;
   color: black;
 }
