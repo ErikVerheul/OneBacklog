@@ -13,12 +13,12 @@
           <b-dropdown-item @click="onFilterSinceEvent(10)">Changes &lt; 10 min.</b-dropdown-item>
           <b-dropdown-item @click="onFilterSinceEvent(60)">Changes last hour</b-dropdown-item>
           <b-dropdown-item @click="onFilterSinceEvent(1440)">Changes last 24 hrs.</b-dropdown-item>
+          <b-dropdown-item @click="onFilterSinceEvent(0)">Other period ...</b-dropdown-item>
         </b-dropdown>
         <b-nav-form>
           <b-form-input
             id="selectOnId"
             v-model="shortId"
-            :state="shortIdCheck"
             class="m-1"
             placeholder="Select on Id"
           />
@@ -26,7 +26,7 @@
             id="searchInput"
             v-model="$store.state.keyword"
             class="m-1"
-            placeholder="Search titles on key word"
+            placeholder="Search titles"
           />
         </b-nav-form>
       </b-navbar-nav>
@@ -282,35 +282,53 @@
     </multipane>
     <!-- context modals -->
     <context></context>
-    <template>
-      <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
-        <b-form-group>
-          <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
-        </b-form-group>
-      </b-modal>
-    </template>
-    <template>
-      <b-modal
-        size="lg"
-        ref="historyEditorRef"
-        @ok="insertHist"
-        title="Comment on last history event"
-      >
-        <b-form-group>
-          <vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
-        </b-form-group>
-      </b-modal>
-    </template>
-    <template>
-      <b-modal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments">
-        <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
-      </b-modal>
-    </template>
-    <template>
-      <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
-        <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
-      </b-modal>
-    </template>
+
+    <b-modal size="lg" ref="otherPeriodRef" @ok="filterSince(0)" title="Enter a period">
+      <b-container align-v="true">
+        <b-container fluid>
+          <b-row class="my-1">
+            <b-col sm="3">
+              <label>From (inclusive):</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input v-model="fromDate" type="date"></b-form-input>
+            </b-col>
+            <b-col sm="3">
+              <label>To:</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input v-model="toDate" type="date"></b-form-input>
+            </b-col>
+          </b-row>
+        </b-container>
+      </b-container>
+    </b-modal>
+
+    <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
+      <b-form-group>
+        <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
+      </b-form-group>
+    </b-modal>
+
+    <b-modal
+      size="lg"
+      ref="historyEditorRef"
+      @ok="insertHist"
+      title="Comment on last history event"
+    >
+      <b-form-group>
+        <vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
+      </b-form-group>
+    </b-modal>
+
+    <b-modal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments">
+      <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
+    </b-modal>
+
+    <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
+      <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
+    </b-modal>
+
   </div>
 </template>
 
