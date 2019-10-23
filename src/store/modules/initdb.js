@@ -274,7 +274,7 @@ const actions = {
 	createServerAdminProfile({
 		rootState
 	}, payload) {
-		// Change the userName here for testing in an existing instance of OneBacklog
+		// ToDo: Change the userName here for testing in an existing instance of OneBacklog
 		const userName = rootState.userData.user
 		globalAxios({
 			method: 'PUT',
@@ -284,7 +284,7 @@ const actions = {
 				name: userName,
 				password: rootState.userData.password,
 				type: 'user',
-				roles: ['admin', 'superPO'],
+				roles: ['guest', 'admin', 'superPO'],
 				email: payload.email,
 				currentDb: payload.dbName,
 				myDatabases: {
