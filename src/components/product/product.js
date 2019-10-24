@@ -293,42 +293,35 @@ export default {
 
     /* Show the items in the current selected product which have changed since (in minutes) */
     filterSince(since) {
-      const RESETFILTERBUTTONTEXT = 'Clear filter'
-      // if needed reset the other selection first
+      // if needed, reset the other selection first
       if (this.$store.state.searchOn || this.$store.state.findIdOn) window.slVueTree.resetFilters('filterSince')
       let count = 0
+      let cb
       if (since === 0 && this.fromDate && this.toDate) {
         // process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
         const fromMilis = Date.parse(this.fromDate)
-        const toMilis = Date.parse(this.toDate)
-        let endOfToMilis = toMilis + 24 * 60 * 60 * 1000
-        window.slVueTree.traverseModels((nodeModel) => {
-          // limit to levels higher than product
-          if (nodeModel.data.lastChange >= fromMilis &&
-            nodeModel.data.lastChange < endOfToMilis) {
+        const endOfToMilis = Date.parse(this.toDate) + 24 * 60 * 60000
+        cb = (nodeModel) => {
+          if (nodeModel.data.lastChange >= fromMilis && nodeModel.data.lastChange < endOfToMilis) {
             window.slVueTree.showPathToNode(nodeModel)
             count++
-          } else {
-            nodeModel.doShow = false
-          }
-        }, window.slVueTree.getProductModels())
+          } else nodeModel.doShow = false
+        }
       } else {
-        let sinceMilis = since * 60000
-        window.slVueTree.traverseModels((nodeModel) => {
-          // limit to levels higher than product
-          if (Date.now() - nodeModel.data.lastChange < sinceMilis) {
+        const sinceMilis = since * 60000
+        const now = Date.now()
+        cb = (nodeModel) => {
+          if (now - nodeModel.data.lastChange < sinceMilis) {
             window.slVueTree.showPathToNode(nodeModel)
             count++
-          } else {
-            nodeModel.doShow = false
-          }
-        }, window.slVueTree.getProductModels())
+          } else nodeModel.doShow = false
+        }
       }
-      // show event
+      window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
       let s
       count === 1 ? s = 'title matches' : s = 'titles match'
       this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-      this.$store.state.filterText = RESETFILTERBUTTONTEXT
+      this.$store.state.filterText = 'Clear filter'
       this.$store.state.filterOn = true
       // window.slVueTree.showVisibility('filterSince', FEATURELEVEL)
     },
