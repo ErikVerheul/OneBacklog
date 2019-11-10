@@ -4,7 +4,7 @@
 const ROOTLEVEL = 1
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
-const FILTERBUTTONTEXT = 'Recent changes'
+const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
 var lastSelectedNode = null
 var draggableNodes = []
@@ -49,6 +49,7 @@ export default {
 
 	data() {
 		return {
+			componentKey: 0,
 			rootCursorPosition: null,
 			mouseIsDown: false,
 			isDragging: false,
@@ -122,6 +123,11 @@ export default {
 	},
 
 	methods: {
+		// see https://michaelnthiessen.com/force-re-render/
+		forceRerender() {
+			this.componentKey += 1
+		},
+
 		setModelCursorPosition(pos) {
 			if (this.isRoot) {
 				this.rootCursorPosition = pos;
@@ -443,14 +449,14 @@ export default {
 			}
 		},
 
+		// return the node of the selected productId / current productId or the full tree if the product is not found
 		getProductModels(productId = this.$store.state.load.currentProductId) {
 			const productModels = this.currentValue[0].children
 			for (let i = 0; i < productModels.length; i++) {
 				if (productModels[i].productId === productId) {
-					return productModels[i].children
+					return [productModels[i]]
 				}
 			}
-			// return the full tree if not found
 			return this.currentValue
 		},
 
@@ -623,37 +629,37 @@ export default {
 				// collapse to the product level
 				if (nodeModel.level <= toLevel) {
 					// eslint-disable-next-line no-console
-					console.log('showVisibility: path = ' + nodeModel.path + ' level = ' + nodeModel.level +
-						' isExpanded = ' + nodeModel.isExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
+					console.log('showVisibility: path = ' + nodeModel.path + ' level = ' + nodeModel.level + ' isExpanded = ' + nodeModel.isExpanded +
+						' savedIsExpanded = ' + nodeModel.savedIsExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
 				}
 			})
 		},
 
-		/* collapse all nodes of this product */
-		collapseTree(productId) {
-			this.getNodeById(productId).isExpanded = false
+		/* collapse the branch below the current product and hide the nodes */
+		collapseTree() {
 			this.traverseModels((nodeModel) => {
-				// collapse to the product level
+				if (nodeModel.level === PRODUCTLEVEL) {
+					nodeModel.isExpanded = false
+				}
 				if (nodeModel.level > PRODUCTLEVEL) {
-					nodeModel.savedDoShow = nodeModel.doShow
 					nodeModel.doShow = false
 				}
-			}, this.getProductModels(productId))
+			}, this.getProductModels())
 			// this.showVisibility('collapseTree')
 		},
 
-		expandTree(level) {
+		/* show the current selected product */
+		expandTree() {
 			this.traverseModels((nodeModel) => {
-				// expand to level
-				if (nodeModel.level < level) {
+				if (nodeModel.level === PRODUCTLEVEL) {
 					nodeModel.isExpanded = true
-					nodeModel.savedIsExpanded = true
+				}
+				if (nodeModel.level > PRODUCTLEVEL) {
 					nodeModel.doShow = true
 				}
-				// show the nodes
-				nodeModel.doShow = true
 			}, this.getProductModels())
 			// this.showVisibility('expandTree')
+
 		},
 
 		showAndSelectItem(node) {
@@ -683,58 +689,71 @@ export default {
 					return false
 				}
 			})
-			// this.showVisibility('expandTree')
+			// this.showVisibility('showAndSelectItem')
 		},
 
-		/* clear any outstanding filters */
+		resetTree() {
+			this.traverseModels((nodeModel) => {
+				nodeModel.isHighlighted = false
+				nodeModel.doShow = nodeModel.savedDoShow
+				nodeModel.isExpanded = nodeModel.savedIsExpanded
+			}, this.getProductModels())
+			this.forceRerender()
+		},
+
+		/* clear any outstanding filters and searches of the current product */
 		resetFilters(caller) {
 			// eslint-disable-next-line no-console
 			console.log('resetFilters is called by ' + caller)
-
-			function doReset(vm, productId) {
-				vm.traverseModels((nodeModel) => {
-					if (nodeModel.level > PRODUCTLEVEL) {
-						if (nodeModel.productId === productId) {
-							nodeModel.doShow = true
-							nodeModel.isExpanded = nodeModel.savedIsExpanded
-						} else {
-							nodeModel.doShow = false
-						}
-					} else {
-						nodeModel.doShow = nodeModel.savedDoShow
-						nodeModel.isExpanded = nodeModel.savedIsExpanded
-					}
-
-				}, vm.getProductModels(productId))
-			}
-
 			if (this.$store.state.filterOn) {
-				doReset(this, this.$store.state.load.currentProductId)
+				this.resetTree()
 				this.showLastEvent(`Your filter in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.filterText = FILTERBUTTONTEXT
 				this.$store.state.filterOn = false
 			}
 			if (this.$store.state.searchOn) {
-				doReset(this, this.$store.state.load.currentProductId)
+				this.resetTree()
 				this.showLastEvent(`Your search in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.searchOn = false
 			}
 			if (this.$store.state.findIdOn) {
-				doReset(this, this.$store.state.load.currentProductId)
+				this.resetTree()
 				this.showLastEvent(`Your view on product '${this.$store.state.load.currentProductTitle}' is restored`, INFO)
 				this.$store.state.findIdOn = false
 			}
 		},
 
-		/* Show the path from productlevel to and including the node  */
+		/* Show the path from productlevel to and including the node */
 		showPathToNode(node) {
 			for (let i = PRODUCTLEVEL; i < node.path.length; i++) {
 				const nm = this.getNodeModel(node.path.slice(0, i))
-				nm.savedDoShow = nm.doShow
 				nm.doShow = true
-				nm.savedIsExpanded = nm.isExpanded
 				nm.isExpanded = true
 			}
+		},
+
+		getParentNode(node) {
+			for (let i = ROOTLEVEL; i < node.path.length; i++) {
+				let path = node.path.slice(0, i)
+				if (path.length === node.path.length - 1) {
+					return this.getNodeModel(path)
+				}
+			}
+		},
+
+		/*
+		* Show the path from productlevel to the node up to an maximum depth
+		* Return true if the node is shown, that is when the parent is expanded
+		*/
+		expandPathToNode(node, maxDepth = node.level) {
+			for (let i = PRODUCTLEVEL; i < node.level; i++) {
+				const nm = this.getNodeModel(node.path.slice(0, i))
+				if (i < maxDepth) {
+					nm.isExpanded = true
+					// console.log('expandPathToNode: expanded ' + nm.title)
+				}
+			}
+			return !(node.level > maxDepth)
 		}
 	}
 }

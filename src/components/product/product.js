@@ -24,6 +24,9 @@ export default {
       epicLevel: EPICLEVEL,
       featureLevel: FEATURELEVEL,
       pbiLevel: PBILEVEL,
+      userStorySubtype: 0,
+      spikeSubtype: 1,
+      defectSubtype: 2,
       shortId: "",
       fromDate: undefined,
       toDate: undefined,
@@ -48,7 +51,17 @@ export default {
       filterForCommentPrep: "",
       filterForComment: "",
       filterForHistoryPrep: "",
-      filterForHistory: ""
+      filterForHistory: "",
+      filterOnTeams: "no",
+      teamOptions: [],
+      selectedTeams: [],
+      filterTreeDepth: "no",
+      selectedTreeDepth: "0",
+      filterOnState: "no",
+      stateOptions: [],
+      selectedStates: [],
+      filterOnTime: "no",
+      selectedTime: "0"
     }
   },
 
@@ -281,49 +294,106 @@ export default {
   },
 
   methods: {
-    /* Show the items in the current selected product which have changed since (in minutes) */
-    onFilterSinceEvent(since) {
+    onSetMyFilters() {
       if (this.$store.state.filterOn) {
-        window.slVueTree.resetFilters("onFilterSinceEvent")
+        window.slVueTree.resetFilters('onSetMyFilters')
+      } else {
+        this.teamOptions = []
+        for (let team of this.$store.state.configData.teams) {
+          this.teamOptions.push(team)
+        }
+        let i = 0
+        this.stateOptions = []
+        for (let state of this.$store.state.configData.itemState) {
+          this.stateOptions.push({ text: state, value: i })
+          i++
+        }
+        this.$refs.myFilters.show()
       }
-      if (since !== 0) {
-        this.filterSince(since)
-      } else this.$refs.otherPeriodRef.show()
     },
 
-    /* Show the items in the current selected product which have changed since (in minutes) */
-    filterSince(since) {
-      // if needed, reset the other selection first
-      if (this.$store.state.searchOn || this.$store.state.findIdOn) window.slVueTree.resetFilters('filterSince')
-      let count = 0
-      let cb
-      if (since === 0 && this.fromDate && this.toDate) {
-        // process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
-        const fromMilis = Date.parse(this.fromDate)
-        const endOfToMilis = Date.parse(this.toDate) + 24 * 60 * 60000
-        cb = (nodeModel) => {
-          if (nodeModel.data.lastChange >= fromMilis && nodeModel.data.lastChange < endOfToMilis) {
-            window.slVueTree.showPathToNode(nodeModel)
-            count++
-          } else nodeModel.doShow = false
+    onSaveFilters() {
+
+    },
+
+    doFilterOnTeams(nm) {
+      return !(this.selectedTeams.includes(nm.data.team))
+    },
+
+    doFilterOnState(nm) {
+      return !(this.selectedStates.includes(nm.data.state))
+    },
+
+    doFilterOnTime(nm) {
+      if (this.selectedTime === '0') {
+        if (this.fromDate && this.toDate) {
+          // process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
+          const fromMilis = Date.parse(this.fromDate)
+          const endOfToMilis = Date.parse(this.toDate) + 24 * 60 * 60000
+          return !(nm.data.lastChange >= fromMilis && nm.data.lastChange < endOfToMilis)
         }
       } else {
-        const sinceMilis = since * 60000
+        const sinceMilis = parseInt(this.selectedTime) * 60000
         const now = Date.now()
-        cb = (nodeModel) => {
-          if (now - nodeModel.data.lastChange < sinceMilis) {
-            window.slVueTree.showPathToNode(nodeModel)
-            count++
-          } else nodeModel.doShow = false
+        return !(now - nm.data.lastChange < sinceMilis)
+      }
+    },
+
+    /* Apply the AND logic to the included filters */
+    onApplyMyFilters() {
+      // reset the other selections first
+      window.slVueTree.resetFilters('onApplyMyFilters')
+      const onlyFilterOnDepth = this.filterTreeDepth === 'yes' && this.filterOnTeams === 'no' && this.filterOnState === 'no' && this.filterOnTime === 'no'
+      const isFilterSet = this.filterOnTeams === 'yes' || this.filterTreeDepth === 'yes' || this.filterOnState === 'yes' || this.filterOnTime === 'yes'
+      if (!isFilterSet) return
+
+      let count = 0
+      // create a callback for the filtering
+      let cb = (nodeModel) => {
+        // save node display state
+        nodeModel.savedDoShow = nodeModel.doShow
+        nodeModel.savedIsExpanded = nodeModel.isExpanded
+        // select nodeModels NOT to show; the node is shown if not excluded by any filter
+        let isExcluded = false
+        if (this.filterOnTeams === 'yes') {
+          isExcluded = this.doFilterOnTeams(nodeModel)
+        }
+        if (!isExcluded && this.filterOnState === 'yes') {
+          isExcluded = this.doFilterOnState(nodeModel)
+        }
+        if (!isExcluded && this.filterOnTime === 'yes') {
+          isExcluded = this.doFilterOnTime(nodeModel)
+        }
+
+        if (onlyFilterOnDepth) {
+          // when filtering on depth only, show the node if below the selected level
+          if (window.slVueTree.expandPathToNode(nodeModel, parseInt(this.selectedTreeDepth))) {
+            // the parent is expanded, so the the node is shown: collapse this node to hide its descendants
+            nodeModel.isExpanded = false
+          }
+        } else {
+          if (!isExcluded) {
+            // when not filtering on depth only, show this node if not filtered out and highlight the node
+            if (window.slVueTree.expandPathToNode(nodeModel, this.filterTreeDepth === 'yes' ? parseInt(this.selectedTreeDepth) : nodeModel.level)) {
+              nodeModel.isHighlighted = true
+              count++
+            }
+          } else nodeModel.isExpanded = false
         }
       }
+      // execute the callback
       window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
-      let s
-      count === 1 ? s = 'title matches' : s = 'titles match'
-      this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+      window.slVueTree.forceRerender()
+
+      if (!onlyFilterOnDepth) {
+        let s
+        count === 1 ? s = 'title matches' : s = 'titles match'
+        this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+      } else this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+
       this.$store.state.filterText = 'Clear filter'
       this.$store.state.filterOn = true
-      // window.slVueTree.showVisibility('filterSince', FEATURELEVEL)
+      // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
     },
 
     selectNode(shortId) {
@@ -339,17 +409,15 @@ export default {
         // if the user clicked on a node of another product
         if (this.$store.state.load.currentProductId !== node.productId) {
           // clear any outstanding filters
-          if (this.$store.state.filterOn || this.$store.state.searchOn) {
-            window.slVueTree.resetFilters('nodeSelectedEvent')
-          }
+          window.slVueTree.resetFilters('nodeSelectedEvent')
           // collapse the previously selected product
-          window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
+          window.slVueTree.collapseTree()
           // update current productId and title
           this.$store.state.load.currentProductId = node.productId
           this.$store.state.load.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
         } else {
           // node on current product; collapse the currently selected product
-          window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
+          window.slVueTree.collapseTree()
         }
 
         this.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
@@ -369,15 +437,25 @@ export default {
       // cannot search on empty string
       if (this.$store.state.keyword === '') return
 
-      // if needed reset the other selection first
-      if (this.$store.state.filterOn || this.$store.state.findIdOn) window.slVueTree.resetFilters('filterOnKeyword')
+      // reset the other selections first
+      window.slVueTree.resetFilters('filterOnKeyword')
       let count = 0
       window.slVueTree.traverseModels((nodeModel) => {
         if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
           window.slVueTree.showPathToNode(nodeModel)
+          // mark if selected
+          nodeModel.isHighlighted = true
           count++
         } else {
-          nodeModel.doShow = false
+          nodeModel.savedIsExpanded = nodeModel.isExpanded
+          nodeModel.isExpanded = false
+          nodeModel.savedDoShow = nodeModel.doShow
+          // do not block expansion of the found nodes
+          const parentNode = window.slVueTree.getParentNode(nodeModel)
+          if (!parentNode.isHighlighted) {
+            nodeModel.savedDoShow = nodeModel.doShow
+            nodeModel.doShow = false
+          }
         }
       }, window.slVueTree.getProductModels())
       // show event
@@ -427,12 +505,6 @@ export default {
         this.showLastEvent(`Cannot restore the removed items in the tree view. Sign out and -in again to recover'`, WARNING)
       }
       // window.slVueTree.showVisibility('onUndoRemoveEvent', FEATURELEVEL)
-    },
-
-    onClearFilterEvent() {
-      if (this.$store.state.filterOn) {
-        window.slVueTree.resetFilters("onClearFilterEvent")
-      }
     },
 
     subscribeClicked() {
@@ -690,12 +762,15 @@ export default {
 
     onStateChange(idx) {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
+        // update the copy in memory of the current document
+        this.$store.state.currentDoc.team = this.$store.state.userData.myTeam
         // update the tree
+        this.$store.state.nodeSelected.data.team = this.$store.state.userData.myTeam
         this.$store.state.nodeSelected.data.state = idx
         this.$store.state.nodeSelected.data.lastChange = Date.now()
         // update current document in database
         this.$store.dispatch('setState', {
-          'newState': idx
+          'newState': idx, 'team': this.$store.state.userData.myTeam
         })
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
@@ -739,16 +814,14 @@ export default {
         // if the user clicked on a node of another product
         if (this.$store.state.load.currentProductId !== this.$store.state.nodeSelected.productId) {
           // clear any outstanding filters
-          if (this.$store.state.filterOn || this.$store.state.searchOn) {
-            window.slVueTree.resetFilters('nodeSelectedEvent')
-          }
+          window.slVueTree.resetFilters('nodeSelectedEvent')
           // collapse the previously selected product
-          window.slVueTree.collapseTree(this.$store.state.load.currentProductId)
+          window.slVueTree.collapseTree()
           // update current productId and title
           this.$store.state.load.currentProductId = this.$store.state.nodeSelected.productId
           this.$store.state.load.currentProductTitle = this.$store.state.nodeSelected.title
-          // expand the newly selected product up to the feature level and select the product node again
-          window.slVueTree.expandTree(FEATURELEVEL)
+          // expand the newly selected product up to the feature level
+          window.slVueTree.expandTree()
         }
       }
       // load the document if not already in memory
@@ -768,16 +841,14 @@ export default {
       this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
     },
 
-		/*
-		/ Use this event to check if the drag is allowed. If not, issue a warning.
-		*/
+    /* Use this event to check if the drag is allowed. If not, issue a warning */
     beforeNodeDropped(draggingNodes, position, cancel) {
-			/*
-			 * Disallow drop on node were the user has no write authority
-			 * Disallow drop when moving over more than 1 level.
-			 * Dropping items with descendants is not possible when any descendant would land higher than the highest level (pbilevel).
-			 * precondition: the selected nodes have all the same parent (same level)
-			 */
+      /*
+       * Disallow drop on node were the user has no write authority
+       * Disallow drop when moving over more than 1 level.
+       * Dropping items with descendants is not possible when any descendant would land higher than the highest level (pbilevel).
+       * precondition: the selected nodes have all the same parent (same level)
+       */
       let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         let failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
@@ -806,10 +877,10 @@ export default {
       }
     },
 
-		/*
-		 * Update the tree when one or more nodes are dropped on another location
-		 * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-		 */
+    /*
+     * Update the tree when one or more nodes are dropped on another location
+     * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
+     */
     nodeDropped(draggingNodes, position) {
       const targetNode = position.nodeModel
       const clickedLevel = draggingNodes[0].level

@@ -13,7 +13,7 @@
 				<p>This text</p>
 				<h5>Recent changes</h5>
 				<p>With the split button next to the 'user guide' you can open a drop down list with 3 choices: Show the changes in the last 10 minutes, in the last hour and in the last 24 hours. After selecting an option the items changed in the chosen time frame will be selected. Branches not changed will not show. To return to the normal view press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on one of its nodes.</p>
-				<h5>Select on Id</h5>
+				<h5>Find on Id</h5>
 				<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
 				<ul>
 					<li>The item is found in the currently selected and opened product. The item will be selected and highlighted in the tree view.</li>

@@ -17,7 +17,6 @@ export default {
             myTeam: '',
             myDatabase: '',
             databaseOptions: [],
-
             teamOptions: []
         }
     },

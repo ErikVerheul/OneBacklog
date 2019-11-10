@@ -168,7 +168,7 @@ const actions = {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
 			const newHist = {
-				"setStateEvent": [oldState, payload.newState],
+				"setStateEvent": [oldState, payload.newState, payload.team],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -177,6 +177,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.state = payload.newState
+			tmpDoc.team = payload.team
 			tmpDoc.history.unshift(newHist)
 			rootState.currentDoc.state = payload.newState
 			rootState.currentDoc.history.unshift(newHist)

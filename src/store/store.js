@@ -49,7 +49,7 @@ export default new Vuex.Store({
 		lastEvent: '',
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
-		filterText: 'Recent changes',
+		filterText: 'Filter in tree view',
 		filterOn: false,
 		findIdOn: false,
 		shortId: '',
@@ -201,7 +201,7 @@ export default new Vuex.Store({
 				withCredentials: true,
 				data: authData
 			}).then(res => {
-				// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds and myProductsRoles are updated when otherUserData and config are read
+				// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myProductViewFilterSettings are updated when otherUserData and config are read
 				state.userData = {
 					user: res.data.name,
 					email: undefined,
@@ -213,6 +213,7 @@ export default new Vuex.Store({
 					myProductSubscriptions: [],
 					userAssignedProductIds: [],
 					myProductsRoles: {},
+					myProductViewFilterSettings: {},
 					sessionId: create_UUID()
 				}
 				state.cookieAutenticated = true

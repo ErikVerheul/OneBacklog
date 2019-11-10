@@ -19,6 +19,10 @@
     color: white;
 }
 
+.sl-vue-tree-highlighted > .sl-vue-tree-node-item {
+    color: rgb(253, 115, 230);
+}
+
 .sl-vue-tree-node-item:hover,
 .sl-vue-tree-node-item.sl-vue-tree-cursor-hover {
     color: rgb(237, 238, 190);

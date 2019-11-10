@@ -3,7 +3,7 @@
   <div class="sl-vue-tree" :class="{'sl-vue-tree-root': isRoot }" @mousemove="onMousemoveHandler">
     <div
       v-for="(node, nodeInd) in filteredNodes"
-      :class="{'sl-vue-tree-selected': node.isSelected}"
+      :class="{'sl-vue-tree-selected': node.isSelected, 'sl-vue-tree-highlighted': !node.isSelected && node.isHighlighted}"
       :key="node.pathStr"
     >
       <div
@@ -54,6 +54,7 @@
 
       <sl-vue-tree
         v-if="node.children && node.children.length && node.isExpanded"
+        :key="componentKey"
         :value="node.children"
         :level="node.level"
         :parentInd="nodeInd"

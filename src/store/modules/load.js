@@ -148,12 +148,19 @@ const mutations = {
 				const level = batch[i].doc.level
 				const parentId = batch[i].doc.parentId
 				const delmark = batch[i].doc.delmark
-				// expand the tree of the default product up to feature level
-				const isExpanded = batch[i].doc.productId === state.currentDefaultProductId && batch[i].doc.level < FEATURELEVEL
+				// expand the tree up to the feature level
+				let isExpanded = batch[i].doc.level < FEATURELEVEL
 				// select the default product
 				const isSelected = batch[i].doc._id === state.currentDefaultProductId
 				const isDraggable = level > PRODUCTLEVEL
+				// show the nodes up to the product level of all products and all nodes of the current default product
 				const doShow = batch[i].doc.level <= PRODUCTLEVEL || batch[i].doc.productId === state.currentDefaultProductId
+				if (batch[i].doc.productId !== state.currentDefaultProductId && batch[i].doc.level === PRODUCTLEVEL) isExpanded = false
+				// ToDo: remove this temporary fix
+				let team
+				if (batch[i].doc.team === 'not assigned yet') {
+					team = 'not in a team'
+				} else team = batch[i].doc.team
 				if (parentNodes[parentId] !== undefined) {
 					const parentNode = parentNodes[parentId]
 					const ind = parentNode.children.length
@@ -183,6 +190,7 @@ const mutations = {
 							data: {
 								priority: batch[i].doc.priority,
 								state: batch[i].doc.state,
+								team,
 								subtype: batch[i].doc.subtype,
 								lastChange: batch[i].doc.history[0].timestamp
 							}
@@ -223,6 +231,7 @@ const actions = {
 			rootState.userData.myTeam = currentDbSettings.myTeam
 			rootState.userData.myProductsRoles = currentDbSettings.productsRoles
 			rootState.userData.myProductSubscriptions = currentDbSettings.subscriptions
+			rootState.userData.myProductViewFilterSettings = res.data.myProductViewFilterSettings
 
 			dispatch('watchdog')
 			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in and the watchdog is started to recover from network outings."
