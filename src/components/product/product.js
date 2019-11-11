@@ -99,7 +99,7 @@ export default {
     el2.addEventListener("keypress", (event) => {
       if (event.keyCode === 13) {
         event.preventDefault()
-        this.filterOnKeyword()
+        this.searchInTitles()
       }
     })
     el2.addEventListener("input", () => {
@@ -433,12 +433,12 @@ export default {
       }
     },
 
-    filterOnKeyword() {
+    searchInTitles() {
       // cannot search on empty string
       if (this.$store.state.keyword === '') return
 
       // reset the other selections first
-      window.slVueTree.resetFilters('filterOnKeyword')
+      window.slVueTree.resetFilters('searchInTitles')
       let count = 0
       window.slVueTree.traverseModels((nodeModel) => {
         if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
@@ -463,7 +463,7 @@ export default {
       count === 1 ? s = 'title matches' : s = 'titles match'
       this.showLastEvent(`${count} item ${s} your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
       this.$store.state.searchOn = true
-      // window.slVueTree.showVisibility('filterOnKeyword', FEATURELEVEL)
+      // window.slVueTree.showVisibility('searchInTitles', FEATURELEVEL)
     },
 
     onUndoRemoveEvent() {
