@@ -24,9 +24,9 @@
 					<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin.</li>
 				</ul>
 				To undo the select clear the 'Select on Id' input field and press Enter.</p>
-				<h5>Search titles</h5>
+				<h5>Search in titles</h5>
 				<p>Input field for the search button. Searches for the keyword in the title of all items of the current product. To return to the normal view empty the search field and press enter.</p>
-				<h5>Recent changes + Search titles</h5>
+				<h5>Recent changes + Search in titles</h5>
 				<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 				<h5>Select your view</h5>
 				<p><a href="#pv">Products view</a></p>
