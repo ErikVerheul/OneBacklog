@@ -344,11 +344,11 @@
               </div>
               <hr>
             </b-col>
-            <!--b-col sm="12">
+            <b-col sm="12">
               <b-button
                 class="m-1"
                 @click="onSaveFilters()"
-              >Save this filter</b-button-->
+              >Save this filter</b-button>
             </b-col>
           </b-row>
         </b-container>
