@@ -692,13 +692,13 @@ export default {
 			// this.showVisibility('showAndSelectItem')
 		},
 
-		resetTree() {
+		resetTree(forceRerender) {
 			this.traverseModels((nodeModel) => {
 				nodeModel.isHighlighted = false
 				nodeModel.doShow = nodeModel.savedDoShow
 				nodeModel.isExpanded = nodeModel.savedIsExpanded
 			}, this.getProductModels())
-			this.forceRerender()
+			if (forceRerender) this.forceRerender()
 		},
 
 		/* clear any outstanding filters and searches of the current product */
@@ -706,18 +706,18 @@ export default {
 			// eslint-disable-next-line no-console
 			console.log('resetFilters is called by ' + caller)
 			if (this.$store.state.filterOn) {
-				this.resetTree()
+				this.resetTree(true)
 				this.showLastEvent(`Your filter in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.filterText = FILTERBUTTONTEXT
 				this.$store.state.filterOn = false
 			}
 			if (this.$store.state.searchOn) {
-				this.resetTree()
+				this.resetTree(false)
 				this.showLastEvent(`Your search in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.searchOn = false
 			}
 			if (this.$store.state.findIdOn) {
-				this.resetTree()
+				this.resetTree(false)
 				this.showLastEvent(`Your view on product '${this.$store.state.load.currentProductTitle}' is restored`, INFO)
 				this.$store.state.findIdOn = false
 			}
