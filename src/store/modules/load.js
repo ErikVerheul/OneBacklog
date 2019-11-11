@@ -156,11 +156,6 @@ const mutations = {
 				// show the nodes up to the product level of all products and all nodes of the current default product
 				const doShow = batch[i].doc.level <= PRODUCTLEVEL || batch[i].doc.productId === state.currentDefaultProductId
 				if (batch[i].doc.productId !== state.currentDefaultProductId && batch[i].doc.level === PRODUCTLEVEL) isExpanded = false
-				// ToDo: remove this temporary fix
-				let team
-				if (batch[i].doc.team === 'not assigned yet') {
-					team = 'not in a team'
-				} else team = batch[i].doc.team
 				if (parentNodes[parentId] !== undefined) {
 					const parentNode = parentNodes[parentId]
 					const ind = parentNode.children.length
@@ -190,7 +185,7 @@ const mutations = {
 							data: {
 								priority: batch[i].doc.priority,
 								state: batch[i].doc.state,
-								team,
+								team: batch[i].doc.team,
 								subtype: batch[i].doc.subtype,
 								lastChange: batch[i].doc.history[0].timestamp
 							}
