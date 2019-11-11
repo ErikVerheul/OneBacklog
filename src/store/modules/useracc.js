@@ -171,7 +171,7 @@ const actions = {
       } else {
         // add all user roles to the new product
         const newDb = {
-          myteam: 'not in a team',
+          myteam: 'not assigned yet',
           subscriptions: [payload.productId],
           productsRoles: {
             [payload.productId]: copyRoles(tmpUserData.roles)
@@ -253,7 +253,7 @@ const actions = {
     }).then(res => {
       let tmpUserData = res.data
       const newDbEntry = {
-        myTeam: 'not in a team',
+        myTeam: 'not assigned yet',
         subscriptions: [],
         productsRoles: {}
       }

@@ -123,7 +123,7 @@ export default {
     welcomeMessage() {
       const msg_1 = `Welcome '${this.$store.state.userData.user}'.`
       let msg_2
-      if (this.$store.state.userData.myTeam === 'not in a team') {
+      if (this.$store.state.userData.myTeam === 'not assigned yet') {
         msg_2 = ' You are not a team member.'
       } else msg_2 = ` You are member of team '${this.$store.state.userData.myTeam}'.`
       let msg_3

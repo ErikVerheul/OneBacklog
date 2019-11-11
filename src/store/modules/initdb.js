@@ -163,7 +163,7 @@ const actions = {
 				"The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
 			],
 			"teams": [
-				"not in a team"
+				"not assigned yet"
 			],
 		}
 		globalAxios({
@@ -289,7 +289,7 @@ const actions = {
 				currentDb: payload.dbName,
 				myDatabases: {
 					[payload.dbName]: {
-						myTeam: 'not in a team',
+						myTeam: 'not assigned yet',
 						subscriptions: [],
 						productsRoles: {}
 					}

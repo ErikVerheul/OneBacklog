@@ -319,7 +319,7 @@ export default {
         currentDb: this.$store.state.selectedDatabaseName,
         myDatabases: {
           [this.$store.state.selectedDatabaseName]: {
-            "myTeam": 'not in a team',
+            "myTeam": 'not assigned yet',
             subscriptions,
             productsRoles
           }
