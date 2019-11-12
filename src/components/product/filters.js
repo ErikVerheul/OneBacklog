@@ -6,29 +6,38 @@ export default {
   mixins: [utilities],
   data() {
     return {
-      filterOnTeams: "no",
+      filterOnTeams: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.filterOnTeams : "no",
       teamOptions: [],
-      selectedTeams: [],
-      filterTreeDepth: "no",
-      selectedTreeDepth: "0",
-      filterOnState: "no",
+      selectedTeams: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.selectedTeams : [],
+      filterTreeDepth: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.filterTreeDepth : "no",
+      selectedTreeDepth: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.selectedTreeDepth : "0",
+      filterOnState: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.filterOnState : "no",
       stateOptions: [],
-      selectedStates: [],
-      filterOnTime: "no",
-      fromDate: undefined,
-      toDate: undefined,
-      selectedTime: "0"
+      selectedStates: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.selectedStates : [],
+      filterOnTime: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.filterOnTime : "no",
+      fromDate: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.fromDate : undefined,
+      toDate: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.toDate : undefined,
+      selectedTime: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.selectedTime : "0"
     }
   },
 
   mounted() {
     // expose instance to the global namespace
     window.myFilters = this.$refs.myFiltersRef
-    // set the available options
+    // set the available team options
     this.teamOptions = []
     for (let team of this.$store.state.configData.teams) {
       this.teamOptions.push(team)
     }
+    // remove non existing teams
+    let clearedSelectedTeams = []
+    for (let team of this.selectedTeams) {
+      if (this.teamOptions.includes(team)) {
+        clearedSelectedTeams.push(team)
+      }
+    }
+    this.selectedTeams = clearedSelectedTeams
+    // set the available state options
     let i = 0
     this.stateOptions = []
     for (let state of this.$store.state.configData.itemState) {
@@ -39,7 +48,20 @@ export default {
 
   methods: {
     onSaveFilters() {
-
+      const myFilterSettings = {
+        filterOnTeams: this.filterOnTeams,
+        selectedTeams: this.selectedTeams,
+        filterTreeDepth: this.filterTreeDepth,
+        selectedTreeDepth: this.selectedTreeDepth,
+        filterOnState: this.filterOnState,
+        selectedStates: this.selectedStates,
+        filterOnTime: this.filterOnTime,
+        fromDate: this.fromDate,
+        toDate: this.toDate,
+        selectedTime: this.selectedTime
+      }
+      this.$store.dispatch('saveMyFilterSettings', myFilterSettings)
+      this.showLastEvent('Saving the filter settings', INFO)
     },
 
     doFilterOnTeams(nm) {

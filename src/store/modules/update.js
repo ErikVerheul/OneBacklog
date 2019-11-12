@@ -177,13 +177,106 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.state = payload.newState
+			// also set the team
 			tmpDoc.team = payload.team
 			tmpDoc.history.unshift(newHist)
 			rootState.currentDoc.state = payload.newState
+			rootState.currentDoc.team = payload.team
 			rootState.currentDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setState: Could not read document with _id ' + _id + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+	setTeam({
+		rootState,
+		dispatch
+	}, descendants) {
+		const _id = rootState.currentDoc._id
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			let tmpDoc = res.data
+			const oldTeam = tmpDoc.team
+			const newTeam = rootState.userData.myTeam
+			const newHist = {
+				"setTeamEvent": [oldTeam, newTeam, descendants.length],
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"timestampStr": new Date().toString(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			tmpDoc.team = newTeam
+			tmpDoc.history.unshift(newHist)
+			rootState.currentDoc.team = newTeam
+			rootState.currentDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			if (descendants.length > 0) dispatch('setTeamDescendantsBulk', descendants)
+		}).catch(error => {
+			let msg = 'setTeam: Could not read document with _id ' + _id + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+	/* Change the team of the descendants to the users team */
+	setTeamDescendantsBulk({
+		rootState,
+		dispatch
+	}, descendants) {
+		const docsToGet = []
+		for (let desc of descendants) {
+			docsToGet.push({ "id": desc._id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			withCredentials: true,
+			data: { "docs": docsToGet },
+		}).then(res => {
+			// console.log('restoreDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
+			const newTeam = rootState.userData.myTeam
+			const results = res.data.results
+			const ok = []
+			const error = []
+			for (let i = 0; i < results.length; i++) {
+				if (results[i].docs[0].ok) {
+					const newHist = {
+						"setTeamEventDescendant": [results[i].docs[0].ok.team, newTeam],
+						"by": rootState.userData.user,
+						"email": rootState.userData.email,
+						"timestamp": Date.now(),
+						"timestampStr": new Date().toString(),
+						"sessionId": rootState.userData.sessionId,
+						"distributeEvent": true
+					}
+					results[i].docs[0].ok.history.unshift(newHist)
+					// set the team name
+					results[i].docs[0].ok.team = newTeam
+					ok.push(results[i].docs[0].ok)
+				}
+				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let i = 0; i < error.length; i++) {
+					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
+				}
+				let msg = 'setTeamDescendantsBulk: These documents cannot change team: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('updateBulk', ok)
+		}).catch(error => {
+			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

@@ -657,8 +657,6 @@ export default {
 
     onStateChange(idx) {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        // update the copy in memory of the current document
-        this.$store.state.currentDoc.team = this.$store.state.userData.myTeam
         // update the tree
         this.$store.state.nodeSelected.data.team = this.$store.state.userData.myTeam
         this.$store.state.nodeSelected.data.state = idx

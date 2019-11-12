@@ -227,6 +227,7 @@ const actions = {
 			rootState.userData.myProductsRoles = currentDbSettings.productsRoles
 			rootState.userData.myProductSubscriptions = currentDbSettings.subscriptions
 			rootState.userData.myProductViewFilterSettings = res.data.myProductViewFilterSettings
+			rootState.userData.myFilterSettings = res.data.filterSettings
 
 			dispatch('watchdog')
 			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in and the watchdog is started to recover from network outings."

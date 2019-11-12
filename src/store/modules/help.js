@@ -7,8 +7,7 @@ const state = {
             `product level help`,
 
             `<h4>Epic level help</h4>
-            <p>
-            You are about to insert an epic. You can compare an epic with a project. It is a major endeavor which can take months to accomplish.<br/>
+            <p>You are about to insert an epic. You can compare an epic with a project. It is a major endeavor which can take months to accomplish.<br/>
             On creation the state will be 'New'.<br/>
             A epic is always a child of a product. Orphan epics without the context of a product cannot exist.<br/>
             During refinement sessions the team makes sure that:
@@ -20,8 +19,7 @@ const state = {
             During refinement the teams create features to the epic.
             </p>
             <hr>
-            <p>
-            When an epic has no foreseeable end date, consider to create a new product.
+            <p>When an epic has no foreseeable end date, consider to create a new product.
             </p>`,
 
             `<h4>Feature level help</h4>
@@ -38,8 +36,7 @@ const state = {
             During refinement the team creates PBI's to the feature.
             </p>
             <hr>
-            <p>
-            When a feature is so big that it needs multiple sprints to realize or other teams are involved, consider to create an epic.
+            <p>When a feature is so big that it needs multiple sprints to realize or other teams are involved, consider to create an epic.
             </p>`,
 
             `<h4>PBI level help</h4>
@@ -56,14 +53,12 @@ const state = {
             During sprint planning the team creates tasks to the PBI.
             </p>
             <hr>
-            <p>
-            When a PBI is a user story, and has value in its own right, consider to create a feature.<br/>
+            <p>When a PBI is a user story, and has value in its own right, consider to create a feature.<br/>
             Realizing a PBI should be a team effort. Avoid creating PBI's which should be on the task level.
             </p>`
         ],
         move: `<h4>Move help</h4>
-        <p>
-        You are about to move an item with its descendants to another product.<br/>
+        <p>You are about to move an item with its descendants to another product.<br/>
         The item will be removed from its source and inserted in the other product.<br/>
         After the transfer the teams of the target product should review all transferred items in one or more refinement meetings and:
         <ul>
@@ -76,13 +71,21 @@ const state = {
         <p>
         You are about to remove an item with its descendants from the product.<br/>
         The item will be marked for deletion and will not be available for the users. However with a direct search on id users can still retrieve them.<br/>
-        Click on the <b>Undo remove</b> button that appears on the title bar to undo the removal.
-        </p>
+        Click on the <b>Undo remove</b> button that appears on the title bar to undo the removal.</p>
         <hr>
-        <p>
-        You can only undo a removal in the same session you did the removal.
+        <p>You can only undo a removal in the same session you did the removal.<br/>
         Later, only the server admin can, with great effort, undo a removal by removing the remove mark of all items of the chain up to product level.<br/>
         Over time the server admin will delele the marked removals from the database. Direct access via the item id will not work anymore.
+        </p>`,
+
+        team: `<h4>Team change help</h4>
+        <p>
+        You are about to assign a backlog item to your current team.<br/>
+        When an authorized user changes the state of a backlog item, eg to 'ready' the item is assigned automatically to the team of that user.<br/>
+        </p>
+        <hr>
+        <p>It is best practice that a feature is completely realized by the same team. You get a warning message when you assign a user story, spike or defect to
+        another team than the team that owns the feature these items belong to.
         </p>`
     }
 }

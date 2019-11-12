@@ -72,7 +72,23 @@ const actions = {
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
-
+  saveMyFilterSettings({
+    rootState,
+    dispatch
+  }, newFilterSettings) {
+    globalAxios({
+      method: 'GET',
+      url: '/_users/org.couchdb.user:' + rootState.userData.user,
+      withCredentials: true
+    }).then(res => {
+      let tmpUserData = res.data
+      tmpUserData.filterSettings = newFilterSettings
+      dispatch("updateUser", tmpUserData)
+    }).catch(error => {
+      let msg = 'saveMyFilterSettings: User ' + rootState.userData.user + ' cannot save the product filter settings. Error = ' + error
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
   saveMyProductViewFilterSettings({
     rootState,
     dispatch
@@ -292,6 +308,7 @@ const actions = {
       withCredentials: true,
       data: newUserData
     }).then(() => {
+      rootState.backendSuccess = true
       rootState.userUpdated = true
       rootState.backendMessages.push("updateUser: The profile of user '" + newUserData.name + "' is updated successfully")
     }).catch(error => {

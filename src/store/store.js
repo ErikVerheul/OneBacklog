@@ -214,6 +214,7 @@ export default new Vuex.Store({
 					userAssignedProductIds: [],
 					myProductsRoles: {},
 					myProductViewFilterSettings: {},
+					myFilterSettings: undefined,
 					sessionId: create_UUID()
 				}
 				state.cookieAutenticated = true

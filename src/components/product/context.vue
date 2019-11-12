@@ -30,7 +30,19 @@
         button
         variant="danger"
         v-on:click="contextSelected = 3"
-      >Remove this {{ contextNodeType }} and {{ removeDescendantsCount }} descendants</b-list-group-item>
+      >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
+      <b-list-group-item
+        v-if="contextNodeLevel > featureLevel"
+        button
+        variant="dark"
+        v-on:click="contextSelected = 4"
+      >Assign this {{ contextNodeType }} to my team</b-list-group-item>
+      <b-list-group-item
+        v-else-if="contextNodeLevel > productLevel"
+        button
+        variant="dark"
+        v-on:click="contextSelected = 4"
+      >Assign this {{ contextNodeType }} to my team and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
       <hr />
       <div class="d-block text-center">
         {{ showSelected() }}
