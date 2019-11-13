@@ -42,7 +42,7 @@
         button
         variant="dark"
         v-on:click="contextSelected = 4"
-      >Assign this {{ contextNodeType }} to my team and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
+      >Assign this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants to my team</b-list-group-item>
       <hr />
       <div class="d-block text-center">
         {{ showSelected() }}
