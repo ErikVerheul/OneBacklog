@@ -226,7 +226,7 @@ const actions = {
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 			}
 			// process the descendants even if the parent team has not changed
-			if (descendants.length > 0) dispatch('setTeamDescendantsBulk', descendants)
+			if (descendants.length > 0) dispatch('setTeamDescendantsBulk', {parentTitle: rootState.currentDoc.title, descendants})
 		}).catch(error => {
 			let msg = 'setTeam: Could not read document with _id ' + _id + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -238,9 +238,9 @@ const actions = {
 	setTeamDescendantsBulk({
 		rootState,
 		dispatch
-	}, descendants) {
+	}, payload) {
 		const docsToGet = []
-		for (let desc of descendants) {
+		for (let desc of payload.descendants) {
 			docsToGet.push({ "id": desc._id })
 		}
 		globalAxios({
@@ -258,7 +258,7 @@ const actions = {
 					const oldTeam = results[i].docs[0].ok.team
 					if (newTeam != oldTeam) {
 						const newHist = {
-							"setTeamEventDescendant": [oldTeam, newTeam],
+							"setTeamEventDescendant": [oldTeam, newTeam, payload.parentTitle],
 							"by": rootState.userData.user,
 							"email": rootState.userData.email,
 							"timestamp": Date.now(),

@@ -73,6 +73,8 @@ export default {
           if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
           if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
           if (keys[j] === "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
+          if (keys[j] === "setTeamEvent") allText += this.mkSetTeamEvent(histItem[keys[j]])
+          if (keys[j] === "setTeamEventDescendant") allText += this.mkSetTeamEventDescendant(histItem[keys[j]])
           if (keys[j] === "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
           if (keys[j] === "setSubTypeEvent") allText += this.mkSetSubTypeEvent(histItem[keys[j]])
           if (keys[j] === "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
@@ -107,6 +109,8 @@ export default {
       if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
       if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
       if (key === "setStateEvent") return this.mkSetStateEvent(value)
+      if (key === "setTeamEvent") return this.mkSetTeamEvent(value)
+      if (key === "setTeamEventDescendant") return this.mkSetTeamEventDescendant(value)
       if (key === "setTitleEvent") return this.mkSetTitleEvent(value)
       if (key === "setSubTypeEvent") return this.mkSetSubTypeEvent(value)
       if (key === "descriptionEvent") return this.mkDescriptionEvent(value)
@@ -149,15 +153,24 @@ export default {
     },
 
     mkSetPointsEvent(value) {
-      return "<h5>Storypoints estimate changed from </h5>" + value[0] + ' to ' + value[1]
+      return "<h5>Storypoints estimate changed from " + value[0] + ' to ' + value[1] + "</h5>"
     },
 
     mkSetHrsEvent(value) {
-      return "<h5>Spike estimate hours changed from </h5>" + value[0] + ' to ' + value[1]
+      return "<h5>Spike estimate hours changed from " + value[0] + ' to ' + value[1] + "</h5>"
     },
 
     mkSetStateEvent(value) {
-      return "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'</h5>"
+      return "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) +
+      "',<br> the team is set to '" + value[2] + "'</h5>"
+    },
+
+    mkSetTeamEvent(value) {
+      return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> including " + value[2] + " descendants</h5>"
+    },
+
+    mkSetTeamEventDescendant(value) {
+      return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> as descendant of '" + value[2] + "'</h5>"
     },
 
     mkSetTitleEvent(value) {
