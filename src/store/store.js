@@ -26,8 +26,11 @@ export default new Vuex.Store({
 		// console log settings
 		debug: true,
 		showWatchdogInfo: false,
-		// undo/redo
+		// product view
+		selectedForView: 'comments',
 		removeHistory: [],
+		filterForComment: "",
+		filterForHistory: "",
 		// utilities for superAdmin, admin and superPO
 		backendMessages: [],
 		backendSuccess: false,

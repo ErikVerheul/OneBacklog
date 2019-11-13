@@ -232,12 +232,14 @@
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <b-button variant="seablue" :pressed.sync="startEditor">Add {{ selectedForView }}</b-button>
+                <b-button variant="seablue"
+                :pressed.sync="startEditor"
+              >Add {{ $store.state.selectedForView }}</b-button>
               </div>
               <div class="d-table-cell tac">
                 <b-form-group label="Select to see">
                   <b-form-radio-group
-                    v-model="selectedForView"
+                    v-model="$store.state.selectedForView"
                     :options="getViewOptions()"
                     plain
                     name="viewOptions"
@@ -248,30 +250,13 @@
                 <b-button
                   variant="seablue"
                   :pressed.sync="startFiltering"
-                >Filter {{ selectedForView }}</b-button>
+                >Filter {{ $store.state.selectedForView }}</b-button>
               </div>
             </div>
           </div>
           <div class="pane" :style="{ flexGrow: 1 }">
-            <ul v-if="selectedForView==='comments'">
-              <li v-for="comment in getFilteredComments" :key="comment.timestamp">
-                <div v-for="(value, key) in comment" :key="key">
-                  <div v-html="prepCommentsText(key, value)"></div>
-                </div>
-              </li>
-            </ul>
-            <ul v-if="selectedForView==='attachments'">
-              <li v-for="attach in $store.state.currentDoc.attachments" :key="attach.timestamp">
-                <div v-for="(value, key) in attach" :key="key">{{ key }} {{ value }}</div>
-              </li>
-            </ul>
-            <ul v-if="selectedForView==='history'">
-              <li v-for="hist in getFilteredHistory" :key="hist.timestamp">
-                <div v-for="(value, key) in hist" :key="key">
-                  <div v-html="prepHistoryText(key, value)"></div>
-                </div>
-              </li>
-            </ul>
+            <!-- comments, attachments, history listings -->
+            <listings></listings>
           </div>
         </multipane>
       </div>
