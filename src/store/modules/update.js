@@ -204,20 +204,23 @@ const actions = {
 			let tmpDoc = res.data
 			const oldTeam = tmpDoc.team
 			const newTeam = rootState.userData.myTeam
-			const newHist = {
-				"setTeamEvent": [oldTeam, newTeam, descendants.length],
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
+			if (newTeam != oldTeam) {
+				const newHist = {
+					"setTeamEvent": [oldTeam, newTeam, descendants.length],
+					"by": rootState.userData.user,
+					"email": rootState.userData.email,
+					"timestamp": Date.now(),
+					"timestampStr": new Date().toString(),
+					"sessionId": rootState.userData.sessionId,
+					"distributeEvent": true
+				}
+				tmpDoc.team = newTeam
+				tmpDoc.history.unshift(newHist)
+				rootState.currentDoc.team = newTeam
+				rootState.currentDoc.history.unshift(newHist)
+				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 			}
-			tmpDoc.team = newTeam
-			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.team = newTeam
-			rootState.currentDoc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			// process the descendants even if the parent team has not changed
 			if (descendants.length > 0) dispatch('setTeamDescendantsBulk', descendants)
 		}).catch(error => {
 			let msg = 'setTeam: Could not read document with _id ' + _id + '. Error = ' + error
@@ -241,26 +244,28 @@ const actions = {
 			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
-			// console.log('restoreDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
 			const newTeam = rootState.userData.myTeam
 			const results = res.data.results
 			const ok = []
 			const error = []
 			for (let i = 0; i < results.length; i++) {
 				if (results[i].docs[0].ok) {
-					const newHist = {
-						"setTeamEventDescendant": [results[i].docs[0].ok.team, newTeam],
-						"by": rootState.userData.user,
-						"email": rootState.userData.email,
-						"timestamp": Date.now(),
-						"timestampStr": new Date().toString(),
-						"sessionId": rootState.userData.sessionId,
-						"distributeEvent": true
+					const oldTeam = results[i].docs[0].ok.team
+					if (newTeam != oldTeam) {
+						const newHist = {
+							"setTeamEventDescendant": [oldTeam, newTeam],
+							"by": rootState.userData.user,
+							"email": rootState.userData.email,
+							"timestamp": Date.now(),
+							"timestampStr": new Date().toString(),
+							"sessionId": rootState.userData.sessionId,
+							"distributeEvent": true
+						}
+						results[i].docs[0].ok.history.unshift(newHist)
+						// set the team name
+						results[i].docs[0].ok.team = newTeam
+						ok.push(results[i].docs[0].ok)
 					}
-					results[i].docs[0].ok.history.unshift(newHist)
-					// set the team name
-					results[i].docs[0].ok.team = newTeam
-					ok.push(results[i].docs[0].ok)
 				}
 				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
 			}
@@ -274,7 +279,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', ok)
+			if (ok.length > 0) dispatch('updateBulk', ok)
 		}).catch(error => {
 			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console
