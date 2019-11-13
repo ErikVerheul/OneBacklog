@@ -56,6 +56,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	setSize({
 		rootState,
 		dispatch
@@ -89,6 +90,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	setPersonHours({
 		rootState,
 		dispatch
@@ -122,6 +124,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	setStoryPoints({
 		rootState,
 		dispatch
@@ -155,6 +158,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	setState({
 		rootState,
 		dispatch
@@ -191,6 +195,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	setTeam({
 		rootState,
 		dispatch
@@ -287,6 +292,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	setDocTitle({
 		rootState,
 		dispatch
@@ -320,6 +326,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	setSubType({
 		rootState,
 		dispatch
@@ -352,7 +359,6 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
-
 	/* Dispatch the update of the moved nodes and the update of the history of their descendants */
 	updateDropped({
 		dispatch
@@ -378,7 +384,6 @@ const actions = {
 		// recurse
 		dispatch('updateDropped', payload)
 	},
-
 	/* Update the dropped node */
 	updateMovedItems({
 		rootState,
@@ -479,6 +484,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	removeDoc({
 		state,
 		rootState,
@@ -552,6 +558,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	restoreParentFirst({
 		rootState,
 		dispatch
@@ -582,7 +589,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
-	// update the parent and restore the descendants
+	/* update the parent and restore the descendants */
 	undoRemovedParent({
 		rootState,
 		dispatch
@@ -719,30 +726,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
-	updateBulk({
-		state,
-		rootState,
-		dispatch
-	}, docs) {
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_docs',
-			withCredentials: true,
-			data: { "docs": docs },
-		}).then(res => {
-			// eslint-disable-next-line no-console
-			console.log('updateBulk: ' + res.data.length + ' documents are updated')
-			// has effect when removing a branche, otherwise no effect
-			state.busyRemoving = false
-		}).catch(error => {
-			// has effect when removing a branche, otherwise no effect
-			state.busyRemoving = false
-			let msg = 'updateBulk: Could not update batch of documents: ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
+
 	registerRemoveHistInParent({
 		rootState,
 		state,
@@ -845,6 +829,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	addComment({
 		rootState,
 		dispatch
@@ -876,6 +861,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	addHistoryComment({
 		rootState,
 		dispatch
@@ -1014,6 +1000,30 @@ const actions = {
 		})
 	},
 
+	updateBulk({
+		state,
+		rootState,
+		dispatch
+	}, docs) {
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_docs',
+			withCredentials: true,
+			data: { "docs": docs },
+		}).then(res => {
+			// eslint-disable-next-line no-console
+			console.log('updateBulk: ' + res.data.length + ' documents are updated')
+			// has effect when removing a branche, otherwise no effect
+			state.busyRemoving = false
+		}).catch(error => {
+			// has effect when removing a branche, otherwise no effect
+			state.busyRemoving = false
+			let msg = 'updateBulk: Could not update batch of documents: ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	}
 }
 
 export default {
