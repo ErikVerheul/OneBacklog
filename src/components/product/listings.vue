@@ -60,7 +60,7 @@ export default {
           return removeImages(text)
         }
       }
-      let filteredComments = []
+      let filteredHistory = []
       for (let i = 0; i < this.$store.state.currentDoc.history.length; i++) {
         let histItem = this.$store.state.currentDoc.history[i]
         let allText = ""
@@ -92,10 +92,10 @@ export default {
           if (keys[j] === "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
         }
         if (allText.includes(this.$store.state.filterForHistory)) {
-          filteredComments.push(histItem)
+          filteredHistory.push(histItem)
         }
       }
-      return filteredComments
+      return filteredHistory
     }
   },
 
