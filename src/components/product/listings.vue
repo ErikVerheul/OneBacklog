@@ -68,6 +68,7 @@ export default {
         for (let j = 0; j < keys.length; j++) {
           if (keys[j] === "rootEvent") allText += this.mkRootEvent(histItem[keys[j]])
           if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
+          if (keys[j] === "createRootEvent") allText += this.mkCreateRootEvent(histItem[keys[j]])
           if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
           if (keys[j] === "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
           if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
@@ -104,6 +105,7 @@ export default {
       if (key === "rootEvent") return this.mkRootEvent(value)
       if (key === "comment") return this.mkComment(value)
       if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
+      if (key === "createRootEvent") return this.mkCreateRootEvent(value)
       if (key === "createEvent") return this.mkCreateEvent(value)
       if (key === "setSizeEvent") return this.mkSetSizeEvent(value)
       if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
@@ -144,7 +146,11 @@ export default {
       }
     },
 
-    mkCreateEvent(value) {
+    mkCreateRootEvent(value) {
+      return "<h5>The root document was created for database " + value[0] + "</h5>"
+    },
+
+     mkCreateEvent(value) {
       return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'</h5>"
     },
 
