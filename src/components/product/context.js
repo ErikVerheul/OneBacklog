@@ -331,7 +331,7 @@ export default {
           this.$store.dispatch('setTeam', [])
         } else this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
       } else {
-        if (this.contextNodeSelected.level > PRODUCTLEVEL) {
+        if (this.contextNodeSelected.level >= PRODUCTLEVEL) {
           const descendantsInfo = window.slVueTree.getDescendantsInfo(this.contextNodeSelected)
           this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
           this.$store.dispatch('setTeam', descendantsInfo.descendants)

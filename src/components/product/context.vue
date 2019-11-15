@@ -9,7 +9,7 @@
           v-on:click="contextSelected = 4"
         >Assign this {{ contextNodeType }} to my team</b-list-group-item>
         <b-list-group-item
-          v-else-if="contextNodeLevel > productLevel"
+          v-else-if="contextNodeLevel >= productLevel"
           button
           variant="dark"
           v-on:click="contextSelected = 4"
