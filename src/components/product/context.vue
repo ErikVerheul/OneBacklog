@@ -1,7 +1,9 @@
 <template>
   <b-modal ref="contextMenuRef" @ok="procSelected()" @cancel="doCancel" :title="contextNodeTitle">
     <b-list-group>
-      <template v-if="contextNodeTeam !== $store.state.userData.myTeam">
+      <template
+        v-if="contextNodeTeam !== $store.state.userData.myTeam"
+      >
         <b-list-group-item
           v-if="contextNodeLevel > featureLevel"
           button
@@ -45,23 +47,31 @@
         variant="danger"
         v-on:click="contextSelected = 3"
       >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
-      <hr />
-      <div class="d-block text-center">
-        {{ showSelected() }}
-        <br />
-        <br />
-        <b-button
-          v-if="contextSelected !== undefined"
-          v-show="!showAssistance"
-          size="sm"
-          variant="outline-primary"
-          @click="contextAssistance(contextSelected)"
-        >Need assistance?</b-button>
-        <b-alert class="d-block text-left" :show="showAssistance" v-html="assistanceText"></b-alert>
-        <div v-if="contextWarning" class="colorRed">{{ contextWarning }}</div>
-      </div>
     </b-list-group>
+    <div class="d-block text-center">
+      <div class="message">{{ showSelected() }}</div>
+      <b-button
+        v-if="contextSelected !== undefined"
+        v-show="!showAssistance"
+        size="sm"
+        variant="outline-primary"
+        @click="contextAssistance(contextSelected)"
+      >Need assistance?</b-button>
+      <b-alert class="d-block text-left" :show="showAssistance" v-html="assistanceText"></b-alert>
+      <div v-if="contextWarning" class="d-block warning">{{ contextWarning }}</div>
+    </div>
   </b-modal>
 </template>
 
 <script src="./context.js"></script>
+
+<style scoped>
+.message {
+  margin: 10px;
+}
+.warning {
+  margin: 10px;
+  padding: 10px;
+  color: rgb(255, 115, 0);
+}
+</style>

@@ -19,8 +19,10 @@ export default {
       featureLevel: FEATURELEVEL,
       productLevel: PRODUCTLEVEL,
       contextNodeSelected: undefined,
+      contextParentTeam: '',
       contextNodeTitle: '',
       contextNodeLevel: 0,
+      contextParentType: '',
       contextNodeType: '',
       contextNodeTeam: '',
       contextChildType: '',
@@ -56,7 +58,10 @@ export default {
       this.insertOptionSelected = 1
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
       if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id && node.level > 1 && this.$store.state.numberOfNodesSelected === 1) {
+        const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
+        this.contextParentTeam = parentNode.data.team
+        this.contextParentType = this.getLevelText(parentNode.level)
         this.contextNodeTitle = node.title
         this.contextNodeLevel = node.level
         this.contextNodeType = this.getLevelText(node.level)
@@ -92,9 +97,12 @@ export default {
           this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
           return `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
         case 4:
-          this.contextWarning = undefined
+          if (this.contextNodeLevel > 4 && this.contextParentTeam !== this.$store.state.userData.myTeam) {
+            this.contextWarning = "WARNING: The team of parent " + this.contextParentType + " (" + this.contextParentTeam +
+              ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Please read the assistance text."
+          } else this.contextWarning = undefined
           this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-          return `Assign this ${this.contextNodeType} to team '${this.$store.state.userData.myTeam}'`
+          return `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
         default:
           this.contextWarning = undefined
           return 'nothing selected as yet'
@@ -325,16 +333,17 @@ export default {
 
     doChangeTeam() {
       if (this.contextNodeSelected.level > FEATURELEVEL) {
-        const parentNode = window.slVueTree.getParentNode(this.contextNodeSelected)
-        if (parentNode.data.team !== this.$store.state.userData.myTeam) {
-          this.showLastEvent(`The owning team '${parentNode.data.team}' of the parent ${this.getLevelText(parentNode.level)} and your team do not match.`, WARNING)
-          this.$store.dispatch('setTeam', [])
-        } else this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
+        this.contextNodeSelected.data.team = this.$store.state.userData.myTeam
+        this.$store.dispatch('setTeam', [])
+        this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
       } else {
         if (this.contextNodeSelected.level >= PRODUCTLEVEL) {
           const descendantsInfo = window.slVueTree.getDescendantsInfo(this.contextNodeSelected)
-          this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
+          for (let desc of descendantsInfo.descendants) {
+            desc.data.team = this.$store.state.userData.myTeam
+          }
           this.$store.dispatch('setTeam', descendantsInfo.descendants)
+          this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
         }
       }
     },
