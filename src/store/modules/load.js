@@ -180,7 +180,7 @@ const actions = {
 			rootState.userData.myFilterSettings = res.data.filterSettings
 
 			dispatch('watchdog')
-			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in and the watchdog is started to recover from network outings."
+			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in."
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			// now that the database is known the log file is available
@@ -270,14 +270,14 @@ const actions = {
 			// decode from base64 + replace the encoded data
 			rootState.currentDoc.description = window.atob(res.data.description)
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
-			// prepare for loading the first batch; add the root node for the database name
+			// prepare for loading the first batch; create the root node
 			state.treeNodes = [
 				{
 					"path": [0],
 					"pathStr": '[0]',
 					"ind": 0,
 					"level": 1,
-					"productId": 'root',
+					"productId": res.data._id,
 					"parentId": null,
 					"_id": 'root',
 					"shortId": "0",
@@ -292,8 +292,9 @@ const actions = {
 					"doShow": true,
 					"savedDoShow": true,
 					"data": {
-						"priority": null,
-						"team": 'server admins',
+						"state": res.data.state,
+						"team": res.data.team,
+						"priority": res.data.priority,
 						"lastChange": 0
 					}
 				},
@@ -307,6 +308,8 @@ const actions = {
 				// show the root node
 				router.push('/product')
 			}
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log("The root document is read")
 		}).catch(error => {
 			// ToDo: if 404 the database could have been deleted
 			let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
