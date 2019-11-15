@@ -1,6 +1,20 @@
 <template>
   <b-modal ref="contextMenuRef" @ok="procSelected()" @cancel="doCancel" :title="contextNodeTitle">
     <b-list-group>
+      <template v-if="contextNodeTeam !== $store.state.userData.myTeam">
+        <b-list-group-item
+          v-if="contextNodeLevel > featureLevel"
+          button
+          variant="dark"
+          v-on:click="contextSelected = 4"
+        >Assign this {{ contextNodeType }} to my team</b-list-group-item>
+        <b-list-group-item
+          v-else-if="contextNodeLevel > productLevel"
+          button
+          variant="dark"
+          v-on:click="contextSelected = 4"
+        >Assign this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants to my team</b-list-group-item>
+      </template>
       <b-list-group-item
         v-if="contextNodeLevel !== productLevel"
         button
@@ -31,18 +45,6 @@
         variant="danger"
         v-on:click="contextSelected = 3"
       >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
-      <b-list-group-item
-        v-if="contextNodeLevel > featureLevel"
-        button
-        variant="dark"
-        v-on:click="contextSelected = 4"
-      >Assign this {{ contextNodeType }} to my team</b-list-group-item>
-      <b-list-group-item
-        v-else-if="contextNodeLevel > productLevel"
-        button
-        variant="dark"
-        v-on:click="contextSelected = 4"
-      >Assign this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants to my team</b-list-group-item>
       <hr />
       <div class="d-block text-center">
         {{ showSelected() }}

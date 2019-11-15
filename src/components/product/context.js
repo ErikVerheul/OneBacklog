@@ -22,6 +22,7 @@ export default {
       contextNodeTitle: '',
       contextNodeLevel: 0,
       contextNodeType: '',
+      contextNodeTeam: '',
       contextChildType: '',
       contextSelected: undefined,
       insertOptionSelected: 1,
@@ -54,16 +55,14 @@ export default {
       this.currentAssistanceNr = undefined
       this.insertOptionSelected = 1
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-      if (this.haveWritePermission[node.level] &&
-        node._id === this.$store.state.nodeSelected._id &&
-        node.level > 1 &&
-        this.$store.state.numberOfNodesSelected === 1) {
+      if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id && node.level > 1 && this.$store.state.numberOfNodesSelected === 1) {
         this.contextNodeSelected = node
         this.contextNodeTitle = node.title
         this.contextNodeLevel = node.level
         this.contextNodeType = this.getLevelText(node.level)
         this.contextChildType = this.getLevelText(node.level + 1)
         this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
+        this.contextNodeTeam = node.data.team
         window.showContextMenuRef.show()
       }
     },
@@ -169,6 +168,7 @@ export default {
         data: {
           priority: null,
           state: 0,
+          team: 'not assigned yet',
           subtype: 0,
           lastChange: Date.now(),
           sessionId: this.$store.state.userData.sessionId,
@@ -249,7 +249,7 @@ export default {
           "attachments": [],
           "comments": [],
           "history": [{
-            "createEvent": null,
+            "createEvent": [insertLevel, this.contextNodeSelected.title],
             "by": this.$store.state.userData.user,
             "email": this.$store.state.userData.email,
             "timestamp": Date.now(),
@@ -267,9 +267,7 @@ export default {
       }
     },
 
-    /*
- * In the database both the selected node and all its descendants will be tagged with a delmark
- */
+    /* In the database both the selected node and all its descendants will be tagged with a delmark */
     doRemove() {
       const selectedNode = this.contextNodeSelected
       const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
