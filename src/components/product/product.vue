@@ -293,53 +293,6 @@
   </div>
 </template>
 
-/*
-* Definitions: items are PBI's or Product Backlog Items which are stored in the database as documents and presented on screen as nodes in a tree.
-*
-* NOTE on itemType and level numbering with the current config definition
-*
-* level ...............in database level ....... in tree
-* -----------------------------------------------------------------------
-* RequirementArea ........ 0 ................... n/a
-* Database ............... 1 ................... n/a
-* Product ................ 2 ................... 2
-* Epic .. ................ 3 ................... 3
-* Feature ................ 4 ................... 4
-* PBI ... ................ 5 ................... 5
-*
-* The nodes in the tree have these data elements and values:
-*
-* path, // the access path in the tree model
-* pathStr: JSON.stringify(path),
-* ind, // the index in the children array
-* level: path.length,
-*
-* productId: doc.productId,
-* parentId: doc.parentId,
-* _id: doc._id,
-* shortId: doc.shortId,
-* title: doc.title,
-* isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
-* children: [],
-* isExpanded: true || false, // initially the tree is expanded up to the feature level
-* savedIsExpanded: isExpanded, // to restore the original view after applying a filter
-* isSelectable: true,
-* isSelected: true only if isSelectable || false
-* isDraggable: true || false, // depending on the user roles
-* doShow: true, // false if filtered out
-* savedDoShow: doShow, // to restore the original view after applying a filter
-*
-* data: {
-* ....priority: doc.priority,
-* ....state: doc.state,
-* ....team: doc.team, // the team membership of the user who updated the state the last time
-* ....subtype: doc.subtype,
-* ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
-* ....sessionId: rootState.userData.sessionId,
-* ....distributeEvent: true | false
-* }
-*/
-
 <script src="./product.js"></script>
 
 <!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->

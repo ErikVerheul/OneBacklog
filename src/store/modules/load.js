@@ -34,57 +34,7 @@ const getters = {
 	* Note that the AreaPO level is 0 and root of the tree starts with level 1
 	* Note that rootState MUST be the third argument. The fourth argument is rootGetters.
 	*
-	* These are the roles known by this application despite settings in the _users database otherwise.
-	* Write access is dependant on role and level. Write access includes deletion.
-	* All roles have read access to their assigned database (only one) and assigned products in that database.
-	*
-	* type ...............in database level ....... in tree
-	* -----------------------------------------------------------------------
-	* RequirementArea ........ 0 ................... n/a
-	* Database ............... 1 ................... n/a
-	* Product ................ 2 ................... 2
-	* Epic .. ................ 3 ................... 3
-	* Feature ................ 4 ................... 4
-	* PBI ... ................ 5 ................... 5
-	*
-	*"knownRoles":
-	*	"_admin": {
-	*		description: "Is the database administrator. Can setup and delete databases. Can update root documents. See the CouchDB documentation.",
-	*		products: "n/a",
-	*		writeAccessLevel: 1,
-	*	},
-	*	"admin": {
-	*		description: "Can create and remove users and teams. Can assign products to teams. The user administration is a permission on the _users database
-	*		products: "n/a",
-	*		writeAccessLevel: null,
-	*	},
-	*	"areaPO": {
-	*		description: "Can access the requirements area with write access to the level 0 requirements area items and can prioritise features (level 4)",
-	*		products: "all",
-	*		writeAccessLevel: 0,4
-	*	},
-	*	"superPO": {
-	*		description: "Can create, maintain and remove products and epics for all products. Can change priorities at these levels.",
-	*		products: "all",
-	*		writeAccessLevel: 2,3
-	*	},
-	*	"PO": {
-	*		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels.",
-	*		products: "assigned",
-	*		writeAccessLevel: 3,4,5
-	*	},
-	*	"developer": {
-	*		description: "Can create and maintain pbi's and features for the assigned products.",
-	*		products: "assigned",
-	*		writeAccessLevel: 4,5
-	*	},
-	*	"guest": {
-	*		description: "Can only view the items of the assigned products. Has no access to the requirements area view.",
-	*		products: "assigned",
-	*		writeAccessLevel: null,
-	*	}
-	*
-	*	Note that this getter returns permissions for the current product or all products (superPO and areaPO)
+	* See documentation.txt for the role definitions.
 	*/
 	haveWritePermission(state, getters, rootState, rootGetters) {
 		let levels = []
@@ -343,6 +293,7 @@ const actions = {
 					"savedDoShow": true,
 					"data": {
 						"priority": null,
+						"team": 'server admins',
 						"lastChange": 0
 					}
 				},
