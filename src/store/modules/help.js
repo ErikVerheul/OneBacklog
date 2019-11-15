@@ -81,11 +81,13 @@ const state = {
         team: `<h4>Team change help</h4>
         <p>
         You are about to assign a backlog item to your current team.<br/>
-        When an authorized user changes the state of a backlog item, eg to 'ready' the item is assigned automatically to the team of that user.<br/>
         </p>
         <hr>
         <p>It is best practice that a feature is completely realized by the same team. You get a warning message when you assign a user story, spike or defect to
         another team than the team that owns the feature these items belong to.
+        </p>
+        <hr>
+        <p>Note that when an authorized user changes the state of a backlog item from 'New' to 'Ready', the item is assigned automatically to the team of that user.
         </p>`
     }
 }
