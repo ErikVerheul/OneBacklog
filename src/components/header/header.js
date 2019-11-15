@@ -7,7 +7,7 @@ export default {
     mixins: [utilities],
     data() {
         return {
-            appVersion: "OneBackLog v.0.7.0",
+            appVersion: "OneBackLog v.0.7.1",
             oldPassword: "",
             newPassword1: "",
             newPassword2: "",
