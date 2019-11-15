@@ -398,20 +398,22 @@ export default {
 
     updateTsSize() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        let size = document.getElementById("tShirtSizeId").value.toUpperCase()
-        const sizeArray = this.$store.state.configData.tsSize
-        if (sizeArray.includes(size)) {
-          this.$store.state.nodeSelected.data.lastChange = Date.now()
-          this.$store.dispatch('setSize', {
-            'newSizeIdx': sizeArray.indexOf(size)
-          })
-        } else {
-          let sizes = ''
-          for (let i = 0; i < sizeArray.length - 1; i++) {
-            sizes += sizeArray[i] + ', '
+        if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          let size = document.getElementById("tShirtSizeId").value.toUpperCase()
+          const sizeArray = this.$store.state.configData.tsSize
+          if (sizeArray.includes(size)) {
+            this.$store.state.nodeSelected.data.lastChange = Date.now()
+            this.$store.dispatch('setSize', {
+              'newSizeIdx': sizeArray.indexOf(size)
+            })
+          } else {
+            let sizes = ''
+            for (let i = 0; i < sizeArray.length - 1; i++) {
+              sizes += sizeArray[i] + ', '
+            }
+            alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
           }
-          alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
-        }
+        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change the t-shirt size of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the t-shirt size of this item", WARNING)
       }
@@ -419,15 +421,17 @@ export default {
 
     updateStoryPoints() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        let el = document.getElementById("storyPointsId")
-        if (isNaN(el.value) || el.value < 0) {
-          el.value = '?'
-          return
-        }
-        this.$store.state.nodeSelected.data.lastChange = Date.now()
-        this.$store.dispatch('setStoryPoints', {
-          'newPoints': el.value
-        })
+        if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          let el = document.getElementById("storyPointsId")
+          if (isNaN(el.value) || el.value < 0) {
+            el.value = '?'
+            return
+          }
+          this.$store.state.nodeSelected.data.lastChange = Date.now()
+          this.$store.dispatch('setStoryPoints', {
+            'newPoints': el.value
+          })
+        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story points of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)
       }
@@ -435,30 +439,39 @@ export default {
 
     updatePersonHours() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        let el = document.getElementById("personHoursId")
-        if (isNaN(el.value) || el.value < 0) {
-          el.value = '?'
-          return
-        }
-        this.$store.state.nodeSelected.data.lastChange = Date.now()
-        this.$store.dispatch('setPersonHours', {
-          'newHrs': el.value
-        })
+        if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          let el = document.getElementById("personHoursId")
+          if (isNaN(el.value) || el.value < 0) {
+            el.value = '?'
+            return
+          }
+          this.$store.state.nodeSelected.data.lastChange = Date.now()
+          this.$store.dispatch('setPersonHours', {
+            'newHrs': el.value
+          })
+        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story person hours of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item", WARNING)
       }
     },
 
+    /* An authorized user can change state if member of the team which owns this item or when the item is new and changed to 'Ready' */
     onStateChange(idx) {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        // update the tree
-        this.$store.state.nodeSelected.data.team = this.$store.state.userData.myTeam
-        this.$store.state.nodeSelected.data.state = idx
-        this.$store.state.nodeSelected.data.lastChange = Date.now()
-        // update current document in database
-        this.$store.dispatch('setState', {
-          'newState': idx, 'team': this.$store.state.userData.myTeam
-        })
+        if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam || this.$store.state.nodeSelected.data.state === 0 && idx === 1) {
+          // update the team of this item if changing the state from 'New' to 'Ready'
+          if (idx === 1) this.$store.state.nodeSelected.data.team = this.$store.state.userData.myTeam
+          this.$store.state.nodeSelected.data.state = idx
+          this.$store.state.nodeSelected.data.lastChange = Date.now()
+          // update current document in database
+          this.$store.dispatch('setState', {
+            'newState': idx, 'team': idx === 1 ? this.$store.state.userData.myTeam : this.$store.state.nodeSelected.data.team
+          })
+        } else {
+          if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+            this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change the state of this item", WARNING)
+          } else this.showLastEvent("Sorry, you can only change the status to 'Ready' now", WARNING)
+        }
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
       }
