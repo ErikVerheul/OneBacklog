@@ -162,6 +162,7 @@ export default {
       let newNodeLocation
       let path
       let idx
+      let now = Date.now()
       // prepare the new node for insertion and set isSelected to true
       newNode = {
         productId: this.$store.state.load.currentProductId,
@@ -176,9 +177,10 @@ export default {
         data: {
           priority: null,
           state: 0,
+          lastStateChange: now,
           team: 'not assigned yet',
           subtype: 0,
-          lastChange: Date.now(),
+          lastChange: now,
           sessionId: this.$store.state.userData.sessionId,
           distributeEvent: true
         }
@@ -245,6 +247,7 @@ export default {
           "level": insertLevel,
           "subtype": 0,
           "state": 0,
+          "lastStateChange": now,
           "tssize": 3,
           "spsize": 0,
           "spikepersonhours": 0,
