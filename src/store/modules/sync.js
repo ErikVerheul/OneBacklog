@@ -110,6 +110,7 @@ const actions = {
 								node.title = doc.title
 								node.data.subtype = doc.subtype
 								node.data.state = doc.state
+								node.data.lastStateChange = doc.lastStateChange
 							} else {
 								// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
 								window.slVueTree.remove([node])
@@ -212,6 +213,7 @@ const actions = {
 									"savedDoShow": true,
 									"data": {
 										"state": doc.state,
+										"lastStateChange": doc.lastStateChange,
 										"subtype": 0,
 										"sessionId": rootState.userData.sessionId,
 										"distributeEvent": false

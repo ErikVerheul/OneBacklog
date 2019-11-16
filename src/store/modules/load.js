@@ -135,6 +135,7 @@ const mutations = {
 							data: {
 								priority: batch[i].doc.priority,
 								state: batch[i].doc.state,
+								lastStateChange: batch[i].doc.lastStateChange,
 								team: batch[i].doc.team,
 								subtype: batch[i].doc.subtype,
 								lastChange: batch[i].doc.history[0].timestamp

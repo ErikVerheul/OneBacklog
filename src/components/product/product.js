@@ -218,6 +218,11 @@ export default {
   },
 
   methods: {
+    /* Return true if the state of the node has changed in the last hour */
+    hasNewState(node) {
+      return node.data.lastStateChange ? node.data.lastStateChange - Date.now() < 3600000 : false
+    },
+
     onSetMyFilters() {
       if (this.$store.state.filterOn) {
         window.slVueTree.resetFilters('onSetMyFilters')
@@ -458,13 +463,15 @@ export default {
     /* An authorized user can change state if member of the team which owns this item or when the item is new and changed to 'Ready' */
     onStateChange(idx) {
       function changeState(vm, newTeam) {
+        const now = Date.now()
         vm.$store.state.nodeSelected.data.state = idx
-        vm.$store.state.nodeSelected.data.lastChange = Date.now()
+        vm.$store.state.nodeSelected.data.lastChange = now
+        vm.$store.state.nodeSelected.data.lastStateChange = now
         if (newTeam) {
           vm.$store.state.nodeSelected.data.team = newTeam
         }
         vm.$store.dispatch('setState', {
-          'newState': idx, 'team': newTeam
+          'newState': idx, 'team': newTeam, lastStateChange: now
         })
       }
 
