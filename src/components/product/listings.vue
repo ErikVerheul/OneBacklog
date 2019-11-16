@@ -150,7 +150,7 @@ export default {
       return "<h5>The root document was created for database " + value[0] + "</h5>"
     },
 
-     mkCreateEvent(value) {
+    mkCreateEvent(value) {
       return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'</h5>"
     },
 
@@ -167,8 +167,9 @@ export default {
     },
 
     mkSetStateEvent(value) {
-      return "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) +
-      "',<br> the team is set to '" + value[2] + "'</h5>"
+      const s1 = "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'</h5>"
+      const s2 = "<h5>, the team is set to '" + value[2] + "'</h5>"
+      if (value[2]) { return s1 + s2 } else return s1
     },
 
     mkSetTeamEvent(value) {
@@ -262,5 +263,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

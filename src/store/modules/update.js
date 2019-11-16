@@ -181,11 +181,13 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.state = payload.newState
-			// also set the team
-			tmpDoc.team = payload.team
+			// also set the team if provided
+			if (payload.team) {
+				rootState.currentDoc.team = payload.team
+				tmpDoc.team = payload.team
+			}
 			tmpDoc.history.unshift(newHist)
 			rootState.currentDoc.state = payload.newState
-			rootState.currentDoc.team = payload.team
 			rootState.currentDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {

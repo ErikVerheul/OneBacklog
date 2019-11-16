@@ -457,24 +457,38 @@ export default {
 
     /* An authorized user can change state if member of the team which owns this item or when the item is new and changed to 'Ready' */
     onStateChange(idx) {
+      function changeState(vm, newTeam) {
+        vm.$store.state.nodeSelected.data.state = idx
+        vm.$store.state.nodeSelected.data.lastChange = Date.now()
+        if (newTeam) {
+          vm.$store.state.nodeSelected.data.team = newTeam
+        }
+        vm.$store.dispatch('setState', {
+          'newState': idx, 'team': newTeam
+        })
+      }
+
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam || this.$store.state.nodeSelected.data.state === 0 && idx === 1) {
-          // update the team of this item if changing the state from 'New' to 'Ready'
-          if (idx === 1) this.$store.state.nodeSelected.data.team = this.$store.state.userData.myTeam
-          this.$store.state.nodeSelected.data.state = idx
-          this.$store.state.nodeSelected.data.lastChange = Date.now()
-          // update current document in database
-          this.$store.dispatch('setState', {
-            'newState': idx, 'team': idx === 1 ? this.$store.state.userData.myTeam : this.$store.state.nodeSelected.data.team
-          })
+        // any user can change from state 'New' to state 'Ready'; the owning team of the item is set to the users team
+        if (this.$store.state.nodeSelected.data.state === 0 && idx === 1) {
+          changeState(this, this.$store.state.userData.myTeam)
+          const parentNode = window.slVueTree.getParentNode(this.$store.state.nodeSelected)
+          if (parentNode.level >= FEATURELEVEL && parentNode.data.team !== this.$store.state.userData.myTeam) {
+            this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
+            this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
+          }
         } else {
           if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
-            this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change the state of this item", WARNING)
-          } else this.showLastEvent("Sorry, you can only change the status to 'Ready' now", WARNING)
+            if (idx === 0) {
+              // change from any other state to 'New' and set the team of the item to 'not asigned yet'
+              changeState(this, 'not assigned yet')
+            } else {
+              // all other state changes; no team update
+              changeState(this, null)
+            }
+          } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change the state of this item", WARNING)
         }
-      } else {
-        this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
-      }
+      } else this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
     },
 
     updateTitle() {
