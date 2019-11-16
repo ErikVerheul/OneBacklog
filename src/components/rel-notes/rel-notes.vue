@@ -10,11 +10,10 @@
 				<h3>v.0.7.1 - 16 November 2019 Feature update</h3>
 				<p>New features:</p>
 				<ul>
-					<li>The 'superPO' role now applies to all products in all databases</li>
-					<li>The 'admin' role now applies to all users in all databases</li>
-					<li>Users can switch between databases with assigned products to them</li>
-					<li>Users can change team between teams registered in the current database</li>
-					<li>Expanded 'SuperPO', 'admin' and 'server Admin' views.</li>
+					<li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved for use in the next session</li>
+					<li>Product backlog items are now owned by a team</li>
+					<li>An authenticated user can assign a backlog item and its descendants to the users team</li>
+					<li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect to a different team than the team of the parent feature</li>
 				</ul>
 				<hr>
         <h3>v.0.7.0 - 23 October 2019 Major update</h3>
