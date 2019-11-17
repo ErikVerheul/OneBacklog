@@ -64,13 +64,23 @@ export default {
       return !str.replace(/\s+/, '').length;
     }
 
+    function shortIdCheck() {
+      const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
+      if (this.shortId.length !== SHORTKEYLENGTH) return false
+
+      for (let i = 0; i < this.shortId.length; i++) {
+        if (!alphanum.includes(this.shortId.substring(i, i + 1).toLowerCase())) return false
+      }
+      return true
+    }
+
     let el = document.getElementById("selectOnId")
     // fire the search on short id on pressing enter in the select-on-Id input field (instead of submitting the form)
     el.addEventListener("keypress", (event) => {
       if (event.keyCode === 13) {
         event.preventDefault()
         // check for valid input and convert to lowercase
-        if (this.shortIdCheck) {
+        if (shortIdCheck) {
           window.slVueTree.resetFilters('selectOnId')
           this.selectNode(this.shortId.toLowerCase())
         }
@@ -123,16 +133,6 @@ export default {
       return msg_1 + msg_2 + msg_3
     },
 
-    shortIdCheck() {
-      const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-      if (this.shortId.length !== SHORTKEYLENGTH) return false
-
-      for (let i = 0; i < this.shortId.length; i++) {
-        if (!alphanum.includes(this.shortId.substring(i, i + 1).toLowerCase())) return false
-      }
-      return true
-    },
-
     squareText() {
       if (this.$store.state.online) {
         if (!this.$store.state.skipOnce) this.showLastEvent("You are online again", INFO)
@@ -151,9 +151,7 @@ export default {
     subsribeTitle() {
       if (this.isFollower) {
         return "Unsubscribe to change notices"
-      } else {
-        return "Subscribe to change notices"
-      }
+      } else return "Subscribe to change notices"
     },
 
     description: {
