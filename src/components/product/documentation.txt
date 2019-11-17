@@ -40,7 +40,11 @@
 * ....team: doc.team, // the team membership of the user who updated the state the last time
 * ....subtype: doc.subtype,
 * ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
-* ....lastStateChange: doc.lastStateChange, // set on change of state
+* ....lastStateChange, // lookup in doc history
+* ....lastContentChange, // lookup in doc history
+* ....lastCommentToHistory, // lookup in doc history
+* ....lastCommentAddition, // from last comment
+* ....lastAttachmentAddition, // from ?
 * ....sessionId: rootState.userData.sessionId,
 * ....distributeEvent: true | false
 * }

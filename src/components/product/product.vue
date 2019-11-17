@@ -131,6 +131,8 @@
               {{ node.title }}
               <b-badge v-if="hasNewState(node)" variant="danger">{{ getItemStateText(node.data.state) }}</b-badge>
               <b-badge v-else variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
+              <b-badge v-if="hasContentChange(node) || hasCommentToHistory(node)" variant="info">See history</b-badge>
+              <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
             </template>
 
             <template slot="toggle" slot-scope="{ node }">

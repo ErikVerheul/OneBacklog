@@ -16,6 +16,7 @@ const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const SHORTKEYLENGTH = 5
+const HOURINMILIS = 3600000
 
 export default {
   mixins: [utilities],
@@ -220,7 +221,19 @@ export default {
   methods: {
     /* Return true if the state of the node has changed in the last hour */
     hasNewState(node) {
-      return node.data.lastStateChange ? node.data.lastStateChange - Date.now() < 3600000 : false
+      return node.data.lastStateChange ? Date.now() - node.data.lastStateChange < HOURINMILIS : false
+    },
+
+    hasContentChange(node) {
+      return node.data.lastContentChange ? Date.now() - node.data.lastContentChange < HOURINMILIS : false
+    },
+
+    hasCommentToHistory(node) {
+      return node.data.lastCommentToHistory ? Date.now() - node.data.lastCommentToHistory < HOURINMILIS : false
+    },
+
+    hasNewComment(node) {
+      return node.data.lastCommentAddition ? Date.now() - node.data.lastCommentAddition < HOURINMILIS : false
     },
 
     onSetMyFilters() {
@@ -355,25 +368,34 @@ export default {
     },
 
     insertComment() {
+      const now = Date.now()
+      this.$store.state.nodeSelected.data.lastChange = now
+      this.$store.state.nodeSelected.data.lastCommentAddition = now
       this.$store.dispatch('addComment', {
         'comment': this.newComment
       })
     },
 
     insertHist() {
+      const now = Date.now()
+      this.$store.state.nodeSelected.data.lastChange = now
+      this.$store.state.nodeSelected.data.lastCommentToHistory = now
+      // update the current doc in memory
       this.$store.dispatch('addHistoryComment', {
         'comment': this.newHistory
       })
     },
 
-    /* Database update methods */
+    /* Tree and database update methods */
     updateDescription() {
       // skip update when not changed
       if (this.$store.state.currentDoc.description !== this.newDescription) {
         if (this.haveWritePermission[this.getCurrentItemLevel]) {
+          const now = Date.now()
+          this.$store.state.nodeSelected.data.lastChange = now
+          this.$store.state.nodeSelected.data.lastContentChange = now
           // update the current doc in memory
           this.$store.state.currentDoc.description = this.newDescription
-          this.$store.state.nodeSelected.data.lastChange = Date.now()
           // update the doc in the database
           this.$store.dispatch('saveDescription', {
             'newDescription': this.newDescription
@@ -388,9 +410,11 @@ export default {
       // skip update when not changed
       if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
         if (this.haveWritePermission[this.getCurrentItemLevel]) {
+          const now = Date.now()
+          this.$store.state.nodeSelected.data.lastChange = now
+          this.$store.state.nodeSelected.data.lastContentChange = now
           // update the current doc in memory
           this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
-          this.$store.state.nodeSelected.data.lastChange = Date.now()
           // update the doc in the database
           this.$store.dispatch('saveAcceptance', {
             'newAcceptance': this.newAcceptance
@@ -471,7 +495,7 @@ export default {
           vm.$store.state.nodeSelected.data.team = newTeam
         }
         vm.$store.dispatch('setState', {
-          'newState': idx, 'team': newTeam, lastStateChange: now
+          'newState': idx, 'team': newTeam
         })
       }
 
@@ -482,7 +506,7 @@ export default {
           const parentNode = window.slVueTree.getParentNode(this.$store.state.nodeSelected)
           if (parentNode.level >= FEATURELEVEL && parentNode.data.team !== this.$store.state.userData.myTeam) {
             this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
-            this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
+              this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
           }
         } else {
           if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
@@ -504,10 +528,12 @@ export default {
       if (oldTitle === newTitle) return
 
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
+        const now = Date.now()
         // update the tree
         let node = this.$store.state.nodeSelected
         node.title = newTitle
-        node.data.lastChange = Date.now()
+        node.data.lastChange = now
+        node.data.lastContentChange = now
         // update current document in database
         this.$store.dispatch('setDocTitle', {
           'newTitle': newTitle

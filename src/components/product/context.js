@@ -247,7 +247,6 @@ export default {
           "level": insertLevel,
           "subtype": 0,
           "state": 0,
-          "lastStateChange": now,
           "tssize": 3,
           "spsize": 0,
           "spikepersonhours": 0,

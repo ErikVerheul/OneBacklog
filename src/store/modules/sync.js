@@ -4,6 +4,7 @@ const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 const INFO = 0
 const WARNING = 1
+const HOURINMILIS = 3600000
 var fistCallAfterSignin = true
 var missedAdditions = []
 var remoteRemoved = []
@@ -81,6 +82,7 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			if (since && !fistCallAfterSignin) {
 				const results = data.results.concat(missedAdditions)
+				const now = Date.now()
 				for (let i = 0; i < results.length; i++) {
 					let doc = results[i].doc
 					// Select only documents which are a product backlog item, belong to the the user subscribed products and changes not made
@@ -92,6 +94,38 @@ const actions = {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed, title = ' + doc.title)
 						dispatch('doBlinck')
+						// search history for the last changes within the last hour
+						let lastStateChange = 0
+						let lastContentChange = 0
+						let lastCommentToHistory = 0
+						for (let histItem of doc.history) {
+							if (now - histItem.timestamp > HOURINMILIS) {
+								// skip events longer than a hour ago
+								break
+							}
+							const keys = Object.keys(histItem)
+							// get the most recent change of state
+							if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
+								lastStateChange = histItem.timestamp
+							}
+							// get the most recent change of content
+							if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
+								lastContentChange = histItem.timestamp
+							}
+							// get the most recent addition of comments to the history
+							if (lastCommentToHistory === 0 && keys.includes('comment')) {
+								lastCommentToHistory = histItem.timestamp
+							}
+							if (lastStateChange && lastContentChange && lastCommentToHistory) {
+								// if all found stop searching
+								break
+							}
+						}
+						// get the last time a comment was added
+						let lastCommentAddition = 0
+						if (doc.comments && doc.comments.length > 0) {
+							lastCommentAddition = doc.comments[0].timestamp
+						}
 						let node = window.slVueTree.getNodeById(doc._id)
 						if (node !== null) {
 							// the node exists (is not new)
@@ -110,7 +144,10 @@ const actions = {
 								node.title = doc.title
 								node.data.subtype = doc.subtype
 								node.data.state = doc.state
-								node.data.lastStateChange = doc.lastStateChange
+								node.data.lastStateChange = lastStateChange
+								node.data.lastContentChange = lastContentChange
+								node.data.lastCommentToHistory = lastCommentToHistory
+								node.data.lastCommentAddition = lastCommentAddition
 							} else {
 								// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
 								window.slVueTree.remove([node])
@@ -213,7 +250,7 @@ const actions = {
 									"savedDoShow": true,
 									"data": {
 										"state": doc.state,
-										"lastStateChange": doc.lastStateChange,
+										"lastStateChange": lastStateChange,
 										"subtype": 0,
 										"sessionId": rootState.userData.sessionId,
 										"distributeEvent": false

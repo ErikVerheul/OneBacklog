@@ -12,6 +12,7 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const HOURINMILIS = 3600000
 var parentNodes = {}
 
 const state = {
@@ -91,6 +92,7 @@ const mutations = {
 	 * The root and the top level product nodes are not draggable
 	 */
 	processProduct(state, userAssignedProductIds) {
+		const now = Date.now()
 		for (let i = 0; i < batch.length; i++) {
 			state.docsCount++
 			// load the items of the products the user is authorized to
@@ -113,6 +115,39 @@ const mutations = {
 					const path = parentPath.concat(ind)
 					// skip the database/requirement area level and the removed items
 					if (level > 1 && !delmark) {
+						// search history for the last changes within the last hour
+						let lastStateChange = 0
+						let lastContentChange = 0
+						let lastCommentToHistory = 0
+						for (let histItem of batch[i].doc.history) {
+							if (now - histItem.timestamp > HOURINMILIS) {
+								// skip events longer than a hour ago
+								break
+							}
+							const keys = Object.keys(histItem)
+							// get the most recent change of state
+							if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
+								lastStateChange = histItem.timestamp
+							}
+							// get the most recent change of content
+							if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
+								lastContentChange = histItem.timestamp
+							}
+							// get the most recent addition of comments to the history
+							if (lastCommentToHistory === 0 && keys.includes('comment')) {
+								lastCommentToHistory = histItem.timestamp
+							}
+							if (lastStateChange && lastContentChange && lastCommentToHistory) {
+								// if all found stop searching
+								break
+							}
+						}
+						// get the last time a comment was added
+						let lastCommentAddition = 0
+						if (batch[i].doc.comments && batch[i].doc.comments.length > 0) {
+							lastCommentAddition = batch[i].doc.comments[0].timestamp
+						}
+
 						let newNode = {
 							path,
 							pathStr: JSON.stringify(path),
@@ -135,7 +170,10 @@ const mutations = {
 							data: {
 								priority: batch[i].doc.priority,
 								state: batch[i].doc.state,
-								lastStateChange: batch[i].doc.lastStateChange,
+								lastStateChange,
+								lastContentChange,
+								lastCommentToHistory,
+								lastCommentAddition,
 								team: batch[i].doc.team,
 								subtype: batch[i].doc.subtype,
 								lastChange: batch[i].doc.history[0].timestamp
