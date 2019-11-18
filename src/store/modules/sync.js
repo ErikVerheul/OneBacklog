@@ -94,33 +94,6 @@ const actions = {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed, title = ' + doc.title)
 						dispatch('doBlinck')
-						// search history for the last changes within the last hour
-						let lastStateChange = 0
-						let lastContentChange = 0
-						let lastCommentToHistory = 0
-						for (let histItem of doc.history) {
-							if (now - histItem.timestamp > HOURINMILIS) {
-								// skip events longer than a hour ago
-								break
-							}
-							const keys = Object.keys(histItem)
-							// get the most recent change of state
-							if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
-								lastStateChange = histItem.timestamp
-							}
-							// get the most recent change of content
-							if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
-								lastContentChange = histItem.timestamp
-							}
-							// get the most recent addition of comments to the history
-							if (lastCommentToHistory === 0 && keys.includes('comment')) {
-								lastCommentToHistory = histItem.timestamp
-							}
-							if (lastStateChange && lastContentChange && lastCommentToHistory) {
-								// if all found stop searching
-								break
-							}
-						}
 						// get the last time a comment was added
 						let lastCommentAddition = 0
 						if (doc.comments && doc.comments.length > 0) {
@@ -135,6 +108,33 @@ const actions = {
 								// save the node for later restoration
 								remoteRemoved.unshift(node)
 								continue
+							}
+							// search history for the last changes within the last hour
+							let lastStateChange = 0
+							let lastContentChange = 0
+							let lastCommentToHistory = 0
+							for (let histItem of doc.history) {
+								if (now - histItem.timestamp > HOURINMILIS) {
+									// skip events longer than a hour ago
+									break
+								}
+								const keys = Object.keys(histItem)
+								// get the most recent change of state
+								if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
+									lastStateChange = histItem.timestamp
+								}
+								// get the most recent change of content
+								if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
+									lastContentChange = histItem.timestamp
+								}
+								// get the most recent addition of comments to the history
+								if (lastCommentToHistory === 0 && keys.includes('comment')) {
+									lastCommentToHistory = histItem.timestamp
+								}
+								if (lastStateChange !== 0 && lastContentChange !== 0 && lastCommentToHistory !== 0) {
+									// if all found stop searching
+									break
+								}
 							}
 							let parentNode = window.slVueTree.getNodeById(doc.parentId)
 							let locationInfo = getLocationInfo(doc.priority, parentNode)
@@ -249,11 +249,10 @@ const actions = {
 									"doShow": true,
 									"savedDoShow": true,
 									"data": {
-										"state": doc.state,
-										"lastStateChange": lastStateChange,
-										"subtype": 0,
-										"sessionId": rootState.userData.sessionId,
-										"distributeEvent": false
+										state: doc.state,
+										subtype: 0,
+										sessionId: rootState.userData.sessionId,
+										distributeEvent: false
 									}
 								}
 
