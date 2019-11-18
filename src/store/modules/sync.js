@@ -255,18 +255,10 @@ const actions = {
 										distributeEvent: false
 									}
 								}
-
-								if (locationInfo.newInd === 0) {
-									window.slVueTree.insert({
-										nodeModel: locationInfo.prevNode,
-										placement: 'inside'
-									}, [node])
-								} else {
-									window.slVueTree.insert({
-										nodeModel: locationInfo.prevNode,
-										placement: 'after'
-									}, [node])
-								}
+								window.slVueTree.insert({
+									nodeModel: locationInfo.prevNode,
+									placement: locationInfo.newInd === 0 ? 'inside' : 'after'
+								}, [node])
 							}
 						}
 					}
