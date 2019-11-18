@@ -784,7 +784,7 @@ const actions = {
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
+				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
 			rootState.currentDoc.history.unshift(newHist)
@@ -818,7 +818,7 @@ const actions = {
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
+				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
 			rootState.currentDoc.history.unshift(newHist)
@@ -851,7 +851,7 @@ const actions = {
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
+				"distributeEvent": true
 			}
 			tmpDoc.comments.unshift(newEntry)
 			rootState.currentDoc.comments.unshift(newEntry)
@@ -884,7 +884,7 @@ const actions = {
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
+				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
 			rootState.currentDoc.history.unshift(newHist)
