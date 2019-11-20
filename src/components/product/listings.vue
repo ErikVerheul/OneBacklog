@@ -102,6 +102,8 @@ export default {
           if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
           if (keys[j] === "docRestoredInsideEvent") allText += this.mkDocRestoredInsideEvent(histItem[keys[j]])
           if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
+          if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
+          if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
           if (keys[j] === "by") allText += this.mkBy(histItem[keys[j]])
           if (keys[j] === "email") allText += this.mkEmail(histItem[keys[j]])
           if (keys[j] === "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
@@ -129,6 +131,8 @@ export default {
     prepHistoryText(key, value) {
       if (key === "rootEvent") return this.mkRootEvent(value)
       if (key === "comment") return this.mkComment(value)
+      if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
+      if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
       if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
       if (key === "createRootEvent") return this.mkCreateRootEvent(value)
       if (key === "createEvent") return this.mkCreateEvent(value)
@@ -278,6 +282,14 @@ export default {
 
     mkComment(value) {
       return window.atob(value[0])
+    },
+
+    mkUploadAttachmentEvent(value) {
+      return "<h5>Attachment with title '" + value[0] + "' of type " + value[2] + " and size " + value[1] + " is uploaded.</h5>"
+    },
+
+    mkRemoveAttachmentEvent(value) {
+      return "<h5>Attachment with title '" + value[0] + "' is removed.</h5>"
     },
 
     mkRootEvent(value) {
