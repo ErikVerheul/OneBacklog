@@ -12,6 +12,112 @@ const actions = {
 	 * When updating the database, first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
+	uploadAttachment({
+		rootState,
+		dispatch
+	}, fileInfo) {
+		function arrayBufferToBase64(buffer) {
+			let binary = '';
+			let bytes = new Uint8Array(buffer);
+			let len = bytes.byteLength;
+			for (let i = 0; i < len; i++) {
+				binary += String.fromCharCode(bytes[i]);
+			}
+			// ToDo: btoa may have problems with binary data
+			return window.btoa(binary);
+		}
+		const _id = rootState.currentDoc._id
+		let read = new FileReader()
+		read.readAsArrayBuffer(fileInfo)
+		read.onloadend = function () {
+			let attachment = read.result
+			const newEncodedAttachment = arrayBufferToBase64(attachment)
+			globalAxios({
+				method: 'GET',
+				url: rootState.userData.currentDb + '/' + _id,
+				withCredentials: true,
+			}).then(res => {
+				// ToDo: attachments with used name
+				let tmpDoc = res.data
+				if (!tmpDoc._attachments) {
+					// first attachment
+					tmpDoc._attachments = {
+						[fileInfo.name]: {
+							content_type: fileInfo.type,
+							data: newEncodedAttachment
+						}
+					}
+				} else {
+					// add more attachments
+					tmpDoc._attachments[fileInfo.name] = {
+						content_type: fileInfo.type,
+						data: newEncodedAttachment
+					}
+				}
+				const newHist = {
+					"uploadAttachmentEvent": [fileInfo.name, fileInfo.size, fileInfo.type],
+					"by": rootState.userData.user,
+					"email": rootState.userData.email,
+					"timestamp": Date.now(),
+					"timestampStr": new Date().toString(),
+					"sessionId": rootState.userData.sessionId,
+					"distributeEvent": false
+				}
+				tmpDoc.history.unshift(newHist)
+				rootState.currentDoc._attachments = tmpDoc._attachments
+				rootState.currentDoc.history.unshift(newHist)
+				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			}).catch(error => {
+				let msg = 'uploadAttachment: Could not read document with _id ' + _id + ', ' + error
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			})
+		}
+	},
+
+	removeAttachment({
+		rootState,
+		dispatch
+	}, attachmentTitle) {
+		const _id = rootState.currentDoc._id
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			let tmpDoc = res.data
+			if (tmpDoc._attachments) {
+				const titles = Object.keys(tmpDoc._attachments)
+				let newAttachments = {}
+				for (let title of titles) {
+					if (title !== attachmentTitle) {
+						newAttachments[title] = tmpDoc._attachments[title]
+					}
+				}
+				const newHist = {
+					"removeAttachmentEvent": [attachmentTitle],
+					"by": rootState.userData.user,
+					"email": rootState.userData.email,
+					"timestamp": Date.now(),
+					"timestampStr": new Date().toString(),
+					"sessionId": rootState.userData.sessionId,
+					"distributeEvent": false
+				}
+				tmpDoc.history.unshift(newHist)
+				tmpDoc._attachments = newAttachments
+				rootState.currentDoc._attachments = newAttachments
+				rootState.currentDoc.history.unshift(newHist)
+				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			}
+		}).catch(error => {
+			let msg = 'removeAttachment: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	changeSubsription({
 		rootState,
 		rootGetters,
@@ -228,7 +334,7 @@ const actions = {
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 			}
 			// process the descendants even if the parent team has not changed
-			if (descendants.length > 0) dispatch('setTeamDescendantsBulk', {parentTitle: rootState.currentDoc.title, descendants})
+			if (descendants.length > 0) dispatch('setTeamDescendantsBulk', { parentTitle: rootState.currentDoc.title, descendants })
 		}).catch(error => {
 			let msg = 'setTeam: Could not read document with _id ' + _id + '. Error = ' + error
 			// eslint-disable-next-line no-console

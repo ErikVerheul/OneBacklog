@@ -8,17 +8,9 @@
           v-show="$store.state.removeHistory.length > 0 && !$store.state.update.busyRemoving"
           @click="onUndoRemoveEvent()"
         >Undo remove</b-button>
-        <b-button
-          class="m-1"
-          @click="onSetMyFilters()"
-        >{{ $store.state.filterText }}</b-button>
+        <b-button class="m-1" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
         <b-nav-form>
-          <b-form-input
-            id="selectOnId"
-            v-model="shortId"
-            class="m-1"
-            placeholder="Find on Id"
-          />
+          <b-form-input id="selectOnId" v-model="shortId" class="m-1" placeholder="Find on Id" />
           <b-form-input
             id="searchInput"
             v-model="$store.state.keyword"
@@ -54,7 +46,9 @@
             @blur="updateStoryPoints()"
           />
         </h3>
-        <h3 v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === spikeSubtype">
+        <h3
+          v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === spikeSubtype"
+        >
           Person hours:
           <input
             type="text"
@@ -129,9 +123,15 @@
                 </i>
               </span>
               {{ node.title }}
-              <b-badge v-if="hasNewState(node)" variant="danger">{{ getItemStateText(node.data.state) }}</b-badge>
+              <b-badge
+                v-if="hasNewState(node)"
+                variant="danger"
+              >{{ getItemStateText(node.data.state) }}</b-badge>
               <b-badge v-else variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
-              <b-badge v-if="hasContentChange(node) || hasCommentToHistory(node)" variant="info">See history</b-badge>
+              <b-badge
+                v-if="hasContentChange(node) || hasCommentToHistory(node)"
+                variant="info"
+              >See history</b-badge>
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
             </template>
 
@@ -169,14 +169,9 @@
               </div>
             </div>
           </div>
-          <div
-            class="pane"
-            :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }"
-          >
+          <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div class="d-table w-100">
-              <p
-                class="title is-6"
-              >This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              <p class="title is-6">This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
               <div v-if="getCurrentItemLevel==this.pbiLevel" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group
@@ -235,9 +230,10 @@
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <b-button variant="seablue"
-                :pressed.sync="startEditor"
-              >Add {{ $store.state.selectedForView }}</b-button>
+                <b-button
+                  variant="seablue"
+                  :pressed.sync="doAddition"
+                >Add {{ $store.state.selectedForView }}</b-button>
               </div>
               <div class="d-table-cell tac">
                 <b-form-group label="Select to see">
@@ -289,10 +285,18 @@
       <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
+    <b-modal size="lg" ref="uploadRef" @ok="uploadAttachment" title="Upload an attachment">
+      <b-form-file
+        v-model="fileInfo"
+        :state="Boolean(fileInfo)"
+        placeholder="Choose a file..."
+      ></b-form-file>
+      <div v-if="fileInfo !== null" class="mt-3">File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
+    </b-modal>
+
     <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
       <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
-
   </div>
 </template>
 

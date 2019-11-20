@@ -93,6 +93,12 @@ export default new Vuex.Store({
 				state.userData.roles.includes("PO") ||
 				state.userData.roles.includes("developer")
 		},
+		canUploadAttachments(state) {
+			return state.userData.roles.includes("areaPO") ||
+				state.userData.roles.includes("superPO") ||
+				state.userData.roles.includes("PO") ||
+				state.userData.roles.includes("developer")
+		},
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
 		},

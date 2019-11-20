@@ -7,10 +7,13 @@
         </div>
       </li>
     </ul>
-    <ul v-if="$store.state.selectedForView==='attachments'">
-      <li v-for="attach in $store.state.currentDoc.attachments" :key="attach.timestamp">
-        <div v-for="(value, key) in attach" :key="key">{{ key }} {{ value }}</div>
-      </li>
+    <ul v-if="$store.state.selectedForView==='attachments' && getAttachments">
+      <div v-for="attach in getAttachments" :key="attach.data.digest">
+        <span>
+          <b-button class="space" variant="seablue" @click="showAttachment(attach)"> {{ attach.title }} </b-button>
+          <b-button class="space" variant="danger" @click="removeAttachment(attach)">X</b-button>
+        </span>
+      </div>
     </ul>
     <ul v-if="$store.state.selectedForView==='history'">
       <li v-for="hist in getFilteredHistory" :key="hist.timestamp">
@@ -47,6 +50,17 @@ export default {
         }
       }
       return filteredComments
+    },
+
+    getAttachments() {
+      if (this.$store.state.currentDoc._attachments) {
+        const titles = Object.keys(this.$store.state.currentDoc._attachments)
+        const attachments = []
+        for (let title of titles) {
+          attachments.push({ title, data: this.$store.state.currentDoc._attachments[title] })
+        }
+        return attachments
+      } else return null
     },
 
     getFilteredHistory() {
@@ -101,6 +115,17 @@ export default {
   },
 
   methods: {
+    showAttachment(attachment) {
+      const _id = this.$store.state.currentDoc._id
+      const url = 'https://onebacklog.net:6984/' + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
+      window.open(url)
+    },
+
+    removeAttachment(attachment) {
+      console.log('removeAttachment: delete ' + attachment.title)
+      this.$store.dispatch('removeAttachment', attachment.title)
+    },
+
     prepHistoryText(key, value) {
       if (key === "rootEvent") return this.mkRootEvent(value)
       if (key === "comment") return this.mkComment(value)
@@ -263,4 +288,11 @@ export default {
 </script>
 
 <style scoped>
+.space {
+  margin: 3px;
+}
+.btn-seablue {
+  background-color: rgb(220, 223, 217);
+  color: #408fae;
+}
 </style>

@@ -44,9 +44,10 @@ export default {
       // set to an invalid value; must be updated before use
       selectedPbiType: -1,
       // comments, history and attachments
-      startEditor: false,
+      doAddition: false,
       startFiltering: false,
       newComment: "",
+      fileInfo: null,
       newHistory: "",
       filterForCommentPrep: "",
       filterForHistoryPrep: ""
@@ -112,6 +113,7 @@ export default {
       // from store.js
       'isFollower',
       'canCreateComments',
+      'canUploadAttachments',
       'getCurrentItemLevel',
       'getCurrentItemTsSize',
       // from load.js
@@ -189,20 +191,29 @@ export default {
       }
     },
 
-    'startEditor': function (val) {
+    'doAddition': function (val) {
       if (val === true) {
-        this.startEditor = false
-        if (this.canCreateComments) {
-          if (this.$store.state.selectedForView === 'comments') {
-            this.newComment = ''
-            this.$refs.commentsEditorRef.show()
-          }
-          if (this.$store.state.selectedForView === 'history') {
-            this.newHistory = ''
-            this.$refs.historyEditorRef.show()
+        this.doAddition = false
+        if (this.$store.state.selectedForView === 'attachments') {
+          if (this.canUploadAttachments) {
+            this.fileInfo = null
+            this.$refs.uploadRef.show()
+          } else {
+            this.showLastEvent("Sorry, your assigned role(s) disallow you to upload attachments", WARNING)
           }
         } else {
-          this.showLastEvent("Sorry, your assigned role(s) disallow you to create comments", WARNING)
+          if (this.canCreateComments) {
+            if (this.$store.state.selectedForView === 'comments') {
+              this.newComment = ''
+              this.$refs.commentsEditorRef.show()
+            }
+            if (this.$store.state.selectedForView === 'history') {
+              this.newHistory = ''
+              this.$refs.historyEditorRef.show()
+            }
+          } else {
+            this.showLastEvent("Sorry, your assigned role(s) disallow you to create comments", WARNING)
+          }
         }
       }
     },
@@ -359,6 +370,10 @@ export default {
 
     filterComments() {
       this.$store.state.filterForComment = this.filterForCommentPrep
+    },
+
+    uploadAttachment() {
+      this.$store.dispatch('uploadAttachment', this.fileInfo)
     },
 
     filterHistory() {
