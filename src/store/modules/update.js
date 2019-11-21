@@ -87,7 +87,7 @@ const actions = {
 					"timestamp": Date.now(),
 					"timestampStr": new Date().toString(),
 					"sessionId": rootState.userData.sessionId,
-					"distributeEvent": true
+					"distributeEvent": false
 				}
 				tmpDoc.history.unshift(newHist)
 				rootState.currentDoc._attachments = tmpDoc._attachments
