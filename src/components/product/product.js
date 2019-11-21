@@ -238,8 +238,12 @@ export default {
       return node.data.lastStateChange ? Date.now() - node.data.lastStateChange < HOURINMILIS : false
     },
 
-    hasContentChange(node) {
+    hasContentChanged(node) {
       return node.data.lastContentChange ? Date.now() - node.data.lastContentChange < HOURINMILIS : false
+    },
+
+    isAttachmentAdded(node) {
+      return node.data.lastAttachmentAddition ? Date.now() - node.data.lastAttachmentAddition < HOURINMILIS : false
     },
 
     hasCommentToHistory(node) {
@@ -378,6 +382,9 @@ export default {
     },
 
     uploadAttachment() {
+      const now = Date.now()
+      this.$store.state.nodeSelected.data.lastChange = now
+      this.$store.state.nodeSelected.data.lastAttachmentAddition = now
       this.$store.dispatch('uploadAttachment', this.fileInfo)
     },
 
