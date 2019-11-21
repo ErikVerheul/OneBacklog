@@ -17,6 +17,7 @@ const FEATURELEVEL = 4
 const PBILEVEL = 5
 const SHORTKEYLENGTH = 5
 const HOURINMILIS = 3600000
+const MAXUPLOADSIZE = 100000000
 
 export default {
   mixins: [utilities],
@@ -154,6 +155,10 @@ export default {
       if (this.isFollower) {
         return "Unsubscribe to change notices"
       } else return "Subscribe to change notices"
+    },
+
+    uploadToLarge() {
+      return this.fileInfo !== null && this.fileInfo.size > MAXUPLOADSIZE
     },
 
     description: {

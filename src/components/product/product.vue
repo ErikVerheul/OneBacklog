@@ -285,14 +285,14 @@
       <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-    <b-modal size="lg" ref="uploadRef" :ok-disabled="fileInfo !== null && fileInfo.size > 100000000" @ok="uploadAttachment" title="Upload an attachment">
+    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge" @ok="uploadAttachment" title="Upload an attachment">
       <b-form-file
         v-model="fileInfo"
         :state="Boolean(fileInfo)"
         placeholder="Choose a file..."
       ></b-form-file>
       <div v-if="fileInfo !== null" class="mt-3">File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
-      <div v-if="fileInfo !== null && fileInfo.size > 100000000" class="mt-3 colorRed">Cannot upload files this size</div>
+      <div v-if="uploadToLarge" class="mt-3 colorRed">Cannot upload files this size</div>
     </b-modal>
 
     <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
