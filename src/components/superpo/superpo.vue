@@ -106,7 +106,6 @@ export default {
         "description": window.btoa(""),
         "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
         "priority": 0,
-        "attachments": [],
         "comments": [],
         "history": [{
           "createEvent": [PRODUCTLEVEL, this.$store.state.userData.currentDb],

@@ -242,7 +242,6 @@ const actions = {
 			"description": window.btoa("<p>Database root document</p>"),
 			"acceptanceCriteria": window.btoa("<p>not applicable</p>"),
 			"priority": 0,
-			"attachments": [],
 			"comments": [],
 			"history": [{
 				"createRootEvent": [payload.dbName],
