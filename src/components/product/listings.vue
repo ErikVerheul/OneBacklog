@@ -8,7 +8,7 @@
       </li>
     </ul>
     <ul v-if="$store.state.selectedForView==='attachments' && getAttachments">
-      <div v-for="attach in getAttachments" :key="attach.data.digest">
+      <div v-for="attach in getAttachments" :key="attach.title + attach.data.digest">
         <span>
           <b-button class="space" variant="seablue" @click="showAttachment(attach)"> {{ attach.title }} </b-button>
           <b-button class="space" variant="danger" @click="removeAttachment(attach)">X</b-button>
@@ -124,7 +124,6 @@ export default {
     },
 
     removeAttachment(attachment) {
-      console.log('removeAttachment: delete ' + attachment.title)
       this.$store.dispatch('removeAttachment', attachment.title)
     },
 
