@@ -129,10 +129,11 @@
               >{{ getItemStateText(node.data.state) }}</b-badge>
               <b-badge v-else variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
               <b-badge
-                v-if="hasContentChange(node) || hasCommentToHistory(node)"
+                v-if="hasContentChanged(node) || hasCommentToHistory(node)"
                 variant="info"
               >See history</b-badge>
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
+              <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
             </template>
 
             <template slot="toggle" slot-scope="{ node }">
