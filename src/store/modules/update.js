@@ -23,14 +23,39 @@ const actions = {
 			for (let i = 0; i < len; i++) {
 				binary += String.fromCharCode(bytes[i]);
 			}
-			// ToDo: btoa may have problems with binary data
 			return window.btoa(binary);
+		}
+		function createTitle(attachments) {
+			function createNew(name) {
+				if (existingTitles.includes(name)) {
+					// name exists
+					const dotPos = name.lastIndexOf('.')
+					if (dotPos !== -1) {
+						const body = name.slice(0, dotPos)
+						const ext = name.slice(dotPos + 1)
+						const bLength = body.length
+						const uderscorePos = body.lastIndexOf('_')
+						if (uderscorePos > 1) {
+							const revisionString = body.slice(uderscorePos + 1, bLength)
+							const revisionNumber = parseInt(revisionString)
+							if (!isNaN(revisionNumber)) {
+								return body.slice(0, uderscorePos + 1) + (revisionNumber + 1) + '.' + ext
+							} else return body + '_1' + '.' + ext
+						} else return body + '_1' + '.' + ext
+					} else return fileInfo.name + '_1'
+				} else return fileInfo.name
+			}
+			const existingTitles = Object.keys(attachments)
+			let newTitle = createNew(fileInfo.name)
+			while (existingTitles.includes(newTitle)) newTitle = createNew(newTitle)
+			return newTitle
 		}
 		const _id = rootState.currentDoc._id
 		let read = new FileReader()
 		read.readAsArrayBuffer(fileInfo)
 		read.onloadend = function () {
 			let attachment = read.result
+			let title = fileInfo.name
 			const newEncodedAttachment = arrayBufferToBase64(attachment)
 			globalAxios({
 				method: 'GET',
@@ -42,26 +67,27 @@ const actions = {
 				if (!tmpDoc._attachments) {
 					// first attachment
 					tmpDoc._attachments = {
-						[fileInfo.name]: {
+						[title]: {
 							content_type: fileInfo.type,
 							data: newEncodedAttachment
 						}
 					}
 				} else {
 					// add more attachments
-					tmpDoc._attachments[fileInfo.name] = {
+					title = createTitle(tmpDoc._attachments)
+					tmpDoc._attachments[title] = {
 						content_type: fileInfo.type,
 						data: newEncodedAttachment
 					}
 				}
 				const newHist = {
-					"uploadAttachmentEvent": [fileInfo.name, fileInfo.size, fileInfo.type],
+					"uploadAttachmentEvent": [title, fileInfo.size, fileInfo.type],
 					"by": rootState.userData.user,
 					"email": rootState.userData.email,
 					"timestamp": Date.now(),
 					"timestampStr": new Date().toString(),
 					"sessionId": rootState.userData.sessionId,
-					"distributeEvent": false
+					"distributeEvent": true
 				}
 				tmpDoc.history.unshift(newHist)
 				rootState.currentDoc._attachments = tmpDoc._attachments
