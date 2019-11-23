@@ -63,7 +63,8 @@ export default new Vuex.Store({
 		lastSyncSeq: null,
 		configData: null,
 		currentDoc: null,
-		runningCookieRefreshId: null
+		runningCookieRefreshId: null,
+		attachmentLoaded: false
 	},
 
 	getters: {

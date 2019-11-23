@@ -242,16 +242,16 @@ export default {
       return node.data.lastContentChange ? Date.now() - node.data.lastContentChange < HOURINMILIS : false
     },
 
+    hasNewComment(node) {
+      return node.data.lastCommentAddition ? Date.now() - node.data.lastCommentAddition < HOURINMILIS : false
+    },
+
     isAttachmentAdded(node) {
       return node.data.lastAttachmentAddition ? Date.now() - node.data.lastAttachmentAddition < HOURINMILIS : false
     },
 
     hasCommentToHistory(node) {
       return node.data.lastCommentToHistory ? Date.now() - node.data.lastCommentToHistory < HOURINMILIS : false
-    },
-
-    hasNewComment(node) {
-      return node.data.lastCommentAddition ? Date.now() - node.data.lastCommentAddition < HOURINMILIS : false
     },
 
     onSetMyFilters() {
@@ -385,7 +385,7 @@ export default {
       const now = Date.now()
       this.$store.state.nodeSelected.data.lastChange = now
       this.$store.state.nodeSelected.data.lastAttachmentAddition = now
-      this.$store.dispatch('uploadAttachment', this.fileInfo)
+      this.$store.dispatch('uploadAttachmentAsync', this.fileInfo)
     },
 
     filterHistory() {
@@ -596,9 +596,10 @@ export default {
           window.slVueTree.expandTree()
         }
       }
-      // load the document if not already in memory
+      // load the document if not already in memory & reset attachmnet loaded
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
+        this.$store.state.attachmentLoaded = false
       }
       const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
       const title = this.itemTitleTrunc(60, selNodes[0].title)

@@ -7,7 +7,7 @@
         </div>
       </li>
     </ul>
-    <ul v-if="$store.state.selectedForView==='attachments' && getAttachments">
+    <ul v-if="$store.state.selectedForView==='attachments' && (uploadDone || haveAttachments)">
       <div v-for="attach in getAttachments" :key="attach.title + attach.data.digest">
         <span>
           <b-button class="space" variant="seablue" @click="showAttachment(attach)"> {{ attach.title }} </b-button>
@@ -30,13 +30,18 @@ import { utilities } from '../mixins/utilities.js'
 
 export default {
   mixins: [utilities],
-  data() {
-    return {
-
-    }
-  },
 
   computed: {
+    uploadDone() {
+      // rerender the tree to show the badge
+      if (this.$store.state.attachmentLoaded) window.slVueTree.forceRerender()
+      return this.$store.state.attachmentLoaded
+    },
+
+    haveAttachments() {
+      return this.$store.state.currentDoc._attachments
+    },
+
     getFilteredComments() {
       let filteredComments = []
       let comments = this.$store.state.currentDoc.comments
@@ -103,6 +108,7 @@ export default {
           if (keys[j] === "docRestoredInsideEvent") allText += this.mkDocRestoredInsideEvent(histItem[keys[j]])
           if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
           if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
+          if (keys[j] === "commentToHistoryEvent") allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
           if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
           if (keys[j] === "by") allText += this.mkBy(histItem[keys[j]])
           if (keys[j] === "email") allText += this.mkEmail(histItem[keys[j]])
@@ -129,8 +135,8 @@ export default {
 
     prepHistoryText(key, value) {
       if (key === "rootEvent") return this.mkRootEvent(value)
-      if (key === "comment") return this.mkComment(value)
       if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
+      if (key === "commentToHistory") return this.mkCommentToHistoryEvent(value)
       if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
       if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
       if (key === "createRootEvent") return this.mkCreateRootEvent(value)
@@ -285,6 +291,10 @@ export default {
 
     mkUploadAttachmentEvent(value) {
       return "<h5>Attachment with title '" + value[0] + "' of type " + value[2] + " and size " + value[1] + " is uploaded.</h5>"
+    },
+
+    mkCommentToHistoryEvent(value) {
+      return window.atob(value[0])
     },
 
     mkRemoveAttachmentEvent(value) {

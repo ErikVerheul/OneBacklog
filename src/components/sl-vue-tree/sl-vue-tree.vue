@@ -54,7 +54,7 @@
 
       <sl-vue-tree
         v-if="node.children && node.children.length && node.isExpanded"
-        :key="componentKey"
+        :key="treeComponentKey"
         :value="node.children"
         :level="node.level"
         :parentInd="nodeInd"

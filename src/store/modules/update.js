@@ -12,7 +12,7 @@ const actions = {
 	 * When updating the database, first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
-	uploadAttachment({
+	uploadAttachmentAsync({
 		rootState,
 		dispatch
 	}, fileInfo) {
@@ -62,7 +62,6 @@ const actions = {
 				url: rootState.userData.currentDb + '/' + _id,
 				withCredentials: true,
 			}).then(res => {
-				// ToDo: attachments with used name
 				let tmpDoc = res.data
 				if (!tmpDoc._attachments) {
 					// first attachment
@@ -92,9 +91,10 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 				rootState.currentDoc._attachments = tmpDoc._attachments
 				rootState.currentDoc.history.unshift(newHist)
+				rootState.attachmentLoaded = true
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 			}).catch(error => {
-				let msg = 'uploadAttachment: Could not read document with _id ' + _id + ', ' + error
+				let msg = 'uploadAttachmentAsync: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
@@ -975,7 +975,6 @@ const actions = {
 			withCredentials: true,
 		}).then((res) => {
 			let tmpDoc = res.data
-			// encode to base64
 			const newComment = window.btoa(payload.comment)
 			const newEntry = {
 				"comment": [newComment],
@@ -1007,10 +1006,9 @@ const actions = {
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
-			// encode to base64
 			const newComment = window.btoa(payload.comment)
 			const newHist = {
-				"comment": [newComment],
+				"commentToHistory": [newComment],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),

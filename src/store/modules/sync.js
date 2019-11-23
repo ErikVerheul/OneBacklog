@@ -94,10 +94,12 @@ const actions = {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed, title = ' + doc.title)
 						dispatch('doBlinck')
-						// get the last time a comment was added
-						let lastCommentAddition = 0
-						if (doc.comments && doc.comments.length > 0) {
-							lastCommentAddition = doc.comments[0].timestamp
+						// update the current doc if in view
+						if (doc._id === rootState.currentDoc._id) {
+							rootState.currentDoc = doc
+							// decode from base64 + replace the encoded data
+							rootState.currentDoc.description = window.atob(doc.description)
+							rootState.currentDoc.acceptanceCriteria = window.atob(doc.acceptanceCriteria)
 						}
 						let node = window.slVueTree.getNodeById(doc._id)
 						if (node !== null) {
@@ -112,6 +114,8 @@ const actions = {
 							// search history for the last changes within the last hour
 							let lastStateChange = 0
 							let lastContentChange = 0
+							let lastCommentAddition = 0
+							let lastAttachmentAddition = 0
 							let lastCommentToHistory = 0
 							for (let histItem of doc.history) {
 								if (now - histItem.timestamp > HOURINMILIS) {
@@ -119,35 +123,44 @@ const actions = {
 									break
 								}
 								const keys = Object.keys(histItem)
+								node.data.lastChange = 0
 								// get the most recent change of state
 								if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
 									lastStateChange = histItem.timestamp
+									node.data.lastStateChange = lastStateChange
 								}
 								// get the most recent change of content
 								if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
 									lastContentChange = histItem.timestamp
+									node.data.lastContentChange = lastContentChange
 								}
-								// get the most recent addition of comments to the history
-								if (lastCommentToHistory === 0 && keys.includes('comment')) {
+								// get the most recent attachment addition
+								if (lastAttachmentAddition === 0 && keys.includes('uploadAttachmentEvent')) {
+									lastAttachmentAddition = histItem.timestamp
+									node.data.lastAttachmentAddition = lastAttachmentAddition
+								}
+								// get the most recent comment to the history
+								if (lastCommentToHistory === 0 && keys.includes('commentToHistory')) {
 									lastCommentToHistory = histItem.timestamp
-								}
-								if (lastStateChange !== 0 && lastContentChange !== 0 && lastCommentToHistory !== 0) {
-									// if all found stop searching
-									break
+									node.data.lastCommentToHistory = lastCommentToHistory
 								}
 							}
+							// get the last time a comment was added; comments have their own array
+							if (doc.comments && doc.comments.length > 0) {
+								lastCommentAddition = doc.comments[0].timestamp
+								node.data.lastCommentAddition = lastCommentAddition
+							}
+							// check if the node has moved location
 							let parentNode = window.slVueTree.getNodeById(doc.parentId)
 							let locationInfo = getLocationInfo(doc.priority, parentNode)
 							if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) === 0) {
-								// the node has not changed parent nor changed location w/r to its siblings
+								// the node has not changed parent nor changed location w/r to its siblings; update possible changes
 								node.productId = doc.productId
 								node.title = doc.title
-								node.data.subtype = doc.subtype
 								node.data.state = doc.state
-								node.data.lastStateChange = lastStateChange
-								node.data.lastContentChange = lastContentChange
-								node.data.lastCommentToHistory = lastCommentToHistory
-								node.data.lastCommentAddition = lastCommentAddition
+								node.data.team = doc.team
+								node.data.subtype = doc.subtype
+								node.data.lastChange = doc.lastChange
 							} else {
 								// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
 								window.slVueTree.remove([node])

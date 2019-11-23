@@ -49,7 +49,7 @@ export default {
 
 	data() {
 		return {
-			componentKey: 0,
+			treeComponentKey: 0,
 			rootCursorPosition: null,
 			mouseIsDown: false,
 			isDragging: false,
@@ -125,7 +125,7 @@ export default {
 	methods: {
 		// see https://michaelnthiessen.com/force-re-render/
 		forceRerender() {
-			this.componentKey += 1
+			this.treeComponentKey += 1
 		},
 
 		setModelCursorPosition(pos) {
@@ -692,13 +692,13 @@ export default {
 			// this.showVisibility('showAndSelectItem')
 		},
 
-		resetTree(forceRerender) {
+		resetTree(doForceRerender) {
 			this.traverseModels((nodeModel) => {
 				nodeModel.isHighlighted = false
 				nodeModel.doShow = nodeModel.savedDoShow
 				nodeModel.isExpanded = nodeModel.savedIsExpanded
 			}, this.getProductModels())
-			if (forceRerender) this.forceRerender()
+			if (doForceRerender) this.forceRerender()
 		},
 
 		/* clear any outstanding filters and searches of the current product */

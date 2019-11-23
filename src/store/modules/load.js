@@ -118,6 +118,8 @@ const mutations = {
 						// search history for the last changes within the last hour
 						let lastStateChange = 0
 						let lastContentChange = 0
+						let lastCommentAddition = 0
+						let lastAttachmentAddition = 0
 						let lastCommentToHistory = 0
 						for (let histItem of batch[i].doc.history) {
 							if (now - histItem.timestamp > HOURINMILIS) {
@@ -134,16 +136,15 @@ const mutations = {
 								lastContentChange = histItem.timestamp
 							}
 							// get the most recent addition of comments to the history
-							if (lastCommentToHistory === 0 && keys.includes('comment')) {
+							if (lastAttachmentAddition === 0 && keys.includes('lastAttachmentAddition')) {
+								lastAttachmentAddition = histItem.timestamp
+							}
+							// get the most recent addition of comments to the history
+							if (lastCommentToHistory === 0 && keys.includes('commentToHistory')) {
 								lastCommentToHistory = histItem.timestamp
 							}
-							if (lastStateChange && lastContentChange && lastCommentToHistory) {
-								// if all found stop searching
-								break
-							}
 						}
-						// get the last time a comment was added
-						let lastCommentAddition = 0
+						// get the last time a comment was added; comments have their own array
 						if (batch[i].doc.comments && batch[i].doc.comments.length > 0) {
 							lastCommentAddition = batch[i].doc.comments[0].timestamp
 						}
@@ -172,8 +173,9 @@ const mutations = {
 								state: batch[i].doc.state,
 								lastStateChange,
 								lastContentChange,
-								lastCommentToHistory,
 								lastCommentAddition,
+								lastAttachmentAddition,
+								lastCommentToHistory,
 								team: batch[i].doc.team,
 								subtype: batch[i].doc.subtype,
 								lastChange: batch[i].doc.history[0].timestamp

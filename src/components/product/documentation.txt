@@ -42,9 +42,9 @@
 * ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
 * ....lastStateChange, // lookup in doc history
 * ....lastContentChange, // lookup in doc history
+* ....lastCommentAddition, // lookup in doc comments
+* ....lastAttachmentAddition, // lookup in doc history
 * ....lastCommentToHistory, // lookup in doc history
-* ....lastCommentAddition, // from last comment
-* ....lastAttachmentAddition, // from ?
 * ....sessionId: rootState.userData.sessionId,
 * ....distributeEvent: true | false
 * }
