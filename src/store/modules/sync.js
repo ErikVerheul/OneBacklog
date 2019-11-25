@@ -4,7 +4,6 @@ const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 const INFO = 0
 const WARNING = 1
-const HOURINMILIS = 3600000
 var fistCallAfterSignin = true
 var missedAdditions = []
 var remoteRemoved = []
@@ -76,24 +75,31 @@ const actions = {
 			url: url,
 			withCredentials: true
 		}).then(res => {
+			function isDifferentSession(doc) {
+				if (doc.history[0].sessionId === rootState.userData.sessionId) return false
+				if (doc.comments && doc.comments.length > 0 && doc.comments[0].sessionId === rootState.userData.sessionId) return false
+				return true
+			}
 			let data = res.data
 			rootState.lastSyncSeq = data.last_seq
 			//eslint-disable-next-line no-console
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			if (since && !fistCallAfterSignin) {
 				const results = data.results.concat(missedAdditions)
-				const now = Date.now()
 				for (let i = 0; i < results.length; i++) {
 					let doc = results[i].doc
-					// Select only documents which are a product backlog item, belong to the the user subscribed products and changes not made
+					// Select only documents which are a product backlog item, belong to the user subscribed products and changes not made
 					// by the user him/her self in a parallel session and ment for distribution (if not filtered out by the CouchDB _design filter)
 					if (doc.type === 'backlogItem' &&
 						doc.history[0].distributeEvent == true &&
-						doc.history[0].sessionId !== rootState.userData.sessionId &&
+						isDifferentSession(doc) &&
 						rootState.userData.myProductSubscriptions.includes(doc.productId)) {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed, title = ' + doc.title)
 						dispatch('doBlinck')
+						// get the timestamps
+						const lastHistoryChange = doc.history && doc.history.length > 0 ? doc.history[0].timestamp : 0
+						const lastCommentChange = doc.comments && doc.comments.length > 0 ? doc.comments[0].timestamp : 0
 						// update the current doc if in view
 						if (doc._id === rootState.currentDoc._id) {
 							rootState.currentDoc = doc
@@ -111,44 +117,26 @@ const actions = {
 								remoteRemoved.unshift(node)
 								continue
 							}
-							// search history for the last changes within the last hour
-							let lastStateChange = 0
-							let lastContentChange = 0
-							let lastCommentAddition = 0
-							let lastAttachmentAddition = 0
-							let lastCommentToHistory = 0
-							for (let histItem of doc.history) {
-								if (now - histItem.timestamp > HOURINMILIS) {
-									// skip events longer than a hour ago
-									break
+							// set the specific dates of the events and the date of the last change in history or comments
+							if (lastHistoryChange > lastCommentChange) {
+								switch (Object.keys(doc.history[0])[0]) {
+									case 'setStateEvent':
+										node.data.lastStateChange = lastHistoryChange
+										break
+									case 'setTitleEvent' || 'descriptionEvent' || 'acceptanceEvent':
+										node.data.lastContentChange = lastHistoryChange
+										break
+									case 'uploadAttachmentEvent':
+										node.data.lastAttachmentAddition = lastHistoryChange
+										break
+									case 'commentToHistory':
+										node.data.lastCommentToHistory = lastHistoryChange
+										break
 								}
-								const keys = Object.keys(histItem)
-								node.data.lastChange = 0
-								// get the most recent change of state
-								if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
-									lastStateChange = histItem.timestamp
-									node.data.lastStateChange = lastStateChange
-								}
-								// get the most recent change of content
-								if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
-									lastContentChange = histItem.timestamp
-									node.data.lastContentChange = lastContentChange
-								}
-								// get the most recent attachment addition
-								if (lastAttachmentAddition === 0 && keys.includes('uploadAttachmentEvent')) {
-									lastAttachmentAddition = histItem.timestamp
-									node.data.lastAttachmentAddition = lastAttachmentAddition
-								}
-								// get the most recent comment to the history
-								if (lastCommentToHistory === 0 && keys.includes('commentToHistory')) {
-									lastCommentToHistory = histItem.timestamp
-									node.data.lastCommentToHistory = lastCommentToHistory
-								}
-							}
-							// get the last time a comment was added; comments have their own array
-							if (doc.comments && doc.comments.length > 0) {
-								lastCommentAddition = doc.comments[0].timestamp
-								node.data.lastCommentAddition = lastCommentAddition
+								node.data.lastChange = lastHistoryChange
+							} else {
+								node.data.lastCommentAddition = lastCommentChange
+								node.data.lastChange = lastCommentChange
 							}
 							// check if the node has moved location
 							let parentNode = window.slVueTree.getNodeById(doc.parentId)
@@ -160,7 +148,6 @@ const actions = {
 								node.data.state = doc.state
 								node.data.team = doc.team
 								node.data.subtype = doc.subtype
-								node.data.lastChange = doc.lastChange
 							} else {
 								// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
 								window.slVueTree.remove([node])
@@ -265,7 +252,8 @@ const actions = {
 										state: doc.state,
 										subtype: 0,
 										sessionId: rootState.userData.sessionId,
-										distributeEvent: false
+										distributeEvent: false,
+										lastStateChange: lastHistoryChange
 									}
 								}
 								window.slVueTree.insert({
