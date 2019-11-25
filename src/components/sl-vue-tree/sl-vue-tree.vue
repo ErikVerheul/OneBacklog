@@ -48,13 +48,12 @@
             <slot name="toggle" :node="node"></slot>
           </span>
 
-          <slot name="title" :node="node">{{ node.title }}</slot>
+          <slot name="title" :node="node"></slot>
         </div>
       </div>
 
       <sl-vue-tree
         v-if="node.children && node.children.length && node.isExpanded"
-        :key="treeComponentKey"
         :value="node.children"
         :level="node.level"
         :parentInd="nodeInd"
