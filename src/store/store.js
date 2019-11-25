@@ -64,7 +64,7 @@ export default new Vuex.Store({
 		configData: null,
 		currentDoc: null,
 		runningCookieRefreshId: null,
-		attachmentLoaded: false
+		uploadDone: true
 	},
 
 	getters: {

@@ -131,7 +131,6 @@ export default {
       }
       // execute the callback
       window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
-      window.slVueTree.forceRerender()
 
       if (!onlyFilterOnDepth) {
         let s

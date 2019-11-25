@@ -15,7 +15,8 @@ const actions = {
 	uploadAttachmentAsync({
 		rootState,
 		dispatch
-	}, fileInfo) {
+	}, payload) {
+		rootState.uploadDone = false
 		function arrayBufferToBase64(buffer) {
 			let binary = '';
 			let bytes = new Uint8Array(buffer);
@@ -42,20 +43,20 @@ const actions = {
 								return body.slice(0, uderscorePos + 1) + (revisionNumber + 1) + '.' + ext
 							} else return body + '_1' + '.' + ext
 						} else return body + '_1' + '.' + ext
-					} else return fileInfo.name + '_1'
-				} else return fileInfo.name
+					} else return payload.fileInfo.name + '_1'
+				} else return payload.fileInfo.name
 			}
 			const existingTitles = Object.keys(attachments)
-			let newTitle = createNew(fileInfo.name)
+			let newTitle = createNew(payload.fileInfo.name)
 			while (existingTitles.includes(newTitle)) newTitle = createNew(newTitle)
 			return newTitle
 		}
-		const _id = rootState.currentDoc._id
+		const _id = payload.currentDocId
 		let read = new FileReader()
-		read.readAsArrayBuffer(fileInfo)
+		read.readAsArrayBuffer(payload.fileInfo)
 		read.onloadend = function () {
 			let attachment = read.result
-			let title = fileInfo.name
+			let title = payload.fileInfo.name
 			const newEncodedAttachment = arrayBufferToBase64(attachment)
 			globalAxios({
 				method: 'GET',
@@ -67,7 +68,7 @@ const actions = {
 					// first attachment
 					tmpDoc._attachments = {
 						[title]: {
-							content_type: fileInfo.type,
+							content_type: payload.fileInfo.type,
 							data: newEncodedAttachment
 						}
 					}
@@ -75,25 +76,24 @@ const actions = {
 					// add more attachments
 					title = createTitle(tmpDoc._attachments)
 					tmpDoc._attachments[title] = {
-						content_type: fileInfo.type,
+						content_type: payload.fileInfo.type,
 						data: newEncodedAttachment
 					}
 				}
 				const newHist = {
-					"uploadAttachmentEvent": [title, fileInfo.size, fileInfo.type],
+					"uploadAttachmentEvent": [title, payload.fileInfo.size, payload.fileInfo.type],
 					"by": rootState.userData.user,
 					"email": rootState.userData.email,
-					"timestamp": Date.now(),
-					"timestampStr": new Date().toString(),
+					"timestamp": payload.timestamp,
+					"timestampStr": payload.timestamp.toString(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}
 				tmpDoc.history.unshift(newHist)
-				rootState.currentDoc._attachments = tmpDoc._attachments
 				rootState.currentDoc.history.unshift(newHist)
-				rootState.attachmentLoaded = true
-				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'uploadAttachmentAsync' })
 			}).catch(error => {
+				rootState.uploadDone = true
 				let msg = 'uploadAttachmentAsync: Could not read document with _id ' + _id + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
@@ -205,8 +205,8 @@ const actions = {
 				"setSizeEvent": [oldSize, payload.newSizeIdx],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
@@ -239,8 +239,8 @@ const actions = {
 				"setHrsEvent": [oldHrs, payload.newHrs],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
@@ -273,8 +273,8 @@ const actions = {
 				"setPointsEvent": [oldPoints, payload.newPoints],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
@@ -307,8 +307,8 @@ const actions = {
 				"setStateEvent": [oldState, payload.newState, payload.team],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -359,7 +359,7 @@ const actions = {
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 			}
-			// process the descendants even if the parent team has not changed
+			// Todo: why? process the descendants even if the parent team has not changed
 			if (descendants.length > 0) dispatch('setTeamDescendantsBulk', { parentTitle: rootState.currentDoc.title, descendants })
 		}).catch(error => {
 			let msg = 'setTeam: Could not read document with _id ' + _id + '. Error = ' + error
@@ -443,8 +443,8 @@ const actions = {
 				"setTitleEvent": [oldTitle, payload.newTitle],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -476,8 +476,8 @@ const actions = {
 				"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -913,8 +913,8 @@ const actions = {
 				"descriptionEvent": [res.data.description, newEncodedDescription],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -947,8 +947,8 @@ const actions = {
 				"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -980,7 +980,8 @@ const actions = {
 				"comment": [newComment],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
+				"timestamp": payload.timestamp,
+				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -1011,8 +1012,8 @@ const actions = {
 				"commentToHistory": [newComment],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
+				"timestamp": payload.timestamp,
+				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -1121,9 +1122,17 @@ const actions = {
 			data: payload.updatedDoc
 		}).then(() => {
 			rootState.backendSuccess = true
+			if (payload.caller === 'uploadAttachmentAsync') {
+				rootState.uploadDone = true
+				// check if the user did not load another document while the attachment was uploaded
+				if (_id === rootState.currentDoc._id) {
+					rootState.currentDoc._attachments = payload.updatedDoc._attachments
+				}
+			}
 			// ToDo: uncomment this statement when also cleared and used in product view
 			// rootState.backendMessages.push('updateDoc: document with _id ' + _id + ' is updated in database ' + payload.dbName)
 		}).catch(error => {
+			rootState.uploadDone = true
 			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
 			rootState.backendMessages.push(msg)
 			// eslint-disable-next-line no-console

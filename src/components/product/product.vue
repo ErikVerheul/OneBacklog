@@ -122,7 +122,8 @@
                   <font-awesome-icon icon="bug" />
                 </i>
               </span>
-              {{ node.title }}
+              <!-- use a trick to force rendering when a node had a change -->
+              {{ node.title }}:{{ String(node.data.lastChange).substring(0, 0) }}
               <b-badge
                 v-if="hasNewState(node)"
                 variant="danger"
@@ -286,7 +287,7 @@
       <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge" @ok="uploadAttachment" title="Upload an attachment">
+    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
       <b-form-file
         v-model="fileInfo"
         :state="Boolean(fileInfo)"

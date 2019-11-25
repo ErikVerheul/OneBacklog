@@ -157,6 +157,10 @@ export default {
       } else return "Subscribe to change notices"
     },
 
+    invalidFileName() {
+      return this.fileInfo === null || this.fileInfo.name === ''
+    },
+
     uploadToLarge() {
       return this.fileInfo !== null && this.fileInfo.size > MAXUPLOADSIZE
     },
@@ -185,10 +189,12 @@ export default {
       // prevent looping
       if (val !== this.$store.state.currentDoc.subtype) {
         if (this.haveWritePermission[this.getCurrentItemLevel]) {
+          const now = Date.now()
           this.$store.state.nodeSelected.data.subtype = val
-          this.$store.state.nodeSelected.data.lastChange = Date.now()
+          this.$store.state.nodeSelected.data.lastChange = now
           this.$store.dispatch('setSubType', {
-            'newSubType': val
+            'newSubType': val,
+            'timestamp': now
           })
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type", WARNING)
@@ -385,7 +391,11 @@ export default {
       const now = Date.now()
       this.$store.state.nodeSelected.data.lastChange = now
       this.$store.state.nodeSelected.data.lastAttachmentAddition = now
-      this.$store.dispatch('uploadAttachmentAsync', this.fileInfo)
+      this.$store.dispatch('uploadAttachmentAsync', {
+        fileInfo: this.fileInfo,
+        currentDocId: this.$store.state.currentDoc._id,
+        timestamp: now
+      })
     },
 
     filterHistory() {
@@ -397,7 +407,8 @@ export default {
       this.$store.state.nodeSelected.data.lastChange = now
       this.$store.state.nodeSelected.data.lastCommentAddition = now
       this.$store.dispatch('addComment', {
-        'comment': this.newComment
+        'comment': this.newComment,
+        'timestamp': now
       })
     },
 
@@ -407,7 +418,8 @@ export default {
       this.$store.state.nodeSelected.data.lastCommentToHistory = now
       // update the current doc in memory
       this.$store.dispatch('addHistoryComment', {
-        'comment': this.newHistory
+        'comment': this.newHistory,
+        'timestamp': now
       })
     },
 
@@ -423,7 +435,8 @@ export default {
           this.$store.state.currentDoc.description = this.newDescription
           // update the doc in the database
           this.$store.dispatch('saveDescription', {
-            'newDescription': this.newDescription
+            'newDescription': this.newDescription,
+            'timestamp': now
           })
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item", WARNING)
@@ -442,7 +455,8 @@ export default {
           this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
           // update the doc in the database
           this.$store.dispatch('saveAcceptance', {
-            'newAcceptance': this.newAcceptance
+            'newAcceptance': this.newAcceptance,
+            'timestamp': now
           })
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item", WARNING)
@@ -453,12 +467,14 @@ export default {
     updateTsSize() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          const now = Date.now()
           let size = document.getElementById("tShirtSizeId").value.toUpperCase()
           const sizeArray = this.$store.state.configData.tsSize
           if (sizeArray.includes(size)) {
-            this.$store.state.nodeSelected.data.lastChange = Date.now()
+            this.$store.state.nodeSelected.data.lastChange = now
             this.$store.dispatch('setSize', {
-              'newSizeIdx': sizeArray.indexOf(size)
+              'newSizeIdx': sizeArray.indexOf(size),
+              'timestamp': now
             })
           } else {
             let sizes = ''
@@ -476,14 +492,16 @@ export default {
     updateStoryPoints() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          const now = Date.now()
           let el = document.getElementById("storyPointsId")
           if (isNaN(el.value) || el.value < 0) {
             el.value = '?'
             return
           }
-          this.$store.state.nodeSelected.data.lastChange = Date.now()
+          this.$store.state.nodeSelected.data.lastChange = now
           this.$store.dispatch('setStoryPoints', {
-            'newPoints': el.value
+            'newPoints': el.value,
+            'timestamp': now
           })
         } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story points of this item", WARNING)
       } else {
@@ -494,14 +512,16 @@ export default {
     updatePersonHours() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          const now = Date.now()
           let el = document.getElementById("personHoursId")
           if (isNaN(el.value) || el.value < 0) {
             el.value = '?'
             return
           }
-          this.$store.state.nodeSelected.data.lastChange = Date.now()
+          this.$store.state.nodeSelected.data.lastChange = now
           this.$store.dispatch('setPersonHours', {
-            'newHrs': el.value
+            'newHrs': el.value,
+            'timestamp': now
           })
         } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story person hours of this item", WARNING)
       } else {
@@ -520,7 +540,9 @@ export default {
           vm.$store.state.nodeSelected.data.team = newTeam
         }
         vm.$store.dispatch('setState', {
-          'newState': idx, 'team': newTeam
+          'newState': idx,
+          'team': newTeam,
+          'timestamp': now
         })
       }
 
@@ -561,7 +583,8 @@ export default {
         node.data.lastContentChange = now
         // update current document in database
         this.$store.dispatch('setDocTitle', {
-          'newTitle': newTitle
+          'newTitle': newTitle,
+          'timestamp': now
         })
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the title of this item", WARNING)
@@ -596,10 +619,9 @@ export default {
           window.slVueTree.expandTree()
         }
       }
-      // load the document if not already in memory & reset attachmnet loaded
+      // load the document if not already in memory & reset attachment settings
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
-        this.$store.state.attachmentLoaded = false
       }
       const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
       const title = this.itemTitleTrunc(60, selNodes[0].title)
@@ -653,6 +675,7 @@ export default {
     /*
      * Update the tree when one or more nodes are dropped on another location
      * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
+     * Todo: set a timestamp for the change both in the node and the database
      */
     nodeDropped(draggingNodes, position) {
       const targetNode = position.nodeModel

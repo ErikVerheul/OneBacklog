@@ -7,9 +7,13 @@
         </div>
       </li>
     </ul>
-    <ul v-if="$store.state.selectedForView==='attachments' && (uploadDone || haveAttachments)">
-      <div v-for="attach in getAttachments" :key="attach.title + attach.data.digest">
+    <ul v-if="$store.state.selectedForView==='attachments'">
+      <div v-if="!isUploadDone">loading...</div>
+      <div v-for="(attach, index) in getAttachments()" :key="attach.title + attach.data.digest">
         <span>
+          <template v-if="getNrOfTitles > 1">
+            {{ index + 1 }}/{{ getNrOfTitles }}
+          </template>
           <b-button class="space" variant="seablue" @click="showAttachment(attach)"> {{ attach.title }} </b-button>
           <b-button class="space" variant="danger" @click="removeAttachment(attach)">X</b-button>
         </span>
@@ -32,14 +36,15 @@ export default {
   mixins: [utilities],
 
   computed: {
-    uploadDone() {
-      // rerender the tree to show the badge
-      if (this.$store.state.attachmentLoaded) window.slVueTree.forceRerender()
-      return this.$store.state.attachmentLoaded
+    isUploadDone() {
+      return this.$store.state.uploadDone
     },
 
-    haveAttachments() {
-      return this.$store.state.currentDoc._attachments
+    getNrOfTitles() {
+      let titles = this.$store.state.currentDoc._attachments ? Object.keys(this.$store.state.currentDoc._attachments) : []
+      // force Vue to pick up a change in the array
+      titles = titles.slice(0)
+      return titles.length
     },
 
     getFilteredComments() {
@@ -55,17 +60,6 @@ export default {
         }
       }
       return filteredComments
-    },
-
-    getAttachments() {
-      if (this.$store.state.currentDoc._attachments) {
-        const titles = Object.keys(this.$store.state.currentDoc._attachments)
-        const attachments = []
-        for (let title of titles) {
-          attachments.push({ title, data: this.$store.state.currentDoc._attachments[title] })
-        }
-        return attachments
-      } else return null
     },
 
     getFilteredHistory() {
@@ -123,6 +117,17 @@ export default {
   },
 
   methods: {
+    getAttachments() {
+      if (this.$store.state.currentDoc._attachments) {
+        let titles = Object.keys(this.$store.state.currentDoc._attachments)
+        const attachmentObjects = []
+        for (let title of titles) {
+          attachmentObjects.push({ title, data: this.$store.state.currentDoc._attachments[title] })
+        }
+        return attachmentObjects
+      } else return null
+    },
+
     showAttachment(attachment) {
       const _id = this.$store.state.currentDoc._id
       const url = 'https://onebacklog.net:6984/' + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title

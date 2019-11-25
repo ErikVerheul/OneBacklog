@@ -49,7 +49,6 @@ export default {
 
 	data() {
 		return {
-			treeComponentKey: 0,
 			rootCursorPosition: null,
 			mouseIsDown: false,
 			isDragging: false,
@@ -123,11 +122,6 @@ export default {
 	},
 
 	methods: {
-		// see https://michaelnthiessen.com/force-re-render/
-		forceRerender() {
-			this.treeComponentKey += 1
-		},
-
 		setModelCursorPosition(pos) {
 			if (this.isRoot) {
 				this.rootCursorPosition = pos;
@@ -557,6 +551,7 @@ export default {
 				for (let i = 0; i < nodes.length; i++) {
 					// update the tree
 					nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+					//ToDo: is the change timestamp recorded in the database?
 					nodes[i].data.lastChange = Date.now()
 				}
 			}
@@ -692,13 +687,12 @@ export default {
 			// this.showVisibility('showAndSelectItem')
 		},
 
-		resetTree(doForceRerender) {
+		resetTree() {
 			this.traverseModels((nodeModel) => {
 				nodeModel.isHighlighted = false
 				nodeModel.doShow = nodeModel.savedDoShow
 				nodeModel.isExpanded = nodeModel.savedIsExpanded
 			}, this.getProductModels())
-			if (doForceRerender) this.forceRerender()
 		},
 
 		/* clear any outstanding filters and searches of the current product */
@@ -706,18 +700,18 @@ export default {
 			// eslint-disable-next-line no-console
 			console.log('resetFilters is called by ' + caller)
 			if (this.$store.state.filterOn) {
-				this.resetTree(true)
+				this.resetTree()
 				this.showLastEvent(`Your filter in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.filterText = FILTERBUTTONTEXT
 				this.$store.state.filterOn = false
 			}
 			if (this.$store.state.searchOn) {
-				this.resetTree(false)
+				this.resetTree()
 				this.showLastEvent(`Your search in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.searchOn = false
 			}
 			if (this.$store.state.findIdOn) {
-				this.resetTree(false)
+				this.resetTree()
 				this.showLastEvent(`Your view on product '${this.$store.state.load.currentProductTitle}' is restored`, INFO)
 				this.$store.state.findIdOn = false
 			}
