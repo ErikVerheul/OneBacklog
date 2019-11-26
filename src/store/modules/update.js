@@ -85,7 +85,6 @@ const actions = {
 					"by": rootState.userData.user,
 					"email": rootState.userData.email,
 					"timestamp": payload.timestamp,
-					"timestampStr": payload.timestamp.toString(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}
@@ -126,7 +125,6 @@ const actions = {
 					"by": rootState.userData.user,
 					"email": rootState.userData.email,
 					"timestamp": Date.now(),
-					"timestampStr": new Date().toString(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": false
 				}
@@ -172,7 +170,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
@@ -206,7 +203,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
@@ -240,7 +236,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
@@ -274,7 +269,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
@@ -308,7 +302,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -349,7 +342,6 @@ const actions = {
 					"by": rootState.userData.user,
 					"email": rootState.userData.email,
 					"timestamp": Date.now(),
-					"timestampStr": new Date().toString(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}
@@ -396,7 +388,6 @@ const actions = {
 							"by": rootState.userData.user,
 							"email": rootState.userData.email,
 							"timestamp": Date.now(),
-							"timestampStr": new Date().toString(),
 							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": true
 						}
@@ -444,7 +435,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -477,7 +467,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -535,7 +524,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -589,7 +577,6 @@ const actions = {
 						"by": rootState.userData.user,
 						"email": rootState.userData.email,
 						"timestamp": Date.now(),
-						"timestampStr": new Date().toString(),
 						"sessionId": rootState.userData.sessionId,
 						"distributeEvent": false
 					}
@@ -637,7 +624,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -671,7 +657,6 @@ const actions = {
 					"by": rootState.userData.user,
 					"email": rootState.userData.email,
 					"timestamp": Date.now(),
-					"timestampStr": new Date().toString(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": false
 				}
@@ -709,7 +694,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -774,7 +758,6 @@ const actions = {
 						"by": rootState.userData.user,
 						"email": rootState.userData.email,
 						"timestamp": Date.now(),
-						"timestampStr": new Date().toString(),
 						"sessionId": rootState.userData.sessionId,
 						"distributeEvent": false
 					}
@@ -831,7 +814,6 @@ const actions = {
 						"by": rootState.userData.user,
 						"email": rootState.userData.email,
 						"timestamp": Date.now(),
-						"timestampStr": new Date().toString(),
 						"sessionId": rootState.userData.sessionId,
 						"distributeEvent": false
 					}
@@ -878,7 +860,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}
@@ -914,7 +895,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -948,7 +928,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -981,7 +960,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -1013,7 +991,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
-				"timestampStr": payload.timestamp.toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}

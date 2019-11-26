@@ -95,7 +95,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
@@ -163,7 +162,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
@@ -233,7 +231,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
@@ -302,7 +299,6 @@ const actions = {
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
@@ -599,8 +595,7 @@ const actions = {
 							"rootEvent": ["history cleared"],
 							"by": rootState.userData.user,
 							"email": rootState.userData.email,
-							"timestamp": Date.now(),
-							"timestampStr": new Date().toString(),
+							"timestamp": Date.now()
 						}]
 					ok.push(results[i].docs[0].ok)
 				}

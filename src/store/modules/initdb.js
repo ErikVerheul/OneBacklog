@@ -247,7 +247,6 @@ const actions = {
 				"createRootEvent": [payload.dbName],
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),
-				"timestampStr": new Date().toString(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
