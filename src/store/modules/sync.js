@@ -77,7 +77,10 @@ const actions = {
 		}).then(res => {
 			function isDifferentSession(doc) {
 				if (doc.history[0].sessionId === rootState.userData.sessionId) return false
-				if (doc.comments && doc.comments.length > 0 && doc.comments[0].sessionId === rootState.userData.sessionId) return false
+				if (doc.comments && doc.comments[0]) {
+					// there is a least one comment
+					if (doc.comments[0].sessionId === rootState.userData.sessionId) return false
+				}
 				return true
 			}
 			let data = res.data
@@ -89,9 +92,8 @@ const actions = {
 				for (let i = 0; i < results.length; i++) {
 					let doc = results[i].doc
 					// Select only documents which are a product backlog item, belong to the user subscribed products and changes not made
-					// by the user him/her self in a parallel session and ment for distribution (if not filtered out by the CouchDB _design filter)
+					// by the user him/her self in a parallel session and ment for distribution (is filtered out by the CouchDB _design filter)
 					if (doc.type === 'backlogItem' &&
-						doc.history[0].distributeEvent == true &&
 						isDifferentSession(doc) &&
 						rootState.userData.myProductSubscriptions.includes(doc.productId)) {
 						// eslint-disable-next-line no-console
@@ -137,6 +139,7 @@ const actions = {
 							} else {
 								node.data.lastCommentAddition = lastCommentChange
 								node.data.lastChange = lastCommentChange
+								console.log('sync: node.data.lastChange = ' + node.data.lastChange)
 							}
 							// check if the node has moved location
 							let parentNode = window.slVueTree.getNodeById(doc.parentId)
