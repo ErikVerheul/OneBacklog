@@ -134,7 +134,7 @@
 				<h4>Subscribe to change notices</h4>
 				<p>When you click on this button all changes to this item will be emailed to you provided you are signed in as a registered user and your provided email address is correct. This will not work for users of generic accounts like demoUser or guest.</p>
 				<h4>The description input field</h4>
-				<p>As the title should be short and concise, this is the place to describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments (TO DO) to add documentation.</p>
+				<p>As the title should be short and concise, this is the place to describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments to add documentation.</p>
 				<h4>The acceptance criteria input field</h4>
 				<p>A backlog item can only be reported as 'DONE' when all acceptance criteria are met. To be able to estimate the effort the team must know the acceptance criteria up front. They are as important as the description.</p>
 				<h4>Add comments</h4>
@@ -142,7 +142,7 @@
 				<h4>Filter comments</h4>
 				<p>Enter a key word and you will only see comments including this key word.</p>
 				<h4>The Comments, Attachments, History radio buttons</h4>
-				<p>When you select Attachments (TO DO) or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
+				<p>When you select Attachments or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 
         <h2 id="start_using"> START USING THE APPLICATION</h2>
         <p>When you, as server admin, login with your super admin credentials the application will notice that you are unknown in the _users database. That will trigger a conversation where you name the first database and enter your e-mail address.</p>
