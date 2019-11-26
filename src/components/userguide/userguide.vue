@@ -67,7 +67,7 @@
 					</p>
 					<p>Badges:</p>
 					<b-img :src="require('./badges.png')" alt="Example badges" />
-					<p>Note the badges as shown in screen dump of the product view. These badges signal a change within the last hour. If the state of an item has changed the color turns red. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is rerendered (just click). The state badge stays but looses its red color.</p>
+					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns red. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its red color.</p>
 				</div>
 				<div id="rv">
 					<h4>Requirements areas view</h4>
