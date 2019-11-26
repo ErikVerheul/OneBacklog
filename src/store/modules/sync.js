@@ -139,7 +139,6 @@ const actions = {
 							} else {
 								node.data.lastCommentAddition = lastCommentChange
 								node.data.lastChange = lastCommentChange
-								console.log('sync: node.data.lastChange = ' + node.data.lastChange)
 							}
 							// check if the node has moved location
 							let parentNode = window.slVueTree.getNodeById(doc.parentId)
