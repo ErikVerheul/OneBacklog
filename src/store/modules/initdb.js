@@ -200,7 +200,7 @@ const actions = {
 					 * Filter on document type 'backlogItem', then filter the changes which need distributed to other users.
 					 */
 					"changesFilter": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.history[0].distributeEvent) emit(doc._id, 1);}'
+						"map": 'function (doc) {if (doc.type == "backlogItem" && (doc.history[0].distributeEvent) || doc.comments[0].distributeEvent) emit(doc._id, 1);}'
 					},
 					/*
 					 * Filter on document type 'backlogItem', then sort on shortId.
