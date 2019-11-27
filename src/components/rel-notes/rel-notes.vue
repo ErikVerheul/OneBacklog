@@ -23,7 +23,7 @@
 					<li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect to a different team than the team of the parent feature</li>
 				</ul>
 				<hr>
-        		<h3>v.0.7.0 - 23 October 2019 Major update</h3>
+				<h3>v.0.7.0 - 23 October 2019 Major update</h3>
 				<h5>Note that this release is not backwards compatible with previous releases. The format of the user profile in the _users database now includes database information. An upgrade can be fixed using Fauxton.</h5>
 				<p>New features:</p>
 				<ul>
