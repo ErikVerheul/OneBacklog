@@ -334,8 +334,8 @@ export default {
     },
 
     doChangeTeam() {
+      this.contextNodeSelected.data.team = this.$store.state.userData.myTeam
       if (this.contextNodeSelected.level > FEATURELEVEL) {
-        this.contextNodeSelected.data.team = this.$store.state.userData.myTeam
         this.$store.dispatch('setTeam', [])
         this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
       } else {
