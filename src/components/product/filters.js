@@ -6,22 +6,36 @@ export default {
   mixins: [utilities],
   data() {
     return {
-      filterOnTeams: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.filterOnTeams : "no",
+      filterOnTeams: 'no',
       teamOptions: [],
-      selectedTeams: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.selectedTeams : [],
-      filterTreeDepth: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.filterTreeDepth : "no",
-      selectedTreeDepth: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.selectedTreeDepth : "0",
-      filterOnState: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.filterOnState : "no",
+      selectedTeams: [],
+      filterTreeDepth: 'no',
+      selectedTreeDepth: "0",
+      filterOnState: 'no',
       stateOptions: [],
-      selectedStates: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.selectedStates : [],
-      filterOnTime: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.filterOnTime : "no",
-      fromDate: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.fromDate : undefined,
-      toDate: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.toDate : undefined,
-      selectedTime: this.$store.state.userData.myFilterSettings ? this.$store.state.userData.myFilterSettings.selectedTime : "0"
+      selectedStates:[],
+      filterOnTime: 'no',
+      fromDate: undefined,
+      toDate: undefined,
+      selectedTime: "0"
     }
   },
 
   mounted() {
+    // init the filter settings
+    const myFilterSettings = this.$store.state.userData.myFilterSettings
+    if (myFilterSettings) {
+      this.filterOnTeams = myFilterSettings.filterOnTeams
+      this.selectedTeams = myFilterSettings.selectedTeams
+      this.filterTreeDepth = myFilterSettings.filterTreeDepth
+      this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
+      this.filterOnState = myFilterSettings.filterOnState
+      this.selectedStates = myFilterSettings.selectedStates
+      this.filterOnTime = myFilterSettings.filterOnTime
+      this.fromDate = myFilterSettings.fromDate
+      this.toDate = myFilterSettings.toDate
+      this.selectedTime = myFilterSettings.selectedTime
+    }
     // expose instance to the global namespace
     window.myFilters = this.$refs.myFiltersRef
     // set the available team options
