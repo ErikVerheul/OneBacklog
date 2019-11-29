@@ -10,7 +10,7 @@
         <b-container fluid>
           <b-row class="my-1">
             <b-col sm="12">
-              <b-form-checkbox v-model="filterOnTeams" value="yes">Filter on team(s)</b-form-checkbox>
+              <b-form-checkbox v-model="filterOnTeams" value="yes" unchecked-value="no">Filter on team(s)</b-form-checkbox>
               <div v-if="filterOnTeams === 'yes'" class="indent20">
                 <b-form-group>
                   <b-form-checkbox-group v-model="selectedTeams" :options="teamOptions"></b-form-checkbox-group>
@@ -19,7 +19,7 @@
               <hr />
             </b-col>
             <b-col sm="12">
-              <b-form-checkbox v-model="filterTreeDepth" value="yes">Filter on tree depth</b-form-checkbox>
+              <b-form-checkbox v-model="filterTreeDepth" value="yes" unchecked-value="no">Filter on tree depth</b-form-checkbox>
               <div v-if="filterTreeDepth === 'yes'" class="indent20">
                 <b-form-group>
                   <b-form-radio v-model="selectedTreeDepth" value="3">Up to epic level</b-form-radio>
@@ -31,7 +31,7 @@
             </b-col>
 
             <b-col sm="12">
-              <b-form-checkbox v-model="filterOnState" value="yes">Filter on PBI state</b-form-checkbox>
+              <b-form-checkbox v-model="filterOnState" value="yes" unchecked-value="no">Filter on PBI state</b-form-checkbox>
               <div v-if="filterOnState === 'yes'" class="indent20">
                 <b-form-group>
                   <b-form-checkbox-group v-model="selectedStates" :options="stateOptions"></b-form-checkbox-group>
@@ -41,7 +41,7 @@
             </b-col>
 
             <b-col sm="12">
-              <b-form-checkbox v-model="filterOnTime" value="yes">Filter on changes in time</b-form-checkbox>
+              <b-form-checkbox v-model="filterOnTime" value="yes" unchecked-value="no">Filter on changes in time</b-form-checkbox>
               <div v-if="filterOnTime === 'yes'" class="indent20">
                 <b-form-group>
                   <b-form-radio v-model="selectedTime" value="10">Changes last 10 min.</b-form-radio>
