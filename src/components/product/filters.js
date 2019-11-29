@@ -13,7 +13,7 @@ export default {
       selectedTreeDepth: "0",
       filterOnState: 'no',
       stateOptions: [],
-      selectedStates:[],
+      selectedStates: [],
       filterOnTime: 'no',
       fromDate: undefined,
       toDate: undefined,
@@ -105,10 +105,9 @@ export default {
     onApplyMyFilters() {
       // reset the other selections first
       window.slVueTree.resetFilters('onApplyMyFilters')
-      const onlyFilterOnDepth = this.filterTreeDepth === 'yes' && this.filterOnTeams === 'no' && this.filterOnState === 'no' && this.filterOnTime === 'no'
-      const isFilterSet = this.filterOnTeams === 'yes' || this.filterTreeDepth === 'yes' || this.filterOnState === 'yes' || this.filterOnTime === 'yes'
-      if (!isFilterSet) return
+      if (this.filterOnTeams === 'no' && this.filterTreeDepth === 'no' && this.filterOnState === 'no' && this.filterOnTime === 'no') return
 
+      const onlyFilterOnDepth = this.filterTreeDepth === 'yes' && this.filterOnTeams === 'no' && this.filterOnState === 'no' && this.filterOnTime === 'no'
       let count = 0
       // create a callback for the filtering
       let cb = (nodeModel) => {
