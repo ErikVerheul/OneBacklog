@@ -590,13 +590,37 @@ const actions = {
 			const ok = []
 			for (let i = 0; i < results.length; i++) {
 				if (results[i].docs[0].ok) {
-					results[i].docs[0].ok["history"] = [
-						{
-							"rootEvent": ["history cleared"],
-							"by": rootState.userData.user,
-							"email": rootState.userData.email,
-							"timestamp": Date.now()
-						}]
+					let newState
+					switch (results[i].docs[0].ok.state) {
+						case 0:
+							newState = 2
+							break;
+						case 1:
+							newState = 3
+							break;
+						case 2:
+							newState = 4
+							break;
+						case 3:
+							newState = 1
+							break;
+						case 4:
+							newState = 5
+							break;
+						case 5:
+							newState = 0
+							break;
+						default:
+							newState = 4
+					}
+					results[i].docs[0].ok.state = newState
+					// results[i].docs[0].ok["history"] = [
+					// 	{
+					// 		"rootEvent": ["history cleared"],
+					// 		"by": rootState.userData.user,
+					// 		"email": rootState.userData.email,
+					// 		"timestamp": Date.now()
+					// 	}]
 					ok.push(results[i].docs[0].ok)
 				}
 			}

@@ -20,7 +20,7 @@
 				<button @click="showDocById" class="myButton">8. Show a document by id</button>
 				<button @click="deleteDB" class="myButton">9. Delete the selected || created database</button>
 				<button @click="copyDB" class="myButton">11. Copy a database including permissions</button>
-				<button @click="shortId" class="myButton">12. Remove history from existing database</button>
+				<button @click="shortId" class="myButton">12. (Remove history) Convert state from existing database</button>
 			</div>
 
 			<div class="col-lg-12 col-sm-12">
