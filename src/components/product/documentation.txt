@@ -37,6 +37,7 @@
 * data: {
 * ....priority: doc.priority,
 * ....state: doc.state,
+* ....inconsistentState, // calculated
 * ....team: doc.team, // the team membership of the user who updated the state the last time
 * ....subtype: doc.subtype,
 * ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
@@ -49,6 +50,16 @@
 * ....distributeEvent: true | false
 * }
 */
+
+In the CONFIG document these item states are defined:
+"itemState": [
+0    "Removed",
+1    "On hold",
+2    "New",
+3    "Ready",
+4    "In progress",
+5    "Done"
+],
 
 The store holds an object with the data of the current user. This object is initialised with the _session data.
 // email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myProductViewFilterSettings are updated when otherUserData and config are read

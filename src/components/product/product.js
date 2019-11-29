@@ -18,6 +18,9 @@ const PBILEVEL = 5
 const SHORTKEYLENGTH = 5
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
+const NEW = 2
+const READY = 3
+const DONE = 5
 
 export default {
   mixins: [utilities],
@@ -529,15 +532,33 @@ export default {
       }
     },
 
-    /* An authorized user can change state if member of the team which owns this item or when the item is new and changed to 'Ready' */
+    /*
+    * An authorized user can change state if member of the team which owns this item or when the item is new and changed to 'Ready'.
+    * Issue a warning when assigns a higher state to a parent with children witch all have a lower state.
+    */
     onStateChange(idx) {
+      const currentNode = this.$store.state.nodeSelected
       function changeState(vm, newTeam) {
+        const descendants = window.slVueTree.getDescendantsInfo(currentNode).descendants
+        if (descendants.length > 0) {
+          let highestState = 0
+          let allDone = true
+          for (let desc of descendants) {
+            if (desc.data.state > highestState) highestState = desc.data.state
+            if (desc.data.state < DONE) allDone = false
+          }
+          if (idx > highestState || idx === DONE && !allDone) {
+            // user attempts to assign a higher state to this node than one or more of its descendants
+            currentNode.data.inconsistentState = true
+            vm.showLastEvent("You are assigning an inconsistant state to this node. ", WARNING)
+          } else currentNode.data.inconsistentState = false
+        }
         const now = Date.now()
-        vm.$store.state.nodeSelected.data.state = idx
-        vm.$store.state.nodeSelected.data.lastChange = now
-        vm.$store.state.nodeSelected.data.lastStateChange = now
+        currentNode.data.state = idx
+        currentNode.data.lastChange = now
+        currentNode.data.lastStateChange = now
         if (newTeam) {
-          vm.$store.state.nodeSelected.data.team = newTeam
+          currentNode.data.team = newTeam
         }
         vm.$store.dispatch('setState', {
           'newState': idx,
@@ -548,23 +569,23 @@ export default {
 
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         // any user can change from state 'New' to state 'Ready'; the owning team of the item is set to the users team
-        if (this.$store.state.nodeSelected.data.state === 0 && idx === 1) {
+        if (currentNode.data.state === NEW && idx === READY) {
           changeState(this, this.$store.state.userData.myTeam)
-          const parentNode = window.slVueTree.getParentNode(this.$store.state.nodeSelected)
+          const parentNode = window.slVueTree.getParentNode(currentNode)
           if (parentNode.level >= FEATURELEVEL && parentNode.data.team !== this.$store.state.userData.myTeam) {
             this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
               this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
           }
         } else {
-          if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
-            if (idx === 0) {
+          if (currentNode.data.team === this.$store.state.userData.myTeam) {
+            if (idx === NEW) {
               // change from any other state to 'New' and set the team of the item to 'not asigned yet'
               changeState(this, 'not assigned yet')
             } else {
               // all other state changes; no team update
               changeState(this, null)
             }
-          } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change the state of this item", WARNING)
+          } else this.showLastEvent("Sorry, only members of team '" + currentNode.data.team + "' can change the state of this item", WARNING)
         }
       } else this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
     },

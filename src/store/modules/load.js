@@ -260,35 +260,43 @@ const actions = {
 			rootState.configData = res.data
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('The configuration is loaded')
-			if (isProductAssigned) {
-				// process removed products if any
-				if (res.data.removedProducts && res.data.removedProducts.length > 0) {
-					const sanatizedProductRoles = {}
-					const productIds = Object.keys(rootState.userData.myProductsRoles)
-					for (let i = 0; i < productIds.length; i++) {
-						if (!res.data.removedProducts.includes(productIds[i])) {
-							sanatizedProductRoles[productIds[i]] = rootState.userData.myProductsRoles[productIds[i]]
+			if (res.data.changeDate >= 1575036814777) {
+				if (isProductAssigned) {
+					// process removed products if any
+					if (res.data.removedProducts && res.data.removedProducts.length > 0) {
+						const sanatizedProductRoles = {}
+						const productIds = Object.keys(rootState.userData.myProductsRoles)
+						for (let i = 0; i < productIds.length; i++) {
+							if (!res.data.removedProducts.includes(productIds[i])) {
+								sanatizedProductRoles[productIds[i]] = rootState.userData.myProductsRoles[productIds[i]]
+							}
 						}
-					}
-					rootState.userData.myProductsRoles = sanatizedProductRoles
+						rootState.userData.myProductsRoles = sanatizedProductRoles
 
-					const sanatizedProductSubscriptions = []
-					for (let i = 0; i < rootState.userData.myProductSubscriptions.length; i++) {
-						if (!res.data.removedProducts.includes(rootState.userData.myProductSubscriptions[i])) {
-							sanatizedProductSubscriptions.push(rootState.userData.myProductSubscriptions[i])
+						const sanatizedProductSubscriptions = []
+						for (let i = 0; i < rootState.userData.myProductSubscriptions.length; i++) {
+							if (!res.data.removedProducts.includes(rootState.userData.myProductSubscriptions[i])) {
+								sanatizedProductSubscriptions.push(rootState.userData.myProductSubscriptions[i])
+							}
 						}
+						rootState.userData.myProductSubscriptions = sanatizedProductSubscriptions
 					}
-					rootState.userData.myProductSubscriptions = sanatizedProductSubscriptions
+
+					rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
+					// set the array of options to make a selection of products for the next load on sign-in
+					dispatch("setMyProductOptions")
+					// the first (index 0) product is by definition the default product
+					state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0]
+
+					// load the root document
+					dispatch('getRoot', isProductAssigned)
 				}
-
-				rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
-				// set the array of options to make a selection of products for the next load on sign-in
-				dispatch("setMyProductOptions")
-				// the first (index 0) product is by definition the default product
-				state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0]
+			} else {
+				// ToDo: logging results in 'Request failed with status code 409'
+				let msg = 'getConfig: This application version is designed for config version 1575036814777 and later'
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
 			}
-			// load the root document
-			dispatch('getRoot', isProductAssigned)
 		}).catch(error => {
 			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console

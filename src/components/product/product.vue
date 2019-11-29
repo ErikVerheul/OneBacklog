@@ -70,6 +70,7 @@
             <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
             <b-dropdown-item @click="onStateChange(0)">{{ getItemStateText(0) }}</b-dropdown-item>
             <b-dropdown-item @click="onStateChange(1)">{{ getItemStateText(1) }}</b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item @click="onStateChange(2)">{{ getItemStateText(2) }}</b-dropdown-item>
             <b-dropdown-item @click="onStateChange(3)">{{ getItemStateText(3) }}</b-dropdown-item>
             <b-dropdown-item @click="onStateChange(4)">{{ getItemStateText(4) }}</b-dropdown-item>
@@ -125,10 +126,15 @@
               <!-- use a trick to force rendering when a node had a change -->
               {{ node.title }} {{ String(node.data.lastChange).substring(0, 0) }}
               <b-badge
-                v-if="hasNewState(node)"
+                v-if="node.data.inconsistentState"
                 variant="danger"
+              >{{ getItemStateText(node.data.state) + '?' }}</b-badge>
+              <b-badge
+                v-else-if="hasNewState(node)"
+                variant="info"
               >{{ getItemStateText(node.data.state) }}</b-badge>
               <b-badge v-else variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
+
               <b-badge
                 v-if="hasContentChanged(node) || hasCommentToHistory(node)"
                 variant="info"
