@@ -47,6 +47,12 @@
         variant="danger"
         v-on:click="contextSelected = 3"
       >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
+      <b-list-group-item
+        v-if="contextNodeLevel >= productLevel"
+        button
+        variant="dark"
+        v-on:click="contextSelected = 5"
+      >Run a check on item state consistency</b-list-group-item>
     </b-list-group>
     <div class="d-block text-center">
       <div class="message">{{ showSelected() }}</div>

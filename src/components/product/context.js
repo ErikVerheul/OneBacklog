@@ -8,6 +8,8 @@ const ROOTLEVEL = 1
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const REMOVED = 0
+const DONE = 5
 var newNode = {}
 var movedNode = null
 
@@ -103,6 +105,8 @@ export default {
           } else this.contextWarning = undefined
           this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
           return `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
+        case 5:
+          return `Start the check. See in the tree if any red badges appear`
         default:
           this.contextWarning = undefined
           return 'nothing selected as yet'
@@ -149,6 +153,9 @@ export default {
           break
         case 4:
           this.doChangeTeam()
+          break
+        case 5:
+          this.doCheckStates()
           break
       }
     },
@@ -348,6 +355,27 @@ export default {
           this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
         }
       }
+    },
+
+    doCheckStates() {
+      let count = 0
+      window.slVueTree.traverseModels((nm) => {
+        let descendants = window.slVueTree.getDescendantsInfo(nm).descendants
+        if (descendants.length > 0) {
+          let highestState = 0
+          let allDone = true
+          for (let desc of descendants) {
+            if (desc.data.state > highestState) highestState = desc.data.state
+            if (desc.data.state < DONE && desc.data.state !== REMOVED) allDone = false
+          }
+          if (nm.data.state > highestState || nm.data.state === DONE && !allDone) {
+            // node has a higher state than one or more of its descendants or set to done while one od its descendants is not done
+            nm.data.inconsistentState = true
+            count++
+          } else nm.data.inconsistentState = false
+        }
+      }, [this.contextNodeSelected])
+      this.showLastEvent(`${count} inconsistencies are found.`, INFO)
     },
 
     doCancel() {

@@ -171,6 +171,7 @@ const mutations = {
 							data: {
 								priority: batch[i].doc.priority,
 								state: batch[i].doc.state,
+								inconsistentState: false,
 								lastStateChange,
 								lastContentChange,
 								lastCommentAddition,
