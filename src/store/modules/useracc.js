@@ -4,8 +4,8 @@ const ERROR = 2
 
 const state = {
   fetchedUserData: null,
-  userIsAdmin: 'no',
-  userIsSuperPO: 'no',
+  userIsAdmin: false,
+  userIsSuperPO: false,
   dbProducts: undefined,
 }
 
@@ -23,8 +23,8 @@ const actions = {
       withCredentials: true
     }).then(res => {
       state.fetchedUserData = res.data
-      state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? 'yes' : 'no'
-      state.userIsSuperPO = state.fetchedUserData.roles.includes('superPO') ? 'yes' : 'no'
+      state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? true : false
+      state.userIsSuperPO = state.fetchedUserData.roles.includes('superPO') ? true : false
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user
       rootState.selectedDatabaseName = state.fetchedUserData.currentDb

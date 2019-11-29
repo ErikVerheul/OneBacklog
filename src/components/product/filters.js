@@ -6,15 +6,15 @@ export default {
   mixins: [utilities],
   data() {
     return {
-      filterOnTeams: 'no',
+      filterOnTeams: false,
       teamOptions: [],
       selectedTeams: [],
-      filterTreeDepth: 'no',
+      filterTreeDepth: false,
       selectedTreeDepth: "0",
-      filterOnState: 'no',
+      filterOnState: false,
       stateOptions: [],
       selectedStates: [],
-      filterOnTime: 'no',
+      filterOnTime: false,
       fromDate: undefined,
       toDate: undefined,
       selectedTime: "0"
@@ -105,9 +105,9 @@ export default {
     onApplyMyFilters() {
       // reset the other selections first
       window.slVueTree.resetFilters('onApplyMyFilters')
-      if (this.filterOnTeams === 'no' && this.filterTreeDepth === 'no' && this.filterOnState === 'no' && this.filterOnTime === 'no') return
+      if (!this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
-      const onlyFilterOnDepth = this.filterTreeDepth === 'yes' && this.filterOnTeams === 'no' && this.filterOnState === 'no' && this.filterOnTime === 'no'
+      const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
       let count = 0
       // create a callback for the filtering
       let cb = (nodeModel) => {
@@ -116,13 +116,13 @@ export default {
         nodeModel.savedIsExpanded = nodeModel.isExpanded
         // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
-        if (this.filterOnTeams === 'yes') {
+        if (this.filterOnTeams) {
           isExcluded = this.doFilterOnTeams(nodeModel)
         }
-        if (!isExcluded && this.filterOnState === 'yes') {
+        if (!isExcluded && this.filterOnState) {
           isExcluded = this.doFilterOnState(nodeModel)
         }
-        if (!isExcluded && this.filterOnTime === 'yes') {
+        if (!isExcluded && this.filterOnTime) {
           isExcluded = this.doFilterOnTime(nodeModel)
         }
 
@@ -135,7 +135,7 @@ export default {
         } else {
           if (!isExcluded) {
             // when not filtering on depth only, show this node if not filtered out and highlight the node
-            if (window.slVueTree.expandPathToNode(nodeModel, this.filterTreeDepth === 'yes' ? parseInt(this.selectedTreeDepth) : nodeModel.level)) {
+            if (window.slVueTree.expandPathToNode(nodeModel, this.filterTreeDepth ? parseInt(this.selectedTreeDepth) : nodeModel.level)) {
               nodeModel.isHighlighted = true
               count++
             }
