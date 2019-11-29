@@ -131,7 +131,7 @@ export default {
 		},
 
 		getNodes(nodeModels) {
-			return nodeModels.map((nodeModel) => nodeModel)
+			return nodeModels.map((nm) => nm)
 		},
 
 		getNodeModel(path, tree = this.currentValue) {
@@ -362,11 +362,11 @@ export default {
 			let initLevel = node.level
 			let count = 0
 			let maxDepth = node.level
-			this.traverseModels((nodeModel) => {
-				if (this.comparePaths(nodeModel.path, node.path) === 1) {
-					descendants.push(nodeModel)
+			this.traverseModels((nm) => {
+				if (this.comparePaths(nm.path, node.path) === 1) {
+					descendants.push(nm)
 					count++
-					if (nodeModel.level > maxDepth) maxDepth = nodeModel.level
+					if (nm.level > maxDepth) maxDepth = nm.level
 				}
 			}, [node])
 			return {
@@ -477,9 +477,9 @@ export default {
 
 		getNodeById(id) {
 			let resultNode = null
-			this.traverseModels((nodeModel) => {
-				if (nodeModel._id === id) {
-					resultNode = nodeModel
+			this.traverseModels((nm) => {
+				if (nm._id === id) {
+					resultNode = nm
 					return false
 				}
 			}, this.currentValue)
@@ -620,24 +620,24 @@ export default {
 
 		/* test code */
 		showVisibility(caller, toLevel = 3) {
-			this.traverseModels((nodeModel) => {
+			this.traverseModels((nm) => {
 				// collapse to the product level
-				if (nodeModel.level <= toLevel) {
+				if (nm.level <= toLevel) {
 					// eslint-disable-next-line no-console
-					console.log('showVisibility: path = ' + nodeModel.path + ' level = ' + nodeModel.level + ' isExpanded = ' + nodeModel.isExpanded +
-						' savedIsExpanded = ' + nodeModel.savedIsExpanded + ' doShow = ' + nodeModel.doShow + ' title = ' + nodeModel.title + ' caller = ' + caller)
+					console.log('showVisibility: path = ' + nm.path + ' level = ' + nm.level + ' isExpanded = ' + nm.isExpanded +
+						' savedIsExpanded = ' + nm.savedIsExpanded + ' doShow = ' + nm.doShow + ' title = ' + nm.title + ' caller = ' + caller)
 				}
 			})
 		},
 
 		/* collapse the branch below the current product and hide the nodes */
 		collapseTree() {
-			this.traverseModels((nodeModel) => {
-				if (nodeModel.level === PRODUCTLEVEL) {
-					nodeModel.isExpanded = false
+			this.traverseModels((nm) => {
+				if (nm.level === PRODUCTLEVEL) {
+					nm.isExpanded = false
 				}
-				if (nodeModel.level > PRODUCTLEVEL) {
-					nodeModel.doShow = false
+				if (nm.level > PRODUCTLEVEL) {
+					nm.doShow = false
 				}
 			}, this.getProductModels())
 			// this.showVisibility('collapseTree')
@@ -645,12 +645,12 @@ export default {
 
 		/* show the current selected product */
 		expandTree() {
-			this.traverseModels((nodeModel) => {
-				if (nodeModel.level === PRODUCTLEVEL) {
-					nodeModel.isExpanded = true
+			this.traverseModels((nm) => {
+				if (nm.level === PRODUCTLEVEL) {
+					nm.isExpanded = true
 				}
-				if (nodeModel.level > PRODUCTLEVEL) {
-					nodeModel.doShow = true
+				if (nm.level > PRODUCTLEVEL) {
+					nm.doShow = true
 				}
 			}, this.getProductModels())
 			// this.showVisibility('expandTree')
@@ -666,21 +666,21 @@ export default {
 				}
 				return true
 			}
-			this.traverseModels((nodeModel) => {
+			this.traverseModels((nm) => {
 				// unselect any previous selections
-				nodeModel.isSelected = false
+				nm.isSelected = false
 				// if on the node path
-				if (isInPath(nodeModel.path, node.path)) {
-					nodeModel.savedIsExpanded = true
-					nodeModel.isExpanded = true
-					nodeModel.savedDoShow = true
-					nodeModel.doShow = true
+				if (isInPath(nm.path, node.path)) {
+					nm.savedIsExpanded = true
+					nm.isExpanded = true
+					nm.savedDoShow = true
+					nm.doShow = true
 				}
 				// select the item
-				if (nodeModel.shortId === node.shortId) {
-					nodeModel.isSelected = true
+				if (nm.shortId === node.shortId) {
+					nm.isSelected = true
 					// save this node so that it is deselected on the next select
-					nodeToDeselect = nodeModel
+					nodeToDeselect = nm
 					return false
 				}
 			})
@@ -688,10 +688,11 @@ export default {
 		},
 
 		resetTree() {
-			this.traverseModels((nodeModel) => {
-				nodeModel.isHighlighted = false
-				nodeModel.doShow = nodeModel.savedDoShow
-				nodeModel.isExpanded = nodeModel.savedIsExpanded
+			this.traverseModels((nm) => {
+				nm.isHighlighted = false
+				nm.doShow = nm.savedDoShow
+				// console.log('resetTree: nm.isHighlighted = ' + nm.isHighlighted + ', nm.title = ' + nm)
+				nm.isExpanded = nm.savedIsExpanded
 			}, this.getProductModels())
 		},
 
