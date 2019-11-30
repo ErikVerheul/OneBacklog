@@ -106,6 +106,8 @@ export default {
           this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
           return `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
         case 5:
+          this.contextWarning = undefined
+          this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
           return `Start the check. See in the tree if any red badges appear`
         default:
           this.contextWarning = undefined
@@ -130,6 +132,9 @@ export default {
           break
         case 4:
           this.assistanceText = this.$store.state.help.help.team
+          break
+        case 5:
+          this.assistanceText = this.$store.state.help.help.consistencyCheck
           break
         default:
           this.assistanceText = 'No assistance available'
@@ -369,7 +374,7 @@ export default {
             if (desc.data.state < DONE && desc.data.state !== REMOVED) allDone = false
           }
           if (nm.data.state > highestState || nm.data.state === DONE && !allDone) {
-            // node has a higher state than one or more of its descendants or set to done while one od its descendants is not done
+            // node has a higher state than one or more of its descendants or set to done while one of its descendants is not done
             nm.data.inconsistentState = true
             count++
           } else nm.data.inconsistentState = false

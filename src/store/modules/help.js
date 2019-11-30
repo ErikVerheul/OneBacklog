@@ -88,6 +88,20 @@ const state = {
         </p>
         <hr>
         <p>Note that when an authorized user changes the state of a backlog item from 'New' to 'Ready', the item is assigned automatically to the team of that user.
+        </p>`,
+
+        consistencyCheck: `<h4>Consistency check help</h4>
+        <p>
+        You are about to start a consistency check on the state of your backlog items.<br/>
+        </p>
+        <hr>
+        <p>A feature is done if and only if all of its user stories, spikes and defects are done. An epic is done when all its user stories are done.
+        This check will turn the Done badge to red and add a question mark to the text. Removed items are not taken into account, but 'On hold' items are.
+        </p>
+        <p>The warning badge also appears when the state of an item if higher (progressed further) than any of its decendants.
+        </p>
+        <hr>
+        <p>This check does not change the state of your items. It is up to you to do that manually.
         </p>`
     }
 }
