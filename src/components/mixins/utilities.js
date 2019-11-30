@@ -4,16 +4,17 @@ const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
 const PBILEVEL = 5
+const DEFAULTCOLOR = '#408FAE'
 export const utilities = {
 	methods: {
 		showLastEvent(txt, severity) {
-			let eventBgColor = '#408FAE'
+			let eventBgColor = DEFAULTCOLOR
 			switch (severity) {
 				case DEBUG:
 					eventBgColor = 'yellow'
 					break
 				case INFO:
-					eventBgColor = '#408FAE'
+					eventBgColor = DEFAULTCOLOR
 					break
 				case WARNING:
 					eventBgColor = 'orange'
@@ -26,6 +27,11 @@ export const utilities = {
 			}
 			this.$store.state.lastEvent = txt
 			this.$store.state.eventBgColor = eventBgColor
+		},
+
+		clearLastEvent() {
+			this.$store.state.lastEvent = 'Event message is cleared.'
+			this.$store.state.eventBgColor = DEFAULTCOLOR
 		},
 
 		/* mappings from config document*/
