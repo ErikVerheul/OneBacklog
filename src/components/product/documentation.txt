@@ -37,15 +37,15 @@
 * data: {
 * ....priority: doc.priority,
 * ....state: doc.state,
-* ....inconsistentState, // calculated
+* ....inconsistentState: false // calculated on consitency check
 * ....team: doc.team, // the team membership of the user who updated the state the last time
 * ....subtype: doc.subtype,
-* ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
 * ....lastStateChange, // lookup in doc history
 * ....lastContentChange, // lookup in doc history
 * ....lastCommentAddition, // lookup in doc comments
 * ....lastAttachmentAddition, // lookup in doc history
 * ....lastCommentToHistory, // lookup in doc history
+* ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
 * ....sessionId: rootState.userData.sessionId,
 * ....distributeEvent: true | false
 * }

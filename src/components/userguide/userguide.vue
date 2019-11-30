@@ -57,17 +57,19 @@
 						Spikes are estimated in person hours eliminating the need to translate story points to hours which can be a long discussion.</p>
 					<p>State: All items have a state to track their progress. Pbi/defect status values are:
 						<ul>
+							<li>removed</li>
+							<li>on hold (not in a sprint anymore, waiting on the backlog)</li>
+							<li>---------------------------------------------------------------</li>
 							<li>new</li>
 							<li>ready (refinement done, effort estimated)</li>
 							<li>in progress (now in a sprint)</li>
-							<li>on hold (not in a sprint anymore, waiting on the backlog)</li>
 							<li>done (delivered wrt the DoD)</li>
-							<li>removed</li>
+
 						</ul>
 					</p>
 					<p>Badges:</p>
 					<b-img :src="require('./badges.png')" alt="Example badges" />
-					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns red. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its red color.</p>
+					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its red color.</p>
 				</div>
 				<div id="rv">
 					<h4>Requirements areas view</h4>

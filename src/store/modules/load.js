@@ -172,12 +172,12 @@ const mutations = {
 								priority: batch[i].doc.priority,
 								state: batch[i].doc.state,
 								inconsistentState: false,
+								team: batch[i].doc.team,
 								lastStateChange,
 								lastContentChange,
 								lastCommentAddition,
 								lastAttachmentAddition,
 								lastCommentToHistory,
-								team: batch[i].doc.team,
 								subtype: batch[i].doc.subtype,
 								lastChange: batch[i].doc.history[0].timestamp
 							}
