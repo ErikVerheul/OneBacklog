@@ -18,6 +18,7 @@ const PBILEVEL = 5
 const SHORTKEYLENGTH = 5
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
+const REMOVED = 0
 const NEW = 2
 const READY = 3
 const DONE = 5
@@ -545,13 +546,18 @@ export default {
           let allDone = true
           for (let desc of descendants) {
             if (desc.data.state > highestState) highestState = desc.data.state
-            if (desc.data.state < DONE) allDone = false
+            if (desc.data.state < DONE && desc.data.state !== REMOVED) allDone = false
           }
           if (idx > highestState || idx === DONE && !allDone) {
-            // user attempts to assign a higher state to this node than one or more of its descendants
+            // node has a higher state than one or more of its descendants or set to done while one of its descendants is not done
             currentNode.data.inconsistentState = true
-            vm.showLastEvent("You are assigning an inconsistant state to this node. ", WARNING)
-          } else currentNode.data.inconsistentState = false
+            if (idx === DONE && !allDone) {
+              vm.showLastEvent("You are assigning an inconsistant state to this node. Not all descendants are done.", WARNING)
+            } else vm.showLastEvent(`You are assigning an inconsistant state to this node. You can set it to '${vm.getItemStateText(highestState)}'.`, WARNING)
+          } else {
+            currentNode.data.inconsistentState = false
+            vm.clearLastEvent()
+          }
         }
         const now = Date.now()
         currentNode.data.state = idx
@@ -578,13 +584,8 @@ export default {
           }
         } else {
           if (currentNode.data.team === this.$store.state.userData.myTeam) {
-            if (idx === NEW) {
-              // change from any other state to 'New' and set the team of the item to 'not asigned yet'
-              changeState(this, 'not assigned yet')
-            } else {
-              // all other state changes; no team update
-              changeState(this, null)
-            }
+            // all other state changes; no team update
+            changeState(this, null)
           } else this.showLastEvent("Sorry, only members of team '" + currentNode.data.team + "' can change the state of this item", WARNING)
         }
       } else this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
