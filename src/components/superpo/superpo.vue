@@ -99,7 +99,7 @@ export default {
         "parentId": "root",
         "team": "not assigned yet",
         "level": PRODUCTLEVEL,
-        "state": 0,
+        "state": 2,
         "reqarea": null,
         "title": this.productTitle,
         "followers": [],
