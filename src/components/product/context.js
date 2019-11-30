@@ -373,8 +373,8 @@ export default {
             if (desc.data.state > highestState) highestState = desc.data.state
             if (desc.data.state < DONE && desc.data.state !== REMOVED) allDone = false
           }
-          if (nm.data.state > highestState || nm.data.state === DONE && !allDone) {
-            // node has a higher state than one or more of its descendants or set to done while one of its descendants is not done
+          if (nm.data.state !== highestState || nm.data.state === DONE && !allDone) {
+            // node has a state unequal to the highest state of one or more of its descendants or set to done while one of its descendants is not done
             nm.data.inconsistentState = true
             count++
           } else nm.data.inconsistentState = false

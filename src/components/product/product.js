@@ -548,8 +548,8 @@ export default {
             if (desc.data.state > highestState) highestState = desc.data.state
             if (desc.data.state < DONE && desc.data.state !== REMOVED) allDone = false
           }
-          if (idx > highestState || idx === DONE && !allDone) {
-            // node has a higher state than one or more of its descendants or set to done while one of its descendants is not done
+          if (idx !== highestState || idx === DONE && !allDone) {
+            // node has a state unequal to the highest state of one or more of its descendants or set to done while one of its descendants is not done
             currentNode.data.inconsistentState = true
             if (idx === DONE && !allDone) {
               vm.showLastEvent("You are assigning an inconsistant state to this node. Not all descendants are done.", WARNING)
