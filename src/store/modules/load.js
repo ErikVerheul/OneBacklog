@@ -7,7 +7,7 @@ const INFO = 0
 const WARNING = 1
 const ERROR = 2
 const AREALEVEL = 0
-const ROOTLEVEL = 1
+const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
@@ -73,7 +73,7 @@ const getters = {
 		}
 		// the user is server admin. A server admin can change the root document of the databases
 		if (rootGetters.isServerAdmin) {
-			levels[ROOTLEVEL] = true
+			levels[DATABASELEVEL] = true
 		}
 		return levels
 	}

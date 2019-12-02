@@ -1,7 +1,7 @@
 /*
  * This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
  */
-const ROOTLEVEL = 1
+const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 const FILTERBUTTONTEXT = 'Filter in tree view'
@@ -267,7 +267,7 @@ export default {
 			}
 
 			// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === ROOTLEVEL || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
+			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === DATABASELEVEL || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
 				this.stopDrag()
 				return
 			}
@@ -728,7 +728,7 @@ export default {
 		},
 
 		getParentNode(node) {
-			for (let i = ROOTLEVEL; i < node.path.length; i++) {
+			for (let i = DATABASELEVEL; i < node.path.length; i++) {
 				let path = node.path.slice(0, i)
 				if (path.length === node.path.length - 1) {
 					return this.getNodeModel(path)
