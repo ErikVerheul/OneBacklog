@@ -219,6 +219,36 @@ const actions = {
 		})
 	},
 
+	setDependencies({
+		rootState,
+		dispatch
+	}, payload) {
+		const _id = payload._id
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + _id,
+			withCredentials: true,
+		}).then(res => {
+			let tmpDoc = res.data
+			const newHist = {
+				"setDependenciesEvent": [tmpDoc.dependencies, payload.dependencies],
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			tmpDoc.dependencies = payload.dependencies
+			tmpDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+		}).catch(error => {
+			let msg = 'setDependencies: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	setPersonHours({
 		rootState,
 		dispatch

@@ -266,8 +266,8 @@ export default {
 				return;
 			}
 
-			// stop drag if no nodes selected or at root level or moving an item to another product
-			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === ROOTLEVEL || this.$store.state.moveOngoing) {
+			// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
+			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === ROOTLEVEL || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
 				this.stopDrag()
 				return
 			}

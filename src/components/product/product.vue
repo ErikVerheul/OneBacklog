@@ -124,7 +124,7 @@
                 </i>
               </span>
               <!-- use a trick to force rendering when a node had a change -->
-              {{ node.title }} {{ String(node.data.lastChange).substring(0, 0) }}
+              {{ node.title }} {{ String(node.data.lastChange).substring(0, 0) }}:{{ node.dependencies }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"

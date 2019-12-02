@@ -4,7 +4,7 @@ import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
-const ROOTLEVEL = 1
+const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
@@ -17,10 +17,19 @@ export default {
   mixins: [utilities],
   data() {
     return {
+      INSERTBELOW: 0,
+      INSERTINSIDE: 1,
+      MOVETOPRODUCT: 2,
+      REMOVEITEM: 3,
+      ASIGNTOMYTEAM: 4,
+      CHECKSTATES: 5,
+      SETDEPENDENCY: 6,
+      SHOWDEPENDENCIES: 7,
       pbiLevel: PBILEVEL,
       featureLevel: FEATURELEVEL,
       productLevel: PRODUCTLEVEL,
       contextNodeSelected: undefined,
+      contextWarning: undefined,
       contextParentTeam: '',
       contextNodeTitle: '',
       contextNodeLevel: 0,
@@ -28,13 +37,17 @@ export default {
       contextNodeType: '',
       contextNodeTeam: '',
       contextChildType: '',
-      contextSelected: undefined,
-      insertOptionSelected: 1,
-      currentAssistanceNr: undefined,
-      assistanceText: "",
+      contextOptionSelected: undefined,
+      listItemText: '',
+      assistanceText: 'No assistance available',
       showAssistance: false,
       contextNodeDescendantsCount: 0,
       moveSourceProductId: '',
+      nodeWithDependencies: undefined,
+      hasDependencies: false,
+      dependencyTextTweak: 'a',
+      showDependencies: false,
+      dependenciesObj: []
     }
   },
 
@@ -55,11 +68,11 @@ export default {
 
   methods: {
     showContextMenu(node) {
-      this.contextSelected = undefined
-      this.currentAssistanceNr = undefined
-      this.insertOptionSelected = 1
+      this.contextOptionSelected = undefined
+      this.showAssistance = false
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-      if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id && node.level > 1 && this.$store.state.numberOfNodesSelected === 1) {
+      if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id &&
+          node.level > DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
         this.contextParentTeam = parentNode.data.team
@@ -70,97 +83,95 @@ export default {
         this.contextChildType = this.getLevelText(node.level + 1)
         this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
         this.contextNodeTeam = node.data.team
+        if (node.dependencies.length > 0) {
+          this.hasDependencies = true
+          this.dependencyTextTweak = 'another'
+        } else {
+          this.hasDependencies = false
+          this.dependencyTextTweak = 'a'
+        }
         window.showContextMenuRef.show()
       }
     },
 
-    showSelected() {
-      switch (this.contextSelected) {
-        case 0:
-          this.contextWarning = undefined
-          this.insertOptionSelected = 1
-          this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-          return 'Insert a ' + this.contextNodeType + ' below this item'
-        case 1:
-          this.insertOptionSelected = 2
-          this.contextWarning = undefined
-          this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-          return 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
-        case 2:
-          this.contextWarning = undefined
-          this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
+    showSelected(idx) {
+      this.contextOptionSelected = idx
+      this.contextWarning = undefined
+      switch (this.contextOptionSelected) {
+        case this.INSERTBELOW:
+          this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
+          this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item'
+          break
+        case this.INSERTINSIDE:
+          this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
+          this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
+          break
+        case this.MOVETOPRODUCT:
+          this.assistanceText = this.$store.state.help.help.move
           if (!this.$store.state.moveOngoing) {
-            return 'Item selected. Choose drop position in any other product'
-          } else {
-            return 'Drop position is set'
-          }
-        case 3:
-          this.contextWarning = undefined
-          this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-          return `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
-        case 4:
-          if (this.contextNodeLevel > 4 && this.contextParentTeam !== this.$store.state.userData.myTeam) {
+            this.listItemText = 'Item selected. Choose drop position in any other product'
+          } else this.listItemText = 'Drop position is set'
+          break
+        case this.REMOVEITEM:
+          this.assistanceText = this.$store.state.help.help.remove
+          this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
+          break
+        case this.ASIGNTOMYTEAM:
+          this.assistanceText = this.$store.state.help.help.team
+          if (this.contextNodeLevel > FEATURELEVEL && this.contextParentTeam !== this.$store.state.userData.myTeam) {
             this.contextWarning = "WARNING: The team of parent " + this.contextParentType + " (" + this.contextParentTeam +
               ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Please read the assistance text."
           } else this.contextWarning = undefined
-          this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-          return `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
-        case 5:
-          this.contextWarning = undefined
-          this.showAssistance = this.currentAssistanceNr !== undefined && this.contextSelected === this.currentAssistanceNr
-          return `Start the check. See in the tree if any red badges appear`
-        default:
-          this.contextWarning = undefined
-          return 'nothing selected as yet'
-      }
-    },
-
-    contextAssistance(opt) {
-      this.currentAssistanceNr = opt
-      switch (opt) {
-        case 0:
-          this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
+          this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
           break
-        case 1:
-          this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
-          break
-        case 2:
-          this.assistanceText = this.$store.state.help.help.move
-          break
-        case 3:
-          this.assistanceText = this.$store.state.help.help.remove
-          break
-        case 4:
-          this.assistanceText = this.$store.state.help.help.team
-          break
-        case 5:
+        case this.CHECKSTATES:
           this.assistanceText = this.$store.state.help.help.consistencyCheck
+          this.listItemText = `Start the check. See in the tree if any red badges appear`
+          break
+        case this.SETDEPENDENCY:
+          this.assistanceText = 'No assistance available'
+          if (!this.$store.state.selectNodeOngoing) {
+            this.listItemText = 'Continue to choose a node this item depends on'
+          } else this.listItemText = 'Node is selected. Continue to set this condition.'
+          break
+        case this.SHOWDEPENDENCIES:
+          this.assistanceText = 'No assistance available'
+          this.showDependencies = true
+          // save the dependencies in a temporary array
+          this.getDependencies()
           break
         default:
           this.assistanceText = 'No assistance available'
+          this.listItemText = 'nothing selected as yet'
       }
     },
 
     procSelected() {
-      this.currentAssistanceNr = undefined
-      switch (this.contextSelected) {
-        case 0:
+      this.showAssistance = false
+      switch (this.contextOptionSelected) {
+        case this.INSERTBELOW:
           this.doInsert()
           break
-        case 1:
+        case this.INSERTINSIDE:
           this.doInsert()
           break
-        case 2:
+        case this.MOVETOPRODUCT:
           this.moveItemToOtherProduct()
           break
-        case 3:
+        case this.REMOVEITEM:
           this.doRemove()
           break
-        case 4:
+        case this.ASIGNTOMYTEAM:
           this.doChangeTeam()
           break
-        case 5:
+        case this.CHECKSTATES:
           this.doCheckStates()
+          break
+        case this.SETDEPENDENCY:
+          this.doSelectDependency()
+          break
+        case this.SHOWDEPENDENCIES:
+          this.doSaveDependencies()
           break
       }
     },
@@ -178,6 +189,7 @@ export default {
       // prepare the new node for insertion and set isSelected to true
       newNode = {
         productId: this.$store.state.load.currentProductId,
+        dependencies: [],
         children: [],
         isExpanded: false,
         savedIsExpanded: false,
@@ -188,7 +200,7 @@ export default {
         savedDoShow: true,
         data: {
           priority: null,
-          state: 0,
+          state: 2,
           lastStateChange: now,
           team: 'not assigned yet',
           subtype: 0,
@@ -198,7 +210,7 @@ export default {
         }
       }
       let insertLevel = this.contextNodeSelected.level
-      if (this.insertOptionSelected === 1) {
+      if (this.contextOptionSelected === this.INSERTBELOW) {
         // new node is a sibling placed below (after) the selected node
         newNodeLocation = {
           nodeModel: this.contextNodeSelected,
@@ -258,11 +270,12 @@ export default {
           "team": "not assigned yet",
           "level": insertLevel,
           "subtype": 0,
-          "state": 0,
+          "state": 2,
           "tssize": 3,
           "spsize": 0,
           "spikepersonhours": 0,
           "reqarea": null,
+          "dependencies": [],
           "title": newNode.title,
           "followers": [],
           "description": window.btoa(""),
@@ -327,7 +340,7 @@ export default {
       // before removal select the predecessor or sucessor of the removed node (sibling or parent)
       const prevNode = window.slVueTree.getPreviousNode(path)
       let nowSelectedNode = prevNode
-      if (prevNode.level === ROOTLEVEL) {
+      if (prevNode.level === DATABASELEVEL) {
         // if a product is to be removed and the previous node is root, select the next product
         const nextProduct = window.slVueTree.getNextSibling(path)
         if (nextProduct === null) {
@@ -383,9 +396,54 @@ export default {
       this.showLastEvent(`${count} inconsistencies are found.`, INFO)
     },
 
+    // ToDo: prohibit circular dependencies
+    doSelectDependency() {
+      if (this.$store.state.selectNodeOngoing) {
+        if (this.contextNodeSelected._id !== this.nodeWithDependencies._id) {
+          // item cannot be dependent on it self
+          this.nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
+          this.$store.dispatch('setDependencies', { _id: this.nodeWithDependencies._id, dependencies: this.nodeWithDependencies.dependencies })
+        }
+        this.$store.state.selectNodeOngoing = false
+      } else {
+        this.$store.state.selectNodeOngoing = true
+        this.nodeWithDependencies = this.contextNodeSelected
+      }
+    },
+
+    getDependencies() {
+      this.dependenciesObj = []
+      for (let depId of this.contextNodeSelected.dependencies) {
+        const item = window.slVueTree.getNodeById(depId)
+        if (item) {
+          this.dependenciesObj.push({ _id: depId, title: item.title })
+        }
+      }
+    },
+
+    removeDependency(id) {
+      let newArray = []
+      for (let depId of this.dependenciesObj) {
+        if (id !== depId._id) newArray.push(depId)
+      }
+      this.dependenciesObj = newArray
+    },
+
+    doSaveDependencies() {
+      this.showDependencies = false
+      let iDArray = []
+      for (let depId of this.dependenciesObj) {
+        iDArray.push(depId._id)
+      }
+      this.contextNodeSelected.dependencies = iDArray
+      this.$store.dispatch('setDependencies', { _id: this.contextNodeSelected._id, dependencies: iDArray })
+    },
+
     doCancel() {
-      this.currentAssistanceNr = undefined
+      this.showAssistance = false
       this.$store.state.moveOngoing = false
+      this.$store.state.selectNodeOngoing = false
+      this.showDependencies = false
     },
 
     moveItemToOtherProduct() {

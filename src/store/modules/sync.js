@@ -240,6 +240,7 @@ const actions = {
 									"productId": doc.productId,
 									"parentId": doc.parentId,
 									"_id": doc._id,
+									"dependencies": doc.dependencies,
 									"title": doc.title,
 									"isLeaf": (locationInfo.newPath.length < PBILEVEL) ? false : true,
 									"children": [],

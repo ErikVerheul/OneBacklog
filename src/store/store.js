@@ -48,6 +48,7 @@ export default new Vuex.Store({
 		skipOnce: true,
 		nodeSelected: null,
 		moveOngoing: false,
+		selectNodeOngoing: false,
 		numberOfNodesSelected: 0,
 		lastEvent: '',
 		eventSyncColor: '#004466',
