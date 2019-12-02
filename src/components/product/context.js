@@ -4,10 +4,6 @@ import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
-const DATABASELEVEL = 1
-const PRODUCTLEVEL = 2
-const FEATURELEVEL = 4
-const PBILEVEL = 5
 const REMOVED = 0
 const DONE = 5
 var newNode = {}
@@ -15,19 +11,24 @@ var movedNode = null
 
 export default {
   mixins: [utilities],
+
+  created() {
+    this.DATABASELEVEL = 1
+    this.PRODUCTLEVEL = 2
+    this.FEATURELEVEL = 4
+    this.PBILEVEL = 5
+    this.INSERTBELOW = 0
+    this.INSERTINSIDE = 1
+    this.MOVETOPRODUCT = 2
+    this.REMOVEITEM = 3
+    this.ASIGNTOMYTEAM = 4
+    this.CHECKSTATES = 5
+    this.SETDEPENDENCY = 6
+    this.SHOWDEPENDENCIES = 7
+  },
+
   data() {
     return {
-      INSERTBELOW: 0,
-      INSERTINSIDE: 1,
-      MOVETOPRODUCT: 2,
-      REMOVEITEM: 3,
-      ASIGNTOMYTEAM: 4,
-      CHECKSTATES: 5,
-      SETDEPENDENCY: 6,
-      SHOWDEPENDENCIES: 7,
-      pbiLevel: PBILEVEL,
-      featureLevel: FEATURELEVEL,
-      productLevel: PRODUCTLEVEL,
       contextNodeSelected: undefined,
       contextWarning: undefined,
       contextParentTeam: '',
@@ -72,7 +73,7 @@ export default {
       this.showAssistance = false
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
       if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id &&
-          node.level > DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
+        node.level > this.DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
         this.contextParentTeam = parentNode.data.team
@@ -118,7 +119,7 @@ export default {
           break
         case this.ASIGNTOMYTEAM:
           this.assistanceText = this.$store.state.help.help.team
-          if (this.contextNodeLevel > FEATURELEVEL && this.contextParentTeam !== this.$store.state.userData.myTeam) {
+          if (this.contextNodeLevel > this.FEATURELEVEL && this.contextParentTeam !== this.$store.state.userData.myTeam) {
             this.contextWarning = "WARNING: The team of parent " + this.contextParentType + " (" + this.contextParentTeam +
               ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Please read the assistance text."
           } else this.contextWarning = undefined
@@ -220,7 +221,7 @@ export default {
         path = locationPath.slice(0, -1).concat(idx)
         newNode.parentId = this.contextNodeSelected.parentId
         newNode.title = 'New ' + this.getLevelText(insertLevel)
-        newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
+        newNode.isLeaf = (insertLevel < this.PBILEVEL) ? false : true
       } else {
         // new node is a child placed a level lower (inside) than the selected node
         insertLevel += 1
@@ -233,7 +234,7 @@ export default {
         path = this.contextNodeSelected.path.concat(0)
         newNode.parentId = this.contextNodeSelected._id
         newNode.title = 'New ' + this.getLevelText(insertLevel)
-        newNode.isLeaf = (insertLevel < PBILEVEL) ? false : true
+        newNode.isLeaf = (insertLevel < this.PBILEVEL) ? false : true
       }
       // add the location values
       newNode.path = path
@@ -310,7 +311,7 @@ export default {
       const path = selectedNode.path
       const descendants = descendantsInfo.descendants
       // when removing a product
-      if (selectedNode.level === PRODUCTLEVEL) {
+      if (selectedNode.level === this.PRODUCTLEVEL) {
         // cannot remove the last assigned product or product in the tree
         if (this.$store.state.userData.userAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
           this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
@@ -329,7 +330,7 @@ export default {
       // create an entry for undoing the remove in a last-in first-out sequence
       const entry = {
         removedNode: selectedNode,
-        isProductRemoved: selectedNode.level === PRODUCTLEVEL,
+        isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
         grandParentId: selectedNode.parentId,
         parentId: selectedNode._id,
         parentPath: selectedNode.path,
@@ -340,7 +341,7 @@ export default {
       // before removal select the predecessor or sucessor of the removed node (sibling or parent)
       const prevNode = window.slVueTree.getPreviousNode(path)
       let nowSelectedNode = prevNode
-      if (prevNode.level === DATABASELEVEL) {
+      if (prevNode.level === this.DATABASELEVEL) {
         // if a product is to be removed and the previous node is root, select the next product
         const nextProduct = window.slVueTree.getNextSibling(path)
         if (nextProduct === null) {
@@ -360,11 +361,11 @@ export default {
 
     doChangeTeam() {
       this.contextNodeSelected.data.team = this.$store.state.userData.myTeam
-      if (this.contextNodeSelected.level > FEATURELEVEL) {
+      if (this.contextNodeSelected.level > this.FEATURELEVEL) {
         this.$store.dispatch('setTeam', [])
         this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
       } else {
-        if (this.contextNodeSelected.level >= PRODUCTLEVEL) {
+        if (this.contextNodeSelected.level >= this.PRODUCTLEVEL) {
           const descendantsInfo = window.slVueTree.getDescendantsInfo(this.contextNodeSelected)
           for (let desc of descendantsInfo.descendants) {
             desc.data.team = this.$store.state.userData.myTeam

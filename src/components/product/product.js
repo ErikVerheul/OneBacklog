@@ -10,11 +10,6 @@ import listings from './listings.vue'
 
 const INFO = 0
 const WARNING = 1
-const DATABASELEVEL = 1
-const PRODUCTLEVEL = 2
-const EPICLEVEL = 3
-const FEATURELEVEL = 4
-const PBILEVEL = 5
 const SHORTKEYLENGTH = 5
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
@@ -25,13 +20,17 @@ const DONE = 5
 
 export default {
   mixins: [utilities],
+
+  created() {
+    this.DATABASELEVEL = 1
+    this.PRODUCTLEVEL = 2
+    this.EPICLEVEL = 3
+    this.FEATURELEVEL = 4
+    this.PBILEVEL = 5
+  },
+
   data() {
     return {
-      databaseLevel: DATABASELEVEL,
-      productLevel: PRODUCTLEVEL,
-      epicLevel: EPICLEVEL,
-      featureLevel: FEATURELEVEL,
-      pbiLevel: PBILEVEL,
       userStorySubtype: 0,
       spikeSubtype: 1,
       defectSubtype: 2,
@@ -578,7 +577,7 @@ export default {
         if (currentNode.data.state === NEW && idx === READY) {
           changeState(this, this.$store.state.userData.myTeam)
           const parentNode = window.slVueTree.getParentNode(currentNode)
-          if (parentNode.level >= FEATURELEVEL && parentNode.data.team !== this.$store.state.userData.myTeam) {
+          if (parentNode.level >= this.FEATURELEVEL && parentNode.data.team !== this.$store.state.userData.myTeam) {
             this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
               this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
           }
@@ -670,7 +669,7 @@ export default {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         let failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         let failedCheck2 = levelChange > 1
-        let failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > PBILEVEL
+        let failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.PBILEVEL
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)

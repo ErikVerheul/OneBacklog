@@ -22,7 +22,7 @@
     </app-header>
     <div class="d-table w-100">
       <span class="d-table-cell tal">
-        <h3 v-if="getCurrentItemLevel <= epicLevel">
+        <h3 v-if="getCurrentItemLevel <= EPICLEVEL">
           {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
           <input
             type="text"
@@ -34,7 +34,7 @@
           />
         </h3>
         <h3
-          v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype !== spikeSubtype)"
+          v-if="getCurrentItemLevel === FEATURELEVEL || (getCurrentItemLevel === PBILEVEL && $store.state.currentDoc.subtype !== spikeSubtype)"
         >
           Story points:
           <input
@@ -47,7 +47,7 @@
           />
         </h3>
         <h3
-          v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === spikeSubtype"
+          v-if="getCurrentItemLevel === PBILEVEL && $store.state.currentDoc.subtype === spikeSubtype"
         >
           Person hours:
           <input
@@ -101,16 +101,16 @@
           >
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
-                <i class="colorSeaBlue" v-if="node.level == databaseLevel">
+                <i class="colorSeaBlue" v-if="node.level == DATABASELEVEL">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorBlue" v-if="node.level == productLevel">
+                <i class="colorBlue" v-if="node.level == PRODUCTLEVEL">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorGreen" v-if="node.level == epicLevel">
+                <i class="colorGreen" v-if="node.level == EPICLEVEL">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorOrange" v-if="node.level == featureLevel">
+                <i class="colorOrange" v-if="node.level == FEATURELEVEL">
                   <font-awesome-icon icon="folder" />
                 </i>
                 <i class="colorYellow" v-if="node.isLeaf && node.data.subtype == userStorySubtype">
@@ -180,7 +180,7 @@
           <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div class="d-table w-100">
               <p class="title is-6">This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
-              <div v-if="getCurrentItemLevel==this.pbiLevel" class="d-table-cell tar">
+              <div v-if="getCurrentItemLevel==this.PBILEVEL" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group
                     v-model="selectedPbiType"
