@@ -242,6 +242,13 @@ export default {
   },
 
   methods: {
+    patchTitle(node) {
+      let patch = ''
+      if (node.dependencies && node.dependencies.length > 0) patch = '▼ '
+      if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▲ '
+      return patch + node.title
+    },
+
     /* Return true if the state of the node has changed in the last hour */
     hasNewState(node) {
       return node.data.lastStateChange ? Date.now() - node.data.lastStateChange < HOURINMILIS : false
@@ -667,9 +674,9 @@ export default {
        */
       let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
         const levelChange = Math.abs(targetLevel - sourceLevel)
-        let failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
-        let failedCheck2 = levelChange > 1
-        let failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.PBILEVEL
+        const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
+        const failedCheck2 = levelChange > 1
+        const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.PBILEVEL
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
@@ -678,18 +685,10 @@ export default {
       const sourceLevel = draggingNodes[0].level
       let targetLevel = position.nodeModel.level
       // are we dropping 'inside' a node creating children to that node?
-      if (position.placement === 'inside') {
-        targetLevel++
-        if (checkDropNotAllowed(draggingNodes[0], sourceLevel, targetLevel)) {
-          cancel(true)
-          return
-        }
-      } else {
-        // a drop before of after an existing sibling
-        if (checkDropNotAllowed(draggingNodes[0], sourceLevel, targetLevel)) {
-          cancel(true)
-          return
-        }
+      if (position.placement === 'inside') targetLevel++
+      if (checkDropNotAllowed(draggingNodes[0], sourceLevel, targetLevel)) {
+        cancel(true)
+        return
       }
     },
 
@@ -730,16 +729,20 @@ export default {
         next: 0,
         payloadArray: payloadArray
       })
-      // create the event message
-      const title = this.itemTitleTrunc(60, draggingNodes[0].title)
-      let evt = ""
-      if (draggingNodes.length === 1) {
-        evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.nodeModel.title}'`
+      if (window.slVueTree.findDependencyViolations().length > 0) {
+        this.showLastEvent('This move violated dependencies. Use the dependency check to fix this.', WARNING)
       } else {
-        evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
+        // create the event message
+        const title = this.itemTitleTrunc(60, draggingNodes[0].title)
+        let evt = ""
+        if (draggingNodes.length === 1) {
+          evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.nodeModel.title}'`
+        } else {
+          evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
+        }
+        if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
+        this.showLastEvent(evt, INFO)
       }
-      if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
-      this.showLastEvent(evt, INFO)
     },
 
     getPbiOptions() {

@@ -24,6 +24,7 @@
 * _id: doc._id,
 * shortId: doc.shortId,
 * dependencies: doc.dependencies, // array with ids
+* conditionalFor: doc.conditionalFor, // array with ids
 * title: doc.title,
 * isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
 * children: [],

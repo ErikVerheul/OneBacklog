@@ -124,7 +124,7 @@
                 </i>
               </span>
               <!-- use a trick to force rendering when a node had a change -->
-              {{ node.title }} {{ String(node.data.lastChange).substring(0, 0) }}:{{ node.dependencies }}
+              {{ patchTitle(node) }} {{ String(node.data.lastChange).substring(0, 0) }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
@@ -293,13 +293,18 @@
       <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
-      <b-form-file
-        v-model="fileInfo"
-        :state="Boolean(fileInfo)"
-        placeholder="Choose a file..."
-      ></b-form-file>
-      <div v-if="fileInfo !== null" class="mt-3">File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
+    <b-modal
+      size="lg"
+      ref="uploadRef"
+      :ok-disabled="uploadToLarge || invalidFileName"
+      @ok="uploadAttachment"
+      title="Upload an attachment"
+    >
+      <b-form-file v-model="fileInfo" :state="Boolean(fileInfo)" placeholder="Choose a file..."></b-form-file>
+      <div
+        v-if="fileInfo !== null"
+        class="mt-3"
+      >File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
       <div v-if="uploadToLarge" class="mt-3 colorRed">Cannot upload files this size</div>
     </b-modal>
 

@@ -25,10 +25,12 @@ export default {
     this.CHECKSTATES = 5
     this.SETDEPENDENCY = 6
     this.SHOWDEPENDENCIES = 7
+    this.SHOWCONDITIONS = 8
   },
 
   data() {
     return {
+      disableOk: true,
       contextNodeSelected: undefined,
       contextWarning: undefined,
       contextParentTeam: '',
@@ -46,16 +48,18 @@ export default {
       moveSourceProductId: '',
       nodeWithDependencies: undefined,
       hasDependencies: false,
-      dependencyTextTweak: 'a',
+      hasConditions: false,
       showDependencies: false,
-      dependenciesObj: []
+      showConditions: false,
+      dependenciesObjects: [],
+      conditionsObjects: []
     }
   },
 
   mounted() {
     // to fix this.$refs.contextMenuRef undefined when routing away and back, expose instance to the global namespace
     window.showContextMenuRef = this.$refs.contextMenuRef
-    eventBus.$on('context', (node) => {
+    eventBus.$on('contextMenu', (node) => {
       this.showContextMenu(node)
     })
   },
@@ -70,7 +74,9 @@ export default {
   methods: {
     showContextMenu(node) {
       this.contextOptionSelected = undefined
+      this.listItemText = ''
       this.showAssistance = false
+      this.disableOk = true
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
       if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id &&
         node.level > this.DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
@@ -86,18 +92,35 @@ export default {
         this.contextNodeTeam = node.data.team
         if (node.dependencies.length > 0) {
           this.hasDependencies = true
-          this.dependencyTextTweak = 'another'
-        } else {
-          this.hasDependencies = false
-          this.dependencyTextTweak = 'a'
-        }
+        } else this.hasDependencies = false
+        if (node.conditionalFor.length > 0) {
+          this.hasConditions = true
+        } else this.hasConditions = false
         window.showContextMenuRef.show()
       }
     },
 
     showSelected(idx) {
+      function checkNode(vm, selNode) {
+        if (selNode._id === vm.nodeWithDependencies._id) {
+          vm.contextWarning = "WARNING: Item cannot be dependent on it self"
+          return false
+        }
+        if (vm.nodeWithDependencies.dependencies.includes(selNode._id)) {
+          vm.contextWarning = "WARNING: Cannot add the same dependency twice"
+          return false
+        }
+        if (window.slVueTree.comparePaths(vm.nodeWithDependencies.path, selNode.path) === 1) {
+          vm.contextWarning = "WARNING: Cannot create a dependency on an item with higher priority"
+          return false
+        }
+        return true
+      }
+
       this.contextOptionSelected = idx
+      this.listItemText = ''
       this.contextWarning = undefined
+      this.disableOk = false
       switch (this.contextOptionSelected) {
         case this.INSERTBELOW:
           this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
@@ -132,14 +155,25 @@ export default {
         case this.SETDEPENDENCY:
           this.assistanceText = 'No assistance available'
           if (!this.$store.state.selectNodeOngoing) {
-            this.listItemText = 'Continue to choose a node this item depends on'
-          } else this.listItemText = 'Node is selected. Continue to set this condition.'
+            this.listItemText = 'Click OK to choose a node this item depends on'
+          } else {
+            if (checkNode(this, this.contextNodeSelected)) {
+              this.listItemText = 'Click OK to set this condition.'
+            } else {
+              this.listItemText = ''
+              this.disableOk = true
+            }
+          }
           break
         case this.SHOWDEPENDENCIES:
           this.assistanceText = 'No assistance available'
           this.showDependencies = true
-          // save the dependencies in a temporary array
           this.getDependencies()
+          break
+        case this.SHOWCONDITIONS:
+          this.assistanceText = 'No assistance available'
+          this.showConditions = true
+          this.getConditions()
           break
         default:
           this.assistanceText = 'No assistance available'
@@ -172,7 +206,10 @@ export default {
           this.doSelectDependency()
           break
         case this.SHOWDEPENDENCIES:
-          this.doSaveDependencies()
+          this.updateDependencies()
+          break
+        case this.SHOWCONDITIONS:
+          this.updateConditions()
           break
       }
     },
@@ -191,6 +228,7 @@ export default {
       newNode = {
         productId: this.$store.state.load.currentProductId,
         dependencies: [],
+        conditionalFor: [],
         children: [],
         isExpanded: false,
         savedIsExpanded: false,
@@ -277,6 +315,7 @@ export default {
           "spikepersonhours": 0,
           "reqarea": null,
           "dependencies": [],
+          "conditionalFor": [],
           "title": newNode.title,
           "followers": [],
           "description": window.btoa(""),
@@ -397,47 +436,106 @@ export default {
       this.showLastEvent(`${count} inconsistencies are found.`, INFO)
     },
 
-    // ToDo: prohibit circular dependencies
     doSelectDependency() {
       if (this.$store.state.selectNodeOngoing) {
-        if (this.contextNodeSelected._id !== this.nodeWithDependencies._id) {
-          // item cannot be dependent on it self
-          this.nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
-          this.$store.dispatch('setDependencies', { _id: this.nodeWithDependencies._id, dependencies: this.nodeWithDependencies.dependencies })
-        }
+        this.nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
+        this.$store.dispatch('setDependencies', { _id: this.nodeWithDependencies._id, dependencies: this.nodeWithDependencies.dependencies })
+
+        this.contextNodeSelected.conditionalFor.push(this.nodeWithDependencies._id)
+        this.$store.dispatch('setConditions', { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor })
+
         this.$store.state.selectNodeOngoing = false
       } else {
-        this.$store.state.selectNodeOngoing = true
+        // save the node the dependencies will be attached to; Note: will be undefined when autocompiled at file save
         this.nodeWithDependencies = this.contextNodeSelected
+        this.$store.state.selectNodeOngoing = true
       }
     },
 
     getDependencies() {
-      this.dependenciesObj = []
+      this.dependenciesObjects = []
       for (let depId of this.contextNodeSelected.dependencies) {
         const item = window.slVueTree.getNodeById(depId)
         if (item) {
-          this.dependenciesObj.push({ _id: depId, title: item.title })
+          this.dependenciesObjects.push({ _id: depId, title: item.title })
         }
       }
     },
 
-    removeDependency(id) {
-      let newArray = []
-      for (let depId of this.dependenciesObj) {
-        if (id !== depId._id) newArray.push(depId)
+    getConditions() {
+      this.conditionsObjects = []
+      for (let condId of this.contextNodeSelected.conditionalFor) {
+        const item = window.slVueTree.getNodeById(condId)
+        if (item) {
+          this.conditionsObjects.push({ _id: condId, title: item.title })
+        }
       }
-      this.dependenciesObj = newArray
     },
 
-    doSaveDependencies() {
+    /* Remove the dependency from the view only, not yet in the database. */
+    removeDependency(id) {
+      let iDArray = []
+      for (let depId of this.dependenciesObjects) {
+        if (id !== depId._id) iDArray.push(depId)
+      }
+      this.dependenciesObjects = iDArray
+    },
+
+    /* Remove the condition from the view only, not yet in the database. */
+    removeCondition(id) {
+      let iDArray = []
+      for (let condId of this.conditionsObjects) {
+        if (id !== condId._id) iDArray.push(condId)
+      }
+      this.conditionsObjects = iDArray
+    },
+
+    /* Update the dependencies and the corresponding conditions in the tree model and the database. */
+    updateDependencies() {
       this.showDependencies = false
       let iDArray = []
-      for (let depId of this.dependenciesObj) {
+      for (let depId of this.dependenciesObjects) {
         iDArray.push(depId._id)
+      }
+      let removedIds = []
+      for (let id of this.contextNodeSelected.dependencies) {
+        if (!iDArray.includes(id)) removedIds.push(id)
       }
       this.contextNodeSelected.dependencies = iDArray
       this.$store.dispatch('setDependencies', { _id: this.contextNodeSelected._id, dependencies: iDArray })
+      for (let id of removedIds) {
+        const node = window.slVueTree.getNodeById(id)
+        let iDArray = []
+        for (let condId of node.conditionalFor) {
+          if (condId !== this.contextNodeSelected._id) iDArray.push(id)
+        }
+        node.conditionalFor = iDArray
+        this.$store.dispatch('setConditions', { _id: node._id, conditionalFor: iDArray })
+      }
+    },
+
+    /* Update the conditions and the corresponding dependencies in the tree model and the database. */
+    updateConditions() {
+      this.showConditions = false
+      let iDArray = []
+      for (let condId of this.conditionsObjects) {
+        iDArray.push(condId._id)
+      }
+      let removedIds = []
+      for (let id of this.contextNodeSelected.conditionalFor) {
+        if (!iDArray.includes(id)) removedIds.push(id)
+      }
+      this.contextNodeSelected.conditionalFor = iDArray
+      this.$store.dispatch('setConditions', { _id: this.contextNodeSelected._id, conditionalFor: iDArray })
+      for (let id of removedIds) {
+        const node = window.slVueTree.getNodeById(id)
+        let iDArray = []
+        for (let depId of node.dependencies) {
+          if (depId !== this.contextNodeSelected._id) iDArray.push(id)
+        }
+        node.dependencies = iDArray
+        this.$store.dispatch('setDependencies', { _id: node._id, dependencies: iDArray })
+      }
     },
 
     doCancel() {
@@ -445,6 +543,7 @@ export default {
       this.$store.state.moveOngoing = false
       this.$store.state.selectNodeOngoing = false
       this.showDependencies = false
+      this.showConditions = false
     },
 
     moveItemToOtherProduct() {
@@ -488,7 +587,6 @@ export default {
         this.moveSourceProductId = this.$store.state.load.currentProductId
         movedNode = this.contextNodeSelected
       }
-    },
-
+    }
   }
 }

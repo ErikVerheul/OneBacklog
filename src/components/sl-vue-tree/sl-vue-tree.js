@@ -162,7 +162,7 @@ export default {
 
 		// trigger the context component via the eventbus
 		emitNodeContextmenu(node) {
-			eventBus.$emit('context', node)
+			eventBus.$emit('contextMenu', node)
 		},
 
 		/*
@@ -471,7 +471,6 @@ export default {
 					if (nm.children) traverse(cb, nm.children)
 				}
 			}
-
 			traverse(cb, nodeModels)
 		},
 
@@ -745,10 +744,23 @@ export default {
 				const nm = this.getNodeModel(node.path.slice(0, i))
 				if (i < maxDepth) {
 					nm.isExpanded = true
-					// console.log('expandPathToNode: expanded ' + nm.title)
 				}
 			}
 			return !(node.level > maxDepth)
+		},
+		findDependencyViolations() {
+			let violations = []
+			this.traverseModels((nm) => {
+				if (nm.conditionalFor && nm.conditionalFor.length > 0) {
+					for (let condId of nm.conditionalFor) {
+						const dep = this.getNodeById(condId)
+						if (this.comparePaths(nm.path, dep.path) === -1) {
+							violations.push(nm, dep)
+						}
+					}
+				}
+			}, this.getProductModels())
+			return violations
 		}
 	}
 }
