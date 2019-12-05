@@ -30,7 +30,7 @@ export default {
 
   data() {
     return {
-      disableOk: true,
+      disableOkButton: true,
       contextNodeSelected: undefined,
       contextWarning: undefined,
       contextParentTeam: '',
@@ -49,8 +49,6 @@ export default {
       nodeWithDependencies: undefined,
       hasDependencies: false,
       hasConditions: false,
-      showDependencies: false,
-      showConditions: false,
       dependenciesObjects: [],
       conditionsObjects: []
     }
@@ -76,7 +74,7 @@ export default {
       this.contextOptionSelected = undefined
       this.listItemText = ''
       this.showAssistance = false
-      this.disableOk = true
+      this.disableOkButton = true
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
       if (this.haveWritePermission[node.level] && node._id === this.$store.state.nodeSelected._id &&
         node.level > this.DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
@@ -90,12 +88,8 @@ export default {
         this.contextChildType = this.getLevelText(node.level + 1)
         this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
         this.contextNodeTeam = node.data.team
-        if (node.dependencies.length > 0) {
-          this.hasDependencies = true
-        } else this.hasDependencies = false
-        if (node.conditionalFor.length > 0) {
-          this.hasConditions = true
-        } else this.hasConditions = false
+        this.hasDependencies = node.dependencies.length > 0
+        this.hasConditions = node.conditionalFor.length > 0
         window.showContextMenuRef.show()
       }
     },
@@ -120,7 +114,7 @@ export default {
       this.contextOptionSelected = idx
       this.listItemText = ''
       this.contextWarning = undefined
-      this.disableOk = false
+      this.disableOkButton = false
       switch (this.contextOptionSelected) {
         case this.INSERTBELOW:
           this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
@@ -161,18 +155,16 @@ export default {
               this.listItemText = 'Click OK to set this condition.'
             } else {
               this.listItemText = ''
-              this.disableOk = true
+              this.disableOkButton = true
             }
           }
           break
         case this.SHOWDEPENDENCIES:
           this.assistanceText = 'No assistance available'
-          this.showDependencies = true
           this.getDependencies()
           break
         case this.SHOWCONDITIONS:
           this.assistanceText = 'No assistance available'
-          this.showConditions = true
           this.getConditions()
           break
         default:
@@ -492,7 +484,6 @@ export default {
 
     /* Update the dependencies and the corresponding conditions in the tree model and the database. */
     updateDependencies() {
-      this.showDependencies = false
       let iDArray = []
       for (let depId of this.dependenciesObjects) {
         iDArray.push(depId._id)
@@ -516,7 +507,6 @@ export default {
 
     /* Update the conditions and the corresponding dependencies in the tree model and the database. */
     updateConditions() {
-      this.showConditions = false
       let iDArray = []
       for (let condId of this.conditionsObjects) {
         iDArray.push(condId._id)
@@ -542,8 +532,6 @@ export default {
       this.showAssistance = false
       this.$store.state.moveOngoing = false
       this.$store.state.selectNodeOngoing = false
-      this.showDependencies = false
-      this.showConditions = false
     },
 
     moveItemToOtherProduct() {
