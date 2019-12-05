@@ -7,6 +7,23 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
 				<hr>
+				<h3>v.0.8.0 - 5 December 2019 Major update</h3>
+				<h5>Note that this release is not backwards compatible with previous releases. The ordering of the item states is changed to a more logical sequence. Databases with an older config document version will not load.</h5>
+				<p>New features:</p>
+				<ul>
+					<li>When changing the state of an item the new state is checked against its descendants. A warning is issued if that state is incompatible. Eg. you can only set a feature to done if all descendants are done.</li>
+					<li>The dependency epic is implemented.</li>
+				</ul>
+				<hr>
+				<h3>v.0.7.1 - 16 November 2019 Feature update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved for use in the next session</li>
+					<li>Product backlog items are now owned by a team</li>
+					<li>An authenticated user can assign a backlog item and its descendants to the users team</li>
+					<li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect to a different team than the team of the parent feature</li>
+				</ul>
+				<hr>
 				<h3>v.0.7.2 - 26 November 2019 Feature update</h3>
 				<p>New features:</p>
 				<ul>

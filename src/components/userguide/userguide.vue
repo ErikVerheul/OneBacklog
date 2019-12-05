@@ -67,6 +67,11 @@
 
 						</ul>
 					</p>
+					<p>Dependencies:</p>
+					<p>Items with dependencies on other items are designated with a ▼ symbol in front of the title name. Use the context menu to assign dependencies or to inspect or remove them.
+						When dependencies are set the items which become conditional for the dependent items are designated with a ▲ symbol. Use the context menu to inspect or remove them.
+						When after dragging items in tree one or more dependencies are violated you receive an error message.</p>
+
 					<p>Badges:</p>
 					<b-img :src="require('./badges.png')" alt="Example badges" />
 					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its red color.</p>
@@ -190,7 +195,8 @@ export default {
   border: 1px solid black;
 }
 
-p, ul {
+p,
+ul {
   margin-left: 10px;
   color: black;
 }
