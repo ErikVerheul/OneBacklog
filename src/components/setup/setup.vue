@@ -15,12 +15,13 @@
 				<button @click="creRdmProduct" class="myButton">1. Create random product</button>
 				<button @click="createUser" class="myButton">2. Create user</button>
 				<button @click="crateDB" class="myButton">3. Choose or Create a database</button>
+				<button @click="removeHist" class="myButton">4. Remove history</button>
 				<button @click="showDBsecurity" class="myButton">6. Show the database security info</button>
 				<button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
 				<button @click="showDocById" class="myButton">8. Show a document by id</button>
 				<button @click="deleteDB" class="myButton">9. Delete the selected || created database</button>
 				<button @click="copyDB" class="myButton">11. Copy a database including permissions</button>
-				<button @click="shortId" class="myButton">12. (Remove history) Convert state from existing database</button>
+				<button @click="convertState" class="myButton">12. Convert state from existing database</button>
 			</div>
 
 			<div class="col-lg-12 col-sm-12">
@@ -108,6 +109,9 @@
 					case 3:
 						this.crateDBExe()
 						break
+					case 4:
+						this.removeHistExe()
+						break
 					case 5:
 						this.assignUserExe()
 						break
@@ -194,6 +198,23 @@
 					field4: "field not used",
 				}
 				this.commandNr = 3
+			},
+			removeHist() {
+				this.$store.commit('clearAll')
+				this.selectionMade = true
+				this.row = {
+					field1: "DB name",
+					field2: "field not used",
+					field3: "field not used",
+					field4: "field not used",
+				}
+				this.commandNr = 4
+			},
+			removeHistExe() {
+				var payload = {
+					dbName: this.row.field1
+				}
+				this.$store.dispatch('doRemoveHistory', payload)
 			},
 			crateDBExe() {
 				const dbName = this.row.field1
@@ -286,22 +307,22 @@
 				}
 				this.$store.dispatch('copyDB', payload)
 			},
-			shortId() {
+			convertState() {
 				this.$store.commit('clearAll')
 				this.selectionMade = true
 				this.row = {
-					field1: "Source DB name",
+					field1: "DB name",
 					field2: "field not used",
 					field3: "field not used",
 					field4: "field not used",
 				}
 				this.commandNr = 12
 			},
-			removeHistExe() {
+			convertStateExe() {
 				var payload = {
 					dbName: this.row.field1
 				}
-				this.$store.dispatch('doRemoveHistory', payload)
+				this.$store.dispatch('doConvertState', payload)
 			},
 		}
 	}

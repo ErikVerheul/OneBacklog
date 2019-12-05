@@ -574,7 +574,6 @@ const actions = {
 				state.errorMessage = error.message
 			})
 	},
-
 	updateWithNoHistory({
 		rootState,
 		dispatch
@@ -586,6 +585,67 @@ const actions = {
 			data: { "docs": docsToUpdate },
 		}).then(res => {
 			// console.log('updateWithNoHistory: res = ' + JSON.stringify(res, null, 2))
+			const results = res.data.results
+			const ok = []
+			for (let i = 0; i < results.length; i++) {
+				if (results[i].docs[0].ok) {
+					results[i].docs[0].ok["history"] = [
+						{
+							"rootEvent": ["history cleared"],
+							"by": rootState.userData.user,
+							"email": rootState.userData.email,
+							"timestamp": Date.now()
+						}]
+					ok.push(results[i].docs[0].ok)
+				}
+			}
+			dispatch('updateBulk', ok)
+		})
+			.catch(error => {
+				let msg = 'updateWithNoHistory: Could not read batch of documents: ' + error
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			})
+	},
+
+	doConvertState({
+		state,
+		dispatch
+	}, payload) {
+		this.commit('clearAll')
+		globalAxios({
+			method: 'GET',
+			url: payload.dbName + '/_all_docs',
+			withCredentials: true,
+		}).then(res => {
+			// eslint-disable-next-line no-console
+			console.log(res.data)
+			const docsToUpdate = []
+			for (let i = 0; i < res.data.rows.length; i++) {
+				docsToUpdate.push({ "id": res.data.rows[i].id })
+			}
+			dispatch('updateState', docsToUpdate)
+		})
+			.catch(error => {
+				// eslint-disable-next-line no-console
+				console.log(error)
+				state.message = error.response.data
+				state.errorMessage = error.message
+			})
+	},
+
+	updateState({
+		rootState,
+		dispatch
+	}, docsToUpdate) {
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			withCredentials: true,
+			data: { "docs": docsToUpdate },
+		}).then(res => {
+			// console.log('updateState: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
 			const ok = []
 			for (let i = 0; i < results.length; i++) {
@@ -614,20 +674,13 @@ const actions = {
 							newState = 4
 					}
 					results[i].docs[0].ok.state = newState
-					// results[i].docs[0].ok["history"] = [
-					// 	{
-					// 		"rootEvent": ["history cleared"],
-					// 		"by": rootState.userData.user,
-					// 		"email": rootState.userData.email,
-					// 		"timestamp": Date.now()
-					// 	}]
 					ok.push(results[i].docs[0].ok)
 				}
 			}
 			dispatch('updateBulk', ok)
 		})
 			.catch(error => {
-				let msg = 'updateWithNoHistory: Could not read batch of documents: ' + error
+				let msg = 'updateState: Could not read batch of documents: ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
