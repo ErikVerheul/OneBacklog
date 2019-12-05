@@ -147,6 +147,8 @@ const actions = {
 								// the node has not changed parent nor changed location w/r to its siblings; update possible changes
 								node.productId = doc.productId
 								node.title = doc.title
+								node.dependencies = doc.dependencies
+								node.conditionalFor = doc.conditionalFor
 								node.data.state = doc.state
 								node.data.team = doc.team
 								node.data.subtype = doc.subtype
