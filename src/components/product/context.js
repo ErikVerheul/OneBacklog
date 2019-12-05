@@ -88,8 +88,8 @@ export default {
         this.contextChildType = this.getLevelText(node.level + 1)
         this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
         this.contextNodeTeam = node.data.team
-        this.hasDependencies = node.dependencies.length > 0
-        this.hasConditions = node.conditionalFor.length > 0
+        this.hasDependencies = node.dependencies && node.dependencies.length > 0
+        this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         window.showContextMenuRef.show()
       }
     },
