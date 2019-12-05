@@ -231,7 +231,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"setDependenciesEvent": [tmpDoc.dependencies, payload.dependencies],
+				"setDependenciesEvent": [tmpDoc.title, tmpDoc.dependencies, payload.dependencies],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -261,7 +261,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"setConditionsEvent": [tmpDoc.conditionalFor, payload.conditionalFor],
+				"setConditionsEvent": [tmpDoc.title, tmpDoc.conditionalFor, payload.conditionalFor],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -270,6 +270,7 @@ const actions = {
 			}
 			tmpDoc.conditionalFor = payload.conditionalFor
 			tmpDoc.history.unshift(newHist)
+			rootState.currentDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setConditions: Could not read document with _id ' + _id + ', ' + error

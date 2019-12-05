@@ -32,6 +32,16 @@
 <script>
 import { utilities } from '../mixins/utilities.js'
 
+function convertToShortIds(Ids) {
+  if (!Ids || Ids.length === 0) return 'none'
+
+  const shortIds = []
+  for (let id of Ids) {
+    shortIds.push(id.slice(-5))
+  }
+  return shortIds
+}
+
 export default {
   mixins: [utilities],
 
@@ -104,6 +114,8 @@ export default {
           if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
           if (keys[j] === "commentToHistoryEvent") allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
           if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
+          if (keys[j] === "setDependenciesEvent") allText += this.mkSetDependenciesEvent(histItem[keys[j]])
+          if (keys[j] === "setConditionsEvent") allText += this.mkSetConditionsEvent(histItem[keys[j]])
           if (keys[j] === "by") allText += this.mkBy(histItem[keys[j]])
           if (keys[j] === "email") allText += this.mkEmail(histItem[keys[j]])
           if (keys[j] === "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
@@ -164,6 +176,8 @@ export default {
       if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
       if (key === "docRestoredInsideEvent") return this.mkDocRestoredInsideEvent(value)
       if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
+      if (key === "setDependenciesEvent") return this.mkSetDependenciesEvent(value)
+      if (key === "setConditionsEvent") return this.mkSetConditionsEvent(value)
       if (key === "by") return this.mkBy(value)
       if (key === "email") return this.mkEmail(value)
       if (key === "timestamp") return this.mkTimestamp(value)
@@ -276,6 +290,14 @@ export default {
 
     mkDocRestoredEvent() {
       return "<h5>This item has been restored from removal</h5>"
+    },
+
+    mkSetDependenciesEvent(value) {
+      return `<h5>Dependencies set for '${value[0]}' changed from ${convertToShortIds(value[1])} to ${convertToShortIds(value[2])} (short Ids)`
+    },
+
+    mkSetConditionsEvent(value) {
+      return `<h5>Conditions on '${value[0]}' set for ${convertToShortIds(value[1])} are now set for ${convertToShortIds(value[2])} (short Ids)`
     },
 
     mkBy(value) {
