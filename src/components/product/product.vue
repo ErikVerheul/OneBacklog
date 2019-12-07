@@ -3,20 +3,18 @@
     <app-header>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
-        <b-button
-          class="m-1"
-          v-show="$store.state.removeHistory.length > 0 && !$store.state.update.busyRemoving"
-          @click="onUndoRemoveEvent()"
-        >Undo remove</b-button>
-        <b-button class="m-1" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
         <b-nav-form>
-          <b-form-input id="selectOnId" v-model="shortId" class="m-1" placeholder="Find on Id" />
-          <b-form-input
-            id="searchInput"
-            v-model="$store.state.keyword"
-            class="m-1"
-            placeholder="Search in titles"
-          />
+          <b-button class="m-1" v-show="$store.state.removeHistory.length > 0 && !$store.state.update.busyRemoving" @click="onUndoRemoveEvent()">Undo remove</b-button>
+          <b-button class="m-1" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
+          <div class="divider"/>
+        </b-nav-form>
+        <b-nav-form>
+          <input id="selectOnId" v-model="shortId" type="text" class="form-control" placeholder="Find on Id"/>
+          <button @click="resetFindId" class="close-icon" type="reset"></button>
+        </b-nav-form>
+        <b-nav-form>
+          <input id="searchInput" v-model="$store.state.keyword" type="text" class="form-control" placeholder="Search in titles"/>
+          <button @click="resetSearchTitles" class="close-icon" type="reset"></button>
         </b-nav-form>
       </b-navbar-nav>
     </app-header>
@@ -503,5 +501,36 @@ input[type="number"] {
 .align-right {
   float: right;
   margin-top: 10px;
+}
+
+.divider{
+    width:15px;
+    height:auto;
+    display:inline-block;
+}
+
+// Clear input field. See https://codepen.io/shidhincr/pen/ICLBD
+.close-icon {
+  position: relative;
+	border: 1px solid transparent;
+	background-color: transparent;
+	vertical-align: middle;
+  outline: 0;
+}
+.close-icon:after {
+	content: "\D7";
+	width: 15px;
+	height: 15px;
+	position: absolute;
+	background-color: #408fae;
+	right: 25px;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+	border-radius: 50%;
+	color: white;
+	font-weight: normal;
+	font-size: 10px;
+	cursor: pointer;
 }
 </style>

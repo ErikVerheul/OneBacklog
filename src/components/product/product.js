@@ -242,6 +242,14 @@ export default {
   },
 
   methods: {
+    resetFindId() {
+      window.slVueTree.resetFilters('selectOnId')
+    },
+
+    resetSearchTitles() {
+      window.slVueTree.resetFilters('showSearchInTitles')
+    },
+
     patchTitle(node) {
       let patch = ''
       if (node.dependencies && node.dependencies.length > 0) patch = '▼ '
