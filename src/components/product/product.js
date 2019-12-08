@@ -50,6 +50,8 @@ export default {
       // comments, history and attachments
       doAddition: false,
       startFiltering: false,
+      isCommentsFilterActive: false,
+      isHistoryFilterActive: false,
       newComment: "",
       fileInfo: null,
       newHistory: "",
@@ -110,6 +112,10 @@ export default {
         window.slVueTree.resetFilters('showSearchInTitles')
       }
     })
+  },
+
+  beforeUpdate() {
+    this.checkForDependencyViolations()
   },
 
   computed: {
@@ -235,13 +241,43 @@ export default {
     'startFiltering': function (val) {
       if (val === true) {
         this.startFiltering = false
-        if (this.$store.state.selectedForView === 'comments') this.$refs.commentsFilterRef.show()
-        if (this.$store.state.selectedForView === 'history') this.$refs.historyFilterRef.show()
+        if (this.$store.state.selectedForView === 'comments') {
+          this.$refs.commentsFilterRef.show()
+          this.isCommentsFilterActive = true
+        }
+        if (this.$store.state.selectedForView === 'history') {
+          this.$refs.historyFilterRef.show()
+          this.isHistoryFilterActive = true
+        }
       }
     }
   },
 
   methods: {
+    checkForDependencyViolations() {
+			const violations = window.slVueTree.findDependencyViolations()
+			if (violations.length > 0) {
+				this.showLastEvent('This product has priority inconsistencies.', WARNING)
+				for (let v of violations) {
+					window.slVueTree.showDependencyViolations(v)
+				}
+			} else this.clearLastEvent()
+			return violations.length > 0
+    },
+
+    stopFiltering() {
+      if (this.$store.state.selectedForView === 'comments') {
+        this.filterForCommentPrep = ''
+        this.filterComments()
+        this.isCommentsFilterActive = false
+      }
+      if (this.$store.state.selectedForView === 'history') {
+        this.filterForHistoryPrep = ''
+        this.filterHistory()
+        this.isHistoryFilterActive = false
+      }
+    },
+
     resetFindId() {
       window.slVueTree.resetFilters('selectOnId')
     },
@@ -254,6 +290,7 @@ export default {
       let patch = ''
       if (node.dependencies && node.dependencies.length > 0) patch = '▼ '
       if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▲ '
+      if (node.markViolation) patch = patch + '↑ '
       return patch + node.title
     },
 
@@ -737,20 +774,17 @@ export default {
         next: 0,
         payloadArray: payloadArray
       })
-      if (window.slVueTree.findDependencyViolations().length > 0) {
-        this.showLastEvent('This move violated dependencies. Use the dependency check to fix this.', WARNING)
+
+      // create the event message
+      const title = this.itemTitleTrunc(60, draggingNodes[0].title)
+      let evt = ""
+      if (draggingNodes.length === 1) {
+        evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.nodeModel.title}'`
       } else {
-        // create the event message
-        const title = this.itemTitleTrunc(60, draggingNodes[0].title)
-        let evt = ""
-        if (draggingNodes.length === 1) {
-          evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.nodeModel.title}'`
-        } else {
-          evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
-        }
-        if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
-        this.showLastEvent(evt, INFO)
+        evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
       }
+      if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
+      this.showLastEvent(evt, INFO)
     },
 
     getPbiOptions() {

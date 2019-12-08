@@ -35,6 +35,7 @@
 * isDraggable: true || false, // depending on the user roles
 * doShow: true, // false if filtered out
 * savedDoShow: doShow, // to restore the original view after applying a filter
+* markViolation: false // temporary use, not stored, not synced
 *
 * data: {
 * ....priority: doc.priority,

@@ -751,16 +751,35 @@ export default {
 		findDependencyViolations() {
 			let violations = []
 			this.traverseModels((nm) => {
+				// remove any left dependency markers
+				if (nm.markViolation) nm.markViolation = false
 				if (nm.conditionalFor && nm.conditionalFor.length > 0) {
 					for (let condId of nm.conditionalFor) {
 						const dep = this.getNodeById(condId)
 						if (this.comparePaths(nm.path, dep.path) === -1) {
-							violations.push(nm, dep)
+							violations.push({condNode: nm, depNode: dep})
 						}
 					}
 				}
 			}, this.getProductModels())
 			return violations
-		}
+		},
+
+		/* Show the path from condNode to depNode not including both nodes */
+		showDependencyViolations(violation) {
+			// returns true if pathH >= path >= pathL
+			function inRange(vm, path, pathH, pathL) {
+				return (vm.comparePaths(pathH, path) === 1) && (vm.comparePaths(path, pathL) === 1)
+			}
+			this.traverseModels((nm) => {
+				if (inRange(this, nm.path, violation.depNode.path, violation.condNode.path)) {
+					this.getParentNode(violation.condNode).isExpanded = true
+					this.getParentNode(violation.depNode).isExpanded = true
+					nm.doShow = true
+					nm.markViolation = true
+				}
+			}, this.getProductModels())
+
+		},
 	}
 }

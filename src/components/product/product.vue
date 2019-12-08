@@ -253,9 +253,15 @@
               </div>
               <div class="d-table-cell tar">
                 <b-button
+                  v-if="$store.state.selectedForView === 'comments' && !isCommentsFilterActive || $store.state.selectedForView === 'history' && !isHistoryFilterActive"
                   variant="seablue"
                   :pressed.sync="startFiltering"
                 >Filter {{ $store.state.selectedForView }}</b-button>
+                <b-button
+                  v-else
+                  variant="seablue"
+                  @click="stopFiltering"
+                >Clear {{ $store.state.selectedForView }} filter</b-button>
               </div>
             </div>
           </div>
