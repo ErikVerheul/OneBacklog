@@ -17,6 +17,7 @@ const REMOVED = 0
 const NEW = 2
 const READY = 3
 const DONE = 5
+var violationsWereFound = false
 
 export default {
   mixins: [utilities],
@@ -257,12 +258,15 @@ export default {
     checkForDependencyViolations() {
 			const violations = window.slVueTree.findDependencyViolations()
 			if (violations.length > 0) {
-				this.showLastEvent('This product has priority inconsistencies.', WARNING)
+        violationsWereFound = true
+				this.showLastEvent('This product has priority inconsistencies. Change priority or remove dependency.', WARNING)
 				for (let v of violations) {
 					window.slVueTree.showDependencyViolations(v)
 				}
-			} else this.clearLastEvent()
-			return violations.length > 0
+			} else {
+        if (violationsWereFound) this.clearLastEvent()
+        violationsWereFound = false
+      }
     },
 
     stopFiltering() {
