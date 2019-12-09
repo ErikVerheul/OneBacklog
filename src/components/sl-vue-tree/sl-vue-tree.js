@@ -767,19 +767,14 @@ export default {
 
 		/* Show the path from condNode to depNode not including both nodes */
 		showDependencyViolations(violation) {
-			// returns true if pathH >= path >= pathL
-			function inRange(vm, path, pathH, pathL) {
-				return (vm.comparePaths(pathH, path) === 1) && (vm.comparePaths(path, pathL) === 1)
-			}
 			this.traverseModels((nm) => {
-				if (inRange(this, nm.path, violation.depNode.path, violation.condNode.path)) {
+				if ((this.comparePaths(violation.depNode.path, nm.path) === 1) && (this.comparePaths(nm.path, violation.condNode.path) === 1)) {
 					this.getParentNode(violation.condNode).isExpanded = true
 					this.getParentNode(violation.depNode).isExpanded = true
 					nm.doShow = true
 					nm.markViolation = true
 				}
 			}, this.getProductModels())
-
-		},
+		}
 	}
 }
