@@ -311,9 +311,17 @@ export default {
 			this.stopDrag();
 		},
 
+		/* When filters did hide nodes undo this when the user expands a node */
+		unhideDescendants(node) {
+			this.traverseModels((nm) => {
+				nm.doShow = true
+			}, [node])
+		},
+
 		onToggleHandler(event, node) {
 			if (!this.allowToggleBranch) return;
 			node.isExpanded = !node.isExpanded
+			if (node.isExpanded) this.unhideDescendants(node)
 			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'expanded' : 'collapsed'}`, INFO)
 			this.emitToggle(node, event);
 			event.stopPropagation();
@@ -745,8 +753,20 @@ export default {
 					nm.isExpanded = true
 				}
 			}
-			return !(node.level > maxDepth)
+			return node.level <= maxDepth
 		},
+
+		hasHighlightedDescendants(node) {
+			let result = false
+			this.traverseModels((nm) => {
+				if (nm.isHighlighted) {
+					result = true
+					return false
+				}
+			}, [node])
+			return result
+		},
+
 		findDependencyViolations() {
 			let violations = []
 			this.traverseModels((nm) => {

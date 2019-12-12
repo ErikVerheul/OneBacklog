@@ -1,6 +1,7 @@
 import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
+const PBILEVEL = 5
 
 export default {
   mixins: [utilities],
@@ -109,6 +110,7 @@ export default {
 
       const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
       let count = 0
+      const unselectedNodes = []
       // create a callback for the filtering
       let cb = (nodeModel) => {
         // save node display state
@@ -139,13 +141,25 @@ export default {
               nodeModel.isHighlighted = true
               count++
             }
-          } else nodeModel.isExpanded = false
+          } else {
+            // for now PBILEVEL is the lowest level (highest number)
+            if (nodeModel.level === PBILEVEL) {
+              nodeModel.doShow = false
+            } else {
+              nodeModel.isExpanded = false
+              unselectedNodes.push(nodeModel)
+            }
+          }
         }
       }
       // execute the callback
       window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
 
       if (!onlyFilterOnDepth) {
+        // hide unselected nodes with no selected descendants
+        for (let node of unselectedNodes) {
+          node.doShow = window.slVueTree.hasHighlightedDescendants(node)
+        }
         let s
         count === 1 ? s = 'title matches' : s = 'titles match'
         this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
