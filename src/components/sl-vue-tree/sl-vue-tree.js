@@ -6,6 +6,7 @@ const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
+const WARNING = 1
 var lastSelectedNode = null
 var draggableNodes = []
 var selectedNodes = []
@@ -268,6 +269,8 @@ export default {
 
 			// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
 			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === DATABASELEVEL || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
+				if (this.$store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', WARNING)
+				if (this.$store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', WARNING)
 				this.stopDrag()
 				return
 			}
@@ -281,11 +284,7 @@ export default {
 				}
 				// prevent drag to other product
 				if (this.cursorPosition.nodeModel.productId !== this.$store.state.load.currentProductId) {
-					this.stopDrag()
-					return
-				}
-				// prevent confusion when the user selects a target node to insert before when that node has a lower level (higher in the hierarchy)
-				if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel.level < draggingNode.level) {
+					this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', WARNING)
 					this.stopDrag()
 					return
 				}
