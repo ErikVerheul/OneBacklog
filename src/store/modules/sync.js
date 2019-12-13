@@ -169,12 +169,13 @@ const actions = {
 								}
 							}
 						} else {
+							// the node is new
 							if (doc.delmark) {
 								// do not insert a removed node
 								continue
 							}
-							// node	is restored from a previous removal
 							if (doc.history[0].docRestoredInsideEvent) {
+								// node	is restored from a previous removal
 								commit('showLastEvent', { txt: 'Another user restored a removed item.', severity: INFO })
 								// lookup in remove history
 								for (let i = 0; i < remoteRemoved.length; i++) {
