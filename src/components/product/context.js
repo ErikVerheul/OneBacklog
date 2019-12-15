@@ -360,6 +360,7 @@ export default {
 
       // create an entry for undoing the remove in a last-in first-out sequence
       const entry = {
+        type: 'removedNode',
         removedNode: selectedNode,
         isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
         grandParentId: selectedNode.parentId,
@@ -368,7 +369,7 @@ export default {
         descendants: descendants
       }
 
-      this.$store.state.removeHistory.unshift(entry)
+      this.$store.state.changeHistory.unshift(entry)
       // before removal select the predecessor or sucessor of the removed node (sibling or parent)
       const prevNode = window.slVueTree.getPreviousNode(path)
       let nowSelectedNode = prevNode
@@ -552,6 +553,7 @@ export default {
         const newParentNode = window.slVueTree.getNodeById(newNode.parentId)
         const payloadItem = {
           '_id': newNode._id,
+          'type': 'move',
           'oldProductTitle': sourceProductNode.title,
           'productId': newNode.productId,
           'newParentId': newNode.parentId,
@@ -565,7 +567,7 @@ export default {
           'descendants': window.slVueTree.getDescendantsInfo(newNode).descendants
         }
         // update the database
-        this.$store.dispatch('updateDropped', {
+        this.$store.dispatch('nodesMovedorBack', {
           next: 0,
           payloadArray: [payloadItem]
         })

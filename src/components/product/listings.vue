@@ -104,7 +104,9 @@ export default {
           if (keys[j] === "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
           if (keys[j] === "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
           if (keys[j] === "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
+          if (keys[j] === "nodeUndoMoveEvent") allText += this.mkNodeUndoMoveEvent(histItem[keys[j]])
           if (keys[j] === "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
+          if (keys[j] === "descendantUndoMove") allText += this.mkDescendantUndoMove(histItem[keys[j]])
           if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
           if (keys[j] === "parentDocRemovedEvent") allText += this.mkParentDocRemovedEvent(histItem[keys[j]])
           if (keys[j] === "docRemovedEvent") allText += this.mkDocRemovedEvent(histItem[keys[j]])
@@ -169,7 +171,9 @@ export default {
       if (key === "descriptionEvent") return this.mkDescriptionEvent(value)
       if (key === "acceptanceEvent") return this.mkAcceptanceEvent(value)
       if (key === "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
+      if (key === "nodeUndoMoveEvent") return this.mkNodeUndoMoveEvent(value)
       if (key === "descendantMoved") return this.mkDescendantMoved(value)
+      if (key === "descendantUndoMove") return this.mkDescendantUndoMove(value)
       if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
       if (key === "parentDocRemovedEvent") return this.mkParentDocRemovedEvent(value)
       if (key === "docRemovedEvent") return this.mkDocRemovedEvent(value)
@@ -234,7 +238,7 @@ export default {
     },
 
     mkSetTitleEvent(value) {
-      return "<h5>The item  title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'"
+      return "<h5>The item title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'"
     },
 
     mkSetSubTypeEvent(value) {
@@ -264,8 +268,16 @@ export default {
       }
     },
 
+    mkNodeUndoMoveEvent(value) {
+      return "<h5>The move of the item is undone by the user.</h5>"
+    },
+
     mkDescendantMoved(value) {
       return "<h5>Item was moved as descendant from '" + value[0] + "'</h5>"
+    },
+
+    mkDescendantUndoMove(value) {
+      return "<h5>The move of the item is undone by the user as a descendant of '" + value[0] + "'.</h5>"
     },
 
     mkRemovedFromParentEvent(value) {

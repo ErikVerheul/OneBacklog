@@ -256,14 +256,14 @@ export default {
 
   methods: {
     checkForDependencyViolations() {
-			const violations = window.slVueTree.findDependencyViolations()
-			if (violations.length > 0) {
+      const violations = window.slVueTree.findDependencyViolations()
+      if (violations.length > 0) {
         violationsWereFound = true
-				this.showLastEvent('This product has priority inconsistencies. Change priority or remove dependency.', WARNING)
-				for (let v of violations) {
-					window.slVueTree.showDependencyViolations(v)
-				}
-			} else {
+        this.showLastEvent('This product has priority inconsistencies. Change priority or remove dependency.', WARNING)
+        for (let v of violations) {
+          window.slVueTree.showDependencyViolations(v)
+        }
+      } else {
         if (violationsWereFound) this.clearLastEvent()
         violationsWereFound = false
       }
@@ -397,45 +397,72 @@ export default {
       // window.slVueTree.showVisibility('searchInTitles', FEATURELEVEL)
     },
 
-    onUndoRemoveEvent() {
-      const entry = this.$store.state.removeHistory.splice(0, 1)[0]
-      this.$store.dispatch("unDoRemove", entry)
-      // restore the removed node
-      const parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
-      if (parentNode) {
-        let path
-        if (window.slVueTree.comparePaths(parentNode.path, entry.removedNode.path.slice(0, -1)) === 0) {
-          // the removed node path has not changed
-          path = entry.removedNode.path
-        } else {
-          // the removed node path has changed; correct it for the new parent path
-          path = parentNode.path.concat(entry.removedNode.path.slice(-1))
-        }
-        const prevNode = window.slVueTree.getPreviousNode(path)
-        if (entry.removedNode.path.slice(-1)[0] === 0) {
-          // the previous node is the parent
-          const cursorPosition = {
-            nodeModel: prevNode,
-            placement: 'inside'
+    onUndoEvent() {
+      const entry = this.$store.state.changeHistory.splice(0, 1)[0]
+
+      switch (entry.type) {
+        case 'undoMove':
+          window.slVueTree.moveBack(entry)
+          // update the nodes in the database
+          var payloadArray = []
+          for (let n of entry.beforeDropStatus.nodes) {
+            const payloadItem = {
+              '_id': n._id,
+              'type': 'undoMove',
+              'newLevel': n.level,
+              'newParentId': n.parentId,
+              'productId': n.productId,
+              'newPriority': n.data.priority,
+              'oldParentTitle': n.title,
+              'descendants': window.slVueTree.getDescendantsInfo(n).descendants
+            }
+            payloadArray.push(payloadItem)
           }
-          window.slVueTree.insert(cursorPosition, [entry.removedNode])
-        } else {
-          // the previous node is a sibling
-          const cursorPosition = {
-            nodeModel: prevNode,
-            placement: 'after'
+          this.$store.dispatch('nodesMovedorBack', {
+            next: 0,
+            payloadArray: payloadArray
+          })
+          break
+        case 'removedNode':
+          this.$store.dispatch("unDoRemove", entry)
+          // restore the removed node
+          var parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
+          if (parentNode) {
+            let path
+            if (window.slVueTree.comparePaths(parentNode.path, entry.removedNode.path.slice(0, -1)) === 0) {
+              // the removed node path has not changed
+              path = entry.removedNode.path
+            } else {
+              // the removed node path has changed; correct it for the new parent path
+              path = parentNode.path.concat(entry.removedNode.path.slice(-1))
+            }
+            const prevNode = window.slVueTree.getPreviousNode(path)
+            if (entry.removedNode.path.slice(-1)[0] === 0) {
+              // the previous node is the parent
+              const cursorPosition = {
+                nodeModel: prevNode,
+                placement: 'inside'
+              }
+              window.slVueTree.insert(cursorPosition, [entry.removedNode])
+            } else {
+              // the previous node is a sibling
+              const cursorPosition = {
+                nodeModel: prevNode,
+                placement: 'after'
+              }
+              window.slVueTree.insert(cursorPosition, [entry.removedNode])
+            }
+            // select the recovered node
+            this.$store.state.nodeSelected.isSelected = false
+            entry.removedNode.isSelected = true
+            this.$store.state.nodeSelected = entry.removedNode
+            this.$store.state.load.currentProductId = entry.removedNode.productId
+          } else {
+            this.showLastEvent(`Cannot restore the removed items in the tree view. Sign out and -in again to recover'`, WARNING)
           }
-          window.slVueTree.insert(cursorPosition, [entry.removedNode])
-        }
-        // select the recovered node
-        this.$store.state.nodeSelected.isSelected = false
-        entry.removedNode.isSelected = true
-        this.$store.state.nodeSelected = entry.removedNode
-        this.$store.state.load.currentProductId = entry.removedNode.productId
-      } else {
-        this.showLastEvent(`Cannot restore the removed items in the tree view. Sign out and -in again to recover'`, WARNING)
+          break
       }
-      // window.slVueTree.showVisibility('onUndoRemoveEvent', FEATURELEVEL)
+      // window.slVueTree.showVisibility('onUndoEvent', FEATURELEVEL)
     },
 
     subscribeClicked() {
@@ -746,7 +773,7 @@ export default {
      * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
      * Todo: set a timestamp for the change both in the node and the database
      */
-    nodeDropped(draggingNodes, position) {
+    nodeDropped(beforeDropStatus, draggingNodes, position) {
       const targetNode = position.nodeModel
       const clickedLevel = draggingNodes[0].level
       let dropLevel = targetNode.level
@@ -757,27 +784,35 @@ export default {
       let levelChange = clickedLevel - dropLevel
       // update the nodes in the database
       let payloadArray = []
-      for (let i = 0; i < draggingNodes.length; i++) {
+      for (let n of draggingNodes) {
         const payloadItem = {
-          '_id': draggingNodes[i]._id,
+          '_id': n._id,
+          'type': 'move',
           'oldProductTitle': null,
-          'productId': draggingNodes[i].productId,
-          'newParentId': draggingNodes[i].parentId,
-          'newPriority': draggingNodes[i].data.priority,
+          'productId': n.productId,
+          'newParentId': n.parentId,
+          'newPriority': n.data.priority,
           'newParentTitle': targetNode.title,
-          'oldParentTitle': draggingNodes[i].title,
+          'oldParentTitle': n.title,
           'oldLevel': clickedLevel,
-          'newLevel': draggingNodes[i].level,
-          'newInd': draggingNodes[i].ind,
+          'newLevel': n.level,
+          'newInd': n.ind,
           'placement': position.placement,
-          'descendants': window.slVueTree.getDescendantsInfo(draggingNodes[i]).descendants
+          'descendants': window.slVueTree.getDescendantsInfo(n).descendants
         }
         payloadArray.push(payloadItem)
       }
-      this.$store.dispatch('updateDropped', {
+      this.$store.dispatch('nodesMovedorBack', {
         next: 0,
         payloadArray: payloadArray
       })
+
+      // create an entry for undoing the move in a last-in first-out sequence
+      const entry = {
+        type: 'undoMove',
+        beforeDropStatus
+      }
+      this.$store.state.changeHistory.unshift(entry)
 
       // create the event message
       const title = this.itemTitleTrunc(60, draggingNodes[0].title)

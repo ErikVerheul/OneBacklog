@@ -544,7 +544,7 @@ const actions = {
 		})
 	},
 	/* Dispatch the update of the moved nodes and the update of the history of their descendants */
-	updateDropped({
+	nodesMovedorBack({
 		dispatch
 	}, payload) {
 		if (payload.next >= payload.payloadArray.length) return
@@ -554,19 +554,32 @@ const actions = {
 		dispatch('updateMovedItems', payloadItem)
 		let payloadArray2 = []
 		for (let i = 0; i < payloadItem.descendants.length; i++) {
-			const payloadItem2 = {
-				"_id": payloadItem.descendants[i]._id,
-				"oldProductTitle": payloadItem.oldProductTitle,
-				"oldParentTitle": payloadItem.oldParentTitle,
-				"productId": payloadItem.productId,
-				"newLevel": payloadItem.descendants[i].level
+			let payloadItem2 = {}
+			if (payloadItem.type === 'move') {
+				payloadItem2 = {
+					"_id": payloadItem.descendants[i]._id,
+					"type": 'move',
+					"oldProductTitle": payloadItem.oldProductTitle,
+					"oldParentTitle": payloadItem.oldParentTitle,
+					"productId": payloadItem.productId,
+					"newLevel": payloadItem.descendants[i].level
+				}
+			} else {
+				// undo move
+				payloadItem2 = {
+					"_id": payloadItem.descendants[i]._id,
+					"type": 'undoMove',
+					"oldParentTitle": payloadItem.oldParentTitle,
+					"productId": payloadItem.productId,
+					"newLevel": payloadItem.descendants[i].level
+				}
 			}
 			payloadArray2.push(payloadItem2)
 		}
 		dispatch('updateDroppedDescendantsBulk', payloadArray2)
 		payload.next++
 		// recurse
-		dispatch('updateDropped', payload)
+		dispatch('nodesMovedorBack', payload)
 	},
 	/* Update the dropped node */
 	updateMovedItems({
@@ -580,13 +593,26 @@ const actions = {
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
-			const newHist = {
-				"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle, payload.nrOfDescendants, payload.oldProductTitle, payload.placement],
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
+			let newHist = {}
+			if (payload.type === 'move') {
+				newHist = {
+					"nodeDroppedEvent": [payload.oldLevel, payload.newLevel, payload.newInd, payload.newParentTitle, payload.nrOfDescendants, payload.oldProductTitle, payload.placement],
+					"by": rootState.userData.user,
+					"email": rootState.userData.email,
+					"timestamp": Date.now(),
+					"sessionId": rootState.userData.sessionId,
+					"distributeEvent": true
+				}
+			} else {
+				// undo move
+				newHist = {
+					"nodeUndoMoveEvent": [],
+					"by": rootState.userData.user,
+					"email": rootState.userData.email,
+					"timestamp": Date.now(),
+					"sessionId": rootState.userData.sessionId,
+					"distributeEvent": true
+				}
 			}
 			tmpDoc.history.unshift(newHist)
 			tmpDoc.level = payload.newLevel
@@ -633,13 +659,26 @@ const actions = {
 					const payloadItem = getPayLoadItem(results[i].docs[0].ok._id)
 					const doc = results[i].docs[0].ok
 					// change the document
-					const newHist = {
-						"descendantMoved": [payloadItem.oldParentTitle],
-						"by": rootState.userData.user,
-						"email": rootState.userData.email,
-						"timestamp": Date.now(),
-						"sessionId": rootState.userData.sessionId,
-						"distributeEvent": false
+					let newHist = {}
+					if (payloadItem.type === 'move') {
+						newHist = {
+							"descendantMoved": [payloadItem.oldParentTitle],
+							"by": rootState.userData.user,
+							"email": rootState.userData.email,
+							"timestamp": Date.now(),
+							"sessionId": rootState.userData.sessionId,
+							"distributeEvent": false
+						}
+					} else {
+						// undo move
+						newHist = {
+							"descendantUndoMove": [payloadItem.oldParentTitle],
+							"by": rootState.userData.user,
+							"email": rootState.userData.email,
+							"timestamp": Date.now(),
+							"sessionId": rootState.userData.sessionId,
+							"distributeEvent": false
+						}
 					}
 					doc.history.unshift(newHist)
 					doc.level = payloadItem.newLevel

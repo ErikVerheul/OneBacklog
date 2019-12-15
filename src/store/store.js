@@ -28,7 +28,7 @@ export default new Vuex.Store({
 		showWatchdogInfo: false,
 		// product view
 		selectedForView: 'comments',
-		removeHistory: [],
+		changeHistory: [],
 		filterForComment: "",
 		filterForHistory: "",
 		// utilities for superAdmin, admin and superPO

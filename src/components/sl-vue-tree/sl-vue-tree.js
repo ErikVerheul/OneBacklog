@@ -15,6 +15,30 @@ var nodeToDeselect = null
 import { eventBus } from "../../main"
 import { utilities } from '../mixins/utilities.js'
 
+/*
+* Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
+* Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
+*/
+function assignNewPrios(nodes, predecessorNode, successorNode) {
+	let predecessorPrio
+	let successorPrio
+	if (predecessorNode !== null) {
+		predecessorPrio = predecessorNode.data.priority
+	} else predecessorPrio = Number.MAX_SAFE_INTEGER
+
+	if (successorNode !== null) {
+		successorPrio = successorNode.data.priority
+	} else successorPrio = Number.MIN_SAFE_INTEGER
+
+	const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+	for (let i = 0; i < nodes.length; i++) {
+		// update the tree
+		nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+		//ToDo: is the change timestamp recorded in the database?
+		nodes[i].data.lastChange = Date.now()
+	}
+}
+
 export default {
 	name: 'sl-vue-tree',
 	mixins: [utilities],
@@ -149,8 +173,8 @@ export default {
 			this.getRootComponent().$emit('beforedrop', draggingNodes, position, cancel);
 		},
 
-		emitDrop(draggingNodes, position, event) {
-			this.getRootComponent().$emit('drop', draggingNodes, position, event);
+		emitDrop(beforeDropStatus, draggingNodes, position, event) {
+			this.getRootComponent().$emit('drop', beforeDropStatus, draggingNodes, position, event);
 		},
 
 		emitToggle(toggledNode, event) {
@@ -305,10 +329,10 @@ export default {
 			}
 			// console.log('onNodeMouseupHandler: moveNodes is called, draggableNodes.length = ' + draggableNodes.length)
 			// console.log('onNodeMouseupHandler: JSON.stringify(draggableNodes, null, 2) = ' + JSON.stringify(draggableNodes, null, 2))
-			this.moveNodes(this.cursorPosition, draggableNodes)
+			const beforeDropStatus = this.moveNodes(this.cursorPosition, draggableNodes)
 
-			this.emitDrop(draggableNodes, this.cursorPosition, event);
-			this.stopDrag();
+			this.emitDrop(beforeDropStatus, draggableNodes, this.cursorPosition, event)
+			this.stopDrag()
 		},
 
 		/* When filters did hide nodes undo this when the user expands a node */
@@ -509,8 +533,11 @@ export default {
 			return this.getNodeModel(prevPath)
 		},
 
-		/* Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId */
-		updatePaths(parentPath, siblings, insertInd, productId = undefined, parentId = undefined) {
+		/*
+		* Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId
+		* Pass an insertInd as the lowest index of any insert to gain performance.
+		*/
+		updatePaths(parentPath, siblings, insertInd = 0, parentId = undefined, productId = undefined) {
 			for (let i = insertInd; i < siblings.length; i++) {
 				const sibling = siblings[i]
 				const oldPath = sibling.path.slice()
@@ -530,7 +557,7 @@ export default {
 					sibling.data.distributeEvent = true
 				}
 				if (sibling.children && sibling.children.length > 0) {
-					this.updatePaths(sibling.path, sibling.children, 0, productId, sibling._id)
+					this.updatePaths(sibling.path, sibling.children, 0, sibling._id, productId)
 				}
 			}
 		},
@@ -540,27 +567,6 @@ export default {
 		 * When creating a new single node (not moving) createNew must be true
 		 */
 		insert(cursorPosition, nodes) {
-			// recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
-			// precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
-			function assignNewPrios(nodes, predecessorNode, successorNode) {
-				let predecessorPrio
-				let successorPrio
-				if (predecessorNode !== null) {
-					predecessorPrio = predecessorNode.data.priority
-				} else predecessorPrio = Number.MAX_SAFE_INTEGER
-
-				if (successorNode !== null) {
-					successorPrio = successorNode.data.priority
-				} else successorPrio = Number.MIN_SAFE_INTEGER
-
-				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-				for (let i = 0; i < nodes.length; i++) {
-					// update the tree
-					nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-					//ToDo: is the change timestamp recorded in the database?
-					nodes[i].data.lastChange = Date.now()
-				}
-			}
 			const destNodeModel = cursorPosition.nodeModel
 			const productId = destNodeModel.productId
 			let predecessorNode
@@ -576,8 +582,8 @@ export default {
 				successorNode = destSiblings[nodes.length] || null
 				if (destNodeModel.path.length === 1) {
 					// inserting a product
-					this.updatePaths(destNodeModel.path, destSiblings, 0)
-				} else this.updatePaths(destNodeModel.path, destSiblings, 0, productId, parentId)
+					this.updatePaths(destNodeModel.path, destSiblings)
+				} else this.updatePaths(destNodeModel.path, destSiblings, 0, parentId, productId)
 			} else {
 				// insert before or after the cursor position
 				const destSiblings = this.getNodeSiblings(destNodeModel.path)
@@ -590,7 +596,7 @@ export default {
 				if (parentPath.length === 1) {
 					// inserting a product
 					this.updatePaths(parentPath, destSiblings, insertInd)
-				} else this.updatePaths(parentPath, destSiblings, insertInd, productId, parentId)
+				} else this.updatePaths(parentPath, destSiblings, insertInd, parentId, productId)
 			}
 			assignNewPrios(nodes, predecessorNode, successorNode)
 		},
@@ -612,16 +618,109 @@ export default {
 			}
 		},
 
+
+		moveBack(entry) {
+			// console.log('moveBack: entry = ' + JSON.stringify(entry, null, 2))
+			function isRestoredNode(child, nodes) {
+				for (let n of nodes) {
+					if (n._id === child._id) return true
+				}
+				return false
+			}
+			function recalculatePriorities(nodes, children) {
+				// function logPatch(patch, predecessorNode, successorNode) {
+				// 	console.log('logPatch: predecessorNode.title = ' + (predecessorNode ? predecessorNode.title : 'null') +
+				// 	'\nsuccessorNode.title = ' + (successorNode ? successorNode.title : 'null') +
+				// 	'\npatch.length = ' + patch.length
+				// 	)
+				// }
+				// sort the nodes on priority (highest first)
+				nodes.sort((h, l) => l.data.priority - h.data.priority)
+				// find patches of restored nodes
+				let predecessorNode = null
+				let successorNode
+				let patch = []
+				for (let c of children) {
+					if (isRestoredNode(c, nodes)) {
+						patch.push(c)
+					} else {
+						if (patch.length === 0) {
+							predecessorNode = c
+						} else {
+							successorNode = c
+							assignNewPrios(patch, predecessorNode, successorNode)
+							// find the next patch
+							predecessorNode = c
+							patch = []
+						}
+					}
+				}
+				// last element in children was restored
+				if (patch.length !== 0) {
+					assignNewPrios(patch, predecessorNode, null)
+				}
+			}
+			const beforeDropStatus = entry.beforeDropStatus
+			const restoredChildren = []
+			const restoredSourceChildren = []
+			const restoredTargetChildren = []
+			if (beforeDropStatus.sourceParentId === beforeDropStatus.targetParentId) {
+				for (let id of beforeDropStatus.savedSourceChildrenIds) {
+					const node = this.getNodeById(id)
+					restoredChildren.push(node)
+				}
+				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId)
+				commonParent.children = restoredChildren
+				this.updatePaths(commonParent.path, commonParent.children)
+			} else {
+				for (let id of beforeDropStatus.savedSourceChildrenIds) {
+					const node = this.getNodeById(id)
+					restoredSourceChildren.push(node)
+				}
+				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId)
+				sourceParent.children = restoredSourceChildren
+				this.updatePaths(sourceParent.path, sourceParent.children, 0, beforeDropStatus.sourceParentId)
+
+				for (let id of beforeDropStatus.savedTargetChildrenIds) {
+					const node = this.getNodeById(id)
+					restoredTargetChildren.push(node)
+				}
+				const targetParent = this.getNodeById(beforeDropStatus.targetParentId)
+				targetParent.children = restoredTargetChildren
+				this.updatePaths(targetParent.path, targetParent.children, 0, beforeDropStatus.targetParentId)
+			}
+			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredChildren)
+			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredSourceChildren)
+			if (restoredTargetChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredTargetChildren)
+		},
+
 		/* Remove the node and save the current selected node so that it is deselected on the next select */
 		removeSingle(node, currentSelectedNode) {
 			nodeToDeselect = currentSelectedNode
 			this.remove([node])
 		},
 
-		/* Move the nodes to the position designated by cursorPosition */
+		getChildrenIds(parentId) {
+			const node = this.getNodeById(parentId)
+			const ids = []
+			for (let c of node.children) {
+				ids.push(c._id)
+			}
+			return ids
+		},
+
+		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
 		moveNodes(cursorPosition, nodes) {
+			// save the status of source and target before move
+			const sourceParentId = nodes[0].parentId
+			const targetParentId = cursorPosition.placement === 'inside' ? cursorPosition.nodeModel._id : cursorPosition.nodeModel.parentId
+			const savedSourceChildrenIds = this.getChildrenIds(sourceParentId)
+			const savedTargetChildrenIds = this.getChildrenIds(targetParentId)
+			const beforeDropStatus = { nodes, sourceParentId, savedSourceChildrenIds, targetParentId, savedTargetChildrenIds }
+
 			this.remove(nodes)
 			this.insert(cursorPosition, nodes)
+			return beforeDropStatus
 		},
 
 		/* test code */
@@ -776,7 +875,7 @@ export default {
 					for (let condId of nm.conditionalFor) {
 						const dep = this.getNodeById(condId)
 						if (this.comparePaths(nm.path, dep.path) === -1) {
-							violations.push({condNode: nm, depNode: dep})
+							violations.push({ condNode: nm, depNode: dep })
 						}
 					}
 				}
