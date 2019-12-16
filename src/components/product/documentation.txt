@@ -40,7 +40,7 @@
 * data: {
 * ....priority: doc.priority,
 * ....state: doc.state,
-* ....inconsistentState: false // calculated on consitency check
+* ....inconsistentState: false // calculated on consistency check
 * ....team: doc.team, // the team membership of the user who updated the state the last time
 * ....subtype: doc.subtype,
 * ....lastStateChange, // lookup in doc history

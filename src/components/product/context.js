@@ -567,7 +567,7 @@ export default {
           'descendants': window.slVueTree.getDescendantsInfo(newNode).descendants
         }
         // update the database
-        this.$store.dispatch('nodesMovedorBack', {
+        this.$store.dispatch('nodesMovedOrBack', {
           next: 0,
           payloadArray: [payloadItem]
         })

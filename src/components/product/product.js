@@ -418,7 +418,7 @@ export default {
             }
             payloadArray.push(payloadItem)
           }
-          this.$store.dispatch('nodesMovedorBack', {
+          this.$store.dispatch('nodesMovedOrBack', {
             next: 0,
             payloadArray: payloadArray
           })
@@ -802,7 +802,7 @@ export default {
         }
         payloadArray.push(payloadItem)
       }
-      this.$store.dispatch('nodesMovedorBack', {
+      this.$store.dispatch('nodesMovedOrBack', {
         next: 0,
         payloadArray: payloadArray
       })
