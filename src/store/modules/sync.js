@@ -5,7 +5,6 @@ const PBILEVEL = 5
 const INFO = 0
 const WARNING = 1
 var fistCallAfterSignin = true
-var missedAdditions = []
 var remoteRemoved = []
 
 /*
@@ -88,7 +87,7 @@ const actions = {
 			//eslint-disable-next-line no-console
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			if (since && !fistCallAfterSignin) {
-				const results = data.results.concat(missedAdditions)
+				const results = data.results
 				for (let i = 0; i < results.length; i++) {
 					let doc = results[i].doc
 					// Select only documents which are a product backlog item, belong to the user subscribed products and changes not made
@@ -97,7 +96,7 @@ const actions = {
 						isDifferentSession(doc) &&
 						rootState.userData.myProductSubscriptions.includes(doc.productId)) {
 						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('processChangedDocs: document with _id ' + doc._id + ' is processed, title = ' + doc.title)
+						if (rootState.debug) console.log('listenForChanges[processChangedDocs]: document with _id ' + doc._id + ' is processed, priority = ' + doc.priority + ' title = ' + doc.title)
 						dispatch('doBlinck')
 						// get the timestamps
 						const lastHistoryChange = doc.history && doc.history.length > 0 ? doc.history[0].timestamp : 0
@@ -155,17 +154,19 @@ const actions = {
 							} else {
 								// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
 								window.slVueTree.remove([node])
+								node.data.priority = doc.priority
+								// do not recalculate the priority during insert
 								if (locationInfo.newInd === 0) {
 									window.slVueTree.insert({
 										nodeModel: locationInfo.prevNode,
 										placement: 'inside'
-									}, [node])
+									}, [node], false)
 								} else {
 									// insert after prevNode
 									window.slVueTree.insert({
 										nodeModel: locationInfo.prevNode,
 										placement: 'after'
-									}, [node])
+									}, [node], false)
 								}
 							}
 						} else {
@@ -222,16 +223,13 @@ const actions = {
 								// node is newly created
 								const parentNode = window.slVueTree.getNodeById(doc.parentId)
 								if (parentNode === null) {
-									doc.wasMissing = true
 									let msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
 										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
 									// eslint-disable-next-line no-console
 									if (rootState.debug) console.log(msg)
 									dispatch('doLog', { event: msg, level: WARNING })
-									missedAdditions.push({ doc })
 									continue
 								}
-								doc.wasMissing = false
 								// initialize the node; to be finalized by updatePath and assignNewPrios in sl-vue-tree
 								const locationInfo = getLocationInfo(doc.priority, parentNode)
 								let node = {
@@ -271,13 +269,6 @@ const actions = {
 						}
 					}
 				} // end of loop
-				// eslint-disable-next-line no-console
-				if (rootState.debug && missedAdditions.length > 0) console.log('listenForChanges: missedAdditions.length = ' + missedAdditions.length)
-				for (let i = 0; i < missedAdditions.length; i++) {
-					if (missedAdditions[i].doc.wasMissing !== undefined && !missedAdditions[i].doc.wasMissing) {
-						missedAdditions.splice(i, 1)
-					}
-				}
 			}
 			fistCallAfterSignin = false
 			// recurse
