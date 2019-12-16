@@ -16,6 +16,29 @@ import { eventBus } from "../../main"
 import { utilities } from '../mixins/utilities.js'
 
 /*
+* Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId
+* Pass an insertInd as the lowest index of any insert to gain performance.
+*/
+function updatePaths(parentPath, siblings, insertInd = 0, parentId = undefined, productId = undefined) {
+	for (let i = insertInd; i < siblings.length; i++) {
+		const sibling = siblings[i]
+		const newPath = parentPath.concat(i)
+		if (parentId) sibling.parentId = parentId
+		if (productId) sibling.productId = productId
+		// if moving to another product show the inserted nodes in the new product
+		if (productId) sibling.doShow = true
+		sibling.path = newPath
+		sibling.pathStr = JSON.stringify(newPath)
+		sibling.ind = i
+		sibling.level = newPath.length
+		sibling.isLeaf = (sibling.level < PBILEVEL) ? false : true
+		if (sibling.children && sibling.children.length > 0) {
+			updatePaths(sibling.path, sibling.children, 0, sibling._id, productId)
+		}
+	}
+}
+
+/*
 * Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
 */
@@ -32,9 +55,8 @@ function assignNewPrios(nodes, predecessorNode, successorNode) {
 
 	const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
 	for (let i = 0; i < nodes.length; i++) {
-		// update the tree
+		// update the tree; timestamp is recorded in the history in the database
 		nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-		//ToDo: is the change timestamp recorded in the database?
 		nodes[i].data.lastChange = Date.now()
 	}
 }
@@ -327,8 +349,10 @@ export default {
 				this.stopDrag();
 				return;
 			}
-			// console.log('onNodeMouseupHandler: moveNodes is called, draggableNodes.length = ' + draggableNodes.length)
-			// console.log('onNodeMouseupHandler: JSON.stringify(draggableNodes, null, 2) = ' + JSON.stringify(draggableNodes, null, 2))
+
+			// sort the nodes on priority (highest first)
+			draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
+			// save the status before as is before the move
 			const beforeDropStatus = this.moveNodes(this.cursorPosition, draggableNodes)
 
 			this.emitDrop(beforeDropStatus, draggableNodes, this.cursorPosition, event)
@@ -534,45 +558,14 @@ export default {
 		},
 
 		/*
-		* Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId
-		* Pass an insertInd as the lowest index of any insert to gain performance.
-		*/
-		updatePaths(parentPath, siblings, insertInd = 0, parentId = undefined, productId = undefined) {
-			for (let i = insertInd; i < siblings.length; i++) {
-				const sibling = siblings[i]
-				const oldPath = sibling.path.slice()
-				const newPath = parentPath.concat(i)
-				if (parentId) sibling.parentId = parentId
-				if (productId) sibling.productId = productId
-				// if moving to another product show the inserted nodes in the new product
-				if (productId) sibling.doShow = true
-				sibling.path = newPath
-				sibling.pathStr = JSON.stringify(newPath)
-				sibling.ind = i
-				sibling.level = newPath.length
-				sibling.isLeaf = (sibling.level < PBILEVEL) ? false : true
-				if (this.comparePaths(oldPath, newPath !== 0)) {
-					// mark the changed nodemodels for distribution
-					sibling.data.sessionId = this.$store.state.userData.sessionId
-					sibling.data.distributeEvent = true
-				}
-				if (sibling.children && sibling.children.length > 0) {
-					this.updatePaths(sibling.path, sibling.children, 0, sibling._id, productId)
-				}
-			}
-		},
-
-		/*
 		 * Insert the nodeModels in the tree model inside, after or before the node at cursorposition.
 		 * When creating a new single node (not moving) createNew must be true
 		 */
-		insert(cursorPosition, nodes) {
+		insert(cursorPosition, nodes, calculatePrios = true) {
 			const destNodeModel = cursorPosition.nodeModel
 			const productId = destNodeModel.productId
 			let predecessorNode
 			let successorNode
-			// sort the nodes on priority (highest first)
-			nodes.sort((h, l) => l.data.priority - h.data.priority)
 			if (cursorPosition.placement === 'inside') {
 				// insert inside a parent -> the nodes become top level children
 				const destSiblings = destNodeModel.children || []
@@ -582,8 +575,8 @@ export default {
 				successorNode = destSiblings[nodes.length] || null
 				if (destNodeModel.path.length === 1) {
 					// inserting a product
-					this.updatePaths(destNodeModel.path, destSiblings)
-				} else this.updatePaths(destNodeModel.path, destSiblings, 0, parentId, productId)
+					updatePaths(destNodeModel.path, destSiblings)
+				} else updatePaths(destNodeModel.path, destSiblings, 0, parentId, productId)
 			} else {
 				// insert before or after the cursor position
 				const destSiblings = this.getNodeSiblings(destNodeModel.path)
@@ -595,10 +588,10 @@ export default {
 				successorNode = destSiblings[insertInd + nodes.length] || null
 				if (parentPath.length === 1) {
 					// inserting a product
-					this.updatePaths(parentPath, destSiblings, insertInd)
-				} else this.updatePaths(parentPath, destSiblings, insertInd, parentId, productId)
+					updatePaths(parentPath, destSiblings, insertInd)
+				} else updatePaths(parentPath, destSiblings, insertInd, parentId, productId)
 			}
-			assignNewPrios(nodes, predecessorNode, successorNode)
+			if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 
 		/* Insert the node and save it so that it is deselected on the next select */
@@ -614,26 +607,20 @@ export default {
 				const removeInd = node.ind
 				const parentPath = node.path.slice(0, -1)
 				siblings.splice(removeInd, 1)
-				this.updatePaths(parentPath, siblings, removeInd)
+				updatePaths(parentPath, siblings, removeInd)
 			}
 		},
 
 
 		moveBack(entry) {
-			// console.log('moveBack: entry = ' + JSON.stringify(entry, null, 2))
 			function isRestoredNode(child, nodes) {
 				for (let n of nodes) {
 					if (n._id === child._id) return true
 				}
 				return false
 			}
+			/* Find patches of consecutive inserted items to recalculate their priorities against the predecessor and the successor of the patch */
 			function recalculatePriorities(nodes, children) {
-				// function logPatch(patch, predecessorNode, successorNode) {
-				// 	console.log('logPatch: predecessorNode.title = ' + (predecessorNode ? predecessorNode.title : 'null') +
-				// 	'\nsuccessorNode.title = ' + (successorNode ? successorNode.title : 'null') +
-				// 	'\npatch.length = ' + patch.length
-				// 	)
-				// }
 				// sort the nodes on priority (highest first)
 				nodes.sort((h, l) => l.data.priority - h.data.priority)
 				// find patches of restored nodes
@@ -660,6 +647,7 @@ export default {
 					assignNewPrios(patch, predecessorNode, null)
 				}
 			}
+
 			const beforeDropStatus = entry.beforeDropStatus
 			const restoredChildren = []
 			const restoredSourceChildren = []
@@ -671,7 +659,7 @@ export default {
 				}
 				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				commonParent.children = restoredChildren
-				this.updatePaths(commonParent.path, commonParent.children)
+				updatePaths(commonParent.path, commonParent.children)
 			} else {
 				for (let id of beforeDropStatus.savedSourceChildrenIds) {
 					const node = this.getNodeById(id)
@@ -679,7 +667,7 @@ export default {
 				}
 				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				sourceParent.children = restoredSourceChildren
-				this.updatePaths(sourceParent.path, sourceParent.children, 0, beforeDropStatus.sourceParentId)
+				updatePaths(sourceParent.path, sourceParent.children, 0, beforeDropStatus.sourceParentId)
 
 				for (let id of beforeDropStatus.savedTargetChildrenIds) {
 					const node = this.getNodeById(id)
@@ -687,7 +675,7 @@ export default {
 				}
 				const targetParent = this.getNodeById(beforeDropStatus.targetParentId)
 				targetParent.children = restoredTargetChildren
-				this.updatePaths(targetParent.path, targetParent.children, 0, beforeDropStatus.targetParentId)
+				updatePaths(targetParent.path, targetParent.children, 0, beforeDropStatus.targetParentId)
 			}
 			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredChildren)
 			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredSourceChildren)
