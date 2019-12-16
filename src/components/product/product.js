@@ -206,6 +206,12 @@ export default {
             'newSubType': val,
             'timestamp': now
           })
+          // create an entry for undoing the change in a last-in first-out sequence
+          const entry = {
+            type: 'undoSelectedPbiType',
+            oldPbiType: this.$store.state.currentDoc.subtype
+          }
+          this.$store.state.changeHistory.unshift(entry)
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type", WARNING)
         }
@@ -399,8 +405,43 @@ export default {
 
     onUndoEvent() {
       const entry = this.$store.state.changeHistory.splice(0, 1)[0]
-
       switch (entry.type) {
+        case 'undoSelectedPbiType':
+          this.$store.state.nodeSelected.data.subtype = entry.oldPbiType
+          this.$store.dispatch('setSubType', { 'newSubType': entry.oldPbiType, 'timestamp': Date.now() })
+          this.showLastEvent('Change of item type is undone', INFO)
+          break
+        case 'undoDescriptionChange':
+          this.$store.state.currentDoc.description = entry.oldDescription
+          this.$store.dispatch('saveDescription', { 'newDescription': entry.oldDescription, 'timestamp': Date.now() })
+          this.showLastEvent('Change of item description type is undone', INFO)
+          break
+        case 'undoAcceptanceChange':
+          this.$store.state.currentDoc.acceptanceCriteria = entry.oldAcceptance
+          this.$store.dispatch('saveAcceptance', { 'newAcceptance': entry.oldAcceptance, 'timestamp': Date.now() })
+          this.showLastEvent('Change of item acceptance criteria type is undone', INFO)
+          break
+        case 'undoTsSizeChange':
+          this.$store.dispatch('setSize', { 'newSizeIdx': entry.oldTsSize, 'timestamp': Date.now() })
+          this.showLastEvent('Change of item T-shirt size is undone', INFO)
+          break
+        case 'undoStoryPointsChange':
+          this.$store.dispatch('setStoryPoints', { 'newPoints': entry.oldStoryPoints, 'timestamp': Date.now() })
+          this.showLastEvent('Change of item story points is undone', INFO)
+          break
+        case 'undoPersonHoursChange':
+          this.$store.dispatch('setPersonHours', { 'newHrs': entry.oldPersonHours, 'timestamp': Date.now() })
+          this.showLastEvent('Change of spike person hours is undone', INFO)
+          break
+        case 'undoStateChange':
+          this.$store.dispatch('setState', { 'newState': entry.oldState, 'timestamp': Date.now() })
+          this.showLastEvent('Change of item state is undone', INFO)
+          break
+        case 'undoTitleChange':
+          this.$store.state.nodeSelected.title = entry.oldTitle
+          this.$store.dispatch('setDocTitle', { 'newTitle': entry.oldTitle, 'timestamp': Date.now() })
+          this.showLastEvent('Change of item title is undone', INFO)
+          break
         case 'undoMove':
           window.slVueTree.moveBack(entry)
           // update the nodes in the database
@@ -422,6 +463,7 @@ export default {
             next: 0,
             payloadArray: payloadArray
           })
+          this.showLastEvent('Item(s) move undone', INFO)
           break
         case 'removedNode':
           this.$store.dispatch("unDoRemove", entry)
@@ -460,6 +502,7 @@ export default {
           } else {
             this.showLastEvent(`Cannot restore the removed items in the tree view. Sign out and -in again to recover'`, WARNING)
           }
+          this.showLastEvent('Item(s) remove is undone', INFO)
           break
       }
       // window.slVueTree.showVisibility('onUndoEvent', FEATURELEVEL)
@@ -514,6 +557,7 @@ export default {
       // skip update when not changed
       if (this.$store.state.currentDoc.description !== this.newDescription) {
         if (this.haveWritePermission[this.getCurrentItemLevel]) {
+          const oldDescription = this.$store.state.currentDoc.description
           const now = Date.now()
           this.$store.state.nodeSelected.data.lastChange = now
           this.$store.state.nodeSelected.data.lastContentChange = now
@@ -524,6 +568,12 @@ export default {
             'newDescription': this.newDescription,
             'timestamp': now
           })
+          // create an entry for undoing the change in a last-in first-out sequence
+          const entry = {
+            type: 'undoDescriptionChange',
+            oldDescription
+          }
+          this.$store.state.changeHistory.unshift(entry)
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item", WARNING)
         }
@@ -534,6 +584,7 @@ export default {
       // skip update when not changed
       if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
         if (this.haveWritePermission[this.getCurrentItemLevel]) {
+          const oldAcceptance = this.$store.state.currentDoc.acceptanceCriteria
           const now = Date.now()
           this.$store.state.nodeSelected.data.lastChange = now
           this.$store.state.nodeSelected.data.lastContentChange = now
@@ -544,6 +595,12 @@ export default {
             'newAcceptance': this.newAcceptance,
             'timestamp': now
           })
+          // create an entry for undoing the change in a last-in first-out sequence
+          const entry = {
+            type: 'undoAcceptanceChange',
+            oldAcceptance
+          }
+          this.$store.state.changeHistory.unshift(entry)
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item", WARNING)
         }
@@ -562,6 +619,12 @@ export default {
               'newSizeIdx': sizeArray.indexOf(size),
               'timestamp': now
             })
+            // create an entry for undoing the change in a last-in first-out sequence
+            const entry = {
+              type: 'undoTsSizeChange',
+              oldTsSize: this.$store.state.currentDoc.tssize
+            }
+            this.$store.state.changeHistory.unshift(entry)
           } else {
             let sizes = ''
             for (let i = 0; i < sizeArray.length - 1; i++) {
@@ -578,6 +641,7 @@ export default {
     updateStoryPoints() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          const oldStoryPoints = this.$store.state.currentDoc.spsize
           const now = Date.now()
           let el = document.getElementById("storyPointsId")
           if (isNaN(el.value) || el.value < 0) {
@@ -589,6 +653,12 @@ export default {
             'newPoints': el.value,
             'timestamp': now
           })
+          // create an entry for undoing the change in a last-in first-out sequence
+          const entry = {
+            type: 'undoStoryPointsChange',
+            oldStoryPoints
+          }
+          this.$store.state.changeHistory.unshift(entry)
         } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story points of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)
@@ -598,6 +668,7 @@ export default {
     updatePersonHours() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          const oldPersonHours = this.$store.state.currentDoc.spikepersonhours
           const now = Date.now()
           let el = document.getElementById("personHoursId")
           if (isNaN(el.value) || el.value < 0) {
@@ -609,6 +680,12 @@ export default {
             'newHrs': el.value,
             'timestamp': now
           })
+          // create an entry for undoing the change in a last-in first-out sequence
+          const entry = {
+            type: 'undoPersonHoursChange',
+            oldPersonHours
+          }
+          this.$store.state.changeHistory.unshift(entry)
         } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story person hours of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item", WARNING)
@@ -621,6 +698,7 @@ export default {
     */
     onStateChange(idx) {
       const currentNode = this.$store.state.nodeSelected
+
       function changeState(vm, newTeam) {
         const descendants = window.slVueTree.getDescendantsInfo(currentNode).descendants
         if (descendants.length > 0) {
@@ -641,6 +719,7 @@ export default {
             vm.clearLastEvent()
           }
         }
+        const oldState = vm.$store.state.currentDoc.state
         const now = Date.now()
         currentNode.data.state = idx
         currentNode.data.lastChange = now
@@ -653,6 +732,12 @@ export default {
           'team': newTeam,
           'timestamp': now
         })
+        // create an entry for undoing the change in a last-in first-out sequence
+        const entry = {
+          type: 'undoStateChange',
+          oldState
+        }
+        vm.$store.state.changeHistory.unshift(entry)
       }
 
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
@@ -690,6 +775,12 @@ export default {
           'newTitle': newTitle,
           'timestamp': now
         })
+        // create an entry for undoing the change in a last-in first-out sequence
+        const entry = {
+          type: 'undoTitleChange',
+          oldTitle
+        }
+        this.$store.state.changeHistory.unshift(entry)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the title of this item", WARNING)
       }
