@@ -544,7 +544,7 @@ const actions = {
 		})
 	},
 	/* Dispatch the update of the moved nodes and the update of the history of their descendants */
-	nodesMovedorBack({
+	nodesMovedOrBack({
 		dispatch
 	}, payload) {
 		if (payload.next >= payload.payloadArray.length) return
@@ -576,12 +576,12 @@ const actions = {
 			}
 			payloadArray2.push(payloadItem2)
 		}
-		dispatch('updateDroppedDescendantsBulk', payloadArray2)
+		dispatch('updateDescendantsBulk', payloadArray2)
 		payload.next++
 		// recurse
-		dispatch('nodesMovedorBack', payload)
+		dispatch('nodesMovedOrBack', payload)
 	},
-	/* Update the dropped node */
+
 	updateMovedItems({
 		rootState,
 		dispatch
@@ -628,7 +628,7 @@ const actions = {
 		})
 	},
 
-	updateDroppedDescendantsBulk({
+	updateDescendantsBulk({
 		rootState,
 		dispatch
 	}, payload) {
@@ -650,7 +650,7 @@ const actions = {
 			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
-			// console.log('updateDroppedDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
+			// console.log('updateDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
 			const ok = []
 			const error = []
@@ -692,14 +692,14 @@ const actions = {
 				for (let i = 0; i < error.length; i++) {
 					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
 				}
-				let msg = 'updateDroppedDescendantsBulk: These descendants cannot be updated: ' + errorStr
+				let msg = 'updateDescendantsBulk: These descendants cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', ok)
 		}).catch(error => {
-			let msg = 'updateDroppedDescendantsBulk: Could not read decendants in bulk. Error = ' + error
+			let msg = 'updateDescendantsBulk: Could not read decendants in bulk. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
