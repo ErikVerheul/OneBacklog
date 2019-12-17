@@ -45,7 +45,7 @@
 
 				<div id="pv">
 					<h4>Products view</h4>
-					<p>The products view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
+					<p>The products view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner. Changes to the item size, state, title, description, acceptance criteria, added item, moved items and deleted items can be undone in a last change first sequence.</p>
 					<b-img :src="require('./example-screen.png')" alt="Example screen" />
 					<p>Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different units:</p>
 					<p>Product and epic size estimate:
