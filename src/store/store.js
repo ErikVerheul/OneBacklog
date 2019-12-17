@@ -143,6 +143,7 @@ export default new Vuex.Store({
 			state.load.myProductOptions = [],
 
 			state.userData = {}
+			state.changeHistory = [],
 			state.showHeaderDropDowns = true,
 			state.skipOnce = true,
 			state.lastEvent = ''
