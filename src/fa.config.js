@@ -13,7 +13,8 @@ import {
 	faChevronDown,
 	faChevronRight,
 	faBug,
-	faHourglassStart
+	faHourglassStart,
+	faCog
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -22,7 +23,8 @@ library.add(
 	faChevronDown,
 	faChevronRight,
 	faBug,
-	faHourglassStart
+	faHourglassStart,
+	faCog
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon); // registered globally
