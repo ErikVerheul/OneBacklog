@@ -6,6 +6,7 @@ const INFO = 0
 const WARNING = 1
 const REMOVED = 0
 const DONE = 5
+const STATENEW = 2
 var newNode = {}
 var movedNode = null
 
@@ -231,7 +232,7 @@ export default {
         savedDoShow: true,
         data: {
           priority: null,
-          state: 2,
+          state: STATENEW,
           lastStateChange: now,
           team: 'not assigned yet',
           subtype: 0,
@@ -329,6 +330,12 @@ export default {
         this.$store.dispatch('createDoc', {
           'initData': initData
         })
+        // create an entry for undoing the change in a last-in first-out sequence
+        const entry = {
+          type: 'undoNewNode',
+          newNode
+        }
+        this.$store.state.changeHistory.unshift(entry)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to create new items of this type", WARNING)
       }
@@ -352,11 +359,7 @@ export default {
         this.$store.dispatch('addToRemovedProducts', selectedNode._id)
       }
       // set remove mark in the database on the clicked item and decendants (if any)
-      const payload = {
-        'node': selectedNode,
-        'descendants': descendants
-      }
-      this.$store.dispatch('removeDoc', payload)
+      this.$store.dispatch('removeDoc', { 'node': selectedNode, 'descendants': descendants })
 
       // create an entry for undoing the remove in a last-in first-out sequence
       const entry = {

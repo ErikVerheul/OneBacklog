@@ -434,6 +434,9 @@ export default {
           this.showLastEvent('Change of spike person hours is undone', INFO)
           break
         case 'undoStateChange':
+          entry.node.data.state = entry.oldState
+          // reset inconsistency mark if set
+          entry.node.data.inconsistentState = false
           this.$store.dispatch('setState', { 'newState': entry.oldState, 'timestamp': Date.now() })
           this.showLastEvent('Change of item state is undone', INFO)
           break
@@ -441,6 +444,11 @@ export default {
           this.$store.state.nodeSelected.title = entry.oldTitle
           this.$store.dispatch('setDocTitle', { 'newTitle': entry.oldTitle, 'timestamp': Date.now() })
           this.showLastEvent('Change of item title is undone', INFO)
+          break
+        case 'undoNewNode':
+          window.slVueTree.remove([entry.newNode])
+          this.$store.dispatch('removeDoc', { 'node': entry.newNode, 'descendants': [] })
+          this.showLastEvent('Item addition is undone', INFO)
           break
         case 'undoMove':
           window.slVueTree.moveBack(entry)
@@ -735,7 +743,8 @@ export default {
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
           type: 'undoStateChange',
-          oldState
+          oldState,
+          node: currentNode
         }
         vm.$store.state.changeHistory.unshift(entry)
       }
