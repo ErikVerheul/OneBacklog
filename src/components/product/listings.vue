@@ -268,7 +268,7 @@ export default {
       }
     },
 
-    mkNodeUndoMoveEvent(value) {
+    mkNodeUndoMoveEvent() {
       return "<h5>The move of the item is undone by the user.</h5>"
     },
 
