@@ -7,6 +7,12 @@
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
 				<hr>
+				<h3>v.0.8.1 - 17 December 2019 Feature update</h3>
+				<ul>
+					<li>Changes to the item size, state, title, description, acceptance criteria, added item, moved items and deleted items can be undone in a last change first sequence. A move to another product cannot be undone automatically.</li>
+					<li>The input fields for 'Find on id' and 'Search in titles' now have a tiny button to clear the field and reset the find/search. The buttons for 'Filter comments' and 'Filter History' now change to 'Clear filter comments' and 'Clear filter history' when the filter is executed. Use these buttons to clear the filter.</li>
+				</ul>
+				<hr>
 				<h3>v.0.8.0 - 5 December 2019 Major update</h3>
 				<h5>Note that this release is not backwards compatible with previous releases. The ordering of the item states is changed to a more logical sequence. Databases with an older config document version will not load.</h5>
 				<p>New features:</p>
