@@ -6,17 +6,17 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import store from './store/store'
 
-import WelcomePage from '../components/welcome/welcome.vue'
-import RelNotesPage from '../components/rel-notes/rel-notes.vue'
-import UserGuidePage from '../components/userguide/userguide.vue'
-import InitPage from '../components/initdb/initdb.vue'
-import SetupPage from '../components/setup/setup.vue'
-import SigninPage from '../components/auth/signin.vue'
-import ProductPage from '../components/product/product.vue'
-import ReqsAreaPage from '../components/reqsarea/reqsarea.vue'
-import SuperPOPage from '../components/superpo/superpo.vue'
-import AdminPage from '../components/admin/admin.vue'
-import ServerAdminPage from '../components/serveradmin/serveradmin.vue'
+import WelcomePage from './components/welcome/welcome.vue'
+import RelNotesPage from './components/rel-notes/rel-notes.vue'
+import UserGuidePage from './components/userguide/userguide.vue'
+import InitPage from './components/initdb/initdb.vue'
+import SetupPage from './components/setup/setup.vue'
+import SigninPage from './components/auth/signin.vue'
+import ProductPage from './components/product/product.vue'
+import ReqsAreaPage from './components/reqsarea/reqsarea.vue'
+import SuperPOPage from './components/superpo/superpo.vue'
+import AdminPage from './components/admin/admin.vue'
+import ServerAdminPage from './components/serveradmin/serveradmin.vue'
 
 
 Vue.use(VueRouter)
