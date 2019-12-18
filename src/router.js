@@ -4,7 +4,7 @@ import VueRouter from 'vue-router'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-import store from '../store/store'
+import store from './store/store'
 
 import WelcomePage from '../components/welcome/welcome.vue'
 import RelNotesPage from '../components/rel-notes/rel-notes.vue'
