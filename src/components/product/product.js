@@ -870,7 +870,6 @@ export default {
     /*
      * Update the tree when one or more nodes are dropped on another location
      * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-     * Todo: set a timestamp for the change both in the node and the database
      */
     nodeDropped(beforeDropStatus, draggingNodes, position) {
       const targetNode = position.nodeModel
