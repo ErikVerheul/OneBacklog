@@ -9,7 +9,7 @@ As super PO I need one integrated tool to manage the product backlog of all my p
 - I can map my portfolio in one tool
 - TO DO: The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
 - My PO's can manage their products
-- TO DO: Dependencies within products are made visible so that the team, their PO or myself can act upon it
+- Dependencies within products are made visible so that the team, their PO or myself can act upon it
 - TO DO: Scrum teams can use the tool to do their refinements and run their sprints
 - Only PO's are authorized to change priorities
 - The tool runs in a browser and is accessible only by authorized users
@@ -85,7 +85,7 @@ The use of the electronic planning board is optional and only advised for use wh
 - <b>done</b> (delivered wrt the DoD)
 - <b>removed</b>
 
-TO DO: <b>Dependencies:</b><br />
+<b>Dependencies:</b><br />
 Is-dependent-on is the only type. When B is dependent on A then B must have a lower priority than A; The tool should enforce this.
 Circular dependencies are not allowed; The tool should enforce this also.
 
@@ -111,7 +111,7 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
 - The type of product, epic, feature and pbi can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature. That feature to an epic and the epic to a product. The reverse can also be done. This feature also works between products.
 - TO DO: A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
 - Users can add comments to an item and to the automatic history log.
-- TO DO: Attachments can be added to each backlog item type.
+- Attachments can be added to each backlog item type.
 
 <b>And avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
 
@@ -135,6 +135,9 @@ and create other users with less privileges.
 See http://docs.couchdb.org/en/stable/config/http.html#secure-socket-level-options to install SSL
 Caveat: the current Chrome version has problems with self signed certificates,
 type "chrome://flags/#allow-insecure-localhost" in the address field or use Firefox instead.
+
+# install the Vue-CLI
+see https://cli.vuejs.org/
 
 # install dependencies
 cd to the directory of this app
