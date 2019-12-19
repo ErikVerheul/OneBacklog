@@ -602,6 +602,8 @@ const actions = {
 					doc.parentId = item.newParentId
 					doc.priority = item.newPriority
 					ok.push(doc)
+					// show the history update in the current opened item
+					if (doc._id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
 				}
 				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
 			}
