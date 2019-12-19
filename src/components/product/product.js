@@ -455,6 +455,7 @@ export default {
           // update the nodes in the database
           var payloadArray = []
           for (let n of entry.beforeDropStatus.nodes) {
+            const descendantsInfo = window.slVueTree.getDescendantsInfo(n)
             const payloadItem = {
               '_id': n._id,
               'type': 'undoMove',
@@ -463,14 +464,12 @@ export default {
               'productId': n.productId,
               'newPriority': n.data.priority,
               'oldParentTitle': n.title,
-              'descendants': window.slVueTree.getDescendantsInfo(n).descendants
+              'nrOfDescendants': descendantsInfo.count,
+              'descendants': descendantsInfo.descendants
             }
             payloadArray.push(payloadItem)
           }
-          this.$store.dispatch('nodesMovedOrBack', {
-            next: 0,
-            payloadArray: payloadArray
-          })
+          this.$store.dispatch('updateMovedItemsBulk', { items: payloadArray })
           this.showLastEvent('Item(s) move undone', INFO)
           break
         case 'removedNode':
@@ -885,6 +884,7 @@ export default {
       // update the nodes in the database
       let payloadArray = []
       for (let n of draggingNodes) {
+        const descendantsInfo = window.slVueTree.getDescendantsInfo(n)
         const payloadItem = {
           '_id': n._id,
           'type': 'move',
@@ -898,14 +898,12 @@ export default {
           'newLevel': n.level,
           'newInd': n.ind,
           'placement': position.placement,
-          'descendants': window.slVueTree.getDescendantsInfo(n).descendants
+          'nrOfDescendants': descendantsInfo.count,
+          'descendants': descendantsInfo.descendants
         }
         payloadArray.push(payloadItem)
       }
-      this.$store.dispatch('nodesMovedOrBack', {
-        next: 0,
-        payloadArray: payloadArray
-      })
+      this.$store.dispatch('updateMovedItemsBulk', { items: payloadArray })
 
       // create an entry for undoing the move in a last-in first-out sequence
       const entry = {

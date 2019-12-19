@@ -554,6 +554,7 @@ export default {
         const newPath = targetNode.path.concat([0])
         const newNode = window.slVueTree.getNodeModel(newPath)
         const newParentNode = window.slVueTree.getNodeById(newNode.parentId)
+        const descendantsInfo = window.slVueTree.getDescendantsInfo(newNode)
         const payloadItem = {
           '_id': newNode._id,
           'type': 'move',
@@ -567,13 +568,11 @@ export default {
           'newLevel': newNode.level, // the level cannot change
           'newInd': 0, // immediately below the parent
           'placement': 'inside',
-          'descendants': window.slVueTree.getDescendantsInfo(newNode).descendants
+          'nrOfDescendants': descendantsInfo.count,
+          'descendants': descendantsInfo.descendants
         }
         // update the database
-        this.$store.dispatch('nodesMovedOrBack', {
-          next: 0,
-          payloadArray: [payloadItem]
-        })
+        this.$store.dispatch('updateMovedItemsBulk', { items: [payloadItem] })
         this.$store.state.moveOngoing = false
       } else {
         this.$store.state.moveOngoing = true
