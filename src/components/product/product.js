@@ -96,7 +96,7 @@ export default {
     })
     el.addEventListener("input", () => {
       if (isEmpty(el.value)) {
-        window.slVueTree.resetFilters('selectOnId')
+        window.slVueTree.resetFindOnId('selectOnId')
       }
     })
 
@@ -110,7 +110,7 @@ export default {
     })
     el2.addEventListener("input", () => {
       if (isEmpty(el2.value)) {
-        window.slVueTree.resetFilters('showSearchInTitles')
+        window.slVueTree.resetFilters('searchInput')
       }
     })
   },
@@ -289,11 +289,11 @@ export default {
     },
 
     resetFindId() {
-      window.slVueTree.resetFilters('selectOnId')
+      window.slVueTree.resetFindOnId('resetFindId')
     },
 
     resetSearchTitles() {
-      window.slVueTree.resetFilters('showSearchInTitles')
+      window.slVueTree.resetFilters('resetSearchTitles')
     },
 
     patchTitle(node) {
@@ -328,6 +328,7 @@ export default {
     onSetMyFilters() {
       if (this.$store.state.filterOn) {
         window.slVueTree.resetFilters('onSetMyFilters')
+        window.slVueTree.resetFindOnId('onSetMyFilters')
       } else {
         window.myFilters.show()
       }
@@ -346,7 +347,7 @@ export default {
         // if the user clicked on a node of another product
         if (this.$store.state.load.currentProductId !== node.productId) {
           // clear any outstanding filters
-          window.slVueTree.resetFilters('nodeSelectedEvent')
+          window.slVueTree.resetFilters('selectNode')
           // collapse the previously selected product
           window.slVueTree.collapseTree()
           // update current productId and title
@@ -376,6 +377,7 @@ export default {
 
       // reset the other selections first
       window.slVueTree.resetFilters('searchInTitles')
+      window.slVueTree.resetFindOnId('searchInTitles')
       let count = 0
       window.slVueTree.traverseModels((nodeModel) => {
         if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {

@@ -784,7 +784,6 @@ export default {
 			this.traverseModels((nm) => {
 				nm.isHighlighted = false
 				nm.doShow = nm.savedDoShow
-				// console.log('resetTree: nm.isHighlighted = ' + nm.isHighlighted + ', nm.title = ' + nm)
 				nm.isExpanded = nm.savedIsExpanded
 			}, this.getProductModels())
 		},
@@ -804,11 +803,14 @@ export default {
 				this.showLastEvent(`Your search in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.searchOn = false
 			}
-			if (this.$store.state.findIdOn) {
-				this.resetTree()
-				this.showLastEvent(`Your view on product '${this.$store.state.load.currentProductTitle}' is restored`, INFO)
-				this.$store.state.findIdOn = false
-			}
+		},
+
+		resetFindOnId(caller) {
+			// eslint-disable-next-line no-console
+			console.log('resetFindOnId is called by ' + caller)
+			this.resetTree()
+			this.showLastEvent(`Your view on product '${this.$store.state.load.currentProductTitle}' is restored`, INFO)
+			this.$store.state.findIdOn = false
 		},
 
 		/* Show the path from productlevel to and including the node */
