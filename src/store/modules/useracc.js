@@ -38,7 +38,7 @@ const actions = {
     })
   },
 
-  /* Get al products of a database and if presetExistingRoles === true set the assigned roles*/
+  /* Get all products of a database and if presetExistingRoles === true set the assigned roles*/
   getDbProducts({
     rootState,
     state,
@@ -165,7 +165,7 @@ const actions = {
     rootState,
     dispatch
   }, payload) {
-    // copy all roles except 'admin' and 'superPO' which are a generic roles
+    // copy all roles except 'admin' and 'superPO' which are generic roles
     function copyRoles(roles) {
       let copiedRoles = []
       for (let r of roles) {
