@@ -27,6 +27,7 @@ export default {
     this.SETDEPENDENCY = 6
     this.SHOWDEPENDENCIES = 7
     this.SHOWCONDITIONS = 8
+    this.CLONEPRODUCT = 9
   },
 
   data() {
@@ -117,6 +118,10 @@ export default {
       this.contextWarning = undefined
       this.disableOkButton = false
       switch (this.contextOptionSelected) {
+        case this.CLONEPRODUCT:
+          this.assistanceText = 'No assistance available'
+          this.listItemText = 'Make a clone of this product'
+          break
         case this.INSERTBELOW:
           this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
           this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item'
@@ -177,6 +182,9 @@ export default {
     procSelected() {
       this.showAssistance = false
       switch (this.contextOptionSelected) {
+        case this.CLONEPRODUCT:
+          this.doCloneProduct()
+          break
         case this.INSERTBELOW:
           this.doInsert()
           break
@@ -205,6 +213,10 @@ export default {
           this.updateConditions()
           break
       }
+    },
+
+    doCloneProduct() {
+      this.$store.dispatch('cloneProduct')
     },
 
 		/*

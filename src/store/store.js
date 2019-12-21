@@ -7,6 +7,7 @@ import logging from './modules/logging'
 import initdb from './modules/initdb'
 import help from './modules/help'
 import load from './modules/load'
+import clone from './modules/clone'
 import sync from './modules/sync'
 import useracc from './modules/useracc'
 import update from './modules/update'
@@ -258,6 +259,7 @@ export default new Vuex.Store({
 		logging,
 		help,
 		load,
+		clone,
 		sync,
 		useracc,
 		update,

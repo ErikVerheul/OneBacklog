@@ -125,6 +125,15 @@
               variant="dark"
               @click="showSelected(MOVETOPRODUCT)"
             >Move this {{ contextNodeType }} to another product</b-list-group-item>
+
+            <b-list-group-item
+              v-if="contextNodeLevel === PRODUCTLEVEL"
+              button
+              :active="contextOptionSelected === CLONEPRODUCT"
+              variant="dark"
+              @click="showSelected(CLONEPRODUCT)"
+            >Make a clone of product '{{ $store.state.load.currentProductTitle }}'</b-list-group-item>
+
           </template>
         </template>
 
