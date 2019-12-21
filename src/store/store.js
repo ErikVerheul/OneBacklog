@@ -42,6 +42,7 @@ export default new Vuex.Store({
 		fetchedTeams: [],
 		isCurrentDbChanged: false,
 		// app wide globals
+		myProductOptions: [],
 		demo: true,
 		online: true,
 		userData: {},
@@ -141,8 +142,8 @@ export default new Vuex.Store({
 			state.load.treeNodes = []
 			state.load.productIdLoading = null
 			state.load.processedProducts = 0
-			state.load.myProductOptions = [],
 
+			state.myProductOptions = [],
 			state.userData = {}
 			state.changeHistory = [],
 			state.showHeaderDropDowns = true,

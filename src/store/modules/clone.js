@@ -7,6 +7,7 @@ const PBILEVEL = 5
 const HOURINMILIS = 3600000
 var docs = []
 var newProductId
+var newProductTitle
 
 /*
 * The documents are read top down by level. In parentNodes the read items are linked to to their id's.
@@ -127,18 +128,19 @@ const actions = {
             }
             // patch the documents
             for (let i = 0; i < docs.length; i++) {
-                // compute a new id and shortId
+                // compute a new id and shortId, remember old id
                 const oldId = docs[i]._id
                 const newShortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
                 const newId = Date.now().toString().concat(newShortId)
+                // the first document is the product
+                if (i === 0) {
+                    newProductId = newId
+                    docs[0].parentId = 'root'
+                    newProductTitle = 'CLONE: ' + docs[0].title
+                    docs[0].title = newProductTitle
+                }
                 docs[i]._id = newId
                 docs[i].shortId = newShortId
-                // the first document is the product
-                if (docs[i].level === PRODUCTLEVEL) {
-                    newProductId = newId
-                    docs[i].parentId = 'root'
-                    docs[i].title = 'CLONE: ' + docs[0].title
-                }
                 docs[i].productId = newProductId
                 docs[i].history = [{
                     "cloneEvent": [docs[i].level, rootState.userData.currentDb],
@@ -154,6 +156,7 @@ const actions = {
                 }
             }
             // save the new product in the database
+            // console.log(JSON.stringify(docs, null, 2))
             dispatch('storeProduct', docs)
         }).catch(error => {
             let msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error
@@ -175,9 +178,13 @@ const actions = {
         }).then(res => {
             // add the productId to my myProductSubscriptions
             rootState.userData.myProductSubscriptions.push(newProductId)
-            // add the productId to my userAssignedProductIds
+            // add the productId to my userAssignedProductIds and selection options
             rootState.userData.userAssignedProductIds.push(newProductId)
-            // add all my roles the new productId in myProductsRoles
+            rootState.myProductOptions.push({
+                value: newProductId,
+                text: newProductTitle
+            })
+            // add all my roles the to new productId in myProductsRoles
             rootState.userData.myProductsRoles[newProductId] = rootState.userData.roles
             // save in the database
             dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId })

@@ -24,7 +24,6 @@ const state = {
 	productIdLoading: null,
 	processedProducts: 0,
 	currentProductTitle: "",
-	myProductOptions: [],
 	rangeString: '',
 	orphansFound: { userData: null, orphans: [] }
 }
@@ -423,7 +422,6 @@ const actions = {
 	*/
 	setMyProductOptions({
 		rootState,
-		state,
 		dispatch
 	}) {
 		const docsToGet = []
@@ -443,12 +441,12 @@ const actions = {
 				const doc = results[i].docs[0].ok
 				// skip undefined and removed products
 				if (doc && !doc.delMark) {
-					state.myProductOptions.push({
+					rootState.myProductOptions.push({
 						value: doc._id,
 						text: doc.title
 					})
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('setMyProductOptions: The title of document with _id ' + results[i].docs[0].ok._id + ' is loaded.')
+					if (rootState.debug) console.log("setMyProductOptions: product '" + doc.title + "' is assigned to this user")
 				}
 			}
 		}).catch(error => {

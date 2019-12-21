@@ -75,9 +75,9 @@
       <b-container align-v="true">
         <b-form-select
           v-model="selectedProducts"
-          :options="$store.state.load.myProductOptions"
+          :options="$store.state.myProductOptions"
           multiple
-          :select-size="$store.state.load.myProductOptions.length"
+          :select-size="$store.state.myProductOptions.length"
         ></b-form-select>
       </b-container>
     </b-modal>

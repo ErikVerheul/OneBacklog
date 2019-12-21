@@ -100,9 +100,9 @@ export default {
                 this.defaultProductId = this.selectedProducts[0]
                 this.$store.dispatch('updateSubscriptions', [this.defaultProductId])
             } else {
-                for (let i = 0; i < this.$store.state.load.myProductOptions.length; i++) {
-                    if (this.selectedProducts.includes(this.$store.state.load.myProductOptions[i].value)) {
-                        this.defaultProductOptions.push(this.$store.state.load.myProductOptions[i])
+                for (let i = 0; i < this.$store.state.myProductOptions.length; i++) {
+                    if (this.selectedProducts.includes(this.$store.state.myProductOptions[i].value)) {
+                        this.defaultProductOptions.push(this.$store.state.myProductOptions[i])
                     }
                 }
                 this.$refs.selectDefaultProductRef.show()
