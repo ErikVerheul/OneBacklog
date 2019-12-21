@@ -49,6 +49,11 @@ const getters = {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('haveWritePermission: For productId ' + state.currentProductId + ' my roles are ' + myRoles)
 
+				if (!myRoles) {
+					// my roles are not defined
+					return []
+				}
+
 				if (myRoles.includes('PO')) {
 					for (let i = EPICLEVEL; i <= PBILEVEL; i++) {
 						levels[i] = true
