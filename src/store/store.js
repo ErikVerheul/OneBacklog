@@ -215,7 +215,7 @@ export default new Vuex.Store({
 				withCredentials: true,
 				data: authData
 			}).then(res => {
-				// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myProductViewFilterSettings are updated when otherUserData and config are read
+				// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myFilterSettings are updated when otherUserData and config are read
 				state.userData = {
 					user: res.data.name,
 					email: undefined,
@@ -227,7 +227,6 @@ export default new Vuex.Store({
 					myProductSubscriptions: [],
 					userAssignedProductIds: [],
 					myProductsRoles: {},
-					myProductViewFilterSettings: {},
 					myFilterSettings: undefined,
 					sessionId: create_UUID()
 				}

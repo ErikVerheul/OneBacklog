@@ -72,6 +72,7 @@ const actions = {
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
+
   saveMyFilterSettings({
     rootState,
     dispatch
@@ -89,30 +90,7 @@ const actions = {
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
-  saveMyProductViewFilterSettings({
-    rootState,
-    dispatch
-  }) {
-    rootState.backendMessages = []
-    rootState.backendSuccess = false
-    globalAxios({
-      method: 'GET',
-      url: '/_users/org.couchdb.user:' + rootState.userData.user,
-      withCredentials: true
-    }).then(res => {
-      let tmpUserData = res.data
-      tmpUserData.myProductViewFilterSettings = rootState.userData.myProductViewFilterSettings
-      dispatch("updateUser", tmpUserData)
-      let msg = 'saveProductViewFilters: User ' + rootState.userData.user + ' saved the productview filter settings'
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: INFO })
-    }).catch(error => {
-      let msg = 'saveProductViewFilters: User ' + rootState.userData.user + ' cannot save the productview filter settings. Error = ' + error
-      rootState.backendMessages.push(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
-    })
-  },
+
   changeTeam({
     rootState,
     dispatch
@@ -138,6 +116,7 @@ const actions = {
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
+
   changePassword({
     rootState,
     dispatch
