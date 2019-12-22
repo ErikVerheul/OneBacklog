@@ -114,6 +114,28 @@ const actions = {
     })
   },
 
+  overwriteDB({
+    rootState,
+    dispatch
+	}, payload) {
+    rootState.backendSuccess = false
+    rootState.backendMessages = []
+		globalAxios({
+			method: 'DELETE',
+			url: payload.dbTargetName,
+			withCredentials: true,
+		}).then(() => {
+      rootState.backendSuccess = true
+      rootState.backendMessages.push('Database ' + payload.dbTargetName + ' has been deleted')
+      dispatch('copyDB', payload)
+		}).catch(error => {
+      if (error.response.status === 404) {
+        // database does not exist
+        dispatch('copyDB', payload)
+      } else rootState.backendMessages.push('Deletion of database ' + payload.dbTargetName + ' gave unexpected error, ' + error + '. Operation aborted.')
+		})
+  },
+
   deleteDb({
     rootState
 	}, dbName) {

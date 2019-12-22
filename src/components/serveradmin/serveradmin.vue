@@ -189,7 +189,7 @@ export default {
         dbTargetName: this.dbToReplace
       }
       this.localMessage = payload.dbTargetName + ' will be replaced by ' + payload.dbSourceName
-      this.$store.dispatch('copyDB', payload)
+      this.$store.dispatch('overwriteDB', payload)
 
     },
 
