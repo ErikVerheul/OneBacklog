@@ -96,109 +96,106 @@ const mutations = {
 	 * The root and the top level product nodes are not draggable
 	 */
 	processProduct(state, userAssignedProductIds) {
-		const now = Date.now()
-		for (let i = 0; i < batch.length; i++) {
+		const aboutNow = Date.now()
+		for (let b of batch) {
+			let doc = b.doc
 			state.docsCount++
 			// load the items of the products the user is authorized to
-			if (userAssignedProductIds.includes(batch[i].doc.productId)) {
-				const level = batch[i].doc.level
-				const parentId = batch[i].doc.parentId
-				const delmark = batch[i].doc.delmark
+			if (userAssignedProductIds.includes(doc.productId)) {
+				const level = doc.level
+				const parentId = doc.parentId
 				// expand the tree up to the feature level
-				let isExpanded = batch[i].doc.level < FEATURELEVEL
+				let isExpanded = doc.level < FEATURELEVEL
 				// select the default product
-				const isSelected = batch[i].doc._id === state.currentDefaultProductId
+				const isSelected = doc._id === state.currentDefaultProductId
 				const isDraggable = level > PRODUCTLEVEL
-				// show the nodes up to the product level of all products and all nodes of the current default product
-				const doShow = batch[i].doc.level <= PRODUCTLEVEL || batch[i].doc.productId === state.currentDefaultProductId
-				if (batch[i].doc.productId !== state.currentDefaultProductId && batch[i].doc.level === PRODUCTLEVEL) isExpanded = false
+				// show the product level nodes and all nodes of the current default product
+				const doShow = doc.level <= PRODUCTLEVEL || doc.productId === state.currentDefaultProductId
+				if (doc.productId !== state.currentDefaultProductId && doc.level === PRODUCTLEVEL) isExpanded = false
 				if (parentNodes[parentId] !== undefined) {
 					const parentNode = parentNodes[parentId]
 					const ind = parentNode.children.length
 					const parentPath = parentNode.path
 					const path = parentPath.concat(ind)
-					// skip the database/requirement area level and the removed items
-					if (level > 1 && !delmark) {
-						// search history for the last changes within the last hour
-						let lastStateChange = 0
-						let lastContentChange = 0
-						let lastCommentAddition = 0
-						let lastAttachmentAddition = 0
-						let lastCommentToHistory = 0
-						for (let histItem of batch[i].doc.history) {
-							if (now - histItem.timestamp > HOURINMILIS) {
-								// skip events longer than a hour ago
-								break
-							}
-							const keys = Object.keys(histItem)
-							// get the most recent change of state
-							if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
-								lastStateChange = histItem.timestamp
-							}
-							// get the most recent change of content
-							if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
-								lastContentChange = histItem.timestamp
-							}
-							// get the most recent addition of comments to the history
-							if (lastAttachmentAddition === 0 && keys.includes('lastAttachmentAddition')) {
-								lastAttachmentAddition = histItem.timestamp
-							}
-							// get the most recent addition of comments to the history
-							if (lastCommentToHistory === 0 && keys.includes('commentToHistory')) {
-								lastCommentToHistory = histItem.timestamp
-							}
+					// search history for the last changes within the last hour
+					let lastStateChange = 0
+					let lastContentChange = 0
+					let lastCommentAddition = 0
+					let lastAttachmentAddition = 0
+					let lastCommentToHistory = 0
+					for (let histItem of doc.history) {
+						if (aboutNow - histItem.timestamp > HOURINMILIS) {
+							// skip events longer than a hour ago
+							break
 						}
-						// get the last time a comment was added; comments have their own array
-						if (batch[i].doc.comments && batch[i].doc.comments.length > 0) {
-							lastCommentAddition = batch[i].doc.comments[0].timestamp
+						const keys = Object.keys(histItem)
+						// get the most recent change of state
+						if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
+							lastStateChange = histItem.timestamp
 						}
-
-						let newNode = {
-							path,
-							pathStr: JSON.stringify(path),
-							ind,
-							level: path.length,
-							productId: batch[i].doc.productId,
-							parentId,
-							_id: batch[i].doc._id,
-							shortId: batch[i].doc.shortId,
-							dependencies: batch[i].doc.dependencies || [],
-							conditionalFor: batch[i].doc.conditionalFor || [],
-							title: batch[i].doc.title,
-							isLeaf: level === PBILEVEL,
-							children: [],
-							isExpanded,
-							savedIsExpanded: isExpanded,
-							isSelectable: true,
-							isDraggable,
-							isSelected: isSelected,
-							doShow,
-							savedDoShow: doShow,
-							data: {
-								priority: batch[i].doc.priority,
-								state: batch[i].doc.state,
-								inconsistentState: false,
-								team: batch[i].doc.team,
-								lastStateChange,
-								lastContentChange,
-								lastCommentAddition,
-								lastAttachmentAddition,
-								lastCommentToHistory,
-								subtype: batch[i].doc.subtype,
-								lastChange: batch[i].doc.history[0].timestamp
-							}
+						// get the most recent change of content
+						if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
+							lastContentChange = histItem.timestamp
 						}
-
-						state.itemsCount++
-
-						parentNode.children.push(newNode)
-						parentNodes[batch[i].doc._id] = newNode
-					} else {
-						state.orphansCount++
-						state.orphansFound.orphans.push({ parentId: parentId, productId: batch[i].doc.productId })
-						// eslint-disable-next-line no-console
-						console.log('processProduct: orphan found with parentId = ' + parentId + ' and productId = ' + batch[i].doc.productId)
+						// get the most recent addition of comments to the history
+						if (lastAttachmentAddition === 0 && keys.includes('lastAttachmentAddition')) {
+							lastAttachmentAddition = histItem.timestamp
+						}
+						// get the most recent addition of comments to the history
+						if (lastCommentToHistory === 0 && keys.includes('commentToHistory')) {
+							lastCommentToHistory = histItem.timestamp
+						}
 					}
+					// get the last time a comment was added; comments have their own array
+					if (doc.comments && doc.comments.length > 0) {
+						lastCommentAddition = doc.comments[0].timestamp
+					}
+
+					let newNode = {
+						path,
+						pathStr: JSON.stringify(path),
+						ind,
+						level: path.length,
+						productId: doc.productId,
+						parentId,
+						_id: doc._id,
+						shortId: doc.shortId,
+						dependencies: doc.dependencies || [],
+						conditionalFor: doc.conditionalFor || [],
+						title: doc.title,
+						isLeaf: level === PBILEVEL,
+						children: [],
+						isExpanded,
+						savedIsExpanded: isExpanded,
+						isSelectable: true,
+						isDraggable,
+						isSelected: isSelected,
+						doShow,
+						savedDoShow: doShow,
+						data: {
+							priority: doc.priority,
+							state: doc.state,
+							inconsistentState: false,
+							team: doc.team,
+							lastStateChange,
+							lastContentChange,
+							lastCommentAddition,
+							lastAttachmentAddition,
+							lastCommentToHistory,
+							subtype: doc.subtype,
+							lastChange: doc.history[0].timestamp
+						}
+					}
+
+					state.itemsCount++
+
+					parentNode.children.push(newNode)
+					parentNodes[doc._id] = newNode
+				} else {
+					state.orphansCount++
+					state.orphansFound.orphans.push({ parentId: parentId, productId: doc.productId })
+					// eslint-disable-next-line no-console
+					console.log('processProduct: orphan found with parentId = ' + parentId + ' and productId = ' + doc.productId)
 				}
 			}
 		}

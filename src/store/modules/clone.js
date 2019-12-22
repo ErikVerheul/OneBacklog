@@ -16,93 +16,89 @@ var newProductTitle
 function processProduct() {
     let parentNodes = { root: window.slVueTree.getNodeById('root') }
     const now = Date.now()
-    for (let i = 0; i < docs.length; i++) {
-        const parentId = docs[i].parentId
+    for (let doc of docs) {
+        const parentId = doc.parentId
         if (parentNodes[parentId] !== undefined) {
-            const level = docs[i].level
+            const level = doc.level
             const isDraggable = level > PRODUCTLEVEL
-            const isExpanded = docs[i].level < FEATURELEVEL
-            const doShow = docs[i].level <= PRODUCTLEVEL
+            const isExpanded = doc.level < FEATURELEVEL
+            const doShow = doc.level <= PRODUCTLEVEL
             const parentNode = parentNodes[parentId]
             // position as last child
             const ind = parentNode.children.length
             const parentPath = parentNode.path
             const path = parentPath.concat(ind)
-            const delmark = docs[i].delmark
-            // skip the database/requirement area level and the removed items
-            if (level > 1 && !delmark) {
-                // search history for the last changes within the last hour
-                let lastStateChange = 0
-                let lastContentChange = 0
-                let lastCommentAddition = 0
-                let lastAttachmentAddition = 0
-                let lastCommentToHistory = 0
-                for (let histItem of docs[i].history) {
-                    if (now - histItem.timestamp > HOURINMILIS) {
-                        // skip events longer than a hour ago
-                        break
-                    }
-                    const keys = Object.keys(histItem)
-                    // get the most recent change of state
-                    if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
-                        lastStateChange = histItem.timestamp
-                    }
-                    // get the most recent change of content
-                    if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
-                        lastContentChange = histItem.timestamp
-                    }
-                    // get the most recent addition of comments to the history
-                    if (lastAttachmentAddition === 0 && keys.includes('lastAttachmentAddition')) {
-                        lastAttachmentAddition = histItem.timestamp
-                    }
-                    // get the most recent addition of comments to the history
-                    if (lastCommentToHistory === 0 && keys.includes('commentToHistory')) {
-                        lastCommentToHistory = histItem.timestamp
-                    }
+            // search history for the last changes within the last hour
+            let lastStateChange = 0
+            let lastContentChange = 0
+            let lastCommentAddition = 0
+            let lastAttachmentAddition = 0
+            let lastCommentToHistory = 0
+            for (let histItem of doc.history) {
+                if (now - histItem.timestamp > HOURINMILIS) {
+                    // skip events longer than a hour ago
+                    break
                 }
-                // get the last time a comment was added; comments have their own array
-                if (docs[i].comments && docs[i].comments.length > 0) {
-                    lastCommentAddition = docs[i].comments[0].timestamp
+                const keys = Object.keys(histItem)
+                // get the most recent change of state
+                if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
+                    lastStateChange = histItem.timestamp
                 }
-
-                let newNode = {
-                    path,
-                    pathStr: JSON.stringify(path),
-                    ind,
-                    level: level,
-                    productId: docs[i].productId,
-                    parentId,
-                    _id: docs[i]._id,
-                    shortId: docs[i].shortId,
-                    dependencies: docs[i].dependencies || [],
-                    conditionalFor: docs[i].conditionalFor || [],
-                    title: docs[i].title,
-                    isLeaf: level === PBILEVEL,
-                    children: [],
-                    isExpanded,
-                    savedIsExpanded: isExpanded,
-                    isSelectable: true,
-                    isDraggable,
-                    isSelected: false,
-                    doShow,
-                    savedDoShow: doShow,
-                    data: {
-                        priority: docs[i].priority,
-                        state: docs[i].state,
-                        inconsistentState: false,
-                        team: docs[i].team,
-                        lastStateChange,
-                        lastContentChange,
-                        lastCommentAddition,
-                        lastAttachmentAddition,
-                        lastCommentToHistory,
-                        subtype: docs[i].subtype,
-                        lastChange: docs[i].history[0].timestamp
-                    }
+                // get the most recent change of content
+                if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
+                    lastContentChange = histItem.timestamp
                 }
-                parentNode.children.push(newNode)
-                parentNodes[docs[i]._id] = newNode
+                // get the most recent addition of comments to the history
+                if (lastAttachmentAddition === 0 && keys.includes('lastAttachmentAddition')) {
+                    lastAttachmentAddition = histItem.timestamp
+                }
+                // get the most recent addition of comments to the history
+                if (lastCommentToHistory === 0 && keys.includes('commentToHistory')) {
+                    lastCommentToHistory = histItem.timestamp
+                }
             }
+            // get the last time a comment was added; comments have their own array
+            if (doc.comments && doc.comments.length > 0) {
+                lastCommentAddition = doc.comments[0].timestamp
+            }
+
+            let newNode = {
+                path,
+                pathStr: JSON.stringify(path),
+                ind,
+                level: level,
+                productId: doc.productId,
+                parentId,
+                _id: doc._id,
+                shortId: doc.shortId,
+                dependencies: doc.dependencies || [],
+                conditionalFor: doc.conditionalFor || [],
+                title: doc.title,
+                isLeaf: level === PBILEVEL,
+                children: [],
+                isExpanded,
+                savedIsExpanded: isExpanded,
+                isSelectable: true,
+                isDraggable,
+                isSelected: false,
+                doShow,
+                savedDoShow: doShow,
+                data: {
+                    priority: doc.priority,
+                    state: doc.state,
+                    inconsistentState: false,
+                    team: doc.team,
+                    lastStateChange,
+                    lastContentChange,
+                    lastCommentAddition,
+                    lastAttachmentAddition,
+                    lastCommentToHistory,
+                    subtype: doc.subtype,
+                    lastChange: doc.history[0].timestamp
+                }
+            }
+            parentNode.children.push(newNode)
+            parentNodes[doc._id] = newNode
         }
     }
 }
