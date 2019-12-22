@@ -237,7 +237,7 @@ const actions = {
 			dispatch('getConfig', isProductAssigned)
 
 		}).catch(error => {
-			if (error.message.includes("404")) {
+			if (error.response.status === 404) {
 				// the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
 				if (rootState.online && rootState.userData.roles.includes("_admin")) {
 					// eslint-disable-next-line no-console
