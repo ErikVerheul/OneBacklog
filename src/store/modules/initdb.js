@@ -200,7 +200,17 @@ const actions = {
 					 * Filter on document type 'backlogItem', then filter the changes which need distributed to other users.
 					 */
 					"changesFilter": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && (doc.history[0].distributeEvent) || doc.comments[0].distributeEvent) emit(doc._id, 1);}'
+						"map": `function(doc) {
+							if (doc.type == "backlogItem") {
+							  if ((doc.history[0].timestamp > doc.comments[0].timestamp) && doc.history[0].distributeEvent) {
+								emit(doc._id, 1);
+							  } else {
+								if ((doc.comments[0].timestamp > doc.history[0].timestamp) && doc.comments[0].distributeEvent) {
+								emit(doc._id, 1);
+							  }
+							}
+						  }
+						}`
 					},
 					/*
 					 * Filter on document type 'backlogItem', then sort on shortId.
@@ -242,7 +252,13 @@ const actions = {
 			"description": window.btoa("<p>Database root document</p>"),
 			"acceptanceCriteria": window.btoa("<p>not applicable</p>"),
 			"priority": 0,
-			"comments": [],
+			"comments": [{
+				"ignoreEvent": 'comments initiated',
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}],
 			"history": [{
 				"createRootEvent": [payload.dbName],
 				"by": rootState.userData.user,
