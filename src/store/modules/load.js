@@ -21,6 +21,7 @@ const state = {
 	orphansCount: 0,
 	currentDefaultProductId: null,
 	currentProductId: null,
+	currentProductsEnvelope: [],
 	productIdLoading: null,
 	processedProducts: 0,
 	currentProductTitle: "",
@@ -219,20 +220,14 @@ const actions = {
 			rootState.userData.myDatabases = Object.keys(res.data.myDatabases)
 			const currentDbSettings = res.data.myDatabases[res.data.currentDb]
 			rootState.userData.myTeam = currentDbSettings.myTeam
-			rootState.userData.myProductsRoles = currentDbSettings.productsRoles
-			rootState.userData.myProductSubscriptions = currentDbSettings.subscriptions
-			rootState.userData.myProductViewFilterSettings = res.data.myProductViewFilterSettings
 			rootState.userData.myFilterSettings = res.data.filterSettings
-
 			dispatch('watchdog')
 			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in."
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			// now that the database is known the log file is available
 			dispatch('doLog', { event: msg, level: ERROR })
-			const isProductAssigned = Object.keys(rootState.userData.myProductsRoles).length > 0
-			dispatch('getConfig', isProductAssigned)
-
+			dispatch('getAllProducts', currentDbSettings)
 		}).catch(error => {
 			if (error.response.status === 404) {
 				// the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
@@ -251,11 +246,55 @@ const actions = {
 		})
 	},
 
+	/* Get all products of the current database */
+	getAllProducts({
+		rootState,
+		state,
+		dispatch
+	}, currentDbSettings) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/products',
+			withCredentials: true
+		}).then(res => {
+			rootState.backendSuccess = true
+			state.currentProductsEnvelope = res.data.rows
+			// correct the data from the user profile with the actual available products
+			for (let product of state.currentProductsEnvelope) {
+				let id = product.id
+				if (Object.keys(currentDbSettings.productsRoles).includes(id)) rootState.userData.myProductsRoles[id] = currentDbSettings.productsRoles[id]
+				if (currentDbSettings.subscriptions.includes(id)) rootState.userData.myProductSubscriptions.push(id)
+			}
+			// set the users product options to select from
+			for (let product of state.currentProductsEnvelope) {
+				if (Object.keys(currentDbSettings.productsRoles).includes(product.id)) {
+					rootState.myProductOptions.push({
+						value: product.id,
+						text: product.value
+					})
+				}
+			}
+			// ToDo: correct the user profile
+			const isAnyProductAssigned = Object.keys(rootState.userData.myProductsRoles).length > 0
+			rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
+			// the first (index 0) product in myProductsRoles is by definition the default product
+			state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0] || undefined
+			// postpone the warning message for 'no product found' until the product view is rendered
+			dispatch('getConfig', isAnyProductAssigned)
+		}).catch(error => {
+			let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
+			rootState.backendMessages.push(msg)
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	// Load the config document from this database
 	getConfig({
 		rootState,
 		dispatch
-	}, isProductAssigned) {
+	}, isAnyProductAssigned) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/config',
@@ -265,41 +304,13 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('The configuration is loaded')
 			if (res.data.changeDate >= 1575036814777) {
-				if (isProductAssigned) {
-					// process removed products if any
-					if (res.data.removedProducts && res.data.removedProducts.length > 0) {
-						const sanatizedProductRoles = {}
-						const productIds = Object.keys(rootState.userData.myProductsRoles)
-						for (let i = 0; i < productIds.length; i++) {
-							if (!res.data.removedProducts.includes(productIds[i])) {
-								sanatizedProductRoles[productIds[i]] = rootState.userData.myProductsRoles[productIds[i]]
-							}
-						}
-						rootState.userData.myProductsRoles = sanatizedProductRoles
-
-						const sanatizedProductSubscriptions = []
-						for (let i = 0; i < rootState.userData.myProductSubscriptions.length; i++) {
-							if (!res.data.removedProducts.includes(rootState.userData.myProductSubscriptions[i])) {
-								sanatizedProductSubscriptions.push(rootState.userData.myProductSubscriptions[i])
-							}
-						}
-						rootState.userData.myProductSubscriptions = sanatizedProductSubscriptions
-					}
-
-					rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
-					// set the array of options to make a selection of products for the next load on sign-in
-					dispatch("setMyProductOptions")
-					// the first (index 0) product is by definition the default product
-					state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0]
-
-					// load the root document
-					dispatch('getRoot', isProductAssigned)
-				}
+				// load the root document
+				dispatch('getRoot', isAnyProductAssigned)
 			} else {
 				// ToDo: logging results in 'Request failed with status code 409'
 				let msg = 'getConfig: This application version is designed for config version 1575036814777 and later'
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
+				console.log(msg)
 			}
 		}).catch(error => {
 			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
@@ -313,7 +324,7 @@ const actions = {
 		rootState,
 		commit,
 		dispatch
-	}, isProductAssigned) {
+	}, isAnyProductAssigned) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/root',
@@ -355,12 +366,12 @@ const actions = {
 				},
 			]
 			parentNodes.root = state.treeNodes[0]
-			if (isProductAssigned) {
+			if (isAnyProductAssigned) {
 				// load the current product document
 				dispatch('loadCurrentProduct')
 			} else {
 				commit('showLastEvent', { txt: `The root document is read. No products are found. A SuperPO can create products.`, severity: INFO })
-				// show the root node
+				// show only the root node and the message
 				router.push('/product')
 			}
 			// eslint-disable-next-line no-console
@@ -407,47 +418,6 @@ const actions = {
 		}).catch(error => {
 			// ToDo: if 404 the database could have been deleted
 			let msg = 'loadCurrentProduct: Could not read current product document with _id ' + _id + ' from database ' + rootState.userData.currentDb + '. ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/*
-	* Set the options to select one or more products
-	* Assume error results are 'not found' instances and ignore them
-	*/
-	setMyProductOptions({
-		rootState,
-		dispatch
-	}) {
-		const docsToGet = []
-		for (let i = 0; i < rootState.userData.userAssignedProductIds.length; i++) {
-			docsToGet.push({ "id": rootState.userData.userAssignedProductIds[i] })
-		}
-
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
-			withCredentials: true,
-			data: { "docs": docsToGet },
-		}).then(res => {
-			// console.log('setMyProductOptions: res = ' + JSON.stringify(res, null, 2))
-			const results = res.data.results
-			for (let i = 0; i < results.length; i++) {
-				const doc = results[i].docs[0].ok
-				// skip undefined and removed products
-				if (doc && !doc.delMark) {
-					rootState.myProductOptions.push({
-						value: doc._id,
-						text: doc.title
-					})
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log("setMyProductOptions: product '" + doc.title + "' is assigned to this user")
-				}
-			}
-		}).catch(error => {
-			let msg = 'setMyProductOptions: Could not read product titles' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
