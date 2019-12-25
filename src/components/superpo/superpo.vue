@@ -106,7 +106,13 @@ export default {
         "description": window.btoa(""),
         "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
         "priority": 0,
-        "comments": [],
+        "comments": [{
+          "ignoreEvent": 'comments initiated',
+          "by": this.$store.state.userData.user,
+          "email": this.$store.state.userData.email,
+          "timestamp": Date.now(),
+          "distributeEvent": false
+        }],
         "history": [{
           "createEvent": [PRODUCTLEVEL, this.$store.state.userData.currentDb],
           "by": this.$store.state.userData.user,
@@ -124,7 +130,7 @@ export default {
       // add product to this user's subscriptions and productsRoles
       this.$store.state.backendMessages = []
       this.$store.state.backendSuccess = false
-      this.$store.dispatch('addProductToUser', {dbName: this.$store.state.userData.currentDb, productId: _id})
+      this.$store.dispatch('addProductToUser', { dbName: this.$store.state.userData.currentDb, productId: _id })
     },
 
     removeProduct() {
@@ -154,7 +160,7 @@ export default {
     },
 
     signIn() {
-      this.$store.commit('resetData', null, {root: true})
+      this.$store.commit('resetData', null, { root: true })
       router.replace('/')
     }
   },

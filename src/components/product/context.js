@@ -327,7 +327,13 @@ export default {
           "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
           "priority": newNode.data.priority,
           "attachments": [],
-          "comments": [],
+          "comments": [{
+            "ignoreEvent": 'comments initiated',
+            "by": this.$store.state.userData.user,
+            "email": this.$store.state.userData.email,
+            "timestamp": Date.now(),
+            "distributeEvent": true
+          }],
           "history": [{
             "createEvent": [insertLevel, this.contextNodeSelected.title],
             "by": this.$store.state.userData.user,
@@ -367,8 +373,6 @@ export default {
           this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
           return
         }
-        // Add the removed product id to the removeProducts list in the config document
-        this.$store.dispatch('addToRemovedProducts', selectedNode._id)
       }
       // set remove mark in the database on the clicked item and decendants (if any)
       this.$store.dispatch('removeDoc', { 'node': selectedNode, 'descendants': descendants })
@@ -382,6 +386,10 @@ export default {
         parentId: selectedNode._id,
         parentPath: selectedNode.path,
         descendants: descendants
+      }
+
+      if (entry.isProductRemoved) {
+        entry.removedProductRoles = this.$store.state.userData.myProductsRoles[selectedNode._id]
       }
 
       this.$store.state.changeHistory.unshift(entry)

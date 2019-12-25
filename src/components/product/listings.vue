@@ -60,13 +60,16 @@ export default {
     getFilteredComments() {
       let filteredComments = []
       let comments = this.$store.state.currentDoc.comments
-      for (let i = 0; i < comments.length; i++) {
-        let allText = window.atob(comments[i].comment)
-        allText += comments[i].by
-        allText += comments[i].email
-        allText += this.mkTimestamp(comments[i].timestamp)
-        if (allText.includes(this.$store.state.filterForComment)) {
-          filteredComments.push(comments[i])
+      for (let c of comments) {
+        if (c.addCommentEvent) {
+          const comment = window.atob(c.addCommentEvent)
+          let allText = comment
+          allText += c.by
+          allText += c.email
+          allText += this.mkTimestamp(c.timestamp)
+          if (allText.includes(this.$store.state.filterForComment)) {
+            filteredComments.push(c)
+          }
         }
       }
       return filteredComments
@@ -188,7 +191,7 @@ export default {
     },
 
     prepCommentsText(key, value) {
-      if (key === "comment") return this.mkComment(value)
+      if (key === "addCommentEvent") return this.mkComment(value)
       if (key === "by") return this.mkBy(value)
       if (key === "email") return this.mkEmail(value)
       if (key === "timestamp") return this.mkTimestamp(value)
@@ -325,7 +328,7 @@ export default {
     },
 
     mkComment(value) {
-      return window.atob(value[0])
+      return window.atob(value)
     },
 
     mkUploadAttachmentEvent(value) {

@@ -89,7 +89,13 @@ const actions = {
 			"acceptanceCriteria": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
 			"priority": 0,
 			"attachments": [],
-			"comments": [],
+			"comments": [{
+				"ignoreEvent": 'comments initiated',
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}],
 			"history": [{
 				"createEvent": [2, rootState.userData.currentDb],
 				"by": rootState.userData.user,
@@ -156,7 +162,13 @@ const actions = {
 			"acceptanceCriteria": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
 			"priority": calcPrio(payload.counter1, payload.epicsNumber),
 			"attachments": [],
-			"comments": [],
+			"comments": [{
+				"ignoreEvent": 'comments initiated',
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}],
 			"history": [{
 				"createEvent": [3, payload.parentName],
 				"by": rootState.userData.user,
@@ -225,7 +237,13 @@ const actions = {
 			"acceptanceCriteria": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
 			"priority": calcPrio(payload.counter2, payload.featuresNumber),
 			"attachments": [],
-			"comments": [],
+			"comments": [{
+				"ignoreEvent": 'comments initiated',
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}],
 			"history": [{
 				"createEvent": [4, payload.parentName],
 				"by": rootState.userData.user,
@@ -293,7 +311,13 @@ const actions = {
 			"acceptanceCriteria": window.btoa("<p>" + text2004.substring(0, Math.floor(Math.random() * 1984 + 20)) + "</p>"),
 			"priority": calcPrio(payload.counter3, payload.storiesNumber),
 			"attachments": [],
-			"comments": [],
+			"comments": [{
+				"ignoreEvent": 'comments initiated',
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}],
 			"history": [{
 				"createEvent": [5, payload.parentName],
 				"by": rootState.userData.user,
@@ -591,10 +615,20 @@ const actions = {
 				if (results[i].docs[0].ok) {
 					results[i].docs[0].ok["history"] = [
 						{
-							"rootEvent": ["history cleared"],
+							"rootEvent": ['history cleared'],
 							"by": rootState.userData.user,
 							"email": rootState.userData.email,
-							"timestamp": Date.now()
+							"timestamp": Date.now(),
+							"distributeEvent": false
+						}]
+
+					results[i].docs[0].ok["comments"] = [
+						{
+							"addCommentEvent": window.btoa('comments cleared'),
+							"by": rootState.userData.user,
+							"email": rootState.userData.email,
+							"timestamp": Date.now(),
+							"distributeEvent": false
 						}]
 					ok.push(results[i].docs[0].ok)
 				}
