@@ -11,7 +11,9 @@ var removedProducts = []
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
 * The documents are fltered by the view=design1/changesFilter filter.
-* Note: When a user starts multiple sessions each session has a different sessionId. These sessions are not synced.
+* Subsequent filtering in doe in this routine:
+* - When a user starts multiple sessions each session has a different sessionId. These sessions are not synced.
+* - Only updates for products the user is subscribed to are processed and those products which were remotely deleted so that these deletetions can be remotely undone
 * After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
 */
 const actions = {
@@ -75,14 +77,6 @@ const actions = {
 			url: url,
 			withCredentials: true
 		}).then(res => {
-			function isDifferentSession(doc) {
-				if (doc.history[0].sessionId === rootState.userData.sessionId) return false
-				if (doc.comments && doc.comments[0]) {
-					// there is a least one comment
-					if (doc.comments[0].sessionId === rootState.userData.sessionId) return false
-				}
-				return true
-			}
 			let data = res.data
 			rootState.lastSyncSeq = data.last_seq
 			//eslint-disable-next-line no-console
@@ -91,7 +85,7 @@ const actions = {
 				const results = data.results
 				for (let r of results) {
 					let doc = r.doc
-					if (isDifferentSession(doc) &&
+					if (doc.history[0].sessionId !== rootState.userData.sessionId &&
 						rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('listenForChanges[processChangedDocs]: document with _id ' + doc._id + ' is processed, priority = ' +
