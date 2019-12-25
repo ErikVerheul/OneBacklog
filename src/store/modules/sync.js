@@ -6,10 +6,11 @@ const INFO = 0
 const WARNING = 1
 var fistCallAfterSignin = true
 var remoteRemoved = []
+var removedProducts = []
 
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
-*
+* The documents are fltered by the view=design1/changesFilter filter.
 * Note: When a user starts multiple sessions each session has a different sessionId. These sessions are not synced.
 * After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
 */
@@ -61,7 +62,7 @@ const actions = {
 		// stop listening if offline. watchdog will start it automatically when online again
 		if (!rootState.online) return
 
-		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true'
+		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true&filter=_view&view=design1/changesFilter'
 		if (since) url += '&since=' + since
 		else {
 			// initially get the last change only
@@ -88,15 +89,14 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			if (since && !fistCallAfterSignin) {
 				const results = data.results
-				for (let i = 0; i < results.length; i++) {
-					let doc = results[i].doc
-					// Select only documents which are a product backlog item, belong to the user subscribed products and changes not made
-					// by the user him/her self in a parallel session and ment for distribution (is filtered out by the CouchDB _design filter)
-					if (doc.type === 'backlogItem' &&
-						isDifferentSession(doc) &&
-						rootState.userData.myProductSubscriptions.includes(doc.productId)) {
+				for (let r of results) {
+					let doc = r.doc
+					if (isDifferentSession(doc) &&
+						rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
 						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('listenForChanges[processChangedDocs]: document with _id ' + doc._id + ' is processed, priority = ' + doc.priority + ' title = ' + doc.title)
+						if (rootState.debug) console.log('listenForChanges[processChangedDocs]: document with _id ' + doc._id + ' is processed, priority = ' +
+							doc.priority + ' lastHistType = ' + Object.keys(doc.history[0])[0] + ' distributeEvent = ' + doc.history[0].distributeEvent +
+							' timestamp = ' + doc.history[0].timestamp + ' title = ' + doc.title)
 						dispatch('doBlinck')
 						// get the timestamps
 						const lastHistoryChange = doc.history && doc.history.length > 0 ? doc.history[0].timestamp : 0
@@ -114,8 +114,21 @@ const actions = {
 							if (doc.delmark) {
 								// remove the node and its children
 								window.slVueTree.remove([node])
+								commit('showLastEvent', { txt: 'Another user removed an item', severity: INFO })
 								// save the node for later restoration
 								remoteRemoved.unshift(node)
+								if (node.level === PRODUCTLEVEL) {
+									// save some data of the removed product for restore at undo
+									removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
+									// remove the product from the users product roles, subscriptions and product selection array
+									delete rootState.userData.myProductsRoles[node._id]
+									if (rootState.userData.myProductSubscriptions.includes(node._id)) {
+										const position = rootState.userData.myProductSubscriptions.indexOf(node._id)
+										rootState.userData.myProductSubscriptions.splice(position, 1)
+										const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(node._id)
+										rootState.myProductOptions.splice(removeIdx, 1)
+									}
+								}
 								continue
 							}
 							// set the specific dates of the events and the date of the last change in history or comments
@@ -177,11 +190,23 @@ const actions = {
 							}
 							if (doc.history[0].docRestoredInsideEvent) {
 								// node	is restored from a previous removal
-								commit('showLastEvent', { txt: 'Another user restored a removed item.', severity: INFO })
+								commit('showLastEvent', { txt: 'Another user restored a removed item', severity: INFO })
+								// console.log('sync: remoteRemoved = ' + JSON.stringify(remoteRemoved, null, 2))
 								// lookup in remove history
 								for (let i = 0; i < remoteRemoved.length; i++) {
 									const node = remoteRemoved[i]
 									if (node._id === doc._id) {
+										if (node.level === PRODUCTLEVEL) {
+											// re-enter the product to the users product roles, subscriptions and product selection array
+											rootState.userData.myProductsRoles[node._id] = removedProducts[0].productRoles
+											rootState.userData.myProductSubscriptions.push(node._id)
+											rootState.myProductOptions.push({
+												value: node._id,
+												text: node.title
+											})
+											// remove the entry
+											removedProducts.splice(0, 1)
+										}
 										// remove from the array
 										remoteRemoved.splice(i, 1)
 										const parentNode = window.slVueTree.getNodeById(node.parentId)
