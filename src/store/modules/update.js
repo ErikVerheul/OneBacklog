@@ -2,6 +2,7 @@ import globalAxios from 'axios'
 
 const WARNING = 1
 const ERROR = 2
+const PRODUCTLEVEL = 2
 
 const state = {
 	busyRemoving: false
@@ -744,6 +745,16 @@ const actions = {
 			tmpDoc.delmark = true
 			tmpDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			if (payload.node.level === PRODUCTLEVEL) {
+				// remove the product from the users product roles, subscriptions and product selection array
+				delete rootState.userData.myProductsRoles[_id]
+				if (rootState.userData.myProductSubscriptions.includes(_id)) {
+					const position = rootState.userData.myProductSubscriptions.indexOf(_id)
+					rootState.userData.myProductSubscriptions.splice(position, 1)
+					const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(_id)
+					rootState.myProductOptions.splice(removeIdx, 1)
+				}
+			}
 			dispatch('registerRemoveHistInParent', payload)
 		}).catch(error => {
 			let msg = 'removeDoc: Could not read document with _id ' + _id + ',' + error
@@ -777,10 +788,6 @@ const actions = {
 				grandParentDoc.history.unshift(newHist)
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc })
 				dispatch('restoreParentFirst', entry)
-				if (entry.isProductRemoved) {
-					// remove the product from the list of removed products
-					dispatch('removeFromRemovedProducts', entry.removedNode._id)
-				}
 			} else {
 				commit('showLastEvent', { txt: `You cannot restore under the removed item with title '${grandParentDoc.title}'`, severity: WARNING })
 			}
@@ -795,16 +802,26 @@ const actions = {
 	restoreParentFirst({
 		rootState,
 		dispatch
-	}, payload) {
-		const _id = payload.parentId
+	}, entry) {
+		const _id = entry.parentId
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
+			if (entry.isProductRemoved) {
+				// re-enter the product to the users product roles, subscriptions and product selection array
+				const id = entry.removedNode._id
+				rootState.userData.myProductsRoles[id] = entry.removedProductRoles
+				rootState.userData.myProductSubscriptions.push(id)
+				rootState.myProductOptions.push({
+					value: id,
+					text: entry.removedNode.title
+				})
+			}
 			const newHist = {
-				"docRestoredInsideEvent": [payload.descendants.length],
+				"docRestoredInsideEvent": [entry.descendants.length],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -813,7 +830,7 @@ const actions = {
 			}
 			tmpDoc.history.unshift(newHist)
 			tmpDoc.delmark = false
-			dispatch('undoRemovedParent', { tmpDoc: tmpDoc, entry: payload })
+			dispatch('undoRemovedParent', { tmpDoc: tmpDoc, entry })
 		}).catch(error => {
 			let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -1068,9 +1085,8 @@ const actions = {
 			withCredentials: true,
 		}).then((res) => {
 			let tmpDoc = res.data
-			const newComment = window.btoa(payload.comment)
 			const newEntry = {
-				"comment": [newComment],
+				"addCommentEvent": window.btoa(payload.comment),
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
@@ -1113,56 +1129,6 @@ const actions = {
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'addHistoryComment: Could not read document with _id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	addToRemovedProducts({
-		rootState,
-		dispatch
-	}, productId) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/config',
-			withCredentials: true,
-		}).then(res => {
-			const tmpConfig = res.data
-			if (tmpConfig.removedProducts) {
-				tmpConfig.removedProducts.push(productId)
-			} else {
-				tmpConfig.removedProducts = [productId]
-			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpConfig })
-		}).catch(error => {
-			let msg = 'addToRemovedProducts: Could not read config document ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	removeFromRemovedProducts({
-		rootState,
-		dispatch
-	}, productId) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/config',
-			withCredentials: true,
-		}).then(res => {
-			const tmpConfig = res.data
-			if (tmpConfig.removedProducts) {
-				for (let i = 0; i < tmpConfig.removedProducts.length; i++) {
-					if (tmpConfig.removedProducts[i] === productId) {
-						tmpConfig.removedProducts.splice(i, 1)
-					}
-				}
-			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpConfig })
-		}).catch(error => {
-			const msg = 'removeFromRemovedProducts: Could not read config document ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
