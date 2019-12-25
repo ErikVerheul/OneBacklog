@@ -554,7 +554,6 @@ export default {
       const now = Date.now()
       this.$store.state.nodeSelected.data.lastChange = now
       this.$store.state.nodeSelected.data.lastCommentToHistory = now
-      // update the current doc in memory
       this.$store.dispatch('addHistoryComment', {
         'comment': this.newHistory,
         'timestamp': now
