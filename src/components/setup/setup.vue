@@ -15,13 +15,12 @@
 				<button @click="creRdmProduct" class="myButton">1. Create random product</button>
 				<button @click="createUser" class="myButton">2. Create user</button>
 				<button @click="crateDB" class="myButton">3. Choose or Create a database</button>
-				<button @click="removeHist" class="myButton">4. Remove history</button>
+				<button @click="removeHist" class="myButton">4. Remove history and comments</button>
 				<button @click="showDBsecurity" class="myButton">6. Show the database security info</button>
 				<button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
 				<button @click="showDocById" class="myButton">8. Show a document by id</button>
 				<button @click="deleteDB" class="myButton">9. Delete the selected || created database</button>
 				<button @click="copyDB" class="myButton">11. Copy a database including permissions</button>
-				<button @click="convertState" class="myButton">12. Convert state from existing database</button>
 			</div>
 
 			<div class="col-lg-12 col-sm-12">
@@ -129,9 +128,6 @@
 						break
 					case 11:
 						this.copyDBExe()
-						break
-					case 12:
-						this.removeHistExe()
 						break
 					default:
 				}
