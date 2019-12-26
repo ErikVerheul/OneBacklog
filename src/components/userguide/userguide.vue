@@ -131,9 +131,10 @@
 				</p>
 				<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
 				<b-img :src="require('./context-menu.png')" alt="Example context menu" />
-				<p>Select the action to execute and press OK. But before doing see click the <b>need assistance?</b> button for some valuable tips.</p>
+				<p>Select the action to execute and press OK.</p>
 				<p>Be careful when removing an item with all of its descendants. You will see a modal like this:</p>
 				<b-img :src="require('./remove.png')" alt="Example context remove" />
+				<p>If the item is a product an extra opion is displayed to make a clone this product. This feature is used when you have templates for reuse. Using a clone of a template can speed up the creation of simular products.</p>
 				<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. After removal a <b>Undo remove</b> button appears in the title bar. Click on this button to reverse your removals (last removal will be restored first).</p>
 				<h4>Drag &amp; drop in the backlog item tree</h4>
 				<p>This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product. Use the context menu to move a branch to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>

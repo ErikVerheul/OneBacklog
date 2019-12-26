@@ -6,6 +6,18 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.8.2 - 26 December 2019 Feature update</h3>
+				<ul>
+					<li>The context menu in the products view is extended with 'make a clone option' for product items.</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>Resursive database updates are replaced with Couchdb bulk updates.</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>The changes filter is enhanced and used in the synchronization between online users.</li>
+				</ul>
 				<hr>
 				<h3>v.0.8.1 - 17 December 2019 Feature update</h3>
 				<ul>
