@@ -153,7 +153,7 @@ export default {
           this.listItemText = `Start the check. See in the tree if any red badges appear`
           break
         case this.SETDEPENDENCY:
-          this.assistanceText = 'No assistance available'
+          this.assistanceText = this.$store.state.help.help.setDependency
           if (!this.$store.state.selectNodeOngoing) {
             this.listItemText = 'Click OK to choose a node this item depends on'
           } else {

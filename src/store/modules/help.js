@@ -114,6 +114,17 @@ const state = {
         </p>
         <hr>
         <p>Note that you will be the only user with access to the clone. An admin has to assign other users with this product to allow them to see and/or contribute to the new product.
+        </p>`,
+
+        setDependency: `<h4>Item dependency help</h4>
+        <p>
+        You are about to set a dependency between two backlog items.<br/>
+        </p>
+        <hr>
+        <p>Click OK to select (right-click) another backlog item this item depends on. The results of that item is conditional for the first selected item to be realized.
+        </p>
+        <hr>
+        <p>The condition must have a lower priority than the item that depends on it. When moving items in the tree this rule can be breached. If so, you will be warned immediately. Undo your last action or remove the dpendency if no longer valid.
         </p>`
     }
 }
