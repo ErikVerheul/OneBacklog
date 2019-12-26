@@ -257,7 +257,6 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/products',
 			withCredentials: true
 		}).then(res => {
-			rootState.backendSuccess = true
 			state.currentProductsEnvelope = res.data.rows
 			// correct the data from the user profile with the actual available products
 			for (let product of state.currentProductsEnvelope) {
