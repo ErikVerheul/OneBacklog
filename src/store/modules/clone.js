@@ -124,6 +124,8 @@ const actions = {
             }
             // patch the documents
             for (let i = 0; i < docs.length; i++) {
+                // remove the revision
+                delete docs[i]._rev
                 // compute a new id and shortId, remember old id
                 const oldId = docs[i]._id
                 const newShortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
@@ -152,7 +154,6 @@ const actions = {
                 }
             }
             // save the new product in the database
-            // console.log(JSON.stringify(docs, null, 2))
             dispatch('storeProduct', docs)
         }).catch(error => {
             let msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error
