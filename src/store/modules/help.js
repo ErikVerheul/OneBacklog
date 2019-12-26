@@ -102,6 +102,18 @@ const state = {
         </p>
         <hr>
         <p>This check does not change the state of your items. It is up to you to do that manually.
+        </p>`,
+
+        productClone: `<h4>Product clone help</h4>
+        <p>
+        You are about to clone a product.<br/>
+        </p>
+        <hr>
+        <p>This feature copies a product with all its descendants in the current database and will show in your products view. The product title is prepended with CLONE:<br>
+        Use this feature to create a copy of a product template. A product template is a sceleton of a product type. Using a clone of a template can speed up the creation of simular products.
+        </p>
+        <hr>
+        <p>Note that you will be the only user with access to the clone. An admin has to assign other users with this product to allow them to see and/or contribute to the new product.
         </p>`
     }
 }

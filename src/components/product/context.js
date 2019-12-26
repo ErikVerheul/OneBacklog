@@ -119,7 +119,7 @@ export default {
       this.disableOkButton = false
       switch (this.contextOptionSelected) {
         case this.CLONEPRODUCT:
-          this.assistanceText = 'No assistance available'
+          this.assistanceText = this.$store.state.help.help.productClone
           this.listItemText = 'Make a clone of this product'
           break
         case this.INSERTBELOW:
