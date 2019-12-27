@@ -14,9 +14,9 @@ const SHORTKEYLENGTH = 5
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const REMOVED = 0
-const NEW = 2
-const READY = 3
-const DONE = 5
+const NEW = 0
+const READY = 1
+const DONE = 4
 var violationsWereFound = false
 
 export default {
