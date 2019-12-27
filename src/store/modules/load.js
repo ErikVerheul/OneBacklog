@@ -302,15 +302,7 @@ const actions = {
 			rootState.configData = res.data
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('The configuration is loaded')
-			if (res.data.changeDate >= 1575036814777) {
-				// load the root document
-				dispatch('getRoot', isAnyProductAssigned)
-			} else {
-				// ToDo: logging results in 'Request failed with status code 409'
-				let msg = 'getConfig: This application version is designed for config version 1575036814777 and later'
-				// eslint-disable-next-line no-console
-				console.log(msg)
-			}
+			dispatch('getRoot', isAnyProductAssigned)
 		}).catch(error => {
 			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
