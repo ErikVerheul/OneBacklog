@@ -6,6 +6,16 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.8.3 - 27 December 2019 Feature update and bug fix</h3>
+				<ul>
+					<li>The context menu in the products view is extended with 'Make a copy option' for epics, features and PBI items.</li>
+					<li>The break in upwards compatibility introduced in version 0.8.0 is lifted.</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>A regression is fixed which caused wrong state values.</li>
+				</ul>
+				<hr>
 				<h3>v.0.8.2 - 26 December 2019 Feature update</h3>
 				<ul>
 					<li>The context menu in the products view is extended with 'make a clone option' for product items.</li>
@@ -26,7 +36,6 @@
 				</ul>
 				<hr>
 				<h3>v.0.8.0 - 5 December 2019 Major update</h3>
-				<h5>Note that this release is not backwards compatible with previous releases. The ordering of the item states is changed to a more logical sequence. Databases with an older config document version will not load.</h5>
 				<p>New features:</p>
 				<ul>
 					<li>When changing the state of an item the new state is checked against its descendants. A warning is issued if that state is incompatible. Eg. you can only set a feature to done if all descendants are done.</li>

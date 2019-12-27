@@ -6,7 +6,7 @@ const INFO = 0
 const WARNING = 1
 const REMOVED = 0
 const DONE = 5
-const STATENEW = 2
+const STATENEW = 0
 var newNode = {}
 var movedNode = null
 
@@ -28,6 +28,7 @@ export default {
     this.SHOWDEPENDENCIES = 7
     this.SHOWCONDITIONS = 8
     this.CLONEPRODUCT = 9
+    this.CLONEITEM = 10
   },
 
   data() {
@@ -122,6 +123,10 @@ export default {
           this.assistanceText = this.$store.state.help.help.productClone
           this.listItemText = 'Make a clone of this product'
           break
+        case this.CLONEITEM:
+          this.assistanceText = this.$store.state.help.help.itemClone
+          this.listItemText = 'Make a clone of this item'
+          break
         case this.INSERTBELOW:
           this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
           this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item'
@@ -185,6 +190,9 @@ export default {
         case this.CLONEPRODUCT:
           this.doCloneProduct()
           break
+        case this.CLONEITEM:
+          this.doCloneItem(this.contextNodeSelected)
+          break
         case this.INSERTBELOW:
           this.doInsert()
           break
@@ -217,6 +225,110 @@ export default {
 
     doCloneProduct() {
       this.$store.dispatch('cloneProduct')
+    },
+
+    doCloneItem(node) {
+      const newShortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
+      const newId = Date.now().toString().concat(newShortId)
+      let insertPosition
+
+      const prevNode = window.slVueTree.getPreviousNode(node.path)
+      if (node.path.slice(-1)[0] === 0) {
+        // the previous node is the parent
+        insertPosition = {
+          nodeModel: prevNode,
+          placement: 'inside'
+        }
+      } else {
+        // the previous node is a sibling
+        insertPosition = {
+          nodeModel: prevNode,
+          placement: 'after'
+        }
+      }
+
+      // prepare the new node for insertion
+      newNode = {
+        _id: newId,
+        shortId: newShortId,
+        title: 'COPY: ' + node.title,
+        dependencies: [],
+        conditionalFor: [],
+        children: [],
+        isExpanded: false,
+        savedIsExpanded: false,
+        isDraggable: true,
+        isSelectable: true,
+        isSelected: true,
+        doShow: true,
+        savedDoShow: true,
+        data: {
+          state: STATENEW,
+          lastStateChange: Date.now(),
+          team: node.data.team,
+          subtype: node.data.subtype,
+          sessionId: this.$store.state.userData.sessionId,
+          distributeEvent: true
+        }
+      }
+      // unselect the node that was clicked before the insert
+      this.contextNodeSelected.isSelected = false
+      // insert the new node in the tree and assign the priority to this node
+      window.slVueTree.insertSingle(insertPosition, newNode)
+      // and select the new node
+      this.$store.state.nodeSelected = newNode
+
+      this.showLastEvent("Item of type " + this.getLevelText(newNode.level) + " is inserted as a copy of '" + node.title + "'.", INFO)
+      // create a new document and store it
+      const currentDoc = this.$store.state.currentDoc
+      const initData = {
+        "productId": currentDoc.productId,
+        "parentId": newNode.parentId,
+        "_id": newNode._id,
+        "shortId": newNode.shortId,
+        "type": "backlogItem",
+        "team": currentDoc.team,
+        "level": newNode.level,
+        "subtype": currentDoc.subtype,
+        "state": STATENEW,
+        "tssize": currentDoc.tssize,
+        "spsize": currentDoc.spsize,
+        "spikepersonhours": currentDoc.spikepersonhours,
+        "reqarea": null,
+        "dependencies": [],
+        "conditionalFor": [],
+        "title": newNode.title,
+        "followers": [],
+        "description": window.btoa(currentDoc.description),
+        "acceptanceCriteria": window.btoa(currentDoc.acceptanceCriteria),
+        "priority": newNode.data.priority,
+        "comments": [{
+          "ignoreEvent": 'comments initiated',
+          "by": this.$store.state.userData.user,
+          "email": this.$store.state.userData.email,
+          "timestamp": 0,
+          "distributeEvent": true
+        }],
+        "history": [{
+          "createEvent": [newNode.level, newNode.title],
+          "by": this.$store.state.userData.user,
+          "email": this.$store.state.userData.email,
+          "timestamp": Date.now(),
+          "sessionId": this.$store.state.userData.sessionId,
+          "distributeEvent": true
+        }],
+        "delmark": false
+      }
+      // update the database
+      this.$store.dispatch('createDoc', {
+        'initData': initData
+      })
+      // create an entry for undoing the change in a last-in first-out sequence
+      const entry = {
+        type: 'undoNewNode',
+        newNode
+      }
+      this.$store.state.changeHistory.unshift(entry)
     },
 
 		/*
@@ -314,7 +426,7 @@ export default {
           "team": "not assigned yet",
           "level": insertLevel,
           "subtype": 0,
-          "state": 2,
+          "state": STATENEW,
           "tssize": 3,
           "spsize": 0,
           "spikepersonhours": 0,
@@ -331,7 +443,7 @@ export default {
             "ignoreEvent": 'comments initiated',
             "by": this.$store.state.userData.user,
             "email": this.$store.state.userData.email,
-            "timestamp": Date.now(),
+            "timestamp": 0,
             "distributeEvent": true
           }],
           "history": [{
