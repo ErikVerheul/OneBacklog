@@ -93,7 +93,7 @@ const actions = {
 				"ignoreEvent": 'comments initiated',
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
+				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
@@ -166,7 +166,7 @@ const actions = {
 				"ignoreEvent": 'comments initiated',
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
+				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
@@ -241,7 +241,7 @@ const actions = {
 				"ignoreEvent": 'comments initiated',
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
+				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
@@ -315,7 +315,7 @@ const actions = {
 				"ignoreEvent": 'comments initiated',
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
+				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
@@ -587,7 +587,7 @@ const actions = {
 			console.log(res.data)
 			const docsToUpdate = []
 			for (let i = 0; i < res.data.rows.length; i++) {
-				docsToUpdate.push({ "id": res.data.rows[i].id })
+				if (res.data.rows[i].type === 'backlogItem') docsToUpdate.push({ "id": res.data.rows[i].id })
 			}
 			dispatch('updateWithNoHistory', docsToUpdate)
 		})
