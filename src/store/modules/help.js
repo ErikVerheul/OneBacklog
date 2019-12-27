@@ -110,10 +110,18 @@ const state = {
         </p>
         <hr>
         <p>This feature copies a product with all its descendants in the current database and will show in your products view. The product title is prepended with CLONE:<br>
-        Use this feature to create a copy of a product template. A product template is a sceleton of a product type. Using a clone of a template can speed up the creation of simular products.
+        Use this feature to create a copy of a product template. A product template is a skeleton of a product type. Using a clone of a template can speed up the creation of similar products.
         </p>
         <hr>
         <p>Note that you will be the only user with access to the clone. An admin has to assign other users with this product to allow them to see and/or contribute to the new product.
+        </p>`,
+
+        itemClone: `<h4>Item copy help</h4>
+        <p>
+        You are about to copy a product backlog item.<br/>
+        </p>
+        <hr>
+        <p>This feature makes a shallow copy of a product backlog item and places it above the copied item. Not copied are the descendants, history, comments, attachments and dependencies. The state of the copied item is set to 'new'. The title is prepended with 'COPY: '.
         </p>`,
 
         setDependency: `<h4>Item dependency help</h4>
@@ -124,7 +132,7 @@ const state = {
         <p>Click OK to select (right-click) another backlog item this item depends on. The results of that item is conditional for the first selected item to be realized.
         </p>
         <hr>
-        <p>The condition must have a lower priority than the item that depends on it. When moving items in the tree this rule can be breached. If so, you will be warned immediately. Undo your last action or remove the dpendency if no longer valid.
+        <p>The condition must have a lower priority than the item that depends on it. When moving items in the tree this rule can be breached. If so, you will be warned immediately. Undo your last action or remove the dependency if no longer valid.
         </p>`
     }
 }
