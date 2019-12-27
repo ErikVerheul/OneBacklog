@@ -96,7 +96,7 @@ const actions = {
 			"_id": "config",
 			"type": "config",
 			"changedBy": "Erik",
-			"changeDate": 1551940535871,
+			"changeDate": 1575036814777,
 
 			"itemType": [
 				"RequirementArea",
@@ -256,7 +256,7 @@ const actions = {
 				"ignoreEvent": 'comments initiated',
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
-				"timestamp": Date.now(),
+				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{

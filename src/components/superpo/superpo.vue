@@ -110,7 +110,7 @@ export default {
           "ignoreEvent": 'comments initiated',
           "by": this.$store.state.userData.user,
           "email": this.$store.state.userData.email,
-          "timestamp": Date.now(),
+          "timestamp": 0,
           "distributeEvent": false
         }],
         "history": [{
