@@ -713,8 +713,8 @@ export default {
           let highestState = 0
           let allDone = true
           for (let desc of descendants) {
-            if (desc.data.state > highestState) highestState = desc.data.state
-            if (desc.data.state < DONE && desc.data.state !== REMOVED) allDone = false
+            if (this.convertState(desc.data.state) > highestState) highestState = this.convertState(desc.data.state)
+            if (this.convertState(desc.data.state) < DONE && this.convertState(desc.data.state) !== REMOVED) allDone = false
           }
           if (idx > highestState || idx === DONE && !allDone) {
             // node has a higher state than any of its descendants or set to done while one of its descendants is not done
