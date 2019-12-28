@@ -32,6 +32,8 @@
 <script>
 import { utilities } from '../mixins/utilities.js'
 
+const baseURL = 'https://onebacklog.net:6984/'
+
 function convertToShortIds(Ids) {
   if (!Ids || Ids.length === 0) return 'none'
 
@@ -142,17 +144,27 @@ export default {
           attachmentObjects.push({ title, data: this.$store.state.currentDoc._attachments[title] })
         }
         return attachmentObjects
-      } else return null
+      } else return []
     },
 
     showAttachment(attachment) {
       const _id = this.$store.state.currentDoc._id
-      const url = 'https://onebacklog.net:6984/' + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
+      const url = baseURL + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
       window.open(url)
     },
 
     removeAttachment(attachment) {
-      this.$store.dispatch('removeAttachment', attachment.title)
+      const titles = Object.keys(this.$store.state.currentDoc._attachments)
+      let newAttachments = {}
+      for (let title of titles) {
+        if (title !== attachment.title) {
+          newAttachments[title] = this.$store.state.currentDoc._attachments[title]
+        }
+      }
+      this.$store.state.currentDoc._attachments = newAttachments
+      // must force a re-render
+      this.$forceUpdate()
+      this.$store.dispatch('removeAttachment', { attachmentTitle: attachment.title, newAttachments })
     },
 
     prepHistoryText(key, value) {
