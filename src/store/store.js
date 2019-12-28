@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import globalAxios from 'axios'
-//Here ../router/index is imported
 import router from '../router'
 import logging from './modules/logging'
 import initdb from './modules/initdb'
@@ -11,6 +10,9 @@ import clone from './modules/clone'
 import sync from './modules/sync'
 import useracc from './modules/useracc'
 import update from './modules/update'
+import attachments from './modules/attachments'
+import moveremove from './modules/moveremove'
+import undo from './modules/undo'
 import setup from './modules/setup'
 import utils from './modules/utils'
 
@@ -32,6 +34,7 @@ export default new Vuex.Store({
 		changeHistory: [],
 		filterForComment: "",
 		filterForHistory: "",
+		busyRemoving: false,
 		// utilities for superAdmin, admin and superPO
 		backendMessages: [],
 		backendSuccess: false,
@@ -263,6 +266,9 @@ export default new Vuex.Store({
 		sync,
 		useracc,
 		update,
+		attachments,
+		moveremove,
+		undo,
 		setup,
 		utils
 	}
