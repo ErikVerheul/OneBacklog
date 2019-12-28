@@ -76,14 +76,6 @@
             <b-list-group-item
               v-if="contextNodeLevel >= PRODUCTLEVEL"
               button
-              :active="contextOptionSelected === REMOVEITEM"
-              variant="danger"
-              @click="showSelected(REMOVEITEM)"
-            >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
-
-            <b-list-group-item
-              v-if="contextNodeLevel >= PRODUCTLEVEL"
-              button
               :active="contextOptionSelected === CHECKSTATES"
               variant="dark"
               @click="showSelected(CHECKSTATES)"
@@ -141,6 +133,14 @@
               variant="dark"
               @click="showSelected(CLONEITEM)"
             >Make a copy of this '{{ contextNodeType }}'</b-list-group-item>
+
+            <b-list-group-item
+              v-if="contextNodeLevel >= PRODUCTLEVEL"
+              button
+              :active="contextOptionSelected === REMOVEITEM"
+              variant="danger"
+              @click="showSelected(REMOVEITEM)"
+            >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
 
           </template>
         </template>
