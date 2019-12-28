@@ -55,13 +55,14 @@
 */
 
 In the CONFIG document these item states are defined:
+A conversion to Removed, On hold, New, Ready, In progress, Done ordering is needed for comparison of progress.
 "itemState": [
-0    "Removed",
-1    "On hold",
-2    "New",
-3    "Ready",
-4    "In progress",
-5    "Done"
+0   "New",
+1   "Ready",
+2   "In progress",
+3   "On hold",
+4   "Done",
+5   "Removed"
 ],
 
 The store holds an object with the data of the current user. This object is initialised with the _session data.
