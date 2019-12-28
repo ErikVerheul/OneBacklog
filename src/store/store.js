@@ -66,7 +66,6 @@ export default new Vuex.Store({
 		keyword: '',
 		cookieAutenticated: false,
 		listenForChangesRunning: false,
-		lastSyncSeq: null,
 		configData: null,
 		currentDoc: null,
 		runningCookieRefreshId: null,

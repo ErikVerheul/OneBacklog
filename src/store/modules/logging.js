@@ -128,7 +128,7 @@ const actions = {
 						}
 						// we have a working connection to the database; restart synchronization if needed
 						if (!rootState.listenForChangesRunning) {
-							dispatch('listenForChanges', rootState.lastSyncSeq)
+							dispatch('listenForChanges')
 							let msg = "Watchdog restarted listening for changes."
 							// eslint-disable-next-line no-console
 							if (rootState.debug) console.log(msg)
