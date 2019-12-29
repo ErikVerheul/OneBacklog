@@ -172,7 +172,7 @@ export default {
         dbSourceName: this.$store.state.selectedDatabaseName,
         dbTargetName: createBackupName(this.$store.state.selectedDatabaseName)
       }
-      this.localMessage = this.$store.state.selectedDatabaseName + ' will be copied to ' + payload.dbTargetName
+      this.localMessage = this.$store.state.selectedDatabaseName + ' will be copied to ' + payload.dbTargetName + '. Please wait ...'
       this.$store.dispatch('copyDB', payload)
     },
 
@@ -189,7 +189,7 @@ export default {
         dbSourceName: this.$store.state.selectedDatabaseName,
         dbTargetName: this.dbToReplace
       }
-      this.localMessage = payload.dbTargetName + ' will be replaced by ' + payload.dbSourceName
+      this.localMessage = payload.dbTargetName + ' will be replaced by ' + payload.dbSourceName + '. Please wait ...'
       this.$store.dispatch('overwriteDB', payload)
 
     },
