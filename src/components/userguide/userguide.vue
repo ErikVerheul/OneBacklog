@@ -11,6 +11,8 @@
 				<p>Always mention the version number located after the app name when reporting issues. When you click on the release number you will the <b>release notes </b> will be displayed.</p>
 				<h5>User guide</h5>
 				<p>This text</p>
+				<h5>The Undo button</h5>
+				<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
 				<h5>Filter in tree view</h5>
         <b-img :src="require('./filters.png')" alt="Example filters modal" />
 				<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on the product node.</p>
@@ -57,14 +59,13 @@
 						Spikes are estimated in person hours eliminating the need to translate story points to hours which can be a long discussion.</p>
 					<p>State: All items have a state to track their progress. Pbi/defect status values are:
 						<ul>
-							<li>removed</li>
-							<li>on hold (not in a sprint anymore, waiting on the backlog)</li>
-							<li>---------------------------------------------------------------</li>
 							<li>new</li>
 							<li>ready (refinement done, effort estimated)</li>
 							<li>in progress (now in a sprint)</li>
-							<li>done (delivered wrt the DoD)</li>
-
+							<li>done (delivered wrt the Definition of Done)</li>
+							<li>---------------------------------------------------------------</li>
+							<li>on hold (not in a sprint anymore, waiting on the backlog)</li>
+							<li>removed</li>
 						</ul>
 					</p>
 					<p>Dependencies:</p>
@@ -84,15 +85,15 @@
           <h4>Users with special priviliges will see one or more of these view options:</h4>
           <ul>
             <li>
-              <h5>Super PO view</h5>
+              <h5>Super PO</h5>
               <p>The super PO creates and removes products here.</p>
             </li>
             <li>
-              <h5>Admin view</h5>
+              <h5>Admin</h5>
               <p>The admin creates and maintains user permissions here. Team names can be added and listed.</p>
             </li>
             <li>
-              <h5>Server admin view</h5>
+              <h5>Server admin</h5>
               <p>The server admin creates backups and restores databases from a backup here. New databases can be created and deleted. A CouchDB FAUXTON session can be started in a separate tab of the browser.</p>
             </li>
           </ul>
@@ -104,7 +105,7 @@
 					On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted. It lights when another user changes a title or the position of one or more items in your tree view below. Your tree is updated instantly.</p>
 					<p>The <b>Sync light</b> will turn red with the the text 'offline' when your connection is lost. In this condition you can not access the database. Wait for automatic recovery or restore the connection.</p>
 				<h4>The backlog item tree</h4>
-				<p>This large black field below the event bar shows all the products assigned to the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
+				<p>This large black area below the event bar shows all the products assigned and selected by the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
 				<p>You can have multiple products. Each of them consists of:
 					<ul>
 						<li>epics which consists of</li>
@@ -132,10 +133,8 @@
 				<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
 				<b-img :src="require('./context-menu.png')" alt="Example context menu" />
 				<p>Select the action to execute and press OK.</p>
-				<p>Be careful when removing an item with all of its descendants. You will see a modal like this:</p>
-				<b-img :src="require('./remove.png')" alt="Example context remove" />
 				<p>If the item is a product an extra opion is displayed to make a clone this product. This feature is used when you have templates for reuse. Using a clone of a template can speed up the creation of simular products.</p>
-				<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. After removal a <b>Undo remove</b> button appears in the title bar. Click on this button to reverse your removals (last removal will be restored first).</p>
+				<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. You can make a shallow copy of any backlog item which will appear above the selected item. When you selected a product item you can make a full clone with a copy of all descendants. See the 'Need assistance?' text.</p>
 				<h4>Drag &amp; drop in the backlog item tree</h4>
 				<p>This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product. Use the context menu to move a branch to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>
 				<h4>The title input field</h4>
@@ -153,11 +152,13 @@
 				<h4>Filter comments</h4>
 				<p>Enter a key word and you will only see comments including this key word.</p>
 				<h4>The Comments, Attachments, History radio buttons</h4>
+				<b-img :src="require('./attachments.png')" alt="Example attachment menu" />
+				<p>When adding multiple versions of an attachment with the same name the file name will be extended with _1, _2 etc. Click on an attachment button to let your browser display the attachment in a new tab.</p>
 				<p>When you select Attachments or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 
         <h2 id="start_using"> START USING THE APPLICATION</h2>
         <p>When you, as server admin, login with your super admin credentials the application will notice that you are unknown in the _users database. That will trigger a conversation where you name the first database and enter your e-mail address.</p>
-        <p>Click on 'Create database' to start the creation. If you entered a database name erik7 and a valid e-mail address and all goes well you will see:</p>
+        <p>Click on 'Create database' to start the creation. If you entered a database name testdb and a valid e-mail address and all goes well you will see:</p>
         <ul>
           <li>createDatabase: Success, empty database erikdb7 is created</li>
           <li>setDatabasePermissions: Success, database permissions for erikdb7 are set</li>
@@ -166,7 +167,7 @@
           <li>createConfig: Success, the configuration document is created</li>
           <li>installDesignDoc: Success, the design document is created</li>
           <li>createRoot: Success, the root document is created</li>
-          <li>createServerAdminProfile: Success, user profile for erik7 is created with 'admin', 'superPO' roles set</li>
+          <li>createServerAdminProfile: Success, user profile for testdb is created with 'admin', 'superPO' roles set</li>
         </ul>
         <p>Click on 'Exit' and sign-in again to see the product view with no product but a root document,<br>
           then:<br>
