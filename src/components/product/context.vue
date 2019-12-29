@@ -132,7 +132,7 @@
               :active="contextOptionSelected === CLONEITEM"
               variant="dark"
               @click="showSelected(CLONEITEM)"
-            >Make a copy of this '{{ contextNodeType }}'</b-list-group-item>
+            >Make a copy of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
               v-if="contextNodeLevel >= PRODUCTLEVEL"
