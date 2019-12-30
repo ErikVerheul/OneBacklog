@@ -154,7 +154,7 @@ export default {
 
     removeAttachment(attachment) {
       delete this.$store.state.currentDoc._attachments[attachment.title]
-      // must force a re-render
+      // force a re-render
       this.$forceUpdate()
       this.$store.dispatch('removeAttachmentAsync', attachment.title)
     },
