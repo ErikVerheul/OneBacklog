@@ -96,10 +96,10 @@ const actions = {
         }
     },
 
-    removeAttachment({
+    removeAttachmentAsync({
         rootState,
         dispatch
-    }, payload) {
+    }, title) {
         const _id = rootState.currentDoc._id
         globalAxios({
             method: 'GET',
@@ -109,7 +109,7 @@ const actions = {
             let tmpDoc = res.data
             if (tmpDoc._attachments) {
                 const newHist = {
-                    "removeAttachmentEvent": [payload.attachmentTitle],
+                    "removeAttachmentEvent": [title],
                     "by": rootState.userData.user,
                     "email": rootState.userData.email,
                     "timestamp": Date.now(),
@@ -117,13 +117,13 @@ const actions = {
                     "distributeEvent": true
                 }
                 tmpDoc.history.unshift(newHist)
-                tmpDoc._attachments = payload.newAttachments
+                tmpDoc._attachments = rootState.currentDoc._attachments
 
                 rootState.currentDoc.history.unshift(newHist)
                 dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
             }
         }).catch(error => {
-            let msg = 'removeAttachment: Could not read document with _id ' + _id + ', ' + error
+            let msg = 'removeAttachmentAsync: Could not read document with _id ' + _id + ', ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

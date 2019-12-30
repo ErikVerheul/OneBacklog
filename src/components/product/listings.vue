@@ -11,8 +11,8 @@
       <div v-if="!isUploadDone">loading...</div>
       <div v-for="(attach, index) in getAttachments()" :key="attach.title + attach.data.digest">
         <span>
-          <template v-if="getNrOfTitles > 1">
-            {{ index + 1 }}/{{ getNrOfTitles }}
+          <template v-if="getNrOfTitles() > 1">
+            {{ index + 1 }}/{{ getNrOfTitles() }}
           </template>
           <b-button class="space3px" variant="seablue" @click="showAttachment(attach)"> {{ attach.title }} </b-button>
           <b-button class="space3px" variant="danger" @click="removeAttachment(attach)">X</b-button>
@@ -34,11 +34,11 @@ import { utilities } from '../mixins/utilities.js'
 
 const baseURL = 'https://onebacklog.net:6984/'
 
-function convertToShortIds(Ids) {
-  if (!Ids || Ids.length === 0) return 'none'
+function convertToShortIds(ids) {
+  if (!ids || ids.length === 0) return 'none'
 
   const shortIds = []
-  for (let id of Ids) {
+  for (let id of ids) {
     shortIds.push(id.slice(-5))
   }
   return shortIds
@@ -49,14 +49,9 @@ export default {
 
   computed: {
     isUploadDone() {
+      // force a re-render
+      this.$forceUpdate()
       return this.$store.state.uploadDone
-    },
-
-    getNrOfTitles() {
-      let titles = this.$store.state.currentDoc._attachments ? Object.keys(this.$store.state.currentDoc._attachments) : []
-      // force Vue to pick up a change in the array
-      titles = titles.slice(0)
-      return titles.length
     },
 
     getFilteredComments() {
@@ -147,6 +142,10 @@ export default {
       } else return []
     },
 
+    getNrOfTitles() {
+      return this.$store.state.currentDoc._attachments ? Object.keys(this.$store.state.currentDoc._attachments).length : 0
+    },
+
     showAttachment(attachment) {
       const _id = this.$store.state.currentDoc._id
       const url = baseURL + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
@@ -154,17 +153,10 @@ export default {
     },
 
     removeAttachment(attachment) {
-      const titles = Object.keys(this.$store.state.currentDoc._attachments)
-      let newAttachments = {}
-      for (let title of titles) {
-        if (title !== attachment.title) {
-          newAttachments[title] = this.$store.state.currentDoc._attachments[title]
-        }
-      }
-      this.$store.state.currentDoc._attachments = newAttachments
+      delete this.$store.state.currentDoc._attachments[attachment.title]
       // must force a re-render
       this.$forceUpdate()
-      this.$store.dispatch('removeAttachment', { attachmentTitle: attachment.title, newAttachments })
+      this.$store.dispatch('removeAttachmentAsync', attachment.title)
     },
 
     prepHistoryText(key, value) {
