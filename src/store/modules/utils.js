@@ -117,65 +117,114 @@ const actions = {
   overwriteDB({
     rootState,
     dispatch
-	}, payload) {
+  }, payload) {
     rootState.backendSuccess = false
     rootState.backendMessages = []
-		globalAxios({
-			method: 'DELETE',
-			url: payload.dbTargetName,
-			withCredentials: true,
-		}).then(() => {
+    globalAxios({
+      method: 'DELETE',
+      url: payload.dbTargetName,
+      withCredentials: true,
+    }).then(() => {
       rootState.backendSuccess = true
       rootState.backendMessages.push('Database ' + payload.dbTargetName + ' has been deleted')
       dispatch('copyDB', payload)
-		}).catch(error => {
+    }).catch(error => {
       if (error.response.status === 404) {
         // database does not exist
         dispatch('copyDB', payload)
       } else rootState.backendMessages.push('Deletion of database ' + payload.dbTargetName + ' gave unexpected error, ' + error + '. Operation aborted.')
-		})
+    })
+  },
+
+  collectRemoved({
+    rootState,
+    dispatch
+  }, dbName) {
+    globalAxios({
+      method: 'GET',
+      url: dbName + '/_design/design1/_view/removed',
+      withCredentials: true
+    }).then(res => {
+      const removed = res.data.rows
+      // console.log('collectRemoved: removed = ' + JSON.stringify(removed, null, 2))
+      const data = []
+      for (let r of removed) {
+        data.push({ [r.id]: [r.key] })
+      }
+      rootState.isPurgeReady = false
+      rootState.backendSuccess = false
+      rootState.backendMessages = []
+      dispatch('purgeDb', { dbName, data, idx: 0, number: removed.length })
+      rootState.backendMessages.push('Purge started ' + removed.length + ' documents will be deleted. Please wait ...')
+    }).catch(error => {
+      rootState.backendMessages.push('Could not find any removed documents in database ' + dbName + '. Error = ' + error)
+    })
+  },
+
+  purgeDb({
+    rootState,
+    dispatch
+  }, payload) {
+    if (payload.idx >= payload.number) {
+      rootState.backendSuccess = true
+      rootState.backendMessages.push(payload.number + ' removed documents in database ' + payload.dbName + ' have been purged')
+      rootState.isPurgeReady = true
+      return
+    }
+    globalAxios({
+      method: 'POST',
+      url: payload.dbName + '/_purge',
+      data: payload.data[payload.idx],
+      withCredentials: true,
+    }).then(() => {
+      // recurse
+      payload.idx++
+      dispatch('purgeDb', payload)
+    }).catch(error => {
+      rootState.backendMessages.push('Purge of documents in database ' + payload.dbName + ' failed at index ' + payload.idx + ', ' + error)
+    })
   },
 
   deleteDb({
     rootState
-	}, dbName) {
+  }, dbName) {
     rootState.backendSuccess = false
     rootState.backendMessages = []
-		globalAxios({
-			method: 'DELETE',
-			url: dbName,
-			withCredentials: true,
-		}).then(() => {
+    globalAxios({
+      method: 'DELETE',
+      url: dbName,
+      withCredentials: true,
+    }).then(() => {
       rootState.backendSuccess = true
-			rootState.backendMessages.push('Database ' + dbName + ' has been deleted')
-		}).catch(error => {
-			rootState.backendMessages.push('Database ' + dbName + ' coud not be deleted,' + error)
-		})
+      rootState.backendMessages.push('Database ' + dbName + ' has been deleted')
+    }).catch(error => {
+      rootState.backendMessages.push('Database ' + dbName + ' coud not be deleted,' + error)
+    })
   },
 
   getTeamNames({
     rootState,
     dispatch
-	}, dbName) {
+  }, dbName) {
     rootState.backendSuccess = false
     rootState.backendMessages = []
     rootState.fetchedTeams = []
-		globalAxios({
-			method: 'GET',
-			url: dbName + '/config',
-			withCredentials: true,
-		}).then(res => {
+    globalAxios({
+      method: 'GET',
+      url: dbName + '/config',
+      withCredentials: true,
+    }).then(res => {
       rootState.backendSuccess = true
       if (res.data.teams) rootState.fetchedTeams = res.data.teams
       rootState.backendMessages.push('getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read')
-		}).catch(error => {
+    }).catch(error => {
       let msg = 'getTeamNames: Could not read config document of database ' + dbName + ', ' + error
       rootState.backendMessages.push(msg)
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
 }
 
 export default {

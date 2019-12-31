@@ -8,6 +8,7 @@
       <b-button block @click="restoreBackup">Restore a database from backup</b-button>
       <b-button block @click="createNewDb">Create a new database</b-button>
       <b-button block @click="changeMyDb">Change my default database</b-button>
+      <b-button block @click="purgeDb">Purge removed documents</b-button>
       <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
       <b-button block @click="fauxton">All FAUXTON tasks</b-button>
 
@@ -74,6 +75,23 @@
         <div v-if="$store.state.isCurrentDbChanged">
           <h4>Succes! Exit, and sign in again to see the product view of the updated database</h4>
           <b-button class="m-1" @click="signIn" variant="outline-primary">Exit</b-button>
+        </div>
+      </div>
+
+      <div v-if="optionSelected === 'Purge removed documents'">
+        <h2>Select a database</h2>
+        <b-form-group>
+          <h5>Select the database you want removed documents to be purged</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+            stacked
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doPurgeDb">Purge removed documents in this database</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <div v-if="$store.state.isPurgeReady">
+          <h4>Succes! The purge is ready</h4>
         </div>
       </div>
 
@@ -223,6 +241,19 @@ export default {
 
     doChangeMyDb() {
       this.$store.dispatch('changeCurrentDb1', this.$store.state.selectedDatabaseName)
+    },
+
+    purgeDb() {
+      this.optionSelected = 'Purge removed documents'
+      this.localMessage = ''
+      this.$store.state.isPurgeReady = false
+      this.$store.state.isCurrentDbChanged = false
+      // get all non sytem & non backup databases
+      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+    },
+
+    doPurgeDb() {
+      this.$store.dispatch('collectRemoved', this.$store.state.selectedDatabaseName)
     },
 
     deleteDb() {
