@@ -574,7 +574,11 @@ const actions = {
 			url: payload.dbName + '/' + _id,
 			withCredentials: true,
 			data: payload.updatedDoc
-		}).then(() => {
+		}).then((res) => {
+			if (rootState.currentDoc._id === res.data.id) {
+				// update the revision of the current document
+				rootState.currentDoc._rev = res.data.rev
+			}
 			rootState.backendSuccess = true
 			if (payload.caller === 'uploadAttachmentAsync') {
 				rootState.uploadDone = true
