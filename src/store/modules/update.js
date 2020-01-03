@@ -65,7 +65,7 @@ const actions = {
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
+				"distributeEvent": true
 			}
 			tmpDoc.tssize = payload.newSizeIdx
 			tmpDoc.history.unshift(newHist)
