@@ -196,7 +196,7 @@ const mutations = {
 					state.orphansCount++
 					state.orphansFound.orphans.push({ parentId: parentId, productId: doc.productId })
 					// eslint-disable-next-line no-console
-					console.log('processProduct: orphan found with parentId = ' + parentId + ' and productId = ' + doc.productId)
+					console.log('processProduct: orphan found with _id = ' + doc._id + ', parentId = ' + parentId + ' and productId = ' + doc.productId)
 				}
 			}
 		}
