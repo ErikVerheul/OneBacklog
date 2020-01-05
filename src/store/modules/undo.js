@@ -150,7 +150,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', ok)
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
         }).catch(error => {
             rootState.busyRemoving = false
             let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
@@ -205,7 +205,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', ok)
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
         }).catch(error => {
             let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console

@@ -77,7 +77,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', ok)
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
 			// update the descendants of all the moved(back) items
 			let payload2 = []
 			for (let item of payload.items) {
@@ -171,7 +171,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', ok)
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
 		}).catch(error => {
 			let msg = 'updateDescendantsBulk: Could not read decendants in bulk. Error = ' + error
 			// eslint-disable-next-line no-console
