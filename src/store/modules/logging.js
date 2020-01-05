@@ -1,3 +1,4 @@
+// ToDo: refactor to accommodate situations when a new log call is made before the revision of the previous log is available giving error 409
 import globalAxios from 'axios'
 
 const LOGDOCNAME = 'log'
@@ -163,6 +164,8 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		// eslint-disable-next-line no-console
+		if (rootState.debug && payload.caller) console.log("doLog: The log is called by: " + payload.caller)
 		let severity = ''
 		switch (payload.level) {
 			case DEBUG:

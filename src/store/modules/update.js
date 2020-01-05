@@ -1,5 +1,6 @@
 import globalAxios from 'axios'
 
+const WARNING = 1
 const ERROR = 2
 
 const actions = {
@@ -331,7 +332,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			if (ok.length > 0) dispatch('updateBulk', ok)
+			if (ok.length > 0) dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
 		}).catch(error => {
 			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console
@@ -602,15 +603,26 @@ const actions = {
 	updateBulk({
 		rootState,
 		dispatch
-	}, docs) {
+	}, payload) {
 		globalAxios({
 			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_docs',
+			url: payload.dbName + '/_bulk_docs',
 			withCredentials: true,
-			data: { "docs": docs },
+			data: { "docs": payload.docs },
 		}).then(res => {
+			let updateOk = 0
+			let updateConflict = 0
+			let otherError = 0
+			for (let result of res.data) {
+				if (result.ok ) updateOk++
+				if (result.error === 'conflict') updateConflict++
+				if (result.error && result.error != 'conflict') otherError++
+			}
 			// eslint-disable-next-line no-console
-			console.log('updateBulk: ' + res.data.length + ' documents are updated')
+			let msg = 'updateBulk: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed with other error'
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: WARNING, caller: 'updateBulk1' })
 			// has effect when removing a branche, otherwise no effect
 			rootState.busyRemoving = false
 		}).catch(error => {
@@ -619,7 +631,7 @@ const actions = {
 			let msg = 'updateBulk: Could not update batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: ERROR, caller: 'updateBulk2' })
 		})
 	}
 }
