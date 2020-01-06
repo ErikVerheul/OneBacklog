@@ -354,12 +354,7 @@ export default {
       for (let prod of this.$store.state.useracc.dbProducts) {
         if (prod.roles.length > 0) {
           subscriptions.push(prod.id)
-          // temporarely filter out the 'admin' and 'superPO' roles which are generic now (for all products)
-          // ToDo: replace with productsRoles[prod.id] = prod.roles
-          productsRoles[prod.id] = []
-          for (let role of prod.roles) {
-            if (role !== 'admin' && role !== 'superPO') productsRoles[prod.id].push(role)
-          }
+          productsRoles[prod.id] = prod.roles
         }
       }
       newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles = productsRoles

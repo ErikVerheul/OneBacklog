@@ -588,8 +588,6 @@ const actions = {
 					rootState.currentDoc._attachments = payload.updatedDoc._attachments
 				}
 			}
-			// ToDo: uncomment this statement when also cleared and used in product view
-			// rootState.backendMessages.push('updateDoc: document with _id ' + _id + ' is updated in database ' + payload.dbName)
 		}).catch(error => {
 			rootState.uploadDone = true
 			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
