@@ -577,6 +577,7 @@ const actions = {
 		state,
 		dispatch
 	}, payload) {
+		console.log('doRemoveHistory: reading database = ' + payload.dbName)
 		this.commit('clearAll')
 		globalAxios({
 			method: 'GET',
@@ -587,9 +588,9 @@ const actions = {
 			console.log(res.data)
 			const docsToUpdate = []
 			for (let i = 0; i < res.data.rows.length; i++) {
-				if (res.data.rows[i].type === 'backlogItem') docsToUpdate.push({ "id": res.data.rows[i].id })
+				docsToUpdate.push({ "id": res.data.rows[i].id })
 			}
-			dispatch('updateWithNoHistory', docsToUpdate)
+			dispatch('updateWithNoHistory', { dbName: payload.dbName, docs: docsToUpdate })
 		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
@@ -601,39 +602,51 @@ const actions = {
 	updateWithNoHistory({
 		rootState,
 		dispatch
-	}, docsToUpdate) {
+	}, payload) {
 		globalAxios({
 			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
+			url: payload.dbName + '/_bulk_get',
 			withCredentials: true,
-			data: { "docs": docsToUpdate },
+			data: { "docs": payload.docs },
 		}).then(res => {
-			// console.log('updateWithNoHistory: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
 			const ok = []
+			const error = []
 			for (let i = 0; i < results.length; i++) {
 				if (results[i].docs[0].ok) {
-					results[i].docs[0].ok["history"] = [
-						{
-							"rootEvent": ['history cleared'],
-							"by": rootState.userData.user,
-							"email": rootState.userData.email,
-							"timestamp": Date.now(),
-							"distributeEvent": false
-						}]
+					if (results[i].docs[0].ok.type === 'backlogItem') {
+						results[i].docs[0].ok["history"] = [
+							{
+								"rootEvent": ['history cleared'],
+								"by": rootState.userData.user,
+								"email": rootState.userData.email,
+								"timestamp": Date.now(),
+								"distributeEvent": false
+							}]
 
-					results[i].docs[0].ok["comments"] = [
-						{
-							"addCommentEvent": window.btoa('comments cleared'),
-							"by": rootState.userData.user,
-							"email": rootState.userData.email,
-							"timestamp": Date.now(),
-							"distributeEvent": false
-						}]
-					ok.push(results[i].docs[0].ok)
+						results[i].docs[0].ok['comments'] = [
+							{
+								"ignoreEvent": 'comments initiated',
+								"by": rootState.userData.user,
+								"email": rootState.userData.email,
+								"timestamp": 0,
+								"distributeEvent": false
+							}]
+						ok.push(results[i].docs[0].ok)
+					}
 				}
+				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
 			}
-			dispatch('updateBulk', ok)
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let i = 0; i < error.length; i++) {
+					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
+				}
+				let msg = 'updateWithNoHistory: These documents cannot be updated: ' + errorStr
+				// eslint-disable-next-line no-console
+				console.log(msg)
+			}
+			dispatch('updateBulk', { dbName: payload.dbName, docs: ok })
 		})
 			.catch(error => {
 				let msg = 'updateWithNoHistory: Could not read batch of documents: ' + error
@@ -659,7 +672,7 @@ const actions = {
 			for (let i = 0; i < res.data.rows.length; i++) {
 				docsToUpdate.push({ "id": res.data.rows[i].id })
 			}
-			dispatch('updateState', docsToUpdate)
+			dispatch('updateState', { dbName: payload.dbName, docs: docsToUpdate })
 		})
 			.catch(error => {
 				// eslint-disable-next-line no-console
@@ -672,12 +685,12 @@ const actions = {
 	updateState({
 		rootState,
 		dispatch
-	}, docsToUpdate) {
+	}, payload) {
 		globalAxios({
 			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
+			url: payload.dbName + '/_bulk_get',
 			withCredentials: true,
-			data: { "docs": docsToUpdate },
+			data: { "docs": payload.docs },
 		}).then(res => {
 			// console.log('updateState: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
@@ -711,7 +724,7 @@ const actions = {
 					ok.push(results[i].docs[0].ok)
 				}
 			}
-			dispatch('updateBulk', ok)
+			dispatch('updateBulk', { dbName: payload.dbName, docs: ok })
 		})
 			.catch(error => {
 				let msg = 'updateState: Could not read batch of documents: ' + error
