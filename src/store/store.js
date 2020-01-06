@@ -29,6 +29,8 @@ export default new Vuex.Store({
 		// console log settings
 		debug: true,
 		showWatchdogInfo: false,
+		// options
+		autoCorrectUserProfile: true,
 		// product view
 		selectedForView: 'comments',
 		changeHistory: [],
