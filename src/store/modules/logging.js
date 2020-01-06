@@ -11,6 +11,7 @@ const CRITICAL = 3
 
 const logState = {
 	unsavedLogs: [],
+	savedLogs: [],
 	orphansFound: {},
 	runningWatchdogId: null,
 	logSavePending: false
@@ -206,8 +207,11 @@ const actions = {
 					if (rootState.debug) console.log("doLog: The log is fetched")
 
 					if (logState.unsavedLogs.length > 0) {
-						for (let le of logState.unsavedLogs) {
-							log.entries.unshift(le)
+						logState.savedLogs = []
+						for (let l of logState.unsavedLogs) {
+							log.entries.unshift(l)
+							// save the log entries for recovery in case saveLog fails
+							logState.savedLogs.push(l)
 						}
 						logState.unsavedLogs = []
 						log.entries = log.entries.slice(0, MAXLOGSIZE)
@@ -247,8 +251,14 @@ const actions = {
 		})
 			// eslint-disable-next-line no-console
 			.catch(error => {
-				// eslint-disable-next-line no-console
-				console.log('saveLog: Could not save the log. The log entry is lost, ' + error)
+				if (error.response.status === 409) {
+					// revision conflict
+					logState.unsavedLogs = logState.savedLogs
+					// eslint-disable-next-line no-console
+					console.log('saveLog: Could not save the log. A retry is pending, ' + error)
+				} else
+					// eslint-disable-next-line no-console
+					console.log('saveLog: Could not save the log. The log entry is lost, ' + error)
 			})
 	}
 }
