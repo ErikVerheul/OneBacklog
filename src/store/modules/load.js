@@ -222,11 +222,11 @@ const actions = {
 			rootState.userData.myTeam = currentDbSettings.myTeam
 			rootState.userData.myFilterSettings = res.data.filterSettings
 			dispatch('watchdog')
-			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in."
+			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in"
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			// now that the database is known the log file is available
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: INFO })
 			dispatch('getAllProducts', currentDbSettings)
 		}).catch(error => {
 			if (error.response.status === 404) {
