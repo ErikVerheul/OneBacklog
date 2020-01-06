@@ -166,9 +166,8 @@ const actions = {
     dispatch
   }, payload) {
     if (payload.idx >= payload.number) {
-      rootState.backendSuccess = true
-      rootState.backendMessages.push(payload.number + ' removed documents in database ' + payload.dbName + ' have been purged')
-      rootState.isPurgeReady = true
+      rootState.backendMessages.push(payload.number + ' removed documents in database ' + payload.dbName + ' have been purged, start compacting')
+      dispatch('compactDb', payload)
       return
     }
     globalAxios({
@@ -182,6 +181,27 @@ const actions = {
       dispatch('purgeDb', payload)
     }).catch(error => {
       rootState.backendMessages.push('Purge of documents in database ' + payload.dbName + ' failed at index ' + payload.idx + ', ' + error)
+    })
+  },
+
+  /* Must add an (empty) data field to avoid the Content-Type to be removed by the browser */
+  compactDb({
+    rootState
+  }, payload) {
+    globalAxios({
+      method: 'POST',
+      url: payload.dbName + '/_compact',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {},
+      withCredentials: true,
+    }).then(() => {
+      rootState.backendSuccess = true
+      rootState.isPurgeReady = true
+      rootState.backendMessages.push('Compacting the database ' + payload.dbName + ' succeeded')
+    }).catch(error => {
+      rootState.backendMessages.push('Compacting the database ' + payload.dbName + ' failed, ' + error)
     })
   },
 
