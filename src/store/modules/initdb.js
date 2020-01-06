@@ -196,9 +196,7 @@ const actions = {
 					"sortedFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
 					},
-					/*
-					 * Filter on document type 'backlogItem', then filter the changes which need distributed to other users.
-					 */
+					/* Filter on document type 'backlogItem', then filter the changes which need distributed to other users.*/
 					"changesFilter": {
 						"map": `function(doc) {
 							if (doc.type == "backlogItem") {
@@ -212,17 +210,17 @@ const actions = {
 						  }
 						}`
 					},
-					/*
-					 * Filter on document type 'backlogItem', then sort on shortId.
-					 */
+					/* Filter on document type 'backlogItem', then sort on shortId.*/
 					"shortIdFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.shortId], 1);}'
 					},
-					/*
-					 * Filter on document type 'backlogItem', then emit the product id and title.
-					 */
+					/* Filter on document type 'backlogItem', then emit the product id and title.*/
 					"products": {
 						"map": 'function (doc) {if (!doc.delmark && doc.type == "backlogItem" && doc.level === 2) emit(doc._id, doc.title);}'
+					},
+					/* Filter on document type 'backlogItem', then emit the product _rev of the removed documents.*/
+					"removed": {
+						"map": 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1);}'
 					}
 				},
 				"language": "javascript"
@@ -290,7 +288,6 @@ const actions = {
 	createServerAdminProfile({
 		rootState
 	}, payload) {
-		// ToDo: Change the userName here for testing in an existing instance of OneBacklog
 		const userName = rootState.userData.user
 		globalAxios({
 			method: 'PUT',
