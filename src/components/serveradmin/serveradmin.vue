@@ -8,7 +8,7 @@
       <b-button block @click="restoreBackup">Restore a database from backup</b-button>
       <b-button block @click="createNewDb">Create a new database</b-button>
       <b-button block @click="changeMyDb">Change my default database</b-button>
-      <b-button block @click="purgeDb">Purge removed documents</b-button>
+      <b-button block @click="purgeDb">Purge removed Purge removed documents and compact the database</b-button>
       <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
       <b-button block @click="fauxton">All FAUXTON tasks</b-button>
 
@@ -78,7 +78,7 @@
         </div>
       </div>
 
-      <div v-if="optionSelected === 'Purge removed documents'">
+      <div v-if="optionSelected === 'Purge removed documents and compact the database'">
         <h2>Select a database</h2>
         <b-form-group>
           <h5>Select the database you want removed documents to be purged</h5>
@@ -88,7 +88,7 @@
             stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doPurgeDb">Purge removed documents in this database</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doPurgeDb">Purge removed documents and compact the database</b-button>
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         <div v-if="$store.state.isPurgeReady">
           <h4>Succes! The purge is ready</h4>
@@ -244,7 +244,7 @@ export default {
     },
 
     purgeDb() {
-      this.optionSelected = 'Purge removed documents'
+      this.optionSelected = 'Purge removed documents and compact the database'
       this.localMessage = ''
       this.$store.state.isPurgeReady = false
       this.$store.state.isCurrentDbChanged = false
