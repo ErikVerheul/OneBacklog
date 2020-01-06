@@ -215,6 +215,7 @@ const actions = {
 			url: '_users/org.couchdb.user:' + rootState.userData.user,
 			withCredentials: true
 		}).then(res => {
+			let allUserDate = res.data
 			rootState.userData.currentDb = res.data.currentDb
 			rootState.userData.email = res.data.email
 			rootState.userData.myDatabases = Object.keys(res.data.myDatabases)
@@ -227,7 +228,7 @@ const actions = {
 			if (rootState.debug) console.log(msg)
 			// now that the database is known the log file is available
 			dispatch('doLog', { event: msg, level: INFO })
-			dispatch('getAllProducts', currentDbSettings)
+			dispatch('getAllProducts', { allUserDate, currentDbSettings })
 		}).catch(error => {
 			if (error.response.status === 404) {
 				// the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
@@ -251,29 +252,55 @@ const actions = {
 		rootState,
 		state,
 		dispatch
-	}, currentDbSettings) {
+	}, payload) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/products',
 			withCredentials: true
 		}).then(res => {
 			state.currentProductsEnvelope = res.data.rows
+			const missingProductRolesIds = []
+			const myProductIds = []
 			// correct the data from the user profile with the actual available products
 			for (let product of state.currentProductsEnvelope) {
 				let id = product.id
-				if (Object.keys(currentDbSettings.productsRoles).includes(id)) rootState.userData.myProductsRoles[id] = currentDbSettings.productsRoles[id]
-				if (currentDbSettings.subscriptions.includes(id)) rootState.userData.myProductSubscriptions.push(id)
+				myProductIds.push(id)
+				if (Object.keys(payload.currentDbSettings.productsRoles).includes(id)) {
+					rootState.userData.myProductsRoles[id] = payload.currentDbSettings.productsRoles[id]
+				}
+
+				if (payload.currentDbSettings.subscriptions.includes(id)) {
+					rootState.userData.myProductSubscriptions.push(id)
+				}
 			}
 			// set the users product options to select from
 			for (let product of state.currentProductsEnvelope) {
-				if (Object.keys(currentDbSettings.productsRoles).includes(product.id)) {
+				if (Object.keys(payload.currentDbSettings.productsRoles).includes(product.id)) {
 					rootState.myProductOptions.push({
 						value: product.id,
 						text: product.value
 					})
 				}
 			}
-			// ToDo: correct the user profile
+
+			for (let id of Object.keys(payload.currentDbSettings.productsRoles)) {
+				if (!myProductIds.includes(id)) {
+					missingProductRolesIds.push(id)
+				}
+			}
+
+			if (rootState.autoCorrectUserProfile && missingProductRolesIds.length > 0) {
+				// update the user profile for the missing products
+				let newUserData = payload.allUserDate
+				for (let id of missingProductRolesIds) {
+					delete newUserData.myDatabases[rootState.userData.currentDb].productsRoles[id]
+				}
+				for (let id of missingProductRolesIds) {
+					const position = newUserData.myDatabases[rootState.userData.currentDb].subscriptions.indexOf(id)
+					if (position !== -1) newUserData.myDatabases[rootState.userData.currentDb].subscriptions.splice(position, 1)
+				}
+				dispatch('updateUser', newUserData)
+			}
 			const isAnyProductAssigned = Object.keys(rootState.userData.myProductsRoles).length > 0
 			rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
 			// the first (index 0) product in myProductsRoles is by definition the default product
