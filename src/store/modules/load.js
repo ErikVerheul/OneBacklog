@@ -368,8 +368,10 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log("The root document is read")
 		}).catch(error => {
-			// ToDo: if 404 the database could have been deleted
 			let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
+			if (error.response.status === 404) {
+				msg += ' , is your default database ' + rootState.userData.currentDb + ' deleted?'
+			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -407,8 +409,10 @@ const actions = {
 			commit('composeRangeString')
 			dispatch('getFirstProduct')
 		}).catch(error => {
-			// ToDo: if 404 the database could have been deleted
 			let msg = 'loadCurrentProduct: Could not read current product document with _id ' + _id + ' from database ' + rootState.userData.currentDb + '. ' + error
+			if (error.response.status === 404) {
+				msg += ' , is your default database ' + rootState.userData.currentDb + ' deleted?'
+			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
