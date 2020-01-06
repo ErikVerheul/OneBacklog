@@ -619,10 +619,10 @@ const actions = {
 				if (result.error && result.error != 'conflict') otherError++
 			}
 			// eslint-disable-next-line no-console
-			let msg = 'updateBulk: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed with other error'
+			let msg = 'updateBulk: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: WARNING, caller: 'updateBulk1' })
+			if (updateConflict > 0 || otherError > 0) dispatch('doLog', { event: msg, level: WARNING })
 			// has effect when removing a branche, otherwise no effect
 			rootState.busyRemoving = false
 		}).catch(error => {
@@ -631,7 +631,7 @@ const actions = {
 			let msg = 'updateBulk: Could not update batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR, caller: 'updateBulk2' })
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	}
 }
