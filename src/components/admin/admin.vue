@@ -23,7 +23,7 @@
               Initial password:
               </b-col>
             <b-col sm="10">
-            <b-form-input v-model="password" type="password" placeholder="Enter the initial password"></b-form-input>
+            <b-form-input v-model="password" type="password" placeholder="Enter the initial password. The user must change it."></b-form-input>
             </b-col>
             <b-col sm="2">
               Users e-mail:
