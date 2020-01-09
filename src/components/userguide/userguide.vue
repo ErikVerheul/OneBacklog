@@ -148,7 +148,7 @@
 				<h4>The acceptance criteria input field</h4>
 				<p>A backlog item can only be reported as 'DONE' when all acceptance criteria are met. To be able to estimate the effort the team must know the acceptance criteria up front. They are as important as the description.</p>
 				<h4>Add comments</h4>
-				<p>Instead of extending or overwriting the fields above you can start a discussion by using this button. It will open a WYSIWYG editor to write your text. Subscribed users will receive a copy of your comment by email (TO DO).</p>
+				<p>Instead of extending or overwriting the fields above you can start a discussion by using this button. It will open a WYSIWYG editor to write your text. Subscribed users will receive a copy of your comment by email.</p>
 				<h4>Filter comments</h4>
 				<p>Enter a key word and you will only see comments including this key word.</p>
 				<h4>The Comments, Attachments, History radio buttons</h4>
