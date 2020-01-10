@@ -62,7 +62,6 @@ const actions = {
 
 		globalAxios({
 			method: 'HEAD',
-			withCredentials: true,
 		}).then(() => {
 			rootState.online = true
 			if (!rootState.cookieAutenticated) restoreAuthentication()
@@ -108,7 +107,6 @@ const actions = {
 					globalAxios({
 						method: 'GET',
 						url: rootState.userData.currentDb + '/' + LOGDOCNAME,
-						withCredentials: true,
 					}).then(res => {
 						let log = res.data
 						// save the stored logs
@@ -200,7 +198,6 @@ const actions = {
 				globalAxios({
 					method: 'GET',
 					url: rootState.userData.currentDb + '/' + LOGDOCNAME,
-					withCredentials: true,
 				}).then(res => {
 					let log = res.data
 					// eslint-disable-next-line no-console
@@ -242,7 +239,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + LOGDOCNAME,
-			withCredentials: true,
 			data: log
 		}).then(() => {
 			logState.logSavePending = false

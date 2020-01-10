@@ -115,7 +115,6 @@ const actions = {
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + rangeString + '&include_docs=true',
-            withCredentials: true,
         }).then(res => {
             // extract the documents
             docs = []
@@ -170,7 +169,6 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_docs',
-            withCredentials: true,
             data: { "docs": docs },
         }).then(res => {
             // add the productId to my myProductSubscriptions

@@ -20,7 +20,6 @@ const actions = {
     globalAxios({
       method: 'GET',
       url: '/_all_dbs',
-      withCredentials: true
     }).then(res => {
       rootState.backendSuccess = true
       rootState.databaseOptions = []
@@ -71,7 +70,6 @@ const actions = {
     globalAxios({
       method: 'PUT',
       url: '/_users/_security',
-      withCredentials: true,
       data: userDbPermissions
     }).then(() => {
       rootState.backendSuccess = true
@@ -99,7 +97,6 @@ const actions = {
     globalAxios({
       method: 'POST',
       url: "_replicate",
-      withCredentials: true,
       data: copyData
     }).then(() => {
       state.backupBusy = false
@@ -123,7 +120,6 @@ const actions = {
     globalAxios({
       method: 'DELETE',
       url: payload.dbTargetName,
-      withCredentials: true,
     }).then(() => {
       rootState.backendSuccess = true
       rootState.backendMessages.push('Database ' + payload.dbTargetName + ' has been deleted')
@@ -143,7 +139,6 @@ const actions = {
     globalAxios({
       method: 'GET',
       url: dbName + '/_design/design1/_view/removed',
-      withCredentials: true
     }).then(res => {
       const removed = res.data.rows
       // console.log('collectRemoved: removed = ' + JSON.stringify(removed, null, 2))
@@ -174,7 +169,6 @@ const actions = {
       method: 'POST',
       url: payload.dbName + '/_purge',
       data: payload.data[payload.idx],
-      withCredentials: true,
     }).then(() => {
       // recurse
       payload.idx++
@@ -195,7 +189,6 @@ const actions = {
         'Content-Type': 'application/json'
       },
       data: {},
-      withCredentials: true,
     }).then(() => {
       rootState.backendSuccess = true
       rootState.isPurgeReady = true
@@ -213,7 +206,6 @@ const actions = {
     globalAxios({
       method: 'DELETE',
       url: dbName,
-      withCredentials: true,
     }).then(() => {
       rootState.backendSuccess = true
       rootState.backendMessages.push('Database ' + dbName + ' has been deleted')
@@ -232,7 +224,6 @@ const actions = {
     globalAxios({
       method: 'GET',
       url: dbName + '/config',
-      withCredentials: true,
     }).then(res => {
       rootState.backendSuccess = true
       if (res.data.teams) rootState.fetchedTeams = res.data.teams

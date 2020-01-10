@@ -56,7 +56,6 @@ const actions = {
             globalAxios({
                 method: 'GET',
                 url: rootState.userData.currentDb + '/' + _id,
-                withCredentials: true,
             }).then(res => {
                 let tmpDoc = res.data
                 if (!tmpDoc._attachments) {
@@ -104,7 +103,6 @@ const actions = {
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
-            withCredentials: true,
         }).then(res => {
             let tmpDoc = res.data
             if (tmpDoc._attachments) {

@@ -23,7 +23,6 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
 			// console.log('updateMovedItemsBulk: res = ' + JSON.stringify(res, null, 2))
@@ -121,7 +120,6 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
 			// console.log('updateDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
@@ -189,7 +187,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {

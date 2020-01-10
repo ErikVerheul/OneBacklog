@@ -95,7 +95,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: url,
-			withCredentials: true
 		}).then(res => {
 			let data = res.data
 			//eslint-disable-next-line no-console

@@ -48,7 +48,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: '/_session',
-			withCredentials: true
 		}).then(res => {
 			// eslint-disable-next-line no-console
 			console.log(res)
@@ -110,7 +109,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 			data: newDoc
 		}).then(() => {
 			// eslint-disable-next-line no-console
@@ -183,7 +181,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 			data: newDoc
 		}).then(() => {
 			// eslint-disable-next-line no-console
@@ -258,7 +255,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 			data: newDoc
 		}).then(() => {
 			// eslint-disable-next-line no-console
@@ -332,7 +328,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 			data: newDoc
 		}).then(() => {
 			// eslint-disable-next-line no-console
@@ -372,7 +367,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: '_users/org.couchdb.user:' + payload.name,
-			withCredentials: true,
 			data: {
 				"name": payload.name,
 				"password": payload.name,
@@ -401,7 +395,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: dbName,
-			withCredentials: true,
 		}).then(res => {
 			state.message = res.data
 			rootState.userData.currentDb = dbName
@@ -425,7 +418,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: dbName,
-			withCredentials: true,
 		}).then(() => {
 			rootState.userData.currentDb = dbName
 			state.comment = 'The database ' + dbName + ' exists already. Note that subsequent actions will be performed on this database'
@@ -448,7 +440,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/_security',
-			withCredentials: true,
 			data: payload.permissions
 		}).then(res => {
 			state.message = res.data
@@ -470,7 +461,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/_security',
-			withCredentials: true,
 		}).then(res => {
 			state.message = res.data
 			// eslint-disable-next-line no-console
@@ -495,7 +485,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/_all_docs',
-			withCredentials: true,
 		}).then(res => {
 			state.message = res.data
 			// eslint-disable-next-line no-console
@@ -516,7 +505,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/' + payload._id,
-			withCredentials: true,
 		}).then(res => {
 			state.message = res.data
 			// eslint-disable-next-line no-console
@@ -537,7 +525,6 @@ const actions = {
 		globalAxios({
 			method: 'DELETE',
 			url: payload.dbName,
-			withCredentials: true,
 		}).then(res => {
 			state.message = res.data
 			// eslint-disable-next-line no-console
@@ -558,7 +545,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: '/_users/_security',
-			withCredentials: true,
 			data: usersDbPermissions
 		}).then(res => {
 			state.message = res.data
@@ -577,12 +563,10 @@ const actions = {
 		state,
 		dispatch
 	}, payload) {
-		console.log('doRemoveHistory: reading database = ' + payload.dbName)
 		this.commit('clearAll')
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/_all_docs',
-			withCredentials: true,
 		}).then(res => {
 			// eslint-disable-next-line no-console
 			console.log(res.data)
@@ -606,7 +590,6 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_get',
-			withCredentials: true,
 			data: { "docs": payload.docs },
 		}).then(res => {
 			const results = res.data.results
@@ -664,7 +647,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/_all_docs',
-			withCredentials: true,
 		}).then(res => {
 			// eslint-disable-next-line no-console
 			console.log(res.data)
@@ -689,7 +671,6 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_get',
-			withCredentials: true,
 			data: { "docs": payload.docs },
 		}).then(res => {
 			// console.log('updateState: res = ' + JSON.stringify(res, null, 2))

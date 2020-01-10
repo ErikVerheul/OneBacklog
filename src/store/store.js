@@ -171,7 +171,6 @@ export default new Vuex.Store({
 			globalAxios({
 				method: 'POST',
 				url: '/_session',
-				withCredentials: true,
 				data: { name: state.userData.user, password: state.userData.password }
 			}).then(() => {
 				state.cookieAutenticated = true
@@ -217,7 +216,6 @@ export default new Vuex.Store({
 			globalAxios({
 				method: 'POST',
 				url: '/_session',
-				withCredentials: true,
 				data: authData
 			}).then(res => {
 				// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myFilterSettings are updated when otherUserData and config are read

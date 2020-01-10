@@ -12,7 +12,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName,
-			withCredentials: true,
 		}).then(() => {
 			rootState.backendMessages.push('createDatabase: Success, empty database ' + payload.dbName + ' is created')
 			dispatch('setDatabasePermissions', payload)
@@ -43,7 +42,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/_security',
-			withCredentials: true,
 			data: dbPermissions
 		}).then(() => {
 			rootState.backendMessages.push('setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set')
@@ -74,7 +72,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/log',
-			withCredentials: true,
 			data: logDoc
 		}).then(() => {
 			rootState.backendMessages.push('createLog: Success, log for database ' + payload.dbName + ' is created')
@@ -169,7 +166,6 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName,
-			withCredentials: true,
 			data: configData
 		}).then(() => {
 			rootState.backendMessages.push('createConfig: Success, the configuration document is created')
@@ -186,7 +182,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/_design/design1',
-			withCredentials: true,
 			data: {
 				"views": {
 					/*
@@ -269,7 +264,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/root',
-			withCredentials: true,
 			data: rootDoc
 		}).then(() => {
 			if (payload.initDbInstance) {
@@ -292,7 +286,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: '_users/org.couchdb.user:' + userName,
-			withCredentials: true,
 			data: {
 				name: userName,
 				password: rootState.userData.password,

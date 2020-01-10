@@ -213,7 +213,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: '_users/org.couchdb.user:' + rootState.userData.user,
-			withCredentials: true
 		}).then(res => {
 			let allUserDate = res.data
 			rootState.userData.currentDb = res.data.currentDb
@@ -256,7 +255,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/products',
-			withCredentials: true
 		}).then(res => {
 			state.currentProductsEnvelope = res.data.rows
 			const missingProductRolesIds = []
@@ -324,7 +322,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/config',
-			withCredentials: true,
 		}).then(res => {
 			rootState.configData = res.data
 			// eslint-disable-next-line no-console
@@ -346,7 +343,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/root',
-			withCredentials: true,
 		}).then(res => {
 			rootState.currentDoc = res.data
 			// decode from base64 + replace the encoded data
@@ -416,7 +412,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			state.currentProductId = _id
 			state.currentProductTitle = res.data.title
@@ -456,7 +451,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
-			withCredentials: true,
 		}).then(res => {
 			batch = res.data.rows
 			commit('processProduct', rootState.userData.userAssignedProductIds)
@@ -501,7 +495,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
-			withCredentials: true,
 		}).then(res => {
 			batch = res.data.rows
 			commit('processProduct', rootState.userData.userAssignedProductIds)
@@ -544,7 +537,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + rangeStr,
-			withCredentials: true,
 		}).then(res => {
 			const rows = res.data.rows
 			if (rows.length > 0) {
@@ -589,7 +581,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			rootState.currentDoc = res.data
 			// decode from base64 + replace the encoded data
@@ -614,7 +605,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
 			dispatch('createDoc2', payload)
@@ -636,7 +626,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 			data: payload.initData
 		}).then(() => {
 			// eslint-disable-next-line no-console

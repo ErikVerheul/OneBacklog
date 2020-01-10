@@ -14,7 +14,6 @@ const actions = {
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
-            withCredentials: true,
         }).then(res => {
             let grandParentDoc = res.data
             if (!grandParentDoc.delmark) {
@@ -48,7 +47,6 @@ const actions = {
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
-            withCredentials: true,
         }).then(res => {
             let tmpDoc = res.data
             if (entry.isProductRemoved) {
@@ -90,7 +88,6 @@ const actions = {
         globalAxios({
             method: 'PUT',
             url: rootState.userData.currentDb + '/' + _id,
-            withCredentials: true,
             data: payload.tmpDoc
         }).then(() => {
             dispatch('restoreDescendantsBulk', payload.entry)
@@ -115,7 +112,6 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            withCredentials: true,
             data: { "docs": docsToGet },
         }).then(res => {
             // console.log('removeDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
@@ -171,7 +167,6 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            withCredentials: true,
             data: { "docs": docsToGet },
         }).then(res => {
             // console.log('restoreDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
@@ -222,7 +217,6 @@ const actions = {
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
-            withCredentials: true,
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {

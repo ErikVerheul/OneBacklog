@@ -13,7 +13,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const wasFollower = rootGetters.isFollower
@@ -56,7 +55,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldSize = tmpDoc.tssize
@@ -89,7 +87,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
@@ -119,7 +116,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
@@ -150,7 +146,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldHrs = tmpDoc.spikepersonhours
@@ -183,7 +178,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldPoints = tmpDoc.spsize
@@ -216,7 +210,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
@@ -254,7 +247,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldTeam = tmpDoc.team
@@ -295,7 +287,6 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			withCredentials: true,
 			data: { "docs": docsToGet },
 		}).then(res => {
 			const newTeam = rootState.userData.myTeam
@@ -349,7 +340,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			const oldTitle = rootState.currentDoc.title
 			let tmpDoc = res.data
@@ -382,7 +372,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
@@ -414,7 +403,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			// encode to base64
@@ -447,7 +435,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			// encode to base64
@@ -480,7 +467,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then((res) => {
 			let tmpDoc = res.data
 			const newEntry = {
@@ -510,7 +496,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
-			withCredentials: true,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newComment = window.btoa(payload.comment)
@@ -543,7 +528,6 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/config',
-			withCredentials: true,
 		}).then(res => {
 			const tmpConfig = res.data
 			if (!tmpConfig.teams.includes(payload.newTeam)) {
@@ -573,7 +557,6 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/' + _id,
-			withCredentials: true,
 			data: payload.updatedDoc
 		}).then((res) => {
 			if (rootState.currentDoc._id === res.data.id) {
@@ -605,7 +588,6 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_docs',
-			withCredentials: true,
 			data: { "docs": payload.docs },
 		}).then(res => {
 			let updateOk = 0
