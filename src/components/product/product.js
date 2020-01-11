@@ -801,7 +801,7 @@ export default {
       this.updateDescription()
       // both an update of the description and the acceptance criteria should NOT happen
       this.updateAcceptance()
-      if (!this.haveSameParent(selNodes)) {
+      if (!window.slVueTree.haveSameParent(selNodes)) {
         this.showLastEvent('You can only select nodes with the same parent.', WARNING)
         return
       }

@@ -66,15 +66,7 @@ export const utilities = {
 			if (title.length <= length) return title;
 			return title.substring(0, length - 4) + '...'
 		},
-		haveSameParent(nodes) {
-			let parentId = nodes[0].parentId
-			for (let i = 1; i < nodes.length; i++) {
-				if (nodes[i].parentId !== parentId) {
-					return false
-				}
-			}
-			return true
-		},
+
 		/* Reorder the state values to create a order for comparison */
 		convertState(state) {
 			switch (state) {

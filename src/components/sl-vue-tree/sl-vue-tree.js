@@ -212,6 +212,16 @@ export default {
 			eventBus.$emit('contextMenu', node)
 		},
 
+		haveSameParent(nodes) {
+			let parentId = nodes[0].parentId
+			for (let i = 1; i < nodes.length; i++) {
+				if (nodes[i].parentId !== parentId) {
+					return false
+				}
+			}
+			return true
+		},
+
 		/*
 		* Select a node from the current product or select the root or the top node of another product.
 		* Shift-select mode is allowed only if nodes are above productlevel and on the same level
