@@ -41,27 +41,28 @@ export const utilities = {
 			}
 			return this.$store.state.configData.itemType[level]
 		},
+
 		getItemStateText(idx) {
 			if (idx < 0 || idx > PBILEVEL) {
 				return 'Error: unknown state'
 			}
 			return this.$store.state.configData.itemState[idx]
 		},
+
 		getTsSize(idx) {
 			if (idx < 0 || idx >= this.$store.state.configData.tsSize.length) {
 				return 'Error: unknown T-shirt size'
 			}
 			return this.$store.state.configData.tsSize[idx]
 		},
+
 		getSubType(idx) {
 			if (idx < 0 || idx >= this.$store.state.configData.subtype.length) {
 				return 'Error: unknown subtype'
 			}
 			return this.$store.state.configData.subtype[idx]
 		},
-		getKnownRoles() {
-			return this.$store.state.configData.knownRoles
-		},
+
 		itemTitleTrunc(length, title) {
 			if (title.length <= length) return title;
 			return title.substring(0, length - 4) + '...'
