@@ -874,7 +874,7 @@ export default {
 				if (nm.conditionalFor && nm.conditionalFor.length > 0) {
 					for (let condId of nm.conditionalFor) {
 						const dep = this.getNodeById(condId)
-						if (this.comparePaths(nm.path, dep.path) === -1) {
+						if (dep !== null && this.comparePaths(nm.path, dep.path) === -1) {
 							violations.push({ condNode: nm, depNode: dep })
 						}
 					}

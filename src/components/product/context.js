@@ -655,6 +655,8 @@ export default {
       this.$store.dispatch('setConditions', { _id: this.contextNodeSelected._id, conditionalFor: iDArray })
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
+        if (node === null) break
+
         let iDArray = []
         for (let depId of node.dependencies) {
           if (depId !== this.contextNodeSelected._id) iDArray.push(id)
