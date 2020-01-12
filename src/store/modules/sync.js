@@ -22,7 +22,7 @@ const actions = {
 		dispatch
 	}) {
 		function testEmail(data) {
-			const interestingHistoryEvents = ["createEvent", "setSizeEvent", "setPointsEvent", "setHrsEvent", "setStateEvent", "setTeamEvent", "setTitleEvent", "setSubTypeEvent",
+			const interestingHistoryEvents = ["setSizeEvent", "setPointsEvent", "setHrsEvent", "setStateEvent", "setTeamEvent", "setTitleEvent", "setSubTypeEvent",
 				"descriptionEvent", "acceptanceEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "parentDocRemovedEvent", "docRestoredInsideEvent", "uploadAttachmentEvent",
 				"commentToHistoryEvent", "removeAttachmentEvent", "setDependenciesEvent", "setConditionsEvent"]
 			const results = data.results
