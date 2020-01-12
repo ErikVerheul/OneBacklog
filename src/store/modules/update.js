@@ -155,7 +155,7 @@ const actions = {
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
+				"distributeEvent": true
 			}
 			tmpDoc.spikepersonhours = payload.newHrs
 			tmpDoc.history.unshift(newHist)
@@ -187,7 +187,7 @@ const actions = {
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
+				"distributeEvent": true
 			}
 			tmpDoc.spsize = payload.newPoints
 			tmpDoc.history.unshift(newHist)
