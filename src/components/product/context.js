@@ -143,13 +143,19 @@ export default {
           break
         case this.REMOVEITEM:
           this.assistanceText = this.$store.state.help.help.remove
-          this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
+          if (this.hasDependencies) {
+            this.listItemText = "WARNING: this item has dependencies on other items. Remove them first"
+            this.disableOkButton = true
+          } else if (this.hasConditions) {
+            this.listItemText = "WARNING: this item is conditional for other items. Remove them first"
+            this.disableOkButton = true
+          } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
           break
         case this.ASIGNTOMYTEAM:
           this.assistanceText = this.$store.state.help.help.team
           if (this.contextNodeLevel > this.FEATURELEVEL && this.contextParentTeam !== this.$store.state.userData.myTeam) {
             this.contextWarning = "WARNING: The team of parent " + this.contextParentType + " (" + this.contextParentTeam +
-              ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Please read the assistance text."
+              ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Please read the assistance text"
           } else this.contextWarning = undefined
           this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
           break
@@ -163,7 +169,7 @@ export default {
             this.listItemText = 'Click OK to choose a node this item depends on'
           } else {
             if (checkNode(this, this.contextNodeSelected)) {
-              this.listItemText = 'Click OK to set this condition.'
+              this.listItemText = 'Click OK to set this condition'
             } else {
               this.listItemText = ''
               this.disableOkButton = true
