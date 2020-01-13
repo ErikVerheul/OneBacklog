@@ -567,10 +567,7 @@ export default {
 			return this.getNodeModel(prevPath)
 		},
 
-		/*
-		 * Insert the nodeModels in the tree model inside, after or before the node at cursorposition.
-		 * When creating a new single node (not moving) createNew must be true
-		 */
+		/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. */
 		insert(cursorPosition, nodes, calculatePrios = true) {
 			const destNodeModel = cursorPosition.nodeModel
 			const productId = destNodeModel.productId
