@@ -37,7 +37,7 @@ const actions = {
 					let newHist = {}
 					if (item.type === 'move') {
 						newHist = {
-							"nodeDroppedEvent": [item.oldLevel, item.newLevel, item.newInd, item.newParentTitle, item.nrOfDescendants, item.oldProductTitle, item.placement],
+							"nodeDroppedEvent": [item.oldLevel, item.newLevel, item.newInd, item.newParentTitle, item.nrOfDescendants, item.oldProductTitle, item.placement, item.savedInd],
 							"by": rootState.userData.user,
 							"email": rootState.userData.email,
 							"timestamp": Date.now(),

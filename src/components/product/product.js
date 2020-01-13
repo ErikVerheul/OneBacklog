@@ -866,6 +866,10 @@ export default {
         cancel(true)
         return
       }
+      // save the current index
+      for (let n of draggingNodes) {
+        n.savedInd = n.ind
+      }
     },
 
     /*
@@ -896,6 +900,7 @@ export default {
           'oldParentTitle': n.title,
           'oldLevel': clickedLevel,
           'newLevel': n.level,
+          'oldInd': n.savedInd,
           'newInd': n.ind,
           'placement': position.placement,
           'nrOfDescendants': descendantsInfo.count,
