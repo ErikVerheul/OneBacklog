@@ -454,6 +454,7 @@ const actions = {
 		}).then(res => {
 			batch = res.data.rows
 			commit('processProduct', rootState.userData.userAssignedProductIds)
+			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			// log any detected orphans if present
 			if (state.orphansFound.orphans.length > 0) {
 				rootState.logging.orphansFound = state.orphansFound
@@ -475,7 +476,6 @@ const actions = {
 				// reset load parameters
 				parentNodes = {}
 			}
-			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Another product of ' + batch.length + ' documents is loaded')
 		})
@@ -498,6 +498,7 @@ const actions = {
 		}).then(res => {
 			batch = res.data.rows
 			commit('processProduct', rootState.userData.userAssignedProductIds)
+			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			// log any detected orphans if present
 			if (state.orphansFound.orphans.length > 0) {
 				rootState.logging.orphansFound = state.orphansFound
@@ -521,7 +522,6 @@ const actions = {
 				// reset load parameters
 				parentNodes = {}
 			}
-			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			router.push('/product')
 		})
 			// eslint-disable-next-line no-console
