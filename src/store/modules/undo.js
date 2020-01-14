@@ -225,7 +225,7 @@ const actions = {
                 "email": rootState.userData.email,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
-                "distributeEvent": false
+                "distributeEvent": true
             }
             tmpDoc.history.unshift(newHist)
             dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })

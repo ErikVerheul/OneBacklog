@@ -37,7 +37,7 @@ const actions = {
 					let newHist = {}
 					if (item.type === 'move') {
 						newHist = {
-							"nodeDroppedEvent": [item.oldLevel, item.newLevel, item.newInd, item.newParentTitle, item.nrOfDescendants, item.oldProductTitle, item.placement, item.savedInd],
+							"nodeDroppedEvent": [item.oldLevel, item.newLevel, item.newInd, item.newParentTitle, item.nrOfDescendants, item.oldProductTitle, item.placement, item.oldParentId, item.newParentId, item.oldInd],
 							"by": rootState.userData.user,
 							"email": rootState.userData.email,
 							"timestamp": Date.now(),
@@ -85,7 +85,6 @@ const actions = {
 						"_id": item.descendants[i]._id,
 						"type": item.type,
 						"oldParentTitle": item.oldParentTitle,
-						"oldProductTitle": item.oldProductTitle,
 						"productId": item.productId,
 						"newLevel": item.descendants[i].level
 					}
@@ -195,7 +194,7 @@ const actions = {
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
+				"distributeEvent": false
 			}
 			tmpDoc.delmark = true
 			tmpDoc.history.unshift(newHist)
