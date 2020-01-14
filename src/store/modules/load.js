@@ -143,7 +143,7 @@ const mutations = {
 							lastAttachmentAddition = histItem.timestamp
 						}
 						// get the most recent addition of comments to the history
-						if (lastCommentToHistory === 0 && keys.includes('commentToHistory')) {
+						if (lastCommentToHistory === 0 && keys.includes('commentToHistoryEvent')) {
 							lastCommentToHistory = histItem.timestamp
 						}
 					}

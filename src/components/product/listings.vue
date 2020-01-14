@@ -162,7 +162,7 @@ export default {
     prepHistoryText(key, value) {
       if (key === "rootEvent") return this.mkRootEvent(value)
       if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
-      if (key === "commentToHistory") return this.mkCommentToHistoryEvent(value)
+      if (key === "commentToHistoryEvent") return this.mkCommentToHistoryEvent(value)
       if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
       if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
       if (key === "createRootEvent") return this.mkCreateRootEvent(value)
@@ -312,11 +312,11 @@ export default {
     },
 
     mkSetDependenciesEvent(value) {
-      return `<h5>Dependencies set for '${value[0]}' changed from ${convertToShortIds(value[1])} to ${convertToShortIds(value[2])} (short Ids)`
+      return `<h5>Dependencies set for '${value[0]}' changed from ${convertToShortIds(value[1])} to ${convertToShortIds(value[2])} (short Ids)</h5>`
     },
 
     mkSetConditionsEvent(value) {
-      return `<h5>Conditions on '${value[0]}' set for ${convertToShortIds(value[1])} are now set for ${convertToShortIds(value[2])} (short Ids)`
+      return `<h5>Conditions on '${value[0]}' set for ${convertToShortIds(value[1])} are now set for ${convertToShortIds(value[2])} (short Ids)</h5>`
     },
 
     mkBy(value) {

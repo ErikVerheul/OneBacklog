@@ -156,7 +156,7 @@ const actions = {
 								case 'uploadAttachmentEvent':
 									node.data.lastAttachmentAddition = lastHistoryChange
 									break
-								case 'commentToHistory':
+								case 'commentToHistoryEvent':
 									node.data.lastCommentToHistory = lastHistoryChange
 									break
 							}

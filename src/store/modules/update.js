@@ -500,7 +500,7 @@ const actions = {
 			let tmpDoc = res.data
 			const newComment = window.btoa(payload.comment)
 			const newHist = {
-				"commentToHistory": [newComment],
+				"commentToHistoryEvent": [newComment],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
