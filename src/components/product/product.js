@@ -439,7 +439,7 @@ export default {
           entry.node.data.state = entry.oldState
           // reset inconsistency mark if set
           entry.node.data.inconsistentState = false
-          this.$store.dispatch('setState', { 'newState': entry.oldState, 'timestamp': Date.now() })
+          this.$store.dispatch('setState', { 'newState': entry.oldState, 'team': entry.node.data.team, 'timestamp': Date.now() })
           this.showLastEvent('Change of item state is undone', INFO)
           break
         case 'undoTitleChange':
@@ -707,7 +707,7 @@ export default {
     onStateChange(idx) {
       const currentNode = this.$store.state.nodeSelected
 
-      function changeState(vm, newTeam) {
+      function changeState(vm, owningTeam) {
         const descendants = window.slVueTree.getDescendantsInfo(currentNode).descendants
         if (descendants.length > 0) {
           let highestState = 0
@@ -732,12 +732,10 @@ export default {
         currentNode.data.state = idx
         currentNode.data.lastChange = now
         currentNode.data.lastStateChange = now
-        if (newTeam) {
-          currentNode.data.team = newTeam
-        }
+        currentNode.data.team = owningTeam
         vm.$store.dispatch('setState', {
           'newState': idx,
-          'team': newTeam,
+          'team': owningTeam,
           'timestamp': now
         })
         // create an entry for undoing the change in a last-in first-out sequence
@@ -761,7 +759,7 @@ export default {
         } else {
           if (currentNode.data.team === this.$store.state.userData.myTeam) {
             // all other state changes; no team update
-            changeState(this, null)
+            changeState(this, currentNode.data.team)
           } else this.showLastEvent("Sorry, only members of team '" + currentNode.data.team + "' can change the state of this item", WARNING)
         }
       } else this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
@@ -866,9 +864,10 @@ export default {
         cancel(true)
         return
       }
-      // save the current index
+      // save the current index and parentId
       for (let n of draggingNodes) {
         n.savedInd = n.ind
+        n.savedParentId = n.parentId
       }
     },
 
@@ -894,6 +893,7 @@ export default {
           'type': 'move',
           'oldProductTitle': null,
           'productId': n.productId,
+          'oldParentId': n.savedParentId,
           'newParentId': n.parentId,
           'newPriority': n.data.priority,
           'newParentTitle': targetNode.title,
