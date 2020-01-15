@@ -265,7 +265,7 @@ export default {
       const violations = window.slVueTree.findDependencyViolations()
       if (violations.length > 0) {
         violationsWereFound = true
-        this.showLastEvent('This product has priority inconsistencies. Change priority or remove dependency.', WARNING)
+        this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', WARNING)
         for (let v of violations) {
           window.slVueTree.showDependencyViolations(v)
         }
