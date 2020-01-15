@@ -21,32 +21,6 @@ const actions = {
 		commit,
 		dispatch
 	}) {
-		function testEmail(data) {
-			const interestingHistoryEvents = ["setSizeEvent", "setPointsEvent", "setHrsEvent", "setStateEvent", "setTeamEvent", "setTitleEvent", "setSubTypeEvent",
-				"descriptionEvent", "acceptanceEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "parentDocRemovedEvent", "docRestoredInsideEvent", "uploadAttachmentEvent",
-				"commentToHistoryEvent", "removeAttachmentEvent", "setDependenciesEvent", "setConditionsEvent"]
-			const results = data.results
-			for (let r of results) {
-				let doc = r.doc
-				if (doc.followers) {
-					if (doc.comments[0].timestamp > doc.history[0].timestamp) {
-						// process new comment
-						for (let f of doc.followers) {
-							console.log('testEmail: send to ' + f + ' comment from ' + doc.comments[0].by)
-						}
-					} else {
-						// process new history
-						for (let f of doc.followers) {
-							const event = Object.keys(doc.history[0])[0]
-							if (interestingHistoryEvents.includes(event)) {
-								console.log('testEmail: send to ' + f + ' history of event ' + event + ' from ' + doc.history[0].by)
-							}
-						}
-					}
-				}
-			}
-		}
-
 		/*
 		 * When the parentNode exists this function returns an object with:
 		 * - the previous node (can be the parent)
@@ -99,8 +73,6 @@ const actions = {
 			let data = res.data
 			//eslint-disable-next-line no-console
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
-			// test email software here
-			testEmail(data)
 			const results = data.results
 			for (let r of results) {
 				let doc = r.doc
