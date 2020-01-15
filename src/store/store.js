@@ -29,6 +29,13 @@ export default new Vuex.Store({
 		// console log settings
 		debug: true,
 		showWatchdogInfo: false,
+		// logging
+		logState: {
+			unsavedLogs: [],
+			savedLogs: [],
+			runningWatchdogId: null,
+			logSavePending: false
+		},
 		// options
 		autoCorrectUserProfile: true,
 		// product view

@@ -9,32 +9,6 @@ const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
 
-const logState = {
-	unsavedLogs: [],
-	savedLogs: [],
-	orphansFound: {},
-	runningWatchdogId: null,
-	logSavePending: false
-}
-
-const mutations = {
-	/* Log any detected orphans while loading in the unsaved logs. Watchdog will persist them in the log document */
-	logOrphansFound(logState) {
-		for (let orphan of logState.orphansFound.orphans) {
-			const msg = 'Orphan found with productId = ' + orphan.productId + ' and  parentId = ' + orphan.parentId
-			let newLog = {
-				"event": msg,
-				"level": "CRITICAL",
-				"by": logState.orphansFound.userData.user,
-				"email": logState.orphansFound.userData.email,
-				"timestamp": Date.now(),
-				"timestampStr": new Date().toString()
-			}
-			logState.unsavedLogs.push(newLog)
-		}
-	}
-}
-
 const actions = {
 	/* Check if database access is possible. Restart the cookie authentication if timed out. */
 	checkConnection({
@@ -57,7 +31,7 @@ const actions = {
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString()
 			}
-			logState.unsavedLogs.push(newLog)
+			rootState.logState.unsavedLogs.push(newLog)
 		}
 
 		globalAxios({
@@ -90,8 +64,8 @@ const actions = {
 		rootState,
 		dispatch
 	}) {
-		logState.runningWatchdogId = setInterval(() => {
-			let logsToSave = logState.unsavedLogs.length
+		rootState.logState.runningWatchdogId = setInterval(() => {
+			let logsToSave = rootState.logState.unsavedLogs.length
 			if (rootState.showWatchdogInfo) {
 				// eslint-disable-next-line no-console
 				console.log('watchdog:' +
@@ -111,8 +85,8 @@ const actions = {
 						let log = res.data
 						// save the stored logs
 						if (logsToSave > 0) {
-							for (let i = 0; i < logState.unsavedLogs.length; i++) {
-								log.entries.unshift(logState.unsavedLogs[i])
+							for (let i = 0; i < rootState.logState.unsavedLogs.length; i++) {
+								log.entries.unshift(rootState.logState.unsavedLogs[i])
 							}
 							let newLog = {
 								"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them',
@@ -123,7 +97,7 @@ const actions = {
 								"timestampStr": new Date().toString()
 							}
 							log.entries.unshift(newLog)
-							logState.unsavedLogs = []
+							rootState.logState.unsavedLogs = []
 						}
 						// we have a working connection to the database; restart synchronization if needed
 						if (!rootState.listenForChangesRunning) {
@@ -190,10 +164,10 @@ const actions = {
 			"timestampStr": new Date(now).toString()
 		}
 		// push the new log entry to the unsaved logs
-		logState.unsavedLogs.push(newLog)
+		rootState.logState.unsavedLogs.push(newLog)
 
 		if (rootState.userData.currentDb) {
-			if (!logState.logSavePending) {
+			if (!rootState.logState.logSavePending) {
 				// store all unsaved logs
 				globalAxios({
 					method: 'GET',
@@ -203,16 +177,16 @@ const actions = {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log("doLog: The log is fetched")
 
-					if (logState.unsavedLogs.length > 0) {
-						logState.savedLogs = []
-						for (let l of logState.unsavedLogs) {
+					if (rootState.logState.unsavedLogs.length > 0) {
+						rootState.logState.savedLogs = []
+						for (let l of rootState.logState.unsavedLogs) {
 							log.entries.unshift(l)
 							// save the log entries for recovery in case saveLog fails
-							logState.savedLogs.push(l)
+							rootState.logState.savedLogs.push(l)
 						}
-						logState.unsavedLogs = []
+						rootState.logState.unsavedLogs = []
 						log.entries = log.entries.slice(0, MAXLOGSIZE)
-						logState.logSavePending = true
+						rootState.logState.logSavePending = true
 						dispatch('saveLog', log)
 						// check if the cause of one of the log entries is the loss of connection to the database
 						dispatch('checkConnection')
@@ -220,13 +194,13 @@ const actions = {
 				}).catch(error => {
 					//eslint-disable-next-line no-console
 					if (rootState.debug) console.log('doLog: Pushed log entry to unsavedLogs:')
-					logState.unsavedLogs.push(newLog)
+					rootState.logState.unsavedLogs.push(newLog)
 					// eslint-disable-next-line no-console
 					console.log('doLog: Could not read the log. A retry is pending , ' + error)
 				})
 			}
 		} else {
-			logState.unsavedLogs.push(newLog)
+			rootState.logState.unsavedLogs.push(newLog)
 			// eslint-disable-next-line no-console
 			console.log('doLog: Could not read the log. A retry is pending , the database name is undefined yet')
 		}
@@ -241,7 +215,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + LOGDOCNAME,
 			data: log
 		}).then(() => {
-			logState.logSavePending = false
+			rootState.logState.logSavePending = false
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log("saveLog: The log is saved")
 		})
@@ -249,7 +223,7 @@ const actions = {
 			.catch(error => {
 				if (error.response.status === 409) {
 					// revision conflict
-					logState.unsavedLogs = logState.savedLogs
+					rootState.logState.unsavedLogs = rootState.logState.savedLogs
 					// eslint-disable-next-line no-console
 					console.log('saveLog: Could not save the log. A retry is pending, ' + error)
 				} else
@@ -260,6 +234,5 @@ const actions = {
 }
 
 export default {
-	mutations,
 	actions
 }

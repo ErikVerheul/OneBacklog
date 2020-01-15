@@ -194,7 +194,7 @@ const mutations = {
 					parentNodes[doc._id] = newNode
 				} else {
 					state.orphansCount++
-					state.orphansFound.orphans.push({ parentId: parentId, productId: doc.productId })
+					state.orphansFound.orphans.push({ id: doc._id, parentId, productId: doc.productId })
 					// eslint-disable-next-line no-console
 					console.log('processProduct: orphan found with _id = ' + doc._id + ', parentId = ' + parentId + ' and productId = ' + doc.productId)
 				}
@@ -457,9 +457,18 @@ const actions = {
 			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			// log any detected orphans if present
 			if (state.orphansFound.orphans.length > 0) {
-				rootState.logging.orphansFound = state.orphansFound
-				commit('logOrphansFound', null, { root: true })
-				state.orphansFound.orphans = []
+				for (let o of state.orphansFound.orphans) {
+					const msg = 'Orphan found with Id = ' + o.id + ', parentId = ' + o.parentId + ' and  productId = ' + o.productId
+					let newLog = {
+						"event": msg,
+						"level": "CRITICAL",
+						"by": state.orphansFound.userData.user,
+						"email": state.orphansFound.userData.email,
+						"timestamp": Date.now(),
+						"timestampStr": new Date().toString()
+					}
+					rootState.logState.unsavedLogs.push(newLog)
+				}
 			}
 			// process other products here
 			if (rootState.userData.myProductSubscriptions.length > 1 && state.processedProducts < rootState.userData.myProductSubscriptions.length) {
@@ -501,9 +510,18 @@ const actions = {
 			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			// log any detected orphans if present
 			if (state.orphansFound.orphans.length > 0) {
-				rootState.logging.orphansFound = state.orphansFound
-				commit('logOrphansFound', null, { root: true })
-				state.orphansFound.orphans = []
+				for (let o of state.orphansFound.orphans) {
+					const msg = 'Orphan found with Id = ' + o.id + ', parentId = ' + o.parentId + ' and  productId = ' + o.productId
+					let newLog = {
+						"event": msg,
+						"level": "CRITICAL",
+						"by": state.orphansFound.userData.user,
+						"email": state.orphansFound.userData.email,
+						"timestamp": Date.now(),
+						"timestampStr": new Date().toString()
+					}
+					rootState.logState.unsavedLogs.push(newLog)
+				}
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Current product with ' + batch.length + ' documents is loaded')
