@@ -144,7 +144,7 @@ export default {
         case this.REMOVEITEM:
           this.assistanceText = this.$store.state.help.help.remove
           if (this.hasDependencies) {
-            this.listItemText = "WARNING: this item has dependencies on other items. Remove them first"
+            this.listItemText = "WARNING: this item has dependencies on other items. Remove them first. Dependencies to or from items outside the selected item will be removed automatically and will be lost on undo remove."
             this.disableOkButton = true
           } else if (this.hasConditions) {
             this.listItemText = "WARNING: this item is conditional for other items. Remove them first"
