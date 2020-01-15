@@ -88,7 +88,7 @@ function mkHtml(dbName, eventType, eArr, event, doc) {
         case "nodeUndoMoveEvent":
             return mkHeader() + `<h3>The previous move by user '${event.by}' is undone</h3>` + mkFooter()
         case "removedFromParentEvent":
-            return mkHeader() + `<h3>${getLevelText(dbName, eArr[0])} with title:</h3><h3>'${eArr[1]}' and <br>${eArr[2]} descendants are removed from this parent</h3>` + mkFooter()
+            return mkHeader() + `<h3>This item and ${eArr[2]} descendants are removed from this parent</h3>` + mkFooter()
         case "docRestoredInsideEvent":
             return mkHeader() + `<h3>This item and ${eArr[0]} descendants are restored from removal</h3>` + mkFooter()
         case "uploadAttachmentEvent":
