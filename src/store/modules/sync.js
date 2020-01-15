@@ -73,8 +73,7 @@ const actions = {
 			let data = res.data
 			//eslint-disable-next-line no-console
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
-			const results = data.results
-			for (let r of results) {
+			for (let r of data.results) {
 				let doc = r.doc
 				if (doc.history[0].sessionId !== rootState.userData.sessionId &&
 					rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
