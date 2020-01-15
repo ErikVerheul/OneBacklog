@@ -483,7 +483,6 @@ export default {
       const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
       this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
       const path = selectedNode.path
-      const descendants = descendantsInfo.descendants
       // when removing a product
       if (selectedNode.level === this.PRODUCTLEVEL) {
         // cannot remove the last assigned product or product in the tree
@@ -493,8 +492,9 @@ export default {
         }
       }
       // set remove mark in the database on the clicked item and decendants (if any)
-      this.$store.dispatch('removeDoc', { 'node': selectedNode, 'descendants': descendants })
-
+      this.$store.dispatch('removeDoc', { 'node': selectedNode, descendants: descendantsInfo.descendants })
+      // remove any dependency references to/from outside the removed items; note: these cannot be undone
+      window.slVueTree.correctDependencies(descendantsInfo.ids)
       // create an entry for undoing the remove in a last-in first-out sequence
       const entry = {
         type: 'removedNode',
@@ -503,7 +503,7 @@ export default {
         grandParentId: selectedNode.parentId,
         parentId: selectedNode._id,
         parentPath: selectedNode.path,
-        descendants: descendants
+        descendants: descendantsInfo.descendants
       }
 
       if (entry.isProductRemoved) {
