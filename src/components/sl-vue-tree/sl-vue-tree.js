@@ -423,20 +423,23 @@ export default {
 		},
 
 		getDescendantsInfo(node) {
+			const ids = []
 			const descendants = []
 			let initLevel = node.level
 			let count = 0
 			let maxDepth = node.level
 			this.traverseModels((nm) => {
 				if (this.comparePaths(nm.path, node.path) === 1) {
+					ids.push(nm._id)
 					descendants.push(nm)
 					count++
 					if (nm.level > maxDepth) maxDepth = nm.level
 				}
 			}, [node])
 			return {
-				descendants: descendants,
-				count: count,
+				ids,
+				descendants,
+				count,
 				depth: maxDepth - initLevel
 			}
 		},
@@ -890,6 +893,58 @@ export default {
 					nm.markViolation = true
 				}
 			}, this.getProductModels())
+		},
+
+		/* When nodes are deleted orphan dependencies can be created. This method removes them. */
+		correctDependencies(nodeIds) {
+			let dependenciesRemoved = 0
+			let conditionsRemoved = 0
+			this.traverseModels((nm) => {
+				const newDependencies = []
+				if (nm.dependencies) {
+					if (nodeIds.includes(nm._id)) {
+						// nm is one of the nodes
+						for (let d of nm.dependencies) {
+							// dependency references within the nodes survive
+							if (nodeIds.includes(d)) {
+								newDependencies.push(d)
+							} else dependenciesRemoved++
+						}
+					} else {
+						// nm is an outsider
+						for (let d of nm.dependencies) {
+							// outsider references not referencing any of the nodes survive
+							if (!nodeIds.includes(d)) {
+								newDependencies.push(d)
+							} else dependenciesRemoved++
+						}
+					}
+					nm.dependencies = newDependencies
+				}
+
+				const newConditionalFor = []
+				if (nm.conditionalFor) {
+					if (nodeIds.includes(nm._id)) {
+						// nm is one of the nodes
+						for (let d of nm.conditionalFor) {
+							// dependency references within the nodes survive
+							if (nodeIds.includes(d)) {
+								newConditionalFor.push(d)
+							} else conditionsRemoved++
+						}
+					} else {
+						// nm is an outsider
+						for (let d of nm.conditionalFor) {
+							// outsider references not referencing any of the nodes survive
+							if (!nodeIds.includes(d)) {
+								newConditionalFor.push(d)
+							} else conditionsRemoved++
+						}
+					}
+					nm.conditionalFor = newConditionalFor
+				}
+			}, this.getProductModels())
+			return { dependenciesRemoved, conditionsRemoved }
 		}
 	}
 }
