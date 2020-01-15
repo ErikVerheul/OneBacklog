@@ -11,9 +11,10 @@ import sync from './modules/sync'
 import useracc from './modules/useracc'
 import update from './modules/update'
 import attachments from './modules/attachments'
-import moveremove from './modules/moveremove'
+import move from './modules/move'
 import undo from './modules/undo'
 import setup from './modules/setup'
+import remove from './modules/remove'
 import utils from './modules/utils'
 
 const DEBUG = -1
@@ -274,8 +275,9 @@ export default new Vuex.Store({
 		useracc,
 		update,
 		attachments,
-		moveremove,
+		move,
 		undo,
+		remove,
 		setup,
 		utils
 	}

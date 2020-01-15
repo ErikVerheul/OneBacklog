@@ -77,6 +77,7 @@ const actions = {
             dispatch('doLog', { event: msg, level: ERROR })
         })
     },
+
     /* update the parent and restore the descendants */
     undoRemovedParent({
         rootState,
@@ -100,61 +101,7 @@ const actions = {
             dispatch('doLog', { event: msg, level: ERROR })
         })
     },
-    /* Mark the descendants of the parent for removal. Do not distribute this event as distributing the parent removal will suffice */
-    removeDescendantsBulk({
-        rootState,
-        dispatch
-    }, payload) {
-        const docsToGet = []
-        for (let desc of payload.descendants) {
-            docsToGet.push({ "id": desc._id })
-        }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
-        }).then(res => {
-            // console.log('removeDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
-            const results = res.data.results
-            const ok = []
-            const error = []
-            for (let i = 0; i < results.length; i++) {
-                if (results[i].docs[0].ok) {
-                    const newHist = {
-                        "docRemovedEvent": [payload.node.title],
-                        "by": rootState.userData.user,
-                        "email": rootState.userData.email,
-                        "timestamp": Date.now(),
-                        "sessionId": rootState.userData.sessionId,
-                        "distributeEvent": false
-                    }
-                    results[i].docs[0].ok.history.unshift(newHist)
-                    // mark for removal
-                    results[i].docs[0].ok.delmark = true
-                    ok.push(results[i].docs[0].ok)
-                }
-                if (results[i].docs[0].error) error.push(results[i].docs[0].error)
-            }
-            if (error.length > 0) {
-                rootState.busyRemoving = false
-                let errorStr = ''
-                for (let i = 0; i < error.length; i++) {
-                    errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
-                }
-                let msg = 'removeDescendantsBulk: These documents cannot be marked for removal: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
-            }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
-        }).catch(error => {
-            rootState.busyRemoving = false
-            let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
-    },
+
     /* Unmark the removed item and its descendants for removal. Do distribute this event and set the selfUpdate property to have the tree updated */
     restoreDescendantsBulk({
         rootState,
@@ -207,39 +154,7 @@ const actions = {
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
         })
-    },
-
-    registerRemoveHistInParent({
-        rootState,
-        dispatch
-    }, payload) {
-        const _id = payload.node.parentId
-        globalAxios({
-            method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id,
-        }).then(res => {
-            let tmpDoc = res.data
-            const newHist = {
-                "removedFromParentEvent": [payload.node.level, payload.node.title, payload.descendants.length],
-                "by": rootState.userData.user,
-                "email": rootState.userData.email,
-                "timestamp": Date.now(),
-                "sessionId": rootState.userData.sessionId,
-                "distributeEvent": true
-            }
-            tmpDoc.history.unshift(newHist)
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-            if (payload.descendants.length > 0) {
-                dispatch('removeDescendantsBulk', payload)
-            } else rootState.busyRemoving = false
-        }).catch(error => {
-            rootState.busyRemoving = false
-            let msg = 'registerRemoveHistInParent: Could not read document with _id ' + _id + ', ' + error
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
-    },
+    }
 }
 
 export default {

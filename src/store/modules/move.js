@@ -1,7 +1,6 @@
 import globalAxios from 'axios'
 
 const ERROR = 2
-const PRODUCTLEVEL = 2
 
 const actions = {
     updateMovedItemsBulk({
@@ -91,7 +90,7 @@ const actions = {
 					payload2.push(payloadItem2)
 				}
 			}
-			dispatch('updateDescendantsBulk', payload2)
+			dispatch('updateMovedDescendantsBulk', payload2)
 		}).catch(error => {
 			let msg = 'updateMovedItemsBulk: Could not read decendants in bulk. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -100,7 +99,7 @@ const actions = {
 		})
 	},
 
-	updateDescendantsBulk({
+	updateMovedDescendantsBulk({
 		rootState,
 		dispatch
 	}, payload) {
@@ -121,7 +120,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/_bulk_get',
 			data: { "docs": docsToGet },
 		}).then(res => {
-			// console.log('updateDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
+			// console.log('updateMovedDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
 			const ok = []
 			const error = []
@@ -163,60 +162,19 @@ const actions = {
 				for (let i = 0; i < error.length; i++) {
 					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
 				}
-				let msg = 'updateDescendantsBulk: These descendants cannot be updated: ' + errorStr
+				let msg = 'updateMovedDescendantsBulk: These descendants cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
 		}).catch(error => {
-			let msg = 'updateDescendantsBulk: Could not read decendants in bulk. Error = ' + error
+			let msg = 'updateMovedDescendantsBulk: Could not read decendants in bulk. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
-	},
-
-	removeDoc({
-		rootState,
-		dispatch
-	}, payload) {
-		rootState.busyRemoving = true
-		const _id = payload.node._id
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
-		}).then(res => {
-			let tmpDoc = res.data
-			const newHist = {
-				"parentDocRemovedEvent": [payload.descendants.length],
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
-			}
-			tmpDoc.delmark = true
-			tmpDoc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			if (payload.node.level === PRODUCTLEVEL) {
-				// remove the product from the users product roles, subscriptions and product selection array
-				delete rootState.userData.myProductsRoles[_id]
-				if (rootState.userData.myProductSubscriptions.includes(_id)) {
-					const position = rootState.userData.myProductSubscriptions.indexOf(_id)
-					rootState.userData.myProductSubscriptions.splice(position, 1)
-					const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(_id)
-					rootState.myProductOptions.splice(removeIdx, 1)
-				}
-			}
-			dispatch('registerRemoveHistInParent', payload)
-		}).catch(error => {
-			let msg = 'removeDoc: Could not read document with _id ' + _id + ',' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
+	}
 }
 
 export default {
