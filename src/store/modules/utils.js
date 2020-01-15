@@ -150,7 +150,7 @@ const actions = {
       rootState.backendSuccess = false
       rootState.backendMessages = []
       dispatch('purgeDb', { dbName, data, idx: 0, number: removed.length })
-      rootState.backendMessages.push('Purge started ' + removed.length + ' documents will be deleted. Please wait ...')
+      rootState.backendMessages.push('Purge started, ' + removed.length + ' documents will be deleted. Please wait ...')
     }).catch(error => {
       rootState.backendMessages.push('Could not find any removed documents in database ' + dbName + '. Error = ' + error)
     })
