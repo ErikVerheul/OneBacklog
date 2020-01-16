@@ -588,47 +588,47 @@ export default {
 
     getDependencies() {
       this.dependenciesObjects = []
-      for (let depId of this.contextNodeSelected.dependencies) {
-        const item = window.slVueTree.getNodeById(depId)
+      for (let depObj of this.contextNodeSelected.dependencies) {
+        const item = window.slVueTree.getNodeById(depObj)
         if (item) {
-          this.dependenciesObjects.push({ _id: depId, title: item.title })
+          this.dependenciesObjects.push({ _id: depObj, title: item.title })
         }
       }
     },
 
     getConditions() {
       this.conditionsObjects = []
-      for (let condId of this.contextNodeSelected.conditionalFor) {
-        const item = window.slVueTree.getNodeById(condId)
+      for (let conObj of this.contextNodeSelected.conditionalFor) {
+        const item = window.slVueTree.getNodeById(conObj)
         if (item) {
-          this.conditionsObjects.push({ _id: condId, title: item.title })
+          this.conditionsObjects.push({ _id: conObj, title: item.title })
         }
       }
     },
 
     /* Remove the dependency from the view only, not yet in the database. */
     removeDependency(id) {
-      let iDArray = []
-      for (let depId of this.dependenciesObjects) {
-        if (id !== depId._id) iDArray.push(depId)
+      let objArray = []
+      for (let depObj of this.dependenciesObjects) {
+        if (id !== depObj._id) objArray.push(depObj)
       }
-      this.dependenciesObjects = iDArray
+      this.dependenciesObjects = objArray
     },
 
     /* Remove the condition from the view only, not yet in the database. */
     removeCondition(id) {
-      let iDArray = []
-      for (let condId of this.conditionsObjects) {
-        if (id !== condId._id) iDArray.push(condId)
+      let objArray = []
+      for (let conObj of this.conditionsObjects) {
+        if (id !== conObj._id) objArray.push(conObj)
       }
-      this.conditionsObjects = iDArray
+      this.conditionsObjects = objArray
     },
 
     /* Update the dependencies and the corresponding conditions in the tree model and the database. */
     updateDependencies() {
       let iDArray = []
-      for (let depId of this.dependenciesObjects) {
-        iDArray.push(depId._id)
+      for (let depObj of this.dependenciesObjects) {
+        iDArray.push(depObj._id)
       }
       let removedIds = []
       for (let id of this.contextNodeSelected.dependencies) {
@@ -650,8 +650,8 @@ export default {
     /* Update the conditions and the corresponding dependencies in the tree model and the database. */
     updateConditions() {
       let iDArray = []
-      for (let condId of this.conditionsObjects) {
-        iDArray.push(condId._id)
+      for (let conObj of this.conditionsObjects) {
+        iDArray.push(conObj._id)
       }
       let removedIds = []
       for (let id of this.contextNodeSelected.conditionalFor) {
