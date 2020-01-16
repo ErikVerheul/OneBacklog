@@ -608,7 +608,7 @@ export default {
 
     /* Remove the dependency from the view only, not yet in the database. */
     removeDependency(id) {
-      let objArray = []
+      const objArray = []
       for (let depObj of this.dependenciesObjects) {
         if (id !== depObj._id) objArray.push(depObj)
       }
@@ -617,7 +617,7 @@ export default {
 
     /* Remove the condition from the view only, not yet in the database. */
     removeCondition(id) {
-      let objArray = []
+      const objArray = []
       for (let conObj of this.conditionsObjects) {
         if (id !== conObj._id) objArray.push(conObj)
       }
@@ -626,49 +626,49 @@ export default {
 
     /* Update the dependencies and the corresponding conditions in the tree model and the database. */
     updateDependencies() {
-      let iDArray = []
+      const depIdArray = []
       for (let depObj of this.dependenciesObjects) {
-        iDArray.push(depObj._id)
+        depIdArray.push(depObj._id)
       }
       let removedIds = []
       for (let id of this.contextNodeSelected.dependencies) {
-        if (!iDArray.includes(id)) removedIds.push(id)
+        if (!depIdArray.includes(id)) removedIds.push(id)
       }
-      this.contextNodeSelected.dependencies = iDArray
-      this.$store.dispatch('setDependencies', { _id: this.contextNodeSelected._id, dependencies: iDArray })
+      this.contextNodeSelected.dependencies = depIdArray
+      this.$store.dispatch('setDependencies', { _id: this.contextNodeSelected._id, dependencies: depIdArray })
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
-        let iDArray = []
+        const conIdArray = []
         for (let condId of node.conditionalFor) {
-          if (condId !== this.contextNodeSelected._id) iDArray.push(id)
+          if (condId !== this.contextNodeSelected._id) conIdArray.push(id)
         }
-        node.conditionalFor = iDArray
-        this.$store.dispatch('setConditions', { _id: node._id, conditionalFor: iDArray })
+        node.conditionalFor = conIdArray
+        this.$store.dispatch('setConditions', { _id: node._id, conditionalFor: conIdArray })
       }
     },
 
     /* Update the conditions and the corresponding dependencies in the tree model and the database. */
     updateConditions() {
-      let iDArray = []
+      const conIdArray = []
       for (let conObj of this.conditionsObjects) {
-        iDArray.push(conObj._id)
+        conIdArray.push(conObj._id)
       }
       let removedIds = []
       for (let id of this.contextNodeSelected.conditionalFor) {
-        if (!iDArray.includes(id)) removedIds.push(id)
+        if (!conIdArray.includes(id)) removedIds.push(id)
       }
-      this.contextNodeSelected.conditionalFor = iDArray
-      this.$store.dispatch('setConditions', { _id: this.contextNodeSelected._id, conditionalFor: iDArray })
+      this.contextNodeSelected.conditionalFor = conIdArray
+      this.$store.dispatch('setConditions', { _id: this.contextNodeSelected._id, conditionalFor: conIdArray })
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
         if (node === null) break
 
-        let iDArray = []
+        const depIdArray = []
         for (let depId of node.dependencies) {
-          if (depId !== this.contextNodeSelected._id) iDArray.push(id)
+          if (depId !== this.contextNodeSelected._id) depIdArray.push(id)
         }
-        node.dependencies = iDArray
-        this.$store.dispatch('setDependencies', { _id: node._id, dependencies: iDArray })
+        node.dependencies = depIdArray
+        this.$store.dispatch('setDependencies', { _id: node._id, dependencies: depIdArray })
       }
     },
 
