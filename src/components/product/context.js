@@ -638,12 +638,14 @@ export default {
       this.$store.dispatch('setDependencies', { _id: this.contextNodeSelected._id, dependencies: depIdArray })
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
+        if (node === null) break
+
         const conIdArray = []
         for (let condId of node.conditionalFor) {
           if (condId !== this.contextNodeSelected._id) conIdArray.push(id)
         }
         node.conditionalFor = conIdArray
-        this.$store.dispatch('setConditions', { _id: node._id, conditionalFor: conIdArray })
+        this.$store.dispatch('setConditions', { _id: id, conditionalFor: conIdArray })
       }
     },
 
@@ -668,7 +670,7 @@ export default {
           if (depId !== this.contextNodeSelected._id) depIdArray.push(id)
         }
         node.dependencies = depIdArray
-        this.$store.dispatch('setDependencies', { _id: node._id, dependencies: depIdArray })
+        this.$store.dispatch('setDependencies', { _id: id, dependencies: depIdArray })
       }
     },
 
