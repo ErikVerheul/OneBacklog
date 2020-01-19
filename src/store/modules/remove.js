@@ -88,9 +88,9 @@ const actions = {
     removeDependencies({
         rootState,
         dispatch
-    }, externalDependencies) {
+    }, dependencies) {
         const docsToGet = []
-        for (let id of Object.keys(externalDependencies)) {
+        for (let id of Object.keys(dependencies)) {
             docsToGet.push({ "id": id })
         }
         globalAxios({
@@ -107,7 +107,7 @@ const actions = {
                     const newConditions = []
                     if (doc.conditionalFor) {
                         for (let c of doc.conditionalFor) {
-                            if (externalDependencies[c] && externalDependencies[c] !== doc._id) {
+                            if (dependencies[c] !== doc._id) {
                                 newConditions.push(c)
                             }
                         }
@@ -139,9 +139,9 @@ const actions = {
     removeConditions({
         rootState,
         dispatch
-    }, externalConditions) {
+    }, conditions) {
         const docsToGet = []
-        for (let id of Object.keys(externalConditions)) {
+        for (let id of Object.keys(conditions)) {
             docsToGet.push({ "id": id })
         }
         globalAxios({
@@ -158,7 +158,7 @@ const actions = {
                     const newDependencies = []
                     if (doc.dependencies) {
                         for (let d of doc.dependencies) {
-                            if (externalConditions[d] && externalConditions[d] !== doc._id) {
+                            if (conditions[d] !== doc._id) {
                                 newDependencies.push(d)
                             }
                         }
