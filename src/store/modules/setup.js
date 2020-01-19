@@ -96,7 +96,7 @@ const actions = {
 				"distributeEvent": false
 			}],
 			"history": [{
-				"createEvent": [2, rootState.userData.currentDb],
+				"ignoreEvent": [2, rootState.userData.currentDb],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -168,7 +168,7 @@ const actions = {
 				"distributeEvent": false
 			}],
 			"history": [{
-				"createEvent": [3, payload.parentName],
+				"ignoreEvent": [3, payload.parentName],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -242,7 +242,7 @@ const actions = {
 				"distributeEvent": false
 			}],
 			"history": [{
-				"createEvent": [4, payload.parentName],
+				"ignoreEvent": [4, payload.parentName],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -315,7 +315,7 @@ const actions = {
 				"distributeEvent": false
 			}],
 			"history": [{
-				"createEvent": [5, payload.parentName],
+				"ignoreEvent": [5, payload.parentName],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
