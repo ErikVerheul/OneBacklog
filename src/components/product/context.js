@@ -49,7 +49,7 @@ export default {
       showAssistance: false,
       contextNodeDescendantsCount: 0,
       moveSourceProductId: '',
-      nodeWithDependencies: undefined,
+      nodeWithDependenciesId: undefined,
       hasDependencies: false,
       hasConditions: false,
       dependenciesObjects: [],
@@ -97,17 +97,22 @@ export default {
       }
     },
 
+    getNodeWithDependencies() {
+      return window.slVueTree.getNodeById(this.nodeWithDependenciesId)
+    },
+
     showSelected(idx) {
       function checkNode(vm, selNode) {
-        if (selNode._id === vm.nodeWithDependencies._id) {
+        if (selNode._id === vm.nodeWithDependenciesId) {
           vm.contextWarning = "WARNING: Item cannot be dependent on it self"
           return false
         }
-        if (vm.nodeWithDependencies.dependencies.includes(selNode._id)) {
+        const nodeWithDependencies = vm.getNodeWithDependencies()
+        if (nodeWithDependencies.dependencies.includes(selNode._id)) {
           vm.contextWarning = "WARNING: Cannot add the same dependency twice"
           return false
         }
-        if (window.slVueTree.comparePaths(vm.nodeWithDependencies.path, selNode.path) === 1) {
+        if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === 1) {
           vm.contextWarning = "WARNING: Cannot create a dependency on an item with higher priority"
           return false
         }
@@ -218,7 +223,7 @@ export default {
           this.doCheckStates()
           break
         case this.SETDEPENDENCY:
-          this.doSelectDependency()
+          this.doSetDependency()
           break
         case this.SHOWDEPENDENCIES:
           this.updateDependencies()
@@ -570,18 +575,19 @@ export default {
       this.showLastEvent(`${count} inconsistencies are found.`, INFO)
     },
 
-    doSelectDependency() {
+    doSetDependency() {
       if (this.$store.state.selectNodeOngoing) {
-        this.nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
-        this.$store.dispatch('setDependencies', { _id: this.nodeWithDependencies._id, dependencies: this.nodeWithDependencies.dependencies })
+        const nodeWithDependencies = this.getNodeWithDependencies()
+        nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
+        this.$store.dispatch('setDependencies', { _id: this.nodeWithDependenciesId, dependencies: nodeWithDependencies.dependencies })
 
-        this.contextNodeSelected.conditionalFor.push(this.nodeWithDependencies._id)
+        this.contextNodeSelected.conditionalFor.push(this.nodeWithDependenciesId)
         this.$store.dispatch('setConditions', { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor })
 
         this.$store.state.selectNodeOngoing = false
       } else {
-        // save the node the dependencies will be attached to; Note: will be undefined when autocompiled at file save
-        this.nodeWithDependencies = this.contextNodeSelected
+        // save the id of the node the dependencies will be attached to
+        this.nodeWithDependenciesId = this.contextNodeSelected._id
         this.$store.state.selectNodeOngoing = true
       }
     },
