@@ -199,12 +199,12 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"parentDocRemovedEvent": [payload.descendants.length],
+				"docRemovedEvent": [payload.descendants.length],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": false
+				"distributeEvent": true
 			}
 			tmpDoc.delmark = true
 			tmpDoc.history.unshift(newHist)
