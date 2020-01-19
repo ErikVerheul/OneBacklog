@@ -4,7 +4,7 @@ const WARNING = 1
 const ERROR = 2
 
 const actions = {
-    /* Check if restoration is possible: the parent to store under must not be removed */
+    /* Check if restoration is possible: the parent (or grandparent to the descendants of the removed item) to store under must not be removed */
     unDoRemove({
         rootState,
         commit,
@@ -26,8 +26,8 @@ const actions = {
                     "distributeEvent": false
                 }
                 grandParentDoc.history.unshift(newHist)
-                dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc })
-                dispatch('restoreParentFirst', entry)
+                const payload = {entry, grandParentPayload: { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc } }
+                dispatch('restoreParentFirst', payload)
             } else {
                 commit('showLastEvent', { txt: `You cannot restore under the removed item with title '${grandParentDoc.title}'`, severity: WARNING })
             }
@@ -42,7 +42,8 @@ const actions = {
     restoreParentFirst({
         rootState,
         dispatch
-    }, entry) {
+    }, payload) {
+        const entry = payload.entry
         const _id = entry.parentId
         globalAxios({
             method: 'GET',
@@ -60,7 +61,7 @@ const actions = {
                 })
             }
             const newHist = {
-                "docRestoredInsideEvent": [entry.descendants.length],
+                "docRestoredEvent": [entry.descendants.length],
                 "by": rootState.userData.user,
                 "email": rootState.userData.email,
                 "timestamp": Date.now(),
@@ -69,7 +70,9 @@ const actions = {
             }
             tmpDoc.history.unshift(newHist)
             tmpDoc.delmark = false
-            dispatch('undoRemovedParent', { tmpDoc: tmpDoc, entry })
+            dispatch('updateDoc', payload.grandParentPayload)
+            const parentPayload = { tmpDoc, entry }
+            dispatch('undoRemovedParent', parentPayload)
         }).catch(error => {
             let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
             // eslint-disable-next-line no-console
@@ -102,7 +105,7 @@ const actions = {
         })
     },
 
-    /* Unmark the removed item and its descendants for removal. Do distribute this event and set the selfUpdate property to have the tree updated */
+    /* Unmark the removed item and its descendants for removal. Do not distribute this event */
     restoreDescendantsBulk({
         rootState,
         dispatch
@@ -123,7 +126,7 @@ const actions = {
             for (let i = 0; i < results.length; i++) {
                 if (results[i].docs[0].ok) {
                     const newHist = {
-                        "docRestoredEvent": [results[i].docs[0].ok.title],
+                        "descendantRestoredEvent": [results[i].docs[0].ok.title],
                         "by": rootState.userData.user,
                         "email": rootState.userData.email,
                         "timestamp": Date.now(),
