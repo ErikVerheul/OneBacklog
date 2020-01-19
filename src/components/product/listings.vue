@@ -97,7 +97,7 @@ export default {
           if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
           if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
           if (keys[j] === "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
-          if (keys[j] === "setTeamEvent") allText += this.mkSetTeamEvent(histItem[keys[j]])
+          if (keys[j] === "setTeamOwnerEvent") allText += this.mkSetTeamEvent(histItem[keys[j]])
           if (keys[j] === "setTeamEventDescendant") allText += this.mkSetTeamEventDescendant(histItem[keys[j]])
           if (keys[j] === "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
           if (keys[j] === "setSubTypeEvent") allText += this.mkSetSubTypeEvent(histItem[keys[j]])
@@ -108,11 +108,11 @@ export default {
           if (keys[j] === "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
           if (keys[j] === "descendantUndoMove") allText += this.mkDescendantUndoMove(histItem[keys[j]])
           if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
-          if (keys[j] === "parentDocRemovedEvent") allText += this.mkParentDocRemovedEvent(histItem[keys[j]])
+          if (keys[j] === "docRemovedEvent") allText += this.docRemovedEvent(histItem[keys[j]])
           if (keys[j] === "docRemovedEvent") allText += this.mkDocRemovedEvent(histItem[keys[j]])
           if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
-          if (keys[j] === "docRestoredInsideEvent") allText += this.mkDocRestoredInsideEvent(histItem[keys[j]])
           if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
+          if (keys[j] === "descendantRestoredEvent") allText += this.mkDescendantRestoredEvent(histItem[keys[j]])
           if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
           if (keys[j] === "commentToHistoryEvent") allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
           if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
@@ -171,7 +171,7 @@ export default {
       if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
       if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
       if (key === "setStateEvent") return this.mkSetStateEvent(value)
-      if (key === "setTeamEvent") return this.mkSetTeamEvent(value)
+      if (key === "setTeamOwnerEvent") return this.mkSetTeamEvent(value)
       if (key === "setTeamEventDescendant") return this.mkSetTeamEventDescendant(value)
       if (key === "setTitleEvent") return this.mkSetTitleEvent(value)
       if (key === "setSubTypeEvent") return this.mkSetSubTypeEvent(value)
@@ -182,11 +182,11 @@ export default {
       if (key === "descendantMoved") return this.mkDescendantMoved(value)
       if (key === "descendantUndoMove") return this.mkDescendantUndoMove(value)
       if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
-      if (key === "parentDocRemovedEvent") return this.mkParentDocRemovedEvent(value)
+      if (key === "docRemovedEvent") return this.docRemovedEvent(value)
       if (key === "docRemovedEvent") return this.mkDocRemovedEvent(value)
       if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
-      if (key === "docRestoredInsideEvent") return this.mkDocRestoredInsideEvent(value)
       if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
+      if (key === "descendantRestoredEvent") return this.mkDescendantRestoredEvent(value)
       if (key === "setDependenciesEvent") return this.mkSetDependenciesEvent(value)
       if (key === "setConditionsEvent") return this.mkSetConditionsEvent(value)
       if (key === "by") return this.mkBy(value)
@@ -291,7 +291,7 @@ export default {
       return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are removed from this parent</h5>"
     },
 
-    mkParentDocRemovedEvent(value) {
+    docRemovedEvent(value) {
       return "<h5> This item and " + value[0] + " descendants are removed</h5>"
     },
 
@@ -303,20 +303,20 @@ export default {
       return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are restored from removal</h5>"
     },
 
-    mkDocRestoredInsideEvent(value) {
+    mkDocRestoredEvent(value) {
       return "<h5>This item and " + value[0] + " descendants are restored from removal</h5>"
     },
 
-    mkDocRestoredEvent() {
+    mkDescendantRestoredEvent() {
       return "<h5>This item has been restored from removal</h5>"
     },
 
     mkSetDependenciesEvent(value) {
-      return `<h5>Dependencies set for '${value[0]}' changed from ${convertToShortIds(value[1])} to ${convertToShortIds(value[2])} (short Ids)</h5>`
+      return `<h5>Dependencies set for this item changed from '${convertToShortIds(value[1])}' to '${convertToShortIds(value[2])}' (short Ids)</h5>`
     },
 
     mkSetConditionsEvent(value) {
-      return `<h5>Conditions on '${value[0]}' set for ${convertToShortIds(value[1])} are now set for ${convertToShortIds(value[2])} (short Ids)</h5>`
+      return `<h5>Conditions set for this item changed from '${convertToShortIds(value[1])}' to '${convertToShortIds(value[2])}' (short Ids)</h5>`
     },
 
     mkBy(value) {
