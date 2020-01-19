@@ -70,7 +70,7 @@ function mkHtml(dbName, eventType, eArr, event, doc) {
         case "setStateEvent":
             return mkHeader() + `<h3>The item state changed from ${getItemStateText(dbName, eArr[0])} to ${getItemStateText(dbName, eArr[1])}</h3>` +
                 `<p>This backlog item is realized by team '${eArr[2]}'</p>` + mkFooter()
-        case "setTeamEvent":
+        case "setTeamOwnerEvent":
             return mkHeader() + `<h3>The owning team changed from '${eArr[0]}' to '${eArr[1]}'</h3>` +
                 cText(eArr[2] > 0, `<h3>Also ${eArr[2]} descendants of this item are assigned to this team</h3>`) + mkFooter()
         case "setTitleEvent":
@@ -89,7 +89,7 @@ function mkHtml(dbName, eventType, eArr, event, doc) {
             return mkHeader() + `<h3>The previous move by user '${event.by}' is undone</h3>` + mkFooter()
         case "removedFromParentEvent":
             return mkHeader() + `<h3>${getLevelText(dbName, eArr[0])} with title:</h3><h3>'${eArr[1]}' and ${eArr[2]} descendants are removed from this parent</h3>` + mkFooter()
-        case "docRestoredInsideEvent":
+        case "docRestoredEvent":
             return mkHeader() + `<h3>This item and ${eArr[0]} descendants are restored from removal</h3>` + mkFooter()
         case "uploadAttachmentEvent":
             return mkHeader() + `<h3>Attachment with title '${eArr[0]}' of type '${eArr[2]}' and size ${eArr[1]} bytes is uploaded</h3>` + mkFooter()
@@ -109,8 +109,8 @@ function mkHtml(dbName, eventType, eArr, event, doc) {
 function listenForChanges(dbName) {
     couch.get(dbName, viewUrlLongpol).then(
         function (res, headers, status) {
-            const interestingHistoryEvents = ["setSizeEvent", "setPointsEvent", "setHrsEvent", "setStateEvent", "setTeamEvent", "setTitleEvent", "setSubTypeEvent", "descriptionEvent",
-                "acceptanceEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "removedFromParentEvent", "docRestoredInsideEvent", "uploadAttachmentEvent", "commentToHistoryEvent",
+            const interestingHistoryEvents = ["setSizeEvent", "setPointsEvent", "setHrsEvent", "setStateEvent", "setTeamOwnerEvent", "setTitleEvent", "setSubTypeEvent", "descriptionEvent",
+                "acceptanceEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "removedFromParentEvent", "docRestoredEvent", "uploadAttachmentEvent", "commentToHistoryEvent",
                 "removeAttachmentEvent", "setDependenciesEvent", "setConditionsEvent"];
 
             const results = res.data.results;
