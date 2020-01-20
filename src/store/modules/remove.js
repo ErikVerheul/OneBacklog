@@ -20,7 +20,7 @@ const actions = {
         }).then(res => {
             // console.log('removeDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
             const results = res.data.results
-            const ok = []
+            const docs = []
             const error = []
             const externalDependencies = {}
             const externalConditions = {}
@@ -38,7 +38,7 @@ const actions = {
                     doc.history.unshift(newHist)
                     // mark for removal
                     doc.delmark = true
-                    ok.push(doc)
+                    docs.push(doc)
                     // find external dependencies (to or from items outside the range if this bulk) for removal; leave internal dependencies as is
                     // note that the external dependencies will be lost after an undo
                     if (doc.dependencies) {
@@ -73,9 +73,9 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            if (Object.keys(externalDependencies).length > 0) dispatch('removeDependencies', externalDependencies)
-            if (Object.keys(externalConditions).length > 0) dispatch('removeConditions', externalConditions)
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
+            if (Object.keys(externalDependencies).length > 0) dispatch('removeDependencies', { ref: payload.node._id, condForDocuments: Object.keys(externalDependencies) })
+            if (Object.keys(externalConditions).length > 0) dispatch('removeConditions', { ref: payload.node._id, depOnDocuments: Object.keys(externalConditions) })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
         }).catch(error => {
             rootState.busyRemoving = false
             let msg = 'removeDescendantsBulk: Could not read batch of documents: ' + error
@@ -85,12 +85,14 @@ const actions = {
         })
     },
 
+    /* Remove the dependent_on reference in the dependencies array in a batch of documents */
     removeDependencies({
         rootState,
         dispatch
-    }, dependencies) {
+    }, payload) {
+        console.log('removeDependencies: remove the dependent_on reference = ' + payload.ref + '  in = ' + payload.condForDocuments)
         const docsToGet = []
-        for (let id of Object.keys(dependencies)) {
+        for (let id of payload.condForDocuments) {
             docsToGet.push({ "id": id })
         }
         globalAxios({
@@ -99,21 +101,22 @@ const actions = {
             data: { "docs": docsToGet },
         }).then(res => {
             const results = res.data.results
-            const ok = []
+            const docs = []
             const error = []
             for (let r of results) {
                 const doc = r.docs[0].ok
                 if (doc) {
-                    const newConditions = []
-                    if (doc.conditionalFor) {
-                        for (let c of doc.conditionalFor) {
-                            if (dependencies[c] !== doc._id) {
-                                newConditions.push(c)
+                    const newDependencies = []
+                    if (doc.dependencies) {
+                        for (let d of doc.dependencies) {
+                            if (d !== payload.ref) {
+                                newDependencies.push(d)
                             }
                         }
                     }
-                    doc.conditionalFor = newConditions
-                    ok.push(doc)
+                    doc.dependencies = newDependencies
+                    console.log('removeDependencies: id = ' + doc._id + ', doc.dependencies is set to = ' + doc.dependencies)
+                    docs.push(doc)
                 }
                 if (r.docs[0].error) error.push(r.docs[0].error)
             }
@@ -127,7 +130,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
         }).catch(error => {
             let msg = 'removeDependencies: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
@@ -136,12 +139,14 @@ const actions = {
         })
     },
 
+    /* Remove the conditional_for reference in the conditionalFor array in a batch of documents */
     removeConditions({
         rootState,
         dispatch
-    }, conditions) {
+    }, payload) {
+        console.log('removeConditions: remove the conditional_for reference = ' + payload.ref + '  in = ' + payload.depOnDocuments)
         const docsToGet = []
-        for (let id of Object.keys(conditions)) {
+        for (let id of payload.depOnDocuments) {
             docsToGet.push({ "id": id })
         }
         globalAxios({
@@ -150,21 +155,22 @@ const actions = {
             data: { "docs": docsToGet },
         }).then(res => {
             const results = res.data.results
-            const ok = []
+            const docs = []
             const error = []
             for (let r of results) {
                 const doc = r.docs[0].ok
                 if (doc) {
-                    const newDependencies = []
-                    if (doc.dependencies) {
-                        for (let d of doc.dependencies) {
-                            if (conditions[d] !== doc._id) {
-                                newDependencies.push(d)
+                    const newConditions = []
+                    if (doc.conditionalFor) {
+                        for (let c of doc.conditionalFor) {
+                            if (c !== payload.ref) {
+                                newConditions.push(c)
                             }
                         }
                     }
-                    doc.dependencies = newDependencies
-                    ok.push(doc)
+                    doc.conditionalFor = newConditions
+                    console.log('removeConditions: id = ' + doc._id + ', doc.conditionalFor is set to = ' + doc.conditionalFor)
+                    docs.push(doc)
                 }
                 if (r.docs[0].error) error.push(r.docs[0].error)
             }
@@ -178,7 +184,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
         }).catch(error => {
             let msg = 'removeConditions: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
