@@ -99,7 +99,12 @@ const actions = {
 			}
 			tmpDoc.dependencies = payload.dependencies
 			tmpDoc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
+
+			const depPayload = { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc }
+			const condPayload = payload.conditionalForPayload
+
+			dispatch('setConditions', { depPayload, condPayload })
 		}).catch(error => {
 			let msg = 'setDependencies: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -112,26 +117,93 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const _id = payload._id
+		const _id = payload.condPayload._id
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"setConditionsEvent": [tmpDoc.title, tmpDoc.conditionalFor, payload.conditionalFor],
+				"setConditionsEvent": [tmpDoc.title, tmpDoc.conditionalFor, payload.condPayload.conditionalFor],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.conditionalFor = payload.conditionalFor
+			tmpDoc.conditionalFor = payload.condPayload.conditionalFor
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
+
+			// dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			// dispatch('updateDoc', payload.depPayload)
+
+			const docs = [tmpDoc, payload.depPayload.updatedDoc]
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
 		}).catch(error => {
 			let msg = 'setConditions: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+	// { _id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds }
+	updateDep({
+		rootState,
+		dispatch
+	}, payload) {
+		const dbName = rootState.userData.currentDb
+		const _id = payload._id
+		globalAxios({
+			method: 'GET',
+			url: dbName + '/' + _id,
+		}).then(res => {
+			let tmpDoc = res.data
+			tmpDoc.dependencies = payload.newDeps
+			const newHist = {
+				"dependencyRemovedEvent": [payload.removedIds, tmpDoc.title],
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			tmpDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc })
+			dispatch('removeConditions', { ref: _id, depOnDocuments: payload.removedIds } )
+		}).catch(error => {
+			let msg = 'updateDep: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+	// { _id: this.contextNodeSelected._id, newCons: conIdArray, removedIds }
+	updateCon({
+		rootState,
+		dispatch
+	}, payload) {
+		const dbName = rootState.userData.currentDb
+		const _id = payload._id
+		globalAxios({
+			method: 'GET',
+			url: dbName + '/' + _id,
+		}).then(res => {
+			let tmpDoc = res.data
+			tmpDoc.conditionalFor = payload.newCons
+			const newHist = {
+				"conditionRemovedEvent": [payload.removedIds, tmpDoc.title],
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			tmpDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc })
+			dispatch('removeDependencies', { ref: _id, condForDocuments: payload.removedIds } )
+		}).catch(error => {
+			let msg = 'updateCon: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -253,7 +325,7 @@ const actions = {
 			const newTeam = rootState.userData.myTeam
 			if (newTeam != oldTeam) {
 				const newHist = {
-					"setTeamEvent": [oldTeam, newTeam, descendants.length],
+					"setTeamOwnerEvent": [oldTeam, newTeam, descendants.length],
 					"by": rootState.userData.user,
 					"email": rootState.userData.email,
 					"timestamp": Date.now(),
@@ -594,7 +666,7 @@ const actions = {
 			let updateConflict = 0
 			let otherError = 0
 			for (let result of res.data) {
-				if (result.ok ) updateOk++
+				if (result.ok) updateOk++
 				if (result.error === 'conflict') updateConflict++
 				if (result.error && result.error != 'conflict') otherError++
 			}
