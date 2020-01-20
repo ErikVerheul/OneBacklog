@@ -226,10 +226,10 @@ export default {
           this.doSetDependency()
           break
         case this.SHOWDEPENDENCIES:
-          this.updateDependencies()
+          this.doUpdateDependencies()
           break
         case this.SHOWCONDITIONS:
-          this.updateConditions()
+          this.doUpdateConditions()
           break
       }
     },
@@ -577,13 +577,12 @@ export default {
 
     doSetDependency() {
       if (this.$store.state.selectNodeOngoing) {
+        this.contextNodeSelected.conditionalFor.push(this.nodeWithDependenciesId)
+        const conditionalForPayload = { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor }
         const nodeWithDependencies = this.getNodeWithDependencies()
         nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
-        this.$store.dispatch('setDependencies', { _id: this.nodeWithDependenciesId, dependencies: nodeWithDependencies.dependencies })
-
-        this.contextNodeSelected.conditionalFor.push(this.nodeWithDependenciesId)
-        this.$store.dispatch('setConditions', { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor })
-
+        const dependenciesPayload = { _id: nodeWithDependencies._id, dependencies: nodeWithDependencies.dependencies, conditionalForPayload }
+        this.$store.dispatch('setDependencies', dependenciesPayload)
         this.$store.state.selectNodeOngoing = false
       } else {
         // save the id of the node the dependencies will be attached to
@@ -631,7 +630,7 @@ export default {
     },
 
     /* Update the dependencies and the corresponding conditions in the tree model and the database. */
-    updateDependencies() {
+    doUpdateDependencies() {
       const depIdArray = []
       for (let depObj of this.dependenciesObjects) {
         depIdArray.push(depObj._id)
@@ -640,8 +639,11 @@ export default {
       for (let id of this.contextNodeSelected.dependencies) {
         if (!depIdArray.includes(id)) removedIds.push(id)
       }
+      // update the dependencies in the tree
       this.contextNodeSelected.dependencies = depIdArray
-      this.$store.dispatch('setDependencies', { _id: this.contextNodeSelected._id, dependencies: depIdArray })
+      // dispatch the update in the database
+      this.$store.dispatch('updateDep', { _id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds })
+      // update the conditions in the tree
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
         if (node === null) break
@@ -651,12 +653,11 @@ export default {
           if (condId !== this.contextNodeSelected._id) conIdArray.push(id)
         }
         node.conditionalFor = conIdArray
-        this.$store.dispatch('setConditions', { _id: id, conditionalFor: conIdArray })
       }
     },
 
     /* Update the conditions and the corresponding dependencies in the tree model and the database. */
-    updateConditions() {
+    doUpdateConditions() {
       const conIdArray = []
       for (let conObj of this.conditionsObjects) {
         conIdArray.push(conObj._id)
@@ -665,8 +666,11 @@ export default {
       for (let id of this.contextNodeSelected.conditionalFor) {
         if (!conIdArray.includes(id)) removedIds.push(id)
       }
+      // update the conditions in the tree
       this.contextNodeSelected.conditionalFor = conIdArray
-      this.$store.dispatch('setConditions', { _id: this.contextNodeSelected._id, conditionalFor: conIdArray })
+      // dispatch the update in the database
+      this.$store.dispatch('updateCon', { _id: this.contextNodeSelected._id, newCons: conIdArray, removedIds })
+      // update the dependencies in the tree
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
         if (node === null) break
@@ -676,7 +680,6 @@ export default {
           if (depId !== this.contextNodeSelected._id) depIdArray.push(id)
         }
         node.dependencies = depIdArray
-        this.$store.dispatch('setDependencies', { _id: id, dependencies: depIdArray })
       }
     },
 
