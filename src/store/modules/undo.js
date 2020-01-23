@@ -18,7 +18,7 @@ const actions = {
             let grandParentDoc = res.data
             if (!grandParentDoc.delmark) {
                 const newHist = {
-                    "grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.descendants.length],
+                    "grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.descendants.length, entry.removedNode.data.subtype],
                     "by": rootState.userData.user,
                     "email": rootState.userData.email,
                     "timestamp": Date.now(),
