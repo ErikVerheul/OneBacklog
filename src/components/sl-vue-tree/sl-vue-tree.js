@@ -896,19 +896,17 @@ export default {
 		},
 
 		/* When nodes are deleted orphan dependencies can be created. This method removes them. */
-		correctDependencies(nodeIds) {
-			let dependenciesRemoved = 0
-			let conditionsRemoved = 0
+		correctDependencies(productId, nodeIds) {
 			this.traverseModels((nm) => {
 				const newDependencies = []
-				if (nm.dependencies) {
+				if (nm.dependencies && nm._id) {
 					if (nodeIds.includes(nm._id)) {
 						// nm is one of the nodes
 						for (let d of nm.dependencies) {
 							// dependency references within the nodes survive
 							if (nodeIds.includes(d)) {
 								newDependencies.push(d)
-							} else dependenciesRemoved++
+							}
 						}
 					} else {
 						// nm is an outsider
@@ -916,21 +914,21 @@ export default {
 							// outsider references not referencing any of the nodes survive
 							if (!nodeIds.includes(d)) {
 								newDependencies.push(d)
-							} else dependenciesRemoved++
+							}
 						}
 					}
 					nm.dependencies = newDependencies
 				}
 
 				const newConditionalFor = []
-				if (nm.conditionalFor) {
+				if (nm.conditionalFor && nm._id) {
 					if (nodeIds.includes(nm._id)) {
 						// nm is one of the nodes
 						for (let d of nm.conditionalFor) {
 							// dependency references within the nodes survive
 							if (nodeIds.includes(d)) {
 								newConditionalFor.push(d)
-							} else conditionsRemoved++
+							}
 						}
 					} else {
 						// nm is an outsider
@@ -938,13 +936,13 @@ export default {
 							// outsider references not referencing any of the nodes survive
 							if (!nodeIds.includes(d)) {
 								newConditionalFor.push(d)
-							} else conditionsRemoved++
+							}
 						}
 					}
 					nm.conditionalFor = newConditionalFor
 				}
-			}, this.getProductModels())
-			return { dependenciesRemoved, conditionsRemoved }
+			}, this.getProductModels(productId))
+			return
 		}
 	}
 }
