@@ -449,7 +449,7 @@ export default {
           break
         case 'undoNewNode':
           window.slVueTree.remove([entry.newNode])
-          this.$store.dispatch('removeDoc', { 'node': entry.newNode, 'descendants': [] })
+          this.$store.dispatch('removeDocuments', { 'node': entry.newNode, 'descendants': [] })
           this.showLastEvent('Item addition is undone', INFO)
           break
         case 'undoMove':
