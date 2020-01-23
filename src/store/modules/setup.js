@@ -90,17 +90,10 @@ const actions = {
 			"attachments": [],
 			"comments": [{
 				"ignoreEvent": 'comments initiated',
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
 				"ignoreEvent": [2, rootState.userData.currentDb],
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -161,18 +154,11 @@ const actions = {
 			"priority": calcPrio(payload.counter1, payload.epicsNumber),
 			"attachments": [],
 			"comments": [{
-				"ignoreEvent": 'comments initiated',
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": 0,
+				"ignoreEvent": ['comments initiated'],
 				"distributeEvent": false
 			}],
 			"history": [{
 				"ignoreEvent": [3, payload.parentName],
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -235,18 +221,11 @@ const actions = {
 			"priority": calcPrio(payload.counter2, payload.featuresNumber),
 			"attachments": [],
 			"comments": [{
-				"ignoreEvent": 'comments initiated',
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": 0,
+				"ignoreEvent": ['comments initiated'],
 				"distributeEvent": false
 			}],
 			"history": [{
 				"ignoreEvent": [4, payload.parentName],
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -308,18 +287,12 @@ const actions = {
 			"priority": calcPrio(payload.counter3, payload.storiesNumber),
 			"attachments": [],
 			"comments": [{
-				"ignoreEvent": 'comments initiated',
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
+				"ignoreEvent": ['comments initiated'],
 				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
 				"ignoreEvent": [5, payload.parentName],
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -609,10 +582,7 @@ const actions = {
 
 						results[i].docs[0].ok['comments'] = [
 							{
-								"ignoreEvent": 'comments initiated',
-								"by": rootState.userData.user,
-								"email": rootState.userData.email,
-								"timestamp": 0,
+								"ignoreEvent": ['comments initiated'],
 								"distributeEvent": false
 							}]
 						ok.push(results[i].docs[0].ok)

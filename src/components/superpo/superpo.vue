@@ -107,12 +107,10 @@ export default {
         "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
         "priority": 0,
         "comments": [{
-          "ignoreEvent": 'comments initiated',
-          "by": this.$store.state.userData.user,
-          "email": this.$store.state.userData.email,
-          "timestamp": 0,
+          "ignoreEvent": ['comments initiated'],
           "distributeEvent": false
         }],
+        // do not distribute this event; other users have no access rights yet
         "history": [{
           "createEvent": [PRODUCTLEVEL, this.$store.state.userData.currentDb],
           "by": this.$store.state.userData.user,
