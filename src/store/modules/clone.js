@@ -7,6 +7,7 @@ const PBILEVEL = 5
 const HOURINMILIS = 3600000
 var docs = []
 var newProductId
+var orgProductTitle
 var newProductTitle
 
 /*
@@ -133,14 +134,15 @@ const actions = {
                 if (i === 0) {
                     newProductId = newId
                     docs[0].parentId = 'root'
-                    newProductTitle = 'CLONE: ' + docs[0].title
+                    orgProductTitle = docs[0].title
+                    newProductTitle = 'CLONE: ' + orgProductTitle
                     docs[0].title = newProductTitle
                 }
                 docs[i]._id = newId
                 docs[i].shortId = newShortId
                 docs[i].productId = newProductId
                 docs[i].history = [{
-                    "cloneEvent": [docs[i].level, rootState.userData.currentDb],
+                    "cloneEvent": [docs[i].level, docs[i].subtype, orgProductTitle],
                     "by": rootState.userData.user,
                     "email": rootState.userData.email,
                     "timestamp": Date.now(),
