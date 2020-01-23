@@ -88,11 +88,14 @@ export default {
         let histItem = this.$store.state.currentDoc.history[i]
         let allText = ""
         let keys = Object.keys(histItem)
+        if (keys[0] === "ignoreEvent") continue
         for (let j = 0; j < keys.length; j++) {
+          if (keys[j] === "cloneEvent") allText += this.mkCloneEvent(histItem[keys[j]])
           if (keys[j] === "rootEvent") allText += this.mkRootEvent(histItem[keys[j]])
           if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
           if (keys[j] === "createRootEvent") allText += this.mkCreateRootEvent(histItem[keys[j]])
           if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
+          if (keys[j] === "dependencyRemovedEvent") allText += this.mkDependencyRemovedEvent(histItem[keys[j]])
           if (keys[j] === "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
           if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
           if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
@@ -108,8 +111,8 @@ export default {
           if (keys[j] === "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
           if (keys[j] === "descendantUndoMove") allText += this.mkDescendantUndoMove(histItem[keys[j]])
           if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
-          if (keys[j] === "docRemovedEvent") allText += this.docRemovedEvent(histItem[keys[j]])
-          if (keys[j] === "docRemovedEvent") allText += this.mkDocRemovedEvent(histItem[keys[j]])
+          if (keys[j] === "docRemovedDescendantEvent") allText += this.mkDocRemovedDescendantEvent(histItem[keys[j]])
+          if (keys[j] === "removeParentEvent") allText += this.mkRemoveParentEvent(histItem[keys[j]])
           if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
           if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
           if (keys[j] === "descendantRestoredEvent") allText += this.mkDescendantRestoredEvent(histItem[keys[j]])
@@ -160,6 +163,7 @@ export default {
     },
 
     prepHistoryText(key, value) {
+      if (key === "cloneEvent") return this.mkCloneEvent(value)
       if (key === "rootEvent") return this.mkRootEvent(value)
       if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
       if (key === "commentToHistoryEvent") return this.mkCommentToHistoryEvent(value)
@@ -167,6 +171,7 @@ export default {
       if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
       if (key === "createRootEvent") return this.mkCreateRootEvent(value)
       if (key === "createEvent") return this.mkCreateEvent(value)
+      if (key === "dependencyRemovedEvent") return this.mkDependencyRemovedEvent(value)
       if (key === "setSizeEvent") return this.mkSetSizeEvent(value)
       if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
       if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
@@ -182,8 +187,8 @@ export default {
       if (key === "descendantMoved") return this.mkDescendantMoved(value)
       if (key === "descendantUndoMove") return this.mkDescendantUndoMove(value)
       if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
-      if (key === "docRemovedEvent") return this.docRemovedEvent(value)
-      if (key === "docRemovedEvent") return this.mkDocRemovedEvent(value)
+      if (key === "docRemovedDescendantEvent") return this.mkDocRemovedDescendantEvent(value)
+      if (key === "removeParentEvent") return this.mkRemoveParentEvent(value)
       if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
       if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
       if (key === "descendantRestoredEvent") return this.mkDescendantRestoredEvent(value)
@@ -211,11 +216,15 @@ export default {
     },
 
     mkCreateRootEvent(value) {
-      return "<h5>The root document was created for database " + value[0] + "</h5>"
+      return "<h5>The root document was created for database " + value[0] + ".</h5>"
     },
 
     mkCreateEvent(value) {
-      return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'</h5>"
+      return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'.</h5>"
+    },
+    //"dependencyRemovedEvent": [payload.removedIds, tmpDoc.title]
+    mkDependencyRemovedEvent(value) {
+      return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'.</h5>"
     },
 
     mkSetSizeEvent(value) {
@@ -223,33 +232,33 @@ export default {
     },
 
     mkSetPointsEvent(value) {
-      return "<h5>Storypoints estimate changed from " + value[0] + ' to ' + value[1] + "</h5>"
+      return "<h5>Storypoints estimate changed from " + value[0] + ' to ' + value[1] + ".</h5>"
     },
 
     mkSetHrsEvent(value) {
-      return "<h5>Spike estimate hours changed from " + value[0] + ' to ' + value[1] + "</h5>"
+      return "<h5>Spike estimate hours changed from " + value[0] + ' to ' + value[1] + ".</h5>"
     },
 
     mkSetStateEvent(value) {
       const s1 = "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'</h5>"
-      const s2 = "<h5>, the team is set to '" + value[2] + "'</h5>"
+      const s2 = "<h5>, the team is set to '" + value[2] + "'.</h5>"
       if (value[2]) { return s1 + s2 } else return s1
     },
 
     mkSetTeamEvent(value) {
-      return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> including " + value[2] + " descendants</h5>"
+      return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> including " + value[2] + " descendants.</h5>"
     },
 
     mkSetTeamEventDescendant(value) {
-      return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> as descendant of '" + value[2] + "'</h5>"
+      return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> as descendant of '" + value[2] + "'.</h5>"
     },
 
     mkSetTitleEvent(value) {
-      return "<h5>The item title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'"
+      return "<h5>The item title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'."
     },
 
     mkSetSubTypeEvent(value) {
-      return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'"
+      return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'."
     },
 
     mkDescriptionEvent(value) {
@@ -280,7 +289,7 @@ export default {
     },
 
     mkDescendantMoved(value) {
-      return "<h5>Item was moved as descendant from '" + value[0] + "'</h5>"
+      return "<h5>Item was moved as descendant of '" + value[0] + "'.</h5>"
     },
 
     mkDescendantUndoMove(value) {
@@ -288,23 +297,27 @@ export default {
     },
 
     mkRemovedFromParentEvent(value) {
-      return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are removed from this parent</h5>"
+      return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are removed from this parent.</h5>
+        <p>From the descendants ${value[4]} external dependencies and ${value[5]} external conditions were removed.</p>`
     },
 
-    docRemovedEvent(value) {
-      return "<h5> This item and " + value[0] + " descendants are removed</h5>"
+    mkDocRemovedDescendantEvent(value) {
+      return `<h5>This item was removed as descendant of ${this.getLevelText(value[0], value[1])} '${value[2]}'</h5>`
     },
 
-    mkDocRemovedEvent(value) {
-      return "<h5>This item has been removed as descendant of " + value[0] + "</h5>"
+    mkRemoveParentEvent(value) {
+      return `<h5>This item and ${value[1].length} descendants are removed.</h5>
+        <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
     },
 
     mkGrandParentDocRestoredEvent(value) {
-      return "<h5>" + this.getLevelText(value[0]) + " with title '" + value[1] + "' and " + value[2] + " descendants are restored from removal</h5>"
+      return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are restored from removal.</h5>
+        <p>Note that external dependencies are not restored</p>`
     },
 
     mkDocRestoredEvent(value) {
-      return "<h5>This item and " + value[0] + " descendants are restored from removal</h5>"
+      return `<h5>This item and ${value[0]} descendants are restored from removal.</h5>
+        <p>Note that external dependencies are not restored</p>`
     },
 
     mkDescendantRestoredEvent() {
@@ -312,11 +325,11 @@ export default {
     },
 
     mkSetDependenciesEvent(value) {
-      return `<h5>Dependencies set for this item changed from '${convertToShortIds(value[1])}' to '${convertToShortIds(value[2])}' (short Ids)</h5>`
+      return `<h5>Dependencies set for this item changed from '${convertToShortIds(value[1])}' to '${convertToShortIds(value[2])}' (short Ids).</h5>`
     },
 
     mkSetConditionsEvent(value) {
-      return `<h5>Conditions set for this item changed from '${convertToShortIds(value[1])}' to '${convertToShortIds(value[2])}' (short Ids)</h5>`
+      return `<h5>Conditions set for this item changed from '${convertToShortIds(value[1])}' to '${convertToShortIds(value[2])}' (short Ids).</h5>`
     },
 
     mkBy(value) {
@@ -348,7 +361,11 @@ export default {
     },
 
     mkRootEvent(value) {
-      return "<h5>" + value[0] + "</h5>"
+      return "<h5>" + value[0] + ".</h5>"
+    },
+
+    mkCloneEvent(value) {
+      return `<h5>This ${this.getLevelText(value[0], value[1])} has been cloned as item of product '${value[2]}'.</h5>`
     }
   }
 }
