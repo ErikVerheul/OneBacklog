@@ -195,15 +195,11 @@ const actions = {
 					"changesFilter": {
 						"map": `function(doc) {
 							if (doc.type == "backlogItem") {
-							  if ((doc.history[0].timestamp > doc.comments[0].timestamp) && doc.history[0].distributeEvent) {
-								emit(doc._id, 1);
-							  } else {
-								if ((doc.comments[0].timestamp > doc.history[0].timestamp) && doc.comments[0].distributeEvent) {
+							  if (doc.history[0].distributeEvent || doc.comments[0].distributeEvent) {
 								emit(doc._id, 1);
 							  }
 							}
-						  }
-						}`
+						  }`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId.*/
 					"shortIdFilter": {
@@ -246,15 +242,14 @@ const actions = {
 			"acceptanceCriteria": window.btoa("<p>not applicable</p>"),
 			"priority": 0,
 			"comments": [{
-				"ignoreEvent": 'comments initiated',
-				"by": rootState.userData.user,
-				"email": rootState.userData.email,
-				"timestamp": 0,
+				"ignoreEvent": ['comments initiated'],
 				"distributeEvent": false
 			}],
+			// do not distribute this event; other users have no access rights yet
 			"history": [{
 				"createRootEvent": [payload.dbName],
 				"by": rootState.userData.user,
+				"email": this.$store.state.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
