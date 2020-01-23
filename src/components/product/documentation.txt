@@ -52,6 +52,12 @@
 * }
 */
 
+"subtype": [
+    "User story",
+    "Spike",
+    "Defect"
+  ],
+
 In the CONFIG document these item states are defined:
 A conversion to Removed, On hold, New, Ready, In progress, Done ordering is needed for comparison of progress.
 "itemState": [
