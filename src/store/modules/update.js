@@ -79,7 +79,7 @@ const actions = {
 		})
 	},
 
-	setDependencies({
+	SetDepAndCond({
 		rootState,
 		dispatch
 	}, payload) {
@@ -100,13 +100,12 @@ const actions = {
 			tmpDoc.dependencies = payload.dependencies
 			tmpDoc.history.unshift(newHist)
 			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
-
-			const depPayload = { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc }
-			const condPayload = payload.conditionalForPayload
-
-			dispatch('setConditions', { depPayload, condPayload })
+			const toDispatch = {
+                setConditions: payload.conditionalForPayload
+            }
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch })
 		}).catch(error => {
-			let msg = 'setDependencies: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'SetDepAndCond: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -117,29 +116,24 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const _id = payload.condPayload._id
+		const _id = payload._id
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"setConditionsEvent": [tmpDoc.title, tmpDoc.conditionalFor, payload.condPayload.conditionalFor],
+				"setConditionsEvent": [tmpDoc.title, tmpDoc.conditionalFor, payload.conditionalFor],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.conditionalFor = payload.condPayload.conditionalFor
+			tmpDoc.conditionalFor = payload.conditionalFor
 			tmpDoc.history.unshift(newHist)
 			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
-
-			// dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			// dispatch('updateDoc', payload.depPayload)
-
-			const docs = [tmpDoc, payload.depPayload.updatedDoc]
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setConditions: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -161,7 +155,7 @@ const actions = {
 			let tmpDoc = res.data
 			tmpDoc.dependencies = payload.newDeps
 			const newHist = {
-				"dependencyRemovedEvent": [payload.removedIds, tmpDoc.title],
+				"dependencyRemovedEvent": [payload.id, tmpDoc.title],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -643,6 +637,12 @@ const actions = {
 					rootState.currentDoc._attachments = payload.updatedDoc._attachments
 				}
 			}
+			// additional dispatches
+			if (payload.toDispatch) {
+				for (let name of Object.keys(payload.toDispatch)) {
+					dispatch(name, payload.toDispatch[name])
+				}
+			}
 		}).catch(error => {
 			rootState.uploadDone = true
 			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
@@ -677,6 +677,14 @@ const actions = {
 			if (updateConflict > 0 || otherError > 0) dispatch('doLog', { event: msg, level: WARNING })
 			// has effect when removing a branche, otherwise no effect
 			rootState.busyRemoving = false
+			// additional dispatches
+			if (payload.toDispatch) {
+				for (let name of Object.keys(payload.toDispatch)) {
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('updateBulk: calling ' + name)
+					dispatch(name, payload.toDispatch[name])
+				}
+			}
 		}).catch(error => {
 			// has effect when removing a branche, otherwise no effect
 			rootState.busyRemoving = false
