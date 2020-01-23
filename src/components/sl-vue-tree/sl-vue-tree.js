@@ -549,7 +549,7 @@ export default {
 					resultNode = nm
 					return false
 				}
-			}, this.currentValue)
+			})
 			return resultNode
 		},
 
