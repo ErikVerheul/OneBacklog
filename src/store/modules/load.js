@@ -564,7 +564,7 @@ const actions = {
 				const doc = rows[0].doc
 				if (rootState.userData.userAssignedProductIds.includes(doc.productId)) {
 					if (rows.length === 1) {
-						commit('showLastEvent', { txt: `The document with id ${shortId} is found but not in your selected products.`, severity: WARNING })
+						commit('showLastEvent', { txt: `The document with id ${shortId} is found but not in your view. Did you select the product?`, severity: WARNING })
 					} else {
 						commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed.`, severity: INFO })
 						let ids = ''
