@@ -92,7 +92,7 @@ const actions = {
 			}
 			dispatch('updateMovedDescendantsBulk', payload2)
 		}).catch(error => {
-			let msg = 'updateMovedItemsBulk: Could not read decendants in bulk. Error = ' + error
+			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
