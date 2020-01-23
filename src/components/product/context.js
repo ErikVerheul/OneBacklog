@@ -314,11 +314,8 @@ export default {
         "acceptanceCriteria": window.btoa(currentDoc.acceptanceCriteria),
         "priority": newNode.data.priority,
         "comments": [{
-          "ignoreEvent": 'comments initiated',
-          "by": this.$store.state.userData.user,
-          "email": this.$store.state.userData.email,
-          "timestamp": 0,
-          "distributeEvent": true
+          "ignoreEvent": ['comments initiated'],
+          "distributeEvent": false
         }],
         "history": [{
           "createEvent": [newNode.level, newNode.title],
@@ -451,11 +448,8 @@ export default {
           "priority": newNode.data.priority,
           "attachments": [],
           "comments": [{
-            "ignoreEvent": 'comments initiated',
-            "by": this.$store.state.userData.user,
-            "email": this.$store.state.userData.email,
-            "timestamp": 0,
-            "distributeEvent": true
+            "ignoreEvent": ['comments initiated'],
+            "distributeEvent": false
           }],
           "history": [{
             "createEvent": [insertLevel, this.contextNodeSelected.title],
@@ -497,9 +491,9 @@ export default {
         }
       }
       // set remove mark in the database on the clicked item and decendants (if any)
-      this.$store.dispatch('removeDoc', { 'node': selectedNode, descendants: descendantsInfo.descendants })
+      this.$store.dispatch('removeDocuments', { productId: this.$store.state.load.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
       // remove any dependency references to/from outside the removed items; note: these cannot be undone
-      window.slVueTree.correctDependencies(descendantsInfo.ids)
+      window.slVueTree.correctDependencies(this.$store.state.load.currentProductId, descendantsInfo.ids)
       // create an entry for undoing the remove in a last-in first-out sequence
       const entry = {
         type: 'removedNode',
@@ -582,7 +576,7 @@ export default {
         const nodeWithDependencies = this.getNodeWithDependencies()
         nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
         const dependenciesPayload = { _id: nodeWithDependencies._id, dependencies: nodeWithDependencies.dependencies, conditionalForPayload }
-        this.$store.dispatch('setDependencies', dependenciesPayload)
+        this.$store.dispatch('SetDepAndCond', dependenciesPayload)
         this.$store.state.selectNodeOngoing = false
       } else {
         // save the id of the node the dependencies will be attached to
@@ -642,7 +636,7 @@ export default {
       // update the dependencies in the tree
       this.contextNodeSelected.dependencies = depIdArray
       // dispatch the update in the database
-      this.$store.dispatch('updateDep', { _id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds })
+      this.$store.dispatch('updateDep', { id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds })
       // update the conditions in the tree
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
