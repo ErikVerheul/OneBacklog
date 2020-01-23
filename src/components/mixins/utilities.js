@@ -29,15 +29,19 @@ export const utilities = {
 			this.$store.state.eventBgColor = eventBgColor
 		},
 
+
 		clearLastEvent() {
 			this.$store.state.lastEvent = 'Event message is cleared.'
 			this.$store.state.eventBgColor = DEFAULTCOLOR
 		},
 
 		/* mappings from config document*/
-		getLevelText(level) {
+		getLevelText(level, subtype = 0) {
 			if (level < 0 || level > PBILEVEL) {
 				return 'Level not supported'
+			}
+			if (level === PBILEVEL) {
+				return this.getSubType(subtype)
 			}
 			return this.$store.state.configData.itemType[level]
 		},
