@@ -50,7 +50,7 @@ function processProduct() {
                     lastContentChange = histItem.timestamp
                 }
                 // get the most recent addition of comments to the history
-                if (lastAttachmentAddition === 0 && keys.includes('lastAttachmentAddition')) {
+                if (lastAttachmentAddition === 0 && keys.includes('uploadAttachmentEvent')) {
                     lastAttachmentAddition = histItem.timestamp
                 }
                 // get the most recent addition of comments to the history
