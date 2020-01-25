@@ -897,6 +897,10 @@ export default {
 
 		/* When nodes are deleted orphan dependencies can be created. This method removes them. */
 		correctDependencies(productId, nodeIds) {
+			const removedIntDependencies = []
+			const removedIntConditions = []
+			const removedExtDependencies = []
+			const removedExtConditions = []
 			this.traverseModels((nm) => {
 				const newDependencies = []
 				if (nm.dependencies && nm._id) {
@@ -906,7 +910,7 @@ export default {
 							// dependency references within the nodes survive
 							if (nodeIds.includes(d)) {
 								newDependencies.push(d)
-							}
+							} else removedIntDependencies.push({ id: nm._id, dependentOn: d })
 						}
 					} else {
 						// nm is an outsider
@@ -914,7 +918,7 @@ export default {
 							// outsider references not referencing any of the nodes survive
 							if (!nodeIds.includes(d)) {
 								newDependencies.push(d)
-							}
+							} else removedExtDependencies.push({ id: nm._id, dependentOn: d })
 						}
 					}
 					nm.dependencies = newDependencies
@@ -924,25 +928,25 @@ export default {
 				if (nm.conditionalFor && nm._id) {
 					if (nodeIds.includes(nm._id)) {
 						// nm is one of the nodes
-						for (let d of nm.conditionalFor) {
+						for (let c of nm.conditionalFor) {
 							// dependency references within the nodes survive
-							if (nodeIds.includes(d)) {
-								newConditionalFor.push(d)
-							}
+							if (nodeIds.includes(c)) {
+								newConditionalFor.push(c)
+							} else removedIntConditions.push({ id: nm._id, conditionalFor: c })
 						}
 					} else {
 						// nm is an outsider
-						for (let d of nm.conditionalFor) {
+						for (let c of nm.conditionalFor) {
 							// outsider references not referencing any of the nodes survive
-							if (!nodeIds.includes(d)) {
-								newConditionalFor.push(d)
-							}
+							if (!nodeIds.includes(c)) {
+								newConditionalFor.push(c)
+							} else removedExtConditions.push({ id: nm._id, conditionalFor: c })
 						}
 					}
 					nm.conditionalFor = newConditionalFor
 				}
 			}, this.getProductModels(productId))
-			return
+			return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 		}
 	}
 }
