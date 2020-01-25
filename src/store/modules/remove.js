@@ -54,7 +54,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeDependencies' })
         }).catch(error => {
             let msg = 'removeDependencies: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
@@ -113,7 +113,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeConditions' })
         }).catch(error => {
             let msg = 'removeConditions: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
@@ -143,8 +143,6 @@ const actions = {
             const error = []
             const externalDependencies = []
             const externalConditions = []
-            let extDepCount = 0
-            let extCondCount = 0
             for (let r of results) {
                 const doc = r.docs[0].ok
                 if (doc) {
@@ -170,7 +168,6 @@ const actions = {
                                 internalDependencies.push(d)
                             } else {
                                 thisNodesExtDependencies.dependencies.push(d)
-                                extDepCount++
                             }
                         }
                         doc.dependencies = internalDependencies
@@ -183,7 +180,6 @@ const actions = {
                                 internalConditions.push(c)
                             } else {
                                 thisNodesExtConditions.conditions.push(c)
-                                extCondCount++
                             }
                         }
                         doc.conditionalFor = internalConditions
@@ -206,18 +202,22 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             // add externalDependencies and externalConditions to the payload
-            payload.extDepCount = extDepCount
-            payload.extCondCount = extCondCount
+            payload.extDepsCount = externalDependencies.length
+            payload.extCondsCount = externalConditions.length
 
             // transfer these calls to updateBulk so that they are executed after successful removal only
             const toDispatch = {
-                removeParent: payload,
-                // remove the conditions in the documents not removed which match the externalDependencies
-                removeExtDependencies: externalDependencies,
-                // remove the dependencies in the documents not removed which match the externalConditions;
-                removeExtConditions: { externalConditions, payload }
+                removeParent: payload
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+            if (externalDependencies.length > 0 ) {
+                // remove the conditions in the documents not removed which match the externalDependencies
+                toDispatch.removeExtDependencies = externalDependencies
+            }
+            if (externalConditions.length > 0) {
+                // remove the dependencies in the documents not removed which match the externalConditions
+                toDispatch.removeExtConditions = { externalConditions, payload }
+            }
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeDocuments' })
         }).catch(error => {
             rootState.busyRemoving = false
             let msg = 'removeDocuments: Could not read batch of documents: ' + error
@@ -276,7 +276,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtDependencies' })
         }).catch(error => {
             rootState.busyRemoving = false
             let msg = 'removeExtDependencies: Could not read batch of documents: ' + error
@@ -339,7 +339,7 @@ const actions = {
             }
             // execute registerHistInGrandParent after removeExtConditions to prevent a conflict if the grandparent is also dependent on the removed docs
             const toDispatch = { registerHistInGrandParent: payload}
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExtConditions' })
         }).catch(error => {
             rootState.busyRemoving = false
             let msg = 'removeExtConditions: Could not read batch of documents: ' + error
@@ -361,7 +361,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removeParentEvent": [payload.productId, payload.descendantsIds, payload.extDepCount, payload.extCondCount],
+                "removeParentEvent": [payload.productId, payload.descendantsIds, payload.extDepsCount, payload.extCondsCount],
                 "by": rootState.userData.user,
                 "email": rootState.userData.email,
                 "timestamp": Date.now(),
@@ -401,7 +401,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removedFromParentEvent": [payload.node.level, payload.node.title, payload.descendantsIds.length, payload.node.data.subtype, payload.extDepCount, payload.extCondCount],
+                "removedFromParentEvent": [payload.node.level, payload.node.title, payload.descendantsIds.length, payload.node.data.subtype, payload.extDepsCount, payload.extCondsCount],
                 "by": rootState.userData.user,
                 "email": rootState.userData.email,
                 "timestamp": Date.now(),
