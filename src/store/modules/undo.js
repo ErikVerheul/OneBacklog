@@ -26,7 +26,7 @@ const actions = {
                     "distributeEvent": false
                 }
                 grandParentDoc.history.unshift(newHist)
-                const payload = {entry, grandParentPayload: { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc } }
+                const payload = { entry, grandParentPayload: { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc } }
                 dispatch('restoreParentFirst', payload)
             } else {
                 commit('showLastEvent', { txt: `You cannot restore under the removed item with title '${grandParentDoc.title}'`, severity: WARNING })
@@ -61,7 +61,7 @@ const actions = {
                 })
             }
             const newHist = {
-                "docRestoredEvent": [entry.descendants.length],
+                "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies, entry.removedIntConditions, entry.removedExtConditions],
                 "by": rootState.userData.user,
                 "email": rootState.userData.email,
                 "timestamp": Date.now(),
@@ -70,7 +70,12 @@ const actions = {
             }
             tmpDoc.history.unshift(newHist)
             tmpDoc.delmark = false
-            dispatch('updateDoc', payload.grandParentPayload)
+            const grandParentPayload = payload.grandParentPayload
+            grandParentPayload.toDispatch = {
+                restoreExtDepsAndConds: entry
+            }
+            // execute restoreExtDepsAndConds after the grandparent update is completed to prevent conflict in case the grandparent if part of a dependency to the restored docs
+            dispatch('updateDoc', grandParentPayload)
             const parentPayload = { tmpDoc, entry }
             dispatch('undoRemovedParent', parentPayload)
         }).catch(error => {
@@ -121,38 +126,109 @@ const actions = {
         }).then(res => {
             // console.log('restoreDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
             const results = res.data.results
-            const ok = []
-            const error = []
-            for (let i = 0; i < results.length; i++) {
-                if (results[i].docs[0].ok) {
+            const docs = []
+            const errors = []
+            for (let r of results) {
+                const doc = r.docs[0].ok
+                if (doc) {
                     const newHist = {
-                        "descendantRestoredEvent": [results[i].docs[0].ok.title],
+                        "descendantRestoredEvent": [doc.title],
                         "by": rootState.userData.user,
                         "email": rootState.userData.email,
                         "timestamp": Date.now(),
                         "sessionId": rootState.userData.sessionId,
                         "distributeEvent": false
                     }
-                    results[i].docs[0].ok.history.unshift(newHist)
+                    doc.history.unshift(newHist)
+                    // restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
+                    if (doc.dependencies)
+                    for (let d of payload.removedIntDependencies) {
+                        if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
+                    }
+                    // restore removed conditions if the array exists (when not the condition cannot be removed from this document)
+                    if (doc.conditionalFor)
+                    for (let c of payload.removedIntConditions) {
+                        if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
+                    }
                     // unmark for removal
-                    results[i].docs[0].ok.delmark = false
-                    ok.push(results[i].docs[0].ok)
+                    doc.delmark = false
+                    docs.push(doc)
                 }
-                if (results[i].docs[0].error) error.push(results[i].docs[0].error)
+                if (r.docs[0].error) errors.push(r.docs[0].error)
             }
-            if (error.length > 0) {
+            if (errors.length > 0) {
                 let errorStr = ''
-                for (let i = 0; i < error.length; i++) {
-                    errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
+                for (let err of errors) {
+                    errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
                 }
                 let msg = 'restoreDescendantsBulk: These documents cannot be UNmarked for removal: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreDescendantsBulk' })
         }).catch(error => {
             let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
+
+    /* Restore the dependencies on and conditions for documents external to the restored descendants */
+    restoreExtDepsAndConds({
+        rootState,
+        dispatch
+    }, payload) {
+        // console.log('restoreExtDepsAndConds: payload = ' + JSON.stringify(payload, null, 2))
+        const docsToGet = []
+        for (let d of payload.removedExtDependencies) {
+            docsToGet.push({ "id": d.id })
+        }
+        for (let c of payload.removedExtConditions) {
+            docsToGet.push({ "id": c.id })
+        }
+        globalAxios({
+            method: 'POST',
+            url: rootState.userData.currentDb + '/_bulk_get',
+            data: { "docs": docsToGet },
+        }).then(res => {
+            // console.log('restoreExtDepsAndConds: res = ' + JSON.stringify(res, null, 2))
+            const results = res.data.results
+            const docs = []
+            const errors = []
+            for (let r of results) {
+                const doc = r.docs[0].ok
+                if (doc) {
+                    // restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
+                    if (doc.dependencies)
+                    for (let d of payload.removedExtDependencies) {
+                        if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
+                    }
+                    // restore removed conditions if the array exists (when not the condition cannot be removed from this document)
+                    if (doc.conditionalFor)
+                    for (let c of payload.removedExtConditions) {
+                        if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
+                    }
+                    // unmark for removal
+                    doc.delmark = false
+                    docs.push(doc)
+                }
+                if (r.docs[0].error) errors.push(r.docs[0].error)
+            }
+            if (errors.length > 0) {
+                let errorStr = ''
+                for (let err of errors) {
+                    errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
+                }
+                let msg = 'restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored: ' + errorStr
+                // eslint-disable-next-line no-console
+                if (rootState.debug) console.log(msg)
+                dispatch('doLog', { event: msg, level: ERROR })
+            }
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreExtDepsAndConds' })
+        }).catch(error => {
+            let msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
