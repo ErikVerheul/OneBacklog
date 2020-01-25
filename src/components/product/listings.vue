@@ -93,6 +93,7 @@ export default {
           if (keys[j] === "cloneEvent") allText += this.mkCloneEvent(histItem[keys[j]])
           if (keys[j] === "rootEvent") allText += this.mkRootEvent(histItem[keys[j]])
           if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
+          if (keys[j] === "conditionRemovedEvent") allText += this.mkConditionRemovedEvent(histItem[keys[j]])
           if (keys[j] === "createRootEvent") allText += this.mkCreateRootEvent(histItem[keys[j]])
           if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
           if (keys[j] === "dependencyRemovedEvent") allText += this.mkDependencyRemovedEvent(histItem[keys[j]])
@@ -166,6 +167,7 @@ export default {
       if (key === "cloneEvent") return this.mkCloneEvent(value)
       if (key === "rootEvent") return this.mkRootEvent(value)
       if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
+      if (key === "conditionRemovedEvent") return this.mkConditionRemovedEvent(value)
       if (key === "commentToHistoryEvent") return this.mkCommentToHistoryEvent(value)
       if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
       if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
@@ -222,9 +224,13 @@ export default {
     mkCreateEvent(value) {
       return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'.</h5>"
     },
-    //"dependencyRemovedEvent": [payload.removedIds, tmpDoc.title]
+
+    mkConditionRemovedEvent(value) {
+      return `<h5>The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.</h5>`
+    },
+
     mkDependencyRemovedEvent(value) {
-      return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'.</h5>"
+      return `<h5>The dependencies on items ${convertToShortIds(value[0])} (short Ids) were removed from this item.</h5>`
     },
 
     mkSetSizeEvent(value) {
