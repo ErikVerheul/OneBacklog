@@ -493,7 +493,7 @@ export default {
       // set remove mark in the database on the clicked item and decendants (if any)
       this.$store.dispatch('removeDocuments', { productId: this.$store.state.load.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
       // remove any dependency references to/from outside the removed items; note: these cannot be undone
-      window.slVueTree.correctDependencies(this.$store.state.load.currentProductId, descendantsInfo.ids)
+      const removed = window.slVueTree.correctDependencies(this.$store.state.load.currentProductId, descendantsInfo.ids)
       // create an entry for undoing the remove in a last-in first-out sequence
       const entry = {
         type: 'removedNode',
@@ -502,7 +502,11 @@ export default {
         grandParentId: selectedNode.parentId,
         parentId: selectedNode._id,
         parentPath: selectedNode.path,
-        descendants: descendantsInfo.descendants
+        descendants: descendantsInfo.descendants,
+        removedIntDependencies: removed.removedIntDependencies,
+        removedIntConditions: removed.removedIntConditions,
+        removedExtDependencies: removed.removedExtDependencies,
+        removedExtConditions: removed.removedExtConditions
       }
 
       if (entry.isProductRemoved) {
@@ -636,7 +640,7 @@ export default {
       // update the dependencies in the tree
       this.contextNodeSelected.dependencies = depIdArray
       // dispatch the update in the database
-      this.$store.dispatch('updateDep', { id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds })
+      this.$store.dispatch('updateDep', { _id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds })
       // update the conditions in the tree
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
