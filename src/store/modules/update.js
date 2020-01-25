@@ -141,7 +141,8 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
-	// { _id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds }
+
+	/* Update the dependencies and the corresponding conditions in the database. */
 	updateDep({
 		rootState,
 		dispatch
@@ -155,7 +156,7 @@ const actions = {
 			let tmpDoc = res.data
 			tmpDoc.dependencies = payload.newDeps
 			const newHist = {
-				"dependencyRemovedEvent": [payload.id, tmpDoc.title],
+				"dependencyRemovedEvent": [payload.removedIds],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -172,7 +173,8 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
-	// { _id: this.contextNodeSelected._id, newCons: conIdArray, removedIds }
+
+	/* Update the conditions and the corresponding dependencies in the database. */
 	updateCon({
 		rootState,
 		dispatch
@@ -186,7 +188,7 @@ const actions = {
 			let tmpDoc = res.data
 			tmpDoc.conditionalFor = payload.newCons
 			const newHist = {
-				"conditionRemovedEvent": [payload.removedIds, tmpDoc.title],
+				"conditionRemovedEvent": [payload.removedIds],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -640,6 +642,8 @@ const actions = {
 			// additional dispatches
 			if (payload.toDispatch) {
 				for (let name of Object.keys(payload.toDispatch)) {
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('updateDoc: calling ' + name)
 					dispatch(name, payload.toDispatch[name])
 				}
 			}
@@ -672,6 +676,7 @@ const actions = {
 			}
 			// eslint-disable-next-line no-console
 			let msg = 'updateBulk: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
+			if (payload.caller) msg += `\nupdateBulk was called by ${payload.caller}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			if (updateConflict > 0 || otherError > 0) dispatch('doLog', { event: msg, level: WARNING })
