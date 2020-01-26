@@ -1,4 +1,5 @@
 import globalAxios from 'axios'
+// IMPORTANT: all updates on the baclogitem documents must add history in order for the changes feed to work properly
 const INFO = 0
 const ERROR = 2
 
@@ -267,7 +268,7 @@ const actions = {
     })
   },
 
-  // ToDo: Happened once: "[Vue warn]: Duplicate keys detected: 'updateUser: The profile of user 'erik' is updated successfully'. This may cause an update error." when cloning a product
+  // ToDo: Happened twice: "[Vue warn]: Duplicate keys detected: 'updateUser: The profile of user 'erik' is updated successfully'. This may cause an update error." when cloning a product
   updateUser({
     rootState,
     dispatch

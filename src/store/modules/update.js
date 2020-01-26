@@ -1,4 +1,5 @@
 import globalAxios from 'axios'
+// IMPORTANT: all updates on the baclogitem documents must add history in order for the changes feed to work properly
 
 const WARNING = 1
 const ERROR = 2
@@ -100,6 +101,7 @@ const actions = {
 			tmpDoc.dependencies = payload.dependencies
 			tmpDoc.history.unshift(newHist)
 			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
+			// doSetDependency() --> const conditionalForPayload = { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor }
 			const toDispatch = {
                 setConditions: payload.conditionalForPayload
             }
