@@ -90,11 +90,13 @@ const actions = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [{
-				"ignoreEvent": 'comments initiated',
+				"ignoreEvent": ['comments initiated'],
+				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
 				"ignoreEvent": [2, rootState.userData.currentDb],
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -156,10 +158,12 @@ const actions = {
 			"attachments": [],
 			"comments": [{
 				"ignoreEvent": ['comments initiated'],
+				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
 				"ignoreEvent": [3, payload.parentName],
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -223,10 +227,12 @@ const actions = {
 			"attachments": [],
 			"comments": [{
 				"ignoreEvent": ['comments initiated'],
+				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			"history": [{
 				"ignoreEvent": [4, payload.parentName],
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -294,6 +300,7 @@ const actions = {
 			}],
 			"history": [{
 				"ignoreEvent": [5, payload.parentName],
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
 			"delmark": false
@@ -584,6 +591,7 @@ const actions = {
 						results[i].docs[0].ok['comments'] = [
 							{
 								"ignoreEvent": ['comments initiated'],
+								"timestamp": 0,
 								"distributeEvent": false
 							}]
 						ok.push(results[i].docs[0].ok)

@@ -149,7 +149,7 @@ export default {
         case this.REMOVEITEM:
           this.assistanceText = this.$store.state.help.help.remove
           if (this.hasDependencies) {
-            this.listItemText = "WARNING: this item has dependencies on other items. Remove them first. Dependencies to or from items outside the selected item will be removed automatically and will be lost on undo remove."
+            this.listItemText = "WARNING: this item has dependencies on other items. Remove them first."
             this.disableOkButton = true
           } else if (this.hasConditions) {
             this.listItemText = "WARNING: this item is conditional for other items. Remove them first"
@@ -315,6 +315,7 @@ export default {
         "priority": newNode.data.priority,
         "comments": [{
           "ignoreEvent": ['comments initiated'],
+          "timestamp": 0,
           "distributeEvent": false
         }],
         "history": [{
@@ -449,6 +450,7 @@ export default {
           "attachments": [],
           "comments": [{
             "ignoreEvent": ['comments initiated'],
+            "timestamp": 0,
             "distributeEvent": false
           }],
           "history": [{
@@ -491,7 +493,7 @@ export default {
         }
       }
       // set remove mark in the database on the clicked item and decendants (if any)
-      this.$store.dispatch('removeDocuments', { productId: this.$store.state.load.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
+      this.$store.dispatch('registerHistInGrandParent', { productId: this.$store.state.load.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
       // remove any dependency references to/from outside the removed items; note: these cannot be undone
       const removed = window.slVueTree.correctDependencies(this.$store.state.load.currentProductId, descendantsInfo.ids)
       // create an entry for undoing the remove in a last-in first-out sequence
@@ -514,7 +516,7 @@ export default {
       }
 
       this.$store.state.changeHistory.unshift(entry)
-      // before removal select the predecessor or sucessor of the removed node (sibling or parent)
+      // before removal select the predecessor or successor of the removed node (sibling or parent)
       const prevNode = window.slVueTree.getPreviousNode(path)
       let nowSelectedNode = prevNode
       if (prevNode.level === this.DATABASELEVEL) {
@@ -575,7 +577,9 @@ export default {
 
     doSetDependency() {
       if (this.$store.state.selectNodeOngoing) {
-        this.contextNodeSelected.conditionalFor.push(this.nodeWithDependenciesId)
+        if (this.contextNodeSelected.conditionalFor) {
+          this.contextNodeSelected.conditionalFor.push(this.nodeWithDependenciesId)
+        } else this.contextNodeSelected.conditionalFor = this.nodeWithDependenciesId
         const conditionalForPayload = { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor }
         const nodeWithDependencies = this.getNodeWithDependencies()
         nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)

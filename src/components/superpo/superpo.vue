@@ -108,6 +108,7 @@ export default {
         "priority": 0,
         "comments": [{
           "ignoreEvent": ['comments initiated'],
+          "timestamp": 0,
           "distributeEvent": false
         }],
         // do not distribute this event; other users have no access rights yet
