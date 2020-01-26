@@ -1,49 +1,90 @@
 import globalAxios from 'axios'
+// IMPORTANT: all updates on the baclogitem documents must add history in order for the changes feed to work properly
 
 const WARNING = 1
 const ERROR = 2
 
 const actions = {
-    /* Check if restoration is possible: the parent (or grandparent to the descendants of the removed item) to store under must not be removed */
-    unDoRemove({
+    /*
+    * ToDo: create undo's if any of these steps fail
+    * Order of execution:
+    * 1. descendants
+    * 2. parent of the descendants
+    * 3. grandparent of the descendants (if removed then undo the removal)
+    * 4. dependencies & conditions
+    *  If any of these steps fail the next steps are not executed but not undone
+    */
+
+    /* Unmark the removed item and its descendants for removal. Do not distribute this event */
+    restoreDescendantsBulk({
         rootState,
-        commit,
         dispatch
     }, entry) {
-        const _id = entry.grandParentId
+        const docsToGet = []
+        for (let d of entry.descendants) {
+            docsToGet.push({ "id": d._id })
+        }
         globalAxios({
-            method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id,
+            method: 'POST',
+            url: rootState.userData.currentDb + '/_bulk_get',
+            data: { "docs": docsToGet },
         }).then(res => {
-            let grandParentDoc = res.data
-            if (!grandParentDoc.delmark) {
-                const newHist = {
-                    "grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.descendants.length, entry.removedNode.data.subtype],
-                    "by": rootState.userData.user,
-                    "email": rootState.userData.email,
-                    "timestamp": Date.now(),
-                    "sessionId": rootState.userData.sessionId,
-                    "distributeEvent": false
+            // console.log('restoreDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
+            const results = res.data.results
+            const docs = []
+            const errors = []
+            for (let r of results) {
+                const doc = r.docs[0].ok
+                if (doc) {
+                    const newHist = {
+                        "descendantRestoredEvent": [doc.title],
+                        "by": rootState.userData.user,
+                        "email": rootState.userData.email,
+                        "timestamp": Date.now(),
+                        "sessionId": rootState.userData.sessionId,
+                        "distributeEvent": false
+                    }
+                    doc.history.unshift(newHist)
+                    // restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
+                    if (doc.dependencies)
+                        for (let d of entry.removedIntDependencies) {
+                            if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
+                        }
+                    // restore removed conditions if the array exists (when not the condition cannot be removed from this document)
+                    if (doc.conditionalFor)
+                        for (let c of entry.removedIntConditions) {
+                            if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
+                        }
+                    // unmark for removal
+                    doc.delmark = false
+                    docs.push(doc)
                 }
-                grandParentDoc.history.unshift(newHist)
-                const payload = { entry, grandParentPayload: { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc } }
-                dispatch('restoreParentFirst', payload)
-            } else {
-                commit('showLastEvent', { txt: `You cannot restore under the removed item with title '${grandParentDoc.title}'`, severity: WARNING })
+                if (r.docs[0].error) errors.push(r.docs[0].error)
             }
+            if (errors.length > 0) {
+                let errorStr = ''
+                for (let err of errors) {
+                    errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
+                }
+                let msg = 'restoreDescendantsBulk: These documents cannot be UNmarked for removal: ' + errorStr
+                // eslint-disable-next-line no-console
+                if (rootState.debug) console.log(msg)
+                dispatch('doLog', { event: msg, level: ERROR })
+            }
+            const toDispatch = { 'restoreParent': entry }
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreDescendantsBulk' })
         }).catch(error => {
-            let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
+            let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
         })
     },
 
-    restoreParentFirst({
+    restoreParent({
         rootState,
         dispatch
-    }, payload) {
-        const entry = payload.entry
+    }, entry) {
         const _id = entry.parentId
         globalAxios({
             method: 'GET',
@@ -70,105 +111,45 @@ const actions = {
             }
             tmpDoc.history.unshift(newHist)
             tmpDoc.delmark = false
-            const grandParentPayload = payload.grandParentPayload
-            grandParentPayload.toDispatch = {
-                restoreExtDepsAndConds: entry
-            }
-            // execute restoreExtDepsAndConds after the grandparent update is completed to prevent conflict in case the grandparent if part of a dependency to the restored docs
-            dispatch('updateDoc', grandParentPayload)
-            const parentPayload = { tmpDoc, entry }
-            dispatch('undoRemovedParent', parentPayload)
+            const toDispatch = { 'updateGrandparentHist': entry }
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'restoreParent' })
         }).catch(error => {
-            let msg = 'restoreParentFirst: Could not read document with _id ' + _id + ', ' + error
+            let msg = 'restoreParent: Could not read document with _id ' + _id + ', ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
         })
     },
 
-    /* update the parent and restore the descendants */
-    undoRemovedParent({
+    updateGrandparentHist({
         rootState,
+        commit,
         dispatch
-    }, payload) {
-        const _id = payload.tmpDoc._id
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log('undoRemovedParent: updating document with _id = ' + _id)
+    }, entry) {
+        const _id = entry.grandParentId
         globalAxios({
-            method: 'PUT',
+            method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
-            data: payload.tmpDoc
-        }).then(() => {
-            dispatch('restoreDescendantsBulk', payload.entry)
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log('undoRemovedParent: document with _id ' + _id + ' is updated.')
-        }).catch(error => {
-            let msg = 'undoRemovedParent: Could not write document with url ' + rootState.userData.currentDb + '/' + _id + ', ' + error
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
-    },
-
-    /* Unmark the removed item and its descendants for removal. Do not distribute this event */
-    restoreDescendantsBulk({
-        rootState,
-        dispatch
-    }, payload) {
-        const docsToGet = []
-        for (let desc of payload.descendants) {
-            docsToGet.push({ "id": desc._id })
-        }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
         }).then(res => {
-            // console.log('restoreDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
-            const results = res.data.results
-            const docs = []
-            const errors = []
-            for (let r of results) {
-                const doc = r.docs[0].ok
-                if (doc) {
-                    const newHist = {
-                        "descendantRestoredEvent": [doc.title],
-                        "by": rootState.userData.user,
-                        "email": rootState.userData.email,
-                        "timestamp": Date.now(),
-                        "sessionId": rootState.userData.sessionId,
-                        "distributeEvent": false
-                    }
-                    doc.history.unshift(newHist)
-                    // restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
-                    if (doc.dependencies)
-                    for (let d of payload.removedIntDependencies) {
-                        if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
-                    }
-                    // restore removed conditions if the array exists (when not the condition cannot be removed from this document)
-                    if (doc.conditionalFor)
-                    for (let c of payload.removedIntConditions) {
-                        if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
-                    }
-                    // unmark for removal
-                    doc.delmark = false
-                    docs.push(doc)
-                }
-                if (r.docs[0].error) errors.push(r.docs[0].error)
+            let grandParentDoc = res.data
+            const newHist = {
+                "grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.descendants.length, entry.removedNode.data.subtype],
+                "by": rootState.userData.user,
+                "email": rootState.userData.email,
+                "timestamp": Date.now(),
+                "sessionId": rootState.userData.sessionId,
+                "distributeEvent": false
             }
-            if (errors.length > 0) {
-                let errorStr = ''
-                for (let err of errors) {
-                    errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
-                }
-                let msg = 'restoreDescendantsBulk: These documents cannot be UNmarked for removal: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
+            grandParentDoc.history.unshift(newHist)
+            // unmark for removal in case it was removed
+            if (grandParentDoc.delmark) {
+                commit('showLastEvent', { txt: `The document representing the item to restore under was removed. The removal is made undone.`, severity: WARNING })
+                grandParentDoc.delmark = false
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreDescendantsBulk' })
+            const toDispatch = { 'restoreExtDepsAndConds': entry }
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch, caller: 'updateGrandparentHist' })
         }).catch(error => {
-            let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
+            let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -179,13 +160,12 @@ const actions = {
     restoreExtDepsAndConds({
         rootState,
         dispatch
-    }, payload) {
-        // console.log('restoreExtDepsAndConds: payload = ' + JSON.stringify(payload, null, 2))
+    }, entry) {
         const docsToGet = []
-        for (let d of payload.removedExtDependencies) {
+        for (let d of entry.removedExtDependencies) {
             docsToGet.push({ "id": d.id })
         }
-        for (let c of payload.removedExtConditions) {
+        for (let c of entry.removedExtConditions) {
             docsToGet.push({ "id": c.id })
         }
         globalAxios({
@@ -202,14 +182,20 @@ const actions = {
                 if (doc) {
                     // restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
                     if (doc.dependencies)
-                    for (let d of payload.removedExtDependencies) {
-                        if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
-                    }
+                        for (let d of entry.removedExtDependencies) {
+                            if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
+                        }
                     // restore removed conditions if the array exists (when not the condition cannot be removed from this document)
                     if (doc.conditionalFor)
-                    for (let c of payload.removedExtConditions) {
-                        if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
+                        for (let c of entry.removedExtConditions) {
+                            if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
+                        }
+                    const newHist = {
+                        "ignoreEvent": ['restoreExtDepsAndConds'],
+                        "timestamp": Date.now(),
+                        "distributeEvent": false
                     }
+                    doc.history.unshift(newHist)
                     // unmark for removal
                     doc.delmark = false
                     docs.push(doc)
