@@ -39,8 +39,10 @@ function convertToShortIds(ids) {
 
   const shortIds = []
   for (let id of ids) {
+    if (id === null) continue
     shortIds.push(id.slice(-5))
   }
+  if (shortIds.length === 0) return 'none'
   return shortIds
 }
 
@@ -317,13 +319,11 @@ export default {
     },
 
     mkGrandParentDocRestoredEvent(value) {
-      return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are restored from removal.</h5>
-        <p>Note that external dependencies are not restored</p>`
+      return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are restored from removal.</h5>`
     },
 
     mkDocRestoredEvent(value) {
-      return `<h5>This item and ${value[0]} descendants are restored from removal.</h5>
-        <p>Note that external dependencies are not restored</p>`
+      return `<h5>This item and ${value[0]} descendants are restored from removal.</h5>`
     },
 
     mkDescendantRestoredEvent() {
