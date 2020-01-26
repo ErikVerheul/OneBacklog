@@ -449,7 +449,7 @@ export default {
           break
         case 'undoNewNode':
           window.slVueTree.remove([entry.newNode])
-          this.$store.dispatch('removeDocuments', { 'productId': this.$store.state.load.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
+          this.$store.dispatch('registerHistInGrandParent', { 'productId': this.$store.state.load.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
           this.showLastEvent('Item addition is undone', INFO)
           break
         case 'undoMove':
@@ -475,7 +475,7 @@ export default {
           this.showLastEvent('Item(s) move undone', INFO)
           break
         case 'removedNode':
-          this.$store.dispatch("unDoRemove", entry)
+          this.$store.dispatch("restoreDescendantsBulk", entry)
           // restore the removed node
           var parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
           if (parentNode) {
