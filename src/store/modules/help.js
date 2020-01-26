@@ -71,8 +71,7 @@ const state = {
         <p>
         You are about to remove an item with its descendants from the product.<br/>
         The item will be marked for deletion and will not be available for the users. However with a direct search on id users can still retrieve them.<br/>
-        Click on the <b>Undo</b> button that appears on the title bar to undo the removal. However, dependencies set between descendants of the
-        removed item and any item outside the removed items will be lost. Dependencies between the restored descendants will be intact.</p>
+        Click on the <b>Undo</b> button that appears on the title bar to undo the removal.</p>
         <hr>
         <p>You can only undo a removal in the same session you did the removal. Later, only the server admin can, with great effort,
         undo a removal by removing the remove mark of all items of the chain up to product level.<br/>
@@ -130,7 +129,7 @@ const state = {
         You are about to set a dependency between two backlog items.<br/>
         </p>
         <hr>
-        <p>Click OK to select (right-click) another backlog item this item depends on. The results of that item is conditional for the first selected item to be realized.
+        <p>Click OK to select (right-click) another backlog item this item depends on. That item is conditional for the first selected item to be realized.
         </p>
         <hr>
         <p>The condition must have a lower priority than the item that depends on it. When moving items in the tree this rule can be breached. If so, you will be warned immediately. Undo your last action or remove the dependency if no longer valid.
