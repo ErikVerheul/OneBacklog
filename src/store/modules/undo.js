@@ -37,11 +37,8 @@ const actions = {
                 const doc = r.docs[0].ok
                 if (doc) {
                     const newHist = {
-                        "descendantRestoredEvent": [doc.title],
-                        "by": rootState.userData.user,
-                        "email": rootState.userData.email,
+                        "ignoreEvent": ['restoreDescendantsBulk'],
                         "timestamp": Date.now(),
-                        "sessionId": rootState.userData.sessionId,
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
