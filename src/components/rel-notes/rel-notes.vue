@@ -6,6 +6,17 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.8.4 - 27 January 2020 Feature update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Users who subscribed to change notices now receive an email if a change event occurred on these items.</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>A Node.js server side application serves the email dispatch.</li>
+					<li>The synchronization changes listener is now event driven to allow fine grained responses to the changes.</li>
+				</ul>
+				<hr>
 				<h3>v.0.8.3.1 - 29 December 2019 Bug fix</h3>
 				<p>Bug fixes:</p>
 				<ul>
