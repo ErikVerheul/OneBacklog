@@ -1,57 +1,55 @@
-/*
-* Definitions: items are PBI's or Product Backlog Items which are stored in the database as documents and presented on screen as nodes in a tree.
-*
-* NOTE on itemType and level numbering with the current config definition
-*
-* level ...............in database level ....... in tree
-* -----------------------------------------------------------------------
-* RequirementArea ........ 0 ................... n/a
-* Database ............... 1 ................... n/a
-* Product ................ 2 ................... 2
-* Epic .. ................ 3 ................... 3
-* Feature ................ 4 ................... 4
-* PBI ... ................ 5 ................... 5
-*
-* The nodes in the tree have these data elements and values:
-*
-* path, // the access path in the tree model
-* pathStr: JSON.stringify(path),
-* ind, // the index in the children array
-* level: path.length,
-*
-* productId: doc.productId,
-* parentId: doc.parentId,
-* _id: doc._id,
-* shortId: doc.shortId,
-* children: [],
+Definitions: items are PBI's or Product Backlog Items which are stored in the database as documents and presented on screen as nodes in a tree.
 
-* title: doc.title,
-* isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
-* isSelectable: true,
-* isSelected: true only if isSelectable || false
-* isDraggable: true || false, // depending on the user roles
-* isExpanded: true || false, // initially the tree is expanded up to the feature level
-* savedIsExpanded: isExpanded, // to restore the original view after applying a filter
-* doShow: true, // false if filtered out
-* savedDoShow: doShow, // to restore the original view after applying a filter
-* markViolation: false // temporary use, not stored, not synced
-* dependencies: doc.dependencies, // array with ids
-* conditionalFor: doc.conditionalFor, // array with ids
-*
-* data: {
-* ....priority: doc.priority,
-* ....state: doc.state,
-* ....inconsistentState: false // calculated on consistency check
-* ....team: doc.team, // the team membership of the user who updated the state the last time
-* ....subtype: doc.subtype,
-* ....lastStateChange, // lookup in doc history
-* ....lastContentChange, // lookup in doc history
-* ....lastCommentAddition, // lookup in doc comments
-* ....lastAttachmentAddition, // lookup in doc history
-* ....lastCommentToHistory, // lookup in doc history
-* ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
-* }
-*/
+NOTE on itemType and level numbering with the current config definition
+
+level ...............in database level ....... in tree
+-----------------------------------------------------------------------
+RequirementArea ........ 0 ................... n/a
+Database ............... 1 ................... n/a
+Product ................ 2 ................... 2
+Epic .. ................ 3 ................... 3
+Feature ................ 4 ................... 4
+PBI ... ................ 5 ................... 5
+
+The nodes in the tree have these data elements and values:
+
+path, // the access path in the tree model
+pathStr: JSON.stringify(path),
+ind, // the index in the children array
+level: path.length,
+
+productId: doc.productId,
+parentId: doc.parentId,
+_id: doc._id,
+shortId: doc.shortId,
+children: [],
+
+title: doc.title,
+isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
+isSelectable: true,
+isSelected: true only if isSelectable || false
+isDraggable: true || false, // depending on the user roles
+isExpanded: true || false, // initially the tree is expanded up to the feature level
+savedIsExpanded: isExpanded, // to restore the original view after applying a filter
+doShow: true, // false if filtered out
+savedDoShow: doShow, // to restore the original view after applying a filter
+markViolation: false // temporary use, not stored, not synced
+dependencies: doc.dependencies, // array with ids
+conditionalFor: doc.conditionalFor, // array with ids
+
+data: {
+....priority: doc.priority,
+....state: doc.state,
+....inconsistentState: false // calculated on consistency check
+....team: doc.team, // the team membership of the user who updated the state the last time
+....subtype: doc.subtype,
+....lastStateChange, // lookup in doc history
+....lastContentChange, // lookup in doc history
+....lastCommentAddition, // lookup in doc comments
+....lastAttachmentAddition, // lookup in doc history
+....lastCommentToHistory, // lookup in doc history
+....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
+}
 
 "subtype": [
     "User story",
@@ -88,71 +86,102 @@ state.userData = {
     sessionId: create_UUID()
 }
 
-/*
-* These are the roles known by this application despite settings in the _users database otherwise.
-* Write access is dependant on role and level. Write access includes deletion.
-* All roles have read access to their assigned database (only one) and assigned products in that database.
-* These roles are set during loading by haveWritePermission(...) in load.js.
-*
-* type ...............in database level ....... in tree
-* -----------------------------------------------------------------------
-* RequirementArea ........ 0 ................... n/a
-* Database ............... 1 ................... n/a
-* Product ................ 2 ................... 2
-* Epic .. ................ 3 ................... 3
-* Feature ................ 4 ................... 4
-* PBI ... ................ 5 ................... 5
-*
-*"knownRoles":
-*	"_admin": {
-*		description: "Is the database administrator. Can setup and delete databases. Can update root documents. See the CouchDB documentation.",
-*		products: "n/a",
-*		writeAccessLevel: 1,
-*	},
-*	"admin": {
-*		description: "Can create and remove users and teams. Can assign products to teams. The user administration is a permission on the _users database
-*		products: "n/a",
-*		writeAccessLevel: null,
-*	},
-*	"areaPO": {
-*		description: "Can access the requirements area with write access to the level 0 requirements area items and can prioritise features (level 4)",
-*		products: "all",
-*		writeAccessLevel: 0,4
-*	},
-*	"superPO": {
-*		description: "Can create, maintain and remove products and epics for all products. Can change priorities at these levels.",
-*		products: "all",
-*		writeAccessLevel: 2,3
-*	},
-*	"PO": {
-*		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels.",
-*		products: "assigned",
-*		writeAccessLevel: 3,4,5
-*	},
-*	"developer": {
-*		description: "Can create and maintain pbi's and features for the assigned products.",
-*		products: "assigned",
-*		writeAccessLevel: 4,5
-*	},
-*	"guest": {
-*		description: "Can only view the items of the assigned products. Has no access to the requirements area view.",
-*		products: "assigned",
-*		writeAccessLevel: null,
-*	}
-*
-*	Note that this getter returns permissions for the current product or all products (superPO and areaPO)
-*
-// The entry for undoing the remove in a last-in first-out sequence
-      const entry = {
-        type: 'removedNode',
-        removedNode: selectedNode,
-        isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
-        grandParentId: selectedNode.parentId,
-        parentId: selectedNode._id,
-        parentPath: selectedNode.path,
-        descendants: descendantsInfo.descendants,
-        removedIntDependencies: removed.removedIntDependencies,
-        removedIntConditions: removed.removedIntConditions,
-        removedExtDependencies: removed.removedExtDependencies,
-        removedExtConditions: removed.removedExtConditions
-      }
+These are the roles known by this application despite settings in the _users database otherwise.
+Write access is dependant on role and level. Write access includes deletion.
+All roles have read access to their assigned database (only one) and assigned products in that database.
+These roles are set during loading by haveWritePermission(...) in load.js.
+
+type ...............in database level ....... in tree
+-----------------------------------------------------------------------
+RequirementArea ........ 0 ................... n/a
+Database ............... 1 ................... n/a
+Product ................ 2 ................... 2
+Epic .. ................ 3 ................... 3
+Feature ................ 4 ................... 4
+PBI ... ................ 5 ................... 5
+
+"knownRoles":
+	"_admin": {
+		description: "Is the database administrator. Can setup and delete databases. Can update root documents. See the CouchDB documentation.",
+		products: "n/a",
+		writeAccessLevel: 1,
+	},
+	"admin": {
+		description: "Can create and remove users and teams. Can assign products to teams. The user administration is a permission on the _users database
+		products: "n/a",
+		writeAccessLevel: null,
+	},
+	"areaPO": {
+		description: "Can access the requirements area with write access to the level 0 requirements area items and can prioritise features (level 4)",
+		products: "all",
+		writeAccessLevel: 0,4
+	},
+	"superPO": {
+		description: "Can create, maintain and remove products and epics for all products. Can change priorities at these levels.",
+		products: "all",
+		writeAccessLevel: 2,3
+	},
+	"PO": {
+		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels.",
+		products: "assigned",
+		writeAccessLevel: 3,4,5
+	},
+	"developer": {
+		description: "Can create and maintain pbi's and features for the assigned products.",
+		products: "assigned",
+		writeAccessLevel: 4,5
+	},
+	"guest": {
+		description: "Can only view the items of the assigned products. Has no access to the requirements area view.",
+		products: "assigned",
+		writeAccessLevel: null,
+	}
+
+	Note that this getter returns permissions for the current product or all products (superPO and areaPO)
+
+The entry for undoing the remove in a last-in first-out sequence
+  const entry = {
+    type: 'removedNode',
+    removedNode: selectedNode,
+    isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
+    grandParentId: selectedNode.parentId,
+    parentId: selectedNode._id,
+    parentPath: selectedNode.path,
+    descendants: descendantsInfo.descendants,
+    removedIntDependencies: removed.removedIntDependencies,
+    removedIntConditions: removed.removedIntConditions,
+    removedExtDependencies: removed.removedExtDependencies,
+    removedExtConditions: removed.removedExtConditions
+  }
+
+The events and their usage:      
+
+distibuted	mailed		event                       file
+---------------------------------------------------------
+Y	            Y	    acceptanceEvent	              update.js
+Y	            Y	    addCommentEvent	              update.js
+N	            Y	    cloneEvent	                  clone.js
+Y	            Y	    commentToHistoryEvent	        update.js
+Y	            Y	    conditionRemovedEvent	        update.js
+Y	            N	    createEvent 	                context.js
+Y	            N		  context.js
+N	            N		  superpo.vue
+Y	            Y	    dependencyRemovedEvent 	      update.js
+Y	            Y	    descriptionEvent	            update.js
+Y	            Y	    docRestoredEvent 	            undo.js
+N	            N	    grandParentDocRestoredEvent	  undo.js
+Y	            Y	    nodeDroppedEvent	            move.js
+Y	            Y	    nodeUndoMoveEvent	            move.js
+Y	            Y	    removeAttachmentEvent	        attachments.js
+N	            Y	    removedFromParentEvent	      remove.js
+Y	            N	    removeParentEvent	            remove.js
+Y	            Y	    setConditionsEvent	          update.js
+Y	            Y	    setDependenciesEvent	        update.js
+Y	            Y	    setHrsEvent	                  update.js
+Y	            Y	    setPointsEvent	              update.js
+Y	            Y	    setSizeEvent	                update.js
+Y	            Y	    setStateEvent	                update.js
+Y	            Y	    setSubTypeEvent	              update.js
+Y	            Y	    setTeamOwnerEvent	            update.js
+Y	            Y	    setTitleEvent	                update.js
+Y	            Y	    uploadAttachmentEvent	        attachments.js
