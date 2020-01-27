@@ -192,15 +192,25 @@ const actions = {
 					"sortedFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
 					},
-					/* Filter on document type 'backlogItem', then filter the changes which need distributed to other users.*/
+					/* ToDo: tighten this filter. Filter on document type 'backlogItem' only. For use by the mail server. */
+					"emailFilter": {
+						"map": `function(doc) {
+							if (doc.type == "backlogItem") {
+								if (doc.followers && doc.followers.length > 0) {
+									emit(doc._id, 1);
+								}
+							}
+						}`
+					},
+					/* Filter on document type 'backlogItem', then filter the changes which need distributed to other users. */
 					"changesFilter": {
 						"map": `function(doc) {
 							if (doc.type == "backlogItem") {
-							  if (doc.history[0].distributeEvent || doc.comments[0].distributeEvent) {
-								emit(doc._id, 1);
-							  }
+								if (doc.history[0].distributeEvent || doc.comments[0].distributeEvent) {
+									emit(doc._id, 1);
+								}
 							}
-						  }`
+						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId.*/
 					"shortIdFilter": {
@@ -208,11 +218,11 @@ const actions = {
 					},
 					/* Filter on document type 'backlogItem', then emit the product id and title.*/
 					"products": {
-						"map": 'function (doc) {if (!doc.delmark && doc.type == "backlogItem" && doc.level === 2) emit(doc._id, doc.title);}'
+						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level === 2) emit(doc._id, doc.title);}'
 					},
 					/* Filter on document type 'backlogItem', then emit the product _rev of the removed documents.*/
 					"removed": {
-						"map": 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1);}'
+						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.delmark || doc._deleted) emit(doc._rev, 1);}'
 					}
 				},
 				"language": "javascript"
