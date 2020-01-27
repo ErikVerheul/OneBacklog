@@ -91,7 +91,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"setDependenciesEvent": [tmpDoc.title, tmpDoc.dependencies, payload.dependencies],
+				"setDependenciesEvent": [tmpDoc.dependencies, payload.dependencies],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -125,7 +125,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"setConditionsEvent": [tmpDoc.title, tmpDoc.conditionalFor, payload.conditionalFor],
+				"setConditionsEvent": [tmpDoc.conditionalFor, payload.conditionalFor],
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
 				"timestamp": Date.now(),
@@ -539,7 +539,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then((res) => {
 			let tmpDoc = res.data
-			const newEntry = {
+			const newHist = {
 				"addCommentEvent": window.btoa(payload.comment),
 				"by": rootState.userData.user,
 				"email": rootState.userData.email,
@@ -547,8 +547,8 @@ const actions = {
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.comments.unshift(newEntry)
-			rootState.currentDoc.comments.unshift(newEntry)
+			tmpDoc.comments.unshift(newHist)
+			rootState.currentDoc.comments.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'addComment: Could not read document with _id ' + _id + ', ' + error
