@@ -47,7 +47,7 @@ const actions = {
 					} else {
 						// undo move
 						newHist = {
-							"nodeUndoMoveEvent": [],
+							"nodeUndoMoveEvent": [rootState.userData.user],
 							"by": rootState.userData.user,
 							"email": rootState.userData.email,
 							"timestamp": Date.now(),

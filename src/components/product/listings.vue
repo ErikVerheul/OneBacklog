@@ -290,7 +290,7 @@ export default {
       }
     },
 
-    mkNodeUndoMoveEvent() {
+    mkNodeUndoMoveEvent(value) {
       return `<h5>The previous move by user '${value[0]}' is undone</h5>`
     },
 
