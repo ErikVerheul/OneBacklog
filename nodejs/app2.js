@@ -1,12 +1,14 @@
 'use strict';
 require('dotenv').config();
+const axios = require('axios');
 const NodeCouchDb = require('node-couchdb');
 const atob = require('atob');
-const couch = new NodeCouchDb({ auth: { user: process.env.COUCH_USER, pass: process.env.COUCH_PW } });
+var couch;
+var authenticated = false;
 const viewUrlLongpol = '/_changes?feed=longpoll&include_docs=true&filter=_view&view=design1/emailFilter&since=now';
 const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' });
 const PBILEVEL = 5;
-
+var runningCookieRefreshId = null;
 var configData = {};
 
 function getSubTypeText(dbName, idx) {
@@ -197,4 +199,39 @@ function getAllDataBases() {
         })
 }
 
-getAllDataBases();
+/* Refresh the authentication cookie */
+function refreshCookie() {
+    // eslint-disable-next-line no-console
+    console.log('refreshCookie was called')
+    axios.post( 'https://onebacklog.net:6984/_session', {
+        name: process.env.COUCH_USER,
+        password: process.env.COUCH_PW
+    }).then(() => {
+        if (!authenticated) {
+            couch = new NodeCouchDb();
+            authenticated = true;
+            // eslint-disable-next-line no-console
+            console.log('refreshCookie: service is authenticated')
+            getAllDataBases()
+        }
+        // eslint-disable-next-line no-console
+        console.log('refreshCookie is executed')
+    }).catch(error => {
+        // stop the interval function and wait for the watchDog to start again
+        clearInterval(runningCookieRefreshId)
+        let msg = 'refreshCookie: Refresh of the authentication cookie failed with ' + error
+        // eslint-disable-next-line no-console
+        console.log(msg)
+    })
+}
+
+/* Refresh the authentication cookie in a contineous loop starting after the timeout value */
+function refreshCookieLoop() {
+    axios.defaults.withCredentials = true
+    // eslint-disable-next-line no-console
+    console.log('refreshCookieLoop: start refreshCookie()')
+    runningCookieRefreshId = setInterval(refreshCookie, 5000)
+}
+
+refreshCookieLoop();
+//getAllDataBases();

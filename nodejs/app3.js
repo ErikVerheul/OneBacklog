@@ -1,12 +1,12 @@
 'use strict';
 require('dotenv').config();
-const NodeCouchDb = require('node-couchdb');
+const url = 'http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984';
+const nano = require('nano')(url);
 const atob = require('atob');
-const couch = new NodeCouchDb({ auth: { user: process.env.COUCH_USER, pass: process.env.COUCH_PW } });
 const viewUrlLongpol = '/_changes?feed=longpoll&include_docs=true&filter=_view&view=design1/emailFilter&since=now';
 const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' });
 const PBILEVEL = 5;
-
+var db;
 var configData = {};
 
 function getSubTypeText(dbName, idx) {
@@ -116,8 +116,8 @@ function mkHtml(dbName, eventType, value, event, doc) {
 }
 
 function listenForChanges(dbName) {
-    couch.get(dbName, viewUrlLongpol).then(
-        function (res, headers, status) {
+    db.get(dbName, viewUrlLongpol).then(
+        function (res) {
             const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent", "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent",
                 "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent", "setConditionsEvent", "setDependenciesEvent", "setHrsEvent",
                 "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "setTitleEvent", "uploadAttachmentEvent"];
@@ -169,7 +169,7 @@ function listenForChanges(dbName) {
 }
 
 function getConfig(dbName) {
-    couch.get(dbName, "/config").then(
+    db.get(dbName, "/config").then(
         function (res) {
             configData[dbName] = res.data
             listenForChanges(dbName)
@@ -181,12 +181,13 @@ function getConfig(dbName) {
 }
 
 function getAllDataBases() {
-    couch.get('', '/_all_dbs').then(
+    nano.db.list().then(
         function (res) {
             for (let dbName of res.data) {
                 if (!dbName.startsWith('_') && !dbName.includes('backup')) {
                     // eslint-disable-next-line no-console
                     console.log('Listening to database = ' + dbName)
+                    db = nano.use(dbName)
                     getConfig(dbName);
                 }
             }
