@@ -15,7 +15,6 @@
 				<button @click="creRdmProduct" class="myButton">1. Create random product</button>
 				<button @click="createUser" class="myButton">2. Create user</button>
 				<button @click="crateDB" class="myButton">3. Choose or Create a database</button>
-				<button @click="removeHist" class="myButton">4. Remove history and comments</button>
 				<button @click="showDBsecurity" class="myButton">6. Show the database security info</button>
 				<button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
 				<button @click="showDocById" class="myButton">8. Show a document by id</button>
@@ -108,12 +107,6 @@
 					case 3:
 						this.crateDBExe()
 						break
-					case 4:
-						this.removeHistExe()
-						break
-					case 5:
-						this.assignUserExe()
-						break
 					case 6:
 						this.showDBsecurityExe()
 						break
@@ -194,23 +187,6 @@
 					field4: "field not used",
 				}
 				this.commandNr = 3
-			},
-			removeHist() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: "DB name",
-					field2: "field not used",
-					field3: "field not used",
-					field4: "field not used",
-				}
-				this.commandNr = 4
-			},
-			removeHistExe() {
-				var payload = {
-					dbName: this.row.field1
-				}
-				this.$store.dispatch('doRemoveHistory', payload)
 			},
 			crateDBExe() {
 				const dbName = this.row.field1

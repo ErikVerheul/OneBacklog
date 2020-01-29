@@ -237,6 +237,89 @@ const actions = {
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
+
+  remHistAndCommAsync({
+    rootState,
+		state,
+		dispatch
+	}, dbName) {
+		globalAxios({
+			method: 'GET',
+			url: dbName + '/_all_docs',
+		}).then(res => {
+			rootState.isHistAndCommReset = false
+      rootState.backendSuccess = false
+      rootState.backendMessages = []
+			const docsToUpdate = []
+			for (let i = 0; i < res.data.rows.length; i++) {
+				docsToUpdate.push({ "id": res.data.rows[i].id })
+			}
+			dispatch('resetHistAndComm', { dbName: dbName, docs: docsToUpdate })
+		})
+			.catch(error => {
+				// eslint-disable-next-line no-console
+				console.log(error)
+				state.message = error.response.data
+				state.errorMessage = error.message
+			})
+	},
+
+  resetHistAndComm({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'POST',
+			url: payload.dbName + '/_bulk_get',
+			data: { "docs": payload.docs },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			for (let r of results) {
+        const doc = r.docs[0].docs
+				if (doc) {
+					if (doc.type === 'backlogItem') {
+						doc["history"] = [
+							{
+								"resetHistoryEvent": ['history cleared'],
+								"by": rootState.userData.user,
+								"email": rootState.userData.email,
+								"timestamp": Date.now(),
+								"distributeEvent": false
+							}]
+
+						doc['comments'] = [
+							{
+                "resetCommentsEvent": 'comments cleared',
+                "by": rootState.userData.user,
+								"email": rootState.userData.email,
+								"timestamp": 0,
+								"distributeEvent": false
+							}]
+						docs.push(doc)
+					}
+				}
+				if (r.docs[0].error) error.push(r.docs[0].error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
+				let msg = 'resetHistAndComm: These documents cannot be updated: ' + errorStr
+				// eslint-disable-next-line no-console
+				console.log(msg)
+			}
+			dispatch('updateBulk', { dbName: payload.dbName, docs, onSuccess: function() { rootState.isHistAndCommReset = true } })
+		})
+			.catch(error => {
+				let msg = 'resetHistAndComm: Could not read batch of documents: ' + error
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			})
+	},
 }
 
 export default {

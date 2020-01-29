@@ -55,6 +55,7 @@ export default new Vuex.Store({
 		fetchedTeams: [],
 		isCurrentDbChanged: false,
 		isPurgeReady: false,
+		isHistAndCommReset: false,
 		// app wide globals
 		myProductOptions: [],
 		demo: true,
