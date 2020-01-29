@@ -165,6 +165,10 @@ const actions = {
         for (let c of entry.removedExtConditions) {
             docsToGet.push({ "id": c.id })
         }
+        if (docsToGet.length === 0) {
+            // nothing to do
+            return
+        }
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
