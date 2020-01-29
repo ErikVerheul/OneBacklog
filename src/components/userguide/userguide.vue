@@ -165,8 +165,9 @@
           <li>setUsersDatabasePermissions: Success, system permissions for _users database are set</li>
           <li>createLog: Success, log for database erikdb7 is created</li>
           <li>createConfig: Success, the configuration document is created</li>
-          <li>installDesignDoc: Success, the design document is created</li>
-          <li>createRoot: Success, the root document is created</li>
+          <li>installDesignViews: Success, the design document is created</li>
+					<li>installDesignFilters: Success, the design document is created</li>
+          <li>createRootDoc: Success, the root document is created</li>
           <li>createServerAdminProfile: Success, user profile for testdb is created with 'admin', 'superPO' roles set</li>
         </ul>
         <p>Click on 'Exit' and sign-in again to see the product view with no product but a root document,<br>

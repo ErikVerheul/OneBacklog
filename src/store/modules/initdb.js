@@ -27,8 +27,7 @@ const actions = {
 	},
 
 	setDatabasePermissions({
-		rootState,
-		dispatch
+		rootState
 	}, payload) {
 		const dbPermissions = {
 			"admins": {
@@ -46,7 +45,6 @@ const actions = {
 			data: dbPermissions
 		}).then(() => {
 			rootState.backendMessages.push('setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set')
-			if (payload.createRootDoc) dispatch('createRoot', payload)
 		}).catch(error => {
 			rootState.backendMessages.push('setDatabasePermissions: Failure, could not set database permissions, ' + error)
 		})
@@ -170,13 +168,13 @@ const actions = {
 			data: configData
 		}).then(() => {
 			rootState.backendMessages.push('createConfig: Success, the configuration document is created')
-			dispatch('installDesignDoc', payload)
+			dispatch('installDesignViews', payload)
 		}).catch(error => {
 			rootState.backendMessages.push('createConfig: Failure, could not create the configuration document, ' + error)
 		})
 	},
 
-	installDesignDoc({
+	installDesignViews({
 		rootState,
 		dispatch
 	}, payload) {
@@ -191,16 +189,6 @@ const actions = {
 					 */
 					"sortedFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
-					},
-					/* ToDo: tighten this filter. Filter on document type 'backlogItem' only. For use by the mail server. */
-					"emailFilter": {
-						"map": `function(doc) {
-							if (doc.type == "backlogItem") {
-								if (doc.followers && doc.followers.length > 0) {
-									emit(doc._id, 1);
-								}
-							}
-						}`
 					},
 					/* Filter on document type 'backlogItem', then filter the changes which need distributed to other users. */
 					"changesFilter": {
@@ -228,14 +216,36 @@ const actions = {
 				"language": "javascript"
 			}
 		}).then(() => {
-			rootState.backendMessages.push('installDesignDoc: Success, the design document is created')
-			dispatch('createRoot', payload)
+			rootState.backendMessages.push('installDesignViews: Success, the design document is created')
+			dispatch('installDesignFilters', payload)
 		}).catch(error => {
-			rootState.backendMessages.push('installDesignDoc: Failure, cannot create the design document, ' + error)
+			rootState.backendMessages.push('installDesignViews: Failure, cannot create the design document, ' + error)
 		})
 	},
 
-	createRoot({
+	installDesignFilters({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'PUT',
+			url: payload.dbName + '/_design/filters',
+			data: {
+				"filters": {
+					/* Filter on changes with subscribed followers */
+					"email_filter": `function(doc, req) {\n return doc.type === 'backlogItem' && (doc.followers && doc.followers.length > 0) }`
+				},
+				"language": "javascript"
+			}
+		}).then(() => {
+			rootState.backendMessages.push('installDesignFilters: Success, the design document is created')
+			dispatch('createRootDoc', payload)
+		}).catch(error => {
+			rootState.backendMessages.push('installDesignFilters: Failure, cannot create the design document, ' + error)
+		})
+	},
+
+	createRootDoc({
 		rootState,
 		dispatch
 	}, payload) {
@@ -261,7 +271,7 @@ const actions = {
 			"history": [{
 				"createRootEvent": [payload.dbName],
 				"by": rootState.userData.user,
-				"email": this.$store.state.userData.email,
+				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": false
@@ -279,9 +289,9 @@ const actions = {
 				rootState.backendSuccess = true
 				rootState.userData.myDatabases.push(payload.dbName)
 			}
-			rootState.backendMessages.push('createRoot: Success, the root document is created')
+			rootState.backendMessages.push('createRootDoc: Success, the root document is created')
 		}).catch(error => {
-			rootState.backendMessages.push('createRoot: Failure, cannot create the root document, ' + error)
+			rootState.backendMessages.push('createRootDoc: Failure, cannot create the root document, ' + error)
 		})
 	},
 
