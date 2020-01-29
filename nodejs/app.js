@@ -1,12 +1,13 @@
 'use strict';
 require('dotenv').config();
-const NodeCouchDb = require('node-couchdb');
+const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent", "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent",
+    "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent", "setConditionsEvent", "setDependenciesEvent", "setHrsEvent",
+    "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "setTitleEvent", "uploadAttachmentEvent"];
+const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984');
 const atob = require('atob');
-const couch = new NodeCouchDb({ auth: { user: process.env.COUCH_USER, pass: process.env.COUCH_PW } });
-const viewUrlLongpol = '/_changes?feed=longpoll&include_docs=true&filter=_view&view=design1/emailFilter&since=now';
 const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' });
 const PBILEVEL = 5;
-
+var db;
 var configData = {};
 
 function getSubTypeText(dbName, idx) {
@@ -116,85 +117,71 @@ function mkHtml(dbName, eventType, value, event, doc) {
 }
 
 function listenForChanges(dbName) {
-    couch.get(dbName, viewUrlLongpol).then(
-        function (res, headers, status) {
-            const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent", "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent",
-                "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent", "setConditionsEvent", "setDependenciesEvent", "setHrsEvent",
-                "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "setTitleEvent", "uploadAttachmentEvent"];
-
-            const results = res.data.results;
-            for (let r of results) {
-                let doc = r.doc;
-
-                // if (doc.comments[0].timestamp > doc.history[0].timestamp) {
-                //     console.log('listenForChanges: comment event received = ' + Object.keys(doc.comments[0])[0])
-                // } else console.log('listenForChanges: history event received = ' + Object.keys(doc.history[0])[0])
-
-                if (doc.followers) {
-                    if (doc.comments[0].timestamp > doc.history[0].timestamp) {
-                        // process new comment
-                        for (let f of doc.followers) {
-                            const event = doc.comments[0];
-                            const eventType = Object.keys(event)[0];
+    nano.db.changes(dbName, { feed: 'longpoll', include_docs: true, filter: 'filters/email_filter', since: 'now' }).then((body) => {
+        // console.log('body = ' + JSON.stringify(body, null, 2));
+        const results = body.results;
+        for (let r of results) {
+            let doc = r.doc;
+            if (doc.followers) {
+                if (doc.comments[0].timestamp > doc.history[0].timestamp) {
+                    // process new comment
+                    for (let f of doc.followers) {
+                        const event = doc.comments[0];
+                        const eventType = Object.keys(event)[0];
+                        const data = { from: 'no-reply@onebacklog.net', to: f, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
+                        mailgun.messages().send(data, (error, body) => {
+                            // eslint-disable-next-line no-console
+                            console.log(body);
+                        });
+                    }
+                } else {
+                    // process new event in history
+                    for (let f of doc.followers) {
+                        const event = doc.history[0];
+                        const eventType = Object.keys(event)[0];
+                        if (interestingHistoryEvents.includes(eventType)) {
                             const data = { from: 'no-reply@onebacklog.net', to: f, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
                             mailgun.messages().send(data, (error, body) => {
                                 // eslint-disable-next-line no-console
                                 console.log(body);
                             });
                         }
-                    } else {
-                        // process new event in history
-                        for (let f of doc.followers) {
-                            const event = doc.history[0];
-                            const eventType = Object.keys(event)[0];
-                            if (interestingHistoryEvents.includes(eventType)) {
-                                const data = { from: 'no-reply@onebacklog.net', to: f, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
-                                mailgun.messages().send(data, (error, body) => {
-                                    // eslint-disable-next-line no-console
-                                    console.log(body);
-                                });
-                            }
-                        }
                     }
                 }
             }
-            listenForChanges(dbName);
-        },
-
-        function (err) {
-            if (err.code === "ESOCKETTIMEDOUT") { listenForChanges(dbName) } else
-                // eslint-disable-next-line no-console
-                console.log('An error is detected: ' + JSON.stringify(err, null, 2));
-        });
+        }
+        listenForChanges(dbName);
+    }).catch((err) => {
+        if (err.code === "ESOCKETTIMEDOUT") { listenForChanges(dbName) } else
+            // eslint-disable-next-line no-console
+            console.log('An error is detected while processing messages in database ' + dbName + ' :' + JSON.stringify(err, null, 2));
+    });
 }
 
 function getConfig(dbName) {
-    couch.get(dbName, "/config").then(
-        function (res) {
-            configData[dbName] = res.data
-            listenForChanges(dbName)
-        },
-        function (err) {
-            // eslint-disable-next-line no-console
-            console.log('An error is detected while loading the configuration of database ' + dbName + ', ' + JSON.stringify(err, null, 2));
-        })
+    db.get("config").then((body) => {
+        configData[dbName] = body
+        listenForChanges(dbName)
+    }).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log('An error is detected while loading the configuration of database ' + dbName + ', ' + JSON.stringify(err, null, 2));
+    })
 }
 
 function getAllDataBases() {
-    couch.get('', '/_all_dbs').then(
-        function (res) {
-            for (let dbName of res.data) {
-                if (!dbName.startsWith('_') && !dbName.includes('backup')) {
-                    // eslint-disable-next-line no-console
-                    console.log('Listening to database = ' + dbName)
-                    getConfig(dbName);
-                }
+    nano.db.list().then((body) => {
+        body.forEach((dbName) => {
+            if (!dbName.startsWith('_') && !dbName.includes('backup')) {
+                // eslint-disable-next-line no-console
+                console.log('Listening to database = ' + dbName)
+                db = nano.use(dbName)
+                getConfig(dbName);
             }
-        },
-        function (err) {
-            // eslint-disable-next-line no-console
-            console.log('An error is detected while loading the database names, ' + JSON.stringify(err, null, 2));
-        })
+        });
+    }).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log('An error is detected while loading the database names, ' + JSON.stringify(err, null, 2));
+    })
 }
 
 getAllDataBases();
