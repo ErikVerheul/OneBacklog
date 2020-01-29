@@ -117,7 +117,6 @@ export default {
           "by": this.$store.state.userData.user,
           "email": this.$store.state.userData.email,
           "timestamp": Date.now(),
-          "sessionId": this.$store.state.userData.sessionId,
           "distributeEvent": false
         }],
         "delmark": false
