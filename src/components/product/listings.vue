@@ -59,16 +59,21 @@ export default {
     getFilteredComments() {
       let filteredComments = []
       let comments = this.$store.state.currentDoc.comments
+      let allText = ""
       for (let c of comments) {
         if (c.addCommentEvent) {
           const comment = window.atob(c.addCommentEvent)
-          let allText = comment
-          allText += c.by
-          allText += c.email
-          allText += this.mkTimestamp(c.timestamp)
-          if (allText.includes(this.$store.state.filterForComment)) {
-            filteredComments.push(c)
-          }
+          allText += comment
+        }
+        if (c.resetCommentsEvent) {
+          const comment = c.resetCommentsEvent
+          allText += comment
+        }
+        allText += c.by
+        allText += c.email
+        allText += this.mkTimestamp(c.timestamp)
+        if (allText.includes(this.$store.state.filterForComment)) {
+          filteredComments.push(c)
         }
       }
       return filteredComments
@@ -92,37 +97,38 @@ export default {
         let keys = Object.keys(histItem)
         if (keys[0] === "ignoreEvent") continue
         for (let j = 0; j < keys.length; j++) {
-          if (keys[j] === "cloneEvent") allText += this.mkCloneEvent(histItem[keys[j]])
-          if (keys[j] === "rootEvent") allText += this.mkRootEvent(histItem[keys[j]])
-          if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
-          if (keys[j] === "conditionRemovedEvent") allText += this.mkConditionRemovedEvent(histItem[keys[j]])
-          if (keys[j] === "createRootEvent") allText += this.mkCreateRootEvent(histItem[keys[j]])
-          if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
-          if (keys[j] === "dependencyRemovedEvent") allText += this.mkDependencyRemovedEvent(histItem[keys[j]])
-          if (keys[j] === "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
-          if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
-          if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
-          if (keys[j] === "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
-          if (keys[j] === "setTeamOwnerEvent") allText += this.mkSetTeamOwnerEvent(histItem[keys[j]])
-          if (keys[j] === "setTeamEventDescendant") allText += this.mkSetTeamEventDescendant(histItem[keys[j]])
-          if (keys[j] === "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
-          if (keys[j] === "setSubTypeEvent") allText += this.mkSetSubTypeEvent(histItem[keys[j]])
-          if (keys[j] === "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
           if (keys[j] === "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
-          if (keys[j] === "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
-          if (keys[j] === "nodeUndoMoveEvent") allText += this.mkNodeUndoMoveEvent(histItem[keys[j]])
+          if (keys[j] === "cloneEvent") allText += this.mkCloneEvent(histItem[keys[j]])
+          if (keys[j] === "commentToHistoryEvent") allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
+          if (keys[j] === "conditionRemovedEvent") allText += this.mkConditionRemovedEvent(histItem[keys[j]])
+          if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
+          if (keys[j] === "createRootEvent") allText += this.mkCreateRootEvent(histItem[keys[j]])
+          if (keys[j] === "dependencyRemovedEvent") allText += this.mkDependencyRemovedEvent(histItem[keys[j]])
           if (keys[j] === "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
           if (keys[j] === "descendantUndoMove") allText += this.mkDescendantUndoMove(histItem[keys[j]])
-          if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
+          if (keys[j] === "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
           if (keys[j] === "docRemovedDescendantEvent") allText += this.mkDocRemovedDescendantEvent(histItem[keys[j]])
-          if (keys[j] === "removeParentEvent") allText += this.mkRemoveParentEvent(histItem[keys[j]])
-          if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
           if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
-          if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
-          if (keys[j] === "commentToHistoryEvent") allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
+          if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
+          if (keys[j] === "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
+          if (keys[j] === "nodeUndoMoveEvent") allText += this.mkNodeUndoMoveEvent(histItem[keys[j]])
           if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
-          if (keys[j] === "setDependenciesEvent") allText += this.mkSetDependenciesEvent(histItem[keys[j]])
+          if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
+          if (keys[j] === "removeParentEvent") allText += this.mkRemoveParentEvent(histItem[keys[j]])
           if (keys[j] === "setConditionsEvent") allText += this.mkSetConditionsEvent(histItem[keys[j]])
+          if (keys[j] === "setDependenciesEvent") allText += this.mkSetDependenciesEvent(histItem[keys[j]])
+          if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
+          if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
+          if (keys[j] === "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
+          if (keys[j] === "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
+          if (keys[j] === "setSubTypeEvent") allText += this.mkSetSubTypeEvent(histItem[keys[j]])
+          if (keys[j] === "setTeamEventDescendant") allText += this.mkSetTeamEventDescendant(histItem[keys[j]])
+          if (keys[j] === "setTeamOwnerEvent") allText += this.mkSetTeamOwnerEvent(histItem[keys[j]])
+          if (keys[j] === "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
+          if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
+          if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
+          if (keys[j] === "resetHistoryEvent") allText += this.mkResetHistoryEvent(histItem[keys[j]])
+
           if (keys[j] === "by") allText += this.mkBy(histItem[keys[j]])
           if (keys[j] === "email") allText += this.mkEmail(histItem[keys[j]])
           if (keys[j] === "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
@@ -165,37 +171,38 @@ export default {
     },
 
     prepHistoryText(key, value) {
-      if (key === "cloneEvent") return this.mkCloneEvent(value)
-      if (key === "rootEvent") return this.mkRootEvent(value)
-      if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
-      if (key === "conditionRemovedEvent") return this.mkConditionRemovedEvent(value)
-      if (key === "commentToHistoryEvent") return this.mkCommentToHistoryEvent(value)
-      if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
-      if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
-      if (key === "createRootEvent") return this.mkCreateRootEvent(value)
-      if (key === "createEvent") return this.mkCreateEvent(value)
-      if (key === "dependencyRemovedEvent") return this.mkDependencyRemovedEvent(value)
-      if (key === "setSizeEvent") return this.mkSetSizeEvent(value)
-      if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
-      if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
-      if (key === "setStateEvent") return this.mkSetStateEvent(value)
-      if (key === "setTeamOwnerEvent") return this.mkSetTeamOwnerEvent(value)
-      if (key === "setTeamEventDescendant") return this.mkSetTeamEventDescendant(value)
-      if (key === "setTitleEvent") return this.mkSetTitleEvent(value)
-      if (key === "setSubTypeEvent") return this.mkSetSubTypeEvent(value)
-      if (key === "descriptionEvent") return this.mkDescriptionEvent(value)
       if (key === "acceptanceEvent") return this.mkAcceptanceEvent(value)
-      if (key === "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
-      if (key === "nodeUndoMoveEvent") return this.mkNodeUndoMoveEvent(value)
+      if (key === "cloneEvent") return this.mkCloneEvent(value)
+      if (key === "commentToHistoryEvent") return this.mkCommentToHistoryEvent(value)
+      if (key === "conditionRemovedEvent") return this.mkConditionRemovedEvent(value)
+      if (key === "createEvent") return this.mkCreateEvent(value)
+      if (key === "createRootEvent") return this.mkCreateRootEvent(value)
+      if (key === "dependencyRemovedEvent") return this.mkDependencyRemovedEvent(value)
       if (key === "descendantMoved") return this.mkDescendantMoved(value)
       if (key === "descendantUndoMove") return this.mkDescendantUndoMove(value)
-      if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
+      if (key === "descriptionEvent") return this.mkDescriptionEvent(value)
       if (key === "docRemovedDescendantEvent") return this.mkDocRemovedDescendantEvent(value)
-      if (key === "removeParentEvent") return this.mkRemoveParentEvent(value)
-      if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
       if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
-      if (key === "setDependenciesEvent") return this.mkSetDependenciesEvent(value)
+      if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
+      if (key === "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
+      if (key === "nodeUndoMoveEvent") return this.mkNodeUndoMoveEvent(value)
+      if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
+      if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
+      if (key === "removeParentEvent") return this.mkRemoveParentEvent(value)
       if (key === "setConditionsEvent") return this.mkSetConditionsEvent(value)
+      if (key === "setDependenciesEvent") return this.mkSetDependenciesEvent(value)
+      if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
+      if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
+      if (key === "setSizeEvent") return this.mkSetSizeEvent(value)
+      if (key === "setStateEvent") return this.mkSetStateEvent(value)
+      if (key === "setSubTypeEvent") return this.mkSetSubTypeEvent(value)
+      if (key === "setTeamEventDescendant") return this.mkSetTeamEventDescendant(value)
+      if (key === "setTeamOwnerEvent") return this.mkSetTeamOwnerEvent(value)
+      if (key === "setTitleEvent") return this.mkSetTitleEvent(value)
+      if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
+      if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
+      if (key === "resetHistoryEvent") return this.mkResetHistoryEvent(value)
+
       if (key === "by") return this.mkBy(value)
       if (key === "email") return this.mkEmail(value)
       if (key === "timestamp") return this.mkTimestamp(value)
@@ -203,6 +210,7 @@ export default {
 
     prepCommentsText(key, value) {
       if (key === "addCommentEvent") return this.mkComment(value)
+      if (key === "resetCommentsEvent") return this.mkResetCommentsEvent(value)
       if (key === "by") return this.mkBy(value)
       if (key === "email") return this.mkEmail(value)
       if (key === "timestamp") return this.mkTimestamp(value)
@@ -360,8 +368,12 @@ export default {
       return "<h5>Attachment with title '" + value[0] + "' is removed.</h5>"
     },
 
-    mkRootEvent(value) {
+    mkResetHistoryEvent(value) {
       return "<h5>" + value[0] + ".</h5>"
+    },
+
+    mkResetCommentsEvent(value) {
+      return "<h5>" + value + ".</h5>"
     },
 
     mkCloneEvent(value) {
