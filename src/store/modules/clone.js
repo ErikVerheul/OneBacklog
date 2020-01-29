@@ -147,7 +147,6 @@ const actions = {
                     "by": rootState.userData.user,
                     "email": rootState.userData.email,
                     "timestamp": Date.now(),
-                    "sessionId": rootState.userData.sessionId,
                     "distributeEvent": false
                 }]
                 // fix references to oldId in parentId
