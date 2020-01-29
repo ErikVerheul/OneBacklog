@@ -154,34 +154,42 @@ The entry for undoing the remove in a last-in first-out sequence
     removedExtConditions: removed.removedExtConditions
   }
 
-The events and their usage:      
+Thee events and their usage:      
 
-distibuted	mailed		event                       file
----------------------------------------------------------
-Y	            Y	    acceptanceEvent	              update.js
-Y	            Y	    addCommentEvent	              update.js
-N	            Y	    cloneEvent	                  clone.js
+distibuted	mailed		event                       	file
+-----------------------------------------------------------------
+Y	            Y	    acceptanceEvent	              	update.js
+Y	            Y	    addCommentEvent	              	update.js
+N	            Y	    cloneEvent	                  	clone.js
 Y	            Y	    commentToHistoryEvent	        update.js
 Y	            Y	    conditionRemovedEvent	        update.js
 Y	            N	    createEvent 	                context.js
-Y	            N		  context.js
-N	            N		  superpo.vue
-Y	            Y	    dependencyRemovedEvent 	      update.js
+Y	            N		  								context.js
+N	            N		  								superpo.vue
+N				N		createRootEvent					intdb.js
+Y	            Y	    dependencyRemovedEvent 	      	update.js
+N				N		descendantMoved					move.js
+N				N		descendantUndoMove				move.js
 Y	            Y	    descriptionEvent	            update.js
+N				N		docRemovedDescendantEvent		remove.js
 Y	            Y	    docRestoredEvent 	            undo.js
-N	            N	    grandParentDocRestoredEvent	  undo.js
+N	            N	    grandParentDocRestoredEvent	  	undo.js
 Y	            Y	    nodeDroppedEvent	            move.js
 Y	            Y	    nodeUndoMoveEvent	            move.js
 Y	            Y	    removeAttachmentEvent	        attachments.js
-N	            Y	    removedFromParentEvent	      remove.js
+N	            Y	    removedFromParentEvent	      	remove.js
 Y	            N	    removeParentEvent	            remove.js
-Y	            Y	    setConditionsEvent	          update.js
+Y	            Y	    setConditionsEvent	          	update.js
 Y	            Y	    setDependenciesEvent	        update.js
-Y	            Y	    setHrsEvent	                  update.js
-Y	            Y	    setPointsEvent	              update.js
+Y	            Y	    setHrsEvent	                  	update.js
+Y	            Y	    setPointsEvent	              	update.js
 Y	            Y	    setSizeEvent	                update.js
 Y	            Y	    setStateEvent	                update.js
-Y	            Y	    setSubTypeEvent	              update.js
+Y	            Y	    setSubTypeEvent	              	update.js
+Y				N		setTeamEventDescendant			update.js
 Y	            Y	    setTeamOwnerEvent	            update.js
 Y	            Y	    setTitleEvent	                update.js
+N				N		subscribeEvent					update.js
 Y	            Y	    uploadAttachmentEvent	        attachments.js
+N				N		resetHistoryEvent				utils.js
+
