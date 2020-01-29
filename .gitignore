@@ -21,3 +21,4 @@ yarn-error.log*
 *.sw*
 # node.js environment file
 nodejs/.env
+nodejs/app2.js
