@@ -57,7 +57,7 @@
         <div v-if="newDbName !== '' && !$store.state.userUpdated">
           <p>Database {{ newDbName }} will be created</p>
           <b-button v-if="!$store.state.backendSuccess && newDbName !== ''" class="m-1" @click="doCreateDatabase">Start creation</b-button>
-          <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+          <b-button class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
         </div>
       </div>
 
@@ -317,6 +317,7 @@ export default {
     },
 
     cancel() {
+      this.$store.state.backendMessages = []
       this.optionSelected = 'select a task'
     },
 
