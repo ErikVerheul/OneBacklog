@@ -102,8 +102,8 @@ const actions = {
 			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
 			// doSetDependency() --> const conditionalForPayload = { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor }
 			const toDispatch = {
-                setConditions: payload.conditionalForPayload
-            }
+				setConditions: payload.conditionalForPayload
+			}
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch })
 		}).catch(error => {
 			let msg = 'SetDepAndCond: Could not read document with _id ' + _id + ', ' + error
@@ -166,7 +166,7 @@ const actions = {
 			}
 			tmpDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc })
-			dispatch('removeConditions', { ref: _id, depOnDocuments: payload.removedIds } )
+			dispatch('removeConditions', { ref: _id, depOnDocuments: payload.removedIds })
 		}).catch(error => {
 			let msg = 'updateDep: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -198,7 +198,7 @@ const actions = {
 			}
 			tmpDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc })
-			dispatch('removeDependencies', { ref: _id, condForDocuments: payload.removedIds } )
+			dispatch('removeDependencies', { ref: _id, condForDocuments: payload.removedIds })
 		}).catch(error => {
 			let msg = 'updateCon: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -634,12 +634,9 @@ const actions = {
 				rootState.currentDoc._rev = res.data.rev
 			}
 			rootState.backendSuccess = true
-			if (payload.caller === 'uploadAttachmentAsync') {
-				rootState.uploadDone = true
-				// check if the user did not load another document while the attachment was uploaded
-				if (_id === rootState.currentDoc._id) {
-					rootState.currentDoc._attachments = payload.updatedDoc._attachments
-				}
+			// execute passed function if provided
+			if (payload.onSuccess !== undefined) {
+				payload.onSuccess(_id, payload.updatedDoc)
 			}
 			// additional dispatches
 			if (payload.toDispatch) {
@@ -684,7 +681,7 @@ const actions = {
 			if (updateConflict > 0 || otherError > 0) {
 				dispatch('doLog', { event: msg, level: WARNING })
 			} else {
-				// full success if no updateConflict and no otherError
+				// execute passed function if provided at full success (if no updateConflict and no otherError)
 				if (payload.onSuccess !== undefined) {
 					payload.onSuccess()
 				}
