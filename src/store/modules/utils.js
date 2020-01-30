@@ -66,8 +66,6 @@ const actions = {
         "roles": ["areaPO", "superPO", "PO", "developer", "guest"]
       }
     }
-    // eslint-disable-next-line no-console
-    if (rootState.debug) console.log('Start executing setUsersDatabasePermissions')
     globalAxios({
       method: 'PUT',
       url: '/_users/_security',
@@ -171,7 +169,7 @@ const actions = {
       url: payload.dbName + '/_purge',
       data: payload.data[payload.idx],
     }).then(() => {
-      // recurse
+      // recurse as there is nu bulk purge available
       payload.idx++
       dispatch('purgeDb', payload)
     }).catch(error => {
