@@ -48,9 +48,9 @@ const actions = {
             }
             if (error.length > 0) {
                 let errorStr = ''
-                for (let i = 0; i < error.length; i++) {
-                    errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
-                }
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
                 let msg = 'removeDependencies: These documents cannot be updated: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
@@ -108,9 +108,9 @@ const actions = {
             }
             if (error.length > 0) {
                 let errorStr = ''
-                for (let i = 0; i < error.length; i++) {
-                    errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
-                }
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
                 let msg = 'removeConditions: These documents cannot be updated: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
@@ -237,9 +237,9 @@ const actions = {
             if (error.length > 0) {
                 rootState.busyRemoving = false
                 let errorStr = ''
-                for (let i = 0; i < error.length; i++) {
-                    errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
-                }
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
                 let msg = 'removeDescendents: These documents cannot be marked for removal: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
@@ -358,9 +358,9 @@ const actions = {
             if (error.length > 0) {
                 rootState.busyRemoving = false
                 let errorStr = ''
-                for (let i = 0; i < error.length; i++) {
-                    errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
-                }
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
                 let msg = 'removeExtDependencies: These documents cannot be updated for their set dependencies: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
@@ -403,8 +403,6 @@ const actions = {
             const results = res.data.results
             for (let r of results) {
                 const doc = r.docs[0].ok
-                if (!doc) continue
-
                 const condItem = getCondItem(doc._id)
                 if (doc && doc.dependencies && condItem) {
                     let newDependencies = []
@@ -425,9 +423,9 @@ const actions = {
             if (error.length > 0) {
                 rootState.busyRemoving = false
                 let errorStr = ''
-                for (let i = 0; i < error.length; i++) {
-                    errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
-                }
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
                 let msg = 'removeExtConditions: These documents cannot be updated for their set conditions: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)

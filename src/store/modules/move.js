@@ -29,11 +29,10 @@ const actions = {
 			const results = res.data.results
 			const ok = []
 			const error = []
-			for (let i = 0; i < results.length; i++) {
-				if (results[i].docs[0].ok) {
-					const item = getPayLoadItem(results[i].docs[0].ok._id)
-					const doc = results[i].docs[0].ok
-					// change the document
+			for (let r of results) {
+				if (r.docs[0].ok) {
+					const item = getPayLoadItem(r.docs[0].ok._id)
+					const doc = r.docs[0].ok
 					let newHist = {}
 					if (item.type === 'move') {
 						newHist = {
@@ -64,12 +63,12 @@ const actions = {
 					// show the history update in the current opened item
 					if (doc._id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
 				}
-				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
+				if (r.docs[0].error) error.push(r.docs[0].error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''
-				for (let i = 0; i < error.length; i++) {
-					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
 				}
 				let msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console
@@ -125,10 +124,10 @@ const actions = {
 			const results = res.data.results
 			const ok = []
 			const error = []
-			for (let i = 0; i < results.length; i++) {
-				if (results[i].docs[0].ok) {
-					const item = getPayLoadItem(results[i].docs[0].ok._id)
-					const doc = results[i].docs[0].ok
+			for (let r of results) {
+				if (r.docs[0].ok) {
+					const item = getPayLoadItem(r.docs[0].ok._id)
+					const doc = r.docs[0].ok
 					// change the document
 					let newHist = {}
 					if (item.type === 'move') {
@@ -154,12 +153,12 @@ const actions = {
 					doc.productId = item.productId
 					ok.push(doc)
 				}
-				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
+				if (r.docs[0].error) error.push(r.docs[0].error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''
-				for (let i = 0; i < error.length; i++) {
-					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
 				}
 				let msg = 'updateMovedDescendantsBulk: These descendants cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console

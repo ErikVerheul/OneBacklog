@@ -362,9 +362,9 @@ const actions = {
 			const results = res.data.results
 			const ok = []
 			const error = []
-			for (let i = 0; i < results.length; i++) {
-				if (results[i].docs[0].ok) {
-					const oldTeam = results[i].docs[0].ok.team
+			for (let r of results) {
+				if (r.docs[0].ok) {
+					const oldTeam = r.docs[0].ok.team
 					if (newTeam != oldTeam) {
 						const newHist = {
 							"setTeamEventDescendant": [oldTeam, newTeam, payload.parentTitle],
@@ -374,18 +374,18 @@ const actions = {
 							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": true
 						}
-						results[i].docs[0].ok.history.unshift(newHist)
+						r.docs[0].ok.history.unshift(newHist)
 						// set the team name
-						results[i].docs[0].ok.team = newTeam
-						ok.push(results[i].docs[0].ok)
+						r.docs[0].ok.team = newTeam
+						ok.push(r.docs[0].ok)
 					}
 				}
-				if (results[i].docs[0].error) error.push(results[i].docs[0].error)
+				if (r.docs[0].error) error.push(r.docs[0].error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''
-				for (let i = 0; i < error.length; i++) {
-					errorStr.concat(errorStr.concat(error[i].id + '( error = ' + error[i].error + ', reason = ' + error[i].reason + '), '))
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
 				}
 				let msg = 'setTeamDescendantsBulk: These documents cannot change team: ' + errorStr
 				// eslint-disable-next-line no-console
@@ -680,7 +680,14 @@ const actions = {
 			if (payload.caller) msg += `\nupdateBulk was called by ${payload.caller}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			if (updateConflict > 0 || otherError > 0) dispatch('doLog', { event: msg, level: WARNING })
+			if (updateConflict > 0 || otherError > 0) {
+				dispatch('doLog', { event: msg, level: WARNING })
+			} else {
+				// full success if no updateConflict and no otherError
+				if (payload.onSuccess !== undefined) {
+					payload.onSuccess()
+				}
+			}
 			// has effect when removing a branche, otherwise no effect
 			rootState.busyRemoving = false
 			// additional dispatches
