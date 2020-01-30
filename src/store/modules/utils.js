@@ -277,7 +277,7 @@ const actions = {
 			const docs = []
 			const error = []
 			for (let r of results) {
-        const doc = r.docs[0].docs
+        const doc = r.docs[0].ok
 				if (doc) {
 					if (doc.type === 'backlogItem') {
 						doc["history"] = [

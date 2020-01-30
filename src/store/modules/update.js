@@ -360,11 +360,12 @@ const actions = {
 		}).then(res => {
 			const newTeam = rootState.userData.myTeam
 			const results = res.data.results
-			const ok = []
+			const docs = []
 			const error = []
 			for (let r of results) {
-				if (r.docs[0].ok) {
-					const oldTeam = r.docs[0].ok.team
+				let doc = r.docs[0].ok
+				if (doc) {
+					const oldTeam = doc.team
 					if (newTeam != oldTeam) {
 						const newHist = {
 							"setTeamEventDescendant": [oldTeam, newTeam, payload.parentTitle],
@@ -374,13 +375,13 @@ const actions = {
 							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": true
 						}
-						r.docs[0].ok.history.unshift(newHist)
+						doc.history.unshift(newHist)
 						// set the team name
-						r.docs[0].ok.team = newTeam
-						ok.push(r.docs[0].ok)
+						doc.team = newTeam
+						docs.push(doc)
 					}
 				}
-				if (r.docs[0].error) error.push(r.docs[0].error)
+				if (doc.error) error.push(doc.error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''
@@ -392,7 +393,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			if (ok.length > 0) dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
 		}).catch(error => {
 			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console

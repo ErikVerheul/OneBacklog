@@ -27,12 +27,12 @@ const actions = {
 		}).then(res => {
 			// console.log('updateMovedItemsBulk: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
-			const ok = []
+			const docs = []
 			const error = []
 			for (let r of results) {
-				if (r.docs[0].ok) {
-					const item = getPayLoadItem(r.docs[0].ok._id)
-					const doc = r.docs[0].ok
+				const doc = r.docs[0].ok
+				if (doc.ok) {
+					const item = getPayLoadItem(doc._id)
 					let newHist = {}
 					if (item.type === 'move') {
 						newHist = {
@@ -59,11 +59,11 @@ const actions = {
 					doc.productId = item.productId
 					doc.parentId = item.newParentId
 					doc.priority = item.newPriority
-					ok.push(doc)
+					docs.push(doc)
 					// show the history update in the current opened item
 					if (doc._id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
 				}
-				if (r.docs[0].error) error.push(r.docs[0].error)
+				if (doc.error) error.push(doc.error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''
@@ -75,7 +75,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
 			// update the descendants of all the moved(back) items
 			let payload2 = []
 			for (let item of payload.items) {
@@ -122,12 +122,12 @@ const actions = {
 		}).then(res => {
 			// console.log('updateMovedDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
-			const ok = []
+			const docs = []
 			const error = []
 			for (let r of results) {
-				if (r.docs[0].ok) {
-					const item = getPayLoadItem(r.docs[0].ok._id)
-					const doc = r.docs[0].ok
+				const doc = r.docs[0].ok
+				if (doc) {
+					const item = getPayLoadItem(doc._id)
 					// change the document
 					let newHist = {}
 					if (item.type === 'move') {
@@ -151,9 +151,9 @@ const actions = {
 					doc.history.unshift(newHist)
 					doc.level = item.newLevel
 					doc.productId = item.productId
-					ok.push(doc)
+					docs.push(doc)
 				}
-				if (r.docs[0].error) error.push(r.docs[0].error)
+				if (doc.error) error.push(doc.error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''
@@ -165,7 +165,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: ok })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
 		}).catch(error => {
 			let msg = 'updateMovedDescendantsBulk: Could not read decendants in bulk. Error = ' + error
 			// eslint-disable-next-line no-console
