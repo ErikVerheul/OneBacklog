@@ -13,12 +13,7 @@
 			<div class="col-lg-8 col-sm-8">
 				<button @click="showCredentials" class="myButton">0. Show my credentials</button>
 				<button @click="creRdmProduct" class="myButton">1. Create random product</button>
-				<button @click="createUser" class="myButton">2. Create user</button>
-				<button @click="crateDB" class="myButton">3. Choose or Create a database</button>
 				<button @click="showDBsecurity" class="myButton">6. Show the database security info</button>
-				<button @click="showDocuments" class="myButton">7. Show the documents in a database</button>
-				<button @click="showDocById" class="myButton">8. Show a document by id</button>
-				<button @click="deleteDB" class="myButton">9. Delete the selected || created database</button>
 				<button @click="copyDB" class="myButton">11. Copy a database including permissions</button>
 			</div>
 
@@ -101,23 +96,8 @@
 					case 1:
 						this.creRdmProductExe()
 						break
-					case 2:
-						this.createUserExe()
-						break
-					case 3:
-						this.crateDBExe()
-						break
 					case 6:
 						this.showDBsecurityExe()
-						break
-					case 7:
-						this.showDocumentsExe()
-						break
-					case 8:
-						this.showDocByIdExe()
-						break
-					case 9:
-						this.deleteDBExe()
 						break
 					case 11:
 						this.copyDBExe()
@@ -159,39 +139,7 @@
 				}
 				this.$store.dispatch('creRdmProduct', payload)
 			},
-			createUser() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: "user name",
-					field2: "role, role, etc.",
-					field3: "email",
-					field4: "cell phone"
-				}
-				this.commandNr = 2
-			},
-			createUserExe() {
-				var payload = {
-					name: this.row.field1,
-					role: this.row.field2
-				}
-				this.$store.dispatch('createUser', payload)
-			},
-			crateDB() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: "DB name",
-					field2: "field not used",
-					field3: "field not used",
-					field4: "field not used",
-				}
-				this.commandNr = 3
-			},
-			crateDBExe() {
-				const dbName = this.row.field1
-				this.$store.dispatch('chooseOrCreateDB', dbName)
-			},
+
 			showDBsecurity() {
 				this.$store.commit('clearAll')
 				this.selectionMade = true
@@ -208,58 +156,6 @@
 					dbName: this.row.field1
 				}
 				this.$store.dispatch('showDBsec', payload)
-			},
-			showDocuments() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: this.$store.state.userData.currentDb,
-					field2: "field not used",
-					field3: "field not used",
-					field4: "field not used",
-				}
-				this.commandNr = 7
-			},
-			showDocumentsExe() {
-				var payload = {
-					dbName: this.$store.state.userData.currentDb,
-				}
-				this.$store.dispatch('showAllDocs', payload)
-			},
-			showDocById() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: this.$store.state.userData.currentDb,
-					field2: "paste the id here",
-					field3: "field not used",
-					field4: "field not used",
-				}
-				this.commandNr = 8
-			},
-			showDocByIdExe() {
-				var payload = {
-					dbName: this.row.field1,
-					id: this.row.field2
-				}
-				this.$store.dispatch('showDoc', payload)
-			},
-			deleteDB() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: this.$store.state.userData.currentDb,
-					field2: "field not used",
-					field3: "field not used",
-					field4: "field not used",
-				}
-				this.commandNr = 9
-			},
-			deleteDBExe() {
-				var payload = {
-					dbName: this.row.field1
-				}
-				this.$store.dispatch('delDB', payload)
 			},
 			copyDB() {
 				this.$store.commit('clearAll')
@@ -279,23 +175,7 @@
 				}
 				this.$store.dispatch('copyDB', payload)
 			},
-			convertState() {
-				this.$store.commit('clearAll')
-				this.selectionMade = true
-				this.row = {
-					field1: "DB name",
-					field2: "field not used",
-					field3: "field not used",
-					field4: "field not used",
-				}
-				this.commandNr = 12
-			},
-			convertStateExe() {
-				var payload = {
-					dbName: this.row.field1
-				}
-				this.$store.dispatch('doConvertState', payload)
-			},
+
 		}
 	}
 
