@@ -85,7 +85,17 @@ const actions = {
                 }
                 tmpDoc.history.unshift(newHist)
                 rootState.currentDoc.history.unshift(newHist)
-                dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'uploadAttachmentAsync' })
+                dispatch('updateDoc', {
+                    dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+                    onSuccess: function (id, updatedDoc) {
+                        rootState.uploadDone = true
+                        // check if the user did not load another document while the attachment was uploaded
+                        if (id === rootState.currentDoc._id) {
+                            rootState.currentDoc._attachments = updatedDoc._attachments
+                        }
+                    },
+                    caller: 'uploadAttachmentAsync'
+                })
             }).catch(error => {
                 rootState.uploadDone = true
                 let msg = 'uploadAttachmentAsync: Could not read document with _id ' + _id + ', ' + error
