@@ -310,7 +310,7 @@ const actions = {
       if (error.message.includes("404")) {
         dispatch('createUser2', payload)
       } else {
-        let msg = 'createUser1: While checking if user "' + payload.user + '" exist an error occurred, ' + error
+        let msg = 'createUser1: While checking if user "' + payload.user + '" exists an error occurred, ' + error
         rootState.backendMessages.push(msg)
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
