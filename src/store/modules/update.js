@@ -344,6 +344,7 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
 	/* Change the team of the descendants to the users team */
 	setTeamDescendantsBulk({
 		rootState,

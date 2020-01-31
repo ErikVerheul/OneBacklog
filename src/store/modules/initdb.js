@@ -200,6 +200,10 @@ const actions = {
 							}
 						}`
 					},
+					/* Filter on parentIds to map documents to their parent */
+					"parentIds": {
+						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit(doc.parentId, 1);}'
+					},
 					/* Filter on document type 'backlogItem', then sort on shortId.*/
 					"shortIdFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.shortId], 1);}'
