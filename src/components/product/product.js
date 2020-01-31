@@ -443,6 +443,7 @@ export default {
           this.showLastEvent('Change of item state is undone', INFO)
           break
         case 'undoTitleChange':
+          // ToDo: this.$store.state.nodeSelected is undefined when moving away from this view with a redo open and turning back
           this.$store.state.nodeSelected.title = entry.oldTitle
           this.$store.dispatch('setDocTitle', { 'newTitle': entry.oldTitle, 'timestamp': Date.now() })
           this.showLastEvent('Change of item title is undone', INFO)
