@@ -9,7 +9,7 @@
       <b-button block @click="createNewDb">Create a new database</b-button>
       <b-button block @click="changeMyDb">Change my default database</b-button>
       <b-button block @click="purgeDb">Purge removed Purge removed documents and compact the database</b-button>
-      <b-button block variant="warning" @click="remHistAndComm">Remove history and comments</b-button>
+      <b-button block variant="warning" @click="remHistAndComm">Remove history, comments and followers</b-button>
       <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
       <b-button block @click="fauxton">All FAUXTON tasks</b-button>
 
@@ -96,8 +96,8 @@
         </div>
       </div>
 
-      <div v-if="optionSelected === 'Remove history and comments'">
-        <h2>Remove history and comments</h2>
+      <div v-if="optionSelected === 'Remove history, comments and followers'">
+        <h2>Remove history, comments and followers</h2>
         <b-form-group>
           <h5>Select the database you want to reset the history and comments</h5>
           <b-form-radio-group
@@ -106,10 +106,10 @@
             stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm">Remove history and comments</b-button>
+        <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm">Remove history, comments and followers</b-button>
         <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         <div v-if="$store.state.isHistAndCommReset">
-          <h4>Succes! History and comments are removed</h4>
+          <h4>Succes! History, comments and followers are removed</h4>
         </div>
         <div v-else>
           <h4 v-if="asyncFired">Please wait ... Failure? See the log</h4>
@@ -280,7 +280,7 @@ export default {
 
     remHistAndComm() {
       this.asyncFired = false
-      this.optionSelected = 'Remove history and comments'
+      this.optionSelected = 'Remove history, comments and followers'
       this.localMessage = ''
       this.$store.state.isCurrentDbChanged = false
       // get all non sytem & non backup databases
