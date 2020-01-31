@@ -478,7 +478,10 @@ export default {
       }
     },
 
-    /* In the database both the selected node and all its descendants will be tagged with a delmark */
+    /*
+    * In the database both the selected node and all its descendants will be tagged with a delmark
+    * The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
+    */
     doRemove() {
       const selectedNode = this.contextNodeSelected
       const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
