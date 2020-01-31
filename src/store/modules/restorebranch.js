@@ -165,10 +165,7 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/parentIds?' + composeRangeString(_id) + '&include_docs=true'
         }).then(res => {
-            const docs = []
-            for (let r of res.data.rows) {
-                docs.push(r.doc)
-            }
+            const docs = res.data.rows.map(r => r.doc)
             if (docs.length > 0) {
                 // process next level
                 dispatch('processItems', docs)
