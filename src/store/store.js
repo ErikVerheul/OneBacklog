@@ -90,7 +90,8 @@ export default new Vuex.Store({
 			return state.userData.user !== undefined
 		},
 		isFollower(state) {
-			if (state.currentDoc) return state.currentDoc.followers.includes(state.userData.email)
+			const emails = state.currentDoc.followers.map(e => e.email)
+			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
 		isServerAdmin(state) {
 			return state.userData.roles.includes("_admin")
