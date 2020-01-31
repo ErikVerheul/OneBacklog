@@ -16,6 +16,7 @@ const HOURINMILIS = 3600000
 var parentNodes = {}
 
 const state = {
+	treeNodes: [],
 	docsCount: 0,
 	itemsCount: 0,
 	orphansCount: 0,
