@@ -289,7 +289,7 @@ const actions = {
 									window.slVueTree.remove([node])
 									commit('showLastEvent', { txt: 'Another user removed an item', severity: INFO })
 									if (node.level === PRODUCTLEVEL) {
-										// save some data of the removed product for restore at undo
+										// save some data of the removed product for restore at undo. ToDo: restore product roles at undo?
 										removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
 										// remove the product from the users product roles, subscriptions and product selection array
 										delete rootState.userData.myProductsRoles[node._id]
