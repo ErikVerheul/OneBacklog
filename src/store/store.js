@@ -16,6 +16,7 @@ import undo from './modules/undo'
 import setup from './modules/setup'
 import remove from './modules/remove'
 import utils from './modules/utils'
+import restorebranch from './modules/restorebranch'
 
 const DEBUG = -1
 const INFO = 0
@@ -280,7 +281,8 @@ export default new Vuex.Store({
 		undo,
 		remove,
 		setup,
-		utils
+		utils,
+		restorebranch
 	}
 
 })

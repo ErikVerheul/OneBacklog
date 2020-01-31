@@ -5,7 +5,6 @@ const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 const INFO = 0
 const WARNING = 1
-var remoteRemoved = []
 var removedProducts = []
 
 /*
@@ -158,6 +157,7 @@ const actions = {
 									"productId": doc.productId,
 									"parentId": doc.parentId,
 									"_id": doc._id,
+									"shortId": doc.shortId,
 									"dependencies": doc.dependencies || [],
 									"conditionalFor": doc.conditionalFor || [],
 									"title": doc.title,
@@ -173,7 +173,13 @@ const actions = {
 									"data": {
 										state: doc.state,
 										subtype: 0,
+										priority: undefined,
+										team: doc.team,
 										lastStateChange: lastHistoryTimestamp,
+										lastContentChange: lastHistoryTimestamp,
+										lastCommentAddition: lastHistoryTimestamp,
+										lastAttachmentAddition: lastHistoryTimestamp,
+										lastCommentToHistory: lastHistoryTimestamp,
 										lastChange: lastHistoryTimestamp
 									}
 								}
@@ -242,86 +248,7 @@ const actions = {
 						case 'docRestoredEvent':
 							{	// node	is restored from a previous removal
 								commit('showLastEvent', { txt: 'Another user restored a removed item', severity: INFO })
-								// console.log('sync: remoteRemoved = ' + JSON.stringify(remoteRemoved, null, 2))
-								let nodeFound = false
-								// lookup in remove history
-								for (let i = 0; i < remoteRemoved.length; i++) {
-									const node = remoteRemoved[i]
-									if (node._id === doc._id) {
-										if (node.level === PRODUCTLEVEL) {
-											// re-enter the product to the users product roles, subscriptions and product selection array
-											rootState.userData.myProductsRoles[node._id] = removedProducts[0].productRoles
-											rootState.userData.myProductSubscriptions.push(node._id)
-											rootState.myProductOptions.push({
-												value: node._id,
-												text: node.title
-											})
-											// remove the entry
-											removedProducts.splice(0, 1)
-										}
-										// remove from the array
-										remoteRemoved.splice(i, 1)
-										const parentNode = window.slVueTree.getNodeById(node.parentId)
-										if (parentNode) {
-											let path
-											if (window.slVueTree.comparePaths(parentNode.path, node.path.slice(0, -1)) === 0) {
-												// the removed node path has not changed
-												path = node.path
-											} else {
-												// the removed node path has changed; correct it for the new parent path
-												path = parentNode.path.concat(node.path.slice(-1))
-											}
-											const prevNode = window.slVueTree.getPreviousNode(path)
-											if (path.slice(-1)[0] === 0) {
-												// the previous node is the parent
-												const cursorPosition = {
-													nodeModel: prevNode,
-													placement: 'inside'
-												}
-												window.slVueTree.insert(cursorPosition, [node])
-											} else {
-												// the previous node is a sibling
-												const cursorPosition = {
-													nodeModel: prevNode,
-													placement: 'after'
-												}
-												window.slVueTree.insert(cursorPosition, [node])
-											}
-										} else {
-											commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
-											let msg = 'Sync: a remote restore of the tree view failed. Cannot find the parent of ' + node._id
-											// eslint-disable-next-line no-console
-											if (rootState.debug) console.log(msg)
-											dispatch('doLog', { event: msg, level: WARNING })
-										}
-										// restore the removed dependencies
-										for (let d of lastHistObj.docRestoredEvent[1]) {
-											const node = window.slVueTree.getNodeById(d.id)
-											node.dependencies.push(d.dependentOn)
-										}
-										for (let d of lastHistObj.docRestoredEvent[2]) {
-											const node = window.slVueTree.getNodeById(d.id)
-											node.dependencies.push(d.dependentOn)
-										}
-										for (let c of lastHistObj.docRestoredEvent[3]) {
-											const node = window.slVueTree.getNodeById(c.id)
-											node.conditionalFor.push(c.conditionalFor)
-										}
-										for (let c of lastHistObj.docRestoredEvent[4]) {
-											const node = window.slVueTree.getNodeById(c.id)
-											node.conditionalFor.push(c.conditionalFor)
-										}
-										nodeFound = true
-										break
-									}
-								}
-								if (!nodeFound) {
-									commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
-									let msg = 'Sync: a remote restore of the tree view failed. The node with id ' + doc._id + ' is not saved in a previous remote remove.'
-									// eslint-disable-next-line no-console
-									if (rootState.debug) console.log(msg)
-									dispatch('doLog', { event: msg, level: WARNING })
-								}
+								dispatch('restoreBranch', doc)
 							}
 							break
 						case 'nodeDroppedEvent':
@@ -361,8 +288,6 @@ const actions = {
 								if (node) {
 									window.slVueTree.remove([node])
 									commit('showLastEvent', { txt: 'Another user removed an item', severity: INFO })
-									// save the node for later restoration
-									remoteRemoved.unshift(node)
 									if (node.level === PRODUCTLEVEL) {
 										// save some data of the removed product for restore at undo
 										removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })

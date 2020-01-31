@@ -1,29 +1,24 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the baclogitem documents must add history in order for the changes feed to work properly
 
-const INFO = 0
+const ERROR = 2
+const WARNING = 1
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const HOURINMILIS = 3600000
+var parentHistObj = {}
 
 function composeRangeString(id) {
     return 'startkey="' + id + '"&endkey="' + id + '"'
 }
 
-const state = {
-    lastHistoryTimestamp: 0,
-    docsCount: 1,
-    itemsCount: 1,
-    currentDefaultProductId: null,
-    currentProductId: null,
-    currentProductsEnvelope: [],
-    currentProductTitle: "",
-    rangeString: ''
-}
-
-const mutations = {
-    processItems(state, docs) {
+const actions = {
+    processItems({
+        rootState,
+        dispatch,
+        commit
+    }, docs) {
         /*
 		 * When the parentNode exists this function returns an object with:
 		 * - the previous node (can be the parent)
@@ -62,13 +57,46 @@ const mutations = {
                 }
             }
         }
-
+        const aboutNow = Date.now()
         for (let d of docs) {
             let doc = d
             const parentNode = window.slVueTree.getNodeById(doc.parentId)
             if (parentNode) {
                 // create the node
                 const locationInfo = getLocationInfo(doc.priority, parentNode)
+                // search history for the last changes within the last hour
+                let lastStateChange = 0
+                let lastContentChange = 0
+                let lastCommentAddition = 0
+                let lastAttachmentAddition = 0
+                let lastCommentToHistory = 0
+                for (let histItem of doc.history) {
+                    if (aboutNow - histItem.timestamp > HOURINMILIS) {
+                        // skip events longer than a hour ago
+                        break
+                    }
+                    const keys = Object.keys(histItem)
+                    // get the most recent change of state
+                    if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
+                        lastStateChange = histItem.timestamp
+                    }
+                    // get the most recent change of content
+                    if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
+                        lastContentChange = histItem.timestamp
+                    }
+                    // get the most recent addition of comments to the history
+                    if (lastAttachmentAddition === 0 && keys.includes('uploadAttachmentEvent')) {
+                        lastAttachmentAddition = histItem.timestamp
+                    }
+                    // get the most recent addition of comments to the history
+                    if (lastCommentToHistory === 0 && keys.includes('commentToHistoryEvent')) {
+                        lastCommentToHistory = histItem.timestamp
+                    }
+                }
+                // get the last time a comment was added; comments have their own array
+                if (doc.comments && doc.comments.length > 0) {
+                    lastCommentAddition = doc.comments[0].timestamp
+                }
                 let newNode = {
                     "path": locationInfo.newPath,
                     "pathStr": JSON.stringify(locationInfo.newPath),
@@ -78,80 +106,89 @@ const mutations = {
                     "productId": doc.productId,
                     "parentId": doc.parentId,
                     "_id": doc._id,
-                    shortId: doc.shortId,
+                    "shortId": doc.shortId,
                     "dependencies": doc.dependencies || [],
                     "conditionalFor": doc.conditionalFor || [],
                     "title": doc.title,
                     "isLeaf": (locationInfo.newPath.length < PBILEVEL) ? false : true,
                     "children": [],
                     "isSelected": false,
-                    isExpanded: doc.level < FEATURELEVEL,
-                    savedIsExpanded: doc.level < FEATURELEVEL,
+                    "isExpanded": doc.level < FEATURELEVEL,
+                    "savedIsExpanded": doc.level < FEATURELEVEL,
                     "isSelectable": true,
                     "isDraggable": doc.level > PRODUCTLEVEL,
                     "doShow": true,
                     "savedDoShow": true,
                     "data": {
-                        "state": doc.state,
-                        "subtype": 0,
-                        "lastStateChange": state.lastHistoryTimestamp,
-                        "lastChange": state.lastHistoryTimestamp,
+                        state: doc.state,
+                        subtype: 0,
                         priority: doc.priority,
                         inconsistentState: false,
                         team: doc.team,
-                        lastContentChange: 0,
-                        lastCommentAddition: 0,
-                        lastAttachmentAddition: 0,
-                        lastCommentToHistory: 0
+                        lastStateChange,
+                        lastContentChange,
+                        lastCommentAddition,
+                        lastAttachmentAddition,
+                        lastCommentToHistory,
+                        lastChange: parentHistObj.timestamp
                     }
                 }
                 window.slVueTree.insert({
                     nodeModel: locationInfo.prevNode,
                     placement: locationInfo.newInd === 0 ? 'inside' : 'after'
                 }, [newNode], false)
-                state.itemsCount++
-            } else console.log('processItems: parentNode not found for doc.parentId = ' + doc.parentId)
+                // restore external dependencies
+                for (let d of parentHistObj.docRestoredEvent[2]) {
+                    const node = window.slVueTree.getNodeById(d.id)
+                    node.dependencies.push(d.dependentOn)
+                }
+                for (let c of parentHistObj.docRestoredEvent[4]) {
+                    const node = window.slVueTree.getNodeById(c.id)
+                    node.conditionalFor.push(c.conditionalFor)
+                }
+                dispatch('getChildren', doc._id)
+            } else {
+                commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
+                let msg = 'Sync.processItems: a remote restore of the tree view failed. Cannot find the parent of ' + doc.parentId
+                // eslint-disable-next-line no-console
+                if (rootState.debug) console.log(msg)
+                dispatch('doLog', { event: msg, level: ERROR })
+            }
         }
-    }
-}
-const actions = {
-    restoreBranch({
-        dispatch,
-        commit
-    }, doc) {
-        state.lastHistoryTimestamp = doc.history[0].timestamp
-        commit('processItems', [doc])
-        dispatch('getChildren', doc._id)
     },
 
     getChildren({
         rootState,
-        state,
-        commit
+        dispatch
     }, _id) {
-        const url = rootState.userData.currentDb + '/_design/design1/_view/parentIds?' + composeRangeString(_id) + '&include_docs=true'
-        console.log('getChildren: url = ' + url)
         globalAxios({
             method: 'GET',
-            url,
+            url: rootState.userData.currentDb + '/_design/design1/_view/parentIds?' + composeRangeString(_id) + '&include_docs=true'
         }).then(res => {
             const docs = []
             for (let r of res.data.rows) {
                 docs.push(r.doc)
             }
-            console.log('getChildren: docs.length = ' + docs.length)
-            // console.log('getChildren: docs = ' + JSON.stringify(docs, null, 2))
-            state.docsCount += docs.length
-            commit('processItems', docs)
-            commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted.`, severity: INFO })
-        })
+            if (docs.length > 0) {
+                // process next level
+                dispatch('processItems', docs)
+            }
+        }).catch(error => {
+            let msg = 'Sync.getChildren: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
             // eslint-disable-next-line no-console
-            .catch(error => console.log('getChildren: Could not read the item from database ' + rootState.userData.currentDb + '. Error = ' + error))
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
     },
+
+    restoreBranch({
+        dispatch
+    }, doc) {
+        parentHistObj = doc.history[0]
+        dispatch('processItems', [doc])
+    }
 }
 
 export default {
-    state,
-    mutations,
     actions
 }
