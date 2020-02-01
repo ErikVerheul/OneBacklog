@@ -448,7 +448,7 @@ const actions = {
 		}).catch(error => {
 			let msg = 'loadCurrentProduct: Could not read current product document with _id ' + _id + ' from database ' + rootState.userData.currentDb + '. ' + error
 			if (error.response.status === 404) {
-				msg += ' , is your default database ' + rootState.userData.currentDb + ' deleted?'
+				msg += ' , is your default product with id ' + _id + ' deleted?'
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
