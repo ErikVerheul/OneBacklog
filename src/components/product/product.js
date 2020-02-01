@@ -7,6 +7,7 @@ import { utilities } from '../mixins/utilities.js'
 import context from './context.vue'
 import filters from './filters.vue'
 import listings from './listings.vue'
+import router from '../../router'
 
 const INFO = 0
 const WARNING = 1
@@ -67,7 +68,10 @@ export default {
     window.slVueTree = this.$refs.slVueTree
     // the first (index 0) product in myProductSubscriptions is by definition the default product
     this.$store.state.nodeSelected = window.slVueTree.getNodeById(this.$store.state.userData.myProductSubscriptions[0])
-    this.$store.state.nodeSelected.isSelected = true
+    if (this.$store.state.nodeSelected === null) {
+      alert("Unexpected error: No default product is set. The application will exit.")
+      router.replace('/')
+    }
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;
