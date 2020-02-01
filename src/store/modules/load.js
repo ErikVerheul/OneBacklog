@@ -1,5 +1,6 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the baclogitem documents must add history in order for the changes feed to work properly
+
 import router from '../../router'
 
 var batch = []
@@ -206,6 +207,17 @@ const mutations = {
 }
 
 const actions = {
+	/*
+	* Order of execution:
+	* 1. getOtherUserData
+	* 2. getAllProducts - calls updateUser if products are missing
+	* 3. getConfig
+	* 4. getRoot
+	* 5. loadCurrentProduct
+	* 6. getFirstProduct - opens the products view - starts listenForChanges if no other products
+	* 7. getNextProduct - starts listenForChanges if not already started
+	*/
+
 	// Get the current DB name etc. for this user. Note that the user global roles are already fetched
 	getOtherUserData({
 		rootState,
@@ -258,19 +270,22 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/products',
 		}).then(res => {
 			state.currentProductsEnvelope = res.data.rows
-			const missingProductRolesIds = []
-			const myProductIds = []
+			const availableProductIds = []
 			// correct the data from the user profile with the actual available products
 			for (let product of state.currentProductsEnvelope) {
 				let id = product.id
-				myProductIds.push(id)
+				availableProductIds.push(id)
+				// can only have productsRoles of products that are available
 				if (Object.keys(payload.currentDbSettings.productsRoles).includes(id)) {
 					rootState.userData.myProductsRoles[id] = payload.currentDbSettings.productsRoles[id]
 				}
-
-				if (payload.currentDbSettings.subscriptions.includes(id)) {
-					rootState.userData.myProductSubscriptions.push(id)
+			}
+			const screenedSubscriptions = []
+			for (let p of payload.currentDbSettings.subscriptions) {
+				if (availableProductIds.includes(p)) {
+					screenedSubscriptions.push(p)
 				}
+				rootState.userData.myProductSubscriptions = screenedSubscriptions
 			}
 			// set the users product options to select from
 			for (let product of state.currentProductsEnvelope) {
@@ -281,15 +296,14 @@ const actions = {
 					})
 				}
 			}
-
+			// update the user profile for missing products
+			const missingProductRolesIds = []
 			for (let id of Object.keys(payload.currentDbSettings.productsRoles)) {
-				if (!myProductIds.includes(id)) {
+				if (!availableProductIds.includes(id)) {
 					missingProductRolesIds.push(id)
 				}
 			}
-
 			if (rootState.autoCorrectUserProfile && missingProductRolesIds.length > 0) {
-				// update the user profile for the missing products
 				let newUserData = payload.allUserDate
 				for (let id of missingProductRolesIds) {
 					delete newUserData.myDatabases[rootState.userData.currentDb].productsRoles[id]
@@ -302,7 +316,7 @@ const actions = {
 			}
 			const isAnyProductAssigned = Object.keys(rootState.userData.myProductsRoles).length > 0
 			rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
-			// the first (index 0) product in myProductsRoles is by definition the default product
+			// the first (index 0) product in myProductSubscriptions is by definition the default product
 			state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0] || undefined
 			// postpone the warning message for 'no product found' until the product view is rendered
 			dispatch('getConfig', isAnyProductAssigned)
