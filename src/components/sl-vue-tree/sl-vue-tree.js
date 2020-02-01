@@ -499,18 +499,6 @@ export default {
 			return this.getNodeSiblings(path.slice(1), nodes[path[0]].children || [])
 		},
 
-		/* Get the product selected during load */
-		getSelectedProduct() {
-			const productModels = this.currentValue[0].children
-			for (let i = 0; i < productModels.length; i++) {
-				const node = productModels[i]
-				if (node.isSelected) {
-					lastSelectedNode = node
-					return node
-				}
-			}
-		},
-
 		// return the node of the selected productId / current productId or the full tree if the product is not found
 		getProductModels(productId = this.$store.state.load.currentProductId) {
 			const productModels = this.currentValue[0].children

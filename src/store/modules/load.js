@@ -171,7 +171,7 @@ const mutations = {
 						savedIsExpanded: isExpanded,
 						isSelectable: true,
 						isDraggable,
-						isSelected: isSelected,
+						isSelected,
 						doShow,
 						savedDoShow: doShow,
 						data: {
