@@ -362,7 +362,7 @@ export default {
 
 			// sort the nodes on priority (highest first)
 			draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
-			// save the status before as is before the move
+			// save the status 'as is' before the move
 			const beforeDropStatus = this.moveNodes(this.cursorPosition, draggableNodes)
 
 			this.emitDrop(beforeDropStatus, draggableNodes, this.cursorPosition, event)
