@@ -65,8 +65,9 @@ export default {
   mounted() {
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
-    // note that the product is selected in load.js
-    this.$store.state.nodeSelected = window.slVueTree.getSelectedProduct()
+    // the first (index 0) product in myProductSubscriptions is by definition the default product
+    this.$store.state.nodeSelected = window.slVueTree.getNodeById(this.$store.state.userData.myProductSubscriptions[0])
+    this.$store.state.nodeSelected.isSelected = true
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;
