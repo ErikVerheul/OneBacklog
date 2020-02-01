@@ -894,7 +894,7 @@ export default {
     },
 
     /*
-     * Update the tree when one or more nodes are dropped on another location
+     * Update the database when one or more nodes are dropped on another location
      * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
      */
     nodeDropped(beforeDropStatus, draggingNodes, position) {
