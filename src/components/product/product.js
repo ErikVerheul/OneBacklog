@@ -517,19 +517,19 @@ export default {
             // restore the removed dependencies
             for (let d of entry.removedIntDependencies) {
               const node = window.slVueTree.getNodeById(d.id)
-              node.dependencies.push(d.dependentOn)
+              if (node !== null) node.dependencies.push(d.dependentOn)
             }
             for (let d of entry.removedExtDependencies) {
               const node = window.slVueTree.getNodeById(d.id)
-              node.dependencies.push(d.dependentOn)
+              if (node !== null) node.dependencies.push(d.dependentOn)
             }
             for (let c of entry.removedIntConditions) {
               const node = window.slVueTree.getNodeById(c.id)
-              node.conditionalFor.push(c.conditionalFor)
+              if (node !== null) node.conditionalFor.push(c.conditionalFor)
             }
             for (let c of entry.removedExtConditions) {
               const node = window.slVueTree.getNodeById(c.id)
-              node.conditionalFor.push(c.conditionalFor)
+              if (node !== null) node.conditionalFor.push(c.conditionalFor)
             }
           } else {
             this.showLastEvent(`Cannot restore the removed items in the tree view. Sign out and -in again to recover'`, WARNING)

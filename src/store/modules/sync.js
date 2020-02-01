@@ -193,6 +193,8 @@ const actions = {
 							{
 								const removedCondId = doc._id
 								const node = window.slVueTree.getNodeById(removedCondId)
+								if (node === null) break
+
 								const newCons = []
 								for (let id of doc.conditionalFor) {
 									if (id !== removedCondId) newCons.push(id)
@@ -218,6 +220,8 @@ const actions = {
 							{
 								const removedDepId = doc._id
 								const node = window.slVueTree.getNodeById(removedDepId)
+								if (node === null) break
+
 								const newDeps = []
 								for (let id of doc.dependencies) {
 									if (id !== removedDepId) newDeps.push(id)
@@ -255,6 +259,8 @@ const actions = {
 						case 'nodeUndoMoveEvent':
 							{	// check if the node has moved location
 								let parentNode = window.slVueTree.getNodeById(doc.parentId)
+								if (node === null) break
+
 								let locationInfo = getLocationInfo(doc.priority, parentNode)
 								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 									// the node has not changed parent nor changed location w/r to its siblings

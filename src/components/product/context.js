@@ -4,6 +4,7 @@ import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
+const ERROR = 2
 const REMOVED = 0
 const DONE = 5
 const STATENEW = 0
@@ -97,6 +98,7 @@ export default {
       }
     },
 
+    // returns null when the node does not exist
     getNodeWithDependencies() {
       return window.slVueTree.getNodeById(this.nodeWithDependenciesId)
     },
@@ -651,7 +653,10 @@ export default {
       // update the conditions in the tree
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
-        if (node === null) break
+        if (node === null) {
+          this.showLastEvent('Unexpected error. Node not found.', ERROR)
+          break
+        }
 
         const conIdArray = []
         for (let condId of node.conditionalFor) {
@@ -678,7 +683,10 @@ export default {
       // update the dependencies in the tree
       for (let id of removedIds) {
         const node = window.slVueTree.getNodeById(id)
-        if (node === null) break
+        if (node === null) {
+          this.showLastEvent('Unexpected error. Node not found.', ERROR)
+          break
+        }
 
         const depIdArray = []
         for (let depId of node.dependencies) {
@@ -704,12 +712,22 @@ export default {
           return
         }
         const sourceProductNode = window.slVueTree.getNodeById(movedNode.productId)
+        if (sourceProductNode === null) {
+          this.showLastEvent('Unexpected error. Node not found.', ERROR)
+          return
+        }
+
         // move the node to the new place and update the productId and parentId
         window.slVueTree.moveNodes(targetPosition, [movedNode])
         // the path to new node is immediately below the selected node
         const newPath = targetNode.path.concat([0])
         const newNode = window.slVueTree.getNodeModel(newPath)
         const newParentNode = window.slVueTree.getNodeById(newNode.parentId)
+        if (newParentNode === null) {
+          this.showLastEvent('Unexpected error. Node not found.', ERROR)
+          return
+        }
+
         const descendantsInfo = window.slVueTree.getDescendantsInfo(newNode)
         const payloadItem = {
           '_id': newNode._id,

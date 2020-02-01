@@ -140,11 +140,11 @@ const actions = {
                 // restore external dependencies
                 for (let d of parentHistObj.docRestoredEvent[2]) {
                     const node = window.slVueTree.getNodeById(d.id)
-                    node.dependencies.push(d.dependentOn)
+                    if (node !== null) node.dependencies.push(d.dependentOn)
                 }
                 for (let c of parentHistObj.docRestoredEvent[4]) {
                     const node = window.slVueTree.getNodeById(c.id)
-                    node.conditionalFor.push(c.conditionalFor)
+                    if (node !== null) node.conditionalFor.push(c.conditionalFor)
                 }
                 dispatch('getChildren', doc._id)
             } else {
