@@ -207,10 +207,10 @@ export default {
           this.doCloneItem(this.contextNodeSelected)
           break
         case this.INSERTBELOW:
-          this.doInsert()
+          this.doInsertNewItem()
           break
         case this.INSERTINSIDE:
-          this.doInsert()
+          this.doInsertNewItem()
           break
         case this.MOVETOPRODUCT:
           this.moveItemToOtherProduct()
@@ -346,7 +346,7 @@ export default {
 		 * Create and insert a new node in the tree and create a document for this new item
 		 * A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
 		 */
-    doInsert() {
+    doInsertNewItem() {
       const locationPath = this.contextNodeSelected.path
       let newNodeLocation
       let path
