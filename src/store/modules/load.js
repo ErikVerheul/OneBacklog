@@ -218,7 +218,7 @@ const actions = {
 	* 7. getNextProduct - starts listenForChanges if not already started
 	*/
 
-	// Get the current DB name etc. for this user. Note that the user global roles are already fetched
+	/* Get the current DB name etc. for this user. Note that the user global roles are already fetched */
 	getOtherUserData({
 		rootState,
 		dispatch
@@ -329,7 +329,7 @@ const actions = {
 		})
 	},
 
-	// Load the config document from this database
+	/* Load the config document from this database */
 	getConfig({
 		rootState,
 		dispatch
@@ -350,6 +350,7 @@ const actions = {
 		})
 	},
 
+	/* Get the root of the backlog items */
 	getRoot({
 		rootState,
 		commit,
@@ -416,7 +417,7 @@ const actions = {
 		})
 	},
 
-	// Load current user product and start loading the tree
+	/* Load current user product and start loading the tree */
 	loadCurrentProduct({
 		rootState,
 		state,
@@ -456,7 +457,7 @@ const actions = {
 		})
 	},
 
-	// Load next products from the database
+	/* Load next products from the database */
 	getNextProduct({
 		rootState,
 		state,
@@ -507,7 +508,7 @@ const actions = {
 			.catch(error => console.log('getNextProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
-	// Load the current product first
+	/* Load the current product first */
 	getFirstProduct({
 		rootState,
 		state,
@@ -561,6 +562,7 @@ const actions = {
 			.catch(error => console.log('getFirstProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
+	/* Load a backlog item by short id */
 	loadItemByShortId({
 		rootState,
 		dispatch,
@@ -606,7 +608,7 @@ const actions = {
 			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
-	// Load current document by _id
+	/* Load document by _id and make it the current backlog item */
 	loadDoc({
 		rootState,
 		dispatch
@@ -629,7 +631,7 @@ const actions = {
 		})
 	},
 
-	// Read the parent title before creating the document
+	/* Read the parent title before creating the document */
 	createDoc({
 		rootState,
 		dispatch
@@ -648,7 +650,8 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
-	// Create document and reload it to currentDoc
+
+	/* Create the document and reload it to currentDoc */
 	createDoc2({
 		rootState,
 		dispatch
