@@ -633,14 +633,14 @@ const actions = {
 	createDoc({
 		rootState,
 		dispatch
-	}, payload) {
-		const _id = payload.initData.parentId
+	}, initData) {
+		const _id = initData.parentId
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
-			payload.initData.history[0]['createEvent'] = [payload.initData.level, res.data.title]
-			dispatch('createDoc2', payload)
+			initData.history[0]['createEvent'] = [initData.level, res.data.title]
+			dispatch('createDoc2', initData)
 		}).catch(error => {
 			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -652,14 +652,14 @@ const actions = {
 	createDoc2({
 		rootState,
 		dispatch
-	}, payload) {
-		const _id = payload.initData._id
+	}, initData) {
+		const _id = initData._id
 		// eslint-disable-next-line no-console
 		console.log('createDoc2: creating document with _id = ' + _id)
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + _id,
-			data: payload.initData
+			data: initData
 		}).then(() => {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('createDoc2: document with _id ' + _id + ' is created.')

@@ -466,9 +466,7 @@ export default {
           "delmark": false
         }
         // update the database
-        this.$store.dispatch('createDoc', {
-          'initData': initData
-        })
+        this.$store.dispatch('createDoc', initData)
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
           type: 'undoNewNode',
