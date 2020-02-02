@@ -25,7 +25,7 @@ const actions = {
 					}
 				}
 			} else {
-				tmpFollowers.push({ email: rootState.userData.email, inclDescendents: false })
+				tmpFollowers.push({ email: rootState.userData.email })
 			}
 			const newHist = {
 				"subscribeEvent": [wasFollower],
