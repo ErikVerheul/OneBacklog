@@ -6,7 +6,7 @@
 			<b-col cols="12" class="left-column">
 				<h1>USER GUIDE</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
-        <p>When you, as CouchDB super admin, have installed CouchDB and the web application you have to <a href="#start_using">initialize the first database</a>.</p>
+				<p>When you, as CouchDB super admin, have installed CouchDB and the web application you have to <a href="#start_using">initialize the first database</a>.</p>
 				<h4>The header</h4>
 				<p>Always mention the version number located after the app name when reporting issues. When you click on the release number you will the <b>release notes </b> will be displayed.</p>
 				<h5>User guide</h5>
@@ -14,7 +14,7 @@
 				<h5>The Undo button</h5>
 				<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
 				<h5>Filter in tree view</h5>
-        <b-img :src="require('./filters.png')" alt="Example filters modal" />
+				<b-img :src="require('./filters.png')" alt="Example filters modal" />
 				<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on the product node.</p>
 				<h5>Find on Id</h5>
 				<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
@@ -26,7 +26,7 @@
 					<li>The item is NOT found in the database. You get a message. Check if you made a mistype.</li>
 					<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin.</li>
 				</ul>
-				To undo the select clear the 'Select on Id' input field and press Enter.</p>
+				<p>To undo the select clear the 'Select on Id' input field and press Enter.</p>
 				<h5>Search in titles</h5>
 				<p>Input field for the search button. Searches for the keyword in the title of all items of the current product. To return to the normal view empty the search field and press enter.</p>
 				<h5>Recent changes + Search in titles</h5>
@@ -34,7 +34,7 @@
 				<h5>Select your view</h5>
 				<p><a href="#pv">Products view</a></p>
 				<p><a href="#rv">Requirements areas view</a></p>
-        <p><a href="#sv">Special views</a></p>
+				<p><a href="#sv">Special views</a></p>
 				<h5><em>User</em></h5>
 				<ul>
 					<li>Change database: Only applicable for users with products in more than one database.</li>
@@ -44,7 +44,6 @@
 					<li>License information: click to see the license regarding the source code.</li>
 					<li>Sign out: Preferred way to sign out. Will stop the cookie authentication and reset the URL to sign in again. When you reset your browser with F5 or Ctrl-F5 you need to reset the URL your self.</li>
 				</ul>
-
 				<div id="pv">
 					<h4>Products view</h4>
 					<p>The products view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner. Changes to the item size, state, title, description, acceptance criteria, added item, moved items and deleted items can be undone in a last change first sequence.</p>
@@ -71,8 +70,8 @@
 					<p>Dependencies:</p>
 					<p>Items with dependencies on other items are designated with a ▼ symbol in front of the title name. Use the context menu to assign dependencies or to inspect or remove them.
 						When dependencies are set the items which become conditional for the dependent items are designated with a ▲ symbol. Use the context menu to inspect or remove them.
-						When after dragging items in tree one or more dependencies are violated you receive an error message.</p>
-
+						When after dragging items in tree one or more dependencies are violated you receive an error message.
+					</p>
 					<p>Badges:</p>
 					<b-img :src="require('./badges.png')" alt="Example badges" />
 					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its red color.</p>
@@ -81,29 +80,32 @@
 					<h4>Requirements areas view</h4>
 					<p>This view is not implemented yet.</p>
 				</div>
-        <div id="sv">
-          <h4>Users with special priviliges will see one or more of these view options:</h4>
-          <ul>
-            <li>
-              <h5>Super PO</h5>
-              <p>The super PO creates and removes products here.</p>
-            </li>
-            <li>
-              <h5>Admin</h5>
-              <p>The admin creates and maintains user permissions here. Team names can be added and listed.</p>
-            </li>
-            <li>
-              <h5>Server admin</h5>
-              <p>The server admin creates backups and restores databases from a backup here. New databases can be created and deleted. A CouchDB FAUXTON session can be started in a separate tab of the browser.</p>
-            </li>
-          </ul>
-        </div>
+				<div id="sv">
+				<h4>Users with special priviliges will see one or more of these view options:</h4>
+				<ul>
+					<li>
+						<h5>Super PO</h5>
+						<p>The super PO creates and removes products here.</p>
+						<b-img :src="require('./superpo-menu.jpg')" alt="Super PO menu" />
+					</li>
+					<li>
+						<h5>Admin</h5>
+						<p>The admin creates and maintains user permissions here. Team names can be added and listed.</p>
+						<b-img :src="require('./admin-menu.png')" alt="Admin menu" />
+					</li>
+					<li>
+						<h5>Server admin</h5>
+						<p>The server admin creates backups and restores databases from a backup here. New databases can be created and deleted. A CouchDB FAUXTON session can be started in a separate tab of the browser.</p>
+						<p>During operation a server admin can use the Server admin view which offers a menu of common tasks:</p>
+						<b-img :src="require('./server-admin-menu.png')" alt="Server admin menu" />
+					</li>
+				</ul>
+				</div>
 				<h4>The welcome bar</h4>
 				<p>This bar displays the user name, the database name and the number of products assigned to this user.</p>
 				<h4>The event bar</h4>
-				<p>This bar displays the latest event, a selection, a expansion/collapse of a tree branch, a warning or an error.<br>
-					On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted. It lights when another user changes a title or the position of one or more items in your tree view below. Your tree is updated instantly.</p>
-					<p>The <b>Sync light</b> will turn red with the the text 'offline' when your connection is lost. In this condition you can not access the database. Wait for automatic recovery or restore the connection.</p>
+				<p>This bar displays the latest event, a selection, a expansion/collapse of a tree branch, a warning or an error.<br>On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted. It lights when another user changes a title or the position of one or more items in your tree view below. Your tree is updated instantly.</p>
+				<p>The <b>Sync light</b> will turn red with the the text 'offline' when your connection is lost. In this condition you can not access the database. Wait for automatic recovery or restore the connection.</p>
 				<h4>The backlog item tree</h4>
 				<p>This large black area below the event bar shows all the products assigned and selected by the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
 				<p>You can have multiple products. Each of them consists of:
@@ -116,20 +118,19 @@
 					</ul>
 				</p>
 				<p>The authorization is set per product and based on the following roles:
-					<ul>
-						<li>'areaPO': The requirement area PO maintains the requirements area backlog and can prioritize features in the teams backlog.</li>
-						<li>'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.</li>
-						<li>'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.</li>
-						<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
-						<li>'guest': Can only view the items of the assigned products. Has no access to the requirements area view.</li>
-					</ul>
-					Users can have multiple roles. Users can only access the products that are assigned to them.
-					Two roles are setup globally when the OneBacklog instance is setup:
-					<ul>
-						<li>'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.</li>
-						<li>'admin': Can create and assign users to products. Is also a guest to the products assigned to this user.</li>
-					</ul>
-				</p>
+				<ul>
+					<li>'areaPO': The requirement area PO maintains the requirements area backlog and can prioritize features in the teams backlog.</li>
+					<li>'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.</li>
+					<li>'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.</li>
+					<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
+					<li>'guest': Can only view the items of the assigned products. Has no access to the requirements area view.</li>
+				</ul>
+				Users can have multiple roles. Users can only access the products that are assigned to them.
+				Two roles are setup globally when the OneBacklog instance is setup:
+				<ul>
+					<li>'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.</li>
+					<li>'admin': Can create and assign users to products. Is also a guest to the products assigned to this user.</li>
+				</ul>
 				<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
 				<b-img :src="require('./context-menu.png')" alt="Example context menu" />
 				<p>Select the action to execute and press OK.</p>
@@ -156,25 +157,25 @@
 				<p>When adding multiple versions of an attachment with the same name the file name will be extended with _1, _2 etc. Click on an attachment button to let your browser display the attachment in a new tab.</p>
 				<p>When you select Attachments or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 
-        <h2 id="start_using"> START USING THE APPLICATION</h2>
-        <p>When you, as server admin, login with your super admin credentials the application will notice that you are unknown in the _users database. That will trigger a conversation where you name the first database and enter your e-mail address.</p>
-        <p>Click on 'Create database' to start the creation. If you entered a database name testdb and a valid e-mail address and all goes well you will see:</p>
-        <ul>
-          <li>createDatabase: Success, empty database erikdb7 is created</li>
-          <li>setDatabasePermissions: Success, database permissions for erikdb7 are set</li>
-          <li>setUsersDatabasePermissions: Success, system permissions for _users database are set</li>
-          <li>createLog: Success, log for database erikdb7 is created</li>
-          <li>createConfig: Success, the configuration document is created</li>
-          <li>installDesignViews: Success, the design document is created</li>
+				<h2 id="start_using"> START USING THE APPLICATION</h2>
+				<p>When you, as server admin, login with your super admin credentials the application will notice that you are unknown in the _users database. That will trigger a conversation where you name the first database and enter your e-mail address.</p>
+				<p>Click on 'Create database' to start the creation. If you entered a database name testdb and a valid e-mail address and all goes well you will see:</p>
+				<ul>
+					<li>createDatabase: Success, empty database erikdb7 is created</li>
+					<li>setDatabasePermissions: Success, database permissions for erikdb7 are set</li>
+					<li>setUsersDatabasePermissions: Success, system permissions for _users database are set</li>
+					<li>createLog: Success, log for database erikdb7 is created</li>
+					<li>createConfig: Success, the configuration document is created</li>
+					<li>installDesignViews: Success, the design document is created</li>
 					<li>installDesignFilters: Success, the design document is created</li>
-          <li>createRootDoc: Success, the root document is created</li>
-          <li>createServerAdminProfile: Success, user profile for testdb is created with 'admin', 'superPO' roles set</li>
-        </ul>
-        <p>Click on 'Exit' and sign-in again to see the product view with no product but a root document,<br>
-          then:<br>
-          As 'superPO' create at least one product and in the Admin view create the first users and their roles. Assign one or more admins to take over that task.<br>
-          Note: It is a good practice to remove the 'superPO' role from your profile as soon as another user takes this role. Keep your 'admin' role as a backup.
-        </p>
+					<li>createRootDoc: Success, the root document is created</li>
+					<li>createServerAdminProfile: Success, user profile for testdb is created with 'admin', 'superPO' roles set</li>
+				</ul>
+				<p>Click on 'Exit' and sign-in again to see the product view with no product but a root document,<br>
+					then:<br>
+					As 'superPO' create at least one product and in the Admin view create the first users and their roles. Assign one or more admins to take over that task.<br>
+					Note: It is a good practice to remove the 'superPO' role from your profile as soon as another user takes this role. Keep your 'admin' role as a backup.
+				</p>
 			</b-col>
 		</b-row>
 	</b-container>
