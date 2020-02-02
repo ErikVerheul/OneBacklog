@@ -11,9 +11,9 @@
 				<ul>
 					<li>All items seem changed after clearing history</li>
 					<li>Product disappears when no results in filter</li>
-					<li>Regression: Default product does not appear on top.</li>
-					<li>Current product node undefined.</li>
-					<li>External undo fails.</li>
+					<li>Regression: Default product does not appear on top</li>
+					<li>Current product node undefined</li>
+					<li>External undo fails</li>
 				</ul>
 				<hr>
 				<h3>v.0.8.4 - 27 January 2020 Feature update</h3>
