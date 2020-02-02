@@ -61,6 +61,8 @@ export default {
       let comments = this.$store.state.currentDoc.comments
       let allText = ""
       for (let c of comments) {
+        if (c.ignoreEvent) continue
+
         if (c.addCommentEvent) {
           const comment = window.atob(c.addCommentEvent)
           allText += comment
