@@ -8,7 +8,7 @@
       <b-button block @click="restoreBackup">Restore a database from backup</b-button>
       <b-button block @click="createNewDb">Create a new database</b-button>
       <b-button block @click="changeMyDb">Change my default database</b-button>
-      <b-button block @click="purgeDb">Purge removed Purge removed documents and compact the database</b-button>
+      <b-button block @click="purgeDb">Purge removed documents and compact the database</b-button>
       <b-button block variant="warning" @click="remHistAndComm">Remove history, comments and followers</b-button>
       <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
       <b-button block @click="fauxton">All FAUXTON tasks</b-button>
