@@ -267,7 +267,7 @@ const actions = {
 			"acceptanceCriteria": window.btoa("<p>not applicable</p>"),
 			"priority": 0,
 			"comments": [{
-				"ignoreEvent": ['comments initiated'],
+				"ignoreEvent": 'comments initiated',
 				"timestamp": 0,
 				"distributeEvent": false
 			}],

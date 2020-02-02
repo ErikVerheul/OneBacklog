@@ -90,7 +90,7 @@ const actions = {
 			"priority": 0,
 			"attachments": [],
 			"comments": [{
-				"ignoreEvent": ['comments initiated'],
+				"ignoreEvent": 'comments initiated',
 				"timestamp": 0,
 				"distributeEvent": false
 			}],
@@ -157,7 +157,7 @@ const actions = {
 			"priority": calcPrio(payload.counter1, payload.epicsNumber),
 			"attachments": [],
 			"comments": [{
-				"ignoreEvent": ['comments initiated'],
+				"ignoreEvent": 'comments initiated',
 				"timestamp": 0,
 				"distributeEvent": false
 			}],
@@ -226,7 +226,7 @@ const actions = {
 			"priority": calcPrio(payload.counter2, payload.featuresNumber),
 			"attachments": [],
 			"comments": [{
-				"ignoreEvent": ['comments initiated'],
+				"ignoreEvent": 'comments initiated',
 				"timestamp": 0,
 				"distributeEvent": false
 			}],
@@ -294,7 +294,7 @@ const actions = {
 			"priority": calcPrio(payload.counter3, payload.storiesNumber),
 			"attachments": [],
 			"comments": [{
-				"ignoreEvent": ['comments initiated'],
+				"ignoreEvent": 'comments initiated',
 				"timestamp": 0,
 				"distributeEvent": false
 			}],

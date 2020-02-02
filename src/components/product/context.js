@@ -316,7 +316,7 @@ export default {
         "acceptanceCriteria": window.btoa(currentDoc.acceptanceCriteria),
         "priority": newNode.data.priority,
         "comments": [{
-          "ignoreEvent": ['comments initiated'],
+          "ignoreEvent": 'comments initiated',
           "timestamp": 0,
           "distributeEvent": false
         }],
@@ -451,7 +451,7 @@ export default {
           "priority": newNode.data.priority,
           "attachments": [],
           "comments": [{
-            "ignoreEvent": ['comments initiated'],
+            "ignoreEvent": 'comments initiated',
             "timestamp": 0,
             "distributeEvent": false
           }],

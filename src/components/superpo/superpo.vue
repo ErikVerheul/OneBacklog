@@ -107,7 +107,7 @@ export default {
         "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
         "priority": 0,
         "comments": [{
-          "ignoreEvent": ['comments initiated'],
+          "ignoreEvent": 'comments initiated',
           "timestamp": 0,
           "distributeEvent": false
         }],
@@ -122,9 +122,7 @@ export default {
         "delmark": false
       }
       // update the database
-      this.$store.dispatch('createDoc2', {
-        'initData': initData
-      })
+      this.$store.dispatch('createDoc2', initData)
       // add product to this user's subscriptions and productsRoles
       this.$store.state.backendMessages = []
       this.$store.state.backendSuccess = false
