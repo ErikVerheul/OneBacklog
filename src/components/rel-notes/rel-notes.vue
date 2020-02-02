@@ -6,6 +6,16 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.8.4.1 - 2 February 2020 Bug fixes</h3>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>All items seem changed after clearing history</li>
+					<li>Product disappears when no results in filter</li>
+					<li>Regression: Default product does not appear on top.</li>
+					<li>Current product node undefined.</li>
+					<li>External undo fails.</li>
+				</ul>
+				<hr>
 				<h3>v.0.8.4 - 27 January 2020 Feature update</h3>
 				<p>New features:</p>
 				<ul>
