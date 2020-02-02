@@ -44,6 +44,7 @@ const actions = {
             rootState.selectedDatabaseName = rootState.userData.currentDb
           } else rootState.selectedDatabaseName = rootState.databaseOptions[0]
       }
+      console.log('getAllDatabases: rootState.databaseOptions = ' + rootState.databaseOptions)
     }).catch(error => {
       let msg = 'getAllDatabases: Could not load all database names. Error = ' + error
       rootState.backendMessages.push(msg)
