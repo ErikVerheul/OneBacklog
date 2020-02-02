@@ -1,6 +1,7 @@
 import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
+const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 
 export default {
@@ -80,14 +81,18 @@ export default {
     },
 
     doFilterOnTeams(nm) {
+      if (nm.level <= PRODUCTLEVEL) return false
       return !(this.selectedTeams.includes(nm.data.team))
     },
 
     doFilterOnState(nm) {
+      if (nm.level <= PRODUCTLEVEL) return false
       return !(this.selectedStates.includes(nm.data.state))
     },
 
     doFilterOnTime(nm) {
+      if (nm.level <= PRODUCTLEVEL) return false
+
       if (this.selectedTime === '0') {
         if (this.fromDate && this.toDate) {
           // process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
@@ -97,8 +102,7 @@ export default {
         }
       } else {
         const sinceMilis = parseInt(this.selectedTime) * 60000
-        const now = Date.now()
-        return !(now - nm.data.lastChange < sinceMilis)
+        return !(Date.now() - nm.data.lastChange < sinceMilis)
       }
     },
 
@@ -152,7 +156,7 @@ export default {
           }
         }
       }
-      // execute the callback
+      // execute the callback for the current product
       window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
 
       if (!onlyFilterOnDepth) {
