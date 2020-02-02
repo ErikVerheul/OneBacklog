@@ -294,7 +294,7 @@ export default {
       this.showLastEvent("Item of type " + this.getLevelText(newNode.level) + " is inserted as a copy of '" + node.title + "'.", INFO)
       // create a new document and store it
       const currentDoc = this.$store.state.currentDoc
-      const initData = {
+      const newDoc = {
         "productId": currentDoc.productId,
         "parentId": newNode.parentId,
         "_id": newNode._id,
@@ -331,9 +331,7 @@ export default {
         "delmark": false
       }
       // update the database
-      this.$store.dispatch('createDoc', {
-        'initData': initData
-      })
+      this.$store.dispatch('createDoc', newDoc)
       // create an entry for undoing the change in a last-in first-out sequence
       const entry = {
         type: 'undoNewNode',
@@ -428,7 +426,7 @@ export default {
         this.$store.state.nodeSelected = newNode
         this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
         // create a new document and store it
-        const initData = {
+        const newDoc = {
           "_id": newNode._id,
           "shortId": newNode.shortId,
           "type": "backlogItem",
@@ -466,7 +464,7 @@ export default {
           "delmark": false
         }
         // update the database
-        this.$store.dispatch('createDoc', initData)
+        this.$store.dispatch('createDoc', newDoc)
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
           type: 'undoNewNode',
@@ -535,7 +533,7 @@ export default {
       this.$store.state.nodeSelected = nowSelectedNode
       this.$store.state.load.currentProductId = nowSelectedNode.productId
       // load the new selected item
-      this.$store.dispatch('loadDoc', nowSelectedNode._id)
+      this.$store.dispatch('saveAndReload', nowSelectedNode._id)
       // remove the node and its children
       window.slVueTree.removeSingle(selectedNode, nowSelectedNode)
     },
