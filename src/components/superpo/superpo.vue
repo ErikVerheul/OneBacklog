@@ -91,7 +91,7 @@ export default {
       const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
       const _id = Date.now().toString().concat(shortId)
       // create a new document and store it
-      const initData = {
+      const newDoc = {
         "_id": _id,
         "shortId": shortId,
         "type": "backlogItem",
@@ -122,7 +122,7 @@ export default {
         "delmark": false
       }
       // update the database
-      this.$store.dispatch('createDoc2', initData)
+      this.$store.dispatch('saveAndReload', newDoc)
       // add product to this user's subscriptions and productsRoles
       this.$store.state.backendMessages = []
       this.$store.state.backendSuccess = false

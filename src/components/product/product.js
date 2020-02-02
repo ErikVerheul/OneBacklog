@@ -368,7 +368,7 @@ export default {
         window.slVueTree.showAndSelectItem(node)
         // load the document if not already in memory
         if (node._id !== this.$store.state.currentDoc._id) {
-          this.$store.dispatch('loadDoc', node._id)
+          this.$store.dispatch('saveAndReload', node._id)
         }
       } else {
         // the node is not found in the current product selection; try to find it in the database
@@ -845,7 +845,7 @@ export default {
       }
       // load the document if not already in memory & reset attachment settings
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
-        this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
+        this.$store.dispatch('saveAndReload', this.$store.state.nodeSelected._id)
       }
       const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
       const title = this.itemTitleTrunc(60, selNodes[0].title)

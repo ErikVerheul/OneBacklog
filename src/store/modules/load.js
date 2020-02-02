@@ -608,6 +608,50 @@ const actions = {
 			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
+	/* Read the parent title before creating the document */
+	createDoc({
+		rootState,
+		dispatch
+	}, newDoc) {
+		const _id = newDoc.parentId
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + _id,
+		}).then(res => {
+			newDoc.history[0]['createEvent'] = [newDoc.level, res.data.title]
+			dispatch('saveAndReload', newDoc)
+		}).catch(error => {
+			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/* Create the document and reload it to currentDoc */
+	saveAndReload({
+		rootState,
+		dispatch
+	}, newDoc) {
+		const _id = newDoc._id
+		// eslint-disable-next-line no-console
+		console.log('saveAndReload: creating document with _id = ' + _id)
+		globalAxios({
+			method: 'PUT',
+			url: rootState.userData.currentDb + '/' + _id,
+			data: newDoc
+		}).then(() => {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('saveAndReload: document with _id ' + _id + ' is created.')
+			dispatch('loadDoc', _id)
+		}).catch(error => {
+			let msg = 'saveAndReload: Could not create document with id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	/* Load document by _id and make it the current backlog item */
 	loadDoc({
 		rootState,
@@ -625,50 +669,6 @@ const actions = {
 			if (rootState.debug) console.log('loadDoc: document with _id ' + _id + ' is loaded.')
 		}).catch(error => {
 			let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Read the parent title before creating the document */
-	createDoc({
-		rootState,
-		dispatch
-	}, initData) {
-		const _id = initData.parentId
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
-		}).then(res => {
-			initData.history[0]['createEvent'] = [initData.level, res.data.title]
-			dispatch('createDoc2', initData)
-		}).catch(error => {
-			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Create the document and reload it to currentDoc */
-	createDoc2({
-		rootState,
-		dispatch
-	}, initData) {
-		const _id = initData._id
-		// eslint-disable-next-line no-console
-		console.log('createDoc2: creating document with _id = ' + _id)
-		globalAxios({
-			method: 'PUT',
-			url: rootState.userData.currentDb + '/' + _id,
-			data: initData
-		}).then(() => {
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('createDoc2: document with _id ' + _id + ' is created.')
-			dispatch('loadDoc', _id)
-		}).catch(error => {
-			let msg = 'createDoc2: Could not create document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
