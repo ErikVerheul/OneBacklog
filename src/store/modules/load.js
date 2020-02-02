@@ -186,7 +186,7 @@ const mutations = {
 							lastAttachmentAddition,
 							lastCommentToHistory,
 							subtype: doc.subtype,
-							lastChange: doc.history[0].timestamp
+							lastChange: doc.history[0].resetHistoryEvent ? 0 : doc.history[0].timestamp
 						}
 					}
 
