@@ -1,7 +1,7 @@
 import licence from "./licence.vue"
 import { utilities } from '../mixins/utilities.js'
 
-const INFO = 0
+const WARNING = 1
 const MINPASSWORDLENGTH = 8
 
 export default {
@@ -82,8 +82,8 @@ export default {
         },
 
         doChangeDatabase() {
-            this.showLastEvent("Sign out and -in again to see the change", INFO)
-            this.$store.dispatch('changeCurrentDb2', {dbName: this.myDatabase, products: []})
+            this.showLastEvent("You changed database. Sign out and -in again to see the change", WARNING)
+            this.$store.dispatch('changeCurrentDb2', { dbName: this.myDatabase, products: [] })
         },
 
         doChangeTeam() {
@@ -123,7 +123,7 @@ export default {
             }
             // sort on creation date in ascending order
             otherSubscriptions.sort()
-            this.showLastEvent("Sign out and -in again to see the change", INFO)
+            this.showLastEvent("You changed product subscriptions. Sign out and -in again to see the change", WARNING)
             this.$store.dispatch('updateSubscriptions', myNewProductSubscriptions.concat(otherSubscriptions))
         },
 
