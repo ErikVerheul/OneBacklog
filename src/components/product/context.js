@@ -330,8 +330,16 @@ export default {
         }],
         "delmark": false
       }
+      // create a history event for the parent to trigger an email message to followers
+      const parentHist = {
+        "newChildEvent": [newNode.level, newNode.ind + 1],
+        "by": this.$store.state.userData.user,
+        "email": this.$store.state.userData.email,
+        "timestamp": Date.now(),
+        "distributeEvent": false
+      }
       // update the database
-      this.$store.dispatch('createDoc', newDoc)
+      this.$store.dispatch('createDoc', { newDoc , parentHist })
       // create an entry for undoing the change in a last-in first-out sequence
       const entry = {
         type: 'undoNewNode',
@@ -463,8 +471,16 @@ export default {
           }],
           "delmark": false
         }
+        // create a history event for the parent to trigger an email message to followers
+        const parentHist = {
+          "newChildEvent": [insertLevel, newNode.ind + 1],
+          "by": this.$store.state.userData.user,
+          "email": this.$store.state.userData.email,
+          "timestamp": Date.now(),
+          "distributeEvent": false
+        }
         // update the database
-        this.$store.dispatch('createDoc', newDoc)
+        this.$store.dispatch('createDoc', { newDoc , parentHist })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
           type: 'undoNewNode',
@@ -533,7 +549,7 @@ export default {
       this.$store.state.nodeSelected = nowSelectedNode
       this.$store.state.load.currentProductId = nowSelectedNode.productId
       // load the new selected item
-      this.$store.dispatch('saveAndReload', nowSelectedNode._id)
+      this.$store.dispatch('loadDoc', nowSelectedNode._id)
       // remove the node and its children
       window.slVueTree.removeSingle(selectedNode, nowSelectedNode)
     },

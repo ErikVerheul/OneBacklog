@@ -1,8 +1,9 @@
 'use strict';
 require('dotenv').config();
-const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent", "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent",
-    "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent", "setConditionsEvent", "setDependenciesEvent", "setHrsEvent",
-    "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "setTitleEvent", "uploadAttachmentEvent"];
+const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
+    "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent", "newChildEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent",
+    "setConditionsEvent", "setDependenciesEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
+    "setTitleEvent", "uploadAttachmentEvent"];
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984');
 const atob = require('atob');
 const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' });
@@ -78,7 +79,9 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "descriptionEvent":
             return mkHeader() + `<h3>The description changed from:</h3><p>${atob(value[0])}</p> to <p>${atob(value[1])}</p>` + mkFooter()
         case "docRestoredEvent":
-            return mkHeader() + `<h3>This item and ${value[0]} descendants are restored from removal</h3>` + mkFooter()
+            return mkHeader() + `<h3>This item and ${value[0]} descendants are restored from removal.</h3>` + mkFooter()
+        case "newChildEvent":
+            return mkHeader() + `<h3>A ${this.getLevelText(value[0])} was created as a child of this item at position ${value[1]}.</h3>` + mkFooter()
         case "nodeDroppedEvent":
             return mkHeader() + cText(value[7] === value[8], `<h3>The item changed priority from position ${value[9] + 1} to ${value[2] + 1} ${value[6]} item<br>'${value[3]}'</h3>`) +
                 cText(value[7] !== value[8], `<h3>The item is moved to the new parent<br>'${value[3]}' at position ${value[2] + 1}</h3>`) +

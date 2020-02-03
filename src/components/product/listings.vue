@@ -112,6 +112,7 @@ export default {
           if (keys[j] === "docRemovedDescendantEvent") allText += this.mkDocRemovedDescendantEvent(histItem[keys[j]])
           if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
           if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
+          if (keys[j] === "newChildEvent") allText += this.mkNewChildEvent(histItem[keys[j]])
           if (keys[j] === "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
           if (keys[j] === "nodeUndoMoveEvent") allText += this.mkNodeUndoMoveEvent(histItem[keys[j]])
           if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
@@ -186,6 +187,7 @@ export default {
       if (key === "docRemovedDescendantEvent") return this.mkDocRemovedDescendantEvent(value)
       if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
       if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
+      if (key === "newChildEvent") return this.mkNewChildEvent(value)
       if (key === "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
       if (key === "nodeUndoMoveEvent") return this.mkNodeUndoMoveEvent(value)
       if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
@@ -328,6 +330,10 @@ export default {
 
     mkGrandParentDocRestoredEvent(value) {
       return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are restored from removal.</h5>`
+    },
+
+    mkNewChildEvent(value) {
+      return `<h5>A ${this.getLevelText(value[0])} was created as a child of this item at position ${value[1]}.</h5>`
     },
 
     mkDocRestoredEvent(value) {
