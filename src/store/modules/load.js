@@ -322,7 +322,7 @@ const actions = {
 			dispatch('getConfig', isAnyProductAssigned)
 		}).catch(error => {
 			let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
-			rootState.backendMessages.push(msg)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -612,14 +612,16 @@ const actions = {
 	createDoc({
 		rootState,
 		dispatch
-	}, newDoc) {
-		const _id = newDoc.parentId
+	}, payload) {
+		const _id = payload.newDoc.parentId
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
-			newDoc.history[0]['createEvent'] = [newDoc.level, res.data.title]
-			dispatch('saveAndReload', newDoc)
+			const tmpDoc = res.data
+			tmpDoc.history.unshift(payload.parentHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			dispatch('saveAndReload', payload.newDoc)
 		}).catch(error => {
 			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
