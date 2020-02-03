@@ -321,7 +321,7 @@ export default {
           "distributeEvent": false
         }],
         "history": [{
-          "createEvent": [newNode.level, newNode.title],
+          "createEvent": [newNode.level, prevNode.title, newNode.ind + 1],
           "by": this.$store.state.userData.user,
           "email": this.$store.state.userData.email,
           "timestamp": Date.now(),
@@ -383,6 +383,7 @@ export default {
         }
       }
       let insertLevel = this.contextNodeSelected.level
+      let parentTitle
       if (this.contextOptionSelected === this.INSERTBELOW) {
         // new node is a sibling placed below (after) the selected node
         newNodeLocation = {
@@ -394,6 +395,7 @@ export default {
         newNode.parentId = this.contextNodeSelected.parentId
         newNode.title = 'New ' + this.getLevelText(insertLevel)
         newNode.isLeaf = (insertLevel < this.PBILEVEL) ? false : true
+        parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
       } else {
         // new node is a child placed a level lower (inside) than the selected node
         insertLevel += 1
@@ -407,6 +409,7 @@ export default {
         newNode.parentId = this.contextNodeSelected._id
         newNode.title = 'New ' + this.getLevelText(insertLevel)
         newNode.isLeaf = (insertLevel < this.PBILEVEL) ? false : true
+        parentTitle = this.contextNodeSelected.title
       }
       // add the location values
       newNode.path = path
@@ -462,7 +465,7 @@ export default {
             "distributeEvent": false
           }],
           "history": [{
-            "createEvent": [insertLevel, this.contextNodeSelected.title],
+            "createEvent": [insertLevel, parentTitle, newNode.ind + 1],
             "by": this.$store.state.userData.user,
             "email": this.$store.state.userData.email,
             "timestamp": Date.now(),

@@ -234,7 +234,7 @@ export default {
     },
 
     mkCreateEvent(value) {
-      return "<h5>This " + this.getLevelText(value[0]) + " was created under parent '" + value[1] + "'.</h5>"
+      return `<h5>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h5>`
     },
 
     mkConditionRemovedEvent(value) {

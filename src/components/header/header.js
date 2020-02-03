@@ -136,7 +136,7 @@ export default {
             }
             if (this.newPassword1 !== this.newPassword2) {
                 alert(
-                    "You entered two differen new passwords. Please try again."
+                    "You entered two different new passwords. Please try again."
                 )
                 return
             }
