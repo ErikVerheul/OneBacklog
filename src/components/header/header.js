@@ -1,6 +1,7 @@
 import licence from "./licence.vue"
 import { utilities } from '../mixins/utilities.js'
 
+const INFO = 0
 const MINPASSWORDLENGTH = 8
 
 export default {
@@ -81,6 +82,7 @@ export default {
         },
 
         doChangeDatabase() {
+            this.showLastEvent("Sign out and -in again to see the change", INFO)
             this.$store.dispatch('changeCurrentDb2', {dbName: this.myDatabase, products: []})
         },
 
@@ -100,9 +102,9 @@ export default {
                 this.defaultProductId = this.selectedProducts[0]
                 this.$store.dispatch('updateSubscriptions', [this.defaultProductId])
             } else {
-                for (let i = 0; i < this.$store.state.myProductOptions.length; i++) {
-                    if (this.selectedProducts.includes(this.$store.state.myProductOptions[i].value)) {
-                        this.defaultProductOptions.push(this.$store.state.myProductOptions[i])
+                for (let o of this.$store.state.myProductOptions) {
+                    if (this.selectedProducts.includes(o.value)) {
+                        this.defaultProductOptions.push(o)
                     }
                 }
                 this.$refs.selectDefaultProductRef.show()
@@ -111,15 +113,18 @@ export default {
 
         /* Update the subscriptions array of this user */
         updateProductsSubscription() {
-            let myNewProductSubscriptions = []
             // the first (index 0) product is by definition the default product
-            myNewProductSubscriptions.push(this.defaultProductId)
-            for (let i = 0; i < this.selectedProducts.length; i++) {
-                if (this.selectedProducts[i] !== this.defaultProductId) {
-                    myNewProductSubscriptions.push(this.selectedProducts[i])
+            const myNewProductSubscriptions = [this.defaultProductId]
+            const otherSubscriptions = []
+            for (let p of this.selectedProducts) {
+                if (p !== this.defaultProductId) {
+                    otherSubscriptions.push(p)
                 }
             }
-            this.$store.dispatch('updateSubscriptions', myNewProductSubscriptions)
+            // sort on creation date in ascending order
+            otherSubscriptions.sort()
+            this.showLastEvent("Sign out and -in again to see the change", INFO)
+            this.$store.dispatch('updateSubscriptions', myNewProductSubscriptions.concat(otherSubscriptions))
         },
 
         doChangePw() {
