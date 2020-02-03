@@ -28,10 +28,10 @@ const actions = {
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user
       rootState.selectedDatabaseName = state.fetchedUserData.currentDb
-      rootState.backendMessages.push('Successfully fetched user ' + userName)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Successfully fetched user ' + userName })
     }).catch(error => {
       let msg = 'getUser: Could not find user "' + userName + '". ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -65,7 +65,7 @@ const actions = {
       }
     }).catch(error => {
       let msg = 'getDbProducts: Could not find products of database ' + payload.dbName + '. Error = ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -109,7 +109,7 @@ const actions = {
       dispatch('doLog', { event: msg, level: INFO })
     }).catch(error => {
       let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + '. Error = ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
@@ -131,7 +131,7 @@ const actions = {
       dispatch("updateUser", tmpUserData)
     }).catch(error => {
       let msg = 'changePW: Could not change password for user ' + rootState.userData.user + '. Error = ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
@@ -170,10 +170,10 @@ const actions = {
         tmpUserData.myDatabases[payload.dbName] = newDb
       }
       dispatch("updateUser", tmpUserData)
-      rootState.backendMessages.push('The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles })
     }).catch(error => {
       let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -217,7 +217,7 @@ const actions = {
       dispatch('changeCurrentDb2', { dbName: dbName, productIds: ids })
     }).catch(error => {
       let msg = 'changeCurrentDb1: Could not find the products of database ' + dbName + '. Error = ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -259,16 +259,15 @@ const actions = {
       dispatch("updateUser", tmpUserData)
       rootState.isCurrentDbChanged = true
       const msg = "changeCurrentDb2: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       dispatch('doLog', { event: msg, level: INFO })
     }).catch(error => {
       const msg = 'changeCurrentDb2: Could not update the default database for user ' + rootState.userData.user + ', ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 
-  // ToDo: Happened twice: "[Vue warn]: Duplicate keys detected: 'updateUser: The profile of user 'erik' is updated successfully'. This may cause an update error." when cloning a product
   updateUser({
     rootState,
     dispatch
@@ -281,10 +280,10 @@ const actions = {
     }).then(() => {
       rootState.backendSuccess = true
       rootState.userUpdated = true
-      rootState.backendMessages.push("updateUser: The profile of user '" + newUserData.name + "' is updated successfully")
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: "updateUser: The profile of user '" + newUserData.name + "' is updated successfully" })
     }).catch(error => {
       let msg = "updateUser: Could not update the profile of user '" + newUserData.name + "', " + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -302,7 +301,7 @@ const actions = {
       url: '/_users/org.couchdb.user:' + payload.name,
     }).then(res => {
       let msg = 'createUser1: Cannot create user "' + res.data.name + '" that already exists'
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -311,7 +310,7 @@ const actions = {
         dispatch('createUser2', payload)
       } else {
         let msg = 'createUser1: While checking if user "' + payload.user + '" exists an error occurred, ' + error
-        rootState.backendMessages.push(msg)
+        rootState.backendMessages.push({ timestamp: Date.now(), msg })
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: ERROR })
@@ -329,12 +328,12 @@ const actions = {
       data: payload
     }).then(() => {
       rootState.backendSuccess = true
-      rootState.backendMessages.push('Successfully created user ' + payload.name)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Successfully created user ' + payload.name })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log('createUser2: user "' + payload.name + '" is created')
     }).catch(error => {
       let msg = 'createUser2: Could not create user "' + payload.user + '", ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

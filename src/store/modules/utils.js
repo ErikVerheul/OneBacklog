@@ -44,10 +44,9 @@ const actions = {
             rootState.selectedDatabaseName = rootState.userData.currentDb
           } else rootState.selectedDatabaseName = rootState.databaseOptions[0]
       }
-      console.log('getAllDatabases: rootState.databaseOptions = ' + rootState.databaseOptions)
     }).catch(error => {
       let msg = 'getAllDatabases: Could not load all database names. Error = ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -73,9 +72,9 @@ const actions = {
       data: userDbPermissions
     }).then(() => {
       rootState.backendSuccess = true
-      rootState.backendMessages.push('setUsersDatabasePermissions: Success, system permissions for _users database are set')
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'setUsersDatabasePermissions: Success, system permissions for _users database are set' })
     }).catch(error => {
-      rootState.backendMessages.push('setUsersDatabasePermissions: Could not set users database permissions, ' + error)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'setUsersDatabasePermissions: Could not set users database permissions, ' + error })
     })
   },
 
@@ -100,14 +99,14 @@ const actions = {
       data: copyData
     }).then(() => {
       state.backupBusy = false
-      rootState.backendMessages.push('copyDB: Success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'copyDB: Success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName })
       dispatch('setDatabasePermissions', {
         dbName: payload.dbTargetName
       })
     }).catch(error => {
       // eslint-disable-next-line no-console
       console.log(error)
-      rootState.backendMessages.push('copyDB: Failure, ' + payload.dbSourceName + ' is NOT copied to ' + payload.dbTargetName + ', ' + error)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'copyDB: Failure, ' + payload.dbSourceName + ' is NOT copied to ' + payload.dbTargetName + ', ' + error })
     })
   },
 
@@ -122,13 +121,13 @@ const actions = {
       url: payload.dbTargetName,
     }).then(() => {
       rootState.backendSuccess = true
-      rootState.backendMessages.push('Database ' + payload.dbTargetName + ' has been deleted')
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Database ' + payload.dbTargetName + ' has been deleted' })
       dispatch('copyDB', payload)
     }).catch(error => {
       if (error.response.status === 404) {
         // database does not exist
         dispatch('copyDB', payload)
-      } else rootState.backendMessages.push('Deletion of database ' + payload.dbTargetName + ' gave unexpected error, ' + error + '. Operation aborted.')
+      } else rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Deletion of database ' + payload.dbTargetName + ' gave unexpected error, ' + error + '. Operation aborted.' })
     })
   },
 
@@ -150,9 +149,9 @@ const actions = {
       rootState.backendSuccess = false
       rootState.backendMessages = []
       dispatch('purgeDb', { dbName, data, idx: 0, number: removed.length })
-      rootState.backendMessages.push('Purge started, ' + removed.length + ' documents will be deleted. Please wait ...')
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Purge started, ' + removed.length + ' documents will be deleted. Please wait ...' })
     }).catch(error => {
-      rootState.backendMessages.push('Could not find any removed documents in database ' + dbName + '. Error = ' + error)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Could not find any removed documents in database ' + dbName + '. Error = ' + error })
     })
   },
 
@@ -161,7 +160,7 @@ const actions = {
     dispatch
   }, payload) {
     if (payload.idx >= payload.number) {
-      rootState.backendMessages.push(payload.number + ' removed documents in database ' + payload.dbName + ' have been purged, start compacting')
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: payload.number + ' removed documents in database ' + payload.dbName + ' have been purged, start compacting' })
       dispatch('compactDb', payload)
       return
     }
@@ -174,7 +173,7 @@ const actions = {
       payload.idx++
       dispatch('purgeDb', payload)
     }).catch(error => {
-      rootState.backendMessages.push('Purge of documents in database ' + payload.dbName + ' failed at index ' + payload.idx + ', ' + error)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Purge of documents in database ' + payload.dbName + ' failed at index ' + payload.idx + ', ' + error })
     })
   },
 
@@ -192,9 +191,9 @@ const actions = {
     }).then(() => {
       rootState.backendSuccess = true
       rootState.isPurgeReady = true
-      rootState.backendMessages.push('Compacting the database ' + payload.dbName + ' succeeded')
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Compacting the database ' + payload.dbName + ' succeeded' })
     }).catch(error => {
-      rootState.backendMessages.push('Compacting the database ' + payload.dbName + ' failed, ' + error)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Compacting the database ' + payload.dbName + ' failed, ' + error })
     })
   },
 
@@ -208,9 +207,9 @@ const actions = {
       url: dbName,
     }).then(() => {
       rootState.backendSuccess = true
-      rootState.backendMessages.push('Database ' + dbName + ' has been deleted')
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Database ' + dbName + ' has been deleted' })
     }).catch(error => {
-      rootState.backendMessages.push('Database ' + dbName + ' coud not be deleted,' + error)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Database ' + dbName + ' coud not be deleted,' + error })
     })
   },
 
@@ -227,10 +226,10 @@ const actions = {
     }).then(res => {
       rootState.backendSuccess = true
       if (res.data.teams) rootState.fetchedTeams = res.data.teams
-      rootState.backendMessages.push('getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read')
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
     }).catch(error => {
       let msg = 'getTeamNames: Could not read config document of database ' + dbName + ', ' + error
-      rootState.backendMessages.push(msg)
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

@@ -198,8 +198,8 @@
       <p>{{ localMessage }}</p>
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
-        <div v-for="msg in $store.state.backendMessages" :key="msg">
-        <p>{{ msg }}</p>
+        <div v-for="item in $store.state.backendMessages" :key="item.timestamp">
+          <p>{{ item.msg }}</p>
         </div>
       </div>
     </b-container>

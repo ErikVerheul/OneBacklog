@@ -605,14 +605,14 @@ const actions = {
 				tmpConfig.teams.push(payload.newTeam)
 				dispatch('updateDoc', { dbName: payload.dbName, updatedDoc: tmpConfig })
 				// assume updateDoc succeeds
-				rootState.backendMessages.push("addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName)
+				rootState.backendMessages.push({ timestamp: Date.now(), msg: "addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName })
 				rootState.teamCreated = true
 			} else {
-				rootState.backendMessages.push("addTeamToDatabase: Cannot add team name '" + payload.newTeam + "'. Reason: team already exist in database " + payload.dbName)
+				rootState.backendMessages.push({ timestamp: Date.now(), msg: "addTeamToDatabase: Cannot add team name '" + payload.newTeam + "'. Reason: team already exist in database " + payload.dbName })
 			}
 		}).catch(error => {
 			const msg = 'addTeamToDatabase: Could not read config document ' + error
-			rootState.backendMessages.push(msg)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg })
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
@@ -650,7 +650,7 @@ const actions = {
 		}).catch(error => {
 			rootState.uploadDone = true
 			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
-			rootState.backendMessages.push(msg)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

@@ -14,7 +14,7 @@ const actions = {
 			method: 'PUT',
 			url: payload.dbName,
 		}).then(() => {
-			rootState.backendMessages.push('createDatabase: Success, empty database ' + payload.dbName + ' is created')
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createDatabase: Success, empty database ' + payload.dbName + ' is created' })
 			dispatch('setDatabasePermissions', payload)
 			dispatch('createLog', payload)
 			if (payload.initDbInstance) {
@@ -22,7 +22,7 @@ const actions = {
 				dispatch('setUsersDatabasePermissions', rootState.userData.user)
 			}
 		}).catch(error => {
-			rootState.backendMessages.push('createDatabase: Failed to create ' + payload.dbName + ', ' + error)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createDatabase: Failed to create ' + payload.dbName + ', ' + error })
 		})
 	},
 
@@ -44,9 +44,9 @@ const actions = {
 			url: payload.dbName + '/_security',
 			data: dbPermissions
 		}).then(() => {
-			rootState.backendMessages.push('setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set')
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set' })
 		}).catch(error => {
-			rootState.backendMessages.push('setDatabasePermissions: Failure, could not set database permissions, ' + error)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'setDatabasePermissions: Failure, could not set database permissions, ' + error })
 		})
 	},
 
@@ -73,10 +73,10 @@ const actions = {
 			url: payload.dbName + '/log',
 			data: logDoc
 		}).then(() => {
-			rootState.backendMessages.push('createLog: Success, log for database ' + payload.dbName + ' is created')
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createLog: Success, log for database ' + payload.dbName + ' is created' })
 			dispatch('createConfig', payload)
 		}).catch(error => {
-			rootState.backendMessages.push('createLog: Failure, could not create log document, ' + error)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createLog: Failure, could not create log document, ' + error })
 		})
 	},
 
@@ -167,10 +167,10 @@ const actions = {
 			url: payload.dbName,
 			data: configData
 		}).then(() => {
-			rootState.backendMessages.push('createConfig: Success, the configuration document is created')
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createConfig: Success, the configuration document is created' })
 			dispatch('installDesignViews', payload)
 		}).catch(error => {
-			rootState.backendMessages.push('createConfig: Failure, could not create the configuration document, ' + error)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createConfig: Failure, could not create the configuration document, ' + error })
 		})
 	},
 
@@ -220,10 +220,10 @@ const actions = {
 				"language": "javascript"
 			}
 		}).then(() => {
-			rootState.backendMessages.push('installDesignViews: Success, the design document is created')
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'installDesignViews: Success, the design document is created' })
 			dispatch('installDesignFilters', payload)
 		}).catch(error => {
-			rootState.backendMessages.push('installDesignViews: Failure, cannot create the design document, ' + error)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'installDesignViews: Failure, cannot create the design document, ' + error })
 		})
 	},
 
@@ -242,10 +242,10 @@ const actions = {
 				"language": "javascript"
 			}
 		}).then(() => {
-			rootState.backendMessages.push('installDesignFilters: Success, the design document is created')
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'installDesignFilters: Success, the design document is created' })
 			dispatch('createRootDoc', payload)
 		}).catch(error => {
-			rootState.backendMessages.push('installDesignFilters: Failure, cannot create the design document, ' + error)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'installDesignFilters: Failure, cannot create the design document, ' + error })
 		})
 	},
 
@@ -292,9 +292,9 @@ const actions = {
 				rootState.backendSuccess = true
 				rootState.userData.myDatabases.push(payload.dbName)
 			}
-			rootState.backendMessages.push('createRootDoc: Success, the root document is created')
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createRootDoc: Success, the root document is created' })
 		}).catch(error => {
-			rootState.backendMessages.push('createRootDoc: Failure, cannot create the root document, ' + error)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createRootDoc: Failure, cannot create the root document, ' + error })
 		})
 	},
 
@@ -323,9 +323,9 @@ const actions = {
 			}
 		}).then(() => {
 			rootState.backendSuccess = true
-			rootState.backendMessages.push("createServerAdminProfile: Success, user profile for " + userName + " is created with 'admin', 'superPO' roles set")
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: "createServerAdminProfile: Success, user profile for " + userName + " is created with 'admin', 'superPO' roles set" })
 		}).catch(error => {
-			rootState.backendMessages.push("createServerAdminProfile: Failure, cannot create user profile for 'server admin' '" + userName + "', " + error)
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: "createServerAdminProfile: Failure, cannot create user profile for 'server admin' '" + userName + "', " + error })
 		})
 	},
 }

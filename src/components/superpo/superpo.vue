@@ -51,8 +51,8 @@
 
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
-        <div v-for="msg in $store.state.backendMessages" :key="msg">
-          <p>{{ msg }}</p>
+        <div v-for="item in $store.state.backendMessages" :key="item.timestamp">
+          <p>{{ item.msg }}</p>
         </div>
       </div>
     </b-container>
@@ -121,8 +121,16 @@ export default {
         }],
         "delmark": false
       }
+      // create a history event for the parent to trigger an email message to followers
+      const parentHist = {
+        "newChildEvent": [PRODUCTLEVEL, this.$store.state.userData.myProductSubscriptions.length + 1],
+        "by": this.$store.state.userData.user,
+        "email": this.$store.state.userData.email,
+        "timestamp": Date.now(),
+        "distributeEvent": false
+      }
       // update the database
-      this.$store.dispatch('saveAndReload', newDoc)
+      this.$store.dispatch('createDoc', { newDoc, parentHist })
       // add product to this user's subscriptions and productsRoles
       this.$store.state.backendMessages = []
       this.$store.state.backendSuccess = false
