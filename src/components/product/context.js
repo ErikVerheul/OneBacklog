@@ -293,6 +293,7 @@ export default {
 
       this.showLastEvent("Item of type " + this.getLevelText(newNode.level) + " is inserted as a copy of '" + node.title + "'.", INFO)
       // create a new document and store it
+      const parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
       const currentDoc = this.$store.state.currentDoc
       const newDoc = {
         "productId": currentDoc.productId,
@@ -321,7 +322,7 @@ export default {
           "distributeEvent": false
         }],
         "history": [{
-          "createEvent": [newNode.level, prevNode.title, newNode.ind + 1],
+          "createEvent": [newNode.level, parentTitle, newNode.ind + 1],
           "by": this.$store.state.userData.user,
           "email": this.$store.state.userData.email,
           "timestamp": Date.now(),
