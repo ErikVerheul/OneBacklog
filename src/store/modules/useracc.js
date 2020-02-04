@@ -170,7 +170,7 @@ const actions = {
         tmpUserData.myDatabases[payload.dbName] = newDb
       }
       dispatch("updateUser", tmpUserData)
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles })
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'addProductToUser: The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles })
     }).catch(error => {
       let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
@@ -293,23 +293,21 @@ const actions = {
   createUser1({
     rootState,
     dispatch
-  }, payload) {
-    rootState.backendMessages = []
-    rootState.backendSuccess = false
+  }, userData) {
     globalAxios({
       method: 'GET',
-      url: '/_users/org.couchdb.user:' + payload.name,
-    }).then(res => {
-      let msg = 'createUser1: Cannot create user "' + res.data.name + '" that already exists'
+      url: '/_users/org.couchdb.user:' + userData.name,
+    }).then(() => {
+      let msg = 'createUser1: Cannot create user "' + userData.name + '" that already exists'
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
     }).catch(error => {
       if (error.message.includes("404")) {
-        dispatch('createUser2', payload)
+        dispatch('createUser2', userData)
       } else {
-        let msg = 'createUser1: While checking if user "' + payload.user + '" exists an error occurred, ' + error
+        let msg = 'createUser1: While checking if user "' + userData.name + '" exists an error occurred, ' + error
         rootState.backendMessages.push({ timestamp: Date.now(), msg })
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
@@ -321,18 +319,18 @@ const actions = {
   createUser2({
     rootState,
     dispatch
-  }, payload) {
+  }, userData) {
     globalAxios({
       method: 'PUT',
-      url: '/_users/org.couchdb.user:' + payload.name,
-      data: payload
+      url: '/_users/org.couchdb.user:' + userData.name,
+      data: userData
     }).then(() => {
       rootState.backendSuccess = true
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Successfully created user ' + payload.name })
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Successfully created user ' + userData.name })
       // eslint-disable-next-line no-console
-      if (rootState.debug) console.log('createUser2: user "' + payload.name + '" is created')
+      if (rootState.debug) console.log('createUser2: user "' + userData.name + '" is created')
     }).catch(error => {
-      let msg = 'createUser2: Could not create user "' + payload.user + '", ' + error
+      let msg = 'createUser2: Could not create user "' + userData.name + '", ' + error
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)

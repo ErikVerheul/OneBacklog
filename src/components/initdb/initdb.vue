@@ -35,10 +35,8 @@
           <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
       <div v-if="$store.state.backendSuccess">
-        <h5>Succes! Apart from being a CouchDb 'server admin' you have the application 'admin' and 'superPO' roles.<br>
-        Exit, and sign in again to see the created root document. Then select the SuperPO view.</h5>
-        <h5>As 'superPO' create at least one product and in the Admin view create the first users and their roles. Assign one or more admins to take over that task.</h5>
-        <p>Note: It is a good practice to remove the 'superPO' role from your profile as soon as another user takes this role. Keep your 'admin' role as a backup.</p>
+        <h5>Succes! Apart from being a CouchDb 'server admin' you have the application 'admin' role.</h5>
+        <h5>Exit and sign-in again. Then open the Admin view and create the first users and their roles. Assign one or more admins to take over that task.</h5>
         <b-button class="m-1" @click="signIn" variant="outline-primary">Exit</b-button>
       </div>
       <div v-if="$store.state.backendMessages.length > 0">
@@ -81,7 +79,7 @@ export default {
       const payload = {
         dbName: this.dbName,
         email: this.email,
-        initDbInstance: true,
+        createUser: true
       }
       this.$store.dispatch('createDatabase', payload)
     },

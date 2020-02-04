@@ -2,8 +2,21 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the baclogitem documents must add history in order for the changes feed to work properly
 
 const DATABASELEVEL = 1
+const PRODUCTLEVEL = 2
+const ERROR = 2
 
 const actions = {
+	/*
+	* Order of execution:
+	* 1. createDatabase - also calls setDatabasePermissions and createUser1
+	* 2. createLog
+	* 3. createConfig
+	* 4. installDesignViews
+	* 5. installDesignFilters
+	* 6. createRootDoc
+	* 7. createFirstProduct
+	* 8. addProductToUser in useracc.js
+	*/
 	createDatabase({
 		rootState,
 		dispatch
@@ -17,9 +30,23 @@ const actions = {
 			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createDatabase: Success, empty database ' + payload.dbName + ' is created' })
 			dispatch('setDatabasePermissions', payload)
 			dispatch('createLog', payload)
-			if (payload.initDbInstance) {
-				// also makes the applications 'admin' role CouchDB admin
-				dispatch('setUsersDatabasePermissions', rootState.userData.user)
+			if (payload.createUser) {
+				const userData = {
+					name: rootState.userData.user,
+					teams: ['not assigned yet'],
+					roles: ["admin"],
+					type: "user",
+					email: payload.email,
+					currentDb: payload.dbName,
+					myDatabases: {
+						[payload.dbName]: {
+							"myTeam": 'not assigned yet',
+							subscriptions: [],
+							productsRoles: {}
+						}
+					}
+				}
+				dispatch('createUser1', userData)
 			}
 		}).catch(error => {
 			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createDatabase: Failed to create ' + payload.dbName + ', ' + error })
@@ -31,7 +58,7 @@ const actions = {
 	}, payload) {
 		const dbPermissions = {
 			"admins": {
-				"names": [],
+				"names": [rootState.userData.user],
 				"roles": ["admin"]
 			},
 			"members": {
@@ -286,48 +313,66 @@ const actions = {
 			url: payload.dbName + '/root',
 			data: rootDoc
 		}).then(() => {
-			if (payload.initDbInstance) {
-				dispatch('createServerAdminProfile', payload)
-			} else {
-				rootState.backendSuccess = true
-				rootState.userData.myDatabases.push(payload.dbName)
-			}
+			dispatch('createFirstProduct', payload.dbName)
 			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createRootDoc: Success, the root document is created' })
 		}).catch(error => {
 			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createRootDoc: Failure, cannot create the root document, ' + error })
 		})
 	},
 
-	/* The server admin attains the roles 'admin' and 'superPO'. No product is set. */
-	createServerAdminProfile({
-		rootState
-	}, payload) {
-		const userName = rootState.userData.user
+	createFirstProduct({
+		rootState,
+		dispatch
+	}, dbName) {
+		// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
+		const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
+		const _id = Date.now().toString().concat(shortId)
+		// create a new document and store it
+		const newDoc = {
+			"_id": _id,
+			"shortId": shortId,
+			"type": "backlogItem",
+			"productId": _id,
+			"parentId": "root",
+			"team": "not assigned yet",
+			"level": PRODUCTLEVEL,
+			"state": 2,
+			"reqarea": null,
+			"title": "First product",
+			"followers": [],
+			"description": window.btoa(""),
+			"acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
+			"priority": 0,
+			"comments": [{
+				"ignoreEvent": 'comments initiated',
+				"timestamp": 0,
+				"distributeEvent": false
+			}],
+			// do not distribute this event; other users have no access rights yet
+			"history": [{
+				"createEvent": [PRODUCTLEVEL, dbName, 1],
+				"by": rootState.userData.user,
+				"email": rootState.userData.email,
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}],
+			"delmark": false
+		}
+
 		globalAxios({
 			method: 'PUT',
-			url: '_users/org.couchdb.user:' + userName,
-			data: {
-				name: userName,
-				password: rootState.userData.password,
-				type: 'user',
-				roles: ['guest', 'admin', 'superPO'],
-				email: payload.email,
-				currentDb: payload.dbName,
-				myDatabases: {
-					[payload.dbName]: {
-						myTeam: 'not assigned yet',
-						subscriptions: [],
-						productsRoles: {}
-					}
-				}
-			}
+			url: dbName + '/' + _id,
+			data: newDoc
 		}).then(() => {
-			rootState.backendSuccess = true
-			rootState.backendMessages.push({ timestamp: Date.now(), msg: "createServerAdminProfile: Success, user profile for " + userName + " is created with 'admin', 'superPO' roles set" })
+			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createFirstProduct: Product with _id ' + _id + ' is created' })
+			dispatch('addProductToUser', { dbName, productId: _id })
 		}).catch(error => {
-			rootState.backendMessages.push({ timestamp: Date.now(), msg: "createServerAdminProfile: Failure, cannot create user profile for 'server admin' '" + userName + "', " + error })
+			let msg = 'createFirstProduct: Could not create document with id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
-	},
+	}
 }
 
 export default {

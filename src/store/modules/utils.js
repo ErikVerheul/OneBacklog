@@ -53,31 +53,6 @@ const actions = {
     })
   },
 
-  setUsersDatabasePermissions({
-    rootState
-  }, user) {
-    const userDbPermissions = {
-      "admins": {
-        "names": [user],
-        "roles": ["admin"]
-      },
-      "members": {
-        "names": [],
-        "roles": ["areaPO", "superPO", "PO", "developer", "guest"]
-      }
-    }
-    globalAxios({
-      method: 'PUT',
-      url: '/_users/_security',
-      data: userDbPermissions
-    }).then(() => {
-      rootState.backendSuccess = true
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'setUsersDatabasePermissions: Success, system permissions for _users database are set' })
-    }).catch(error => {
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'setUsersDatabasePermissions: Could not set users database permissions, ' + error })
-    })
-  },
-
   copyDB({
     rootState,
     state,

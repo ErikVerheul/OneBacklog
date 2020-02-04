@@ -74,8 +74,10 @@
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb">Change my database</b-button>
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         <div v-if="$store.state.isCurrentDbChanged">
-          <h4>Succes! Exit, and sign in again to see the product view of the updated database</h4>
-          <b-button class="m-1" @click="signIn" variant="outline-primary">Exit</b-button>
+          <h4>Succes!</h4>
+          <div v-if="$store.state.backendSuccess">
+            <b-button class="m-1" @click="signIn()">Sign-out and -in to see the product view of the updated database</b-button>
+          </div>
         </div>
       </div>
 
@@ -248,7 +250,7 @@ export default {
       const payload = {
         dbName: this.newDbName,
         email: this.$store.state.userData.email,
-        initDbInstance: false,
+        createUser: false
       }
       this.$store.dispatch('createDatabase', payload)
     },
