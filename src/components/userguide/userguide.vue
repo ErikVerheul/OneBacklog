@@ -164,7 +164,7 @@
 					<li>createDatabase: Success, empty database erikdb7 is created</li>
 					<li>setDatabasePermissions: Success, database permissions for erikdb7 are set</li>
 					<li>createLog: Success, log for database erikdb7 is created</li>
-					<li>Successfully created user couchdbadmin</li>
+					<li>createUser: Successfully created user couchdbadmin</li>
 					<li>createConfig: Success, the configuration document is created</li>
 					<li>installDesignViews: Success, the design document is created</li>
 					<li>installDesignFilters: Success, the design document is created</li>
