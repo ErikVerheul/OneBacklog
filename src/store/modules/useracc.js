@@ -326,7 +326,7 @@ const actions = {
       data: userData
     }).then(() => {
       rootState.backendSuccess = true
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Successfully created user ' + userData.name })
+      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createUser: Successfully created user ' + userData.name })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log('createUser2: user "' + userData.name + '" is created')
     }).catch(error => {
