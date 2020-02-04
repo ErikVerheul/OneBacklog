@@ -163,13 +163,15 @@
 				<ul>
 					<li>createDatabase: Success, empty database erikdb7 is created</li>
 					<li>setDatabasePermissions: Success, database permissions for erikdb7 are set</li>
-					<li>setUsersDatabasePermissions: Success, system permissions for _users database are set</li>
 					<li>createLog: Success, log for database erikdb7 is created</li>
+					<li>Successfully created user couchdbadmin</li>
 					<li>createConfig: Success, the configuration document is created</li>
 					<li>installDesignViews: Success, the design document is created</li>
 					<li>installDesignFilters: Success, the design document is created</li>
 					<li>createRootDoc: Success, the root document is created</li>
-					<li>createServerAdminProfile: Success, user profile for testdb is created with 'admin', 'superPO' roles set</li>
+					<li>createFirstProduct: Product with _id 15808352512486doy6 is created</li>
+					<li>addProductToUser: The product with Id 15808352512486doy6 is added to your profile with roles admin</li>
+					<li>updateUser: The profile of user 'couchdbadmin' is updated successfully</li>
 				</ul>
 				<p>Click on 'Exit' and sign-in again to see the product view with no product but a root document,<br>
 					then:<br>
