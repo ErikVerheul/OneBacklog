@@ -453,9 +453,10 @@ export default {
           this.showLastEvent('Change of item title is undone', INFO)
           break
         case 'undoNewNode':
-          window.slVueTree.remove([entry.newNode])
-          this.$store.dispatch('registerHistInGrandParent', { 'productId': this.$store.state.load.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
-          this.showLastEvent('Item addition is undone', INFO)
+          if (window.slVueTree.remove([entry.newNode])) {
+            this.$store.dispatch('registerHistInGrandParent', { 'productId': this.$store.state.load.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
+            this.showLastEvent('Item addition is undone', INFO)
+          } else this.showLastEvent('Item was already removed', INFO)
           break
         case 'undoMove':
           window.slVueTree.moveBack(entry)
@@ -480,10 +481,10 @@ export default {
           this.showLastEvent('Item(s) move undone', INFO)
           break
         case 'removedNode':
-          this.$store.dispatch("restoreDescendantsBulk", entry)
           // restore the removed node
           var parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
           if (parentNode) {
+            this.$store.dispatch("restoreDescendantsBulk", entry)
             let path
             if (window.slVueTree.comparePaths(parentNode.path, entry.removedNode.path.slice(0, -1)) === 0) {
               // the removed node path has not changed
@@ -530,10 +531,10 @@ export default {
               const node = window.slVueTree.getNodeById(c.id)
               if (node !== null) node.conditionalFor.push(c.conditionalFor)
             }
+            this.showLastEvent('Item(s) remove is undone', INFO)
           } else {
-            this.showLastEvent(`Cannot restore the removed items in the tree view. Sign out and -in again to recover'`, WARNING)
+            this.showLastEvent(`Cannot restore the removed items in the tree view. The parent node was removed`, WARNING)
           }
-          this.showLastEvent('Item(s) remove is undone', INFO)
           break
       }
       // window.slVueTree.showVisibility('onUndoEvent', FEATURELEVEL)

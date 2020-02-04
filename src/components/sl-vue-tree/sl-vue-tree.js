@@ -598,15 +598,20 @@ export default {
 			this.insert(cursorPosition, [node])
 		},
 
-		/* Remove nodes from the tree model */
+		/* Remove nodes from the tree model. Return true if any node was removed */
 		remove(nodes) {
+			let success = false
 			for (let node of nodes) {
 				const siblings = this.getNodeSiblings(node.path)
-				const removeInd = node.ind
-				const parentPath = node.path.slice(0, -1)
-				siblings.splice(removeInd, 1)
-				updatePaths(parentPath, siblings, removeInd)
+				if (siblings.length > 0) {
+					const removeInd = node.ind
+					const parentPath = node.path.slice(0, -1)
+					siblings.splice(removeInd, 1)
+					updatePaths(parentPath, siblings, removeInd)
+					success = true
+				}
 			}
+			return success
 		},
 
 
