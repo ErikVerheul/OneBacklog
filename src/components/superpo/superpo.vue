@@ -11,8 +11,8 @@
       <div v-if="optionSelected === 'Create a product'">
         <h2>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h2>
         <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
-        <b-button v-if="productTitle !== ''" class="m-1" @click="doCreateProduct()">Create product</b-button>
-        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.backendSuccess && productTitle !== ''" class="m-1" @click="doCreateProduct()">Create product</b-button>
+        <b-button v-if="!$store.state.backendSuccess" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
         <div v-if="$store.state.backendSuccess">
           <b-button class="m-1" @click="signIn()">Sign-out and -in to see the new product</b-button>
         </div>
