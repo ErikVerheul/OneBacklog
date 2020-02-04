@@ -249,7 +249,7 @@ export default new Vuex.Store({
 				dispatch('refreshCookieLoop', {
 					timeout: 540
 				})
-				dispatch('getOtherUserData')
+				dispatch('getDatabases')
 			})
 				// cannot log failure here as the database name is unknown yet
 				// eslint-disable-next-line no-console

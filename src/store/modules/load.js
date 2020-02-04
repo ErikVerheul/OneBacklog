@@ -209,38 +209,69 @@ const mutations = {
 const actions = {
 	/*
 	* Order of execution:
-	* 1. getOtherUserData
-	* 2. getAllProducts - calls updateUser if products are missing
-	* 3. getConfig
-	* 4. getRoot
-	* 5. loadCurrentProduct
-	* 6. getFirstProduct - opens the products view - starts listenForChanges if no other products
-	* 7. getNextProduct - starts listenForChanges if not already started
+	* 1. getDatabases
+	* 2. getOtherUserData
+	* 3. getAllProducts - calls updateUser if databases or products are missing
+	* 4. getConfig
+	* 5. getRoot
+	* 6. loadCurrentProduct
+	* 7. getFirstProduct - opens the products view - starts listenForChanges if no other products
+	* 8. getNextProduct - starts listenForChanges if not already started
 	*/
 
-	/* Get the current DB name etc. for this user. Note that the user global roles are already fetched */
-	getOtherUserData({
+	/* Get all non-backup or system database names */
+	getDatabases({
 		rootState,
 		dispatch
 	}) {
 		globalAxios({
 			method: 'GET',
+			url: '/_all_dbs',
+		}).then(res => {
+			const foundDbNames = []
+			for (let dbName of res.data) {
+				if (!dbName.startsWith('_') && !dbName.includes('backup')) foundDbNames.push(dbName)
+			}
+			dispatch('getOtherUserData', foundDbNames)
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('getDatabases: Database names are loaded: ' + foundDbNames)
+		}).catch(error => {
+			let msg = 'getDatabases: Could not load the database names. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/* Get the current DB name etc for this user. Note that the user global roles are already fetched */
+	getOtherUserData({
+		rootState,
+		dispatch
+	}, foundDbNames) {
+		globalAxios({
+			method: 'GET',
 			url: '_users/org.couchdb.user:' + rootState.userData.user,
 		}).then(res => {
-			let allUserDate = res.data
-			rootState.userData.currentDb = res.data.currentDb
-			rootState.userData.email = res.data.email
-			rootState.userData.myDatabases = Object.keys(res.data.myDatabases)
-			const currentDbSettings = res.data.myDatabases[res.data.currentDb]
+			let allUserData = res.data
+			// correct the profile for removed databases, if any
+			rootState.userData.myDatabases = []
+			for (let name of Object.keys(allUserData.myDatabases)) {
+				if (!foundDbNames.includes(name)) {
+					delete allUserData.myDatabases[name]
+				} else rootState.userData.myDatabases.push(name)
+			}
+			rootState.userData.currentDb = allUserData.currentDb
+			rootState.userData.email = allUserData.email
+			const currentDbSettings = allUserData.myDatabases[allUserData.currentDb]
 			rootState.userData.myTeam = currentDbSettings.myTeam
-			rootState.userData.myFilterSettings = res.data.filterSettings
+			rootState.userData.myFilterSettings = allUserData.filterSettings
 			dispatch('watchdog')
 			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in"
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			// now that the database is known the log file is available
 			dispatch('doLog', { event: msg, level: INFO })
-			dispatch('getAllProducts', { allUserDate, currentDbSettings })
+			dispatch('getAllProducts', { allUserData, currentDbSettings })
 		}).catch(error => {
 			if (error.response.status === 404) {
 				// the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
@@ -259,7 +290,7 @@ const actions = {
 		})
 	},
 
-	/* Get all products of the current database */
+	/* Get all products of the current database and correct the data from the user profile with the actual available products */
 	getAllProducts({
 		rootState,
 		state,
@@ -303,8 +334,8 @@ const actions = {
 					missingProductRolesIds.push(id)
 				}
 			}
-			if (rootState.autoCorrectUserProfile && missingProductRolesIds.length > 0) {
-				let newUserData = payload.allUserDate
+			if (rootState.autoCorrectUserProfile) {
+				let newUserData = payload.allUserData
 				for (let id of missingProductRolesIds) {
 					delete newUserData.myDatabases[rootState.userData.currentDb].productsRoles[id]
 				}
