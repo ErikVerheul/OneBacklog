@@ -72,7 +72,8 @@
             >Tick to add this role
             </b-form-checkbox>
             <b-button v-if="$store.state.backendSuccess && !userIsUpdated" class="m-1" @click="doCreateUser()">Create this user</b-button>
-            <b-button v-if="!userIsUpdated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+            <hr>
+            <b-button v-if="userIsUpdated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
           </div>
         </div>
       </div>
