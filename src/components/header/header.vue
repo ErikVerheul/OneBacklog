@@ -18,7 +18,6 @@
             <b-dropdown-item v-if="superPO" to="../../superpo">Super PO</b-dropdown-item>
             <b-dropdown-item v-if="admin" to="../../admin">Admin</b-dropdown-item>
             <b-dropdown-item v-if="serverAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
-            <b-dropdown-item v-if="serverAdmin" to="../../setup">Setup</b-dropdown-item>
           </b-nav-item-dropdown>
 
           <b-nav-item-dropdown right>

@@ -10,7 +10,6 @@ import WelcomePage from './components/welcome/welcome.vue'
 import RelNotesPage from './components/rel-notes/rel-notes.vue'
 import UserGuidePage from './components/userguide/userguide.vue'
 import InitPage from './components/initdb/initdb.vue'
-import SetupPage from './components/setup/setup.vue'
 import SigninPage from './components/auth/signin.vue'
 import ProductPage from './components/product/product.vue'
 import ReqsAreaPage from './components/reqsarea/reqsarea.vue'
@@ -42,17 +41,6 @@ const routes = [
 	{
 		path: '/init',
 		component: InitPage,
-		beforeEnter(to, from, next) {
-			if (store.state.userData.user) {
-				next()
-			} else {
-				next('/signin')
-			}
-		}
-	},
-	{
-		path: '/setup',
-		component: SetupPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {
 				next()

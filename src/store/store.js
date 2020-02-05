@@ -13,7 +13,6 @@ import update from './modules/update'
 import attachments from './modules/attachments'
 import move from './modules/move'
 import undo from './modules/undo'
-import setup from './modules/setup'
 import remove from './modules/remove'
 import utils from './modules/utils'
 import restorebranch from './modules/restorebranch'
@@ -102,8 +101,17 @@ export default new Vuex.Store({
 		isSuperPO(state) {
 			return state.userData.roles.includes("superPO")
 		},
+		isPO(state) {
+			return state.userData.roles.includes("PO")
+		},
 		isAdmin(state) {
 			return state.userData.roles.includes("admin")
+		},
+		isDeveloper(state) {
+			return state.userData.roles.includes("developer")
+		},
+		isGuest(state) {
+			return state.userData.roles.includes("guest")
 		},
 		canCreateComments(state) {
 			return state.userData.roles.includes("_admin") ||
@@ -281,7 +289,6 @@ export default new Vuex.Store({
 		move,
 		undo,
 		remove,
-		setup,
 		utils,
 		restorebranch
 	}
