@@ -5,9 +5,18 @@ const ERROR = 2
 const BACKUPSONLY = 1
 const ALLBUTSYSTEM = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
+const PRODUCTLEVEL = 2
+
+function removeFromArray(arr, item) {
+  const newArr = []
+  for (let el of arr) {
+    if (el !== item) newArr.push(el)
+  }
+  return newArr
+}
 
 const state = {
-  backupBusy: false
+  copyBusy: false
 }
 
 const actions = {
@@ -17,12 +26,12 @@ const actions = {
     dispatch
   }, selected) {
     rootState.backendMessages = []
-    rootState.backendSuccess = false
+    rootState.areDatabasesFound = false
     globalAxios({
       method: 'GET',
       url: '/_all_dbs',
     }).then(res => {
-      rootState.backendSuccess = true
+      rootState.areDatabasesFound = true
       rootState.databaseOptions = []
       switch (selected) {
         case BACKUPSONLY:
@@ -53,19 +62,50 @@ const actions = {
     })
   },
 
+  createProduct({
+    rootState,
+    dispatch
+  }, payload) {
+    const _id = payload.productId
+    const product = payload.newDoc
+    // do not distribute this event; other users have no access rights yet
+    product.history = [{
+      "createEvent": [PRODUCTLEVEL, rootState.userData.currentDb, 1],
+      "by": rootState.userData.user,
+      "email": rootState.userData.email,
+      "timestamp": Date.now(),
+      "distributeEvent": false
+    }],
+    globalAxios({
+      method: 'PUT',
+      url: payload.dbName + '/' + _id,
+      data: product
+    }).then(() => {
+      const msg = `createProduct: Product '${product.title}' is created`
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      // add the product to this user's subscriptions and productsRoles
+      dispatch('addProductToUser', { dbName: payload.dbName, productId: _id })
+    }).catch(error => {
+      const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
+      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
+
   copyDB({
     rootState,
     state,
     dispatch
   }, payload) {
-    rootState.backendSuccess = false
     rootState.backendMessages = []
     const copyData = {
       "create_target": true,
       "source": payload.dbSourceName,
       "target": payload.dbTargetName
     }
-    state.backupBusy = true
+    state.copyBusy = true
     // eslint-disable-next-line no-console
     console.log('Copy DB: from ' + payload.dbSourceName + ' to ' + payload.dbTargetName)
     globalAxios({
@@ -73,7 +113,10 @@ const actions = {
       url: "_replicate",
       data: copyData
     }).then(() => {
-      state.backupBusy = false
+      state.copyBusy = false
+      if (!rootState.databaseOptions.includes(payload.dbTargetName)) {
+        rootState.databaseOptions.push(payload.dbTargetName)
+      }
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'copyDB: Success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName })
       dispatch('setDatabasePermissions', {
         dbName: payload.dbTargetName
@@ -89,13 +132,11 @@ const actions = {
     rootState,
     dispatch
   }, payload) {
-    rootState.backendSuccess = false
     rootState.backendMessages = []
     globalAxios({
       method: 'DELETE',
       url: payload.dbTargetName,
     }).then(() => {
-      rootState.backendSuccess = true
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Database ' + payload.dbTargetName + ' has been deleted' })
       dispatch('copyDB', payload)
     }).catch(error => {
@@ -115,13 +156,11 @@ const actions = {
       url: dbName + '/_design/design1/_view/removed',
     }).then(res => {
       const removed = res.data.rows
-      // console.log('collectRemoved: removed = ' + JSON.stringify(removed, null, 2))
       const data = []
       for (let r of removed) {
         data.push({ [r.id]: [r.key] })
       }
       rootState.isPurgeReady = false
-      rootState.backendSuccess = false
       rootState.backendMessages = []
       dispatch('purgeDb', { dbName, data, idx: 0, number: removed.length })
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Purge started, ' + removed.length + ' documents will be deleted. Please wait ...' })
@@ -164,7 +203,6 @@ const actions = {
       },
       data: {},
     }).then(() => {
-      rootState.backendSuccess = true
       rootState.isPurgeReady = true
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Compacting the database ' + payload.dbName + ' succeeded' })
     }).catch(error => {
@@ -175,13 +213,14 @@ const actions = {
   deleteDb({
     rootState
   }, dbName) {
-    rootState.backendSuccess = false
     rootState.backendMessages = []
     globalAxios({
       method: 'DELETE',
       url: dbName,
     }).then(() => {
-      rootState.backendSuccess = true
+      if (rootState.databaseOptions.includes(dbName)) {
+        rootState.databaseOptions = removeFromArray(rootState.databaseOptions, dbName)
+      }
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Database ' + dbName + ' has been deleted' })
     }).catch(error => {
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Database ' + dbName + ' coud not be deleted,' + error })
@@ -192,16 +231,16 @@ const actions = {
     rootState,
     dispatch
   }, dbName) {
-    rootState.backendSuccess = false
+    rootState.areTeamsFound = false
     rootState.backendMessages = []
     rootState.fetchedTeams = []
     globalAxios({
       method: 'GET',
       url: dbName + '/config',
     }).then(res => {
-      rootState.backendSuccess = true
       if (res.data.teams) rootState.fetchedTeams = res.data.teams
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
+      rootState.areTeamsFound = true
     }).catch(error => {
       let msg = 'getTeamNames: Could not read config document of database ' + dbName + ', ' + error
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
@@ -221,7 +260,6 @@ const actions = {
       url: dbName + '/_all_docs',
     }).then(res => {
       rootState.isHistAndCommReset = false
-      rootState.backendSuccess = false
       rootState.backendMessages = []
       const docsToUpdate = []
       for (let i = 0; i < res.data.rows.length; i++) {
