@@ -8,20 +8,20 @@ const ERROR = 2
 const actions = {
 	/*
 	* Order of execution:
-	* 1. createDatabase - also calls setDatabasePermissions and createUser1
+	* 1. createDatabase - also calls setDatabasePermissions and createUserIfNotExistent and set isDatabaseCreated to false
 	* 2. createLog
 	* 3. createConfig
 	* 4. installDesignViews
 	* 5. installDesignFilters
 	* 6. createRootDoc
 	* 7. createFirstProduct
-	* 8. addProductToUser in useracc.js
+	* 8. addProductToUser in useracc.js and set isDatabaseCreated to true
 	*/
 	createDatabase({
 		rootState,
 		dispatch
 	}, payload) {
-		rootState.backendSuccess = false
+		rootState.isDatabaseCreated = false
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'PUT',
@@ -33,7 +33,6 @@ const actions = {
 			if (payload.createUser) {
 				const userData = {
 					name: rootState.userData.user,
-					teams: ['not assigned yet'],
 					roles: ["admin"],
 					type: "user",
 					email: payload.email,
@@ -46,7 +45,7 @@ const actions = {
 						}
 					}
 				}
-				dispatch('createUser1', userData)
+				dispatch('createUserAsync', userData)
 			}
 		}).catch(error => {
 			rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createDatabase: Failed to create ' + payload.dbName + ', ' + error })
@@ -185,9 +184,7 @@ const actions = {
 				"The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
 				"The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
 			],
-			"teams": [
-				"not assigned yet"
-			],
+			"teams": [],
 		}
 		globalAxios({
 			method: 'POST',
