@@ -30,11 +30,11 @@
           </b-col>
         </b-row>
       </b-form-group>
-      <div v-if="!$store.state.backendSuccess">
+      <div v-if="!$store.state.isDatabaseCreated">
           <b-button v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</b-button>
           <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
-      <div v-if="$store.state.backendSuccess">
+      <div v-if="$store.state.isDatabaseCreated">
         <h5>Succes! Apart from being a CouchDb 'server admin' you have the application 'admin' role.</h5>
         <h5>Exit and sign-in again. Then open the Admin view and create the first users and their roles. Assign one or more admins to take over that task.</h5>
         <b-button class="m-1" @click="signIn" variant="outline-primary">Exit</b-button>
@@ -89,7 +89,7 @@ export default {
     },
 
     signIn() {
-      this.$store.state.backendSuccess = false
+      this.$store.state.isDatabaseCreated = false
       this.$store.state.backendMessages = []
       this.$store.commit('resetData', null, { root: true })
       router.replace('/')
