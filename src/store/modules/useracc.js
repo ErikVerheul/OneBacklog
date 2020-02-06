@@ -28,11 +28,11 @@ const actions = {
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user
       rootState.selectedDatabaseName = state.fetchedUserData.currentDb
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Successfully fetched user ' + userName })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Successfully fetched user ' + userName })
       rootState.isUserFound = true
     }).catch(error => {
       let msg = 'getUser: Could not find user "' + userName + '". ' + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -65,7 +65,7 @@ const actions = {
       }
     }).catch(error => {
       let msg = 'getDbProducts: Could not find products of database ' + payload.dbName + '. Error = ' + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -82,7 +82,7 @@ const actions = {
     }).then(res => {
       let tmpUserData = res.data
       tmpUserData.filterSettings = newFilterSettings
-      dispatch("updateUser", tmpUserData)
+      dispatch('updateUser', { data: tmpUserData })
     }).catch(error => {
       let msg = 'saveMyFilterSettings: User ' + rootState.userData.user + ' cannot save the product filter settings. Error = ' + error
       dispatch('doLog', { event: msg, level: ERROR })
@@ -100,14 +100,14 @@ const actions = {
       rootState.userData.myTeam = newTeam
       let tmpUserData = res.data
       tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
-      dispatch("updateUser", tmpUserData)
+      dispatch('updateUser', { data: tmpUserData })
       let msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + newTeam
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: INFO })
     }).catch(error => {
       let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + '. Error = ' + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
@@ -123,10 +123,10 @@ const actions = {
       rootState.userData.password = newPassword
       let tmpUserData = res.data
       tmpUserData["password"] = newPassword
-      dispatch("updateUser", tmpUserData)
+      dispatch('updateUser', { data: tmpUserData })
     }).catch(error => {
       let msg = 'changePW: Could not change password for user ' + rootState.userData.user + '. Error = ' + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
@@ -165,11 +165,11 @@ const actions = {
         }
         tmpUserData.myDatabases[payload.dbName] = newDb
       }
-      dispatch("updateUser", tmpUserData)
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'addProductToUser: The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles })
+      dispatch('updateUser', { data: tmpUserData })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'addProductToUser: The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles })
     }).catch(error => {
       let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -186,9 +186,33 @@ const actions = {
     }).then(res => {
       let tmpUserData = res.data
       tmpUserData.myDatabases[res.data.currentDb].subscriptions = newSubscriptions
-      dispatch("updateUser", tmpUserData)
+      dispatch('updateUser', { data: tmpUserData })
     }).catch(error => {
       let msg = 'updateSubscriptions: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
+
+  changeCurrentDb({
+    rootState,
+    dispatch
+  }, dbName) {
+    globalAxios({
+      method: 'GET',
+      url: dbName + '/_design/design1/_view/products',
+    }).then(res => {
+      const currentProductsEnvelope = res.data.rows
+      const availableProductIds = []
+      for (let product of currentProductsEnvelope) {
+        let id = product.id
+        availableProductIds.push(id)
+      }
+      dispatch('changeDbInProfile', { dbName, productIds: availableProductIds })
+    }).catch(error => {
+      let msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -200,11 +224,12 @@ const actions = {
   * If the user is not subscibed to this database, make the user 'guest' for all products in that database or
   * If the database is newly created and has no products, register the database without products
   */
-  changeCurrentDb({
+  changeDbInProfile({
     rootState,
     dispatch
   }, payload) {
     rootState.isCurrentDbChanged = false
+    rootState.backendMessages = []
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
@@ -227,34 +252,48 @@ const actions = {
         }
         tmpUserData.myDatabases[payload.dbName] = newDbEntry
       }
-      dispatch("updateUser", tmpUserData)
-      //ToDo: move this to updateUser
-      rootState.isCurrentDbChanged = true
-      const msg = "changeCurrentDb: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
-      dispatch('doLog', { event: msg, level: INFO })
-    }).catch(error => {
-      const msg = 'changeCurrentDb: Could not update the default database for user ' + rootState.userData.user + ', ' + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('updateUser', {
+        data: tmpUserData,
+        onSuccessCallback: function () {
+          rootState.isCurrentDbChanged = true
+          const msg = "changeDbInProfile: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
+          rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+        }
+      }).catch(error => {
+        const msg = 'changeDbInProfile: Could not update the default database for user ' + rootState.userData.user + ', ' + error
+        rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+        dispatch('doLog', { event: msg, level: ERROR })
+      })
     })
   },
 
   updateUser({
     rootState,
     dispatch
-  }, newUserData) {
+  }, payload) {
     rootState.isUserUpdated = false
     globalAxios({
       method: 'PUT',
-      url: '/_users/org.couchdb.user:' + newUserData.name,
-      data: newUserData
+      url: '/_users/org.couchdb.user:' + payload.data.name,
+      data: payload.data
     }).then(() => {
       rootState.isUserUpdated = true
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: "updateUser: The profile of user '" + newUserData.name + "' is updated successfully" })
+      // execute passed callback if provided
+      if (payload.onSuccessCallback !== undefined) {
+        const nrOfParameters = payload.onSuccessCallback.length
+        if (nrOfParameters === 0) payload.onSuccessCallback()
+        if (nrOfParameters === 1) payload.onSuccessCallback(payload.updatedDoc)
+      }
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: "updateUser: The profile of user '" + payload.data.name + "' is updated successfully" })
     }).catch(error => {
-      let msg = "updateUser: Could not update the profile of user '" + newUserData.name + "', " + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      // execute passed callback if provided
+      if (payload.onFailureCallback !== undefined) {
+        const nrOfParameters = payload.onFailureCallback.length
+        if (nrOfParameters === 0) payload.onFailureCallback()
+        if (nrOfParameters === 1) payload.onFailureCallback(payload.updatedDoc)
+      }
+      let msg = "updateUser: Could not update the profile of user '" + payload.data.name + "', " + error
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -272,7 +311,7 @@ const actions = {
       url: '/_users/org.couchdb.user:' + userData.name,
     }).then(() => {
       let msg = 'createUserIfNotExistent: Cannot create user "' + userData.name + '" that already exists'
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -281,7 +320,7 @@ const actions = {
         dispatch('createUserAsync', userData)
       } else {
         let msg = 'createUserIfNotExistent: While checking if user "' + userData.name + '" exists an error occurred, ' + error
-        rootState.backendMessages.push({ timestamp: Date.now(), msg })
+        rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: ERROR })
@@ -300,13 +339,13 @@ const actions = {
       url: '/_users/org.couchdb.user:' + userData.name,
       data: userData
     }).then(() => {
-      rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createUser: Successfully created user ' + userData.name })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createUser: Successfully created user ' + userData.name })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log('createUserAsync: user "' + userData.name + '" is created')
       rootState.isUserCreated = true
     }).catch(error => {
       let msg = 'createUserAsync: Could not create user "' + userData.name + '", ' + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

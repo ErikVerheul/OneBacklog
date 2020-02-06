@@ -82,8 +82,10 @@ export default {
         },
 
         doChangeDatabase() {
-            this.showLastEvent("You changed database. Sign out and -in again to see the change", WARNING)
-            this.$store.dispatch('changeCurrentDb2', { dbName: this.myDatabase, products: [] })
+            const msg = "You changed database. Sign out and -in again to see the change"
+            this.$store.state.warning = msg
+            this.showLastEvent(msg, WARNING)
+            this.$store.dispatch('changeCurrentDb', this.myDatabase)
         },
 
         doChangeTeam() {
