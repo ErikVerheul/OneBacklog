@@ -130,7 +130,7 @@ const actions = {
     * Order of execution:
     * 1. add history to grandparent of the descendants. ToDo: update history if removal fails,
     * 2. remove descendants,
-    * 3. remove parent, dependencies and conditions in parallel.
+    * 3. remove parent (declare the removal as completed when this update has finished), dependencies and conditions in parallel.
     *  If any of these steps fail the next steps are not executed but not undone
     */
 
@@ -173,7 +173,6 @@ const actions = {
         rootState,
         dispatch
     }, payload) {
-        rootState.busyRemoving = true
         const docsToGet = []
         for (let d of payload.descendantsIds) {
             docsToGet.push({ "id": d })
@@ -235,7 +234,6 @@ const actions = {
             }
 
             if (error.length > 0) {
-                rootState.busyRemoving = false
                 let errorStr = ''
 				for (let e of error) {
 					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
@@ -302,7 +300,13 @@ const actions = {
                     rootState.myProductOptions.splice(removeIdx, 1)
                 }
             }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+            // declare the removal as completed when this update has finished (successful or not)
+            dispatch('updateDoc', {
+                dbName: rootState.userData.currentDb,
+                updatedDoc: tmpDoc,
+                onSuccessCallback: function() { rootState.busyRemoving = false },
+                onFailureCallback: function() { rootState.busyRemoving = false }
+            })
         }).catch(error => {
             let msg = 'removeParent: Could not read document with _id ' + _id + ',' + error
             // eslint-disable-next-line no-console
@@ -356,7 +360,6 @@ const actions = {
                 if (r.docs[0].error) error.push(r.docs[0].error)
             }
             if (error.length > 0) {
-                rootState.busyRemoving = false
                 let errorStr = ''
 				for (let e of error) {
 					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
@@ -368,7 +371,6 @@ const actions = {
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtDependencies' })
         }).catch(error => {
-            rootState.busyRemoving = false
             let msg = 'removeExtDependencies: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
@@ -421,7 +423,6 @@ const actions = {
                 if (r.docs[0].error) error.push(r.docs[0].error)
             }
             if (error.length > 0) {
-                rootState.busyRemoving = false
                 let errorStr = ''
 				for (let e of error) {
 					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
@@ -433,7 +434,6 @@ const actions = {
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtConditions' })
         }).catch(error => {
-            rootState.busyRemoving = false
             let msg = 'removeExtConditions: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
