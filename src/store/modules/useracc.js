@@ -17,7 +17,7 @@ const actions = {
     dispatch
   }, userName) {
     rootState.backendMessages = []
-    rootState.backendSuccess = false
+    rootState.isUserFound = false
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + userName,
@@ -29,6 +29,7 @@ const actions = {
       // preset with the current database of the user
       rootState.selectedDatabaseName = state.fetchedUserData.currentDb
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'Successfully fetched user ' + userName })
+      rootState.isUserFound = true
     }).catch(error => {
       let msg = 'getUser: Could not find user "' + userName + '". ' + error
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
@@ -44,13 +45,12 @@ const actions = {
     state,
     dispatch
   }, payload) {
-    rootState.backendMessages = []
-    rootState.backendSuccess = false
+    rootState.areProductsFound = false
     globalAxios({
       method: 'GET',
       url: payload.dbName + '/_design/design1/_view/products',
     }).then(res => {
-      rootState.backendSuccess = true
+      rootState.areProductsFound = true
       state.dbProducts = res.data.rows
       // add a roles array to each product
       for (let prod of state.dbProducts) {
@@ -93,8 +93,6 @@ const actions = {
     rootState,
     dispatch
   }, newTeam) {
-    rootState.backendMessages = []
-    rootState.backendSuccess = false
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
@@ -118,13 +116,10 @@ const actions = {
     rootState,
     dispatch
   }, newPassword) {
-    rootState.backendMessages = []
-    rootState.backendSuccess = false
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
-      rootState.backendSuccess = true
       rootState.userData.password = newPassword
       let tmpUserData = res.data
       tmpUserData["password"] = newPassword
@@ -152,7 +147,8 @@ const actions = {
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
-      rootState.backendSuccess = true
+      rootState.isDatabaseCreated = true
+      rootState.isProductCreated = true
       let tmpUserData = res.data
       if (Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
         tmpUserData.myDatabases[payload.dbName].subscriptions.push(payload.productId)
@@ -199,37 +195,12 @@ const actions = {
     })
   },
 
-  /* Get all products of the database in case they are needed to be registered for this user */
-  changeCurrentDb1({
-    rootState,
-    dispatch
-  }, dbName) {
-    rootState.backendMessages = []
-    rootState.backendSuccess = false
-    globalAxios({
-      method: 'GET',
-      url: dbName + '/_design/design1/_view/products',
-    }).then(res => {
-      const ids = []
-      for (let prod of res.data.rows) {
-        ids.push(prod.id)
-      }
-      dispatch('changeCurrentDb2', { dbName: dbName, productIds: ids })
-    }).catch(error => {
-      let msg = 'changeCurrentDb1: Could not find the products of database ' + dbName + '. Error = ' + error
-      rootState.backendMessages.push({ timestamp: Date.now(), msg })
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
-    })
-  },
-
   /*
   * Change the current database to the new value +
   * If the user is not subscibed to this database, make the user 'guest' for all products in that database or
   * If the database is newly created and has no products, register the database without products
   */
-  changeCurrentDb2({
+  changeCurrentDb({
     rootState,
     dispatch
   }, payload) {
@@ -257,12 +228,13 @@ const actions = {
         tmpUserData.myDatabases[payload.dbName] = newDbEntry
       }
       dispatch("updateUser", tmpUserData)
+      //ToDo: move this to updateUser
       rootState.isCurrentDbChanged = true
-      const msg = "changeCurrentDb2: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
+      const msg = "changeCurrentDb: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
       dispatch('doLog', { event: msg, level: INFO })
     }).catch(error => {
-      const msg = 'changeCurrentDb2: Could not update the default database for user ' + rootState.userData.user + ', ' + error
+      const msg = 'changeCurrentDb: Could not update the default database for user ' + rootState.userData.user + ', ' + error
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
@@ -272,14 +244,13 @@ const actions = {
     rootState,
     dispatch
   }, newUserData) {
-    rootState.userUpdated = false
+    rootState.isUserUpdated = false
     globalAxios({
       method: 'PUT',
       url: '/_users/org.couchdb.user:' + newUserData.name,
       data: newUserData
     }).then(() => {
-      rootState.backendSuccess = true
-      rootState.userUpdated = true
+      rootState.isUserUpdated = true
       rootState.backendMessages.push({ timestamp: Date.now(), msg: "updateUser: The profile of user '" + newUserData.name + "' is updated successfully" })
     }).catch(error => {
       let msg = "updateUser: Could not update the profile of user '" + newUserData.name + "', " + error
@@ -290,24 +261,26 @@ const actions = {
     })
   },
 
-  createUser1({
+  /* Create user if not existent already */
+  createUserIfNotExistent({
     rootState,
     dispatch
   }, userData) {
+    rootState.backendMessages = []
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + userData.name,
     }).then(() => {
-      let msg = 'createUser1: Cannot create user "' + userData.name + '" that already exists'
+      let msg = 'createUserIfNotExistent: Cannot create user "' + userData.name + '" that already exists'
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
     }).catch(error => {
       if (error.message.includes("404")) {
-        dispatch('createUser2', userData)
+        dispatch('createUserAsync', userData)
       } else {
-        let msg = 'createUser1: While checking if user "' + userData.name + '" exists an error occurred, ' + error
+        let msg = 'createUserIfNotExistent: While checking if user "' + userData.name + '" exists an error occurred, ' + error
         rootState.backendMessages.push({ timestamp: Date.now(), msg })
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
@@ -316,21 +289,23 @@ const actions = {
     })
   },
 
-  createUser2({
+  createUserAsync({
     rootState,
     dispatch
   }, userData) {
+    rootState.isUserCreated = false
+    rootState.backendMessages = []
     globalAxios({
       method: 'PUT',
       url: '/_users/org.couchdb.user:' + userData.name,
       data: userData
     }).then(() => {
-      rootState.backendSuccess = true
       rootState.backendMessages.push({ timestamp: Date.now(), msg: 'createUser: Successfully created user ' + userData.name })
       // eslint-disable-next-line no-console
-      if (rootState.debug) console.log('createUser2: user "' + userData.name + '" is created')
+      if (rootState.debug) console.log('createUserAsync: user "' + userData.name + '" is created')
+      rootState.isUserCreated = true
     }).catch(error => {
-      let msg = 'createUser2: Could not create user "' + userData.name + '", ' + error
+      let msg = 'createUserAsync: Could not create user "' + userData.name + '", ' + error
       rootState.backendMessages.push({ timestamp: Date.now(), msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)

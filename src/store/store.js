@@ -46,16 +46,23 @@ export default new Vuex.Store({
 		filterForHistory: "",
 		busyRemoving: false,
 		// utilities for superAdmin, admin and superPO
+		areDatabasesFound: false,
+		areProductsFound: false,
+		areTeamsFound: false,
 		backendMessages: [],
-		backendSuccess: false,
-		userUpdated: false,
-		selectedDatabaseName: '',
 		databaseOptions: undefined,
-		teamCreated: false,
 		fetchedTeams: [],
+		isDatabaseCreated: false,
 		isCurrentDbChanged: false,
+		isProductCreated: false,
 		isPurgeReady: false,
+		isTeamCreated: false,
+		isUserFound: false,
+		isUserCreated: false,
+		isUserUpdated: false,
 		isHistAndCommReset: false,
+		selectedDatabaseName: '',
+		warning: '',
 		// app wide globals
 		myProductOptions: [],
 		demo: true,
@@ -175,6 +182,7 @@ export default new Vuex.Store({
 			state.lastEvent = ''
 			state.configData = null
 			state.currentDoc = null
+			state.warning = ''
 
 			clearInterval(state.runningCookieRefreshId)
 			clearInterval(state.logging.runningWatchdogId)
@@ -221,7 +229,6 @@ export default new Vuex.Store({
 			dispatch,
 			state
 		}, authData) {
-
 			function create_UUID() {
 				var dt = Date.now()
 				var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {

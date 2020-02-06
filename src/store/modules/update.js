@@ -594,8 +594,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		rootState.backendMessages = []
-		rootState.backendSuccess = false
-		rootState.teamCreated = false
+		rootState.isTeamCreated = false
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/config',
@@ -606,7 +605,6 @@ const actions = {
 				dispatch('updateDoc', { dbName: payload.dbName, updatedDoc: tmpConfig })
 				// assume updateDoc succeeds
 				rootState.backendMessages.push({ timestamp: Date.now(), msg: "addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName })
-				rootState.teamCreated = true
 			} else {
 				rootState.backendMessages.push({ timestamp: Date.now(), msg: "addTeamToDatabase: Cannot add team name '" + payload.newTeam + "'. Reason: team already exist in database " + payload.dbName })
 			}
@@ -634,7 +632,7 @@ const actions = {
 				// update the revision of the current document
 				rootState.currentDoc._rev = res.data.rev
 			}
-			rootState.backendSuccess = true
+			rootState.isTeamCreated = true
 			// execute passed function if provided
 			if (payload.onSuccess !== undefined) {
 				payload.onSuccess(_id, payload.updatedDoc)
