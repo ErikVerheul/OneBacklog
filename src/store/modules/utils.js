@@ -323,7 +323,7 @@ const actions = {
         // eslint-disable-next-line no-console
         console.log(msg)
       }
-      dispatch('updateBulk', { dbName: payload.dbName, docs, onSuccess: function () { rootState.isHistAndCommReset = true } })
+      dispatch('updateBulk', { dbName: payload.dbName, docs, onSuccessCallback: function () { rootState.isHistAndCommReset = true } })
     })
       .catch(error => {
         let msg = 'resetHistAndComm: Could not read batch of documents: ' + error

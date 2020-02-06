@@ -634,8 +634,8 @@ const actions = {
 			}
 			rootState.isTeamCreated = true
 			// execute passed function if provided
-			if (payload.onSuccess !== undefined) {
-				payload.onSuccess(_id, payload.updatedDoc)
+			if (payload.onSuccessCallback !== undefined) {
+				payload.onSuccessCallback(_id, payload.updatedDoc)
 			}
 			// additional dispatches
 			if (payload.toDispatch) {
@@ -681,8 +681,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: WARNING })
 			} else {
 				// execute passed function if provided at full success (if no updateConflict and no otherError)
-				if (payload.onSuccess !== undefined) {
-					payload.onSuccess()
+				if (payload.onSuccessCallback !== undefined) {
+					payload.onSuccessCallback()
 				}
 			}
 			// has effect when removing a branche, otherwise no effect

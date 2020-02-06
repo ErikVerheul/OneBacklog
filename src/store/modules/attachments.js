@@ -87,10 +87,10 @@ const actions = {
                 rootState.currentDoc.history.unshift(newHist)
                 dispatch('updateDoc', {
                     dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
-                    onSuccess: function (id, updatedDoc) {
+                    onSuccessCallback: function (id, updatedDoc) {
                         rootState.uploadDone = true
-                        // check if the user did not load another document while the attachment was uploaded
                         if (id === rootState.currentDoc._id) {
+                            // the user did not select another document while the attachment was uploaded
                             rootState.currentDoc._attachments = updatedDoc._attachments
                         }
                     },
