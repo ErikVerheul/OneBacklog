@@ -7,7 +7,6 @@
       <b-button block @click="createBackup"> Create a database backup</b-button>
       <b-button block @click="restoreBackup">Restore a database from backup</b-button>
       <b-button block @click="createNewDb">Create a new database</b-button>
-      <b-button block @click="changeMyDb">Change my default database</b-button>
       <b-button block @click="purgeDb">Purge removed documents and compact the database</b-button>
       <b-button block variant="warning" @click="remHistAndComm">Remove history, comments and followers</b-button>
       <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
@@ -23,8 +22,8 @@
             stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doCreateBackup">Start backup</b-button>
-        <b-button v-if="canCancel" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doCreateBackup">Start backup</b-button>
+        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'Restore a database from backup'">
@@ -38,7 +37,7 @@
           ></b-form-radio-group>
         </b-form-group>
         <p>Database {{ dbToReplace }} will be replaced by the backup</p>
-        <b-button v-if="!$store.state.utils.backupBusy" class="m-1" @click="doRestoreBackup">Start restore</b-button>
+        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup">Start restore</b-button>
         <b-button v-if="canCancel" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
 
@@ -54,30 +53,10 @@
         </ul>
         <b-form-input v-model="newDbName" placeholder="Enter the database name"></b-form-input>
         <b-button v-if="newDbName === ''" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
-        <div v-if="newDbName !== '' && !$store.state.userUpdated">
+        <div v-if="newDbName !== ''">
           <p>Database {{ newDbName }} will be created</p>
-          <b-button v-if="!$store.state.backendSuccess && newDbName !== ''" class="m-1" @click="doCreateDatabase">Start creation</b-button>
+          <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="doCreateDatabase">Start creation</b-button>
           <b-button class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
-        </div>
-      </div>
-
-      <div v-if="optionSelected === 'Change my default database'">
-        <h2>Change my default database</h2>
-        <b-form-group>
-          <h5>Select the database you want to connect to</h5>
-          <b-form-radio-group
-            v-model="$store.state.selectedDatabaseName"
-            :options="$store.state.databaseOptions"
-            stacked
-          ></b-form-radio-group>
-        </b-form-group>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb">Change my database</b-button>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
-        <div v-if="$store.state.isCurrentDbChanged">
-          <h4>Succes!</h4>
-          <div v-if="$store.state.backendSuccess">
-            <b-button class="m-1" @click="signIn()">Sign-out and -in to see the product view of the updated database</b-button>
-          </div>
         </div>
       </div>
 
@@ -91,8 +70,8 @@
             stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doPurgeDb">Purge removed documents and compact the database</b-button>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="doPurgeDb">Purge removed documents and compact the database</b-button>
+        <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         <div v-if="$store.state.isPurgeReady">
           <h4>Succes! The purge is ready</h4>
         </div>
@@ -121,7 +100,7 @@
       <div v-if="optionSelected === 'Delete a database'">
         <h2>Delete a database</h2>
         <b-form-group>
-          <h5>Select the database you want to connect to</h5>
+          <h5>Select the database you want to delete</h5>
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
             :options="$store.state.databaseOptions"
@@ -129,7 +108,7 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-button variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
-        <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'All FAUXTON tasks'">
@@ -141,6 +120,7 @@
       </div>
 
       <p>{{ localMessage }}</p>
+      <p class="colorRed">{{ $store.state.warning }}
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
         <div v-for="item in $store.state.backendMessages" :key="item.timestamp">
@@ -175,7 +155,6 @@ export default {
   },
 
   mounted() {
-    this.$store.state.backendSuccess = false
     this.$store.state.backendMessages = []
   },
 
@@ -209,7 +188,6 @@ export default {
         return dbName.concat('-backup-').concat(yyyy).concat(mm).concat(dd).concat('_').concat(hh).concat('_').concat(min)
       }
       this.canCancel = false
-      this.$store.state.utils.backupBusy = true
       const payload = {
         dbSourceName: this.$store.state.selectedDatabaseName,
         dbTargetName: createBackupName(this.$store.state.selectedDatabaseName)
@@ -233,17 +211,13 @@ export default {
       }
       this.localMessage = payload.dbTargetName + ' will be replaced by ' + payload.dbSourceName + '. Please wait ...'
       this.$store.dispatch('overwriteDB', payload)
-
     },
 
     createNewDb() {
       this.optionSelected = 'Create a new database'
       this.canCancel = true
       this.localMessage = ''
-      this.$store.state.backendSuccess = false
-      this.$store.state.backendMessages = []
       this.newDbName = ''
-      this.$store.state.userUpdated = false
     },
 
     doCreateDatabase() {
@@ -255,23 +229,10 @@ export default {
       this.$store.dispatch('createDatabase', payload)
     },
 
-    changeMyDb() {
-      this.optionSelected = 'Change my default database'
-      this.localMessage = ''
-      this.$store.state.isCurrentDbChanged = false
-      // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doChangeMyDb() {
-      this.$store.dispatch('changeCurrentDb1', this.$store.state.selectedDatabaseName)
-    },
-
     purgeDb() {
       this.optionSelected = 'Purge removed documents and compact the database'
       this.localMessage = ''
       this.$store.state.isPurgeReady = false
-      this.$store.state.isCurrentDbChanged = false
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
@@ -284,7 +245,6 @@ export default {
       this.asyncFired = false
       this.optionSelected = 'Remove history, comments and followers'
       this.localMessage = ''
-      this.$store.state.isCurrentDbChanged = false
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
@@ -319,6 +279,7 @@ export default {
     },
 
     cancel() {
+      this.localMessage = ''
       this.$store.state.backendMessages = []
       this.optionSelected = 'select a task'
     },
@@ -338,5 +299,8 @@ export default {
 <style lang="css" scoped>
 h4 {
   margin-top: 20px;
+}
+.colorRed {
+  color: red;
 }
 </style>

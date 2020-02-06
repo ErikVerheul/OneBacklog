@@ -37,7 +37,7 @@
             </b-col>
           </b-row>
         </template>
-        <b-form-group v-if="!dbSelected && $store.state.backendSuccess && credentialsReady">
+        <b-form-group v-if="!dbSelected && credentialsReady">
           <h5>Select the database for this user.</h5>
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
@@ -47,10 +47,10 @@
         </b-form-group>
 
         <div v-if="credentialsReady">
-          <b-button v-if="!dbSelected && $store.state.backendSuccess" class="m-1" @click="doGetDbProducts(false)">Continue</b-button>
+          <b-button v-if="!dbSelected" class="m-1" @click="doGetDbProducts(false)">Continue</b-button>
           <b-button v-if="!dbSelected" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
 
-          <div v-if="dbSelected && $store.state.backendSuccess">
+          <div v-if="dbSelected && $store.state.areProductsFound">
             <h5>Assign the roles to each product in database '{{ $store.state.selectedDatabaseName }}'</h5>
             <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
               {{ prod.value }}:
@@ -71,28 +71,37 @@
               v-model="$store.state.useracc.userIsSuperPO"
             >Tick to add this role
             </b-form-checkbox>
-            <b-button v-if="$store.state.backendSuccess && !userIsUpdated" class="m-1" @click="doCreateUser()">Create this user</b-button>
+            <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="doCreateUser()">Create this user</b-button>
             <hr>
-            <b-button v-if="userIsUpdated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+            <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+            <b-button v-if="$store.state.isUserCreated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
           </div>
         </div>
       </div>
 
       <div v-if="optionSelected === 'Maintain users'">
-        <h4>Change the permissions of an existing user to products</h4>
-        <b-row class="my-1">
-          <b-col sm="2">
-            User name:
-          </b-col>
-          <b-col sm="11">
-            <b-form-input v-model="userName" placeholder="Enter the user name"></b-form-input>
-          </b-col>
-        </b-row>
-        <b-button class="m-1" @click="doFindUser()">Find this user</b-button>
-
-        <b-button v-if="canCancelFind" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-        <div v-if="!userIsUpdated && $store.state.useracc.fetchedUserData">
+        <div v-if="!$store.state.isUserFound">
+          <h4>Change the permissions of an existing user to products</h4>
           <b-row class="my-1">
+            <b-col sm="2">
+              User name:
+            </b-col>
+            <b-col sm="11">
+              <b-form-input v-model="userName" placeholder="Enter the user name"></b-form-input>
+            </b-col>
+          </b-row>
+          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="doFindUser()">Find this user</b-button>
+          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        </div>
+
+        <div v-if="$store.state.isUserFound">
+          <b-row class="my-1">
+            <b-col sm="2">
+              Users name:
+            </b-col>
+            <b-col sm="10">
+              {{ $store.state.useracc.fetchedUserData.name }}
+            </b-col>
             <b-col sm="2">
               Users e-mail address:
             </b-col>
@@ -127,7 +136,7 @@
               </b-form-group>
             </b-col>
 
-            <b-col v-if="!$store.state.backendSuccess && $store.state.databaseOptions.length > 1" sm="12">
+            <b-col v-if="!$store.state.areProductsFound && $store.state.areDatabasesFound && $store.state.databaseOptions.length > 1" sm="12">
               <h5>Select the database to apply your changes. The users current database is '{{ $store.state.useracc.fetchedUserData.currentDb }}'</h5>
               <b-form-group>
                 <b-form-radio-group
@@ -137,34 +146,35 @@
                 ></b-form-radio-group>
               </b-form-group>
             </b-col>
-            <b-col sm="2">
+            <b-col v-if="!$store.state.areProductsFound" sm="12">
               <b-button class="m-1" @click="doGetDbProducts(true)">Continue</b-button>
-              <b-button  v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+              <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+            </b-col>
+            <b-col sm="12">
+              <div v-if="$store.state.areProductsFound">
+                <h5>Change the roles of this user to each product in database '{{ $store.state.selectedDatabaseName }}':</h5>
+                <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
+                  {{ prod.value }}:
+                  <b-form-group>
+                    <b-form-checkbox-group
+                      v-model="prod.roles"
+                      :options="roleOptions"
+                    ></b-form-checkbox-group>
+                  </b-form-group>
+                </div>
+                <b-button v-if="$store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doUpdateUser()">Update this user</b-button>
+                <b-button v-if="!$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+                <b-button v-if="$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+              </div>
             </b-col>
           </b-row>
-
-          <div v-if="$store.state.backendSuccess">
-            <h5>Change the roles of this user to each product in database '{{ $store.state.selectedDatabaseName }}':</h5>
-            <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
-              {{ prod.value }}:
-              <b-form-group>
-                <b-form-checkbox-group
-                  v-model="prod.roles"
-                  :options="roleOptions"
-                ></b-form-checkbox-group>
-              </b-form-group>
-            </div>
-            <b-button v-if="$store.state.backendSuccess" class="m-1" @click="doUpdateUser()">Update this user</b-button>
-            <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-            <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
-          </div>
         </div>
       </div>
 
       <div v-if="optionSelected === 'Create a team'">
         <h4>Create a team for users with products in the selected database</h4>
         <p>When created the user of that database can choose to become a member of the team</p>
-        <b-form-group v-if="$store.state.backendSuccess">
+        <b-form-group v-if="!$store.state.isTeamCreated">
           <h5>Select the database for this team</h5>
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
@@ -173,14 +183,14 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
-        <b-button v-if="!$store.state.teamCreated" class="m-1" @click="doCreateTeam()">Create this team</b-button>
-        <b-button v-if="canCancel" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-        <b-button v-if="!canCancel" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+        <b-button v-if="!$store.state.isTeamCreated && teamName !== ''" class="m-1" @click="doCreateTeam()">Create this team</b-button>
+        <b-button v-if="!$store.state.isTeamCreated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="$store.state.isTeamCreated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'List team members'">
         <h4>List the teams of users with products in the selected database</h4>
-        <b-form-group v-if="$store.state.backendSuccess">
+        <b-form-group v-if="!$store.state.areTeamsFound">
           <h5>Select the database</h5>
           <b-form-radio-group
             v-model="$store.state.selectedDatabaseName"
@@ -188,8 +198,8 @@
             stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button class="m-1" @click="doGetTeamsOfDb()">List teams</b-button>
-        <div v-if="$store.state.backendSuccess">
+        <b-button v-if="!$store.state.areTeamsFound" class="m-1" @click="doGetTeamsOfDb()">List teams</b-button>
+        <div v-if="$store.state.areTeamsFound">
           <div v-for="teamName in $store.state.fetchedTeams" :key="teamName">
             {{ teamName }}
           </div>
@@ -197,6 +207,7 @@
         </div>
       </div>
       <p>{{ localMessage }}</p>
+      <p class="colorRed">{{ $store.state.warning }}
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
         <div v-for="item in $store.state.backendMessages" :key="item.timestamp">
@@ -216,8 +227,6 @@ export default {
   data() {
     return {
       optionSelected: 'select a task',
-      canCancel: true,
-      canCancelFind: true,
       userName: undefined,
       password: undefined,
       userEmail: undefined,
@@ -237,7 +246,6 @@ export default {
   },
 
   mounted() {
-    this.$store.state.backendSuccess = false
     this.$store.state.backendMessages = []
   },
 
@@ -260,7 +268,6 @@ export default {
 
     /* Get all product titles of the selected database in $store.state.useracc.dbProducts */
     doGetDbProducts(doPreset) {
-      this.canCancel = false
       this.dbSelected = true
       this.$store.state.useracc.dbProducts = undefined
       this.$store.dispatch('getDbProducts', { dbName: this.$store.state.selectedDatabaseName, presetExistingRoles: doPreset })
@@ -268,22 +275,21 @@ export default {
 
     createUser() {
       this.optionSelected = 'Create a user'
-      this.canCancel = true
       this.userName = undefined
       this.password = undefined
       this.userEmail = undefined
       this.credentialsReady = false
       this.dbSelected = false
-      this.userIsUpdated = false
       this.localMessage = ''
       this.$store.state.useracc.dbProducts = undefined
       this.$store.state.useracc.userIsAdmin = false
       this.$store.state.useracc.userIsSuperPO = false
+      this.$store.state.isUserCreated = false
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
+
     doCreateUser() {
-      this.canCancel = false
       // calculate the association of all assigned roles
       this.allRoles = ['guest']
       if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
@@ -318,48 +324,35 @@ export default {
           }
         }
       }
-      this.$store.dispatch('createUser1', userData)
-      this.userIsUpdated = true
+      this.$store.dispatch('createUserIfNotExistent', userData)
     },
 
     maintainUsers() {
       this.optionSelected = 'Maintain users'
-      this.canCancel = true
-      this.canCancelFind = true
       this.localMessage = ''
-      this.$store.state.useracc.fetchedUserData = null
-      this.$store.state.databaseOptions = undefined
+      this.$store.state.isUserFound = false
+      this.$store.state.areDatabasesFound = false
+      this.$store.state.areProductsFound = false
       this.$store.state.selectedDatabaseName = ''
-      this.userIsUpdated = false
+      this.$store.state.isUserUpdated = false
       // get all non sytem databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
 
     /* Creates fetchedUserData and have the prod.roles set in products */
     doFindUser() {
-      this.canCancelFind = false
       this.moveDatabase = false
-      this.$store.state.useracc.fetchedUserData = null
-      this.userIsUpdated = false
       this.$store.dispatch('getUser', this.userName)
     },
 
     doUpdateUser() {
-      this.canCancel = false
-      this.userIsUpdated = false
+      let dbProducts = this.$store.state.useracc.dbProducts
       let newUserData = this.$store.state.useracc.fetchedUserData
-      // generate the productsRoles and subscriptions properties
-      let productsRoles = {}
-      let subscriptions = []
-      // subscribe to ALL assigned products in the current database
-      for (let prod of this.$store.state.useracc.dbProducts) {
-        if (prod.roles.length > 0) {
-          subscriptions.push(prod.id)
-          productsRoles[prod.id] = prod.roles
-        }
+      // update the productsRoles properties
+      for (let prod of dbProducts) {
+        newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles[prod.id] = prod.roles
       }
-      newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles = productsRoles
-      newUserData.myDatabases[this.$store.state.selectedDatabaseName].subscriptions = subscriptions
+
       // calculate the association of all assigned roles
       this.allRoles = ['guest']
       if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
@@ -373,28 +366,25 @@ export default {
       }
       newUserData.roles = this.allRoles
 			this.$store.dispatch('updateUser', newUserData)
-			this.userIsUpdated = true
     },
 
     createTeam() {
       this.optionSelected = 'Create a team'
-      this.canCancel = true
       this.teamName = ''
-      this.$store.state.teamCreated = false
+      this.$store.state.isTeamCreated = false
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
 
     doCreateTeam() {
-      this.canCancel = false
       this.$store.dispatch('addTeamToDatabase', {dbName: this.$store.state.selectedDatabaseName, newTeam: this.teamName})
-      this.canCancel = false
     },
 
     listTeams() {
       this.optionSelected = 'List team members'
       this.$store.state.backendMessages = []
       this.$store.state.fetchedTeams = []
+      this.$store.state.areTeamsFound =false
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
@@ -405,7 +395,6 @@ export default {
 
     cancel() {
       this.optionSelected = 'select a task'
-      this.canCancel = true
       this.$store.state.backendMessages = []
     }
   },
@@ -420,5 +409,8 @@ export default {
 h4,
 h5 {
   margin-top: 20px;
+}
+.colorRed {
+  color: red;
 }
 </style>
