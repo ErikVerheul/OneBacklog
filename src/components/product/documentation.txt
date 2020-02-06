@@ -1,5 +1,5 @@
 Definitions: items are PBI's or Product Backlog Items which are stored in the database as documents and presented on screen as nodes in a tree.
-
+Tip: Show object with JSON.stringify(newUserData, null, 2)
 NOTE on itemType and level numbering with the current config definition
 
 level ...............in database level ....... in tree
