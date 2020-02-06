@@ -87,13 +87,14 @@ const actions = {
                 rootState.currentDoc.history.unshift(newHist)
                 dispatch('updateDoc', {
                     dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
-                    onSuccessCallback: function (id, updatedDoc) {
+                    onSuccessCallback: function(updatedDoc) {
                         rootState.uploadDone = true
-                        if (id === rootState.currentDoc._id) {
+                        if (updatedDoc._id === rootState.currentDoc._id) {
                             // the user did not select another document while the attachment was uploaded
                             rootState.currentDoc._attachments = updatedDoc._attachments
                         }
                     },
+                    onFailureCallback: function () { rootState.uploadDone = true },
                     caller: 'uploadAttachmentAsync'
                 })
             }).catch(error => {

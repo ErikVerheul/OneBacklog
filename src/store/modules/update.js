@@ -100,11 +100,7 @@ const actions = {
 			tmpDoc.dependencies = payload.dependencies
 			tmpDoc.history.unshift(newHist)
 			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
-			// doSetDependency() --> const conditionalForPayload = { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor }
-			const toDispatch = {
-				setConditions: payload.conditionalForPayload
-			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch })
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch: { setConditions: payload.conditionalForPayload } })
 		}).catch(error => {
 			let msg = 'SetDepAndCond: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -165,8 +161,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc })
-			dispatch('removeConditions', { ref: _id, depOnDocuments: payload.removedIds })
+			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch: { removeConditions: { ref: _id, depOnDocuments: payload.removedIds } } })
 		}).catch(error => {
 			let msg = 'updateDep: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -197,8 +192,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc })
-			dispatch('removeDependencies', { ref: _id, condForDocuments: payload.removedIds })
+			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch: { removeDependencies: { ref: _id, condForDocuments: payload.removedIds } } })
 		}).catch(error => {
 			let msg = 'updateCon: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -602,15 +596,23 @@ const actions = {
 			const tmpConfig = res.data
 			if (!tmpConfig.teams.includes(payload.newTeam)) {
 				tmpConfig.teams.push(payload.newTeam)
-				dispatch('updateDoc', { dbName: payload.dbName, updatedDoc: tmpConfig })
-				// assume updateDoc succeeds
-				rootState.backendMessages.push({ timestamp: Date.now(), msg: "addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName })
+				dispatch('updateDoc', {
+					dbName: payload.dbName,
+					updatedDoc: tmpConfig,
+					onSuccessCallback: function() {
+						rootState.backendMessages.push({
+							randKey: Math.floor(Math.random() * 100000), msg: "addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName
+						})
+					}
+				})
 			} else {
-				rootState.backendMessages.push({ timestamp: Date.now(), msg: "addTeamToDatabase: Cannot add team name '" + payload.newTeam + "'. Reason: team already exist in database " + payload.dbName })
+				rootState.backendMessages.push({
+					randKey: Math.floor(Math.random() * 100000), msg: "addTeamToDatabase: Cannot add team name '" + payload.newTeam + "'. Reason: team already exist in database " + payload.dbName
+				})
 			}
 		}).catch(error => {
 			const msg = 'addTeamToDatabase: Could not read config document ' + error
-			rootState.backendMessages.push({ timestamp: Date.now(), msg })
+			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
@@ -635,7 +637,9 @@ const actions = {
 			rootState.isTeamCreated = true
 			// execute passed function if provided
 			if (payload.onSuccessCallback !== undefined) {
-				payload.onSuccessCallback(_id, payload.updatedDoc)
+				const nrOfParameters = payload.onSuccessCallback.length
+				if (nrOfParameters === 0) payload.onSuccessCallback()
+				if (nrOfParameters === 1) payload.onSuccessCallback(payload.updatedDoc)
 			}
 			// additional dispatches
 			if (payload.toDispatch) {
@@ -646,9 +650,14 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			rootState.uploadDone = true
+			// execute passed function if provided
+			if (payload.onFailureCallback !== undefined) {
+				const nrOfParameters = payload.onFailureCallback.length
+				if (nrOfParameters === 0) payload.onFailureCallback()
+				if (nrOfParameters === 1) payload.onFailureCallback(payload.updatedDoc)
+			}
 			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
-			rootState.backendMessages.push({ timestamp: Date.now(), msg })
+			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -679,14 +688,14 @@ const actions = {
 			if (rootState.debug) console.log(msg)
 			if (updateConflict > 0 || otherError > 0) {
 				dispatch('doLog', { event: msg, level: WARNING })
-			} else {
-				// execute passed function if provided at full success (if no updateConflict and no otherError)
-				if (payload.onSuccessCallback !== undefined) {
-					payload.onSuccessCallback()
-				}
 			}
-			// has effect when removing a branche, otherwise no effect
-			rootState.busyRemoving = false
+			// execute passed function if provided
+			if (payload.onSuccessCallback !== undefined) {
+				const nrOfParameters = payload.onSuccessCallback.length
+				if (nrOfParameters === 0) payload.onSuccessCallback()
+				if (nrOfParameters === 1) payload.onSuccessCallback(payload.docs)
+
+			}
 			// additional dispatches
 			if (payload.toDispatch) {
 				for (let name of Object.keys(payload.toDispatch)) {
@@ -696,8 +705,11 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			// has effect when removing a branche, otherwise no effect
-			rootState.busyRemoving = false
+			if (payload.onFailureCallback !== undefined) {
+				const nrOfParameters = payload.onFailureCallback.length
+				if (nrOfParameters === 0) payload.onFailureCallback()
+				if (nrOfParameters === 1) payload.onFailureCallback(payload.docs)
+			}
 			let msg = 'updateBulk: Could not update batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
