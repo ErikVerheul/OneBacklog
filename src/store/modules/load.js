@@ -23,7 +23,6 @@ const state = {
 	orphansCount: 0,
 	currentDefaultProductId: null,
 	currentProductId: null,
-	currentProductsEnvelope: [],
 	productIdLoading: null,
 	processedProducts: 0,
 	currentProductTitle: "",
@@ -276,7 +275,7 @@ const actions = {
 			if (rootState.debug) console.log(msg)
 			// now that the database is known the log file is available
 			dispatch('doLog', { event: msg, level: INFO })
-			dispatch('getAllProducts', { allUserData, currentDbSettings })
+			dispatch('getAllProducts', { dbName: rootState.userData.currentDb, allUserData, currentDbSettings })
 		}).catch(error => {
 			if (error.response.status === 404) {
 				// the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
@@ -303,12 +302,12 @@ const actions = {
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/products',
+			url: payload.dbName + '/_design/design1/_view/products',
 		}).then(res => {
-			state.currentProductsEnvelope = res.data.rows
+			const currentProductsEnvelope = res.data.rows
 			const availableProductIds = []
 			// correct the data from the user profile with the actual available products
-			for (let product of state.currentProductsEnvelope) {
+			for (let product of currentProductsEnvelope) {
 				let id = product.id
 				availableProductIds.push(id)
 				// can only have productsRoles of products that are available
@@ -324,7 +323,7 @@ const actions = {
 				rootState.userData.myProductSubscriptions = screenedSubscriptions
 			}
 			// set the users product options to select from
-			for (let product of state.currentProductsEnvelope) {
+			for (let product of currentProductsEnvelope) {
 				if (Object.keys(payload.currentDbSettings.productsRoles).includes(product.id)) {
 					rootState.myProductOptions.push({
 						value: product.id,
@@ -348,7 +347,7 @@ const actions = {
 					const position = newUserData.myDatabases[rootState.userData.currentDb].subscriptions.indexOf(id)
 					if (position !== -1) newUserData.myDatabases[rootState.userData.currentDb].subscriptions.splice(position, 1)
 				}
-				dispatch('updateUser', newUserData)
+				dispatch('updateUser', { data: newUserData })
 			}
 			const isAnyProductAssigned = Object.keys(rootState.userData.myProductsRoles).length > 0
 			rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
@@ -358,7 +357,7 @@ const actions = {
 			dispatch('getConfig', isAnyProductAssigned)
 		}).catch(error => {
 			let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
-			rootState.backendMessages.push({ timestamp: Date.now(), msg })
+			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
