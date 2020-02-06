@@ -253,6 +253,11 @@ const actions = {
 			url: '_users/org.couchdb.user:' + rootState.userData.user,
 		}).then(res => {
 			let allUserData = res.data
+			// check if the default user database exists
+			if (!foundDbNames.includes(allUserData.currentDb)) {
+				alert('getOtherUserData: FATAL ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
+				return
+			}
 			// correct the profile for removed databases, if any
 			rootState.userData.myDatabases = []
 			for (let name of Object.keys(allUserData.myDatabases)) {
