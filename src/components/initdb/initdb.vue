@@ -41,7 +41,7 @@
       </div>
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
-        <div v-for="item in $store.state.backendMessages" :key="item.timestamp">
+        <div v-for="item in $store.state.backendMessages" :key="item.randKey">
           <p>{{ item.msg }}</p>
         </div>
       </div>
