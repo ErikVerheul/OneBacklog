@@ -4,10 +4,11 @@
     </app-header>
     <b-container fluid>
       <h2>Admin view: {{ optionSelected }}</h2>
-      <b-button block @click="createUser()">Create a user</b-button>
-      <b-button block @click="maintainUsers()">Maintain users</b-button>
-      <b-button block @click="createTeam()">Create a team</b-button>
-      <b-button block @click="listTeams()">List team members</b-button>
+      <b-button block @click="createUser">Create a user</b-button>
+      <b-button block @click="maintainUsers">Maintain users</b-button>
+      <b-button block @click="createTeam">Create a team</b-button>
+      <b-button block @click="changeMyDb">Change my default database to any available database</b-button>
+      <b-button block @click="listTeams">List team members</b-button>
 
       <div v-if="optionSelected === 'Create a user'">
         <template v-if="!credentialsReady">
@@ -188,6 +189,26 @@
         <b-button v-if="$store.state.isTeamCreated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
       </div>
 
+      <div v-if="optionSelected === 'Change my default database to any available database'">
+        <h2>Change my default database to any available database</h2>
+        <b-form-group>
+          <h5>Select the database you want to connect to</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+            stacked
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb">Change my database</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <div v-if="$store.state.isCurrentDbChanged">
+          <h4>Succes! Sign-out and -in to see the product view of the {{ $store.state.selectedDatabaseName }} database</h4>
+          <div>
+            <b-button class="m-1" @click="signIn()">Exit</b-button>
+          </div>
+        </div>
+      </div>
+
       <div v-if="optionSelected === 'List team members'">
         <h4>List the teams of users with products in the selected database</h4>
         <b-form-group v-if="!$store.state.areTeamsFound">
@@ -210,7 +231,7 @@
       <p class="colorRed">{{ $store.state.warning }}
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
-        <div v-for="item in $store.state.backendMessages" :key="item.timestamp">
+        <div v-for="item in $store.state.backendMessages" :key="item.randKey">
           <p>{{ item.msg }}</p>
         </div>
       </div>
@@ -220,6 +241,7 @@
 
 <script>
 import Header from '../header/header.vue'
+import router from '../../router'
 
 const ALLBUTSYSTEMANDBACKUPS = 3
 
@@ -365,7 +387,7 @@ export default {
         }
       }
       newUserData.roles = this.allRoles
-			this.$store.dispatch('updateUser', newUserData)
+			this.$store.dispatch('updateUser', { data: newUserData })
     },
 
     createTeam() {
@@ -378,6 +400,18 @@ export default {
 
     doCreateTeam() {
       this.$store.dispatch('addTeamToDatabase', {dbName: this.$store.state.selectedDatabaseName, newTeam: this.teamName})
+    },
+
+    changeMyDb() {
+      this.optionSelected = 'Change my default database to any available database'
+      this.localMessage = ''
+      this.$store.state.isCurrentDbChanged = false
+      // get all non sytem & non backup databases
+      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+    },
+
+    doChangeMyDb() {
+      this.$store.dispatch('changeCurrentDb', this.$store.state.selectedDatabaseName)
     },
 
     listTeams() {
@@ -396,6 +430,11 @@ export default {
     cancel() {
       this.optionSelected = 'select a task'
       this.$store.state.backendMessages = []
+    },
+
+    signIn() {
+      this.$store.commit('resetData', null, { root: true })
+      router.replace('/')
     }
   },
 

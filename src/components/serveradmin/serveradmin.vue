@@ -7,6 +7,7 @@
       <b-button block @click="createBackup"> Create a database backup</b-button>
       <b-button block @click="restoreBackup">Restore a database from backup</b-button>
       <b-button block @click="createNewDb">Create a new database</b-button>
+      <b-button block @click="changeMyDb">Change my default database to any available database</b-button>
       <b-button block @click="purgeDb">Purge removed documents and compact the database</b-button>
       <b-button block variant="warning" @click="remHistAndComm">Remove history, comments and followers</b-button>
       <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
@@ -77,6 +78,26 @@
         </div>
       </div>
 
+      <div v-if="optionSelected === 'Change my default database to any available database'">
+        <h2>Change my default database to any available database</h2>
+        <b-form-group>
+          <h5>Select the database you want to connect to</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+            stacked
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb">Change my database</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <div v-if="$store.state.isCurrentDbChanged">
+          <h4>Succes! Sign-out and -in to see the product view of the {{ $store.state.selectedDatabaseName }} database</h4>
+          <div>
+            <b-button class="m-1" @click="signIn()">Exit</b-button>
+          </div>
+        </div>
+      </div>
+
       <div v-if="optionSelected === 'Remove history, comments and followers'">
         <h2>Remove history, comments and followers</h2>
         <b-form-group>
@@ -123,7 +144,7 @@
       <p class="colorRed">{{ $store.state.warning }}
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
-        <div v-for="item in $store.state.backendMessages" :key="item.timestamp">
+        <div v-for="item in $store.state.backendMessages" :key="item.randKey">
           <p>{{ item.msg }}</p>
         </div>
       </div>
@@ -227,6 +248,18 @@ export default {
         createUser: false
       }
       this.$store.dispatch('createDatabase', payload)
+    },
+
+    changeMyDb() {
+      this.optionSelected = 'Change my default database to any available database'
+      this.localMessage = ''
+      this.$store.state.isCurrentDbChanged = false
+      // get all non sytem & non backup databases
+      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+    },
+
+    doChangeMyDb() {
+      this.$store.dispatch('changeCurrentDb', this.$store.state.selectedDatabaseName)
     },
 
     purgeDb() {
