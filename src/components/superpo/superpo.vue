@@ -67,6 +67,14 @@
 import Header from '../header/header.vue'
 import router from '../../router'
 
+// returns a new array so that it is reactive
+function addToArray(arr, item) {
+	const newArr = []
+	for (let el of arr) newArr.push(el)
+    newArr.push(item)
+	return newArr
+}
+
 const PRODUCTLEVEL = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
 
@@ -155,13 +163,14 @@ export default {
       window.slVueTree.insert(cursorPosition, [newNode], false)
       // update the users product roles, subscriptions and product selection array
       this.$store.state.userData.myProductsRoles[_id] = ['superPO']
-      this.$store.state.userData.myProductSubscriptions.push(_id)
+      this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, _id)
+      this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, _id)
       this.$store.state.myProductOptions.push({
         value: _id,
         text: newProduct.title
       })
       // update the database and add the product to this user's subscriptions and productsRoles
-      this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct })
+      this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['superPO'] })
     },
 
     removeProduct() {
