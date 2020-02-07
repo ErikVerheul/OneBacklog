@@ -510,6 +510,10 @@ export default {
 			return this.currentValue
 		},
 
+		getRootNode() {
+			return this.currentValue[0]
+		},
+
 		getProducts() {
 			return this.currentValue[0].children
 		},
