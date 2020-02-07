@@ -188,7 +188,7 @@ Y	            Y	    setPointsEvent	              	update.js
 Y	            Y	    setSizeEvent	                update.js
 Y	            Y	    setStateEvent	                update.js
 Y	            Y	    setSubTypeEvent	              	update.js
-Y				N		setTeamEventDescendant			update.js
+N				N		setTeamEventDescendant			update.js
 Y	            Y	    setTeamOwnerEvent	            update.js
 Y	            Y	    setTitleEvent	                update.js
 N				N		subscribeEvent					update.js

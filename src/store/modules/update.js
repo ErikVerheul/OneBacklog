@@ -368,7 +368,7 @@ const actions = {
 							"email": rootState.userData.email,
 							"timestamp": Date.now(),
 							"sessionId": rootState.userData.sessionId,
-							"distributeEvent": true
+							"distributeEvent": false
 						}
 						doc.history.unshift(newHist)
 						// set the team name
