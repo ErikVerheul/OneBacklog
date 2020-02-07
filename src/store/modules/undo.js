@@ -4,6 +4,14 @@ import globalAxios from 'axios'
 const WARNING = 1
 const ERROR = 2
 
+// returns a new array so that it is reactive
+function addToArray(arr, item) {
+	const newArr = []
+	for (let el of arr) newArr.push(el)
+    newArr.push(item)
+	return newArr
+}
+
 const actions = {
     /*
     * ToDo: create undo's if any of these steps fail
@@ -89,17 +97,19 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             if (entry.isProductRemoved) {
-                // re-enter the product to the users product roles, subscriptions and product selection array
-                const id = entry.removedNode._id
-                rootState.userData.myProductsRoles[id] = entry.removedProductRoles
-                rootState.userData.myProductSubscriptions.push(id)
+                // re-enter the product to the users product roles, subscriptions, product ids and product selection array
+                const _id = entry.removedNode._id
+                rootState.userData.myProductsRoles[_id] = entry.removedProductRoles
+                rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, _id)
+                rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, _id)
                 rootState.myProductOptions.push({
-                    value: id,
+                    value: _id,
                     text: entry.removedNode.title
                 })
             }
             const newHist = {
-                "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies, entry.removedIntConditions, entry.removedExtConditions],
+                "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies,
+                    entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles],
                 "by": rootState.userData.user,
                 "email": rootState.userData.email,
                 "timestamp": Date.now(),

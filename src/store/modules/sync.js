@@ -7,6 +7,22 @@ const INFO = 0
 const WARNING = 1
 var removedProducts = []
 
+// returns a new array so that it is reactive
+function addToArray(arr, item) {
+	const newArr = []
+	for (let el of arr) newArr.push(el)
+    newArr.push(item)
+	return newArr
+}
+// returns a new array so that it is reactive
+function removeFromArray(arr, item) {
+	const newArr = []
+	for (let el of arr) {
+		if (el !== item) newArr.push(el)
+	}
+	return newArr
+}
+
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
 * The documents are fltered by the view=design1/changesFilter filter.
@@ -252,6 +268,14 @@ const actions = {
 						case 'docRestoredEvent':
 							{	// node	is restored from a previous removal
 								commit('showLastEvent', { txt: 'Another user restored a removed item', severity: INFO })
+								// re-enter the product to the users product roles, subscriptions, product ids and product selection array
+								rootState.userData.myProductsRoles[doc._id] = lastHistObj['docRestoredEvent'][5]
+								rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
+								rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
+								rootState.myProductOptions.push({
+									value: doc._id,
+									text: doc.title
+								})
 								dispatch('restoreBranch', doc)
 							}
 							break
@@ -295,13 +319,13 @@ const actions = {
 									window.slVueTree.remove([node])
 									commit('showLastEvent', { txt: 'Another user removed an item', severity: INFO })
 									if (node.level === PRODUCTLEVEL) {
-										// save some data of the removed product for restore at undo. ToDo: restore product roles at undo?
+										// save some data of the removed product for restore at undo.
 										removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
 										// remove the product from the users product roles, subscriptions and product selection array
 										delete rootState.userData.myProductsRoles[node._id]
 										if (rootState.userData.myProductSubscriptions.includes(node._id)) {
-											const position = rootState.userData.myProductSubscriptions.indexOf(node._id)
-											rootState.userData.myProductSubscriptions.splice(position, 1)
+											rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, node._id)
+											rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, node._id)
 											const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(node._id)
 											rootState.myProductOptions.splice(removeIdx, 1)
 										}

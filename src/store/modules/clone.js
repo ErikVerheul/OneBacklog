@@ -12,6 +12,14 @@ var orgProductTitle
 var newProductTitle
 var newProductPriority
 
+// returns a new array so that it is reactive
+function addToArray(arr, item) {
+	const newArr = []
+	for (let el of arr) newArr.push(el)
+    newArr.push(item)
+	return newArr
+}
+
 /*
 * The documents are read top down by level. In parentNodes the read items are linked to to their id's.
 * The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
@@ -183,7 +191,7 @@ const actions = {
             // add the productId to my myProductSubscriptions
             rootState.userData.myProductSubscriptions.push(newProductId)
             // add the productId to my userAssignedProductIds and selection options
-            rootState.userData.userAssignedProductIds.push(newProductId)
+            rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, newProductId)
             rootState.myProductOptions.push({
                 value: newProductId,
                 text: newProductTitle

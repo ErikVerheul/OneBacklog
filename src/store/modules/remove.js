@@ -4,6 +4,15 @@ import globalAxios from 'axios'
 const ERROR = 2
 const PRODUCTLEVEL = 2
 
+// returns a new array
+function removeFromArray(arr, item) {
+	const newArr = []
+	for (let el of arr) {
+		if (el !== item) newArr.push(el)
+	}
+	return newArr
+}
+
 const actions = {
     /* Remove the dependent_on reference in the dependencies array in a batch of documents */
     removeDependencies({
@@ -294,8 +303,8 @@ const actions = {
                 // remove the product from the users product roles, subscriptions and product selection array
                 delete rootState.userData.myProductsRoles[_id]
                 if (rootState.userData.myProductSubscriptions.includes(_id)) {
-                    const position = rootState.userData.myProductSubscriptions.indexOf(_id)
-                    rootState.userData.myProductSubscriptions.splice(position, 1)
+                    rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, _id)
+                    rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, _id)
                     const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(_id)
                     rootState.myProductOptions.splice(removeIdx, 1)
                 }
