@@ -11,10 +11,11 @@
       <div v-if="optionSelected === 'Create a product'">
         <h2>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h2>
         <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
-        <b-button v-if="!$store.state.isProductCreated && productTitle !== ''" class="m-1" @click="doCreateProduct()">Create product</b-button>
+        <b-button v-if="!$store.state.isProductCreated && productTitle !== ''" class="m-1" @click="doCreateProduct">Create product</b-button>
         <b-button v-if="!$store.state.isProductCreated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
         <div v-if="$store.state.isProductCreated">
-          <b-button class="m-1" @click="signIn()">Sign-out and -in to see the new product</b-button>
+          <h4>Select the products view to see the new product</h4>
+          <b-button class="m-1" @click="cancel">return</b-button>
         </div>
       </div>
 
@@ -91,8 +92,14 @@ export default {
       // create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
       const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
       const _id = Date.now().toString().concat(shortId)
-      // create a new document and store it
-      const newDoc = {
+      // use a simple algorithm to calculate the priority
+      const myCurrentProductNodes = window.slVueTree.getProducts()
+      const lastProductNode = myCurrentProductNodes.slice(-1)[0]
+      const lastProductPriority = lastProductNode.data.priority
+      const newProductPriority = Math.floor((lastProductPriority + Number.MIN_SAFE_INTEGER) / 2)
+
+      // create a new document
+      const newProduct = {
         "_id": _id,
         "shortId": shortId,
         "type": "backlogItem",
@@ -100,13 +107,13 @@ export default {
         "parentId": "root",
         "team": "not assigned yet",
         "level": PRODUCTLEVEL,
-        "state": 2,
+        "state": 0,
         "reqarea": null,
         "title": this.productTitle,
         "followers": [],
         "description": window.btoa(""),
         "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
-        "priority": 0,
+        "priority": newProductPriority,
         "comments": [{
           "ignoreEvent": 'comments initiated',
           "timestamp": 0,
@@ -114,8 +121,47 @@ export default {
         }],
         "delmark": false
       }
+      // create a new node
+      let newNode = {
+        "productId": newProduct.productId,
+        "parentId": newProduct.parentId,
+        "_id": newProduct._id,
+        "shortId": newProduct.shortId,
+        "dependencies": [],
+        "conditionalFor": [],
+        "title": newProduct.title,
+        "isLeaf": false,
+        "children": [],
+        "isSelected": false,
+        "isExpanded": true,
+        "savedIsExpanded": true,
+        "isSelectable": true,
+        "isDraggable": newProduct.level > PRODUCTLEVEL,
+        "doShow": true,
+        "savedDoShow": true,
+        "data": {
+          state: newProduct.state,
+          subtype: 0,
+          priority: newProductPriority,
+          team: newProduct.team,
+          lastChange: Date.now()
+        }
+      }
+      const cursorPosition = {
+        nodeModel: lastProductNode,
+        placement: 'after'
+      }
+      // add the product to the treemodel, the path etc. will be calculated
+      window.slVueTree.insert(cursorPosition, [newNode], false)
+      // update the users product roles, subscriptions and product selection array
+      this.$store.state.userData.myProductsRoles[_id] = ['superPO']
+      this.$store.state.userData.myProductSubscriptions.push(_id)
+      this.$store.state.myProductOptions.push({
+        value: _id,
+        text: newProduct.title
+      })
       // update the database and add the product to this user's subscriptions and productsRoles
-      this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, productId: _id, newDoc })
+      this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct })
     },
 
     removeProduct() {
