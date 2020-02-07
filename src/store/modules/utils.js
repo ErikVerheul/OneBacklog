@@ -66,11 +66,12 @@ const actions = {
     rootState,
     dispatch
   }, payload) {
-    const _id = payload.productId
-    const product = payload.newDoc
+    const _id = payload.newProduct._id
+    const product = payload.newProduct
+    const position = Object.keys(rootState.userData.myProductsRoles).length + 1
     // do not distribute this event; other users have no access rights yet
     product.history = [{
-      "createEvent": [PRODUCTLEVEL, rootState.userData.currentDb, 1],
+      "createEvent": [PRODUCTLEVEL, rootState.userData.currentDb, position],
       "by": rootState.userData.user,
       "email": rootState.userData.email,
       "timestamp": Date.now(),
