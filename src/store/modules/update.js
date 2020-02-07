@@ -328,9 +328,8 @@ const actions = {
 				rootState.currentDoc.team = newTeam
 				rootState.currentDoc.history.unshift(newHist)
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+				if (descendants.length > 0) dispatch('setTeamDescendantsBulk', { parentTitle: rootState.currentDoc.title, descendants })
 			}
-			// Todo: why? process the descendants even if the parent team has not changed
-			if (descendants.length > 0) dispatch('setTeamDescendantsBulk', { parentTitle: rootState.currentDoc.title, descendants })
 		}).catch(error => {
 			let msg = 'setTeam: Could not read document with _id ' + _id + '. Error = ' + error
 			// eslint-disable-next-line no-console
