@@ -10,6 +10,7 @@ var docs = []
 var newProductId
 var orgProductTitle
 var newProductTitle
+var newProductPriority
 
 /*
 * The documents are read top down by level. In parentNodes the read items are linked to to their id's.
@@ -86,7 +87,7 @@ function processProduct() {
                 doShow,
                 savedDoShow: doShow,
                 data: {
-                    priority: doc.priority,
+                    priority: newProductPriority,
                     state: doc.state,
                     inconsistentState: false,
                     team: doc.team,
@@ -111,6 +112,11 @@ const actions = {
         rootState,
         dispatch
     }) {
+        // use a simple algorithm to calculate the priority of the cloned product
+        const myCurrentProductNodes = window.slVueTree.getProducts()
+        const lastProductNode = myCurrentProductNodes.slice(-1)[0]
+        const lastProductPriority = lastProductNode.data.priority
+        newProductPriority = Math.floor((lastProductPriority + Number.MIN_SAFE_INTEGER) / 2)
         // set the range of documents to load
         const productId = rootState.load.currentProductId
         const rangeString = 'startkey=["' + productId + '",0]&endkey=["' + productId + '",' + (PBILEVEL + 1) + ']'
@@ -135,6 +141,7 @@ const actions = {
                 if (i === 0) {
                     newProductId = newId
                     docs[0].parentId = 'root'
+                    docs[0].priority = newProductPriority
                     orgProductTitle = docs[0].title
                     newProductTitle = 'CLONE: ' + orgProductTitle
                     docs[0].title = newProductTitle
