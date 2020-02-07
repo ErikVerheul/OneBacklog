@@ -85,7 +85,7 @@ const actions = {
       const msg = `createProduct: Product '${product.title}' is created`
       rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
       // add the product to this user's subscriptions and productsRoles
-      dispatch('addProductToUser', { dbName: payload.dbName, productId: _id })
+      dispatch('addProductToUser', { dbName: payload.dbName, productId: _id, userRoles: payload.userRoles })
     }).catch(error => {
       const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
       rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })

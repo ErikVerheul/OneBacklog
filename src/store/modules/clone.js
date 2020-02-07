@@ -199,7 +199,7 @@ const actions = {
             // add all my roles the to new productId in myProductsRoles
             rootState.userData.myProductsRoles[newProductId] = rootState.userData.roles
             // save in the database
-            dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId })
+            dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
             // show the product clone in the tree view
             processProduct()
             // eslint-disable-next-line no-console

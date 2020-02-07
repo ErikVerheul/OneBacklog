@@ -152,8 +152,10 @@ const actions = {
       let tmpUserData = res.data
       if (Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
         tmpUserData.myDatabases[payload.dbName].subscriptions.push(payload.productId)
-        // add all user roles to the new product
-        tmpUserData.myDatabases[payload.dbName].productsRoles[payload.productId] = copyRoles(tmpUserData.roles)
+        if (payload.userRoles[0] === '*') {
+          // add all user roles to the new product
+          tmpUserData.myDatabases[payload.dbName].productsRoles[payload.productId] = copyRoles(tmpUserData.roles)
+        } else tmpUserData.myDatabases[payload.dbName].productsRoles[payload.productId] = payload.userRoles
       } else {
         // add all user roles to the new product
         const newDb = {

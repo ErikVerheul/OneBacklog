@@ -362,7 +362,7 @@ const actions = {
 			data: newDoc
 		}).then(() => {
 			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createFirstProduct: Product with _id ' + _id + ' is created' })
-			dispatch('addProductToUser', { dbName, productId: _id })
+			dispatch('addProductToUser', { dbName, productId: _id, userRoles: ['*'] })
 		}).catch(error => {
 			let msg = 'createFirstProduct: Could not create document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
