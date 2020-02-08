@@ -257,6 +257,11 @@ const actions = {
 				alert('getOtherUserData: FATAL ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
 				return
 			}
+			// check if the user has productsroles defined for the default database
+			if (!Object.keys(allUserData.myDatabases).includes(allUserData.currentDb)) {
+				alert('getOtherUserData: FATAL ERROR - no roles defined for default user database ' + allUserData.currentDb)
+				return
+			}
 			// correct the profile for removed databases, if any
 			rootState.userData.myDatabases = []
 			for (let name of Object.keys(allUserData.myDatabases)) {
