@@ -276,7 +276,7 @@ const actions = {
 									value: doc._id,
 									text: doc.title
 								})
-								dispatch('restoreBranch', doc)
+								dispatch('restoreBranch', { doc, fromHistory: true})
 							}
 							break
 						case 'nodeDroppedEvent':

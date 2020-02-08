@@ -182,15 +182,49 @@ const actions = {
     rootState,
     dispatch
   }, newSubscriptions) {
+    // remove products from the tree view
+    for (let productId of rootState.userData.myProductSubscriptions) {
+      if (!newSubscriptions.includes(productId)) {
+        window.slVueTree.removeProduct(productId)
+      }
+    }
+    // update myProductSubscriptions and add product(s) if missing
+    rootState.userData.myProductSubscriptions = []
+    for (let productId of newSubscriptions) {
+      if (rootState.userData.userAssignedProductIds.includes(productId)) {
+        rootState.userData.myProductSubscriptions.push(productId)
+        if (window.slVueTree.getNodeById(productId) === null) {
+          dispatch('addProduct', productId)
+        }
+      }
+    }
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
-      let tmpUserData = res.data
-      tmpUserData.myDatabases[res.data.currentDb].subscriptions = newSubscriptions
+      const tmpUserData = res.data
+      tmpUserData.myDatabases[rootState.userData.currentDb].subscriptions = newSubscriptions
       dispatch('updateUser', { data: tmpUserData })
     }).catch(error => {
-      let msg = 'updateSubscriptions: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
+      const msg = 'updateSubscriptions: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
+
+  addProduct({
+    rootState,
+    dispatch
+  }, productId) {
+    globalAxios({
+      method: 'GET',
+      url: rootState.userData.currentDb + '/' + productId,
+    }).then(res => {
+      const doc = res.data
+      dispatch('restoreBranch', { doc, fromHistory: false})
+    }).catch(error => {
+      let msg = 'addProduct: Could not add product with id ' + productId + ' in database ' + rootState.userData.currentDb + '. Error = ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

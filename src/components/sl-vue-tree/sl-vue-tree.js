@@ -502,12 +502,20 @@ export default {
 		// return the node of the selected productId / current productId or the full tree if the product is not found
 		getProductModels(productId = this.$store.state.load.currentProductId) {
 			const productModels = this.currentValue[0].children
-			for (let i = 0; i < productModels.length; i++) {
-				if (productModels[i].productId === productId) {
-					return [productModels[i]]
+			for (let p of productModels) {
+				if (p.productId === productId) {
+					return [p]
 				}
 			}
 			return this.currentValue
+		},
+
+		removeProduct(productId) {
+			const newChildren = []
+			for (let p of this.currentValue[0].children) {
+				if (p._id !== productId) newChildren.push(p)
+			}
+			this.currentValue[0].children = newChildren
 		},
 
 		getRootNode() {

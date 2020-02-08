@@ -7,7 +7,8 @@ const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const HOURINMILIS = 3600000
-var parentHistObj = {}
+var parentHistObj
+var fromHistory
 
 function composeRangeString(id) {
     return 'startkey="' + id + '"&endkey="' + id + '"'
@@ -130,21 +131,23 @@ const actions = {
                         lastCommentAddition,
                         lastAttachmentAddition,
                         lastCommentToHistory,
-                        lastChange: parentHistObj.timestamp
+                        lastChange: Date.now()
                     }
                 }
                 window.slVueTree.insert({
                     nodeModel: locationInfo.prevNode,
                     placement: locationInfo.newInd === 0 ? 'inside' : 'after'
                 }, [newNode], false)
-                // restore external dependencies
-                for (let d of parentHistObj.docRestoredEvent[2]) {
-                    const node = window.slVueTree.getNodeById(d.id)
-                    if (node !== null) node.dependencies.push(d.dependentOn)
-                }
-                for (let c of parentHistObj.docRestoredEvent[4]) {
-                    const node = window.slVueTree.getNodeById(c.id)
-                    if (node !== null) node.conditionalFor.push(c.conditionalFor)
+                if (fromHistory) {
+                    // restore external dependencies
+                    for (let d of parentHistObj.docRestoredEvent[2]) {
+                        const node = window.slVueTree.getNodeById(d.id)
+                        if (node !== null) node.dependencies.push(d.dependentOn)
+                    }
+                    for (let c of parentHistObj.docRestoredEvent[4]) {
+                        const node = window.slVueTree.getNodeById(c.id)
+                        if (node !== null) node.conditionalFor.push(c.conditionalFor)
+                    }
                 }
                 dispatch('getChildren', doc._id)
             } else {
@@ -180,9 +183,10 @@ const actions = {
 
     restoreBranch({
         dispatch
-    }, doc) {
-        parentHistObj = doc.history[0]
-        dispatch('processItems', [doc])
+    }, payload) {
+        fromHistory = payload.fromHistory
+        if (fromHistory) parentHistObj = payload.doc.history[0]
+        dispatch('processItems', [payload.doc])
     }
 }
 

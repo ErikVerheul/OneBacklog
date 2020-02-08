@@ -125,7 +125,6 @@ export default {
             }
             // sort on creation date in ascending order
             otherSubscriptions.sort()
-            this.showLastEvent("You changed product subscriptions. Sign out and -in again to see the change", WARNING)
             this.$store.dispatch('updateSubscriptions', myNewProductSubscriptions.concat(otherSubscriptions))
         },
 
