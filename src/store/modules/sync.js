@@ -11,7 +11,7 @@ var removedProducts = []
 function addToArray(arr, item) {
 	const newArr = []
 	for (let el of arr) newArr.push(el)
-    newArr.push(item)
+	newArr.push(item)
 	return newArr
 }
 // returns a new array so that it is reactive
@@ -85,6 +85,23 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: WARNING })
 			}
+		}
+
+		function getLevelText(level, subtype = 0) {
+			if (level < 0 || level > PBILEVEL) {
+				return 'Level not supported'
+			}
+			if (level === PBILEVEL) {
+				return getSubType(subtype)
+			}
+			return rootState.configData.itemType[level]
+		}
+
+		function getSubType(idx) {
+			if (idx < 0 || idx >= rootState.configData.subtype.length) {
+				return 'Error: unknown subtype'
+			}
+			return rootState.configData.subtype[idx]
 		}
 
 		// stop listening if offline. watchdog will start it automatically when online again
@@ -267,16 +284,18 @@ const actions = {
 							break
 						case 'docRestoredEvent':
 							{	// node	is restored from a previous removal
-								commit('showLastEvent', { txt: 'Another user restored a removed item', severity: INFO })
-								// re-enter the product to the users product roles, subscriptions, product ids and product selection array
-								rootState.userData.myProductsRoles[doc._id] = lastHistObj['docRestoredEvent'][5]
-								rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
-								rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
-								rootState.myProductOptions.push({
-									value: doc._id,
-									text: doc.title
-								})
-								dispatch('restoreBranch', { doc, fromHistory: true})
+								if (lastHistObj.by === rootState.userData.user) {
+									// re-enter the product to the users product roles, subscriptions, product ids and product selection array
+									commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
+									rootState.userData.myProductsRoles[doc._id] = lastHistObj['docRestoredEvent'][5]
+									rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
+									rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
+									rootState.myProductOptions.push({
+										value: doc._id,
+										text: doc.title
+									})
+								} else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
+								dispatch('restoreBranch', { doc, fromHistory: true })
 							}
 							break
 						case 'nodeDroppedEvent':
@@ -287,7 +306,6 @@ const actions = {
 
 								let locationInfo = getLocationInfo(doc.priority, parentNode)
 								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
-									// the node has not changed parent nor changed location w/r to its siblings
 									// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
 									window.slVueTree.remove([node])
 									node.data.priority = doc.priority
@@ -317,19 +335,23 @@ const actions = {
 								window.slVueTree.correctDependencies(lastHistObj.removeParentEvent[0], lastHistObj.removeParentEvent[1])
 								if (node) {
 									window.slVueTree.remove([node])
-									commit('showLastEvent', { txt: 'Another user removed an item', severity: INFO })
-									if (node.level === PRODUCTLEVEL) {
-										// save some data of the removed product for restore at undo.
-										removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
-										// remove the product from the users product roles, subscriptions and product selection array
-										delete rootState.userData.myProductsRoles[node._id]
-										if (rootState.userData.myProductSubscriptions.includes(node._id)) {
-											rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, node._id)
-											rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, node._id)
-											const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(node._id)
-											rootState.myProductOptions.splice(removeIdx, 1)
+									if (lastHistObj.by === rootState.userData.user) {
+										commit('showLastEvent', {
+											txt: `You removed a ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO
+										})
+										if (node.level === PRODUCTLEVEL) {
+											// save some data of the removed product for restore at undo. ToDo: where is removedProducts used?
+											removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
+											// remove the product from the users product roles, subscriptions and product selection array
+											delete rootState.userData.myProductsRoles[node._id]
+											if (rootState.userData.myProductSubscriptions.includes(node._id)) {
+												rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, node._id)
+												rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, node._id)
+												const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(node._id)
+												rootState.myProductOptions.splice(removeIdx, 1)
+											}
 										}
-									}
+									} else commit('showLastEvent', { txt: `Another user removed a ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
 								}
 								// nothing else to do after removing the node
 								continue
