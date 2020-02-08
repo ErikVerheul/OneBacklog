@@ -168,7 +168,8 @@ const actions = {
         tmpUserData.myDatabases[payload.dbName] = newDb
       }
       dispatch('updateUser', { data: tmpUserData })
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'addProductToUser: The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles })
+      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000),
+        msg: 'addProductToUser: The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles })
     }).catch(error => {
       let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
       rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
