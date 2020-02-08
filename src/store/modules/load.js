@@ -39,32 +39,28 @@ const getters = {
 	* See documentation.txt for the role definitions.
 	*/
 	haveWritePermission(state, getters, rootState, rootGetters) {
+		// note that the roles of _admin, areaPO, superPO, admin and guest are generic (not product specific)
 		let levels = []
 		// initialize with false
 		for (let i = AREALEVEL; i <= PBILEVEL; i++) {
 			levels.push(false)
 		}
-		if (state.currentProductId) {
-			if (rootState.userData.userAssignedProductIds.includes(state.currentProductId)) {
-				let myRoles = rootState.userData.myProductsRoles[state.currentProductId]
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('haveWritePermission: For productId ' + state.currentProductId + ' my roles are ' + myRoles)
+		let currentProductRoles = rootState.userData.myProductsRoles[state.currentProductId]
+		// eslint-disable-next-line no-console
+		if (rootState.debug) console.log(`haveWritePermission: For productId ${state.currentProductId} my roles are ${currentProductRoles}`)
+		if (!currentProductRoles) {
+			// my roles are not defined
+			return []
+		}
 
-				if (!myRoles) {
-					// my roles are not defined
-					return []
-				}
-
-				if (myRoles.includes('PO')) {
-					for (let i = EPICLEVEL; i <= PBILEVEL; i++) {
-						levels[i] = true
-					}
-				}
-				if (myRoles.includes('developer')) {
-					for (let i = FEATURELEVEL; i <= PBILEVEL; i++) {
-						levels[i] = true
-					}
-				}
+		if (currentProductRoles.includes('PO')) {
+			for (let i = EPICLEVEL; i <= PBILEVEL; i++) {
+				levels[i] = true
+			}
+		}
+		if (currentProductRoles.includes('developer')) {
+			for (let i = FEATURELEVEL; i <= PBILEVEL; i++) {
+				levels[i] = true
 			}
 		}
 		// the user is 'superPO'. A superPO has write permissions in all products
@@ -81,6 +77,8 @@ const getters = {
 		if (rootGetters.isServerAdmin) {
 			levels[DATABASELEVEL] = true
 		}
+		// eslint-disable-next-line no-console
+		console.log('haveWritePermission: The write levels are [AREALEVEL, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ' + levels)
 		return levels
 	}
 }
@@ -284,7 +282,7 @@ const actions = {
 		}).catch(error => {
 			if (error.response.status === 404) {
 				// the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
-				if (rootState.online && rootState.userData.roles.includes("_admin")) {
+				if (rootState.online && rootState.userData.sesionRoles.includes("_admin")) {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
 					rootState.showHeaderDropDowns = false

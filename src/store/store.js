@@ -92,6 +92,7 @@ export default new Vuex.Store({
 	},
 
 	getters: {
+		// note that the roles of _admin, areaPO, superPO, admin and guest are generic (not product specific)
 		isAuthenticated(state) {
 			return state.userData.user !== undefined
 		},
@@ -100,39 +101,43 @@ export default new Vuex.Store({
 			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
 		isServerAdmin(state) {
-			return state.userData.roles.includes("_admin")
+			return state.userData.sessionRoles.includes("_admin")
 		},
 		isAreaPO(state) {
-			return state.userData.roles.includes("areaPO")
+			return state.userData.sessionRoles.includes("areaPO")
 		},
 		isSuperPO(state) {
-			return state.userData.roles.includes("superPO")
+			return state.userData.sessionRoles.includes("superPO")
 		},
 		isPO(state) {
-			return state.userData.roles.includes("PO")
+			const currentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return currentProductRoles.includes("PO")
 		},
 		isAdmin(state) {
-			return state.userData.roles.includes("admin")
+			return state.userData.sessionRoles.includes("admin")
 		},
 		isDeveloper(state) {
-			return state.userData.roles.includes("developer")
+			const currentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return currentProductRoles.includes("developer")
 		},
 		isGuest(state) {
-			return state.userData.roles.includes("guest")
+			return state.userData.sessionRoles.includes("guest")
 		},
 		canCreateComments(state) {
-			return state.userData.roles.includes("_admin") ||
-				state.userData.roles.includes("areaPO") ||
-				state.userData.roles.includes("admin") ||
-				state.userData.roles.includes("superPO") ||
-				state.userData.roles.includes("PO") ||
-				state.userData.roles.includes("developer")
+			const currentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return currentProductRoles.includes("_admin") ||
+				currentProductRoles.includes("areaPO") ||
+				currentProductRoles.includes("admin") ||
+				currentProductRoles.includes("superPO") ||
+				currentProductRoles.includes("PO") ||
+				currentProductRoles.includes("developer")
 		},
 		canUploadAttachments(state) {
-			return state.userData.roles.includes("areaPO") ||
-				state.userData.roles.includes("superPO") ||
-				state.userData.roles.includes("PO") ||
-				state.userData.roles.includes("developer")
+			const currentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return currentProductRoles.includes("areaPO") ||
+				currentProductRoles.includes("superPO") ||
+				currentProductRoles.includes("PO") ||
+				currentProductRoles.includes("developer")
 		},
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
@@ -252,7 +257,7 @@ export default new Vuex.Store({
 					password: authData.password,
 					myDatabases: [],
 					currentDb: undefined,
-					roles: res.data.roles,
+					sessionRoles: res.data.roles,
 					myProductSubscriptions: [],
 					userAssignedProductIds: [],
 					myProductsRoles: {},
