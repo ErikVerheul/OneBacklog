@@ -122,7 +122,7 @@ const actions = {
                     "savedDoShow": true,
                     "data": {
                         state: doc.state,
-                        subtype: 0,
+                        subtype: doc.subtype,
                         priority: doc.priority,
                         inconsistentState: false,
                         team: doc.team,
