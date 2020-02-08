@@ -72,13 +72,13 @@ The store holds an object with the data of the current user. This object is init
 // email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myProductViewFilterSettings are updated when otherUserData and config are read
 // the first (index 0) product in myProductSubscriptions is by definition the default product
 state.userData = {
-    user: res.data.name,
+    user: res.data.name, // when loading the session
     email: undefined,
     myTeam: undefined,
     password: authData.password,
     myDatabases: [],
     currentDb: undefined,
-    roles: res.data.roles,
+    sessionRoles: res.data.roles, // when loading the session
     myProductSubscriptions: [],
     userAssignedProductIds: [],
     myProductsRoles: {},

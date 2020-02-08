@@ -196,8 +196,8 @@ const actions = {
                 value: newProductId,
                 text: newProductTitle
             })
-            // add all my roles the to new productId in myProductsRoles
-            rootState.userData.myProductsRoles[newProductId] = rootState.userData.roles
+            // add all my session roles the to new productId in myProductsRoles
+            rootState.userData.myProductsRoles[newProductId] = rootState.userData.sesionRoles
             // save in the database
             dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
             // show the product clone in the tree view
