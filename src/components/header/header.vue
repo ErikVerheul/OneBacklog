@@ -13,11 +13,11 @@
         <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../product">Products</b-dropdown-item>
-            <b-dropdown-item v-if="areaPO" to="../../reqsarea">Requirement areas</b-dropdown-item>
-            <b-dropdown-divider v-if="superPO || admin || serverAdmin"></b-dropdown-divider>
-            <b-dropdown-item v-if="superPO" to="../../superpo">Super PO</b-dropdown-item>
-            <b-dropdown-item v-if="admin" to="../../admin">Admin</b-dropdown-item>
-            <b-dropdown-item v-if="serverAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
+            <b-dropdown-item v-if="isAreaPO" to="../../reqsarea">Requirement areas</b-dropdown-item>
+            <b-dropdown-divider v-if="isSuperPO || isAdmin || isServerAdmin"></b-dropdown-divider>
+            <b-dropdown-item v-if="isSuperPO" to="../../superpo">Super PO</b-dropdown-item>
+            <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
+            <b-dropdown-item v-if="isServerAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
           </b-nav-item-dropdown>
 
           <b-nav-item-dropdown right>
@@ -25,19 +25,19 @@
             <template slot="button-content">
               <em>User</em>
             </template>
-            <b-dropdown-item v-if="!auth">No options here when not signed in</b-dropdown-item>
+            <b-dropdown-item v-if="!isAuthenticated">No options here when not signed in</b-dropdown-item>
             <b-dropdown-item
-              v-if="auth && $store.state.userData.myDatabases.length > 1"
+              v-if="isAuthenticated && $store.state.userData.myDatabases.length > 1"
               @click="changeDatabase"
             >Change database</b-dropdown-item>
-            <b-dropdown-item v-if="auth" @click="changeTeam">Change team</b-dropdown-item>
+            <b-dropdown-item v-if="isAuthenticated" @click="changeTeam">Change team</b-dropdown-item>
             <b-dropdown-item
-              v-if="auth && $store.state.userData.userAssignedProductIds.length > 1"
+              v-if="isAuthenticated && $store.state.userData.userAssignedProductIds.length > 1"
               @click="selectProducts"
             >Select products</b-dropdown-item>
-            <b-dropdown-item v-if="auth" @click="changePassword">Change password</b-dropdown-item>
+            <b-dropdown-item v-if="isAuthenticated" @click="changePassword">Change password</b-dropdown-item>
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
-            <b-dropdown-item v-if="auth" @click="onSignout">Sign Out</b-dropdown-item>
+            <b-dropdown-item v-if="isAuthenticated" @click="onSignout">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
@@ -98,13 +98,13 @@
 
     <b-modal size="lg" ref="changePwRef" @ok="doChangePw" title="Change your password">
       <b-container align-v="true">
-        <template v-if="auth && $store.state.demo && $store.state.userData.user === 'demoUser'">
+        <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'">
           <h2>Demo users cannot change the password</h2>
         </template>
-        <template v-if="auth && $store.getters.isServerAdmin">
+        <template v-if="isAuthenticated && $store.getters.isServerAdmin">
           <h2>Demo users cannot change the password</h2>
         </template>
-        <template v-if="auth && $store.state.demo && $store.state.userData.user !== 'demoUser'">
+        <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user !== 'demoUser'">
           <b-row class="my-1">
             <b-card bg-variant="light">
               <b-form-group
