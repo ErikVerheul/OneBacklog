@@ -92,7 +92,7 @@ export default new Vuex.Store({
 	},
 
 	getters: {
-		// note that the roles of _admin, areaPO, superPO, admin and guest are generic (not product specific)
+		// note that the roles of _admin, superPO, areaPO and admin are generic (not product specific)
 		isAuthenticated(state) {
 			return state.userData.user !== undefined
 		},
@@ -100,44 +100,42 @@ export default new Vuex.Store({
 			const emails = state.currentDoc.followers.map(e => e.email)
 			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
-		isServerAdmin(state) {
-			return state.userData.sessionRoles.includes("_admin")
+		isServerAdmin(state, getters) {
+			return getters.isAuthenticated && state.userData.sessionRoles.includes("_admin")
 		},
-		isAreaPO(state) {
-			return state.userData.sessionRoles.includes("areaPO")
+		isSuperPO(state, getters) {
+			return getters.isAuthenticated && state.userData.sessionRoles.includes("superPO")
 		},
-		isSuperPO(state) {
-			return state.userData.sessionRoles.includes("superPO")
+		isAreaPO(state, getters) {
+			return getters.isAuthenticated && state.userData.sessionRoles.includes("areaPO")
 		},
-		isPO(state) {
-			const currentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return currentProductRoles.includes("PO")
+		isAdmin(state, getters) {
+			console.log('store.getters: isAdmin')
+			return getters.isAuthenticated && state.userData.sessionRoles.includes("admin")
 		},
-		isAdmin(state) {
-			return state.userData.sessionRoles.includes("admin")
+		isPO(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
 		},
-		isDeveloper(state) {
-			const currentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return currentProductRoles.includes("developer")
+		isDeveloper(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
-		isGuest(state) {
-			return state.userData.sessionRoles.includes("guest")
+		isGuest(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
 		},
-		canCreateComments(state) {
-			const currentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return currentProductRoles.includes("_admin") ||
-				currentProductRoles.includes("areaPO") ||
-				currentProductRoles.includes("admin") ||
-				currentProductRoles.includes("superPO") ||
-				currentProductRoles.includes("PO") ||
-				currentProductRoles.includes("developer")
+		canCreateComments(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return getters.isAdmin || getters.issuperPO || getters.isareaPO || getters.isadmin ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
-		canUploadAttachments(state) {
-			const currentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return currentProductRoles.includes("areaPO") ||
-				currentProductRoles.includes("superPO") ||
-				currentProductRoles.includes("PO") ||
-				currentProductRoles.includes("developer")
+		canUploadAttachments(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return getters.issuperPO || getters.isareaPO ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
@@ -179,11 +177,11 @@ export default new Vuex.Store({
 			state.load.productIdLoading = null
 			state.load.processedProducts = 0
 
-			state.myProductOptions = [],
+			state.myProductOptions = []
 			state.userData = {}
-			state.changeHistory = [],
-			state.showHeaderDropDowns = true,
-			state.skipOnce = true,
+			state.changeHistory = []
+			state.showHeaderDropDowns = true
+			state.skipOnce = true
 			state.lastEvent = ''
 			state.configData = null
 			state.currentDoc = null
@@ -282,7 +280,7 @@ export default new Vuex.Store({
 		},
 	},
 
-	// prevent this.$refs.contextMenuRef return undefined after hot reload
+	// prevent getters.$refs.contextMenuRef return undefined after hot reload
 	beforeDestroy(state) {
 		clearInterval(state.runningCookieRefreshId)
 		clearInterval(state.logging.runningWatchdogId)
