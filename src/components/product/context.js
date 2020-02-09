@@ -8,6 +8,7 @@ const ERROR = 2
 const REMOVED = 0
 const DONE = 5
 const STATENEW = 0
+const PBILEVEL = 5
 var newNode = {}
 var movedNode = null
 
@@ -81,8 +82,9 @@ export default {
       this.showAssistance = false
       this.disableOkButton = true
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
-      // all roles get an extra level of access to use the context menu. However they cannot change the item's properties
-      if (this.haveWritePermission[node.level + 1] && node._id === this.$store.state.nodeSelected._id &&
+      // for access to the context menu all roles get an extra level, however they cannot change the item's properties
+      const extraLevel = node.level < PBILEVEL ? node.level + 1 : node.level
+      if (this.haveWritePermission[extraLevel] && node._id === this.$store.state.nodeSelected._id &&
         node.level > this.DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
