@@ -1,4 +1,5 @@
 import licence from "./licence.vue"
+import { mapGetters } from 'vuex'
 import { utilities } from '../mixins/utilities.js'
 
 const WARNING = 1
@@ -27,29 +28,13 @@ export default {
     },
 
     computed: {
-        auth() {
-            return this.$store.getters.isAuthenticated
-        },
-        serverAdmin() {
-            return (
-                this.auth && this.$store.getters.isServerAdmin
-            )
-        },
-        areaPO() {
-            return (
-                this.auth && this.$store.getters.isAreaPO
-            )
-        },
-        superPO() {
-            return (
-                this.auth && this.$store.getters.isSuperPO
-            )
-        },
-        admin() {
-            return (
-                this.auth && this.$store.getters.isAdmin
-            )
-        }
+        ...mapGetters([
+            'isAuthenticated',
+            'isServerAdmin',
+            'isSuperPO',
+            'isAreaPO',
+            'isAdmin',
+        ]),
     },
 
     methods: {
@@ -90,7 +75,7 @@ export default {
 
         doChangeTeam() {
             this.$store.dispatch('changeTeam', this.myTeam)
-         },
+        },
 
         /* Return if nothing is selected; set default product if 1 is selected; call selectDefaultProductRef if > 1 is selected */
         doSelectProducts() {
@@ -130,21 +115,15 @@ export default {
 
         doChangePw() {
             if (this.oldPassword !== this.$store.state.userData.password) {
-                alert(
-                    "Your current password is incorrect. Please try again."
-                )
+                alert("Your current password is incorrect. Please try again.")
                 return
             }
             if (this.newPassword1 !== this.newPassword2) {
-                alert(
-                    "You entered two different new passwords. Please try again."
-                )
+                alert("You entered two different new passwords. Please try again.")
                 return
             }
             if (this.newPassword1.length < MINPASSWORDLENGTH) {
-                alert(
-                    "Your new password must be 8 characters or longer. Please try again."
-                )
+                alert("Your new password must be 8 characters or longer. Please try again.")
                 return
             }
             this.$store.dispatch('changePassword', this.newPassword1)
