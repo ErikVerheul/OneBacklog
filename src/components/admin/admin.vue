@@ -34,7 +34,7 @@
             </b-col>
             <b-col sm="12">
               <b-button v-if="!credentialsReady" class="m-1" @click="checkCredentials">Continue</b-button>
-              <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+              <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
             </b-col>
           </b-row>
         </template>
@@ -48,11 +48,30 @@
         </b-form-group>
 
         <div v-if="credentialsReady">
-          <b-button v-if="!dbSelected" class="m-1" @click="doGetDbProducts(false)">Continue</b-button>
-          <b-button v-if="!dbSelected" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+          <b-button v-if="!dbSelected" class="m-1" @click="doGetDbProducts(true)">Continue</b-button>
+          <b-button v-if="!dbSelected" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
 
           <div v-if="dbSelected && $store.state.areProductsFound">
-            <h5>Assign the roles to each product in database '{{ $store.state.selectedDatabaseName }}'</h5>
+            Creating user '{{ userName }}'
+            <h5>Make this user a 'superPO'?</h5>
+            <b-form-checkbox
+              v-model="$store.state.useracc.userIsSuperPO"
+            >Tick to add this role
+            </b-form-checkbox>
+
+            <h5>Make this user a 'areaPO'?</h5>
+            <b-form-checkbox
+              v-model="$store.state.useracc.userIsAreaPO"
+            >Tick to add this role
+            </b-form-checkbox>
+
+            <h5>Make this user an 'admin'?</h5>
+            <b-form-checkbox
+              v-model="$store.state.useracc.userIsAdmin"
+            >Tick to add this role
+            </b-form-checkbox>
+            <hr>
+            <h5>Assign (additional) the roles to each product in database '{{ $store.state.selectedDatabaseName }}'</h5>
             <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
               {{ prod.value }}:
               <b-form-group>
@@ -62,20 +81,10 @@
                 ></b-form-checkbox-group>
               </b-form-group>
             </div>
-            <h5>Make this user an 'admin'?</h5>
-            <b-form-checkbox
-              v-model="$store.state.useracc.userIsAdmin"
-            >Tick to add this role
-            </b-form-checkbox>
-            <h5>Make this user a 'superPO'?</h5>
-            <b-form-checkbox
-              v-model="$store.state.useracc.userIsSuperPO"
-            >Tick to add this role
-            </b-form-checkbox>
-            <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="doCreateUser()">Create this user</b-button>
+            <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="doCreateUser">Create this user</b-button>
             <hr>
-            <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-            <b-button v-if="$store.state.isUserCreated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+            <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+            <b-button v-if="$store.state.isUserCreated" class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
           </div>
         </div>
       </div>
@@ -91,8 +100,8 @@
               <b-form-input v-model="userName" placeholder="Enter the user name"></b-form-input>
             </b-col>
           </b-row>
-          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="doFindUser()">Find this user</b-button>
-          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="doFindUser">Find this user</b-button>
+          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         </div>
 
         <div v-if="$store.state.isUserFound">
@@ -117,21 +126,33 @@
             </b-col>
 
             <b-col sm="12">
+              <h5 v-if="$store.state.useracc.userIsSuperPO">This user is a 'superPO':</h5>
+              <h5 v-else>This user is not a 'superPO':</h5>
+              <b-form-group>
+                <b-form-checkbox
+                  v-model="$store.state.useracc.userIsSuperPO"
+                >Add or remove this role
+                </b-form-checkbox>
+              </b-form-group>
+            </b-col>
+
+            <b-col sm="12">
+              <h5 v-if="$store.state.useracc.userIsAreaPO">This user is an 'areaPO':</h5>
+              <h5 v-else>This user is not an 'areaPO':</h5>
+              <b-form-group>
+                <b-form-checkbox
+                  v-model="$store.state.useracc.userIsAreaPO"
+                >Add or remove this role
+                </b-form-checkbox>
+              </b-form-group>
+            </b-col>
+
+            <b-col sm="12">
               <h5 v-if="$store.state.useracc.userIsAdmin">This user is an 'admin':</h5>
               <h5 v-else>This user is not an 'admin':</h5>
               <b-form-group>
                 <b-form-checkbox
                   v-model="$store.state.useracc.userIsAdmin"
-                >Add or remove this role
-                </b-form-checkbox>
-              </b-form-group>
-            </b-col>
-            <b-col sm="12">
-              <h5 v-if="$store.state.useracc.userIsSuperPO">This user is an 'superPO':</h5>
-              <h5 v-else>This user is not an 'superPO':</h5>
-              <b-form-group>
-                <b-form-checkbox
-                  v-model="$store.state.useracc.userIsSuperPO"
                 >Add or remove this role
                 </b-form-checkbox>
               </b-form-group>
@@ -148,7 +169,7 @@
               </b-form-group>
             </b-col>
             <b-col v-if="!$store.state.areProductsFound" sm="12">
-              <b-button class="m-1" @click="doGetDbProducts(true)">Continue</b-button>
+              <b-button class="m-1" @click="doGetDbProducts(false)">Continue</b-button>
               <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
             </b-col>
             <b-col sm="12">
@@ -163,7 +184,7 @@
                     ></b-form-checkbox-group>
                   </b-form-group>
                 </div>
-                <b-button v-if="$store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doUpdateUser()">Update this user</b-button>
+                <b-button v-if="$store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doUpdateUser">Update this user</b-button>
                 <b-button v-if="!$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
                 <b-button v-if="$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
               </div>
@@ -184,9 +205,9 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
-        <b-button v-if="!$store.state.isTeamCreated && teamName !== ''" class="m-1" @click="doCreateTeam()">Create this team</b-button>
-        <b-button v-if="!$store.state.isTeamCreated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-        <b-button v-if="$store.state.isTeamCreated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+        <b-button v-if="!$store.state.isTeamCreated && teamName !== ''" class="m-1" @click="doCreateTeam">Create this team</b-button>
+        <b-button v-if="!$store.state.isTeamCreated" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="$store.state.isTeamCreated" class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'Change my default database to any available database'">
@@ -219,7 +240,7 @@
             stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button v-if="!$store.state.areTeamsFound" class="m-1" @click="doGetTeamsOfDb()">List teams</b-button>
+        <b-button v-if="!$store.state.areTeamsFound" class="m-1" @click="doGetTeamsOfDb">List teams</b-button>
         <div v-if="$store.state.areTeamsFound">
           <div v-for="teamName in $store.state.fetchedTeams" :key="teamName">
             {{ teamName }}
@@ -256,7 +277,6 @@ export default {
       dbSelected: false,
       teamName: '',
       roleOptions: [
-        { text: 'area PO', value: 'areaPO' },
         { text: 'PO', value: 'PO' },
         { text: 'developer', value: 'developer' },
         { text: 'guest', value: 'guest' }
@@ -289,10 +309,10 @@ export default {
     },
 
     /* Get all product titles of the selected database in $store.state.useracc.dbProducts */
-    doGetDbProducts(doPreset) {
+    doGetDbProducts(createNewUser) {
       this.dbSelected = true
       this.$store.state.useracc.dbProducts = undefined
-      this.$store.dispatch('getDbProducts', { dbName: this.$store.state.selectedDatabaseName, presetExistingRoles: doPreset })
+      this.$store.dispatch('getDbProducts', { dbName: this.$store.state.selectedDatabaseName, createNewUser })
     },
 
     createUser() {
@@ -304,8 +324,9 @@ export default {
       this.dbSelected = false
       this.localMessage = ''
       this.$store.state.useracc.dbProducts = undefined
-      this.$store.state.useracc.userIsAdmin = false
       this.$store.state.useracc.userIsSuperPO = false
+      this.$store.state.useracc.userIsAreaPO = false
+      this.$store.state.useracc.userIsAdmin = false
       this.$store.state.isUserCreated = false
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
@@ -313,9 +334,10 @@ export default {
 
     doCreateUser() {
       // calculate the association of all assigned roles
-      this.allRoles = ['guest']
-      if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
+      this.allRoles = []
       if (this.$store.state.useracc.userIsSuperPO) this.allRoles.push('superPO')
+      if (this.$store.state.useracc.userIsAreaPO) this.allRoles.push('areaPO')
+      if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
       for (let prod of this.$store.state.useracc.dbProducts) {
         for (let role of prod.roles) {
           if (!this.allRoles.includes(role)) this.allRoles.push(role)
@@ -324,6 +346,7 @@ export default {
       // generate the productsRoles and subscriptions properties
       let productsRoles = {}
       let subscriptions = []
+      console.log('doCreateUser: this.$store.state.useracc.dbProducts = ' + JSON.stringify(this.$store.state.useracc.dbProducts, null, 2))
       for (let prod of this.$store.state.useracc.dbProducts) {
         if (prod.roles.length > 0) {
           productsRoles[prod.id] = prod.roles
@@ -372,13 +395,14 @@ export default {
       let newUserData = this.$store.state.useracc.fetchedUserData
       // update the productsRoles properties
       for (let prod of dbProducts) {
-        newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles[prod.id] = prod.roles
+        if (prod.roles.length > 0) newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles[prod.id] = prod.roles
       }
 
       // calculate the association of all assigned roles
-      this.allRoles = ['guest']
-      if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
+      this.allRoles = []
       if (this.$store.state.useracc.userIsSuperPO) this.allRoles.push('superPO')
+      if (this.$store.state.useracc.userIsAreaPO) this.allRoles.push('areaPO')
+      if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
       for (let database of Object.keys(newUserData.myDatabases)) {
         for (let productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {
           for (let role of newUserData.myDatabases[database].productsRoles[productId]) {

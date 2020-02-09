@@ -5,8 +5,9 @@ const ERROR = 2
 
 const state = {
   fetchedUserData: null,
-  userIsAdmin: false,
   userIsSuperPO: false,
+  userIsAreaPO: false,
+  userIsAdmin: false,
   dbProducts: undefined,
 }
 
@@ -23,8 +24,9 @@ const actions = {
       url: '/_users/org.couchdb.user:' + userName,
     }).then(res => {
       state.fetchedUserData = res.data
-      state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? true : false
       state.userIsSuperPO = state.fetchedUserData.roles.includes('superPO') ? true : false
+      state.userIsAreaPO = state.fetchedUserData.roles.includes('areaPO') ? true : false
+      state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? true : false
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user
       rootState.selectedDatabaseName = state.fetchedUserData.currentDb
@@ -39,7 +41,10 @@ const actions = {
     })
   },
 
-  /* Get all products of a database and if presetExistingRoles === true set the assigned roles*/
+  /*
+  * Get all products of a database and if createNewUser === true set the assigned roles
+  * By default all users are guest of all products
+  */
   getDbProducts({
     rootState,
     state,
@@ -54,15 +59,16 @@ const actions = {
       state.dbProducts = res.data.rows
       // add a roles array to each product
       for (let prod of state.dbProducts) {
-        if (payload.presetExistingRoles) {
+        if (!payload.createNewUser) {
           const userProductsRoles = state.fetchedUserData.myDatabases[payload.dbName].productsRoles
           const userProductIds = Object.keys(userProductsRoles)
-          // extend each product with the currently assigned users roles
+          // extend each product with the currently assigned users roles, guest is the default
           if (userProductIds.includes(prod.id)) {
-            prod.roles = userProductsRoles[prod.id] || []
+            prod.roles = userProductsRoles.length === 0 ? ['guest'] : userProductsRoles[prod.id]
           } else prod.roles = []
-        } else prod.roles = []
+        } else prod.roles = ['guest']
       }
+
     }).catch(error => {
       let msg = 'getDbProducts: Could not find products of database ' + payload.dbName + '. Error = ' + error
       rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
@@ -137,7 +143,8 @@ const actions = {
   }, payload) {
     // copy all roles except 'admin' and 'superPO' which are generic roles
     function copyRoles(roles) {
-      let copiedRoles = []
+      // by default is the user guest
+      let copiedRoles = ['guest']
       for (let r of roles) {
         if (r !== 'admin' && r !== 'superPO') copiedRoles.push(r)
       }
@@ -168,8 +175,10 @@ const actions = {
         tmpUserData.myDatabases[payload.dbName] = newDb
       }
       dispatch('updateUser', { data: tmpUserData })
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000),
-        msg: 'addProductToUser: The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles })
+      rootState.backendMessages.push({
+        randKey: Math.floor(Math.random() * 100000),
+        msg: 'addProductToUser: The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles
+      })
     }).catch(error => {
       let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
       rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
@@ -223,7 +232,7 @@ const actions = {
       url: rootState.userData.currentDb + '/' + productId,
     }).then(res => {
       const doc = res.data
-      dispatch('restoreBranch', { doc, fromHistory: false})
+      dispatch('restoreBranch', { doc, fromHistory: false })
     }).catch(error => {
       let msg = 'addProduct: Could not add product with id ' + productId + ' in database ' + rootState.userData.currentDb + '. Error = ' + error
       // eslint-disable-next-line no-console
