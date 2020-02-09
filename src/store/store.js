@@ -37,6 +37,8 @@ export default new Vuex.Store({
 			runningWatchdogId: null,
 			logSavePending: false
 		},
+		// load
+		isProductAssigned: false,
 		// options
 		autoCorrectUserProfile: true,
 		// product view
@@ -110,7 +112,6 @@ export default new Vuex.Store({
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("areaPO")
 		},
 		isAdmin(state, getters) {
-			console.log('store.getters: isAdmin')
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("admin")
 		},
 		isPO(state, getters) {
@@ -172,11 +173,13 @@ export default new Vuex.Store({
 			state.load.itemsCount = 0
 			state.load.orphansCount = 0
 			state.load.currentProductId = null
+			state.load.currentDefaultProductId = null
 			state.load.currentProductTitle = ''
 			state.load.treeNodes = []
 			state.load.productIdLoading = null
 			state.load.processedProducts = 0
 
+			state.isProductAssigned = false
 			state.myProductOptions = []
 			state.userData = {}
 			state.changeHistory = []

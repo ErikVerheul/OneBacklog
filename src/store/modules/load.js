@@ -359,12 +359,14 @@ const actions = {
 				}
 				dispatch('updateUser', { data: newUserData })
 			}
-			const isAnyProductAssigned = Object.keys(rootState.userData.myProductsRoles).length > 0
-			rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
-			// the first (index 0) product in myProductSubscriptions is by definition the default product
-			state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0] || undefined
-			// postpone the warning message for 'no product found' until the product view is rendered
-			dispatch('getConfig', isAnyProductAssigned)
+			if (rootState.userData.myProductsRoles && Object.keys(rootState.userData.myProductsRoles).length > 0) {
+				rootState.isProductAssigned = true
+				rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
+				// the first (index 0) product in myProductSubscriptions is by definition the default product
+				state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0]
+			}
+			// postpone the warning message for 'no product found' until the configuration is loaded
+			dispatch('getConfig')
 		}).catch(error => {
 			let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
 			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
@@ -377,8 +379,10 @@ const actions = {
 	/* Load the config document from this database */
 	getConfig({
 		rootState,
-		dispatch
-	}, isAnyProductAssigned) {
+		rootGetters,
+		dispatch,
+		commit
+	}) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/config',
@@ -386,7 +390,17 @@ const actions = {
 			rootState.configData = res.data
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('The configuration is loaded')
-			dispatch('getRoot', isAnyProductAssigned)
+			if (!rootState.isProductAssigned) {
+				if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
+					if (rootGetters.isSuperPO) { router.replace('/superpo') } else
+						if (rootGetters.isAreaPO) { router.replace('/adareapo') } else
+							if (rootGetters.isAdmin) { router.replace('/admin') } else {
+								alert("Error: No default product is set. Consult your adminstrator. The application will exit.")
+								commit('resetData', null, { root: true })
+								router.replace('/')
+							}
+			} else
+				dispatch('getRoot')
 		}).catch(error => {
 			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
@@ -398,9 +412,8 @@ const actions = {
 	/* Get the root of the backlog items */
 	getRoot({
 		rootState,
-		commit,
-		dispatch
-	}, isAnyProductAssigned) {
+		dispatch,
+	}) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/root',
@@ -441,14 +454,8 @@ const actions = {
 				},
 			]
 			parentNodes.root = state.treeNodes[0]
-			if (isAnyProductAssigned) {
-				// load the current product document
-				dispatch('loadCurrentProduct')
-			} else {
-				commit('showLastEvent', { txt: `The root document is read. No products are found. A SuperPO can create products.`, severity: INFO })
-				// show only the root node and the message
-				router.push('/product')
-			}
+			// load the current product document
+			dispatch('loadCurrentProduct')
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log("The root document is read")
 		}).catch(error => {

@@ -7,7 +7,6 @@ import { utilities } from '../mixins/utilities.js'
 import context from './context.vue'
 import filters from './filters.vue'
 import listings from './listings.vue'
-import router from '../../router'
 
 const INFO = 0
 const WARNING = 1
@@ -62,23 +61,10 @@ export default {
     }
   },
 
-  /* Select the users default top product node. Note that at all times at least one node must be selected */
   mounted() {
     // the first (index 0) product in myProductSubscriptions is by definition the default product
     this.$store.state.nodeSelected = this.$refs.slVueTree.getNodeById(this.$store.state.userData.myProductSubscriptions[0])
-    // users must be assigned to at least one product unless they are serAdmin, superPO, areaPO or admin
-    if (this.$store.state.nodeSelected === null) {
-      if (this.$store.getters.isServerAdmin) { router.replace('/serveradmin') } else
-        if (this.$store.getters.isSuperPO) { router.replace('/superpo') } else
-          if (this.$store.getters.isAreaPO) { router.replace('/adareapo') } else
-            if (this.$store.getters.isAdmin) { router.replace('/admin') } else {
-              alert("Unexpected error: No default product is set. The application will exit.")
-              router.replace('/')
-            }
-      // expose instance to the global namespace
-      window.slVueTree = this.$refs.slVueTree
-      return
-    }
+
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
 

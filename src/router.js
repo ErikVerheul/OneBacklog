@@ -54,7 +54,7 @@ const routes = [
 		component: ProductPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {
-				next()
+				if (store.state.isProductAssigned) next()
 			} else {
 				next('/signin')
 			}
