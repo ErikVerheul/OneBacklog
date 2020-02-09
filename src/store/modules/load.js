@@ -33,54 +33,56 @@ const state = {
 const getters = {
 	/*
 	* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
-	* Note that the AreaPO level is 0 and root of the tree starts with level 1
-	* Note that rootState MUST be the third argument. The fourth argument is rootGetters.
-	*
+	* Note that the AreaPO level is 0 and root of the tree starts with level 1.
+	* Note that admins and guests have no write permissions.
 	* See documentation.txt for the role definitions.
+	*
+	* Note that rootState MUST be the third argument. The fourth argument is rootGetters.
 	*/
 	haveWritePermission(state, getters, rootState, rootGetters) {
-		// note that the roles of _admin, areaPO, superPO, admin and guest are generic (not product specific)
 		let levels = []
-		// initialize with false
 		for (let i = AREALEVEL; i <= PBILEVEL; i++) {
+			// initialize with false
 			levels.push(false)
 		}
-		let currentProductRoles = rootState.userData.myProductsRoles[state.currentProductId]
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log(`haveWritePermission: For productId ${state.currentProductId} my roles are ${currentProductRoles}`)
-		if (!currentProductRoles) {
-			// my roles are not defined
-			return []
-		}
+		if (rootState.userData.userAssignedProductIds.includes(state.currentProductId)) {
+			// assing specific write permissions for the current product only if that product is assigned the this user
+			let myCurrentProductRoles = rootState.userData.myProductsRoles[state.currentProductId]
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(`haveWritePermission: For productId ${state.currentProductId} my roles are ${myCurrentProductRoles}`)
+			if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
+				// my roles are not defined -> no write permission on any level
+				return levels
+			}
 
-		if (currentProductRoles.includes('PO')) {
-			for (let i = EPICLEVEL; i <= PBILEVEL; i++) {
-				levels[i] = true
+			if (myCurrentProductRoles.includes('areaPO')) {
+				levels[AREALEVEL] = true
+				levels[FEATURELEVEL] = true
+			}
+
+			if (myCurrentProductRoles.includes('PO')) {
+				levels[EPICLEVEL] = true
+				levels[FEATURELEVEL] = true
+				levels[PBILEVEL] = true
+			}
+			if (myCurrentProductRoles.includes('developer')) {
+				levels[FEATURELEVEL] = true
+				levels[PBILEVEL] = true
 			}
 		}
-		if (currentProductRoles.includes('developer')) {
-			for (let i = FEATURELEVEL; i <= PBILEVEL; i++) {
-				levels[i] = true
-			}
-		}
-		// the user is 'superPO'. A superPO has write permissions in all products
+		// assign specific write permissions to any product even if that product is not assigned to this user
 		if (rootGetters.isSuperPO) {
 			levels[PRODUCTLEVEL] = true
 			levels[EPICLEVEL] = true
 		}
-		// the user is 'areaPO'. An areaPO has write permissions in all products
-		if (rootGetters.isAreaPO) {
-			levels[AREALEVEL] = true
-			levels[FEATURELEVEL] = true
-		}
-		// the user is server admin. A server admin can change the root document of the databases
+
 		if (rootGetters.isServerAdmin) {
 			levels[DATABASELEVEL] = true
 		}
 		// eslint-disable-next-line no-console
-		console.log('haveWritePermission: The write levels are [AREALEVEL, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ' + levels)
+		if (rootState.debug) console.log(`haveWritePermission: My write levels are [AREALEVEL, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)
 		return levels
-	}
+	},
 }
 
 const mutations = {
@@ -318,13 +320,18 @@ const actions = {
 					rootState.userData.myProductsRoles[id] = payload.currentDbSettings.productsRoles[id]
 				}
 			}
-			const screenedSubscriptions = []
+			let screenedSubscriptions = []
 			for (let p of payload.currentDbSettings.subscriptions) {
 				if (availableProductIds.includes(p)) {
 					screenedSubscriptions.push(p)
 				}
-				rootState.userData.myProductSubscriptions = screenedSubscriptions
 			}
+			if (screenedSubscriptions.length === 0) {
+				// if no default is set assign the first defined product from the productsRoles
+				screenedSubscriptions = [Object.keys(payload.currentDbSettings.productsRoles)[0]]
+			}
+			rootState.userData.myProductSubscriptions = screenedSubscriptions
+
 			// set the users product options to select from
 			for (let product of currentProductsEnvelope) {
 				if (Object.keys(payload.currentDbSettings.productsRoles).includes(product.id)) {
@@ -485,9 +492,9 @@ const actions = {
 			commit('composeRangeString')
 			dispatch('getFirstProduct')
 		}).catch(error => {
-			let msg = 'loadCurrentProduct: Could not read current product document with _id ' + _id + ' from database ' + rootState.userData.currentDb + '. ' + error
-			if (error.response.status === 404) {
-				msg += ' , is your default product with id ' + _id + ' deleted?'
+			let msg = `loadCurrentProduct: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
+			if (!error.response || error.response.status === 404) {
+				msg += `, is your default product deleted?`
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
