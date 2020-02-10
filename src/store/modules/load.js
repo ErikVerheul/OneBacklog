@@ -369,7 +369,7 @@ const actions = {
 			dispatch('getConfig')
 		}).catch(error => {
 			let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

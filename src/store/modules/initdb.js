@@ -27,7 +27,7 @@ const actions = {
 			method: 'PUT',
 			url: payload.dbName,
 		}).then(() => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createDatabase: Success, empty database ' + payload.dbName + ' is created' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createDatabase: Success, empty database ' + payload.dbName + ' is created' })
 			dispatch('setDatabasePermissions', payload)
 			dispatch('createLog', payload)
 			if (payload.createUser) {
@@ -48,7 +48,7 @@ const actions = {
 				dispatch('createUserAsync', userData)
 			}
 		}).catch(error => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createDatabase: Failed to create ' + payload.dbName + ', ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createDatabase: Failed to create ' + payload.dbName + ', ' + error })
 		})
 	},
 
@@ -70,9 +70,9 @@ const actions = {
 			url: payload.dbName + '/_security',
 			data: dbPermissions
 		}).then(() => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set' })
 		}).catch(error => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'setDatabasePermissions: Failure, could not set database permissions, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Failure, could not set database permissions, ' + error })
 		})
 	},
 
@@ -99,10 +99,10 @@ const actions = {
 			url: payload.dbName + '/log',
 			data: logDoc
 		}).then(() => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createLog: Success, log for database ' + payload.dbName + ' is created' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createLog: Success, log for database ' + payload.dbName + ' is created' })
 			dispatch('createConfig', payload)
 		}).catch(error => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createLog: Failure, could not create log document, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createLog: Failure, could not create log document, ' + error })
 		})
 	},
 
@@ -191,10 +191,10 @@ const actions = {
 			url: payload.dbName,
 			data: configData
 		}).then(() => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createConfig: Success, the configuration document is created' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createConfig: Success, the configuration document is created' })
 			dispatch('installDesignViews', payload)
 		}).catch(error => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createConfig: Failure, could not create the configuration document, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createConfig: Failure, could not create the configuration document, ' + error })
 		})
 	},
 
@@ -244,10 +244,10 @@ const actions = {
 				"language": "javascript"
 			}
 		}).then(() => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'installDesignViews: Success, the design document is created' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'installDesignViews: Success, the design document is created' })
 			dispatch('installDesignFilters', payload)
 		}).catch(error => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'installDesignViews: Failure, cannot create the design document, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'installDesignViews: Failure, cannot create the design document, ' + error })
 		})
 	},
 
@@ -266,10 +266,10 @@ const actions = {
 				"language": "javascript"
 			}
 		}).then(() => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'installDesignFilters: Success, the design document is created' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'installDesignFilters: Success, the design document is created' })
 			dispatch('createRootDoc', payload)
 		}).catch(error => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'installDesignFilters: Failure, cannot create the design document, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'installDesignFilters: Failure, cannot create the design document, ' + error })
 		})
 	},
 
@@ -311,9 +311,9 @@ const actions = {
 			data: rootDoc
 		}).then(() => {
 			dispatch('createFirstProduct', payload.dbName)
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createRootDoc: Success, the root document is created' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createRootDoc: Success, the root document is created' })
 		}).catch(error => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createRootDoc: Failure, cannot create the root document, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createRootDoc: Failure, cannot create the root document, ' + error })
 		})
 	},
 
@@ -361,7 +361,7 @@ const actions = {
 			url: dbName + '/' + _id,
 			data: newDoc
 		}).then(() => {
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createFirstProduct: Product with _id ' + _id + ' is created' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Product with _id ' + _id + ' is created' })
 			dispatch('addProductToUser', { dbName, productId: _id, userRoles: ['*'] })
 		}).catch(error => {
 			let msg = 'createFirstProduct: Could not create document with id ' + _id + ', ' + error

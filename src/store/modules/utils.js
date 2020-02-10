@@ -55,7 +55,7 @@ const actions = {
       }
     }).catch(error => {
       let msg = 'getAllDatabases: Could not load all database names. Error = ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -83,12 +83,12 @@ const actions = {
       data: product
     }).then(() => {
       const msg = `createProduct: Product '${product.title}' is created`
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // add the product to this user's subscriptions and productsRoles
       dispatch('addProductToUser', { dbName: payload.dbName, productId: _id, userRoles: payload.userRoles })
     }).catch(error => {
       const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -118,14 +118,14 @@ const actions = {
       if (!rootState.databaseOptions.includes(payload.dbTargetName)) {
         rootState.databaseOptions.push(payload.dbTargetName)
       }
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'copyDB: Success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'copyDB: Success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName })
       dispatch('setDatabasePermissions', {
         dbName: payload.dbTargetName
       })
     }).catch(error => {
       // eslint-disable-next-line no-console
       console.log(error)
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'copyDB: Failure, ' + payload.dbSourceName + ' is NOT copied to ' + payload.dbTargetName + ', ' + error })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'copyDB: Failure, ' + payload.dbSourceName + ' is NOT copied to ' + payload.dbTargetName + ', ' + error })
     })
   },
 
@@ -138,13 +138,13 @@ const actions = {
       method: 'DELETE',
       url: payload.dbTargetName,
     }).then(() => {
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Database ' + payload.dbTargetName + ' has been deleted' })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + payload.dbTargetName + ' has been deleted' })
       dispatch('copyDB', payload)
     }).catch(error => {
       if (error.response.status === 404) {
         // database does not exist
         dispatch('copyDB', payload)
-      } else rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Deletion of database ' + payload.dbTargetName + ' gave unexpected error, ' + error + '. Operation aborted.' })
+      } else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Deletion of database ' + payload.dbTargetName + ' gave unexpected error, ' + error + '. Operation aborted.' })
     })
   },
 
@@ -164,9 +164,9 @@ const actions = {
       rootState.isPurgeReady = false
       rootState.backendMessages = []
       dispatch('purgeDb', { dbName, data, idx: 0, number: removed.length })
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Purge started, ' + removed.length + ' documents will be deleted. Please wait ...' })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Purge started, ' + removed.length + ' documents will be deleted. Please wait ...' })
     }).catch(error => {
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Could not find any removed documents in database ' + dbName + '. Error = ' + error })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Could not find any removed documents in database ' + dbName + '. Error = ' + error })
     })
   },
 
@@ -175,7 +175,7 @@ const actions = {
     dispatch
   }, payload) {
     if (payload.idx >= payload.number) {
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: payload.number + ' removed documents in database ' + payload.dbName + ' have been purged, start compacting' })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: payload.number + ' removed documents in database ' + payload.dbName + ' have been purged, start compacting' })
       dispatch('compactDb', payload)
       return
     }
@@ -188,7 +188,7 @@ const actions = {
       payload.idx++
       dispatch('purgeDb', payload)
     }).catch(error => {
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Purge of documents in database ' + payload.dbName + ' failed at index ' + payload.idx + ', ' + error })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Purge of documents in database ' + payload.dbName + ' failed at index ' + payload.idx + ', ' + error })
     })
   },
 
@@ -205,9 +205,9 @@ const actions = {
       data: {},
     }).then(() => {
       rootState.isPurgeReady = true
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Compacting the database ' + payload.dbName + ' succeeded' })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Compacting the database ' + payload.dbName + ' succeeded' })
     }).catch(error => {
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Compacting the database ' + payload.dbName + ' failed, ' + error })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Compacting the database ' + payload.dbName + ' failed, ' + error })
     })
   },
 
@@ -222,9 +222,9 @@ const actions = {
       if (rootState.databaseOptions.includes(dbName)) {
         rootState.databaseOptions = removeFromArray(rootState.databaseOptions, dbName)
       }
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Database ' + dbName + ' has been deleted' })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' has been deleted' })
     }).catch(error => {
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Database ' + dbName + ' coud not be deleted,' + error })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' coud not be deleted,' + error })
     })
   },
 
@@ -240,11 +240,11 @@ const actions = {
       url: dbName + '/config',
     }).then(res => {
       if (res.data.teams) rootState.fetchedTeams = res.data.teams
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
       rootState.areTeamsFound = true
     }).catch(error => {
       let msg = 'getTeamNames: Could not read config document of database ' + dbName + ', ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

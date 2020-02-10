@@ -48,6 +48,7 @@ export default new Vuex.Store({
 		filterForHistory: "",
 		busyRemoving: false,
 		// utilities for superAdmin, admin and superPO
+		seqKey: 0,
 		areDatabasesFound: false,
 		areProductsFound: false,
 		areTeamsFound: false,

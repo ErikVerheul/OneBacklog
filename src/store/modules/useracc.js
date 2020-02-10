@@ -30,11 +30,11 @@ const actions = {
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user
       rootState.selectedDatabaseName = state.fetchedUserData.currentDb
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'Successfully fetched user ' + userName })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Successfully fetched user ' + userName })
       rootState.isUserFound = true
     }).catch(error => {
       let msg = 'getUser: Could not find user "' + userName + '". ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -71,7 +71,7 @@ const actions = {
 
     }).catch(error => {
       let msg = 'getDbProducts: Could not find products of database ' + payload.dbName + '. Error = ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -113,7 +113,7 @@ const actions = {
       dispatch('doLog', { event: msg, level: INFO })
     }).catch(error => {
       let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + '. Error = ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
@@ -132,7 +132,7 @@ const actions = {
       dispatch('updateUser', { data: tmpUserData })
     }).catch(error => {
       let msg = 'changePW: Could not change password for user ' + rootState.userData.user + '. Error = ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
   },
@@ -176,12 +176,12 @@ const actions = {
       }
       dispatch('updateUser', { data: tmpUserData })
       rootState.backendMessages.push({
-        randKey: Math.floor(Math.random() * 100000),
+        seqKey: rootState.seqKey++,
         msg: 'addProductToUser: The product with Id ' + payload.productId + ' is added to your profile with roles ' + tmpUserData.roles
       })
     }).catch(error => {
       let msg = 'addProductToUser: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -258,7 +258,7 @@ const actions = {
       dispatch('changeDbInProfile', { dbName, productIds: availableProductIds })
     }).catch(error => {
       let msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -303,11 +303,11 @@ const actions = {
         onSuccessCallback: function () {
           rootState.isCurrentDbChanged = true
           const msg = "changeDbInProfile: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
-          rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+          rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
         }
       }).catch(error => {
         const msg = 'changeDbInProfile: Could not update the default database for user ' + rootState.userData.user + ', ' + error
-        rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+        rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
         dispatch('doLog', { event: msg, level: ERROR })
       })
     })
@@ -330,7 +330,7 @@ const actions = {
         if (nrOfParameters === 0) payload.onSuccessCallback()
         if (nrOfParameters === 1) payload.onSuccessCallback(payload.updatedDoc)
       }
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: "updateUser: The profile of user '" + payload.data.name + "' is updated successfully" })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + payload.data.name + "' is updated successfully" })
     }).catch(error => {
       // execute passed callback if provided
       if (payload.onFailureCallback !== undefined) {
@@ -339,7 +339,7 @@ const actions = {
         if (nrOfParameters === 1) payload.onFailureCallback(payload.updatedDoc)
       }
       let msg = "updateUser: Could not update the profile of user '" + payload.data.name + "', " + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -357,7 +357,7 @@ const actions = {
       url: '/_users/org.couchdb.user:' + userData.name,
     }).then(() => {
       let msg = 'createUserIfNotExistent: Cannot create user "' + userData.name + '" that already exists'
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -366,7 +366,7 @@ const actions = {
         dispatch('createUserAsync', userData)
       } else {
         let msg = 'createUserIfNotExistent: While checking if user "' + userData.name + '" exists an error occurred, ' + error
-        rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+        rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: ERROR })
@@ -385,13 +385,13 @@ const actions = {
       url: '/_users/org.couchdb.user:' + userData.name,
       data: userData
     }).then(() => {
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg: 'createUser: Successfully created user ' + userData.name })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createUser: Successfully created user ' + userData.name })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log('createUserAsync: user "' + userData.name + '" is created')
       rootState.isUserCreated = true
     }).catch(error => {
       let msg = 'createUserAsync: Could not create user "' + userData.name + '", ' + error
-      rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

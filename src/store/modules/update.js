@@ -600,18 +600,18 @@ const actions = {
 					updatedDoc: tmpConfig,
 					onSuccessCallback: function() {
 						rootState.backendMessages.push({
-							randKey: Math.floor(Math.random() * 100000), msg: "addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName
+							seqKey: rootState.seqKey++, msg: "addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName
 						})
 					}
 				})
 			} else {
 				rootState.backendMessages.push({
-					randKey: Math.floor(Math.random() * 100000), msg: "addTeamToDatabase: Cannot add team name '" + payload.newTeam + "'. Reason: team already exist in database " + payload.dbName
+					seqKey: rootState.seqKey++, msg: "addTeamToDatabase: Cannot add team name '" + payload.newTeam + "'. Reason: team already exist in database " + payload.dbName
 				})
 			}
 		}).catch(error => {
 			const msg = 'addTeamToDatabase: Could not read config document ' + error
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
@@ -656,7 +656,7 @@ const actions = {
 				if (nrOfParameters === 1) payload.onFailureCallback(payload.updatedDoc)
 			}
 			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
-			rootState.backendMessages.push({ randKey: Math.floor(Math.random() * 100000), msg })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
