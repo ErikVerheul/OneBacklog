@@ -78,7 +78,6 @@ const actions = {
                 const newHist = {
                     "uploadAttachmentEvent": [title, payload.fileInfo.size, payload.fileInfo.type],
                     "by": rootState.userData.user,
-                    "email": rootState.userData.email,
                     "timestamp": payload.timestamp,
                     "sessionId": rootState.userData.sessionId,
                     "distributeEvent": true
@@ -121,7 +120,6 @@ const actions = {
                 const newHist = {
                     "removeAttachmentEvent": [title],
                     "by": rootState.userData.user,
-                    "email": rootState.userData.email,
                     "timestamp": Date.now(),
                     "sessionId": rootState.userData.sessionId,
                     "distributeEvent": true

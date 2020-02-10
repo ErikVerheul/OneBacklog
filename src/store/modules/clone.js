@@ -160,7 +160,6 @@ const actions = {
                 docs[i].history = [{
                     "cloneEvent": [docs[i].level, docs[i].subtype, orgProductTitle],
                     "by": rootState.userData.user,
-                    "email": rootState.userData.email,
                     "timestamp": Date.now(),
                     "distributeEvent": false
                 }]

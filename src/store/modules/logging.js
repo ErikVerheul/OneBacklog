@@ -28,7 +28,6 @@ const actions = {
 				"event": msg,
 				"level": "INFO",
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"timestampStr": new Date().toString()
 			}
@@ -93,7 +92,6 @@ const actions = {
 								"event": "Watchdog found " + logsToSave + ' unsaved log entries and saved them',
 								"level": "INFO",
 								"by": rootState.userData.user,
-								"email": rootState.userData.email,
 								"timestamp": Date.now(),
 								"timestampStr": new Date().toString()
 							}
@@ -110,7 +108,6 @@ const actions = {
 								"event": msg,
 								"level": "INFO",
 								"by": rootState.userData.user,
-								"email": rootState.userData.email,
 								"timestamp": Date.now(),
 								"timestampStr": new Date().toString()
 							}
@@ -160,7 +157,6 @@ const actions = {
 			"level": payload.level,
 			"levelStr": severity,
 			"by": rootState.userData.user,
-			"email": rootState.userData.email,
 			"timestamp": now,
 			"timestampStr": new Date(now).toString()
 		}

@@ -38,7 +38,6 @@ const actions = {
 						newHist = {
 							"nodeDroppedEvent": [item.oldLevel, item.newLevel, item.newInd, item.newParentTitle, item.nrOfDescendants, item.oldProductTitle, item.placement, item.oldParentId, item.newParentId, item.oldInd],
 							"by": rootState.userData.user,
-							"email": rootState.userData.email,
 							"timestamp": Date.now(),
 							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": true
@@ -48,7 +47,6 @@ const actions = {
 						newHist = {
 							"nodeUndoMoveEvent": [rootState.userData.user],
 							"by": rootState.userData.user,
-							"email": rootState.userData.email,
 							"timestamp": Date.now(),
 							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": true
@@ -134,7 +132,6 @@ const actions = {
 						newHist = {
 							"descendantMoved": [item.oldParentTitle],
 							"by": rootState.userData.user,
-							"email": rootState.userData.email,
 							"timestamp": Date.now(),
 							"distributeEvent": false
 						}
@@ -143,7 +140,6 @@ const actions = {
 						newHist = {
 							"descendantUndoMove": [item.oldParentTitle],
 							"by": rootState.userData.user,
-							"email": rootState.userData.email,
 							"timestamp": Date.now(),
 							"distributeEvent": false
 						}

@@ -158,7 +158,6 @@ const actions = {
             const newHist = {
                 "removedFromParentEvent": [payload.node.level, payload.node.title, payload.descendantsIds.length, payload.node.data.subtype, payload.extDepsCount, payload.extCondsCount],
                 "by": rootState.userData.user,
-                "email": rootState.userData.email,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
                 "distributeEvent": false
@@ -203,7 +202,6 @@ const actions = {
                     const newHist = {
                         "docRemovedDescendantEvent": [payload.node.level, payload.node.data.subtype, payload.node.title],
                         "by": rootState.userData.user,
-                        "email": rootState.userData.email,
                         "timestamp": Date.now(),
                         "distributeEvent": false
                     }
@@ -292,7 +290,6 @@ const actions = {
             const newHist = {
                 "removeParentEvent": [payload.productId, payload.descendantsIds, payload.extDepsCount, payload.extCondsCount],
                 "by": rootState.userData.user,
-                "email": rootState.userData.email,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
                 "distributeEvent": true

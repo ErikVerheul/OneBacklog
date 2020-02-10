@@ -73,7 +73,6 @@ const actions = {
     product.history = [{
       "createEvent": [PRODUCTLEVEL, rootState.userData.currentDb, position],
       "by": rootState.userData.user,
-      "email": rootState.userData.email,
       "timestamp": Date.now(),
       "distributeEvent": false
     }],
@@ -296,7 +295,6 @@ const actions = {
               {
                 "resetHistoryEvent": ['history cleared'],
                 "by": rootState.userData.user,
-                "email": rootState.userData.email,
                 "timestamp": Date.now(),
                 "distributeEvent": false
               }]
@@ -305,7 +303,6 @@ const actions = {
               {
                 "resetCommentsEvent": 'comments cleared',
                 "by": rootState.userData.user,
-                "email": rootState.userData.email,
                 "timestamp": 0,
                 "distributeEvent": false
               }]

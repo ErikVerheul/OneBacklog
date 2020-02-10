@@ -30,7 +30,6 @@ const actions = {
 			const newHist = {
 				"subscribeEvent": [wasFollower],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"distributeEvent": false
 			}
@@ -61,7 +60,6 @@ const actions = {
 			const newHist = {
 				"setSizeEvent": [oldSize, payload.newSizeIdx],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -92,7 +90,6 @@ const actions = {
 			const newHist = {
 				"setDependenciesEvent": [tmpDoc.dependencies, payload.dependencies],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -122,7 +119,6 @@ const actions = {
 			const newHist = {
 				"setConditionsEvent": [tmpDoc.conditionalFor, payload.conditionalFor],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -155,7 +151,6 @@ const actions = {
 			const newHist = {
 				"dependencyRemovedEvent": [payload.removedIds],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -186,7 +181,6 @@ const actions = {
 			const newHist = {
 				"conditionRemovedEvent": [payload.removedIds],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -215,7 +209,6 @@ const actions = {
 			const newHist = {
 				"setHrsEvent": [oldHrs, payload.newHrs],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -247,7 +240,6 @@ const actions = {
 			const newHist = {
 				"setPointsEvent": [oldPoints, payload.newPoints],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -279,7 +271,6 @@ const actions = {
 			const newHist = {
 				"setStateEvent": [oldState, payload.newState, payload.team],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -318,7 +309,6 @@ const actions = {
 				const newHist = {
 					"setTeamOwnerEvent": [oldTeam, newTeam, descendants.length],
 					"by": rootState.userData.user,
-					"email": rootState.userData.email,
 					"timestamp": Date.now(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
@@ -364,7 +354,6 @@ const actions = {
 						const newHist = {
 							"setTeamEventDescendant": [oldTeam, newTeam, payload.parentTitle],
 							"by": rootState.userData.user,
-							"email": rootState.userData.email,
 							"timestamp": Date.now(),
 							"sessionId": rootState.userData.sessionId,
 							"distributeEvent": false
@@ -410,7 +399,6 @@ const actions = {
 			const newHist = {
 				"setTitleEvent": [oldTitle, payload.newTitle],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -441,7 +429,6 @@ const actions = {
 			const newHist = {
 				"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -474,7 +461,6 @@ const actions = {
 			const newHist = {
 				"descriptionEvent": [res.data.description, newEncodedDescription],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -506,7 +492,6 @@ const actions = {
 			const newHist = {
 				"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -536,7 +521,6 @@ const actions = {
 			const newHist = {
 				"addCommentEvent": window.btoa(payload.comment),
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
@@ -566,7 +550,6 @@ const actions = {
 			const newHist = {
 				"commentToHistoryEvent": [newComment],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true

@@ -329,7 +329,6 @@ export default {
         "history": [{
           "createEvent": [newNode.level, parentTitle, newNode.ind + 1],
           "by": this.$store.state.userData.user,
-          "email": this.$store.state.userData.email,
           "timestamp": Date.now(),
           "sessionId": this.$store.state.userData.sessionId,
           "distributeEvent": true
@@ -340,7 +339,6 @@ export default {
       const parentHist = {
         "newChildEvent": [newNode.level, newNode.ind + 1],
         "by": this.$store.state.userData.user,
-        "email": this.$store.state.userData.email,
         "timestamp": Date.now(),
         "distributeEvent": false
       }
@@ -473,7 +471,6 @@ export default {
           "history": [{
             "createEvent": [insertLevel, parentTitle, newNode.ind + 1],
             "by": this.$store.state.userData.user,
-            "email": this.$store.state.userData.email,
             "timestamp": Date.now(),
             "sessionId": this.$store.state.userData.sessionId,
             "distributeEvent": true
@@ -484,7 +481,6 @@ export default {
         const parentHist = {
           "newChildEvent": [insertLevel, newNode.ind + 1],
           "by": this.$store.state.userData.user,
-          "email": this.$store.state.userData.email,
           "timestamp": Date.now(),
           "distributeEvent": false
         }

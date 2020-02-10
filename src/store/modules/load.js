@@ -531,7 +531,6 @@ const actions = {
 						"event": msg,
 						"level": "CRITICAL",
 						"by": state.orphansFound.userData.user,
-						"email": state.orphansFound.userData.email,
 						"timestamp": Date.now(),
 						"timestampStr": new Date().toString()
 					}
@@ -584,7 +583,6 @@ const actions = {
 						"event": msg,
 						"level": "CRITICAL",
 						"by": state.orphansFound.userData.user,
-						"email": state.orphansFound.userData.email,
 						"timestamp": Date.now(),
 						"timestampStr": new Date().toString()
 					}

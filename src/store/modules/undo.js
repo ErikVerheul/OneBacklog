@@ -111,7 +111,6 @@ const actions = {
                 "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies,
                     entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles],
                 "by": rootState.userData.user,
-                "email": rootState.userData.email,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
                 "distributeEvent": true
@@ -142,7 +141,6 @@ const actions = {
             const newHist = {
                 "grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.descendants.length, entry.removedNode.data.subtype],
                 "by": rootState.userData.user,
-                "email": rootState.userData.email,
                 "timestamp": Date.now(),
                 "distributeEvent": false
             }

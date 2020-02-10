@@ -72,7 +72,6 @@ export default {
           allText += comment
         }
         allText += c.by
-        allText += c.email
         allText += this.mkTimestamp(c.timestamp)
         if (allText.includes(this.$store.state.filterForComment)) {
           filteredComments.push(c)
@@ -133,7 +132,6 @@ export default {
           if (keys[j] === "resetHistoryEvent") allText += this.mkResetHistoryEvent(histItem[keys[j]])
 
           if (keys[j] === "by") allText += this.mkBy(histItem[keys[j]])
-          if (keys[j] === "email") allText += this.mkEmail(histItem[keys[j]])
           if (keys[j] === "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
         }
         if (allText.includes(this.$store.state.filterForHistory)) {
@@ -208,7 +206,6 @@ export default {
       if (key === "resetHistoryEvent") return this.mkResetHistoryEvent(value)
 
       if (key === "by") return this.mkBy(value)
-      if (key === "email") return this.mkEmail(value)
       if (key === "timestamp") return this.mkTimestamp(value)
     },
 
@@ -216,7 +213,6 @@ export default {
       if (key === "addCommentEvent") return this.mkComment(value)
       if (key === "resetCommentsEvent") return this.mkResetCommentsEvent(value)
       if (key === "by") return this.mkBy(value)
-      if (key === "email") return this.mkEmail(value)
       if (key === "timestamp") return this.mkTimestamp(value)
     },
 
@@ -350,10 +346,6 @@ export default {
 
     mkBy(value) {
       return "by: " + value
-    },
-
-    mkEmail(value) {
-      return "email: " + value
     },
 
     mkTimestamp(value) {

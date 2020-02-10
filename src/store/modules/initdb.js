@@ -88,7 +88,6 @@ const actions = {
 					"event": "Log initialization",
 					"level": "INFO",
 					"by": rootState.userData.user,
-					"email": payload.email,
 					"timestamp": Date.now(),
 					"timestampStr": new Date().toString()
 				},
@@ -299,7 +298,6 @@ const actions = {
 			"history": [{
 				"createRootEvent": [payload.dbName],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
@@ -349,7 +347,6 @@ const actions = {
 			"history": [{
 				"createEvent": [PRODUCTLEVEL, dbName, 1],
 				"by": rootState.userData.user,
-				"email": rootState.userData.email,
 				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
