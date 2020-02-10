@@ -282,11 +282,9 @@ export default {
         savedDoShow: true,
         data: {
           state: STATENEW,
-          lastStateChange: Date.now(),
           team: node.data.team,
           subtype: node.data.subtype,
-          sessionId: this.$store.state.userData.sessionId,
-          distributeEvent: true
+          lastChange: Date.now()
         }
       }
       // unselect the node that was clicked before the insert
@@ -378,12 +376,9 @@ export default {
         data: {
           priority: null,
           state: STATENEW,
-          lastStateChange: now,
           team: 'not assigned yet',
           subtype: 0,
-          lastChange: now,
-          sessionId: this.$store.state.userData.sessionId,
-          distributeEvent: true
+          lastChange: now
         }
       }
       let insertLevel = this.contextNodeSelected.level
