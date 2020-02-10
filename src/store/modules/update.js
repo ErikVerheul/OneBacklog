@@ -347,8 +347,9 @@ const actions = {
 			const docs = []
 			const error = []
 			for (let r of results) {
-				let doc = r.docs[0].ok
-				if (doc) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
 					const oldTeam = doc.team
 					if (newTeam != oldTeam) {
 						const newHist = {
@@ -364,7 +365,7 @@ const actions = {
 						docs.push(doc)
 					}
 				}
-				if (doc.error) error.push(doc.error)
+				if (envelope.error) error.push(envelope.error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''

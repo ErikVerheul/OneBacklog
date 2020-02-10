@@ -30,8 +30,9 @@ const actions = {
 			const docs = []
 			const error = []
 			for (let r of results) {
-				const doc = r.docs[0].ok
-				if (doc.ok) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
 					const item = getPayLoadItem(doc._id)
 					let newHist = {}
 					if (item.type === 'move') {
@@ -61,7 +62,7 @@ const actions = {
 					// show the history update in the current opened item
 					if (doc._id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
 				}
-				if (doc.error) error.push(doc.error)
+				if (envelope.error) error.push(envelope.error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''
@@ -123,8 +124,9 @@ const actions = {
 			const docs = []
 			const error = []
 			for (let r of results) {
-				const doc = r.docs[0].ok
-				if (doc) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
 					const item = getPayLoadItem(doc._id)
 					// change the document
 					let newHist = {}
@@ -149,7 +151,7 @@ const actions = {
 					doc.productId = item.productId
 					docs.push(doc)
 				}
-				if (doc.error) error.push(doc.error)
+				if (envelope.error) error.push(envelope.error)
 			}
 			if (error.length > 0) {
 				let errorStr = ''
