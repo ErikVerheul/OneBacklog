@@ -43,6 +43,7 @@ data: {
 ....inconsistentState: false // calculated on consistency check
 ....team: doc.team, // the team membership of the user who updated the state the last time
 ....subtype: doc.subtype,
+....lastPositionChange, // lookup in history
 ....lastStateChange, // lookup in doc history
 ....lastContentChange, // lookup in doc history
 ....lastCommentAddition, // lookup in doc comments

@@ -208,6 +208,7 @@ const actions = {
 										subtype: 0,
 										priority: undefined,
 										team: doc.team,
+										lastPositionChange: lastHistoryTimestamp,
 										lastStateChange: lastHistoryTimestamp,
 										lastContentChange: lastHistoryTimestamp,
 										lastCommentAddition: lastHistoryTimestamp,
@@ -322,6 +323,9 @@ const actions = {
 											placement: 'after'
 										}, [node], false)
 									}
+									if (histEvent === 'nodeUndoMoveEvent') {
+										node.data.lastPositionChange = 0
+									} else node.data.lastPositionChange = lastHistoryTimestamp
 								}
 							}
 							break

@@ -305,6 +305,10 @@ export default {
     },
 
     /* Return true if the state of the node has changed in the last hour */
+    hasNodeMoved(node) {
+      return node.data.lastPositionChange ? Date.now() - node.data.lastPositionChange < HOURINMILIS : false
+    },
+
     hasNewState(node) {
       return node.data.lastStateChange ? Date.now() - node.data.lastStateChange < HOURINMILIS : false
     },
@@ -458,6 +462,7 @@ export default {
           // update the nodes in the database
           var payloadArray = []
           for (let n of entry.beforeDropStatus.nodes) {
+            n.data.lastPositionChange = 0
             const descendantsInfo = window.slVueTree.getDescendantsInfo(n)
             const payloadItem = {
               '_id': n._id,
@@ -934,6 +939,9 @@ export default {
         beforeDropStatus
       }
       this.$store.state.changeHistory.unshift(entry)
+      for (let n of draggingNodes) {
+        n.data.lastPositionChange = Date.now()
+      }
 
       // create the event message
       const title = this.itemTitleTrunc(60, draggingNodes[0].title)

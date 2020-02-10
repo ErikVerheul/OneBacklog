@@ -120,31 +120,46 @@ const mutations = {
 					const parentPath = parentNode.path
 					const path = parentPath.concat(ind)
 					// search history for the last changes within the last hour
+					let lastPositionChange = 0
 					let lastStateChange = 0
 					let lastContentChange = 0
 					let lastCommentAddition = 0
 					let lastAttachmentAddition = 0
 					let lastCommentToHistory = 0
+					let nodeUndoMoveEventWasIssued = false
 					for (let histItem of doc.history) {
 						if (aboutNow - histItem.timestamp > HOURINMILIS) {
 							// skip events longer than a hour ago
 							break
 						}
-						const keys = Object.keys(histItem)
+						const event = Object.keys(histItem)[0]
+						// get the most recent change of position
+						if (lastPositionChange === 0 && event === 'nodeDroppedEvent') {
+							if (!nodeUndoMoveEventWasIssued) {
+								lastPositionChange = histItem.timestamp
+								nodeUndoMoveEventWasIssued = false
+							} else {
+								lastPositionChange = 0
+							}
+						}
+						// reset the timestamp when undoing the change of position
+						if (event === 'nodeUndoMoveEvent') {
+							nodeUndoMoveEventWasIssued = true
+						}
 						// get the most recent change of state
-						if (lastStateChange === 0 && (keys.includes('setStateEvent') || keys.includes('createEvent'))) {
+						if (lastStateChange === 0 && (event === 'setStateEvent') || event === 'createEvent') {
 							lastStateChange = histItem.timestamp
 						}
 						// get the most recent change of content
-						if (lastContentChange === 0 && (keys.includes('setTitleEvent') || keys.includes('descriptionEvent') || keys.includes('acceptanceEvent'))) {
+						if (lastContentChange === 0 && (event === 'setTitleEvent') || event === 'descriptionEvent' || event === 'acceptanceEvent') {
 							lastContentChange = histItem.timestamp
 						}
 						// get the most recent addition of comments to the history
-						if (lastAttachmentAddition === 0 && keys.includes('uploadAttachmentEvent')) {
+						if (lastAttachmentAddition === 0 && event === 'uploadAttachmentEvent') {
 							lastAttachmentAddition = histItem.timestamp
 						}
 						// get the most recent addition of comments to the history
-						if (lastCommentToHistory === 0 && keys.includes('commentToHistoryEvent')) {
+						if (lastCommentToHistory === 0 && event === 'commentToHistoryEvent') {
 							lastCommentToHistory = histItem.timestamp
 						}
 					}
@@ -179,6 +194,7 @@ const mutations = {
 							state: doc.state,
 							inconsistentState: false,
 							team: doc.team,
+							lastPositionChange,
 							lastStateChange,
 							lastContentChange,
 							lastCommentAddition,

@@ -133,6 +133,8 @@
               >{{ getItemStateText(node.data.state) }}</b-badge>
               <b-badge v-else variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
 
+              <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
+
               <b-badge
                 v-if="hasContentChanged(node) || hasCommentToHistory(node)"
                 variant="info"
