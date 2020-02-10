@@ -252,7 +252,7 @@
       <p class="colorRed">{{ $store.state.warning }}
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
-        <div v-for="item in $store.state.backendMessages" :key="item.randKey">
+        <div v-for="item in $store.state.backendMessages" :key="item.seqKey">
           <p>{{ item.msg }}</p>
         </div>
       </div>
@@ -295,7 +295,7 @@ export default {
     validEmail: function (email) {
       var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       if (re.test(email)) {
-         this.localMessage = ''
+        this.localMessage = ''
         return true
       }
       this.localMessage = 'Please enter a valid e-mail address'
@@ -375,6 +375,7 @@ export default {
     maintainUsers() {
       this.optionSelected = 'Maintain users'
       this.localMessage = ''
+      this.$store.state.backendMessages = []
       this.$store.state.isUserFound = false
       this.$store.state.areDatabasesFound = false
       this.$store.state.areProductsFound = false
@@ -391,12 +392,20 @@ export default {
     },
 
     doUpdateUser() {
-      let dbProducts = this.$store.state.useracc.dbProducts
-      let newUserData = this.$store.state.useracc.fetchedUserData
-      // update the productsRoles properties
-      for (let prod of dbProducts) {
-        if (prod.roles.length > 0) newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles[prod.id] = prod.roles
+      const newUserData = this.$store.state.useracc.fetchedUserData
+      const newProductsRoles = this.$store.state.useracc.fetchedUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles
+      // update the productsRoles and subscriptions
+      const newSubscriptions = []
+      for (let prod of this.$store.state.useracc.dbProducts) {
+        if (prod.roles.length > 0) {
+          newProductsRoles[prod.id] = prod.roles
+          if (this.$store.state.useracc.fetchedUserData.myDatabases[this.$store.state.selectedDatabaseName].subscriptions.includes(prod.id)) newSubscriptions.push(prod.id)
+        } else {
+          delete newProductsRoles[prod.id]
+        }
       }
+      newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles = newProductsRoles
+      newUserData.myDatabases[this.$store.state.selectedDatabaseName].subscriptions = newSubscriptions
 
       // calculate the association of all assigned roles
       this.allRoles = []
@@ -411,7 +420,7 @@ export default {
         }
       }
       newUserData.roles = this.allRoles
-			this.$store.dispatch('updateUser', { data: newUserData })
+      this.$store.dispatch('updateUser', { data: newUserData })
     },
 
     createTeam() {
@@ -423,7 +432,7 @@ export default {
     },
 
     doCreateTeam() {
-      this.$store.dispatch('addTeamToDatabase', {dbName: this.$store.state.selectedDatabaseName, newTeam: this.teamName})
+      this.$store.dispatch('addTeamToDatabase', { dbName: this.$store.state.selectedDatabaseName, newTeam: this.teamName })
     },
 
     changeMyDb() {
@@ -442,7 +451,7 @@ export default {
       this.optionSelected = 'List team members'
       this.$store.state.backendMessages = []
       this.$store.state.fetchedTeams = []
-      this.$store.state.areTeamsFound =false
+      this.$store.state.areTeamsFound = false
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
