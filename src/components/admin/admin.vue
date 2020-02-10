@@ -8,7 +8,7 @@
       <b-button block @click="maintainUsers">Maintain users</b-button>
       <b-button block @click="createTeam">Create a team</b-button>
       <b-button block @click="changeMyDb">Change my default database to any available database</b-button>
-      <b-button block @click="listTeams">List team members</b-button>
+      <b-button block @click="listTeams">List team names</b-button>
 
       <div v-if="optionSelected === 'Create a user'">
         <template v-if="!credentialsReady">
@@ -230,7 +230,7 @@
         </div>
       </div>
 
-      <div v-if="optionSelected === 'List team members'">
+      <div v-if="optionSelected === 'List team names'">
         <h4>List the teams of users with products in the selected database</h4>
         <b-form-group v-if="!$store.state.areTeamsFound">
           <h5>Select the database</h5>
@@ -346,7 +346,6 @@ export default {
       // generate the productsRoles and subscriptions properties
       let productsRoles = {}
       let subscriptions = []
-      console.log('doCreateUser: this.$store.state.useracc.dbProducts = ' + JSON.stringify(this.$store.state.useracc.dbProducts, null, 2))
       for (let prod of this.$store.state.useracc.dbProducts) {
         if (prod.roles.length > 0) {
           productsRoles[prod.id] = prod.roles
@@ -448,7 +447,7 @@ export default {
     },
 
     listTeams() {
-      this.optionSelected = 'List team members'
+      this.optionSelected = 'List team names'
       this.$store.state.backendMessages = []
       this.$store.state.fetchedTeams = []
       this.$store.state.areTeamsFound = false
