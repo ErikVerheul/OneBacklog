@@ -1,5 +1,5 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the baclogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
 const INFO = 0
 const ERROR = 2
 
