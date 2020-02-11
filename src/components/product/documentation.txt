@@ -196,3 +196,17 @@ N				N		subscribeEvent					update.js
 Y	            Y	    uploadAttachmentEvent	        attachments.js
 N				N		resetHistoryEvent				utils.js
 
+KNOWN ERRORS:
+
+When a document has a danglin attachtent like:
+  "_attachments": {
+    "Pro Git - Scott Chacon.pdf": {
+      "content_type": "application/pdf",
+      "revpos": 221,
+      "digest": "md5-bA6v24zTZ6r9aLg9+rtycg==",
+      "length": 4400898,
+      "stub": true
+    }
+  }
+
+  a bulk put will fail with error 412
