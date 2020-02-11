@@ -5,7 +5,6 @@ const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
-const HOURINMILIS = 3600000
 var docs = []
 var newProductId
 var orgProductTitle
@@ -26,7 +25,6 @@ function addToArray(arr, item) {
 */
 function processProduct() {
     let parentNodes = { root: window.slVueTree.getNodeById('root') }
-    const aboutNow = Date.now()
     for (let doc of docs) {
         const parentId = doc.parentId
         if (parentNodes[parentId] !== undefined) {
@@ -39,54 +37,6 @@ function processProduct() {
             const ind = parentNode.children.length
             const parentPath = parentNode.path
             const path = parentPath.concat(ind)
-            // search history for the last changes within the last hour
-            let lastPositionChange = 0
-            let lastStateChange = 0
-            let lastContentChange = 0
-            let lastCommentAddition = 0
-            let lastAttachmentAddition = 0
-            let lastCommentToHistory = 0
-            let nodeUndoMoveEventWasIssued = false
-            for (let histItem of doc.history) {
-                if (aboutNow - histItem.timestamp > HOURINMILIS) {
-                    // skip events longer than a hour ago
-                    break
-                }
-                const event = Object.keys(histItem)[0]
-                // get the most recent change of position
-                if (lastPositionChange === 0 && event === 'nodeDroppedEvent') {
-                    if (!nodeUndoMoveEventWasIssued) {
-                        lastPositionChange = histItem.timestamp
-                        nodeUndoMoveEventWasIssued = false
-                    } else {
-                        lastPositionChange = 0
-                    }
-                }
-                // reset the timestamp when undoing the change of position
-                if (event === 'nodeUndoMoveEvent') {
-                    nodeUndoMoveEventWasIssued = true
-                }
-                // get the most recent change of state
-                if (lastStateChange === 0 && (event === 'setStateEvent') || event === 'createEvent') {
-                    lastStateChange = histItem.timestamp
-                }
-                // get the most recent change of content
-                if (lastContentChange === 0 && (event === 'setTitleEvent') || event === 'descriptionEvent' || event === 'acceptanceEvent') {
-                    lastContentChange = histItem.timestamp
-                }
-                // get the most recent addition of comments to the history
-                if (lastAttachmentAddition === 0 && event === 'uploadAttachmentEvent') {
-                    lastAttachmentAddition = histItem.timestamp
-                }
-                // get the most recent addition of comments to the history
-                if (lastCommentToHistory === 0 && event === 'commentToHistoryEvent') {
-                    lastCommentToHistory = histItem.timestamp
-                }
-            }
-            // get the last time a comment was added; comments have their own array
-            if (doc.comments && doc.comments.length > 0) {
-                lastCommentAddition = doc.comments[0].timestamp
-            }
 
             let newNode = {
                 path,
@@ -114,12 +64,6 @@ function processProduct() {
                     state: doc.state,
                     inconsistentState: false,
                     team: doc.team,
-                    lastPositionChange,
-                    lastStateChange,
-                    lastContentChange,
-                    lastCommentAddition,
-                    lastAttachmentAddition,
-                    lastCommentToHistory,
                     subtype: doc.subtype,
                     lastChange: doc.history[0].timestamp
                 }
@@ -151,12 +95,12 @@ const actions = {
             // extract the documents
             docs = []
             for (let el of res.data.rows) {
+                // remove the revision
+                delete el._rev
                 docs.push(el.doc)
             }
             // patch the documents
             for (let i = 0; i < docs.length; i++) {
-                // remove the revision
-                delete docs[i]._rev
                 // compute a new id and shortId, remember old id
                 const oldId = docs[i]._id
                 const newShortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
@@ -212,7 +156,7 @@ const actions = {
                 text: newProductTitle
             })
             // add all my session roles the to new productId in myProductsRoles
-            rootState.userData.myProductsRoles[newProductId] = rootState.userData.sesionRoles
+            rootState.userData.myProductsRoles[newProductId] = rootState.userData.sessionRoles
             // save in the database
             dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
             // show the product clone in the tree view
