@@ -83,9 +83,20 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "newChildEvent":
             return mkHeader() + `<h3>A ${this.getLevelText(value[0])} was created as a child of this item at position ${value[1]}.</h3>` + mkFooter()
         case "nodeDroppedEvent":
-            return mkHeader() + cText(value[7] === value[8], `<h3>The item changed priority from position ${value[9] + 1} to ${value[2] + 1} ${value[6]} item<br>'${value[3]}'</h3>`) +
-                cText(value[7] !== value[8], `<h3>The item is moved to the new parent<br>'${value[3]}' at position ${value[2] + 1}</h3>`) +
-                cText(value[4] > 0, `<h3>Also ${value[4]} descendants of this item are moved</h3>`) + mkFooter()
+            {
+                let txt
+                if (value[3] !== value[5]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
+                if (value[0] === value[1]) {
+                    txt += `<h5>The item changed priority to position ${value[2] + 1} ${value[6]} '${value[3]}'</h5>`
+                    txt += (value[4] > 0) ? `<p>${value[4]} descendants were also moved.</p>` : ""
+                    return txt
+                } else {
+                    txt += `<h5>The item changed type from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h5>`
+                    txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
+                    txt += (value[4] > 0) ? `<p>${value[4]} descendants also changed type.</p>` : ""
+                    return txt
+                }
+            }
         case "nodeUndoMoveEvent":
             return mkHeader() + `<h3>The previous move by the user is undone</h3>` + mkFooter()
         case "removeAttachmentEvent":
