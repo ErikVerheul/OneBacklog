@@ -37,7 +37,12 @@ function processProduct() {
             const ind = parentNode.children.length
             const parentPath = parentNode.path
             const path = parentPath.concat(ind)
-
+            let lastChange
+            if (doc.history[0].resetCommentsEvent && !doc.history[0].resetHistoryEvent) {
+                lastChange = doc.history[0].timestamp
+            } else if (doc.history[0].resetHistoryEvent && !doc.history[0].resetCommentsEvent) {
+                lastChange = doc.comments[0].timestamp
+            } else lastChange = doc.history[0].timestamp > doc.comments[0].timestamp ? doc.history[0].timestamp : doc.comments[0].timestamp
             let newNode = {
                 path,
                 pathStr: JSON.stringify(path),
@@ -65,7 +70,7 @@ function processProduct() {
                     inconsistentState: false,
                     team: doc.team,
                     subtype: doc.subtype,
-                    lastChange: doc.history[0].timestamp
+                    lastChange
                 }
             }
             parentNode.children.push(newNode)
