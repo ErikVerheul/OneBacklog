@@ -85,11 +85,11 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "nodeDroppedEvent":
             {
                 let txt
-                if (value[3] !== value[5]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
+                if (value[7] !== value[8]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
                 if (value[0] === value[1]) {
                     txt += `<h5>The item changed priority to position ${value[2] + 1} ${value[6]} '${value[3]}'</h5>`
                     txt += (value[4] > 0) ? `<p>${value[4]} descendants were also moved.</p>` : ""
-                    return txt
+                    return mkHeader() + txt + mkFooter()
                 } else {
                     txt += `<h5>The item changed type from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h5>`
                     txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
