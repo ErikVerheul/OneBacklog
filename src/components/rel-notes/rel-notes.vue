@@ -6,6 +6,25 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.8.5 - 12 February 2020 Feature update and bug fixes</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Undo functionality in product view</li>
+					<li>Maintenance tools</li>
+				</ul>
+				<p>User stories done:</p>
+				<ul>
+					<li>Add source destination when moved</li>
+					<li>Change the color of the state tags when updated</li>
+					<li>Change selected products without sign-out/in</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Product disappears when no results in filter</li>
+					<li>Regression: Default product does not appear on top</li>
+					<li>Current product node undefined</li>
+				</ul>
+				<hr>
 				<h3>v.0.8.4.1 - 2 February 2020 Bug fixes</h3>
 				<p>Bug fixes:</p>
 				<ul>
@@ -13,7 +32,6 @@
 					<li>Product disappears when no results in filter</li>
 					<li>Regression: Default product does not appear on top</li>
 					<li>Current product node undefined</li>
-					<li>External undo fails</li>
 				</ul>
 				<hr>
 				<h3>v.0.8.4 - 27 January 2020 Feature update</h3>
