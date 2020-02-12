@@ -471,8 +471,6 @@ export default {
               'newParentId': n.parentId,
               'productId': n.productId,
               'newPriority': n.data.priority,
-              'oldParentTitle': n.title,
-              'nrOfDescendants': descendantsInfo.count,
               'descendants': descendantsInfo.descendants
             }
             payloadArray.push(payloadItem)
@@ -920,7 +918,7 @@ export default {
           'newParentId': n.parentId,
           'newPriority': n.data.priority,
           'newParentTitle': targetNode.title,
-          'oldParentTitle': n.title,
+          'oldParentTitle': window.slVueTree.getNodeById(n.savedParentId).title,
           'oldLevel': clickedLevel,
           'newLevel': n.level,
           'oldInd': n.savedInd,
