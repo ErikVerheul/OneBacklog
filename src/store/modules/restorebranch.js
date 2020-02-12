@@ -124,6 +124,12 @@ const actions = {
                 // create the node
                 const locationInfo = getLocationInfo(doc.priority, parentNode)
                 const changeTimes = setChangeTimestamps(doc)
+                let lastChange
+                if (doc.history[0].resetCommentsEvent && !doc.history[0].resetHistoryEvent) {
+                    lastChange = doc.history[0].timestamp
+                } else if (doc.history[0].resetHistoryEvent && !doc.history[0].resetCommentsEvent) {
+                    lastChange = doc.comments[0].timestamp
+                } else lastChange = doc.history[0].timestamp > doc.comments[0].timestamp ? doc.history[0].timestamp : doc.comments[0].timestamp
                 let newNode = {
                     "path": locationInfo.newPath,
                     "pathStr": JSON.stringify(locationInfo.newPath),
@@ -158,7 +164,7 @@ const actions = {
                         lastCommentAddition: changeTimes.lastCommentAddition,
                         lastAttachmentAddition: changeTimes.lastAttachmentAddition,
                         lastCommentToHistory: changeTimes.lastCommentToHistory,
-                        lastChange: Date.now()
+                        lastChange
                     }
                 }
                 window.slVueTree.insert({
