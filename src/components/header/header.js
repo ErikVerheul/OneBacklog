@@ -9,7 +9,7 @@ export default {
     mixins: [utilities],
     data() {
         return {
-            appVersion: "OneBackLog v.0.8.4.1",
+            appVersion: "OneBackLog v.0.8.5",
             oldPassword: "",
             newPassword1: "",
             newPassword2: "",
@@ -67,6 +67,7 @@ export default {
         },
 
         doChangeDatabase() {
+            window.slVueTree.resetFilters('doChangeDatabase')
             const msg = "You changed database. Sign out and -in again to see the change"
             this.$store.state.warning = msg
             this.showLastEvent(msg, WARNING)
