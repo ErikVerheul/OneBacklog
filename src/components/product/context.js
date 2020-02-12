@@ -5,8 +5,9 @@ import { utilities } from '../mixins/utilities.js'
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
-const REMOVED = 0
-const DONE = 5
+const REMOVED = 5
+const ONHOLD = 3
+const DONE = 4
 const STATENEW = 0
 const PBILEVEL = 5
 var newNode = {}
@@ -284,7 +285,7 @@ export default {
           state: STATENEW,
           team: node.data.team,
           subtype: node.data.subtype,
-          lastChange: Date.now()
+          lastChange: 0
         }
       }
       // unselect the node that was clicked before the insert
@@ -341,7 +342,7 @@ export default {
         "distributeEvent": false
       }
       // update the database
-      this.$store.dispatch('createDoc', { newDoc , parentHist })
+      this.$store.dispatch('createDoc', { newDoc, parentHist })
       // create an entry for undoing the change in a last-in first-out sequence
       const entry = {
         type: 'undoNewNode',
@@ -480,7 +481,7 @@ export default {
           "distributeEvent": false
         }
         // update the database
-        this.$store.dispatch('createDoc', { newDoc , parentHist })
+        this.$store.dispatch('createDoc', { newDoc, parentHist })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
           type: 'undoNewNode',
@@ -580,13 +581,20 @@ export default {
           let allDone = true
           for (let desc of descendants) {
             if (this.convertState(desc.data.state) > highestState) highestState = this.convertState(desc.data.state)
-            if (this.convertState(desc.data.state) < DONE && this.convertState(desc.data.state) !== REMOVED) allDone = false
+            if (this.convertState(desc.data.state) < this.convertState(DONE) &&
+              this.convertState(desc.data.state) !== this.convertState(REMOVED) &&
+              this.convertState(desc.data.state) !== this.convertState(ONHOLD)) allDone = false
           }
-          if (this.convertState(nm.data.state) > highestState || this.convertState(nm.data.state) === DONE && !allDone) {
+          if (this.convertState(nm.data.state) > highestState || this.convertState(nm.data.state) === this.convertState(DONE) && !allDone) {
             // node has a higher state than any of its descendants or set to done while one of its descendants is not done
+            if (!nm.data.inconsistentState) nm.data.lastChange = Date.now()
             nm.data.inconsistentState = true
+            window.slVueTree.showPathToNode(nm)
             count++
-          } else nm.data.inconsistentState = false
+          } else {
+            if (nm.data.inconsistentState) nm.data.lastChange = Date.now()
+            nm.data.inconsistentState = false
+          }
         }
       }, [this.contextNodeSelected])
       this.showLastEvent(`${count} inconsistencies are found.`, INFO)
