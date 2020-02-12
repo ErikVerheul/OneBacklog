@@ -37,7 +37,8 @@ const actions = {
 					let newHist = {}
 					if (item.type === 'move') {
 						newHist = {
-							"nodeDroppedEvent": [item.oldLevel, item.newLevel, item.newInd, item.newParentTitle, item.nrOfDescendants, item.oldProductTitle, item.placement, item.oldParentId, item.newParentId, item.oldInd],
+							"nodeDroppedEvent": [item.oldLevel, item.newLevel, item.newInd, item.newParentTitle, item.nrOfDescendants, item.oldParentTitle,
+								item.placement, item.oldParentId, item.newParentId, item.oldInd],
 							"by": rootState.userData.user,
 							"timestamp": Date.now(),
 							"sessionId": rootState.userData.sessionId,
@@ -78,13 +79,13 @@ const actions = {
 			// update the descendants of all the moved(back) items
 			let payload2 = []
 			for (let item of payload.items) {
-				for (let i = 0; i < item.descendants.length; i++) {
+				for (let d of item.descendants) {
 					const payloadItem2 = {
-						"_id": item.descendants[i]._id,
+						"_id": d._id,
 						"type": item.type,
 						"oldParentTitle": item.oldParentTitle,
 						"productId": item.productId,
-						"newLevel": item.descendants[i].level
+						"newLevel": d.level
 					}
 					payload2.push(payloadItem2)
 				}
