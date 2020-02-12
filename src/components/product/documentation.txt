@@ -198,15 +198,25 @@ N				N		resetHistoryEvent				utils.js
 
 KNOWN ERRORS:
 
-When a document has a danglin attachtent like:
-  "_attachments": {
-    "Pro Git - Scott Chacon.pdf": {
-      "content_type": "application/pdf",
-      "revpos": 221,
-      "digest": "md5-bA6v24zTZ6r9aLg9+rtycg==",
-      "length": 4400898,
-      "stub": true
-    }
-  }
+CouchDB issue:
+	When a document has a danglin attachtent like:
+	"_attachments": {
+		"Pro Git - Scott Chacon.pdf": {
+		"content_type": "application/pdf",
+		"revpos": 221,
+		"digest": "md5-bA6v24zTZ6r9aLg9+rtycg==",
+		"length": 4400898,
+		"stub": true
+		}
+	}
 
-  a bulk put will fail with error 412
+	a bulk put will fail with error 412
+	Alse see https://github.com/apache/couchdb/issues/584
+
+Firefox issue:
+	When hitting backspace the app returns to the previous page.
+	Fix:
+	You can set the Integer pref browser.backspace_action to 2 on the about:config page to disable the backspace action. BTW Shift + Backspace does the reverse: going Forward if possible, so that is taken as well.
+
+	http://kb.mozillazine.org/browser.backspace_action
+	http://kb.mozillazine.org/about:config
