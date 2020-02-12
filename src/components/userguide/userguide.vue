@@ -38,15 +38,15 @@
 				<h5><em>User</em></h5>
 				<ul>
 					<li>Change database: Only applicable for users with products in more than one database.</li>
-					<li>Change team: Its the user and only the user who can switch between teams. This effects the filters over the product backlog.</li>
-					<li>Select products: If multiple products are assigned to you, you can choose which of the should load on sign-in. You also need to choose which is the default product which loads first and open automatically.</li>
+					<li>Change team: Its the user and only the user who can switch between teams.</li>
+					<li>Select products: If multiple products are assigned to you, you can choose the products to be displayed. You also select which is the default product. On the next sign-in this products loads first and opens on top of the other products.</li>
 					<li>Change password: You need to know your old password. The password of user demoUser cannot be changed.</li>
 					<li>License information: click to see the license regarding the source code.</li>
 					<li>Sign out: Preferred way to sign out. Will stop the cookie authentication and reset the URL to sign in again. When you reset your browser with F5 or Ctrl-F5 you need to reset the URL your self.</li>
 				</ul>
 				<div id="pv">
 					<h4>Products view</h4>
-					<p>The products view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner. Changes to the item size, state, title, description, acceptance criteria, added item, moved items and deleted items can be undone in a last change first sequence.</p>
+					<p>The products view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
 					<b-img :src="require('./example-screen.png')" alt="Example screen" />
 					<p>Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different units:</p>
 					<p>Product and epic size estimate:
@@ -74,7 +74,7 @@
 					</p>
 					<p>Badges:</p>
 					<b-img :src="require('./badges.png')" alt="Example badges" />
-					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its red color.</p>
+					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its blue color.</p>
 				</div>
 				<div id="rv">
 					<h4>Requirements areas view</h4>
