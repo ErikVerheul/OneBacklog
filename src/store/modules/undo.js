@@ -24,7 +24,7 @@ const actions = {
     */
 
     /* Unmark the removed item and its descendants for removal. Do not distribute this event */
-    restoreDescendantsBulk({
+    restoreItemAndDescendents({
         rootState,
         dispatch
     }, entry) {
@@ -37,7 +37,7 @@ const actions = {
             url: rootState.userData.currentDb + '/_bulk_get',
             data: { "docs": docsToGet },
         }).then(res => {
-            // console.log('restoreDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
+            // console.log('restoreItemAndDescendents: res = ' + JSON.stringify(res, null, 2))
             const results = res.data.results
             const docs = []
             const errors = []
@@ -45,7 +45,7 @@ const actions = {
                 const doc = r.docs[0].ok
                 if (doc) {
                     const newHist = {
-                        "ignoreEvent": ['restoreDescendantsBulk'],
+                        "ignoreEvent": ['restoreItemAndDescendents'],
                         "timestamp": Date.now(),
                         "distributeEvent": false
                     }
@@ -71,26 +71,27 @@ const actions = {
                 for (let err of errors) {
                     errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
                 }
-                let msg = 'restoreDescendantsBulk: These documents cannot be UNmarked for removal: ' + errorStr
+                let msg = 'restoreItemAndDescendents: These documents cannot be UNmarked for removal: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             const toDispatch = { 'restoreParent': entry }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreDescendantsBulk' })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendents' })
         }).catch(error => {
-            let msg = 'restoreDescendantsBulk: Could not read batch of documents: ' + error
+            let msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
         })
     },
 
+    /* The parent is the removed node and parent of the removed children. The grandParent is the parent of the removed node and was not removed. */
     restoreParent({
         rootState,
         dispatch
     }, entry) {
-        const _id = entry.parentId
+        const _id = entry.removedNode._id
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
@@ -98,7 +99,6 @@ const actions = {
             let tmpDoc = res.data
             if (entry.isProductRemoved) {
                 // re-enter the product to the users product roles, subscriptions, product ids and product selection array
-                const _id = entry.removedNode._id
                 rootState.userData.myProductsRoles[_id] = entry.removedProductRoles
                 rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, _id)
                 rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, _id)
@@ -117,7 +117,7 @@ const actions = {
             }
             tmpDoc.history.unshift(newHist)
             tmpDoc.delmark = false
-            const toDispatch = { 'updateGrandparentHist': entry }
+            const toDispatch = { 'updateGrandParentHist': entry }
             dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'restoreParent' })
         }).catch(error => {
             let msg = 'restoreParent: Could not read document with _id ' + _id + ', ' + error
@@ -127,12 +127,13 @@ const actions = {
         })
     },
 
-    updateGrandparentHist({
+    /* The parent is the removed node and parent of the removed children. The grandParent is the parent of the removed node and was not removed. */
+    updateGrandParentHist({
         rootState,
         commit,
         dispatch
     }, entry) {
-        const _id = entry.grandParentId
+        const _id = entry.removedNode.parentId
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
@@ -151,7 +152,7 @@ const actions = {
                 grandParentDoc.delmark = false
             }
             const toDispatch = { 'restoreExtDepsAndConds': entry }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch, caller: 'updateGrandparentHist' })
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch, caller: 'updateGrandParentHist' })
         }).catch(error => {
             let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
             // eslint-disable-next-line no-console

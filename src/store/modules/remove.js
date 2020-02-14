@@ -144,7 +144,7 @@ const actions = {
     */
 
     /* Add history to the parent of the removed node */
-    registerHistInGrandParent({
+    removeItemAndDescendents({
         rootState,
         dispatch
     }, payload) {
@@ -166,10 +166,10 @@ const actions = {
             const toDispatch = {
                 removeDescendents: payload
             }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'registerHistInGrandParent' })
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'removeItemAndDescendents' })
         }).catch(error => {
             rootState.busyRemoving = false
-            let msg = 'registerHistInGrandParent: Could not read document with _id ' + _id + ', ' + error
+            let msg = 'removeItemAndDescendents: Could not read document with _id ' + _id + ', ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
