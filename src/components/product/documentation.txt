@@ -142,13 +142,11 @@ PBI ... ................ 5 ................... 5
 	Note that this getter returns permissions for the current product or all products (superPO and areaPO)
 
 The entry for undoing the remove in a last-in first-out sequence
+The removed node is the parent of the removed children.
   const entry = {
     type: 'removedNode',
     removedNode: selectedNode,
     isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
-    grandParentId: selectedNode.parentId,
-    parentId: selectedNode._id,
-    parentPath: selectedNode.path,
     descendants: descendantsInfo.descendants,
     removedIntDependencies: removed.removedIntDependencies,
     removedIntConditions: removed.removedIntConditions,
