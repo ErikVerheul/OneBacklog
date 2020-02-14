@@ -9,7 +9,6 @@ var docs = []
 var newProductId
 var orgProductTitle
 var newProductTitle
-var newProductPriority
 
 // returns a new array so that it is reactive
 function addToArray(arr, item) {
@@ -19,11 +18,7 @@ function addToArray(arr, item) {
     return newArr
 }
 
-/*
-* The documents are read top down by level. In parentNodes the read items are linked to to their id's.
-* The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
-*/
-function processProduct() {
+function showProduct() {
     let parentNodes = { root: window.slVueTree.getNodeById('root') }
     for (let doc of docs) {
         const parentId = doc.parentId
@@ -65,7 +60,8 @@ function processProduct() {
                 doShow,
                 savedDoShow: doShow,
                 data: {
-                    priority: newProductPriority,
+                    // products are sorted by id. As the id starts with the creation date newer products are sorted last
+                    priority: 0,
                     state: doc.state,
                     inconsistentState: false,
                     team: doc.team,
@@ -85,11 +81,6 @@ const actions = {
         rootState,
         dispatch
     }) {
-        // use a simple algorithm to calculate the priority of the cloned product
-        const myCurrentProductNodes = window.slVueTree.getProducts()
-        const lastProductNode = myCurrentProductNodes.slice(-1)[0]
-        const lastProductPriority = lastProductNode.data.priority
-        newProductPriority = Math.floor((lastProductPriority + Number.MIN_SAFE_INTEGER) / 2)
         // set the range of documents to load
         const productId = rootState.load.currentProductId
         const rangeString = 'startkey=["' + productId + '",0]&endkey=["' + productId + '",' + (PBILEVEL + 1) + ']'
@@ -101,7 +92,7 @@ const actions = {
             docs = []
             for (let el of res.data.rows) {
                 // remove the revision
-                delete el._rev
+                delete el.doc._rev
                 docs.push(el.doc)
             }
             // patch the documents
@@ -114,7 +105,8 @@ const actions = {
                 if (i === 0) {
                     newProductId = newId
                     docs[0].parentId = 'root'
-                    docs[0].priority = newProductPriority
+                    // products are sorted by id. As the id starts with the creation date newer products are sorted last
+                    docs[0].priority = 0
                     orgProductTitle = docs[0].title
                     newProductTitle = 'CLONE: ' + orgProductTitle
                     docs[0].title = newProductTitle
@@ -165,7 +157,7 @@ const actions = {
             // save in the database
             dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
             // show the product clone in the tree view
-            processProduct()
+            showProduct()
             // eslint-disable-next-line no-console
             console.log('storeProduct: ' + res.data.length + ' documents are processed')
         }).catch(error => {

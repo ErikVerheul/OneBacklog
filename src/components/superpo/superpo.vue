@@ -100,11 +100,9 @@ export default {
       // create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
       const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
       const _id = Date.now().toString().concat(shortId)
-      // use a simple algorithm to calculate the priority
       const myCurrentProductNodes = window.slVueTree.getProducts()
+      // get the last product node
       const lastProductNode = myCurrentProductNodes.slice(-1)[0]
-      const lastProductPriority = lastProductNode.data.priority
-      const newProductPriority = Math.floor((lastProductPriority + Number.MIN_SAFE_INTEGER) / 2)
 
       // create a new document
       const newProduct = {
@@ -121,7 +119,8 @@ export default {
         "followers": [],
         "description": window.btoa(""),
         "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
-        "priority": newProductPriority,
+        // products are sorted by id. As the id starts with the creation date newer products are sorted last
+        "priority": 0,
         "comments": [{
           "ignoreEvent": 'comments initiated',
           "timestamp": 0,
@@ -150,7 +149,8 @@ export default {
         "data": {
           state: newProduct.state,
           subtype: 0,
-          priority: newProductPriority,
+          // products are sorted by id. As the id starts with the creation date newer products are sorted last
+          priority: 0,
           team: newProduct.team,
           lastChange: Date.now()
         }
