@@ -239,6 +239,7 @@ export default {
       this.canCancel = true
       this.localMessage = ''
       this.newDbName = ''
+      this.$store.state.isDatabaseCreated = false
     },
 
     doCreateDatabase() {
