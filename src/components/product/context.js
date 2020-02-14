@@ -501,7 +501,6 @@ export default {
       const selectedNode = this.contextNodeSelected
       const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
       this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
-      const path = selectedNode.path
       // when removing a product
       if (selectedNode.level === this.PRODUCTLEVEL) {
         // cannot remove the last assigned product or product in the tree
@@ -510,8 +509,8 @@ export default {
           return
         }
       }
-      // set remove mark in the database on the clicked item and decendants (if any)
-      this.$store.dispatch('registerHistInGrandParent', { productId: this.$store.state.load.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
+      // set remove mark in the database on the clicked item and descendants (if any)
+      this.$store.dispatch('removeItemAndDescendents', { productId: this.$store.state.load.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
       // remove any dependency references to/from outside the removed items; note: these cannot be undone
       const removed = window.slVueTree.correctDependencies(this.$store.state.load.currentProductId, descendantsInfo.ids)
       // create an entry for undoing the remove in a last-in first-out sequence
@@ -519,9 +518,6 @@ export default {
         type: 'removedNode',
         removedNode: selectedNode,
         isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
-        grandParentId: selectedNode.parentId,
-        parentId: selectedNode._id,
-        parentPath: selectedNode.path,
         descendants: descendantsInfo.descendants,
         removedIntDependencies: removed.removedIntDependencies,
         removedIntConditions: removed.removedIntConditions,
@@ -535,11 +531,11 @@ export default {
 
       this.$store.state.changeHistory.unshift(entry)
       // before removal select the predecessor or successor of the removed node (sibling or parent)
-      const prevNode = window.slVueTree.getPreviousNode(path)
+      const prevNode = window.slVueTree.getPreviousNode(selectedNode.path)
       let nowSelectedNode = prevNode
       if (prevNode.level === this.DATABASELEVEL) {
         // if a product is to be removed and the previous node is root, select the next product
-        const nextProduct = window.slVueTree.getNextSibling(path)
+        const nextProduct = window.slVueTree.getNextSibling(selectedNode.path)
         if (nextProduct === null) {
           // there is no next product; cannot remove the last product; note that this action is already blocked with a warming
           return
