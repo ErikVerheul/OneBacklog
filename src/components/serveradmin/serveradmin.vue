@@ -278,6 +278,7 @@ export default {
       this.asyncFired = false
       this.optionSelected = 'Remove history, comments and followers'
       this.localMessage = ''
+      this.$store.state.isHistAndCommReset = false
       // get all non sytem & non backup databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
