@@ -453,7 +453,7 @@ export default {
           break
         case 'undoNewNode':
           if (window.slVueTree.remove([entry.newNode])) {
-            this.$store.dispatch('registerHistInGrandParent', { 'productId': this.$store.state.load.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
+            this.$store.dispatch('removeItemAndDescendents', { 'productId': this.$store.state.load.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
             this.showLastEvent('Item addition is undone', INFO)
           } else this.showLastEvent('Item was already removed', INFO)
           break
@@ -482,15 +482,8 @@ export default {
           // restore the removed node
           var parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
           if (parentNode) {
-            this.$store.dispatch("restoreDescendantsBulk", entry)
-            let path
-            if (window.slVueTree.comparePaths(parentNode.path, entry.removedNode.path.slice(0, -1)) === 0) {
-              // the removed node path has not changed
-              path = entry.removedNode.path
-            } else {
-              // the removed node path has changed; correct it for the new parent path
-              path = parentNode.path.concat(entry.removedNode.path.slice(-1))
-            }
+            this.$store.dispatch("restoreItemAndDescendents", entry)
+            const path = entry.removedNode.path
             const prevNode = window.slVueTree.getPreviousNode(path)
             if (entry.removedNode.path.slice(-1)[0] === 0) {
               // the previous node is the parent
