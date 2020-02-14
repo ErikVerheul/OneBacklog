@@ -6,14 +6,7 @@
   </div>
 </template>
 
-<script>
-import Header from '../header/header.vue'
-export default {
-  components: {
-    'app-header': Header
-  }
-}
-</script>
+<script src="./reqsarea.js"></script>
 
 <style lang="css" scoped>
 </style>
