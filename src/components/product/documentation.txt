@@ -4,8 +4,8 @@ NOTE on itemType and level numbering with the current config definition
 
 level ...............in database level ....... in tree
 -----------------------------------------------------------------------
-Database ............... 0 ................... as root
-RequirementArea ........ 1 ................... in APO view
+RequirementArea ........ 0 ................... not in view
+Database ............... 1 ................... root node
 Product ................ 2 ................... 2
 Epic .. ................ 3 ................... 3
 Feature ................ 4 ................... 4

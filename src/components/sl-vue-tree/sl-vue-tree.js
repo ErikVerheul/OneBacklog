@@ -138,13 +138,13 @@ export default {
 		filteredNodes() {
 			if (this.isRoot) {
 				const retNodes = this.getNodes(this.currentValue)
-				console.log('filteredNodes1: returning ' + retNodes.length + ' nodes')
+				// console.log('filteredNodes1: returning ' + retNodes.length + ' nodes')
 				return retNodes
 			}
 			const retNodes = this.getParentComponent().filteredNodes[this.parentInd].children.filter(node => {
 				return node.doShow
 			})
-			console.log('filteredNodes2: returning ' + retNodes.length + ' nodes')
+			// console.log('filteredNodes2: returning ' + retNodes.length + ' nodes')
 			return retNodes
 		},
 
