@@ -154,7 +154,7 @@
         >Select this node as a condition for '{{ getNodeWithDependencies().title }}'</b-list-group-item>
 
         <b-list-group-item
-          v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.load.currentProductId"
+          v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.currentProductId"
           button
           :active="contextOptionSelected === MOVETOPRODUCT"
           variant="dark"

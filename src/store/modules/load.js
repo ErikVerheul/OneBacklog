@@ -7,10 +7,7 @@ var batch = []
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
-const AREALEVEL = 0
-const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
-const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const HOURINMILIS = 3600000
@@ -80,68 +77,10 @@ const state = {
 	docsCount: 0,
 	itemsCount: 0,
 	orphansCount: 0,
-	currentDefaultProductId: null,
-	currentProductId: null,
 	productIdLoading: null,
 	processedProducts: 0,
-	currentProductTitle: "",
 	rangeString: '',
 	orphansFound: { userData: null, orphans: [] }
-}
-
-const getters = {
-	/*
-	* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
-	* Note that the AreaPO level is 0 and root of the tree starts with level 1.
-	* Note that admins and guests have no write permissions.
-	* See documentation.txt for the role definitions.
-	*
-	* Note that rootState MUST be the third argument. The fourth argument is rootGetters.
-	*/
-	haveWritePermission(state, getters, rootState, rootGetters) {
-		let levels = []
-		for (let i = AREALEVEL; i <= PBILEVEL; i++) {
-			// initialize with false
-			levels.push(false)
-		}
-		if (rootState.userData.userAssignedProductIds.includes(state.currentProductId)) {
-			// assing specific write permissions for the current product only if that product is assigned the this user
-			let myCurrentProductRoles = rootState.userData.myProductsRoles[state.currentProductId]
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(`haveWritePermission: For productId ${state.currentProductId} my roles are ${myCurrentProductRoles}`)
-			if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
-				// my roles are not defined -> no write permission on any level
-				return levels
-			}
-
-			if (myCurrentProductRoles.includes('areaPO')) {
-				levels[AREALEVEL] = true
-				levels[FEATURELEVEL] = true
-			}
-
-			if (myCurrentProductRoles.includes('PO')) {
-				levels[EPICLEVEL] = true
-				levels[FEATURELEVEL] = true
-				levels[PBILEVEL] = true
-			}
-			if (myCurrentProductRoles.includes('developer')) {
-				levels[FEATURELEVEL] = true
-				levels[PBILEVEL] = true
-			}
-		}
-		// assign specific write permissions to any product even if that product is not assigned to this user
-		if (rootGetters.isSuperPO) {
-			levels[PRODUCTLEVEL] = true
-			levels[EPICLEVEL] = true
-		}
-
-		if (rootGetters.isServerAdmin) {
-			levels[DATABASELEVEL] = true
-		}
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log(`haveWritePermission: My write levels are [AREALEVEL, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)
-		return levels
-	},
 }
 
 const mutations = {
@@ -156,7 +95,7 @@ const mutations = {
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
 	 * The root and the top level product nodes are not draggable
 	 */
-	processProduct(state, userAssignedProductIds) {
+	processProduct(state, userAssignedProductIds, currentDefaultProductId) {
 		for (let b of batch) {
 			let doc = b.doc
 			state.docsCount++
@@ -167,11 +106,11 @@ const mutations = {
 				// expand the tree up to the feature level
 				let isExpanded = doc.level < FEATURELEVEL
 				// select the default product
-				const isSelected = doc._id === state.currentDefaultProductId
+				const isSelected = doc._id === currentDefaultProductId
 				const isDraggable = level > PRODUCTLEVEL
 				// show the product level nodes and all nodes of the current default product
-				const doShow = doc.level <= PRODUCTLEVEL || doc.productId === state.currentDefaultProductId
-				if (doc.productId !== state.currentDefaultProductId && doc.level === PRODUCTLEVEL) isExpanded = false
+				const doShow = doc.level <= PRODUCTLEVEL || doc.productId === currentDefaultProductId
+				if (doc.productId !== currentDefaultProductId && doc.level === PRODUCTLEVEL) isExpanded = false
 				if (parentNodes[parentId] !== undefined) {
 					const parentNode = parentNodes[parentId]
 					const ind = parentNode.children.length
@@ -241,206 +180,11 @@ const mutations = {
 const actions = {
 	/*
 	* Order of execution:
-	* 1. getDatabases
-	* 2. getOtherUserData
-	* 3. getAllProducts - calls updateUser if databases or products are missing
-	* 4. getConfig
-	* 5. getRoot
-	* 6. loadCurrentProduct
-	* 7. getFirstProduct - opens the products view - starts listenForChanges if no other products
-	* 8. getNextProduct - starts listenForChanges if not already started
+	* 1. getRoot
+	* 2. loadCurrentProduct
+	* 3. getFirstProduct - opens the products view - starts listenForChanges if no other products
+	* 4. getNextProduct - starts listenForChanges if not already started
 	*/
-
-	/* Get all non-backup or system database names */
-	getDatabases({
-		rootState,
-		dispatch
-	}) {
-		globalAxios({
-			method: 'GET',
-			url: '/_all_dbs',
-		}).then(res => {
-			const foundDbNames = []
-			for (let dbName of res.data) {
-				if (!dbName.startsWith('_') && !dbName.includes('backup')) foundDbNames.push(dbName)
-			}
-			dispatch('getOtherUserData', foundDbNames)
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('getDatabases: Database names are loaded: ' + foundDbNames)
-		}).catch(error => {
-			let msg = 'getDatabases: Could not load the database names. Error = ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Get the current DB name etc for this user. Note that the user global roles are already fetched */
-	getOtherUserData({
-		rootState,
-		dispatch
-	}, foundDbNames) {
-		globalAxios({
-			method: 'GET',
-			url: '_users/org.couchdb.user:' + rootState.userData.user,
-		}).then(res => {
-			let allUserData = res.data
-			// check if the default user database exists
-			if (!foundDbNames.includes(allUserData.currentDb)) {
-				alert('getOtherUserData: FATAL ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
-				return
-			}
-			// check if the user has productsroles defined for the default database
-			if (!Object.keys(allUserData.myDatabases).includes(allUserData.currentDb)) {
-				alert('getOtherUserData: FATAL ERROR - no roles defined for default user database ' + allUserData.currentDb)
-				return
-			}
-			// correct the profile for removed databases, if any
-			rootState.userData.myDatabases = []
-			for (let name of Object.keys(allUserData.myDatabases)) {
-				if (!foundDbNames.includes(name)) {
-					delete allUserData.myDatabases[name]
-				} else rootState.userData.myDatabases.push(name)
-			}
-			rootState.userData.currentDb = allUserData.currentDb
-			rootState.userData.email = allUserData.email
-			const currentDbSettings = allUserData.myDatabases[allUserData.currentDb]
-			rootState.userData.myTeam = currentDbSettings.myTeam
-			rootState.userData.myFilterSettings = allUserData.filterSettings
-			dispatch('watchdog')
-			let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in"
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			// now that the database is known the log file is available
-			dispatch('doLog', { event: msg, level: INFO })
-			dispatch('getAllProducts', { dbName: rootState.userData.currentDb, allUserData, currentDbSettings })
-		}).catch(error => {
-			if (error.response.status === 404) {
-				// the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
-				if (rootState.online && rootState.userData.sesionRoles.includes("_admin")) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
-					rootState.showHeaderDropDowns = false
-					router.push('/init')
-					return
-				}
-			}
-			let msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Get all products of the current database and correct the data from the user profile with the actual available products */
-	getAllProducts({
-		rootState,
-		state,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: payload.dbName + '/_design/design1/_view/products',
-		}).then(res => {
-			const currentProductsEnvelope = res.data.rows
-			const availableProductIds = []
-			// correct the data from the user profile with the actual available products
-			for (let product of currentProductsEnvelope) {
-				let id = product.id
-				availableProductIds.push(id)
-				// can only have productsRoles of products that are available
-				if (Object.keys(payload.currentDbSettings.productsRoles).includes(id)) {
-					rootState.userData.myProductsRoles[id] = payload.currentDbSettings.productsRoles[id]
-				}
-			}
-			let screenedSubscriptions = []
-			for (let p of payload.currentDbSettings.subscriptions) {
-				if (availableProductIds.includes(p)) {
-					screenedSubscriptions.push(p)
-				}
-			}
-			if (screenedSubscriptions.length === 0) {
-				// if no default is set assign the first defined product from the productsRoles
-				screenedSubscriptions = [Object.keys(payload.currentDbSettings.productsRoles)[0]]
-			}
-			rootState.userData.myProductSubscriptions = screenedSubscriptions
-
-			// set the users product options to select from
-			for (let product of currentProductsEnvelope) {
-				if (Object.keys(payload.currentDbSettings.productsRoles).includes(product.id)) {
-					rootState.myProductOptions.push({
-						value: product.id,
-						text: product.value
-					})
-				}
-			}
-			// update the user profile for missing products
-			const missingProductRolesIds = []
-			for (let id of Object.keys(payload.currentDbSettings.productsRoles)) {
-				if (!availableProductIds.includes(id)) {
-					missingProductRolesIds.push(id)
-				}
-			}
-			if (rootState.autoCorrectUserProfile) {
-				let newUserData = payload.allUserData
-				for (let id of missingProductRolesIds) {
-					delete newUserData.myDatabases[rootState.userData.currentDb].productsRoles[id]
-				}
-				for (let id of missingProductRolesIds) {
-					const position = newUserData.myDatabases[rootState.userData.currentDb].subscriptions.indexOf(id)
-					if (position !== -1) newUserData.myDatabases[rootState.userData.currentDb].subscriptions.splice(position, 1)
-				}
-				dispatch('updateUser', { data: newUserData })
-			}
-			if (rootState.userData.myProductsRoles && Object.keys(rootState.userData.myProductsRoles).length > 0) {
-				rootState.isProductAssigned = true
-				rootState.userData.userAssignedProductIds = Object.keys(rootState.userData.myProductsRoles)
-				// the first (index 0) product in myProductSubscriptions is by definition the default product
-				state.currentDefaultProductId = rootState.userData.myProductSubscriptions[0]
-			}
-			// postpone the warning message for 'no product found' until the configuration is loaded
-			dispatch('getConfig')
-		}).catch(error => {
-			let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Load the config document from this database */
-	getConfig({
-		rootState,
-		rootGetters,
-		dispatch,
-		commit
-	}) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/config',
-		}).then(res => {
-			rootState.configData = res.data
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('The configuration is loaded')
-			if (!rootState.isProductAssigned) {
-				if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
-					if (rootGetters.isSuperPO) { router.replace('/superpo') } else
-						if (rootGetters.isAreaPO) { router.replace('/adareapo') } else
-							if (rootGetters.isAdmin) { router.replace('/admin') } else {
-								alert("Error: No default product is set. Consult your adminstrator. The application will exit.")
-								commit('resetData', null, { root: true })
-								router.replace('/')
-							}
-			} else
-				dispatch('getRoot')
-		}).catch(error => {
-			let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
 
 	/* Get the root of the backlog items */
 	getRoot({
@@ -509,13 +253,13 @@ const actions = {
 		commit,
 		dispatch
 	}) {
-		let _id = state.currentDefaultProductId
+		let _id = rootState.currentDefaultProductId
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
-			state.currentProductId = _id
-			state.currentProductTitle = res.data.title
+			rootState.currentProductId = _id
+			rootState.currentProductTitle = res.data.title
 			rootState.currentDoc = res.data
 			// decode from base64 + replace the encoded data
 			rootState.currentDoc.description = window.atob(res.data.description)
@@ -528,7 +272,7 @@ const actions = {
 			state.itemsCount = 0
 			state.orphansCount = 0
 			// set the range of the documents to load
-			state.productIdLoading = state.currentDefaultProductId
+			state.productIdLoading = rootState.currentDefaultProductId
 			commit('composeRangeString')
 			dispatch('getFirstProduct')
 		}).catch(error => {
@@ -554,7 +298,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
 		}).then(res => {
 			batch = res.data.rows
-			commit('processProduct', rootState.userData.userAssignedProductIds)
+			commit('processProduct', rootState.userData.userAssignedProductIds, rootState.currentDefaultProductId)
 			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			// log any detected orphans if present
 			if (state.orphansFound.orphans.length > 0) {
@@ -606,7 +350,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + state.rangeString + '&include_docs=true',
 		}).then(res => {
 			batch = res.data.rows
-			commit('processProduct', rootState.userData.userAssignedProductIds)
+			commit('processProduct', rootState.userData.userAssignedProductIds, rootState.currentDefaultProductId)
 			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
 			// log any detected orphans if present
 			if (state.orphansFound.orphans.length > 0) {
@@ -763,7 +507,6 @@ const actions = {
 
 export default {
 	state,
-	getters,
 	mutations,
 	actions
 }

@@ -166,8 +166,8 @@ export default {
         }
         let s
         count === 1 ? s = 'title matches' : s = 'titles match'
-        this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.load.currentProductTitle}'`, INFO)
-      } else this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+        this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
+      } else this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, INFO)
 
       this.$store.state.filterText = 'Clear filter'
       this.$store.state.filterOn = true

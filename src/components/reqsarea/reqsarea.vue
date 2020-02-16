@@ -59,7 +59,7 @@
         </h3>
       </span>
       <span class="d-table-cell tac">
-        <h3>{{ $store.state.load.currentProductTitle }}</h3>
+        <h3>{{ $store.state.currentProductTitle }}</h3>
       </span>
       <span class="d-table-cell tar">
         <h3>

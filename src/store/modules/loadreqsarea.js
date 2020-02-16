@@ -130,8 +130,6 @@ const mutations = {
             const parentId = item.value[1]
             // expand the tree up to the feature level
             let isExpanded = level < FEATURELEVEL
-            // select the default product
-            const isSelected = item.id === state.currentDefaultProductId
             const isDraggable = level > PRODUCTLEVEL
             // show all nodes
             const doShow = true
@@ -161,7 +159,7 @@ const mutations = {
                     savedIsExpanded: isExpanded,
                     isSelectable: true,
                     isDraggable,
-                    isSelected,
+                    isSelected: false,
                     doShow,
                     savedDoShow: doShow,
                     data: {

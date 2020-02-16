@@ -82,7 +82,7 @@ const actions = {
         dispatch
     }) {
         // set the range of documents to load
-        const productId = rootState.load.currentProductId
+        const productId = rootState.currentProductId
         const rangeString = 'startkey=["' + productId + '",0]&endkey=["' + productId + '",' + (PBILEVEL + 1) + ']'
         globalAxios({
             method: 'GET',

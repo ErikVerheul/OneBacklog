@@ -127,7 +127,7 @@ export default {
       'canUploadAttachments',
       'getCurrentItemLevel',
       'getCurrentItemTsSize',
-      // from load.js
+      // from startup.js
       'haveWritePermission'
     ]),
 
@@ -349,20 +349,20 @@ export default {
       if (node) {
         this.$store.state.findIdOn = true
         // if the user clicked on a node of another product
-        if (this.$store.state.load.currentProductId !== node.productId) {
+        if (this.$store.state.currentProductId !== node.productId) {
           // clear any outstanding filters
           window.slVueTree.resetFilters('selectNode')
           // collapse the previously selected product
           window.slVueTree.collapseTree()
           // update current productId and title
-          this.$store.state.load.currentProductId = node.productId
-          this.$store.state.load.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
+          this.$store.state.currentProductId = node.productId
+          this.$store.state.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
         } else {
           // node on current product; collapse the currently selected product
           window.slVueTree.collapseTree()
         }
 
-        this.showLastEvent(`The item is found in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+        this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
         // expand the newly selected product up to the found item
         window.slVueTree.showAndSelectItem(node)
         // load the document if not already in memory
@@ -404,7 +404,7 @@ export default {
       // show event
       let s
       count === 1 ? s = 'title matches' : s = 'titles match'
-      this.showLastEvent(`${count} item ${s} your search in product '${this.$store.state.load.currentProductTitle}'`, INFO)
+      this.showLastEvent(`${count} item ${s} your search in product '${this.$store.state.currentProductTitle}'`, INFO)
       this.$store.state.searchOn = true
       // window.slVueTree.showVisibility('searchInTitles', FEATURELEVEL)
     },
@@ -453,7 +453,7 @@ export default {
           break
         case 'undoNewNode':
           if (window.slVueTree.remove([entry.newNode])) {
-            this.$store.dispatch('removeItemAndDescendents', { 'productId': this.$store.state.load.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
+            this.$store.dispatch('removeItemAndDescendents', { 'productId': this.$store.state.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
             this.showLastEvent('Item addition is undone', INFO)
           } else this.showLastEvent('Item was already removed', INFO)
           break
@@ -504,7 +504,7 @@ export default {
             this.$store.state.nodeSelected.isSelected = false
             entry.removedNode.isSelected = true
             this.$store.state.nodeSelected = entry.removedNode
-            this.$store.state.load.currentProductId = entry.removedNode.productId
+            this.$store.state.currentProductId = entry.removedNode.productId
             // restore the removed dependencies
             for (let d of entry.removedIntDependencies) {
               const node = window.slVueTree.getNodeById(d.id)
@@ -823,14 +823,14 @@ export default {
       // if the root node is selected do nothing
       if (this.$store.state.nodeSelected._id !== 'root') {
         // if the user clicked on a node of another product
-        if (this.$store.state.load.currentProductId !== this.$store.state.nodeSelected.productId) {
+        if (this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
           // clear any outstanding filters
           window.slVueTree.resetFilters('nodeSelectedEvent')
           // collapse the previously selected product
           window.slVueTree.collapseTree()
           // update current productId and title
-          this.$store.state.load.currentProductId = this.$store.state.nodeSelected.productId
-          this.$store.state.load.currentProductTitle = this.$store.state.nodeSelected.title
+          this.$store.state.currentProductId = this.$store.state.nodeSelected.productId
+          this.$store.state.currentProductTitle = this.$store.state.nodeSelected.title
           // expand the newly selected product up to the feature level
           window.slVueTree.expandTree()
         }

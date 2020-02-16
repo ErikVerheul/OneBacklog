@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import globalAxios from 'axios'
 import router from '../router'
 import logging from './modules/logging'
+import startup from './modules/startup'
 import initdb from './modules/initdb'
 import help from './modules/help'
 import load from './modules/load'
@@ -38,6 +39,10 @@ export default new Vuex.Store({
 			runningWatchdogId: null,
 			logSavePending: false
 		},
+		//startup
+		currentDefaultProductId: null,
+		currentProductId: null,
+		currentProductTitle: "",
 		// load
 		isProductAssigned: false,
 		// options
@@ -174,13 +179,13 @@ export default new Vuex.Store({
 			state.load.docsCount = 0
 			state.load.itemsCount = 0
 			state.load.orphansCount = 0
-			state.load.currentProductId = null
-			state.load.currentDefaultProductId = null
-			state.load.currentProductTitle = ''
 			state.load.treeNodes = []
 			state.load.productIdLoading = null
 			state.load.processedProducts = 0
 
+			state.currentDefaultProductId = null,
+			state.currentProductId = null,
+			state.currentProductTitle = ''
 			state.isProductAssigned = false
 			state.myProductOptions = []
 			state.userData = {}
@@ -292,6 +297,7 @@ export default new Vuex.Store({
 	},
 
 	modules: {
+		startup,
 		initdb,
 		logging,
 		help,

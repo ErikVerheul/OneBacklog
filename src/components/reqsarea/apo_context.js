@@ -63,7 +63,7 @@ export default {
 
   mounted() {
     // to fix this.$refs.contextMenuRef undefined when routing away and back, expose instance to the global namespace
-    window.showContextMenuRef = this.$refs.contextMenuRef
+    window.showContextApoMenuRef = this.$refs.contextApoMenuRef
     eventBus.$on('contextMenu', (node) => {
       this.showContextMenu(node)
     })
@@ -71,7 +71,7 @@ export default {
 
   computed: {
     ...mapGetters([
-      // from load.js
+      // from startup.js
       'haveWritePermission'
     ]),
   },
@@ -100,7 +100,7 @@ export default {
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = this.haveWritePermission[node.level]
-        window.showContextMenuRef.show()
+        window.showContextApoMenuRef.show()
       }
     },
 
@@ -351,10 +351,10 @@ export default {
       this.$store.state.changeHistory.unshift(entry)
     },
 
-		/*
-		 * Create and insert a new node in the tree and create a document for this new item
-		 * A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
-		 */
+    /*
+     * Create and insert a new node in the tree and create a document for this new item
+     * A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
+     */
     doInsertNewItem() {
       const locationPath = this.contextNodeSelected.path
       let newNodeLocation
@@ -363,7 +363,7 @@ export default {
       let now = Date.now()
       // prepare the new node for insertion and set isSelected to true
       newNode = {
-        productId: this.$store.state.load.currentProductId,
+        productId: this.$store.state.currentProductId,
         dependencies: [],
         conditionalFor: [],
         children: [],
@@ -510,9 +510,9 @@ export default {
         }
       }
       // set remove mark in the database on the clicked item and descendants (if any)
-      this.$store.dispatch('removeItemAndDescendents', { productId: this.$store.state.load.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
+      this.$store.dispatch('removeItemAndDescendents', { productId: this.$store.state.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
       // remove any dependency references to/from outside the removed items; note: these cannot be undone
-      const removed = window.slVueTree.correctDependencies(this.$store.state.load.currentProductId, descendantsInfo.ids)
+      const removed = window.slVueTree.correctDependencies(this.$store.state.currentProductId, descendantsInfo.ids)
       // create an entry for undoing the remove in a last-in first-out sequence
       const entry = {
         type: 'removedNode',
@@ -544,7 +544,7 @@ export default {
       }
       nowSelectedNode.isSelected = true
       this.$store.state.nodeSelected = nowSelectedNode
-      this.$store.state.load.currentProductId = nowSelectedNode.productId
+      this.$store.state.currentProductId = nowSelectedNode.productId
       // load the new selected item
       this.$store.dispatch('loadDoc', nowSelectedNode._id)
       // remove the node and its children
@@ -766,7 +766,7 @@ export default {
         this.$store.state.moveOngoing = false
       } else {
         this.$store.state.moveOngoing = true
-        this.moveSourceProductId = this.$store.state.load.currentProductId
+        this.moveSourceProductId = this.$store.state.currentProductId
         movedNode = this.contextNodeSelected
       }
     }

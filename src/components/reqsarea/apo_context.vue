@@ -1,6 +1,6 @@
 <template>
   <b-modal
-    ref="contextMenuRef"
+    ref="contextApoMenuRef"
     :ok-disabled="disableOkButton"
     @ok="procSelected"
     @cancel="doCancel"
@@ -141,7 +141,6 @@
               variant="danger"
               @click="showSelected(REMOVEITEM)"
             >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
-
           </template>
         </template>
 
@@ -154,7 +153,7 @@
         >Select this node as a condition for '{{ getNodeWithDependencies().title }}'</b-list-group-item>
 
         <b-list-group-item
-          v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.load.currentProductId"
+          v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.currentProductId"
           button
           :active="contextOptionSelected === MOVETOPRODUCT"
           variant="dark"

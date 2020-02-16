@@ -336,7 +336,7 @@ export default {
 					return
 				}
 				// prevent drag to other product
-				if (this.cursorPosition.nodeModel.productId !== this.$store.state.load.currentProductId) {
+				if (this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
 					this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', WARNING)
 					this.stopDrag()
 					return
@@ -497,7 +497,7 @@ export default {
 		},
 
 		// return the node of the selected productId / current productId or the full tree if the product is not found
-		getProductModels(productId = this.$store.state.load.currentProductId) {
+		getProductModels(productId = this.$store.state.currentProductId) {
 			const productModels = this.currentValue[0].children
 			for (let p of productModels) {
 				if (p.productId === productId) {
@@ -806,13 +806,13 @@ export default {
 			console.log('resetFilters is called by ' + caller)
 			if (this.$store.state.filterOn) {
 				this.resetTree()
-				this.showLastEvent(`Your filter in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
+				this.showLastEvent(`Your filter in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.filterText = FILTERBUTTONTEXT
 				this.$store.state.filterOn = false
 			}
 			if (this.$store.state.searchOn) {
 				this.resetTree()
-				this.showLastEvent(`Your search in product '${this.$store.state.load.currentProductTitle}' is cleared`, INFO)
+				this.showLastEvent(`Your search in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.searchOn = false
 			}
 		},
@@ -821,7 +821,7 @@ export default {
 			// eslint-disable-next-line no-console
 			console.log('resetFindOnId is called by ' + caller)
 			this.resetTree()
-			this.showLastEvent(`Your view on product '${this.$store.state.load.currentProductTitle}' is restored`, INFO)
+			this.showLastEvent(`Your view on product '${this.$store.state.currentProductTitle}' is restored`, INFO)
 			this.$store.state.findIdOn = false
 		},
 
