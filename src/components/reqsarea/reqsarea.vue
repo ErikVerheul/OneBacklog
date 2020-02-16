@@ -90,7 +90,7 @@
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
           <sl-vue-tree
-            :value="$store.state.loadreqsarea.reqAreaNodes"
+            :value="$store.state.treeNodes"
             ref="slVueTree"
             :allow-multiselect="true"
             @select="nodeSelectedEvent"

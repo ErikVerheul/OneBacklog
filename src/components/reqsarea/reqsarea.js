@@ -22,7 +22,7 @@ var violationsWereFound = false
 export default {
 
   beforeCreate() {
-    this.$store.state.loadreqsarea.reqAreaNodes = []
+    this.$store.state.treeNodes = []
     this.$store.state.loadreqsarea.docsCount = 0
     this.$store.state.loadreqsarea.itemsCount = 0
     this.$store.state.loadreqsarea.orphansCount = 0
@@ -38,6 +38,11 @@ export default {
     this.EPICLEVEL = 3
     this.FEATURELEVEL = 4
     this.PBILEVEL = 5
+  },
+
+  mounted() {
+    // expose instance to the global namespace
+    window.slVueTree = this.$refs.slVueTree
   },
 
   data() {
@@ -123,7 +128,7 @@ export default {
   },
 
   beforeUpdate() {
-    this.checkForDependencyViolations()
+    // this.checkForDependencyViolations()
   },
 
   computed: {

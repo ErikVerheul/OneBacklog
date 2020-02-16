@@ -22,6 +22,16 @@ var violationsWereFound = false
 export default {
   mixins: [utilities],
 
+  beforeCreate() {
+    this.$store.state.treeNodes = []
+    this.$store.state.loadproducts.processedProducts = 0
+    this.$store.state.loadproducts.docsCount = 0
+    this.$store.state.loadproducts.itemsCount = 0
+    this.$store.state.loadproducts.orphansCount = 0
+    this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
+    this.$store.dispatch('setRoot')
+  },
+
   created() {
     this.DATABASELEVEL = 1
     this.PRODUCTLEVEL = 2
@@ -116,7 +126,7 @@ export default {
   },
 
   beforeUpdate() {
-    this.checkForDependencyViolations()
+    // this.checkForDependencyViolations()
   },
 
   computed: {

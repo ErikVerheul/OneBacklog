@@ -17,6 +17,7 @@ import undo from './modules/undo'
 import remove from './modules/remove'
 import utils from './modules/utils'
 import restorebranch from './modules/restorebranch'
+import loadproducts from './modules/loadproducts.js'
 import loadreqsarea from './modules/loadreqsarea.js'
 
 const DEBUG = -1
@@ -32,6 +33,9 @@ export default new Vuex.Store({
 		// console log settings
 		debug: true,
 		showWatchdogInfo: false,
+		// loading
+		treeNodes: [],
+		isProductAssigned: false,
 		// logging
 		logState: {
 			unsavedLogs: [],
@@ -43,8 +47,6 @@ export default new Vuex.Store({
 		currentDefaultProductId: null,
 		currentProductId: null,
 		currentProductTitle: "",
-		// load
-		isProductAssigned: false,
 		// options
 		autoCorrectUserProfile: true,
 		// product view
@@ -176,15 +178,10 @@ export default new Vuex.Store({
 		},
 
 		resetData(state) {
-			state.load.docsCount = 0
-			state.load.itemsCount = 0
-			state.load.orphansCount = 0
-			state.load.treeNodes = []
-			state.load.productIdLoading = null
-			state.load.processedProducts = 0
-
-			state.currentDefaultProductId = null,
-			state.currentProductId = null,
+			state.treeNodes = []
+			state.processedProducts = 0
+			state.currentDefaultProductId = null
+			state.currentProductId = null
 			state.currentProductTitle = ''
 			state.isProductAssigned = false
 			state.myProductOptions = []
@@ -312,6 +309,7 @@ export default new Vuex.Store({
 		remove,
 		utils,
 		restorebranch,
+		loadproducts,
 		loadreqsarea
 	}
 
