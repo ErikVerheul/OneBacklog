@@ -26,6 +26,7 @@ export default {
     this.$store.state.treeNodes = []
     this.$store.state.skipOnce = true
     this.$store.state.currentView = 'products'
+    this.$store.state.changeHistory = []
     this.$store.state.loadproducts.docsCount = 0
     this.$store.state.loadproducts.insertedCount = 0
     this.$store.state.loadproducts.orphansCount = 0
