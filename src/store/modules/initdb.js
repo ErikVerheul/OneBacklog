@@ -210,8 +210,20 @@ const actions = {
 					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
 					 * Select the 'backlogitem' document type and skip removed, requirements-area and database description documents (level 0 and 1).
 					 */
-					"sortedFilter": {
+					"sortedFilter": { // ToDo: delete this filter when no longer used
 						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
+					},
+					"allItemsFilter": {
+						"map": `function(doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 0) emit([doc.productId, doc.level, doc.priority * -1],
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history, doc.comments[0]]);
+						}`
+					},
+					"areaFilter": {
+						"map": `function(doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level < 5) emit([doc.productId, doc.level, doc.priority * -1],
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history, doc.comments[0]]);
+						}`
 					},
 					/* Filter on document type 'backlogItem', then filter the changes which need distributed to other users. */
 					"changesFilter": {
