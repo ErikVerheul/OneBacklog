@@ -347,8 +347,8 @@ export default {
 					this.stopDrag()
 					return
 				}
-				// prevent drag to other product
-				if (this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
+				// prevent drag to other product when not in reqarea view
+				if (this.$store.state.currentView != 'reqsarea' && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
 					this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', WARNING)
 					this.stopDrag()
 					return
