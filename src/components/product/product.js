@@ -24,12 +24,13 @@ export default {
 
   beforeCreate() {
     this.$store.state.treeNodes = []
-    this.$store.state.loadproducts.processedProducts = 0
+    this.$store.state.skipOnce = true
+    this.$store.state.currentView = 'products'
     this.$store.state.loadproducts.docsCount = 0
-    this.$store.state.loadproducts.itemsCount = 0
+    this.$store.state.loadproducts.insertedCount = 0
     this.$store.state.loadproducts.orphansCount = 0
     this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
-    this.$store.dispatch('setRoot')
+    this.$store.dispatch('loadCurrentProduct')
   },
 
   created() {
@@ -40,41 +41,7 @@ export default {
     this.PBILEVEL = 5
   },
 
-  data() {
-    return {
-      userStorySubtype: 0,
-      spikeSubtype: 1,
-      defectSubtype: 2,
-      shortId: "",
-      newDescription: '',
-      newAcceptance: '',
-      selectedNodesTitle: '',
-      editorToolbar: [
-        [{ header: [false, 1, 2, 3, 4, 5, 6] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-        ['link', 'image', 'code-block']
-      ],
-      // set to an invalid value; must be updated before use
-      selectedPbiType: -1,
-      // comments, history and attachments
-      doAddition: false,
-      startFiltering: false,
-      isCommentsFilterActive: false,
-      isHistoryFilterActive: false,
-      newComment: "",
-      fileInfo: null,
-      newHistory: "",
-      filterForCommentPrep: "",
-      filterForHistoryPrep: ""
-    }
-  },
-
   mounted() {
-    // the first (index 0) product in myProductSubscriptions is by definition the default product
-    this.$store.state.nodeSelected = this.$refs.slVueTree.getNodeById(this.$store.state.userData.myProductSubscriptions[0])
-
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
 
@@ -125,6 +92,38 @@ export default {
     })
   },
 
+  data() {
+    return {
+      userStorySubtype: 0,
+      spikeSubtype: 1,
+      defectSubtype: 2,
+      shortId: "",
+      newDescription: '',
+      newAcceptance: '',
+      selectedNodesTitle: '',
+      editorToolbar: [
+        [{ header: [false, 1, 2, 3, 4, 5, 6] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+        ['link', 'image', 'code-block']
+      ],
+      // set to an invalid value; must be updated before use
+      selectedPbiType: -1,
+      // comments, history and attachments
+      doAddition: false,
+      startFiltering: false,
+      isCommentsFilterActive: false,
+      isHistoryFilterActive: false,
+      newComment: "",
+      fileInfo: null,
+      newHistory: "",
+      filterForCommentPrep: "",
+      filterForHistoryPrep: ""
+    }
+  },
+
+  // ToDo: fix error
   beforeUpdate() {
     // this.checkForDependencyViolations()
   },

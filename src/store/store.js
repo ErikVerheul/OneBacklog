@@ -47,6 +47,8 @@ export default new Vuex.Store({
 		currentDefaultProductId: null,
 		currentProductId: null,
 		currentProductTitle: "",
+		// view settings
+		currentView: 'products',
 		// options
 		autoCorrectUserProfile: true,
 		// product view
@@ -108,6 +110,8 @@ export default new Vuex.Store({
 			return state.userData.user !== undefined
 		},
 		isFollower(state) {
+			if (!state.currentDoc.followers) return false
+
 			const emails = state.currentDoc.followers.map(e => e.email)
 			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
@@ -179,7 +183,6 @@ export default new Vuex.Store({
 
 		resetData(state) {
 			state.treeNodes = []
-			state.processedProducts = 0
 			state.currentDefaultProductId = null
 			state.currentProductId = null
 			state.currentProductTitle = ''

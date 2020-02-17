@@ -40,6 +40,7 @@ conditionalFor: doc.conditionalFor, // array with ids
 data: {
 ....priority: doc.priority,
 ....state: doc.state,
+....reqarea: doc.reqarea,
 ....inconsistentState: false // calculated on consistency check
 ....team: doc.team, // the team membership of the user who updated the state the last time
 ....subtype: doc.subtype,

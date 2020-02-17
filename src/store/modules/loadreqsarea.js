@@ -10,7 +10,7 @@ var parentNodes = {}
 
 const state = {
     docsCount: 0,
-    itemsCount: 0,
+    insertedCount: 0,
     orphansCount: 0,
     orphansFound: { userData: null, orphans: [] }
 }
@@ -87,7 +87,20 @@ const actions = {
         }).then(res => {
             batch = res.data.rows
             for (let item of batch) {
+                const _id = item.id
+                const productId = item.key[0]
                 const level = item.key[1]
+                const priority = -item.key[2]
+                const parentId = item.value[1]
+                const reqarea = item.value[0] || null
+                const itemState = item.value[2]
+                const title = item.value[3]
+                const team = item.value[4]
+                const subtype = item.value[5]
+                const dependencies = item.value[6] || []
+                const conditionalFor = item.value[7] || []
+                const history = item.value[8]
+                const lastComment = item.value[9]
                 // skip reqarea docs for now
                 if (level === 0) continue
 
@@ -97,42 +110,43 @@ const actions = {
                     // initialize with the root document
                     rootState.treeNodes = [
                         {
-                            "path": [0],
-                            "pathStr": '[0]',
-                            "ind": 0,
-                            "level": 1,
-                            "productId": item.key[0],
-                            "parentId": null,
-                            "_id": 'root',
-                            "shortId": "0",
-                            "dependencies": [],
-                            "conditionalFor": [],
-                            "title": item.value[3],
-                            "isLeaf": false,
-                            "children": [],
-                            "isExpanded": true,
-                            "savedIsExpanded": true,
-                            "isSelectable": true,
-                            "isDraggable": false,
-                            "isSelected": false,
-                            "doShow": true,
-                            "savedDoShow": true,
-                            "data": {
-                                "state": item.value[2],
-                                "team": item.value[4],
-                                "priority": item.key[2],
-                                "lastChange": 0
+                            path: [0],
+                            pathStr: '[0]',
+                            ind: 0,
+                            level,
+                            productId,
+                            parentId: null,
+                            _id,
+                            shortId: 0,
+                            dependencies,
+                            conditionalFor,
+                            title,
+                            isLeaf: false,
+                            children: [],
+                            isExpanded: true,
+                            savedIsExpanded: true,
+                            isSelectable: true,
+                            isDraggable: false,
+                            isSelected: false,
+                            doShow: true,
+                            savedDoShow: true,
+                            data: {
+                                state: itemState,
+                                team,
+                                priority,
+                                lastChange: 0
                             }
                         },
                     ]
                     parentNodes.root = rootState.treeNodes[0]
-                    state.itemsCount++
+                    state.insertedCount++
                     continue
                 }
 
-                const parentId = item.value[1]
-                // expand the tree up to the feature level
-                let isExpanded = level < PRODUCTLEVEL
+                // expand the default product up to the feature level
+                const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
+                // select the default product
+                const isSelected = _id === rootState.currentDefaultProductId
                 const isDraggable = level > PRODUCTLEVEL
                 // show all nodes
                 const doShow = true
@@ -141,66 +155,67 @@ const actions = {
                     const ind = parentNode.children.length
                     const parentPath = parentNode.path
                     const path = parentPath.concat(ind)
-                    const changeTimes = setChangeTimestamps(item.value[8], item.value[9])
+                    const changeTimes = setChangeTimestamps(history, lastComment)
 
                     let newNode = {
                         path,
                         pathStr: JSON.stringify(path),
                         ind,
                         level,
-                        productId: item.key[0],
+                        productId,
                         parentId,
-                        _id: item.id,
-                        shortId: item.id.slice(-5),
-                        dependencies: item.value[6] || [],
-                        conditionalFor: item.value[7] || [],
-                        title: item.value[3],
+                        _id,
+                        shortId: _id.slice(-5),
+                        dependencies,
+                        conditionalFor,
+                        title,
                         isLeaf: level === FEATURELEVEL,
                         children: [],
                         isExpanded,
                         savedIsExpanded: isExpanded,
                         isSelectable: true,
                         isDraggable,
-                        isSelected: false,
+                        isSelected,
                         doShow,
                         savedDoShow: doShow,
                         data: {
-                            priority: item.key[2],
-                            state: item.value[2],
-                            inconsistentState: false,
-                            team: item.value[4],
+                            priority,
+                            state: itemState,
+                            reqarea,
+                            team,
                             lastPositionChange: changeTimes.lastPositionChange,
                             lastStateChange: changeTimes.lastStateChange,
                             lastContentChange: changeTimes.lastContentChange,
                             lastCommentAddition: changeTimes.lastCommentAddition,
                             lastAttachmentAddition: changeTimes.lastAttachmentAddition,
                             lastCommentToHistory: changeTimes.lastCommentToHistory,
-                            subtype: item.value[5],
+                            subtype,
                             lastChange: 0
                         }
                     }
 
-                    state.itemsCount++
+                    state.insertedCount++
                     parentNode.children.push(newNode)
-                    parentNodes[item.id] = newNode
+                    parentNodes[_id] = newNode
+                    if (_id === rootState.currentDefaultProductId) rootState.nodeSelected = newNode
                 } else {
                     state.orphansCount++
-                    state.orphansFound.orphans.push({ id: item.id, parentId, productId: item.key[0] })
+                    state.orphansFound.orphans.push({ id: _id, parentId, productId: level })
                     // eslint-disable-next-line no-console
-                    console.log('getAllItems: orphan found with _id = ' + item.id + ', parentId = ' + parentId + ' and productId = ' + item.key[0])
+                    console.log('getAllItems: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
                 }
             }
-            commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.itemsCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
+            commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
             // log any detected orphans if present
             if (state.orphansFound.orphans.length > 0) {
                 for (let o of state.orphansFound.orphans) {
                     const msg = 'Orphan found with Id = ' + o.id + ', parentId = ' + o.parentId + ' and  productId = ' + o.productId
                     let newLog = {
-                        "event": msg,
-                        "level": "CRITICAL",
-                        "by": state.orphansFound.userData.user,
-                        "timestamp": Date.now(),
-                        "timestampStr": new Date().toString()
+                        event: msg,
+                        level: 'CRITICAL',
+                        by: state.orphansFound.userData.user,
+                        timestamp: Date.now(),
+                        timestampStr: new Date().toString()
                     }
                     rootState.logState.unsavedLogs.push(newLog)
                 }

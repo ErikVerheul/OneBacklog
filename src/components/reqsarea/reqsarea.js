@@ -17,14 +17,17 @@ const REMOVED = 0
 const NEW = 0
 const READY = 1
 const DONE = 4
+const FEATURELEVEL = 4
 var violationsWereFound = false
 
 export default {
 
   beforeCreate() {
     this.$store.state.treeNodes = []
+    this.$store.state.skipOnce = true
+    this.$store.state.currentView = 'reqsarea'
     this.$store.state.loadreqsarea.docsCount = 0
-    this.$store.state.loadreqsarea.itemsCount = 0
+    this.$store.state.loadreqsarea.insertedCount = 0
     this.$store.state.loadreqsarea.orphansCount = 0
     this.$store.state.loadreqsarea.orphansFound = { userData: null, orphans: [] }
     this.$store.dispatch('getAllItems')
@@ -43,42 +46,6 @@ export default {
   mounted() {
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
-  },
-
-  data() {
-    return {
-      userStorySubtype: 0,
-      spikeSubtype: 1,
-      defectSubtype: 2,
-      shortId: "",
-      newDescription: '',
-      newAcceptance: '',
-      selectedNodesTitle: '',
-      editorToolbar: [
-        [{ header: [false, 1, 2, 3, 4, 5, 6] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-        ['link', 'image', 'code-block']
-      ],
-      // set to an invalid value; must be updated before use
-      selectedPbiType: -1,
-      // comments, history and attachments
-      doAddition: false,
-      startFiltering: false,
-      isCommentsFilterActive: false,
-      isHistoryFilterActive: false,
-      newComment: "",
-      fileInfo: null,
-      newHistory: "",
-      filterForCommentPrep: "",
-      filterForHistoryPrep: ""
-    }
-  },
-
-  mounted() {
-    // the first (index 0) product in myProductSubscriptions is by definition the default product
-    this.$store.state.nodeSelected = this.$refs.slVueTree.getNodeById(this.$store.state.userData.myProductSubscriptions[0])
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;
@@ -125,6 +92,37 @@ export default {
         window.slVueTree.resetFilters('searchInput')
       }
     })
+  },
+
+  data() {
+    return {
+      userStorySubtype: 0,
+      spikeSubtype: 1,
+      defectSubtype: 2,
+      shortId: "",
+      newDescription: '',
+      newAcceptance: '',
+      selectedNodesTitle: '',
+      editorToolbar: [
+        [{ header: [false, 1, 2, 3, 4, 5, 6] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+        ['link', 'image', 'code-block']
+      ],
+      // set to an invalid value; must be updated before use
+      selectedPbiType: -1,
+      // comments, history and attachments
+      doAddition: false,
+      startFiltering: false,
+      isCommentsFilterActive: false,
+      isHistoryFilterActive: false,
+      newComment: "",
+      fileInfo: null,
+      newHistory: "",
+      filterForCommentPrep: "",
+      filterForHistoryPrep: ""
+    }
   },
 
   beforeUpdate() {
