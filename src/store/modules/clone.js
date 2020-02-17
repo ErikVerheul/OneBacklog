@@ -86,7 +86,7 @@ const actions = {
         const rangeString = 'startkey=["' + productId + '",0]&endkey=["' + productId + '",' + (PBILEVEL + 1) + ']'
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/sortedFilter?' + rangeString + '&include_docs=true',
+            url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter?' + rangeString + '&include_docs=true',
         }).then(res => {
             // extract the documents
             docs = []
