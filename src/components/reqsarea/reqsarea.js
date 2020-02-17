@@ -17,7 +17,6 @@ const REMOVED = 0
 const NEW = 0
 const READY = 1
 const DONE = 4
-const FEATURELEVEL = 4
 var violationsWereFound = false
 
 export default {
@@ -26,6 +25,7 @@ export default {
     this.$store.state.treeNodes = []
     this.$store.state.skipOnce = true
     this.$store.state.currentView = 'reqsarea'
+    this.$store.state.changeHistory = []
     this.$store.state.loadreqsarea.docsCount = 0
     this.$store.state.loadreqsarea.insertedCount = 0
     this.$store.state.loadreqsarea.orphansCount = 0
@@ -830,21 +830,6 @@ export default {
       this.$store.state.numberOfNodesSelected = selNodes.length
       // update the first (highest in hierarchie) selected node
       this.$store.state.nodeSelected = selNodes[0]
-      // if the root node is selected do nothing
-      if (this.$store.state.nodeSelected._id !== 'root') {
-        // if the user clicked on a node of another product
-        if (this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
-          // clear any outstanding filters
-          window.slVueTree.resetFilters('nodeSelectedEvent')
-          // collapse the previously selected product
-          window.slVueTree.collapseTree()
-          // update current productId and title
-          this.$store.state.currentProductId = this.$store.state.nodeSelected.productId
-          this.$store.state.currentProductTitle = this.$store.state.nodeSelected.title
-          // expand the newly selected product up to the feature level
-          window.slVueTree.expandTree()
-        }
-      }
       // load the document if not already in memory & reset attachment settings
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
@@ -865,9 +850,9 @@ export default {
     /* Use this event to check if the drag is allowed. If not, issue a warning */
     beforeNodeDropped(draggingNodes, position, cancel) {
       /*
-       * Disallow drop on node were the user has no write authority
-       * Disallow drop when moving over more than 1 level.
-       * Dropping items with descendants is not possible when any descendant would land higher than the highest level (pbilevel).
+       * 1. Disallow drop on node were the user has no write authority
+       * 2. Disallow drop when moving over more than 1 level.
+       * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest permitted level.
        * precondition: the selected nodes have all the same parent (same level)
        */
       let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
