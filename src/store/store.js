@@ -16,7 +16,7 @@ import move from './modules/move'
 import undo from './modules/undo'
 import remove from './modules/remove'
 import utils from './modules/utils'
-import restorebranch from './modules/restorebranch'
+import restorebranches from './modules/restorebranches'
 import loadproducts from './modules/loadproducts.js'
 import loadreqsarea from './modules/loadreqsarea.js'
 
@@ -311,7 +311,7 @@ export default new Vuex.Store({
 		undo,
 		remove,
 		utils,
-		restorebranch,
+		restorebranches,
 		loadproducts,
 		loadreqsarea
 	}
