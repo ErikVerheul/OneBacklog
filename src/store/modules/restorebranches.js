@@ -210,7 +210,7 @@ const actions = {
                 dispatch('processItems', docs)
             }
         }).catch(error => {
-            let msg = 'restoreBranches.getChildren: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+            let msg = 'restorebranches.getChildren: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -225,7 +225,7 @@ const actions = {
         dispatch('processItems', [doc])
     },
 
-    restoreBranches({
+    restorebranches({
         dispatch
     }, docs) {
         fromHistory = false
