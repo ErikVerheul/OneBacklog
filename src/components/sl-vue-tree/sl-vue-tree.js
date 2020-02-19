@@ -253,6 +253,20 @@ export default {
 			this.emitSelect(selectedNodes, event)
 		},
 
+		selectNodeById(id) {
+			const selNode = this.getNodeById(id)
+			console.log('selectNodeById: selNode.title = ' + selNode.title)
+			if (selNode === null) return
+
+			// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
+			if (lastSelectedNode) lastSelectedNode.isSelected = false
+			if (nodeToDeselect) nodeToDeselect.isSelected = false
+			for (let node of selectedNodes) node.isSelected = false
+			selectedNodes = [selNode]
+			selNode.isSelected = selNode.isSelectable
+			lastSelectedNode = selNode
+		},
+
 		onMousemoveHandler(event) {
 			if (!this.isRoot) {
 				this.getRootComponent().onMousemoveHandler(event)
@@ -525,6 +539,8 @@ export default {
 				if (p._id !== productId) newChildren.push(p)
 			}
 			this.currentValue[0].children = newChildren
+			// recalculate the paths in the tree
+			updatePaths([0], newChildren, this.$store.state.currentView)
 		},
 
 		getRootNode() {
@@ -763,10 +779,10 @@ export default {
 		/* show the current selected product */
 		expandTree() {
 			this.traverseModels((nm) => {
-				if (nm.level === PRODUCTLEVEL) {
+				if (nm.level < FEATURELEVEL) {
 					nm.isExpanded = true
 				}
-				if (nm.level > PRODUCTLEVEL) {
+				if (nm.level <= FEATURELEVEL) {
 					nm.doShow = true
 				}
 			}, this.getProductModels())
