@@ -1,7 +1,6 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
 
-var batch = []
 const INFO = 0
 const ERROR = 2
 const PRODUCTLEVEL = 2
@@ -82,8 +81,9 @@ const mutations = {
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
 	 * The root and the top level product nodes are not draggable
 	 */
-    processProducts(state, rootState) {
-        for (let item of batch) {
+    processProducts(state, payload) {
+        const rootState = payload.rootState
+        for (let item of payload.batch) {
             const _id = item.id
             const productId = item.key[0]
             const level = item.key[1]
@@ -260,8 +260,7 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter',
         }).then(res => {
-            batch = res.data.rows
-            commit('processProducts', rootState)
+            commit('processProducts', { rootState, batch: res.data.rows })
             commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
             // log any detected orphans if present
             if (state.orphansFound.orphans.length > 0) {
