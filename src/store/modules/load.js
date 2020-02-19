@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
+const PRODUCTLEVEL = 2
 
 const actions = {
 	/* Load a backlog item by short id */
@@ -98,7 +99,10 @@ const actions = {
 		})
 	},
 
-	/* Load document by _id and make it the current backlog item */
+	/*
+	* Load document by _id and make it the current backlog item
+	* If a product is loaded set the current product title
+	*/
 	loadDoc({
 		rootState,
 		dispatch
@@ -111,6 +115,7 @@ const actions = {
 			// decode from base64 + replace the encoded data
 			rootState.currentDoc.description = window.atob(res.data.description)
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+			if (rootState.currentDoc.level === PRODUCTLEVEL) rootState.currentProductTitle = rootState.currentDoc.title
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('loadDoc: document with _id ' + _id + ' is loaded.')
 		}).catch(error => {
