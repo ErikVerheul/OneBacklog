@@ -9,6 +9,7 @@ const PBILEVEL = 5
 const HOURINMILIS = 3600000
 var fromHistory
 var histArray
+var newDefaultId
 
 function composeRangeString(id) {
     return 'startkey="' + id + '"&endkey="' + id + '"'
@@ -172,6 +173,7 @@ const actions = {
                     nodeModel: locationInfo.prevNode,
                     placement: locationInfo.newInd === 0 ? 'inside' : 'after'
                 }, [newNode], false)
+
                 if (fromHistory) {
                     // restore external dependencies
                     const dependencies = histArray[2] || []
@@ -184,6 +186,9 @@ const actions = {
                         const node = window.slVueTree.getNodeById(c.id)
                         if (node !== null) node.conditionalFor.push(c.conditionalFor)
                     }
+                } else {
+                    // select the product node in the tree
+                    if (doc._id === newDefaultId) window.slVueTree.selectNodeById(newDefaultId)
                 }
                 dispatch('getChildren', doc._id)
             } else {
@@ -230,7 +235,49 @@ const actions = {
     }, docs) {
         fromHistory = false
         dispatch('processItems', docs)
-    }
+    },
+
+    /* addProducts uses restoteBranches to load a product as a branche */
+    addProducts({
+		rootState,
+		dispatch
+	}, payload) {
+        newDefaultId = payload.newDefaultId
+		const docsToGet = []
+		for (let id of payload.missingIds) {
+			docsToGet.push({ "id": id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			for (let r of results) {
+				docs.push(r.docs[0].ok)
+				if (r.docs[0].error) error.push(r.docs[0].error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
+				let msg = 'addProducts: These products cannot be added: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('restorebranches', docs)
+		}).catch(error => {
+			let msg = 'addProducts: Could not add products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 }
 
 export default {
