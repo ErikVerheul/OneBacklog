@@ -14,12 +14,12 @@ export default {
             newPassword1: "",
             newPassword2: "",
             selectedProducts: this.$store.state.userData.myProductSubscriptions,
-            defaultProductId: undefined,
             defaultProductOptions: [],
             myTeam: '',
             myDatabase: '',
             databaseOptions: [],
-            teamOptions: []
+            teamOptions: [],
+            newDefaultProductId: undefined
         }
     },
     created() {
@@ -86,9 +86,7 @@ export default {
 
             this.defaultProductOptions = []
             if (this.selectedProducts.length === 1) {
-                // if just 1 product is selected that product is the default
-                this.defaultProductId = this.selectedProducts[0]
-                this.$store.dispatch('updateSubscriptions', [this.defaultProductId])
+                this.updateTreeView([this.selectedProducts[0]], this.selectedProducts[0])
             } else {
                 for (let o of this.$store.state.myProductOptions) {
                     if (this.selectedProducts.includes(o.value)) {
@@ -101,17 +99,53 @@ export default {
 
         /* Update the subscriptions array of this user */
         updateProductsSubscription() {
-            // the first (index 0) product is by definition the default product
-            const myNewProductSubscriptions = [this.defaultProductId]
-            const otherSubscriptions = []
-            for (let p of this.selectedProducts) {
-                if (p !== this.defaultProductId) {
-                    otherSubscriptions.push(p)
+            this.updateTreeView(this.selectedProducts, this.newDefaultProductId)
+        },
+
+        updateTreeView(productIds, newDefaultId) {
+            let defaultProductChanged = false
+
+            defaultProductChanged = this.$store.state.currentProductId !== newDefaultId
+            if (defaultProductChanged) {
+                // collapse the previously selected product
+                window.slVueTree.collapseTree()
+                // update globals to new default
+                this.$store.state.currentProductId = newDefaultId
+                this.$store.state.currentDefaultProductId = newDefaultId
+                // load the product doc if not already in memory
+                if (this.$store.state.nodeSelected._id !== newDefaultId) {
+                    this.$store.dispatch('loadDoc', newDefaultId)
                 }
             }
-            // sort on creation date in ascending order
-            otherSubscriptions.sort()
-            this.$store.dispatch('updateSubscriptions', myNewProductSubscriptions.concat(otherSubscriptions))
+            // remove products from the tree view
+            for (let productId of this.$store.state.userData.myProductSubscriptions) {
+                if (!productIds.includes(productId)) {
+                    window.slVueTree.removeProduct(productId)
+                }
+            }
+            // update myProductSubscriptions and add product(s) if missing
+            this.$store.state.userData.myProductSubscriptions = []
+            const missingIds = []
+            for (let productId of productIds) {
+                if (this.$store.state.userData.userAssignedProductIds.includes(productId)) {
+                    this.$store.state.userData.myProductSubscriptions.push(productId)
+                    if (window.slVueTree.getNodeById(productId) === null) {
+                        missingIds.push(productId)
+                    }
+                }
+            }
+            if (!missingIds.includes(newDefaultId)) {
+                if (defaultProductChanged) {
+                    // select the new default product
+                    window.slVueTree.selectNodeById(newDefaultId)
+                    // expand the newly selected product up to the feature level
+                    window.slVueTree.expandTree()
+                }
+            }
+            if (missingIds.length > 0) {
+                this.$store.dispatch('addProducts', { missingIds, newDefaultId })
+            }
+            this.$store.dispatch('updateSubscriptions', productIds)
         },
 
         doChangePw() {

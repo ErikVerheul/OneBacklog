@@ -30,11 +30,13 @@
               v-if="isAuthenticated && $store.state.userData.myDatabases.length > 1"
               @click="changeDatabase"
             >Change database</b-dropdown-item>
-            <b-dropdown-item v-if="isAuthenticated" @click="changeTeam">Change team</b-dropdown-item>
-            <b-dropdown-item
-              v-if="isAuthenticated && $store.state.userData.userAssignedProductIds.length > 1"
-              @click="selectProducts"
-            >Select products</b-dropdown-item>
+            <template v-if="$store.state.currentView !== 'reqsarea'">
+              <b-dropdown-item v-if="isAuthenticated" @click="changeTeam">Change team</b-dropdown-item>
+              <b-dropdown-item
+                v-if="isAuthenticated && $store.state.userData.userAssignedProductIds.length > 1"
+                @click="selectProducts"
+              >Select products</b-dropdown-item>
+            </template>
             <b-dropdown-item v-if="isAuthenticated" @click="changePassword">Change password</b-dropdown-item>
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
             <b-dropdown-item v-if="isAuthenticated" @click="onSignout">Sign Out</b-dropdown-item>
@@ -89,7 +91,7 @@
     >
       <b-container align-v="true">
         <b-form-select
-          v-model="defaultProductId"
+          v-model="newDefaultProductId"
           :options="defaultProductOptions"
           :select-size="defaultProductOptions.length"
         ></b-form-select>
