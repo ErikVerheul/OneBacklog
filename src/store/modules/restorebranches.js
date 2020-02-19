@@ -7,8 +7,8 @@ const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const HOURINMILIS = 3600000
-var parentHistObj
 var fromHistory
+var histArray
 
 function composeRangeString(id) {
     return 'startkey="' + id + '"&endkey="' + id + '"'
@@ -117,12 +117,14 @@ const actions = {
                 }
             }
         }
-        for (let d of docs) {
-            let doc = d
+
+        for (let doc of docs) {
             const parentNode = window.slVueTree.getNodeById(doc.parentId)
             if (parentNode) {
                 // create the node
                 const locationInfo = getLocationInfo(doc.priority, parentNode)
+                const level = locationInfo.newPath.length
+                const isExpanded = doc.productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
                 const changeTimes = setChangeTimestamps(doc)
                 let lastChange
                 if (doc.history[0].resetCommentsEvent && !doc.history[0].resetHistoryEvent) {
@@ -131,28 +133,27 @@ const actions = {
                     lastChange = doc.comments[0].timestamp
                 } else lastChange = doc.history[0].timestamp > doc.comments[0].timestamp ? doc.history[0].timestamp : doc.comments[0].timestamp
                 let newNode = {
-                    "path": locationInfo.newPath,
-                    "pathStr": JSON.stringify(locationInfo.newPath),
-                    "ind": locationInfo.newInd,
-                    "level": locationInfo.newPath.length,
-
-                    "productId": doc.productId,
-                    "parentId": doc.parentId,
-                    "_id": doc._id,
-                    "shortId": doc.shortId,
-                    "dependencies": doc.dependencies || [],
-                    "conditionalFor": doc.conditionalFor || [],
-                    "title": doc.title,
-                    "isLeaf": (locationInfo.newPath.length < PBILEVEL) ? false : true,
-                    "children": [],
-                    "isSelected": false,
-                    "isExpanded": doc.level < FEATURELEVEL,
-                    "savedIsExpanded": doc.level < FEATURELEVEL,
-                    "isSelectable": true,
-                    "isDraggable": doc.level > PRODUCTLEVEL,
-                    "doShow": true,
-                    "savedDoShow": true,
-                    "data": {
+                    path: locationInfo.newPath,
+                    pathStr: JSON.stringify(locationInfo.newPath),
+                    ind: locationInfo.newInd,
+                    level,
+                    productId: doc.productId,
+                    parentId: doc.parentId,
+                    _id: doc._id,
+                    shortId: doc.shortId,
+                    dependencies: doc.dependencies || [],
+                    conditionalFor: doc.conditionalFor || [],
+                    title: doc.title,
+                    isLeaf: (locationInfo.newPath.length < PBILEVEL) ? false : true,
+                    children: [],
+                    isSelected: false,
+                    isExpanded,
+                    savedIsExpanded: isExpanded,
+                    isSelectable: true,
+                    isDraggable: doc.level > PRODUCTLEVEL,
+                    doShow: true,
+                    savedDoShow: true,
+                    data: {
                         state: doc.state,
                         subtype: doc.subtype,
                         priority: doc.priority,
@@ -173,11 +174,13 @@ const actions = {
                 }, [newNode], false)
                 if (fromHistory) {
                     // restore external dependencies
-                    for (let d of parentHistObj.docRestoredEvent[2]) {
+                    const dependencies = histArray[2] || []
+                    for (let d of dependencies) {
                         const node = window.slVueTree.getNodeById(d.id)
                         if (node !== null) node.dependencies.push(d.dependentOn)
                     }
-                    for (let c of parentHistObj.docRestoredEvent[4]) {
+                    const conditionalFor = histArray[4] || []
+                    for (let c of conditionalFor) {
                         const node = window.slVueTree.getNodeById(c.id)
                         if (node !== null) node.conditionalFor.push(c.conditionalFor)
                     }
@@ -207,7 +210,7 @@ const actions = {
                 dispatch('processItems', docs)
             }
         }).catch(error => {
-            let msg = 'Sync.getChildren: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+            let msg = 'restoreBranches.getChildren: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -216,10 +219,17 @@ const actions = {
 
     restoreBranch({
         dispatch
-    }, payload) {
-        fromHistory = payload.fromHistory
-        if (fromHistory) parentHistObj = payload.doc.history[0]
-        dispatch('processItems', [payload.doc])
+    }, doc) {
+        fromHistory = true
+        histArray = doc.history[0]["docRestoredEvent"]
+        dispatch('processItems', [doc])
+    },
+
+    restoreBranches({
+        dispatch
+    }, docs) {
+        fromHistory = false
+        dispatch('processItems', docs)
     }
 }
 
