@@ -111,14 +111,6 @@
             </b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > PRODUCTLEVEL"
-              button
-              :active="contextOptionSelected === MOVETOPRODUCT"
-              variant="dark"
-              @click="showSelected(MOVETOPRODUCT)"
-            >Move this {{ contextNodeType }} to another product</b-list-group-item>
-
-            <b-list-group-item
               v-if="contextNodeLevel === PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEPRODUCT"
@@ -152,13 +144,6 @@
           @click="showSelected(SETDEPENDENCY)"
         >Select this node as a condition for '{{ getNodeWithDependencies().title }}'</b-list-group-item>
 
-        <b-list-group-item
-          v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.currentProductId"
-          button
-          :active="contextOptionSelected === MOVETOPRODUCT"
-          variant="dark"
-          @click="showSelected(MOVETOPRODUCT)"
-        >Insert the moved item here</b-list-group-item>
       </b-list-group>
 
       <div class="d-block text-center">
