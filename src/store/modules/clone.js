@@ -60,10 +60,9 @@ function showProduct() {
                 doShow,
                 savedDoShow: doShow,
                 data: {
-                    // products are sorted by id. As the id starts with the creation date newer products are sorted last
-                    priority: 0,
+                    priority: doc.priority,
                     state: doc.state,
-                    inconsistentState: false,
+                    reqarea: doc.reqarea,
                     team: doc.team,
                     subtype: doc.subtype,
                     lastChange
@@ -105,8 +104,8 @@ const actions = {
                 if (i === 0) {
                     newProductId = newId
                     docs[0].parentId = 'root'
-                    // products are sorted by id. As the id starts with the creation date newer products are sorted last
-                    docs[0].priority = 0
+                    // use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
+                    docs[0].priority = -Date.now()
                     orgProductTitle = docs[0].title
                     newProductTitle = 'CLONE: ' + orgProductTitle
                     docs[0].title = newProductTitle
