@@ -146,7 +146,6 @@ const actions = {
                 // expand the default product up to the feature level
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
                 // select the default product
-                const isSelected = _id === rootState.currentDefaultProductId
                 const isDraggable = level > PRODUCTLEVEL
                 // show all nodes
                 const doShow = true
@@ -175,7 +174,7 @@ const actions = {
                         savedIsExpanded: isExpanded,
                         isSelectable: true,
                         isDraggable,
-                        isSelected,
+                        isSelected: _id === rootState.currentDefaultProductId,
                         doShow,
                         savedDoShow: doShow,
                         data: {
@@ -197,7 +196,11 @@ const actions = {
                     state.insertedCount++
                     parentNode.children.push(newNode)
                     parentNodes[_id] = newNode
-                    if (_id === rootState.currentDefaultProductId) rootState.nodeSelected = newNode
+                    if (_id === rootState.currentDefaultProductId) {
+                        rootState.nodeSelected = newNode
+                        // must set last selected node as this node is selected programmatically
+                        window.slVueTree.setLastSelectedNode(newNode)
+                    }
                 } else {
                     state.orphansCount++
                     state.orphansFound.orphans.push({ id: _id, parentId, productId: level })

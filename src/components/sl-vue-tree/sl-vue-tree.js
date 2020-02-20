@@ -255,7 +255,6 @@ export default {
 
 		selectNodeById(id) {
 			const selNode = this.getNodeById(id)
-			console.log('selectNodeById: selNode.title = ' + selNode.title)
 			if (selNode === null) return
 
 			// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
@@ -265,6 +264,10 @@ export default {
 			selectedNodes = [selNode]
 			selNode.isSelected = selNode.isSelectable
 			lastSelectedNode = selNode
+		},
+
+		setLastSelectedNode(node) {
+			lastSelectedNode = node
 		},
 
 		onMousemoveHandler(event) {
