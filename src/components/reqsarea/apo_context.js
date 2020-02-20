@@ -9,7 +9,6 @@ const REMOVED = 5
 const ONHOLD = 3
 const DONE = 4
 const STATENEW = 0
-const PBILEVEL = 5
 var newNode = {}
 var movedNode = null
 
@@ -23,7 +22,6 @@ export default {
     this.PBILEVEL = 5
     this.INSERTBELOW = 0
     this.INSERTINSIDE = 1
-    this.MOVETOPRODUCT = 2
     this.REMOVEITEM = 3
     this.ASIGNTOMYTEAM = 4
     this.CHECKSTATES = 5
@@ -84,7 +82,7 @@ export default {
       this.disableOkButton = true
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties
-      const extraLevel = node.level < PBILEVEL ? node.level + 1 : node.level
+      const extraLevel = node.level < this.PBILEVEL ? node.level + 1 : node.level
       if (this.haveWritePermission[extraLevel] && node._id === this.$store.state.nodeSelected._id &&
         node.level > this.DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
         const parentNode = window.slVueTree.getParentNode(node)
@@ -147,12 +145,6 @@ export default {
         case this.INSERTINSIDE:
           this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
           this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
-          break
-        case this.MOVETOPRODUCT:
-          this.assistanceText = this.$store.state.help.help.move
-          if (!this.$store.state.moveOngoing) {
-            this.listItemText = 'Item selected. Choose drop position in any other product'
-          } else this.listItemText = 'Drop position is set'
           break
         case this.REMOVEITEM:
           this.assistanceText = this.$store.state.help.help.remove
@@ -217,9 +209,6 @@ export default {
           break
         case this.INSERTINSIDE:
           this.doInsertNewItem()
-          break
-        case this.MOVETOPRODUCT:
-          this.moveItemToOtherProduct()
           break
         case this.REMOVEITEM:
           this.doRemove()
