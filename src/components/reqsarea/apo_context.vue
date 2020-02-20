@@ -39,24 +39,7 @@
     <template v-else>
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
-          <template v-if="contextNodeTeam !== $store.state.userData.myTeam">
-            <b-list-group-item
-              v-if="contextNodeLevel > FEATURELEVEL"
-              button
-              :active="contextOptionSelected === ASIGNTOMYTEAM"
-              variant="dark"
-              @click="showSelected(ASIGNTOMYTEAM)"
-            >Assign this {{ contextNodeType }} to my team</b-list-group-item>
-
-            <b-list-group-item
-              v-else-if="contextNodeLevel >= PRODUCTLEVEL"
-              button
-              :active="contextOptionSelected === ASIGNTOMYTEAM"
-              variant="dark"
-              @click="showSelected(ASIGNTOMYTEAM)"
-            >Assign this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants to my team</b-list-group-item>
-          </template>
-          <template v-else>
+          <template>
             <b-list-group-item
               v-if="contextNodeLevel !== PRODUCTLEVEL"
               button
@@ -66,7 +49,7 @@
             >Insert a {{ contextNodeType }} below this node</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel < PBILEVEL"
+              v-if="contextNodeLevel < FEATURELEVEL"
               button
               :active="contextOptionSelected === INSERTINSIDE"
               variant="dark"
@@ -125,14 +108,6 @@
               variant="dark"
               @click="showSelected(CLONEITEM)"
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
-
-            <b-list-group-item
-              v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL"
-              button
-              :active="contextOptionSelected === REMOVEITEM"
-              variant="danger"
-              @click="showSelected(REMOVEITEM)"
-            >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
           </template>
         </template>
 

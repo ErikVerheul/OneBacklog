@@ -22,8 +22,6 @@ export default {
     this.PBILEVEL = 5
     this.INSERTBELOW = 0
     this.INSERTINSIDE = 1
-    this.REMOVEITEM = 3
-    this.ASIGNTOMYTEAM = 4
     this.CHECKSTATES = 5
     this.SETDEPENDENCY = 6
     this.SHOWDEPENDENCIES = 7
@@ -146,24 +144,6 @@ export default {
           this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
           this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
           break
-        case this.REMOVEITEM:
-          this.assistanceText = this.$store.state.help.help.remove
-          if (this.hasDependencies) {
-            this.listItemText = "WARNING: this item has dependencies on other items. Remove them first."
-            this.disableOkButton = true
-          } else if (this.hasConditions) {
-            this.listItemText = "WARNING: this item is conditional for other items. Remove them first"
-            this.disableOkButton = true
-          } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
-          break
-        case this.ASIGNTOMYTEAM:
-          this.assistanceText = this.$store.state.help.help.team
-          if (this.contextNodeLevel > this.FEATURELEVEL && this.contextParentTeam !== this.$store.state.userData.myTeam) {
-            this.contextWarning = "WARNING: The team of parent " + this.contextParentType + " (" + this.contextParentTeam +
-              ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Please read the assistance text"
-          } else this.contextWarning = undefined
-          this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
-          break
         case this.CHECKSTATES:
           this.assistanceText = this.$store.state.help.help.consistencyCheck
           this.listItemText = `Start the check. See in the tree if any red badges appear`
@@ -209,12 +189,6 @@ export default {
           break
         case this.INSERTINSIDE:
           this.doInsertNewItem()
-          break
-        case this.REMOVEITEM:
-          this.doRemove()
-          break
-        case this.ASIGNTOMYTEAM:
-          this.doChangeTeam()
           break
         case this.CHECKSTATES:
           this.doCheckStates()
