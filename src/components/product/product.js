@@ -501,14 +501,16 @@ export default {
                 nodeModel: prevNode,
                 placement: 'inside'
               }
-              window.slVueTree.insert(cursorPosition, [entry.removedNode])
+              // do not recalculate priorities when inserting a product node
+              window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
             } else {
               // the previous node is a sibling
               const cursorPosition = {
                 nodeModel: prevNode,
                 placement: 'after'
               }
-              window.slVueTree.insert(cursorPosition, [entry.removedNode])
+              // do not recalculate priorities when inserting a product node
+              window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
             }
             // select the recovered node
             this.$store.state.nodeSelected.isSelected = false
