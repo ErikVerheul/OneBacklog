@@ -69,10 +69,10 @@ import router from '../../router'
 
 // returns a new array so that it is reactive
 function addToArray(arr, item) {
-	const newArr = []
-	for (let el of arr) newArr.push(el)
-    newArr.push(item)
-	return newArr
+  const newArr = []
+  for (let el of arr) newArr.push(el)
+  newArr.push(item)
+  return newArr
 }
 
 const PRODUCTLEVEL = 2
@@ -103,54 +103,54 @@ export default {
       const myCurrentProductNodes = window.slVueTree.getProducts()
       // get the last product node
       const lastProductNode = myCurrentProductNodes.slice(-1)[0]
+      // use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
+      const priority = -Date.now()
 
       // create a new document
       const newProduct = {
-        "_id": _id,
-        "shortId": shortId,
-        "type": "backlogItem",
-        "productId": _id,
-        "parentId": "root",
-        "team": "not assigned yet",
-        "level": PRODUCTLEVEL,
-        "state": 0,
-        "reqarea": null,
-        "title": this.productTitle,
-        "followers": [],
-        "description": window.btoa(""),
-        "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
-        // products are sorted by id. As the id starts with the creation date newer products are sorted last
-        "priority": 0,
-        "comments": [{
-          "ignoreEvent": 'comments initiated',
-          "timestamp": 0,
-          "distributeEvent": false
+        _id: _id,
+        shortId: shortId,
+        type: 'backlogItem',
+        productId: _id,
+        parentId: 'root',
+        team: 'not assigned yet',
+        level: PRODUCTLEVEL,
+        state: 0,
+        reqarea: null,
+        title: this.productTitle,
+        followers: [],
+        description: window.btoa(""),
+        acceptanceCriteria: window.btoa("<p>Please do not neglect</p>"),
+        priority,
+        comments: [{
+          ignoreEvent: 'comments initiated',
+          timestamp: 0,
+          distributeEvent: false
         }],
-        "delmark": false
+        delmark: false
       }
       // create a new node
       let newNode = {
-        "productId": newProduct.productId,
-        "parentId": newProduct.parentId,
-        "_id": newProduct._id,
-        "shortId": newProduct.shortId,
-        "dependencies": [],
-        "conditionalFor": [],
-        "title": newProduct.title,
-        "isLeaf": false,
-        "children": [],
-        "isSelected": false,
-        "isExpanded": true,
-        "savedIsExpanded": true,
-        "isSelectable": true,
-        "isDraggable": newProduct.level > PRODUCTLEVEL,
-        "doShow": true,
-        "savedDoShow": true,
-        "data": {
+        productId: newProduct.productId,
+        parentId: newProduct.parentId,
+        _id: newProduct._id,
+        shortId: newProduct.shortId,
+        dependencies: [],
+        conditionalFor: [],
+        title: newProduct.title,
+        isLeaf: false,
+        children: [],
+        isSelected: false,
+        isExpanded: true,
+        savedIsExpanded: true,
+        isSelectable: true,
+        isDraggable: newProduct.level > PRODUCTLEVEL,
+        doShow: true,
+        savedDoShow: true,
+        data: {
           state: newProduct.state,
           subtype: 0,
-          // products are sorted by id. As the id starts with the creation date newer products are sorted last
-          priority: 0,
+          priority,
           team: newProduct.team,
           lastChange: Date.now()
         }
