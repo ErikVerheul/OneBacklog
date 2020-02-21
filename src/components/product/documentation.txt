@@ -4,12 +4,12 @@ NOTE on itemType and level numbering with the current config definition
 
 level ...............in database level ....... in tree
 -----------------------------------------------------------------------
-RequirementArea ........ 0 ................... not in view
 Database ............... 1 ................... root node
 Product ................ 2 ................... 2
 Epic .. ................ 3 ................... 3
 Feature ................ 4 ................... 4
 PBI ... ................ 5 ................... 5
+Requirement areas are children of the 'Requirments areas overview' dummy product with id '0'.
 
 The nodes in the tree have these data elements and values:
 
@@ -91,17 +91,17 @@ state.userData = {
 
 These are the roles known by this application despite settings in the _users database otherwise.
 Write access is dependant on role and level. Write access includes deletion.
-All roles have read access to their assigned database (only one) and assigned products in that database.
-These roles are set during loading by haveWritePermission(...) in load.js.
+All roles have read access to their assigned databases and the assigned products in that database.
+These roles are set during loading by haveWritePermission(...).
 
 type ...............in database level ....... in tree
 -----------------------------------------------------------------------
-RequirementArea ........ 0 ................... n/a
 Database ............... 1 ................... n/a
 Product ................ 2 ................... 2
 Epic .. ................ 3 ................... 3
 Feature ................ 4 ................... 4
 PBI ... ................ 5 ................... 5
+Requirement areas are children of the 'Requirments areas overview' dummy product with id '0'.
 
 "knownRoles":
 	"_admin": {

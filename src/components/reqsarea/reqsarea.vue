@@ -146,8 +146,9 @@
             </template>
 
             <template slot="sidebar" slot-scope="{ node }">
-            <span>
-              <b-button squared variant="outline-primary" size="sm">{{ node.level }}</b-button>
+            <span v-if="node.productId != '0' && node.level>2">
+              <b-button v-if="node.data.reqarea" @click="setReqArea" squared variant="seablue" size="sm">level = {{ node.level }}</b-button>
+              <b-button v-else @click="setReqArea" squared variant="seablueLight" size="sm">level = {{ node.level }}</b-button>
             </span>
           </template>
           </sl-vue-tree>
@@ -487,6 +488,11 @@
 .btn-seablue {
   background-color: #408fae;
   color: white;
+}
+
+.btn-seablueLight {
+  color: rgb(179, 179, 179);
+  border: 1px solid #408fae
 }
 
 input[type="number"] {

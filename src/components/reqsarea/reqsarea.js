@@ -543,6 +543,10 @@ export default {
       // window.slVueTree.showVisibility('onUndoEvent', FEATURELEVEL)
     },
 
+    setReqArea() {
+      console.log('setReqArea')
+    },
+
     subscribeClicked() {
       this.$store.dispatch('changeSubsription')
     },

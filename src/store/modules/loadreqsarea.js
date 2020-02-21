@@ -101,8 +101,6 @@ const actions = {
                 const conditionalFor = item.value[7] || []
                 const history = item.value[8]
                 const lastComment = item.value[9]
-                // skip reqarea docs for now
-                if (level === 0) continue
 
                 state.docsCount++
 
