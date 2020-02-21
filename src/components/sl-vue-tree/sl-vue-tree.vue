@@ -32,9 +32,7 @@
             'sl-vue-tree-cursor-inside':
               cursorPosition &&
               cursorPosition.placement === 'inside' &&
-              cursorPosition.nodeModel.pathStr === node.pathStr,
-            'sl-vue-tree-node-is-leaf' : node.isLeaf,
-            'sl-vue-tree-node-is-folder' : !node.isLeaf
+              cursorPosition.nodeModel.pathStr === node.pathStr
           }"
       >
         <div class="sl-vue-tree-gap" v-for="gapInd in gaps" :key="gapInd"></div>
@@ -49,6 +47,10 @@
           </span>
 
           <slot name="title" :node="node"></slot>
+
+          <div class="sl-vue-tree-sidebar">
+            <slot name="sidebar" :node="node"></slot>
+          </div>
         </div>
       </div>
 
@@ -63,11 +65,15 @@
         :showBranches="showBranches"
       >
         <template slot="title" slot-scope="{ node }">
-          <slot name="title" :node="node">{{ node.title }}</slot>
+          <slot name="title" :node="node"></slot>
         </template>
 
         <template slot="toggle" slot-scope="{ node }">
           <slot name="toggle" :node="node"></slot>
+        </template>
+
+        <template slot="sidebar" slot-scope="{ node }">
+            <slot name="sidebar" :node="node"></slot>
         </template>
       </sl-vue-tree>
     </div>

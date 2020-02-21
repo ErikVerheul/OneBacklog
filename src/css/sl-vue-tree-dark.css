@@ -53,6 +53,12 @@
     width: 20px;
 }
 
+.sl-vue-tree-sidebar {
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+}
+
 .sl-vue-tree-cursor {
     position: absolute;
     border: 1px solid;

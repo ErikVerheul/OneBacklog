@@ -144,6 +144,12 @@
                 </i>
               </span>
             </template>
+
+            <template slot="sidebar" slot-scope="{ node }">
+            <span>
+              <b-button squared variant="outline-primary" size="sm">{{ node.level }}</b-button>
+            </span>
+          </template>
           </sl-vue-tree>
         </div>
       </div>
