@@ -121,7 +121,15 @@ export default {
       fileInfo: null,
       newHistory: "",
       filterForCommentPrep: "",
-      filterForHistoryPrep: ""
+      filterForHistoryPrep: "",
+      colorOptions: [
+        { color: 'red', hexCode: '#FF0000' },
+        { color: 'yellow', hexCode: '#FFFF00' },
+        { color: 'green', hexCode: '#008000' },
+        { color: 'blue', hexCode: '#0000ff' },
+        { color: 'other color', hexCode: 'select' }
+      ],
+      colorSelectShow: false
     }
   },
 
@@ -140,6 +148,10 @@ export default {
       // from startup.js
       'haveWritePermission'
     ]),
+
+    isReqAreaItem() {
+      return this.$store.state.currentDoc.productId === '0'
+    },
 
     welcomeMessage() {
       const msg_1 = `Welcome '${this.$store.state.userData.user}'.`
@@ -169,6 +181,18 @@ export default {
 
     squareColor() {
       return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
+    },
+
+    /*
+    * Check for a valid color hex code:
+    * #          -> a hash
+    * [0-9A-F]   -> any integer from 0 to 9 and any letter from A to F
+    * {6}        -> the previous group appears exactly 6 times
+    * $          -> match end
+    * i          -> ignore case
+    */
+    colorState() {
+      return /^#[0-9A-F]{6}$/i.test(this.$store.state.currentDoc.color)
     },
 
     subsribeTitle() {
@@ -205,29 +229,6 @@ export default {
   },
 
   watch: {
-    'selectedPbiType': function (val) {
-      // prevent looping
-      if (val !== this.$store.state.currentDoc.subtype) {
-        if (this.haveWritePermission[this.getCurrentItemLevel]) {
-          const now = Date.now()
-          this.$store.state.nodeSelected.data.subtype = val
-          this.$store.state.nodeSelected.data.lastChange = now
-          this.$store.dispatch('setSubType', {
-            'newSubType': val,
-            'timestamp': now
-          })
-          // create an entry for undoing the change in a last-in first-out sequence
-          const entry = {
-            type: 'undoSelectedPbiType',
-            oldPbiType: this.$store.state.currentDoc.subtype
-          }
-          this.$store.state.changeHistory.unshift(entry)
-        } else {
-          this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type", WARNING)
-        }
-      }
-    },
-
     'doAddition': function (val) {
       if (val === true) {
         this.doAddition = false
@@ -836,7 +837,7 @@ export default {
       this.$store.state.numberOfNodesSelected = selNodes.length
       // update the first (highest in hierarchie) selected node
       this.$store.state.nodeSelected = selNodes[0]
-      // load the document if not already in memory & reset attachment settings
+      // load the document if not already in memory
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
       }
@@ -856,12 +857,14 @@ export default {
     /* Use this event to check if the drag is allowed. If not, issue a warning */
     beforeNodeDropped(draggingNodes, position, cancel) {
       /*
+       * 0. Requirement area items cannot be moved
        * 1. Disallow drop on node were the user has no write authority
        * 2. Disallow drop when moving over more than 1 level.
        * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest permitted level.
        * precondition: the selected nodes have all the same parent (same level)
        */
       let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
+        const failedCheck0 = draggingNodes[0].productId === '0'
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
@@ -869,7 +872,7 @@ export default {
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
-        return failedCheck1 || failedCheck2 || failedCheck3
+        return failedCheck0 || failedCheck1 || failedCheck2 || failedCheck3
       }
       const sourceLevel = draggingNodes[0].level
       let targetLevel = position.nodeModel.level
@@ -947,14 +950,20 @@ export default {
       this.showLastEvent(evt, INFO)
     },
 
-    getPbiOptions() {
-      this.selectedPbiType = this.$store.state.currentDoc.subtype
-      let options = [
-        { text: 'User story', value: 0 },
-        { text: 'Spike', value: 1 },
-        { text: 'Defect', value: 2 }
-      ]
-      return options
+    updateColor() {
+      console.log('updateColor: this.$store.state.currentDoc.color = ' + this.$store.state.currentDoc.color)
+      if (this.$store.state.currentDoc.color === 'select') {
+        this.$store.state.currentDoc.color = '#567cd6'
+        this.colorSelectShow = true
+      } else {
+        this.$store.state.nodeSelected.data.color = this.$store.state.currentDoc.color
+        this.$store.dispatch('updateColor')
+      }
+    },
+
+    setSelectedColor() {
+      this.$store.state.nodeSelected.data.color = this.$store.state.currentDoc.color
+      console.log('setSelectedColor: this.$store.state.currentDoc.color = ' + this.$store.state.currentDoc.color)
     },
 
     getViewOptions() {

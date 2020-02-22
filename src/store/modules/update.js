@@ -5,6 +5,33 @@ const WARNING = 1
 const ERROR = 2
 
 const actions = {
+	updateColor({
+		rootState,
+		dispatch
+	}) {
+		const _id = rootState.currentDoc._id
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + _id,
+		}).then(res => {
+			let tmpDoc = res.data
+			const newHist = {
+				"ignoreEvent": ['updateColor'],
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}
+			tmpDoc.color = rootState.currentDoc.color
+			tmpDoc.history.unshift(newHist)
+			rootState.currentDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+		}).catch(error => {
+			let msg = 'setColor: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	changeSubsription({
 		rootState,
 		rootGetters,
@@ -77,7 +104,7 @@ const actions = {
 		})
 	},
 
-	SetDepAndCond({
+	setDepAndCond({
 		rootState,
 		dispatch
 	}, payload) {
@@ -99,7 +126,7 @@ const actions = {
 			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch: { setConditions: payload.conditionalForPayload } })
 		}).catch(error => {
-			let msg = 'SetDepAndCond: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'setDepAndCond: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

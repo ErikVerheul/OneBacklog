@@ -39,7 +39,33 @@
     <template v-else>
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
-          <template>
+          <template v-if="isReqAreaItem">
+            <template v-if="contextNodeLevel === PRODUCTLEVEL">
+              <b-list-group-item
+                button
+                :active="contextOptionSelected === INSERTINSIDE"
+                variant="dark"
+                @click="showSelected(INSERTINSIDE)"
+              >Insert a requirement area inside this node</b-list-group-item>
+            </template>
+            <template v-else>
+              <b-list-group-item
+                  button
+                  :active="contextOptionSelected === INSERTBELOW"
+                  variant="dark"
+                  @click="showSelected(INSERTBELOW)"
+                >Insert a requirement area below this node</b-list-group-item>
+
+              <b-list-group-item
+                v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL"
+                button
+                :active="contextOptionSelected === REMOVEITEM"
+                variant="danger"
+                @click="showSelected(REMOVEITEM)"
+              >Remove this requirement area</b-list-group-item>
+            </template>
+          </template>
+          <template v-else>
             <b-list-group-item
               v-if="contextNodeLevel !== PRODUCTLEVEL"
               button
@@ -108,6 +134,14 @@
               variant="dark"
               @click="showSelected(CLONEITEM)"
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
+
+            <b-list-group-item
+              v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL"
+              button
+              :active="contextOptionSelected === REMOVEITEM"
+              variant="danger"
+              @click="showSelected(REMOVEITEM)"
+            >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
           </template>
         </template>
 

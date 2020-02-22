@@ -101,6 +101,7 @@ const actions = {
                 const conditionalFor = item.value[7] || []
                 const history = item.value[8]
                 const lastComment = item.value[9]
+                const color = item.value[10] || null
 
                 state.docsCount++
 
@@ -179,6 +180,7 @@ const actions = {
                             priority,
                             state: itemState,
                             reqarea,
+                            color,
                             team,
                             lastPositionChange: changeTimes.lastPositionChange,
                             lastStateChange: changeTimes.lastStateChange,
