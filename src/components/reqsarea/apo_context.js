@@ -16,6 +16,7 @@ export default {
   created() {
     this.DATABASELEVEL = 1
     this.PRODUCTLEVEL = 2
+    this.REMOVEITEM = 3
     this.FEATURELEVEL = 4
     this.PBILEVEL = 5
     this.INSERTBELOW = 0
@@ -68,6 +69,9 @@ export default {
       // from startup.js
       'haveWritePermission'
     ]),
+    isReqAreaItem() {
+      return this.$store.state.currentDoc.productId === '0'
+    }
   },
 
   methods: {
@@ -79,7 +83,7 @@ export default {
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties
       const extraLevel = node.level < this.PBILEVEL ? node.level + 1 : node.level
-      if (this.haveWritePermission[extraLevel] && node._id === this.$store.state.nodeSelected._id &&
+      if (this.isReqAreaItem || this.haveWritePermission[extraLevel] && node._id === this.$store.state.nodeSelected._id &&
         node.level > this.DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
@@ -93,7 +97,7 @@ export default {
         this.contextNodeTeam = node.data.team
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
-        this.allowRemoval = this.haveWritePermission[node.level]
+        this.allowRemoval = this.isReqAreaItem || this.haveWritePermission[node.level]
         window.showContextApoMenuRef.show()
       }
     },
@@ -142,6 +146,16 @@ export default {
           this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
           this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
           break
+        case this.REMOVEITEM:
+          this.assistanceText = this.$store.state.help.help.remove
+          if (this.hasDependencies) {
+            this.listItemText = "WARNING: this item has dependencies on other items. Remove them first."
+            this.disableOkButton = true
+          } else if (this.hasConditions) {
+            this.listItemText = "WARNING: this item is conditional for other items. Remove them first"
+            this.disableOkButton = true
+          } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
+          break
         case this.CHECKSTATES:
           this.assistanceText = this.$store.state.help.help.consistencyCheck
           this.listItemText = `Start the check. See in the tree if any red badges appear`
@@ -187,6 +201,9 @@ export default {
           break
         case this.INSERTINSIDE:
           this.doInsertNewItem()
+          break
+        case this.REMOVEITEM:
+          this.doRemove()
           break
         case this.CHECKSTATES:
           this.doCheckStates()
@@ -338,7 +355,8 @@ export default {
         data: {
           priority: null,
           state: STATENEW,
-          team: 'not assigned yet',
+          color: '#FF0000',
+          team: this.isReqAreaItem ? 'n/a' : 'not assigned yet',
           subtype: 0,
           lastChange: now
         }
@@ -354,7 +372,7 @@ export default {
         idx = locationPath.slice(-1)[0] + 1
         path = locationPath.slice(0, -1).concat(idx)
         newNode.parentId = this.contextNodeSelected.parentId
-        newNode.title = 'New ' + this.getLevelText(insertLevel)
+        newNode.title = 'New ' + (this.isReqAreaItem ? 'requirement area' : this.getLevelText(insertLevel))
         newNode.isLeaf = (insertLevel < this.PBILEVEL) ? false : true
         parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
       } else {
@@ -368,7 +386,7 @@ export default {
         idx = 0
         path = this.contextNodeSelected.path.concat(0)
         newNode.parentId = this.contextNodeSelected._id
-        newNode.title = 'New ' + this.getLevelText(insertLevel)
+        newNode.title = 'New ' + (this.isReqAreaItem ? 'requirement area' : this.getLevelText(insertLevel))
         newNode.isLeaf = (insertLevel < this.PBILEVEL) ? false : true
         parentTitle = this.contextNodeSelected.title
       }
@@ -404,11 +422,12 @@ export default {
           "type": "backlogItem",
           "productId": newNode.productId,
           "parentId": newNode.parentId,
-          "team": "not assigned yet",
+          "team": this.isReqAreaItem ? 'n/a' : 'not assigned yet',
           "level": insertLevel,
           "subtype": 0,
           "state": STATENEW,
           "tssize": 3,
+          "color": "#FF0000",
           "spsize": 0,
           "spikepersonhours": 0,
           "reqarea": null,
@@ -454,6 +473,64 @@ export default {
       }
     },
 
+    /*
+    * In the database both the selected node and all its descendants will be tagged with a delmark
+    * The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
+    */
+   doRemove() {
+    const selectedNode = this.contextNodeSelected
+    const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
+    this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
+    // when removing a product
+    if (selectedNode.level === this.PRODUCTLEVEL) {
+      // cannot remove the last assigned product or product in the tree
+      if (this.$store.state.userData.userAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
+        this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
+        return
+      }
+    }
+    // set remove mark in the database on the clicked item and descendants (if any)
+    this.$store.dispatch('removeItemAndDescendents', { productId: this.$store.state.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
+    // remove any dependency references to/from outside the removed items; note: these cannot be undone
+    const removed = window.slVueTree.correctDependencies(this.$store.state.currentProductId, descendantsInfo.ids)
+    // create an entry for undoing the remove in a last-in first-out sequence
+    const entry = {
+      type: 'removedNode',
+      removedNode: selectedNode,
+      isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
+      descendants: descendantsInfo.descendants,
+      removedIntDependencies: removed.removedIntDependencies,
+      removedIntConditions: removed.removedIntConditions,
+      removedExtDependencies: removed.removedExtDependencies,
+      removedExtConditions: removed.removedExtConditions
+    }
+
+    if (entry.isProductRemoved) {
+      entry.removedProductRoles = this.$store.state.userData.myProductsRoles[selectedNode._id]
+    }
+
+    this.$store.state.changeHistory.unshift(entry)
+    // before removal select the predecessor or successor of the removed node (sibling or parent)
+    const prevNode = window.slVueTree.getPreviousNode(selectedNode.path)
+    let nowSelectedNode = prevNode
+    if (prevNode.level === this.DATABASELEVEL) {
+      // if a product is to be removed and the previous node is root, select the next product
+      const nextProduct = window.slVueTree.getNextSibling(selectedNode.path)
+      if (nextProduct === null) {
+        // there is no next product; cannot remove the last product; note that this action is already blocked with a warming
+        return
+      }
+      nowSelectedNode = nextProduct
+    }
+    nowSelectedNode.isSelected = true
+    this.$store.state.nodeSelected = nowSelectedNode
+    this.$store.state.currentProductId = nowSelectedNode.productId
+    // load the new selected item
+    this.$store.dispatch('loadDoc', nowSelectedNode._id)
+    // remove the node and its children
+    window.slVueTree.removeSingle(selectedNode, nowSelectedNode)
+  },
+
     doCheckStates() {
       let count = 0
       window.slVueTree.traverseModels((nm) => {
@@ -491,7 +568,7 @@ export default {
         const nodeWithDependencies = this.getNodeWithDependencies()
         nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
         const dependenciesPayload = { _id: nodeWithDependencies._id, dependencies: nodeWithDependencies.dependencies, conditionalForPayload }
-        this.$store.dispatch('SetDepAndCond', dependenciesPayload)
+        this.$store.dispatch('setDepAndCond', dependenciesPayload)
         this.$store.state.selectNodeOngoing = false
       } else {
         // save the id of the node the dependencies will be attached to

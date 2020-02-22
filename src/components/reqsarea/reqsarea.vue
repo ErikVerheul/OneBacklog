@@ -146,10 +146,13 @@
             </template>
 
             <template slot="sidebar" slot-scope="{ node }">
-            <span v-if="node.productId != '0' && node.level>2">
-              <b-button v-if="node.data.reqarea" @click="setReqArea" squared variant="seablue" size="sm">level = {{ node.level }}</b-button>
-              <b-button v-else @click="setReqArea" squared variant="seablueLight" size="sm">level = {{ node.level }}</b-button>
-            </span>
+              <template v-if="node.productId === '0'">
+                <p v-if="node._id !== '0'" class="rectangle" v-bind:style="{'background-color': node.data.color}"></p>
+              </template>
+              <p v-else-if="node.level > 2">
+                <b-button v-if="node.data.reqarea" @click="setReqArea" squared variant="seablue" size="sm">level = {{ node.level }}</b-button>
+                <b-button v-else @click="setReqArea" squared variant="seablueLight" size="sm">level = {{ node.level }}</b-button>
+              </p>
           </template>
           </sl-vue-tree>
         </div>
@@ -169,25 +172,28 @@
                 :value="$store.state.currentDoc.title"
                 @blur="updateTitle()"
               ></b-input>
-              <div class="d-table-cell tac">Id = {{ $store.state.currentDoc.shortId }}</div>
+              <div v-if="!isReqAreaItem" class="d-table-cell tac">Id = {{ $store.state.currentDoc.shortId }}</div>
               <div class="d-table-cell tar">
                 <b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
               </div>
             </div>
           </div>
-          <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+          <div class="pane" :style="{ minHeight: '65px', height: '80px', maxHeight: '40px' }">
             <div class="d-table w-100">
-              <p class="title is-6">This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
-              <div v-if="getCurrentItemLevel==this.PBILEVEL" class="d-table-cell tar">
+              <p v-if="!isReqAreaItem" class="title is-6">This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              <span v-else>
                 <b-form-group>
+                  Choose a display color for this requirements areas:
                   <b-form-radio-group
-                    v-model="selectedPbiType"
-                    :options="getPbiOptions()"
+                    @input="updateColor()"
+                    v-model="$store.state.currentDoc.color"
+                    value-field="hexCode"
+                    text-field="color"
+                    :options="colorOptions"
                     plain
-                    name="pbiOptions"
                   />
                 </b-form-group>
-              </div>
+              </span>
             </div>
           </div>
           <div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
@@ -274,6 +280,11 @@
     </multipane>
     <!-- context modals -->
     <context></context>
+    <!-- color select -->
+    <b-modal size="lg" v-model="colorSelectShow" @ok="setSelectedColor" title="Select a color">
+      <h4>Enter a color in hex format eg. #567cd6</h4>
+      <b-form-input v-model="$store.state.currentDoc.color" :state="colorState"></b-form-input>
+    </b-modal>
     <!-- filter modals -->
     <filters></filters>
     <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
@@ -460,6 +471,11 @@
   padding: 5px;
   margin: 5px;
 }
+
+.rectangle {
+  width: 71px;
+  height: 25px;
+ }
 
 .colorRed {
   color: red;
