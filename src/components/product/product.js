@@ -205,6 +205,7 @@ export default {
   },
 
   watch: {
+    // ToDo: use the @change option instead
     'selectedPbiType': function (val) {
       // prevent looping
       if (val !== this.$store.state.currentDoc.subtype) {
@@ -847,7 +848,7 @@ export default {
           window.slVueTree.expandTree()
         }
       }
-      // load the document if not already in memory & reset attachment settings
+      // load the document if not already in memory
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
       }
