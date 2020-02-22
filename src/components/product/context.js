@@ -71,7 +71,7 @@ export default {
     ...mapGetters([
       // from startup.js
       'haveWritePermission'
-    ]),
+    ])
   },
 
   methods: {
@@ -603,7 +603,7 @@ export default {
         const nodeWithDependencies = this.getNodeWithDependencies()
         nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
         const dependenciesPayload = { _id: nodeWithDependencies._id, dependencies: nodeWithDependencies.dependencies, conditionalForPayload }
-        this.$store.dispatch('SetDepAndCond', dependenciesPayload)
+        this.$store.dispatch('setDepAndCond', dependenciesPayload)
         this.$store.state.selectNodeOngoing = false
       } else {
         // save the id of the node the dependencies will be attached to
