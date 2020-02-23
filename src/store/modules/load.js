@@ -112,7 +112,6 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			rootState.currentDoc = res.data
-			rootState.currentProductId = res.data.productId
 			// decode from base64 + replace the encoded data
 			rootState.currentDoc.description = window.atob(res.data.description)
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)

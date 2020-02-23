@@ -840,6 +840,8 @@ export default {
       this.$store.state.nodeSelected = selNodes[0]
       // load the document if not already in memory
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
+        // cannot wait for the loadDoc call to return to update the current productId
+        this.$store.state.currentProductId = this.$store.state.nodeSelected.productId
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
       }
       const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
