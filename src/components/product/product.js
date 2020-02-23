@@ -60,21 +60,21 @@ export default {
       return true
     }
 
-    let el = document.getElementById("selectOnId")
+    let el = document.getElementById("findItemOnId")
     // fire the search on short id on pressing enter in the select-on-Id input field (instead of submitting the form)
     el.addEventListener("keypress", (event) => {
       if (event.keyCode === 13) {
         event.preventDefault()
         // check for valid input and convert to lowercase
         if (shortIdCheck) {
-          window.slVueTree.resetFilters('selectOnId')
-          this.selectNode(this.shortId.toLowerCase())
+          window.slVueTree.resetFilters('findItemOnId')
+          this.findItemOnId(this.shortId.toLowerCase())
         }
       }
     })
     el.addEventListener("input", () => {
       if (isEmpty(el.value)) {
-        window.slVueTree.resetFindOnId('selectOnId')
+        window.slVueTree.resetFindOnId('findItemOnId')
       }
     })
 
@@ -349,7 +349,7 @@ export default {
       }
     },
 
-    selectNode(shortId) {
+    findItemOnId(shortId) {
       let node
       window.slVueTree.traverseModels((nodeModel) => {
         if (nodeModel.shortId === shortId) {
@@ -362,7 +362,7 @@ export default {
         // if the user clicked on a node of another product
         if (this.$store.state.currentProductId !== node.productId) {
           // clear any outstanding filters
-          window.slVueTree.resetFilters('selectNode')
+          window.slVueTree.resetFilters('findItemOnId')
           // collapse the previously selected product
           window.slVueTree.collapseTree()
           // update current productId and title

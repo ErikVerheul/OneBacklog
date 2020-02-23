@@ -9,7 +9,7 @@
           <div class="divider"/>
         </b-nav-form>
         <b-nav-form>
-          <input id="selectOnId" v-model="shortId" type="text" class="form-control" placeholder="Find on Id"/>
+          <input id="findItemOnId" v-model="shortId" type="text" class="form-control" placeholder="Find on Id"/>
           <button @click="resetFindId" class="close-icon" type="reset"></button>
         </b-nav-form>
         <b-nav-form>
