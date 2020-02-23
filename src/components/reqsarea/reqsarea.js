@@ -967,17 +967,21 @@ export default {
     },
 
     setReqArea(reqarea) {
-      console.log('setReqArea: reqarea = ' + reqarea)
+      console.log('setReqArea: reqarea = ' + JSON.stringify(reqarea, null, 2))
       this.selReqAreaId = reqarea
       this.reqAreaOptions = []
       for (let id of Object.keys(this.$store.state.colorMapper)) {
         this.reqAreaOptions.push({ id, title: this.$store.state.colorMapper[id].title})
       }
+      if (this.selReqAreaId !== null) this.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas'})
       this.setReqAreaShow = true
     },
 
     doSetReqArea() {
       console.log('doSetReqArea: this.selReqAreaId = ' + this.selReqAreaId)
+      this.$store.state.nodeSelected.data.reqarea = this.selReqAreaId
+      this.$store.state.currentDoc.reqarea = this.selReqAreaId
+      this.$store.dispatch('updateReqArea', this.selReqAreaId)
     },
 
     getViewOptions() {

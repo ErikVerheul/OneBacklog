@@ -5,6 +5,35 @@ const WARNING = 1
 const ERROR = 2
 
 const actions = {
+	updateReqArea({
+		rootState,
+		dispatch
+	}, newReqAreaId) {
+		const _id = rootState.currentDoc._id
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + _id,
+		}).then(res => {
+			let tmpDoc = res.data
+			tmpDoc.reqarea = newReqAreaId
+			// update the req area document
+			tmpDoc.color = rootState.currentDoc.color
+			const newHist = {
+				"ignoreEvent": ['updateReqArea'],
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}
+			tmpDoc.history.unshift(newHist)
+			rootState.currentDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+		}).catch(error => {
+			let msg = 'updateReqArea: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	updateColor({
 		rootState,
 		dispatch

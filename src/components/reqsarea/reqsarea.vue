@@ -154,7 +154,7 @@
                   v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].color}"
                   @click="setReqArea(node.data.reqarea)" squared size="sm">Change
                 </b-button>
-                <b-button v-else @click="setReqArea" squared variant="seablueLight" size="sm">Set</b-button>
+                <b-button v-else @click="setReqArea(null)" squared variant="seablueLight" size="sm">Set</b-button>
               </p>
           </template>
           </sl-vue-tree>
