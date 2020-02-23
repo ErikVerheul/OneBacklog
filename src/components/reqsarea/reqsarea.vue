@@ -289,8 +289,11 @@
       <b-form-input v-model="$store.state.currentDoc.color" :state="colorState"></b-form-input>
     </b-modal>
     <!-- set req area -->
-    <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea" title="Select the requirement area this item belongs to">
-      <b-form-group label="Select the requirements area:">
+    <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
+      <template v-slot:modal-title>
+        {{ $store.state.nodeSelected.title }}
+      </template>
+      <b-form-group label="Select the requirement area this item belongs to:">
         <b-form-radio-group
           v-model="selReqAreaId"
           :options="reqAreaOptions"
