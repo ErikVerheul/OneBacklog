@@ -273,10 +273,6 @@ export default {
   },
 
   methods: {
-    getColor(reqArea) {
-      return this.$store.state.colorMapper[reqArea].color
-    },
-
     checkForDependencyViolations() {
       const violations = window.slVueTree.findDependencyViolations()
       if (violations.length > 0) {

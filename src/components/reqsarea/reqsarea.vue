@@ -151,7 +151,7 @@
               </template>
               <p v-else-if="node.level > 2">
                 <b-button v-if="node.data.reqarea" class="btn-seablue-dynamic"
-                  v-bind:style="{'background-color': getColor(node.data.reqarea)}"
+                  v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].color}"
                   @click="setReqArea" squared size="sm">Change
                 </b-button>
                 <b-button v-else @click="setReqArea" squared variant="seablueLight" size="sm">Set</b-button>

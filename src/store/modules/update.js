@@ -15,12 +15,22 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
+			// update the color mapper (must create a new object to have reactivity!)
+			const newMapper = {}
+			for (let id of Object.keys(rootState.colorMapper)) {
+				if (id === _id) {
+					const oldTitle = rootState.colorMapper[id].title
+					newMapper[id] = { title: oldTitle, color: rootState.currentDoc.color }
+				} else newMapper[id] = rootState.colorMapper[id]
+			}
+			rootState.colorMapper = newMapper
+			// update the req area document
+			tmpDoc.color = rootState.currentDoc.color
 			const newHist = {
 				"ignoreEvent": ['updateColor'],
 				"timestamp": Date.now(),
 				"distributeEvent": false
 			}
-			tmpDoc.color = rootState.currentDoc.color
 			tmpDoc.history.unshift(newHist)
 			rootState.currentDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
@@ -641,7 +651,7 @@ const actions = {
 			data: payload.updatedDoc
 		}).then((res) => {
 			if (rootState.currentDoc._id === res.data.id) {
-				// update the revision of the current document
+				// update the revision of the current document in memory
 				rootState.currentDoc._rev = res.data.rev
 			}
 			rootState.isTeamCreated = true
