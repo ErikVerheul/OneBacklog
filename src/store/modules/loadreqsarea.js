@@ -142,6 +142,11 @@ const actions = {
                     continue
                 }
 
+                // create color mapper for req areas
+                if (productId === '0' && level === 3) {
+                    rootState.colorMapper[_id] = { title, color }
+                }
+
                 // expand the default product up to the feature level
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
                 // select the default product

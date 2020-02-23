@@ -101,7 +101,9 @@ export default new Vuex.Store({
 		configData: null,
 		currentDoc: null,
 		runningCookieRefreshId: null,
-		uploadDone: true
+		uploadDone: true,
+		// req area view
+		colorMapper: {}
 	},
 
 	getters: {
@@ -182,7 +184,6 @@ export default new Vuex.Store({
 		},
 
 		resetData(state) {
-			state.treeNodes = []
 			state.currentDefaultProductId = null
 			state.currentProductId = null
 			state.currentProductTitle = ''
@@ -191,7 +192,6 @@ export default new Vuex.Store({
 			state.userData = {}
 			state.changeHistory = []
 			state.showHeaderDropDowns = true
-			state.skipOnce = true
 			state.lastEvent = ''
 			state.configData = null
 			state.currentDoc = null

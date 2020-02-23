@@ -30,6 +30,7 @@ export default {
     this.$store.state.loadreqsarea.insertedCount = 0
     this.$store.state.loadreqsarea.orphansCount = 0
     this.$store.state.loadreqsarea.orphansFound = { userData: null, orphans: [] }
+    this.$store.state.colorMapper = {}
     this.$store.dispatch('getAllItems')
   },
 
@@ -272,6 +273,10 @@ export default {
   },
 
   methods: {
+    getColor(reqArea) {
+      return this.$store.state.colorMapper[reqArea].color
+    },
+
     checkForDependencyViolations() {
       const violations = window.slVueTree.findDependencyViolations()
       if (violations.length > 0) {
@@ -951,7 +956,6 @@ export default {
     },
 
     updateColor() {
-      console.log('updateColor: this.$store.state.currentDoc.color = ' + this.$store.state.currentDoc.color)
       if (this.$store.state.currentDoc.color === 'select') {
         this.$store.state.currentDoc.color = '#567cd6'
         this.colorSelectShow = true
@@ -963,7 +967,6 @@ export default {
 
     setSelectedColor() {
       this.$store.state.nodeSelected.data.color = this.$store.state.currentDoc.color
-      console.log('setSelectedColor: this.$store.state.currentDoc.color = ' + this.$store.state.currentDoc.color)
     },
 
     getViewOptions() {

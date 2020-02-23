@@ -150,8 +150,11 @@
                 <p v-if="node._id !== '0'" class="rectangle" v-bind:style="{'background-color': node.data.color}"></p>
               </template>
               <p v-else-if="node.level > 2">
-                <b-button v-if="node.data.reqarea" @click="setReqArea" squared variant="seablue" size="sm">level = {{ node.level }}</b-button>
-                <b-button v-else @click="setReqArea" squared variant="seablueLight" size="sm">level = {{ node.level }}</b-button>
+                <b-button v-if="node.data.reqarea" class="btn-seablue-dynamic"
+                  v-bind:style="{'background-color': getColor(node.data.reqarea)}"
+                  @click="setReqArea" squared size="sm">Change
+                </b-button>
+                <b-button v-else @click="setReqArea" squared variant="seablueLight" size="sm">Set</b-button>
               </p>
           </template>
           </sl-vue-tree>
@@ -506,7 +509,16 @@
   color: white;
 }
 
+.btn-seablue-dynamic {
+  width: 71px;
+  height: 31px;
+  color: rgb(179, 179, 179);
+  border: 1px solid #408fae
+}
+
 .btn-seablueLight {
+  width: 71px;
+  height: 31px;
   color: rgb(179, 179, 179);
   border: 1px solid #408fae
 }
