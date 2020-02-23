@@ -130,7 +130,10 @@ export default {
         { color: 'blue', hexCode: '#0000ff' },
         { color: 'other color', hexCode: 'select' }
       ],
-      colorSelectShow: false
+      colorSelectShow: false,
+      setReqAreaShow: false,
+      selReqAreaId: undefined,
+      reqAreaOptions: []
     }
   },
 
@@ -543,10 +546,6 @@ export default {
           break
       }
       // window.slVueTree.showVisibility('onUndoEvent', FEATURELEVEL)
-    },
-
-    setReqArea() {
-      console.log('setReqArea')
     },
 
     subscribeClicked() {
@@ -964,7 +963,21 @@ export default {
     },
 
     setSelectedColor() {
-      this.$store.state.nodeSelected.data.color = this.$store.state.currentDoc.color
+      this.$store.state.nodeSelected.data.reqarea.color = this.$store.state.currentDoc.color
+    },
+
+    setReqArea(reqarea) {
+      console.log('setReqArea: reqarea = ' + reqarea)
+      this.selReqAreaId = reqarea
+      this.reqAreaOptions = []
+      for (let id of Object.keys(this.$store.state.colorMapper)) {
+        this.reqAreaOptions.push({ id, title: this.$store.state.colorMapper[id].title})
+      }
+      this.setReqAreaShow = true
+    },
+
+    doSetReqArea() {
+      console.log('doSetReqArea: this.selReqAreaId = ' + this.selReqAreaId)
     },
 
     getViewOptions() {

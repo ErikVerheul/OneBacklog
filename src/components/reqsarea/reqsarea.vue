@@ -152,7 +152,7 @@
               <p v-else-if="node.level > 2">
                 <b-button v-if="node.data.reqarea" class="btn-seablue-dynamic"
                   v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].color}"
-                  @click="setReqArea" squared size="sm">Change
+                  @click="setReqArea(node.data.reqarea)" squared size="sm">Change
                 </b-button>
                 <b-button v-else @click="setReqArea" squared variant="seablueLight" size="sm">Set</b-button>
               </p>
@@ -287,6 +287,18 @@
     <b-modal size="lg" v-model="colorSelectShow" @ok="setSelectedColor" title="Select a color">
       <h4>Enter a color in hex format eg. #567cd6</h4>
       <b-form-input v-model="$store.state.currentDoc.color" :state="colorState"></b-form-input>
+    </b-modal>
+    <!-- set req area -->
+    <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea" title="Select the requirement area this item belongs to">
+      <b-form-group label="Select the requirements area:">
+        <b-form-radio-group
+          v-model="selReqAreaId"
+          :options="reqAreaOptions"
+          value-field="id"
+          text-field="title"
+          stacked
+        ></b-form-radio-group>
+    </b-form-group>
     </b-modal>
     <!-- filter modals -->
     <filters></filters>
