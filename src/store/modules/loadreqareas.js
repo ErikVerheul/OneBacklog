@@ -149,8 +149,8 @@ const actions = {
 
                 // expand the default product up to the feature level
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
-                // select the default product
-                const isDraggable = level > PRODUCTLEVEL
+                // product and reqarea items cannot be dragged
+                const isDraggable = productId !== 0 && level > PRODUCTLEVEL
                 // show all nodes
                 const doShow = true
                 if (level === 0 || parentNodes[parentId] !== undefined) {
