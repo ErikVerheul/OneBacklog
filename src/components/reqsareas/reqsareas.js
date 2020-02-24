@@ -24,7 +24,7 @@ export default {
   beforeCreate() {
     this.$store.state.treeNodes = []
     this.$store.state.skipOnce = true
-    this.$store.state.currentView = 'reqsarea'
+    this.$store.state.currentView = 'reqarea'
     this.$store.state.changeHistory = []
     this.$store.state.loadreqsarea.docsCount = 0
     this.$store.state.loadreqsarea.insertedCount = 0

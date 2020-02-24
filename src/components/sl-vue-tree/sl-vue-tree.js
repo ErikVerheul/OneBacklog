@@ -26,7 +26,7 @@ function updatePaths(parentPath, siblings, currentView, insertInd = 0, parentId 
 		case 'products':
 			leafLevel = PBILEVEL
 			break
-		case 'reqsarea':
+		case 'reqarea':
 			leafLevel = FEATURELEVEL
 			break
 		default:
@@ -365,7 +365,7 @@ export default {
 					return
 				}
 				// prevent drag to other product when not in reqarea view
-				if (this.$store.state.currentView != 'reqsarea' && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
+				if (this.$store.state.currentView != 'reqarea' && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
 					this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', WARNING)
 					this.stopDrag()
 					return
