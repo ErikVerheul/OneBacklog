@@ -118,6 +118,10 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
+				if (rootState.currentView === 'reqarea' && doc.level === PBILEVEL) {
+					// skip PBI level changes when in requirement areas view
+					continue
+				}
 				if (doc.history[0].sessionId !== rootState.userData.sessionId &&
 					rootState.userData.myProductSubscriptions.includes(doc.productId) ||
 					removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
@@ -208,12 +212,12 @@ const actions = {
 										subtype: 0,
 										priority: undefined,
 										team: doc.team,
-										lastPositionChange: lastHistoryTimestamp,
-										lastStateChange: lastHistoryTimestamp,
-										lastContentChange: lastHistoryTimestamp,
-										lastCommentAddition: lastHistoryTimestamp,
-										lastAttachmentAddition: lastHistoryTimestamp,
-										lastCommentToHistory: lastHistoryTimestamp,
+										lastPositionChange: 0,
+										lastStateChange: 0,
+										lastContentChange: 0,
+										lastCommentAddition: 0,
+										lastAttachmentAddition: 0,
+										lastCommentToHistory: 0,
 										lastChange: lastHistoryTimestamp
 									}
 								}
@@ -234,7 +238,6 @@ const actions = {
 									if (id !== removedCondId) newCons.push(id)
 								}
 								node.conditionalFor = newCons
-								node.data.lastChange = lastHistoryTimestamp
 								const removedIds = lastHistObj.conditionRemovedEvent[0]
 								// update the dependencies in the tree
 								for (let id of removedIds) {
@@ -246,7 +249,6 @@ const actions = {
 										if (depId !== removedCondId) depsIdArray.push(depId)
 									}
 									node.dependencies = depsIdArray
-									node.data.lastChange = lastHistoryTimestamp
 								}
 							}
 							break
@@ -261,7 +263,6 @@ const actions = {
 									if (id !== removedDepId) newDeps.push(id)
 								}
 								node.dependencies = newDeps
-								node.data.lastChange = lastHistoryTimestamp
 								const removedIds = lastHistObj.dependencyRemovedEvent[0]
 								// update the conditions in the tree
 								for (let id of removedIds) {
@@ -273,7 +274,6 @@ const actions = {
 										if (condId !== removedDepId) conIdArray.push(condId)
 									}
 									node.conditionalFor = conIdArray
-									node.data.lastChange = lastHistoryTimestamp
 								}
 							}
 							break
@@ -331,7 +331,6 @@ const actions = {
 							break
 						case 'removeAttachmentEvent':
 							node.data.lastAttachmentAddition = 0
-							node.data.lastChange = lastHistoryTimestamp
 							break
 						case 'removeParentEvent':
 							if (doc.delmark) {
@@ -363,12 +362,10 @@ const actions = {
 							break
 						case 'setConditionsEvent':
 							node.conditionalFor = doc.conditionalFor
-							node.data.lastChange = lastHistoryTimestamp
 							if (documentInView) rootState.currentDoc.conditionalFor = doc.conditionalFor
 							break
 						case 'setDependenciesEvent':
 							node.dependencies = doc.dependencies
-							node.data.lastChange = lastHistoryTimestamp
 							if (documentInView) rootState.currentDoc.dependencies = doc.dependencies
 							break
 						case 'setHrsEvent':
@@ -382,17 +379,15 @@ const actions = {
 							break
 						case 'setStateEvent':
 							node.data.state = doc.state
-							node.data.lastChange = lastHistoryTimestamp
+							node.data.lastStateChange = lastHistoryTimestamp
 							if (documentInView) rootState.currentDoc.state = doc.state
 							break
 						case 'setSubTypeEvent':
 							node.data.subtype = doc.subtype
-							node.data.lastChange = lastHistoryTimestamp
 							if (documentInView) rootState.currentDoc.subtype = doc.subtype
 							break
 						case 'setTeamOwnerEvent':
 							node.data.team = doc.team
-							node.data.lastChange = lastHistoryTimestamp
 							if (documentInView) rootState.currentDoc.team = doc.team
 							break
 						case 'setTitleEvent':
@@ -402,7 +397,6 @@ const actions = {
 							break
 						case 'uploadAttachmentEvent':
 							node.data.lastAttachmentAddition = lastHistoryTimestamp
-							node.data.lastChange = lastHistoryTimestamp
 							break
 						default:
 							// eslint-disable-next-line no-console
