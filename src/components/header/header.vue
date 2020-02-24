@@ -13,7 +13,7 @@
         <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../product">Products</b-dropdown-item>
-            <b-dropdown-item v-if="isAreaPO" to="../../reqsareas">Requirement areas</b-dropdown-item>
+            <b-dropdown-item v-if="isAreaPO" to="../../reqareas">Requirement areas</b-dropdown-item>
             <b-dropdown-divider v-if="isSuperPO || isAdmin || isServerAdmin"></b-dropdown-divider>
             <b-dropdown-item v-if="isSuperPO" to="../../superpo">Super PO</b-dropdown-item>
             <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>

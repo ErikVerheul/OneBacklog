@@ -12,7 +12,7 @@ import UserGuidePage from './components/userguide/userguide.vue'
 import InitPage from './components/initdb/initdb.vue'
 import SigninPage from './components/auth/signin.vue'
 import ProductPage from './components/product/product.vue'
-import ReqsAreaPage from './components/reqsareas/reqsareas.vue'
+import ReqsAreaPage from './components/reqareas/reqareas.vue'
 import SuperPOPage from './components/superpo/superpo.vue'
 import AdminPage from './components/admin/admin.vue'
 import ServerAdminPage from './components/serveradmin/serveradmin.vue'
@@ -61,7 +61,7 @@ const routes = [
 		}
 	},
 	{
-		path: '/reqsareas',
+		path: '/reqareas',
 		component: ReqsAreaPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {

@@ -347,7 +347,7 @@
   </div>
 </template>
 
-<script src="./reqsareas.js"></script>
+<script src="./reqareas.js"></script>
 
 <!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
 <style>
