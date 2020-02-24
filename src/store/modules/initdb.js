@@ -13,7 +13,7 @@ const actions = {
 	* 3. createConfig
 	* 4. installDesignViews
 	* 5. installDesignFilters
-	* 6. createRootDoc
+	* 6. createRootDoc & createReqAreasParent
 	* 7. createFirstProduct
 	* 8. addProductToUser in useracc.js and set isDatabaseCreated to true
 	*/
@@ -208,11 +208,8 @@ const actions = {
 				"views": {
 					/*
 					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
-					 * Select the 'backlogitem' document type and skip removed, requirement-areas and database description documents (level 0 and 1).
+					 * Select the 'backlogitem' document type and skip removed documents. Note: level 0 is not in use.
 					 */
-					"sortedFilter": { // ToDo: delete this filter when no longer used
-						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit([doc.productId, doc.level, doc.priority*-1], 1);}'
-					},
 					"allItemsFilter": {
 						"map": `function(doc) {
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 0) emit([doc.productId, doc.level, doc.priority * -1],
@@ -222,7 +219,7 @@ const actions = {
 					"areaFilter": {
 						"map": `function(doc) {
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level < 5) emit([doc.productId, doc.level, doc.priority * -1],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history, doc.comments[0]]);
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history, doc.comments[0], doc.color]);
 						}`
 					},
 					/* Filter on document type 'backlogItem', then filter the changes which need distributed to other users. */
@@ -279,6 +276,7 @@ const actions = {
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'installDesignFilters: Success, the design document is created' })
 			dispatch('createRootDoc', payload)
+			dispatch('createReqAreasParent', payload)
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'installDesignFilters: Failure, cannot create the design document, ' + error })
 		})
@@ -324,6 +322,53 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createRootDoc: Success, the root document is created' })
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createRootDoc: Failure, cannot create the root document, ' + error })
+		})
+	},
+
+	createReqAreasParent({
+		rootState,
+	}, payload) {
+		// create parent document
+		const rootDoc = {
+			"_id": "0",
+			"type": "backlogItem",
+			"productId": "0",
+			"parentId": "root",
+			"team": "n/a",
+			"level": 2,
+			"subtype": null,
+			"state": 2,
+			"tssize": 1,
+			"spsize": null,
+			"spikepersonhours": 0,
+			"title": "Requirement areas overview",
+			"followers": [],
+			"description": window.btoa("<p>Describe your requirement area here...</p>"),
+			"acceptanceCriteria": window.btoa("<p></p>"),
+			"priority": 0,
+			"attachments": [],
+			"comments": [{
+				"ignoreEvent": 'comments initiated',
+				"timestamp": 0,
+				"distributeEvent": false
+			}],
+			// do not distribute this event; other users have no access rights yet
+			"history": [{
+				"createRootEvent": [payload.dbName],
+				"by": rootState.userData.user,
+				"timestamp": Date.now(),
+				"distributeEvent": false
+			}],
+			"delmark": false
+		}
+		globalAxios({
+			method: 'PUT',
+			url: payload.dbName + '/0',
+			data: rootDoc
+		}).then(() => {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createReqAreasParent: Success, the parent document is created' })
+		}).catch(error => {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createReqAreasParent: Failure, cannot create the parent document, ' + error })
 		})
 	},
 
