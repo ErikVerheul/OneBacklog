@@ -18,7 +18,7 @@ import remove from './modules/remove'
 import utils from './modules/utils'
 import restorebranches from './modules/restorebranches'
 import loadproducts from './modules/loadproducts.js'
-import loadreqsarea from './modules/loadreqsarea.js'
+import loadreqareas from './modules/loadreqareas.js'
 
 const DEBUG = -1
 const INFO = 0
@@ -313,7 +313,7 @@ export default new Vuex.Store({
 		utils,
 		restorebranches,
 		loadproducts,
-		loadreqsarea
+		loadreqareas
 	}
 
 })

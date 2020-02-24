@@ -186,7 +186,7 @@
               <p v-if="!isReqAreaItem" class="title is-6">This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
               <span v-else>
                 <b-form-group>
-                  Choose a display color for this requirements areas:
+                  Choose a display color for this requirement areas:
                   <b-form-radio-group
                     @input="updateColor()"
                     v-model="$store.state.currentDoc.color"

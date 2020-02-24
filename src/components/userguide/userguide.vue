@@ -33,7 +33,7 @@
 				<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 				<h5>Select your view</h5>
 				<p><a href="#pv">Products view</a></p>
-				<p><a href="#rv">Requirements areas view</a></p>
+				<p><a href="#rv">Requirement areas view</a></p>
 				<p><a href="#sv">Special views</a></p>
 				<h5><em>User</em></h5>
 				<ul>
@@ -77,7 +77,7 @@
 					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its blue color.</p>
 				</div>
 				<div id="rv">
-					<h4>Requirements areas view</h4>
+					<h4>Requirement areas view</h4>
 					<p>This view is not implemented yet.</p>
 				</div>
 				<div id="sv">
@@ -119,11 +119,11 @@
 				</p>
 				<p>The authorization is set per product and based on the following roles:
 				<ul>
-					<li>'areaPO': The requirement area PO maintains the requirements area backlog and can prioritize features in the teams backlog.</li>
+					<li>'areaPO': The requirement area PO maintains the requirement areas backlog and can prioritize features in the teams backlog.</li>
 					<li>'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.</li>
 					<li>'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.</li>
 					<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
-					<li>'guest': Can only view the items of the assigned products. Has no access to the requirements area view.</li>
+					<li>'guest': Can only view the items of the assigned products. Has no access to the requirement areas view.</li>
 				</ul>
 				Users can have multiple roles. Users can only access the products that are assigned to them.
 				Two roles are setup globally when the OneBacklog instance is setup:

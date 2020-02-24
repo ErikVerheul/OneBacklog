@@ -116,7 +116,7 @@ Requirement areas are children of the 'Requirments areas overview' dummy product
 		writeAccessLevel: null,
 	},
 	"areaPO": {
-		description: "Can access the requirements area with write access to the level 0 requirements area items and can prioritise features (level 4)",
+		description: "Can access the requirement areas with write access to these items and can prioritise features (level 4)",
 		products: "all",
 		writeAccessLevel: 0,4
 	},
@@ -136,7 +136,7 @@ Requirement areas are children of the 'Requirments areas overview' dummy product
 		writeAccessLevel: 4,5
 	},
 	"guest": {
-		description: "Can only view the items of the assigned products. Has no access to the requirements area view.",
+		description: "Can only view the items of the assigned products. Has no access to the requirement areas view.",
 		products: "assigned",
 		writeAccessLevel: null,
 	}
