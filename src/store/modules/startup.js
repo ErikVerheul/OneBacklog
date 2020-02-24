@@ -144,7 +144,7 @@ const actions = {
         }).catch(error => {
             if (error.response.status === 404) {
                 // the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
-                if (rootState.online && rootState.userData.sesionRoles.includes("_admin")) {
+                if (rootState.online && rootState.userData.sessionRoles.includes("_admin")) {
                     // eslint-disable-next-line no-console
                     if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
                     rootState.showHeaderDropDowns = false
