@@ -208,18 +208,28 @@ const actions = {
 				"views": {
 					/*
 					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
-					 * Select the 'backlogitem' document type and skip removed documents. Note: level 0 is not in use.
+					 * Select the 'backlogitem' document type and skip removed documents. Note: productId '0' is not in use for the req areas view only
+					 * History items of type 'ignoreEvent' are removed
 					 */
 					"allItemsFilter": {
 						"map": `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 0) emit([doc.productId, doc.level, doc.priority * -1],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history, doc.comments[0]]);
+							const cleanedHist = []
+							for (var i = 0; i < doc.history.length; i++) {
+								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+							}
+							if (doc.type == "backlogItem" && !doc.delmark && doc.productId !== '0') emit([doc.productId, doc.level, doc.priority * -1],
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0]]);
 						}`
 					},
+					/* Filter up to and including the feature level */
 					"areaFilter": {
 						"map": `function(doc) {
+							const cleanedHist = []
+							for (var i = 0; i < doc.history.length; i++) {
+								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+							}
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level < 5) emit([doc.productId, doc.level, doc.priority * -1],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history, doc.comments[0], doc.color]);
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
 						}`
 					},
 					/* Filter on document type 'backlogItem', then filter the changes which need distributed to other users. */
