@@ -428,7 +428,6 @@ export default {
           "subtype": 0,
           "state": STATENEW,
           "tssize": 3,
-          "color": "#FF0000",
           "spsize": 0,
           "spikepersonhours": 0,
           "reqarea": null,
