@@ -44,6 +44,7 @@ data: {
 ....inconsistentState: false // calculated on consistency check
 ....team: doc.team, // the team membership of the user who updated the state the last time
 ....subtype: doc.subtype,
+....reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = '0', level = 3)
 ....lastPositionChange, // lookup in history
 ....lastStateChange, // lookup in doc history
 ....lastContentChange, // lookup in doc history
@@ -51,7 +52,6 @@ data: {
 ....lastAttachmentAddition, // lookup in doc history
 ....lastCommentToHistory, // lookup in doc history
 ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
-....reqAreaItemcolor, // only applicable for req area documents (productId = '0', level = 3)
 }
 
 "subtype": [
