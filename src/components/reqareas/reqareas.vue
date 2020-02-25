@@ -284,9 +284,9 @@
     <!-- context modals -->
     <context></context>
     <!-- color select -->
-    <b-modal size="lg" v-model="colorSelectShow" @ok="setSelectedColor" title="Select a color">
+    <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor" title="Select a color">
       <h4>Enter a color in hex format eg. #567cd6</h4>
-      <b-form-input v-model="this.freeReqAreaItemcolor" :state="colorState"></b-form-input>
+      <b-form-input v-model="userReqAreaItemcolor" :state="colorState"></b-form-input>
     </b-modal>
     <!-- set req area -->
     <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">

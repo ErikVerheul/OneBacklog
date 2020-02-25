@@ -42,7 +42,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
-			rootState.currentDoc.reqAreaItemcolor = newColor
+			rootState.currentDoc.color = newColor
 			// update the req area document
 			tmpDoc.color = newColor
 			const newHist = {

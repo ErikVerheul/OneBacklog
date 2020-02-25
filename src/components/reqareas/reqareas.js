@@ -132,11 +132,11 @@ export default {
         { color: 'yellow', hexCode: '#FFFF00' },
         { color: 'green', hexCode: '#008000' },
         { color: 'blue', hexCode: '#0000ff' },
-        { color: 'other color', hexCode: 'select' }
+        { color: 'other color', hexCode: 'user choice' }
       ],
       colorSelectShow: false,
       reqAreaItemcolor: '#ffffff',
-      freeReqAreaItemcolor: '#567cd6',
+      userReqAreaItemcolor: '#567cd6',
       setReqAreaShow: false,
       selReqAreaId: undefined,
       reqAreaOptions: []
@@ -202,7 +202,7 @@ export default {
     * i          -> ignore case
     */
     colorState() {
-      return /^#[0-9A-F]{6}$/i.test(this.freeReqAreaItemcolor)
+      return /^#[0-9A-F]{6}$/i.test(this.userReqAreaItemcolor)
     },
 
     subsribeTitle() {
@@ -968,8 +968,8 @@ export default {
     },
 
     updateColor() {
-      if (this.reqAreaItemcolor === 'select') {
-        this.freeReqAreaItemcolor = '#567cd6'
+      if (this.reqAreaItemcolor === 'user choice') {
+        this.reqAreaItemcolor = '#567cd6'
         this.colorSelectShow = true
       } else {
         this.$store.state.nodeSelected.data.reqAreaItemcolor = this.reqAreaItemcolor
@@ -977,9 +977,9 @@ export default {
       }
     },
 
-    setSelectedColor() {
-      this.$store.state.nodeSelected.data.reqAreaItemcolor = this.freeReqAreaItemcolor
-      this.$store.dispatch('updateColorDb', this.freeReqAreaItemcolor)
+    setUserColor() {
+      this.$store.state.nodeSelected.data.reqAreaItemcolor = this.userReqAreaItemcolor
+      this.$store.dispatch('updateColorDb', this.userReqAreaItemcolor)
     },
 
     setReqArea(reqarea) {
