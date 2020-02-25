@@ -189,7 +189,7 @@
                   Choose a display color for this requirement area:
                   <b-form-radio-group
                     @input="updateColor()"
-                    v-model="reqAreaItemcolor"
+                    v-model="$store.state.currentDoc.color"
                     value-field="hexCode"
                     text-field="color"
                     :options="colorOptions"

@@ -968,12 +968,12 @@ export default {
     },
 
     updateColor() {
-      if (this.reqAreaItemcolor === 'user choice') {
-        this.reqAreaItemcolor = '#567cd6'
+      if (this.$store.state.currentDoc.color === 'user choice') {
+        this.$store.state.currentDoc.color = '#567cd6'
         this.colorSelectShow = true
       } else {
-        this.$store.state.nodeSelected.data.reqAreaItemcolor = this.reqAreaItemcolor
-        this.$store.dispatch('updateColorDb', this.reqAreaItemcolor)
+        this.$store.state.nodeSelected.data.reqAreaItemcolor = this.$store.state.currentDoc.color
+        this.$store.dispatch('updateColorDb', this.$store.state.currentDoc.color)
       }
     },
 
