@@ -30,7 +30,6 @@ export default {
     this.$store.state.loadreqareas.insertedCount = 0
     this.$store.state.loadreqareas.orphansCount = 0
     this.$store.state.loadreqareas.orphansFound = { userData: null, orphans: [] }
-    this.$store.state.colorMapper = {}
     this.$store.dispatch('getAllItems')
   },
 
@@ -95,6 +94,11 @@ export default {
     })
   },
 
+  updated() {
+    // refresh to obtain reactivity
+    this.refreshColorMapper()
+  },
+
   data() {
     return {
       userStorySubtype: 0,
@@ -131,6 +135,8 @@ export default {
         { color: 'other color', hexCode: 'select' }
       ],
       colorSelectShow: false,
+      reqAreaItemcolor: '#ffffff',
+      freeReqAreaItemcolor: '#567cd6',
       setReqAreaShow: false,
       selReqAreaId: undefined,
       reqAreaOptions: []
@@ -196,7 +202,7 @@ export default {
     * i          -> ignore case
     */
     colorState() {
-      return /^#[0-9A-F]{6}$/i.test(this.$store.state.currentDoc.color)
+      return /^#[0-9A-F]{6}$/i.test(this.freeReqAreaItemcolor)
     },
 
     subsribeTitle() {
@@ -952,33 +958,46 @@ export default {
       this.showLastEvent(evt, INFO)
     },
 
+    refreshColorMapper() {
+      const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
+      const newColorMapper = {}
+      for (let nm of currReqAreaNodes) {
+        newColorMapper[nm._id] = { reqAreaItemcolor: nm.data.reqAreaItemcolor }
+      }
+      this.$store.state.colorMapper = newColorMapper
+    },
+
     updateColor() {
-      if (this.$store.state.currentDoc.color === 'select') {
-        this.$store.state.currentDoc.color = '#567cd6'
+      if (this.reqAreaItemcolor === 'select') {
+        this.freeReqAreaItemcolor = '#567cd6'
         this.colorSelectShow = true
       } else {
-        this.$store.state.nodeSelected.data.color = this.$store.state.currentDoc.color
-        this.$store.dispatch('updateColor')
+        this.$store.state.nodeSelected.data.reqAreaItemcolor = this.reqAreaItemcolor
+        this.$store.dispatch('updateColorDb', this.reqAreaItemcolor)
       }
     },
 
     setSelectedColor() {
-      this.$store.state.nodeSelected.data.reqarea.color = this.$store.state.currentDoc.color
+      this.$store.state.nodeSelected.data.reqAreaItemcolor = this.freeReqAreaItemcolor
+      this.$store.dispatch('updateColorDb', this.freeReqAreaItemcolor)
     },
 
     setReqArea(reqarea) {
-      console.log('setReqArea: reqarea = ' + JSON.stringify(reqarea, null, 2))
       this.selReqAreaId = reqarea
+      const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
       this.reqAreaOptions = []
-      for (let id of Object.keys(this.$store.state.colorMapper)) {
-        this.reqAreaOptions.push({ id, title: this.$store.state.colorMapper[id].title})
+      for (let nm of currReqAreaNodes) {
+        this.reqAreaOptions.push({ id: nm._id, title: nm.title})
       }
       if (this.selReqAreaId !== null) this.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas'})
       this.setReqAreaShow = true
+
     },
 
     doSetReqArea() {
       console.log('doSetReqArea: this.selReqAreaId = ' + this.selReqAreaId)
+
+      // update the req area of the item (null for no req area set)
       this.$store.state.nodeSelected.data.reqarea = this.selReqAreaId
       this.$store.state.currentDoc.reqarea = this.selReqAreaId
       this.$store.dispatch('updateReqArea', this.selReqAreaId)

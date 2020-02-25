@@ -16,8 +16,6 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			tmpDoc.reqarea = newReqAreaId
-			// update the req area document
-			tmpDoc.color = rootState.currentDoc.color
 			const newHist = {
 				"ignoreEvent": ['updateReqArea'],
 				"timestamp": Date.now(),
@@ -34,29 +32,21 @@ const actions = {
 		})
 	},
 
-	updateColor({
+	updateColorDb({
 		rootState,
 		dispatch
-	}) {
+	}, newColor) {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
-			// update the color mapper (must create a new object to have reactivity!)
-			const newMapper = {}
-			for (let id of Object.keys(rootState.colorMapper)) {
-				if (id === _id) {
-					const oldTitle = rootState.colorMapper[id].title
-					newMapper[id] = { title: oldTitle, color: rootState.currentDoc.color }
-				} else newMapper[id] = rootState.colorMapper[id]
-			}
-			rootState.colorMapper = newMapper
+			rootState.currentDoc.reqAreaItemcolor = newColor
 			// update the req area document
-			tmpDoc.color = rootState.currentDoc.color
+			tmpDoc.color = newColor
 			const newHist = {
-				"ignoreEvent": ['updateColor'],
+				"ignoreEvent": ['updateColorDb'],
 				"timestamp": Date.now(),
 				"distributeEvent": false
 			}

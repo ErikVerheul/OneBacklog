@@ -598,6 +598,28 @@ export default {
 			return this.getNodeModel(prevPath)
 		},
 
+		/*
+		* Area nodes are per definition children of product with id '0'
+		* Return these nodes or null if none found
+		*/
+		getReqAreaNodes() {
+			const productModels = this.currentValue[0].children
+			for (let p of productModels) {
+				if (p._id === '0') {
+					return p.children
+				}
+			}
+			return null
+		},
+
+		resetReqArea(id) {
+			this.traverseModels((nm) => {
+				if (nm.data.reqarea === id) {
+					nm.data.reqarea = null
+				}
+			})
+		},
+
 		/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. */
 		insert(cursorPosition, nodes, calculatePrios = true) {
 			const destNodeModel = cursorPosition.nodeModel

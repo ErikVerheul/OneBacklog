@@ -101,7 +101,7 @@ const actions = {
                 const conditionalFor = item.value[7] || []
                 const history = item.value[8]
                 const lastComment = item.value[9]
-                const color = item.value[10] || null
+                const reqAreaItemcolor = item.value[10] || null
 
                 state.docsCount++
 
@@ -142,9 +142,9 @@ const actions = {
                     continue
                 }
 
-                // create color mapper for req areas
+                // initiate color mapper for req areas
                 if (productId === '0' && level === 3) {
-                    rootState.colorMapper[_id] = { title, color }
+                    rootState.colorMapper[_id] = reqAreaItemcolor
                 }
 
                 // expand the default product up to the feature level
@@ -185,7 +185,7 @@ const actions = {
                             priority,
                             state: itemState,
                             reqarea,
-                            color,
+                            reqAreaItemcolor,
                             team,
                             lastPositionChange: changeTimes.lastPositionChange,
                             lastStateChange: changeTimes.lastStateChange,
@@ -201,6 +201,12 @@ const actions = {
                     state.insertedCount++
                     parentNode.children.push(newNode)
                     parentNodes[_id] = newNode
+                    // will be overridden is a default product is set
+                    if (_id === '0' && productId === '0') {
+                        rootState.nodeSelected = newNode
+                        // must set last selected node as this node is selected programmatically
+                        window.slVueTree.setLastSelectedNode(newNode)
+                    }
                     if (_id === rootState.currentDefaultProductId) {
                         rootState.nodeSelected = newNode
                         // must set last selected node as this node is selected programmatically

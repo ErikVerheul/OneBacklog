@@ -147,11 +147,11 @@
 
             <template slot="sidebar" slot-scope="{ node }">
               <template v-if="node.productId === '0'">
-                <p v-if="node._id !== '0'" class="rectangle" v-bind:style="{'background-color': node.data.color}"></p>
+                <p v-if="node._id !== '0'" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemcolor}"></p>
               </template>
               <p v-else-if="node.level > 2">
                 <b-button v-if="node.data.reqarea" class="btn-seablue-dynamic"
-                  v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].color}"
+                  v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemcolor}"
                   @click="setReqArea(node.data.reqarea)" squared size="sm">Change
                 </b-button>
                 <b-button v-else @click="setReqArea(null)" squared variant="seablueLight" size="sm">Set</b-button>
@@ -186,10 +186,10 @@
               <p v-if="!isReqAreaItem" class="title is-6">This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
               <span v-else>
                 <b-form-group>
-                  Choose a display color for this requirement areas:
+                  Choose a display color for this requirement area:
                   <b-form-radio-group
                     @input="updateColor()"
-                    v-model="$store.state.currentDoc.color"
+                    v-model="reqAreaItemcolor"
                     value-field="hexCode"
                     text-field="color"
                     :options="colorOptions"
@@ -286,7 +286,7 @@
     <!-- color select -->
     <b-modal size="lg" v-model="colorSelectShow" @ok="setSelectedColor" title="Select a color">
       <h4>Enter a color in hex format eg. #567cd6</h4>
-      <b-form-input v-model="$store.state.currentDoc.color" :state="colorState"></b-form-input>
+      <b-form-input v-model="this.freeReqAreaItemcolor" :state="colorState"></b-form-input>
     </b-modal>
     <!-- set req area -->
     <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">

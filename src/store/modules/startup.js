@@ -172,6 +172,10 @@ const actions = {
             const availableProductIds = []
             // correct the data from the user profile with the actual available products
             for (let product of currentProductsEnvelope) {
+                if (product.id === '0') {
+                    // skip req areas dummy product
+                    continue
+                }
                 let id = product.id
                 availableProductIds.push(id)
                 // can only have productsRoles of products that are available
@@ -193,6 +197,10 @@ const actions = {
 
             // set the users product options to select from
             for (let product of currentProductsEnvelope) {
+                if (product.id === '0') {
+                    // skip req areas dummy product
+                    continue
+                }
                 if (Object.keys(payload.currentDbSettings.productsRoles).includes(product.id)) {
                     rootState.myProductOptions.push({
                         value: product.id,

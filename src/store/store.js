@@ -36,6 +36,8 @@ export default new Vuex.Store({
 		// loading
 		treeNodes: [],
 		isProductAssigned: false,
+		// loading options
+		autoCorrectUserProfile: true,
 		// logging
 		logState: {
 			unsavedLogs: [],
@@ -49,14 +51,14 @@ export default new Vuex.Store({
 		currentProductTitle: "",
 		// view settings
 		currentView: 'products',
-		// options
-		autoCorrectUserProfile: true,
 		// product view
 		selectedForView: 'comments',
 		changeHistory: [],
 		filterForComment: "",
 		filterForHistory: "",
 		busyRemoving: false,
+		// req areas view
+		colorMapper: {},
 		// utilities for superAdmin, admin and superPO
 		seqKey: 0,
 		areDatabasesFound: false,
@@ -101,9 +103,7 @@ export default new Vuex.Store({
 		configData: null,
 		currentDoc: null,
 		runningCookieRefreshId: null,
-		uploadDone: true,
-		// req area view
-		colorMapper: {}
+		uploadDone: true
 	},
 
 	getters: {

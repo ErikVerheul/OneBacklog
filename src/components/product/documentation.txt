@@ -40,7 +40,7 @@ conditionalFor: doc.conditionalFor, // array with ids
 data: {
 ....priority: doc.priority,
 ....state: doc.state,
-....reqarea: doc.reqarea, // { title, color }
+....reqarea: doc.reqarea,
 ....inconsistentState: false // calculated on consistency check
 ....team: doc.team, // the team membership of the user who updated the state the last time
 ....subtype: doc.subtype,
@@ -51,7 +51,7 @@ data: {
 ....lastAttachmentAddition, // lookup in doc history
 ....lastCommentToHistory, // lookup in doc history
 ....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
-....color: doc.color // only applicable for req area documents (productId = '0', level = 3)
+....reqAreaItemcolor, // only applicable for req area documents (productId = '0', level = 3)
 }
 
 "subtype": [
