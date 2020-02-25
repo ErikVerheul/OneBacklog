@@ -41,6 +41,7 @@ export default {
     this.EPICLEVEL = 3
     this.FEATURELEVEL = 4
     this.PBILEVEL = 5
+    this.AREA_PRODUCTID = '0'
   },
 
   mounted() {
@@ -159,7 +160,7 @@ export default {
     ]),
 
     isReqAreaItem() {
-      return this.$store.state.currentDoc.productId === '0'
+      return this.$store.state.currentDoc.productId === this.AREA_PRODUCTID
     },
 
     welcomeMessage() {
@@ -871,7 +872,7 @@ export default {
        * precondition: the selected nodes have all the same parent (same level)
        */
       let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
-        const failedCheck0 = draggingNodes[0].productId === '0'
+        const failedCheck0 = draggingNodes[0].productId === this.AREA_PRODUCTID
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1

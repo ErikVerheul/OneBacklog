@@ -9,6 +9,7 @@ const REMOVED = 5
 const ONHOLD = 3
 const DONE = 4
 const STATENEW = 0
+const AREA_PRODUCTID = '0'
 
 export default {
   mixins: [utilities],
@@ -70,7 +71,7 @@ export default {
       'haveWritePermission'
     ]),
     isReqAreaItem() {
-      return this.$store.state.currentDoc.productId === '0'
+      return this.$store.state.currentDoc.productId === AREA_PRODUCTID
     }
   },
 
@@ -490,7 +491,7 @@ export default {
         }
       }
       // when removing a requirement area, items assigned to this area should be updated
-      if (selectedNode.productId === '0') {
+      if (selectedNode.productId === AREA_PRODUCTID) {
         window.slVueTree.resetReqArea(selectedNode._id)
       }
       // set remove mark in the database on the clicked item and descendants (if any)

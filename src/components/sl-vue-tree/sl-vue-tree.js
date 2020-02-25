@@ -8,6 +8,7 @@ const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const AREA_PRODUCTID = '0'
 var lastSelectedNode = null
 var draggableNodes = []
 var selectedNodes = []
@@ -599,13 +600,13 @@ export default {
 		},
 
 		/*
-		* Area nodes are per definition children of product with id '0'
+		* Area nodes are per definition children of product with id AREA_PRODUCTID
 		* Return these nodes or null if none found
 		*/
 		getReqAreaNodes() {
 			const productModels = this.currentValue[0].children
 			for (let p of productModels) {
-				if (p._id === '0') {
+				if (p._id === AREA_PRODUCTID) {
 					return p.children
 				}
 			}

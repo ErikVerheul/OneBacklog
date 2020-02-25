@@ -11,6 +11,7 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const AREA_PRODUCTID = '0'
 
 const getters = {
 	/*
@@ -172,7 +173,7 @@ const actions = {
             const availableProductIds = []
             // correct the data from the user profile with the actual available products
             for (let product of currentProductsEnvelope) {
-                if (product.id === '0') {
+                if (product.id === AREA_PRODUCTID) {
                     // skip req areas dummy product
                     continue
                 }
@@ -197,7 +198,7 @@ const actions = {
 
             // set the users product options to select from
             for (let product of currentProductsEnvelope) {
-                if (product.id === '0') {
+                if (product.id === AREA_PRODUCTID) {
                     // skip req areas dummy product
                     continue
                 }

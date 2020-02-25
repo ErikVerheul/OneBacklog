@@ -6,6 +6,7 @@ const INFO = 0
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const HOURINMILIS = 3600000
+const AREA_PRODUCTID = '0'
 var parentNodes = {}
 
 const state = {
@@ -143,7 +144,7 @@ const actions = {
                 }
 
                 // initiate color mapper for req areas
-                if (productId === '0' && level === 3) {
+                if (productId === AREA_PRODUCTID && level === 3) {
                     rootState.colorMapper[_id] = reqAreaItemcolor
                 }
 
@@ -201,12 +202,6 @@ const actions = {
                     state.insertedCount++
                     parentNode.children.push(newNode)
                     parentNodes[_id] = newNode
-                    // will be overridden is a default product is set
-                    if (_id === '0' && productId === '0') {
-                        rootState.nodeSelected = newNode
-                        // must set last selected node as this node is selected programmatically
-                        window.slVueTree.setLastSelectedNode(newNode)
-                    }
                     if (_id === rootState.currentDefaultProductId) {
                         rootState.nodeSelected = newNode
                         // must set last selected node as this node is selected programmatically
