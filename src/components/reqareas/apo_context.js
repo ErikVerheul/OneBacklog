@@ -355,7 +355,7 @@ export default {
         data: {
           priority: null,
           state: STATENEW,
-          color: '#FF0000',
+          reqAreaItemcolor: '#FF0000',
           team: this.isReqAreaItem ? 'n/a' : 'not assigned yet',
           subtype: 0,
           lastChange: now

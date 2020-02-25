@@ -135,7 +135,6 @@ export default {
         { color: 'other color', hexCode: 'user choice' }
       ],
       colorSelectShow: false,
-      reqAreaItemcolor: '#ffffff',
       userReqAreaItemcolor: '#567cd6',
       setReqAreaShow: false,
       selReqAreaId: undefined,
@@ -995,8 +994,6 @@ export default {
     },
 
     doSetReqArea() {
-      console.log('doSetReqArea: this.selReqAreaId = ' + this.selReqAreaId)
-
       // update the req area of the item (null for no req area set)
       this.$store.state.nodeSelected.data.reqarea = this.selReqAreaId
       this.$store.state.currentDoc.reqarea = this.selReqAreaId
