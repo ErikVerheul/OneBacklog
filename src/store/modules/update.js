@@ -39,7 +39,8 @@ const actions = {
 	},
 
 	/*
-    * If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse.
+	* If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse.
+	* When the parent req area is changed the children change too.
     */
 	updateReqAreaChildren({
 		rootState,
@@ -67,7 +68,7 @@ const actions = {
 					let updated = false
 					if (newReqArea !== null) {
 						// set: set for items which have no req area set yet
-						if (!currentReqArea) {
+						if (!currentReqArea || currentReqArea === oldParentReqArea) {
 							doc.reqarea = newReqArea
 							updated = true
 						}

@@ -1009,7 +1009,7 @@ export default {
         const currentReqArea = c.data.reqarea
         if (newReqAreaId !== null) {
           // set: set for items which have no req area set yet
-          if (!currentReqArea) {
+          if (!currentReqArea || currentReqArea === oldParentReqArea) {
             c.data.reqarea = newReqAreaId
           }
         } else {
