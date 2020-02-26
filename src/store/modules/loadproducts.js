@@ -7,6 +7,7 @@ const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const HOURINMILIS = 3600000
+const AREA_PRODUCTID = '0'
 var parentNodes = {}
 
 function setChangeTimestamps(history, lastComment) {
@@ -81,7 +82,7 @@ const mutations = {
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
 	 * The root and the top level product nodes are not draggable
 	 */
-    processProducts(state, payload) {
+    processProduct(state, payload) {
         const rootState = payload.rootState
         for (let item of payload.batch) {
             const _id = item.id
@@ -133,6 +134,13 @@ const mutations = {
                 parentNodes.root = rootState.treeNodes[0]
                 state.docsCount++
                 state.insertedCount++
+                continue
+            }
+            // create req areas to title mapper
+            if (productId === AREA_PRODUCTID) {
+                if (level === 3) {
+                    rootState.reqAreaMapper[_id] = title
+                }
                 continue
             }
             // skip the items of the products the user is not authorized to
@@ -212,7 +220,7 @@ const mutations = {
                 state.orphansCount++
                 state.orphansFound.orphans.push({ id: _id, parentId, productId: productId })
                 // eslint-disable-next-line no-console
-                console.log('processProducts: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
+                console.log('processProduct: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
             }
 
         }
@@ -263,7 +271,7 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter',
         }).then(res => {
-            commit('processProducts', { rootState, batch: res.data.rows })
+            commit('processProduct', { rootState, batch: res.data.rows })
             commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
             // log any detected orphans if present
             if (state.orphansFound.orphans.length > 0) {

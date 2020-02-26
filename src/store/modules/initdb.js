@@ -209,25 +209,31 @@ const actions = {
 					/*
 					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
 					 * Select the 'backlogitem' document type and skip removed documents. Note: productId '0' is not in use for the req areas view only
-					 * History items of type 'ignoreEvent' are removed
+					 * History items older than one hour or of type 'ignoreEvent' are removed but at least one item (the most recent) must be selected
 					 */
 					"allItemsFilter": {
 						"map": `function(doc) {
+							const hour = 3600000
+							const now = Date.now()
 							const cleanedHist = []
 							for (var i = 0; i < doc.history.length; i++) {
-								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+								if ((now - doc.history[i].timestamp < hour) && Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
 							}
-							if (doc.type == "backlogItem" && !doc.delmark && doc.productId !== '0') emit([doc.productId, doc.level, doc.priority * -1],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0]]);
+							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
+							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.productId, doc.level, doc.priority * -1],
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
 						}`
 					},
 					/* Filter up to and including the feature level */
 					"areaFilter": {
 						"map": `function(doc) {
+							const hour = 3600000
+							const now = Date.now()
 							const cleanedHist = []
 							for (var i = 0; i < doc.history.length; i++) {
-								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+								if ((now - doc.history[i].timestamp < hour) && Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
 							}
+							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level < 5) emit([doc.productId, doc.level, doc.priority * -1],
 								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
 						}`
@@ -250,9 +256,9 @@ const actions = {
 					"shortIdFilter": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.shortId], 1);}'
 					},
-					/* Filter on document type 'backlogItem', then emit the product id and title.*/
+					/* Filter on document type 'backlogItem' but skip the dummy req areas product, then emit the product id and title.*/
 					"products": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level === 2) emit(doc._id, doc.title);}'
+						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level === 2 && doc._id !== "0") emit(doc._id, doc.title);}'
 					},
 					/* Filter on document type 'backlogItem', then emit the product _rev of the removed documents.*/
 					"removed": {

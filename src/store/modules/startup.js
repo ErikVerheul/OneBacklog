@@ -11,7 +11,6 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
-const AREA_PRODUCTID = '0'
 
 const getters = {
 	/*
@@ -173,10 +172,6 @@ const actions = {
             const availableProductIds = []
             // correct the data from the user profile with the actual available products
             for (let product of currentProductsEnvelope) {
-                if (product.id === AREA_PRODUCTID) {
-                    // skip req areas dummy product
-                    continue
-                }
                 let id = product.id
                 availableProductIds.push(id)
                 // can only have productsRoles of products that are available
@@ -198,10 +193,6 @@ const actions = {
 
             // set the users product options to select from
             for (let product of currentProductsEnvelope) {
-                if (product.id === AREA_PRODUCTID) {
-                    // skip req areas dummy product
-                    continue
-                }
                 if (Object.keys(payload.currentDbSettings.productsRoles).includes(product.id)) {
                     rootState.myProductOptions.push({
                         value: product.id,
@@ -277,7 +268,7 @@ const actions = {
         })
     },
 
-     /* Get the root of the backlog items */
+     /* Load the root of the backlog items into the current document */
 	getRoot({
 		rootState,
 		dispatch,
