@@ -179,7 +179,9 @@
           </div>
           <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div class="d-table w-100">
-              <p class="title is-6">This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              <p v-if="$store.state.currentDoc.reqarea" class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}',
+                and is member of requirement area '{{ $store.state.reqAreaMapper[$store.state.currentDoc.reqarea] }}'</p>
+              <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'
               <div v-if="getCurrentItemLevel==this.PBILEVEL" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group
