@@ -5,17 +5,21 @@ const WARNING = 1
 const ERROR = 2
 
 const actions = {
+	/*
+    * Update the req area of the item (null for no req area set).
+    */
 	updateReqArea({
 		rootState,
 		dispatch
-	}, newReqAreaId) {
+	}, payload) {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
-			tmpDoc.reqarea = newReqAreaId
+			const oldDocArea = tmpDoc.reqarea
+			tmpDoc.reqarea = payload.reqarea
 			const newHist = {
 				"ignoreEvent": ['updateReqArea'],
 				"timestamp": Date.now(),
@@ -24,8 +28,81 @@ const actions = {
 			tmpDoc.history.unshift(newHist)
 			rootState.currentDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			payload.oldParentReqArea = oldDocArea
+			if (payload.childIds.length > 0) dispatch('updateReqAreaChildren', payload)
 		}).catch(error => {
 			let msg = 'updateReqArea: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/*
+    * If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse.
+    */
+	updateReqAreaChildren({
+		rootState,
+		dispatch
+	}, payload) {
+		const docsToGet = []
+		for (let c of payload.childIds) {
+			docsToGet.push({ "id": c })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const currentReqArea = doc.reqarea
+					const oldParentReqArea = payload.oldParentReqArea
+					const newReqArea = payload.reqarea
+					let updated = false
+					if (newReqArea !== null) {
+						// set: set for items which have no req area set yet
+						if (!currentReqArea) {
+							doc.reqarea = newReqArea
+							updated = true
+						}
+					} else {
+						// remove: if reqarea was set and equal to old req area of the parent delete it
+						if (currentReqArea && currentReqArea === oldParentReqArea) {
+							delete doc.reqarea
+							updated = true
+						}
+					}
+					if (updated) {
+						const newHist = {
+							"ignoreEvent": ['updateReqAreaChildren'],
+							"timestamp": Date.now(),
+							"distributeEvent": false
+						}
+						doc.history.unshift(newHist)
+						docs.push(doc)
+					}
+				}
+				if (envelope.error) error.push(envelope.error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
+				let msg = 'updateReqAreaChildren: These documents cannot change requirement area: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+		}).catch(error => {
+			let msg = 'updateReqAreaChildren: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

@@ -987,18 +987,41 @@ export default {
       const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
       this.reqAreaOptions = []
       for (let nm of currReqAreaNodes) {
-        this.reqAreaOptions.push({ id: nm._id, title: nm.title})
+        this.reqAreaOptions.push({ id: nm._id, title: nm.title })
       }
-      if (this.selReqAreaId !== null) this.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas'})
+      if (this.selReqAreaId !== null) this.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
       this.setReqAreaShow = true
 
     },
 
+    /*
+    * Update the req area of the item (null for no req area set)
+    * If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse
+    */
     doSetReqArea() {
-      // update the req area of the item (null for no req area set)
-      this.$store.state.nodeSelected.data.reqarea = this.selReqAreaId
-      this.$store.state.currentDoc.reqarea = this.selReqAreaId
-      this.$store.dispatch('updateReqArea', this.selReqAreaId)
+      const oldParentReqArea = this.$store.state.nodeSelected.data.reqarea
+      const newReqAreaId = this.selReqAreaId
+      this.$store.state.nodeSelected.data.reqarea = newReqAreaId
+      this.$store.state.currentDoc.reqarea = newReqAreaId
+      // set reqarea for the child nodes
+      const childNodes = window.slVueTree.getChildNodesOfParent(this.$store.state.currentDoc._id)
+      for (let c of childNodes) {
+        const currentReqArea = c.data.reqarea
+        if (newReqAreaId !== null) {
+          // set: set for items which have no req area set yet
+          if (!currentReqArea) {
+            c.data.reqarea = newReqAreaId
+          }
+        } else {
+          // remove: if reqarea was set and equal to old req area of the parent delete it
+          if (currentReqArea && currentReqArea === oldParentReqArea) {
+            c.data.reqarea = null
+          }
+        }
+      }
+      // update the db
+      const childIds = window.slVueTree.getChildIdsOfParent(this.$store.state.currentDoc._id)
+      this.$store.dispatch('updateReqArea', { reqarea: this.selReqAreaId, childIds })
     },
 
     getViewOptions() {

@@ -162,7 +162,7 @@ export default {
 		},
 
 		/**
-		 * gaps is using for nodes indentation
+		 * gaps is used for nodes indentation
 		 * @returns {number[]}
 		 */
 		gaps() {
@@ -553,6 +553,22 @@ export default {
 
 		getProducts() {
 			return this.currentValue[0].children
+		},
+
+		getChildNodesOfParent(id) {
+			const node = this.getNodeById(id)
+			if (node === null) return []
+			return node.children
+		},
+
+		getChildIdsOfParent(id) {
+			const node = this.getNodeById(id)
+			if (node === null) return []
+			const childIds = []
+			for (let c of node.children) {
+				childIds.push(c._id)
+			}
+			return childIds
 		},
 
 		traverseModels(cb, nodeModels = this.currentValue) {
