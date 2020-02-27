@@ -205,7 +205,6 @@ export default {
   },
 
   watch: {
-    // ToDo: use the @change option instead
     'selectedPbiType': function (val) {
       // prevent looping
       if (val !== this.$store.state.currentDoc.subtype) {
