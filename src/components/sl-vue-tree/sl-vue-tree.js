@@ -862,36 +862,40 @@ export default {
 			// this.showVisibility('showAndSelectItem')
 		},
 
-		resetTree() {
+		resetTree(allProducts) {
+			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
 				nm.isHighlighted = false
 				nm.doShow = nm.savedDoShow
 				nm.isExpanded = nm.savedIsExpanded
-			}, this.getProductModels())
+			}, currentProduct)
 		},
 
-		/* clear any outstanding filters and searches of the current product */
-		resetFilters(caller) {
+		/* clear any outstanding filters and searches of the current product (default) or all products */
+		resetFilters(caller, allProducts) {
 			// eslint-disable-next-line no-console
 			console.log('resetFilters is called by ' + caller)
 			if (this.$store.state.filterOn) {
-				this.resetTree()
-				this.showLastEvent(`Your filter in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
+				this.resetTree(allProducts)
+				allProducts ? this.showLastEvent(`Your filter is cleared`, INFO) :
+					this.showLastEvent(`Your filter in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.filterText = FILTERBUTTONTEXT
 				this.$store.state.filterOn = false
 			}
 			if (this.$store.state.searchOn) {
-				this.resetTree()
-				this.showLastEvent(`Your search in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
+				this.resetTree(allProducts)
+				allProducts ? this.showLastEvent(`Your search is cleared`, INFO) :
+					this.showLastEvent(`Your search in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
 				this.$store.state.searchOn = false
 			}
 		},
 
-		resetFindOnId(caller) {
+		resetFindOnId(caller, ALLPRODUCTS) {
 			// eslint-disable-next-line no-console
 			console.log('resetFindOnId is called by ' + caller)
-			this.resetTree()
-			this.showLastEvent(`Your view on product '${this.$store.state.currentProductTitle}' is restored`, INFO)
+			this.resetTree(ALLPRODUCTS)
+			ALLPRODUCTS ? this.showLastEvent(`Your view is restored`, INFO) :
+				this.showLastEvent(`Your view on product '${this.$store.state.currentProductTitle}' is restored`, INFO)
 			this.$store.state.findIdOn = false
 		},
 

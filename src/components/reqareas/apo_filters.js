@@ -2,7 +2,8 @@ import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const PRODUCTLEVEL = 2
-const PBILEVEL = 5
+const FEATURELEVEL = 4
+const AREA_PRODUCTID = '0'
 
 export default {
   mixins: [utilities],
@@ -11,7 +12,6 @@ export default {
       filterOnTeams: false,
       teamOptions: [],
       selectedTeams: [],
-      filterTreeDepth: false,
       selectedTreeDepth: "0",
       filterOnState: false,
       stateOptions: [],
@@ -29,7 +29,6 @@ export default {
     if (myFilterSettings) {
       this.filterOnTeams = myFilterSettings.filterOnTeams
       this.selectedTeams = myFilterSettings.selectedTeams
-      this.filterTreeDepth = myFilterSettings.filterTreeDepth
       this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
       this.filterOnState = myFilterSettings.filterOnState
       this.selectedStates = myFilterSettings.selectedStates
@@ -67,7 +66,6 @@ export default {
       const myFilterSettings = {
         filterOnTeams: this.filterOnTeams,
         selectedTeams: this.selectedTeams,
-        filterTreeDepth: this.filterTreeDepth,
         selectedTreeDepth: this.selectedTreeDepth,
         filterOnState: this.filterOnState,
         selectedStates: this.selectedStates,
@@ -110,13 +108,15 @@ export default {
     onApplyMyFilters() {
       // reset the other selections first
       window.slVueTree.resetFilters('onApplyMyFilters')
-      if (!this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
+      if (!this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
-      const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
       let count = 0
       const unselectedNodes = []
       // create a callback for the filtering
       let cb = (nodeModel) => {
+        // skip req area definitions
+        if (nodeModel.productId === AREA_PRODUCTID) return
+
         // save node display state
         nodeModel.savedDoShow = nodeModel.doShow
         nodeModel.savedIsExpanded = nodeModel.isExpanded
@@ -131,43 +131,32 @@ export default {
         if (!isExcluded && this.filterOnTime) {
           isExcluded = this.doFilterOnTime(nodeModel)
         }
-
-        if (onlyFilterOnDepth) {
-          // when filtering on depth only, show the node if below the selected level
-          if (window.slVueTree.expandPathToNode(nodeModel, parseInt(this.selectedTreeDepth))) {
-            // the parent is expanded, so the the node is shown: collapse this node to hide its descendants
-            nodeModel.isExpanded = false
+        if (!isExcluded) {
+          // show this node if not filtered out and highlight the node
+          if (window.slVueTree.expandPathToNode(nodeModel, nodeModel.level)) {
+            nodeModel.isHighlighted = true
+            count++
           }
         } else {
-          if (!isExcluded) {
-            // when not filtering on depth only, show this node if not filtered out and highlight the node
-            if (window.slVueTree.expandPathToNode(nodeModel, this.filterTreeDepth ? parseInt(this.selectedTreeDepth) : nodeModel.level)) {
-              nodeModel.isHighlighted = true
-              count++
-            }
+          // in this view the lowest level (highest number)
+          if (nodeModel.level === FEATURELEVEL) {
+            nodeModel.doShow = false
           } else {
-            // for now PBILEVEL is the lowest level (highest number)
-            if (nodeModel.level === PBILEVEL) {
-              nodeModel.doShow = false
-            } else {
-              nodeModel.isExpanded = false
-              unselectedNodes.push(nodeModel)
-            }
+            nodeModel.isExpanded = false
+            unselectedNodes.push(nodeModel)
           }
         }
       }
-      // execute the callback for the current product
-      window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
+      // execute the callback for ALL products
+      window.slVueTree.traverseModels(cb)
 
-      if (!onlyFilterOnDepth) {
-        // hide unselected nodes with no selected descendants
-        for (let node of unselectedNodes) {
-          node.doShow = window.slVueTree.hasHighlightedDescendants(node)
-        }
-        let s
-        count === 1 ? s = 'title matches' : s = 'titles match'
-        this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
-      } else this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, INFO)
+      // hide unselected nodes with no selected descendants
+      for (let node of unselectedNodes) {
+        node.doShow = window.slVueTree.hasHighlightedDescendants(node)
+      }
+      let s
+      count === 1 ? s = 'title matches' : s = 'titles match'
+      this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
 
       this.$store.state.filterText = 'Clear filter'
       this.$store.state.filterOn = true
