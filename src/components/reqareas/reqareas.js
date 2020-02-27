@@ -145,7 +145,7 @@ export default {
   },
 
   beforeUpdate() {
-    // this.checkForDependencyViolations()
+    this.checkForDependencyViolations()
   },
 
   computed: {
@@ -284,12 +284,12 @@ export default {
 
   methods: {
     checkForDependencyViolations() {
-      const violations = window.slVueTree.findDependencyViolations()
+      const violations = window.slVueTree.findDependencyViolations(ALLPRODUCTS)
       if (violations.length > 0) {
         violationsWereFound = true
         this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', WARNING)
         for (let v of violations) {
-          window.slVueTree.showDependencyViolations(v)
+          window.slVueTree.showDependencyViolations(v, ALLPRODUCTS)
         }
       } else {
         if (violationsWereFound) this.clearLastEvent()
@@ -819,7 +819,7 @@ export default {
     },
 
     /* event handling */
-    nodeSelectedEvent(selNodes) {
+    onNodeSelect(selNodes) {
       // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
       this.updateDescription()
       // both an update of the description and the acceptance criteria should NOT happen

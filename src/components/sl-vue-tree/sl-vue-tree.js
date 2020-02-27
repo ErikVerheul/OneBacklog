@@ -820,7 +820,8 @@ export default {
 		},
 
 		/* show the current selected product */
-		expandTree() {
+		expandTree(allProducts) {
+			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
 				if (nm.level < FEATURELEVEL) {
 					nm.isExpanded = true
@@ -828,7 +829,7 @@ export default {
 				if (nm.level <= FEATURELEVEL) {
 					nm.doShow = true
 				}
-			}, this.getProductModels())
+			}, currentProduct)
 			// this.showVisibility('expandTree')
 
 		},
@@ -943,7 +944,8 @@ export default {
 			return result
 		},
 
-		findDependencyViolations() {
+		findDependencyViolations(allProducts) {
+			const currentProduct = allProducts ? undefined : this.getProductModels()
 			let violations = []
 			this.traverseModels((nm) => {
 				// remove any left dependency markers
@@ -956,12 +958,13 @@ export default {
 						}
 					}
 				}
-			}, this.getProductModels())
+			}, currentProduct)
 			return violations
 		},
 
 		/* Show the path from condNode to depNode not including both nodes */
-		showDependencyViolations(violation) {
+		showDependencyViolations(violation, allProducts) {
+			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
 				if ((this.comparePaths(violation.depNode.path, nm.path) === 1) && (this.comparePaths(nm.path, violation.condNode.path) === 1)) {
 					this.getParentNode(violation.condNode).isExpanded = true
@@ -969,7 +972,7 @@ export default {
 					nm.doShow = true
 					nm.markViolation = true
 				}
-			}, this.getProductModels())
+			}, currentProduct)
 		},
 
 		/* When nodes are deleted orphan dependencies can be created. This method removes them. */
