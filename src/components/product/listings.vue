@@ -320,8 +320,8 @@ export default {
     },
 
     mkRemoveParentEvent(value) {
-      return `<h5>This item and ${value[1].length} descendants are removed.</h5>
-        <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
+      return `<h5>This item and ${value[0].length} descendants are removed.</h5>
+        <p>From the descendants ${value[1]} external dependencies and ${value[2]} external conditions were removed.</p>`
     },
 
     mkGrandParentDocRestoredEvent(value) {
