@@ -205,7 +205,7 @@ export default {
   },
 
   watch: {
-    // ToDo: use the @input option instead
+    // ToDo: use the @change option instead
     'selectedPbiType': function (val) {
       // prevent looping
       if (val !== this.$store.state.currentDoc.subtype) {
@@ -821,7 +821,7 @@ export default {
     },
 
     /* event handling */
-    onNodeSelect(selNodes) {
+    nodeSelectedEvent(selNodes) {
       // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
       this.updateDescription()
       // both an update of the description and the acceptance criteria should NOT happen
@@ -838,7 +838,7 @@ export default {
         // if the user clicked on a node of another product
         if (this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
           // clear any outstanding filters
-          window.slVueTree.resetFilters('onNodeSelect')
+          window.slVueTree.resetFilters('nodeSelectedEvent')
           // collapse the previously selected product
           window.slVueTree.collapseTree()
           // update current productId and title

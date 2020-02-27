@@ -93,7 +93,7 @@
             :value="$store.state.treeNodes"
             ref="slVueTree"
             :allow-multiselect="true"
-            @select="onNodeSelect"
+            @select="nodeSelectedEvent"
             @beforedrop="beforeNodeDropped"
             @drop="nodeDropped"
           >
