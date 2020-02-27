@@ -9,8 +9,11 @@ export default {
   mixins: [utilities],
   data() {
     return {
+      filterOnReqAreas: false,
+      reqAreaOptions: [],
       filterOnTeams: false,
       teamOptions: [],
+      selectedReqAreas: [],
       selectedTeams: [],
       selectedTreeDepth: "0",
       filterOnState: false,
@@ -27,6 +30,8 @@ export default {
     // init the filter settings
     const myFilterSettings = this.$store.state.userData.myFilterSettings
     if (myFilterSettings) {
+      this.filterOnReqArea = myFilterSettings.filterOnReqArea
+      this.selectedReqAreas = myFilterSettings.selectedReqAreas
       this.filterOnTeams = myFilterSettings.filterOnTeams
       this.selectedTeams = myFilterSettings.selectedTeams
       this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
@@ -64,6 +69,7 @@ export default {
   methods: {
     onSaveFilters() {
       const myFilterSettings = {
+        filterOnReqAreas: this.filterOnReqAreas,
         filterOnTeams: this.filterOnTeams,
         selectedTeams: this.selectedTeams,
         selectedTreeDepth: this.selectedTreeDepth,
@@ -76,6 +82,11 @@ export default {
       }
       this.$store.dispatch('saveMyFilterSettings', myFilterSettings)
       this.showLastEvent('Saving the filter settings', INFO)
+    },
+
+    doFilterOnReqAreas(nm) {
+      if (nm.level <= PRODUCTLEVEL) return false
+      return !(this.selectedReqAreas.includes(nm.data.reqarea))
     },
 
     doFilterOnTeams(nm) {
@@ -108,7 +119,15 @@ export default {
     onApplyMyFilters() {
       // reset the other selections first
       window.slVueTree.resetFilters('onApplyMyFilters')
-      if (!this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
+      // return if no filter is selected
+      if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
+
+      // set the available req area options
+      const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
+      this.reqAreaOptions = []
+      for (let nm of currReqAreaNodes) {
+        this.reqAreaOptions.push({ id: nm._id, title: nm.title })
+      }
 
       let count = 0
       const unselectedNodes = []
@@ -122,6 +141,9 @@ export default {
         nodeModel.savedIsExpanded = nodeModel.isExpanded
         // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
+        if (this.filterOnReqAreas) {
+          isExcluded = this.doFilterOnReqAreas(nodeModel)
+        }
         if (this.filterOnTeams) {
           isExcluded = this.doFilterOnTeams(nodeModel)
         }

@@ -10,6 +10,22 @@
         <b-container fluid>
           <b-row class="my-1">
             <b-col sm="12">
+              <b-form-checkbox v-model="filterOnReqAreas">Filter on requirement area(s)</b-form-checkbox>
+              <div v-if="filterOnReqAreas" class="indent20">
+                <b-form-group>
+                  <b-form-checkbox-group
+                    v-model="selectedReqAreas"
+                    :options="reqAreaOptions"
+                    value-field="id"
+                    text-field="title"
+                    stacked
+                  ></b-form-checkbox-group>
+                </b-form-group>
+              </div>
+              <hr />
+            </b-col>
+
+            <b-col sm="12">
               <b-form-checkbox v-model="filterOnTeams">Filter on team(s)</b-form-checkbox>
               <div v-if="filterOnTeams" class="indent20">
                 <b-form-group>
@@ -87,9 +103,9 @@
 </template>
 
 <style scoped>
-    .indent20 {
-        padding-left: 20px;
-    }
+.indent20 {
+  padding-left: 20px;
+}
 </style>
 
 <script src="./apo_filters.js"></script>
