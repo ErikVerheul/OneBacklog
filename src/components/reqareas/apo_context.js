@@ -26,7 +26,6 @@ export default {
     this.SETDEPENDENCY = 6
     this.SHOWDEPENDENCIES = 7
     this.SHOWCONDITIONS = 8
-    this.CLONEPRODUCT = 9
     this.CLONEITEM = 10
   },
 
@@ -131,10 +130,6 @@ export default {
       this.contextWarning = undefined
       this.disableOkButton = false
       switch (this.contextOptionSelected) {
-        case this.CLONEPRODUCT:
-          this.assistanceText = this.$store.state.help.help.productClone
-          this.listItemText = 'Make a clone of this product'
-          break
         case this.CLONEITEM:
           this.assistanceText = this.$store.state.help.help.itemClone
           this.listItemText = 'Make a clone of this item'
@@ -191,9 +186,6 @@ export default {
     procSelected() {
       this.showAssistance = false
       switch (this.contextOptionSelected) {
-        case this.CLONEPRODUCT:
-          this.doCloneProduct()
-          break
         case this.CLONEITEM:
           this.doCloneItem(this.contextNodeSelected)
           break
@@ -219,10 +211,6 @@ export default {
           this.doUpdateConditions()
           break
       }
-    },
-
-    doCloneProduct() {
-      this.$store.dispatch('cloneProduct')
     },
 
     doCloneItem(node) {

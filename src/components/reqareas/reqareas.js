@@ -370,19 +370,7 @@ export default {
       })
       if (node) {
         this.$store.state.findIdOn = true
-        // if the node is found in another product than the current one
-        if (this.$store.state.currentProductId !== node.productId) {
-          // clear any outstanding filters
-          window.slVueTree.resetFilters('findItemOnId', ALLPRODUCTS)
-          // collapse the previously selected product
-          window.slVueTree.collapseTree()
-          // update current productId and title
-          this.$store.state.currentProductId = node.productId
-          this.$store.state.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
-        } else {
-          // node on current product; collapse the currently selected product
-          window.slVueTree.collapseTree()
-        }
+        window.slVueTree.collapseTree(ALLPRODUCTS)
 
         this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
         // expand the newly selected product up to the found item
@@ -528,7 +516,6 @@ export default {
             this.$store.state.nodeSelected.isSelected = false
             entry.removedNode.isSelected = true
             this.$store.state.nodeSelected = entry.removedNode
-            this.$store.state.currentProductId = entry.removedNode.productId
             // restore the removed dependencies
             for (let d of entry.removedIntDependencies) {
               const node = window.slVueTree.getNodeById(d.id)
@@ -847,7 +834,6 @@ export default {
       // load the document if not already in memory
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         // cannot wait for the loadDoc call to return to update the current productId
-        this.$store.state.currentProductId = this.$store.state.nodeSelected.productId
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
       }
       const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
