@@ -18,17 +18,6 @@
               </div>
               <hr />
             </b-col>
-            <b-col sm="12">
-              <b-form-checkbox v-model="filterTreeDepth">Filter on tree depth</b-form-checkbox>
-              <div v-if="filterTreeDepth" class="indent20">
-                <b-form-group>
-                  <b-form-radio v-model="selectedTreeDepth" value="3">Up to epic level</b-form-radio>
-                  <b-form-radio v-model="selectedTreeDepth" value="4">Up to feature level</b-form-radio>
-                  <b-form-radio v-model="selectedTreeDepth" value="5">Up to PBI level</b-form-radio>
-                </b-form-group>
-              </div>
-              <hr />
-            </b-col>
 
             <b-col sm="12">
               <b-form-checkbox v-model="filterOnState">Filter on PBI state</b-form-checkbox>
