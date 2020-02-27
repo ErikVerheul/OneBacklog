@@ -806,7 +806,8 @@ export default {
 		},
 
 		/* collapse the branch below the current product and hide the nodes */
-		collapseTree() {
+		collapseTree(allProducts) {
+			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
 				if (nm.level === PRODUCTLEVEL) {
 					nm.isExpanded = false
@@ -814,7 +815,7 @@ export default {
 				if (nm.level > PRODUCTLEVEL) {
 					nm.doShow = false
 				}
-			}, this.getProductModels())
+			}, currentProduct)
 			// this.showVisibility('collapseTree')
 		},
 
