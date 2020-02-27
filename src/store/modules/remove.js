@@ -288,7 +288,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removeParentEvent": [payload.productId, payload.descendantsIds, payload.extDepsCount, payload.extCondsCount],
+                "removeParentEvent": [payload.descendantsIds, payload.extDepsCount, payload.extCondsCount],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,

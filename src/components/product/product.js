@@ -464,7 +464,7 @@ export default {
           break
         case 'undoNewNode':
           if (window.slVueTree.remove([entry.newNode])) {
-            this.$store.dispatch('removeItemAndDescendents', { 'productId': this.$store.state.currentProductId, 'node': entry.newNode, 'descendantsIds': [] })
+            this.$store.dispatch('removeItemAndDescendents', { 'node': entry.newNode, 'descendantsIds': [] })
             this.showLastEvent('Item addition is undone', INFO)
           } else this.showLastEvent('Item was already removed', INFO)
           break
