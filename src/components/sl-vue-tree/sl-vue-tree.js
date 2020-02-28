@@ -810,6 +810,8 @@ export default {
 			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
 				if (nm.level === PRODUCTLEVEL) {
+					// skip requirements area dummy product
+					if (nm._id === AREA_PRODUCTID) return
 					nm.isExpanded = false
 				}
 				if (nm.level > PRODUCTLEVEL) {
@@ -867,6 +869,9 @@ export default {
 		resetTree(allProducts) {
 			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
+				// skip requirements area dummy product
+				if (nm._id === AREA_PRODUCTID) return
+
 				nm.isHighlighted = false
 				nm.doShow = nm.savedDoShow
 				nm.isExpanded = nm.savedIsExpanded
