@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 var batch = []
 const INFO = 0
 const PRODUCTLEVEL = 2
+const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const HOURINMILIS = 3600000
 const AREA_PRODUCTID = '0'
@@ -144,7 +145,7 @@ const actions = {
                 }
 
                 // initiate color mapper for req areas
-                if (productId === AREA_PRODUCTID && level === 3) {
+                if (productId === AREA_PRODUCTID && level === EPICLEVEL) {
                     rootState.colorMapper[_id] = reqAreaItemcolor
                 }
 
@@ -154,7 +155,7 @@ const actions = {
                 const isDraggable = productId !== 0 && level > PRODUCTLEVEL
                 // show all nodes
                 const doShow = true
-                if (level === 0 || parentNodes[parentId] !== undefined) {
+                if (parentNodes[parentId] !== undefined) {
                     const parentNode = parentNodes[parentId]
                     const ind = parentNode.children.length
                     const parentPath = parentNode.path
