@@ -96,10 +96,6 @@ export default {
     })
   },
 
-  beforeUpdate() {
-    this.checkForDependencyViolations()
-  },
-
   updated() {
     // refresh to obtain reactivity
     this.refreshColorMapper()
@@ -282,7 +278,7 @@ export default {
   },
 
   methods: {
-    checkForDependencyViolations() {
+    dependencyViolationsFound() {
       const violations = window.slVueTree.findDependencyViolations(ALLPRODUCTS)
       if (violations.length > 0) {
         violationsWereFound = true
@@ -294,6 +290,7 @@ export default {
         if (violationsWereFound) this.clearLastEvent()
         violationsWereFound = false
       }
+      return violationsWereFound
     },
 
     stopFiltering() {
@@ -841,17 +838,19 @@ export default {
         // cannot wait for the loadDoc call to return to update the current productId
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
       }
-      const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
-      const title = this.itemTitleTrunc(60, selNodes[0].title)
-      let evt = ""
-      if (selNodes.length === 1) {
-        this.selectedNodesTitle = title
-        evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
-      } else {
-        this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-        evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
+      if (!this.dependencyViolationsFound()) {
+        const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
+        const title = this.itemTitleTrunc(60, selNodes[0].title)
+        let evt = ""
+        if (selNodes.length === 1) {
+          this.selectedNodesTitle = title
+          evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
+        } else {
+          this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
+          evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
+        }
+        this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
       }
-      this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
     },
 
     /* Use this event to check if the drag is allowed. If not, issue a warning */

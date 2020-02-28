@@ -124,11 +124,6 @@ export default {
     }
   },
 
-  // ToDo: fix error
-  beforeUpdate() {
-    // this.checkForDependencyViolations()
-  },
-
   computed: {
     ...mapGetters([
       // from store.js
@@ -271,7 +266,7 @@ export default {
   },
 
   methods: {
-    checkForDependencyViolations() {
+    dependencyViolationsFound() {
       const violations = window.slVueTree.findDependencyViolations()
       if (violations.length > 0) {
         violationsWereFound = true
@@ -283,6 +278,7 @@ export default {
         if (violationsWereFound) this.clearLastEvent()
         violationsWereFound = false
       }
+      return violationsWereFound
     },
 
     stopFiltering() {
@@ -820,7 +816,7 @@ export default {
     },
 
     /* event handling */
-    nodeSelectedEvent(selNodes) {
+    onNodeSelect(selNodes) {
       // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
       this.updateDescription()
       // both an update of the description and the acceptance criteria should NOT happen
@@ -829,6 +825,7 @@ export default {
         this.showLastEvent('You can only select nodes with the same parent.', WARNING)
         return
       }
+
       this.$store.state.numberOfNodesSelected = selNodes.length
       // update the first (highest in hierarchie) selected node
       this.$store.state.nodeSelected = selNodes[0]
@@ -837,7 +834,7 @@ export default {
         // if the user clicked on a node of another product
         if (this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
           // clear any outstanding filters
-          window.slVueTree.resetFilters('nodeSelectedEvent')
+          window.slVueTree.resetFilters('onNodeSelect')
           // collapse the previously selected product
           window.slVueTree.collapseTree()
           // update current productId and title
@@ -851,17 +848,19 @@ export default {
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
       }
-      const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
-      const title = this.itemTitleTrunc(60, selNodes[0].title)
-      let evt = ""
-      if (selNodes.length === 1) {
-        this.selectedNodesTitle = title
-        evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
-      } else {
-        this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-        evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
+      if (!this.dependencyViolationsFound()) {
+        const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
+        const title = this.itemTitleTrunc(60, selNodes[0].title)
+        let evt = ""
+        if (selNodes.length === 1) {
+          this.selectedNodesTitle = title
+          evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
+        } else {
+          this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
+          evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
+        }
+        this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
       }
-      this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
     },
 
     /* Use this event to check if the drag is allowed. If not, issue a warning */
