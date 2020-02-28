@@ -87,7 +87,8 @@ const actions = {
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
       let tmpUserData = res.data
-      tmpUserData.filterSettings = newFilterSettings
+      rootState.userData.myFilterSettings = newFilterSettings
+      tmpUserData.myDatabases[rootState.userData.currentDb].filterSettings = newFilterSettings
       dispatch('updateUser', { data: tmpUserData })
     }).catch(error => {
       let msg = 'saveMyFilterSettings: User ' + rootState.userData.user + ' cannot save the product filter settings. Error = ' + error

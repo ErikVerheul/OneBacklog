@@ -133,7 +133,7 @@ const actions = {
             rootState.userData.email = allUserData.email
             const currentDbSettings = allUserData.myDatabases[allUserData.currentDb]
             rootState.userData.myTeam = currentDbSettings.myTeam
-            rootState.userData.myFilterSettings = allUserData.filterSettings
+            rootState.userData.myFilterSettings = allUserData.myDatabases[rootState.userData.currentDb].filterSettings
             dispatch('watchdog')
             let msg = "getOtherUserData: '" + rootState.userData.user + "' has logged in"
             // eslint-disable-next-line no-console

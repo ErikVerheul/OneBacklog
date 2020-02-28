@@ -10,35 +10,39 @@ export default {
   data() {
     return {
       filterOnReqAreas: false,
+      selectedReqAreas: [],
       filterOnTeams: false,
       teamOptions: [],
-      selectedReqAreas: [],
       selectedTeams: [],
-      selectedTreeDepth: "0",
+      filterTreeDepth: false,
+      selectedTreeDepth: '3',
       filterOnState: false,
       stateOptions: [],
       selectedStates: [],
       filterOnTime: false,
       fromDate: undefined,
       toDate: undefined,
-      selectedTime: "0"
+      selectedTime: '1140'
     }
   },
 
   mounted() {
     // init the filter settings
     const myFilterSettings = this.$store.state.userData.myFilterSettings
-    this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
-    this.selectedReqAreas = myFilterSettings.selectedReqAreas
-    this.filterOnTeams = myFilterSettings.filterOnTeams
-    this.selectedTeams = myFilterSettings.selectedTeams
-    this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
-    this.filterOnState = myFilterSettings.filterOnState
-    this.selectedStates = myFilterSettings.selectedStates
-    this.filterOnTime = myFilterSettings.filterOnTime
-    this.fromDate = myFilterSettings.fromDate
-    this.toDate = myFilterSettings.toDate
-    this.selectedTime = myFilterSettings.selectedTime
+    if (myFilterSettings) {
+      this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
+      this.selectedReqAreas = myFilterSettings.selectedReqAreas
+      this.filterOnTeams = myFilterSettings.filterOnTeams
+      this.selectedTeams = myFilterSettings.selectedTeams
+      this.filterTreeDepth = myFilterSettings.filterTreeDepth
+      this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
+      this.filterOnState = myFilterSettings.filterOnState
+      this.selectedStates = myFilterSettings.selectedStates
+      this.filterOnTime = myFilterSettings.filterOnTime
+      this.fromDate = myFilterSettings.fromDate
+      this.toDate = myFilterSettings.toDate
+      this.selectedTime = myFilterSettings.selectedTime
+    }
 
     // expose instance to the global namespace
     window.myFilters = this.$refs.myFiltersRef
