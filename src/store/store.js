@@ -53,6 +53,7 @@ export default new Vuex.Store({
 		reqAreaMapper: {},
 		// req areas view
 		colorMapper: {},
+		reqAreaOptions: [],
 		// view settings
 		currentView: 'products',
 		// product view

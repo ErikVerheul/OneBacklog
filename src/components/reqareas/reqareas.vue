@@ -296,7 +296,7 @@
       <b-form-group label="Select the requirement area this item belongs to:">
         <b-form-radio-group
           v-model="selReqAreaId"
-          :options="reqAreaOptions"
+          :options="this.$store.state.reqAreaOptions"
           value-field="id"
           text-field="title"
           stacked

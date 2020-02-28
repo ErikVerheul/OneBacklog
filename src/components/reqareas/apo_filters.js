@@ -10,7 +10,6 @@ export default {
   data() {
     return {
       filterOnReqAreas: false,
-      reqAreaOptions: [],
       filterOnTeams: false,
       teamOptions: [],
       selectedReqAreas: [],
@@ -29,21 +28,21 @@ export default {
   mounted() {
     // init the filter settings
     const myFilterSettings = this.$store.state.userData.myFilterSettings
-    if (myFilterSettings) {
-      this.filterOnReqArea = myFilterSettings.filterOnReqArea
-      this.selectedReqAreas = myFilterSettings.selectedReqAreas
-      this.filterOnTeams = myFilterSettings.filterOnTeams
-      this.selectedTeams = myFilterSettings.selectedTeams
-      this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
-      this.filterOnState = myFilterSettings.filterOnState
-      this.selectedStates = myFilterSettings.selectedStates
-      this.filterOnTime = myFilterSettings.filterOnTime
-      this.fromDate = myFilterSettings.fromDate
-      this.toDate = myFilterSettings.toDate
-      this.selectedTime = myFilterSettings.selectedTime
-    }
+    this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
+    this.selectedReqAreas = myFilterSettings.selectedReqAreas
+    this.filterOnTeams = myFilterSettings.filterOnTeams
+    this.selectedTeams = myFilterSettings.selectedTeams
+    this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
+    this.filterOnState = myFilterSettings.filterOnState
+    this.selectedStates = myFilterSettings.selectedStates
+    this.filterOnTime = myFilterSettings.filterOnTime
+    this.fromDate = myFilterSettings.fromDate
+    this.toDate = myFilterSettings.toDate
+    this.selectedTime = myFilterSettings.selectedTime
+
     // expose instance to the global namespace
     window.myFilters = this.$refs.myFiltersRef
+
     // set the available team options
     this.teamOptions = []
     for (let team of this.$store.state.configData.teams) {
@@ -70,6 +69,7 @@ export default {
     onSaveFilters() {
       const myFilterSettings = {
         filterOnReqAreas: this.filterOnReqAreas,
+        selectedReqAreas: this.selectedReqAreas,
         filterOnTeams: this.filterOnTeams,
         selectedTeams: this.selectedTeams,
         selectedTreeDepth: this.selectedTreeDepth,
@@ -121,13 +121,6 @@ export default {
       window.slVueTree.resetFilters('onApplyMyFilters')
       // return if no filter is selected
       if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
-
-      // set the available req area options
-      const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
-      this.reqAreaOptions = []
-      for (let nm of currReqAreaNodes) {
-        this.reqAreaOptions.push({ id: nm._id, title: nm.title })
-      }
 
       let count = 0
       const unselectedNodes = []

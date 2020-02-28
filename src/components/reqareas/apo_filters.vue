@@ -15,7 +15,7 @@
                 <b-form-group>
                   <b-form-checkbox-group
                     v-model="selectedReqAreas"
-                    :options="reqAreaOptions"
+                    :options="this.$store.state.reqAreaOptions"
                     value-field="id"
                     text-field="title"
                     stacked

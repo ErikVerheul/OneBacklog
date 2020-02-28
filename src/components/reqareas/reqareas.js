@@ -96,6 +96,10 @@ export default {
     })
   },
 
+  beforeUpdate() {
+    this.checkForDependencyViolations()
+  },
+
   updated() {
     // refresh to obtain reactivity
     this.refreshColorMapper()
@@ -139,13 +143,8 @@ export default {
       colorSelectShow: false,
       userReqAreaItemcolor: '#567cd6',
       setReqAreaShow: false,
-      selReqAreaId: undefined,
-      reqAreaOptions: []
+      selReqAreaId: undefined
     }
-  },
-
-  beforeUpdate() {
-    this.checkForDependencyViolations()
   },
 
   computed: {
@@ -356,6 +355,12 @@ export default {
         window.slVueTree.resetFilters('onSetMyFilters', ALLPRODUCTS)
         window.slVueTree.resetFindOnId('onSetMyFilters', ALLPRODUCTS)
       } else {
+        // update the available req area options
+        const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
+        this.$store.state.reqAreaOptions = []
+        for (let nm of currReqAreaNodes) {
+          this.$store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
+        }
         window.myFilters.show()
       }
     },
@@ -971,12 +976,13 @@ export default {
 
     setReqArea(reqarea) {
       this.selReqAreaId = reqarea
+      // set the req area options
       const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
-      this.reqAreaOptions = []
+      this.$store.state.reqAreaOptions = []
       for (let nm of currReqAreaNodes) {
-        this.reqAreaOptions.push({ id: nm._id, title: nm.title })
+        this.$store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
       }
-      if (this.selReqAreaId !== null) this.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
+      if (this.selReqAreaId !== null) this.$store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
       this.setReqAreaShow = true
 
     },
