@@ -4,10 +4,8 @@ import globalAxios from 'axios'
 var batch = []
 const INFO = 0
 const PRODUCTLEVEL = 2
-const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const HOURINMILIS = 3600000
-const AREA_PRODUCTID = '0'
 var parentNodes = {}
 
 const state = {
@@ -144,11 +142,6 @@ const actions = {
                     continue
                 }
 
-                // initiate color mapper for req areas
-                if (productId === AREA_PRODUCTID && level === EPICLEVEL) {
-                    rootState.colorMapper[_id] = reqAreaItemcolor
-                }
-
                 // expand the default product up to the feature level
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
                 // product and reqarea items cannot be dragged
@@ -203,6 +196,7 @@ const actions = {
                     state.insertedCount++
                     parentNode.children.push(newNode)
                     parentNodes[_id] = newNode
+
                     if (_id === rootState.currentDefaultProductId) {
                         rootState.nodeSelected = newNode
                         // must set last selected node as this node is selected programmatically
@@ -215,6 +209,7 @@ const actions = {
                     console.log('getAllItems: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
                 }
             }
+
             commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
             // log any detected orphans if present
             if (state.orphansFound.orphans.length > 0) {
