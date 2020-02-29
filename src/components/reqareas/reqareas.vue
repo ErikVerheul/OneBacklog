@@ -96,6 +96,7 @@
             @select="onNodeSelect"
             @beforedrop="beforeNodeDropped"
             @drop="nodeDropped"
+            @loaded="createColorMapper"
           >
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
