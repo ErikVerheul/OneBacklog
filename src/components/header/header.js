@@ -19,7 +19,7 @@ export default {
             myDatabase: '',
             databaseOptions: [],
             teamOptions: [],
-            newDefaultProductId: undefined
+            newDefaultProductId: this.$store.state.currentDefaultProductId
         }
     },
     created() {
@@ -98,8 +98,16 @@ export default {
         },
 
         /* Update the subscriptions array of this user */
-        updateProductsSubscription() {
-            this.updateTreeView(this.selectedProducts, this.newDefaultProductId)
+        updateProductsSubscriptions() {
+            // the first (index 0) product is by definition the default product
+            const myNewProductSubscriptions = [this.newDefaultProductId]
+            const otherSubscriptions = []
+            for (let p of this.selectedProducts) {
+                if (p !== this.newDefaultProductId) {
+                    otherSubscriptions.push(p)
+                }
+            }
+            this.updateTreeView(myNewProductSubscriptions.concat(otherSubscriptions), this.newDefaultProductId)
         },
 
         updateTreeView(productIds, newDefaultId) {

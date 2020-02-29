@@ -86,7 +86,7 @@
     <b-modal
       size="lg"
       ref="selectDefaultProductRef"
-      @ok="updateProductsSubscription"
+      @ok="updateProductsSubscriptions"
       title="Select the default product you are working on"
     >
       <b-container align-v="true">
