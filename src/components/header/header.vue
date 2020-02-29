@@ -13,7 +13,7 @@
         <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../product">Products</b-dropdown-item>
-            <b-dropdown-item v-if="isAreaPO" to="../../reqareas">Requirement areas</b-dropdown-item>
+            <b-dropdown-item v-if="isAPO" to="../../reqareas">Requirement areas</b-dropdown-item>
             <b-dropdown-divider v-if="isSuperPO || isAdmin || isServerAdmin"></b-dropdown-divider>
             <b-dropdown-item v-if="isSuperPO" to="../../superpo">Super PO</b-dropdown-item>
             <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
@@ -52,7 +52,11 @@
       <b-container align-v="true">
         <h5>Select another database. Your current database is '{{ $store.state.userData.currentDb }}'</h5>
         <b-form-group>
-          <b-form-radio-group v-model="myDatabase" :options="databaseOptions" name="databaseOptions"></b-form-radio-group>
+          <b-form-radio-group
+            v-model="myDatabase"
+            :options="databaseOptions"
+            name="databaseOptions"
+          ></b-form-radio-group>
         </b-form-group>
         <p>After you have changed the database Sign-out and -in again to connect to the selected database</p>
       </b-container>
@@ -75,6 +79,7 @@
     >
       <b-container align-v="true">
         <b-form-select
+          size="sm"
           v-model="selectedProducts"
           :options="$store.state.myProductOptions"
           multiple

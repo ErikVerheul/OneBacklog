@@ -126,7 +126,7 @@ export default new Vuex.Store({
 		isSuperPO(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("superPO")
 		},
-		isAreaPO(state, getters) {
+		isAPO(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("areaPO")
 		},
 		isAdmin(state, getters) {
@@ -146,13 +146,13 @@ export default new Vuex.Store({
 		},
 		canCreateComments(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return getters.isAdmin || getters.issuperPO || getters.isareaPO || getters.isadmin ||
+			return getters.isAdmin || getters.isSuperPO || getters.isAPO || getters.isadmin ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		canUploadAttachments(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return getters.issuperPO || getters.isareaPO ||
+			return getters.isSuperPO || getters.isAPO ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},

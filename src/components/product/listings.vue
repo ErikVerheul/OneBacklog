@@ -14,7 +14,7 @@
           <template v-if="getNrOfTitles() > 1">
             {{ index + 1 }}/{{ getNrOfTitles() }}
           </template>
-          <b-button class="space3px" variant="seablue" @click="showAttachment(attach)"> {{ attach.title }} </b-button>
+          <b-button class="space3px" variant="seablueInverted" @click="showAttachment(attach)"> {{ attach.title }} </b-button>
           <b-button class="space3px" variant="danger" @click="removeAttachment(attach)">X</b-button>
         </span>
       </div>
@@ -387,7 +387,7 @@ export default {
 .space3px {
   margin: 3px;
 }
-.btn-seablue {
+.btn-seablueInverted {
   background-color: rgb(220, 223, 217);
   color: #408fae;
 }

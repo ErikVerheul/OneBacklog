@@ -2,6 +2,7 @@ import licence from "./licence.vue"
 import { mapGetters } from 'vuex'
 import { utilities } from '../mixins/utilities.js'
 
+const INFO = 0
 const WARNING = 1
 const MINPASSWORDLENGTH = 8
 
@@ -32,7 +33,7 @@ export default {
             'isAuthenticated',
             'isServerAdmin',
             'isSuperPO',
-            'isAreaPO',
+            'isAPO',
             'isAdmin',
         ]),
     },
@@ -86,7 +87,7 @@ export default {
 
             this.defaultProductOptions = []
             if (this.selectedProducts.length === 1) {
-                this.updateTreeView([this.selectedProducts[0]], this.selectedProducts[0])
+                this.updateProductsView([this.selectedProducts[0]], this.selectedProducts[0])
             } else {
                 for (let o of this.$store.state.myProductOptions) {
                     if (this.selectedProducts.includes(o.value)) {
@@ -107,13 +108,11 @@ export default {
                     otherSubscriptions.push(p)
                 }
             }
-            this.updateTreeView(myNewProductSubscriptions.concat(otherSubscriptions), this.newDefaultProductId)
+            this.updateProductsView(myNewProductSubscriptions.concat(otherSubscriptions), this.newDefaultProductId)
         },
 
-        updateTreeView(productIds, newDefaultId) {
-            let defaultProductChanged = false
-
-            defaultProductChanged = this.$store.state.currentProductId !== newDefaultId
+        updateProductsView(productIds, newDefaultId) {
+            const defaultProductChanged = this.$store.state.currentProductId !== newDefaultId
             if (defaultProductChanged) {
                 // collapse the previously selected product
                 window.slVueTree.collapseTree()
@@ -126,10 +125,13 @@ export default {
                 }
             }
             // remove products from the tree view
+            let removedCount = 0
             for (let productId of this.$store.state.userData.myProductSubscriptions) {
                 if (!productIds.includes(productId)) {
                     window.slVueTree.removeProduct(productId)
+                    removedCount++
                 }
+                this.showLastEvent(`${removedCount} products are removed from this view`, INFO)
             }
             // update myProductSubscriptions and add product(s) if missing
             this.$store.state.userData.myProductSubscriptions = []
@@ -151,6 +153,7 @@ export default {
                 }
             }
             if (missingIds.length > 0) {
+                this.showLastEvent(`${missingIds.length} more products are loaded`, INFO)
                 this.$store.dispatch('addProducts', { missingIds, newDefaultId })
             }
             this.$store.dispatch('updateSubscriptions', productIds)

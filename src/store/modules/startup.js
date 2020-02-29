@@ -252,7 +252,7 @@ const actions = {
             if (!rootState.isProductAssigned) {
                 if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
                     if (rootGetters.isSuperPO) { router.replace('/superpo') } else
-                        if (rootGetters.isAreaPO) { router.replace('/adareapo') } else
+                        if (rootGetters.isAPO) { router.replace('/adareapo') } else
                             if (rootGetters.isAdmin) { router.replace('/admin') } else {
                                 alert("Error: No default product is set. Consult your adminstrator. The application will exit.")
                                 commit('resetData', null, { root: true })
