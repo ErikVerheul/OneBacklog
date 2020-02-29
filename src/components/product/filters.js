@@ -8,6 +8,8 @@ export default {
   mixins: [utilities],
   data() {
     return {
+      filterOnProducts: false,
+      filterSelProducts: [this.$store.state.currentDefaultProductId],
       filterOnReqAreas: false,
       selectedReqAreas: [],
       filterOnTeams: false,
@@ -29,6 +31,8 @@ export default {
     // init the filter settings
     const myFilterSettings = this.$store.state.userData.myFilterSettings
     if (myFilterSettings) {
+      this.filterOnProducts = myFilterSettings.filterOnProducts
+      this.filterSelProducts = myFilterSettings.filterSelProducts
       this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
       this.selectedReqAreas = myFilterSettings.selectedReqAreas
       this.filterOnTeams = myFilterSettings.filterOnTeams
@@ -69,6 +73,8 @@ export default {
   methods: {
     onSaveFilters() {
       const myFilterSettings = {
+        filterOnProducts: this.filterOnProducts,
+        filterSelProducts: this.filterSelProducts,
         filterOnReqAreas: this.filterOnReqAreas,
         selectedReqAreas: this.selectedReqAreas,
         filterOnTeams: this.filterOnTeams,

@@ -4,11 +4,25 @@
       size="lg"
       ref="myFiltersRef"
       @ok="onApplyMyFilters"
-      title="View, set and/or save your filters on this view"
+      title="View, set and/or save your filters"
     >
       <b-container align-v="true">
         <b-container fluid>
           <b-row class="my-1">
+            <b-col sm="12">
+              <b-form-checkbox v-model="filterOnProducts">Filter on products</b-form-checkbox>
+              <div v-if="filterOnProducts" class="indent20">
+                <b-form-group>
+                  <b-form-checkbox-group
+                    v-model="filterSelProducts"
+                    :options="this.$store.state.myProductOptions"
+                    stacked
+                  ></b-form-checkbox-group>
+                </b-form-group>
+              </div>
+              <hr />
+            </b-col>
+
             <b-col sm="12">
               <b-form-checkbox v-model="filterOnReqAreas">Filter on requirement area(s)</b-form-checkbox>
               <div v-if="filterOnReqAreas" class="indent20">

@@ -4,7 +4,7 @@
       size="lg"
       ref="myFiltersRef"
       @ok="onApplyMyFilters"
-      title="View, set and/or save your filters on this view"
+      title="View, set and/or save your filters"
     >
       <b-container align-v="true">
         <b-container fluid>

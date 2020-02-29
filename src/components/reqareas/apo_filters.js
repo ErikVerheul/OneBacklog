@@ -9,6 +9,8 @@ export default {
   mixins: [utilities],
   data() {
     return {
+      filterOnProducts: false,
+      filterSelProducts: [this.$store.state.currentDefaultProductId],
       filterOnReqAreas: false,
       selectedReqAreas: [],
       filterOnTeams: false,
@@ -30,6 +32,8 @@ export default {
     // init the filter settings
     const myFilterSettings = this.$store.state.userData.myFilterSettings
     if (myFilterSettings) {
+      this.filterOnProducts = myFilterSettings.filterOnProducts
+      this.filterSelProducts = myFilterSettings.filterSelProducts
       this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
       this.selectedReqAreas = myFilterSettings.selectedReqAreas
       this.filterOnTeams = myFilterSettings.filterOnTeams
@@ -72,6 +76,8 @@ export default {
   methods: {
     onSaveFilters() {
       const myFilterSettings = {
+        filterOnProducts: this.filterOnProducts,
+        filterSelProducts: this.filterSelProducts,
         filterOnReqAreas: this.filterOnReqAreas,
         selectedReqAreas: this.selectedReqAreas,
         filterOnTeams: this.filterOnTeams,
@@ -88,23 +94,28 @@ export default {
       this.showLastEvent('Saving the filter settings', INFO)
     },
 
+    doFilterOnProducts(nm) {
+      if (nm.level < PRODUCTLEVEL) return false
+      return !(this.filterSelProducts.includes(nm.productId))
+    },
+
     doFilterOnReqAreas(nm) {
-      if (nm.level <= PRODUCTLEVEL) return false
+      if (nm.level < PRODUCTLEVEL) return false
       return !(this.selectedReqAreas.includes(nm.data.reqarea))
     },
 
     doFilterOnTeams(nm) {
-      if (nm.level <= PRODUCTLEVEL) return false
+      if (nm.level < PRODUCTLEVEL) return false
       return !(this.selectedTeams.includes(nm.data.team))
     },
 
     doFilterOnState(nm) {
-      if (nm.level <= PRODUCTLEVEL) return false
+      if (nm.level < PRODUCTLEVEL) return false
       return !(this.selectedStates.includes(nm.data.state))
     },
 
     doFilterOnTime(nm) {
-      if (nm.level <= PRODUCTLEVEL) return false
+      if (nm.level < PRODUCTLEVEL) return false
 
       if (this.selectedTime === '0') {
         if (this.fromDate && this.toDate) {
@@ -124,7 +135,7 @@ export default {
       // reset the other selections first
       window.slVueTree.resetFilters('onApplyMyFilters')
       // return if no filter is selected
-      if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
+      if (!this.filterOnProducts && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
       let count = 0
       const unselectedNodes = []
@@ -138,7 +149,10 @@ export default {
         nodeModel.savedIsExpanded = nodeModel.isExpanded
         // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
-        if (this.filterOnReqAreas) {
+        if (this.filterOnProducts) {
+          isExcluded = this.doFilterOnProducts(nodeModel)
+        }
+        if (!isExcluded && this.filterOnReqAreas) {
           isExcluded = this.doFilterOnReqAreas(nodeModel)
         }
         if (this.filterOnTeams) {
