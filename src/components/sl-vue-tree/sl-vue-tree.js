@@ -139,6 +139,7 @@ export default {
 	watch: {
 		value(newValue) {
 			this.currentValue = newValue
+			this.emitNodesAreLoaded()
 		}
 	},
 
@@ -195,6 +196,10 @@ export default {
 			const ind = path[0]
 			if (path.length === 1) return tree[ind] || null
 			return this.getNodeModel(path.slice(1), tree[ind].children)
+		},
+
+		emitNodesAreLoaded() {
+			this.getRootComponent().$emit('loaded')
 		},
 
 		emitSelect(selectedNodes, event) {
