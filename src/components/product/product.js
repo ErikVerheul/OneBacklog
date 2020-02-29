@@ -17,6 +17,7 @@ const REMOVED = 0
 const NEW = 0
 const READY = 1
 const DONE = 4
+const FILTERBUTTONTEXT = 'Filter in tree view'
 var violationsWereFound = false
 
 export default {
@@ -31,6 +32,11 @@ export default {
     this.$store.state.loadproducts.insertedCount = 0
     this.$store.state.loadproducts.orphansCount = 0
     this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
+    // reset filters and searches
+    this.$store.state.filterText = FILTERBUTTONTEXT
+    this.$store.state.filterOn = false
+    this.$store.state.searchOn = false
+    this.$store.state.findIdOn = false
     this.$store.dispatch('loadCurrentProduct')
   },
 
@@ -821,6 +827,7 @@ export default {
       this.updateDescription()
       // both an update of the description and the acceptance criteria should NOT happen
       this.updateAcceptance()
+
       if (!window.slVueTree.haveSameParent(selNodes)) {
         this.showLastEvent('You can only select nodes with the same parent.', WARNING)
         return
