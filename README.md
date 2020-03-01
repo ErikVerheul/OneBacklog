@@ -7,10 +7,10 @@
 <b>The product vision:</b><br />
 As super PO I need one integrated tool to manage the product backlog of all my products so that:
 - I can map my portfolio in one tool
-- TO DO: The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
+- The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
 - My PO's can manage their products
 - Dependencies within products are made visible so that the team, their PO or myself can act upon it
-- TO DO: Scrum teams can use the tool to do their refinements and run their sprints
+- TO DO (low priority for now): Scrum teams can use the tool to do their refinements and run their sprints
 - Only PO's are authorized to change priorities
 - The tool runs in a browser and is accessible only by authorized users
 - Full security is in place
@@ -39,7 +39,7 @@ a product consists of:
 - <b>features</b> which consists of
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
 - <b>tasks</b> (TO DO) and
-- <b>multiple requirement areas</b> (TO DO) can be maintained on the feature level across products.
+- <b>multiple requirement areas</b> can be maintained on the epic and feature level across products.
 <p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
 
 <b>Other design choices:</b><br />
