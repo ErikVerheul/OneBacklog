@@ -359,8 +359,8 @@ const actions = {
 			"spikepersonhours": 0,
 			"title": "Requirement areas overview",
 			"followers": [],
-			"description": window.btoa("<p>Describe your requirement area here...</p>"),
-			"acceptanceCriteria": window.btoa("<p></p>"),
+			"description": window.btoa("<p>To insert one or more requirement areas inside this node right-click on this nodes title in the tree view.</p>"),
+			"acceptanceCriteria": window.btoa("<p>n/a</p>"),
 			"priority": 0,
 			"attachments": [],
 			"comments": [{
