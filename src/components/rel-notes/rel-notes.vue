@@ -6,6 +6,18 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.0 - 1 March 2020 Major update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>The requirement areas epic is implemented.</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>When switching between products and requirement areas view, current tree nodes are disposed and loaded new from the database. In the products view only the selected products are loaded up to the PBI level. In the requirement area view all products are loaded up to the feature level. </li>
+					<li>When loading the tree nodes only the needed document fields are transferred as values in the GET call. Eg. the description and acceptance criteria are not transferred. Also only the recent history is retrieved.</li>
+				</ul>
+				<p>By not transferring the full documents at load time loading is faster and memory usage limited. When the user selects an item the full ducument is loaded.</p>
+				<hr>
 				<h3>v.0.8.5.1 - 14 February 2020 Regression fix</h3>
 				<p>Bug fixes:</p>
 				<ul>

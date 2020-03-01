@@ -78,7 +78,11 @@
 				</div>
 				<div id="rv">
 					<h4>Requirement areas view</h4>
-					<p>This view is not implemented yet.</p>
+					<p>The requirements areas PO or APO uses this view to define requirement areas and assign them to epics or features.</p>
+					<b-img :src="require('./requirement-areas-view.png')" alt="Requirement areas view" />
+					<p>This view shows all products in the database up to the feature level. When the APO also has PO priviliges he can move (prioritize) epis and features within products and between products.</p>
+					<b-img :src="require('./filters2.png')" alt="Example filters modal" />
+					<p>The filter modal is in this view can filter over one, several or all products and requirement areas.</p>
 				</div>
 				<div id="sv">
 				<h4>Users with special priviliges will see one or more of these view options:</h4>
