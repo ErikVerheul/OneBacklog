@@ -92,6 +92,11 @@ export default {
       this.showLastEvent('Saving the filter settings', INFO)
     },
 
+    doFilterOnReqAreas(nm) {
+      if (nm.level < PRODUCTLEVEL) return false
+      return !(this.selectedReqAreas.includes(nm.data.reqarea))
+    },
+
     doFilterOnTeams(nm) {
       if (nm.level <= PRODUCTLEVEL) return false
       return !(this.selectedTeams.includes(nm.data.team))
@@ -122,9 +127,9 @@ export default {
     onApplyMyFilters() {
       // reset the other selections first
       window.slVueTree.resetFilters('onApplyMyFilters')
-      if (!this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
+      if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
-      const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
+      const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
       let count = 0
       const unselectedNodes = []
       // create a callback for the filtering
@@ -134,7 +139,10 @@ export default {
         nodeModel.savedIsExpanded = nodeModel.isExpanded
         // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
-        if (this.filterOnTeams) {
+        if (this.filterOnReqAreas) {
+          isExcluded = this.doFilterOnReqAreas(nodeModel)
+        }
+        if (!isExcluded && this.filterOnTeams) {
           isExcluded = this.doFilterOnTeams(nodeModel)
         }
         if (!isExcluded && this.filterOnState) {

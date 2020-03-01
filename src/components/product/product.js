@@ -346,6 +346,12 @@ export default {
         window.slVueTree.resetFilters('onSetMyFilters')
         window.slVueTree.resetFindOnId('onSetMyFilters')
       } else {
+        // update the available req area options
+        const currReqAreaIds = window.slVueTree.getCurrentReqAreaIds()
+        this.$store.state.reqAreaOptions = []
+        for (let id of currReqAreaIds) {
+          this.$store.state.reqAreaOptions.push({ id, title: this.$store.state.reqAreaMapper[id] })
+        }
         window.myFilters.show()
       }
     },

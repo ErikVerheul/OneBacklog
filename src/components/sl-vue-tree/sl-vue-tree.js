@@ -620,10 +620,7 @@ export default {
 			return this.getNodeModel(prevPath)
 		},
 
-		/*
-		* Area nodes are per definition children of product with id AREA_PRODUCTID
-		* Return these nodes or null if none found
-		*/
+		/* Area nodes are per definition children of product with id AREA_PRODUCTID. Return these nodes or null if none found */
 		getReqAreaNodes() {
 			const productModels = this.currentValue[0].children
 			for (let p of productModels) {
@@ -632,6 +629,17 @@ export default {
 				}
 			}
 			return null
+		},
+
+		/* Find the ids with a set req area in the current product */
+		getCurrentReqAreaIds() {
+			const idsWithReqArea = []
+			this.traverseModels((nm) => {
+				if (nm.data.reqarea) {
+					if (!idsWithReqArea.includes(nm.data.reqarea)) idsWithReqArea.push(nm.data.reqarea)
+				}
+			}, this.getProductModels())
+			return idsWithReqArea
 		},
 
 		resetReqArea(id) {
