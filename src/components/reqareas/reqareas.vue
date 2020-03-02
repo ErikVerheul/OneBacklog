@@ -184,7 +184,11 @@
           </div>
           <div class="pane" :style="{ minHeight: '65px', height: '80px', maxHeight: '40px' }">
             <div class="d-table w-100">
-              <p v-if="!isReqAreaItem" class="title is-6">This item is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              <template v-if="!isReqAreaItem" >
+                <p v-if="$store.state.currentDoc.reqarea" class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}',
+                  and is member of requirement area '{{ $store.state.reqAreaMapper[$store.state.currentDoc.reqarea] }}'</p>
+                <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              </template>
               <span v-else>
                 <b-form-group>
                   Choose a display color for this requirement area:
@@ -204,9 +208,8 @@
             <div class="d-table w-100">
               <h5 class="title is-6">Description</h5>
               <div class="d-table-cell tar">
-                <p
-                  class="title is-6"
-                >Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
+                <p class="title is-6"
+                > Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
           </div>

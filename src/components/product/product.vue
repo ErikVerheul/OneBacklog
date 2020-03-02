@@ -181,7 +181,7 @@
             <div class="d-table w-100">
               <p v-if="$store.state.currentDoc.reqarea" class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}',
                 and is member of requirement area '{{ $store.state.reqAreaMapper[$store.state.currentDoc.reqarea] }}'</p>
-              <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'
+              <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
               <div v-if="getCurrentItemLevel==this.PBILEVEL" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group
@@ -198,9 +198,8 @@
             <div class="d-table w-100">
               <h5 class="title is-6">Description</h5>
               <div class="d-table-cell tar">
-                <p
-                  class="title is-6"
-                >Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
+                <p class="title is-6"
+                > Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
           </div>
