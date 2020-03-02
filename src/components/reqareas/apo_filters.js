@@ -147,7 +147,7 @@ export default {
         // save node display state
         nodeModel.savedDoShow = nodeModel.doShow
         nodeModel.savedIsExpanded = nodeModel.isExpanded
-        // select nodeModels NOT to show; the node is shown if not excluded by any filter; highlight filtered items unless selected only on product
+        // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
         let doHighLight = false
         if (this.filterOnProducts) {
@@ -170,7 +170,7 @@ export default {
           doHighLight = !isExcluded
         }
         if (!isExcluded) {
-          // show this node if not filtered out and highlight the node
+          // show this node if not filtered out and highlight the node unless selected only on product
           if (window.slVueTree.expandPathToNode(nodeModel, nodeModel.level)) {
             nodeModel.isHighlighted = doHighLight
             count++
