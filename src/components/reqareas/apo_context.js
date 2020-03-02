@@ -58,7 +58,7 @@ export default {
 
   mounted() {
     // to fix this.$refs.contextMenuRef undefined when routing away and back, expose instance to the global namespace
-    window.showContextApoMenuRef = this.$refs.contextApoMenuRef
+    window.showContextMenuRef = this.$refs.contextMenuRef
     eventBus.$on('contextMenu', (node) => {
       this.showContextMenu(node)
     })
@@ -98,7 +98,7 @@ export default {
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = this.isReqAreaItem || this.haveWritePermission[node.level]
-        window.showContextApoMenuRef.show()
+        window.showContextMenuRef.show()
       }
     },
 
