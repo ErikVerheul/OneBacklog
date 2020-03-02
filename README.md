@@ -109,7 +109,7 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
 - When the short key is not unique (chances for a duplicate are 1 in 10.000 in a 5000 item product) the application warns the user.
 - The history of products, epics, features, pbi's are stored and easily accessible. 
 - The type of product, epic, feature and pbi can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature. That feature to an epic and the epic to a product. The reverse can also be done. This feature also works between products.
-- TO DO: A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
+- A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
 - Users can add comments to an item and to the automatic history log.
 - Attachments can be added to each backlog item type.
 
