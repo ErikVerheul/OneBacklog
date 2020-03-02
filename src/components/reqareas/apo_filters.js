@@ -147,27 +147,32 @@ export default {
         // save node display state
         nodeModel.savedDoShow = nodeModel.doShow
         nodeModel.savedIsExpanded = nodeModel.isExpanded
-        // select nodeModels NOT to show; the node is shown if not excluded by any filter
+        // select nodeModels NOT to show; the node is shown if not excluded by any filter; highlight filtered items unless selected only on product
         let isExcluded = false
+        let doHighLight = false
         if (this.filterOnProducts) {
           isExcluded = this.doFilterOnProducts(nodeModel)
         }
         if (!isExcluded && this.filterOnReqAreas) {
           isExcluded = this.doFilterOnReqAreas(nodeModel)
+          doHighLight = !isExcluded
         }
-        if (this.filterOnTeams) {
+        if (!isExcluded && this.filterOnTeams) {
           isExcluded = this.doFilterOnTeams(nodeModel)
+          doHighLight = !isExcluded
         }
         if (!isExcluded && this.filterOnState) {
           isExcluded = this.doFilterOnState(nodeModel)
+          doHighLight = !isExcluded
         }
         if (!isExcluded && this.filterOnTime) {
           isExcluded = this.doFilterOnTime(nodeModel)
+          doHighLight = !isExcluded
         }
         if (!isExcluded) {
           // show this node if not filtered out and highlight the node
           if (window.slVueTree.expandPathToNode(nodeModel, nodeModel.level)) {
-            nodeModel.isHighlighted = true
+            nodeModel.isHighlighted = doHighLight
             count++
           }
         } else {
