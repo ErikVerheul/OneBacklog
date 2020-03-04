@@ -15,7 +15,7 @@ function composeRangeString(id) {
     return 'startkey="' + id + '"&endkey="' + id + '"'
 }
 
-function setChangeTimestamps(doc) {
+function setChangeTimestamps(history, lastComment) {
     // search history for the last changes within the last hour
     let lastPositionChange = 0
     let lastStateChange = 0
@@ -24,7 +24,7 @@ function setChangeTimestamps(doc) {
     let lastAttachmentAddition = 0
     let lastCommentToHistory = 0
     let nodeUndoMoveEventWasIssued = false
-    for (let histItem of doc.history) {
+    for (let histItem of history) {
         if (Date.now() - histItem.timestamp > HOURINMILIS) {
             // skip events longer than a hour ago
             break
@@ -61,9 +61,7 @@ function setChangeTimestamps(doc) {
         }
     }
     // get the last time a comment was added; comments have their own array
-    if (doc.comments && doc.comments.length > 0) {
-        lastCommentAddition = doc.comments[0].timestamp
-    }
+    lastCommentAddition = lastComment.timestamp
     return {
         lastPositionChange,
         lastStateChange,
@@ -74,12 +72,48 @@ function setChangeTimestamps(doc) {
     }
 }
 
+function cleanHistory(history) {
+    const hour = 3600000
+	const now = Date.now()
+	const cleanedHist = []
+	for (var i = 0; i < history.length; i++) {
+		if ((now - history[i].timestamp < hour) && Object.keys(history[i])[0] !== 'ignoreEvent') cleanedHist.push(history[i])
+    }
+    if (cleanedHist.length === 0) cleanedHist.push(history[0])
+    return cleanedHist
+}
+
+function convertToResults(docs) {
+    const results = []
+    for (let d of docs) {
+        const res = {}
+        res.id = d._id
+        res.key = d.parentId
+        res.value = []
+        res.value.push(d.reqarea)
+        res.value.push(d.productId)
+        res.value.push(d.priority)
+        res.value.push(d.level)
+        res.value.push(d.state)
+        res.value.push(d.title)
+        res.value.push(d.team)
+        res.value.push(d.subtype)
+        res.value.push(d.dependencies)
+        res.value.push(d.conditionalFor)
+        res.value.push(cleanHistory(d.history))
+        res.value.push(d.comments[0])
+
+        results.push(res)
+    }
+    return results
+}
+
 const actions = {
     processItems({
         rootState,
         dispatch,
         commit
-    }, docs) {
+    }, results) {
         /*
 		 * When the parentNode exists this function returns an object with:
 		 * - the previous node (can be the parent)
@@ -119,47 +153,61 @@ const actions = {
             }
         }
 
-        for (let doc of docs) {
-            const parentNode = window.slVueTree.getNodeById(doc.parentId)
+        for (let item of results) {
+            const _id = item.id
+            const parentId = item.key
+            const reqarea = item.value[0] || null
+            const productId = item.value[1]
+            const priority = -item.value[2]
+            const level = item.value[3]
+            const itemState = item.value[4]
+            const title = item.value[5]
+            const team = item.value[6]
+            const subtype = item.value[7]
+            const dependencies = item.value[8] || []
+            const conditionalFor = item.value[9] || []
+            const history = item.value[10]
+            const lastComment = item.value[11]
+
+            const parentNode = window.slVueTree.getNodeById(parentId)
             if (parentNode) {
                 // create the node
-                const locationInfo = getLocationInfo(doc.priority, parentNode)
-                const level = locationInfo.newPath.length
-                const isExpanded = doc.productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
-                const changeTimes = setChangeTimestamps(doc)
+                const locationInfo = getLocationInfo(priority, parentNode)
+                const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
+                const changeTimes = setChangeTimestamps(history, lastComment)
                 let lastChange
-                if (doc.history[0].resetCommentsEvent && !doc.history[0].resetHistoryEvent) {
-                    lastChange = doc.history[0].timestamp
-                } else if (doc.history[0].resetHistoryEvent && !doc.history[0].resetCommentsEvent) {
-                    lastChange = doc.comments[0].timestamp
-                } else lastChange = doc.history[0].timestamp > doc.comments[0].timestamp ? doc.history[0].timestamp : doc.comments[0].timestamp
+                if (history[0].resetCommentsEvent && !history[0].resetHistoryEvent) {
+                    lastChange = history[0].timestamp
+                } else if (history[0].resetHistoryEvent && !history[0].resetCommentsEvent) {
+                    lastChange = lastComment.timestamp
+                } else lastChange = history[0].timestamp > lastComment.timestamp ? history[0].timestamp : lastComment.timestamp
                 let newNode = {
                     path: locationInfo.newPath,
                     pathStr: JSON.stringify(locationInfo.newPath),
                     ind: locationInfo.newInd,
                     level,
-                    productId: doc.productId,
-                    parentId: doc.parentId,
-                    _id: doc._id,
-                    shortId: doc.shortId,
-                    dependencies: doc.dependencies || [],
-                    conditionalFor: doc.conditionalFor || [],
-                    title: doc.title,
-                    isLeaf: (locationInfo.newPath.length < PBILEVEL) ? false : true,
+                    productId,
+                    parentId,
+                    _id,
+                    shortId: _id.slice(-5),
+                    dependencies: dependencies || [],
+                    conditionalFor: conditionalFor || [],
+                    title,
+                    isLeaf: level === PBILEVEL,
                     children: [],
                     isSelected: false,
                     isExpanded,
                     savedIsExpanded: isExpanded,
                     isSelectable: true,
-                    isDraggable: doc.level > PRODUCTLEVEL,
+                    isDraggable: level > PRODUCTLEVEL,
                     doShow: true,
                     savedDoShow: true,
                     data: {
-                        state: doc.state,
-                        subtype: doc.subtype,
-                        priority: doc.priority,
-                        inconsistentState: false,
-                        team: doc.team,
+                        priority,
+                        state: itemState,
+                        reqarea,
+                        team,
+                        subtype,
                         lastPositionChange: changeTimes.lastPositionChange,
                         lastStateChange: changeTimes.lastStateChange,
                         lastContentChange: changeTimes.lastContentChange,
@@ -188,12 +236,12 @@ const actions = {
                     }
                 } else {
                     // select the product node in the tree
-                    if (doc._id === newDefaultId) window.slVueTree.selectNodeById(newDefaultId)
+                    if (_id === newDefaultId) window.slVueTree.selectNodeById(newDefaultId)
                 }
-                dispatch('getChildren', doc._id)
+                dispatch('getChildren', _id)
             } else {
                 commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
-                let msg = 'Sync.processItems: a remote restore of the tree view failed. Cannot find the parent of ' + doc.parentId
+                let msg = 'Sync.processItems: a remote restore of the tree view failed. Cannot find the parent of ' + parentId
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
@@ -207,12 +255,12 @@ const actions = {
     }, _id) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/parentIds?' + composeRangeString(_id) + '&include_docs=true'
+            url: rootState.userData.currentDb + '/_design/design1/_view/parentIds?' + composeRangeString(_id)
         }).then(res => {
-            const docs = res.data.rows.map(r => r.doc)
-            if (docs.length > 0) {
+            const results = res.data.rows
+            if (results.length > 0) {
                 // process next level
-                dispatch('processItems', docs)
+                dispatch('processItems', results)
             }
         }).catch(error => {
             let msg = 'restorebranches.getChildren: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
@@ -227,14 +275,14 @@ const actions = {
     }, doc) {
         fromHistory = true
         histArray = doc.history[0]["docRestoredEvent"]
-        dispatch('processItems', [doc])
+        dispatch('processItems', convertToResults([doc]))
     },
 
     restorebranches({
         dispatch
     }, docs) {
         fromHistory = false
-        dispatch('processItems', docs)
+        dispatch('processItems', convertToResults(docs))
     },
 
     /* addProducts uses restoteBranches to load a product as a branche */
