@@ -858,29 +858,29 @@ export default {
     /* Use this event to check if the drag is allowed. If not, issue a warning */
     beforeNodeDropped(draggingNodes, position, cancel) {
       /*
-       * 0. Requirement area items cannot be moved
        * 1. Disallow drop on node were the user has no write authority
        * 2. Disallow drop when moving over more than 1 level.
        * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest permitted level.
+       * 4. The requirement area nodes cannot be moved from their parent or inside each other
        * precondition: the selected nodes have all the same parent (same level)
        */
-      let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
-        const failedCheck0 = draggingNodes[0].productId === this.AREA_PRODUCTID
+      let checkDropNotAllowed = (node) => {
+        const sourceLevel = draggingNodes[0].level
+        let targetLevel = position.nodeModel.level
+        // are we dropping 'inside' a node creating children to that node?
+        if (position.placement === 'inside') targetLevel++
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.PBILEVEL
-        if (failedCheck0) this.showLastEvent('Cannot move requirement area descriptions', INFO)
+        const failedCheck4 = node.parentId === this.AREA_PRODUCTID && position.nodeModel.parentId !== this.AREA_PRODUCTID
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
-        return failedCheck0 || failedCheck1 || failedCheck2 || failedCheck3
+        return failedCheck1 || failedCheck2 || failedCheck3 || failedCheck4
       }
-      const sourceLevel = draggingNodes[0].level
-      let targetLevel = position.nodeModel.level
-      // are we dropping 'inside' a node creating children to that node?
-      if (position.placement === 'inside') targetLevel++
-      if (checkDropNotAllowed(draggingNodes[0], sourceLevel, targetLevel)) {
+
+      if (checkDropNotAllowed(draggingNodes[0])) {
         cancel(true)
         return
       }

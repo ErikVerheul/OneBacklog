@@ -144,8 +144,8 @@ const actions = {
 
                 // expand the default product up to the feature level
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
-                // product and reqarea items cannot be dragged
-                const isDraggable = productId !== 0 && level > PRODUCTLEVEL
+                // products cannot be dragged
+                const isDraggable = level > PRODUCTLEVEL
                 let lastChange
                 if (history[0].resetCommentsEvent && !history[0].resetHistoryEvent) {
                     lastChange = history[0].timestamp
