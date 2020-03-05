@@ -146,6 +146,12 @@ const actions = {
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
                 // product and reqarea items cannot be dragged
                 const isDraggable = productId !== 0 && level > PRODUCTLEVEL
+                let lastChange
+                if (history[0].resetCommentsEvent && !history[0].resetHistoryEvent) {
+                    lastChange = history[0].timestamp
+                } else if (history[0].resetHistoryEvent && !history[0].resetCommentsEvent) {
+                    lastChange = lastComment.timestamp
+                } else lastChange = history[0].timestamp > lastComment.timestamp ? history[0].timestamp : lastComment.timestamp
                 // show all nodes
                 const doShow = true
                 if (parentNodes[parentId] !== undefined) {
@@ -189,7 +195,7 @@ const actions = {
                             lastAttachmentAddition: changeTimes.lastAttachmentAddition,
                             lastCommentToHistory: changeTimes.lastCommentToHistory,
                             subtype,
-                            lastChange: 0
+                            lastChange
                         }
                     }
 
