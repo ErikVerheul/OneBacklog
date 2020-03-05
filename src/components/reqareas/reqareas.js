@@ -873,7 +873,7 @@ export default {
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.PBILEVEL
-        const failedCheck4 = node.parentId === this.AREA_PRODUCTID && position.nodeModel.parentId !== this.AREA_PRODUCTID
+        const failedCheck4 = node.parentId === this.AREA_PRODUCTID && position.nodeModel.parentId !== this.AREA_PRODUCTID || position.placement === 'inside'
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
