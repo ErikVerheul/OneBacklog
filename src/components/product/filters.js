@@ -2,7 +2,6 @@ import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const PRODUCTLEVEL = 2
-const PBILEVEL = 5
 
 export default {
   mixins: [utilities],

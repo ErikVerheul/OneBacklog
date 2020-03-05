@@ -2,7 +2,6 @@ import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const PRODUCTLEVEL = 2
-const FEATURELEVEL = 4
 const AREA_PRODUCTID = '0'
 
 export default {
