@@ -6,6 +6,17 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.1 - 5 March 2020 Feature update and bug fixes</h3>
+				<p>Feature update:</p>
+				<ul>
+					<li>The filters in the tree view now only highlight the filtered items, not the path to these items. Changed to a less agressive highlight color</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>When using the context menu in the requirement areas view the scroll bar disappears</li>
+					<li>When filtering on time in the requirement areas view no items are found</li>
+				</ul>
+				<hr>
 				<h3>v.0.9.0 - 1 March 2020 Major update</h3>
 				<p>New features:</p>
 				<ul>
