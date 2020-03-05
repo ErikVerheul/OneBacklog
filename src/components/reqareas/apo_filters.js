@@ -105,18 +105,17 @@ export default {
     },
 
     doFilterOnTeams(nm) {
-      if (nm.level < PRODUCTLEVEL) return false
+      if (nm.level <= PRODUCTLEVEL) return false
       return !(this.selectedTeams.includes(nm.data.team))
     },
 
     doFilterOnState(nm) {
-      if (nm.level < PRODUCTLEVEL) return false
+      if (nm.level <= PRODUCTLEVEL) return false
       return !(this.selectedStates.includes(nm.data.state))
     },
 
     doFilterOnTime(nm) {
-      if (nm.level < PRODUCTLEVEL) return false
-
+      if (nm.level <= PRODUCTLEVEL) return false
       if (this.selectedTime === '0') {
         if (this.fromDate && this.toDate) {
           // process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
@@ -140,49 +139,42 @@ export default {
       let count = 0
       const unselectedNodes = []
       // create a callback for the filtering
-      let cb = (nodeModel) => {
+      let cb = (nm) => {
         // skip req area definitions
-        if (nodeModel.productId === AREA_PRODUCTID) return
+        if (nm.productId === AREA_PRODUCTID) return
 
         // save node display state
-        nodeModel.savedDoShow = nodeModel.doShow
-        nodeModel.savedIsExpanded = nodeModel.isExpanded
+        nm.savedDoShow = nm.doShow
+        nm.savedIsExpanded = nm.isExpanded
         // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
         let doHighLight = false
         if (this.filterOnProducts) {
-          isExcluded = this.doFilterOnProducts(nodeModel)
+          isExcluded = this.doFilterOnProducts(nm)
         }
         if (!isExcluded && this.filterOnReqAreas) {
-          isExcluded = this.doFilterOnReqAreas(nodeModel)
+          isExcluded = this.doFilterOnReqAreas(nm)
           doHighLight = !isExcluded
         }
         if (!isExcluded && this.filterOnTeams) {
-          isExcluded = this.doFilterOnTeams(nodeModel)
+          isExcluded = this.doFilterOnTeams(nm)
           doHighLight = !isExcluded
         }
         if (!isExcluded && this.filterOnState) {
-          isExcluded = this.doFilterOnState(nodeModel)
+          isExcluded = this.doFilterOnState(nm)
           doHighLight = !isExcluded
         }
+        // console.log('onApplyMyFilters: isExcluded = ' + isExcluded + ' this.filterOnTime = ' + this.filterOnTime)
         if (!isExcluded && this.filterOnTime) {
-          isExcluded = this.doFilterOnTime(nodeModel)
+          isExcluded = this.doFilterOnTime(nm)
           doHighLight = !isExcluded
         }
+
         if (!isExcluded) {
-          // show this node if not filtered out and highlight the node unless selected only on product
-          if (window.slVueTree.expandPathToNode(nodeModel, nodeModel.level)) {
-            nodeModel.isHighlighted = doHighLight
-            count++
-          }
+          window.slVueTree.showPath(nm.path, (nm.path.length > PRODUCTLEVEL) && doHighLight)
+          if (nm.level > PRODUCTLEVEL) count++
         } else {
-          // in this view the lowest level (highest number)
-          if (nodeModel.level === FEATURELEVEL) {
-            nodeModel.doShow = false
-          } else {
-            nodeModel.isExpanded = false
-            unselectedNodes.push(nodeModel)
-          }
+          unselectedNodes.push(nm)
         }
       }
       // execute the callback for ALL products

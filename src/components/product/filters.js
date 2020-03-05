@@ -133,46 +133,35 @@ export default {
       let count = 0
       const unselectedNodes = []
       // create a callback for the filtering
-      let cb = (nodeModel) => {
+      let cb = (nm) => {
         // save node display state
-        nodeModel.savedDoShow = nodeModel.doShow
-        nodeModel.savedIsExpanded = nodeModel.isExpanded
+        nm.savedDoShow = nm.doShow
+        nm.savedIsExpanded = nm.isExpanded
         // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
         if (this.filterOnReqAreas) {
-          isExcluded = this.doFilterOnReqAreas(nodeModel)
+          isExcluded = this.doFilterOnReqAreas(nm)
         }
         if (!isExcluded && this.filterOnTeams) {
-          isExcluded = this.doFilterOnTeams(nodeModel)
+          isExcluded = this.doFilterOnTeams(nm)
         }
         if (!isExcluded && this.filterOnState) {
-          isExcluded = this.doFilterOnState(nodeModel)
+          isExcluded = this.doFilterOnState(nm)
         }
         if (!isExcluded && this.filterOnTime) {
-          isExcluded = this.doFilterOnTime(nodeModel)
+          isExcluded = this.doFilterOnTime(nm)
+        }
+        // if filtering on tree depth expand to that level
+        if (this.filterTreeDepth) {
+          nm.isExpanded = nm.level < this.selectedTreeDepth
         }
 
-        if (onlyFilterOnDepth) {
-          // when filtering on depth only, show the node if below the selected level
-          if (window.slVueTree.expandPathToNode(nodeModel, parseInt(this.selectedTreeDepth))) {
-            // the parent is expanded, so the the node is shown: collapse this node to hide its descendants
-            nodeModel.isExpanded = false
-          }
-        } else {
+        if (!onlyFilterOnDepth) {
           if (!isExcluded) {
-            // when not filtering on depth only, show this node if not filtered out and highlight the node
-            if (window.slVueTree.expandPathToNode(nodeModel, this.filterTreeDepth ? parseInt(this.selectedTreeDepth) : nodeModel.level)) {
-              nodeModel.isHighlighted = true
-              count++
-            }
+            window.slVueTree.showPath(nm.path, nm.path.length > PRODUCTLEVEL)
+            if (nm.level > PRODUCTLEVEL) count++
           } else {
-            // for now PBILEVEL is the lowest level (highest number)
-            if (nodeModel.level === PBILEVEL) {
-              nodeModel.doShow = false
-            } else {
-              nodeModel.isExpanded = false
-              unselectedNodes.push(nodeModel)
-            }
+            unselectedNodes.push(nm)
           }
         }
       }

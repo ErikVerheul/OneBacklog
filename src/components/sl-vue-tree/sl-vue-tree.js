@@ -938,17 +938,18 @@ export default {
 		},
 
 		/*
-		* Show the path from productlevel to the node up to an maximum depth
+		* Show the path from productlevel to the node and highlight the node if doHighLight = true
 		* Return true if the node is shown, that is when the parent is expanded
 		*/
-		expandPathToNode(node, maxDepth = node.level) {
-			for (let i = PRODUCTLEVEL; i < node.level; i++) {
-				const nm = this.getNodeModel(node.path.slice(0, i))
+		showPath(path, doHighLight = true) {
+			const maxDepth = path.length
+			for (let i = PRODUCTLEVEL; i <= path.length; i++) {
+				const nm = this.getNodeModel(path.slice(0, i))
 				if (i < maxDepth) {
 					nm.isExpanded = true
-				}
+				} else nm.isHighlighted = doHighLight
 			}
-			return node.level <= maxDepth
+			return path.length <= maxDepth
 		},
 
 		hasHighlightedDescendants(node) {
