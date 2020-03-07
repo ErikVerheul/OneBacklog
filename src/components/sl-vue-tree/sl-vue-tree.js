@@ -73,7 +73,7 @@ export default {
 		},
 		edgeSize: {
 			type: Number,
-			default: 3
+			default: 6
 		},
 		showBranches: {
 			type: Boolean,
@@ -440,8 +440,7 @@ export default {
 			if (nodeModel.isLeaf) {
 				placement = offsetY >= nodeHeight / 2 ? 'after' : 'before';
 			} else {
-				// multiply edgeSize with 2 to enlarge the window for 'before' placement
-				if (offsetY <= edgeSize * 2) {
+				if (offsetY <= edgeSize) {
 					placement = 'before';
 				} else if (offsetY >= nodeHeight - edgeSize) {
 					placement = 'after';
