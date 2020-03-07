@@ -21,18 +21,7 @@ import { utilities } from '../mixins/utilities.js'
 * Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId
 * Pass an insertInd as the lowest index of any insert to gain performance.
 */
-function updatePaths(parentPath, siblings, currentView, insertInd = 0, parentId = undefined, productId = undefined) {
-	let leafLevel
-	switch (currentView) {
-		case 'products':
-			leafLevel = PBILEVEL
-			break
-		case 'reqarea':
-			leafLevel = FEATURELEVEL
-			break
-		default:
-			leafLevel = PBILEVEL
-	}
+function updatePaths(parentPath, siblings, leafLevel, insertInd = 0, parentId = undefined, productId = undefined) {
 	for (let i = insertInd; i < siblings.length; i++) {
 		const sibling = siblings[i]
 		const newPath = parentPath.concat(i)
@@ -46,7 +35,7 @@ function updatePaths(parentPath, siblings, currentView, insertInd = 0, parentId 
 		sibling.level = newPath.length
 		sibling.isLeaf = (sibling.level < leafLevel) ? false : true
 		if (sibling.children && sibling.children.length > 0) {
-			updatePaths(sibling.path, sibling.children, currentView, 0, sibling._id, productId)
+			updatePaths(sibling.path, sibling.children, leafLevel, 0, sibling._id, productId)
 		}
 	}
 }
@@ -118,7 +107,8 @@ export default {
 			},
 			preventDrag: false,
 			currentValue: this.value,
-			lastSelectCursorPosition: null
+			lastSelectCursorPosition: null,
+			leafLevel: PBILEVEL
 		};
 	},
 
@@ -129,6 +119,16 @@ export default {
 		}
 		if (this.isRoot) {
 			document.addEventListener('mouseup', this.onDocumentMouseupHandler);
+		}
+		switch (this.$store.state.currentView) {
+			case 'products':
+				this.leafLevel = PBILEVEL
+				break
+			case 'reqarea':
+				this.leafLevel = FEATURELEVEL
+				break
+			default:
+				this.leafLevel = PBILEVEL
 		}
 	},
 
@@ -171,6 +171,7 @@ export default {
 			let i = this.level - 1;
 			if (!this.showBranches) i++;
 			while (i-- > 0) gaps.push(i);
+			if (this.level + 1 === this.leafLevel) gaps.push(i)
 			return gaps;
 		},
 
@@ -549,7 +550,7 @@ export default {
 			}
 			this.currentValue[0].children = newChildren
 			// recalculate the paths in the tree
-			updatePaths([0], newChildren, this.$store.state.currentView)
+			updatePaths([0], newChildren, this.leafLevel)
 		},
 
 		getRootNode() {
@@ -665,8 +666,8 @@ export default {
 				successorNode = destSiblings[nodes.length] || null
 				if (destNodeModel.path.length === 1) {
 					// inserting a product
-					updatePaths(destNodeModel.path, destSiblings, this.$store.state.currentView)
-				} else updatePaths(destNodeModel.path, destSiblings, this.$store.state.currentView, 0, parentId, productId)
+					updatePaths(destNodeModel.path, destSiblings, this.leafLevel)
+				} else updatePaths(destNodeModel.path, destSiblings, this.leafLevel, 0, parentId, productId)
 			} else {
 				// insert before or after the cursor position
 				const destSiblings = this.getNodeSiblings(destNodeModel.path)
@@ -678,8 +679,8 @@ export default {
 				successorNode = destSiblings[insertInd + nodes.length] || null
 				if (parentPath.length === 1) {
 					// inserting a product
-					updatePaths(parentPath, destSiblings, this.$store.state.currentView, insertInd)
-				} else updatePaths(parentPath, destSiblings, this.$store.state.currentView, insertInd, parentId, productId)
+					updatePaths(parentPath, destSiblings, this.leafLevel, insertInd)
+				} else updatePaths(parentPath, destSiblings, this.leafLevel, insertInd, parentId, productId)
 			}
 			if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 		},
@@ -699,7 +700,7 @@ export default {
 					const removeInd = node.ind
 					const parentPath = node.path.slice(0, -1)
 					siblings.splice(removeInd, 1)
-					updatePaths(parentPath, siblings, this.$store.state.currentView, removeInd)
+					updatePaths(parentPath, siblings, this.leafLevel, removeInd)
 					success = true
 				}
 			}
@@ -754,7 +755,7 @@ export default {
 				}
 				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				commonParent.children = restoredChildren
-				updatePaths(commonParent.path, commonParent.children, this.$store.state.currentView)
+				updatePaths(commonParent.path, commonParent.children, this.leafLevel)
 			} else {
 				for (let id of beforeDropStatus.savedSourceChildrenIds) {
 					const node = this.getNodeById(id)
@@ -762,7 +763,7 @@ export default {
 				}
 				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				sourceParent.children = restoredSourceChildren
-				updatePaths(sourceParent.path, sourceParent.children, this.$store.state.currentView, 0, beforeDropStatus.sourceParentId)
+				updatePaths(sourceParent.path, sourceParent.children, this.leafLevel, 0, beforeDropStatus.sourceParentId)
 
 				for (let id of beforeDropStatus.savedTargetChildrenIds) {
 					const node = this.getNodeById(id)
@@ -770,7 +771,7 @@ export default {
 				}
 				const targetParent = this.getNodeById(beforeDropStatus.targetParentId)
 				targetParent.children = restoredTargetChildren
-				updatePaths(targetParent.path, targetParent.children, this.$store.state.currentView, 0, beforeDropStatus.targetParentId)
+				updatePaths(targetParent.path, targetParent.children, this.leafLevel, 0, beforeDropStatus.targetParentId)
 			}
 			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredChildren)
 			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredSourceChildren)
