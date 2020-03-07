@@ -75,11 +75,7 @@ export default {
 			type: Number,
 			default: 6
 		},
-		showBranches: {
-			type: Boolean,
-			default: false
-		},
-		level: {
+		nodeLevel: {
 			type: Number,
 			default: 0
 		},
@@ -164,19 +160,19 @@ export default {
 
 		/**
 		 * gaps is used for nodes indentation
+		 * nodeLevel starts with 0; item level with 1
 		 * @returns {number[]}
 		 */
 		gaps() {
-			const gaps = [];
-			let i = this.level - 1;
-			if (!this.showBranches) i++;
-			while (i-- > 0) gaps.push(i);
-			if (this.level + 1 === this.leafLevel) gaps.push(i)
-			return gaps;
+			const gaps = []
+			let i = this.nodeLevel
+			while (i-- > 0) gaps.push(i)
+			if (this.nodeLevel + 1 === this.leafLevel) gaps.push(i)
+			return gaps
 		},
 
 		isRoot() {
-			return this.level === 0
+			return this.nodeLevel === 0
 		}
 	},
 

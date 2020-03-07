@@ -57,12 +57,8 @@
       <sl-vue-tree
         v-if="node.children && node.children.length && node.isExpanded"
         :value="node.children"
-        :level="node.level"
+        :nodeLevel="node.level"
         :parentInd="nodeInd"
-        :allowMultiselect="allowMultiselect"
-        :allowToggleBranch="allowToggleBranch"
-        :edgeSize="edgeSize"
-        :showBranches="showBranches"
       >
         <template slot="title" slot-scope="{ node }">
           <slot name="title" :node="node"></slot>
@@ -73,7 +69,7 @@
         </template>
 
         <template slot="sidebar" slot-scope="{ node }">
-            <slot name="sidebar" :node="node"></slot>
+          <slot name="sidebar" :node="node"></slot>
         </template>
       </sl-vue-tree>
     </div>
