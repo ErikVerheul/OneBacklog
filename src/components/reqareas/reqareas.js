@@ -1,4 +1,4 @@
-import Header from '../header/header.vue'
+import appHeader from '../header/header.vue'
 import { mapGetters } from 'vuex'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -1034,7 +1034,7 @@ export default {
   },
 
   components: {
-    'app-header': Header,
+    'app-header': appHeader,
     Multipane,
     MultipaneResizer,
     VueEditor,

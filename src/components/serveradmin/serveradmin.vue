@@ -1,7 +1,6 @@
 <template lang="html">
   <div>
-    <app-header>
-    </app-header>
+    <app-header></app-header>
     <b-container fluid>
       <h2>Server admin view: {{ optionSelected }}</h2>
       <b-button block @click="createBackup"> Create a database backup</b-button>
@@ -153,7 +152,7 @@
 </template>
 
 <script>
-import Header from '../header/header.vue'
+import appHeader from '../header/header.vue'
 import router from '../../router'
 
 const baseURL = 'https://onebacklog.net:6984/'
@@ -326,7 +325,7 @@ export default {
   },
 
   components: {
-    'app-header': Header
+    'app-header': appHeader
   }
 }
 </script>

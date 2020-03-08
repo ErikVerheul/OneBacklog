@@ -1,7 +1,6 @@
 <template lang="html">
   <div>
-    <app-header>
-    </app-header>
+    <app-header></app-header>
     <b-container fluid>
       <h2>Admin view: {{ optionSelected }}</h2>
       <b-button block @click="createUser">Create a user</b-button>
@@ -261,7 +260,7 @@
 </template>
 
 <script>
-import Header from '../header/header.vue'
+import appHeader from '../header/header.vue'
 import router from '../../router'
 
 const ALLBUTSYSTEMANDBACKUPS = 3
@@ -471,7 +470,7 @@ export default {
   },
 
   components: {
-    'app-header': Header
+    'app-header': appHeader
   }
 }
 </script>

@@ -1,7 +1,6 @@
 <template lang="html">
   <div>
-    <app-header>
-    </app-header>
+    <app-header></app-header>
     <b-container fluid>
       <h2>Super PO view: {{ optionSelected }}</h2>
       <b-button block @click="createProduct">Create a product</b-button>
@@ -64,7 +63,7 @@
 </template>
 
 <script>
-import Header from '../header/header.vue'
+import appHeader from '../header/header.vue'
 import router from '../../router'
 
 // returns a new array so that it is reactive
@@ -205,7 +204,7 @@ export default {
   },
 
   components: {
-    'app-header': Header
+    'app-header': appHeader
   }
 }
 </script>
