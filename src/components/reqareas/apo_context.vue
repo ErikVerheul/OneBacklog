@@ -96,7 +96,7 @@
               :active="contextOptionSelected === SHOWDEPENDENCIES"
               variant="dark"
               @click="showSelected(SHOWDEPENDENCIES)"
-            >▼ Show/remove existing dependencies for this item</b-list-group-item>
+            >▲ Show/remove existing dependencies on this item</b-list-group-item>
 
             <b-list-group-item
               v-if="hasConditions && contextNodeLevel > PRODUCTLEVEL"
@@ -104,7 +104,7 @@
               :active="contextOptionSelected === SHOWCONDITIONS"
               variant="dark"
               @click="showSelected(SHOWCONDITIONS)"
-            >▲ Show/remove existing conditions for other items</b-list-group-item>
+            >▼ Show/remove existing conditions for other items</b-list-group-item>
 
             <b-list-group-item
               v-if="contextNodeLevel > PRODUCTLEVEL"

@@ -118,8 +118,8 @@ export default {
           vm.contextWarning = "WARNING: Cannot add the same dependency twice"
           return false
         }
-        if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === 1) {
-          vm.contextWarning = "WARNING: Cannot create a dependency on an item with higher priority"
+        if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
+          vm.contextWarning = "WARNING: Cannot create a dependency on an item with lower priority"
           return false
         }
         return true

@@ -279,6 +279,11 @@ export default {
   },
 
   methods: {
+    onTreeIsLoaded() {
+      this.dependencyViolationsFound()
+      this.createColorMapper()
+    },
+
     dependencyViolationsFound() {
       const violations = window.slVueTree.findDependencyViolations(ALLPRODUCTS)
       if (violations.length > 0) {
@@ -317,8 +322,8 @@ export default {
 
     patchTitle(node) {
       let patch = ''
-      if (node.dependencies && node.dependencies.length > 0) patch = '▼ '
-      if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▲ '
+      if (node.dependencies && node.dependencies.length > 0) patch = '▲ '
+      if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▼ '
       if (node.markViolation) patch = patch + '↑ '
       return patch + node.title
     },
@@ -489,7 +494,7 @@ export default {
             payloadArray.push(payloadItem)
           }
           this.$store.dispatch('updateMovedItemsBulk', { items: payloadArray })
-          this.showLastEvent('Item(s) move undone', INFO)
+          if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
           break
         case 'removedNode':
           // restore the removed node
@@ -840,19 +845,17 @@ export default {
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
       }
-      if (!this.dependencyViolationsFound()) {
-        const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
-        const title = this.itemTitleTrunc(60, selNodes[0].title)
-        let evt = ""
-        if (selNodes.length === 1) {
-          this.selectedNodesTitle = title
-          evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
-        } else {
-          this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-          evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
-        }
-        this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
+      const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
+      const title = this.itemTitleTrunc(60, selNodes[0].title)
+      let evt = ""
+      if (selNodes.length === 1) {
+        this.selectedNodesTitle = title
+        evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
+      } else {
+        this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
+        evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
       }
+      this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
     },
 
     /* Use this event to check if the drag is allowed. If not, issue a warning */
@@ -940,16 +943,18 @@ export default {
         n.data.lastPositionChange = Date.now()
       }
 
-      // create the event message
-      const title = this.itemTitleTrunc(60, draggingNodes[0].title)
-      let evt = ""
-      if (draggingNodes.length === 1) {
-        evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.nodeModel.title}'`
-      } else {
-        evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
+      if (!this.dependencyViolationsFound()) {
+        // create the event message
+        const title = this.itemTitleTrunc(60, draggingNodes[0].title)
+        let evt = ""
+        if (draggingNodes.length === 1) {
+          evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.nodeModel.title}'`
+        } else {
+          evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
+        }
+        if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
+        this.showLastEvent(evt, INFO)
       }
-      if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
-      this.showLastEvent(evt, INFO)
     },
 
     /* Create a new object to maintain reactivity */

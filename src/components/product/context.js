@@ -118,8 +118,8 @@ export default {
           vm.contextWarning = "WARNING: Cannot add the same dependency twice"
           return false
         }
-        if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === 1) {
-          vm.contextWarning = "WARNING: Cannot create a dependency on an item with higher priority"
+        if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
+          vm.contextWarning = "WARNING: Cannot create a dependency on an item with lower priority"
           return false
         }
         return true
@@ -509,7 +509,7 @@ export default {
       }
       // set remove mark in the database on the clicked item and descendants (if any)
       this.$store.dispatch('removeItemAndDescendents', { productId: this.$store.state.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
-      // remove any dependency references to/from outside the removed items; note: these cannot be undone
+      // remove any dependency references to/from outside the removed items
       const removed = window.slVueTree.correctDependencies(this.$store.state.currentProductId, descendantsInfo.ids)
       // create an entry for undoing the remove in a last-in first-out sequence
       const entry = {

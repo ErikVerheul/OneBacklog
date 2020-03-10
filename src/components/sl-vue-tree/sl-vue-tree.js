@@ -391,7 +391,7 @@ export default {
 
 			// sort the nodes on priority (highest first)
 			draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
-			// save the status 'as is' before the move
+			// move the nodes and save the status 'as is' before the move
 			const beforeDropStatus = this.moveNodes(this.cursorPosition, draggableNodes)
 
 			this.emitDrop(beforeDropStatus, draggableNodes, this.cursorPosition, event)
@@ -965,11 +965,11 @@ export default {
 			this.traverseModels((nm) => {
 				// remove any left dependency markers
 				if (nm.markViolation) nm.markViolation = false
-				if (nm.conditionalFor && nm.conditionalFor.length > 0) {
-					for (let condId of nm.conditionalFor) {
-						const dep = this.getNodeById(condId)
-						if (dep !== null && this.comparePaths(nm.path, dep.path) === -1) {
-							violations.push({ condNode: nm, depNode: dep })
+				if (nm.dependencies && nm.dependencies.length > 0) {
+					for (let depId of nm.dependencies) {
+						const cond = this.getNodeById(depId)
+						if (cond !== null && this.comparePaths(nm.path, cond.path) === -1) {
+							violations.push({ condNode: cond, depNode: nm })
 						}
 					}
 				}
@@ -981,7 +981,7 @@ export default {
 		showDependencyViolations(violation, allProducts) {
 			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
-				if ((this.comparePaths(violation.depNode.path, nm.path) === 1) && (this.comparePaths(nm.path, violation.condNode.path) === 1)) {
+				if ((this.comparePaths(violation.depNode.path, nm.path) === -1) && (this.comparePaths(nm.path, violation.condNode.path) === -1)) {
 					this.getParentNode(violation.condNode).isExpanded = true
 					this.getParentNode(violation.depNode).isExpanded = true
 					nm.doShow = true
