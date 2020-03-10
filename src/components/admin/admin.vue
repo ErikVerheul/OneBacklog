@@ -380,7 +380,7 @@ export default {
       // add the product to the treemodel, the path etc. will be calculated
       window.slVueTree.insert(cursorPosition, [newNode], false)
       // update the users product roles, subscriptions and product selection array
-      this.$store.state.userData.myProductsRoles[_id] = ['superPO']
+      this.$store.state.userData.myProductsRoles[_id] = ['admin']
       this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, _id)
       this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, _id)
       this.$store.state.myProductOptions.push({
@@ -388,7 +388,7 @@ export default {
         text: newProduct.title
       })
       // update the database and add the product to this user's subscriptions and productsRoles
-      this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['superPO'] })
+      this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['admin'] })
     },
 
     removeProduct() {
