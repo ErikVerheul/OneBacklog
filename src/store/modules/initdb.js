@@ -62,7 +62,7 @@ const actions = {
 			},
 			"members": {
 				"names": [],
-				"roles": ["areaPO", "PO", "developer", "guest"]
+				"roles": ["PO", "APO", "developer", "guest"]
 			}
 		}
 		globalAxios({

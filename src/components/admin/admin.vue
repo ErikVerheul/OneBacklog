@@ -78,12 +78,6 @@
 
           <div v-if="dbSelected && $store.state.areProductsFound">
             Creating user '{{ userName }}'
-            <h5>Make this user an 'APO'?</h5>
-            <b-form-checkbox
-              v-model="$store.state.useracc.userIsAreaPO"
-            >Tick to add this role
-            </b-form-checkbox>
-
             <h5>Make this user an 'admin'?</h5>
             <b-form-checkbox
               v-model="$store.state.useracc.userIsAdmin"
@@ -145,19 +139,9 @@
             </b-col>
 
             <b-col sm="12">
-              <h5 v-if="$store.state.useracc.userIsAreaPO">This user is an 'areaPO':</h5>
-              <h5 v-else>This user is not an 'areaPO':</h5>
-              <b-form-group>
-                <b-form-checkbox
-                  v-model="$store.state.useracc.userIsAreaPO"
-                >Add or remove this role
-                </b-form-checkbox>
-              </b-form-group>
-            </b-col>
-
-            <b-col sm="12">
               <h5 v-if="$store.state.useracc.userIsAdmin">This user is an 'admin':</h5>
               <h5 v-else>This user is not an 'admin':</h5>
+              <p>The admin role is a generic role with access to all user profiles and all product definitions in all databases</p>
               <b-form-group>
                 <b-form-checkbox
                   v-model="$store.state.useracc.userIsAdmin"
@@ -296,6 +280,7 @@ export default {
       teamName: '',
       roleOptions: [
         { text: 'PO', value: 'PO' },
+        { text: 'APO', value: 'APO' },
         { text: 'developer', value: 'developer' },
         { text: 'guest', value: 'guest' }
       ],
@@ -431,7 +416,6 @@ export default {
       this.dbSelected = false
       this.localMessage = ''
       this.$store.state.useracc.dbProducts = undefined
-      this.$store.state.useracc.userIsAreaPO = false
       this.$store.state.useracc.userIsAdmin = false
       this.$store.state.isUserCreated = false
       // get all non sytem & non backup databases
@@ -441,7 +425,6 @@ export default {
     doCreateUser() {
       // calculate the association of all assigned roles
       this.allRoles = []
-      if (this.$store.state.useracc.userIsAreaPO) this.allRoles.push('areaPO')
       if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
       for (let prod of this.$store.state.useracc.dbProducts) {
         for (let role of prod.roles) {
@@ -513,7 +496,6 @@ export default {
 
       // calculate the association of all assigned roles
       this.allRoles = []
-      if (this.$store.state.useracc.userIsAreaPO) this.allRoles.push('areaPO')
       if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
       for (let database of Object.keys(newUserData.myDatabases)) {
         for (let productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {

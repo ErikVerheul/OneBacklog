@@ -5,7 +5,6 @@ const ERROR = 2
 
 const state = {
   fetchedUserData: null,
-  userIsAreaPO: false,
   userIsAdmin: false,
   dbProducts: undefined,
 }
@@ -23,7 +22,6 @@ const actions = {
       url: '/_users/org.couchdb.user:' + userName,
     }).then(res => {
       state.fetchedUserData = res.data
-      state.userIsAreaPO = state.fetchedUserData.roles.includes('areaPO') ? true : false
       state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? true : false
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user

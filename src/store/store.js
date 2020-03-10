@@ -110,7 +110,7 @@ export default new Vuex.Store({
 	},
 
 	getters: {
-		// note that the roles of _admin, areaPO and admin are generic (not product specific)
+		// note that the roles of _admin and admin are generic (not product specific)
 		isAuthenticated(state) {
 			return state.userData.user !== undefined
 		},
@@ -123,15 +123,16 @@ export default new Vuex.Store({
 		isServerAdmin(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("_admin")
 		},
-		isAPO(state, getters) {
-			return getters.isAuthenticated && state.userData.sessionRoles.includes("areaPO")
-		},
 		isAdmin(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("admin")
 		},
 		isPO(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
+		},
+		isAPO(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			return getters.isAuthenticated && myCurrentProductRoles.includes("APO")
 		},
 		isDeveloper(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
@@ -143,15 +144,14 @@ export default new Vuex.Store({
 		},
 		canCreateComments(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return getters.isAdmin || getters.isAPO || getters.isadmin ||
+			return getters.isServerAdmin || getters.isAdmin ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		canUploadAttachments(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return getters.isAPO ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+			// same as canCreateComments
+			return this.canCreateComments(state, getters)
 		},
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]

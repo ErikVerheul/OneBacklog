@@ -123,8 +123,8 @@
 				</p>
 				<p>The authorization is set per product and based on the following roles:
 				<ul>
-					<li>'areaPO': The requirement area PO maintains the requirement areas backlog and can prioritize features in the teams backlog.</li>
-					<li>'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.</li>
+					<li>'PO': Can create and maintain epics, features and pbi's for the assigned products. Can change priorities at these levels.</li>
+					<li>'APO': The requirement area PO maintains the requirement areas backlog.</li>
 					<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
 					<li>'guest': Can only view the items of the assigned products. Has no access to the requirement areas view.</li>
 				</ul>
