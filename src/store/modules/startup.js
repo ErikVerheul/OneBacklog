@@ -53,9 +53,8 @@ const getters = {
             }
         }
         // assign specific write permissions to any product even if that product is not assigned to this user
-        if (rootGetters.isSuperPO) {
+        if (rootGetters.isAdminO) {
             levels[PRODUCTLEVEL] = true
-            levels[EPICLEVEL] = true
         }
 
         if (rootGetters.isServerAdmin) {
@@ -251,13 +250,12 @@ const actions = {
             if (rootState.debug) console.log('The configuration is loaded')
             if (!rootState.isProductAssigned) {
                 if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
-                    if (rootGetters.isSuperPO) { router.replace('/superpo') } else
-                        if (rootGetters.isAPO) { router.replace('/adareapo') } else
-                            if (rootGetters.isAdmin) { router.replace('/admin') } else {
-                                alert("Error: No default product is set. Consult your adminstrator. The application will exit.")
-                                commit('resetData', null, { root: true })
-                                router.replace('/')
-                            }
+                    if (rootGetters.isAPO) { router.replace('/adareapo') } else
+                        if (rootGetters.isAdmin) { router.replace('/admin') } else {
+                            alert("Error: No default product is set. Consult your adminstrator. The application will exit.")
+                            commit('resetData', null, { root: true })
+                            router.replace('/')
+                        }
             } else
                 dispatch('getRoot')
         }).catch(error => {

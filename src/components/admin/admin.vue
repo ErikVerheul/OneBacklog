@@ -3,11 +3,37 @@
     <app-header></app-header>
     <b-container fluid>
       <h2>Admin view: {{ optionSelected }}</h2>
+      <b-button block @click="createProduct">Create a product</b-button>
+      <b-button block @click="removeProduct">Remove a product</b-button>
       <b-button block @click="createUser">Create a user</b-button>
       <b-button block @click="maintainUsers">Maintain users</b-button>
       <b-button block @click="createTeam">Create a team</b-button>
       <b-button block @click="changeMyDb">Change my default database to any available database</b-button>
       <b-button block @click="listTeams">List team names</b-button>
+
+      <div v-if="optionSelected === 'Create a product'">
+        <h2>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h2>
+        <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
+        <b-button v-if="!$store.state.isProductCreated && productTitle !== ''" class="m-1" @click="doCreateProduct">Create product</b-button>
+        <b-button v-if="!$store.state.isProductCreated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <div v-if="$store.state.isProductCreated">
+          <h4>Select the products view to see the new product</h4>
+          <b-button class="m-1" @click="cancel">return</b-button>
+        </div>
+      </div>
+
+      <div v-if="optionSelected === 'Remove a product'">
+        <h2>Remove a product from the current database '{{ $store.state.userData.currentDb }}'</h2>
+        <p>As super Po you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
+        <p>When doing so be aware of:</p>
+        <ul>
+          <li>Online users will see the product and all descendents disappear.</li>
+          <li>Users who sign-in after the removal will miss the product.</li>
+          <li>When undoing the removal the users who signed-in in between the removal and undo, will have no access to the product. An admin must register the product for them.</li>
+        </ul>
+        <b-button class="m-1" @click="showProductView()">Switch to product view</b-button>
+        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+      </div>
 
       <div v-if="optionSelected === 'Create a user'">
         <template v-if="!credentialsReady">
@@ -52,13 +78,7 @@
 
           <div v-if="dbSelected && $store.state.areProductsFound">
             Creating user '{{ userName }}'
-            <h5>Make this user a 'superPO'?</h5>
-            <b-form-checkbox
-              v-model="$store.state.useracc.userIsSuperPO"
-            >Tick to add this role
-            </b-form-checkbox>
-
-            <h5>Make this user a 'areaPO'?</h5>
+            <h5>Make this user an 'APO'?</h5>
             <b-form-checkbox
               v-model="$store.state.useracc.userIsAreaPO"
             >Tick to add this role
@@ -122,17 +142,6 @@
             </b-col>
             <b-col sm="10">
               {{ $store.state.databaseOptions }}
-            </b-col>
-
-            <b-col sm="12">
-              <h5 v-if="$store.state.useracc.userIsSuperPO">This user is a 'superPO':</h5>
-              <h5 v-else>This user is not a 'superPO':</h5>
-              <b-form-group>
-                <b-form-checkbox
-                  v-model="$store.state.useracc.userIsSuperPO"
-                >Add or remove this role
-                </b-form-checkbox>
-              </b-form-group>
             </b-col>
 
             <b-col sm="12">
@@ -263,12 +272,22 @@
 import appHeader from '../header/header.vue'
 import router from '../../router'
 
+// returns a new array so that it is reactive
+function addToArray(arr, item) {
+  const newArr = []
+  for (let el of arr) newArr.push(el)
+  newArr.push(item)
+  return newArr
+}
+
+const PRODUCTLEVEL = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
 
 export default {
   data() {
     return {
       optionSelected: 'select a task',
+      productTitle: "",
       userName: undefined,
       password: undefined,
       userEmail: undefined,
@@ -291,6 +310,95 @@ export default {
   },
 
   methods: {
+    createProduct() {
+      this.optionSelected = 'Create a product'
+    },
+
+    doCreateProduct() {
+      // create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
+      const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
+      const _id = Date.now().toString().concat(shortId)
+      const myCurrentProductNodes = window.slVueTree.getProducts()
+      // get the last product node
+      const lastProductNode = myCurrentProductNodes.slice(-1)[0]
+      // use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
+      const priority = -Date.now()
+
+      // create a new document
+      const newProduct = {
+        _id: _id,
+        shortId: shortId,
+        type: 'backlogItem',
+        productId: _id,
+        parentId: 'root',
+        team: 'not assigned yet',
+        level: PRODUCTLEVEL,
+        state: 0,
+        reqarea: null,
+        title: this.productTitle,
+        followers: [],
+        description: window.btoa(""),
+        acceptanceCriteria: window.btoa("<p>Please do not neglect</p>"),
+        priority,
+        comments: [{
+          ignoreEvent: 'comments initiated',
+          timestamp: 0,
+          distributeEvent: false
+        }],
+        delmark: false
+      }
+      // create a new node
+      let newNode = {
+        productId: newProduct.productId,
+        parentId: newProduct.parentId,
+        _id: newProduct._id,
+        shortId: newProduct.shortId,
+        dependencies: [],
+        conditionalFor: [],
+        title: newProduct.title,
+        isLeaf: false,
+        children: [],
+        isSelected: false,
+        isExpanded: true,
+        savedIsExpanded: true,
+        isSelectable: true,
+        isDraggable: newProduct.level > PRODUCTLEVEL,
+        doShow: true,
+        savedDoShow: true,
+        data: {
+          state: newProduct.state,
+          subtype: 0,
+          priority,
+          team: newProduct.team,
+          lastChange: Date.now()
+        }
+      }
+      const cursorPosition = {
+        nodeModel: lastProductNode,
+        placement: 'after'
+      }
+      // add the product to the treemodel, the path etc. will be calculated
+      window.slVueTree.insert(cursorPosition, [newNode], false)
+      // update the users product roles, subscriptions and product selection array
+      this.$store.state.userData.myProductsRoles[_id] = ['superPO']
+      this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, _id)
+      this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, _id)
+      this.$store.state.myProductOptions.push({
+        value: _id,
+        text: newProduct.title
+      })
+      // update the database and add the product to this user's subscriptions and productsRoles
+      this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['superPO'] })
+    },
+
+    removeProduct() {
+      this.optionSelected = 'Remove a product'
+    },
+
+    showProductView() {
+      router.push('/product')
+    },
+
     validEmail: function (email) {
       var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       if (re.test(email)) {
@@ -323,7 +431,6 @@ export default {
       this.dbSelected = false
       this.localMessage = ''
       this.$store.state.useracc.dbProducts = undefined
-      this.$store.state.useracc.userIsSuperPO = false
       this.$store.state.useracc.userIsAreaPO = false
       this.$store.state.useracc.userIsAdmin = false
       this.$store.state.isUserCreated = false
@@ -334,7 +441,6 @@ export default {
     doCreateUser() {
       // calculate the association of all assigned roles
       this.allRoles = []
-      if (this.$store.state.useracc.userIsSuperPO) this.allRoles.push('superPO')
       if (this.$store.state.useracc.userIsAreaPO) this.allRoles.push('areaPO')
       if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
       for (let prod of this.$store.state.useracc.dbProducts) {
@@ -407,7 +513,6 @@ export default {
 
       // calculate the association of all assigned roles
       this.allRoles = []
-      if (this.$store.state.useracc.userIsSuperPO) this.allRoles.push('superPO')
       if (this.$store.state.useracc.userIsAreaPO) this.allRoles.push('areaPO')
       if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
       for (let database of Object.keys(newUserData.myDatabases)) {

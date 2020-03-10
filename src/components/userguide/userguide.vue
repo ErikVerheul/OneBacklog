@@ -124,7 +124,6 @@
 				<p>The authorization is set per product and based on the following roles:
 				<ul>
 					<li>'areaPO': The requirement area PO maintains the requirement areas backlog and can prioritize features in the teams backlog.</li>
-					<li>'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.</li>
 					<li>'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.</li>
 					<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
 					<li>'guest': Can only view the items of the assigned products. Has no access to the requirement areas view.</li>
@@ -178,10 +177,10 @@
 					<li>addProductToUser: The product with Id 15808352512486doy6 is added to your profile with roles admin</li>
 					<li>updateUser: The profile of user 'couchdbadmin' is updated successfully</li>
 				</ul>
-				<p>Click on 'Exit' and sign-in again to see the product view with no product but a root document,<br>
+				<p>Click on 'Exit' and sign-in again to see the product view with the root document and the first product,<br>
 					then:<br>
-					As 'superPO' create at least one product and in the Admin view create the first users and their roles. Assign one or more admins to take over that task.<br>
-					Note: It is a good practice to remove the 'superPO' role from your profile as soon as another user takes this role. Keep your 'admin' role as a backup.
+					As 'admin' in the Admin view create the first users and their roles. Assign one or more admins to take over that task.<br>
+					Note: Keep your 'admin' role as a backup.
 				</p>
 			</b-col>
 		</b-row>

@@ -120,11 +120,6 @@ Requirement areas are children of the 'Requirments areas overview' dummy product
 		products: "all",
 		writeAccessLevel: 0,4
 	},
-	"superPO": {
-		description: "Can create, maintain and remove products and epics for all products. Can change priorities at these levels.",
-		products: "all",
-		writeAccessLevel: 2,3
-	},
 	"PO": {
 		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels.",
 		products: "assigned",
@@ -141,7 +136,7 @@ Requirement areas are children of the 'Requirments areas overview' dummy product
 		writeAccessLevel: null,
 	}
 
-	Note that this getter returns permissions for the current product or all products (superPO and areaPO)
+	Note that this getter returns permissions for the current product or all products (admin and areaPO)
 
 The entry for undoing the remove in a last-in first-out sequence
 The removed node is the parent of the removed children.

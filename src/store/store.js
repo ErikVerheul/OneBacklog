@@ -62,7 +62,7 @@ export default new Vuex.Store({
 		filterForComment: "",
 		filterForHistory: "",
 		busyRemoving: false,
-		// utilities for superAdmin, admin and superPO
+		// utilities for server Admin and admin
 		seqKey: 0,
 		areDatabasesFound: false,
 		areProductsFound: false,
@@ -110,7 +110,7 @@ export default new Vuex.Store({
 	},
 
 	getters: {
-		// note that the roles of _admin, superPO, areaPO and admin are generic (not product specific)
+		// note that the roles of _admin, areaPO and admin are generic (not product specific)
 		isAuthenticated(state) {
 			return state.userData.user !== undefined
 		},
@@ -122,9 +122,6 @@ export default new Vuex.Store({
 		},
 		isServerAdmin(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("_admin")
-		},
-		isSuperPO(state, getters) {
-			return getters.isAuthenticated && state.userData.sessionRoles.includes("superPO")
 		},
 		isAPO(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("areaPO")
@@ -146,13 +143,13 @@ export default new Vuex.Store({
 		},
 		canCreateComments(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return getters.isAdmin || getters.isSuperPO || getters.isAPO || getters.isadmin ||
+			return getters.isAdmin || getters.isAPO || getters.isadmin ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		canUploadAttachments(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return getters.isSuperPO || getters.isAPO ||
+			return getters.isAPO ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},

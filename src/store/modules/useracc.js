@@ -5,7 +5,6 @@ const ERROR = 2
 
 const state = {
   fetchedUserData: null,
-  userIsSuperPO: false,
   userIsAreaPO: false,
   userIsAdmin: false,
   dbProducts: undefined,
@@ -24,7 +23,6 @@ const actions = {
       url: '/_users/org.couchdb.user:' + userName,
     }).then(res => {
       state.fetchedUserData = res.data
-      state.userIsSuperPO = state.fetchedUserData.roles.includes('superPO') ? true : false
       state.userIsAreaPO = state.fetchedUserData.roles.includes('areaPO') ? true : false
       state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? true : false
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
@@ -142,12 +140,12 @@ const actions = {
     rootState,
     dispatch
   }, payload) {
-    // copy all roles except 'admin' and 'superPO' which are generic roles
+    // copy all roles except 'admin' which is a generic roles
     function copyRoles(roles) {
       // by default is the user guest
       let copiedRoles = ['guest']
       for (let r of roles) {
-        if (r !== 'admin' && r !== 'superPO') copiedRoles.push(r)
+        if (r !== 'admin') copiedRoles.push(r)
       }
       return copiedRoles
     }

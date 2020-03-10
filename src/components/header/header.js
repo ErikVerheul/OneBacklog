@@ -32,7 +32,6 @@ export default {
         ...mapGetters([
             'isAuthenticated',
             'isServerAdmin',
-            'isSuperPO',
             'isAPO',
             'isAdmin',
         ]),
