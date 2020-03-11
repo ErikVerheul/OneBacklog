@@ -10,6 +10,7 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const AREA_PRODUCTID = '0'
 
 const getters = {
 	/*
@@ -59,6 +60,12 @@ const getters = {
 
         if (rootGetters.isAdmin) {
             levels[PRODUCTLEVEL] = true
+        }
+
+        // if the user is APO for any product that user has access to the Requirements areas overview dummy product
+        if (rootState.currentProductId === AREA_PRODUCTID && rootState.userData.sessionRoles.includes("APO")) {
+            levels[PRODUCTLEVEL] = true
+            levels[EPICLEVEL] = true
         }
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)

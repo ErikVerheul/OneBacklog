@@ -841,6 +841,15 @@ export default {
       this.$store.state.numberOfNodesSelected = selNodes.length
       // update the first (highest in hierarchie) selected node
       this.$store.state.nodeSelected = selNodes[0]
+      // if the root node is selected do nothing
+      if (this.$store.state.nodeSelected._id !== 'root') {
+        // if the user clicked on a node of another product
+        if (this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
+          // update current productId and title
+          this.$store.state.currentProductId = this.$store.state.nodeSelected.productId
+          this.$store.state.currentProductTitle = this.$store.state.nodeSelected.title
+        }
+      }
       // load the document if not already in memory
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
         this.$store.dispatch('loadDoc', this.$store.state.nodeSelected._id)
