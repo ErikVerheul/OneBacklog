@@ -12,8 +12,8 @@
         <slot></slot>
         <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
           <b-nav-item-dropdown text="Select your view" right>
-            <b-dropdown-item to="../../product">Products</b-dropdown-item>
-            <b-dropdown-item to="../../reqareas">Requirement areas</b-dropdown-item>
+            <b-dropdown-item to="../../product">Product details</b-dropdown-item>
+            <b-dropdown-item to="../../reqareas">Products overview</b-dropdown-item>
             <b-dropdown-divider v-if="isAdmin || isServerAdmin"></b-dropdown-divider>
             <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
             <b-dropdown-item v-if="isServerAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
@@ -29,10 +29,10 @@
               v-if="isAuthenticated && $store.state.userData.myDatabases.length > 1"
               @click="changeDatabase"
             >Change database</b-dropdown-item>
-            <template v-if="$store.state.currentView !== 'reqarea'">
-              <b-dropdown-item v-if="isAuthenticated" @click="changeTeam">Change team</b-dropdown-item>
+            <template v-if="isAuthenticated">
+              <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>
               <b-dropdown-item
-                v-if="isAuthenticated && $store.state.userData.userAssignedProductIds.length > 1"
+                v-if="$store.state.currentView !== 'reqarea' && $store.state.userData.userAssignedProductIds.length > 1"
                 @click="selectProducts"
               >Select products</b-dropdown-item>
             </template>
