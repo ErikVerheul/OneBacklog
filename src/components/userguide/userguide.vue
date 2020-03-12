@@ -32,9 +32,9 @@
 				<h5>Recent changes + Search in titles</h5>
 				<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 				<h5>Select your view</h5>
-				<p><a href="#pv">Products view</a></p>
-				<p><a href="#rv">Requirement areas view</a></p>
-				<p><a href="#sv">Special views</a></p>
+				<p><a href="#pv">Product details</a></p>
+				<p><a href="#rv">Products overview</a></p>
+				<p><a href="#sv">Maintenance views</a></p>
 				<h5><em>User</em></h5>
 				<ul>
 					<li>Change database: Only applicable for users with products in more than one database.</li>
@@ -45,8 +45,8 @@
 					<li>Sign out: Preferred way to sign out. Will stop the cookie authentication and reset the URL to sign in again. When you reset your browser with F5 or Ctrl-F5 you need to reset the URL your self.</li>
 				</ul>
 				<div id="pv">
-					<h4>Products view</h4>
-					<p>The products view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
+					<h4>Product details view</h4>
+					<p>The Product details view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
 					<b-img :src="require('./example-screen.png')" alt="Example screen" />
 					<p>Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different units:</p>
 					<p>Product and epic size estimate:
@@ -77,21 +77,14 @@
 					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its blue color.</p>
 				</div>
 				<div id="rv">
-					<h4>Requirement areas view</h4>
-					<p>The requirements areas PO or APO uses this view to define requirement areas and assign them to epics or features.</p>
-					<b-img :src="require('./requirement-areas-view.png')" alt="Requirement areas view" />
-					<p>This view shows all products in the database up to the feature level. When the APO also has PO priviliges he can move (prioritize) epis and features within products and between products.</p>
-					<b-img :src="require('./filters2.png')" alt="Example filters modal" />
-					<p>The filter modal is in this view can filter over one, several or all products and requirement areas.</p>
+					<h4>Products overview</h4>
+					<p>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items.</p>
+					<b-img :src="require('./requirement-areas-view.png')" alt="Products overview" />
+					<p>This view shows all products in the database up to the feature level. In this view the PO can set dependencies on items residing in different products. Then he can try to fix this undesirable situation by moving items from one product to the other.</p>
 				</div>
 				<div id="sv">
-				<h4>Users with special priviliges will see one or more of these view options:</h4>
+				<h4>Admins will see one or more of these view options:</h4>
 				<ul>
-					<li>
-						<h5>Super PO</h5>
-						<p>The super PO creates and removes products here.</p>
-						<b-img :src="require('./superpo-menu.jpg')" alt="Super PO menu" />
-					</li>
 					<li>
 						<h5>Admin</h5>
 						<p>The admin creates and maintains user permissions here. Team names can be added and listed.</p>
@@ -123,16 +116,16 @@
 				</p>
 				<p>The authorization is set per product and based on the following roles:
 				<ul>
-					<li>'PO': Can create and maintain epics, features and pbi's for the assigned products. Can change priorities at these levels.</li>
-					<li>'APO': The requirement area PO maintains the requirement areas backlog.</li>
+					<li>'PO': Can create and maintain product, epics, features and pbi's for the assigned products. Can change priorities at all levels.</li>
+					<li>'APO': The APO maintains the requirement areas backlog.</li>
 					<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
-					<li>'guest': Can only view the items of the assigned products. Has no access to the requirement areas view.</li>
+					<li>'guest': Can only view the items of the assigned products.</li>
 				</ul>
 				Users can have multiple roles. Users can only access the products that are assigned to them.
 				Two roles are setup globally when the OneBacklog instance is setup:
 				<ul>
 					<li>'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.</li>
-					<li>'admin': Can create and assign users to products. Is also a guest to the products assigned to this user.</li>
+					<li>'admin': Can create and assign users to products.</li>
 				</ul>
 				<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
 				<b-img :src="require('./context-menu.png')" alt="Example context menu" />
@@ -140,7 +133,7 @@
 				<p>If the item is a product an extra opion is displayed to make a clone this product. This feature is used when you have templates for reuse. Using a clone of a template can speed up the creation of simular products.</p>
 				<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. You can make a shallow copy of any backlog item which will appear above the selected item. When you selected a product item you can make a full clone with a copy of all descendants. See the 'Need assistance?' text.</p>
 				<h4>Drag &amp; drop in the backlog item tree</h4>
-				<p>This a powerful feature of this application. When you have the appropriate permissions you can move complete branches within one product. Use the context menu to move a branch to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must be on the same level. Not all moves are allowed. Watch the event bar for warnings.</p>
+				<p>This a powerful feature of this application. As a PO you can move complete branches within one product and between products (in the Products overview). In the product detail view use the context menu to move a branch to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button, drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must have the same parent. Not all moves are allowed. Watch the event bar for warnings.</p>
 				<h4>The title input field</h4>
 				<p>On the right side of the screen above the Description field is the input field to change the title of the currently selected item. The change takes place when you move away from this field and click on another location. You will see the update in the tree view.</p>
 				<h4>The item short Id</h4>
