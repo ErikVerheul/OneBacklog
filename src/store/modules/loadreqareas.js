@@ -1,11 +1,11 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
 
-var batch = []
 const INFO = 0
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const HOURINMILIS = 3600000
+const AREA_PRODUCTID = '0'
 var parentNodes = {}
 
 const state = {
@@ -85,7 +85,7 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/areaFilter',
         }).then(res => {
-            batch = res.data.rows
+            const batch = res.data.rows
             for (let item of batch) {
                 const _id = item.id
                 const productId = item.key[0]
@@ -103,9 +103,8 @@ const actions = {
                 const lastComment = item.value[9]
                 const reqAreaItemcolor = item.value[10] || null
 
-                state.docsCount++
-
                 if (level === 1) {
+                    state.docsCount++
                     // initialize with the root document
                     rootState.treeNodes = [
                         {
@@ -142,6 +141,10 @@ const actions = {
                     continue
                 }
 
+                // skip products not assigned to the user
+                if (productId !== AREA_PRODUCTID && !rootState.userData.userAssignedProductIds.includes(productId)) continue
+
+                state.docsCount++
                 // expand the default product up to the feature level
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
                 // products cannot be dragged
