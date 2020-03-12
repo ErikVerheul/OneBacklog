@@ -5,7 +5,7 @@
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
 
 <b>The product vision:</b>
-<p>This tool aims to be an aid to the product owner(s) and allows all participants in product development to have a complete, well structured, view of the purpose and progress of the product development. The tool is inspired by Large-Scale Scrum (LeSS)</p>
+<p>In my practise I have noticed a disconnect between my client's development portfolio, often a collection of projects, and the backlogs of the scrum teams. The discussion about priorities is largely political with little involvement of the product owners until the project starts. This tool aims to be an aid to the product owner(s) and allows all participants in product development to have a complete, well structured, view of the purpose and progress of the product development. The tool is inspired by Large-Scale Scrum (LeSS) and favors the concept of product developments rather than project execution.</p>
 
 As Product Owner (PO) I need one integrated tool to manage the product backlog of all my products so that:
 - I can map my portfolio in one tool
@@ -27,13 +27,13 @@ The CouchDB build-in cookie authentication (RFC 2109) is used
 
 <b>Authorization :</b><br />
 The authorization is set per product and based on the following roles:
-- '_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.
-- 'admin': Can create products and assign users to products. Is also a guest to all products.
-- 'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products. Can change priorities at these levels.
-- 'areaPO': The APOs create and maintain their requirement areas for the assigned products.
-- 'developer': Can create and maintain pbi's and features for the assigned products.
-- 'guest': Can only view the items of the assigned products. Has no access to attachments.<br />
-Users can have multiple roles. Users can only access the products that are assigned to them.
+- '_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.
+- 'admin': Can create products, teams and users. Can (un)assign roles to users and user access to products. Is not member of a team.
+- 'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products when team member. Can change priorities at these levels. Can change team.
+- 'areaPO': The APOs create and maintain their requirement areas for the assigned products when team member. Can change team.
+- 'developer': Can create and maintain pbi's and features for the assigned products when team member. Can change team.
+- 'guest': Can only view the items of the assigned products. Has no access to attachments. Cannot join a team.<br />
+Users can have multiple roles. Users can only see/access the products that are assigned to them by the admin.
 
 <b>Design basics:</b><br />
 a product consists of:
@@ -44,10 +44,10 @@ a product consists of:
 <p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
 
 <b>Other design choices:</b><br />
-The scope is the selected product. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of an item and used for filtering.<br />
-Features have (business) value. Delivering the high priority features first is the aim of all participants.<br />
+The scope is the selected product. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of an item and used for prioritization.<br />
+Epics and their underlying features have (business) value. Delivering the high priority items first is the aim of all participants.<br />
 Priorities are set on every level. Eg. when feature A has a higher priority than feature B all its pbi's have a higher priority than any pbi in feature B. It is the PO who selects the most important epics and the features within.<br />
-The owning team is an attribute of the pbi and used for filtering. A user can be member of one or more teams. The _admin, admin and the guests are not member of a team.<br />
+The owning team is an attribute of the feature and pbi and used for filtering. A user can be member of one team only, but can switch to another team at will. The _admin, admin and the guests are not member of a team.<br />
 When multiple databases are created, products defined in different databases are considered completely independent. However the user database with the authorizations is shared over all products.<br />
 
 <b>Product and epic size estimate:</b><br />
@@ -107,9 +107,12 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
 - When the short key is not unique (chances for a duplicate are 1 in 10.000 in a 5000 item product) the application warns the user.
 - The history of priority and attribute changes of products, epics, features, pbi's are stored and easily accessible. 
 - The type of product, epic, feature and pbi can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature, that feature to an epic. The reverse can also be done.
-- A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
+- A user can subscribe to change notices of any item of any product assigned to that user. The change notices are sent to his email address.
 - Users can add comments to an item and to the automatic history log.
 - Attachments can be added to each backlog item type.
+<p>For performance reasons the size of the browser DOM is kept as small as possible. Thats why there are two main views:
+- The 'Product detail' view of all products assigned to the user up to the PBI (TO DO: task) level. Only one product can be expanded. The user can select a subset of products to be shown and a default product to expand on load. The PO can update and move items within that product and set dependencies.
+- The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items. The PO can set dependencies on items residing in different products, an undesirable situation, that can possibly be undone by moving items from one product to the other.
 
 <b>And avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
 

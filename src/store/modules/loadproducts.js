@@ -228,12 +228,12 @@ const mutations = {
 }
 
 const actions = {
-    /* Load current user product and start loading the tree */
+    /* Load current default user product and start loading the tree */
     loadCurrentProduct({
         rootState,
         dispatch
     }) {
-        let _id = rootState.currentDefaultProductId
+        const _id = rootState.currentDefaultProductId
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
