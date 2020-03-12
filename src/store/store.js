@@ -127,23 +127,23 @@ export default new Vuex.Store({
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("admin")
 		},
 		isPO(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
 		},
 		isAPO(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes("APO")
 		},
 		isDeveloper(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		isGuest(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
 		},
 		canCreateComments(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isServerAdmin || getters.isAdmin ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
