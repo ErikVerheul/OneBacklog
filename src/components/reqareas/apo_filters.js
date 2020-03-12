@@ -8,8 +8,6 @@ export default {
   mixins: [utilities],
   data() {
     return {
-      filterOnProducts: false,
-      filterSelProducts: [this.$store.state.currentDefaultProductId],
       filterOnReqAreas: false,
       selectedReqAreas: [],
       filterOnTeams: false,
@@ -31,8 +29,6 @@ export default {
     // init the filter settings
     const myFilterSettings = this.$store.state.userData.myFilterSettings
     if (myFilterSettings) {
-      this.filterOnProducts = myFilterSettings.filterOnProducts
-      this.filterSelProducts = myFilterSettings.filterSelProducts
       this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
       this.selectedReqAreas = myFilterSettings.selectedReqAreas
       this.filterOnTeams = myFilterSettings.filterOnTeams
@@ -75,8 +71,6 @@ export default {
   methods: {
     onSaveFilters() {
       const myFilterSettings = {
-        filterOnProducts: this.filterOnProducts,
-        filterSelProducts: this.filterSelProducts,
         filterOnReqAreas: this.filterOnReqAreas,
         selectedReqAreas: this.selectedReqAreas,
         filterOnTeams: this.filterOnTeams,
@@ -91,11 +85,6 @@ export default {
       }
       this.$store.dispatch('saveMyFilterSettings', myFilterSettings)
       this.showLastEvent('Saving the filter settings', INFO)
-    },
-
-    doFilterOnProducts(nm) {
-      if (nm.level < PRODUCTLEVEL) return false
-      return !(this.filterSelProducts.includes(nm.productId))
     },
 
     doFilterOnReqAreas(nm) {
@@ -133,7 +122,7 @@ export default {
       // reset the other selections first
       window.slVueTree.resetFilters('onApplyMyFilters')
       // return if no filter is selected
-      if (!this.filterOnProducts && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
+      if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
       let count = 0
       const unselectedNodes = []
@@ -148,9 +137,6 @@ export default {
         // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
         let doHighLight = false
-        if (this.filterOnProducts) {
-          isExcluded = this.doFilterOnProducts(nm)
-        }
         if (!isExcluded && this.filterOnReqAreas) {
           isExcluded = this.doFilterOnReqAreas(nm)
           doHighLight = !isExcluded
