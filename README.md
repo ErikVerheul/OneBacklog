@@ -5,7 +5,7 @@
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
 
 <b>The product vision:</b>
-<p>In my practise I have noticed a disconnect between my client's development portfolio, often a collection of projects, and the backlogs of the scrum teams. The discussion about priorities is largely political with little involvement of the product owners until the project starts. This tool aims to be an aid to the product owner(s) and allows all participants in product development to have a complete, well structured, view of the purpose and progress of the product development. The tool is inspired by Large-Scale Scrum (LeSS) and favors the concept of product developments rather than project execution.</p>
+<p>In my practise I have noticed a disconnect between my client's development portfolio, often a collection of projects, and the backlogs of the scrum teams. The discussion about priorities is largely political with little involvement of the product owners until the project starts. This tool aims to be an aid to the product owner(s) and allows all participants in product development to have a complete, well structured, view of the purpose and progress of the product development. The tool is inspired by Large-Scale Scrum (LeSS) and favors the concept of product development rather than project execution.</p>
 
 As Product Owner (PO) I need one integrated tool to manage the product backlog of all my products so that:
 - I can map my portfolio in one tool
@@ -110,9 +110,10 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
 - A user can subscribe to change notices of any item of any product assigned to that user. The change notices are sent to his email address.
 - Users can add comments to an item and to the automatic history log.
 - Attachments can be added to each backlog item type.
-<p>For performance reasons the size of the browser DOM is kept as small as possible. Thats why there are two main views:
+<p>For performance reasons the size of the browser DOM is kept small. That's why there are two main views:
 - The 'Product detail' view of all products assigned to the user up to the PBI (TO DO: task) level. Only one product can be expanded. The user can select a subset of products to be shown and a default product to expand on load. The PO can update and move items within that product and set dependencies.
 - The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items. The PO can set dependencies on items residing in different products, an undesirable situation, that can possibly be undone by moving items from one product to the other.
+</p>
 
 <b>And avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
 
