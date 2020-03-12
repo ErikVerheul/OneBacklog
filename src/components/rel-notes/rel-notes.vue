@@ -6,6 +6,14 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.2 - 12 March 2020 Product revision</h3>
+				<p>Product revision:</p>
+				<ul>
+					<li>The superPO role is removed</li>
+					<li>All users have access to two main views: 'Product details' and 'Products overview'</li>
+					<li>Read the README.md file for the revised specification</li>
+				</ul>
+				<hr>
 				<h3>v.0.9.1 - 5 March 2020 Feature update and bug fixes</h3>
 				<p>Feature update:</p>
 				<ul>
