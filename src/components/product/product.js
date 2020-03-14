@@ -276,12 +276,6 @@ export default {
       this.dependencyViolationsFound()
     },
 
-    getReqAreaColor(node) {
-      if (this.$store.state.colorMapper[node.data.reqarea]) {
-        return this.$store.state.colorMapper[node.data.reqarea].reqAreaItemcolor
-      }
-    },
-
     showReqAreaTitle(node) {
       if (node.data.reqarea) this.showLastEvent(`This item belongs to requirement area '${this.$store.state.reqAreaMapper[node.data.reqarea]}'`, INFO)
     },

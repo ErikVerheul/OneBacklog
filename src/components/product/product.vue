@@ -155,8 +155,8 @@
               </span>
             </template>
 
-            <template v-if="node.level > productLevel" slot="sidebar" slot-scope="{ node }">
-              <p @click="showReqAreaTitle(node)" class="rectangle" v-bind:style="{'background-color': getReqAreaColor(node)}"></p>
+            <template v-if="node.level > productLevel && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
+              <p @click="showReqAreaTitle(node)" class="rectangle" v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemcolor}"></p>
             </template>
           </sl-vue-tree>
         </div>
