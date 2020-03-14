@@ -43,11 +43,11 @@ export default {
   mixins: [utilities],
 
   created() {
-    this.DATABASELEVEL = 1
-    this.PRODUCTLEVEL = 2
-    this.EPICLEVEL = 3
-    this.FEATURELEVEL = 4
-    this.PBILEVEL = 5
+    this.databaseLevel = 1
+    this.productLevel = 2
+    this.epicLevel = 3
+    this.featureLevel = 4
+    this.pbiLevel = 5
     this.AREA_PRODUCTID = '0'
   },
 
@@ -785,7 +785,7 @@ export default {
         if (currentNode.data.state === NEW && idx === READY) {
           changeState(this, this.$store.state.userData.myTeam)
           const parentNode = window.slVueTree.getParentNode(currentNode)
-          if (parentNode.level >= this.FEATURELEVEL && parentNode.data.team !== this.$store.state.userData.myTeam) {
+          if (parentNode.level >= this.featureLevel && parentNode.data.team !== this.$store.state.userData.myTeam) {
             this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
               this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
           }
@@ -882,7 +882,7 @@ export default {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
-        const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.PBILEVEL
+        const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
         const failedCheck4 = node.parentId === this.AREA_PRODUCTID && position.nodeModel.parentId !== this.AREA_PRODUCTID || position.placement === 'inside'
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)

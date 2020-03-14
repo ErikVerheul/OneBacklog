@@ -40,7 +40,7 @@
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
           <template v-if="isReqAreaItem">
-            <template v-if="contextNodeLevel === PRODUCTLEVEL">
+            <template v-if="contextNodeLevel === productLevel">
               <b-list-group-item
                 button
                 :active="contextOptionSelected === INSERTINSIDE"
@@ -57,7 +57,7 @@
                 >Insert a requirement area below this node</b-list-group-item>
 
               <b-list-group-item
-                v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL"
+                v-if="allowRemoval && contextNodeLevel >= productLevel"
                 button
                 :active="contextOptionSelected === REMOVEITEM"
                 variant="danger"
@@ -67,7 +67,7 @@
           </template>
           <template v-else>
             <b-list-group-item
-              v-if="contextNodeLevel !== PRODUCTLEVEL"
+              v-if="contextNodeLevel !== productLevel"
               button
               :active="contextOptionSelected === INSERTBELOW"
               variant="dark"
@@ -75,7 +75,7 @@
             >Insert a {{ contextNodeType }} below this node</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel < FEATURELEVEL"
+              v-if="contextNodeLevel < featureLevel"
               button
               :active="contextOptionSelected === INSERTINSIDE"
               variant="dark"
@@ -83,7 +83,7 @@
             >Insert a {{ contextChildType }} inside this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel >= PRODUCTLEVEL"
+              v-if="contextNodeLevel >= productLevel"
               button
               :active="contextOptionSelected === CHECKSTATES"
               variant="dark"
@@ -91,7 +91,7 @@
             >Run a check on item state consistency</b-list-group-item>
 
             <b-list-group-item
-              v-if="hasDependencies && contextNodeLevel > PRODUCTLEVEL"
+              v-if="hasDependencies && contextNodeLevel > productLevel"
               button
               :active="contextOptionSelected === SHOWDEPENDENCIES"
               variant="dark"
@@ -99,7 +99,7 @@
             >▲ Show/remove existing dependencies on this item</b-list-group-item>
 
             <b-list-group-item
-              v-if="hasConditions && contextNodeLevel > PRODUCTLEVEL"
+              v-if="hasConditions && contextNodeLevel > productLevel"
               button
               :active="contextOptionSelected === SHOWCONDITIONS"
               variant="dark"
@@ -107,7 +107,7 @@
             >▼ Show/remove existing conditions for other items</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > PRODUCTLEVEL"
+              v-if="contextNodeLevel > productLevel"
               button
               :active="contextOptionSelected === SETDEPENDENCY"
               variant="dark"
@@ -120,7 +120,7 @@
             </b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > PRODUCTLEVEL"
+              v-if="contextNodeLevel > productLevel"
               button
               :active="contextOptionSelected === CLONEITEM"
               variant="dark"
@@ -128,7 +128,7 @@
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
-              v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL"
+              v-if="allowRemoval && contextNodeLevel >= productLevel"
               button
               :active="contextOptionSelected === REMOVEITEM"
               variant="danger"

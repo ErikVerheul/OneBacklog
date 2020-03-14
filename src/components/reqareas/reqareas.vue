@@ -20,7 +20,7 @@
     </app-header>
     <div class="d-table w-100">
       <span class="d-table-cell tal">
-        <h3 v-if="getCurrentItemLevel <= EPICLEVEL">
+        <h3 v-if="getCurrentItemLevel <= epicLevel">
           {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
           <input
             type="text"
@@ -32,7 +32,7 @@
           />
         </h3>
         <h3
-          v-if="getCurrentItemLevel === FEATURELEVEL || (getCurrentItemLevel === PBILEVEL && $store.state.currentDoc.subtype !== spikeSubtype)"
+          v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype !== spikeSubtype)"
         >
           Story points:
           <input
@@ -45,7 +45,7 @@
           />
         </h3>
         <h3
-          v-if="getCurrentItemLevel === PBILEVEL && $store.state.currentDoc.subtype === spikeSubtype"
+          v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === spikeSubtype"
         >
           Person hours:
           <input
@@ -100,16 +100,16 @@
           >
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
-                <i class="colorSeaBlue" v-if="node.level == DATABASELEVEL">
+                <i class="colorSeaBlue" v-if="node.level == databaseLevel">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorBlue" v-if="node.level == PRODUCTLEVEL">
+                <i class="colorBlue" v-if="node.level == productLevel">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorGreen" v-if="node.level == EPICLEVEL">
+                <i class="colorGreen" v-if="node.level == epicLevel">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorOrange" v-if="node.level == FEATURELEVEL">
+                <i class="colorOrange" v-if="node.level == featureLevel">
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
@@ -150,14 +150,14 @@
               <template v-if="node.productId === AREA_PRODUCTID">
                 <p v-if="node._id !== AREA_PRODUCTID" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemcolor}"></p>
               </template>
-              <p v-else-if="node.level > 2">
+              <p v-else-if="node.level > productLevel">
                 <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
                   v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemcolor}"
                   @click="setReqArea(node.data.reqarea)" squared size="sm">Change
                 </b-button>
                 <b-button v-else @click="setReqArea(null)" squared variant="seablueLight" size="sm">Set</b-button>
               </p>
-          </template>
+            </template>
           </sl-vue-tree>
         </div>
       </div>

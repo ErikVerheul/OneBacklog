@@ -143,7 +143,7 @@ The removed node is the parent of the removed children.
   const entry = {
     type: 'removedNode',
     removedNode: selectedNode,
-    isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
+    isProductRemoved: selectedNode.level === this.productLevel,
     descendants: descendantsInfo.descendants,
     removedIntDependencies: removed.removedIntDependencies,
     removedIntConditions: removed.removedIntConditions,

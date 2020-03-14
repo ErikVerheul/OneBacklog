@@ -15,11 +15,11 @@ export default {
   mixins: [utilities],
 
   created() {
-    this.DATABASELEVEL = 1
-    this.PRODUCTLEVEL = 2
+    this.databaseLevel = 1
+    this.productLevel = 2
     this.REMOVEITEM = 3
-    this.FEATURELEVEL = 4
-    this.PBILEVEL = 5
+    this.featureLevel = 4
+    this.pbiLevel = 5
     this.INSERTBELOW = 0
     this.INSERTINSIDE = 1
     this.CHECKSTATES = 5
@@ -82,9 +82,9 @@ export default {
       this.disableOkButton = true
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties
-      const extraLevel = node.level < this.PBILEVEL ? node.level + 1 : node.level
+      const extraLevel = node.level < this.pbiLevel ? node.level + 1 : node.level
       if (this.isReqAreaItem || this.haveWritePermission[extraLevel] && node._id === this.$store.state.nodeSelected._id &&
-        node.level > this.DATABASELEVEL && this.$store.state.numberOfNodesSelected === 1) {
+        node.level > this.databaseLevel && this.$store.state.numberOfNodesSelected === 1) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
         this.contextParentTeam = parentNode.data.team
@@ -362,7 +362,7 @@ export default {
         path = locationPath.slice(0, -1).concat(idx)
         newNode.parentId = this.contextNodeSelected.parentId
         newNode.title = 'New ' + (this.isReqAreaItem ? 'requirement area' : this.getLevelText(insertLevel))
-        newNode.isLeaf = (insertLevel < this.PBILEVEL) ? false : true
+        newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
         parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
       } else {
         // new node is a child placed a level lower (inside) than the selected node
@@ -376,7 +376,7 @@ export default {
         path = this.contextNodeSelected.path.concat(0)
         newNode.parentId = this.contextNodeSelected._id
         newNode.title = 'New ' + (this.isReqAreaItem ? 'requirement area' : this.getLevelText(insertLevel))
-        newNode.isLeaf = (insertLevel < this.PBILEVEL) ? false : true
+        newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
         parentTitle = this.contextNodeSelected.title
       }
       // add the location values
@@ -471,7 +471,7 @@ export default {
         const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
         this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
         // when removing a product
-        if (selectedNode.level === this.PRODUCTLEVEL) {
+        if (selectedNode.level === this.productLevel) {
           // cannot remove the last assigned product or product in the tree
           if (this.$store.state.userData.userAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
             this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
@@ -490,7 +490,7 @@ export default {
         const entry = {
           type: 'removedNode',
           removedNode: selectedNode,
-          isProductRemoved: selectedNode.level === this.PRODUCTLEVEL,
+          isProductRemoved: selectedNode.level === this.productLevel,
           descendants: descendantsInfo.descendants,
           removedIntDependencies: removed.removedIntDependencies,
           removedIntConditions: removed.removedIntConditions,
@@ -506,7 +506,7 @@ export default {
         // before removal select the predecessor or successor of the removed node (sibling or parent)
         const prevNode = window.slVueTree.getPreviousNode(selectedNode.path)
         let nowSelectedNode = prevNode
-        if (prevNode.level === this.DATABASELEVEL) {
+        if (prevNode.level === this.databaseLevel) {
           // if a product is to be removed and the previous node is root, select the next product
           const nextProduct = window.slVueTree.getNextSibling(selectedNode.path)
           if (nextProduct === null) {
