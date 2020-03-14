@@ -141,7 +141,7 @@ Requirement areas are children of the 'Requirments areas overview' dummy product
 The entry for undoing the remove in a last-in first-out sequence
 The removed node is the parent of the removed children.
   const entry = {
-    type: 'removedNode',
+    type: 'undoRemove',
     removedNode: selectedNode,
     isProductRemoved: selectedNode.level === this.productLevel,
     descendants: descendantsInfo.descendants,

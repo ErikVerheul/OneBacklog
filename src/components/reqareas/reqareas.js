@@ -496,7 +496,7 @@ export default {
           this.$store.dispatch('updateMovedItemsBulk', { items: payloadArray })
           if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
           break
-        case 'removedNode':
+        case 'undoRemove':
           // restore the removed node
           var parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
           if (parentNode) {
@@ -544,6 +544,23 @@ export default {
             this.showLastEvent('Item(s) remove is undone', INFO)
           } else {
             this.showLastEvent(`Cannot restore the removed items in the tree view. The parent node was removed`, WARNING)
+          }
+          break
+        case 'undoSetDependency':
+          {
+            const lastDependencyId = entry.nodeWithDependencies.dependencies.pop()
+            const conditionalForNode = window.slVueTree.getNodeById(lastDependencyId)
+            if (conditionalForNode !== null) {
+              conditionalForNode.conditionalFor.pop()
+              const _id = entry.nodeWithDependencies._id
+              const newDeps = entry.nodeWithDependencies.dependencies
+              // dispatch the update in the database
+              this.$store.dispatch('updateDep', { _id, newDeps, removedIds: [lastDependencyId] })
+              this.showLastEvent('Dependency set is undone', INFO)
+            } else {
+              entry.nodeWithDependencies.dependencies.push(lastDependencyId)
+              this.showLastEvent('Cannot undo dependency set. The item with the condition is missing', WARNING)
+            }
           }
           break
       }

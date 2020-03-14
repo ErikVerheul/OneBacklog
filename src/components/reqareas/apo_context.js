@@ -488,7 +488,7 @@ export default {
         const removed = window.slVueTree.correctDependencies(this.$store.state.currentProductId, descendantsInfo.ids)
         // create an entry for undoing the remove in a last-in first-out sequence
         const entry = {
-          type: 'removedNode',
+          type: 'undoRemove',
           removedNode: selectedNode,
           isProductRemoved: selectedNode.level === this.productLevel,
           descendants: descendantsInfo.descendants,
@@ -564,6 +564,12 @@ export default {
         const dependenciesPayload = { _id: nodeWithDependencies._id, dependencies: nodeWithDependencies.dependencies, conditionalForPayload }
         this.$store.dispatch('setDepAndCond', dependenciesPayload)
         this.$store.state.selectNodeOngoing = false
+        // create an entry for undoing the change in a last-in first-out sequence
+        const entry = {
+          type: 'undoSetDependency',
+          nodeWithDependencies
+        }
+        this.$store.state.changeHistory.unshift(entry)
       } else {
         // save the id of the node the dependencies will be attached to
         this.nodeWithDependenciesId = this.contextNodeSelected._id

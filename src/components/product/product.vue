@@ -123,7 +123,7 @@
                 </i>
               </span>
               <!-- use a trick to force rendering when a node had a change -->
-              {{ patchTitle(node) }} {{ String(node.data.lastChange).substring(0, 0) }}
+              {{ patchTitle(node) }} {{ String(node.data.lastChange).substring(0, 0) }}:{{node.dependencies}}:{{node.conditionalFor}}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
