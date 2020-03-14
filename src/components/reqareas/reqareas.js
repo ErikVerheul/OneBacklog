@@ -48,7 +48,7 @@ export default {
     this.epicLevel = 3
     this.featureLevel = 4
     this.pbiLevel = 5
-    this.AREA_PRODUCTID = '0'
+    this.areaProductId = '0'
   },
 
   mounted() {
@@ -157,7 +157,7 @@ export default {
     ]),
 
     isReqAreaItem() {
-      return this.$store.state.currentDoc.productId === this.AREA_PRODUCTID
+      return this.$store.state.currentDoc.productId === this.areaProductId
     },
 
     welcomeMessage() {
@@ -883,7 +883,7 @@ export default {
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
-        const failedCheck4 = node.parentId === this.AREA_PRODUCTID && position.nodeModel.parentId !== this.AREA_PRODUCTID || position.placement === 'inside'
+        const failedCheck4 = node.parentId === this.areaProductId && position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside'
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
