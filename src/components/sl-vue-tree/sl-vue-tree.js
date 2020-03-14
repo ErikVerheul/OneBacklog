@@ -572,6 +572,10 @@ export default {
 			return childIds
 		},
 
+		/*
+		* Traverse the node models breadth first
+		* Stop when the call back returns false
+		*/
 		traverseModels(cb, nodeModels = this.currentValue) {
 			let shouldStop = false
 			function traverse(cb, nodeModels) {
@@ -1042,6 +1046,21 @@ export default {
 				}
 			}, this.getProductModels(productId))
 			return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
+		},
+
+		/* If a feature belongs to a req area set that area also to its descendents */
+		setDescendentsReqArea() {
+			let reqArea = null
+			this.traverseModels((nm) => {
+				if (nm.level < FEATURELEVEL) {
+					return
+				}
+				if (nm.level === FEATURELEVEL) {
+					reqArea = nm.data.reqarea || null
+					return
+				}
+				nm.data.reqarea = reqArea
+			})
 		}
 	}
 }

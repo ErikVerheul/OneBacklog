@@ -20,7 +20,7 @@
     </app-header>
     <div class="d-table w-100">
       <span class="d-table-cell tal">
-        <h3 v-if="getCurrentItemLevel <= EPICLEVEL">
+        <h3 v-if="getCurrentItemLevel <= epicLevel">
           {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
           <input
             type="text"
@@ -32,7 +32,7 @@
           />
         </h3>
         <h3
-          v-if="getCurrentItemLevel === FEATURELEVEL || (getCurrentItemLevel === PBILEVEL && $store.state.currentDoc.subtype !== spikeSubtype)"
+          v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype !== spikeSubtype)"
         >
           Story points:
           <input
@@ -45,7 +45,7 @@
           />
         </h3>
         <h3
-          v-if="getCurrentItemLevel === PBILEVEL && $store.state.currentDoc.subtype === spikeSubtype"
+          v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === spikeSubtype"
         >
           Person hours:
           <input
@@ -100,16 +100,16 @@
           >
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
-                <i class="colorSeaBlue" v-if="node.level == DATABASELEVEL">
+                <i class="colorSeaBlue" v-if="node.level == databaseLevel">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorBlue" v-if="node.level == PRODUCTLEVEL">
+                <i class="colorBlue" v-if="node.level == productLevel">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorGreen" v-if="node.level == EPICLEVEL">
+                <i class="colorGreen" v-if="node.level == epicLevel">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorOrange" v-if="node.level == FEATURELEVEL">
+                <i class="colorOrange" v-if="node.level == featureLevel">
                   <font-awesome-icon icon="folder" />
                 </i>
                 <i class="colorYellow" v-if="node.isLeaf && node.data.subtype == userStorySubtype">
@@ -154,6 +154,10 @@
                 </i>
               </span>
             </template>
+
+            <template v-if="node.level > productLevel" slot="sidebar" slot-scope="{ node }">
+              <p @click="showReqAreaTitle(node)" class="rectangle" v-bind:style="{'background-color': getReqAreaColor(node)}"></p>
+            </template>
           </sl-vue-tree>
         </div>
       </div>
@@ -180,10 +184,8 @@
           </div>
           <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div class="d-table w-100">
-              <p v-if="$store.state.currentDoc.reqarea" class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}',
-                <u>and is member of requirement area '{{ $store.state.reqAreaMapper[$store.state.currentDoc.reqarea] }}'</u></p>
-              <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
-              <div v-if="getCurrentItemLevel==this.PBILEVEL" class="d-table-cell tar">
+              <p class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              <div v-if="getCurrentItemLevel==this.pbiLevel" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group
                     v-model="selectedPbiType"
@@ -464,6 +466,11 @@
   padding: 5px;
   margin: 5px;
 }
+
+.rectangle {
+  width: 71px;
+  height: 25px;
+ }
 
 .colorRed {
   color: red;

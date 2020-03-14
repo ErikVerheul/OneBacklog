@@ -99,6 +99,7 @@ const mutations = {
             const conditionalFor = item.value[7] || []
             const history = item.value[8]
             const lastComment = item.value[9]
+            const reqAreaItemcolor = item.value[10] || null
             // initialize with the root document
             if (level === 1) {
                 rootState.treeNodes = [
@@ -136,10 +137,11 @@ const mutations = {
                 state.insertedCount++
                 continue
             }
-            // create req areas to title mapper
+            // create req areas to title mapper and req areas to color mapper
             if (productId === AREA_PRODUCTID) {
                 if (level === 3) {
                     rootState.reqAreaMapper[_id] = title
+                    rootState.colorMapper[_id] = { reqAreaItemcolor }
                 }
                 continue
             }
@@ -195,6 +197,7 @@ const mutations = {
                         priority,
                         state: itemState,
                         reqarea,
+                        reqAreaItemcolor,
                         team,
                         lastPositionChange: changeTimes.lastPositionChange,
                         lastStateChange: changeTimes.lastStateChange,
