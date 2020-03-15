@@ -818,7 +818,7 @@ export default {
 			})
 		},
 
-		/* collapse the branch below the current product and hide the nodes */
+		/* Collapse the branch below the current product and hide the nodes */
 		collapseTree(allProducts) {
 			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
@@ -834,7 +834,7 @@ export default {
 			// this.showVisibility('collapseTree')
 		},
 
-		/* show the current selected product */
+		/* Show the current selected product */
 		expandTree(allProducts) {
 			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
@@ -891,7 +891,7 @@ export default {
 			}, currentProduct)
 		},
 
-		/* clear any outstanding filters and searches of the current product (default) or all products */
+		/* Clear any outstanding filters and searches of the current product (default) or all products */
 		resetFilters(caller, allProducts) {
 			// eslint-disable-next-line no-console
 			console.log('resetFilters is called by ' + caller)
