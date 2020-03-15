@@ -14,8 +14,8 @@ var draggableNodes = []
 var selectedNodes = []
 var nodeToDeselect = null
 
-import { eventBus } from "../../main"
-import { utilities } from '../mixins/utilities.js'
+import { eventBus } from "../../../main"
+import { utilities } from '../../mixins/utilities.js'
 
 /*
 * Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId

@@ -1,7 +1,7 @@
 import appHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
-import slVueTree from '../../sl-vue-tree/sl-vue-tree.vue'
+import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import CommonView from '../common_view.js'
 import context from './d_context.vue'
 import filters from './d_filters.vue'
