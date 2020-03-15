@@ -159,10 +159,12 @@ export default {
     },
 
     resetFindId() {
+      this.shortId = ''
       window.slVueTree.resetFindOnId('resetFindId')
     },
 
     resetSearchTitles() {
+      this.$store.state.keyword = ''
       window.slVueTree.resetFilters('resetSearchTitles')
     },
 
