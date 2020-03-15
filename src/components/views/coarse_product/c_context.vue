@@ -39,22 +39,31 @@
     <template v-else>
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
-          <template v-if="contextNodeTeam !== $store.state.userData.myTeam">
-            <b-list-group-item
-              v-if="contextNodeLevel > featureLevel"
-              button
-              :active="contextOptionSelected === ASIGNTOMYTEAM"
-              variant="dark"
-              @click="showSelected(ASIGNTOMYTEAM)"
-            >Assign this {{ contextNodeType }} to my team</b-list-group-item>
+          <template v-if="isReqAreaItem">
+            <template v-if="contextNodeLevel === productLevel">
+              <b-list-group-item
+                button
+                :active="contextOptionSelected === INSERTINSIDE"
+                variant="dark"
+                @click="showSelected(INSERTINSIDE)"
+              >Insert a requirement area inside this node</b-list-group-item>
+            </template>
+            <template v-else>
+              <b-list-group-item
+                  button
+                  :active="contextOptionSelected === INSERTBELOW"
+                  variant="dark"
+                  @click="showSelected(INSERTBELOW)"
+                >Insert a requirement area below this node</b-list-group-item>
 
-            <b-list-group-item
-              v-else-if="contextNodeLevel >= productLevel"
-              button
-              :active="contextOptionSelected === ASIGNTOMYTEAM"
-              variant="dark"
-              @click="showSelected(ASIGNTOMYTEAM)"
-            >Assign this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants to my team</b-list-group-item>
+              <b-list-group-item
+                v-if="allowRemoval && contextNodeLevel >= productLevel"
+                button
+                :active="contextOptionSelected === REMOVEITEM"
+                variant="danger"
+                @click="showSelected(REMOVEITEM)"
+              >Remove this requirement area</b-list-group-item>
+            </template>
           </template>
           <template v-else>
             <b-list-group-item
@@ -66,7 +75,7 @@
             >Insert a {{ contextNodeType }} below this node</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel < pbiLevel"
+              v-if="contextNodeLevel < featureLevel"
               button
               :active="contextOptionSelected === INSERTINSIDE"
               variant="dark"
@@ -113,22 +122,6 @@
             <b-list-group-item
               v-if="contextNodeLevel > productLevel"
               button
-              :active="contextOptionSelected === MOVETOPRODUCT"
-              variant="dark"
-              @click="showSelected(MOVETOPRODUCT)"
-            >Move this {{ contextNodeType }} to another product</b-list-group-item>
-
-            <b-list-group-item
-              v-if="contextNodeLevel === productLevel"
-              button
-              :active="contextOptionSelected === CLONEPRODUCT"
-              variant="dark"
-              @click="showSelected(CLONEPRODUCT)"
-            >Make a clone of this {{ contextNodeType }}</b-list-group-item>
-
-            <b-list-group-item
-              v-if="contextNodeLevel > productLevel"
-              button
               :active="contextOptionSelected === CLONEITEM"
               variant="dark"
               @click="showSelected(CLONEITEM)"
@@ -141,7 +134,6 @@
               variant="danger"
               @click="showSelected(REMOVEITEM)"
             >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
-
           </template>
         </template>
 
@@ -153,13 +145,6 @@
           @click="showSelected(SETDEPENDENCY)"
         >Select this node as a condition for '{{ getNodeWithDependencies().title }}'</b-list-group-item>
 
-        <b-list-group-item
-          v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.currentProductId"
-          button
-          :active="contextOptionSelected === MOVETOPRODUCT"
-          variant="dark"
-          @click="showSelected(MOVETOPRODUCT)"
-        >Insert the moved item here</b-list-group-item>
       </b-list-group>
 
       <div class="d-block text-center">
@@ -178,7 +163,7 @@
   </b-modal>
 </template>
 
-<script src="./context.js"></script>
+<script src="./c_context.js"></script>
 
 <style scoped>
 .message {

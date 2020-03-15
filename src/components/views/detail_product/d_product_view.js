@@ -3,36 +3,34 @@ import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
 import slVueTree from '../../sl-vue-tree/sl-vue-tree.vue'
 import CommonView from '../common_view.js'
-import context from './apo_context.vue'
-import filters from './apo_filters.vue'
-import listings from './apo_listings.vue'
+import context from './d_context.vue'
+import filters from './d_filters.vue'
+import listings from './d_listings.vue'
 
 const INFO = 0
 const WARNING = 1
 const SHORTKEYLENGTH = 5
-const ALLPRODUCTS = true
 const FILTERBUTTONTEXT = 'Filter in tree view'
 
 export default {
+  extends: CommonView,
 
   beforeCreate() {
     this.$store.state.treeNodes = []
     this.$store.state.skipOnce = true
-    this.$store.state.currentView = 'reqarea'
+    this.$store.state.currentView = 'products'
     this.$store.state.changeHistory = []
-    this.$store.state.loadreqareas.docsCount = 0
-    this.$store.state.loadreqareas.insertedCount = 0
-    this.$store.state.loadreqareas.orphansCount = 0
-    this.$store.state.loadreqareas.orphansFound = { userData: null, orphans: [] }
+    this.$store.state.loadproducts.docsCount = 0
+    this.$store.state.loadproducts.insertedCount = 0
+    this.$store.state.loadproducts.orphansCount = 0
+    this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
     // reset filters and searches
     this.$store.state.filterText = FILTERBUTTONTEXT
     this.$store.state.filterOn = false
     this.$store.state.searchOn = false
     this.$store.state.findIdOn = false
-    this.$store.dispatch('getAllItems')
+    this.$store.dispatch('loadCurrentProduct')
   },
-
-  extends: CommonView,
 
   mounted() {
     // expose instance to the global namespace
@@ -59,14 +57,14 @@ export default {
         event.preventDefault()
         // check for valid input and convert to lowercase
         if (shortIdCheck) {
-          window.slVueTree.resetFilters('findItemOnId', ALLPRODUCTS)
+          window.slVueTree.resetFilters('findItemOnId')
           this.findItemOnId(this.shortId.toLowerCase())
         }
       }
     })
     el.addEventListener("input", () => {
       if (isEmpty(el.value)) {
-        window.slVueTree.resetFindOnId('findItemOnId', ALLPRODUCTS)
+        window.slVueTree.resetFindOnId('findItemOnId')
       }
     })
 
@@ -80,46 +78,35 @@ export default {
     })
     el2.addEventListener("input", () => {
       if (isEmpty(el2.value)) {
-        window.slVueTree.resetFilters('searchInput', ALLPRODUCTS)
+        window.slVueTree.resetFilters('searchInput')
       }
     })
   },
 
-  data() {
-    return {
-      colorOptions: [
-        { color: 'red', hexCode: '#FF0000' },
-        { color: 'yellow', hexCode: '#FFFF00' },
-        { color: 'green', hexCode: '#008000' },
-        { color: 'blue', hexCode: '#0000ff' },
-        { color: 'other color', hexCode: 'user choice' }
-      ],
-      colorSelectShow: false,
-      userReqAreaItemcolor: '#567cd6',
-      setReqAreaShow: false,
-      selReqAreaId: undefined
-    }
-  },
-
-  computed: {
-    isReqAreaItem() {
-      return this.$store.state.currentDoc.productId === this.areaProductId
+  watch: {
+    'selectedPbiType': function (val) {
+      // prevent looping
+      if (val !== this.$store.state.currentDoc.subtype) {
+        if (this.haveWritePermission[this.getCurrentItemLevel]) {
+          const now = Date.now()
+          this.$store.state.nodeSelected.data.subtype = val
+          this.$store.state.nodeSelected.data.lastChange = now
+          this.$store.dispatch('setSubType', {
+            'newSubType': val,
+            'timestamp': now
+          })
+          // create an entry for undoing the change in a last-in first-out sequence
+          const entry = {
+            type: 'undoSelectedPbiType',
+            oldPbiType: this.$store.state.currentDoc.subtype
+          }
+          this.$store.state.changeHistory.unshift(entry)
+        } else {
+          this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type", WARNING)
+        }
+      }
     },
 
-    /*
-    * Check for a valid color hex code:
-    * #          -> a hash
-    * [0-9A-F]   -> any integer from 0 to 9 and any letter from A to F
-    * {6}        -> the previous group appears exactly 6 times
-    * $          -> match end
-    * i          -> ignore case
-    */
-    colorState() {
-      return /^#[0-9A-F]{6}$/i.test(this.userReqAreaItemcolor)
-    }
-  },
-
-  watch: {
     'doAddition': function (val) {
       if (val === true) {
         this.doAddition = false
@@ -164,8 +151,12 @@ export default {
 
   methods: {
     onTreeIsLoaded() {
+      window.slVueTree.setDescendentsReqArea()
       this.dependencyViolationsFound()
-      this.createColorMapper()
+    },
+
+    showReqAreaTitle(node) {
+      if (node.data.reqarea) this.showLastEvent(`This item belongs to requirement area '${this.$store.state.reqAreaMapper[node.data.reqarea]}'`, INFO)
     },
 
     findItemOnId(shortId) {
@@ -178,7 +169,19 @@ export default {
       })
       if (node) {
         this.$store.state.findIdOn = true
-        window.slVueTree.collapseTree(ALLPRODUCTS)
+        // if the user clicked on a node of another product
+        if (this.$store.state.currentProductId !== node.productId) {
+          // clear any outstanding filters
+          window.slVueTree.resetFilters('findItemOnId')
+          // collapse the previously selected product
+          window.slVueTree.collapseTree()
+          // update current productId and title
+          this.$store.state.currentProductId = node.productId
+          this.$store.state.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
+        } else {
+          // node on current product; collapse the currently selected product
+          window.slVueTree.collapseTree()
+        }
 
         this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
         // expand the newly selected product up to the found item
@@ -212,9 +215,15 @@ export default {
       if (this.$store.state.nodeSelected._id !== 'root') {
         // if the user clicked on a node of another product
         if (this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
+          // clear any outstanding filters
+          window.slVueTree.resetFilters('onNodeSelect')
+          // collapse the previously selected product
+          window.slVueTree.collapseTree()
           // update current productId and title
           this.$store.state.currentProductId = this.$store.state.nodeSelected.productId
           this.$store.state.currentProductTitle = this.$store.state.nodeSelected.title
+          // expand the newly selected product up to the feature level
+          window.slVueTree.expandTree()
         }
       }
       // load the document if not already in memory
@@ -239,27 +248,24 @@ export default {
       /*
        * 1. Disallow drop on node were the user has no write authority
        * 2. Disallow drop when moving over more than 1 level.
-       * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest permitted level.
-       * 4. The requirement area nodes cannot be moved from their parent or inside each other
+       * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest level (pbilevel).
        * precondition: the selected nodes have all the same parent (same level)
        */
-      let checkDropNotAllowed = (node) => {
-        const sourceLevel = draggingNodes[0].level
-        let targetLevel = position.nodeModel.level
-        // are we dropping 'inside' a node creating children to that node?
-        if (position.placement === 'inside') targetLevel++
+      let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
-        const failedCheck4 = node.parentId === this.areaProductId && position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside'
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
-        return failedCheck1 || failedCheck2 || failedCheck3 || failedCheck4
+        return failedCheck1 || failedCheck2 || failedCheck3
       }
-
-      if (checkDropNotAllowed(draggingNodes[0])) {
+      const sourceLevel = draggingNodes[0].level
+      let targetLevel = position.nodeModel.level
+      // are we dropping 'inside' a node creating children to that node?
+      if (position.placement === 'inside') targetLevel++
+      if (checkDropNotAllowed(draggingNodes[0], sourceLevel, targetLevel)) {
         cancel(true)
         return
       }
@@ -270,75 +276,14 @@ export default {
       }
     },
 
-    /* Create a new object to maintain reactivity */
-    createColorMapper() {
-      const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
-      const newColorMapper = {}
-      for (let nm of currReqAreaNodes) {
-        newColorMapper[nm._id] = { reqAreaItemcolor: nm.data.reqAreaItemcolor }
-      }
-      this.$store.state.colorMapper = newColorMapper
-    },
-
-    updateColor() {
-      if (this.$store.state.currentDoc.color === 'user choice') {
-        this.$store.state.currentDoc.color = '#567cd6'
-        this.colorSelectShow = true
-      } else {
-        this.$store.state.nodeSelected.data.reqAreaItemcolor = this.$store.state.currentDoc.color
-        this.createColorMapper()
-        this.$store.dispatch('updateColorDb', this.$store.state.currentDoc.color)
-      }
-    },
-
-    setUserColor() {
-      this.$store.state.nodeSelected.data.reqAreaItemcolor = this.userReqAreaItemcolor
-      this.createColorMapper()
-      this.$store.dispatch('updateColorDb', this.userReqAreaItemcolor)
-    },
-
-    setReqArea(reqarea) {
-      if (this.$store.getters.isAPO) {
-        this.selReqAreaId = reqarea
-        // set the req area options
-        const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
-        this.$store.state.reqAreaOptions = []
-        for (let nm of currReqAreaNodes) {
-          this.$store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
-        }
-        if (this.selReqAreaId !== null) this.$store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
-        this.setReqAreaShow = true
-      } else this.showLastEvent("Sorry, your assigned role(s) disallow you to assing requirement areas", WARNING)
-    },
-
-    /*
-    * Update the req area of the item (null for no req area set)
-    * If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse
-    */
-    doSetReqArea() {
-      const oldParentReqArea = this.$store.state.nodeSelected.data.reqarea
-      const newReqAreaId = this.selReqAreaId
-      this.$store.state.nodeSelected.data.reqarea = newReqAreaId
-      this.$store.state.currentDoc.reqarea = newReqAreaId
-      // set reqarea for the child nodes
-      const childNodes = window.slVueTree.getChildNodesOfParent(this.$store.state.currentDoc._id)
-      for (let c of childNodes) {
-        const currentReqArea = c.data.reqarea
-        if (newReqAreaId !== null) {
-          // set: set for items which have no req area set yet
-          if (!currentReqArea || currentReqArea === oldParentReqArea) {
-            c.data.reqarea = newReqAreaId
-          }
-        } else {
-          // remove: if reqarea was set and equal to old req area of the parent delete it
-          if (currentReqArea && currentReqArea === oldParentReqArea) {
-            c.data.reqarea = null
-          }
-        }
-      }
-      // update the db
-      const childIds = window.slVueTree.getChildIdsOfParent(this.$store.state.currentDoc._id)
-      this.$store.dispatch('updateReqArea', { reqarea: this.selReqAreaId, childIds })
+    getPbiOptions() {
+      this.selectedPbiType = this.$store.state.currentDoc.subtype
+      let options = [
+        { text: 'User story', value: 0 },
+        { text: 'Spike', value: 1 },
+        { text: 'Defect', value: 2 }
+      ]
+      return options
     }
   },
 

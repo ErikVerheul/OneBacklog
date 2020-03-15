@@ -734,7 +734,6 @@ export default {
         { text: 'History', value: 'history' }
       ]
       return options
-    },
-
+    }
   }
 }
