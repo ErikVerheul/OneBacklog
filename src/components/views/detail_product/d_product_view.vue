@@ -471,7 +471,7 @@
 }
 
 .rectangle {
-  width: 71px;
+  width: 25px;
   height: 25px;
  }
 
