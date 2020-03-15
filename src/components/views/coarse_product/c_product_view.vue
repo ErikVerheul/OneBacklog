@@ -113,16 +113,17 @@
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
-              <!-- use a trick to force rendering when a node had a change -->
-              {{ patchTitle(node) }} {{ String(node.data.lastChange).substring(0, 0) }}
+              {{ patchTitle(node) }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
               >{{ getItemStateText(node.data.state) + '?' }}</b-badge>
+
               <b-badge
                 v-else-if="hasNewState(node)"
                 variant="info"
               >{{ getItemStateText(node.data.state) }}</b-badge>
+
               <b-badge v-else variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
 
               <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
@@ -131,7 +132,9 @@
                 v-if="hasContentChanged(node) || hasCommentToHistory(node)"
                 variant="info"
               >See history</b-badge>
+
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
+
               <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
             </template>
 
