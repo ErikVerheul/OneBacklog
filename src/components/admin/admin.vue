@@ -381,7 +381,7 @@ export default {
     },
 
     showProductView() {
-      router.push('/product')
+      router.push('/detailProduct')
     },
 
     validEmail: function (email) {

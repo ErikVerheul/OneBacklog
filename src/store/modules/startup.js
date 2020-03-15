@@ -288,7 +288,7 @@ const actions = {
 			// eslint-disable-next-line no-console
             if (rootState.debug) console.log("The root document is read")
             // open the products view by default
-            router.push('/product')
+            router.push('/detailProduct')
 		}).catch(error => {
 			let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
 			if (error.response.status === 404) {

@@ -49,7 +49,7 @@ const routes = [
 		}
 	},
 	{
-		path: '/product',
+		path: '/detailProduct',
 		component: ProductPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {
@@ -60,7 +60,7 @@ const routes = [
 		}
 	},
 	{
-		path: '/reqareas',
+		path: '/coarseProduct',
 		component: ReqsAreaPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {

@@ -12,8 +12,8 @@
         <slot></slot>
         <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
           <b-nav-item-dropdown text="Select your view" right>
-            <b-dropdown-item to="../../product">Product details</b-dropdown-item>
-            <b-dropdown-item to="../../reqareas">Products overview</b-dropdown-item>
+            <b-dropdown-item to="../../detailProduct">Product details</b-dropdown-item>
+            <b-dropdown-item to="../../coarseProduct">Products overview</b-dropdown-item>
             <b-dropdown-divider v-if="isAdmin || isServerAdmin"></b-dropdown-divider>
             <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
             <b-dropdown-item v-if="isServerAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
