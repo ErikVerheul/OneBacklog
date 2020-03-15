@@ -120,6 +120,14 @@
             </b-list-group-item>
 
             <b-list-group-item
+              v-if="contextNodeLevel === productLevel"
+              button
+              :active="contextOptionSelected === CLONEPRODUCT"
+              variant="dark"
+              @click="showSelected(CLONEPRODUCT)"
+            >Make a clone of this {{ contextNodeType }}</b-list-group-item>
+
+            <b-list-group-item
               v-if="contextNodeLevel > productLevel"
               button
               :active="contextOptionSelected === CLONEITEM"

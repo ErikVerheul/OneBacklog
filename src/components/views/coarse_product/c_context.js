@@ -60,6 +60,10 @@ export default {
       this.contextWarning = undefined
       this.disableOkButton = false
       switch (this.contextOptionSelected) {
+        case this.CLONEPRODUCT:
+          this.assistanceText = this.$store.state.help.help.productClone
+          this.listItemText = 'Make a clone of this product'
+          break
         case this.CLONEITEM:
           this.assistanceText = this.$store.state.help.help.itemClone
           this.listItemText = 'Make a clone of this item'
@@ -116,6 +120,9 @@ export default {
     procSelected() {
       this.showAssistance = false
       switch (this.contextOptionSelected) {
+        case this.CLONEPRODUCT:
+          this.doCloneProduct()
+          break
         case this.CLONEITEM:
           this.doCloneItem(this.contextNodeSelected)
           break
