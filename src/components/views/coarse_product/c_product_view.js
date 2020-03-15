@@ -1,4 +1,4 @@
-import appHeader from '../../header/header.vue'
+import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
@@ -343,7 +343,7 @@ export default {
   },
 
   components: {
-    'app-header': appHeader,
+    'app-header': AppHeader,
     Multipane,
     MultipaneResizer,
     VueEditor,

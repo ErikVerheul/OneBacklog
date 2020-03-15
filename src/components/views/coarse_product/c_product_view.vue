@@ -7,14 +7,19 @@
           <b-button class="m-1" v-show="$store.state.changeHistory.length > 0 && !$store.state.busyRemoving" @click="onUndoEvent()">Undo</b-button>
           <b-button class="m-1" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
           <div class="divider"/>
-        </b-nav-form>
-        <b-nav-form>
-          <input id="findItemOnId" v-model="shortId" type="text" class="form-control" placeholder="Find on Id"/>
-          <button @click="resetFindId" class="close-icon" type="reset"></button>
-        </b-nav-form>
-        <b-nav-form>
-          <input id="searchInput" v-model="$store.state.keyword" type="text" class="form-control" placeholder="Search in titles"/>
-          <button @click="resetSearchTitles" class="close-icon" type="reset"></button>
+          <b-input-group>
+            <b-form-input id="findItemOnId" v-model="shortId" placeholder="Find on Id"></b-form-input>
+            <b-input-group-append>
+              <b-button @click="resetFindId" variant="seablue" type="reset">x</b-button>
+            </b-input-group-append>
+          </b-input-group>
+          <div class="divider"/>
+          <b-input-group>
+            <b-form-input id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></b-form-input>
+            <b-input-group-append>
+              <b-button @click="resetSearchTitles" variant="seablue" type="reset">x</b-button>
+            </b-input-group-append>
+          </b-input-group>
         </b-nav-form>
       </b-navbar-nav>
     </app-header>
