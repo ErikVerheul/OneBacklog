@@ -110,20 +110,11 @@
                   <font-awesome-icon icon="folder" />
                 </i>
                 <i class="colorOrange" v-if="node.level == featureLevel">
-                  <font-awesome-icon icon="folder" />
-                </i>
-                <i class="colorYellow" v-if="node.isLeaf && node.data.subtype == userStorySubtype">
                   <font-awesome-icon icon="file" />
-                </i>
-                <i v-if="node.isLeaf && node.data.subtype == spikeSubtype">
-                  <font-awesome-icon icon="hourglass-start" />
-                </i>
-                <i class="colorRed" v-if="node.isLeaf && node.data.subtype == defectSubtype">
-                  <font-awesome-icon icon="bug" />
                 </i>
               </span>
               <!-- use a trick to force rendering when a node had a change -->
-              {{ patchTitle(node) }} {{ String(node.data.lastChange).substring(0, 0) }}:{{node.dependencies}}:{{node.conditionalFor}}
+              {{ patchTitle(node) }} {{ String(node.data.lastChange).substring(0, 0) }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
@@ -155,8 +146,17 @@
               </span>
             </template>
 
-            <template v-if="node.level > productLevel && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
-              <p @click="showReqAreaTitle(node)" class="rectangle" v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemcolor}"></p>
+            <template slot="sidebar" slot-scope="{ node }">
+              <template v-if="node.productId === areaProductId">
+                <p v-if="node._id !== areaProductId" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemcolor}"></p>
+              </template>
+              <p v-else-if="node.level > productLevel">
+                <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
+                  v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemcolor}"
+                  @click="setReqArea(node.data.reqarea)" squared size="sm">Change
+                </b-button>
+                <b-button v-else @click="setReqArea(null)" squared variant="seablueLight" size="sm">Set</b-button>
+              </p>
             </template>
           </sl-vue-tree>
         </div>
@@ -176,25 +176,32 @@
                 :value="$store.state.currentDoc.title"
                 @blur="updateTitle()"
               ></b-input>
-              <div class="d-table-cell tac">Id = {{ $store.state.currentDoc.shortId }}</div>
+              <div v-if="!isReqAreaItem" class="d-table-cell tac">Id = {{ $store.state.currentDoc.shortId }}</div>
               <div class="d-table-cell tar">
                 <b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
               </div>
             </div>
           </div>
-          <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+          <div class="pane" :style="{ minHeight: '65px', height: '80px', maxHeight: '40px' }">
             <div class="d-table w-100">
-              <p class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
-              <div v-if="getCurrentItemLevel==this.pbiLevel" class="d-table-cell tar">
+              <template v-if="!isReqAreaItem" >
+                <p v-if="$store.state.currentDoc.reqarea" class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}',
+                  <u>and is member of requirement area '{{ $store.state.reqAreaMapper[$store.state.currentDoc.reqarea] }}'</u></p>
+                <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              </template>
+              <span v-else>
                 <b-form-group>
+                  Choose a display color for this requirement area:
                   <b-form-radio-group
-                    v-model="selectedPbiType"
-                    :options="getPbiOptions()"
+                    @input="updateColor()"
+                    v-model="$store.state.currentDoc.color"
+                    value-field="hexCode"
+                    text-field="color"
+                    :options="colorOptions"
                     plain
-                    name="pbiOptions"
                   />
                 </b-form-group>
-              </div>
+              </span>
             </div>
           </div>
           <div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
@@ -280,6 +287,26 @@
     </multipane>
     <!-- context modals -->
     <context></context>
+    <!-- color select -->
+    <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor" title="Select a color">
+      <h4>Enter a color in hex format eg. #567cd6</h4>
+      <b-form-input v-model="userReqAreaItemcolor" :state="colorState"></b-form-input>
+    </b-modal>
+    <!-- set req area -->
+    <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
+      <template v-slot:modal-title>
+        {{ $store.state.nodeSelected.title }}
+      </template>
+      <b-form-group label="Select the requirement area this item belongs to:">
+        <b-form-radio-group
+          v-model="selReqAreaId"
+          :options="this.$store.state.reqAreaOptions"
+          value-field="id"
+          text-field="title"
+          stacked
+        ></b-form-radio-group>
+    </b-form-group>
+    </b-modal>
     <!-- filter modals -->
     <filters></filters>
     <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
@@ -324,7 +351,7 @@
   </div>
 </template>
 
-<script src="./product.js"></script>
+<script src="./reqareas.js"></script>
 
 <!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
 <style>
@@ -344,7 +371,7 @@
 </style>
 
 <style lang="scss" scoped>
-@import "../../css/sl-vue-tree-dark.css";
+@import "../../../css/sl-vue-tree-dark.css";
 
 // horizontal panes
 .horizontal-panes {
@@ -499,6 +526,20 @@
 .btn-seablue {
   background-color: #408fae;
   color: white;
+}
+
+.btn-seablue-dynamic {
+  width: 71px;
+  height: 31px;
+  color: rgb(179, 179, 179);
+  border: 1px solid #408fae
+}
+
+.btn-seablueLight {
+  width: 71px;
+  height: 31px;
+  color: rgb(179, 179, 179);
+  border: 1px solid #408fae
 }
 
 input[type="number"] {

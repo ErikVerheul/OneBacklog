@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { utilities } from '../mixins/utilities.js'
+import { utilities } from '../../mixins/utilities.js'
 
 const baseURL = 'https://onebacklog.net:6984/'
 
