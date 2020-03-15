@@ -533,29 +533,4 @@ input[type="number"] {
     height:auto;
     display:inline-block;
 }
-
-// Clear input field. See https://codepen.io/shidhincr/pen/ICLBD
-.close-icon {
-  position: relative;
-	border: 1px solid transparent;
-	background-color: transparent;
-	vertical-align: middle;
-  outline: 0;
-}
-.close-icon:after {
-	content: "\D7";
-	width: 15px;
-	height: 15px;
-	position: absolute;
-	background-color: #408fae;
-	right: 25px;
-	top: 0;
-	bottom: 0;
-	margin: auto;
-	border-radius: 50%;
-	color: white;
-	font-weight: normal;
-	font-size: 10px;
-	cursor: pointer;
-}
 </style>
