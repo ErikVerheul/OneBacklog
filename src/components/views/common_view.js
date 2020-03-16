@@ -311,6 +311,7 @@ export default {
               'newLevel': n.level,
               'newParentId': n.parentId,
               'productId': n.productId,
+              'oldParentTitle': n.title,
               'newPriority': n.data.priority,
               'descendants': descendantsInfo.descendants
             }
@@ -693,7 +694,7 @@ export default {
           'newParentId': n.parentId,
           'newPriority': n.data.priority,
           'newParentTitle': targetNode.title,
-          'oldParentTitle': window.slVueTree.getNodeById(n.savedParentId).title,
+          'oldParentTitle': n.title,
           'oldLevel': clickedLevel,
           'newLevel': n.level,
           'oldInd': n.savedInd,
