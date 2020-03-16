@@ -150,8 +150,11 @@ export default new Vuex.Store({
 				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		canUploadAttachments(state, getters) {
-			// same as canCreateComments
-			return this.canCreateComments(state, getters)
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isServerAdmin || getters.isAdmin ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
