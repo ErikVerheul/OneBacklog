@@ -10,7 +10,6 @@ const ONHOLD = 3
 const DONE = 4
 const STATENEW = 0
 const AREA_PRODUCTID = '0'
-var movedNode = null
 
 export default {
     mixins: [utilities],
@@ -490,59 +489,6 @@ export default {
             this.showAssistance = false
             this.$store.state.moveOngoing = false
             this.$store.state.selectNodeOngoing = false
-        },
-
-        moveItemToOtherProduct() {
-            if (this.$store.state.moveOngoing) {
-                const targetPosition = window.slVueTree.lastSelectCursorPosition
-                const targetNode = targetPosition.nodeModel
-                // only allow move to new parent 1 level higher (lower value) than the source node
-                if (targetPosition.nodeModel.level !== movedNode.level - 1) {
-                    this.showLastEvent('You can only move to a ' + this.getLevelText(movedNode.level - 1), WARNING)
-                    return
-                }
-                const sourceProductNode = window.slVueTree.getNodeById(movedNode.productId)
-                if (sourceProductNode === null) {
-                    this.showLastEvent('Unexpected error. Node not found.', ERROR)
-                    return
-                }
-
-                // move the node to the new place and update the productId and parentId
-                window.slVueTree.moveNodes(targetPosition, [movedNode])
-                // the path to new node is immediately below the selected node
-                const newPath = targetNode.path.concat([0])
-                const newNode = window.slVueTree.getNodeModel(newPath)
-                const newParentNode = window.slVueTree.getNodeById(newNode.parentId)
-                if (newParentNode === null) {
-                    this.showLastEvent('Unexpected error. Node not found.', ERROR)
-                    return
-                }
-
-                const descendantsInfo = window.slVueTree.getDescendantsInfo(newNode)
-                const payloadItem = {
-                    '_id': newNode._id,
-                    'type': 'move',
-                    'oldProductTitle': sourceProductNode.title,
-                    'productId': newNode.productId,
-                    'newParentId': newNode.parentId,
-                    'newPriority': newNode.data.priority,
-                    'newParentTitle': newParentNode.title,
-                    'oldParentTitle': newNode.title,
-                    'oldLevel': newNode.level,
-                    'newLevel': newNode.level, // the level cannot change
-                    'newInd': 0, // immediately below the parent
-                    'placement': 'inside',
-                    'nrOfDescendants': descendantsInfo.count,
-                    'descendants': descendantsInfo.descendants
-                }
-                // update the database
-                this.$store.dispatch('updateMovedItemsBulk', { items: [payloadItem] })
-                this.$store.state.moveOngoing = false
-            } else {
-                this.$store.state.moveOngoing = true
-                this.moveSourceProductId = this.$store.state.currentProductId
-                movedNode = this.contextNodeSelected
-            }
         }
     }
 }
