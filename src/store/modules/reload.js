@@ -6,6 +6,16 @@ const WARNING = 1
 const ERROR = 2
 const PRODUCTLEVEL = 2
 
+/* Remove 'ignoreEvent' elements from history */
+function cleanHistory(doc) {
+	const cleanedHistory = []
+	for (let h of doc.history) {
+		if (Object.keys(h)[0] !== 'ignoreEvent') cleanedHistory.push(h)
+	}
+	doc.history = cleanedHistory
+	return doc
+}
+
 const actions = {
 	/* Load a backlog item by short id */
 	loadItemByShortId({
@@ -38,7 +48,7 @@ const actions = {
 						if (rootState.debug) console.log(msg)
 						dispatch('doLog', { event: msg, level: WARNING })
 					}
-					rootState.currentDoc = doc
+					rootState.currentDoc = cleanHistory(doc)
 					// decode from base64 + replace the encoded data
 					rootState.currentDoc.description = window.atob(doc.description)
 					rootState.currentDoc.acceptanceCriteria = window.atob(doc.acceptanceCriteria)
@@ -111,7 +121,7 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
-			rootState.currentDoc = res.data
+			rootState.currentDoc = cleanHistory(res.data)
 			// decode from base64 + replace the encoded data
 			rootState.currentDoc.description = window.atob(res.data.description)
 			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
