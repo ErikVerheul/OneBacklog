@@ -118,7 +118,7 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
-				if (rootState.currentView === 'reqarea' && doc.level === PBILEVEL) {
+				if (rootState.currentView === 'coarseProduct' && doc.level === PBILEVEL) {
 					// skip PBI level changes when in requirement areas view
 					continue
 				}

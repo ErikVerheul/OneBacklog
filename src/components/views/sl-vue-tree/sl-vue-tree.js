@@ -117,10 +117,10 @@ export default {
 			document.addEventListener('mouseup', this.onDocumentMouseupHandler);
 		}
 		switch (this.$store.state.currentView) {
-			case 'products':
+			case 'detailProduct':
 				this.leafLevel = PBILEVEL
 				break
-			case 'reqarea':
+			case 'coarseProduct':
 				this.leafLevel = FEATURELEVEL
 				break
 			default:
@@ -368,7 +368,7 @@ export default {
 					return
 				}
 				// prevent drag to other product when not in reqarea view
-				if (this.$store.state.currentView != 'reqarea' && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
+				if (this.$store.state.currentView != 'coarseProduct' && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
 					this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', WARNING)
 					this.stopDrag()
 					return

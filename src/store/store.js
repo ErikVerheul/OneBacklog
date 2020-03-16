@@ -55,7 +55,7 @@ export default new Vuex.Store({
 		colorMapper: {},
 		reqAreaOptions: [],
 		// view settings
-		currentView: 'products',
+		currentView: 'detailProduct',
 		// product view
 		selectedForView: 'comments',
 		changeHistory: [],

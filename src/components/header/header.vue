@@ -32,7 +32,7 @@
             <template v-if="isAuthenticated">
               <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>
               <b-dropdown-item
-                v-if="$store.state.currentView !== 'reqarea' && $store.state.userData.userAssignedProductIds.length > 1"
+                v-if="$store.state.currentView !== 'coarseProduct' && $store.state.userData.userAssignedProductIds.length > 1"
                 @click="selectProducts"
               >Select products</b-dropdown-item>
             </template>
