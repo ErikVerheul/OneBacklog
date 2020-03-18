@@ -87,7 +87,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
                 let txt
                 if (value[7] !== value[8]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
                 if (value[0] === value[1]) {
-                    txt += `<h5>The item changed priority to position ${value[2] + 1} ${value[6]} '${value[3]}'</h5>`
+                    txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
                     txt += (value[4] > 0) ? `<p>${value[4]} descendants were also moved.</p>` : ""
                     return mkHeader() + txt + mkFooter()
                 } else {
@@ -98,7 +98,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
                 }
             }
         case "nodeUndoMoveEvent":
-            return mkHeader() + `<h3>The previous move by the user is undone</h3>` + mkFooter()
+            return mkHeader() + `<h3>The previous move is made undone</h3>` + mkFooter()
         case "removeAttachmentEvent":
             return mkHeader() + `<h3>Attachment with title '${value[0]}' is removed from this item</h3>` + mkFooter()
         case "removedFromParentEvent":
