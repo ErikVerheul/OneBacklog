@@ -201,21 +201,18 @@ export default {
       this.updateAcceptance()
 
       if (!window.slVueTree.haveSameParent(selNodes)) {
-        this.showLastEvent('You can only select nodes with the same parent.', WARNING)
+        this.showLastEvent('You can only select multiple nodes with the same parent.', WARNING)
         return
       }
 
       this.$store.state.numberOfNodesSelected = selNodes.length
       // update the first (highest in hierarchie) selected node
       this.$store.state.nodeSelected = selNodes[0]
-      // if the root node is selected do nothing
-      if (this.$store.state.nodeSelected._id !== 'root') {
-        // if the user clicked on a node of another product
-        if (this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
-          // update current productId and title
-          this.$store.state.currentProductId = this.$store.state.nodeSelected.productId
-          this.$store.state.currentProductTitle = this.$store.state.nodeSelected.title
-        }
+      // if the user clicked on a node of another product (not root)
+      if (this.$store.state.nodeSelected._id !== 'root' && this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
+        // update current productId and title
+        this.$store.state.currentProductId = this.$store.state.nodeSelected.productId
+        this.$store.state.currentProductTitle = this.$store.state.nodeSelected.title
       }
       // load the document if not already in memory
       if (this.$store.state.nodeSelected._id !== this.$store.state.currentDoc._id) {
@@ -252,7 +249,8 @@ export default {
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
-        const failedCheck4 = node.parentId === this.areaProductId && position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside'
+        const failedCheck4 = node.parentId === this.areaProductId && position.nodeModel.parentId !== this.areaProductId ||
+          node.parentId === this.areaProductId && position.placement === 'inside'
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
@@ -263,10 +261,9 @@ export default {
         cancel(true)
         return
       }
-      // save the current index and parentId
+      // save the current index
       for (let n of draggingNodes) {
         n.savedInd = n.ind
-        n.savedParentId = n.parentId
       }
     },
 
