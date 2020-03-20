@@ -3,29 +3,33 @@ import globalAxios from 'axios'
 
 const ERROR = 2
 
+function composeRangeString(id) {
+	return 'startkey="' + id + '"&endkey="' + id + '"'
+}
+
 const actions = {
-    updateMovedItemsBulk({
+	updateMovedItemsBulk({
 		rootState,
 		dispatch
 	}, payload) {
-		// Lookup to not rely on the order of the response being the same as in the request
+		// lookup to not rely on the order of the response being the same as in the request
 		function getPayLoadItem(id) {
 			for (let item of payload.items) {
-				if (item._id === id) {
+				if (item.id === id) {
 					return item
 				}
 			}
 		}
 		const docsToGet = []
 		for (let item of payload.items) {
-			docsToGet.push({ "id": item._id })
+			docsToGet.push({ "id": item.id })
 		}
+		const m = payload.moveInfo
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			data: { docs: docsToGet },
 		}).then(res => {
-			// console.log('updateMovedItemsBulk: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
 			const docs = []
 			const error = []
@@ -35,30 +39,35 @@ const actions = {
 					const doc = envelope.ok
 					const item = getPayLoadItem(doc._id)
 					let newHist = {}
-					if (item.type === 'move') {
+					if (m.type === 'move') {
+						const sourceProductNode = window.slVueTree.getNodeById(m.sourceProductId)
+						const sourceParentTitle = sourceProductNode.title || undefined
+						const targetProductNode = window.slVueTree.getNodeById(m.targetProductId)
+						const targetParentTitle = targetProductNode.title || undefined
 						newHist = {
-							"nodeDroppedEvent": [item.oldLevel, item.newLevel, item.newInd, item.newParentTitle, item.nrOfDescendants, item.oldParentTitle,
-								item.placement, item.oldParentId, item.newParentId, item.oldInd],
-							"by": rootState.userData.user,
-							"timestamp": Date.now(),
-							"sessionId": rootState.userData.sessionId,
-							"distributeEvent": true
+							nodeDroppedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, targetParentTitle, item.childCount, sourceParentTitle,
+							m.placement, m.sourceParentId, m.targetParentId, item.sourceInd],
+							by: rootState.userData.user,
+							timestamp: Date.now(),
+							sessionId: rootState.userData.sessionId,
+							distributeEvent: true
 						}
 					} else {
 						// undo move
 						newHist = {
-							"nodeUndoMoveEvent": [rootState.userData.user],
-							"by": rootState.userData.user,
-							"timestamp": Date.now(),
-							"sessionId": rootState.userData.sessionId,
-							"distributeEvent": true
+							nodeUndoMoveEvent: [rootState.userData.user],
+							by: rootState.userData.user,
+							timestamp: Date.now(),
+							sessionId: rootState.userData.sessionId,
+							distributeEvent: true
 						}
 					}
 					doc.history.unshift(newHist)
-					doc.level = item.newLevel
-					doc.productId = item.productId
-					doc.parentId = item.newParentId
-					doc.priority = item.newPriority
+
+					doc.productId = m.targetProductId
+					doc.parentId = m.targetParentId
+					doc.level = doc.level + m.levelShift
+					doc.priority = item.newlyCalculatedPriority
 					docs.push(doc)
 					// show the history update in the current opened item
 					if (doc._id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
@@ -76,21 +85,18 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-			// update the descendants of all the moved(back) items
-			let payload2 = []
-			for (let item of payload.items) {
-				for (let d of item.descendants) {
-					const payloadItem2 = {
-						"_id": d._id,
-						"type": item.type,
-						"oldParentTitle": item.oldParentTitle,
-						"productId": item.productId,
-						"newLevel": d.level
-					}
-					payload2.push(payloadItem2)
+
+			// if moving to another product or another level, update the descendants of the moved(back) items
+			if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
+				const updates = {
+					targetProductId: m.targetProductId,
+					levelShift: m.levelShift
+				}
+				for (let it of payload.items) {
+					// run in parallel for all moved nodes
+					dispatch('getMovedDescendentIds', { updates, id: it.id })
 				}
 			}
-			dispatch('updateMovedDescendantsBulk', payload2)
 		}).catch(error => {
 			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -99,26 +105,56 @@ const actions = {
 		})
 	},
 
+	processDescendents({
+		dispatch
+	}, payload) {
+		const descendentIds = []
+		for (let r of payload.results) {
+			const id = r.id
+			descendentIds.push(id)
+			dispatch('getMovedDescendentIds', { updates: payload.updates, id })
+		}
+		dispatch('updateMovedDescendantsBulk', { updates: payload.updates, descendentIds })
+	},
+
+	getMovedDescendentIds({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/descendents?' + composeRangeString(payload.id)
+		}).then(res => {
+			const results = res.data.rows
+			if (results.length > 0) {
+				// process next level
+				dispatch('processDescendents', { updates: payload.updates, results })
+			}
+
+		}).catch(error => {
+			let msg = 'getMovedDescendentIds: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/* Note that this call does NOT save history. The event is not needed by sync to update the remote tree nor is the event emailed to subscribers */
 	updateMovedDescendantsBulk({
 		rootState,
 		dispatch
 	}, payload) {
-		// Lookup to not rely on the order of the response being the same as in the request
-		function getPayLoadItem(id) {
-			for (let i = 0; i < payload.length; i++) {
-				if (payload[i]._id === id) {
-					return payload[i]
-				}
-			}
-		}
+		const updates = payload.updates
+
 		const docsToGet = []
-		for (let i = 0; i < payload.length; i++) {
-			docsToGet.push({ "id": payload[i]._id })
+		for (let id of payload.descendentIds) {
+			docsToGet.push({ "id": id })
 		}
+
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			data: { docs: docsToGet },
 		}).then(res => {
 			// console.log('updateMovedDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
@@ -128,28 +164,10 @@ const actions = {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
-					const item = getPayLoadItem(doc._id)
-					// change the document
-					let newHist = {}
-					if (item.type === 'move') {
-						newHist = {
-							"descendantMoved": [item.oldParentTitle],
-							"by": rootState.userData.user,
-							"timestamp": Date.now(),
-							"distributeEvent": false
-						}
-					} else {
-						// undo move
-						newHist = {
-							"descendantUndoMove": [item.oldParentTitle],
-							"by": rootState.userData.user,
-							"timestamp": Date.now(),
-							"distributeEvent": false
-						}
-					}
-					doc.history.unshift(newHist)
-					doc.level = item.newLevel
-					doc.productId = item.productId
+					doc.productId = updates.targetProductId
+					// the parentId does not change for descendents
+					doc.level = doc.level + updates.levelShift
+					// priority does not change for descendents
 					docs.push(doc)
 				}
 				if (envelope.error) error.push(envelope.error)
@@ -175,5 +193,5 @@ const actions = {
 }
 
 export default {
-    actions
+	actions
 }

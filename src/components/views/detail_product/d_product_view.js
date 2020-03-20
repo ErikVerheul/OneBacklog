@@ -269,10 +269,9 @@ export default {
         cancel(true)
         return
       }
-      // save the current index and parentId
+      // save the current index
       for (let n of draggingNodes) {
         n.savedInd = n.ind
-        n.savedParentId = n.parentId
       }
     },
 

@@ -299,26 +299,36 @@ export default {
           } else this.showLastEvent('Item was already removed', INFO)
           break
         case 'undoMove':
-          window.slVueTree.moveBack(entry)
-          // update the nodes in the database
-          var payloadArray = []
-          for (let n of entry.beforeDropStatus.nodes) {
-            n.data.lastPositionChange = 0
-            const descendantsInfo = window.slVueTree.getDescendantsInfo(n)
-            const payloadItem = {
-              '_id': n._id,
-              'type': 'undoMove',
-              'newLevel': n.level,
-              'newParentId': n.parentId,
-              'productId': n.productId,
-              'oldParentTitle': n.title,
-              'newPriority': n.data.priority,
-              'descendants': descendantsInfo.descendants
+          {
+            window.slVueTree.moveBack(entry)
+            const beforeDropStatus = entry.beforeDropStatus
+            // update the nodes in the database; swap source and target
+            const moveInfo = {
+              type: 'undoMove',
+              sourceProductId: beforeDropStatus.targetProductId,
+              sourceParentId: beforeDropStatus.targetParentId,
+              sourceLevel: beforeDropStatus.targetLevel,
+              levelShift: beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel,
+              targetProductId: beforeDropStatus.sourceProductId,
+              targetParentId: beforeDropStatus.sourceParentId,
+              // placement: not available
             }
-            payloadArray.push(payloadItem)
+            const items = []
+            for (let m of beforeDropStatus.movedNodesData.sourceIndMap) {
+              // remove the <moved> badge
+              m.node.data.lastPositionChange = 0
+              const payloadItem = {
+                id: m.node._id,
+                sourceInd: m.targetInd,
+                newlyCalculatedPriority: m.node.data.priority,
+                targetInd: m.sourceInd,
+                childCount: m.node.children.length
+              }
+              items.push(payloadItem)
+            }
+            this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items })
+            if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
           }
-          this.$store.dispatch('updateMovedItemsBulk', { items: payloadArray })
-          if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
           break
         case 'undoRemove':
           // restore the removed node
@@ -673,39 +683,35 @@ export default {
      * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
      */
     nodeDropped(beforeDropStatus, draggingNodes, position) {
-      const targetNode = position.nodeModel
-      const clickedLevel = draggingNodes[0].level
-      let dropLevel = targetNode.level
-      // drop inside?
-      if (position.placement === 'inside') {
-        dropLevel++
-      }
-      let levelChange = clickedLevel - dropLevel
+      const clickedLevel = beforeDropStatus.sourceLevel
+
+      let levelChange = beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel
       // update the nodes in the database
-      let payloadArray = []
-      for (let n of draggingNodes) {
-        const descendantsInfo = window.slVueTree.getDescendantsInfo(n)
-        const payloadItem = {
-          '_id': n._id,
-          'type': 'move',
-          'oldProductTitle': null,
-          'productId': n.productId,
-          'oldParentId': n.savedParentId,
-          'newParentId': n.parentId,
-          'newPriority': n.data.priority,
-          'newParentTitle': targetNode.title,
-          'oldParentTitle': n.title,
-          'oldLevel': clickedLevel,
-          'newLevel': n.level,
-          'oldInd': n.savedInd,
-          'newInd': n.ind,
-          'placement': position.placement,
-          'nrOfDescendants': descendantsInfo.count,
-          'descendants': descendantsInfo.descendants
-        }
-        payloadArray.push(payloadItem)
+      const moveInfo = {
+        // this info is the same for all nodes moved
+        type: 'move',
+        sourceProductId: beforeDropStatus.sourceProductId,
+        sourceParentId : beforeDropStatus.sourceParentId,
+        sourceLevel: beforeDropStatus.sourceLevel,
+        levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
+        targetProductId: beforeDropStatus.targetProductId,
+        targetParentId: beforeDropStatus.targetParentId,
+        placement: position.placement
       }
-      this.$store.dispatch('updateMovedItemsBulk', { items: payloadArray })
+      let items = []
+      for (let dn of draggingNodes) {
+        const payloadItem = {
+          id: dn._id,
+          sourceInd: dn.savedInd,
+          newlyCalculatedPriority: dn.data.priority,
+          targetInd: dn.ind,
+          childCount: dn.children.length
+        }
+        items.push(payloadItem)
+      }
+      // console.log('nodeDropped: moveInfo = ' + JSON.stringify(moveInfo, null, 2))
+      // console.log('nodeDropped: items = ' + JSON.stringify(items, null, 2))
+      this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items })
 
       // create an entry for undoing the move in a last-in first-out sequence
       const entry = {
@@ -713,9 +719,11 @@ export default {
         beforeDropStatus
       }
       this.$store.state.changeHistory.unshift(entry)
+
       for (let n of draggingNodes) {
         n.data.lastPositionChange = Date.now()
       }
+
       if (!this.dependencyViolationsFound()) {
         // create the event message
         const title = this.itemTitleTrunc(60, draggingNodes[0].title)
@@ -725,7 +733,7 @@ export default {
         } else {
           evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
         }
-        if (levelChange !== 0) evt += ' as ' + this.getLevelText(dropLevel)
+        if (levelChange !== 0) evt += ' as ' + this.getLevelText(beforeDropStatus.targetLevel)
         this.showLastEvent(evt, INFO)
       }
     },

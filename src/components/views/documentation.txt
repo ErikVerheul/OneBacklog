@@ -160,13 +160,12 @@ Y	            Y	    addCommentEvent	              	update.js
 N	            Y	    cloneEvent	                  	clone.js
 Y	            Y	    commentToHistoryEvent	        update.js
 Y	            Y	    conditionRemovedEvent	        update.js
-Y	            N	    createEvent 	                context.js
-Y	            N		  								context.js
+Y	            N	    createEvent 	                common.context.js 2X
 N	            N		  								superpo.vue
+N	            N		  								initdb.js
+N	            N		  								utils.js
 N				N		createRootEvent					intdb.js
 Y	            Y	    dependencyRemovedEvent 	      	update.js
-N				N		descendantMoved					move.js
-N				N		descendantUndoMove				move.js
 Y	            Y	    descriptionEvent	            update.js
 N				N		docRemovedDescendantEvent		remove.js
 Y	            Y	    docRestoredEvent 	            undo.js

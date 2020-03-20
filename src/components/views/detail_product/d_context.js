@@ -3,7 +3,6 @@ import CommonContext from '../common_context.js'
 
 const INFO = 0
 const WARNING = 1
-const ERROR = 2
 var movedNode = null
 
 export default {
@@ -80,7 +79,7 @@ export default {
         case this.MOVETOPRODUCT:
           this.assistanceText = this.$store.state.help.help.move
           if (!this.$store.state.moveOngoing) {
-            this.listItemText = 'Item selected. Choose drop position in any other product'
+            this.listItemText = `Item selected. Choose a ${this.getLevelText(this.contextNodeSelected.level - 1)} as drop position in any other product`
           } else this.listItemText = 'Drop position is set'
           break
         case this.REMOVEITEM:
@@ -251,48 +250,46 @@ export default {
     moveItemToOtherProduct() {
       if (this.$store.state.moveOngoing) {
         const targetPosition = window.slVueTree.lastSelectCursorPosition
-        const targetNode = targetPosition.nodeModel
-        // only allow move to new parent 1 level higher (lower value) than the source node
+        // only allow to drop the node inside a new parent 1 level higher (lower value) than the source node
         if (targetPosition.nodeModel.level !== movedNode.level - 1) {
-          this.showLastEvent('You can only move to a ' + this.getLevelText(movedNode.level - 1), WARNING)
-          return
-        }
-        const sourceProductNode = window.slVueTree.getNodeById(movedNode.productId)
-        if (sourceProductNode === null) {
-          this.showLastEvent('Unexpected error. Node not found.', ERROR)
+          this.showLastEvent('You can only drop inside a ' + this.getLevelText(movedNode.level - 1), WARNING)
           return
         }
 
-        // move the node to the new place and update the productId and parentId
-        window.slVueTree.moveNodes(targetPosition, [movedNode])
-        // the path to new node is immediately below the selected node
-        const newPath = targetNode.path.concat([0])
-        const newNode = window.slVueTree.getNodeModel(newPath)
-        const newParentNode = window.slVueTree.getNodeById(newNode.parentId)
-        if (newParentNode === null) {
-          this.showLastEvent('Unexpected error. Node not found.', ERROR)
-          return
+        const savedInd = movedNode.ind
+
+        // move the node to the new place and update the productId and parentId; movedNode is updated by this call
+        const beforeDropStatus = window.slVueTree.moveNodes(targetPosition, [movedNode])
+
+        // create an entry for undoing the move in a last-in first-out sequence
+        const entry = {
+          type: 'undoMove',
+          beforeDropStatus
+        }
+        this.$store.state.changeHistory.unshift(entry)
+
+        const moveInfo = {
+          // this info is the same for all nodes moved
+          type: 'move',
+          sourceProductId: beforeDropStatus.sourceProductId,
+          sourceParentId: beforeDropStatus.sourceParentId,
+          sourceLevel: beforeDropStatus.sourceLevel,
+          levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
+          targetProductId: beforeDropStatus.targetProductId,
+          targetParentId: beforeDropStatus.targetParentId,
+          placement: targetPosition.placement
         }
 
-        const descendantsInfo = window.slVueTree.getDescendantsInfo(newNode)
-        const payloadItem = {
-          '_id': newNode._id,
-          'type': 'move',
-          'oldProductTitle': sourceProductNode.title,
-          'productId': newNode.productId,
-          'newParentId': newNode.parentId,
-          'newPriority': newNode.data.priority,
-          'newParentTitle': newParentNode.title,
-          'oldParentTitle': newNode.title,
-          'oldLevel': newNode.level,
-          'newLevel': newNode.level, // the level cannot change
-          'newInd': 0, // immediately below the parent
-          'placement': 'inside',
-          'nrOfDescendants': descendantsInfo.count,
-          'descendants': descendantsInfo.descendants
+        const oneItem = {
+          id: movedNode._id,
+          sourceInd: savedInd,
+          newlyCalculatedPriority: movedNode.data.priority,
+          targetInd: movedNode.ind,
+          childCount: movedNode.children.length
         }
+
         // update the database
-        this.$store.dispatch('updateMovedItemsBulk', { items: [payloadItem] })
+        this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items: [oneItem] })
         this.$store.state.moveOngoing = false
       } else {
         this.$store.state.moveOngoing = true
