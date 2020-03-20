@@ -200,7 +200,7 @@ export default {
 		},
 
 		emitSelect(selectedNodes, event) {
-			this.getRootComponent().$emit('select', selectedNodes, event);
+			this.getRootComponent().$emit('nodeselected', selectedNodes, event);
 		},
 
 		emitBeforeDrop(draggingNodes, position, cancel) {
@@ -234,22 +234,19 @@ export default {
 			return true
 		},
 
-		/*
-		* Select a node from the current product or select the root or the top node of another product.
-		* Shift-select mode is allowed only if nodes are above productlevel and on the same level
-		*/
+		/* Select a node from the tree */
 		select(cursorPosition, event) {
 			this.lastSelectCursorPosition = cursorPosition
 			const selNode = cursorPosition.nodeModel
 			this.preventDrag = false
-			// if not in shift-select mode; note that lastSelectedNode can be null after a recompile without a new load
+			// shift-select mode is allowed only if nodes are above productlevel (epics, features and higher) and on the same level
 			if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
-				// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
+				// single selection mode: unselect all currently selected nodes, clear selectedNodes array
 				if (lastSelectedNode) lastSelectedNode.isSelected = false
 				if (nodeToDeselect) nodeToDeselect.isSelected = false
-				for (let node of selectedNodes) node.isSelected = false
 				selectedNodes = []
 			}
+			// select the clicked node if allowed
 			selNode.isSelected = selNode.isSelectable
 			lastSelectedNode = selNode
 			selectedNodes.push(selNode)
@@ -762,7 +759,7 @@ export default {
 				}
 				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				sourceParent.children = restoredSourceChildren
-				updatePaths(sourceParent.path, sourceParent.children, this.leafLevel, 0, beforeDropStatus.sourceParentId)
+				updatePaths(sourceParent.path, sourceParent.children, this.leafLevel, 0, beforeDropStatus.sourceParentId, beforeDropStatus.sourceProductId)
 
 				for (let id of beforeDropStatus.savedTargetChildrenIds) {
 					const node = this.getNodeById(id)
@@ -770,11 +767,11 @@ export default {
 				}
 				const targetParent = this.getNodeById(beforeDropStatus.targetParentId)
 				targetParent.children = restoredTargetChildren
-				updatePaths(targetParent.path, targetParent.children, this.leafLevel, 0, beforeDropStatus.targetParentId)
+				updatePaths(targetParent.path, targetParent.children, this.leafLevel, 0, beforeDropStatus.targetParentId, beforeDropStatus.targetProductId)
 			}
-			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredChildren)
-			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredSourceChildren)
-			if (restoredTargetChildren.length > 0) recalculatePriorities(beforeDropStatus.nodes, restoredTargetChildren)
+			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredChildren)
+			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredSourceChildren)
+			if (restoredTargetChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredTargetChildren)
 		},
 
 		/* Remove the node and save the current selected node so that it is deselected on the next select */
@@ -795,11 +792,36 @@ export default {
 		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
 		moveNodes(cursorPosition, nodes) {
 			// save the status of source and target before move
-			const sourceParentId = nodes[0].parentId
-			const targetParentId = cursorPosition.placement === 'inside' ? cursorPosition.nodeModel._id : cursorPosition.nodeModel.parentId
-			const savedSourceChildrenIds = this.getChildrenIds(sourceParentId)
-			const savedTargetChildrenIds = this.getChildrenIds(targetParentId)
-			const beforeDropStatus = { nodes, sourceParentId, savedSourceChildrenIds, targetParentId, savedTargetChildrenIds }
+			const targetNode = cursorPosition.nodeModel
+			let targetParentId
+			let targetLevel
+			let insertInd
+			if (cursorPosition.placement === 'inside') {
+				targetParentId = targetNode._id
+				targetLevel = targetNode.level + 1
+				insertInd = 0
+			} else {
+				targetParentId = targetNode.parentId
+				targetLevel = targetNode.level
+				insertInd = targetNode.ind
+			}
+			// map the source index to the node reference
+			const sourceIndMap = []
+			for (let i = 0; i < nodes.length; i++) {
+				sourceIndMap.push({ node: nodes[i], sourceInd: nodes[i].ind, targetInd: insertInd + i })
+			}
+			const beforeDropStatus = {
+				sourceProductId: nodes[0].productId,
+				sourceParentId: nodes[0].parentId,
+				sourceLevel: nodes[0].level,
+				targetProductId: targetNode.productId,
+				targetParentId,
+				targetLevel,
+				// data used for restoring the tree view at undo only
+				movedNodesData: { nodes, sourceIndMap },
+				savedSourceChildrenIds: this.getChildrenIds(nodes[0].parentId),
+				savedTargetChildrenIds: this.getChildrenIds(targetParentId)
+			}
 
 			this.remove(nodes)
 			this.insert(cursorPosition, nodes)
