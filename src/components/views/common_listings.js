@@ -73,8 +73,6 @@ export default {
           if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
           if (keys[j] === "createRootEvent") allText += this.mkCreateRootEvent(histItem[keys[j]])
           if (keys[j] === "dependencyRemovedEvent") allText += this.mkDependencyRemovedEvent(histItem[keys[j]])
-          if (keys[j] === "descendantMoved") allText += this.mkDescendantMoved(histItem[keys[j]])
-          if (keys[j] === "descendantUndoMove") allText += this.mkDescendantUndoMove(histItem[keys[j]])
           if (keys[j] === "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
           if (keys[j] === "docRemovedDescendantEvent") allText += this.mkDocRemovedDescendantEvent(histItem[keys[j]])
           if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
@@ -147,8 +145,6 @@ export default {
       if (key === "createEvent") return this.mkCreateEvent(value)
       if (key === "createRootEvent") return this.mkCreateRootEvent(value)
       if (key === "dependencyRemovedEvent") return this.mkDependencyRemovedEvent(value)
-      if (key === "descendantMoved") return this.mkDescendantMoved(value)
-      if (key === "descendantUndoMove") return this.mkDescendantUndoMove(value)
       if (key === "descriptionEvent") return this.mkDescriptionEvent(value)
       if (key === "docRemovedDescendantEvent") return this.mkDocRemovedDescendantEvent(value)
       if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
@@ -256,26 +252,18 @@ export default {
       if (value[7] !== value[8]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
       if (value[0] === value[1]) {
         txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
-        txt += (value[4] > 0) ? `<p>${value[4]} descendants were also moved.</p>` : ""
+        txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ""
         return txt
       } else {
         txt += `<h5>The item changed type from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h5>`
         txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
-        txt += (value[4] > 0) ? `<p>${value[4]} descendants also changed type.</p>` : ""
+        txt += (value[4] > 0) ? `<p>${value[4]} children also changed type.</p>` : ""
         return txt
       }
     },
 
     mkNodeUndoMoveEvent(value) {
       return `<h5>The previous move by user '${value[0]}' is undone</h5>`
-    },
-
-    mkDescendantMoved(value) {
-      return "<h5>Item was moved as descendant of '" + value[0] + "'.</h5>"
-    },
-
-    mkDescendantUndoMove(value) {
-      return "<h5>The move of the item is undone as a descendant of '" + value[0] + "'.</h5>"
     },
 
     mkRemovedFromParentEvent(value) {

@@ -88,12 +88,12 @@ function mkHtml(dbName, eventType, value, event, doc) {
                 if (value[7] !== value[8]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
                 if (value[0] === value[1]) {
                     txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
-                    txt += (value[4] > 0) ? `<p>${value[4]} descendants were also moved.</p>` : ""
+                    txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ""
                     return mkHeader() + txt + mkFooter()
                 } else {
                     txt += `<h5>The item changed type from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h5>`
                     txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
-                    txt += (value[4] > 0) ? `<p>${value[4]} descendants also changed type.</p>` : ""
+                    txt += (value[4] > 0) ? `<p>${value[4]} children also changed type.</p>` : ""
                     return mkHeader() + txt + mkFooter()
                 }
             }
