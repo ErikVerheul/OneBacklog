@@ -324,6 +324,7 @@ const actions = {
 										}, [node], false)
 									}
 									if (histEvent === 'nodeUndoMoveEvent') {
+										// remove the <moved> badge
 										node.data.lastPositionChange = 0
 									} else node.data.lastPositionChange = lastHistoryTimestamp
 								}
