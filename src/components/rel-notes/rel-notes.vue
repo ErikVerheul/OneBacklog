@@ -21,6 +21,11 @@
 				<ul>
 					<li>When sizing the screen the clear buttons move away</li>
 				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>Common code of the views now in one set of files</li>
+					<li>Rename of all view components</li>
+				</ul>
 				<hr>
 				<h3>v.0.9.2 - 12 March 2020 Product revision</h3>
 				<p>Product revision:</p>
