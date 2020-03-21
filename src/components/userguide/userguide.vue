@@ -48,6 +48,54 @@
 					<h4>Product details view</h4>
 					<p>The Product details view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
 					<b-img :src="require('./example-screen.png')" alt="Example screen" />
+					<p>The large black area below the event bar shows all the products assigned and selected by the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
+					<p>You can have multiple products. Each of them consists of:
+						<ul>
+							<li>epics which consists of</li>
+							<li>features which consists of</li>
+							<li>pbi's of kind user-story/defect/spike which are realized by executing</li>
+							<li>tasks (TO DO) and</li>
+						</ul>
+					</p>
+
+					<p>The authorization is set per product and based on the following roles:
+					<ul>
+						<li>'PO': Can create and maintain product, epics, features and pbi's for the assigned products. Can change priorities at all levels.</li>
+						<li>'APO': The APO maintains the requirement areas backlog.</li>
+						<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
+						<li>'guest': Can only view the items of the assigned products.</li>
+					</ul>
+					Users can have multiple roles. Users can only access the products that are assigned to them.
+					Two roles are setup globally when the OneBacklog instance is setup:
+					<ul>
+						<li>'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.</li>
+						<li>'admin': Can create and assign users to products.</li>
+					</ul>
+					<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
+					<b-img :src="require('./context-menu.png')" alt="Example context menu" />
+					<p>Select the action to execute and press OK.</p>
+					<p>If the item is a product an extra opion is displayed to make a clone this product. This feature is used when you have templates for reuse. Using a clone of a template can speed up the creation of simular products.</p>
+					<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. You can make a shallow copy of any backlog item which will appear above the selected item. When you selected a product item you can make a full clone with a copy of all descendants. See the 'Need assistance?' text.</p>
+					<h4>Drag &amp; drop in the backlog item tree</h4>
+					<p>This a powerful feature of this application. As a PO you can move complete branches within one product and between products (in the Products overview). In the product detail view use the context menu to move a branch to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button, drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must have the same parent. Not all moves are allowed. Watch the event bar for warnings.</p>
+					<h4>The title input field</h4>
+					<p>On the right side of the screen above the Description field is the input field to change the title of the currently selected item. The change takes place when you move away from this field and click on another location. You will see the update in the tree view.</p>
+					<h4>The item short Id</h4>
+					<p>On the right side of the title field the short id of the displayed item is displayed. Use this Id in communications with other users of the application instead of using the title.</p>
+					<h4>Subscribe to change notices</h4>
+					<p>When you click on this button all changes to this item will be emailed to you provided you are signed in as a registered user and your provided email address is correct. This will not work for users of generic accounts like demoUser or guest.</p>
+					<h4>The description input field</h4>
+					<p>As the title should be short and concise, this is the place to describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments to add documentation.</p>
+					<h4>The acceptance criteria input field</h4>
+					<p>A backlog item can only be reported as 'DONE' when all acceptance criteria are met. To be able to estimate the effort the team must know the acceptance criteria up front. They are as important as the description.</p>
+					<h4>Add comments</h4>
+					<p>Instead of extending or overwriting the fields above you can start a discussion by using this button. It will open a WYSIWYG editor to write your text. Subscribed users will receive a copy of your comment by email.</p>
+					<h4>Filter comments</h4>
+					<p>Enter a key word and you will only see comments including this key word.</p>
+					<h4>The Comments, Attachments, History radio buttons</h4>
+					<b-img :src="require('./attachments.png')" alt="Example attachment menu" />
+					<p>When adding multiple versions of an attachment with the same name the file name will be extended with _1, _2 etc. Click on an attachment button to let your browser display the attachment in a new tab.</p>
+					<p>When you select Attachments or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 					<p>Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different units:</p>
 					<p>Product and epic size estimate:
 					<p class="indent20">Products and epics are estimated in T-shirt sizes. Features and pbi's are estimated in story points using the. A common practice is to use the Fibonacci scale. However this is not enforced.</p>
@@ -78,9 +126,9 @@
 				</div>
 				<div id="rv">
 					<h4>Products overview</h4>
-					<p>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items.</p>
-					<b-img :src="require('./requirement-areas-view.png')" alt="Products overview" />
-					<p>This view shows all products in the database up to the feature level. In this view the PO can set dependencies on items residing in different products. Then he can try to fix this undesirable situation by moving items from one product to the other.</p>
+					<p>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can create and asign requirement areas to items. The PO can drag&#38;drop items between his products and set dependencies between items in different products (not recommanded).</p>
+					<b-img :src="require('./products-overview.png')" alt="Products overview" />
+					<p>This view shows all products in the database up to the feature level. The requirement area are color coded choosen by the APO.</p>
 				</div>
 				<div id="sv">
 				<h4>Admins will see one or more of these view options:</h4>
@@ -103,55 +151,6 @@
 				<h4>The event bar</h4>
 				<p>This bar displays the latest event, a selection, a expansion/collapse of a tree branch, a warning or an error.<br>On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted. It lights when another user changes a title or the position of one or more items in your tree view below. Your tree is updated instantly.</p>
 				<p>The <b>Sync light</b> will turn red with the the text 'offline' when your connection is lost. In this condition you can not access the database. Wait for automatic recovery or restore the connection.</p>
-				<h4>The backlog item tree</h4>
-				<p>This large black area below the event bar shows all the products assigned and selected by the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
-				<p>You can have multiple products. Each of them consists of:
-					<ul>
-						<li>epics which consists of</li>
-						<li>features which consists of</li>
-						<li>pbi's of kind user-story/defect/spike which are realized by executing</li>
-						<li>tasks (TO DO) and</li>
-						<li>multiple requirement areas (TO DO) can be maintained on the feature level across products.</li>
-					</ul>
-				</p>
-				<p>The authorization is set per product and based on the following roles:
-				<ul>
-					<li>'PO': Can create and maintain product, epics, features and pbi's for the assigned products. Can change priorities at all levels.</li>
-					<li>'APO': The APO maintains the requirement areas backlog.</li>
-					<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
-					<li>'guest': Can only view the items of the assigned products.</li>
-				</ul>
-				Users can have multiple roles. Users can only access the products that are assigned to them.
-				Two roles are setup globally when the OneBacklog instance is setup:
-				<ul>
-					<li>'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.</li>
-					<li>'admin': Can create and assign users to products.</li>
-				</ul>
-				<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
-				<b-img :src="require('./context-menu.png')" alt="Example context menu" />
-				<p>Select the action to execute and press OK.</p>
-				<p>If the item is a product an extra opion is displayed to make a clone this product. This feature is used when you have templates for reuse. Using a clone of a template can speed up the creation of simular products.</p>
-				<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. You can make a shallow copy of any backlog item which will appear above the selected item. When you selected a product item you can make a full clone with a copy of all descendants. See the 'Need assistance?' text.</p>
-				<h4>Drag &amp; drop in the backlog item tree</h4>
-				<p>This a powerful feature of this application. As a PO you can move complete branches within one product and between products (in the Products overview). In the product detail view use the context menu to move a branch to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button, drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>shift key</b> and without releasing the mouse button move them to the new position. All selected items must have the same parent. Not all moves are allowed. Watch the event bar for warnings.</p>
-				<h4>The title input field</h4>
-				<p>On the right side of the screen above the Description field is the input field to change the title of the currently selected item. The change takes place when you move away from this field and click on another location. You will see the update in the tree view.</p>
-				<h4>The item short Id</h4>
-				<p>On the right side of the title field the short id of the displayed item is displayed. Use this Id in communications with other users of the application instead of using the title.</p>
-				<h4>Subscribe to change notices</h4>
-				<p>When you click on this button all changes to this item will be emailed to you provided you are signed in as a registered user and your provided email address is correct. This will not work for users of generic accounts like demoUser or guest.</p>
-				<h4>The description input field</h4>
-				<p>As the title should be short and concise, this is the place to describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments to add documentation.</p>
-				<h4>The acceptance criteria input field</h4>
-				<p>A backlog item can only be reported as 'DONE' when all acceptance criteria are met. To be able to estimate the effort the team must know the acceptance criteria up front. They are as important as the description.</p>
-				<h4>Add comments</h4>
-				<p>Instead of extending or overwriting the fields above you can start a discussion by using this button. It will open a WYSIWYG editor to write your text. Subscribed users will receive a copy of your comment by email.</p>
-				<h4>Filter comments</h4>
-				<p>Enter a key word and you will only see comments including this key word.</p>
-				<h4>The Comments, Attachments, History radio buttons</h4>
-				<b-img :src="require('./attachments.png')" alt="Example attachment menu" />
-				<p>When adding multiple versions of an attachment with the same name the file name will be extended with _1, _2 etc. Click on an attachment button to let your browser display the attachment in a new tab.</p>
-				<p>When you select Attachments or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 
 				<h2 id="start_using"> START USING THE APPLICATION</h2>
 				<p>When you, as server admin, login with your super admin credentials the application will notice that you are unknown in the _users database. That will trigger a conversation where you name the first database and enter your e-mail address.</p>
