@@ -154,6 +154,7 @@ const actions = {
                     // eslint-disable-next-line no-console
                     if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
                     rootState.showHeaderDropDowns = false
+                    rootState.backendMessages = []
                     router.push('/init')
                     return
                 }
