@@ -218,9 +218,8 @@ export default {
     },
 
     mkSetStateEvent(value) {
-      const s1 = "<h5>The state of the item has changed from '" + this.getItemStateText(value[0]) + "' to '" + this.getItemStateText(value[1]) + "'</h5>"
-      const s2 = "<h5>, the team is set to '" + value[2] + "'.</h5>"
-      if (value[2]) { return s1 + s2 } else return s1
+      return `<h5>The item state changed from '${this.getItemStateText(value[0])}' to '${this.getItemStateText(value[1])}'</h5>` +
+        `<p>This backlog item is realized by team '${value[2]}'</p>`
     },
 
     mkSetTeamOwnerEvent(value) {
@@ -325,11 +324,11 @@ export default {
     },
 
     mkResetHistoryEvent(value) {
-      return "<h5>" + value[0] + ".</h5>"
+      return `<h5> ${value[0]} History items are removed.</h5>`
     },
 
     mkResetCommentsEvent(value) {
-      return "<h5>" + value + ".</h5>"
+      return `<h5> ${value[0]} Comment items are removed.</h5>`
     },
 
     mkCloneEvent(value) {

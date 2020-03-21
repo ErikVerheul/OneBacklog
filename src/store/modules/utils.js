@@ -76,22 +76,22 @@ const actions = {
       "timestamp": Date.now(),
       "distributeEvent": false
     }],
-    globalAxios({
-      method: 'PUT',
-      url: payload.dbName + '/' + _id,
-      data: product
-    }).then(() => {
-      const msg = `createProduct: Product '${product.title}' is created`
-      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-      // add the product to this user's subscriptions and productsRoles
-      dispatch('addProductToUser', { dbName: payload.dbName, productId: _id, userRoles: payload.userRoles })
-    }).catch(error => {
-      const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
-      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
-    })
+      globalAxios({
+        method: 'PUT',
+        url: payload.dbName + '/' + _id,
+        data: product
+      }).then(() => {
+        const msg = `createProduct: Product '${product.title}' is created`
+        rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+        // add the product to this user's subscriptions and productsRoles
+        dispatch('addProductToUser', { dbName: payload.dbName, productId: _id, userRoles: payload.userRoles })
+      }).catch(error => {
+        const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
+        rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+        // eslint-disable-next-line no-console
+        if (rootState.debug) console.log(msg)
+        dispatch('doLog', { event: msg, level: ERROR })
+      })
   },
 
   copyDB({
@@ -254,10 +254,10 @@ const actions = {
     rootState,
     state,
     dispatch
-  }, dbName) {
+  }, payload) {
     globalAxios({
       method: 'GET',
-      url: dbName + '/_all_docs',
+      url: payload.dbName + '/_all_docs',
     }).then(res => {
       rootState.isHistAndCommReset = false
       rootState.backendMessages = []
@@ -265,7 +265,7 @@ const actions = {
       for (let i = 0; i < res.data.rows.length; i++) {
         docsToUpdate.push({ "id": res.data.rows[i].id })
       }
-      dispatch('resetHistAndComm', { dbName: dbName, docs: docsToUpdate })
+      dispatch('resetHistAndComm', { dbName: payload.dbName, docs: docsToUpdate, olderThan: payload.age })
     })
       .catch(error => {
         // eslint-disable-next-line no-console
@@ -279,6 +279,8 @@ const actions = {
     rootState,
     dispatch
   }, payload) {
+    const dayMillis = 24 * 60 * 60000
+    const now = Date.now()
     globalAxios({
       method: 'POST',
       url: payload.dbName + '/_bulk_get',
@@ -291,22 +293,37 @@ const actions = {
         const doc = r.docs[0].ok
         if (doc) {
           if (doc.type === 'backlogItem') {
-            doc["history"] = [
-              {
-                "resetHistoryEvent": ['history cleared'],
+            const newHistory = []
+            let histRemovedCount = 0
+            for (let h of doc.history) {
+              if (now - h.timestamp <= payload.olderThan * dayMillis) {
+                newHistory.push(h)
+              } else histRemovedCount++
+            }
+            doc.history = newHistory
+            const newHist = {
+                "resetHistoryEvent": [histRemovedCount],
                 "by": rootState.userData.user,
-                "timestamp": Date.now(),
+                "timestamp": now,
                 "distributeEvent": false
-              }]
+              }
+            doc.history.unshift(newHist)
 
-            doc['comments'] = [
-              {
-                "resetCommentsEvent": 'comments cleared',
-                "by": rootState.userData.user,
-                "timestamp": 0,
-                "distributeEvent": false
-              }]
-            doc.followers = []
+            const newComments = []
+            let commentsRemovedCount = 0
+            for (let c of doc.comments) {
+              if (now - c.timestamp <= payload.olderThan * dayMillis) {
+                newComments.push(c)
+              } else commentsRemovedCount++
+            }
+            doc.comments = newComments
+            const newComment = {
+              "resetCommentsEvent": [commentsRemovedCount],
+              "by": rootState.userData.user,
+              "timestamp": now,
+              "distributeEvent": false
+            }
+            doc.comments.unshift(newComment)
             docs.push(doc)
           }
         }
@@ -321,7 +338,7 @@ const actions = {
         // eslint-disable-next-line no-console
         console.log(msg)
       }
-      dispatch('updateBulk', { dbName: payload.dbName, docs, onSuccessCallback: function() { rootState.isHistAndCommReset = true } })
+      dispatch('updateBulk', { dbName: payload.dbName, docs, onSuccessCallback: function () { rootState.isHistAndCommReset = true } })
     })
       .catch(error => {
         let msg = 'resetHistAndComm: Could not read batch of documents: ' + error
