@@ -123,7 +123,7 @@ const actions = {
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/descendents?' + composeRangeString(payload.id)
+			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.id)
 		}).then(res => {
 			const results = res.data.rows
 			if (results.length > 0) {

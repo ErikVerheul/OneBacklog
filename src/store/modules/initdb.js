@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const ERROR = 2
+const AREA_PRODUCTID = '0'
 
 const actions = {
 	/*
@@ -208,8 +209,8 @@ const actions = {
 				"views": {
 					/*
 					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
-					 * Select the 'backlogitem' document type and skip removed documents. Note: productId '0' is not in use for the req areas view only
-					 * History items older than one hour or of type 'ignoreEvent' are removed but at least one item (the most recent) must be selected
+					 * Select the 'backlogitem' document type and skip removed documents.
+					 * History items older than one hour or of type 'ignoreEvent' are removed but at least one item (the most recent) must be selected.
 					 */
 					"allItemsFilter": {
 						"map": `function(doc) {
@@ -249,8 +250,24 @@ const actions = {
 						}`
 					},
 					/* Filter on parentIds to map documents to their parent */
-					"parentIds": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit(doc.parentId, 1);}'
+					"docToParentMap": {
+						"map": `function (doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '0') emit(doc.parentId, 1);
+						}`
+					},
+					/* Filter on parentIds to map documents to their parent and provide filtered values so that the whole document is not needed  */
+					"docToParentMapValues": {
+						"map": `function(doc) {
+							const hour = 3600000
+							const now = Date.now()
+							const cleanedHist = []
+							for (var i = 0; i < doc.history.length; i++) {
+								if ((now - doc.history[i].timestamp < hour) && Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+							}
+							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '0') emit(doc.parentId,
+								[doc.reqarea, doc.productId, doc.priority, doc.level, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
+						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId.*/
 					"shortIdFilter": {
@@ -346,9 +363,9 @@ const actions = {
 	}, payload) {
 		// create parent document
 		const rootDoc = {
-			"_id": "0",
+			"_id": AREA_PRODUCTID,
 			"type": "backlogItem",
-			"productId": "0",
+			"productId": AREA_PRODUCTID,
 			"parentId": "root",
 			"team": "n/a",
 			"level": 2,
@@ -379,7 +396,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'PUT',
-			url: payload.dbName + '/0',
+			url: payload.dbName + '/' + AREA_PRODUCTID,
 			data: rootDoc
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createReqAreasParent: Success, the parent document is created' })
