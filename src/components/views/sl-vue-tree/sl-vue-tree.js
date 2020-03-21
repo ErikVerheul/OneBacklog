@@ -219,9 +219,9 @@ export default {
 			this.getRootComponent().$emit('nodeclick', node, event);
 		},
 
-		// trigger the context component via the eventbus
+		// trigger the context component via the eventbus unless on root
 		emitNodeContextmenu(node) {
-			eventBus.$emit('contextMenu', node)
+			if (!this.isRoot) eventBus.$emit('contextMenu', node)
 		},
 
 		haveSameParent(nodes) {
