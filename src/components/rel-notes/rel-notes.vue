@@ -6,6 +6,22 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.3 - 21 March 2020 Feature update and bug fixes</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Allow item movement over products in products overview</li>
+					<li>Create an undo for moving an item to another product in product details view</li>
+					<li>Show the requirement area next to the item title in product details view</li>
+				</ul>
+				<p>User stories done:</p>
+				<ul>
+					<li>Remove history and comments on age</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>When sizing the screen the clear buttons move away</li>
+				</ul>
+				<hr>
 				<h3>v.0.9.2 - 12 March 2020 Product revision</h3>
 				<p>Product revision:</p>
 				<ul>
