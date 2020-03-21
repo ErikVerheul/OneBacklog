@@ -12,6 +12,7 @@ const WARNING = 1
 const SHORTKEYLENGTH = 5
 const ALLPRODUCTS = true
 const FILTERBUTTONTEXT = 'Filter in tree view'
+const EPICLEVEL = 3
 
 export default {
 
@@ -103,7 +104,7 @@ export default {
 
   computed: {
     isReqAreaItem() {
-      return this.$store.state.currentDoc.productId === this.areaProductId
+      return this.$store.state.currentDoc.productId === this.areaProductId && this.$store.state.currentDoc.level === EPICLEVEL
     },
 
     /*
@@ -235,12 +236,15 @@ export default {
     beforeNodeDropped(draggingNodes, position, cancel) {
       /*
        * 1. Disallow drop on node were the user has no write authority
-       * 2. Disallow drop when moving over more than 1 level.
-       * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest permitted level.
-       * 4. The requirement area nodes cannot be moved from their parent or inside each other
+       * 2. Disallow drop when moving over more than 1 level
+       * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest permitted level
+       * 4. The requirement area nodes cannot be moved from their parent or inside each other (silent cancel)
+       * 5. Cannot move regular items into the 'Reuirement areas overview' dummy product (silent cancel)
        * precondition: the selected nodes have all the same parent (same level)
        */
       let checkDropNotAllowed = (node) => {
+        const sourceProductId = draggingNodes[0].productId
+        const targetProductId = position.nodeModel.productId
         const sourceLevel = draggingNodes[0].level
         let targetLevel = position.nodeModel.level
         // are we dropping 'inside' a node creating children to that node?
@@ -249,12 +253,12 @@ export default {
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
-        const failedCheck4 = node.parentId === this.areaProductId && position.nodeModel.parentId !== this.areaProductId ||
-          node.parentId === this.areaProductId && position.placement === 'inside'
+        const failedCheck4 = node.parentId === this.areaProductId && (position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside')
+        const failedCheck5 = targetProductId === this.areaProductId && sourceProductId !== this.areaProductId
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
-        return failedCheck1 || failedCheck2 || failedCheck3 || failedCheck4
+        return failedCheck1 || failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5
       }
 
       if (checkDropNotAllowed(draggingNodes[0])) {
