@@ -176,6 +176,7 @@
                     ></b-form-checkbox-group>
                   </b-form-group>
                 </div>
+                <p>If you changed your own account, sign-in again to see the effect</p>
                 <b-button v-if="$store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doUpdateUser">Update this user</b-button>
                 <b-button v-if="!$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
                 <b-button v-if="$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
