@@ -255,7 +255,7 @@ const actions = {
     }, _id) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/parentIds?' + composeRangeString(_id)
+            url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMapValues?' + composeRangeString(_id)
         }).then(res => {
             const results = res.data.rows
             if (results.length > 0) {
