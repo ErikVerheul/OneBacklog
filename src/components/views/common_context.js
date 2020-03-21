@@ -219,7 +219,7 @@ export default {
                 data: {
                     priority: null,
                     state: STATENEW,
-                    team: this.isReqAreaItem ? 'n/a' : 'not assigned yet',
+                    team: 'not assigned yet',
                     subtype: 0,
                     lastChange: now
                 }
@@ -253,6 +253,8 @@ export default {
                 newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
                 parentTitle = this.contextNodeSelected.title
             }
+            // overwrite the title when creating a new req area
+            if (newNode.parentId === AREA_PRODUCTID) newNode.title = 'New requirement area'
             // add the location values
             newNode.path = path
             newNode.pathStr = JSON.stringify(path)
