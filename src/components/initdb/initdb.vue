@@ -35,8 +35,8 @@
           <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
       <div v-if="$store.state.isDatabaseCreated">
-        <h5>Succes! Apart from being a CouchDb 'server admin' you have the application 'admin' role.</h5>
-        <h5>Exit and sign-in again. Then open the Admin view and create the first users and their roles. Assign one or more admins to take over that task.</h5>
+        <h5>Succes! Apart from being a CouchDb 'server admin' you have the 'admin' role.</h5>
+        <h5>Exit and sign-in again. Then open the 'Admin view' and create the first users and set their roles. Assign one or more admins to take over your admin task.</h5>
         <b-button class="m-1" @click="signIn" variant="outline-primary">Exit</b-button>
       </div>
       <div v-if="$store.state.backendMessages.length > 0">
