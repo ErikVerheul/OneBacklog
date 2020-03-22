@@ -138,12 +138,12 @@ const actions = {
 			],
 
 			"itemState": [
+				"Removed",
+				"On hold",
 				"New",
 				"Ready",
 				"In progress",
-				"On hold",
-				"Done",
-				"Removed"
+				"Done"
 			],
 			"itemStateDefinitions": [
 				"The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
