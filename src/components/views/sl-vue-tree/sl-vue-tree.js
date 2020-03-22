@@ -104,14 +104,14 @@ export default {
 			preventDrag: false,
 			currentValue: this.value,
 			lastSelectCursorPosition: null,
-			leafLevel: PBILEVEL
+			leafLevel: undefined
 		};
 	},
 
 	mounted() {
 		// suppress browser default context menu
 		document.oncontextmenu = function () {
-			return false;
+			return false
 		}
 		if (this.isRoot) {
 			document.addEventListener('mouseup', this.onDocumentMouseupHandler);
