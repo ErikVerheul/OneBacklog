@@ -2,6 +2,7 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
 
 const PRODUCTLEVEL = 2
+const FEATURELEVEL = 4
 const PBILEVEL = 5
 const INFO = 0
 const WARNING = 1
@@ -118,8 +119,8 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
-				if (rootState.currentView === 'coarseProduct' && doc.level === PBILEVEL) {
-					// skip PBI level changes when in requirement areas view
+				if (rootState.currentView === 'coarseProduct' && doc.level > FEATURELEVEL) {
+					// skip level changes above feature level when in products overview
 					continue
 				}
 				if (doc.history[0].sessionId !== rootState.userData.sessionId &&
