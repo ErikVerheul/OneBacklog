@@ -345,12 +345,12 @@ export default {
                     let highestState = 0
                     let allDone = true
                     for (let desc of descendants) {
-                        if (this.convertState(desc.data.state) > highestState) highestState = this.convertState(desc.data.state)
-                        if (this.convertState(desc.data.state) < this.convertState(DONE) &&
-                            this.convertState(desc.data.state) !== this.convertState(REMOVED) &&
-                            this.convertState(desc.data.state) !== this.convertState(ONHOLD)) allDone = false
+                        if (desc.data.state > highestState) highestState = desc.data.state
+                        if (desc.data.state < DONE &&
+                            desc.data.state !== REMOVED &&
+                            desc.data.state !== ONHOLD) allDone = false
                     }
-                    if (this.convertState(nm.data.state) > highestState || this.convertState(nm.data.state) === this.convertState(DONE) && !allDone) {
+                    if (nm.data.state > highestState || nm.data.state === DONE && !allDone) {
                         // node has a higher state than any of its descendants or set to done while one of its descendants is not done
                         if (!nm.data.inconsistentState) nm.data.lastChange = Date.now()
                         nm.data.inconsistentState = true

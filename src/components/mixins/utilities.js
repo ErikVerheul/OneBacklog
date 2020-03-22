@@ -70,24 +70,6 @@ export const utilities = {
 		itemTitleTrunc(length, title) {
 			if (title.length <= length) return title;
 			return title.substring(0, length - 4) + '...'
-		},
-
-		/* Reorder the state values to create a order for comparison */
-		convertState(state) {
-			switch (state) {
-				case 0:
-					return 2
-				case 1:
-					return 3
-				case 2:
-					return 4
-				case 3:
-					return 1
-				case 4:
-					return 5
-				case 5:
-					return 0
-			}
 		}
 	}
 }
