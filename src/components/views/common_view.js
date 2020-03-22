@@ -6,9 +6,9 @@ const WARNING = 1
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const REMOVED = 0
-const NEW = 0
-const READY = 1
-const DONE = 4
+const STATE_NEW_OR_TODO = 2
+const STATE_READY_OR_INPROGRESS = 3
+const DONE = 5
 var violationsWereFound = false
 
 export default {
@@ -634,7 +634,7 @@ export default {
 
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         // any user can change from state 'New' to state 'Ready'; the owning team of the item is set to the users team
-        if (currentNode.data.state === NEW && idx === READY) {
+        if (currentNode.data.state === STATE_NEW_OR_TODO && idx === STATE_READY_OR_INPROGRESS) {
           changeState(this, this.$store.state.userData.myTeam)
           const parentNode = window.slVueTree.getParentNode(currentNode)
           if (parentNode.level >= this.featureLevel && parentNode.data.team !== this.$store.state.userData.myTeam) {

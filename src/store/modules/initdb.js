@@ -145,6 +145,15 @@ const actions = {
 				"In progress",
 				"Done"
 			],
+			"taskState": [
+				"Removed",
+				"On hold",
+				"ToDo",
+				"In progress",
+				"Ready for test", // optional
+				"Done"
+			],
+
 			"itemStateDefinitions": [
 				"The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
 				"The state Ready means that the item is understood well enough by the team for realization in a sprint",

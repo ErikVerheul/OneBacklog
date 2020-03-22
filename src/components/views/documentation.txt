@@ -22,6 +22,7 @@ Product ................ 2 ................... 2
 Epic .. ................ 3 ................... 3
 Feature ................ 4 ................... 4
 PBI ... ................ 5 ................... 5
+Task .. ................ 6 ................... 6
 
 These are the roles known by this application despite settings in the _users database otherwise.
 Write access is dependant on role and level. Write access includes deletion.
@@ -52,7 +53,7 @@ These roles are set during loading by haveWritePermission(...).
 	"developer": {
 		description: "Can create and maintain pbi's and features for the assigned products.",
 		products: "assigned",
-		writeAccessLevel: 4,5
+		writeAccessLevel: 4,5,6
 	},
 	"guest": {
 		description: "Can only view the items of the assigned products. Has no access to the requirement areas view.",
@@ -120,6 +121,16 @@ As per release 0.9.3.1:
 2   "New",
 3   "Ready",
 4   "In progress",
+5   "Done"
+],
+
+and for the task item:
+"taskState": [
+0   "Removed",
+1   "On hold",
+2   "ToDo",
+3   "In progress",
+4   "Ready for test", // optional
 5   "Done"
 ],
 

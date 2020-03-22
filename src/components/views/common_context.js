@@ -5,10 +5,10 @@ import { utilities } from '../mixins/utilities.js'
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
-const REMOVED = 5
-const ONHOLD = 3
-const DONE = 4
-const STATENEW = 0
+const REMOVED = 0
+const ONHOLD = 1
+const DONE = 5
+const STATE_NEW_OR_TODO = 2
 const AREA_PRODUCTID = '0'
 
 export default {
@@ -124,7 +124,7 @@ export default {
                 doShow: true,
                 savedDoShow: true,
                 data: {
-                    state: STATENEW,
+                    state: STATE_NEW_OR_TODO,
                     team: node.data.team,
                     subtype: node.data.subtype,
                     lastChange: 0
@@ -150,7 +150,7 @@ export default {
                 "team": currentDoc.team,
                 "level": newNode.level,
                 "subtype": currentDoc.subtype,
-                "state": STATENEW,
+                "state": STATE_NEW_OR_TODO,
                 "tssize": currentDoc.tssize,
                 "spsize": currentDoc.spsize,
                 "spikepersonhours": currentDoc.spikepersonhours,
@@ -218,7 +218,7 @@ export default {
                 savedDoShow: true,
                 data: {
                     priority: null,
-                    state: STATENEW,
+                    state: STATE_NEW_OR_TODO,
                     team: 'not assigned yet',
                     subtype: 0,
                     lastChange: now
@@ -290,7 +290,7 @@ export default {
                     "team": "not assigned yet",
                     "level": insertLevel,
                     "subtype": 0,
-                    "state": STATENEW,
+                    "state": STATE_NEW_OR_TODO,
                     "tssize": 3,
                     "spsize": 0,
                     "spikepersonhours": 0,

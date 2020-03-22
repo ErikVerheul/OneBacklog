@@ -10,6 +10,7 @@ const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 
 const getters = {
@@ -51,6 +52,7 @@ const getters = {
             if (myCurrentProductRoles.includes('developer')) {
                 levels[FEATURELEVEL] = true
                 levels[PBILEVEL] = true
+                levels[TASKLEVEL] = true
             }
         }
         // assign specific write permissions to any product even if that product is not assigned to this user
