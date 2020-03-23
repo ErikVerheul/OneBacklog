@@ -248,14 +248,14 @@ export default {
       /*
        * 1. Disallow drop on node were the user has no write authority
        * 2. Disallow drop when moving over more than 1 level.
-       * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest level (pbilevel).
+       * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest level (tasklevel).
        * precondition: the selected nodes have all the same parent (same level)
        */
       let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
         const failedCheck2 = levelChange > 1
-        const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
+        const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.taskLevel
         if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)

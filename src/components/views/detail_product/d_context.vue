@@ -66,7 +66,7 @@
             >Insert a {{ contextNodeType }} below this node</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel < pbiLevel"
+              v-if="contextNodeLevel < taskLevel"
               button
               :active="contextOptionSelected === INSERTINSIDE"
               variant="dark"

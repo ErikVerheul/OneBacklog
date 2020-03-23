@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const TASKLEVEL = 6
 const INFO = 0
 const WARNING = 1
 var removedProducts = []
@@ -89,7 +90,7 @@ const actions = {
 		}
 
 		function getLevelText(level, subtype = 0) {
-			if (level < 0 || level > PBILEVEL) {
+			if (level < 0 || level > TASKLEVEL) {
 				return 'Level not supported'
 			}
 			if (level === PBILEVEL) {
@@ -199,7 +200,7 @@ const actions = {
 									"dependencies": doc.dependencies || [],
 									"conditionalFor": doc.conditionalFor || [],
 									"title": doc.title,
-									"isLeaf": (locationInfo.newPath.length < PBILEVEL) ? false : true,
+									"isLeaf": (locationInfo.newPath.length < TASKLEVEL) ? false : true,
 									"children": [],
 									"isSelected": false,
 									"isExpanded": true,

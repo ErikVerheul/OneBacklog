@@ -4,6 +4,7 @@ const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
 const PBILEVEL = 5
+const TASKLEVEL = 6
 const DEFAULTCOLOR = '#408FAE'
 export const utilities = {
 	methods: {
@@ -37,7 +38,7 @@ export const utilities = {
 
 		/* mappings from config document*/
 		getLevelText(level, subtype = 0) {
-			if (level < 0 || level > PBILEVEL) {
+			if (level < 0 || level > TASKLEVEL) {
 				return 'Level not supported'
 			}
 			if (level === PBILEVEL) {
@@ -47,10 +48,32 @@ export const utilities = {
 		},
 
 		getItemStateText(idx) {
-			if (idx < 0 || idx > PBILEVEL) {
-				return 'Error: unknown state'
+			if (this.$store.state.currentDoc.level < TASKLEVEL) {
+				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.itemState[idx]
+			} else {
+				if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.taskState[idx]
 			}
-			return this.$store.state.configData.itemState[idx]
+		},
+
+		getNodeStateText(node) {
+			const idx = node.data.state
+			if (node.level < TASKLEVEL) {
+				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.itemState[idx]
+			} else {
+				if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.taskState[idx]
+			}
 		},
 
 		getTsSize(idx) {

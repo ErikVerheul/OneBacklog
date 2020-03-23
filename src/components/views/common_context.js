@@ -20,6 +20,7 @@ export default {
         this.epicLevel = 3
         this.featureLevel = 4
         this.pbiLevel = 5
+        this.taskLevel = 6
         this.INSERTBELOW = 0
         this.INSERTINSIDE = 1
         this.MOVETOPRODUCT = 2
@@ -236,7 +237,7 @@ export default {
                 path = locationPath.slice(0, -1).concat(idx)
                 newNode.parentId = this.contextNodeSelected.parentId
                 newNode.title = 'New ' + this.getLevelText(insertLevel)
-                newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
+                newNode.isLeaf = (insertLevel < this.taskLevel) ? false : true
                 parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
             } else {
                 // new node is a child placed a level lower (inside) than the selected node
@@ -250,7 +251,7 @@ export default {
                 path = this.contextNodeSelected.path.concat(0)
                 newNode.parentId = this.contextNodeSelected._id
                 newNode.title = 'New ' + this.getLevelText(insertLevel)
-                newNode.isLeaf = (insertLevel < this.pbiLevel) ? false : true
+                newNode.isLeaf = (insertLevel < this.taskLevel) ? false : true
                 parentTitle = this.contextNodeSelected.title
             }
             // overwrite the title when creating a new req area

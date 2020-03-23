@@ -117,28 +117,31 @@
                 <i class="colorOrange" v-if="node.level == featureLevel">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorYellow" v-if="node.isLeaf && node.data.subtype == userStorySubtype">
-                  <font-awesome-icon icon="file" />
+                <i class="colorYellow" v-if="node.level == pbiLevel && node.data.subtype == userStorySubtype">
+                  <font-awesome-icon icon="folder" />
                 </i>
-                <i v-if="node.isLeaf && node.data.subtype == spikeSubtype">
+                <i v-if="node.level == pbiLevel && node.data.subtype == spikeSubtype">
                   <font-awesome-icon icon="hourglass-start" />
                 </i>
-                <i class="colorRed" v-if="node.isLeaf && node.data.subtype == defectSubtype">
+                <i class="colorRed" v-if="node.level == pbiLevel && node.data.subtype == defectSubtype">
                   <font-awesome-icon icon="bug" />
+                </i>
+                <i class="colorWhite" v-if="node.isLeaf">
+                  <font-awesome-icon icon="file" />
                 </i>
               </span>
               {{ patchTitle(node) }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
-              >{{ getItemStateText(node.data.state) + '?' }}</b-badge>
+              >{{ getNodeStateText(node) + '?' }}</b-badge>
 
               <b-badge
                 v-else-if="hasNewState(node)"
                 variant="info"
-              >{{ getItemStateText(node.data.state) }}</b-badge>
+              >{{ getNodeStateText(node) }}</b-badge>
 
-              <b-badge v-else variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
+              <b-badge v-else variant="light">{{ getNodeStateText(node) }}</b-badge>
 
               <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
 
@@ -502,6 +505,10 @@
 
 .colorYellow {
   color: #ffff00;
+}
+
+.colorWhite {
+  color: #ffffff;
 }
 
 .btn-seablue {

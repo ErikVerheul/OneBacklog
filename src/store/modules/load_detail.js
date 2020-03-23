@@ -5,7 +5,7 @@ const INFO = 0
 const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const PBILEVEL = 5
+const TASKLEVEL = 6
 const HOURINMILIS = 3600000
 const AREA_PRODUCTID = '0'
 var parentNodes = {}
@@ -184,7 +184,7 @@ const mutations = {
                     dependencies,
                     conditionalFor,
                     title,
-                    isLeaf: level === PBILEVEL,
+                    isLeaf: level === TASKLEVEL,
                     children: [],
                     isExpanded,
                     savedIsExpanded: isExpanded,

@@ -122,14 +122,14 @@
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
-              >{{ getItemStateText(node.data.state) + '?' }}</b-badge>
+              >{{ getNodeStateText(node) + '?' }}</b-badge>
 
               <b-badge
                 v-else-if="hasNewState(node)"
                 variant="info"
-              >{{ getItemStateText(node.data.state) }}</b-badge>
+              >{{ getNodeStateText(node) }}</b-badge>
 
-              <b-badge v-else variant="light">{{ getItemStateText(node.data.state) }}</b-badge>
+              <b-badge v-else variant="light">{{ getNodeStateText(node) }}</b-badge>
 
               <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
 

@@ -7,7 +7,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
-const PBILEVEL = 5
+const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 var lastSelectedNode = null
 var draggableNodes = []
@@ -118,13 +118,13 @@ export default {
 		}
 		switch (this.$store.state.currentView) {
 			case 'detailProduct':
-				this.leafLevel = PBILEVEL
+				this.leafLevel = TASKLEVEL
 				break
 			case 'coarseProduct':
 				this.leafLevel = FEATURELEVEL
 				break
 			default:
-				this.leafLevel = PBILEVEL
+				this.leafLevel = TASKLEVEL
 		}
 	},
 

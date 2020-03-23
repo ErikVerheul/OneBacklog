@@ -17,7 +17,7 @@ export default {
       this.disableOkButton = true
       // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties
-      const extraLevel = node.level < this.pbiLevel ? node.level + 1 : node.level
+      const extraLevel = node.level < this.taskLevel ? node.level + 1 : node.level
       if (this.haveWritePermission[extraLevel] && node._id === this.$store.state.nodeSelected._id &&
         node.level > this.databaseLevel && this.$store.state.numberOfNodesSelected === 1) {
         const parentNode = window.slVueTree.getParentNode(node)

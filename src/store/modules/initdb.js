@@ -118,7 +118,7 @@ const actions = {
 			"_id": "config",
 			"type": "config",
 			"changedBy": "Erik",
-			"changeDate": 1575036814777,
+			"changeDate": 1584908085489,
 
 			"itemType": [
 				"RequirementArea",
@@ -126,7 +126,8 @@ const actions = {
 				"Product",
 				"Epic",
 				"Feature",
-				"PBI"
+				"PBI",
+				"Task"
 			],
 
 			"ItemTypeDefinitions": [
@@ -134,7 +135,8 @@ const actions = {
 				"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
 				"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
 				"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
-				"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
+				"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes",
+				"A task is a piece of work to get the PBI done. Tasks are defined at the start of a sprint."
 			],
 
 			"itemState": [
@@ -150,7 +152,7 @@ const actions = {
 				"On hold",
 				"ToDo",
 				"In progress",
-				"Ready for test", // optional
+				"Ready for test",
 				"Done"
 			],
 

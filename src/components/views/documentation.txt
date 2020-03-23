@@ -8,7 +8,8 @@ The item types are defined in the CONFIG file:
     "Product",
     "Epic",
     "Feature",
-    "PBI"
+    "PBI",
+	"Task"
   ],
 
 Requirement areas are children of the 'Requirments areas overview' dummy product with id '0'. All req areas have productId = parentId = '0'.
@@ -77,7 +78,7 @@ shortId: doc.shortId,
 children: [],
 
 title: doc.title,
-isLeaf: (level == leafLevel) ? true : false, // for now PBI's have no children
+isLeaf: (level == leafLevel) ? true : false,
 isSelectable: true,
 isSelected: true only if isSelectable || false
 isDraggable: true || false, // depending on the user roles
