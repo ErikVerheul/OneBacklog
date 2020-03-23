@@ -195,7 +195,8 @@
           </div>
           <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div class="d-table w-100">
-              <p class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              <p v-if="getCurrentItemLevel < taskLevel" class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
+              <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by '{{ $store.state.currentDoc.taskOwner }}' of team '{{ $store.state.currentDoc.team }}'</p>
               <div v-if="getCurrentItemLevel==this.pbiLevel" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group
