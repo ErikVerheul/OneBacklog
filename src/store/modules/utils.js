@@ -238,9 +238,11 @@ const actions = {
       method: 'GET',
       url: dbName + '/config',
     }).then(res => {
-      if (res.data.teams) rootState.fetchedTeams = res.data.teams
-      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
-      rootState.areTeamsFound = true
+      if (res.data.teams) {
+        rootState.fetchedTeams = res.data.teams
+        rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
+        rootState.areTeamsFound = true
+      } else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: no team names are found' })
     }).catch(error => {
       let msg = 'getTeamNames: Could not read config document of database ' + dbName + ', ' + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -302,11 +304,11 @@ const actions = {
             }
             doc.history = newHistory
             const newHist = {
-                "resetHistoryEvent": [histRemovedCount],
-                "by": rootState.userData.user,
-                "timestamp": now,
-                "distributeEvent": false
-              }
+              "resetHistoryEvent": [histRemovedCount],
+              "by": rootState.userData.user,
+              "timestamp": now,
+              "distributeEvent": false
+            }
             doc.history.unshift(newHist)
 
             const newComments = []
