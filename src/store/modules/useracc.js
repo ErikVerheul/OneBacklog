@@ -7,6 +7,7 @@ const state = {
   fetchedUserData: null,
   userIsAdmin: false,
   dbProducts: undefined,
+  allUsers: []
 }
 
 const actions = {
@@ -30,6 +31,42 @@ const actions = {
       rootState.isUserFound = true
     }).catch(error => {
       let msg = 'getUser: Could not find user "' + userName + '". ' + error
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
+
+  getAllUsers({
+    rootState,
+    state,
+    dispatch
+  }) {
+    rootState.backendMessages = []
+    rootState.isUserFound = false
+    state.allUsers = []
+    globalAxios({
+      method: 'GET',
+      url: '_users/_design/_auth/_view/list-all',
+    }).then(res => {
+      const rows = res.data.rows
+      if (rows.length > 0) {
+        for (let u of rows) {
+          const colonIdx = u.id.indexOf(':')
+          if (colonIdx > 0) {
+            const name = u.id.substring(colonIdx + 1)
+            const userRec = {
+              name,
+              currentDb: u.value[0],
+              team: u.value[1]
+            }
+            state.allUsers.push(userRec)
+          }
+        }
+      }
+    }).catch(error => {
+      let msg = 'getAllUsers: Could not read the _users database:' + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)

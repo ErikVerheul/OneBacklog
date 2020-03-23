@@ -9,7 +9,7 @@
       <b-button block @click="maintainUsers">Maintain users</b-button>
       <b-button block @click="createTeam">Create a team</b-button>
       <b-button block @click="changeMyDb">Change my default database to any available database</b-button>
-      <b-button block @click="listTeams">List team names</b-button>
+      <b-button block @click="listTeams">List teams</b-button>
 
       <div v-if="optionSelected === 'Create a product'">
         <h2>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h2>
@@ -110,10 +110,15 @@
               User name:
             </b-col>
             <b-col sm="11">
-              <b-form-input v-model="userName" placeholder="Enter the user name"></b-form-input>
+              <b-form-group>
+                <b-form-radio-group
+                  v-model="selectedUser"
+                  :options="userOptions"
+                ></b-form-radio-group>
+              </b-form-group>
             </b-col>
           </b-row>
-          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="doFindUser">Find this user</b-button>
+          <b-button v-if="selectedUser && !$store.state.isUserFound" class="m-1" @click="doFetchUser">Update this user's permissions</b-button>
           <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
         </div>
 
@@ -223,8 +228,8 @@
         </div>
       </div>
 
-      <div v-if="optionSelected === 'List team names'">
-        <h4>List the teams of users with products in the selected database</h4>
+      <div v-if="optionSelected === 'List teams'">
+        <h4 v-if="!$store.state.areTeamsFound">List the teams of users with products in the selected database</h4>
         <b-form-group v-if="!$store.state.areTeamsFound">
           <h5>Select the database</h5>
           <b-form-radio-group
@@ -235,8 +240,14 @@
         </b-form-group>
         <b-button v-if="!$store.state.areTeamsFound" class="m-1" @click="doGetTeamsOfDb">List teams</b-button>
         <div v-if="$store.state.areTeamsFound">
+          <h4>List of teams and members working on products in database '{{ $store.state.selectedDatabaseName }}'</h4>
+          <hr>
           <div v-for="teamName in $store.state.fetchedTeams" :key="teamName">
-            {{ teamName }}
+            <b>Team '{{ teamName }}'</b>
+            <div v-for="userRec in $store.state.useracc.allUsers" :key="userRec.name">
+              <i v-if="teamName === userRec.team"> '{{ userRec.name }}' is member of this team </i>
+            </div>
+            <hr>
           </div>
           <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
         </div>
@@ -287,12 +298,15 @@ export default {
       ],
       allRoles: [],
       localMessage: '',
-      moveDatabase: false
+      moveDatabase: false,
+      selectedUser: undefined,
+      userOptions: []
     }
   },
 
   mounted() {
     this.$store.state.backendMessages = []
+    this.$store.dispatch('getAllUsers')
   },
 
   methods: {
@@ -471,12 +485,17 @@ export default {
       this.$store.state.isUserUpdated = false
       // get all non sytem databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+      // populate the userOptions array
+      this.userOptions = []
+      for (let u of this.$store.state.useracc.allUsers) {
+        this.userOptions.push(u.name)
+      }
     },
 
     /* Creates fetchedUserData and have the prod.roles set in products */
-    doFindUser() {
+    doFetchUser() {
       this.moveDatabase = false
-      this.$store.dispatch('getUser', this.userName)
+      this.$store.dispatch('getUser', this.selectedUser)
     },
 
     doUpdateUser() {
@@ -534,7 +553,7 @@ export default {
     },
 
     listTeams() {
-      this.optionSelected = 'List team names'
+      this.optionSelected = 'List teams'
       this.$store.state.backendMessages = []
       this.$store.state.fetchedTeams = []
       this.$store.state.areTeamsFound = false
