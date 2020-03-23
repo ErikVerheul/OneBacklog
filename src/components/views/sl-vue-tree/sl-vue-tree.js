@@ -310,7 +310,7 @@ export default {
 
 			this.isDragging = isDragging
 			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
-			this.setModelCursorPosition(cPos)
+			if (cPos !== null) this.setModelCursorPosition(cPos)
 		},
 
 		onNodeMousedownHandler(event, node) {
@@ -336,9 +336,9 @@ export default {
 			this.mouseIsDown = false;
 
 			if (!this.isDragging) {
-				// cursorPosition not available
+				// cursorPosition not available, so get it
 				const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
-				this.select(cPos, event)
+				if (cPos !== null) this.select(cPos, event)
 				return
 			}
 
@@ -420,12 +420,14 @@ export default {
 
 			const $target = document.elementFromPoint(x, y);
 			const $nodeItem = $target.getAttribute('path') ? $target : getClosestElementWithPath($target);
-			if (!$nodeItem) return
+			if (!$nodeItem) return null
 
 			let placement
 			const pathStr = $nodeItem.getAttribute('path')
 			const path = JSON.parse(pathStr)
 			const nodeModel = this.getNodeModel(path)
+			if (!nodeModel) return null
+
 			const nodeHeight = $nodeItem.offsetHeight
 			const edgeSize = this.edgeSize
 			const offsetY = y - $nodeItem.getBoundingClientRect().top
