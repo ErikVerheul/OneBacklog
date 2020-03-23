@@ -9,6 +9,7 @@ const REMOVED = 0
 const ONHOLD = 1
 const DONE = 5
 const STATE_NEW_OR_TODO = 2
+const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 
 export default {
@@ -220,7 +221,6 @@ export default {
                 data: {
                     priority: null,
                     state: STATE_NEW_OR_TODO,
-                    team: 'not assigned yet',
                     subtype: 0,
                     lastChange: now
                 }
@@ -254,6 +254,18 @@ export default {
                 newNode.isLeaf = (insertLevel < this.taskLevel) ? false : true
                 parentTitle = this.contextNodeSelected.title
             }
+
+            let team = 'not assigned yet'
+            let taskOwner = undefined
+            if (insertLevel === TASKLEVEL) {
+                // when inserting a task, copy the team name from the parent or sibling
+                team = this.contextNodeSelected.data.team
+                // and set the task owner
+                taskOwner = this.$store.state.userData.user
+                newNode.data.taskOwner = taskOwner
+            }
+
+            newNode.data.team = team
             // overwrite the title when creating a new req area
             if (newNode.parentId === AREA_PRODUCTID) newNode.title = 'New requirement area'
             // add the location values
@@ -288,7 +300,8 @@ export default {
                     "type": "backlogItem",
                     "productId": newNode.productId,
                     "parentId": newNode.parentId,
-                    "team": "not assigned yet",
+                    "team": team,
+                    "taskOwner": taskOwner,
                     "level": insertLevel,
                     "subtype": 0,
                     "state": STATE_NEW_OR_TODO,
