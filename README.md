@@ -11,7 +11,7 @@ As Product Owner (PO) I need one integrated tool to manage the product backlog o
 - I can map my portfolio in one tool
 - My area product owner (APO) manages the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
 - Dependencies within products are made visible so that the team and myself can act upon it
-- TO DO (low priority for now): Scrum teams can use the tool to do their refinements and run their sprints
+- IN PROGRESS (hight priority now because of the Corona virus): Scrum teams can use the tool to do their refinements and run their sprints
 - Only PO's are authorized to change priorities
 - The tool runs in a browser and is accessible only by authorized users
 - Full security is in place
@@ -40,7 +40,7 @@ a product consists of:
 - <b>epics</b> which consists of
 - <b>features</b> which consists of
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
-- <b>tasks</b> (TO DO) and
+- <b>tasks</b>
 <p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
 
 <b>Other design choices:</b><br />
@@ -69,12 +69,12 @@ When a defect is found after a Pbi is set to done a defect Pbi is created with a
 - the team that refines a pbi becomes the owner of that pbi
 - pbi's are estimated by that team
 
-TO DO: <b>Sprint backlog and planning board:</b><br />
-The use of the electronic planning board is optional and only advised for use when team members are remote
+IN PROGRESS: <b>Sprint backlog and planning board:</b><br />
+The use of the electronic planning board is optional and only advised for use when team members are (need to be) remote
 - a sprint is dedicated to the increment of one product only; The tool should enforce this
 - the team selects the pbi's to work on
 - the team adds tasks to the pbi's
-- a task is/will be assigned to a member of the owning team
+- a task is/will be assigned to a member of the owning team; he/she is resposible for having the task done but can involve other to do the work
 - the workflow for the tasks usually has 4 stages: to-do, in-development, ready for test/review and done
 
 <b>Pbi/defect status values:</b>
@@ -83,6 +83,14 @@ The use of the electronic planning board is optional and only advised for use wh
 - <b>in progress</b> (now in a sprint)
 - <b>on hold</b> (not in a sprint anymore, waiting on the backlog)
 - <b>done</b> (delivered wrt the DoD)
+- <b>removed</b> (when created by mistake, eg. a duplicate)
+
+<b>Task status values:</b>
+- <b>to-do</b>
+- <b>in development</b>
+- <b>ready for test/review</b> (by others than the developer)
+- <b>done</b>
+- <b>on hold</b> (still in the sprint, waiting for some event)
 - <b>removed</b> (when created by mistake, eg. a duplicate)
 
 <b>Dependencies:</b><br />

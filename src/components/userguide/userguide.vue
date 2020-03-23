@@ -54,7 +54,7 @@
 							<li>epics which consists of</li>
 							<li>features which consists of</li>
 							<li>pbi's of kind user-story/defect/spike which are realized by executing</li>
-							<li>tasks (TO DO) and</li>
+							<li>tasks</li>
 						</ul>
 					</p>
 
@@ -112,6 +112,16 @@
 							<li>done (delivered wrt the Definition of Done)</li>
 							<li>---------------------------------------------------------------</li>
 							<li>on hold (not in a sprint anymore, waiting on the backlog)</li>
+							<li>removed</li>
+						</ul>
+						Tasks have slightly different states:
+						<ul>
+							<li>ToDo</li>
+							<li>in progress</li>
+							<li>ready for test (by another team member)</li>
+							<li>done (delivered wrt the Definition of Done)</li>
+							<li>---------------------------------------------------------------</li>
+							<li>on hold (still in the sprint, waiting to be continued)</li>
 							<li>removed</li>
 						</ul>
 					</p>
