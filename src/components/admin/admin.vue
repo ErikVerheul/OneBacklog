@@ -106,15 +106,15 @@
         <div v-if="!$store.state.isUserFound">
           <h4>Change the permissions of an existing user to products</h4>
           <b-row class="my-1">
-            <b-col sm="2">
-              User name:
+            <b-col sm="12">
+              Start typing an username or select from the list:
             </b-col>
-            <b-col sm="11">
+            <b-col sm="3">
               <b-form-group>
-                <b-form-radio-group
+                <b-form-select
                   v-model="selectedUser"
                   :options="userOptions"
-                ></b-form-radio-group>
+                ></b-form-select>
               </b-form-group>
             </b-col>
           </b-row>
