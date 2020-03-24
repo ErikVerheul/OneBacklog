@@ -21,32 +21,37 @@ export default {
       const unselectedNodes = []
       // create a callback for the filtering
       let cb = (nm) => {
-        // save node display state
-        nm.savedDoShow = nm.doShow
-        nm.savedIsExpanded = nm.isExpanded
-        // select nodeModels NOT to show; the node is shown if not excluded by any filter
-        let isExcluded = false
-        if (this.filterOnReqAreas) {
-          isExcluded = this.doFilterOnReqAreas(nm)
-        }
-        if (!isExcluded && this.filterOnTeams) {
-          isExcluded = this.doFilterOnTeams(nm)
-        }
-        if (!isExcluded && this.filterOnState) {
-          isExcluded = this.doFilterOnState(nm)
-        }
-        if (!isExcluded && this.filterOnTime) {
-          isExcluded = this.doFilterOnTime(nm)
-        }
-        // if filtering on tree depth expand to that level
-        if (this.filterTreeDepth) {
+        if (onlyFilterOnDepth) {
           nm.isExpanded = nm.level < this.selectedTreeDepth
-        }
-
-        if (!onlyFilterOnDepth) {
+          if (nm.level === this.selectedTreeDepth) return
+        } else {
+          // save node display state
+          nm.savedDoShow = nm.doShow
+          nm.savedIsExpanded = nm.isExpanded
+          // select nodeModels NOT to show; the node is shown if not excluded by any filter
+          let isExcluded = false
+          if (this.filterOnReqAreas) {
+            isExcluded = this.doFilterOnReqAreas(nm)
+          }
+          if (!isExcluded && this.filterOnTeams) {
+            isExcluded = this.doFilterOnTeams(nm)
+          }
+          if (!isExcluded && this.filterOnState) {
+            isExcluded = this.doFilterOnState(nm)
+          }
+          if (!isExcluded && this.filterOnTime) {
+            isExcluded = this.doFilterOnTime(nm)
+          }
           if (!isExcluded) {
-            window.slVueTree.showPath(nm.path, nm.path.length > PRODUCTLEVEL)
-            if (nm.level > PRODUCTLEVEL) count++
+            if (this.filterTreeDepth) {
+              if (nm.level <= this.selectedTreeDepth) {
+                window.slVueTree.showPath(nm.path, nm.path.length > PRODUCTLEVEL)
+                if (nm.level > PRODUCTLEVEL) count++
+              } else return
+            } else {
+              window.slVueTree.showPath(nm.path, nm.path.length > PRODUCTLEVEL)
+              if (nm.level > PRODUCTLEVEL) count++
+            }
           } else {
             unselectedNodes.push(nm)
           }
@@ -57,8 +62,8 @@ export default {
 
       if (!onlyFilterOnDepth) {
         // hide unselected nodes with no selected descendants
-        for (let node of unselectedNodes) {
-          node.doShow = window.slVueTree.hasHighlightedDescendants(node)
+        for (let n of unselectedNodes) {
+          n.doShow = window.slVueTree.hasHighlightedDescendants(n)
         }
         let s
         count === 1 ? s = 'title matches' : s = 'titles match'

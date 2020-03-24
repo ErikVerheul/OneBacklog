@@ -42,12 +42,10 @@ export default {
           isExcluded = this.doFilterOnState(nm)
           doHighLight = !isExcluded
         }
-        // console.log('onApplyMyFilters: isExcluded = ' + isExcluded + ' this.filterOnTime = ' + this.filterOnTime)
         if (!isExcluded && this.filterOnTime) {
           isExcluded = this.doFilterOnTime(nm)
           doHighLight = !isExcluded
         }
-
         if (!isExcluded) {
           window.slVueTree.showPath(nm.path, (nm.path.length > PRODUCTLEVEL) && doHighLight)
           if (nm.level > PRODUCTLEVEL) count++
@@ -59,8 +57,8 @@ export default {
       window.slVueTree.traverseModels(cb)
 
       // hide unselected nodes with no selected descendants
-      for (let node of unselectedNodes) {
-        node.doShow = window.slVueTree.hasHighlightedDescendants(node)
+      for (let n of unselectedNodes) {
+        n.doShow = window.slVueTree.hasHighlightedDescendants(n)
       }
       let s
       count === 1 ? s = 'title matches' : s = 'titles match'
