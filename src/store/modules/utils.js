@@ -31,6 +31,7 @@ const actions = {
       method: 'GET',
       url: '/_all_dbs',
     }).then(res => {
+      console.log('getAllDatabases succeeded')
       rootState.areDatabasesFound = true
       rootState.databaseOptions = []
       switch (selected) {
@@ -245,6 +246,31 @@ const actions = {
       } else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: no team names are found' })
     }).catch(error => {
       let msg = 'getTeamNames: Could not read config document of database ' + dbName + ', ' + error
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
+
+  getSprintCalendar({
+    rootState,
+    dispatch
+  }, dbName) {
+    rootState.isSprintCalendarFound = false
+    rootState.backendMessages = []
+    rootState.defaultSprintCalendar = []
+    globalAxios({
+      method: 'GET',
+      url: dbName + '/config',
+    }).then(res => {
+      if (res.data.defaultSprintCalendar) {
+        rootState.defaultSprintCalendar = res.data.defaultSprintCalendar
+        rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getSprintCalendar: success, ' + rootState.defaultSprintCalendar.length + ' sprint periods are read' })
+        rootState.isSprintCalendarFound = true
+      } else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getSprintCalendar: no calendar is found' })
+    }).catch(error => {
+      let msg = 'getSprintCalendar: Could not read config document of database ' + dbName + ', ' + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)

@@ -69,7 +69,7 @@ When a defect is found after a Pbi is set to done a defect Pbi is created with a
 - the team that refines a pbi becomes the owner of that pbi
 - pbi's are estimated by that team
 
-IN PROGRESS: <b>Sprint backlog and planning board:</b><br />
+[IN PROGRESS]: <b>Sprint backlog and planning board:</b><br />
 The use of the electronic planning board is optional and only advised for use when team members are (need to be) remote
 - a sprint is dedicated to the increment of one product only; The tool should enforce this
 - the team selects the pbi's to work on

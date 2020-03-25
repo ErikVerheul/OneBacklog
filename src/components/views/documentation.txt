@@ -64,6 +64,36 @@ These roles are set during loading by haveWritePermission(...).
 
 	Note that this getter returns permissions for the current product or all products (admin and APO)
 
+
+Sprint Backlog
+==============
+An item, usually a feature or PBI, is assigned to one, and only one, sprint. All descendents of the item are also assigned to that sprint. This is implemented 
+by assigning the item's sprintId to the current sprintId from the sprint calendar. A sprint calendar function returns the sprintId of the current sprint period,
+or when requisted the coming sprint period. Tasks added to PBI automatically inherit the sprintId from their parent. A view on the backlogTems filters the
+items belonging to all used sprints to date. The ordering is doc.productId, doc.sprintId, doc.team, doc.level, doc.priority.
+
+Sprint ids are generated and are unique for all time periods but not for the team. SprintIds are made available by the 'admin'
+and stored in de database CONFIG file. When a team wants to use another time period the PO can copy the default calendar, change the ids and properties and store
+it in the CONFIG file to his team data. Sprint periods cannot overlap but need not be contiguous.
+
+defaultSprintCalendar = [
+	{
+		id: sprintId // string
+		name, // string
+		startTimestamp, // number
+		sprintLength, // number
+	},
+	{
+		id: sprintId // string
+		name, // string
+		startTimestamp, // number
+		sprintLength, // number
+	},
+	...
+]
+
+The tree nodes
+==============
 The nodes in the tree have these data elements and values:
 
 path, // the access path in the tree model
@@ -94,6 +124,7 @@ data: {
 ....priority: doc.priority,
 ....state: doc.state,
 ....reqarea: doc.reqarea, // or null or not present
+....sprintId: doc.sprintId, // the sprint this item is (was) in; or null or not present
 ....inconsistentState: false // calculated on consistency check
 ....team: doc.team, // the team membership of the user who updated the state the last time
 ....taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self

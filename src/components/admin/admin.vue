@@ -8,6 +8,7 @@
       <b-button block @click="createUser">Create a user</b-button>
       <b-button block @click="maintainUsers">Maintain users</b-button>
       <b-button block @click="createTeam">Create a team</b-button>
+      <b-button block @click="createOrUpdateCalendar">Create / Maintain default sprint calendar</b-button>
       <b-button block @click="changeMyDb">Change my default database to any available database</b-button>
       <b-button block @click="listTeams">List teams</b-button>
 
@@ -208,6 +209,86 @@
         <b-button v-if="$store.state.isTeamCreated" class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
       </div>
 
+      <div v-if="optionSelected === 'Sprint calendar'">
+        <div v-if="!isDatabaseSelected">
+          <h4>Maintain the default sprint calendar or create a new one when not existant</h4>
+          <b-form-group>
+            <h5>Select the database for this calendar</h5>
+            <b-form-radio-group
+              v-model="$store.state.selectedDatabaseName"
+              :options="$store.state.databaseOptions"
+              stacked
+            ></b-form-radio-group>
+          </b-form-group>
+          <b-button class="m-1" @click="doLoadCalendar">Continue</b-button>
+        </div>
+        <div v-if="isDatabaseSelected && !$store.state.isSprintCalendarFound && !creatingCalendar">
+          <h5>The calendar is not found, create a new calendar</h5>
+          <b-button class="m-1" @click="creatingCalendar = true">Create calendar</b-button>
+        </div>
+        <div v-if="isDatabaseSelected && !$store.state.isSprintCalendarFound && creatingCalendar">
+          <b-row>
+            <h4>Create a new calendar</h4>
+            <b-col v-if="!startDateStr" sm="12">
+              <center>
+                <p>Choose the start date of the first sprint:</p>
+                <b-calendar v-model="startDateStr"></b-calendar>
+              </center>
+            </b-col>
+            <template v-else>
+              <b-col sm="4"></b-col>
+              <b-col sm="4">
+                <center>
+                  <h4>Selected start date of the first sprint is {{ startDateStr }}</h4>
+                  <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+                    <b-form-group
+                      id="input-group-1"
+                      label="Enter the daytime hour (UTC) the sprint starts and ends:"
+                      label-for="input-1"
+                      description="Choose a number from 0 to 23 and use the UTC clock."
+                    >
+                      <b-form-input
+                        id="input-1"
+                        v-model="sprintStartTimeStr"
+                        type="number"
+                        min="0"
+                        max="23"
+                        step="1"
+                        required
+                      ></b-form-input>
+                    </b-form-group>
+
+                    <b-form-group
+                      id="input-group-2"
+                      label="Enter the sprint length in days:"
+                      label-for="input-2"
+                    >
+                      <b-form-input id="input-2" v-model="sprintLengthStr" type="number" min="1" required></b-form-input>
+                    </b-form-group>
+
+                    <b-form-group
+                      id="input-group-3"
+                      label="Enter the number of sprints to generate:"
+                      label-for="input-3"
+                    >
+                      <b-form-input id="input-3" v-model="numberOfSprintsStr" type="number" min="1" required></b-form-input>
+                    </b-form-group>
+
+                    <b-button class="m-1" type="submit">Submit</b-button>
+                    <b-button class="m-1" type="reset" variant="danger">Reset</b-button>
+                  </b-form>
+                </center>
+              </b-col>
+              <!-- a bogus error from Vetur -->
+              <b-col sm="4"></b-col>
+            </template>
+          </b-row>
+        </div>
+        <div v-if="isDatabaseSelected && $store.state.isSprintCalendarFound && !creatingCalendar">
+          <h5>The calendar is {{ workflowStatusMsg }}, modify calendar</h5>
+        </div>
+      </div>
+
       <div v-if="optionSelected === 'Change my default database to any available database'">
         <h2>Change my default database to any available database</h2>
         <b-form-group>
@@ -264,323 +345,7 @@
   </div>
 </template>
 
-<script>
-import appHeader from '../header/header.vue'
-import router from '../../router'
-
-// returns a new array so that it is reactive
-function addToArray(arr, item) {
-  const newArr = []
-  for (let el of arr) newArr.push(el)
-  newArr.push(item)
-  return newArr
-}
-
-const PRODUCTLEVEL = 2
-const ALLBUTSYSTEMANDBACKUPS = 3
-
-export default {
-  data() {
-    return {
-      optionSelected: 'select a task',
-      productTitle: "",
-      userName: undefined,
-      password: undefined,
-      userEmail: undefined,
-      credentialsReady: false,
-      dbSelected: false,
-      teamName: '',
-      roleOptions: [
-        { text: 'PO', value: 'PO' },
-        { text: 'APO', value: 'APO' },
-        { text: 'developer', value: 'developer' },
-        { text: 'guest', value: 'guest' }
-      ],
-      allRoles: [],
-      localMessage: '',
-      moveDatabase: false,
-      selectedUser: undefined,
-      userOptions: []
-    }
-  },
-
-  mounted() {
-    this.$store.state.backendMessages = []
-    this.$store.dispatch('getAllUsers')
-  },
-
-  methods: {
-    createProduct() {
-      this.optionSelected = 'Create a product'
-    },
-
-    doCreateProduct() {
-      // create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-      const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
-      const _id = Date.now().toString().concat(shortId)
-      const myCurrentProductNodes = window.slVueTree.getProducts()
-      // get the last product node
-      const lastProductNode = myCurrentProductNodes.slice(-1)[0]
-      // use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
-      const priority = -Date.now()
-
-      // create a new document
-      const newProduct = {
-        _id: _id,
-        shortId: shortId,
-        type: 'backlogItem',
-        productId: _id,
-        parentId: 'root',
-        team: 'not assigned yet',
-        level: PRODUCTLEVEL,
-        state: 0,
-        reqarea: null,
-        title: this.productTitle,
-        followers: [],
-        description: window.btoa(""),
-        acceptanceCriteria: window.btoa("<p>Please do not neglect</p>"),
-        priority,
-        comments: [{
-          ignoreEvent: 'comments initiated',
-          timestamp: 0,
-          distributeEvent: false
-        }],
-        delmark: false
-      }
-      // create a new node
-      let newNode = {
-        productId: newProduct.productId,
-        parentId: newProduct.parentId,
-        _id: newProduct._id,
-        shortId: newProduct.shortId,
-        dependencies: [],
-        conditionalFor: [],
-        title: newProduct.title,
-        isLeaf: false,
-        children: [],
-        isSelected: false,
-        isExpanded: true,
-        savedIsExpanded: true,
-        isSelectable: true,
-        isDraggable: newProduct.level > PRODUCTLEVEL,
-        doShow: true,
-        savedDoShow: true,
-        data: {
-          state: newProduct.state,
-          subtype: 0,
-          priority,
-          team: newProduct.team,
-          lastChange: Date.now()
-        }
-      }
-      const cursorPosition = {
-        nodeModel: lastProductNode,
-        placement: 'after'
-      }
-      // add the product to the treemodel, the path etc. will be calculated
-      window.slVueTree.insert(cursorPosition, [newNode], false)
-      // update the users product roles, subscriptions and product selection array
-      this.$store.state.userData.myProductsRoles[_id] = ['admin']
-      this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, _id)
-      this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, _id)
-      this.$store.state.myProductOptions.push({
-        value: _id,
-        text: newProduct.title
-      })
-      // update the database and add the product to this user's subscriptions and productsRoles
-      this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['admin'] })
-    },
-
-    removeProduct() {
-      this.optionSelected = 'Remove a product'
-    },
-
-    showProductView() {
-      router.push('/detailProduct')
-    },
-
-    validEmail: function (email) {
-      var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      if (re.test(email)) {
-        this.localMessage = ''
-        return true
-      }
-      this.localMessage = 'Please enter a valid e-mail address'
-      return false
-    },
-
-    checkCredentials() {
-      if (this.userName && this.password && this.userEmail && this.validEmail(this.userEmail)) {
-        this.credentialsReady = true
-      }
-    },
-
-    /* Get all product titles of the selected database in $store.state.useracc.dbProducts */
-    doGetDbProducts(createNewUser) {
-      this.dbSelected = true
-      this.$store.state.useracc.dbProducts = undefined
-      this.$store.dispatch('getDbProducts', { dbName: this.$store.state.selectedDatabaseName, createNewUser })
-    },
-
-    createUser() {
-      this.optionSelected = 'Create a user'
-      this.userName = undefined
-      this.password = undefined
-      this.userEmail = undefined
-      this.credentialsReady = false
-      this.dbSelected = false
-      this.localMessage = ''
-      this.$store.state.useracc.dbProducts = undefined
-      this.$store.state.useracc.userIsAdmin = false
-      this.$store.state.isUserCreated = false
-      // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doCreateUser() {
-      // calculate the association of all assigned roles
-      this.allRoles = []
-      if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
-      for (let prod of this.$store.state.useracc.dbProducts) {
-        for (let role of prod.roles) {
-          if (!this.allRoles.includes(role)) this.allRoles.push(role)
-        }
-      }
-      // generate the productsRoles and subscriptions properties
-      let productsRoles = {}
-      let subscriptions = []
-      for (let prod of this.$store.state.useracc.dbProducts) {
-        if (prod.roles.length > 0) {
-          productsRoles[prod.id] = prod.roles
-          subscriptions.push(prod.id)
-        }
-      }
-
-      const userData = {
-        name: this.userName,
-        password: this.password,
-        type: "user",
-        roles: this.allRoles,
-        email: this.userEmail,
-        currentDb: this.$store.state.selectedDatabaseName,
-        myDatabases: {
-          [this.$store.state.selectedDatabaseName]: {
-            "myTeam": 'not assigned yet',
-            subscriptions,
-            productsRoles
-          }
-        }
-      }
-      this.$store.dispatch('createUserIfNotExistent', userData)
-    },
-
-    maintainUsers() {
-      this.optionSelected = 'Maintain users'
-      this.localMessage = ''
-      this.$store.state.backendMessages = []
-      this.$store.state.isUserFound = false
-      this.$store.state.areDatabasesFound = false
-      this.$store.state.areProductsFound = false
-      this.$store.state.selectedDatabaseName = ''
-      this.$store.state.isUserUpdated = false
-      // get all non sytem databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
-      // populate the userOptions array
-      this.userOptions = []
-      for (let u of this.$store.state.useracc.allUsers) {
-        this.userOptions.push(u.name)
-      }
-    },
-
-    /* Creates fetchedUserData and have the prod.roles set in products */
-    doFetchUser() {
-      this.moveDatabase = false
-      this.$store.dispatch('getUser', this.selectedUser)
-    },
-
-    doUpdateUser() {
-      const newUserData = this.$store.state.useracc.fetchedUserData
-      const newProductsRoles = this.$store.state.useracc.fetchedUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles
-      // update the productsRoles and subscriptions
-      const newSubscriptions = []
-      for (let prod of this.$store.state.useracc.dbProducts) {
-        if (prod.roles.length > 0) {
-          newProductsRoles[prod.id] = prod.roles
-          if (this.$store.state.useracc.fetchedUserData.myDatabases[this.$store.state.selectedDatabaseName].subscriptions.includes(prod.id)) newSubscriptions.push(prod.id)
-        } else {
-          delete newProductsRoles[prod.id]
-        }
-      }
-      newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles = newProductsRoles
-      newUserData.myDatabases[this.$store.state.selectedDatabaseName].subscriptions = newSubscriptions
-
-      // calculate the association of all assigned roles
-      this.allRoles = []
-      if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
-      for (let database of Object.keys(newUserData.myDatabases)) {
-        for (let productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {
-          for (let role of newUserData.myDatabases[database].productsRoles[productId]) {
-            if (!this.allRoles.includes(role)) this.allRoles.push(role)
-          }
-        }
-      }
-      newUserData.roles = this.allRoles
-      this.$store.dispatch('updateUser', { data: newUserData })
-    },
-
-    createTeam() {
-      this.optionSelected = 'Create a team'
-      this.teamName = ''
-      this.$store.state.isTeamCreated = false
-      // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doCreateTeam() {
-      this.$store.dispatch('addTeamToDatabase', { dbName: this.$store.state.selectedDatabaseName, newTeam: this.teamName })
-    },
-
-    changeMyDb() {
-      this.optionSelected = 'Change my default database to any available database'
-      this.localMessage = ''
-      this.$store.state.isCurrentDbChanged = false
-      // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doChangeMyDb() {
-      this.$store.dispatch('changeCurrentDb', this.$store.state.selectedDatabaseName)
-    },
-
-    listTeams() {
-      this.optionSelected = 'List teams'
-      this.$store.state.backendMessages = []
-      this.$store.state.fetchedTeams = []
-      this.$store.state.areTeamsFound = false
-      // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doGetTeamsOfDb() {
-      this.$store.dispatch('getTeamNames', this.$store.state.selectedDatabaseName)
-    },
-
-    cancel() {
-      this.optionSelected = 'select a task'
-      this.$store.state.backendMessages = []
-    },
-
-    signIn() {
-      this.$store.commit('resetData', null, { root: true })
-      router.replace('/')
-    }
-  },
-
-  components: {
-    'app-header': appHeader
-  }
-}
-</script>
+<script src="./admin.js"></script>
 
 <style lang="css" scoped>
 h4,
