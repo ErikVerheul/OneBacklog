@@ -229,12 +229,14 @@
         <div v-if="isDatabaseSelected && !$store.state.isSprintCalendarFound && creatingCalendar">
           <b-row>
             <h4>Create a new calendar</h4>
-            <b-col v-if="!startDateStr" sm="12">
+            <template v-if="!startDateStr" sm="12">
+            <b-col>
               <center>
                 <p>Choose the start date of the first sprint:</p>
                 <b-calendar v-model="startDateStr"></b-calendar>
               </center>
             </b-col>
+            </template>
             <template v-else>
               <b-col sm="4"></b-col>
               <b-col sm="4">
@@ -286,6 +288,7 @@
         </div>
         <div v-if="isDatabaseSelected && $store.state.isSprintCalendarFound && !creatingCalendar">
           <h5>The calendar is {{ workflowStatusMsg }}, modify calendar</h5>
+          <p>NOT IMPLEMENTED YET</p>
         </div>
       </div>
 
