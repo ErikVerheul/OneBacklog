@@ -31,7 +31,6 @@ const actions = {
       method: 'GET',
       url: '/_all_dbs',
     }).then(res => {
-      console.log('getAllDatabases succeeded')
       rootState.areDatabasesFound = true
       rootState.databaseOptions = []
       switch (selected) {
@@ -271,6 +270,27 @@ const actions = {
       } else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getSprintCalendar: no calendar is found' })
     }).catch(error => {
       let msg = 'getSprintCalendar: Could not read config document of database ' + dbName + ', ' + error
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
+
+  saveSprintCalendar({
+    rootState,
+    dispatch
+  }, payload) {
+    globalAxios({
+      method: 'GET',
+      url: payload.dbName + '/config',
+    }).then(res => {
+      let updatedDoc = res.data
+      updatedDoc["defaultSprintCalendar"] = payload.newSprintCalendar
+      dispatch('updateDoc', { dbName: payload.dbName, updatedDoc })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveSprintCalendar: calendar is saved' })
+    }).catch(error => {
+      let msg = 'saveSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
