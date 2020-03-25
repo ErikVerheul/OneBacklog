@@ -335,10 +335,10 @@ const actions = {
 						case 'removeAttachmentEvent':
 							node.data.lastAttachmentAddition = 0
 							break
-						case 'removeParentEvent':
+						case 'updateParentHistEvent':
 							if (doc.delmark) {
 								// remove any dependency references to/from outside the removed items
-								window.slVueTree.correctDependencies(lastHistObj.removeParentEvent[0], lastHistObj.removeParentEvent[1])
+								window.slVueTree.correctDependencies(lastHistObj.updateParentHistEvent[0], lastHistObj.updateParentHistEvent[1])
 								if (node) {
 									window.slVueTree.remove([node])
 									if (lastHistObj.by === rootState.userData.user) {

@@ -82,7 +82,7 @@ export default {
           if (keys[j] === "nodeUndoMoveEvent") allText += this.mkNodeUndoMoveEvent(histItem[keys[j]])
           if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
           if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
-          if (keys[j] === "removeParentEvent") allText += this.mkRemoveParentEvent(histItem[keys[j]])
+          if (keys[j] === "updateParentHistEvent") allText += this.mkUpdateParentHistEvent(histItem[keys[j]])
           if (keys[j] === "setConditionsEvent") allText += this.mkSetConditionsEvent(histItem[keys[j]])
           if (keys[j] === "setDependenciesEvent") allText += this.mkSetDependenciesEvent(histItem[keys[j]])
           if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
@@ -154,7 +154,7 @@ export default {
       if (key === "nodeUndoMoveEvent") return this.mkNodeUndoMoveEvent(value)
       if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
       if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
-      if (key === "removeParentEvent") return this.mkRemoveParentEvent(value)
+      if (key === "updateParentHistEvent") return this.mkUpdateParentHistEvent(value)
       if (key === "setConditionsEvent") return this.mkSetConditionsEvent(value)
       if (key === "setDependenciesEvent") return this.mkSetDependenciesEvent(value)
       if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
@@ -274,7 +274,7 @@ export default {
       return `<h5>This item was removed as descendant of ${this.getLevelText(value[0], value[1])} '${value[2]}'</h5>`
     },
 
-    mkRemoveParentEvent(value) {
+    mkUpdateParentHistEvent(value) {
       return `<h5>This item and ${value[0].length} descendants are removed.</h5>
         <p>From the descendants ${value[1]} external dependencies and ${value[2]} external conditions were removed.</p>`
     },

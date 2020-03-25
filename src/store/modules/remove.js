@@ -256,7 +256,7 @@ const actions = {
 
             // transfer these calls to updateBulk so that they are executed after successful removal only
             const toDispatch = {
-                removeParent: payload
+                updateParentHist: payload
             }
             if (externalDependencies.length > 0) {
                 // remove the conditions in the documents not removed which match the externalDependencies
@@ -277,7 +277,7 @@ const actions = {
     },
 
     /* Add history to the removed document */
-    removeParent({
+    updateParentHist({
         rootState,
         dispatch
     }, payload) {
@@ -288,7 +288,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removeParentEvent": [payload.descendantsIds, payload.extDepsCount, payload.extCondsCount],
+                "updateParentHistEvent": [payload.descendantsIds, payload.extDepsCount, payload.extCondsCount],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -314,7 +314,7 @@ const actions = {
                 onFailureCallback: function() { rootState.busyRemoving = false }
             })
         }).catch(error => {
-            let msg = 'removeParent: Could not read document with _id ' + _id + ',' + error
+            let msg = 'updateParentHist: Could not read document with _id ' + _id + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
