@@ -1,5 +1,6 @@
 import appHeader from '../header/header.vue'
 import router from '../../router'
+import { utilities } from '../mixins/utilities.js'
 
 // returns a new array so that it is reactive
 function addToArray(arr, item) {
@@ -13,6 +14,8 @@ const PRODUCTLEVEL = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
 
 export default {
+    mixins: [utilities],
+
   data() {
     return {
       optionSelected: 'select a task',
@@ -76,9 +79,7 @@ export default {
     },
 
     doCreateProduct() {
-      // create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-      const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
-      const _id = Date.now().toString().concat(shortId)
+      const ids = this.createId()
       const myCurrentProductNodes = window.slVueTree.getProducts()
       // get the last product node
       const lastProductNode = myCurrentProductNodes.slice(-1)[0]
@@ -87,10 +88,10 @@ export default {
 
       // create a new document
       const newProduct = {
-        _id: _id,
-        shortId: shortId,
+        _id: ids.id,
+        shortId: ids.shortId,
         type: 'backlogItem',
-        productId: _id,
+        productId: ids.id,
         parentId: 'root',
         team: 'not assigned yet',
         level: PRODUCTLEVEL,
@@ -141,11 +142,11 @@ export default {
       // add the product to the treemodel, the path etc. will be calculated
       window.slVueTree.insert(cursorPosition, [newNode], false)
       // update the users product roles, subscriptions and product selection array
-      this.$store.state.userData.myProductsRoles[_id] = ['admin']
-      this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, _id)
-      this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, _id)
+      this.$store.state.userData.myProductsRoles[ids.id] = ['admin']
+      this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, ids.id)
+      this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, ids.id)
       this.$store.state.myProductOptions.push({
-        value: _id,
+        value: ids.id,
         text: newProduct.title
       })
       // update the database and add the product to this user's subscriptions and productsRoles
@@ -317,11 +318,11 @@ export default {
         }
         defaultSprintCalendar.push(obj)
       }
-      console.log('doCreateCalendar: defaultSprintCalendar = ' + JSON.stringify(defaultSprintCalendar, null, 2))
       this.creatingCalendar = false
       this.$store.state.isSprintCalendarFound = true
       this.$store.state.backendMessages = []
       this.workflowStatusMsg = 'created'
+      this.$store.dispatch('saveSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: defaultSprintCalendar })
     },
 
     createTeam() {

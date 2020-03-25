@@ -167,7 +167,7 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
-		// a copy of the showLastEvent mixin which can not be used here
+		/* A copy of the showLastEvent mixin which can not be used in modules */
 		showLastEvent(state, payload) {
 			switch (payload.severity) {
 				case DEBUG:

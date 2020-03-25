@@ -420,7 +420,7 @@ const actions = {
 		rootState,
 		dispatch
 	}, dbName) {
-		// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
+		// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
 		const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
 		const _id = Date.now().toString().concat(shortId)
 		// create a new document and store it

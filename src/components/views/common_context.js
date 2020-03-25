@@ -91,8 +91,9 @@ export default {
         },
 
         doCloneItem(node) {
-            const newShortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
-            const newId = Date.now().toString().concat(newShortId)
+            const ids = this.createId()
+            const newId = ids.id
+            const newShortId = ids.shortId
             let insertPosition
 
             const prevNode = window.slVueTree.getPreviousNode(node.path)
@@ -275,11 +276,9 @@ export default {
             newNode.level = path.length
 
             if (this.haveWritePermission[insertLevel]) {
-                // create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-                const extension = Math.random().toString(36).replace('0.', '').substr(0, 5)
-                const newId = Date.now().toString().concat(extension)
-                newNode._id = newId
-                newNode.shortId = extension
+                const ids = this.createId()
+                newNode._id = ids.id
+                newNode.shortId = ids.shortId
                 if (newNodeLocation.placement === 'inside') {
                     // unselect the node that was clicked before the insert and expand it to show the inserted node
                     this.contextNodeSelected.isSelected = false

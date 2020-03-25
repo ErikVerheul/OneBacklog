@@ -98,6 +98,7 @@ const actions = {
             for (let i = 0; i < docs.length; i++) {
                 // compute a new id and shortId, remember old id
                 const oldId = docs[i]._id
+                // A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
                 const newShortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
                 const newId = Date.now().toString().concat(newShortId)
                 // the first document is the product
