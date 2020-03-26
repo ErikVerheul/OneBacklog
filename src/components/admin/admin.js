@@ -309,7 +309,7 @@ export default {
 
       const defaultSprintCalendar = []
       for (let i = 0; i < numberOfSprints; i++) {
-        const sprintId = i.toString()
+        const sprintId = this.createId().id
         const obj = {
           id: sprintId,
           name: 'sprint-' + i,
