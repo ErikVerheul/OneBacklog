@@ -14,6 +14,29 @@ export const utilities = {
 			return { id: Date.now().toString().concat(shortId), extension: shortId}
 		},
 
+		/* Return the sprint record with the id or null if not found */
+		getSprint(id) {
+			for (let s of this.$store.state.configData.defaultSprintCalendar) {
+				if (s.id === id) return s
+			}
+			return null
+		},
+
+		getCurrentAndNextSprint() {
+			const now = Date.now()
+			let currentSprint = undefined
+			let nextSprint = undefined
+			for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
+				const s = this.$store.state.configData.defaultSprintCalendar[i]
+				if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
+					currentSprint = s
+					nextSprint = this.$store.state.configData.defaultSprintCalendar[i + 1]
+					break
+				}
+			}
+			return { currentSprint, nextSprint }
+		},
+
 		showLastEvent(txt, severity) {
 			let eventBgColor = DEFAULTCOLOR
 			switch (severity) {
