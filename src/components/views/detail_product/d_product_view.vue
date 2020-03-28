@@ -23,64 +23,68 @@
         </b-nav-form>
       </b-navbar-nav>
     </app-header>
-    <div class="d-table w-100">
-      <span class="d-table-cell tal">
-        <h3 v-if="getCurrentItemLevel <= epicLevel">
-          {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
-          <input
-            type="text"
-            size="3"
-            maxlength="3"
-            id="tShirtSizeId"
-            :value="getCurrentItemTsSize"
-            @blur="updateTsSize()"
-          />
-        </h3>
-        <h3
-          v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype !== spikeSubtype)"
-        >
-          Story points:
-          <input
-            type="text"
-            size="3"
-            maxlength="3"
-            id="storyPointsId"
-            :value="$store.state.currentDoc.spsize"
-            @blur="updateStoryPoints()"
-          />
-        </h3>
-        <h3
-          v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === spikeSubtype"
-        >
-          Person hours:
-          <input
-            type="text"
-            size="3"
-            maxlength="3"
-            id="personHoursId"
-            :value="$store.state.currentDoc.spikepersonhours"
-            @blur="updatePersonHours()"
-          />
-        </h3>
-      </span>
-      <span class="d-table-cell tac">
-        <h3>{{ $store.state.currentProductTitle }}</h3>
-      </span>
-      <span class="d-table-cell tar">
-        <h3>
-          State:
-          <b-dropdown id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
-            <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
-            <b-dropdown-item @click="onStateChange(2)">{{ getItemStateText(2) }}</b-dropdown-item>
-            <b-dropdown-item @click="onStateChange(3)">{{ getItemStateText(3) }}</b-dropdown-item>
-            <b-dropdown-item @click="onStateChange(4)">{{ getItemStateText(4) }}</b-dropdown-item>
-            <b-dropdown-item @click="onStateChange(5)">{{ getItemStateText(5) }}</b-dropdown-item>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-item @click="onStateChange(1)">{{ getItemStateText(1) }}</b-dropdown-item>
-            <b-dropdown-item @click="onStateChange(0)">{{ getItemStateText(0) }}</b-dropdown-item>
-          </b-dropdown>
-        </h3>
-      </span>
+    <div>
+      <b-container>
+        <b-row>
+          <b-col cols="5">
+            <h3 v-if="getCurrentItemLevel <= epicLevel">
+              {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
+              <input
+                type="text"
+                size="3"
+                maxlength="3"
+                id="tShirtSizeId"
+                :value="getCurrentItemTsSize"
+                @blur="updateTsSize()"
+              />
+            </h3>
+            <h3
+              v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype !== spikeSubtype)"
+            >
+              Story points:
+              <input
+                type="text"
+                size="3"
+                maxlength="3"
+                id="storyPointsId"
+                :value="$store.state.currentDoc.spsize"
+                @blur="updateStoryPoints()"
+              />
+            </h3>
+            <h3
+              v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === spikeSubtype"
+            >
+              Person hours:
+              <input
+                type="text"
+                size="3"
+                maxlength="3"
+                id="personHoursId"
+                :value="$store.state.currentDoc.spikepersonhours"
+                @blur="updatePersonHours()"
+              />
+            </h3>
+          </b-col>
+          <b-col cols="5">
+            <h3>{{ $store.state.currentProductTitle }}</h3>
+          </b-col>
+          <b-col cols="2">
+            <h3 align="right">
+              State:
+              <b-dropdown id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
+                <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
+                <b-dropdown-item @click="onStateChange(2)">{{ getItemStateText(2) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(3)">{{ getItemStateText(3) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(4)">{{ getItemStateText(4) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(5)">{{ getItemStateText(5) }}</b-dropdown-item>
+                <b-dropdown-divider></b-dropdown-divider>
+                <b-dropdown-item @click="onStateChange(1)">{{ getItemStateText(1) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(0)">{{ getItemStateText(0) }}</b-dropdown-item>
+              </b-dropdown>
+            </h3>
+          </b-col>
+        </b-row>
+      </b-container>
     </div>
     <!-- vertical panes -->
     <multipane class="custom-resizer" layout="vertical">
@@ -421,6 +425,11 @@
 }
 
 // other stuff
+.container {
+    margin-top: 10px;
+    max-width: 100%;
+}
+
 .d-table {
   display: table;
 }
