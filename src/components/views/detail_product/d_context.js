@@ -3,11 +3,29 @@ import CommonContext from '../common_context.js'
 
 const INFO = 0
 const WARNING = 1
+const PBILEVEL = 5
+const TASKLEVEL = 6
 var movedNode = null
+var sprints
 
 export default {
   mixins: [utilities],
   extends: CommonContext,
+
+  created() {
+    this.TOSPRINT = 11
+    this.FROMSPRINT = 12
+  },
+
+  mounted() {
+    sprints = this.getCurrentAndNextSprint()
+  },
+
+  data() {
+    return {
+      isInSprint: false
+    }
+  },
 
   methods: {
     showContextMenu(node) {
@@ -33,6 +51,7 @@ export default {
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = this.haveWritePermission[node.level]
+        this.isInSprint = node.sprintId && this.isCurrentOrNextPrintId(node.sprintId)
         window.showContextMenuRef.show()
       }
     },
@@ -170,6 +189,9 @@ export default {
         case this.TOSPRINT:
           this.doAddToSprint()
           break
+        case this.FROMSPRINT:
+          this.doRemoveFromSprint()
+          break
       }
     },
 
@@ -302,8 +324,27 @@ export default {
     },
 
     doAddToSprint() {
-      console.log('doAddToSprint is called')
       window.assignToSprintRef.show()
+    },
+
+    doRemoveFromSprint() {
+      function getSprintName(id) {
+        if (id === sprints.currentSprint.id) {
+          return sprints.currentSprint.name
+        } else return sprints.nextSprint.name
+      }
+
+      const currentId = this.$store.state.currentDoc._id
+      let itemIds = []
+      if (this.$store.state.currentDoc.level === PBILEVEL) {
+        itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
+      }
+      if (this.$store.state.currentDoc.level === TASKLEVEL) {
+        itemIds = [currentId]
+      }
+      // show children nodes
+      window.slVueTree.getNodeById(currentId).isExpanded = true
+      this.$store.dispatch('removeSprintIds', { itemIds, sprintName: getSprintName(this.selectedSprint) })
     }
   }
 }

@@ -33,7 +33,6 @@ export default {
         this.SHOWCONDITIONS = 8
         this.CLONEPRODUCT = 9
         this.CLONEITEM = 10
-        this.TOSPRINT = 11
     },
 
     data() {
@@ -200,6 +199,7 @@ export default {
 		/*
 		 * Create and insert a new node in the tree and create a document for this new item
 		 * A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
+         * This method also contains 'Product details' view specific code
 		 */
         doInsertNewItem() {
             const locationPath = this.contextNodeSelected.path

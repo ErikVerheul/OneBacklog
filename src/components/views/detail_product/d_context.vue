@@ -143,6 +143,14 @@
             >Assing this {{ contextNodeType }} to a sprint</b-list-group-item>
 
             <b-list-group-item
+              v-if="isInSprint && (contextNodeLevel === pbiLevel || contextNodeLevel === taskLevel)"
+              button
+              :active="contextOptionSelected === FROMSPRINT"
+              variant="dark"
+              @click="showSelected(FROMSPRINT)"
+            >Remove this {{ contextNodeType }} from the sprint</b-list-group-item>
+
+            <b-list-group-item
               v-if="allowRemoval && contextNodeLevel >= productLevel"
               button
               :active="contextOptionSelected === REMOVEITEM"

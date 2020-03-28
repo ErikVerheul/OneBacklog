@@ -208,6 +208,7 @@ distibuted	mailed		event                       	file
 -----------------------------------------------------------------
 Y	            Y	    acceptanceEvent	              	update.js
 Y	            Y	    addCommentEvent	              	update.js
+Y				Y		addSprintIdsEvent				update.js
 N	            Y	    cloneEvent	                  	clone.js
 Y	            Y	    commentToHistoryEvent	        update.js
 Y	            Y	    conditionRemovedEvent	        update.js
@@ -226,7 +227,8 @@ Y	            Y	    nodeDroppedEvent	            move.js
 Y	            Y	    nodeUndoMoveEvent	            move.js
 Y	            Y	    removeAttachmentEvent	        attachments.js
 N	            Y	    removedFromParentEvent	      	remove.js
-Y	            N	    updateParentHistEvent	            remove.js
+Y 				Y 		removeSprintIdsEvent			update.js
+Y	            N	    updateParentHistEvent	        remove.js
 Y	            Y	    setConditionsEvent	          	update.js
 Y	            Y	    setDependenciesEvent	        update.js
 Y	            Y	    setHrsEvent	                  	update.js

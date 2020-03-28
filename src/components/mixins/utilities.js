@@ -37,6 +37,11 @@ export const utilities = {
 			return { currentSprint, nextSprint }
 		},
 
+		isCurrentOrNextPrintId(id) {
+			const sprints = this.getCurrentAndNextSprint()
+			return id === sprints.currentSprint.id || id === sprints.nextSprint.id
+		},
+
 		showLastEvent(txt, severity) {
 			let eventBgColor = DEFAULTCOLOR
 			switch (severity) {

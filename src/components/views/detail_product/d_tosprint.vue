@@ -16,6 +16,7 @@
 
 <script>
 import { utilities } from '../../mixins/utilities.js'
+const WARNING = 1
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 var sprints
@@ -71,6 +72,10 @@ export default {
       let itemIds = []
       if (this.$store.state.currentDoc.level === FEATURELEVEL) {
         itemIds = window.slVueTree.getDescendantsInfoOnId(currentId).ids
+        if (itemIds.length === 0) {
+          this.showLastEvent(`This feature has no PBI's to add to the sprint`, WARNING)
+          return
+          }
       }
       if (this.$store.state.currentDoc.level === PBILEVEL) {
         itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)

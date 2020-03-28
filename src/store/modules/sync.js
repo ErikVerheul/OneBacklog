@@ -406,6 +406,10 @@ const actions = {
 							node.sprintId = doc.sprintId
 							if (documentInView) rootState.currentDoc.sprintId = doc.sprintId
 							break
+						case 'removeSprintIdsEvent':
+							node.sprintId = undefined
+							if (documentInView) rootState.currentDoc.sprintId = undefined
+							break
 						default:
 							// eslint-disable-next-line no-console
 							if (rootState.debug) console.log('sync: not found, event = ' + histEvent)

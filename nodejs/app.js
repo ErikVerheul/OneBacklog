@@ -3,7 +3,7 @@ require('dotenv').config();
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
     "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent", "newChildEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent",
     "setConditionsEvent", "setDependenciesEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
-    "setTitleEvent", "uploadAttachmentEvent"];
+    "removeSprintIdsEvent", "setTitleEvent", "uploadAttachmentEvent"];
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984');
 const atob = require('atob');
 const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' });
@@ -110,6 +110,8 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "removedFromParentEvent":
             return mkHeader() + `<h3>${getLevelText(dbName, value[0], value[3])} with title: '${value[1]}' and ${value[2]} descendants are removed from this parent</h3>
             <p>From the descendants ${value[4]} external dependencies and ${value[5]} external conditions were removed.</p>` + mkFooter()
+        case "removeSprintIdsEvent":
+            return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>` + mkFooter()
         case "setConditionsEvent":
             return mkHeader() + `<h3>Conditions on this item set for ${convertToShortIds(value[0])} are now set for ${convertToShortIds(value[1])} (short Ids)</h3>` + mkFooter()
         case "setDependenciesEvent":

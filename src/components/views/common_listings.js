@@ -97,6 +97,7 @@ export default {
           if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
           if (keys[j] === "resetHistoryEvent") allText += this.mkResetHistoryEvent(histItem[keys[j]])
           if (keys[j] === "addSprintIdsEvent") allText += this.mkAddSprintIdsEvent(histItem[keys[j]])
+          if (keys[j] === "removeSprintIdsEvent") allText += this.mkRemoveSprintIdsEvent(histItem[keys[j]])
 
           if (keys[j] === "by") allText += this.mkBy(histItem[keys[j]])
           if (keys[j] === "timestamp") allText += this.mkTimestamp(histItem[keys[j]])
@@ -170,6 +171,7 @@ export default {
       if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
       if (key === "resetHistoryEvent") return this.mkResetHistoryEvent(value)
       if (key === "addSprintIdsEvent") return this.mkAddSprintIdsEvent(value)
+      if (key === "removeSprintIdsEvent") return this.mkRemoveSprintIdsEvent(value)
 
       if (key === "by") return this.mkBy(value)
       if (key === "timestamp") return this.mkTimestamp(value)
@@ -333,6 +335,10 @@ export default {
      let txt =  `This ${this.getLevelText(value[0], value[1])} is assigned to sprint '${value[2]}'.`
      if (value[3]) txt += ` The item was assigned to a sprint before.`
      return `<h5> ${txt} </h5>`
+    },
+
+    mkRemoveSprintIdsEvent(value) {
+      return `<h5>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}</h5>`
     },
 
     mkResetCommentsEvent(value) {
