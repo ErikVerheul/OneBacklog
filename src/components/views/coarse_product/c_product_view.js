@@ -225,6 +225,7 @@ export default {
       if (selNodes.length === 1) {
         this.selectedNodesTitle = title
         evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
+        if (selNodes[0].data.reqarea) evt += ` The item is member of requirement area '${this.$store.state.reqAreaMapper[selNodes[0].data.reqarea]}'`
       } else {
         this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
         evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
