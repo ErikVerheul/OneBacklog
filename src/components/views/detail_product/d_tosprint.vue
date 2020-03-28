@@ -75,8 +75,8 @@ export default {
       if (this.$store.state.currentDoc.level === PBILEVEL) {
         itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
       }
-      this.$store.state.currentDoc.sprintId = this.selectedSprint
-      this.$store.state.nodeSelected.sprintId = this.selectedSprint
+      // show children nodes
+      window.slVueTree.getNodeById(currentId).isExpanded = true
       this.$store.dispatch('addSprintIds', { itemIds, sprintId: this.selectedSprint, sprintName: getSprintName(this.selectedSprint) })
     },
   }

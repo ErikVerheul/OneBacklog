@@ -756,6 +756,10 @@ const actions = {
 					const doc = envelope.ok
 					const reAssigned = doc.sprintId !== undefined
 					doc.sprintId = payload.sprintId
+					// update the tree view
+					const node = window.slVueTree.getNodeById(doc._id)
+					if (node) node.sprintId = payload.sprintId
+
 					const newHist = {
 						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned],
 						"by": rootState.userData.user,
