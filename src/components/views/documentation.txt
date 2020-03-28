@@ -67,14 +67,16 @@ These roles are set during loading by haveWritePermission(...).
 
 Sprint Backlog
 ==============
-An item, usually a feature or PBI, is assigned to one, and only one, sprint. All descendents of the item are also assigned to that sprint. This is implemented 
-by assigning the item's sprintId to the current sprintId from the sprint calendar. A sprint calendar function returns the sprintId of the current sprint period,
-or when requisted the coming sprint period. Tasks added to PBI automatically inherit the sprintId from their parent. A view on the backlogTems filters the
-items belonging to all used sprints to date. The ordering is doc.productId, doc.sprintId, doc.team, doc.level, doc.priority.
+From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:
+ - When a feature is selected all its descendents (PBI's and tasks) are assigned
+ - When a PBI is selected, that PBI and it descendent tasks are assigned
+ - individual tasks cannot be assigned to a sprint (but can on the planning board)
 
-Sprint ids are generated and are unique for all time periods but not for the team. SprintIds are made available by the 'admin'
-and stored in de database CONFIG file. When a team wants to use another time period the PO can copy the default calendar, change the ids and properties and store
-it in the CONFIG file to his team data. Sprint periods cannot overlap but need not be contiguous.
+Tasks added to a PBI later will automatically inherit the sprintId from their parent.
+
+SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
+For now the calendar is stored in de database CONFIG file. Eventually products and even teams can have their own sprint calendar.
+Then, the calendar items (iterations) are stored as type 'calendar' in the database, and not in the CONFIG file.
 
 defaultSprintCalendar = [
 	{
@@ -224,7 +226,7 @@ Y	            Y	    nodeDroppedEvent	            move.js
 Y	            Y	    nodeUndoMoveEvent	            move.js
 Y	            Y	    removeAttachmentEvent	        attachments.js
 N	            Y	    removedFromParentEvent	      	remove.js
-Y	            N	    removeParentEvent	            remove.js
+Y	            N	    updateParentHistEvent	            remove.js
 Y	            Y	    setConditionsEvent	          	update.js
 Y	            Y	    setDependenciesEvent	        update.js
 Y	            Y	    setHrsEvent	                  	update.js

@@ -195,6 +195,7 @@ const actions = {
 
 									"productId": doc.productId,
 									"parentId": doc.parentId,
+									"sprintId": doc.sprintId,
 									"_id": doc._id,
 									"shortId": doc.shortId,
 									"dependencies": doc.dependencies || [],
@@ -400,6 +401,10 @@ const actions = {
 							break
 						case 'uploadAttachmentEvent':
 							node.data.lastAttachmentAddition = lastHistoryTimestamp
+							break
+						case 'addSprintIdsEvent':
+							node.sprintId = doc.sprintId
+							if (documentInView) rootState.currentDoc.sprintId = doc.sprintId
 							break
 						default:
 							// eslint-disable-next-line no-console

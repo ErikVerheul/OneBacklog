@@ -6,6 +6,7 @@ import CommonView from '../common_view.js'
 import context from './d_context.vue'
 import filters from './d_filters.vue'
 import listings from './d_listings.vue'
+import tosprint from './d_tosprint.vue'
 
 const INFO = 0
 const WARNING = 1
@@ -35,6 +36,7 @@ export default {
   mounted() {
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
+    this.sprints = this.getCurrentAndNextSprint()
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;
@@ -81,6 +83,12 @@ export default {
         window.slVueTree.resetFilters('searchInput')
       }
     })
+  },
+
+  data() {
+    return {
+      sprints: []
+    }
   },
 
   watch: {
@@ -150,6 +158,37 @@ export default {
   },
 
   methods: {
+    inSprint(node) {
+      const sprintId = node.sprintId
+      if (!sprintId) {
+        // item not in any sprint
+        return false
+      }
+      if (this.sprints === undefined) {
+        // no sprint definitions available
+        return false
+      }
+      const itemSprint = this.getSprint(sprintId)
+      if (itemSprint === null) {
+        // sprint not found
+        return false
+      }
+      if (sprintId === this.sprints.currentSprint.id || sprintId === this.sprints.nextSprint.id) {
+        return true
+      }
+      return false
+    },
+
+    getSprintTxt(node) {
+      const sprintId = node.sprintId
+      if (sprintId === this.sprints.currentSprint.id) {
+        return 'current'
+      }
+      if (sprintId === this.sprints.nextSprint.id) {
+        return 'next'
+      }
+    },
+
     onTreeIsLoaded() {
       window.slVueTree.setDescendentsReqArea()
       this.dependencyViolationsFound()
@@ -294,6 +333,7 @@ export default {
     slVueTree,
     context,
     filters,
-    listings
+    listings,
+    tosprint
   }
 }

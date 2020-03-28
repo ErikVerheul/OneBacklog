@@ -471,6 +471,13 @@ export default {
 			}
 		},
 
+		getDescendantsInfoOnId(parentId) {
+			const node = this.getNodeById(parentId)
+			if (node !== null) {
+				return this.getDescendantsInfo(node)
+			}
+		},
+
 		getProductTitle(productId) {
 			if (this.currentValue[0].children) {
 				const products = this.currentValue[0].children

@@ -33,6 +33,7 @@ export default {
         this.SHOWCONDITIONS = 8
         this.CLONEPRODUCT = 9
         this.CLONEITEM = 10
+        this.TOSPRINT = 11
     },
 
     data() {
@@ -257,13 +258,17 @@ export default {
             }
 
             let team = 'not assigned yet'
+            let sprintId = undefined
             let taskOwner = undefined
             if (insertLevel === TASKLEVEL) {
-                // when inserting a task, copy the team name from the parent or sibling
+                // when inserting a task, copy the team name from the parent PBI or sibling task
                 team = this.contextNodeSelected.data.team
                 // and set the task owner
                 taskOwner = this.$store.state.userData.user
                 newNode.data.taskOwner = taskOwner
+                // when inserting a task, copy the sprintId from the parent PBI or sibling task
+                sprintId = this.contextNodeSelected.sprintId
+                newNode.sprintId = sprintId
             }
 
             newNode.data.team = team
@@ -299,6 +304,7 @@ export default {
                     "type": "backlogItem",
                     "productId": newNode.productId,
                     "parentId": newNode.parentId,
+                    "sprintId": sprintId,
                     "team": team,
                     "taskOwner": taskOwner,
                     "level": insertLevel,

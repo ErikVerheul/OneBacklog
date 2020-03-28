@@ -135,6 +135,14 @@
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
+              v-if="contextNodeLevel === featureLevel || contextNodeLevel === pbiLevel"
+              button
+              :active="contextOptionSelected === TOSPRINT"
+              variant="dark"
+              @click="showSelected(TOSPRINT)"
+            >Assing this {{ contextNodeType }} to a sprint</b-list-group-item>
+
+            <b-list-group-item
               v-if="allowRemoval && contextNodeLevel >= productLevel"
               button
               :active="contextOptionSelected === REMOVEITEM"

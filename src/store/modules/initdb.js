@@ -233,7 +233,7 @@ const actions = {
 							}
 							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
 							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.productId, doc.level, doc.priority * -1],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color, doc.sprintId]);
 						}`
 					},
 					/* Filter up to and including the feature level */

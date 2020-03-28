@@ -167,6 +167,9 @@ export default {
         case this.SHOWCONDITIONS:
           this.doUpdateConditions()
           break
+        case this.TOSPRINT:
+          this.doAddToSprint()
+          break
       }
     },
 
@@ -296,6 +299,11 @@ export default {
         this.moveSourceProductId = this.$store.state.currentProductId
         movedNode = this.contextNodeSelected
       }
+    },
+
+    doAddToSprint() {
+      console.log('doAddToSprint is called')
+      window.assignToSprintRef.show()
     }
   }
 }

@@ -734,6 +734,60 @@ const actions = {
 		})
 	},
 
+	addSprintIds({
+		rootState,
+		dispatch
+	}, payload) {
+		const docsToGet = []
+		for (let id of payload.itemIds) {
+			docsToGet.push({ "id": id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const reAssigned = doc.sprintId !== undefined
+					doc.sprintId = payload.sprintId
+					const newHist = {
+						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned],
+						"by": rootState.userData.user,
+						"timestamp": Date.now(),
+						"sessionId": rootState.userData.sessionId,
+						"distributeEvent": true
+					}
+					doc.history.unshift(newHist)
+					docs.push(doc)
+				}
+
+				if (envelope.error) error.push(envelope.error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+				}
+				let msg = 'addSprintIds: These documents cannot change requirement area: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+		}).catch(error => {
+			let msg = 'addSprintIds: Could not read batch of documents: ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	// update document by creating a new revision
 	updateDoc({
 		rootState,

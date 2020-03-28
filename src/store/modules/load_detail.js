@@ -100,6 +100,7 @@ const mutations = {
             const history = item.value[8]
             const lastComment = item.value[9]
             const reqAreaItemcolor = item.value[10] || null
+            const sprintId = item.value[11]
             // initialize with the root document
             if (level === 1) {
                 rootState.treeNodes = [
@@ -179,6 +180,7 @@ const mutations = {
                     level: path.length,
                     productId,
                     parentId,
+                    sprintId,
                     _id,
                     shortId: _id.slice(-5),
                     dependencies,

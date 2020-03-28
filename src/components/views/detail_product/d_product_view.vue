@@ -153,6 +153,7 @@
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
 
               <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
+              <b-badge v-if="inSprint(node)" variant="info">In  {{ getSprintTxt(node) }} sprint</b-badge>
             </template>
 
             <template slot="toggle" slot-scope="{ node }">
@@ -290,10 +291,14 @@
         </multipane>
       </div>
     </multipane>
-    <!-- context modals -->
+
+    <!-- context modal -->
     <context></context>
-    <!-- filter modals -->
+    <!-- filter modal -->
     <filters></filters>
+    <!-- tosprint modal -->
+    <tosprint></tosprint>
+
     <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
       <b-form-group>
         <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
