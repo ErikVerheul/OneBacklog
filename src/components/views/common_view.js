@@ -254,6 +254,9 @@ export default {
     onUndoEvent() {
       const entry = this.$store.state.changeHistory.splice(0, 1)[0]
       switch (entry.type) {
+        case 'undoAddSprintIds':
+          this.$store.dispatch('removeSprintIds', { itemIds: entry.itemIds, sprintName: entry.sprintName })
+          break
         case 'undoSelectedPbiType':
           this.$store.state.nodeSelected.data.subtype = entry.oldPbiType
           this.$store.dispatch('setSubType', { 'newSubType': entry.oldPbiType, 'timestamp': Date.now() })
@@ -382,6 +385,9 @@ export default {
             this.showLastEvent(`Cannot restore the removed items in the tree view. The parent node was removed`, WARNING)
           }
           break
+        case 'undoRemoveSprintIds':
+          this.$store.dispatch('addSprintIds', { itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
+        break
         case 'undoSetDependency':
           {
             const lastDependencyId = entry.nodeWithDependencies.dependencies.pop()

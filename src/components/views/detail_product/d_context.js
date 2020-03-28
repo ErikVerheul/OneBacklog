@@ -335,6 +335,10 @@ export default {
       }
 
       const currentId = this.$store.state.currentDoc._id
+      const node = window.slVueTree.getNodeById(currentId)
+      if (node === null) return
+
+      const sprintId = node.sprintId
       let itemIds = []
       if (this.$store.state.currentDoc.level === PBILEVEL) {
         itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
@@ -344,7 +348,15 @@ export default {
       }
       // show children nodes
       window.slVueTree.getNodeById(currentId).isExpanded = true
-      this.$store.dispatch('removeSprintIds', { itemIds, sprintName: getSprintName(this.selectedSprint) })
+      this.$store.dispatch('removeSprintIds', { itemIds, sprintName: getSprintName(sprintId) })
+      // create an entry for undoing the remove-from-sprint in a last-in first-out sequence
+      const entry = {
+        type: 'undoRemoveSprintIds',
+        itemIds,
+        sprintId,
+        sprintName: getSprintName(this.selectedSprint)
+      }
+      this.$store.state.changeHistory.unshift(entry)
     }
   }
 }
