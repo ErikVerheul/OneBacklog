@@ -94,7 +94,7 @@ const actions = {
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
-					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				let msg = 'updateReqAreaChildren: These documents cannot change requirement area: ' + errorStr
 				// eslint-disable-next-line no-console
@@ -504,7 +504,7 @@ const actions = {
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
-					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				let msg = 'setTeamDescendantsBulk: These documents cannot change team: ' + errorStr
 				// eslint-disable-next-line no-console
@@ -776,7 +776,7 @@ const actions = {
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
-					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				let msg = 'addSprintIds: These documents cannot change requirement area: ' + errorStr
 				// eslint-disable-next-line no-console
@@ -833,7 +833,7 @@ const actions = {
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
-					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				let msg = 'removeSprintIds: These documents cannot change requirement area: ' + errorStr
 				// eslint-disable-next-line no-console

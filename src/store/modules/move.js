@@ -77,7 +77,7 @@ const actions = {
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
-					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				let msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console
@@ -175,7 +175,7 @@ const actions = {
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
-					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				let msg = 'updateMovedDescendantsBulk: These descendants cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console

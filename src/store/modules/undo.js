@@ -68,8 +68,8 @@ const actions = {
             }
             if (errors.length > 0) {
                 let errorStr = ''
-                for (let err of errors) {
-                    errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
+                for (let e of errors) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
                 }
                 let msg = 'restoreItemAndDescendents: These documents cannot be UNmarked for removal: ' + errorStr
                 // eslint-disable-next-line no-console
@@ -213,8 +213,8 @@ const actions = {
             }
             if (errors.length > 0) {
                 let errorStr = ''
-                for (let err of errors) {
-                    errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
+                for (let e of errors) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
                 }
                 let msg = 'restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored: ' + errorStr
                 // eslint-disable-next-line no-console
