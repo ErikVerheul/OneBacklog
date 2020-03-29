@@ -265,8 +265,15 @@ const actions = {
                         commit('resetData', null, { root: true })
                         router.replace('/')
                     }
-            } else
+            } else {
+                if (!rootState.configData.defaultSprintCalendar) {
+                    // missing calendar
+                    alert("Error: No default sprint calendar is set. Consult your administrator. The application will exit.")
+                    commit('resetData', null, { root: true })
+                    router.replace('/')
+                }
                 dispatch('getRoot')
+            }
         }).catch(error => {
             let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
             // eslint-disable-next-line no-console
