@@ -318,8 +318,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('restorebranches', docs)
-		}).catch(error => {
-			let msg = 'addProducts: Could not add products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + error
+		}).catch(e => {
+			let msg = 'addProducts: Could not add products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

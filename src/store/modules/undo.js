@@ -78,8 +78,8 @@ const actions = {
             }
             const toDispatch = { 'restoreParent': entry }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendents' })
-        }).catch(error => {
-            let msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + error
+        }).catch(e => {
+            let msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -222,8 +222,8 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreExtDepsAndConds' })
-        }).catch(error => {
-            let msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + error
+        }).catch(e => {
+            let msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

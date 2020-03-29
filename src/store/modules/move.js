@@ -97,8 +97,8 @@ const actions = {
 					dispatch('getMovedDescendentIds', { updates, id: it.id })
 				}
 			}
-		}).catch(error => {
-			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + error
+		}).catch(e => {
+			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -183,8 +183,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(error => {
-			let msg = 'updateMovedDescendantsBulk: Could not read decendants in bulk. Error = ' + error
+		}).catch(e => {
+			let msg = 'updateMovedDescendantsBulk: Could not read decendants in bulk. Error = ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

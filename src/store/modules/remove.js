@@ -66,8 +66,8 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeDependencies' })
-        }).catch(error => {
-            let msg = 'removeDependencies: Could not read batch of documents: ' + error
+        }).catch(e => {
+            let msg = 'removeDependencies: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -126,8 +126,8 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeConditions' })
-        }).catch(error => {
-            let msg = 'removeConditions: Could not read batch of documents: ' + error
+        }).catch(e => {
+            let msg = 'removeConditions: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -267,9 +267,9 @@ const actions = {
                 toDispatch.removeExtConditions = externalConditions
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeDescendents' })
-        }).catch(error => {
+        }).catch(e => {
             rootState.busyRemoving = false
-            let msg = 'removeDescendents: Could not read batch of documents: ' + error
+            let msg = 'removeDescendents: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -376,8 +376,8 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtDependencies' })
-        }).catch(error => {
-            let msg = 'removeExtDependencies: Could not read batch of documents: ' + error
+        }).catch(e => {
+            let msg = 'removeExtDependencies: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -439,8 +439,8 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtConditions' })
-        }).catch(error => {
-            let msg = 'removeExtConditions: Could not read batch of documents: ' + error
+        }).catch(e => {
+            let msg = 'removeExtConditions: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

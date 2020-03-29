@@ -102,8 +102,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(error => {
-			let msg = 'updateReqAreaChildren: Could not read batch of documents: ' + error
+		}).catch(e => {
+			let msg = 'updateReqAreaChildren: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -512,8 +512,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(error => {
-			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + error
+		}).catch(e => {
+			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -784,8 +784,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(error => {
-			let msg = 'addSprintIds: Could not read batch of documents: ' + error
+		}).catch(e => {
+			let msg = 'addSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -841,8 +841,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(error => {
-			let msg = 'removeSprintIds: Could not read batch of documents: ' + error
+		}).catch(e => {
+			let msg = 'removeSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

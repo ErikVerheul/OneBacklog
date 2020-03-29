@@ -388,8 +388,8 @@ const actions = {
       }
       dispatch('updateBulk', { dbName: payload.dbName, docs, onSuccessCallback: function () { rootState.isHistAndCommReset = true } })
     })
-      .catch(error => {
-        let msg = 'resetHistAndComm: Could not read batch of documents: ' + error
+      .catch(e => {
+        let msg = 'resetHistAndComm: Could not read batch of documents: ' + e
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: ERROR })
