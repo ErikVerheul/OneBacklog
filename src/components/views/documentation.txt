@@ -72,7 +72,7 @@ From the 'Product details' view context menu features and PBI's can be selected 
  - When a PBI is selected, that PBI and it descendent tasks are assigned
  - individual tasks cannot be assigned to a sprint (but can on the planning board)
 
-Tasks added to a PBI later will automatically inherit the sprintId from their parent.
+Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.
 
 SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
 For now the calendar is stored in de database CONFIG file. Eventually products and even teams can have their own sprint calendar.

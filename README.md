@@ -107,7 +107,7 @@ Viewers can only read the information of the products assigned to them.
 <b>Non functional requirements:</b>
 Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Updates by other users should be available within 1 second. Notification of network connection loss and automatic recovery.
 
-<b>Implementation:</b>
+## Implementation
 
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/example-screen.png)
 
@@ -125,6 +125,21 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
         <li>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items. The PO can set dependencies on items residing in different products, an undesirable situation, that can possibly be undone by moving items from one product to the other.</li>
     </ul>
 </div>
+
+<b>Sprint Backlog</b>
+
+<p>From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:</p>
+<ul>
+    <li>When a feature is selected all its descendents (PBI's and tasks) are assigned</li>
+    <li>When a PBI is selected, that PBI and it descendent tasks are assigned</li>
+    <li>individual tasks cannot be assigned to a sprint (but can on the planning board)</li>
+ </ul>
+
+<p>Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.</p>
+
+<p>SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
+For now the calendar is stored in de database CONFIG file. Eventually products and even teams can have their own sprint calendar.
+Then, the calendar items (iterations) are stored as type 'calendar' in the database, and not in the CONFIG file.</p>
 
 <b>And avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
 

@@ -6,6 +6,17 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.4 - 29 March 2020 Feature update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Add the task level to the tree view</li>
+					<li>Default sprint calendar</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>The application is extended with the task item level.</li>
+				</ul>
+				<hr>
 				<h3>v.0.9.3.2 - 22 March 2020 Regression bug fix</h3>
 				<p>Bug fixes:</p>
 				<ul>

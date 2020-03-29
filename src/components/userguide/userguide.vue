@@ -181,7 +181,7 @@
 				</ul>
 				<p>Click on 'Exit' and sign-in again to see the product view with the root document and the first product,<br>
 					then:<br>
-					As 'admin' in the Admin view create the first users and their roles. Assign one or more admins to take over that task.<br>
+					As 'admin' in the Admin view create the default sprint calendar and the first users and their roles. Assign one or more admins to take over that task.<br>
 					Note: Keep your 'admin' role as a backup.
 				</p>
 			</b-col>
