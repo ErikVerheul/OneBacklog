@@ -283,7 +283,7 @@ export default {
             if (this.haveWritePermission[insertLevel]) {
                 const ids = this.createId()
                 newNode._id = ids.id
-                newNode.shortId = ids.shortId
+                newNode.shortId = ids.id.slice(-5)
                 if (newNodeLocation.placement === 'inside') {
                     // unselect the node that was clicked before the insert and expand it to show the inserted node
                     this.contextNodeSelected.isSelected = false
