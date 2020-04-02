@@ -108,7 +108,116 @@ export default new Vuex.Store({
 		configData: null,
 		currentDoc: null,
 		runningCookieRefreshId: null,
-		uploadDone: true
+		uploadDone: true,
+		// planning board
+		stories:
+			[
+				{
+					id: 0,
+					title: 'story AA',
+					size: 8,
+					items: {
+						todo: [
+							{
+								id: 3,
+								text: 'item 3'
+							},
+							{
+								id: 4,
+								text: 'item 4'
+							}
+						],
+						inProgress: [
+							{
+								id: 2,
+								text: 'item 2'
+							}
+						],
+						testReview: [
+							{
+								id: 5,
+								text: 'item 5'
+							}
+						],
+						done: [
+							{
+								id: 1,
+								text: 'item 1'
+							}
+						]
+					}
+				},
+				{
+					id: 1,
+					title: 'story BB',
+					size: 13,
+					items: {
+						todo: [
+							{
+								id: 3,
+								text: 'item 3'
+							},
+							{
+								id: 4,
+								text: 'item 4'
+							}
+						],
+						inProgress: [
+							{
+								id: 2,
+								text: 'item 2'
+							}
+						],
+						testReview: [
+							{
+								id: 5,
+								text: 'item 5'
+							}
+						],
+						done: [
+							{
+								id: 1,
+								text: 'item 1'
+							}
+						]
+					}
+				},
+				{
+					id: 2,
+					title: 'story CC',
+					size: 3,
+					items: {
+						todo: [
+							{
+								id: 3,
+								text: 'item 3'
+							},
+							{
+								id: 4,
+								text: 'item 4'
+							}
+						],
+						inProgress: [
+							{
+								id: 2,
+								text: 'item 2'
+							}
+						],
+						testReview: [
+							{
+								id: 5,
+								text: 'item 5'
+							}
+						],
+						done: [
+							{
+								id: 1,
+								text: 'item 1'
+							}
+						]
+					}
+				}
+			]
 	},
 
 	getters: {
@@ -167,6 +276,11 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
+		updateItems(state, payload) {
+			console.log('updateItems: payload.items = ' + JSON.stringify(payload.items, null, 2))
+			state.stories[payload.idx].items[payload.id] = payload.items
+		},
+
 		/* A copy of the showLastEvent mixin which can not be used in modules */
 		showLastEvent(state, payload) {
 			switch (payload.severity) {

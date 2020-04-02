@@ -13,6 +13,9 @@ import InitPage from './components/initdb/initdb.vue'
 import SigninPage from './components/auth/signin.vue'
 import ProductPage from './components/views/detail_product/d_product_view.vue'
 import ReqsAreaPage from './components/views/coarse_product/c_product_view.vue'
+
+import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
+
 import AdminPage from './components/admin/admin.vue'
 import ServerAdminPage from './components/serveradmin/serveradmin.vue'
 
@@ -69,6 +72,17 @@ const routes = [
 				next('/signin')
 			}
 		}
+	},
+	{
+		path: '/board',
+		component: PlanningBoard,
+		// beforeEnter(to, from, next) {
+		// 	if (store.state.userData.user) {
+		// 		next()
+		// 	} else {
+		// 		next('/signin')
+		// 	}
+		// }
 	},
 	{
 		path: '/admin',
