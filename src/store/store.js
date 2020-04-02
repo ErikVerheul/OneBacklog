@@ -19,6 +19,7 @@ import utils from './modules/utils'
 import restorebranches from './modules/restorebranches'
 import loadproducts from './modules/load_detail.js'
 import loadreqareas from './modules/load_coarse.js'
+import planningboard from './modules/planningboard.js'
 
 const DEBUG = -1
 const INFO = 0
@@ -432,7 +433,8 @@ export default new Vuex.Store({
 		utils,
 		restorebranches,
 		loadproducts,
-		loadreqareas
+		loadreqareas,
+		planningboard
 	}
 
 })
