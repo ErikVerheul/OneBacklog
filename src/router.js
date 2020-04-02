@@ -76,13 +76,13 @@ const routes = [
 	{
 		path: '/board',
 		component: PlanningBoard,
-		// beforeEnter(to, from, next) {
-		// 	if (store.state.userData.user) {
-		// 		next()
-		// 	} else {
-		// 		next('/signin')
-		// 	}
-		// }
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		}
 	},
 	{
 		path: '/admin',

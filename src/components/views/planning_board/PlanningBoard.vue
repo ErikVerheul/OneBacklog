@@ -1,5 +1,6 @@
 <template>
   <div class="board">
+    <app-header></app-header>
       <b-container fluid>
         <div v-for="item in $store.state.stories" :key="item.id">
             <b-row>
@@ -13,11 +14,13 @@
 </template>
 
 <script>
+import appHeader from '../../header/header.vue'
 import StoryLane from './StoryLane'
 
 export default {
   name: 'PlanningBoard',
   components: {
+    'app-header': appHeader,
     'story-lane': StoryLane
   }
 }
