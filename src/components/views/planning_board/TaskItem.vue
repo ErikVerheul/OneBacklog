@@ -38,7 +38,11 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.b-card-block {
+  padding: 15px;
+}
+
 .b-card.task-column-item {
   background: #ddc01d;
 }
@@ -47,3 +51,4 @@ export default {
   background: #9bc777;
 }
 </style>
+

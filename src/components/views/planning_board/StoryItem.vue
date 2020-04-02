@@ -14,11 +14,7 @@ export default {
 }
 </script>
 
-<style>
-.b-card:last-child {
-  margin-bottom: 5px;
-}
-
+<style scoped>
 .b-card-block {
   padding: 15px;
 }

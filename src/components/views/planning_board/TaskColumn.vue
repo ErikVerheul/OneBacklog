@@ -47,3 +47,8 @@ export default {
 }
 </script>
 
+<style scoped>
+.b-card:last-child {
+  margin-bottom: 5px;
+}
+</style>
