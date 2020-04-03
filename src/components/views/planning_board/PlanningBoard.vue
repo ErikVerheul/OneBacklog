@@ -24,10 +24,10 @@
     </app-header>
 
     <b-container fluid>
-      <div v-for="item in $store.state.stories" :key="item.id">
+      <div v-for="story in $store.state.stories" :key="story.idx">
         <b-row>
           <b-col cols="12">
-            <story-lane :idx="item.id"></story-lane>
+            <story-lane :idx="story.idx"></story-lane>
           </b-col>
         </b-row>
       </div>
@@ -56,7 +56,6 @@ export default {
     }
     // preset to the current sprint
     this.selectedSprint = currentSprint
-    this.$store.dispatch('loadPlanningBoard', currentSprint)
   },
 
   mounted() {

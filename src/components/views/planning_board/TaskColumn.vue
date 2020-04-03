@@ -4,7 +4,7 @@
     <h3 v-if="idx === 0" class="b-card-header">{{ title }}</h3>
     <div class="b-card-body">
       <draggable v-model="draggables" :group="idx.toString()">
-        <div v-for="item in items" :key="item.id">
+        <div v-for="item in tasks" :key="item.id">
           <item :item="item" :columnName="title"></item>
         </div>
       </draggable>
@@ -20,24 +20,24 @@ import TaskItem from './TaskItem'
 
 export default {
   name: 'TaskColumn',
-  props: ['items', 'title', 'id', 'idx'],
+  props: ['tasks', 'title', 'id', 'idx'],
   components: {
     item: TaskItem,
     draggable: Draggable
   },
   computed: {
     itemCount () {
-      if (!this.items) return ''
-      if (this.items.length === 1) return '1 task'
-      return `${this.items.length} tasks`
+      if (!this.tasks) return ''
+      if (this.tasks.length === 1) return '1 task'
+      return `${this.tasks.length} tasks`
     },
     draggables: {
       get () {
-        return this.items
+        return this.tasks
       },
-      set (items) {
+      set (tasks) {
         this.$store.commit('updateItems', {
-          items,
+          tasks,
           id: this.id,
           idx: this.idx
         })

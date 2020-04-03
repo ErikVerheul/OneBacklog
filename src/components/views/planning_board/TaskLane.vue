@@ -5,16 +5,16 @@
         <story-column id="userStory" :title="$store.state.stories[idx].title" :size="$store.state.stories[idx].size" :idx="idx"></story-column>
       </b-col>
       <b-col>
-        <task-column id="todo" title="Todo" :items="$store.state.stories[idx].items.todo" :idx="idx"></task-column>
+        <task-column id="todo" title="Todo" :tasks="$store.state.stories[idx].tasks.todo" :idx="idx"></task-column>
       </b-col>
       <b-col>
-        <task-column id="inProgress" title="In progress" :items="$store.state.stories[idx].items.inProgress" :idx="idx"></task-column>
+        <task-column id="inProgress" title="In progress" :tasks="$store.state.stories[idx].tasks.inProgress" :idx="idx"></task-column>
       </b-col>
       <b-col>
-        <task-column id="testReview" title="Test / review" :items="$store.state.stories[idx].items.testReview" :idx="idx"></task-column>
+        <task-column id="testReview" title="Test / review" :tasks="$store.state.stories[idx].tasks.testReview" :idx="idx"></task-column>
       </b-col>
       <b-col>
-        <task-column id="done" title="Done" :items="$store.state.stories[idx].items.done" :idx="idx"></task-column>
+        <task-column id="done" title="Done" :tasks="$store.state.stories[idx].tasks.done" :idx="idx"></task-column>
       </b-col>
     </b-row>
   </b-container>

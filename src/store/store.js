@@ -114,10 +114,11 @@ export default new Vuex.Store({
 		stories:
 			[
 				{
-					id: 0,
+					idx: 0,
+					id: 'storyId',
 					title: 'story AA',
 					size: 8,
-					items: {
+					tasks: {
 						todo: [
 							{
 								id: 3,
@@ -149,10 +150,11 @@ export default new Vuex.Store({
 					}
 				},
 				{
-					id: 1,
+					idx: 1,
+					id: 'storyId',
 					title: 'story BB',
 					size: 13,
-					items: {
+					tasks: {
 						todo: [
 							{
 								id: 3,
@@ -184,10 +186,11 @@ export default new Vuex.Store({
 					}
 				},
 				{
-					id: 2,
+					idx: 2,
+					id: 'storyId',
 					title: 'story CC',
 					size: 3,
-					items: {
+					tasks: {
 						todo: [
 							{
 								id: 3,
@@ -278,8 +281,9 @@ export default new Vuex.Store({
 
 	mutations: {
 		updateItems(state, payload) {
-			console.log('updateItems: payload.items = ' + JSON.stringify(payload.items, null, 2))
-			state.stories[payload.idx].items[payload.id] = payload.items
+			console.log('updateItems: payload.tasks = ' + JSON.stringify(payload.tasks, null, 2))
+			state.stories[payload.idx].tasks[payload.id] = payload.tasks
+			// dispatch a change event here
 		},
 
 		/* A copy of the showLastEvent mixin which can not be used in modules */
