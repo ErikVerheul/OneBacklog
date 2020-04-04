@@ -550,7 +550,7 @@ export default {
           }
           this.$store.state.nodeSelected.data.lastChange = now
           this.$store.dispatch('setStoryPoints', {
-            'newPoints': el.value,
+            'newPoints': parseInt(el.value),
             'timestamp': now
           })
           // create an entry for undoing the change in a last-in first-out sequence
