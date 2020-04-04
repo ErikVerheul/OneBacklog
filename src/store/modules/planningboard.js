@@ -4,10 +4,10 @@ import globalAxios from 'axios'
 const ERROR = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const TODO = 0
-const INPROGRESS = 1
-const TESTREVIEW = 2
-const DONE = 3
+const TODO = 2
+const INPROGRESS = 3
+const TESTREVIEW = 4
+const DONE = 5
 
 
 function composeRangeString(id, team) {

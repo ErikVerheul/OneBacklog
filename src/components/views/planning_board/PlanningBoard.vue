@@ -25,13 +25,13 @@
     <b-container fluid>
       <b-row class="title-bar">
         <b-col cols="5">
-          <h4>Your team name '{{ $store.state.userData.myTeam }}'</h4>
+          <h4>Your team name is '{{ $store.state.userData.myTeam }}'</h4>
         </b-col>
         <b-col cols="5">
           <h4>This sprint's story points {{ $store.getters.getStoryPoints }}</h4>
         </b-col>
         <b-col cols="2">
-          <h4>Product</h4>
+          <h4>Story points done {{ $store.getters.getStoryPointsDone }}</h4>
         </b-col>
       </b-row>
     </b-container>

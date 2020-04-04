@@ -287,6 +287,17 @@ export default new Vuex.Store({
 				sum += s.size
 			}
 			return sum
+		},
+
+		getStoryPointsDone(state) {
+			let sum = 0
+			for (let s of state.stories) {
+				if (s.tasks.todo.length === 0 &&
+					s.tasks.inProgress.length === 0 &&
+					s.tasks.testReview.length === 0 &&
+					s.tasks.done.length > 0) sum += s.size
+			}
+			return sum
 		}
 	},
 
