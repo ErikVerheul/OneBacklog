@@ -280,6 +280,10 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
+		updateTeam(state, newTeam) {
+			state.userData.myTeam = newTeam
+		},
+
 		updateItems(state, payload) {
 			console.log('updateItems: payload.tasks = ' + JSON.stringify(payload.tasks, null, 2))
 			state.stories[payload.idx].tasks[payload.id] = payload.tasks

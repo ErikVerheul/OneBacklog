@@ -131,13 +131,15 @@ const actions = {
 
   changeTeam({
     rootState,
+    commit,
     dispatch
   }, newTeam) {
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
-      rootState.userData.myTeam = newTeam
+      // update the user data
+      commit('updateTeam', newTeam)
       let tmpUserData = res.data
       tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
       dispatch('updateUser', { data: tmpUserData })

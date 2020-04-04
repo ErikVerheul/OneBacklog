@@ -10,8 +10,8 @@ const TESTREVIEW = 2
 const DONE = 3
 
 
-function composeRangeString(id) {
-	return 'startkey="' + id + '"&endkey="' + id + '"'
+function composeRangeString(id, team) {
+	return 'startkey=["' + id + '","' + team + '"]&endkey=["' + id + '","' + team + '"]'
 }
 
 const mutations = {
@@ -77,16 +77,15 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		console.log('loadPlanningBoard: is called')
 		rootState.stories = []
 		const storieResults = []
 		const taskResults = []
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString(payload.id)
+			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString(payload.sprint.id, payload.team)
 		}).then(res => {
 			const results = res.data.rows
-			// console.log('loadPlanningBoard: results = ' + JSON.stringify(results, null, 2))
+			console.log('loadPlanningBoard: results = ' + JSON.stringify(results, null, 2))
 			for (let r of results) {
 				const level = r.value[3]
 				if (level === PBILEVEL) storieResults.push(r)

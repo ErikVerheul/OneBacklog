@@ -22,7 +22,19 @@
         </b-nav-text>
       </b-navbar-nav>
     </app-header>
-
+    <b-container fluid>
+      <b-row class="title-bar">
+        <b-col cols="5">
+          <h4>Product</h4>
+        </b-col>
+        <b-col cols="5">
+          <h4>Product</h4>
+        </b-col>
+        <b-col cols="2">
+          <h4>Product</h4>
+        </b-col>
+      </b-row>
+    </b-container>
     <b-container fluid>
       <div v-for="story in $store.state.stories" :key="story.idx">
         <b-row>
@@ -36,6 +48,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import appHeader from '../../header/header.vue'
 import StoryLane from './StoryLane'
 import { utilities } from '../../mixins/utilities.js'
@@ -54,8 +67,13 @@ export default {
         break
       }
     }
-    // preset to the current sprint
     this.selectedSprint = currentSprint
+    // reload when the user changes team
+    this.unsubscribe = this.$store.subscribe((mutation, state) => {
+      if (mutation.type === 'updateTeam') {
+        this.$store.dispatch('loadPlanningBoard', {sprint: this.selectedSprint, team: state.userData.myTeam })
+      }
+    });
   },
 
   mounted() {
@@ -75,20 +93,28 @@ export default {
     }
   },
 
+  beforeDestroy() {
+    this.unsubscribe();
+  },
+
   data() {
     return {
       selectedSprint: null,
-      options: []
+      options: [],
+      selectedTeam: this.$store.state.userData.myTeam
     }
   },
 
   watch: {
+    // initially load the current sprint and reload when the user selects another sprint
     selectedSprint: function(newVal) {
-      this.$store.dispatch('loadPlanningBoard', newVal)
+      this.$store.dispatch('loadPlanningBoard', {sprint: newVal, team: this.$store.state.userData.myTeam })
     }
   },
 
   computed: {
+    ...mapState(['userData']),
+
     getStartDateString() {
       if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp).toString().substring(0, 33)
       return ''
@@ -114,10 +140,14 @@ export default {
 </script>
 
 <style scoped>
-.divider{
+.divider {
     width:15px;
     height:auto;
     display:inline-block;
+}
+
+.title-bar {
+  background-color: #cfcfd49a;
 }
 </style>
 
