@@ -22,12 +22,14 @@ const mutations = {
 			// console.log('createSprint: i = ' + i + ', payload.storieResults[i].value = ' + JSON.stringify(payload.storieResults[i].value, null, 2))
 			const storyId = payload.storieResults[i].id
 			const storyTitle = payload.storieResults[i].value[2]
+			const subType = payload.storieResults[i].value[4]
 			const storySize = payload.storieResults[i].value[6]
 			const newStory = {
 					idx: i,
 					id: storyId,
 					title: storyTitle,
 					size: storySize,
+					subType,
 					tasks: {
 						todo: [],
 						inProgress: [],

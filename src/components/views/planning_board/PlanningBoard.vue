@@ -25,10 +25,10 @@
     <b-container fluid>
       <b-row class="title-bar">
         <b-col cols="5">
-          <h4>Product</h4>
+          <h4>Your team name '{{ $store.state.userData.myTeam }}'</h4>
         </b-col>
         <b-col cols="5">
-          <h4>Product</h4>
+          <h4>This sprint's story points {{ $store.getters.getStoryPoints }}</h4>
         </b-col>
         <b-col cols="2">
           <h4>Product</h4>
@@ -39,7 +39,7 @@
       <div v-for="story in $store.state.stories" :key="story.idx">
         <b-row>
           <b-col cols="12">
-            <story-lane :idx="story.idx"></story-lane>
+            <story-lane :idx="story.idx" :subType="story.subType"></story-lane>
           </b-col>
         </b-row>
       </div>

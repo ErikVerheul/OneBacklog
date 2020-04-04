@@ -118,6 +118,7 @@ export default new Vuex.Store({
 					id: 'storyId',
 					title: 'story AA',
 					size: 8,
+					subType: 0,
 					tasks: {
 						todo: [
 							{
@@ -154,6 +155,7 @@ export default new Vuex.Store({
 					id: 'storyId',
 					title: 'story BB',
 					size: 13,
+					subType: 0,
 					tasks: {
 						todo: [
 							{
@@ -190,6 +192,7 @@ export default new Vuex.Store({
 					id: 'storyId',
 					title: 'story CC',
 					size: 3,
+					subType: 0,
 					tasks: {
 						todo: [
 							{
@@ -276,6 +279,14 @@ export default new Vuex.Store({
 		},
 		getCurrentItemLevel(state) {
 			if (state.currentDoc) return state.currentDoc.level
+		},
+
+		getStoryPoints(state) {
+			let sum = 0
+			for (let s of state.stories) {
+				sum += s.size
+			}
+			return sum
 		}
 	},
 

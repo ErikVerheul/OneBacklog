@@ -2,7 +2,7 @@
   <b-container fluid>
     <b-row no-gutters>
       <b-col>
-        <story-column id="userStory" :title="$store.state.stories[idx].title" :size="$store.state.stories[idx].size" :idx="idx"></story-column>
+        <story-column id="userStory" :title="$store.state.stories[idx].title" :size="$store.state.stories[idx].size" :subType="subType" :idx="idx"></story-column>
       </b-col>
       <b-col>
         <task-column id="todo" title="Todo" :tasks="$store.state.stories[idx].tasks.todo" :idx="idx"></task-column>
@@ -26,7 +26,7 @@ import StoryColumn from './StoryColumn'
 
 export default {
   name: 'StoryLane',
-  props: ['idx'],
+  props: ['idx', 'subType'],
   components: {
     'task-column': TaskColumn,
     'story-column': StoryColumn
