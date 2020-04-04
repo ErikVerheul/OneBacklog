@@ -1,10 +1,8 @@
 <template>
   <div :class="getClass(columnName)">
     <div class="b-card-block">
-      <h5>
-        <span class="text-muted">#{{item.id}}</span>
-        {{item.text}}
-      </h5>
+      <span class="text-muted">#{{item.id}}</span>
+      {{item.text}}
     </div>
   </div>
 </template>
@@ -41,6 +39,7 @@ export default {
 <style scoped>
 .b-card-block {
   padding: 15px;
+  font-size: 12pt;
 }
 
 .b-card.task-column-item {

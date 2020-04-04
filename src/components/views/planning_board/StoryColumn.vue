@@ -1,10 +1,11 @@
 <template>
-  <b-card>
+  <div>
     <h3 v-if="idx === 0">User story</h3>
+    <hr>
     <div>
         <item :title="title" :size="size"></item>
     </div>
-  </b-card>
+  </div>
 </template>
 
 <script>
@@ -18,4 +19,3 @@ export default {
   }
 }
 </script>
-

@@ -1,7 +1,7 @@
 <template>
-  <b-card-group>
-    <b-card mt-0>
+  <div class="b-cards-margin">
     <h3 v-if="idx === 0" class="b-card-header">{{ title }}</h3>
+    <hr>
     <div class="b-card-body">
       <draggable v-model="draggables" :group="idx.toString()">
         <div v-for="item in tasks" :key="item.id">
@@ -10,8 +10,7 @@
       </draggable>
     </div>
     <div class="b-card-footer text-muted">{{itemCount}}</div>
-    </b-card>
-  </b-card-group>
+  </div>
 </template>
 
 <script>
@@ -48,6 +47,9 @@ export default {
 </script>
 
 <style scoped>
+.b-cards-margin {
+  margin-left: 5px;
+}
 .b-card:last-child {
   margin-bottom: 5px;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="b-card story-column-item">
     <div class="b-card-block">
-      <h5>{{ title }}</h5>
+      {{ title }}
       <p>size = {{ size }}</p>
     </div>
   </div>
@@ -17,6 +17,7 @@ export default {
 <style scoped>
 .b-card-block {
   padding: 15px;
+  font-size: 12pt;
 }
 
 .b-card.story-column-item {
