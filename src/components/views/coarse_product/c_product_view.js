@@ -184,6 +184,8 @@ export default {
         this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
         // expand the newly selected product up to the found item
         window.slVueTree.showAndSelectItem(node)
+        // update the selected node
+        this.$store.state.nodeSelected = node
         // load the document if not already in memory
         if (node._id !== this.$store.state.currentDoc._id) {
           this.$store.dispatch('loadDoc', node._id)
