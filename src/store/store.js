@@ -306,12 +306,6 @@ export default new Vuex.Store({
 			state.userData.myTeam = newTeam
 		},
 
-		updateItems(state, payload) {
-			console.log('updateItems: payload.tasks = ' + JSON.stringify(payload.tasks, null, 2))
-			state.stories[payload.idx].tasks[payload.id] = payload.tasks
-			// dispatch a change event here
-		},
-
 		/* A copy of the showLastEvent mixin which can not be used in modules */
 		showLastEvent(state, payload) {
 			switch (payload.severity) {

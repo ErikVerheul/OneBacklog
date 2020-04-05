@@ -119,7 +119,7 @@ const actions = {
 		for (let t of rootState.stories[payload.idx].tasks[payload.id]) {
 			afterMoveIds.push(t.id)
 		}
-		// update the task state change in the tree
+		// update the task state change in the database
 		if (afterMoveIds.length > beforeMoveIds.length) {
 			// task was added
 			let newTaskId
@@ -129,7 +129,6 @@ const actions = {
 					break
 				}
 			}
-			console.log('updateItems: newTaskId = ' + newTaskId + ' payload.id = ' + payload.id)
 
 			let newState
 			switch (payload.id) {

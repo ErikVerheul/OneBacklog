@@ -35,7 +35,7 @@ export default {
         return this.tasks
       },
       set (tasks) {
-        this.$store.commit('updateItems', {
+        this.$store.dispatch('updateItems', {
           tasks,
           id: this.id,
           idx: this.idx
