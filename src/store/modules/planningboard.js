@@ -43,25 +43,25 @@ const mutations = {
 					switch (taskState) {
 						case TODO:
 							newStory.tasks.todo.push({
-								id: t.id.slice(-5),
+								id: t.id,
 								text: t.value[2]
 							})
 							break
 						case INPROGRESS:
 							newStory.tasks.inProgress.push({
-								id: t.id.slice(-5),
+								id: t.id,
 								text: t.value[2]
 							})
 							break
 						case TESTREVIEW:
 							newStory.tasks.testReview.push({
-								id: t.id.slice(-5),
+								id: t.id,
 								text: t.value[2]
 							})
 							break
 						case DONE:
 							newStory.tasks.done.push({
-								id: t.id.slice(-5),
+								id: t.id,
 								text: t.value[2]
 							})
 							break
@@ -100,6 +100,54 @@ const actions = {
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
+	},
+
+	updateItems({
+		rootState,
+		dispatch
+	}, payload) {
+		console.log('updateItems: payload.tasks = ' + JSON.stringify(payload, null, 2))
+
+		const beforeMoveIds = []
+		for (let t of rootState.stories[payload.idx].tasks[payload.id]) {
+			beforeMoveIds.push(t.id)
+		}
+		// update the tasks
+		rootState.stories[payload.idx].tasks[payload.id] = payload.tasks
+
+		const afterMoveIds = []
+		for (let t of rootState.stories[payload.idx].tasks[payload.id]) {
+			afterMoveIds.push(t.id)
+		}
+		// update the task state change in the tree
+		if (afterMoveIds.length > beforeMoveIds.length) {
+			// task was added
+			let newTaskId
+			for (let id of afterMoveIds) {
+				if (!beforeMoveIds.includes(id)) {
+					newTaskId = id
+					break
+				}
+			}
+			console.log('updateItems: newTaskId = ' + newTaskId + ' payload.id = ' + payload.id)
+
+			let newState
+			switch (payload.id) {
+				case 'todo':
+					newState = 2
+					break
+				case 'inProgress':
+					newState = 3
+					break
+				case 'testReview':
+					newState = 4
+					break
+				case 'done':
+					newState = 5
+					break
+			}
+			dispatch('setState', { 'id': newTaskId, newState, 'timestamp': Date.now() })
+		}
 	},
 }
 

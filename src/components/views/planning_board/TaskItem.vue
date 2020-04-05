@@ -1,8 +1,8 @@
 <template>
   <div :class="getClass(columnName)">
     <div class="b-card-block">
-      <span class="text-muted">#{{item.id}}</span>
-      {{item.text}}
+      <span class="text-muted">#{{ item.id.slice(-5) }}</span>
+      {{ item.text }}
     </div>
   </div>
 </template>
