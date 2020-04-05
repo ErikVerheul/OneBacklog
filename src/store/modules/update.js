@@ -395,10 +395,9 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + payload.id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
@@ -420,7 +419,7 @@ const actions = {
 			rootState.currentDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
-			let msg = 'setState: Could not read document with _id ' + _id + '. Error = ' + error
+			let msg = 'setState: Could not read document with _id ' + payload.id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

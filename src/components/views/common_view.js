@@ -288,7 +288,7 @@ export default {
           entry.node.data.state = entry.oldState
           // reset inconsistency mark if set
           entry.node.data.inconsistentState = false
-          this.$store.dispatch('setState', { 'newState': entry.oldState, 'team': entry.node.data.team, 'timestamp': Date.now() })
+          this.$store.dispatch('setState', { 'id': entry.node._id, 'newState': entry.oldState, 'team': entry.node.data.team, 'timestamp': Date.now() })
           this.showLastEvent('Change of item state is undone', INFO)
           break
         case 'undoTitleChange':
@@ -358,7 +358,7 @@ export default {
               // do not recalculate priorities when inserting a product node
               window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
             }
-            // select the recovered node
+            // unselect the current node and select the recovered node
             this.$store.state.nodeSelected.isSelected = false
             entry.removedNode.isSelected = true
             this.$store.state.nodeSelected = entry.removedNode
@@ -626,6 +626,7 @@ export default {
         currentNode.data.lastStateChange = now
         currentNode.data.team = owningTeam
         vm.$store.dispatch('setState', {
+          'id': currentNode._id,
           'newState': idx,
           'team': owningTeam,
           'timestamp': now
