@@ -26,6 +26,10 @@ const INFO = 0
 const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
+const TODO = 2
+const INPROGRESS = 3
+const TESTREVIEW = 4
+const DONE = 5
 
 Vue.use(Vuex)
 
@@ -179,10 +183,10 @@ export default new Vuex.Store({
 		getStoryPointsDone(state) {
 			let sum = 0
 			for (let s of state.stories) {
-				if (s.tasks.todo.length === 0 &&
-					s.tasks.inProgress.length === 0 &&
-					s.tasks.testReview.length === 0 &&
-					s.tasks.done.length > 0) sum += s.size
+				if (s.tasks[TODO].length === 0 &&
+					s.tasks[INPROGRESS].length === 0 &&
+					s.tasks[TESTREVIEW].length === 0 &&
+					s.tasks[DONE].length > 0) sum += s.size
 			}
 			return sum
 		}

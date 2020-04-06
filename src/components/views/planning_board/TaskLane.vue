@@ -2,19 +2,44 @@
   <b-container fluid>
     <b-row no-gutters>
       <b-col>
-        <story-column id="userStory" :title="$store.state.stories[idx].title" :size="$store.state.stories[idx].size" :idx="idx"></story-column>
+        <story-column
+          id="userStory"
+          :title="$store.state.stories[idx].title"
+          :size="$store.state.stories[idx].size"
+          :idx="idx"
+        ></story-column>
       </b-col>
       <b-col>
-        <task-column id="todo" title="Todo" :tasks="$store.state.stories[idx].tasks.todo" :idx="idx"></task-column>
+        <task-column
+          :id="TODO"
+          title="Todo"
+          :tasks="$store.state.stories[idx].tasks[TODO]"
+          :idx="idx"
+        ></task-column>
       </b-col>
       <b-col>
-        <task-column id="inProgress" title="In progress" :tasks="$store.state.stories[idx].tasks.inProgress" :idx="idx"></task-column>
+        <task-column
+          :id="INPROGRESS"
+          title="In progress"
+          :tasks="$store.state.stories[idx].tasks[INPROGRESS]"
+          :idx="idx"
+        ></task-column>
       </b-col>
       <b-col>
-        <task-column id="testReview" title="Test / review" :tasks="$store.state.stories[idx].tasks.testReview" :idx="idx"></task-column>
+        <task-column
+          :id="TESTREVIEW"
+          title="Test / review"
+          :tasks="$store.state.stories[idx].tasks[TESTREVIEW]"
+          :idx="idx"
+        ></task-column>
       </b-col>
       <b-col>
-        <task-column id="done" title="Done" :tasks="$store.state.stories[idx].tasks.done" :idx="idx"></task-column>
+        <task-column
+          :id="DONE"
+          title="Done"
+          :tasks="$store.state.stories[idx].tasks[DONE]"
+          :idx="idx"
+        ></task-column>
       </b-col>
     </b-row>
   </b-container>
@@ -27,6 +52,12 @@ import StoryColumn from './StoryColumn'
 export default {
   name: 'StoryLane',
   props: ['idx'],
+  created() {
+    this.TODO = 2,
+    this.INPROGRESS = 3,
+    this.TESTREVIEW = 4,
+    this.DONE = 5
+  },
   components: {
     'task-column': TaskColumn,
     'story-column': StoryColumn

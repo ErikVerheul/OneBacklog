@@ -36,28 +36,11 @@ function removeFromArray(arr, item) {
 
 const mutations = {
 	updateBoard(state, payload) {
-		function mapTaskState(idx) {
-			const TODO = 2
-			const INPROGRESS = 3
-			const TESTREVIEW = 4
-			const DONE = 5
-			switch (idx) {
-				case TODO:
-					return 'todo'
-				case INPROGRESS:
-					return 'inProgress'
-				case TESTREVIEW:
-					return 'testReview'
-				case DONE:
-					return 'done'
-			}
-		}
-
 		for (let s of payload.rootState.stories) {
 			if (s.id === payload.storyId) {
-				const sourceColumn = s.tasks[mapTaskState(payload.prevState)]
+				const sourceColumn = s.tasks[payload.prevState]
 				console.log('updateBoard: sourceColumn = ' + JSON.stringify(sourceColumn, null, 2))
-				const targetColumn = s.tasks[mapTaskState(payload.newState)]
+				const targetColumn = s.tasks[payload.newState]
 				console.log('updateBoard: targetColumn = ' + JSON.stringify(targetColumn, null, 2))
 				let movedTask
 				const newSourceColumn = []
@@ -67,7 +50,7 @@ const mutations = {
 						console.log('updateBoard: movedTask = ' + JSON.stringify(movedTask, null, 2))
 					} else newSourceColumn.push(t)
 				}
-				s.tasks[mapTaskState(payload.prevState)] = newSourceColumn
+				s.tasks[payload.prevState] = newSourceColumn
 				if (payload.newTaskPosition) {
 					console.log('updateBoard: payload.newTaskPosition = ' + payload.newTaskPosition)
 					targetColumn.splice(payload.newTaskPosition, 0, movedTask)

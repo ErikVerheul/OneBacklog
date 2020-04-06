@@ -25,42 +25,43 @@ const mutations = {
 			const subType = payload.storieResults[i].value[4]
 			const storySize = payload.storieResults[i].value[6]
 			const newStory = {
-					idx: i,
-					id: storyId,
-					title: storyTitle,
-					size: storySize,
-					subType,
-					tasks: {
-						todo: [],
-						inProgress: [],
-						testReview: [],
-						done: []
-					}
+				idx: i,
+				id: storyId,
+				title: storyTitle,
+				size: storySize,
+				subType,
+				tasks: {
+					[TODO]: [],
+					[INPROGRESS]: [],
+					[TESTREVIEW]: [],
+					[DONE]: []
 				}
+			}
+
 			for (let t of payload.taskResults) {
 				if (t.value[1] === storyId) {
 					const taskState = t.value[5]
 					switch (taskState) {
 						case TODO:
-							newStory.tasks.todo.push({
+							newStory.tasks[TODO].push({
 								id: t.id,
 								text: t.value[2]
 							})
 							break
 						case INPROGRESS:
-							newStory.tasks.inProgress.push({
+							newStory.tasks[INPROGRESS].push({
 								id: t.id,
 								text: t.value[2]
 							})
 							break
 						case TESTREVIEW:
-							newStory.tasks.testReview.push({
+							newStory.tasks[TESTREVIEW].push({
 								id: t.id,
 								text: t.value[2]
 							})
 							break
 						case DONE:
-							newStory.tasks.done.push({
+							newStory.tasks[DONE].push({
 								id: t.id,
 								text: t.value[2]
 							})
@@ -87,7 +88,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString(payload.sprint.id, payload.team)
 		}).then(res => {
 			const results = res.data.rows
-			console.log('loadPlanningBoard: results = ' + JSON.stringify(results, null, 2))
+			// console.log('loadPlanningBoard: results = ' + JSON.stringify(results, null, 2))
 			for (let r of results) {
 				const level = r.value[3]
 				if (level === PBILEVEL) storieResults.push(r)
@@ -132,24 +133,9 @@ const actions = {
 				newTaskPosition++
 			}
 
-			let newState
-			switch (payload.id) {
-				case 'todo':
-					newState = 2
-					break
-				case 'inProgress':
-					newState = 3
-					break
-				case 'testReview':
-					newState = 4
-					break
-				case 'done':
-					newState = 5
-					break
-			}
 			dispatch('setState', {
 				'id': newTaskId,
-				newState,
+				newState: payload.id,
 				position: newTaskPosition,
 				'timestamp': Date.now(),
 			})
