@@ -4,9 +4,7 @@
       <b-col>
         <story-column
           id="userStory"
-          :title="$store.state.stories[idx].title"
-          :size="$store.state.stories[idx].size"
-          :idx="idx"
+          :story="$store.state.stories[idx]"
         ></story-column>
       </b-col>
       <b-col>

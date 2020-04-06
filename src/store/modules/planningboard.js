@@ -95,6 +95,7 @@ const actions = {
 				if (level === TASKLEVEL) taskResults.push(r)
 			}
 			commit('createSprint', { rootState, storieResults, taskResults })
+			console.log('loadPlanningBoard: rootState.stories = ' + JSON.stringify(rootState.stories, null, 2))
 		}).catch(error => {
 			let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -107,7 +108,7 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		console.log('updateItems: payload.tasks = ' + JSON.stringify(payload, null, 2))
+		// console.log('updateItems: payload.tasks = ' + JSON.stringify(payload, null, 2))
 
 		const beforeMoveIds = []
 		for (let t of rootState.stories[payload.idx].tasks[payload.id]) {

@@ -3,7 +3,7 @@
     <h3 v-if="idx === 0">User story</h3>
     <hr>
     <div>
-        <item :title="title" :size="size" :subType="subType"></item>
+        <item :story="story"></item>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@ import StoryItem from './StoryItem'
 
 export default {
   name: 'StoryColumn',
-  props: ['title', 'size', 'idx', 'subType'],
+  props: ['story'],
   components: {
     item: StoryItem
   }

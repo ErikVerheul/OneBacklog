@@ -1,17 +1,18 @@
 <template>
   <div class="b-card story-column-item">
     <div class="b-card-block">
-      <i class="colorYellow" v-if="subType === 0">
+      <i class="colorYellow" v-if="story.subType === 0">
         <font-awesome-icon icon="folder" />
       </i>
-      <i v-if="subType === 1">
+      <i v-if="story.subType === 1">
         <font-awesome-icon icon="hourglass-start" />
       </i>
-      <i class="colorRed" v-if="subType === 2">
+      <i class="colorRed" v-if="story.subType === 2">
         <font-awesome-icon icon="bug" />
       </i>
-      {{ title }}
-      <p>size = {{ size }}</p>
+      <span class="text-muted"> #{{ getShortId(story.id) }}</span>
+      {{ story.title }}
+      <p>size = {{ story.size }}</p>
     </div>
   </div>
 </template>
@@ -19,7 +20,12 @@
 <script>
 export default {
   name: 'StoryItem',
-  props: ['title', 'size', 'subType']
+  props: ['story'],
+  methods: {
+    getShortId(id) {
+      return id.slice(-5)
+    },
+  }
 }
 </script>
 
@@ -32,7 +38,6 @@ export default {
 .b-card.story-column-item {
   background: #8b8cc7;
 }
-
 
 .colorYellow {
   color: #ffff00;
