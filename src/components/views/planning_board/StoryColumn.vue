@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 v-if="idx === 0">User story</h3>
+    <h3 v-if="story.idx === 0">User story</h3>
     <hr>
     <div>
         <item :story="story"></item>
