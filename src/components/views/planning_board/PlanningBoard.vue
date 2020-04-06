@@ -1,5 +1,5 @@
 <template>
-  <div class="board">
+  <div>
     <app-header>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
@@ -30,8 +30,11 @@
         <b-col cols="5">
           <h5>{{ $store.getters.getStoryPoints }} story points in this sprint</h5>
         </b-col>
-        <b-col cols="2">
+        <b-col cols="1">
           <h5>points done: {{ $store.getters.getStoryPointsDone }}</h5>
+        </b-col>
+        <b-col cols="1">
+          <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
         </b-col>
       </b-row>
     </b-container>
@@ -123,9 +126,20 @@ export default {
       if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp).toString().substring(0, 33)
       return ''
     },
+
     getEndDateString() {
       if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp + this.selectedSprint.sprintLength).toString().substring(0, 33)
       return ''
+    },
+
+    squareText() {
+      if (this.$store.state.online) {
+        return 'sync'
+      } else return 'offline'
+    },
+
+    squareColor() {
+      return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
     }
   },
 
@@ -145,15 +159,14 @@ export default {
 }
 
 .title-bar {
-  background-color: #cfcfd49a;
-  border-bottom-style: solid;
-  border-width: 3px;
+  background-color: #408FAE;
+  padding-top: 4px;
 }
 
-.board {
-  border-left-style: solid;
-  border-right-style: solid;
-  border-width: 1px;
+.square {
+  float: right;
+  padding: 5px;
+  margin-bottom: 4px;
 }
 </style>
 
