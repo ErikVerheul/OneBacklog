@@ -56,6 +56,10 @@ import { utilities } from '../../mixins/utilities.js'
 export default {
   mixins: [utilities],
 
+  beforeCreate() {
+    this.$store.state.currentView = 'planningBoard'
+  },
+
   created() {
     // load the current sprint before any sprint is selected
     const now = Date.now()

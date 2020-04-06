@@ -10,6 +10,7 @@ function composeRangeString(id) {
 const actions = {
 	updateMovedItemsBulk({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		// lookup to not rely on the order of the response being the same as in the request
@@ -70,7 +71,7 @@ const actions = {
 					doc.priority = item.newlyCalculatedPriority
 					docs.push(doc)
 					// show the history update in the current opened item
-					if (doc._id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
+					if (doc._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
 				}
 				if (envelope.error) error.push(envelope.error)
 			}

@@ -284,17 +284,20 @@ const actions = {
 
      /* Load the root of the backlog items into the current document */
 	getRoot({
-		rootState,
+        rootState,
+        commit,
 		dispatch,
 	}) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/root',
 		}).then(res => {
-			rootState.currentDoc = res.data
-			// decode from base64 + replace the encoded data
-			rootState.currentDoc.description = window.atob(res.data.description)
-			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+            commit('updateCurrentDoc', {
+                newDoc: res.data,
+                // decode from base64 + replace the encoded data
+                description: window.atob(res.data.description),
+                acceptanceCriteria: window.atob(res.data.acceptanceCriteria)
+            })
 			// eslint-disable-next-line no-console
             if (rootState.debug) console.log("The root document is read")
             // open the products view by default

@@ -204,8 +204,7 @@ export default {
           }
           nowSelectedNode = nextProduct
         }
-        nowSelectedNode.isSelected = true
-        this.$store.state.nodeSelected = nowSelectedNode
+        this.$store.commit('updateNodeSelected', { newNode: nowSelectedNode, isSelected: true })
         this.$store.state.currentProductId = nowSelectedNode.productId
         // load the new selected item
         this.$store.dispatch('loadDoc', nowSelectedNode._id)

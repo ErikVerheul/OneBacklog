@@ -138,7 +138,7 @@ export default {
             // insert the new node in the tree and assign the priority to this node
             window.slVueTree.insertSingle(insertPosition, newNode)
             // and select the new node
-            this.$store.state.nodeSelected = newNode
+            this.$store.commit('updateNodeSelected', { newNode })
 
             this.showLastEvent("Item of type " + this.getLevelText(newNode.level) + " is inserted as a copy of '" + node.title + "'.", INFO)
             // create a new document and store it
@@ -295,7 +295,7 @@ export default {
                 // insert the new node in the tree
                 window.slVueTree.insertSingle(newNodeLocation, newNode)
                 // and select the new node
-                this.$store.state.nodeSelected = newNode
+                this.$store.commit('updateNodeSelected', { newNode })
                 this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
                 // create a new document and store it
                 const newDoc = {
@@ -321,7 +321,6 @@ export default {
                     "description": window.btoa(""),
                     "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
                     "priority": newNode.data.priority,
-                    "attachments": [],
                     "comments": [{
                         "ignoreEvent": 'comments initiated',
                         "timestamp": 0,

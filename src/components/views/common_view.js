@@ -258,7 +258,7 @@ export default {
           this.$store.dispatch('removeSprintIds', { itemIds: entry.itemIds, sprintName: entry.sprintName })
           break
         case 'undoSelectedPbiType':
-          this.$store.state.nodeSelected.data.subtype = entry.oldPbiType
+          this.$store.commit('updateNodeSelected', { subtype: entry.oldPbiType })
           this.$store.dispatch('setSubType', { 'newSubType': entry.oldPbiType, 'timestamp': Date.now() })
           this.showLastEvent('Change of item type is undone', INFO)
           break
@@ -288,11 +288,16 @@ export default {
           entry.node.data.state = entry.oldState
           // reset inconsistency mark if set
           entry.node.data.inconsistentState = false
-          this.$store.dispatch('setState', { 'id': entry.node._id, 'newState': entry.oldState, 'team': entry.node.data.team, 'timestamp': Date.now() })
+          this.$store.dispatch('setState', {
+            'id': entry.node._id,
+            'newState': entry.oldState,
+            'position': entry.node.ind,
+            'timestamp': Date.now()
+          })
           this.showLastEvent('Change of item state is undone', INFO)
           break
         case 'undoTitleChange':
-          this.$store.state.nodeSelected.title = entry.oldTitle
+          this.$store.commit('updateNodeSelected', { title: entry.oldTitle })
           this.$store.dispatch('setDocTitle', { 'newTitle': entry.oldTitle, 'timestamp': Date.now() })
           this.showLastEvent('Change of item title is undone', INFO)
           break
@@ -359,9 +364,8 @@ export default {
               window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
             }
             // unselect the current node and select the recovered node
-            this.$store.state.nodeSelected.isSelected = false
-            entry.removedNode.isSelected = true
-            this.$store.state.nodeSelected = entry.removedNode
+            this.$store.commit('updateNodeSelected', { isSelected: false })
+            this.$store.commit('updateNodeSelected', { newNode: entry.removedNode, isSelected: true })
             this.$store.state.currentProductId = entry.removedNode.productId
             // restore the removed dependencies
             for (let d of entry.removedIntDependencies) {
@@ -419,8 +423,7 @@ export default {
 
     uploadAttachment() {
       const now = Date.now()
-      this.$store.state.nodeSelected.data.lastChange = now
-      this.$store.state.nodeSelected.data.lastAttachmentAddition = now
+      this.$store.commit('updateNodeSelected', { lastAttachmentAddition: now, lastChange: now })
       this.$store.dispatch('uploadAttachmentAsync', {
         fileInfo: this.fileInfo,
         currentDocId: this.$store.state.currentDoc._id,
@@ -434,8 +437,7 @@ export default {
 
     insertComment() {
       const now = Date.now()
-      this.$store.state.nodeSelected.data.lastChange = now
-      this.$store.state.nodeSelected.data.lastCommentAddition = now
+      this.$store.commit('updateNodeSelected', { lastCommentAddition: now, lastChange: now })
       this.$store.dispatch('addComment', {
         'comment': this.newComment,
         'timestamp': now
@@ -444,8 +446,7 @@ export default {
 
     insertHist() {
       const now = Date.now()
-      this.$store.state.nodeSelected.data.lastChange = now
-      this.$store.state.nodeSelected.data.lastCommentToHistory = now
+      this.$store.commit('updateNodeSelected', { lastCommentToHistory: now, lastChange: now })
       this.$store.dispatch('addHistoryComment', {
         'comment': this.newHistory,
         'timestamp': now
@@ -459,8 +460,7 @@ export default {
         if (this.haveWritePermission[this.getCurrentItemLevel]) {
           const oldDescription = this.$store.state.currentDoc.description
           const now = Date.now()
-          this.$store.state.nodeSelected.data.lastChange = now
-          this.$store.state.nodeSelected.data.lastContentChange = now
+          this.$store.commit('updateNodeSelected', { lastContentChange: now, lastChange: now })
           // update the current doc in memory
           this.$store.state.currentDoc.description = this.newDescription
           // update the doc in the database
@@ -486,8 +486,7 @@ export default {
         if (this.haveWritePermission[this.getCurrentItemLevel]) {
           const oldAcceptance = this.$store.state.currentDoc.acceptanceCriteria
           const now = Date.now()
-          this.$store.state.nodeSelected.data.lastChange = now
-          this.$store.state.nodeSelected.data.lastContentChange = now
+          this.$store.commit('updateNodeSelected', { lastContentChange: now, lastChange: now })
           // update the current doc in memory
           this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
           // update the doc in the database
@@ -514,7 +513,8 @@ export default {
           let size = document.getElementById("tShirtSizeId").value.toUpperCase()
           const sizeArray = this.$store.state.configData.tsSize
           if (sizeArray.includes(size)) {
-            this.$store.state.nodeSelected.data.lastChange = now
+            // size is not a node prop; no update needed
+            this.$store.commit('updateNodeSelected', { lastChange: now })
             this.$store.dispatch('setSize', {
               'newSizeIdx': sizeArray.indexOf(size),
               'timestamp': now
@@ -575,7 +575,7 @@ export default {
             el.value = '?'
             return
           }
-          this.$store.state.nodeSelected.data.lastChange = now
+          this.$store.commit('updateNodeSelected', { lastChange: now })
           this.$store.dispatch('setPersonHours', {
             'newHrs': el.value,
             'timestamp': now
@@ -597,10 +597,8 @@ export default {
     * Issue a warning when assigns a higher state to a parent with children witch all have a lower state.
     */
     onStateChange(idx) {
-      const currentNode = this.$store.state.nodeSelected
-
       function changeState(vm, owningTeam) {
-        const descendants = window.slVueTree.getDescendantsInfo(currentNode).descendants
+        const descendants = window.slVueTree.getDescendantsInfo(vm.$store.state.nodeSelected).descendants
         if (descendants.length > 0) {
           let highestState = 0
           let allDone = true
@@ -610,24 +608,22 @@ export default {
           }
           if (idx > highestState || idx === DONE && !allDone) {
             // node has a higher state than any of its descendants or set to done while one of its descendants is not done
-            currentNode.data.inconsistentState = true
+            vm.$store.commit('updateNodeSelected', { inconsistentState: true })
             if (idx === DONE && !allDone) {
               vm.showLastEvent("You are assigning an inconsistant state to this node. Not all descendants are done.", WARNING)
             } else vm.showLastEvent(`You are assigning an inconsistant state to this node. You can set it to '${vm.getItemStateText(highestState)}'.`, WARNING)
           } else {
-            currentNode.data.inconsistentState = false
+            vm.$store.commit('updateNodeSelected', { inconsistentState: false })
             vm.clearLastEvent()
           }
         }
         const oldState = vm.$store.state.currentDoc.state
         const now = Date.now()
-        currentNode.data.state = idx
-        currentNode.data.lastChange = now
-        currentNode.data.lastStateChange = now
-        currentNode.data.team = owningTeam
+        vm.$store.commit('updateNodeSelected', { state: idx, team: owningTeam, lastStateChange: now, lastChange: now })
         vm.$store.dispatch('setState', {
-          'id': currentNode._id,
+          'id': vm.$store.state.nodeSelected._id,
           'newState': idx,
+          'position': vm.$store.state.nodeSelected.ind,
           'team': owningTeam,
           'timestamp': now
         })
@@ -635,25 +631,25 @@ export default {
         const entry = {
           type: 'undoStateChange',
           oldState,
-          node: currentNode
+          node: vm.$store.state.nodeSelected
         }
         vm.$store.state.changeHistory.unshift(entry)
       }
 
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         // any user can change from state 'New' to state 'Ready'; the owning team of the item is set to the users team
-        if (currentNode.data.state === STATE_NEW_OR_TODO && idx === STATE_READY_OR_INPROGRESS) {
+        if (this.$store.state.nodeSelected.data.state === STATE_NEW_OR_TODO && idx === STATE_READY_OR_INPROGRESS) {
           changeState(this, this.$store.state.userData.myTeam)
-          const parentNode = window.slVueTree.getParentNode(currentNode)
+          const parentNode = window.slVueTree.getParentNode(this.$store.state.nodeSelected)
           if (parentNode.level >= this.featureLevel && parentNode.data.team !== this.$store.state.userData.myTeam) {
             this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
               this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
           }
         } else {
-          if (currentNode.data.team === this.$store.state.userData.myTeam) {
+          if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
             // all other state changes; no team update
-            changeState(this, currentNode.data.team)
-          } else this.showLastEvent("Sorry, only members of team '" + currentNode.data.team + "' can change the state of this item", WARNING)
+            changeState(this, this.$store.state.nodeSelected.data.team)
+          } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change the state of this item", WARNING)
         }
       } else this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
     },
@@ -665,11 +661,8 @@ export default {
 
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
         const now = Date.now()
-        // update the tree
-        let node = this.$store.state.nodeSelected
-        node.title = newTitle
-        node.data.lastChange = now
-        node.data.lastContentChange = now
+        // update the current node
+        this.$store.commit('updateNodeSelected', { title: newTitle, lastContentChange: now, lastChange: now })
         // update current document in database
         this.$store.dispatch('setDocTitle', {
           'newTitle': newTitle,

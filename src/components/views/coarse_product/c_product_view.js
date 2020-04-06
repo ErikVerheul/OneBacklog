@@ -185,7 +185,7 @@ export default {
         // expand the newly selected product up to the found item
         window.slVueTree.showAndSelectItem(node)
         // update the selected node
-        this.$store.state.nodeSelected = node
+        this.$store.commit('updateNodeSelected', { newNode: node })
         // load the document if not already in memory
         if (node._id !== this.$store.state.currentDoc._id) {
           this.$store.dispatch('loadDoc', node._id)
@@ -210,7 +210,7 @@ export default {
 
       this.$store.state.numberOfNodesSelected = selNodes.length
       // update the first (highest in hierarchie) selected node
-      this.$store.state.nodeSelected = selNodes[0]
+      this.$store.commit('updateNodeSelected', { newNode: selNodes[0] })
       // if the user clicked on a node of another product (not root)
       if (this.$store.state.nodeSelected._id !== 'root' && this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
         // update current productId and title
@@ -289,14 +289,14 @@ export default {
         this.$store.state.currentDoc.color = '#567cd6'
         this.colorSelectShow = true
       } else {
-        this.$store.state.nodeSelected.data.reqAreaItemcolor = this.$store.state.currentDoc.color
+        this.$store.commit('updateNodeSelected', { reqAreaItemcolor: this.$store.state.currentDoc.color })
         this.createColorMapper()
         this.$store.dispatch('updateColorDb', this.$store.state.currentDoc.color)
       }
     },
 
     setUserColor() {
-      this.$store.state.nodeSelected.data.reqAreaItemcolor = this.userReqAreaItemcolor
+      this.$store.commit('updateNodeSelected', { reqAreaItemcolor: this.userReqAreaItemcolor })
       this.createColorMapper()
       this.$store.dispatch('updateColorDb', this.userReqAreaItemcolor)
     },
@@ -322,7 +322,8 @@ export default {
     doSetReqArea() {
       const oldParentReqArea = this.$store.state.nodeSelected.data.reqarea
       const newReqAreaId = this.selReqAreaId
-      this.$store.state.nodeSelected.data.reqarea = newReqAreaId
+      this.$store.commit('updateNodeSelected', { reqarea: newReqAreaId })
+
       this.$store.state.currentDoc.reqarea = newReqAreaId
       // set reqarea for the child nodes
       const childNodes = window.slVueTree.getChildNodesOfParent(this.$store.state.currentDoc._id)

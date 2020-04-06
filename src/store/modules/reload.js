@@ -48,10 +48,12 @@ const actions = {
 						if (rootState.debug) console.log(msg)
 						dispatch('doLog', { event: msg, level: WARNING })
 					}
-					rootState.currentDoc = cleanHistory(doc)
-					// decode from base64 + replace the encoded data
-					rootState.currentDoc.description = window.atob(doc.description)
-					rootState.currentDoc.acceptanceCriteria = window.atob(doc.acceptanceCriteria)
+					commit('updateCurrentDoc', {
+						newDoc: cleanHistory(doc),
+						// decode from base64 + replace the encoded data
+						description: window.atob(doc.description),
+						acceptanceCriteria: window.atob(doc.acceptanceCriteria)
+					})
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('loadItemByShortId: document with _id ' + doc._id + ' is loaded.')
 				} else {
@@ -115,16 +117,20 @@ const actions = {
 	*/
 	loadDoc({
 		rootState,
+		commit,
 		dispatch
 	}, _id) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
-			rootState.currentDoc = cleanHistory(res.data)
-			// decode from base64 + replace the encoded data
-			rootState.currentDoc.description = window.atob(res.data.description)
-			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+			commit('updateCurrentDoc', {
+				newDoc: cleanHistory(res.data),
+				// decode from base64 + replace the encoded data
+				description: window.atob(res.data.description),
+				acceptanceCriteria: window.atob(res.data.acceptanceCriteria)
+			})
+
 			if (rootState.currentDoc.level === PRODUCTLEVEL) rootState.currentProductTitle = rootState.currentDoc.title
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('loadDoc: document with _id ' + _id + ' is loaded.')

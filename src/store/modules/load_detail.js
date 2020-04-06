@@ -236,6 +236,7 @@ const actions = {
     /* Load current default user product and start loading the tree */
     loadCurrentProduct({
         rootState,
+        commit,
         dispatch
     }) {
         const _id = rootState.currentDefaultProductId
@@ -245,10 +246,12 @@ const actions = {
         }).then(res => {
             rootState.currentProductId = _id
             rootState.currentProductTitle = res.data.title
-            rootState.currentDoc = res.data
-            // decode from base64 + replace the encoded data
-            rootState.currentDoc.description = window.atob(res.data.description)
-            rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+            commit('updateCurrentDoc', {
+                newDoc: res.data,
+                // decode from base64 + replace the encoded data
+                description: window.atob(res.data.description),
+                acceptanceCriteria: window.atob(res.data.acceptanceCriteria)
+            })
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log('loadCurrentProduct: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
             dispatch('loadAllProducts')

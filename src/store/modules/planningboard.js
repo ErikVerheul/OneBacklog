@@ -123,11 +123,13 @@ const actions = {
 		if (afterMoveIds.length > beforeMoveIds.length) {
 			// task was added
 			let newTaskId
+			let newTaskPosition = 0
 			for (let id of afterMoveIds) {
 				if (!beforeMoveIds.includes(id)) {
 					newTaskId = id
 					break
 				}
+				newTaskPosition++
 			}
 
 			let newState
@@ -145,7 +147,12 @@ const actions = {
 					newState = 5
 					break
 			}
-			dispatch('setState', { 'id': newTaskId, newState, 'timestamp': Date.now() })
+			dispatch('setState', {
+				'id': newTaskId,
+				newState,
+				position: newTaskPosition,
+				'timestamp': Date.now(),
+			})
 		}
 	},
 }

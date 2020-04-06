@@ -97,8 +97,7 @@ export default {
       if (val !== this.$store.state.currentDoc.subtype) {
         if (this.haveWritePermission[this.getCurrentItemLevel]) {
           const now = Date.now()
-          this.$store.state.nodeSelected.data.subtype = val
-          this.$store.state.nodeSelected.data.lastChange = now
+          this.$store.commit('updateNodeSelected', { subtype: val, lastChange: now })
           this.$store.dispatch('setSubType', {
             'newSubType': val,
             'timestamp': now
@@ -226,7 +225,7 @@ export default {
         // expand the newly selected product up to the found item
         window.slVueTree.showAndSelectItem(node)
         // update the selected node
-        this.$store.state.nodeSelected = node
+        this.$store.commit('updateNodeSelected', { newNode: node })
         // load the document if not already in memory
         if (node._id !== this.$store.state.currentDoc._id) {
           this.$store.dispatch('loadDoc', node._id)
@@ -251,7 +250,7 @@ export default {
 
       this.$store.state.numberOfNodesSelected = selNodes.length
       // update the first (highest in hierarchie) selected node
-      this.$store.state.nodeSelected = selNodes[0]
+      this.$store.commit('updateNodeSelected', { newNode: selNodes[0] })
       // if the root node is selected do nothing
       if (this.$store.state.nodeSelected._id !== 'root') {
         // if the user clicked on a node of another product

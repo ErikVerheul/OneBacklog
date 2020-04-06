@@ -34,6 +34,49 @@ function removeFromArray(arr, item) {
 * After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
 */
 
+const mutations = {
+	updateBoard(state, payload) {
+		function mapTaskState(idx) {
+			const TODO = 2
+			const INPROGRESS = 3
+			const TESTREVIEW = 4
+			const DONE = 5
+			switch (idx) {
+				case TODO:
+					return 'todo'
+				case INPROGRESS:
+					return 'inProgress'
+				case TESTREVIEW:
+					return 'testReview'
+				case DONE:
+					return 'done'
+			}
+		}
+
+		for (let s of payload.rootState.stories) {
+			if (s.id === payload.storyId) {
+				const sourceColumn = s.tasks[mapTaskState(payload.prevState)]
+				console.log('updateBoard: sourceColumn = ' + JSON.stringify(sourceColumn, null, 2))
+				const targetColumn = s.tasks[mapTaskState(payload.newState)]
+				console.log('updateBoard: targetColumn = ' + JSON.stringify(targetColumn, null, 2))
+				let movedTask
+				const newSourceColumn = []
+				for (let t of sourceColumn) {
+					if (t.id === payload.taskId) {
+						movedTask = t
+						console.log('updateBoard: movedTask = ' + JSON.stringify(movedTask, null, 2))
+					} else newSourceColumn.push(t)
+				}
+				s.tasks[mapTaskState(payload.prevState)] = newSourceColumn
+				if (payload.newTaskPosition) {
+					console.log('updateBoard: payload.newTaskPosition = ' + payload.newTaskPosition)
+					targetColumn.splice(payload.newTaskPosition, 0, movedTask)
+				} else targetColumn.unshift(movedTask)
+			}
+		}
+	}
+}
+
 const actions = {
 	listenForChanges({
 		rootState,
@@ -385,6 +428,14 @@ const actions = {
 							node.data.state = doc.state
 							node.data.lastStateChange = lastHistoryTimestamp
 							if (documentInView) rootState.currentDoc.state = doc.state
+
+							if (rootState.currentView === 'planningBoard') {
+								const prevState = lastHistObj.setStateEvent[0]
+								const newTaskPosition = lastHistObj.setStateEvent[3]
+								commit('updateBoard', { rootState, storyId: doc.parentId, taskId: doc._id, prevState, newState: doc.state, newTaskPosition })
+							}
+
+
 							break
 						case 'setSubTypeEvent':
 							node.data.subtype = doc.subtype
@@ -444,5 +495,6 @@ const actions = {
 }
 
 export default {
+	mutations,
 	actions
 }

@@ -111,120 +111,7 @@ export default new Vuex.Store({
 		runningCookieRefreshId: null,
 		uploadDone: true,
 		// planning board
-		stories:
-			[
-				{
-					idx: 0,
-					id: 'storyId',
-					title: 'story AA',
-					size: 8,
-					subType: 0,
-					tasks: {
-						todo: [
-							{
-								id: 3,
-								text: 'item 3'
-							},
-							{
-								id: 4,
-								text: 'item 4'
-							}
-						],
-						inProgress: [
-							{
-								id: 2,
-								text: 'item 2'
-							}
-						],
-						testReview: [
-							{
-								id: 5,
-								text: 'item 5'
-							}
-						],
-						done: [
-							{
-								id: 1,
-								text: 'item 1'
-							}
-						]
-					}
-				},
-				{
-					idx: 1,
-					id: 'storyId',
-					title: 'story BB',
-					size: 13,
-					subType: 0,
-					tasks: {
-						todo: [
-							{
-								id: 3,
-								text: 'item 3'
-							},
-							{
-								id: 4,
-								text: 'item 4'
-							}
-						],
-						inProgress: [
-							{
-								id: 2,
-								text: 'item 2'
-							}
-						],
-						testReview: [
-							{
-								id: 5,
-								text: 'item 5'
-							}
-						],
-						done: [
-							{
-								id: 1,
-								text: 'item 1'
-							}
-						]
-					}
-				},
-				{
-					idx: 2,
-					id: 'storyId',
-					title: 'story CC',
-					size: 3,
-					subType: 0,
-					tasks: {
-						todo: [
-							{
-								id: 3,
-								text: 'item 3'
-							},
-							{
-								id: 4,
-								text: 'item 4'
-							}
-						],
-						inProgress: [
-							{
-								id: 2,
-								text: 'item 2'
-							}
-						],
-						testReview: [
-							{
-								id: 5,
-								text: 'item 5'
-							}
-						],
-						done: [
-							{
-								id: 1,
-								text: 'item 1'
-							}
-						]
-					}
-				}
-			]
+		stories: []
 	},
 
 	getters: {
@@ -302,6 +189,174 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
+		/* Update the currently selected node. Note that not all props are covered */
+		updateNodeSelected(state, payload) {
+			if (payload.newNode) {
+				state.nodeSelected = payload.newNode
+			}
+			const keys = Object.keys(payload)
+			for (let k of keys) {
+				switch (k) {
+					case 'productId':
+						state.nodeSelected.productId = payload.productId
+						break
+					case 'title':
+						state.nodeSelected.title = payload.title
+						break
+					case 'isSelected':
+						state.nodeSelected.isSelected = payload.isSelected
+						break
+					case 'isExpanded':
+						state.nodeSelected.isExpanded = payload.isExpanded
+						break
+					case 'markViolation':
+						state.nodeSelected.markViolation = payload.markViolation
+						break
+					case 'state':
+						state.nodeSelected.data.state = payload.state
+						break
+					case 'reqarea':
+						state.nodeSelected.data.reqarea = payload.reqarea
+						break
+					case 'sprintId':
+						state.nodeSelected.data.sprintId = payload.sprintId
+						break
+					case 'inconsistentState':
+						state.nodeSelected.data.inconsistentState = payload.inconsistentState
+						break
+					case 'team':
+						state.nodeSelected.data.team = payload.team
+						break
+					case 'taskOwner':
+						state.nodeSelected.data.taskOwner = payload.taskOwner
+						break
+					case 'subtype':
+						state.nodeSelected.data.subtype = payload.subtype
+						break
+					case 'reqAreaItemColor':
+						state.nodeSelected.data.reqAreaItemColor = payload.reqAreaItemColor
+						break
+					case 'lastPositionChange':
+						state.nodeSelected.data.lastPositionChange = payload.lastPositionChange
+						break
+					case 'lastStateChange':
+						state.nodeSelected.data.lastStateChange = payload.lastStateChange
+						break
+					case 'lastContentChange':
+						state.nodeSelected.data.lastContentChange = payload.lastContentChange
+						break
+					case 'lastCommentAddition':
+						state.nodeSelected.data.lastCommentAddition = payload.lastCommentAddition
+						break
+					case 'lastAttachmentAddition':
+						state.nodeSelected.data.lastAttachmentAddition = payload.lastAttachmentAddition
+						break
+					case 'lastCommentToHistory':
+						state.nodeSelected.data.lastCommentToHistory = payload.lastCommentToHistory
+						break
+					case 'lastChange':
+						state.nodeSelected.data.lastChange = payload.lastChange
+						break
+					default:
+						// eslint-disable-next-line no-console
+						if (k !== 'newNode') console.log('nodeSelected: cannot update nodeSelected, unknown key = ' + k)
+				}
+			}
+		},
+
+		/* Update the currently loaded document. Note that not all fields are covered */
+		updateCurrentDoc(state, payload) {
+			if (payload.newDoc) {
+				state.currentDoc = payload.newDoc
+			}
+			const keys = Object.keys(payload)
+			for (let k of keys) {
+				switch (k) {
+					case '_rev':
+						state.currentDoc._rev = payload._rev
+						break
+					case '_attachments':
+						state.currentDoc._attachments = payload._attachments
+						break
+					case 'shortId':
+						state.currentDoc.shortId = payload.shortId
+						break
+					case 'productId':
+						state.nodeSelected.productId = payload.productId
+						break
+					case 'parentId':
+						state.currentDoc.parentId = payload.parentId
+						break
+					case 'reqarea':
+						state.currentDoc.reqarea = payload.reqarea
+						break
+					case 'sprintId':
+						state.currentDoc.sprintId = payload.sprintId
+						break
+					case 'team':
+						state.currentDoc.team = payload.team
+						break
+					case 'level':
+						state.currentDoc.level = payload.level
+						break
+					case 'subtype':
+						state.currentDoc.subtype = payload.subtype
+						break
+					case 'state':
+						state.currentDoc.state = payload.state
+						break
+					case 'tssize':
+						state.currentDoc.tssize = payload.tssize
+						break
+					case 'spikepersonhours':
+						state.currentDoc.spikepersonhours = payload.spikepersonhours
+						break
+					case 'spsize':
+						state.currentDoc.spsize = payload.spsize
+						break
+					case 'followers':
+						state.currentDoc.followers = payload.followers
+						break
+					case 'newFollower':
+						state.currentDoc.followers.push(payload.newFollower)
+						break
+					case 'leavingFollower':
+						{
+							const updatedFollowers = []
+							for (let f of state.currentDoc.followers) {
+								if (f !== payload.leavingFollower) updatedFollowers.push(f)
+							}
+							state.currentDoc.followers = updatedFollowers
+						}
+						break
+					case 'description':
+						state.currentDoc.description = payload.description
+						break
+					case 'acceptanceCriteria':
+						state.currentDoc.acceptanceCriteria = payload.acceptanceCriteria
+						break
+					case 'priority':
+						state.currentDoc.priority = payload.priority
+						break
+					case 'newComment':
+						state.currentDoc.comments.unshift(payload.newComment)
+						break
+					case 'newHist':
+						state.currentDoc.history.unshift(payload.newHist)
+						break
+					case 'delmark':
+						state.currentDoc.delmark = payload.delmark
+						break
+					case 'color':
+						state.currentDoc.color = payload.color
+						break
+					default:
+						// eslint-disable-next-line no-console
+						if (k !== 'newDoc') console.log('currentDoc: cannot update currentDoc, unknown key = ' + k)
+				}
+			}
+		},
+
 		updateTeam(state, newTeam) {
 			state.userData.myTeam = newTeam
 		},
