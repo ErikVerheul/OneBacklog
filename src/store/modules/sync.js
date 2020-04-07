@@ -137,6 +137,9 @@ const actions = {
 
 		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true&filter=_view&view=design1/changesFilter&since=now'
 		rootState.listenForChangesRunning = true
+		let leafLevel
+        if (rootState.currentView === 'detailProduct') leafLevel = TASKLEVEL
+        if (rootState.currentView === 'coarseProduct') leafLevel = FEATURELEVEL
 		globalAxios({
 			method: 'GET',
 			url: url,
@@ -227,7 +230,7 @@ const actions = {
 									"dependencies": doc.dependencies || [],
 									"conditionalFor": doc.conditionalFor || [],
 									"title": doc.title,
-									"isLeaf": (locationInfo.newPath.length < TASKLEVEL) ? false : true,
+									"isLeaf": (locationInfo.newPath.length < leafLevel) ? false : true,
 									"children": [],
 									"isSelected": false,
 									"isExpanded": true,

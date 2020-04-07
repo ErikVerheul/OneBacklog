@@ -5,6 +5,7 @@ const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const TASKLEVEL = 6
 var docs = []
 var newProductId
 var orgProductTitle
@@ -18,7 +19,7 @@ function addToArray(arr, item) {
     return newArr
 }
 
-function showProduct() {
+function showProduct(leafLevel) {
     let parentNodes = { root: window.slVueTree.getNodeById('root') }
     for (let doc of docs) {
         const parentId = doc.parentId
@@ -45,12 +46,13 @@ function showProduct() {
                 level: level,
                 productId: doc.productId,
                 parentId,
+                sprintId: doc.sprintId,
                 _id: doc._id,
                 shortId: doc.shortId,
                 dependencies: doc.dependencies || [],
                 conditionalFor: doc.conditionalFor || [],
                 title: doc.title,
-                isLeaf: level === PBILEVEL,
+                isLeaf: level === leafLevel,
                 children: [],
                 isExpanded,
                 savedIsExpanded: isExpanded,
@@ -63,6 +65,7 @@ function showProduct() {
                     priority: doc.priority,
                     state: doc.state,
                     reqarea: doc.reqarea,
+                    reqAreaItemcolor: doc.color,
                     team: doc.team,
                     subtype: doc.subtype,
                     lastChange
@@ -83,6 +86,7 @@ const actions = {
         // set the range of documents to load
         const productId = rootState.currentProductId
         const rangeString = 'startkey=["' + productId + '",0]&endkey=["' + productId + '",' + (PBILEVEL + 1) + ']'
+        // const rangeString = `startkey=["${productId}",0]&endkey=["${productId}",${TASKLEVEL}]`
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter?' + rangeString + '&include_docs=true',
@@ -157,7 +161,10 @@ const actions = {
             // save in the database
             dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
             // show the product clone in the tree view
-            showProduct()
+            let leafLevel
+            if (rootState.currentView === 'detailProduct') leafLevel = TASKLEVEL
+            if (rootState.currentView === 'coarseProduct') leafLevel = FEATURELEVEL
+            showProduct(leafLevel)
             // eslint-disable-next-line no-console
             console.log('storeProduct: ' + res.data.length + ' documents are processed')
         }).catch(error => {

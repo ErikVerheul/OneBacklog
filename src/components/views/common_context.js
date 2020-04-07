@@ -116,6 +116,7 @@ export default {
                 _id: newId,
                 shortId: newShortId,
                 title: 'COPY: ' + node.title,
+                isLeaf: node.isLeaf,
                 dependencies: [],
                 conditionalFor: [],
                 children: [],
@@ -128,6 +129,8 @@ export default {
                 savedDoShow: true,
                 data: {
                     state: STATE_NEW_OR_TODO,
+                    reqarea: node.data.reqArea,
+                    reqAreaItemcolor: node.data.reqAreaItemcolor,
                     team: node.data.team,
                     subtype: node.data.subtype,
                     lastChange: 0
