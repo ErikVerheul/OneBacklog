@@ -4,7 +4,7 @@ import globalAxios from 'axios'
 const ERROR = 2
 
 function composeRangeString(id) {
-	return 'startkey="' + id + '"&endkey="' + id + '"'
+	return `startkey="${id}"&endkey="${id}"`
 }
 
 const actions = {

@@ -85,8 +85,7 @@ const actions = {
     }) {
         // set the range of documents to load
         const productId = rootState.currentProductId
-        const rangeString = 'startkey=["' + productId + '",0]&endkey=["' + productId + '",' + (PBILEVEL + 1) + ']'
-        // const rangeString = `startkey=["${productId}",0]&endkey=["${productId}",${TASKLEVEL}]`
+        const rangeString = `startkey=["${productId}",0]&endkey=["${productId}",${TASKLEVEL}]`
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter?' + rangeString + '&include_docs=true',

@@ -12,7 +12,7 @@ var histArray
 var newDefaultId
 
 function composeRangeString(id) {
-    return 'startkey="' + id + '"&endkey="' + id + '"'
+    return `startkey="${id}"&endkey="${id}"`
 }
 
 function setChangeTimestamps(history, lastComment) {

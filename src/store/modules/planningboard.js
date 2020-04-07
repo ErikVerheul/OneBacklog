@@ -11,7 +11,7 @@ const DONE = 5
 
 
 function composeRangeString(id, team) {
-	return 'startkey=["' + id + '","' + team + '"]&endkey=["' + id + '","' + team + '"]'
+	return `startkey=["${id}","${team}"]&endkey=["${id}","${team}"]`
 }
 
 const mutations = {
@@ -140,6 +140,19 @@ const actions = {
 				position: newTaskPosition,
 				'timestamp': Date.now(),
 			})
+		} else {
+			if (afterMoveIds.length === beforeMoveIds.length) {
+				console.log('updateItems: beforeMoveIds = ' + beforeMoveIds)
+				console.log('updateItems: afterMoveIds = ' + afterMoveIds)
+				const switchedTaskIds = []
+				for (let i = 0; i < afterMoveIds.length; i++) {
+					if (afterMoveIds[i] !== beforeMoveIds[i]) {
+						if (!switchedTaskIds.includes(beforeMoveIds[i])) switchedTaskIds.push(beforeMoveIds[i])
+						if (!switchedTaskIds.includes(afterMoveIds[i])) switchedTaskIds.push(afterMoveIds[i])
+					}
+				}
+				console.log('updateItems: switchedTaskIds = ' + switchedTaskIds)
+			}
 		}
 	},
 }

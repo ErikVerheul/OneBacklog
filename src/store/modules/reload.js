@@ -23,7 +23,7 @@ const actions = {
 		dispatch,
 		commit
 	}, shortId) {
-		const rangeStr = '/_design/design1/_view/shortIdFilter?startkey=["' + shortId + '"]&endkey=["' + shortId + '"]&include_docs=true'
+		const rangeStr = `/_design/design1/_view/shortIdFilter?startkey=["${shortId}"]&endkey=["${shortId}"]&include_docs=true`
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + rangeStr,
