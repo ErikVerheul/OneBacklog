@@ -143,7 +143,7 @@
             >Assing this {{ contextNodeType }} to a sprint</b-list-group-item>
 
             <b-list-group-item
-              v-if="isInSprint && (contextNodeLevel === pbiLevel || contextNodeLevel === taskLevel)"
+              v-if="isInSprint && (contextNodeLevel === pbiLevel)"
               button
               :active="contextOptionSelected === FROMSPRINT"
               variant="dark"
