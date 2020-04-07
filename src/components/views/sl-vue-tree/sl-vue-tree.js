@@ -7,7 +7,6 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
-const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 var lastSelectedNode = null
 var draggableNodes = []
@@ -103,8 +102,7 @@ export default {
 			},
 			preventDrag: false,
 			currentValue: this.value,
-			lastSelectCursorPosition: null,
-			leafLevel: undefined
+			lastSelectCursorPosition: null
 		};
 	},
 
@@ -115,16 +113,6 @@ export default {
 		}
 		if (this.isRoot) {
 			document.addEventListener('mouseup', this.onDocumentMouseupHandler);
-		}
-		switch (this.$store.state.currentView) {
-			case 'detailProduct':
-				this.leafLevel = TASKLEVEL
-				break
-			case 'coarseProduct':
-				this.leafLevel = FEATURELEVEL
-				break
-			default:
-				this.leafLevel = TASKLEVEL
 		}
 	},
 
@@ -167,7 +155,7 @@ export default {
 			const gaps = []
 			let i = this.nodeLevel
 			while (i-- > 0) gaps.push(i)
-			if (this.nodeLevel + 1 === this.leafLevel) gaps.push(i)
+			if (this.nodeLevel + 1 === this.$store.getters.leafLevel) gaps.push(i)
 			return gaps
 		},
 
@@ -551,7 +539,7 @@ export default {
 			}
 			this.currentValue[0].children = newChildren
 			// recalculate the paths in the tree
-			updatePaths([0], newChildren, this.leafLevel)
+			updatePaths([0], newChildren, this.$store.getters.leafLevel)
 		},
 
 		getRootNode() {
@@ -671,8 +659,8 @@ export default {
 				successorNode = destSiblings[nodes.length] || null
 				if (destNodeModel.path.length === 1) {
 					// inserting a product
-					updatePaths(destNodeModel.path, destSiblings, this.leafLevel)
-				} else updatePaths(destNodeModel.path, destSiblings, this.leafLevel, 0, parentId, productId)
+					updatePaths(destNodeModel.path, destSiblings, this.$store.getters.leafLevel)
+				} else updatePaths(destNodeModel.path, destSiblings, this.$store.getters.leafLevel, 0, parentId, productId)
 			} else {
 				// insert before or after the cursor position
 				const destSiblings = this.getNodeSiblings(destNodeModel.path)
@@ -684,8 +672,8 @@ export default {
 				successorNode = destSiblings[insertInd + nodes.length] || null
 				if (parentPath.length === 1) {
 					// inserting a product
-					updatePaths(parentPath, destSiblings, this.leafLevel, insertInd)
-				} else updatePaths(parentPath, destSiblings, this.leafLevel, insertInd, parentId, productId)
+					updatePaths(parentPath, destSiblings, this.$store.getters.leafLevel, insertInd)
+				} else updatePaths(parentPath, destSiblings, this.$store.getters.leafLevel, insertInd, parentId, productId)
 			}
 			if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 		},
@@ -705,7 +693,7 @@ export default {
 					const removeInd = node.ind
 					const parentPath = node.path.slice(0, -1)
 					siblings.splice(removeInd, 1)
-					updatePaths(parentPath, siblings, this.leafLevel, removeInd)
+					updatePaths(parentPath, siblings, this.$store.getters.leafLevel, removeInd)
 					success = true
 				}
 			}
@@ -760,7 +748,7 @@ export default {
 				}
 				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				commonParent.children = restoredChildren
-				updatePaths(commonParent.path, commonParent.children, this.leafLevel)
+				updatePaths(commonParent.path, commonParent.children, this.$store.getters.leafLevel)
 			} else {
 				for (let id of beforeDropStatus.savedSourceChildrenIds) {
 					const node = this.getNodeById(id)
@@ -768,7 +756,7 @@ export default {
 				}
 				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				sourceParent.children = restoredSourceChildren
-				updatePaths(sourceParent.path, sourceParent.children, this.leafLevel, 0, beforeDropStatus.sourceParentId, beforeDropStatus.sourceProductId)
+				updatePaths(sourceParent.path, sourceParent.children, this.$store.getters.leafLevel, 0, beforeDropStatus.sourceParentId, beforeDropStatus.sourceProductId)
 
 				for (let id of beforeDropStatus.savedTargetChildrenIds) {
 					const node = this.getNodeById(id)
@@ -776,7 +764,7 @@ export default {
 				}
 				const targetParent = this.getNodeById(beforeDropStatus.targetParentId)
 				targetParent.children = restoredTargetChildren
-				updatePaths(targetParent.path, targetParent.children, this.leafLevel, 0, beforeDropStatus.targetParentId, beforeDropStatus.targetProductId)
+				updatePaths(targetParent.path, targetParent.children, this.$store.getters.leafLevel, 0, beforeDropStatus.targetParentId, beforeDropStatus.targetProductId)
 			}
 			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredChildren)
 			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredSourceChildren)

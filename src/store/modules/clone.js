@@ -4,7 +4,6 @@ import globalAxios from 'axios'
 const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const PBILEVEL = 5
 const TASKLEVEL = 6
 var docs = []
 var newProductId
@@ -140,6 +139,7 @@ const actions = {
 
     storeProduct({
         rootState,
+        getters,
         dispatch
     }, docs) {
         globalAxios({
@@ -160,10 +160,7 @@ const actions = {
             // save in the database
             dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
             // show the product clone in the tree view
-            let leafLevel
-            if (rootState.currentView === 'detailProduct') leafLevel = TASKLEVEL
-            if (rootState.currentView === 'coarseProduct') leafLevel = FEATURELEVEL
-            showProduct(leafLevel)
+            showProduct(getters.leafLevel)
             // eslint-disable-next-line no-console
             console.log('storeProduct: ' + res.data.length + ' documents are processed')
         }).catch(error => {

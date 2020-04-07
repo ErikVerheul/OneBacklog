@@ -111,6 +111,7 @@ function convertToResults(docs) {
 const actions = {
     processItems({
         rootState,
+        getters,
         dispatch,
         commit
     }, results) {
@@ -153,9 +154,6 @@ const actions = {
             }
         }
 
-        let leafLevel
-        if (rootState.currentView === 'detailProduct') leafLevel = TASKLEVEL
-        if (rootState.currentView === 'coarseProduct') leafLevel = FEATURELEVEL
         for (let item of results) {
             const _id = item.id
             const parentId = item.key
@@ -196,7 +194,7 @@ const actions = {
                     dependencies: dependencies || [],
                     conditionalFor: conditionalFor || [],
                     title,
-                    isLeaf: level === leafLevel,
+                    isLeaf: level === getters.leafLevel,
                     children: [],
                     isSelected: false,
                     isExpanded,

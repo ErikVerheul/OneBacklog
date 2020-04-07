@@ -30,6 +30,9 @@ const TODO = 2
 const INPROGRESS = 3
 const TESTREVIEW = 4
 const DONE = 5
+const FEATURELEVEL = 4
+const PBILEVEL = 5
+const TASKLEVEL = 6
 
 Vue.use(Vuex)
 
@@ -120,6 +123,11 @@ export default new Vuex.Store({
 
 	getters: {
 		// note that the roles of _admin and admin are generic (not product specific)
+		leafLevel(state) {
+            if (state.currentView === 'detailProduct') return TASKLEVEL
+			if (state.currentView === 'coarseProduct') return FEATURELEVEL
+			return PBILEVEL
+		},
 		isAuthenticated(state) {
 			return state.userData.user !== undefined
 		},
