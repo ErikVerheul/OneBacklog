@@ -291,6 +291,12 @@ const actions = {
 					/* Filter on document type 'backlogItem', then emit the product _rev of the removed documents.*/
 					"removed": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.delmark || doc._deleted) emit(doc._rev, 1);}'
+					},
+					/* Filter on document type 'backlogItem', then emit sprintId, team level and (minus) priority to load the tasks in order as represented in the tree view */
+					"sprints": {
+						"map": `function(doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= 5 && doc.sprintId) emit([doc.sprintId, doc.team, doc.level, doc.priority * -1], [doc.productId, doc.parentId, doc.title, doc.level, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
+						}`
 					}
 				},
 				"language": "javascript"

@@ -5,7 +5,6 @@ const ERROR = 2
 const WARNING = 1
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const TASKLEVEL = 6
 const HOURINMILIS = 3600000
 var fromHistory
 var histArray

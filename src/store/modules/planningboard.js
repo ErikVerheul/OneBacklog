@@ -11,7 +11,7 @@ const DONE = 5
 
 
 function composeRangeString(id, team) {
-	return `startkey=["${id}","${team}"]&endkey=["${id}","${team}"]`
+	return `startkey=["${id}","${team}",${PBILEVEL}, ${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}",${TASKLEVEL}, ${Number.MAX_SAFE_INTEGER}]`
 }
 
 const mutations = {
