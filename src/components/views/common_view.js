@@ -679,10 +679,7 @@ export default {
       }
     },
 
-    /*
-     * Update the database when one or more nodes are dropped on another location
-     * note: for now the PBI level is the highest level (= lowest in hierarchy) and always a leaf
-     */
+    /* Update the database when one or more nodes are dropped on another location */
     nodeDropped(beforeDropStatus, draggingNodes, position) {
       const clickedLevel = beforeDropStatus.sourceLevel
 

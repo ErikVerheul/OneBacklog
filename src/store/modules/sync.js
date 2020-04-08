@@ -1,5 +1,5 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
@@ -39,20 +39,16 @@ const mutations = {
 		for (let s of payload.rootState.stories) {
 			if (s.id === payload.storyId) {
 				const sourceColumn = s.tasks[payload.prevState]
-				console.log('updateBoard: sourceColumn = ' + JSON.stringify(sourceColumn, null, 2))
 				const targetColumn = s.tasks[payload.newState]
-				console.log('updateBoard: targetColumn = ' + JSON.stringify(targetColumn, null, 2))
 				let movedTask
 				const newSourceColumn = []
 				for (let t of sourceColumn) {
 					if (t.id === payload.taskId) {
 						movedTask = t
-						console.log('updateBoard: movedTask = ' + JSON.stringify(movedTask, null, 2))
 					} else newSourceColumn.push(t)
 				}
 				s.tasks[payload.prevState] = newSourceColumn
 				if (payload.newTaskPosition) {
-					console.log('updateBoard: payload.newTaskPosition = ' + payload.newTaskPosition)
 					targetColumn.splice(payload.newTaskPosition, 0, movedTask)
 				} else targetColumn.unshift(movedTask)
 			}

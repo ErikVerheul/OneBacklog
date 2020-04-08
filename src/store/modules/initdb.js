@@ -1,5 +1,5 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2

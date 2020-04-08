@@ -35,7 +35,7 @@ export default {
         return this.tasks
       },
       set (tasks) {
-        this.$store.dispatch('updateItems', {
+        this.$store.dispatch('updateTasks', {
           tasks,
           id: this.id,
           idx: this.idx
