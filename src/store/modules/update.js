@@ -875,8 +875,8 @@ const actions = {
 			data: payload.updatedDoc
 		}).then((res) => {
 			if (rootState.currentDoc._id === res.data.id) {
-				// update the revision of the current document in memory
-				commit('updateCurrentDoc', { _rev: res.data.rev })
+				// update the current document in memory with the rivised revision
+				commit('updateCurrentDoc', { newDoc: payload.updatedDoc,  _rev: res.data.rev })
 			}
 			rootState.isTeamCreated = true
 			// execute passed function if provided
