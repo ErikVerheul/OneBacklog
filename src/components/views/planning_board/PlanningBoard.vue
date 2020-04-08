@@ -27,10 +27,10 @@
         <b-col cols="5">
           <h5>team '{{ $store.state.userData.myTeam }}'</h5>
         </b-col>
-        <b-col cols="5">
+        <b-col cols="4">
           <h5>{{ $store.getters.getStoryPoints }} story points in this sprint</h5>
         </b-col>
-        <b-col cols="1">
+        <b-col cols="2">
           <h5>points done: {{ $store.getters.getStoryPointsDone }}</h5>
         </b-col>
         <b-col cols="1">
