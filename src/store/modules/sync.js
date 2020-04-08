@@ -37,7 +37,7 @@ function removeFromArray(arr, item) {
 const mutations = {
 	updateBoard(state, payload) {
 		for (let s of payload.rootState.stories) {
-			if (s.id === payload.storyId) {
+			if (s.storyId === payload.storyId) {
 				const sourceColumn = s.tasks[payload.prevState]
 				const targetColumn = s.tasks[payload.newState]
 				let movedTask
@@ -432,6 +432,12 @@ const actions = {
 							break
 						case 'uploadAttachmentEvent':
 							node.data.lastAttachmentAddition = lastHistoryTimestamp
+							break
+						case 'updateTaskOrderEvent':
+							if (rootState.currentView === 'planningBoard') {
+								const taskUpdates = lastHistObj['updateTaskOrderEvent']
+								rootState.stories[taskUpdates.idx].tasks[taskUpdates.id] = taskUpdates.tasks
+							}
 							break
 						case 'addSprintIdsEvent':
 							node.sprintId = doc.sprintId

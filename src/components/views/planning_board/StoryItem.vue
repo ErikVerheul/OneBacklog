@@ -10,7 +10,7 @@
       <i class="colorRed" v-if="story.subType === 2">
         <font-awesome-icon icon="bug" />
       </i>
-      <span class="text-muted"> #{{ getShortId(story.id) }}</span>
+      <span class="text-muted"> #{{ getShortId(story.storyId) }}</span>
       {{ story.title }}
       <p>size = {{ story.size }}</p>
     </div>

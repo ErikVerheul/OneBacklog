@@ -229,6 +229,7 @@ Y	            Y	    removeAttachmentEvent	        attachments.js
 N	            Y	    removedFromParentEvent	      	remove.js
 Y 				Y 		removeSprintIdsEvent			update.js
 Y	            N	    updateParentHistEvent	        remove.js
+Y	            N	    updateTaskOrderEvent	        planningboard.js
 Y	            Y	    setConditionsEvent	          	update.js
 Y	            Y	    setDependenciesEvent	        update.js
 Y	            Y	    setHrsEvent	                  	update.js

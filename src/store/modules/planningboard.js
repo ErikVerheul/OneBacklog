@@ -1,5 +1,5 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const ERROR = 2
 const PBILEVEL = 5
@@ -19,14 +19,13 @@ const mutations = {
 		const rootState = payload.rootState
 		// console.log('createSprint: payload.storieResults = ' + JSON.stringify(payload.storieResults, null, 2))
 		for (let i = 0; i < payload.storieResults.length; i++) {
-			// console.log('createSprint: i = ' + i + ', payload.storieResults[i].value = ' + JSON.stringify(payload.storieResults[i].value, null, 2))
 			const storyId = payload.storieResults[i].id
 			const storyTitle = payload.storieResults[i].value[2]
 			const subType = payload.storieResults[i].value[4]
 			const storySize = payload.storieResults[i].value[6]
 			const newStory = {
 				idx: i,
-				id: storyId,
+				storyId,
 				title: storyTitle,
 				size: storySize,
 				subType,
@@ -88,14 +87,12 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString(payload.sprint.id, payload.team)
 		}).then(res => {
 			const results = res.data.rows
-			// console.log('loadPlanningBoard: results = ' + JSON.stringify(results, null, 2))
 			for (let r of results) {
 				const level = r.value[3]
 				if (level === PBILEVEL) storieResults.push(r)
 				if (level === TASKLEVEL) taskResults.push(r)
 			}
 			commit('createSprint', { rootState, storieResults, taskResults })
-			console.log('loadPlanningBoard: rootState.stories = ' + JSON.stringify(rootState.stories, null, 2))
 		}).catch(error => {
 			let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -104,12 +101,10 @@ const actions = {
 		})
 	},
 
-	updateItems({
+	updateTasks({
 		rootState,
 		dispatch
 	}, payload) {
-		// console.log('updateItems: payload.tasks = ' + JSON.stringify(payload, null, 2))
-
 		const beforeMoveIds = []
 		for (let t of rootState.stories[payload.idx].tasks[payload.id]) {
 			beforeMoveIds.push(t.id)
@@ -142,18 +137,100 @@ const actions = {
 			})
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
-				console.log('updateItems: beforeMoveIds = ' + beforeMoveIds)
-				console.log('updateItems: afterMoveIds = ' + afterMoveIds)
-				const switchedTaskIds = []
-				for (let i = 0; i < afterMoveIds.length; i++) {
-					if (afterMoveIds[i] !== beforeMoveIds[i]) {
-						if (!switchedTaskIds.includes(beforeMoveIds[i])) switchedTaskIds.push(beforeMoveIds[i])
-						if (!switchedTaskIds.includes(afterMoveIds[i])) switchedTaskIds.push(afterMoveIds[i])
-					}
-				}
-				console.log('updateItems: switchedTaskIds = ' + switchedTaskIds)
+				dispatch('resetTaskPriorities', afterMoveIds)
+				dispatch('syncOtherPlanningBoards', payload)
 			}
 		}
+	},
+
+	resetTaskPriorities({
+		rootState,
+		dispatch
+	}, afterMoveIds) {
+		const docsToGet = []
+		for (let id of afterMoveIds) {
+			docsToGet.push({ "id": id })
+		}
+		const stepSize = Math.floor((Number.MAX_SAFE_INTEGER - Number.MIN_SAFE_INTEGER) / (afterMoveIds.length + 1))
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			function getIndex(id) {
+				for (let i = 0; i < afterMoveIds.length; i++) {
+					if (afterMoveIds[i] === id) return i
+				}
+			}
+
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const idx = getIndex(doc._id)
+					doc.priority = Math.floor(Number.MAX_SAFE_INTEGER - (idx + 1) * stepSize)
+					const newHist = {
+						"ignoreEvent": ['resetTaskPriorities'],
+						"timestamp": Date.now(),
+						"distributeEvent": false
+					}
+					doc.history.unshift(newHist)
+					docs.push(doc)
+				}
+
+				if (envelope.error) error.push(envelope.error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+				}
+				let msg = 'resetTaskPriorities: These documents cannot change requirement area: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+		}).catch(e => {
+			let msg = 'resetTaskPriorities: Could not read batch of documents: ' + e
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	syncOtherPlanningBoards({
+		rootState,
+		dispatch
+	}, payload) {
+		let _id
+		for (let s of rootState.stories) {
+			if (s.idx === payload.idx) {
+				_id = s.storyId
+			}
+		}
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + _id,
+		}).then(res => {
+			let tmpDoc = res.data
+			// this event is excluded from the history view
+			const newHist = {
+				"updateTaskOrderEvent": payload,
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			tmpDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+		}).catch(error => {
+			let msg = 'setColor: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
 	},
 }
 
