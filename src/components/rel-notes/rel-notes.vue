@@ -6,6 +6,13 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.5 - 9 April 2020 Feature update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>A sprint planning board is available</li>
+					<li>See the 'Sprint panning board' feature user stories (not all are done yet)</li>
+				</ul>
+				<hr>
 				<h3>v.0.9.4 - 29 March 2020 Feature update</h3>
 				<p>New features:</p>
 				<ul>

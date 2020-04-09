@@ -11,29 +11,11 @@
 				<p>Always mention the version number located after the app name when reporting issues. When you click on the release number you will the <b>release notes </b> will be displayed.</p>
 				<h5>User guide</h5>
 				<p>This text</p>
-				<h5>The Undo button</h5>
-				<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
-				<h5>Filter in tree view</h5>
-				<b-img :src="require('./filters.png')" alt="Example filters modal" />
-				<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on the product node.</p>
-				<h5>Find on Id</h5>
-				<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
-				<ul>
-					<li>The item is found in the currently selected and opened product. The item will be selected and highlighted in the tree view.</li>
-					<li>The item is found in the currently selected product but that product is not opened. The product will be opened and item will be selected and highlighted in the tree view</li>
-					<li>The item is found in a product assigned to you which is not selected. You get a message but the item is displayed anyway.</li>
-					<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessible to you.</li>
-					<li>The item is NOT found in the database. You get a message. Check if you made a mistype.</li>
-					<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin.</li>
-				</ul>
-				<p>To undo the select clear the 'Select on Id' input field and press Enter.</p>
-				<h5>Search in titles</h5>
-				<p>Input field for the search button. Searches for the keyword in the title of all items of the current product. To return to the normal view empty the search field and press enter.</p>
-				<h5>Recent changes + Search in titles</h5>
-				<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 				<h5>Select your view</h5>
 				<p><a href="#pv">Product details</a></p>
 				<p><a href="#rv">Products overview</a></p>
+				<p><a href="#pb">Sprint planning board</a></p>
+				<p><a href="tv-features">Tree view searchand filtering</a></p>
 				<p><a href="#sv">Maintenance views</a></p>
 				<h5><em>User</em></h5>
 				<ul>
@@ -139,6 +121,40 @@
 					<p>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can create and asign requirement areas to items. The PO can drag&#38;drop items between his products and set dependencies between items in different products (not recommanded).</p>
 					<b-img :src="require('./products-overview.png')" alt="Products overview" />
 					<p>This view shows all products in the database up to the feature level. The requirement area are color coded choosen by the APO.</p>
+				</div>
+				<div id="tv-features">
+					<h4>Tree view search and filtering</h4>
+					<div class="indent20">
+						<h5>The Undo button</h5>
+						<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
+						<h5>Filter in tree view</h5>
+						<b-img :src="require('./filters.png')" alt="Example filters modal" />
+						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on the product node.</p>
+						<h5>Find on Id</h5>
+						<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
+						<ul>
+							<li>The item is found in the currently selected and opened product. The item will be selected and highlighted in the tree view.</li>
+							<li>The item is found in the currently selected product but that product is not opened. The product will be opened and item will be selected and highlighted in the tree view</li>
+							<li>The item is found in a product assigned to you which is not selected. You get a message but the item is displayed anyway.</li>
+							<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessible to you.</li>
+							<li>The item is NOT found in the database. You get a message. Check if you made a mistype.</li>
+							<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin.</li>
+						</ul>
+						<p>To undo the select clear the 'Select on Id' input field and press Enter.</p>
+						<h5>Search in titles</h5>
+						<p>Input field for the search button. Searches for the keyword in the title of all items of the current product. To return to the normal view empty the search field and press enter.</p>
+						<h5>Recent changes + Search in titles</h5>
+						<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
+					</div>
+				</div>
+				<div id="#pb">
+					<h4>Sprint planning board</h4>
+
+					<div class="indent20">
+						<b-img :src="require('./planning-board.png')" alt="Example planning board" />
+						<p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view.</p>
+						<p>Note: The board is under development. A contxt menu to add/remove tasks is missing.</p>
+					</div>
 				</div>
 				<div id="sv">
 				<h4>Admins will see one or more of these view options:</h4>
