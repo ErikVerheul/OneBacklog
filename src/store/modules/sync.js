@@ -186,7 +186,7 @@ const actions = {
 					switch (histEvent) {
 						case 'acceptanceEvent':
 							if (documentInView) {
-								rootState.currentDoc.acceptanceCriteria = window.atob(doc.acceptanceCriteria)
+								commit('updateCurrentDoc', { acceptanceCriteria: doc.acceptanceCriteria })
 								node.data.lastContentChange = lastHistoryTimestamp
 							}
 							break
@@ -305,7 +305,7 @@ const actions = {
 							break
 						case 'descriptionEvent':
 							if (documentInView) {
-								rootState.currentDoc.description = window.atob(doc.description)
+								commit('updateCurrentDoc', { description: doc.description })
 								node.data.lastContentChange = lastHistoryTimestamp
 							}
 							break
