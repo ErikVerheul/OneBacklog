@@ -48,12 +48,7 @@ const actions = {
 						if (rootState.debug) console.log(msg)
 						dispatch('doLog', { event: msg, level: WARNING })
 					}
-					commit('updateCurrentDoc', {
-						newDoc: cleanHistory(doc),
-						// decode from base64 + replace the encoded data
-						description: window.atob(doc.description),
-						acceptanceCriteria: window.atob(doc.acceptanceCriteria)
-					})
+					commit('updateCurrentDoc', { newDoc: cleanHistory(doc) })
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('loadItemByShortId: document with _id ' + doc._id + ' is loaded.')
 				} else {
@@ -78,33 +73,9 @@ const actions = {
 			const tmpDoc = res.data
 			tmpDoc.history.unshift(payload.parentHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			dispatch('saveAndReload', payload.newDoc)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, forceUpdateCurrentDoc: true })
 		}).catch(error => {
 			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Create the document and reload it to currentDoc */
-	saveAndReload({
-		rootState,
-		dispatch
-	}, newDoc) {
-		const _id = newDoc._id
-		// eslint-disable-next-line no-console
-		console.log('saveAndReload: creating document with _id = ' + _id)
-		globalAxios({
-			method: 'PUT',
-			url: rootState.userData.currentDb + '/' + _id,
-			data: newDoc
-		}).then(() => {
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('saveAndReload: document with _id ' + _id + ' is created.')
-			dispatch('loadDoc', _id)
-		}).catch(error => {
-			let msg = 'saveAndReload: Could not create document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -124,13 +95,7 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
-			commit('updateCurrentDoc', {
-				newDoc: cleanHistory(res.data),
-				// decode from base64 + replace the encoded data
-				description: window.atob(res.data.description),
-				acceptanceCriteria: window.atob(res.data.acceptanceCriteria)
-			})
-
+			commit('updateCurrentDoc', { newDoc: cleanHistory(res.data) })
 			if (rootState.currentDoc.level === PRODUCTLEVEL) rootState.currentProductTitle = rootState.currentDoc.title
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('loadDoc: document with _id ' + _id + ' is loaded.')

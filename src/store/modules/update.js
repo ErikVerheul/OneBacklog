@@ -860,7 +860,10 @@ const actions = {
 		})
 	},
 
-	// update document by creating a new revision
+	/*
+	* Create or update an existing document by creating a new revision.
+	* Update the currentDoc in memory if forceUpdateCurrentDoc = true or if the updated document has the same id as the currentDoc.
+	*/
 	updateDoc({
 		rootState,
 		commit,
@@ -874,8 +877,8 @@ const actions = {
 			url: payload.dbName + '/' + _id,
 			data: payload.updatedDoc
 		}).then((res) => {
-			if (rootState.currentDoc._id === res.data.id) {
-				// update the current document in memory with the rivised revision
+			if (payload.forceUpdateCurrentDoc || rootState.currentDoc._id === res.data.id) {
+				// create/update the current document in memory with the new revision number
 				commit('updateCurrentDoc', { newDoc: payload.updatedDoc,  _rev: res.data.rev })
 			}
 			rootState.isTeamCreated = true

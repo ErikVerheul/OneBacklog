@@ -292,12 +292,7 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/root',
 		}).then(res => {
-            commit('updateCurrentDoc', {
-                newDoc: res.data,
-                // decode from base64 + replace the encoded data
-                description: window.atob(res.data.description),
-                acceptanceCriteria: window.atob(res.data.acceptanceCriteria)
-            })
+            commit('updateCurrentDoc', { newDoc: res.data })
 			// eslint-disable-next-line no-console
             if (rootState.debug) console.log("The root document is read")
             // open the products view by default

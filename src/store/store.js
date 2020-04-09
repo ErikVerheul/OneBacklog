@@ -124,7 +124,7 @@ export default new Vuex.Store({
 	getters: {
 		// note that the roles of _admin and admin are generic (not product specific)
 		leafLevel(state) {
-            if (state.currentView === 'detailProduct') return TASKLEVEL
+			if (state.currentView === 'detailProduct') return TASKLEVEL
 			if (state.currentView === 'coarseProduct') return FEATURELEVEL
 			return PBILEVEL
 		},
@@ -276,10 +276,17 @@ export default new Vuex.Store({
 			}
 		},
 
-		/* Update the currently loaded document. Note that not all fields are covered */
+		/*
+		* Update the currently loaded document.
+		* Decode the description and acceptence criteria.
+		* Note that not all fields are covered
+		*/
 		updateCurrentDoc(state, payload) {
 			if (payload.newDoc) {
 				state.currentDoc = payload.newDoc
+				// decode from base64 + replace the encoded data
+				state.currentDoc.description = window.atob(payload.newDoc.description)
+				state.currentDoc.acceptanceCriteria = window.atob(payload.newDoc.acceptanceCriteria)
 			}
 			const keys = Object.keys(payload)
 			for (let k of keys) {
@@ -320,11 +327,14 @@ export default new Vuex.Store({
 					case 'tssize':
 						state.currentDoc.tssize = payload.tssize
 						break
+					case 'spsize':
+						state.currentDoc.spsize = payload.spsize
+						break
 					case 'spikepersonhours':
 						state.currentDoc.spikepersonhours = payload.spikepersonhours
 						break
-					case 'spsize':
-						state.currentDoc.spsize = payload.spsize
+					case 'title':
+						state.currentDoc.title = payload.title
 						break
 					case 'followers':
 						state.currentDoc.followers = payload.followers
@@ -342,10 +352,10 @@ export default new Vuex.Store({
 						}
 						break
 					case 'description':
-						state.currentDoc.description = payload.description
+						state.currentDoc.description = window.atob(payload.description)
 						break
 					case 'acceptanceCriteria':
-						state.currentDoc.acceptanceCriteria = payload.acceptanceCriteria
+						state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
 						break
 					case 'priority':
 						state.currentDoc.priority = payload.priority
