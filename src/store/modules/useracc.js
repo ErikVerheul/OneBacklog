@@ -1,14 +1,13 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 const INFO = 0
 const ERROR = 2
 
 const state = {
   fetchedUserData: null,
-  userIsSuperPO: false,
-  userIsAreaPO: false,
   userIsAdmin: false,
   dbProducts: undefined,
+  allUsers: []
 }
 
 const actions = {
@@ -24,8 +23,6 @@ const actions = {
       url: '/_users/org.couchdb.user:' + userName,
     }).then(res => {
       state.fetchedUserData = res.data
-      state.userIsSuperPO = state.fetchedUserData.roles.includes('superPO') ? true : false
-      state.userIsAreaPO = state.fetchedUserData.roles.includes('areaPO') ? true : false
       state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? true : false
       rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user
@@ -34,6 +31,42 @@ const actions = {
       rootState.isUserFound = true
     }).catch(error => {
       let msg = 'getUser: Could not find user "' + userName + '". ' + error
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
+    })
+  },
+
+  getAllUsers({
+    rootState,
+    state,
+    dispatch
+  }) {
+    rootState.backendMessages = []
+    rootState.isUserFound = false
+    state.allUsers = []
+    globalAxios({
+      method: 'GET',
+      url: '_users/_design/_auth/_view/list-all',
+    }).then(res => {
+      const rows = res.data.rows
+      if (rows.length > 0) {
+        for (let u of rows) {
+          const colonIdx = u.id.indexOf(':')
+          if (colonIdx > 0) {
+            const name = u.id.substring(colonIdx + 1)
+            const userRec = {
+              name,
+              currentDb: u.value[0],
+              team: u.value[1]
+            }
+            state.allUsers.push(userRec)
+          }
+        }
+      }
+    }).catch(error => {
+      let msg = 'getAllUsers: Could not read the _users database:' + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
@@ -98,13 +131,15 @@ const actions = {
 
   changeTeam({
     rootState,
+    commit,
     dispatch
   }, newTeam) {
     globalAxios({
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
-      rootState.userData.myTeam = newTeam
+      // update the user data
+      commit('updateTeam', newTeam)
       let tmpUserData = res.data
       tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
       dispatch('updateUser', { data: tmpUserData })
@@ -142,12 +177,12 @@ const actions = {
     rootState,
     dispatch
   }, payload) {
-    // copy all roles except 'admin' and 'superPO' which are generic roles
+    // copy all roles except 'admin' which is a generic roles
     function copyRoles(roles) {
       // by default is the user guest
       let copiedRoles = ['guest']
       for (let r of roles) {
-        if (r !== 'admin' && r !== 'superPO') copiedRoles.push(r)
+        if (r !== 'admin') copiedRoles.push(r)
       }
       return copiedRoles
     }

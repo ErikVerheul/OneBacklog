@@ -11,9 +11,11 @@ import RelNotesPage from './components/rel-notes/rel-notes.vue'
 import UserGuidePage from './components/userguide/userguide.vue'
 import InitPage from './components/initdb/initdb.vue'
 import SigninPage from './components/auth/signin.vue'
-import ProductPage from './components/product/product.vue'
-import ReqsAreaPage from './components/reqareas/reqareas.vue'
-import SuperPOPage from './components/superpo/superpo.vue'
+import ProductPage from './components/views/detail_product/d_product_view.vue'
+import ReqsAreaPage from './components/views/coarse_product/c_product_view.vue'
+
+import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
+
 import AdminPage from './components/admin/admin.vue'
 import ServerAdminPage from './components/serveradmin/serveradmin.vue'
 
@@ -50,7 +52,7 @@ const routes = [
 		}
 	},
 	{
-		path: '/product',
+		path: '/detailProduct',
 		component: ProductPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {
@@ -61,7 +63,7 @@ const routes = [
 		}
 	},
 	{
-		path: '/reqareas',
+		path: '/coarseProduct',
 		component: ReqsAreaPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {
@@ -72,8 +74,8 @@ const routes = [
 		}
 	},
 	{
-		path: '/superpo',
-		component: SuperPOPage,
+		path: '/board',
+		component: PlanningBoard,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user) {
 				next()

@@ -4,9 +4,44 @@ const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
 const PBILEVEL = 5
+const TASKLEVEL = 6
 const DEFAULTCOLOR = '#408FAE'
 export const utilities = {
 	methods: {
+		/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
+		createId() {
+			const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
+			return { id: Date.now().toString().concat(shortId), extension: shortId}
+		},
+
+		/* Return the sprint record with the id or null if not found */
+		getSprint(id) {
+			for (let s of this.$store.state.configData.defaultSprintCalendar) {
+				if (s.id === id) return s
+			}
+			return null
+		},
+
+		getCurrentAndNextSprint() {
+			const now = Date.now()
+			let currentSprint = undefined
+			let nextSprint = undefined
+			for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
+				const s = this.$store.state.configData.defaultSprintCalendar[i]
+				if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
+					currentSprint = s
+					nextSprint = this.$store.state.configData.defaultSprintCalendar[i + 1]
+					break
+				}
+			}
+			return { currentSprint, nextSprint }
+		},
+
+		isCurrentOrNextPrintId(id) {
+			const sprints = this.getCurrentAndNextSprint()
+			return id === sprints.currentSprint.id || id === sprints.nextSprint.id
+		},
+
 		showLastEvent(txt, severity) {
 			let eventBgColor = DEFAULTCOLOR
 			switch (severity) {
@@ -37,7 +72,7 @@ export const utilities = {
 
 		/* mappings from config document*/
 		getLevelText(level, subtype = 0) {
-			if (level < 0 || level > PBILEVEL) {
+			if (level < 0 || level > TASKLEVEL) {
 				return 'Level not supported'
 			}
 			if (level === PBILEVEL) {
@@ -47,10 +82,32 @@ export const utilities = {
 		},
 
 		getItemStateText(idx) {
-			if (idx < 0 || idx > PBILEVEL) {
-				return 'Error: unknown state'
+			if (this.$store.state.currentDoc.level < TASKLEVEL) {
+				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.itemState[idx]
+			} else {
+				if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.taskState[idx]
 			}
-			return this.$store.state.configData.itemState[idx]
+		},
+
+		getNodeStateText(node) {
+			const idx = node.data.state
+			if (node.level < TASKLEVEL) {
+				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.itemState[idx]
+			} else {
+				if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.taskState[idx]
+			}
 		},
 
 		getTsSize(idx) {
@@ -70,24 +127,6 @@ export const utilities = {
 		itemTitleTrunc(length, title) {
 			if (title.length <= length) return title;
 			return title.substring(0, length - 4) + '...'
-		},
-
-		/* Reorder the state values to create a order for comparison */
-		convertState(state) {
-			switch (state) {
-				case 0:
-					return 2
-				case 1:
-					return 3
-				case 2:
-					return 4
-				case 3:
-					return 1
-				case 4:
-					return 5
-				case 5:
-					return 0
-			}
 		}
 	}
 }

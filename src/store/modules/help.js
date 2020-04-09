@@ -132,7 +132,7 @@ const state = {
         <p>Click OK to select (right-click) another backlog item this item depends on. That item is conditional for the first selected item to be realized.
         </p>
         <hr>
-        <p>The condition must have a lower priority than the item that depends on it. When moving items in the tree this rule can be breached. If so, you will be warned immediately. Undo your last action or remove the dependency if no longer valid.
+        <p>The condition must have higher priority than the item that depends on it. When moving items in the tree this rule can be breached. If so, you will be warned immediately. Undo your last action or remove the dependency if no longer valid.
         </p>`
     }
 }

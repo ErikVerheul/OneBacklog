@@ -20,7 +20,7 @@
 }
 
 .sl-vue-tree-highlighted > .sl-vue-tree-node-item {
-    color: rgb(253, 115, 230);
+    color: rgb(76, 177, 118);
 }
 
 .sl-vue-tree-node-item:hover,
@@ -43,7 +43,7 @@
 }
 
 .sl-vue-tree-gap {
-    width: 25px;
+    width: 15px;
     min-height: 1px;
 }
 

@@ -1,5 +1,5 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const WARNING = 1
 const ERROR = 2
@@ -10,6 +10,7 @@ const actions = {
     */
 	updateReqArea({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -26,7 +27,7 @@ const actions = {
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
+			commit('updateCurrentDoc', { reqarea: payload.reqarea, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 			payload.oldParentReqArea = oldDocArea
 			if (payload.childIds.length > 0) dispatch('updateReqAreaChildren', payload)
@@ -94,7 +95,7 @@ const actions = {
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
-					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				let msg = 'updateReqAreaChildren: These documents cannot change requirement area: ' + errorStr
 				// eslint-disable-next-line no-console
@@ -102,8 +103,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(error => {
-			let msg = 'updateReqAreaChildren: Could not read batch of documents: ' + error
+		}).catch(e => {
+			let msg = 'updateReqAreaChildren: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -112,6 +113,7 @@ const actions = {
 
 	updateColorDb({
 		rootState,
+		commit,
 		dispatch
 	}, newColor) {
 		const _id = rootState.currentDoc._id
@@ -120,7 +122,6 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
-			rootState.currentDoc.color = newColor
 			// update the req area document
 			tmpDoc.color = newColor
 			const newHist = {
@@ -129,7 +130,7 @@ const actions = {
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
+			commit('updateCurrentDoc', { color: newColor, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setColor: Could not read document with _id ' + _id + ', ' + error
@@ -141,6 +142,7 @@ const actions = {
 
 	changeSubsription({
 		rootState,
+		commit,
 		rootGetters,
 		dispatch
 	}) {
@@ -169,8 +171,8 @@ const actions = {
 			}
 			tmpDoc.followers = tmpFollowers
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.followers = tmpFollowers
-			rootState.currentDoc.history.unshift(newHist)
+			// show the followers and history update in the current opened item
+			commit('updateCurrentDoc', { followers: tmpFollowers, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'changeSubsription: Could not read document with _id ' + _id + ', ' + error
@@ -182,6 +184,7 @@ const actions = {
 
 	setSize({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -200,8 +203,7 @@ const actions = {
 			}
 			tmpDoc.tssize = payload.newSizeIdx
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.tssize = payload.newSizeIdx
-			rootState.currentDoc.history.unshift(newHist)
+			commit('updateCurrentDoc', { tssize: payload.newSizeIdx, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setSize: Could not read document with _id ' + _id + ', ' + error
@@ -213,6 +215,7 @@ const actions = {
 
 	setDepAndCond({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = payload._id
@@ -230,7 +233,7 @@ const actions = {
 			}
 			tmpDoc.dependencies = payload.dependencies
 			tmpDoc.history.unshift(newHist)
-			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
+			if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch: { setConditions: payload.conditionalForPayload } })
 		}).catch(error => {
 			let msg = 'setDepAndCond: Could not read document with _id ' + _id + ', ' + error
@@ -242,6 +245,7 @@ const actions = {
 
 	setConditions({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = payload._id
@@ -259,7 +263,7 @@ const actions = {
 			}
 			tmpDoc.conditionalFor = payload.conditionalFor
 			tmpDoc.history.unshift(newHist)
-			if (_id === rootState.currentDoc._id) rootState.currentDoc.history.unshift(newHist)
+			if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setConditions: Could not read document with _id ' + _id + ', ' + error
@@ -331,6 +335,7 @@ const actions = {
 
 	setPersonHours({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -349,8 +354,7 @@ const actions = {
 			}
 			tmpDoc.spikepersonhours = payload.newHrs
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.spikepersonhours = payload.newHrs
-			rootState.currentDoc.history.unshift(newHist)
+			commit('updateCurrentDoc', { spikepersonhours: payload.newHrs, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setPersonHours: Could not read document with _id ' + _id + ', ' + error
@@ -362,6 +366,7 @@ const actions = {
 
 	setStoryPoints({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -380,8 +385,7 @@ const actions = {
 			}
 			tmpDoc.spsize = payload.newPoints
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.spsize = payload.newPoints
-			rootState.currentDoc.history.unshift(newHist)
+			commit('updateCurrentDoc', { spsize: payload.newPoints, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error
@@ -393,17 +397,17 @@ const actions = {
 
 	setState({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + payload.id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
 			const newHist = {
-				"setStateEvent": [oldState, payload.newState, payload.team],
+				"setStateEvent": [oldState, payload.newState, payload.team, payload.position],
 				"by": rootState.userData.user,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
@@ -412,15 +416,14 @@ const actions = {
 			tmpDoc.state = payload.newState
 			// also set the team if provided
 			if (payload.team) {
-				rootState.currentDoc.team = payload.team
+				commit('updateCurrentDoc', { team: payload.team })
 				tmpDoc.team = payload.team
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.state = payload.newState
-			rootState.currentDoc.history.unshift(newHist)
+			if (rootState.currentDoc._id === payload.id) commit('updateCurrentDoc', { state: payload.newState, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
-			let msg = 'setState: Could not read document with _id ' + _id + '. Error = ' + error
+			let msg = 'setState: Could not read document with _id ' + payload.id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -429,6 +432,7 @@ const actions = {
 
 	setTeam({
 		rootState,
+		commit,
 		dispatch
 	}, descendants) {
 		const _id = rootState.currentDoc._id
@@ -449,8 +453,7 @@ const actions = {
 				}
 				tmpDoc.team = newTeam
 				tmpDoc.history.unshift(newHist)
-				rootState.currentDoc.team = newTeam
-				rootState.currentDoc.history.unshift(newHist)
+				commit('updateCurrentDoc', { team: newTeam, newHist })
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 				if (descendants.length > 0) dispatch('setTeamDescendantsBulk', { parentTitle: rootState.currentDoc.title, descendants })
 			}
@@ -504,7 +507,7 @@ const actions = {
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
-					errorStr.concat(errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), '))
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				let msg = 'setTeamDescendantsBulk: These documents cannot change team: ' + errorStr
 				// eslint-disable-next-line no-console
@@ -512,8 +515,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(error => {
-			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + error
+		}).catch(e => {
+			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -522,6 +525,7 @@ const actions = {
 
 	setDocTitle({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -539,9 +543,8 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
 			tmpDoc.title = payload.newTitle
-			rootState.currentDoc.title = payload.newTitle
+			commit('updateCurrentDoc', { title: payload.newTitle, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setDocTitle: Could not read document with _id ' + _id + ', ' + error
@@ -553,6 +556,7 @@ const actions = {
 
 	setSubType({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -569,9 +573,8 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
 			tmpDoc.subtype = payload.newSubType
-			rootState.currentDoc.subtype = payload.newSubType
+			commit('updateCurrentDoc', { subtype: payload.newSubType, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setSubType: Could not read document with _id ' + _id + ', ' + error
@@ -583,6 +586,7 @@ const actions = {
 
 	saveDescription({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -601,7 +605,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
+			commit('updateCurrentDoc', { newHist })
 			tmpDoc.description = newEncodedDescription
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
@@ -614,6 +618,7 @@ const actions = {
 
 	saveAcceptance({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -632,7 +637,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
+			commit('updateCurrentDoc', { newHist })
 			tmpDoc.acceptanceCriteria = newEncodedAcceptance
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
@@ -645,6 +650,7 @@ const actions = {
 
 	addComment({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -653,15 +659,15 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then((res) => {
 			let tmpDoc = res.data
-			const newHist = {
+			const newComment = {
 				"addCommentEvent": window.btoa(payload.comment),
 				"by": rootState.userData.user,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.comments.unshift(newHist)
-			rootState.currentDoc.comments.unshift(newHist)
+			tmpDoc.comments.unshift(newComment)
+			commit('updateCurrentDoc', { newComment })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'addComment: Could not read document with _id ' + _id + ', ' + error
@@ -673,6 +679,7 @@ const actions = {
 
 	addHistoryComment({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = rootState.currentDoc._id
@@ -690,7 +697,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			rootState.currentDoc.history.unshift(newHist)
+			commit('updateCurrentDoc', { newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'addHistoryComment: Could not read document with _id ' + _id + ', ' + error
@@ -716,7 +723,7 @@ const actions = {
 				dispatch('updateDoc', {
 					dbName: payload.dbName,
 					updatedDoc: tmpConfig,
-					onSuccessCallback: function() {
+					onSuccessCallback: function () {
 						rootState.backendMessages.push({
 							seqKey: rootState.seqKey++, msg: "addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName
 						})
@@ -734,9 +741,132 @@ const actions = {
 		})
 	},
 
-	// update document by creating a new revision
+	addSprintIds({
+		rootState,
+		commit,
+		dispatch
+	}, payload) {
+		const docsToGet = []
+		for (let id of payload.itemIds) {
+			docsToGet.push({ "id": id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const reAssigned = doc.sprintId !== undefined
+					doc.sprintId = payload.sprintId
+					// update the tree view
+					const node = window.slVueTree.getNodeById(doc._id)
+					if (node) node.sprintId = payload.sprintId
+
+					const newHist = {
+						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned],
+						"by": rootState.userData.user,
+						"timestamp": Date.now(),
+						"sessionId": rootState.userData.sessionId,
+						"distributeEvent": true
+					}
+					doc.history.unshift(newHist)
+					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
+					docs.push(doc)
+				}
+
+				if (envelope.error) error.push(envelope.error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+				}
+				let msg = 'addSprintIds: These documents cannot change requirement area: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+		}).catch(e => {
+			let msg = 'addSprintIds: Could not read batch of documents: ' + e
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	removeSprintIds({
+		rootState,
+		commit,
+		dispatch
+	}, payload) {
+		const docsToGet = []
+		for (let id of payload.itemIds) {
+			docsToGet.push({ "id": id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					doc.sprintId = undefined
+					// update the tree view
+					const node = window.slVueTree.getNodeById(doc._id)
+					if (node) node.sprintId = undefined
+
+					const newHist = {
+						"removeSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName],
+						"by": rootState.userData.user,
+						"timestamp": Date.now(),
+						"sessionId": rootState.userData.sessionId,
+						"distributeEvent": true
+					}
+					doc.history.unshift(newHist)
+					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
+					docs.push(doc)
+				}
+
+				if (envelope.error) error.push(envelope.error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+				}
+				let msg = 'removeSprintIds: These documents cannot change requirement area: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+		}).catch(e => {
+			let msg = 'removeSprintIds: Could not read batch of documents: ' + e
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/*
+	* Create or update an existing document by creating a new revision.
+	* Update the currentDoc in memory if forceUpdateCurrentDoc = true or if the updated document has the same id as the currentDoc.
+	*/
 	updateDoc({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = payload.updatedDoc._id
@@ -747,9 +877,9 @@ const actions = {
 			url: payload.dbName + '/' + _id,
 			data: payload.updatedDoc
 		}).then((res) => {
-			if (rootState.currentDoc._id === res.data.id) {
-				// update the revision of the current document in memory
-				rootState.currentDoc._rev = res.data.rev
+			if (payload.forceUpdateCurrentDoc || rootState.currentDoc._id === res.data.id) {
+				// create/update the current document in memory with the new revision number
+				commit('updateCurrentDoc', { newDoc: payload.updatedDoc,  _rev: res.data.rev })
 			}
 			rootState.isTeamCreated = true
 			// execute passed function if provided

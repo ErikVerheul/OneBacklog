@@ -1,10 +1,10 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const PBILEVEL = 5
+const TASKLEVEL = 6
 var docs = []
 var newProductId
 var orgProductTitle
@@ -18,7 +18,7 @@ function addToArray(arr, item) {
     return newArr
 }
 
-function showProduct() {
+function showProduct(leafLevel) {
     let parentNodes = { root: window.slVueTree.getNodeById('root') }
     for (let doc of docs) {
         const parentId = doc.parentId
@@ -45,12 +45,13 @@ function showProduct() {
                 level: level,
                 productId: doc.productId,
                 parentId,
+                sprintId: doc.sprintId,
                 _id: doc._id,
                 shortId: doc.shortId,
                 dependencies: doc.dependencies || [],
                 conditionalFor: doc.conditionalFor || [],
                 title: doc.title,
-                isLeaf: level === PBILEVEL,
+                isLeaf: level === leafLevel,
                 children: [],
                 isExpanded,
                 savedIsExpanded: isExpanded,
@@ -63,6 +64,7 @@ function showProduct() {
                     priority: doc.priority,
                     state: doc.state,
                     reqarea: doc.reqarea,
+                    reqAreaItemcolor: doc.color,
                     team: doc.team,
                     subtype: doc.subtype,
                     lastChange
@@ -82,7 +84,7 @@ const actions = {
     }) {
         // set the range of documents to load
         const productId = rootState.currentProductId
-        const rangeString = 'startkey=["' + productId + '",0]&endkey=["' + productId + '",' + (PBILEVEL + 1) + ']'
+        const rangeString = `startkey=["${productId}",0]&endkey=["${productId}",${TASKLEVEL}]`
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter?' + rangeString + '&include_docs=true',
@@ -98,6 +100,7 @@ const actions = {
             for (let i = 0; i < docs.length; i++) {
                 // compute a new id and shortId, remember old id
                 const oldId = docs[i]._id
+                // A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
                 const newShortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
                 const newId = Date.now().toString().concat(newShortId)
                 // the first document is the product
@@ -136,6 +139,7 @@ const actions = {
 
     storeProduct({
         rootState,
+        getters,
         dispatch
     }, docs) {
         globalAxios({
@@ -156,7 +160,7 @@ const actions = {
             // save in the database
             dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
             // show the product clone in the tree view
-            showProduct()
+            showProduct(getters.leafLevel)
             // eslint-disable-next-line no-console
             console.log('storeProduct: ' + res.data.length + ' documents are processed')
         }).catch(error => {

@@ -1,0 +1,270 @@
+Definitions: items Product Backlog Items (PBIs) which are stored in the database as documents and presented on screen as nodes in a tree.
+Tip: Show object with JSON.stringify(object, null, 2)
+
+The item types are defined in the CONFIG file:
+"itemType": [
+    "RequirementArea",
+    "Database",
+    "Product",
+    "Epic",
+    "Feature",
+    "PBI",
+	"Task"
+  ],
+
+Requirement areas are children of the 'Requirments areas overview' dummy product with id '0'. All req areas have productId = parentId = '0'.
+
+These types map to the level attribute in the database documents and in the tree nodes
+
+level ...............in database  ......... in tree node (= path.length)
+========================================================
+Database ............... 1 ................... 1
+Product ................ 2 ................... 2
+Epic .. ................ 3 ................... 3
+Feature ................ 4 ................... 4
+PBI ... ................ 5 ................... 5
+Task .. ................ 6 ................... 6
+
+These are the roles known by this application despite settings in the _users database otherwise.
+Write access is dependant on role and level. Write access includes deletion.
+All roles have read access to their assigned databases and the assigned products in that database.
+These roles are set during loading by haveWritePermission(...).
+
+"knownRoles":
+	"_admin": {
+		description: "Is the database administrator. Can setup and delete databases. Can update root documents. See the CouchDB documentation.",
+		products: "n/a",
+		writeAccessLevel: 1,
+	},
+	"admin": {
+		description: "Can create and remove users and teams. Can assign products to teams. The user administration is a permission on the _users database
+		products: "n/a",
+		writeAccessLevel: 2,
+	},
+	"APO": {
+		description: "Can access the requirement areas with write access to these items and can prioritise features (level 4)",
+		products: "assigned",
+		writeAccessLevel: 2
+	},
+	"PO": {
+		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels.",
+		products: "assigned",
+		writeAccessLevel: 2,3,4,5
+	},
+	"developer": {
+		description: "Can create and maintain pbi's and features for the assigned products.",
+		products: "assigned",
+		writeAccessLevel: 4,5,6
+	},
+	"guest": {
+		description: "Can only view the items of the assigned products. Has no access to the requirement areas view.",
+		products: "assigned",
+		writeAccessLevel: null,
+	}
+
+	Note that this getter returns permissions for the current product or all products (admin and APO)
+
+
+Sprint Backlog
+==============
+From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:
+ - When a feature is selected all its descendents (PBI's and tasks) are assigned
+ - When a PBI is selected, that PBI and it descendent tasks are assigned
+ - individual tasks cannot be assigned to a sprint (but can on the planning board)
+
+Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.
+
+SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
+For now the calendar is stored in de database CONFIG file. Eventually products and even teams can have their own sprint calendar.
+Then, the calendar items (iterations) are stored as type 'calendar' in the database, and not in the CONFIG file.
+
+defaultSprintCalendar = [
+	{
+		id: sprintId // string
+		name, // string
+		startTimestamp, // number
+		sprintLength, // number
+	},
+	{
+		id: sprintId // string
+		name, // string
+		startTimestamp, // number
+		sprintLength, // number
+	},
+	...
+]
+
+The tree nodes
+==============
+The nodes in the tree have these data elements and values:
+
+path, // the access path in the tree model
+pathStr: JSON.stringify(path),
+ind, // the index in the children array
+level: path.length,
+
+productId: doc.productId,
+parentId: doc.parentId,
+_id: doc._id,
+shortId: doc.shortId,
+children: [],
+
+title: doc.title,
+isLeaf: (level == leafLevel) ? true : false,
+isSelectable: true,
+isSelected: true only if isSelectable || false
+isDraggable: true || false, // depending on the user roles
+isExpanded: true || false, // initially the tree is expanded up to the feature level
+savedIsExpanded: isExpanded, // to restore the original view after applying a filter
+doShow: true, // false if filtered out
+savedDoShow: doShow, // to restore the original view after applying a filter
+markViolation: false // temporary use, not stored, not synced
+dependencies: doc.dependencies, // array with ids
+conditionalFor: doc.conditionalFor, // array with ids
+
+data: {
+....priority: doc.priority,
+....state: doc.state,
+....reqarea: doc.reqarea, // or null or not present
+....sprintId: doc.sprintId, // the sprint this item is (was) in; or null or not present
+....inconsistentState: false // calculated on consistency check
+....team: doc.team, // the team membership of the user who updated the state the last time
+....taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self
+....subtype: doc.subtype,
+....reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = '0', level = 3)
+....lastPositionChange, // lookup in history
+....lastStateChange, // lookup in doc history
+....lastContentChange, // lookup in doc history
+....lastCommentAddition, // lookup in doc comments
+....lastAttachmentAddition, // lookup in doc history
+....lastCommentToHistory, // lookup in doc history
+....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
+}
+
+In the CONFIG document the PBI subtypes are defined
+"subtype": [
+    "User story",
+    "Spike",
+    "Defect"
+  ],
+
+In the CONFIG document the item states are defined
+As per release 0.9.3.1:
+"itemState": [
+0   "Removed",
+1   "On hold",
+2   "New",
+3   "Ready",
+4   "In progress",
+5   "Done"
+],
+
+and for the task item:
+"taskState": [
+0   "Removed",
+1   "On hold",
+2   "ToDo",
+3   "In progress",
+4   "Ready for test", // optional
+5   "Done"
+],
+
+The store holds an object with the data of the current user. This object is initialised with the _session data.
+// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myProductViewFilterSettings are updated when otherUserData and config are read
+// the first (index 0) product in myProductSubscriptions is by definition the default product
+state.userData = {
+    user: res.data.name, // when loading the session
+    email: undefined,
+    myTeam: undefined,
+    password: authData.password,
+    myDatabases: [],
+    currentDb: undefined,
+    sessionRoles: res.data.roles, // when loading the session
+    myProductSubscriptions: [],
+    userAssignedProductIds: [],
+    myProductsRoles: {},
+    myProductViewFilterSettings: {},
+    myFilterSettings: undefined,
+    sessionId: create_UUID()
+}
+
+The entry for undoing the remove in a last-in first-out sequence
+The removed node is the parent of the removed children.
+Example:
+  const entry = {
+    type: 'undoRemove',
+    removedNode: selectedNode,
+    isProductRemoved: selectedNode.level === this.productLevel,
+    descendants: descendantsInfo.descendants,
+    removedIntDependencies: removed.removedIntDependencies,
+    removedIntConditions: removed.removedIntConditions,
+    removedExtDependencies: removed.removedExtDependencies,
+    removedExtConditions: removed.removedExtConditions
+  }
+
+Thee events and their usage:      
+
+distibuted	mailed		event                       	file
+-----------------------------------------------------------------
+Y	            Y	    acceptanceEvent	              	update.js
+Y	            Y	    addCommentEvent	              	update.js
+Y				Y		addSprintIdsEvent				update.js
+N	            Y	    cloneEvent	                  	clone.js
+Y	            Y	    commentToHistoryEvent	        update.js
+Y	            Y	    conditionRemovedEvent	        update.js
+Y	            N	    createEvent 	                common.context.js 2X
+N	            N		  								superpo.vue
+N	            N		  								initdb.js
+N	            N		  								utils.js
+N				N		createRootEvent					intdb.js
+Y	            Y	    dependencyRemovedEvent 	      	update.js
+Y	            Y	    descriptionEvent	            update.js
+N				N		docRemovedDescendantEvent		remove.js
+Y	            Y	    docRestoredEvent 	            undo.js
+N	            N	    grandParentDocRestoredEvent	  	undo.js
+N				Y		newChildEvent					load.js
+Y	            Y	    nodeDroppedEvent	            move.js
+Y	            Y	    nodeUndoMoveEvent	            move.js
+Y	            Y	    removeAttachmentEvent	        attachments.js
+N	            Y	    removedFromParentEvent	      	remove.js
+Y 				Y 		removeSprintIdsEvent			update.js
+Y	            N	    updateParentHistEvent	        remove.js
+Y	            N	    updateTaskOrderEvent	        planningboard.js
+Y	            Y	    setConditionsEvent	          	update.js
+Y	            Y	    setDependenciesEvent	        update.js
+Y	            Y	    setHrsEvent	                  	update.js
+Y	            Y	    setPointsEvent	              	update.js
+Y	            Y	    setSizeEvent	                update.js
+Y	            Y	    setStateEvent	                update.js
+Y	            Y	    setSubTypeEvent	              	update.js
+N				N		setTeamEventDescendant			update.js
+Y	            Y	    setTeamOwnerEvent	            update.js
+Y	            Y	    setTitleEvent	                update.js
+N				N		subscribeEvent					update.js
+Y	            Y	    uploadAttachmentEvent	        attachments.js
+N				N		resetHistoryEvent				utils.js
+
+KNOWN ERRORS:
+
+CouchDB issue:
+	When a document has a danglin attachtent like:
+	"_attachments": {
+		"Pro Git - Scott Chacon.pdf": {
+		"content_type": "application/pdf",
+		"revpos": 221,
+		"digest": "md5-bA6v24zTZ6r9aLg9+rtycg==",
+		"length": 4400898,
+		"stub": true
+		}
+	}
+
+	a bulk put will fail with error 412
+	Alse see https://github.com/apache/couchdb/issues/584
+
+Firefox issue:
+	When hitting backspace the app returns to the previous page.
+	Fix:
+	You can set the Integer pref browser.backspace_action to 2 on the about:config page to disable the backspace action. BTW Shift + Backspace does the reverse: going Forward if possible, so that is taken as well.
+
+	http://kb.mozillazine.org/browser.backspace_action
+	http://kb.mozillazine.org/about:config

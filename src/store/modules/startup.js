@@ -1,21 +1,22 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 import router from '../../router'
 
 const INFO = 0
 const ERROR = 2
-const AREALEVEL = 0
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const TASKLEVEL = 6
+const AREA_PRODUCTID = '0'
 
 const getters = {
 	/*
 	* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
-	* Note that the AreaPO level is 0 and root of the tree starts with level 1.
+	* Note that level 0 is not used and the root of the tree starts with level 1.
 	* Note that admins and guests have no write permissions.
 	* See documentation.txt for the role definitions.
 	*
@@ -23,7 +24,7 @@ const getters = {
 	*/
     haveWritePermission(state, getters, rootState, rootGetters) {
         let levels = []
-        for (let i = AREALEVEL; i <= PBILEVEL; i++) {
+        for (let i = 0; i <= PBILEVEL; i++) {
             // initialize with false
             levels.push(false)
         }
@@ -37,32 +38,39 @@ const getters = {
                 return levels
             }
 
-            if (myCurrentProductRoles.includes('areaPO')) {
-                levels[AREALEVEL] = true
-                levels[FEATURELEVEL] = true
-            }
-
             if (myCurrentProductRoles.includes('PO')) {
+                levels[PRODUCTLEVEL] = true
                 levels[EPICLEVEL] = true
                 levels[FEATURELEVEL] = true
                 levels[PBILEVEL] = true
             }
+
+            if (myCurrentProductRoles.includes('APO')) {
+                levels[PRODUCTLEVEL] = true
+            }
+
             if (myCurrentProductRoles.includes('developer')) {
                 levels[FEATURELEVEL] = true
                 levels[PBILEVEL] = true
+                levels[TASKLEVEL] = true
             }
         }
         // assign specific write permissions to any product even if that product is not assigned to this user
-        if (rootGetters.isSuperPO) {
-            levels[PRODUCTLEVEL] = true
-            levels[EPICLEVEL] = true
-        }
-
         if (rootGetters.isServerAdmin) {
             levels[DATABASELEVEL] = true
         }
+
+        if (rootGetters.isAdmin) {
+            levels[PRODUCTLEVEL] = true
+        }
+
+        // if the user is APO for any product that user has access to the Requirements areas overview dummy product
+        if (rootState.currentProductId === AREA_PRODUCTID && rootState.userData.sessionRoles.includes("APO")) {
+            levels[PRODUCTLEVEL] = true
+            levels[EPICLEVEL] = true
+        }
         // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(`haveWritePermission: My write levels are [AREALEVEL, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)
+        if (rootState.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)
         return levels
     },
 }
@@ -143,11 +151,12 @@ const actions = {
             dispatch('getAllProducts', { dbName: rootState.userData.currentDb, allUserData, currentDbSettings })
         }).catch(error => {
             if (error.response.status === 404) {
-                // the user profile does not exist; if online start one time initialization of a new database if a server admin signed in
+                // the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
                 if (rootState.online && rootState.userData.sessionRoles.includes("_admin")) {
                     // eslint-disable-next-line no-console
                     if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
                     rootState.showHeaderDropDowns = false
+                    rootState.backendMessages = []
                     router.push('/init')
                     return
                 }
@@ -251,15 +260,20 @@ const actions = {
             if (rootState.debug) console.log('The configuration is loaded')
             if (!rootState.isProductAssigned) {
                 if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
-                    if (rootGetters.isSuperPO) { router.replace('/superpo') } else
-                        if (rootGetters.isAPO) { router.replace('/adareapo') } else
-                            if (rootGetters.isAdmin) { router.replace('/admin') } else {
-                                alert("Error: No default product is set. Consult your adminstrator. The application will exit.")
-                                commit('resetData', null, { root: true })
-                                router.replace('/')
-                            }
-            } else
+                    if (rootGetters.isAdmin) { router.replace('/admin') } else {
+                        alert("Error: No default product is set. Consult your administrator. The application will exit.")
+                        commit('resetData', null, { root: true })
+                        router.replace('/')
+                    }
+            } else {
+                if (!rootState.configData.defaultSprintCalendar) {
+                    // missing calendar
+                    alert("Error: No default sprint calendar is set. Consult your administrator. The application will exit.")
+                    commit('resetData', null, { root: true })
+                    router.replace('/')
+                }
                 dispatch('getRoot')
+            }
         }).catch(error => {
             let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
             // eslint-disable-next-line no-console
@@ -270,21 +284,19 @@ const actions = {
 
      /* Load the root of the backlog items into the current document */
 	getRoot({
-		rootState,
+        rootState,
+        commit,
 		dispatch,
 	}) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/root',
 		}).then(res => {
-			rootState.currentDoc = res.data
-			// decode from base64 + replace the encoded data
-			rootState.currentDoc.description = window.atob(res.data.description)
-			rootState.currentDoc.acceptanceCriteria = window.atob(res.data.acceptanceCriteria)
+            commit('updateCurrentDoc', { newDoc: res.data })
 			// eslint-disable-next-line no-console
             if (rootState.debug) console.log("The root document is read")
             // open the products view by default
-            router.push('/product')
+            router.push('/detailProduct')
 		}).catch(error => {
 			let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
 			if (error.response.status === 404) {

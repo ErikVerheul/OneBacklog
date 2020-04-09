@@ -6,7 +6,7 @@ import logging from './modules/logging'
 import startup from './modules/startup'
 import initdb from './modules/initdb'
 import help from './modules/help'
-import load from './modules/load'
+import load from './modules/reload'
 import clone from './modules/clone'
 import sync from './modules/sync'
 import useracc from './modules/useracc'
@@ -17,14 +17,22 @@ import undo from './modules/undo'
 import remove from './modules/remove'
 import utils from './modules/utils'
 import restorebranches from './modules/restorebranches'
-import loadproducts from './modules/loadproducts.js'
-import loadreqareas from './modules/loadreqareas.js'
+import loadproducts from './modules/load_detail.js'
+import loadreqareas from './modules/load_coarse.js'
+import planningboard from './modules/planningboard.js'
 
 const DEBUG = -1
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
+const TODO = 2
+const INPROGRESS = 3
+const TESTREVIEW = 4
+const DONE = 5
+const FEATURELEVEL = 4
+const PBILEVEL = 5
+const TASKLEVEL = 6
 
 Vue.use(Vuex)
 
@@ -55,20 +63,22 @@ export default new Vuex.Store({
 		colorMapper: {},
 		reqAreaOptions: [],
 		// view settings
-		currentView: 'products',
+		currentView: 'detailProduct',
 		// product view
 		selectedForView: 'comments',
 		changeHistory: [],
 		filterForComment: "",
 		filterForHistory: "",
 		busyRemoving: false,
-		// utilities for superAdmin, admin and superPO
+		// utilities for server Admin and admin
 		seqKey: 0,
 		areDatabasesFound: false,
 		areProductsFound: false,
 		areTeamsFound: false,
+		isSprintCalendarFound: false,
 		backendMessages: [],
 		databaseOptions: undefined,
+		defaultSprintCalendar: [],
 		fetchedTeams: [],
 		isDatabaseCreated: false,
 		isCurrentDbChanged: false,
@@ -106,11 +116,18 @@ export default new Vuex.Store({
 		configData: null,
 		currentDoc: null,
 		runningCookieRefreshId: null,
-		uploadDone: true
+		uploadDone: true,
+		// planning board
+		stories: []
 	},
 
 	getters: {
-		// note that the roles of _admin, superPO, areaPO and admin are generic (not product specific)
+		// note that the roles of _admin and admin are generic (not product specific)
+		leafLevel(state) {
+			if (state.currentView === 'detailProduct') return TASKLEVEL
+			if (state.currentView === 'coarseProduct') return FEATURELEVEL
+			return PBILEVEL
+		},
 		isAuthenticated(state) {
 			return state.userData.user !== undefined
 		},
@@ -123,37 +140,37 @@ export default new Vuex.Store({
 		isServerAdmin(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("_admin")
 		},
-		isSuperPO(state, getters) {
-			return getters.isAuthenticated && state.userData.sessionRoles.includes("superPO")
-		},
-		isAPO(state, getters) {
-			return getters.isAuthenticated && state.userData.sessionRoles.includes("areaPO")
-		},
 		isAdmin(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("admin")
 		},
 		isPO(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
 		},
+		isAPO(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isAuthenticated && myCurrentProductRoles.includes("APO")
+		},
 		isDeveloper(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		isGuest(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
 		},
 		canCreateComments(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return getters.isAdmin || getters.isSuperPO || getters.isAPO || getters.isadmin ||
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isServerAdmin || getters.isAdmin ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		canUploadAttachments(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.load.currentProductId]
-			return getters.isSuperPO || getters.isAPO ||
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isServerAdmin || getters.isAdmin ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
 				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		getCurrentItemTsSize(state) {
@@ -161,11 +178,212 @@ export default new Vuex.Store({
 		},
 		getCurrentItemLevel(state) {
 			if (state.currentDoc) return state.currentDoc.level
+		},
+
+		getStoryPoints(state) {
+			let sum = 0
+			for (let s of state.stories) {
+				sum += s.size
+			}
+			return sum
+		},
+
+		getStoryPointsDone(state) {
+			let sum = 0
+			for (let s of state.stories) {
+				if (s.tasks[TODO].length === 0 &&
+					s.tasks[INPROGRESS].length === 0 &&
+					s.tasks[TESTREVIEW].length === 0 &&
+					s.tasks[DONE].length > 0) sum += s.size
+			}
+			return sum
 		}
 	},
 
 	mutations: {
-		// a copy of the showLastEvent mixin which can not be used here
+		/* Update the currently selected node. Note that not all props are covered */
+		updateNodeSelected(state, payload) {
+			if (payload.newNode) {
+				state.nodeSelected = payload.newNode
+			}
+			const keys = Object.keys(payload)
+			for (let k of keys) {
+				switch (k) {
+					case 'productId':
+						state.nodeSelected.productId = payload.productId
+						break
+					case 'title':
+						state.nodeSelected.title = payload.title
+						break
+					case 'isSelected':
+						state.nodeSelected.isSelected = payload.isSelected
+						break
+					case 'isExpanded':
+						state.nodeSelected.isExpanded = payload.isExpanded
+						break
+					case 'markViolation':
+						state.nodeSelected.markViolation = payload.markViolation
+						break
+					case 'state':
+						state.nodeSelected.data.state = payload.state
+						break
+					case 'reqarea':
+						state.nodeSelected.data.reqarea = payload.reqarea
+						break
+					case 'sprintId':
+						state.nodeSelected.data.sprintId = payload.sprintId
+						break
+					case 'inconsistentState':
+						state.nodeSelected.data.inconsistentState = payload.inconsistentState
+						break
+					case 'team':
+						state.nodeSelected.data.team = payload.team
+						break
+					case 'taskOwner':
+						state.nodeSelected.data.taskOwner = payload.taskOwner
+						break
+					case 'subtype':
+						state.nodeSelected.data.subtype = payload.subtype
+						break
+					case 'reqAreaItemColor':
+						state.nodeSelected.data.reqAreaItemColor = payload.reqAreaItemColor
+						break
+					case 'lastPositionChange':
+						state.nodeSelected.data.lastPositionChange = payload.lastPositionChange
+						break
+					case 'lastStateChange':
+						state.nodeSelected.data.lastStateChange = payload.lastStateChange
+						break
+					case 'lastContentChange':
+						state.nodeSelected.data.lastContentChange = payload.lastContentChange
+						break
+					case 'lastCommentAddition':
+						state.nodeSelected.data.lastCommentAddition = payload.lastCommentAddition
+						break
+					case 'lastAttachmentAddition':
+						state.nodeSelected.data.lastAttachmentAddition = payload.lastAttachmentAddition
+						break
+					case 'lastCommentToHistory':
+						state.nodeSelected.data.lastCommentToHistory = payload.lastCommentToHistory
+						break
+					case 'lastChange':
+						state.nodeSelected.data.lastChange = payload.lastChange
+						break
+					default:
+						// eslint-disable-next-line no-console
+						if (k !== 'newNode') console.log('nodeSelected: cannot update nodeSelected, unknown key = ' + k)
+				}
+			}
+		},
+
+		/*
+		* Update the currently loaded document.
+		* Decode the description and acceptence criteria.
+		* Note that not all fields are covered
+		*/
+		updateCurrentDoc(state, payload) {
+			if (payload.newDoc) {
+				state.currentDoc = payload.newDoc
+				// decode from base64 + replace the encoded data
+				state.currentDoc.description = window.atob(payload.newDoc.description)
+				state.currentDoc.acceptanceCriteria = window.atob(payload.newDoc.acceptanceCriteria)
+			}
+			const keys = Object.keys(payload)
+			for (let k of keys) {
+				switch (k) {
+					case '_rev':
+						state.currentDoc._rev = payload._rev
+						break
+					case '_attachments':
+						state.currentDoc._attachments = payload._attachments
+						break
+					case 'shortId':
+						state.currentDoc.shortId = payload.shortId
+						break
+					case 'productId':
+						state.nodeSelected.productId = payload.productId
+						break
+					case 'parentId':
+						state.currentDoc.parentId = payload.parentId
+						break
+					case 'reqarea':
+						state.currentDoc.reqarea = payload.reqarea
+						break
+					case 'sprintId':
+						state.currentDoc.sprintId = payload.sprintId
+						break
+					case 'team':
+						state.currentDoc.team = payload.team
+						break
+					case 'level':
+						state.currentDoc.level = payload.level
+						break
+					case 'subtype':
+						state.currentDoc.subtype = payload.subtype
+						break
+					case 'state':
+						state.currentDoc.state = payload.state
+						break
+					case 'tssize':
+						state.currentDoc.tssize = payload.tssize
+						break
+					case 'spsize':
+						state.currentDoc.spsize = payload.spsize
+						break
+					case 'spikepersonhours':
+						state.currentDoc.spikepersonhours = payload.spikepersonhours
+						break
+					case 'title':
+						state.currentDoc.title = payload.title
+						break
+					case 'followers':
+						state.currentDoc.followers = payload.followers
+						break
+					case 'newFollower':
+						state.currentDoc.followers.push(payload.newFollower)
+						break
+					case 'leavingFollower':
+						{
+							const updatedFollowers = []
+							for (let f of state.currentDoc.followers) {
+								if (f !== payload.leavingFollower) updatedFollowers.push(f)
+							}
+							state.currentDoc.followers = updatedFollowers
+						}
+						break
+					case 'description':
+						state.currentDoc.description = window.atob(payload.description)
+						break
+					case 'acceptanceCriteria':
+						state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
+						break
+					case 'priority':
+						state.currentDoc.priority = payload.priority
+						break
+					case 'newComment':
+						state.currentDoc.comments.unshift(payload.newComment)
+						break
+					case 'newHist':
+						state.currentDoc.history.unshift(payload.newHist)
+						break
+					case 'delmark':
+						state.currentDoc.delmark = payload.delmark
+						break
+					case 'color':
+						state.currentDoc.color = payload.color
+						break
+					default:
+						// eslint-disable-next-line no-console
+						if (k !== 'newDoc') console.log('currentDoc: cannot update currentDoc, unknown key = ' + k)
+				}
+			}
+		},
+
+		updateTeam(state, newTeam) {
+			state.userData.myTeam = newTeam
+		},
+
+		/* A copy of the showLastEvent mixin which can not be used in modules */
 		showLastEvent(state, payload) {
 			switch (payload.severity) {
 				case DEBUG:
@@ -316,7 +534,8 @@ export default new Vuex.Store({
 		utils,
 		restorebranches,
 		loadproducts,
-		loadreqareas
+		loadreqareas,
+		planningboard
 	}
 
 })

@@ -1,5 +1,5 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const ERROR = 2
 
@@ -10,6 +10,7 @@ const actions = {
 	 */
     uploadAttachmentAsync({
         rootState,
+        commit,
         dispatch
     }, payload) {
         rootState.uploadDone = false
@@ -83,14 +84,14 @@ const actions = {
                     "distributeEvent": true
                 }
                 tmpDoc.history.unshift(newHist)
-                rootState.currentDoc.history.unshift(newHist)
+
                 dispatch('updateDoc', {
                     dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
                     onSuccessCallback: function(updatedDoc) {
                         rootState.uploadDone = true
                         if (updatedDoc._id === rootState.currentDoc._id) {
                             // the user did not select another document while the attachment was uploaded
-                            rootState.currentDoc._attachments = updatedDoc._attachments
+                            commit('updateCurrentDoc', { _attachments: updatedDoc._attachments, newHist })
                         }
                     },
                     onFailureCallback: function () { rootState.uploadDone = true },
@@ -108,6 +109,7 @@ const actions = {
 
     removeAttachmentAsync({
         rootState,
+        commit,
         dispatch
     }, title) {
         const _id = rootState.currentDoc._id
@@ -127,7 +129,7 @@ const actions = {
                 tmpDoc.history.unshift(newHist)
                 tmpDoc._attachments = rootState.currentDoc._attachments
 
-                rootState.currentDoc.history.unshift(newHist)
+                commit('updateCurrentDoc', { newHist })
                 dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
             }
         }).catch(error => {

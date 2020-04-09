@@ -1,8 +1,10 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const PRODUCTLEVEL = 2
+const FEATURELEVEL = 4
 const PBILEVEL = 5
+const TASKLEVEL = 6
 const INFO = 0
 const WARNING = 1
 var removedProducts = []
@@ -32,9 +34,32 @@ function removeFromArray(arr, item) {
 * After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
 */
 
+const mutations = {
+	updateBoard(state, payload) {
+		for (let s of payload.rootState.stories) {
+			if (s.storyId === payload.storyId) {
+				const sourceColumn = s.tasks[payload.prevState]
+				const targetColumn = s.tasks[payload.newState]
+				let movedTask
+				const newSourceColumn = []
+				for (let t of sourceColumn) {
+					if (t.id === payload.taskId) {
+						movedTask = t
+					} else newSourceColumn.push(t)
+				}
+				s.tasks[payload.prevState] = newSourceColumn
+				if (payload.newTaskPosition) {
+					targetColumn.splice(payload.newTaskPosition, 0, movedTask)
+				} else targetColumn.unshift(movedTask)
+			}
+		}
+	}
+}
+
 const actions = {
 	listenForChanges({
 		rootState,
+		getters,
 		commit,
 		dispatch
 	}) {
@@ -88,7 +113,7 @@ const actions = {
 		}
 
 		function getLevelText(level, subtype = 0) {
-			if (level < 0 || level > PBILEVEL) {
+			if (level < 0 || level > TASKLEVEL) {
 				return 'Level not supported'
 			}
 			if (level === PBILEVEL) {
@@ -118,8 +143,8 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
-				if (rootState.currentView === 'reqarea' && doc.level === PBILEVEL) {
-					// skip PBI level changes when in requirement areas view
+				if (rootState.currentView === 'coarseProduct' && doc.level > FEATURELEVEL) {
+					// skip level changes above feature level when in products overview
 					continue
 				}
 				if (doc.history[0].sessionId !== rootState.userData.sessionId &&
@@ -161,7 +186,7 @@ const actions = {
 					switch (histEvent) {
 						case 'acceptanceEvent':
 							if (documentInView) {
-								rootState.currentDoc.acceptanceCriteria = window.atob(doc.acceptanceCriteria)
+								commit('updateCurrentDoc', { acceptanceCriteria: doc.acceptanceCriteria })
 								node.data.lastContentChange = lastHistoryTimestamp
 							}
 							break
@@ -193,12 +218,13 @@ const actions = {
 
 									"productId": doc.productId,
 									"parentId": doc.parentId,
+									"sprintId": doc.sprintId,
 									"_id": doc._id,
 									"shortId": doc.shortId,
 									"dependencies": doc.dependencies || [],
 									"conditionalFor": doc.conditionalFor || [],
 									"title": doc.title,
-									"isLeaf": (locationInfo.newPath.length < PBILEVEL) ? false : true,
+									"isLeaf": (locationInfo.newPath.length < getters.leafLevel) ? false : true,
 									"children": [],
 									"isSelected": false,
 									"isExpanded": true,
@@ -279,7 +305,7 @@ const actions = {
 							break
 						case 'descriptionEvent':
 							if (documentInView) {
-								rootState.currentDoc.description = window.atob(doc.description)
+								commit('updateCurrentDoc', { description: doc.description })
 								node.data.lastContentChange = lastHistoryTimestamp
 							}
 							break
@@ -324,6 +350,7 @@ const actions = {
 										}, [node], false)
 									}
 									if (histEvent === 'nodeUndoMoveEvent') {
+										// remove the <moved> badge
 										node.data.lastPositionChange = 0
 									} else node.data.lastPositionChange = lastHistoryTimestamp
 								}
@@ -332,10 +359,10 @@ const actions = {
 						case 'removeAttachmentEvent':
 							node.data.lastAttachmentAddition = 0
 							break
-						case 'removeParentEvent':
+						case 'updateParentHistEvent':
 							if (doc.delmark) {
 								// remove any dependency references to/from outside the removed items
-								window.slVueTree.correctDependencies(lastHistObj.removeParentEvent[0], lastHistObj.removeParentEvent[1])
+								window.slVueTree.correctDependencies(lastHistObj.updateParentHistEvent[0], lastHistObj.updateParentHistEvent[1])
 								if (node) {
 									window.slVueTree.remove([node])
 									if (lastHistObj.by === rootState.userData.user) {
@@ -381,6 +408,14 @@ const actions = {
 							node.data.state = doc.state
 							node.data.lastStateChange = lastHistoryTimestamp
 							if (documentInView) rootState.currentDoc.state = doc.state
+
+							if (rootState.currentView === 'planningBoard') {
+								const prevState = lastHistObj.setStateEvent[0]
+								const newTaskPosition = lastHistObj.setStateEvent[3]
+								commit('updateBoard', { rootState, storyId: doc.parentId, taskId: doc._id, prevState, newState: doc.state, newTaskPosition })
+							}
+
+
 							break
 						case 'setSubTypeEvent':
 							node.data.subtype = doc.subtype
@@ -397,6 +432,20 @@ const actions = {
 							break
 						case 'uploadAttachmentEvent':
 							node.data.lastAttachmentAddition = lastHistoryTimestamp
+							break
+						case 'updateTaskOrderEvent':
+							if (rootState.currentView === 'planningBoard') {
+								const taskUpdates = lastHistObj['updateTaskOrderEvent']
+								rootState.stories[taskUpdates.idx].tasks[taskUpdates.id] = taskUpdates.tasks
+							}
+							break
+						case 'addSprintIdsEvent':
+							node.sprintId = doc.sprintId
+							if (documentInView) rootState.currentDoc.sprintId = doc.sprintId
+							break
+						case 'removeSprintIdsEvent':
+							node.sprintId = undefined
+							if (documentInView) rootState.currentDoc.sprintId = undefined
 							break
 						default:
 							// eslint-disable-next-line no-console
@@ -432,5 +481,6 @@ const actions = {
 }
 
 export default {
+	mutations,
 	actions
 }

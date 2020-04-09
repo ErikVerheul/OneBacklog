@@ -1,9 +1,10 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const ERROR = 2
+const AREA_PRODUCTID = '0'
 
 const actions = {
 	/*
@@ -62,7 +63,7 @@ const actions = {
 			},
 			"members": {
 				"names": [],
-				"roles": ["areaPO", "superPO", "PO", "developer", "guest"]
+				"roles": ["PO", "APO", "developer", "guest"]
 			}
 		}
 		globalAxios({
@@ -117,7 +118,7 @@ const actions = {
 			"_id": "config",
 			"type": "config",
 			"changedBy": "Erik",
-			"changeDate": 1575036814777,
+			"changeDate": 1584908085489,
 
 			"itemType": [
 				"RequirementArea",
@@ -125,7 +126,8 @@ const actions = {
 				"Product",
 				"Epic",
 				"Feature",
-				"PBI"
+				"PBI",
+				"Task"
 			],
 
 			"ItemTypeDefinitions": [
@@ -133,17 +135,27 @@ const actions = {
 				"Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement",
 				"An Epic is a major contribution to the product realisation and usually far to big to do in one sprint",
 				"A Feature is a product enhancement usually recognizable and appricated bij the customer or user",
-				"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes"
+				"A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes",
+				"A task is a piece of work to get the PBI done. Tasks are defined at the start of a sprint."
 			],
 
 			"itemState": [
+				"Removed",
+				"On hold",
 				"New",
 				"Ready",
 				"In progress",
-				"On hold",
-				"Done",
-				"Removed"
+				"Done"
 			],
+			"taskState": [
+				"Removed",
+				"On hold",
+				"ToDo",
+				"In progress",
+				"Ready for test",
+				"Done"
+			],
+
 			"itemStateDefinitions": [
 				"The state New means that the item is created but not yet Ready for realization in a sprint. Further refinement is needed",
 				"The state Ready means that the item is understood well enough by the team for realization in a sprint",
@@ -208,8 +220,8 @@ const actions = {
 				"views": {
 					/*
 					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
-					 * Select the 'backlogitem' document type and skip removed documents. Note: productId '0' is not in use for the req areas view only
-					 * History items older than one hour or of type 'ignoreEvent' are removed but at least one item (the most recent) must be selected
+					 * Select the 'backlogitem' document type and skip removed documents.
+					 * History items older than one hour or of type 'ignoreEvent' are removed but at least one item (the most recent) must be selected.
 					 */
 					"allItemsFilter": {
 						"map": `function(doc) {
@@ -221,7 +233,7 @@ const actions = {
 							}
 							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
 							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.productId, doc.level, doc.priority * -1],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color, doc.sprintId]);
 						}`
 					},
 					/* Filter up to and including the feature level */
@@ -249,8 +261,24 @@ const actions = {
 						}`
 					},
 					/* Filter on parentIds to map documents to their parent */
-					"parentIds": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1) emit(doc.parentId, 1);}'
+					"docToParentMap": {
+						"map": `function (doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '0') emit(doc.parentId, 1);
+						}`
+					},
+					/* Filter on parentIds to map documents to their parent and provide filtered values so that the whole document is not needed  */
+					"docToParentMapValues": {
+						"map": `function(doc) {
+							const hour = 3600000
+							const now = Date.now()
+							const cleanedHist = []
+							for (var i = 0; i < doc.history.length; i++) {
+								if ((now - doc.history[i].timestamp < hour) && Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+							}
+							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '0') emit(doc.parentId,
+								[doc.reqarea, doc.productId, doc.priority, doc.level, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
+						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId.*/
 					"shortIdFilter": {
@@ -263,6 +291,12 @@ const actions = {
 					/* Filter on document type 'backlogItem', then emit the product _rev of the removed documents.*/
 					"removed": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.delmark || doc._deleted) emit(doc._rev, 1);}'
+					},
+					/* Filter on document type 'backlogItem', then emit sprintId, team level and (minus) priority to load the tasks in order as represented in the tree view */
+					"sprints": {
+						"map": `function(doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= 5 && doc.sprintId) emit([doc.sprintId, doc.team, doc.level, doc.priority * -1], [doc.productId, doc.parentId, doc.title, doc.level, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
+						}`
 					}
 				},
 				"language": "javascript"
@@ -346,9 +380,9 @@ const actions = {
 	}, payload) {
 		// create parent document
 		const rootDoc = {
-			"_id": "0",
+			"_id": AREA_PRODUCTID,
 			"type": "backlogItem",
-			"productId": "0",
+			"productId": AREA_PRODUCTID,
 			"parentId": "root",
 			"team": "n/a",
 			"level": 2,
@@ -362,7 +396,6 @@ const actions = {
 			"description": window.btoa("<p>To insert one or more requirement areas inside this node right-click on this nodes title in the tree view.</p>"),
 			"acceptanceCriteria": window.btoa("<p>n/a</p>"),
 			"priority": 0,
-			"attachments": [],
 			"comments": [{
 				"ignoreEvent": 'comments initiated',
 				"timestamp": 0,
@@ -379,7 +412,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'PUT',
-			url: payload.dbName + '/0',
+			url: payload.dbName + '/' + AREA_PRODUCTID,
 			data: rootDoc
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createReqAreasParent: Success, the parent document is created' })
@@ -392,7 +425,7 @@ const actions = {
 		rootState,
 		dispatch
 	}, dbName) {
-		// create a sequential id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
+		// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
 		const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
 		const _id = Date.now().toString().concat(shortId)
 		// create a new document and store it

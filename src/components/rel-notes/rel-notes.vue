@@ -6,6 +6,76 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.5 - 9 April 2020 Feature update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>A sprint planning board is available</li>
+					<li>See the 'Sprint panning board' feature user stories (not all are done yet)</li>
+				</ul>
+				<hr>
+				<h3>v.0.9.4 - 29 March 2020 Feature update</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Add the task level to the tree view</li>
+					<li>Default sprint calendar</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>The application is extended with the task item level.</li>
+				</ul>
+				<hr>
+				<h3>v.0.9.3.2 - 22 March 2020 Regression bug fix</h3>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Regression: state constants not updated</li>
+				</ul>
+				<hr>
+				<h3>v.0.9.3.1 - 22 March 2020 Configuration update</h3>
+				<p>Configuration change:</p>
+				<ul>
+					<li>Reorder the item state values</li>
+				</ul>
+				<hr>
+				<h3>v.0.9.3 - 21 March 2020 Feature update and bug fixes</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Allow item movement over products in products overview</li>
+					<li>Create an undo for moving an item to another product in product details view</li>
+					<li>Show the requirement area next to the item title in product details view</li>
+				</ul>
+				<p>User stories done:</p>
+				<ul>
+					<li>Remove history and comments on age</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>When sizing the screen the clear buttons move away</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>Common code of the views now in one set of files</li>
+					<li>Rename of all view components</li>
+				</ul>
+				<hr>
+				<h3>v.0.9.2 - 12 March 2020 Product revision</h3>
+				<p>Product revision:</p>
+				<ul>
+					<li>The superPO role is removed</li>
+					<li>All users have access to two main views: 'Product details' and 'Products overview'</li>
+					<li>Read the README.md file for the revised specification</li>
+				</ul>
+				<hr>
+				<h3>v.0.9.1 - 5 March 2020 Feature update and bug fixes</h3>
+				<p>Feature update:</p>
+				<ul>
+					<li>The filters in the tree view now only highlight the filtered items, not the path to these items. Changed to a less agressive highlight color</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>When using the context menu in the requirement areas view the scroll bar disappears</li>
+					<li>When filtering on time in the requirement areas view no items are found</li>
+				</ul>
+				<hr>
 				<h3>v.0.9.0 - 1 March 2020 Major update</h3>
 				<p>New features:</p>
 				<ul>
@@ -340,10 +410,10 @@
 </template>
 
 <script>
-import Header from '../header/header.vue'
+import appHeader from '../header/header.vue'
 export default {
   components: {
-    'app-header': Header
+    'app-header': appHeader
   }
 }
 </script>

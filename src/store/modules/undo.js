@@ -1,5 +1,5 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const WARNING = 1
 const ERROR = 2
@@ -68,8 +68,8 @@ const actions = {
             }
             if (errors.length > 0) {
                 let errorStr = ''
-                for (let err of errors) {
-                    errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
+                for (let e of errors) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
                 }
                 let msg = 'restoreItemAndDescendents: These documents cannot be UNmarked for removal: ' + errorStr
                 // eslint-disable-next-line no-console
@@ -78,8 +78,8 @@ const actions = {
             }
             const toDispatch = { 'restoreParent': entry }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendents' })
-        }).catch(error => {
-            let msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + error
+        }).catch(e => {
+            let msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -213,8 +213,8 @@ const actions = {
             }
             if (errors.length > 0) {
                 let errorStr = ''
-                for (let err of errors) {
-                    errorStr.concat(errorStr.concat(err.id + '( error = ' + err.error + ', reason = ' + err.reason + '), '))
+                for (let e of errors) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
                 }
                 let msg = 'restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored: ' + errorStr
                 // eslint-disable-next-line no-console
@@ -222,8 +222,8 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreExtDepsAndConds' })
-        }).catch(error => {
-            let msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + error
+        }).catch(e => {
+            let msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

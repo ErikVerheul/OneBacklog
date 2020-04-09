@@ -1,9 +1,9 @@
 'use strict';
 require('dotenv').config();
-const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
+const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
     "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent", "newChildEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent",
     "setConditionsEvent", "setDependenciesEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
-    "setTitleEvent", "uploadAttachmentEvent"];
+    "removeSprintIdsEvent", "setTitleEvent", "uploadAttachmentEvent"];
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984');
 const atob = require('atob');
 const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' });
@@ -68,8 +68,14 @@ function mkHtml(dbName, eventType, value, event, doc) {
             return mkHeader() + `<h3>The acceptance criteria changed from:</h3><p>${atob(value[0])}</p> to <p>${atob(value[1])}</p>` + mkFooter()
         case "addCommentEvent":
             return mkHeader() + `<h3>The user added a comment:</h3><p>${atob(value)}</p>` + mkFooter()
+        case "addSprintIdsEvent":
+            {
+                let txt =  `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
+                if (value[3]) txt += ` The item was assigned to a sprint before.`
+                return mkHeader() + `<h3>${txt}</h3>` + mkFooter()
+            }
         case "cloneEvent":
-            return mkHeader() + `<h3>This ${this.getLevelText(value[0], value[1])} has been cloned as item of product '${value[2]}'.</h3>` + mkFooter()
+            return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} has been cloned as item of product '${value[2]}'.</h3>` + mkFooter()
         case "commentToHistoryEvent":
             return mkHeader() + `<h3>The user added comment:</h3><p>${atob(value[0])}</p><h3>to the history of this item</h3>` + mkFooter()
         case "conditionRemovedEvent":
@@ -81,29 +87,31 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "docRestoredEvent":
             return mkHeader() + `<h3>This item and ${value[0]} descendants are restored from removal.</h3>` + mkFooter()
         case "newChildEvent":
-            return mkHeader() + `<h3>A ${this.getLevelText(value[0])} was created as a child of this item at position ${value[1]}.</h3>` + mkFooter()
+            return mkHeader() + `<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}.</h3>` + mkFooter()
         case "nodeDroppedEvent":
             {
                 let txt
                 if (value[7] !== value[8]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
                 if (value[0] === value[1]) {
-                    txt += `<h5>The item changed priority to position ${value[2] + 1} ${value[6]} '${value[3]}'</h5>`
-                    txt += (value[4] > 0) ? `<p>${value[4]} descendants were also moved.</p>` : ""
+                    txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
+                    txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ""
                     return mkHeader() + txt + mkFooter()
                 } else {
-                    txt += `<h5>The item changed type from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h5>`
+                    txt += `<h5>The item changed type from ${getLevelText(dbName, value[0])} to ${getLevelText(dbName, value[1])}.</h5>`
                     txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
-                    txt += (value[4] > 0) ? `<p>${value[4]} descendants also changed type.</p>` : ""
+                    txt += (value[4] > 0) ? `<p>${value[4]} children also changed type.</p>` : ""
                     return mkHeader() + txt + mkFooter()
                 }
             }
         case "nodeUndoMoveEvent":
-            return mkHeader() + `<h3>The previous move by the user is undone</h3>` + mkFooter()
+            return mkHeader() + `<h3>The previous move is made undone</h3>` + mkFooter()
         case "removeAttachmentEvent":
             return mkHeader() + `<h3>Attachment with title '${value[0]}' is removed from this item</h3>` + mkFooter()
         case "removedFromParentEvent":
             return mkHeader() + `<h3>${getLevelText(dbName, value[0], value[3])} with title: '${value[1]}' and ${value[2]} descendants are removed from this parent</h3>
             <p>From the descendants ${value[4]} external dependencies and ${value[5]} external conditions were removed.</p>` + mkFooter()
+        case "removeSprintIdsEvent":
+            return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>` + mkFooter()
         case "setConditionsEvent":
             return mkHeader() + `<h3>Conditions on this item set for ${convertToShortIds(value[0])} are now set for ${convertToShortIds(value[1])} (short Ids)</h3>` + mkFooter()
         case "setDependenciesEvent":

@@ -4,17 +4,20 @@
 
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
 
-<b>The product vision:</b><br />
-As super PO I need one integrated tool to manage the product backlog of all my products so that:
+<b>The product vision:</b>
+<p>In my practise I have noticed a disconnect between my client's development portfolio, often a collection of projects, and the backlogs of the scrum teams. The discussion about priorities is largely political with little involvement of the product owners until the project starts. This tool aims to be an aid to the product owner(s) and allows all participants in product development to have a complete, well structured, view of the purpose and progress of the product development. The tool is inspired by Large-Scale Scrum (LeSS) and favors the concept of product development rather than project execution.</p>
+
+As Product Owner (PO) I need one integrated tool to manage the product backlog of all my products so that:
 - I can map my portfolio in one tool
-- The area product owner or myself can manage the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
-- My PO's can manage their products
-- Dependencies within products are made visible so that the team, their PO or myself can act upon it
-- TO DO (low priority for now): Scrum teams can use the tool to do their refinements and run their sprints
+- My area product owner (APO) manages the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
+- Dependencies within products are made visible so that the team and myself can act upon it
+- IN PROGRESS (hight priority now because of the Corona virus): Scrum teams can use the tool to do their refinements and run their sprints
 - Only PO's are authorized to change priorities
 - The tool runs in a browser and is accessible only by authorized users
 - Full security is in place
 - The tool must be intuitive and self explaining, advanced features should not decrease usability for basic usage
+
+<p>Larger organizations have multiple PO's and several requirement Areas PO's (APOs). The APOs and the PO together form a team, the Product Owner Team. This team makes product-wide prioritization decisions, but the PO always has the final decision. Also, scope and schedule decisions stay with the PO, he decides when to release what. See https://less.works/less/less-huge/area-product-owner</p>
 
 <b>Security:</b><br />
 The database and the web server have secure https access.
@@ -24,37 +27,34 @@ The CouchDB build-in cookie authentication (RFC 2109) is used
 
 <b>Authorization :</b><br />
 The authorization is set per product and based on the following roles:
-- '_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation. Is also a guest to all products.
-- 'areaPO': The requirement area PO maintains the requirements area backlog and can prioritize features in the teams backlog
-- 'admin': Can create and assign users to products. Is also a guest to all products.
-- 'superPO': Can create and maintain products and epics for all products. Can change priorities at these levels.
-- 'PO': Can create and maintain features and pbi's for the assigned products. Can change priorities at these levels.
-- 'developer': Can create and maintain pbi's and features for the assigned products.
-- 'guest': Can only view the items of the assigned products. Has no access to the requirements area view.<br />
-Users can have multiple roles. Users can only access the products that are assigned to them.
+- '_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.
+- 'admin': Can create products, teams and users. Can (un)assign roles to users and user access to products. Is not member of a team.
+- 'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products when team member. Can change priorities at these levels. Can change team.
+- 'areaPO': The APOs create and maintain their requirement areas for the assigned products when team member. Can change team.
+- 'developer': Can create and maintain pbi's and features for the assigned products when team member. Can change team.
+- 'guest': Can only view the items of the assigned products. Has no access to attachments. Cannot join a team.<br />
+Users can have multiple roles. Users can only see/access the products that are assigned to them by the admin.
 
 <b>Design basics:</b><br />
 a product consists of:
 - <b>epics</b> which consists of
 - <b>features</b> which consists of
 - <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
-- <b>tasks</b> (TO DO) and
-- <b>multiple requirement areas</b> can be maintained on the epic and feature level across products.
+- <b>tasks</b>
 <p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
 
 <b>Other design choices:</b><br />
-The scope is the selected product. The tool assumes that products are independent of each other except for the requirement area. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of the feature and used for filtering.<br />
-Features have (business) value. Delivering the high priority features first is the aim of all participants.<br />
-Priorities are set on every level. Eg. when feature A has a higher priority than feature B all its pbi's have a higher priority than any pbi in feature B. It is the  the PO who selects the most important epics and the features within.<br />
-The owning team is an attribute of the pbi and used for filtering. A user can be member of one or more teams. A guest is not a member of a team.<br />
+The scope is the selected product. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of an item and used for prioritization.<br />
+Epics and their underlying features have (business) value. Delivering the high priority items first is the aim of all participants.<br />
+Priorities are set on every level. Eg. when feature A has a higher priority than feature B all its pbi's have a higher priority than any pbi in feature B. It is the PO who selects the most important epics and the features within.<br />
+The owning team is an attribute of the feature and pbi and used for filtering. A user can be member of one team only, but can switch to another team at will. The _admin, admin and the guests are not member of a team.<br />
 When multiple databases are created, products defined in different databases are considered completely independent. However the user database with the authorizations is shared over all products.<br />
 
 <b>Product and epic size estimate:</b><br />
 Products and epics are estimated in T-shirt sizes.
-Features and pbi's are estimated in story points using the. A common practice is to use the Fibonacci scale. However this is not enforced.
 
 <b>Feature effort estimate:</b><br />
-Both features and pbi's are estimated in story points. When all pbi's belonging to a feature are refined the feature effort should be the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.
+Both features and pbi's are estimated in story points. A common practice is to use the Fibonacci scale. However this is not enforced. When all pbi's belonging to a feature are refined the feature effort should be the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.
 
 <b>Spike effort estimate:</b><br />
 A spike is a study, investigation or try out with a set maximum effort. The result is what is available when the time set is spent.
@@ -69,12 +69,12 @@ When a defect is found after a Pbi is set to done a defect Pbi is created with a
 - the team that refines a pbi becomes the owner of that pbi
 - pbi's are estimated by that team
 
-TO DO: <b>Sprint backlog and planning board:</b><br />
-The use of the electronic planning board is optional and only advised for use when team members are remote
+[IN PROGRESS]: <b>Sprint backlog and planning board:</b><br />
+The use of the electronic planning board is optional and only advised for use when team members are (need to be) remote
 - a sprint is dedicated to the increment of one product only; The tool should enforce this
 - the team selects the pbi's to work on
 - the team adds tasks to the pbi's
-- a task is/will be assigned to a member of the owning team
+- a task is/will be assigned to a member of the owning team; he/she is resposible for having the task done but can involve other to do the work
 - the workflow for the tasks usually has 4 stages: to-do, in-development, ready for test/review and done
 
 <b>Pbi/defect status values:</b>
@@ -83,11 +83,18 @@ The use of the electronic planning board is optional and only advised for use wh
 - <b>in progress</b> (now in a sprint)
 - <b>on hold</b> (not in a sprint anymore, waiting on the backlog)
 - <b>done</b> (delivered wrt the DoD)
-- <b>removed</b>
+- <b>removed</b> (when created by mistake, eg. a duplicate)
+
+<b>Task status values:</b>
+- <b>to-do</b>
+- <b>in development</b>
+- <b>ready for test/review</b> (by others than the developer)
+- <b>done</b>
+- <b>on hold</b> (still in the sprint, waiting for some event)
+- <b>removed</b> (when created by mistake, eg. a duplicate)
 
 <b>Dependencies:</b><br />
-Is-dependent-on is the only type. When B is dependent on A then B must have a lower priority than A; The tool should enforce this.
-Circular dependencies are not allowed; The tool should enforce this also.
+Dependencies can be set and maintained. When item B is dependent on A item A is conditional for item B. Item A and must have a higher priority than item B; The tool should enforce this. Circular dependencies are not allowed; The tool should enforce this also.
 
 <b>Automatic sync with other user's updates</b><br />
 When more users work on the backlog of the same product the client presentation is updated automatically (no screen refresh needed) of changes made by other users.
@@ -100,18 +107,39 @@ Viewers can only read the information of the products assigned to them.
 <b>Non functional requirements:</b>
 Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Updates by other users should be available within 1 second. Notification of network connection loss and automatic recovery.
 
-<b>Implementation:</b>
+## Implementation
 
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/example-screen.png)
 
-- Product, epic, feature, pbi, task and requirement area items are mapped to a key. That key is used for application internal unique identification.
 - A short key of 5 characters alphamumeric are available for the users for direct lookup and reference in communications.
 - When the short key is not unique (chances for a duplicate are 1 in 10.000 in a 5000 item product) the application warns the user.
-- The history of products, epics, features, pbi's are stored and easily accessible. 
-- The type of product, epic, feature and pbi can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature. That feature to an epic and the epic to a product. The reverse can also be done. This feature also works between products.
-- TO DO: A user can choose to follow any change by auto-email of a product, requirement area, epic, feature and pbi if he is allowed to.
+- The history of priority and attribute changes of products, epics, features, pbi's are stored and easily accessible. 
+- The type of product, epic, feature and pbi can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature, that feature to an epic. The reverse can also be done.
+- A user can subscribe to change notices of any item of any product assigned to that user. The change notices are sent to his email address.
 - Users can add comments to an item and to the automatic history log.
 - Attachments can be added to each backlog item type.
+<div>
+    For performance reasons the size of the browser DOM is kept small. That's why there are two main views:
+    <ul>
+        <li>The 'Product detail' view of all products assigned to the user up to the PBI (TO DO: task) level. Only one product can be expanded. The user can select a subset of products to be shown and a default product to expand on load. The PO can update and move items within that product and set dependencies.</li>
+        <li>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items. The PO can set dependencies on items residing in different products, an undesirable situation, that can possibly be undone by moving items from one product to the other.</li>
+    </ul>
+</div>
+
+<b>Sprint Backlog</b>
+
+<p>From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:</p>
+<ul>
+    <li>When a feature is selected all its descendents (PBI's and tasks) are assigned</li>
+    <li>When a PBI is selected, that PBI and it descendent tasks are assigned</li>
+    <li>individual tasks cannot be assigned to a sprint (but can on the planning board)</li>
+ </ul>
+
+<p>Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.</p>
+
+<p>SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
+For now the calendar is stored in de database CONFIG file. Eventually products and even teams can have their own sprint calendar.
+Then, the calendar items (iterations) are stored as type 'calendar' in the database, and not in the CONFIG file.</p>
 
 <b>And avoid the traps of so-called 'agile' tools (see Product Backlog in LeSS, Bas Vodde cs.):</b><br />
 
