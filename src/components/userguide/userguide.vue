@@ -15,7 +15,7 @@
 				<p><a href="#pv">Product details</a></p>
 				<p><a href="#rv">Products overview</a></p>
 				<p><a href="#pb">Sprint planning board</a></p>
-				<p><a href="tv-features">Tree view searchand filtering</a></p>
+				<p><a href="#tv-features">Tree view search and filtering</a></p>
 				<p><a href="#sv">Maintenance views</a></p>
 				<h5><em>User</em></h5>
 				<ul>
@@ -147,12 +147,12 @@
 						<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 					</div>
 				</div>
-				<div id="#pb">
+				<div id="pb">
 					<h4>Sprint planning board</h4>
-
+					<p>[Under development]</p>
 					<div class="indent20">
 						<b-img :src="require('./planning-board.png')" alt="Example planning board" />
-						<p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view.</p>
+						<p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
 						<p>Note: The board is under development. A contxt menu to add/remove tasks is missing.</p>
 					</div>
 				</div>
