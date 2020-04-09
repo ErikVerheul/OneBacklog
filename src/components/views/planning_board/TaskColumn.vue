@@ -50,6 +50,9 @@ export default {
 .b-cards-margin {
   margin-left: 5px;
 }
+.b-card-body > * {
+  min-height: 50px;
+}
 .b-card:last-child {
   margin-bottom: 5px;
 }
