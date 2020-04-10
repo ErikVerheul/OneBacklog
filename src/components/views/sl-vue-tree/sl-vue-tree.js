@@ -392,6 +392,7 @@ export default {
 
 		onToggleHandler(event, node) {
 			if (!this.allowToggleBranch) return;
+			console.log('onToggleHandler: node.isExpanded = ' + node.isExpanded + ' title = ' + node.title)
 			node.isExpanded = !node.isExpanded
 			if (node.isExpanded) this.unhideDescendants(node)
 			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'expanded' : 'collapsed'}`, INFO)
@@ -857,7 +858,7 @@ export default {
 		expandTree(allProducts) {
 			const currentProduct = allProducts ? undefined : this.getProductModels()
 			this.traverseModels((nm) => {
-				if (nm.level < FEATURELEVEL) {
+				if (nm.level > PRODUCTLEVEL && nm.level < FEATURELEVEL) {
 					nm.isExpanded = true
 				}
 				if (nm.level <= FEATURELEVEL) {

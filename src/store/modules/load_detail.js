@@ -156,7 +156,6 @@ const mutations = {
 
             // expand the default product up to the feature level
             const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
-            // select the default product
             const isDraggable = level > PRODUCTLEVEL
             // show the product level nodes and all nodes of the current default product
             const doShow = level <= PRODUCTLEVEL || productId === rootState.currentDefaultProductId
