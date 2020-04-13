@@ -143,51 +143,55 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
+				const lastHistObj = doc.history[0]
 				// ToDo: remove this
 				if (rootState.currentView === 'coarseProduct' && doc.level > FEATURELEVEL) {
 					// skip level changes above feature level when in products overview
 					continue
 				}
-				if (doc.history[0].sessionId !== rootState.userData.sessionId &&
+				if (lastHistObj.sessionId !== rootState.userData.sessionId &&
 					rootState.userData.myProductSubscriptions.includes(doc.productId) ||
 					removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
 
 					dispatch('doBlinck', doc)
 
-					const node = window.slVueTree.getNodeById(doc._id)
 					const treeInview = rootState.currentView === 'coarseProduct' || rootState.currentView === 'detailProduct'
 					const documentInView = treeInview && doc._id === rootState.currentDoc._id
 					const coarseProductLoaded = rootState.c_treeNodes.length > 0
 					const detailProductLoaded = rootState.d_treeNodes.length > 0
-					// process comments
-					if (doc.comments[0].distributeEvent && (!doc.history[0].distributed || doc.comments[0].timestamp > doc.history[0].timestamp)) {
-						const commentsEvent = Object.keys(doc.comments[0])[0]
-						reportOddTimestamp(doc.comments[0].timestamp, commentsEvent, doc._id)
-						switch (commentsEvent) {
-							case 'addCommentEvent':
-								// show the comments update
-								if (documentInView) rootState.currentDoc.comments = doc.comments
-								node.data.lastCommentAddition = doc.comments[0].timestamp
-								break
-						}
-						// nothing else to do when processing a comments change
-						continue
-					}
-					// process history
-					const lastHistObj = doc.history[0]
-					// console.log('sync: lastHistObj = ' + JSON.stringify(lastHistObj, null, 2))
+					// get data from last history addition
+
 					const lastHistoryTimestamp = lastHistObj.timestamp
 					const histEvent = Object.keys(lastHistObj)[0]
-					if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent') {
-						commit('showLastEvent', { txt: `Another user changed item ${doc._id.slice(-5)} which is missing in your view`, severity: WARNING })
-						let msg = 'sync: cannot find node with id = ' + doc._id
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log(msg)
-						dispatch('doLog', { event: msg, level: WARNING })
-						continue
-					}
-					reportOddTimestamp(doc.history[0].timestamp, histEvent, doc._id)
+					// show the history update
+					if (documentInView) rootState.currentDoc.history = doc.history
 					if (coarseProductLoaded || detailProductLoaded) {
+						const node = window.slVueTree.getNodeById(doc._id)
+						// process comments
+						if (doc.comments[0].distributeEvent && (!lastHistObj.distributed || doc.comments[0].timestamp > lastHistObj.timestamp)) {
+							const commentsEvent = Object.keys(doc.comments[0])[0]
+							reportOddTimestamp(doc.comments[0].timestamp, commentsEvent, doc._id)
+							switch (commentsEvent) {
+								case 'addCommentEvent':
+									node.data.lastCommentAddition = doc.comments[0].timestamp
+									// show the comments update
+									if (documentInView) rootState.currentDoc.comments = doc.comments
+									break
+							}
+							// nothing else to do when processing a comments change
+							continue
+						}
+						// check for exception
+						if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent') {
+							commit('showLastEvent', { txt: `Another user changed item ${doc._id.slice(-5)} which is missing in your view`, severity: WARNING })
+							let msg = 'sync: cannot find node with id = ' + doc._id
+							// eslint-disable-next-line no-console
+							if (rootState.debug) console.log(msg)
+							dispatch('doLog', { event: msg, level: WARNING })
+							continue
+						}
+						reportOddTimestamp(lastHistObj.timestamp, histEvent, doc._id)
+						// process other events for tree views
 						switch (histEvent) {
 							case 'acceptanceEvent':
 								if (documentInView) {
@@ -198,7 +202,7 @@ const actions = {
 							case 'commentToHistoryEvent':
 								if (documentInView) {
 									rootState.currentDoc.history = doc.history
-									node.data.lastCommentToHistory = doc.history[0].timestamp
+									node.data.lastCommentToHistory = lastHistObj.timestamp
 								}
 								break
 							case 'createEvent':
@@ -327,7 +331,7 @@ const actions = {
 											text: doc.title
 										})
 									} else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
-									dispatch('restoreBranch', { doc, fromHistory: true })
+									dispatch('restoreBranch', doc)
 								}
 								break
 							case 'nodeDroppedEvent':
@@ -442,9 +446,8 @@ const actions = {
 								// eslint-disable-next-line no-console
 								if (rootState.debug) console.log('sync: not found, event = ' + histEvent)
 						}
-						// show the history update
-						if (documentInView) rootState.currentDoc.history = doc.history
 					}
+					// process events for the planning board
 					if (rootState.currentView === 'planningBoard') {
 						switch (histEvent) {
 							case 'updateTaskOrderEvent':
