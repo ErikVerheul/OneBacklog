@@ -70,8 +70,8 @@ export default {
         this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
       } else this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, INFO)
 
-      this.$store.state.filterText = 'Clear filter'
-      this.$store.state.filterOn = true
+      this.$store.state.d_filterText = 'Clear filter'
+      this.$store.state.d_filterOn = true
       // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
     }
   }

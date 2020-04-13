@@ -232,7 +232,7 @@ export default {
           entry.removedProductRoles = this.$store.state.userData.myProductsRoles[selectedNode._id]
         }
 
-        this.$store.state.changeHistory.unshift(entry)
+        this.$store.state.d_changeHistory.unshift(entry)
         // before removal select the predecessor or successor of the removed node (sibling or parent)
         const prevNode = window.slVueTree.getPreviousNode(selectedNode.path)
         let nowSelectedNode = prevNode
@@ -290,7 +290,7 @@ export default {
           type: 'undoMove',
           beforeDropStatus
         }
-        this.$store.state.changeHistory.unshift(entry)
+        this.$store.state.d_changeHistory.unshift(entry)
 
         const moveInfo = {
           // this info is the same for all nodes moved
@@ -355,7 +355,7 @@ export default {
         sprintId,
         sprintName: getSprintName(this.selectedSprint)
       }
-      this.$store.state.changeHistory.unshift(entry)
+      this.$store.state.d_changeHistory.unshift(entry)
     }
   }
 }

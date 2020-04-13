@@ -90,6 +90,11 @@ export default {
             this.$store.dispatch('cloneProduct')
         },
 
+        addToChangeHistory(entry) {
+            if (this.$store.state.currentView === 'coarseProduct') this.$store.state.c_changeHistory.unshift(entry)
+            if (this.$store.state.currentView === 'detailProduct') this.$store.state.d_changeHistory.unshift(entry)
+        },
+
         doCloneItem(node) {
             const ids = this.createId()
             const newId = ids.id
@@ -196,7 +201,7 @@ export default {
                 type: 'undoNewNode',
                 newNode
             }
-            this.$store.state.changeHistory.unshift(entry)
+            this.addToChangeHistory(entry)
         },
 
 		/*
@@ -205,10 +210,7 @@ export default {
          * This method also contains 'Product details' view specific code
 		 */
         doInsertNewItem() {
-            const locationPath = this.contextNodeSelected.path
             let newNodeLocation
-            let path
-            let idx
             let now = Date.now()
             // prepare the new node for insertion and set isSelected to true
             const newNode = {
@@ -238,8 +240,6 @@ export default {
                     nodeModel: this.contextNodeSelected,
                     placement: 'after'
                 }
-                idx = locationPath.slice(-1)[0] + 1
-                path = locationPath.slice(0, -1).concat(idx)
                 newNode.parentId = this.contextNodeSelected.parentId
                 newNode.title = 'New ' + this.getLevelText(insertLevel)
                 newNode.isLeaf = (insertLevel < this.taskLevel) ? false : true
@@ -252,8 +252,6 @@ export default {
                     nodeModel: this.contextNodeSelected,
                     placement: 'inside'
                 }
-                idx = 0
-                path = this.contextNodeSelected.path.concat(0)
                 newNode.parentId = this.contextNodeSelected._id
                 newNode.title = 'New ' + this.getLevelText(insertLevel)
                 newNode.isLeaf = (insertLevel < this.taskLevel) ? false : true
@@ -277,11 +275,6 @@ export default {
             newNode.data.team = team
             // overwrite the title when creating a new req area
             if (newNode.parentId === AREA_PRODUCTID) newNode.title = 'New requirement area'
-            // add the location values
-            newNode.path = path
-            newNode.pathStr = JSON.stringify(path)
-            newNode.ind = idx
-            newNode.level = path.length
 
             if (this.haveWritePermission[insertLevel]) {
                 const ids = this.createId()
@@ -352,7 +345,7 @@ export default {
                     type: 'undoNewNode',
                     newNode
                 }
-                this.$store.state.changeHistory.unshift(entry)
+                this.addToChangeHistory(entry)
             } else {
                 this.showLastEvent("Sorry, your assigned role(s) disallow you to create new items of this type", WARNING)
             }
@@ -402,7 +395,7 @@ export default {
                     type: 'undoSetDependency',
                     nodeWithDependencies
                 }
-                this.$store.state.changeHistory.unshift(entry)
+                this.addToChangeHistory(entry)
             } else {
                 // save the id of the node the dependencies will be attached to
                 this.nodeWithDependenciesId = this.contextNodeSelected._id

@@ -7,6 +7,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
+const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 var lastSelectedNode = null
 var draggableNodes = []
@@ -22,8 +23,8 @@ import { utilities } from '../../mixins/utilities.js'
 */
 function updatePaths(parentPath, siblings, leafLevel, insertInd = 0, parentId = undefined, productId = undefined) {
 	for (let i = insertInd; i < siblings.length; i++) {
-		const sibling = siblings[i]
 		const newPath = parentPath.concat(i)
+		const sibling = siblings[i]
 		if (parentId) sibling.parentId = parentId
 		if (productId) sibling.productId = productId
 		// if moving to another product show the inserted nodes in the new product
@@ -352,7 +353,7 @@ export default {
 					this.stopDrag()
 					return
 				}
-				// prevent drag to other product when not in reqarea view
+				// prevent drag to other product when not in coarse product view
 				if (this.$store.state.currentView != 'coarseProduct' && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
 					this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', WARNING)
 					this.stopDrag()
@@ -392,7 +393,6 @@ export default {
 
 		onToggleHandler(event, node) {
 			if (!this.allowToggleBranch) return;
-			console.log('onToggleHandler: node.isExpanded = ' + node.isExpanded + ' title = ' + node.title)
 			node.isExpanded = !node.isExpanded
 			if (node.isExpanded) this.unhideDescendants(node)
 			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'expanded' : 'collapsed'}`, INFO)
@@ -587,14 +587,14 @@ export default {
 			traverse(cb, nodeModels)
 		},
 
-		getNodeById(id) {
+		getNodeById(id, nodeModels = this.currentValue) {
 			let resultNode = null
 			this.traverseModels((nm) => {
 				if (nm._id === id) {
 					resultNode = nm
 					return false
 				}
-			})
+			}, nodeModels)
 			return resultNode
 		},
 
@@ -645,9 +645,55 @@ export default {
 			})
 		},
 
-		/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. */
+		copyNode(node) {
+			let copiedNode = {}
+			for (let k of Object.keys(node)) {
+				if (k === 'isSelected') {
+					copiedNode.isSelected = false
+				} else copiedNode[k] = node[k]
+			}
+			return copiedNode
+		},
+
+		fiterCopyNodes(nodes, maxLevel) {
+			const retNodes = []
+			for (let n of nodes) {
+				if (n.level <= maxLevel) {
+					retNodes.push(this.copyNode(n))
+				}
+			}
+			return retNodes
+		},
+
+		/* A wrapper to insert nodes in both tree models if loaded */
 		insert(cursorPosition, nodes, calculatePrios = true) {
-			const destNodeModel = cursorPosition.nodeModel
+			if (this.$store.state.c_treeNodes.length > 0) {
+				const cp = {
+					nodeModel: this.getNodeById(cursorPosition.nodeModel._id, this.$store.state.c_treeNodes),
+					placement: cursorPosition.placement
+				}
+				let c_nodes
+				if (this.$store.state.currentView === 'coarseProduct') {
+					c_nodes = nodes
+				} else c_nodes = this.fiterCopyNodes(nodes, FEATURELEVEL)
+				if (c_nodes.length > 0) this.insertInTree(cp, c_nodes, FEATURELEVEL, this.$store.state.c_treeNodes, calculatePrios)
+			}
+			if (this.$store.state.d_treeNodes.length > 0) {
+				const cp = {
+					nodeModel: this.getNodeById(cursorPosition.nodeModel._id, this.$store.state.d_treeNodes),
+					placement: cursorPosition.placement
+				}
+				let d_nodes
+				if (this.$store.state.currentView === 'detailProduct') {
+					d_nodes = nodes
+				} else d_nodes = this.fiterCopyNodes(nodes, TASKLEVEL)
+				if (d_nodes.length > 0) this.insertInTree(cp, d_nodes, TASKLEVEL, this.$store.state.d_treeNodes, calculatePrios)
+			}
+		},
+
+		/* Insert the nodes in the tree model inside, after or before the node at cursorposition. */
+		insertInTree(cursorPosition, nodes, leafLevel, treeModel, calculatePrios = true) {
+			const destNodeModel = this.getNodeById(cursorPosition.nodeModel._id, treeModel)
 			const productId = destNodeModel.productId
 			let predecessorNode
 			let successorNode
@@ -660,11 +706,11 @@ export default {
 				successorNode = destSiblings[nodes.length] || null
 				if (destNodeModel.path.length === 1) {
 					// inserting a product
-					updatePaths(destNodeModel.path, destSiblings, this.$store.getters.leafLevel)
-				} else updatePaths(destNodeModel.path, destSiblings, this.$store.getters.leafLevel, 0, parentId, productId)
+					updatePaths(destNodeModel.path, destSiblings, leafLevel)
+				} else updatePaths(destNodeModel.path, destSiblings, leafLevel, 0, parentId, productId)
 			} else {
 				// insert before or after the cursor position
-				const destSiblings = this.getNodeSiblings(destNodeModel.path)
+				const destSiblings = this.getNodeSiblings(destNodeModel.path, treeModel)
 				const parentId = destNodeModel.parentId
 				const parentPath = destNodeModel.path.slice(0, -1)
 				const insertInd = cursorPosition.placement === 'before' ? destNodeModel.ind : destNodeModel.ind + 1
@@ -673,8 +719,8 @@ export default {
 				successorNode = destSiblings[insertInd + nodes.length] || null
 				if (parentPath.length === 1) {
 					// inserting a product
-					updatePaths(parentPath, destSiblings, this.$store.getters.leafLevel, insertInd)
-				} else updatePaths(parentPath, destSiblings, this.$store.getters.leafLevel, insertInd, parentId, productId)
+					updatePaths(parentPath, destSiblings, leafLevel, insertInd)
+				} else updatePaths(parentPath, destSiblings, leafLevel, insertInd, parentId, productId)
 			}
 			if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 		},
@@ -685,24 +731,53 @@ export default {
 			this.insert(cursorPosition, [node])
 		},
 
-		/* Remove nodes from the tree model. Return true if any node was removed */
+		/* A wrapper to remove nodes in both tree models if loaded */
 		remove(nodes) {
+			if (this.$store.state.c_treeNodes.length > 0) {
+				const c_nodes = []
+				for (let n of nodes) {
+					const c_node = this.getNodeById(n._id, this.$store.state.c_treeNodes)
+					if (c_node) c_nodes.push(c_node)
+				}
+				this.removeInTree(c_nodes, FEATURELEVEL, this.$store.state.c_treeNodes)
+			}
+			if (this.$store.state.d_treeNodes.length > 0) {
+				const d_nodes = []
+				for (let n of nodes) {
+					const d_node = this.getNodeById(n._id, this.$store.state.d_treeNodes)
+					if (d_node) d_nodes.push(d_node)
+				}
+				this.removeInTree(d_nodes, TASKLEVEL, this.$store.state.d_treeNodes)
+			}
+		},
+
+		/* Remove nodes from the tree model. Return true if any node was removed */
+		removeInTree(nodes, leafLevel, treeModel) {
 			let success = false
 			for (let node of nodes) {
-				const siblings = this.getNodeSiblings(node.path)
+				const siblings = this.getNodeSiblings(node.path, treeModel)
 				if (siblings.length > 0) {
 					const removeInd = node.ind
 					const parentPath = node.path.slice(0, -1)
 					siblings.splice(removeInd, 1)
-					updatePaths(parentPath, siblings, this.$store.getters.leafLevel, removeInd)
+					updatePaths(parentPath, siblings, leafLevel, removeInd)
 					success = true
 				}
 			}
 			return success
 		},
 
-
+		/* A wrapper to move back the nodes in both tree models if loaded */
 		moveBack(entry) {
+			if (this.$store.state.c_treeNodes.length > 0) {
+				this.moveBackInTree(entry, FEATURELEVEL, this.$store.state.c_treeNodes)
+			}
+			if (this.$store.state.d_treeNodes.length > 0) {
+				this.moveBackInTree(entry, TASKLEVEL, this.$store.state.d_treeNodes)
+			}
+		},
+
+		moveBackInTree(entry, leafLevel, treeNodes) {
 			function isRestoredNode(child, nodes) {
 				for (let n of nodes) {
 					if (n._id === child._id) return true
@@ -744,28 +819,28 @@ export default {
 			const restoredTargetChildren = []
 			if (beforeDropStatus.sourceParentId === beforeDropStatus.targetParentId) {
 				for (let id of beforeDropStatus.savedSourceChildrenIds) {
-					const node = this.getNodeById(id)
+					const node = this.getNodeById(id,treeNodes)
 					restoredChildren.push(node)
 				}
-				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId)
+				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId, treeNodes)
 				commonParent.children = restoredChildren
-				updatePaths(commonParent.path, commonParent.children, this.$store.getters.leafLevel)
+				updatePaths(commonParent.path, commonParent.children, leafLevel)
 			} else {
 				for (let id of beforeDropStatus.savedSourceChildrenIds) {
-					const node = this.getNodeById(id)
+					const node = this.getNodeById(id, treeNodes)
 					restoredSourceChildren.push(node)
 				}
-				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId)
+				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId, treeNodes)
 				sourceParent.children = restoredSourceChildren
-				updatePaths(sourceParent.path, sourceParent.children, this.$store.getters.leafLevel, 0, beforeDropStatus.sourceParentId, beforeDropStatus.sourceProductId)
+				updatePaths(sourceParent.path, sourceParent.children, leafLevel, 0, beforeDropStatus.sourceParentId, beforeDropStatus.sourceProductId)
 
 				for (let id of beforeDropStatus.savedTargetChildrenIds) {
-					const node = this.getNodeById(id)
+					const node = this.getNodeById(id, treeNodes)
 					restoredTargetChildren.push(node)
 				}
-				const targetParent = this.getNodeById(beforeDropStatus.targetParentId)
+				const targetParent = this.getNodeById(beforeDropStatus.targetParentId, treeNodes)
 				targetParent.children = restoredTargetChildren
-				updatePaths(targetParent.path, targetParent.children, this.$store.getters.leafLevel, 0, beforeDropStatus.targetParentId, beforeDropStatus.targetProductId)
+				updatePaths(targetParent.path, targetParent.children, leafLevel, 0, beforeDropStatus.targetParentId, beforeDropStatus.targetProductId)
 			}
 			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredChildren)
 			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredSourceChildren)
@@ -787,8 +862,41 @@ export default {
 			return ids
 		},
 
-		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
+		/* A wrapper to move nodes in both tree models if loaded */
 		moveNodes(cursorPosition, nodes) {
+			let c_retVal
+			let d_retVal
+			if (this.$store.state.c_treeNodes.length > 0) {
+				const cp = {
+					nodeModel: this.getNodeById(cursorPosition.nodeModel._id, this.$store.state.c_treeNodes),
+					placement: cursorPosition.placement
+				}
+				const c_nodes = []
+				for (let n of nodes) {
+					const c_node = this.getNodeById(n._id, this.$store.state.c_treeNodes)
+					if (c_node) c_nodes.push(c_node)
+				}
+				c_retVal = this.moveNodesInTree(cp, c_nodes, FEATURELEVEL, this.$store.state.c_treeNodes)
+			}
+			
+			if (this.$store.state.d_treeNodes.length > 0) {
+				const cp = {
+					nodeModel: this.getNodeById(cursorPosition.nodeModel._id, this.$store.state.d_treeNodes),
+					placement: cursorPosition.placement
+				}
+				const d_nodes = []
+				for (let n of nodes) {
+					const d_node = this.getNodeById(n._id, this.$store.state.d_treeNodes)
+					if (d_node) d_nodes.push(d_node)
+				}
+				d_retVal = this.moveNodesInTree(cp, d_nodes, TASKLEVEL, this.$store.state.d_treeNodes)
+			}
+			if (this.$store.state.currentView === 'coarseProduct') return c_retVal
+			if (this.$store.state.currentView === 'detailProduct') return d_retVal
+		},
+
+		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
+		moveNodesInTree(cursorPosition, nodes, leafLevel, treeModel) {
 			// save the status of source and target before move
 			const targetNode = cursorPosition.nodeModel
 			let targetParentId
@@ -821,8 +929,8 @@ export default {
 				savedTargetChildrenIds: this.getChildrenIds(targetParentId)
 			}
 
-			this.remove(nodes)
-			this.insert(cursorPosition, nodes)
+			this.removeInTree(nodes, leafLevel, treeModel)
+			this.insertInTree(cursorPosition, nodes, leafLevel, treeModel)
 			return beforeDropStatus
 		},
 
@@ -915,18 +1023,31 @@ export default {
 		resetFilters(caller, allProducts) {
 			// eslint-disable-next-line no-console
 			console.log('resetFilters is called by ' + caller)
-			if (this.$store.state.filterOn) {
+			if (this.$store.state.currentView === 'coarseProduct' && this.$store.state.c_filterOn) {
 				this.resetTree(allProducts)
 				allProducts ? this.showLastEvent(`Your filter is cleared`, INFO) :
 					this.showLastEvent(`Your filter in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
-				this.$store.state.filterText = FILTERBUTTONTEXT
-				this.$store.state.filterOn = false
+				this.$store.state.c_filterText = FILTERBUTTONTEXT
+				this.$store.state.c_filterOn = false
 			}
-			if (this.$store.state.searchOn) {
+			if (this.$store.state.currentView === 'detailProduct' && this.$store.state.d_filterOn) {
+				this.resetTree(allProducts)
+				allProducts ? this.showLastEvent(`Your filter is cleared`, INFO) :
+					this.showLastEvent(`Your filter in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
+				this.$store.state.d_filterText = FILTERBUTTONTEXT
+				this.$store.state.d_filterOn = false
+			}
+			if (this.$store.state.currentView === 'coarseProduct' && this.$store.state.c_searchOn) {
 				this.resetTree(allProducts)
 				allProducts ? this.showLastEvent(`Your search is cleared`, INFO) :
 					this.showLastEvent(`Your search in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
-				this.$store.state.searchOn = false
+				this.$store.state.c_searchOn = false
+			}
+			if (this.$store.state.currentView === 'detailProduct' && this.$store.state.d_searchOn) {
+				this.resetTree(allProducts)
+				allProducts ? this.showLastEvent(`Your search is cleared`, INFO) :
+					this.showLastEvent(`Your search in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
+				this.$store.state.d_searchOn = false
 			}
 		},
 
@@ -936,7 +1057,8 @@ export default {
 			this.resetTree(ALLPRODUCTS)
 			ALLPRODUCTS ? this.showLastEvent(`Your view is restored`, INFO) :
 				this.showLastEvent(`Your view on product '${this.$store.state.currentProductTitle}' is restored`, INFO)
-			this.$store.state.findIdOn = false
+			if (this.$store.state.currentView === 'coarseProduct') this.$store.state.c_findIdOn = false
+			if (this.$store.state.currentView === 'detailProduct') this.$store.state.d_findIdOn = false
 		},
 
 		/* Show the path from productlevel to and including the node */
@@ -1064,7 +1186,7 @@ export default {
 			return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 		},
 
-		/* If a feature belongs to a req area set that area also to its descendents */
+		/* If a feature belongs to a req area assign that area also to its descendents */
 		setDescendentsReqArea() {
 			let reqArea = null
 			this.traverseModels((nm) => {

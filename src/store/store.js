@@ -56,17 +56,19 @@ export default new Vuex.Store({
 		currentProductId: null,
 		currentProductTitle: "",
 		// loading
-		treeNodes: [],
+		c_treeNodes: [],
+		d_treeNodes: [],
 		// product view
 		reqAreaMapper: {},
 		// req areas view
 		colorMapper: {},
 		reqAreaOptions: [],
 		// view settings
-		currentView: 'detailProduct',
+		currentView: undefined,
 		// product view
 		selectedForView: 'comments',
-		changeHistory: [],
+		c_changeHistory: [],
+		d_changeHistory: [],
 		filterForComment: "",
 		filterForHistory: "",
 		busyRemoving: false,
@@ -97,20 +99,27 @@ export default new Vuex.Store({
 		online: true,
 		userData: {},
 		showHeaderDropDowns: true,
-		skipOnce: true,
 		nodeSelected: null,
+		c_savedNodeSelected: null,
+		d_savedNodeSelected: null,
 		moveOngoing: false,
 		selectNodeOngoing: false,
 		numberOfNodesSelected: 0,
 		lastEvent: '',
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
-		filterText: 'Filter in tree view',
-		filterOn: false,
-		findIdOn: false,
-		shortId: '',
-		searchOn: false,
-		keyword: '',
+		c_filterText: 'Filter in tree view',
+		d_filterText: 'Filter in tree view',
+		c_filterOn: false,
+		d_filterOn: false,
+		c_findIdOn: false,
+		d_findIdOn: false,
+		c_shortId: '',
+		d_shortId: '',
+		c_searchOn: false,
+		d_searchOn: false,
+		c_keyword: '',
+		d_keyword: '',
 		cookieAutenticated: false,
 		listenForChangesRunning: false,
 		configData: null,
@@ -203,77 +212,97 @@ export default new Vuex.Store({
 	mutations: {
 		/* Update the currently selected node. Note that not all props are covered */
 		updateNodeSelected(state, payload) {
-			if (payload.newNode) {
-				state.nodeSelected = payload.newNode
-			}
-			const keys = Object.keys(payload)
-			for (let k of keys) {
-				switch (k) {
-					case 'productId':
-						state.nodeSelected.productId = payload.productId
-						break
-					case 'title':
-						state.nodeSelected.title = payload.title
-						break
-					case 'isSelected':
-						state.nodeSelected.isSelected = payload.isSelected
-						break
-					case 'isExpanded':
-						state.nodeSelected.isExpanded = payload.isExpanded
-						break
-					case 'markViolation':
-						state.nodeSelected.markViolation = payload.markViolation
-						break
-					case 'state':
-						state.nodeSelected.data.state = payload.state
-						break
-					case 'reqarea':
-						state.nodeSelected.data.reqarea = payload.reqarea
-						break
-					case 'sprintId':
-						state.nodeSelected.data.sprintId = payload.sprintId
-						break
-					case 'inconsistentState':
-						state.nodeSelected.data.inconsistentState = payload.inconsistentState
-						break
-					case 'team':
-						state.nodeSelected.data.team = payload.team
-						break
-					case 'taskOwner':
-						state.nodeSelected.data.taskOwner = payload.taskOwner
-						break
-					case 'subtype':
-						state.nodeSelected.data.subtype = payload.subtype
-						break
-					case 'reqAreaItemColor':
-						state.nodeSelected.data.reqAreaItemColor = payload.reqAreaItemColor
-						break
-					case 'lastPositionChange':
-						state.nodeSelected.data.lastPositionChange = payload.lastPositionChange
-						break
-					case 'lastStateChange':
-						state.nodeSelected.data.lastStateChange = payload.lastStateChange
-						break
-					case 'lastContentChange':
-						state.nodeSelected.data.lastContentChange = payload.lastContentChange
-						break
-					case 'lastCommentAddition':
-						state.nodeSelected.data.lastCommentAddition = payload.lastCommentAddition
-						break
-					case 'lastAttachmentAddition':
-						state.nodeSelected.data.lastAttachmentAddition = payload.lastAttachmentAddition
-						break
-					case 'lastCommentToHistory':
-						state.nodeSelected.data.lastCommentToHistory = payload.lastCommentToHistory
-						break
-					case 'lastChange':
-						state.nodeSelected.data.lastChange = payload.lastChange
-						break
-					default:
-						// eslint-disable-next-line no-console
-						if (k !== 'newNode') console.log('nodeSelected: cannot update nodeSelected, unknown key = ' + k)
+			function updateNode(nodeToUpdate, changes) {
+				const keys = Object.keys(changes)
+				for (let k of keys) {
+					switch (k) {
+						case 'productId':
+							nodeToUpdate.productId = payload.productId
+							break
+						case 'title':
+							nodeToUpdate.title = payload.title
+							break
+						case 'isSelected':
+							nodeToUpdate.isSelected = payload.isSelected
+							break
+						case 'isExpanded':
+							nodeToUpdate.isExpanded = payload.isExpanded
+							break
+						case 'markViolation':
+							nodeToUpdate.markViolation = payload.markViolation
+							break
+						case 'state':
+							nodeToUpdate.data.state = payload.state
+							break
+						case 'reqarea':
+							nodeToUpdate.data.reqarea = payload.reqarea
+							break
+						case 'sprintId':
+							nodeToUpdate.data.sprintId = payload.sprintId
+							break
+						case 'inconsistentState':
+							nodeToUpdate.data.inconsistentState = payload.inconsistentState
+							break
+						case 'team':
+							nodeToUpdate.data.team = payload.team
+							break
+						case 'taskOwner':
+							nodeToUpdate.data.taskOwner = payload.taskOwner
+							break
+						case 'subtype':
+							nodeToUpdate.data.subtype = payload.subtype
+							break
+						case 'reqAreaItemColor':
+							nodeToUpdate.data.reqAreaItemColor = payload.reqAreaItemColor
+							break
+						case 'lastPositionChange':
+							nodeToUpdate.data.lastPositionChange = payload.lastPositionChange
+							break
+						case 'lastStateChange':
+							nodeToUpdate.data.lastStateChange = payload.lastStateChange
+							break
+						case 'lastContentChange':
+							nodeToUpdate.data.lastContentChange = payload.lastContentChange
+							break
+						case 'lastCommentAddition':
+							nodeToUpdate.data.lastCommentAddition = payload.lastCommentAddition
+							break
+						case 'lastAttachmentAddition':
+							nodeToUpdate.data.lastAttachmentAddition = payload.lastAttachmentAddition
+							break
+						case 'lastCommentToHistory':
+							nodeToUpdate.data.lastCommentToHistory = payload.lastCommentToHistory
+							break
+						case 'lastChange':
+							nodeToUpdate.data.lastChange = payload.lastChange
+							break
+						default:
+							// eslint-disable-next-line no-console
+							if (k !== 'newNode') console.log('nodeSelected: cannot update nodeSelected, unknown key = ' + k)
+					}
 				}
 			}
+
+			if (payload.newNode) {
+				state.nodeSelected = payload.newNode
+				// remember the selected node
+				if (state.currentView === 'coarseProduct') state.c_savedNodeSelected = payload.newNode
+				if (state.currentView === 'detailProduct') state.d_savedNodeSelected = payload.newNode
+			}
+			
+			if (state.c_treeNodes.length > 0 && state.d_treeNodes.length > 0) {
+				// update both treemodels
+				if (state.currentView === 'coarseProduct') {
+					const d_node = window.slVueTree.getNodeById(state.nodeSelected._id, state.d_treeNodes)
+					updateNode(d_node, payload)
+					updateNode(state.nodeSelected, payload)
+				}
+				if (state.currentView === 'detailProduct') {
+					const c_node = window.slVueTree.getNodeById(state.nodeSelected._id, state.c_treeNodes)
+					updateNode(c_node, payload)
+					updateNode(state.nodeSelected, payload)
+				}
+			} else updateNode(state.nodeSelected, payload)
 		},
 
 		/*
@@ -411,7 +440,8 @@ export default new Vuex.Store({
 			state.isProductAssigned = false
 			state.myProductOptions = []
 			state.userData = {}
-			state.changeHistory = []
+			state.c_changeHistory = []
+			state.d_changeHistory = []
 			state.showHeaderDropDowns = true
 			state.lastEvent = ''
 			state.configData = null

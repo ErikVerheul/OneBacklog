@@ -106,7 +106,7 @@ const actions = {
                 if (level === 1) {
                     state.docsCount++
                     // initialize with the root document
-                    rootState.treeNodes = [
+                    rootState.c_treeNodes = [
                         {
                             path: [0],
                             pathStr: '[0]',
@@ -136,7 +136,7 @@ const actions = {
                             }
                         },
                     ]
-                    parentNodes.root = rootState.treeNodes[0]
+                    parentNodes.root = rootState.c_treeNodes[0]
                     state.insertedCount++
                     continue
                 }
@@ -208,6 +208,7 @@ const actions = {
 
                     if (_id === rootState.currentDefaultProductId) {
                         rootState.nodeSelected = newNode
+                        rootState.c_savedNodeSelected = newNode
                         // must set last selected node as this node is selected programmatically
                         window.slVueTree.setLastSelectedNode(newNode)
                     }

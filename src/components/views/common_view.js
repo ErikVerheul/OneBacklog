@@ -29,7 +29,6 @@ export default {
       userStorySubtype: 0,
       spikeSubtype: 1,
       defectSubtype: 2,
-      shortId: "",
       newDescription: '',
       newAcceptance: '',
       selectedNodesTitle: '',
@@ -84,8 +83,7 @@ export default {
 
     squareText() {
       if (this.$store.state.online) {
-        if (!this.$store.state.skipOnce) this.showLastEvent("You are online again", INFO)
-        this.$store.state.skipOnce = false
+        this.showLastEvent("You are online again", INFO)
         return 'sync'
       } else {
         this.showLastEvent("You are offline. Restore the connection or wait to continue", WARNING)
@@ -159,16 +157,6 @@ export default {
       }
     },
 
-    resetFindId() {
-      this.shortId = ''
-      window.slVueTree.resetFindOnId('resetFindId')
-    },
-
-    resetSearchTitles() {
-      this.$store.state.keyword = ''
-      window.slVueTree.resetFilters('resetSearchTitles')
-    },
-
     patchTitle(node) {
       let patch = ''
       if (node.dependencies && node.dependencies.length > 0) patch = '▲ '
@@ -203,7 +191,8 @@ export default {
     },
 
     onSetMyFilters() {
-      if (this.$store.state.filterOn) {
+      if (this.$store.state.currentView === 'coarseProduct' && this.$store.state.c_filterOn ||
+        this.$store.state.currentView === 'detailProduct' && this.$store.state.d_filterOn) {
         window.slVueTree.resetFilters('onSetMyFilters')
         window.slVueTree.resetFindOnId('onSetMyFilters')
       } else {
@@ -218,15 +207,18 @@ export default {
     },
 
     searchInTitles() {
+      let keyWord = ''
+      if (this.$store.state.currentView === 'coarseProduct') keyWord = this.$store.state.c_keyword
+      if (this.$store.state.currentView === 'detailProduct') keyWord = this.$store.state.d_keyword
       // cannot search on empty string
-      if (this.$store.state.keyword === '') return
+      if (keyWord === '') return
 
       // reset the other selections first
       window.slVueTree.resetFilters('searchInTitles')
       window.slVueTree.resetFindOnId('searchInTitles')
       let count = 0
       window.slVueTree.traverseModels((nodeModel) => {
-        if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
+        if (nodeModel.title.toLowerCase().includes(keyWord.toLowerCase())) {
           window.slVueTree.showPathToNode(nodeModel)
           // mark if selected
           nodeModel.isHighlighted = true
@@ -247,12 +239,19 @@ export default {
       let s
       count === 1 ? s = 'title matches' : s = 'titles match'
       this.showLastEvent(`${count} item ${s} your search in product '${this.$store.state.currentProductTitle}'`, INFO)
-      this.$store.state.searchOn = true
+      if (this.$store.state.currentView === 'coarseProduct') this.$store.state.c_searchOn = true
+      if (this.$store.state.currentView === 'detailProduct') this.$store.state.d_searchOn = true
       // window.slVueTree.showVisibility('searchInTitles', FEATURELEVEL)
     },
 
+    getLastChangeHistory() {
+      if (this.$store.state.currentView === 'coarseProduct') return this.$store.state.c_changeHistory.splice(0, 1)[0]
+      if (this.$store.state.currentView === 'detailProduct') return this.$store.state.d_changeHistory.splice(0, 1)[0]
+      return undefined
+    },
+
     onUndoEvent() {
-      const entry = this.$store.state.changeHistory.splice(0, 1)[0]
+      const entry = this.getLastChangeHistory()
       switch (entry.type) {
         case 'undoAddSprintIds':
           this.$store.dispatch('removeSprintIds', { itemIds: entry.itemIds, sprintName: entry.sprintName })
@@ -391,7 +390,7 @@ export default {
           break
         case 'undoRemoveSprintIds':
           this.$store.dispatch('addSprintIds', { itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
-        break
+          break
         case 'undoSetDependency':
           {
             const lastDependencyId = entry.nodeWithDependencies.dependencies.pop()
@@ -453,6 +452,11 @@ export default {
       })
     },
 
+    addToChangeHistory(entry) {
+      if (this.$store.state.currentView === 'coarseProduct') this.$store.state.c_changeHistory.unshift(entry)
+      if (this.$store.state.currentView === 'detailProduct') this.$store.state.d_changeHistory.unshift(entry)
+    },
+
     /* Tree and database update methods */
     updateDescription() {
       // skip update when not changed
@@ -473,7 +477,7 @@ export default {
             type: 'undoDescriptionChange',
             oldDescription
           }
-          this.$store.state.changeHistory.unshift(entry)
+          this.addToChangeHistory(entry)
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item", WARNING)
         }
@@ -499,7 +503,7 @@ export default {
             type: 'undoAcceptanceChange',
             oldAcceptance
           }
-          this.$store.state.changeHistory.unshift(entry)
+          this.addToChangeHistory(entry)
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item", WARNING)
         }
@@ -524,7 +528,7 @@ export default {
               type: 'undoTsSizeChange',
               oldTsSize: this.$store.state.currentDoc.tssize
             }
-            this.$store.state.changeHistory.unshift(entry)
+            this.addToChangeHistory(entry)
           } else {
             let sizes = ''
             for (let i = 0; i < sizeArray.length - 1; i++) {
@@ -548,7 +552,7 @@ export default {
             el.value = '?'
             return
           }
-          this.$store.state.nodeSelected.data.lastChange = now
+          this.$store.commit('updateNodeSelected', { lastChange: now })
           this.$store.dispatch('setStoryPoints', {
             'newPoints': parseInt(el.value),
             'timestamp': now
@@ -558,7 +562,7 @@ export default {
             type: 'undoStoryPointsChange',
             oldStoryPoints
           }
-          this.$store.state.changeHistory.unshift(entry)
+          this.addToChangeHistory(entry)
         } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story points of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)
@@ -585,7 +589,7 @@ export default {
             type: 'undoPersonHoursChange',
             oldPersonHours
           }
-          this.$store.state.changeHistory.unshift(entry)
+          this.addToChangeHistory(entry)
         } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story person hours of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item", WARNING)
@@ -633,7 +637,7 @@ export default {
           oldState,
           node: vm.$store.state.nodeSelected
         }
-        vm.$store.state.changeHistory.unshift(entry)
+        vm.addToChangeHistory(entry)
       }
 
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
@@ -673,7 +677,7 @@ export default {
           type: 'undoTitleChange',
           oldTitle
         }
-        this.$store.state.changeHistory.unshift(entry)
+        this.addToChangeHistory(entry)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the title of this item", WARNING)
       }
@@ -689,7 +693,7 @@ export default {
         // this info is the same for all nodes moved
         type: 'move',
         sourceProductId: beforeDropStatus.sourceProductId,
-        sourceParentId : beforeDropStatus.sourceParentId,
+        sourceParentId: beforeDropStatus.sourceParentId,
         sourceLevel: beforeDropStatus.sourceLevel,
         levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
         targetProductId: beforeDropStatus.targetProductId,
@@ -716,7 +720,7 @@ export default {
         type: 'undoMove',
         beforeDropStatus
       }
-      this.$store.state.changeHistory.unshift(entry)
+      this.addToChangeHistory(entry)
 
       for (let n of draggingNodes) {
         n.data.lastPositionChange = Date.now()

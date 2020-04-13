@@ -11,32 +11,29 @@ import tosprint from './d_tosprint.vue'
 const INFO = 0
 const WARNING = 1
 const SHORTKEYLENGTH = 5
-const FILTERBUTTONTEXT = 'Filter in tree view'
+var returning = false
 
 export default {
   extends: CommonView,
 
   beforeCreate() {
-    this.$store.state.treeNodes = []
-    this.$store.state.skipOnce = true
     this.$store.state.currentView = 'detailProduct'
-    this.$store.state.changeHistory = []
-    this.$store.state.loadproducts.docsCount = 0
-    this.$store.state.loadproducts.insertedCount = 0
-    this.$store.state.loadproducts.orphansCount = 0
-    this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
-    // reset filters and searches
-    this.$store.state.filterText = FILTERBUTTONTEXT
-    this.$store.state.filterOn = false
-    this.$store.state.searchOn = false
-    this.$store.state.findIdOn = false
-    this.$store.dispatch('loadCurrentProduct')
+    if (this.$store.state.d_treeNodes.length === 0) {     
+      this.$store.dispatch('loadCurrentProduct')
+    } else {
+      returning = true
+      if (this.$store.state.d_savedNodeSelected) this.$store.state.nodeSelected = this.$store.state.d_savedNodeSelected
+    }
+  },
+
+  created() {
+    this.sprints = this.getCurrentAndNextSprint()
   },
 
   mounted() {
+    if (returning) this.showLastEvent(`Returning to the Products detail view`, INFO)
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
-    this.sprints = this.getCurrentAndNextSprint()
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;
@@ -60,7 +57,7 @@ export default {
         // check for valid input and convert to lowercase
         if (shortIdCheck) {
           window.slVueTree.resetFilters('findItemOnId')
-          this.findItemOnId(this.shortId.toLowerCase())
+          this.findItemOnId(this.$store.state.d_shortId.toLowerCase())
         }
       }
     })
@@ -107,7 +104,7 @@ export default {
             type: 'undoSelectedPbiType',
             oldPbiType: this.$store.state.currentDoc.subtype
           }
-          this.$store.state.changeHistory.unshift(entry)
+          this.$store.state.d_changeHistory.unshift(entry)
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type", WARNING)
         }
@@ -197,6 +194,16 @@ export default {
       if (node.data.reqarea) this.showLastEvent(`This item belongs to requirement area '${this.$store.state.reqAreaMapper[node.data.reqarea]}'`, INFO)
     },
 
+    resetFindId() {
+      this.$store.state.d_shortId = ''
+      window.slVueTree.resetFindOnId('resetFindId')
+    },
+
+    resetSearchTitles() {
+      this.$store.state.d_keyword = ''
+      window.slVueTree.resetFilters('resetSearchTitles')
+    },
+
     findItemOnId(shortId) {
       let node
       window.slVueTree.traverseModels((nodeModel) => {
@@ -206,7 +213,7 @@ export default {
         }
       })
       if (node) {
-        this.$store.state.findIdOn = true
+        this.$store.state.d_findIdOn = true
         // if the user clicked on a node of another product
         if (this.$store.state.currentProductId !== node.productId) {
           // clear any outstanding filters

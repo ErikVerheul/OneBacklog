@@ -64,8 +64,8 @@ export default {
       count === 1 ? s = 'title matches' : s = 'titles match'
       this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
 
-      this.$store.state.filterText = 'Clear filter'
-      this.$store.state.filterOn = true
+      this.$store.state.c_filterText = 'Clear filter'
+      this.$store.state.c_filterOn = true
       // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
     }
   }

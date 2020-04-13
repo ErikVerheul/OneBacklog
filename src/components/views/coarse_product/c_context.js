@@ -191,7 +191,7 @@ export default {
           entry.removedProductRoles = this.$store.state.userData.myProductsRoles[selectedNode._id]
         }
 
-        this.$store.state.changeHistory.unshift(entry)
+        this.$store.state.c_changeHistory.unshift(entry)
         // before removal select the predecessor or successor of the removed node (sibling or parent)
         const prevNode = window.slVueTree.getPreviousNode(selectedNode.path)
         let nowSelectedNode = prevNode

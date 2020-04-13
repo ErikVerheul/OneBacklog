@@ -103,7 +103,7 @@ const mutations = {
             const sprintId = item.value[11]
             // initialize with the root document
             if (level === 1) {
-                rootState.treeNodes = [
+                rootState.d_treeNodes = [
                     {
                         path: [0],
                         pathStr: '[0]',
@@ -133,7 +133,7 @@ const mutations = {
                         }
                     },
                 ]
-                parentNodes.root = rootState.treeNodes[0]
+                parentNodes.root = rootState.d_treeNodes[0]
                 state.docsCount++
                 state.insertedCount++
                 continue
@@ -217,6 +217,7 @@ const mutations = {
                 parentNodes[_id] = newNode
                 if (_id === rootState.currentDefaultProductId) {
                     rootState.nodeSelected = newNode
+                    rootState.d_savedNodeSelected = newNode
                     // must set last selected node as this node is selected programmatically
                     window.slVueTree.setLastSelectedNode(newNode)
                 }

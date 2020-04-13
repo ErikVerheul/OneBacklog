@@ -4,18 +4,18 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-nav-form>
-          <b-button class="m-1" v-show="$store.state.changeHistory.length > 0 && !$store.state.busyRemoving" @click="onUndoEvent()">Undo</b-button>
-          <b-button class="m-1" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
+          <b-button class="m-1" v-show="$store.state.d_changeHistory.length > 0 && !$store.state.busyRemoving" @click="onUndoEvent()">Undo</b-button>
+          <b-button class="m-1" @click="onSetMyFilters()">{{ $store.state.d_filterText }}</b-button>
           <div class="divider"/>
           <b-input-group>
-            <b-form-input id="findItemOnId" v-model="shortId" placeholder="Find on Id"></b-form-input>
+            <b-form-input id="findItemOnId" v-model="$store.state.d_shortId" placeholder="Find on Id"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetFindId" variant="seablue" type="reset">x</b-button>
             </b-input-group-append>
           </b-input-group>
           <div class="divider"/>
           <b-input-group>
-            <b-form-input id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></b-form-input>
+            <b-form-input id="searchInput" v-model="$store.state.d_keyword" placeholder="Search in titles"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetSearchTitles" variant="seablue" type="reset">x</b-button>
             </b-input-group-append>
@@ -99,7 +99,7 @@
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
           <sl-vue-tree
-            :value="$store.state.treeNodes"
+            :value="$store.state.d_treeNodes"
             ref="slVueTree"
             :allow-multiselect="true"
             @nodeselected="onNodeSelect"

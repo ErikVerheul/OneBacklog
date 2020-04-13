@@ -11,31 +11,25 @@ const INFO = 0
 const WARNING = 1
 const SHORTKEYLENGTH = 5
 const ALLPRODUCTS = true
-const FILTERBUTTONTEXT = 'Filter in tree view'
 const EPICLEVEL = 3
+var returning = false
 
 export default {
 
   beforeCreate() {
-    this.$store.state.treeNodes = []
-    this.$store.state.skipOnce = true
     this.$store.state.currentView = 'coarseProduct'
-    this.$store.state.changeHistory = []
-    this.$store.state.loadreqareas.docsCount = 0
-    this.$store.state.loadreqareas.insertedCount = 0
-    this.$store.state.loadreqareas.orphansCount = 0
-    this.$store.state.loadreqareas.orphansFound = { userData: null, orphans: [] }
-    // reset filters and searches
-    this.$store.state.filterText = FILTERBUTTONTEXT
-    this.$store.state.filterOn = false
-    this.$store.state.searchOn = false
-    this.$store.state.findIdOn = false
-    this.$store.dispatch('getAllItems')
+    if (this.$store.state.c_treeNodes.length === 0) {     
+      this.$store.dispatch('getAllItems')
+    } else {
+      returning = true
+      if (this.$store.state.c_savedNodeSelected) this.$store.state.nodeSelected = this.$store.state.c_savedNodeSelected
+    }
   },
 
   extends: CommonView,
 
   mounted() {
+    if (returning) this.showLastEvent(`Returning to the Products overview`, INFO)
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
 
@@ -61,7 +55,7 @@ export default {
         // check for valid input and convert to lowercase
         if (shortIdCheck) {
           window.slVueTree.resetFilters('findItemOnId', ALLPRODUCTS)
-          this.findItemOnId(this.shortId.toLowerCase())
+          this.findItemOnId(this.$store.state.c_shortId.toLowerCase())
         }
       }
     })
@@ -169,6 +163,16 @@ export default {
       this.createColorMapper()
     },
 
+    resetFindId() {
+      this.$store.state.c_shortId = ''
+      window.slVueTree.resetFindOnId('resetFindId')
+    },
+
+    resetSearchTitles() {
+      this.$store.state.c_keyword = ''
+      window.slVueTree.resetFilters('resetSearchTitles')
+    },
+
     findItemOnId(shortId) {
       let node
       window.slVueTree.traverseModels((nodeModel) => {
@@ -178,7 +182,7 @@ export default {
         }
       })
       if (node) {
-        this.$store.state.findIdOn = true
+        this.$store.state.c_findIdOn = true
         window.slVueTree.collapseTree(ALLPRODUCTS)
 
         this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
