@@ -271,8 +271,9 @@ export default {
                 sprintId = this.contextNodeSelected.sprintId
                 newNode.sprintId = sprintId
             }
-
             newNode.data.team = team
+            // set the level
+            newNode.level = insertLevel
             // overwrite the title when creating a new req area
             if (newNode.parentId === AREA_PRODUCTID) newNode.title = 'New requirement area'
 
