@@ -168,7 +168,7 @@ const actions = {
 					if (coarseProductLoaded || detailProductLoaded) {
 						const node = window.slVueTree.getNodeById(doc._id)
 						// process comments
-						if (doc.comments[0].distributeEvent && (!lastHistObj.distributed || doc.comments[0].timestamp > lastHistObj.timestamp)) {
+						if (doc.comments[0].distributeEvent && (!lastHistObj.distributed || doc.comments[0].timestamp > lastHistoryTimestamp)) {
 							const commentsEvent = Object.keys(doc.comments[0])[0]
 							reportOddTimestamp(doc.comments[0].timestamp, commentsEvent, doc._id)
 							switch (commentsEvent) {
@@ -190,7 +190,7 @@ const actions = {
 							dispatch('doLog', { event: msg, level: WARNING })
 							continue
 						}
-						reportOddTimestamp(lastHistObj.timestamp, histEvent, doc._id)
+						reportOddTimestamp(lastHistoryTimestamp, histEvent, doc._id)
 						// process other events for tree views
 						switch (histEvent) {
 							case 'acceptanceEvent':
@@ -202,7 +202,7 @@ const actions = {
 							case 'commentToHistoryEvent':
 								if (documentInView) {
 									rootState.currentDoc.history = doc.history
-									node.data.lastCommentToHistory = lastHistObj.timestamp
+									node.data.lastCommentToHistory = lastHistoryTimestamp
 								}
 								break
 							case 'createEvent':
