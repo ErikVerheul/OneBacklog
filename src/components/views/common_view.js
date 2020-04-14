@@ -301,10 +301,9 @@ export default {
           this.showLastEvent('Change of item title is undone', INFO)
           break
         case 'undoNewNode':
-          if (window.slVueTree.remove([entry.newNode])) {
-            this.$store.dispatch('removeItemAndDescendents', { 'node': entry.newNode, 'descendantsIds': [] })
-            this.showLastEvent('Item addition is undone', INFO)
-          } else this.showLastEvent('Item was already removed', INFO)
+          window.slVueTree.remove([entry.newNode])
+          this.$store.dispatch('removeItemAndDescendents', { 'node': entry.newNode, 'descendantsIds': [] })
+          this.showLastEvent('Item addition is undone', INFO)
           break
         case 'undoMove':
           {
