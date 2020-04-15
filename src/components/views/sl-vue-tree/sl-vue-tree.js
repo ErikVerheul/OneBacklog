@@ -91,7 +91,6 @@ export default {
 	data() {
 		return {
 			selectedNodes: [],
-			lastSelectedNode: null,
 			draggableNodes: [],
 			nodeToDeselect: null,
 			rootCursorPosition: null,
@@ -171,7 +170,6 @@ export default {
 			this.traverseModels((nm) => {
 				if (nm.isSelected) {
 					this.selectedNodes.push(nm)
-					this.lastSelectedNode = nm
 				}
 			}, this.currentValue)
 		},
@@ -237,11 +235,11 @@ export default {
 		select(cursorPosition, event) {
 			this.lastSelectCursorPosition = cursorPosition
 			const selNode = cursorPosition.nodeModel
+			const lastSelectedNode = this.selectedNodes.slice(-1)
 			this.preventDrag = false
 			// shift-select mode is allowed only if nodes are above productlevel (epics, features and higher) and on the same level
-			if (!(selNode.level > PRODUCTLEVEL && this.lastSelectedNode && selNode.level === this.lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
+			if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode[0] && selNode.level === lastSelectedNode[0].level && this.allowMultiselect && event && event.shiftKey)) {
 				// single selection mode: unselect all currently selected nodes, clear selectedNodes array
-				if (this.lastSelectedNode) this.lastSelectedNode.isSelected = false
 				if (this.nodeToDeselect) this.nodeToDeselect.isSelected = false
 				for (let n of this.selectedNodes) n.isSelected = false
 				this.selectedNodes = []
@@ -249,7 +247,6 @@ export default {
 			// select the clicked node if allowed
 			if (selNode.isSelectable) {
 				selNode.isSelected = selNode.isSelectable
-				this.lastSelectedNode = selNode
 				this.selectedNodes.push(selNode)
 				this.emitSelect(this.selectedNodes, event)
 			}
@@ -260,12 +257,10 @@ export default {
 			if (selNode === null) return
 
 			// single selection mode: unselect all currently selected nodes, clear this.selectedNodes array and select the clicked node
-			if (this.lastSelectedNode) this.lastSelectedNode.isSelected = false
 			if (this.nodeToDeselect) this.nodeToDeselect.isSelected = false
 			for (let n of this.selectedNodes) n.isSelected = false
 			this.selectedNodes = [selNode]
 			selNode.isSelected = selNode.isSelectable
-			this.lastSelectedNode = selNode
 		},
 
 		onMousemoveHandler(event) {
