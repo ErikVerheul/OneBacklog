@@ -301,6 +301,7 @@ export default {
           this.showLastEvent('Change of item title is undone', INFO)
           break
         case 'undoNewNode':
+          this.$store.commit('updateNodeSelected', { newNode: entry.prevNode, isSelected: true })
           window.slVueTree.remove([entry.newNode])
           this.$store.dispatch('removeItemAndDescendents', { 'node': entry.newNode, 'descendantsIds': [] })
           this.showLastEvent('Item addition is undone', INFO)

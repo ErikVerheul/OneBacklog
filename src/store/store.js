@@ -100,8 +100,6 @@ export default new Vuex.Store({
 		userData: {},
 		showHeaderDropDowns: true,
 		nodeSelected: null,
-		c_savedNodeSelected: null,
-		d_savedNodeSelected: null,
 		moveOngoing: false,
 		selectNodeOngoing: false,
 		numberOfNodesSelected: 0,
@@ -285,13 +283,11 @@ export default new Vuex.Store({
 
 			if (payload.newNode) {
 				state.nodeSelected = payload.newNode
-				// remember the selected node
-				if (state.currentView === 'coarseProduct') state.c_savedNodeSelected = payload.newNode
-				if (state.currentView === 'detailProduct') state.d_savedNodeSelected = payload.newNode
 			}
-			
+			updateNode(state.nodeSelected, payload)
 			if (state.c_treeNodes.length > 0 && state.d_treeNodes.length > 0) {
-				// update both treemodels
+				// update the other tree models but ignore the selection of the node
+				delete payload.isSelected
 				if (state.currentView === 'coarseProduct') {
 					const d_node = window.slVueTree.getNodeById(state.nodeSelected._id, state.d_treeNodes)
 					updateNode(d_node, payload)
@@ -302,7 +298,7 @@ export default new Vuex.Store({
 					updateNode(c_node, payload)
 					updateNode(state.nodeSelected, payload)
 				}
-			} else updateNode(state.nodeSelected, payload)
+			}
 		},
 
 		/*
@@ -330,7 +326,7 @@ export default new Vuex.Store({
 						state.currentDoc.shortId = payload.shortId
 						break
 					case 'productId':
-						state.nodeSelected.productId = payload.productId
+						state.currentDoc.productId = payload.productId
 						break
 					case 'parentId':
 						state.currentDoc.parentId = payload.parentId

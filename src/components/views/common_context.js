@@ -144,7 +144,7 @@ export default {
             // unselect the node that was clicked before the insert
             this.contextNodeSelected.isSelected = false
             // insert the new node in the tree and assign the priority to this node
-            window.slVueTree.insertSingle(insertPosition, newNode)
+            window.slVueTree.insert(insertPosition, [newNode])
             // and select the new node
             this.$store.commit('updateNodeSelected', { newNode })
 
@@ -199,7 +199,8 @@ export default {
             // create an entry for undoing the change in a last-in first-out sequence
             const entry = {
                 type: 'undoNewNode',
-                newNode
+                newNode,
+                prevNode
             }
             this.addToChangeHistory(entry)
         },
@@ -290,7 +291,7 @@ export default {
                     this.contextNodeSelected.isSelected = false
                 }
                 // insert the new node in the tree
-                window.slVueTree.insertSingle(newNodeLocation, newNode)
+                window.slVueTree.insert(newNodeLocation, [newNode])
                 // and select the new node
                 this.$store.commit('updateNodeSelected', { newNode })
                 this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
@@ -344,7 +345,8 @@ export default {
                 // create an entry for undoing the change in a last-in first-out sequence
                 const entry = {
                     type: 'undoNewNode',
-                    newNode
+                    newNode,
+                    prevNode: this.contextNodeSelected
                 }
                 this.addToChangeHistory(entry)
             } else {

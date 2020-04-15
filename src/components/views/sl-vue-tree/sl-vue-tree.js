@@ -92,7 +92,6 @@ export default {
 		return {
 			selectedNodes: [],
 			draggableNodes: [],
-			nodeToDeselect: null,
 			rootCursorPosition: null,
 			mouseIsDown: false,
 			isDragging: false,
@@ -240,13 +239,12 @@ export default {
 			// shift-select mode is allowed only if nodes are above productlevel (epics, features and higher) and on the same level
 			if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode[0] && selNode.level === lastSelectedNode[0].level && this.allowMultiselect && event && event.shiftKey)) {
 				// single selection mode: unselect all currently selected nodes, clear selectedNodes array
-				if (this.nodeToDeselect) this.nodeToDeselect.isSelected = false
 				for (let n of this.selectedNodes) n.isSelected = false
 				this.selectedNodes = []
 			}
 			// single and multi selection: select the clicked node if allowed
 			if (selNode.isSelectable) {
-				selNode.isSelected = true
+				this.$store.commit('updateNodeSelected', { newNode: selNode, isSelected: true })
 				this.selectedNodes.push(selNode)
 				this.emitSelect(this.selectedNodes, event)
 			}
@@ -258,10 +256,9 @@ export default {
 
 			if (selNode.isSelectable) {
 				// single selection mode: unselect all currently selected nodes, clear this.selectedNodes array and select the fetched node
-				if (this.nodeToDeselect) this.nodeToDeselect.isSelected = false
 				for (let n of this.selectedNodes) n.isSelected = false
 				this.selectedNodes = [selNode]
-				selNode.isSelected = true
+				this.$store.commit('updateNodeSelected', { newNode: selNode, isSelected: true })
 			}
 		},
 
@@ -732,12 +729,6 @@ export default {
 			if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 
-		/* Insert the node and save it so that it is deselected on the next select */
-		insertSingle(position, node) {
-			this.nodeToDeselect = node
-			this.insert(position, [node])
-		},
-
 		/* A wrapper to remove nodes in both tree models if loaded */
 		remove(nodes) {
 			if (this.$store.state.c_treeNodes.length > 0) {
@@ -852,12 +843,6 @@ export default {
 			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredChildren)
 			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredSourceChildren)
 			if (restoredTargetChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredTargetChildren)
-		},
-
-		/* Remove the node and save the current selected node so that it is deselected on the next select */
-		removeSingle(node, currentSelectedNode) {
-			this.nodeToDeselect = currentSelectedNode
-			this.remove([node])
 		},
 
 		getChildrenIds(parentId) {
@@ -1005,9 +990,8 @@ export default {
 				}
 				// select the item
 				if (nm.shortId === node.shortId) {
-					nm.isSelected = true
-					// save this node so that it is deselected on the next select
-					this.nodeToDeselect = nm
+					this.selectedNodes = [nm]
+					this.$store.commit('updateNodeSelected', { newNode: nm, isSelected: true })
 					return false
 				}
 			})

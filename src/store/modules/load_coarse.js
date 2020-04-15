@@ -205,11 +205,6 @@ const actions = {
                     state.insertedCount++
                     parentNode.children.push(newNode)
                     parentNodes[_id] = newNode
-
-                    if (_id === rootState.currentDefaultProductId) {
-                        rootState.nodeSelected = newNode
-                        rootState.c_savedNodeSelected = newNode
-                    }
                 } else {
                     state.orphansCount++
                     state.orphansFound.orphans.push({ id: _id, parentId, productId: level })
