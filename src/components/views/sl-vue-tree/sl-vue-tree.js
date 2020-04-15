@@ -244,9 +244,9 @@ export default {
 				for (let n of this.selectedNodes) n.isSelected = false
 				this.selectedNodes = []
 			}
-			// select the clicked node if allowed
+			// single and multi selection: select the clicked node if allowed
 			if (selNode.isSelectable) {
-				selNode.isSelected = selNode.isSelectable
+				selNode.isSelected = true
 				this.selectedNodes.push(selNode)
 				this.emitSelect(this.selectedNodes, event)
 			}
@@ -256,11 +256,13 @@ export default {
 			const selNode = this.getNodeById(id)
 			if (selNode === null) return
 
-			// single selection mode: unselect all currently selected nodes, clear this.selectedNodes array and select the clicked node
-			if (this.nodeToDeselect) this.nodeToDeselect.isSelected = false
-			for (let n of this.selectedNodes) n.isSelected = false
-			this.selectedNodes = [selNode]
-			selNode.isSelected = selNode.isSelectable
+			if (selNode.isSelectable) {
+				// single selection mode: unselect all currently selected nodes, clear this.selectedNodes array and select the fetched node
+				if (this.nodeToDeselect) this.nodeToDeselect.isSelected = false
+				for (let n of this.selectedNodes) n.isSelected = false
+				this.selectedNodes = [selNode]
+				selNode.isSelected = true
+			}
 		},
 
 		onMousemoveHandler(event) {
