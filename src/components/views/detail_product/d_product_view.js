@@ -31,9 +31,12 @@ export default {
   },
 
   mounted() {
-    if (returning) this.showLastEvent(`Returning to the Products detail view`, INFO)
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
+    if (returning) {
+      window.slVueTree.getSelectedNodes()
+      this.showLastEvent(`Returning to the Products detail view`, INFO)
+    }
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;
@@ -187,6 +190,7 @@ export default {
 
     onTreeIsLoaded() {
       window.slVueTree.setDescendentsReqArea()
+      window.slVueTree.getSelectedNodes()
       this.dependencyViolationsFound()
     },
 
@@ -244,7 +248,7 @@ export default {
     },
 
     /* event handling */
-    onNodeSelect(selNodes) {
+    onNodesSelected(selNodes) {
       // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
       this.updateDescription()
       // both an update of the description and the acceptance criteria should NOT happen
@@ -263,7 +267,7 @@ export default {
         // if the user clicked on a node of another product
         if (this.$store.state.currentProductId !== this.$store.state.nodeSelected.productId) {
           // clear any outstanding filters
-          window.slVueTree.resetFilters('onNodeSelect')
+          window.slVueTree.resetFilters('onNodesSelected')
           // collapse the previously selected product
           window.slVueTree.collapseTree()
           // update current productId and title

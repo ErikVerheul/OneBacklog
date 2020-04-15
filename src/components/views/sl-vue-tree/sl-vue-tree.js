@@ -9,10 +9,6 @@ const WARNING = 1
 const FEATURELEVEL = 4
 const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
-var lastSelectedNode = null
-var draggableNodes = []
-var selectedNodes = []
-var nodeToDeselect = null
 
 import { eventBus } from "../../../main"
 import { utilities } from '../../mixins/utilities.js'
@@ -94,6 +90,10 @@ export default {
 
 	data() {
 		return {
+			selectedNodes: [],
+			lastSelectedNode: null,
+			draggableNodes: [],
+			nodeToDeselect: null,
 			rootCursorPosition: null,
 			mouseIsDown: false,
 			isDragging: false,
@@ -166,6 +166,16 @@ export default {
 	},
 
 	methods: {
+		/* get selected nodes and last selected node */
+		getSelectedNodes() {
+			this.traverseModels((nm) => {
+				if (nm.isSelected) {
+					this.selectedNodes.push(nm)
+					this.lastSelectedNode = nm
+				}
+			}, this.currentValue)
+		},
+
 		setModelCursorPosition(pos) {
 			if (this.isRoot) {
 				this.rootCursorPosition = pos;
@@ -189,7 +199,7 @@ export default {
 		},
 
 		emitSelect(selectedNodes, event) {
-			this.getRootComponent().$emit('nodeselected', selectedNodes, event);
+			this.getRootComponent().$emit('nodesAreSelected', selectedNodes, event);
 		},
 
 		emitBeforeDrop(draggingNodes, position, cancel) {
@@ -229,34 +239,33 @@ export default {
 			const selNode = cursorPosition.nodeModel
 			this.preventDrag = false
 			// shift-select mode is allowed only if nodes are above productlevel (epics, features and higher) and on the same level
-			if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
+			if (!(selNode.level > PRODUCTLEVEL && this.lastSelectedNode && selNode.level === this.lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
 				// single selection mode: unselect all currently selected nodes, clear selectedNodes array
-				if (lastSelectedNode) lastSelectedNode.isSelected = false
-				if (nodeToDeselect) nodeToDeselect.isSelected = false
-				selectedNodes = []
+				if (this.lastSelectedNode) this.lastSelectedNode.isSelected = false
+				if (this.nodeToDeselect) this.nodeToDeselect.isSelected = false
+				for (let n of this.selectedNodes) n.isSelected = false
+				this.selectedNodes = []
 			}
 			// select the clicked node if allowed
-			selNode.isSelected = selNode.isSelectable
-			lastSelectedNode = selNode
-			selectedNodes.push(selNode)
-			this.emitSelect(selectedNodes, event)
+			if (selNode.isSelectable) {
+				selNode.isSelected = selNode.isSelectable
+				this.lastSelectedNode = selNode
+				this.selectedNodes.push(selNode)
+				this.emitSelect(this.selectedNodes, event)
+			}
 		},
 
 		selectNodeById(id) {
 			const selNode = this.getNodeById(id)
 			if (selNode === null) return
 
-			// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
-			if (lastSelectedNode) lastSelectedNode.isSelected = false
-			if (nodeToDeselect) nodeToDeselect.isSelected = false
-			for (let node of selectedNodes) node.isSelected = false
-			selectedNodes = [selNode]
+			// single selection mode: unselect all currently selected nodes, clear this.selectedNodes array and select the clicked node
+			if (this.lastSelectedNode) this.lastSelectedNode.isSelected = false
+			if (this.nodeToDeselect) this.nodeToDeselect.isSelected = false
+			for (let n of this.selectedNodes) n.isSelected = false
+			this.selectedNodes = [selNode]
 			selNode.isSelected = selNode.isSelectable
-			lastSelectedNode = selNode
-		},
-
-		setLastSelectedNode(node) {
-			lastSelectedNode = node
+			this.lastSelectedNode = selNode
 		},
 
 		onMousemoveHandler(event) {
@@ -277,10 +286,10 @@ export default {
 			const isDragStarted = !initialDraggingState && isDragging
 			// calculate only once
 			if (isDragStarted) {
-				draggableNodes = []
-				for (let node of selectedNodes) {
+				this.draggableNodes = []
+				for (let node of this.selectedNodes) {
 					if (node.isDraggable) {
-						draggableNodes.push(node)
+						this.draggableNodes.push(node)
 					}
 				}
 			}
@@ -292,7 +301,7 @@ export default {
 
 			if (!isDragging) return
 
-			if (!draggableNodes.length) {
+			if (!this.draggableNodes.length) {
 				this.preventDrag = true
 				return
 			}
@@ -339,7 +348,7 @@ export default {
 			}
 
 			// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === DATABASELEVEL || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
+			if (this.draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === DATABASELEVEL || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
 				if (this.$store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', WARNING)
 				if (this.$store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', WARNING)
 				this.stopDrag()
@@ -347,7 +356,7 @@ export default {
 			}
 
 			// check if nodes are possible to insert
-			for (let draggingNode of draggableNodes) {
+			for (let draggingNode of this.draggableNodes) {
 				// cannot drag to it self
 				if (draggingNode.pathStr === this.cursorPosition.nodeModel.pathStr) {
 					this.stopDrag()
@@ -368,7 +377,7 @@ export default {
 
 			// allow the drop to be cancelled
 			let cancelled = false;
-			this.emitBeforeDrop(draggableNodes, this.cursorPosition, () => cancelled = true);
+			this.emitBeforeDrop(this.draggableNodes, this.cursorPosition, () => cancelled = true);
 
 			if (cancelled) {
 				this.stopDrag();
@@ -376,11 +385,11 @@ export default {
 			}
 
 			// sort the nodes on priority (highest first)
-			draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
+			this.draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
 			// move the nodes and save the status 'as is' before the move
-			const beforeDropStatus = this.moveNodes(this.cursorPosition, draggableNodes)
+			const beforeDropStatus = this.moveNodes(this.cursorPosition, this.draggableNodes)
 
-			this.emitDrop(beforeDropStatus, draggableNodes, this.cursorPosition, event)
+			this.emitDrop(beforeDropStatus, this.draggableNodes, this.cursorPosition, event)
 			this.stopDrag()
 		},
 
@@ -648,6 +657,7 @@ export default {
 		copyNode(node) {
 			let copiedNode = {}
 			for (let k of Object.keys(node)) {
+				// unselect in the 'shadow' tree view
 				if (k === 'isSelected') {
 					copiedNode.isSelected = false
 				} else copiedNode[k] = node[k]
@@ -726,9 +736,9 @@ export default {
 		},
 
 		/* Insert the node and save it so that it is deselected on the next select */
-		insertSingle(cursorPosition, node) {
-			nodeToDeselect = node
-			this.insert(cursorPosition, [node])
+		insertSingle(position, node) {
+			this.nodeToDeselect = node
+			this.insert(position, [node])
 		},
 
 		/* A wrapper to remove nodes in both tree models if loaded */
@@ -819,7 +829,7 @@ export default {
 			const restoredTargetChildren = []
 			if (beforeDropStatus.sourceParentId === beforeDropStatus.targetParentId) {
 				for (let id of beforeDropStatus.savedSourceChildrenIds) {
-					const node = this.getNodeById(id,treeNodes)
+					const node = this.getNodeById(id, treeNodes)
 					restoredChildren.push(node)
 				}
 				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId, treeNodes)
@@ -849,7 +859,7 @@ export default {
 
 		/* Remove the node and save the current selected node so that it is deselected on the next select */
 		removeSingle(node, currentSelectedNode) {
-			nodeToDeselect = currentSelectedNode
+			this.nodeToDeselect = currentSelectedNode
 			this.remove([node])
 		},
 
@@ -878,7 +888,7 @@ export default {
 				}
 				c_retVal = this.moveNodesInTree(cp, c_nodes, FEATURELEVEL, this.$store.state.c_treeNodes)
 			}
-			
+
 			if (this.$store.state.d_treeNodes.length > 0) {
 				const cp = {
 					nodeModel: this.getNodeById(cursorPosition.nodeModel._id, this.$store.state.d_treeNodes),
@@ -1000,7 +1010,7 @@ export default {
 				if (nm.shortId === node.shortId) {
 					nm.isSelected = true
 					// save this node so that it is deselected on the next select
-					nodeToDeselect = nm
+					this.nodeToDeselect = nm
 					return false
 				}
 			})

@@ -218,8 +218,6 @@ const mutations = {
                 if (_id === rootState.currentDefaultProductId) {
                     rootState.nodeSelected = newNode
                     rootState.d_savedNodeSelected = newNode
-                    // must set last selected node as this node is selected programmatically
-                    window.slVueTree.setLastSelectedNode(newNode)
                 }
             } else {
                 state.orphansCount++

@@ -29,9 +29,12 @@ export default {
   extends: CommonView,
 
   mounted() {
-    if (returning) this.showLastEvent(`Returning to the Products overview`, INFO)
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
+    if (returning) {
+      window.slVueTree.getSelectedNodes()
+      this.showLastEvent(`Returning to the Products overview`, INFO)
+    }
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;
@@ -159,6 +162,7 @@ export default {
 
   methods: {
     onTreeIsLoaded() {
+      window.slVueTree.getSelectedNodes()
       this.dependencyViolationsFound()
       this.createColorMapper()
     },
@@ -201,7 +205,7 @@ export default {
     },
 
     /* event handling */
-    onNodeSelect(selNodes) {
+    onNodesSelected(selNodes) {
       // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
       this.updateDescription()
       // both an update of the description and the acceptance criteria should NOT happen
