@@ -854,7 +854,10 @@ export default {
 			return ids
 		},
 
-		/* A wrapper to move nodes in both tree models if loaded */
+		/*
+		* A wrapper to move nodes in both tree models if loaded
+		* Move the nodes (must have the same parent) to the position designated by cursorPosition
+		*/
 		moveNodes(cursorPosition, nodes) {
 			let c_retVal
 			let d_retVal
@@ -887,7 +890,6 @@ export default {
 			if (this.$store.state.currentView === 'detailProduct') return d_retVal
 		},
 
-		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
 		moveNodesInTree(cursorPosition, nodes, leafLevel, treeModel) {
 			// save the status of source and target before move
 			const targetNode = cursorPosition.nodeModel
@@ -903,6 +905,9 @@ export default {
 				targetLevel = targetNode.level
 				insertInd = targetNode.ind
 			}
+			// skip moves passing leafLevel
+			if (targetLevel > leafLevel) return
+
 			// map the source index to the node reference
 			const sourceIndMap = []
 			for (let i = 0; i < nodes.length; i++) {

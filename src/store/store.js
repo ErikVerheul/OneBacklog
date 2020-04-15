@@ -67,8 +67,7 @@ export default new Vuex.Store({
 		currentView: undefined,
 		// product view
 		selectedForView: 'comments',
-		c_changeHistory: [],
-		d_changeHistory: [],
+		changeHistory: [],
 		filterForComment: "",
 		filterForHistory: "",
 		busyRemoving: false,
@@ -282,6 +281,7 @@ export default new Vuex.Store({
 			}
 
 			if (payload.newNode) {
+				// assigment to the new node is done before any props are changed
 				state.nodeSelected = payload.newNode
 			}
 			updateNode(state.nodeSelected, payload)
@@ -436,8 +436,7 @@ export default new Vuex.Store({
 			state.isProductAssigned = false
 			state.myProductOptions = []
 			state.userData = {}
-			state.c_changeHistory = []
-			state.d_changeHistory = []
+			state.changeHistory = []
 			state.showHeaderDropDowns = true
 			state.lastEvent = ''
 			state.configData = null

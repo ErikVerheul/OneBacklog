@@ -91,8 +91,8 @@ export default {
         },
 
         addToChangeHistory(entry) {
-            if (this.$store.state.currentView === 'coarseProduct') this.$store.state.c_changeHistory.unshift(entry)
-            if (this.$store.state.currentView === 'detailProduct') this.$store.state.d_changeHistory.unshift(entry)
+            if (this.$store.state.currentView === 'coarseProduct') this.$store.state.changeHistory.unshift(entry)
+            if (this.$store.state.currentView === 'detailProduct') this.$store.state.changeHistory.unshift(entry)
         },
 
         doCloneItem(node) {
@@ -129,7 +129,6 @@ export default {
                 savedIsExpanded: false,
                 isDraggable: true,
                 isSelectable: true,
-                isSelected: true,
                 doShow: true,
                 savedDoShow: true,
                 data: {
@@ -146,7 +145,7 @@ export default {
             // insert the new node in the tree and assign the priority to this node
             window.slVueTree.insert(insertPosition, [newNode])
             // and select the new node
-            this.$store.commit('updateNodeSelected', { newNode })
+            this.$store.commit('updateNodeSelected', { newNode, isSelected: true })
 
             this.showLastEvent("Item of type " + this.getLevelText(newNode.level) + " is inserted as a copy of '" + node.title + "'.", INFO)
             // create a new document and store it
@@ -213,7 +212,7 @@ export default {
         doInsertNewItem() {
             let newNodeLocation
             let now = Date.now()
-            // prepare the new node for insertion and set isSelected to true
+            // prepare the new node for insertion
             const newNode = {
                 productId: this.$store.state.currentProductId,
                 dependencies: [],
@@ -223,7 +222,6 @@ export default {
                 savedIsExpanded: false,
                 isDraggable: true,
                 isSelectable: true,
-                isSelected: true,
                 doShow: true,
                 savedDoShow: true,
                 data: {
@@ -293,7 +291,7 @@ export default {
                 // insert the new node in the tree
                 window.slVueTree.insert(newNodeLocation, [newNode])
                 // and select the new node
-                this.$store.commit('updateNodeSelected', { newNode })
+                this.$store.commit('updateNodeSelected', { newNode, isSelected: true })
                 this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
                 // create a new document and store it
                 const newDoc = {

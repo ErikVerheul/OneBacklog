@@ -90,7 +90,7 @@ export default {
           itemIds,
           sprintName
         }
-        this.$store.state.d_changeHistory.unshift(entry)
+        this.$store.state.changeHistory.unshift(entry)
     },
   }
 }

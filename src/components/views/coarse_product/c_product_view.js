@@ -15,6 +15,7 @@ const EPICLEVEL = 3
 var returning = false
 
 export default {
+  extends: CommonView,
 
   beforeCreate() {
     this.$store.state.currentView = 'coarseProduct'
@@ -25,7 +26,10 @@ export default {
     }
   },
 
-  extends: CommonView,
+  created() {
+    // reset the change history
+    this.$store.state.changeHistory = []
+  },
 
   mounted() {
     // expose instance to the global namespace

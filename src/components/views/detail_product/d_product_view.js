@@ -26,6 +26,8 @@ export default {
   },
 
   created() {
+    // reset the change history
+    this.$store.state.changeHistory = []
     this.sprints = this.getCurrentAndNextSprint()
   },
 
@@ -106,7 +108,7 @@ export default {
             type: 'undoSelectedPbiType',
             oldPbiType: this.$store.state.currentDoc.subtype
           }
-          this.$store.state.d_changeHistory.unshift(entry)
+          this.$store.state.changeHistory.unshift(entry)
         } else {
           this.showLastEvent("Sorry, your assigned role(s) disallow you change the pbi type", WARNING)
         }
