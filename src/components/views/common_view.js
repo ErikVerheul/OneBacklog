@@ -84,8 +84,7 @@ export default {
 
     squareText() {
       if (this.$store.state.online) {
-        if (!this.$store.state.skipOnce) this.showLastEvent("You are online again", INFO)
-        this.$store.state.skipOnce = false
+        this.showLastEvent("You are online again", INFO)
         return 'sync'
       } else {
         this.showLastEvent("You are offline. Restore the connection or wait to continue", WARNING)

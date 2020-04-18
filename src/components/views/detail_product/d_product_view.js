@@ -18,7 +18,6 @@ export default {
 
   beforeCreate() {
     this.$store.state.treeNodes = []
-    this.$store.state.skipOnce = true
     this.$store.state.currentView = 'detailProduct'
     this.$store.state.changeHistory = []
     this.$store.state.loadproducts.docsCount = 0

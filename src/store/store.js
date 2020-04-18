@@ -97,7 +97,6 @@ export default new Vuex.Store({
 		online: true,
 		userData: {},
 		showHeaderDropDowns: true,
-		skipOnce: true,
 		nodeSelected: null,
 		moveOngoing: false,
 		selectNodeOngoing: false,

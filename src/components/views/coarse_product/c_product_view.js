@@ -18,7 +18,6 @@ export default {
 
   beforeCreate() {
     this.$store.state.treeNodes = []
-    this.$store.state.skipOnce = true
     this.$store.state.currentView = 'coarseProduct'
     this.$store.state.changeHistory = []
     this.$store.state.loadreqareas.docsCount = 0
