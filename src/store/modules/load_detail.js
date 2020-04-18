@@ -233,7 +233,7 @@ const mutations = {
 
 const actions = {
     /* Load current default user product and start loading the tree */
-    loadCurrentProduct({
+    loadProductDetails({
         rootState,
         commit,
         dispatch
@@ -247,10 +247,10 @@ const actions = {
             rootState.currentProductTitle = res.data.title
             commit('updateCurrentDoc', { newDoc: res.data })
             // eslint-disable-next-line no-console
-            if (rootState.debug) console.log('loadCurrentProduct: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
-            dispatch('loadAllProducts')
+            if (rootState.debug) console.log('loadProductDetails: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
+            dispatch('loadAssignedAndSubscribed')
         }).catch(error => {
-            let msg = `loadCurrentProduct: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
+            let msg = `loadProductDetails: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
             if (!error.response || error.response.status === 404) {
                 msg += `, is your default product deleted?`
             }
@@ -261,7 +261,7 @@ const actions = {
     },
 
     /* Load the current product first */
-    loadAllProducts({
+    loadAssignedAndSubscribed({
         rootState,
         state,
         commit,
@@ -273,6 +273,7 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter',
         }).then(res => {
+            rootState.lastTreeView = 'detailProduct'
             commit('processProduct', { rootState, batch: res.data.rows })
             commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
             // log any detected orphans if present
@@ -293,13 +294,13 @@ const actions = {
             if (!rootState.listenForChangesRunning) {
                 dispatch('listenForChanges')
                 // eslint-disable-next-line no-console
-                if (rootState.debug) console.log('loadAllProducts: listenForChanges started')
+                if (rootState.debug) console.log('loadAssignedAndSubscribed: listenForChanges started')
             }
             // reset load parameters
             parentNodes = {}
         })
             // eslint-disable-next-line no-console
-            .catch(error => console.log('loadAllProducts: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
+            .catch(error => console.log('loadAssignedAndSubscribed: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
     }
 }
 

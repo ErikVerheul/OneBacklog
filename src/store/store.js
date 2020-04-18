@@ -57,13 +57,14 @@ export default new Vuex.Store({
 		currentProductTitle: "",
 		// loading
 		treeNodes: [],
-		// product view
+		// detail view
 		reqAreaMapper: {},
-		// req areas view
+		// coarse view
 		colorMapper: {},
 		reqAreaOptions: [],
 		// view settings
-		currentView: 'detailProduct',
+		currentView: undefined,
+		lastTreeView: undefined,
 		// product view
 		selectedForView: 'comments',
 		changeHistory: [],
@@ -404,6 +405,8 @@ export default new Vuex.Store({
 		},
 
 		resetData(state) {
+			state.treeNodes = []
+			state.lastTreeView = undefined
 			state.currentDefaultProductId = null
 			state.currentProductId = null
 			state.currentProductTitle = ''

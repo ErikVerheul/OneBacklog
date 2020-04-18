@@ -13,23 +13,27 @@ const SHORTKEYLENGTH = 5
 const ALLPRODUCTS = true
 const FILTERBUTTONTEXT = 'Filter in tree view'
 const EPICLEVEL = 3
+const thisView = 'coarseProduct'
+var returning = false
 
 export default {
 
   beforeCreate() {
-    this.$store.state.treeNodes = []
-    this.$store.state.currentView = 'coarseProduct'
-    this.$store.state.changeHistory = []
-    this.$store.state.loadreqareas.docsCount = 0
-    this.$store.state.loadreqareas.insertedCount = 0
-    this.$store.state.loadreqareas.orphansCount = 0
-    this.$store.state.loadreqareas.orphansFound = { userData: null, orphans: [] }
-    // reset filters and searches
-    this.$store.state.filterText = FILTERBUTTONTEXT
-    this.$store.state.filterOn = false
-    this.$store.state.searchOn = false
-    this.$store.state.findIdOn = false
-    this.$store.dispatch('getAllItems')
+    this.$store.state.currentView = thisView
+    if (thisView !== this.$store.state.lastTreeView) {
+      this.$store.state.treeNodes = []
+      this.$store.state.changeHistory = []
+      this.$store.state.loadreqareas.docsCount = 0
+      this.$store.state.loadreqareas.insertedCount = 0
+      this.$store.state.loadreqareas.orphansCount = 0
+      this.$store.state.loadreqareas.orphansFound = { userData: null, orphans: [] }
+      // reset filters and searches
+      this.$store.state.filterText = FILTERBUTTONTEXT
+      this.$store.state.filterOn = false
+      this.$store.state.searchOn = false
+      this.$store.state.findIdOn = false
+      this.$store.dispatch('loadOverview')
+    } else returning = true
   },
 
   extends: CommonView,
@@ -37,6 +41,10 @@ export default {
   mounted() {
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
+    if (returning) {
+      // window.slVueTree.getSelectedNodes()
+      this.showLastEvent(`Returning to the Products overview`, INFO)
+    }
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;

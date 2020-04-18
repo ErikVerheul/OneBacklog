@@ -74,7 +74,7 @@ function setChangeTimestamps(history, lastComment) {
 
 const actions = {
     /* Load all items from all products */
-    getAllItems({
+    loadOverview({
         rootState,
         state,
         commit
@@ -85,6 +85,7 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/areaFilter',
         }).then(res => {
+            rootState.lastTreeView = 'coarseProduct'
             const batch = res.data.rows
             for (let item of batch) {
                 const _id = item.id
@@ -215,7 +216,7 @@ const actions = {
                     state.orphansCount++
                     state.orphansFound.orphans.push({ id: _id, parentId, productId: level })
                     // eslint-disable-next-line no-console
-                    console.log('getAllItems: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
+                    console.log('loadOverview: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
                 }
             }
 
@@ -239,7 +240,7 @@ const actions = {
             parentNodes = {}
         })
             // eslint-disable-next-line no-console
-            .catch(error => console.log('getAllItems: Could not read from database ' + rootState.userData.currentDb + '. Error = ' + error))
+            .catch(error => console.log('loadOverview: Could not read from database ' + rootState.userData.currentDb + '. Error = ' + error))
     },
 
 }

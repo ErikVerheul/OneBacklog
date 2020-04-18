@@ -12,30 +12,41 @@ const INFO = 0
 const WARNING = 1
 const SHORTKEYLENGTH = 5
 const FILTERBUTTONTEXT = 'Filter in tree view'
+const thisView = 'detailProduct'
+var returning = false
 
 export default {
   extends: CommonView,
 
   beforeCreate() {
-    this.$store.state.treeNodes = []
-    this.$store.state.currentView = 'detailProduct'
-    this.$store.state.changeHistory = []
-    this.$store.state.loadproducts.docsCount = 0
-    this.$store.state.loadproducts.insertedCount = 0
-    this.$store.state.loadproducts.orphansCount = 0
-    this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
-    // reset filters and searches
-    this.$store.state.filterText = FILTERBUTTONTEXT
-    this.$store.state.filterOn = false
-    this.$store.state.searchOn = false
-    this.$store.state.findIdOn = false
-    this.$store.dispatch('loadCurrentProduct')
+    this.$store.state.currentView = thisView
+    if (thisView !== this.$store.state.lastTreeView) {
+      this.$store.state.treeNodes = []
+      this.$store.state.changeHistory = []
+      this.$store.state.loadproducts.docsCount = 0
+      this.$store.state.loadproducts.insertedCount = 0
+      this.$store.state.loadproducts.orphansCount = 0
+      this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
+      // reset filters and searches
+      this.$store.state.filterText = FILTERBUTTONTEXT
+      this.$store.state.filterOn = false
+      this.$store.state.searchOn = false
+      this.$store.state.findIdOn = false
+      this.$store.dispatch('loadProductDetails')
+    } else returning = true
+  },
+
+  created() {
+    this.sprints = this.getCurrentAndNextSprint()
   },
 
   mounted() {
     // expose instance to the global namespace
     window.slVueTree = this.$refs.slVueTree
-    this.sprints = this.getCurrentAndNextSprint()
+    if (returning) {
+      // window.slVueTree.getSelectedNodes()
+      this.showLastEvent(`Returning to the Product details`, INFO)
+    }
 
     function isEmpty(str) {
       return !str.replace(/\s+/, '').length;
