@@ -15,10 +15,10 @@ export default {
       this.listItemText = ''
       this.showAssistance = false
       this.disableOkButton = true
-      // user must have write access on this level && node must be selected first && user cannot remove the database && only one node can be selected
+      // user must have write access on this level && user cannot remove the database && only one node can be selected
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties
       const extraLevel = node.level < this.pbiLevel ? node.level + 1 : node.level
-      if (this.isReqAreaItem || this.haveWritePermission[extraLevel] && node._id === this.$store.state.nodeSelected._id &&
+      if (this.isReqAreaItem || this.haveWritePermission[extraLevel] &&
         node.level > this.databaseLevel && this.$store.state.numberOfNodesSelected === 1) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
@@ -209,7 +209,7 @@ export default {
         // load the new selected item
         this.$store.dispatch('loadDoc', nowSelectedNode._id)
         // remove the node and its children
-        window.slVueTree.removeSingle(selectedNode, nowSelectedNode)
+        window.slVueTree.remove([selectedNode])
       } else this.showLastEvent("Sorry, your assigned role(s) disallow you to remove this item", WARNING)
     },
   }

@@ -215,11 +215,6 @@ const mutations = {
 
                 parentNode.children.push(newNode)
                 parentNodes[_id] = newNode
-                if (_id === rootState.currentDefaultProductId) {
-                    rootState.nodeSelected = newNode
-                    // must set last selected node as this node is selected programmatically
-                    window.slVueTree.setLastSelectedNode(newNode)
-                }
             } else {
                 state.orphansCount++
                 state.orphansFound.orphans.push({ id: _id, parentId, productId: productId })

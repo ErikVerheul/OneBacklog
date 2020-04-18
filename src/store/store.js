@@ -301,7 +301,7 @@ export default new Vuex.Store({
 						state.currentDoc.shortId = payload.shortId
 						break
 					case 'productId':
-						state.nodeSelected.productId = payload.productId
+						state.currentDoc.productId = payload.productId
 						break
 					case 'parentId':
 						state.currentDoc.parentId = payload.parentId

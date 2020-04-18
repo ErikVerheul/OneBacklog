@@ -102,7 +102,7 @@
             :value="$store.state.treeNodes"
             ref="slVueTree"
             :allow-multiselect="true"
-            @nodeselected="onNodeSelect"
+            @nodesAreSelected="onNodesSelected"
             @beforedrop="beforeNodeDropped"
             @drop="nodeDropped"
             @loaded="onTreeIsLoaded"
@@ -134,7 +134,7 @@
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
-              {{ patchTitle(node) }}
+              {{ patchTitle(node) }} : {{ node.path }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"

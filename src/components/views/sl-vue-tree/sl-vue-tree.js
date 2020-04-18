@@ -8,10 +8,6 @@ const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
 const AREA_PRODUCTID = '0'
-var lastSelectedNode = null
-var draggableNodes = []
-var selectedNodes = []
-var nodeToDeselect = null
 
 import { eventBus } from "../../../main"
 import { utilities } from '../../mixins/utilities.js'
@@ -24,6 +20,7 @@ function updatePaths(parentPath, siblings, leafLevel, insertInd = 0, parentId = 
 	for (let i = insertInd; i < siblings.length; i++) {
 		const sibling = siblings[i]
 		const newPath = parentPath.concat(i)
+		console.log('updatePaths: i = ' + i + ' parentPath = ' + parentPath + ' newPath = ' + newPath + ' title = ' + sibling.title)
 		if (parentId) sibling.parentId = parentId
 		if (productId) sibling.productId = productId
 		// if moving to another product show the inserted nodes in the new product
@@ -93,6 +90,8 @@ export default {
 
 	data() {
 		return {
+			selectedNodes: [],
+			draggableNodes: [],
 			rootCursorPosition: null,
 			mouseIsDown: false,
 			isDragging: false,
@@ -188,7 +187,7 @@ export default {
 		},
 
 		emitSelect(selectedNodes, event) {
-			this.getRootComponent().$emit('nodeselected', selectedNodes, event);
+			this.getRootComponent().$emit('onNodesSelected', selectedNodes, event);
 		},
 
 		emitBeforeDrop(draggingNodes, position, cancel) {
@@ -226,36 +225,32 @@ export default {
 		select(cursorPosition, event) {
 			this.lastSelectCursorPosition = cursorPosition
 			const selNode = cursorPosition.nodeModel
+			const lastSelectedNode = this.selectedNodes.slice(-1)
 			this.preventDrag = false
 			// shift-select mode is allowed only if nodes are above productlevel (epics, features and higher) and on the same level
-			if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.shiftKey)) {
+			if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode[0] && selNode.level === lastSelectedNode[0].level && this.allowMultiselect && event && event.shiftKey)) {
 				// single selection mode: unselect all currently selected nodes, clear selectedNodes array
-				if (lastSelectedNode) lastSelectedNode.isSelected = false
-				if (nodeToDeselect) nodeToDeselect.isSelected = false
-				selectedNodes = []
+				for (let n of this.selectedNodes) n.isSelected = false
+				this.selectedNodes = []
 			}
-			// select the clicked node if allowed
-			selNode.isSelected = selNode.isSelectable
-			lastSelectedNode = selNode
-			selectedNodes.push(selNode)
-			this.emitSelect(selectedNodes, event)
+			// single and multi selection: select the clicked node if allowed
+			if (selNode.isSelectable) {
+				this.$store.commit('updateNodeSelected', { newNode: selNode, isSelected: true })
+				this.selectedNodes.push(selNode)
+				this.emitSelect(this.selectedNodes, event)
+			}
 		},
 
 		selectNodeById(id) {
 			const selNode = this.getNodeById(id)
 			if (selNode === null) return
 
-			// single selection mode: unselect all currently selected nodes, clear selectedNodes array and select the clicked node
-			if (lastSelectedNode) lastSelectedNode.isSelected = false
-			if (nodeToDeselect) nodeToDeselect.isSelected = false
-			for (let node of selectedNodes) node.isSelected = false
-			selectedNodes = [selNode]
-			selNode.isSelected = selNode.isSelectable
-			lastSelectedNode = selNode
-		},
-
-		setLastSelectedNode(node) {
-			lastSelectedNode = node
+			if (selNode.isSelectable) {
+				// single selection mode: unselect all currently selected nodes, clear this.selectedNodes array and select the fetched node
+				for (let n of this.selectedNodes) n.isSelected = false
+				this.selectedNodes = [selNode]
+				this.$store.commit('updateNodeSelected', { newNode: selNode, isSelected: true })
+			}
 		},
 
 		onMousemoveHandler(event) {
@@ -267,19 +262,19 @@ export default {
 			if (this.preventDrag) return
 
 			const initialDraggingState = this.isDragging;
-			const isDragging =
+			const isDraggingLocal =
 				this.isDragging || (
 					this.mouseIsDown &&
 					(this.lastMousePos.y !== event.clientY)
 				);
 
-			const isDragStarted = !initialDraggingState && isDragging
+			const isDragStarted = !initialDraggingState && isDraggingLocal
 			// calculate only once
 			if (isDragStarted) {
-				draggableNodes = []
-				for (let node of selectedNodes) {
+				this.draggableNodes = []
+				for (let node of this.selectedNodes) {
 					if (node.isDraggable) {
-						draggableNodes.push(node)
+						this.draggableNodes.push(node)
 					}
 				}
 			}
@@ -289,14 +284,14 @@ export default {
 				y: event.clientY
 			};
 
-			if (!isDragging) return
+			if (!isDraggingLocal) return
 
-			if (!draggableNodes.length) {
+			if (!this.draggableNodes.length) {
 				this.preventDrag = true
 				return
 			}
 
-			this.isDragging = isDragging
+			this.isDragging = isDraggingLocal
 			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
 			if (cPos !== null) this.setModelCursorPosition(cPos)
 		},
@@ -338,7 +333,7 @@ export default {
 			}
 
 			// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-			if (draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === DATABASELEVEL || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
+			if (this.draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === DATABASELEVEL || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
 				if (this.$store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', WARNING)
 				if (this.$store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', WARNING)
 				this.stopDrag()
@@ -346,7 +341,7 @@ export default {
 			}
 
 			// check if nodes are possible to insert
-			for (let draggingNode of draggableNodes) {
+			for (let draggingNode of this.draggableNodes) {
 				// cannot drag to it self
 				if (draggingNode.pathStr === this.cursorPosition.nodeModel.pathStr) {
 					this.stopDrag()
@@ -367,7 +362,7 @@ export default {
 
 			// allow the drop to be cancelled
 			let cancelled = false;
-			this.emitBeforeDrop(draggableNodes, this.cursorPosition, () => cancelled = true);
+			this.emitBeforeDrop(this.draggableNodes, this.cursorPosition, () => cancelled = true);
 
 			if (cancelled) {
 				this.stopDrag();
@@ -375,11 +370,11 @@ export default {
 			}
 
 			// sort the nodes on priority (highest first)
-			draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
+			this.draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
 			// move the nodes and save the status 'as is' before the move
-			const beforeDropStatus = this.moveNodes(this.cursorPosition, draggableNodes)
+			const beforeDropStatus = this.moveNodes(this.cursorPosition, this.draggableNodes)
 
-			this.emitDrop(beforeDropStatus, draggableNodes, this.cursorPosition, event)
+			this.emitDrop(beforeDropStatus, this.draggableNodes, this.cursorPosition, event)
 			this.stopDrag()
 		},
 
@@ -392,7 +387,6 @@ export default {
 
 		onToggleHandler(event, node) {
 			if (!this.allowToggleBranch) return;
-			console.log('onToggleHandler: node.isExpanded = ' + node.isExpanded + ' title = ' + node.title)
 			node.isExpanded = !node.isExpanded
 			if (node.isExpanded) this.unhideDescendants(node)
 			this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'expanded' : 'collapsed'}`, INFO)
@@ -679,12 +673,6 @@ export default {
 			if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 		},
 
-		/* Insert the node and save it so that it is deselected on the next select */
-		insertSingle(cursorPosition, node) {
-			nodeToDeselect = node
-			this.insert(cursorPosition, [node])
-		},
-
 		/* Remove nodes from the tree model. Return true if any node was removed */
 		remove(nodes) {
 			let success = false
@@ -701,16 +689,15 @@ export default {
 			return success
 		},
 
-
 		moveBack(entry) {
-			function isRestoredNode(child, nodes) {
-				for (let n of nodes) {
-					if (n._id === child._id) return true
-				}
-				return false
-			}
 			/* Find patches of consecutive inserted items to recalculate their priorities against the predecessor and the successor of the patch */
 			function recalculatePriorities(nodes, children) {
+				function isRestoredNode(child, nodes) {
+					for (let n of nodes) {
+						if (n._id === child._id) return true
+					}
+					return false
+				}
 				// sort the nodes on priority (highest first)
 				nodes.sort((h, l) => l.data.priority - h.data.priority)
 				// find patches of restored nodes
@@ -743,24 +730,21 @@ export default {
 			const restoredSourceChildren = []
 			const restoredTargetChildren = []
 			if (beforeDropStatus.sourceParentId === beforeDropStatus.targetParentId) {
-				for (let id of beforeDropStatus.savedSourceChildrenIds) {
-					const node = this.getNodeById(id)
+				for (let node of beforeDropStatus.savedSourceChildren) {
 					restoredChildren.push(node)
 				}
 				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				commonParent.children = restoredChildren
 				updatePaths(commonParent.path, commonParent.children, this.$store.getters.leafLevel)
 			} else {
-				for (let id of beforeDropStatus.savedSourceChildrenIds) {
-					const node = this.getNodeById(id)
+				for (let node of beforeDropStatus.savedSourceChildren) {
 					restoredSourceChildren.push(node)
 				}
 				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId)
 				sourceParent.children = restoredSourceChildren
 				updatePaths(sourceParent.path, sourceParent.children, this.$store.getters.leafLevel, 0, beforeDropStatus.sourceParentId, beforeDropStatus.sourceProductId)
 
-				for (let id of beforeDropStatus.savedTargetChildrenIds) {
-					const node = this.getNodeById(id)
+				for (let node of beforeDropStatus.savedTargetChildren) {
 					restoredTargetChildren.push(node)
 				}
 				const targetParent = this.getNodeById(beforeDropStatus.targetParentId)
@@ -772,23 +756,16 @@ export default {
 			if (restoredTargetChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredTargetChildren)
 		},
 
-		/* Remove the node and save the current selected node so that it is deselected on the next select */
-		removeSingle(node, currentSelectedNode) {
-			nodeToDeselect = currentSelectedNode
-			this.remove([node])
-		},
-
-		getChildrenIds(parentId) {
-			const node = this.getNodeById(parentId)
-			const ids = []
-			for (let c of node.children) {
-				ids.push(c._id)
-			}
-			return ids
-		},
-
 		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
 		moveNodes(cursorPosition, nodes) {
+			function getChildren(vm, parentId) {
+				const node = vm.getNodeById(parentId)
+				const nodes = []
+				for (let c of node.children) {
+					nodes.push(c)
+				}
+				return nodes
+			}
 			// save the status of source and target before move
 			const targetNode = cursorPosition.nodeModel
 			let targetParentId
@@ -817,8 +794,8 @@ export default {
 				targetLevel,
 				// data used for restoring the tree view at undo only
 				movedNodesData: { nodes, sourceIndMap },
-				savedSourceChildrenIds: this.getChildrenIds(nodes[0].parentId),
-				savedTargetChildrenIds: this.getChildrenIds(targetParentId)
+				savedSourceChildren: getChildren(this, nodes[0].parentId),
+				savedTargetChildren: getChildren(this, targetParentId)
 			}
 
 			this.remove(nodes)
@@ -890,9 +867,8 @@ export default {
 				}
 				// select the item
 				if (nm.shortId === node.shortId) {
-					nm.isSelected = true
-					// save this node so that it is deselected on the next select
-					nodeToDeselect = nm
+					this.selectedNodes = [nm]
+					this.$store.commit('updateNodeSelected', { newNode: nm, isSelected: true })
 					return false
 				}
 			})

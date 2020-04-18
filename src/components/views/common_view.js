@@ -507,7 +507,7 @@ export default {
 
     updateTsSize() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+        if (this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
           const now = Date.now()
           let size = document.getElementById("tShirtSizeId").value.toUpperCase()
           const sizeArray = this.$store.state.configData.tsSize
@@ -531,7 +531,7 @@ export default {
             }
             alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
           }
-        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change the t-shirt size of this item", WARNING)
+        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change the t-shirt size of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the t-shirt size of this item", WARNING)
       }
@@ -539,7 +539,7 @@ export default {
 
     updateStoryPoints() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+        if (this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
           const oldStoryPoints = this.$store.state.currentDoc.spsize
           const now = Date.now()
           let el = document.getElementById("storyPointsId")
@@ -547,7 +547,7 @@ export default {
             el.value = '?'
             return
           }
-          this.$store.state.nodeSelected.data.lastChange = now
+          this.$store.commit('updateNodeSelected', { lastChange: now })
           this.$store.dispatch('setStoryPoints', {
             'newPoints': parseInt(el.value),
             'timestamp': now
@@ -558,7 +558,7 @@ export default {
             oldStoryPoints
           }
           this.$store.state.changeHistory.unshift(entry)
-        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story points of this item", WARNING)
+        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change story points of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)
       }
@@ -566,7 +566,7 @@ export default {
 
     updatePersonHours() {
       if (this.haveWritePermission[this.getCurrentItemLevel]) {
-        if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+        if (this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
           const oldPersonHours = this.$store.state.currentDoc.spikepersonhours
           const now = Date.now()
           let el = document.getElementById("personHoursId")
@@ -585,7 +585,7 @@ export default {
             oldPersonHours
           }
           this.$store.state.changeHistory.unshift(entry)
-        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change story person hours of this item", WARNING)
+        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change story person hours of this item", WARNING)
       } else {
         this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item", WARNING)
       }
@@ -645,10 +645,10 @@ export default {
               this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
           }
         } else {
-          if (this.$store.state.nodeSelected.data.team === this.$store.state.userData.myTeam) {
+          if (this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
             // all other state changes; no team update
-            changeState(this, this.$store.state.nodeSelected.data.team)
-          } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.nodeSelected.data.team + "' can change the state of this item", WARNING)
+            changeState(this, this.$store.state.currentDoc.team)
+          } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change the state of this item", WARNING)
         }
       } else this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
     },
