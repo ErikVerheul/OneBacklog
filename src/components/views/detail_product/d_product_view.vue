@@ -297,7 +297,7 @@
     </multipane>
 
     <!-- context modal -->
-    <context></context>
+    <context>:sprints="sprints"</context>
     <!-- filter modal -->
     <filters></filters>
     <!-- tosprint modal -->

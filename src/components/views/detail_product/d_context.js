@@ -6,19 +6,15 @@ const WARNING = 1
 const PBILEVEL = 5
 const TASKLEVEL = 6
 var movedNode = null
-var sprints
 
 export default {
   mixins: [utilities],
   extends: CommonContext,
+  props: ['sprints'],
 
   created() {
     this.TOSPRINT = 11
     this.FROMSPRINT = 12
-  },
-
-  mounted() {
-    sprints = this.getCurrentAndNextSprint()
   },
 
   data() {
@@ -328,9 +324,9 @@ export default {
 
     doRemoveFromSprint() {
       function getSprintName(id) {
-        if (id === sprints.currentSprint.id) {
-          return sprints.currentSprint.name
-        } else return sprints.nextSprint.name
+        if (id === this.sprints.currentSprint.id) {
+          return this.sprints.currentSprint.name
+        } else return this.sprints.nextSprint.name
       }
 
       const currentId = this.$store.state.currentDoc._id
