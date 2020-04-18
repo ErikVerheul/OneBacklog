@@ -1,6 +1,61 @@
 Definitions: items Product Backlog Items (PBIs) which are stored in the database as documents and presented on screen as nodes in a tree.
 Tip: Show object with JSON.stringify(object, null, 2)
 
+Database fields and node props: note that there is no one-to-one mapping
+
+Database--------------------------------------------------- node
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+----------------------------------------------------------- path, // the access path in the tree model
+----------------------------------------------------------- pathStr: JSON.stringify(path),
+----------------------------------------------------------- ind, // the index in the children array
+----------------------------------------------------------- level: path.length,
+----------------------------------------------------------- children: [ nodes ],
+----------------------------------------------------------- isLeaf: (level == leafLevel) ? true : false,
+----------------------------------------------------------- isSelectable: true,
+----------------------------------------------------------- isSelected: true only if isSelectable || false
+----------------------------------------------------------- isDraggable: true || false, // depending on the user roles
+----------------------------------------------------------- isExpanded: true || false, // initially the tree is expanded up to the feature level
+----------------------------------------------------------- savedIsExpanded: isExpanded, // to restore the original view after applying a filter
+----------------------------------------------------------- doShow: true, // false if filtered out
+----------------------------------------------------------- savedDoShow: doShow, // to restore the original view after applying a filter
+----------------------------------------------------------- markViolation: false // temporary use, not stored, not synced
+"productId"(string)---------------------------------------- productId
+"parentId"(string)----------------------------------------- parentId
+"_id"(string)---------------------------------------------- _id
+"shortId"(string)------------------------------------------ shortId
+"sprintId"(string)----------------------------------------- sprintId
+"taskOwner"(string)---------------------------------------- data.taskOwner
+"type": "backlogItem" 
+"team"(string)--------------------------------------------- data.team
+"level"(Integer)------------------------------------------- level
+"subtype"(Integer)----------------------------------------- data.subtype
+"state"(Integer)------------------------------------------- data.state
+"tssize"(Integer)
+"spsize"(Integer)
+"color"(hex)----------------------------------------------- reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = '0', level = 3)
+"spikepersonhours"(Integer)
+"reqarea"(string)------------------------------------------ data.reqarea
+"dependencies": []----------------------------------------- dependencies
+"conditionalFor": []--------------------------------------- conditionalFor
+"title"(string)-------------------------------------------- title
+"followers": [] 
+"description"(string, base-64 encoded, decoded in rootState.currentDoc) 
+"acceptanceCriteria"(string, base-64 encoded, decoded in rootState.currentDoc)
+"priority"(Integer)---------------------------------------- data.priority
+"comments": []
+"history": []
+"delmark"(boolean)
+"_attachments": {}
+----------------------------------------------------------- data.inconsistentState: false // calculated on consistency check
+----------------------------------------------------------- data.lastPositionChange, // lookup in history
+----------------------------------------------------------- data.lastStateChange, // lookup in doc history
+----------------------------------------------------------- data.lastContentChange, // lookup in doc history
+----------------------------------------------------------- data.lastCommentAddition, // lookup in doc comments
+----------------------------------------------------------- data.lastAttachmentAddition, // lookup in doc history
+----------------------------------------------------------- data.lastCommentToHistory, // lookup in doc history
+----------------------------------------------------------- data.lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
+----------------------------------------------------------- savedInd // when dragging a node the source ind is stored here
+
 The item types are defined in the CONFIG file:
 "itemType": [
     "RequirementArea",
