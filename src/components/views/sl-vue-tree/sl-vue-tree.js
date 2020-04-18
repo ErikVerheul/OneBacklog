@@ -20,7 +20,6 @@ function updatePaths(parentPath, siblings, leafLevel, insertInd = 0, parentId = 
 	for (let i = insertInd; i < siblings.length; i++) {
 		const sibling = siblings[i]
 		const newPath = parentPath.concat(i)
-		console.log('updatePaths: i = ' + i + ' parentPath = ' + parentPath + ' newPath = ' + newPath + ' title = ' + sibling.title)
 		if (parentId) sibling.parentId = parentId
 		if (productId) sibling.productId = productId
 		// if moving to another product show the inserted nodes in the new product
@@ -187,7 +186,7 @@ export default {
 		},
 
 		emitSelect(selectedNodes, event) {
-			this.getRootComponent().$emit('onNodesSelected', selectedNodes, event);
+			this.getRootComponent().$emit('nodesAreSelected', selectedNodes, event);
 		},
 
 		emitBeforeDrop(draggingNodes, position, cancel) {
@@ -690,82 +689,38 @@ export default {
 		},
 
 		moveBack(entry) {
-			/* Find patches of consecutive inserted items to recalculate their priorities against the predecessor and the successor of the patch */
-			function recalculatePriorities(nodes, children) {
-				function isRestoredNode(child, nodes) {
-					for (let n of nodes) {
-						if (n._id === child._id) return true
-					}
-					return false
-				}
-				// sort the nodes on priority (highest first)
-				nodes.sort((h, l) => l.data.priority - h.data.priority)
-				// find patches of restored nodes
-				let predecessorNode = null
-				let successorNode
-				let patch = []
-				for (let c of children) {
-					if (isRestoredNode(c, nodes)) {
-						patch.push(c)
-					} else {
-						if (patch.length === 0) {
-							predecessorNode = c
-						} else {
-							successorNode = c
-							assignNewPrios(patch, predecessorNode, successorNode)
-							// find the next patch
-							predecessorNode = c
-							patch = []
-						}
-					}
-				}
-				// last element in children was restored
-				if (patch.length !== 0) {
-					assignNewPrios(patch, predecessorNode, null)
-				}
-			}
-
 			const beforeDropStatus = entry.beforeDropStatus
-			const restoredChildren = []
-			const restoredSourceChildren = []
-			const restoredTargetChildren = []
-			if (beforeDropStatus.sourceParentId === beforeDropStatus.targetParentId) {
-				for (let node of beforeDropStatus.savedSourceChildren) {
-					restoredChildren.push(node)
+			const sourceParentId = beforeDropStatus.sourceParentId
+			const targetParentId = beforeDropStatus.targetParentId
+			// data used for restoring the tree view at undo only
+			const movedNodesData = beforeDropStatus.movedNodesData
+			for (let m of movedNodesData.sourceIndMap) {
+				const parentNode = this.getNodeById(sourceParentId)
+				let cursorPosition
+				if (m.sourceInd === 0) {
+					cursorPosition = {
+						nodeModel: parentNode,
+						placement: 'inside'
+					}
+				} else {
+					let topSibling
+					if (sourceParentId !== targetParentId) {
+						topSibling = parentNode.children[m.sourceInd - 1]
+					} else {
+						topSibling = parentNode.children[m.sourceInd - (m.targetInd > m.sourceInd ? 1 : 0)]
+					}
+					cursorPosition = {
+						nodeModel: topSibling,
+						placement: 'after'
+					}
 				}
-				const commonParent = this.getNodeById(beforeDropStatus.sourceParentId)
-				commonParent.children = restoredChildren
-				updatePaths(commonParent.path, commonParent.children, this.$store.getters.leafLevel)
-			} else {
-				for (let node of beforeDropStatus.savedSourceChildren) {
-					restoredSourceChildren.push(node)
-				}
-				const sourceParent = this.getNodeById(beforeDropStatus.sourceParentId)
-				sourceParent.children = restoredSourceChildren
-				updatePaths(sourceParent.path, sourceParent.children, this.$store.getters.leafLevel, 0, beforeDropStatus.sourceParentId, beforeDropStatus.sourceProductId)
-
-				for (let node of beforeDropStatus.savedTargetChildren) {
-					restoredTargetChildren.push(node)
-				}
-				const targetParent = this.getNodeById(beforeDropStatus.targetParentId)
-				targetParent.children = restoredTargetChildren
-				updatePaths(targetParent.path, targetParent.children, this.$store.getters.leafLevel, 0, beforeDropStatus.targetParentId, beforeDropStatus.targetProductId)
+				this.remove([m.node])
+				this.insert(cursorPosition, [m.node])
 			}
-			if (restoredChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredChildren)
-			if (restoredSourceChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredSourceChildren)
-			if (restoredTargetChildren.length > 0) recalculatePriorities(beforeDropStatus.movedNodesData.nodes, restoredTargetChildren)
 		},
 
 		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
 		moveNodes(cursorPosition, nodes) {
-			function getChildren(vm, parentId) {
-				const node = vm.getNodeById(parentId)
-				const nodes = []
-				for (let c of node.children) {
-					nodes.push(c)
-				}
-				return nodes
-			}
 			// save the status of source and target before move
 			const targetNode = cursorPosition.nodeModel
 			let targetParentId
@@ -793,9 +748,7 @@ export default {
 				targetParentId,
 				targetLevel,
 				// data used for restoring the tree view at undo only
-				movedNodesData: { nodes, sourceIndMap },
-				savedSourceChildren: getChildren(this, nodes[0].parentId),
-				savedTargetChildren: getChildren(this, targetParentId)
+				movedNodesData: { nodes, sourceIndMap }
 			}
 
 			this.remove(nodes)
