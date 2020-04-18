@@ -140,7 +140,6 @@ const actions = {
 		})
 	},
 
-	/* Note that this call does NOT save history. The event is not needed by sync to update the remote tree nor is the event emailed to subscribers */
 	updateMovedDescendantsBulk({
 		rootState,
 		dispatch
@@ -169,6 +168,12 @@ const actions = {
 					// the parentId does not change for descendents
 					doc.level = doc.level + updates.levelShift
 					// priority does not change for descendents
+					const newHist = {
+                        "ignoreEvent": ['updateMovedDescendantsBulk'],
+                        "timestamp": Date.now(),
+                        "distributeEvent": false
+                    }
+                    doc.history.unshift(newHist)
 					docs.push(doc)
 				}
 				if (envelope.error) error.push(envelope.error)
