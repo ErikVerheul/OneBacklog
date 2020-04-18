@@ -322,7 +322,7 @@ const actions = {
 										text: doc.title
 									})
 								} else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
-								dispatch('restoreBranch', { doc, fromHistory: true })
+								dispatch('restoreBranch', doc)
 							}
 							break
 						case 'nodeDroppedEvent':
