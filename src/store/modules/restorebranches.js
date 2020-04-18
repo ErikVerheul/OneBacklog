@@ -285,7 +285,7 @@ const actions = {
         dispatch('processItems', convertToResults(docs))
     },
 
-    /* addProducts uses restoteBranches to load a product as a branche */
+    /* addProducts uses restoreBranches to load a product as a branche */
     addProducts({
 		rootState,
 		dispatch
@@ -304,7 +304,9 @@ const actions = {
 			const docs = []
 			const error = []
 			for (let r of results) {
-				docs.push(r.docs[0].ok)
+                const doc = r.docs[0].ok
+                //ToDo: add histoty here?
+				docs.push(doc)
 				if (r.docs[0].error) error.push(r.docs[0].error)
 			}
 			if (error.length > 0) {
