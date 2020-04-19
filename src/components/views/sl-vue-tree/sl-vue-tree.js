@@ -220,6 +220,10 @@ export default {
 			return true
 		},
 
+		setSelectedNodes(node) {
+			this.selectedNodes = [node]
+		},
+
 		/* Select a node from the tree */
 		select(cursorPosition, event) {
 			this.lastSelectCursorPosition = cursorPosition
