@@ -89,7 +89,7 @@ export default {
       // create a new document
       const newProduct = {
         _id: ids.id,
-        shortId: ids.shortId,
+        shortId: ids.extension,
         type: 'backlogItem',
         productId: ids.id,
         parentId: 'root',

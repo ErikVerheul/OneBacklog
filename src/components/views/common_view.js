@@ -29,7 +29,7 @@ export default {
       userStorySubtype: 0,
       spikeSubtype: 1,
       defectSubtype: 2,
-      shortId: "",
+      shortId: '',
       newDescription: '',
       newAcceptance: '',
       selectedNodesTitle: '',

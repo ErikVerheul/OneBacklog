@@ -112,7 +112,7 @@ const mutations = {
                         productId: null,
                         parentId: null,
                         _id,
-                        shortId: 0,
+                        shortId: '0',
                         dependencies,
                         conditionalFor,
                         title,
