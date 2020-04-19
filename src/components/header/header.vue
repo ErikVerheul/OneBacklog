@@ -8,7 +8,7 @@
         <b-navbar-nav>
           <b-nav-item to="../../userguide">User guide</b-nav-item>
         </b-navbar-nav>
-        <!-- view additions go in this slot -->
+        <!-- app-header additions go in this slot -->
         <slot></slot>
         <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
           <b-nav-item-dropdown text="Select your view" right>

@@ -163,7 +163,7 @@
 </template>
 
 <script>
-import appHeader from '../header/header.vue'
+import AppHeader from '../header/header.vue'
 import router from '../../router'
 
 const baseURL = 'https://onebacklog.net:6984/'
@@ -337,7 +337,7 @@ export default {
   },
 
   components: {
-    'app-header': appHeader
+    'app-header': AppHeader
   }
 }
 </script>

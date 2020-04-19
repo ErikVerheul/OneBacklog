@@ -1,4 +1,4 @@
-import licence from "./licence.vue"
+import Licence from "./licence.vue"
 import { mapGetters } from 'vuex'
 import { utilities } from '../mixins/utilities.js'
 
@@ -179,6 +179,6 @@ export default {
         }
     },
     components: {
-        appLicence: licence
+        appLicence: Licence
     }
 }

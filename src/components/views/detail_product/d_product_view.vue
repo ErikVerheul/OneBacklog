@@ -134,7 +134,7 @@
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
-              {{ patchTitle(node) }} : {{ node.path }}
+              {{ patchTitle(node) }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
@@ -296,12 +296,12 @@
       </div>
     </multipane>
 
-    <!-- context modal -->
+    <!-- Context modal -->
     <context>:sprints="sprints"</context>
-    <!-- filter modal -->
+    <!-- Filter modal -->
     <filters></filters>
-    <!-- tosprint modal -->
-    <tosprint></tosprint>
+    <!-- ToSprint modal -->
+    <toSprint></toSprint>
 
     <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
       <b-form-group>

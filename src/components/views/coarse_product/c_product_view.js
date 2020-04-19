@@ -3,9 +3,9 @@ import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import CommonView from '../common_view.js'
-import context from './c_context.vue'
-import filters from './c_filters.vue'
-import listings from './c_listings.vue'
+import Context from './c_context.vue'
+import Filters from './c_filters.vue'
+import Listings from './c_listings.vue'
 
 const INFO = 0
 const WARNING = 1
@@ -361,8 +361,8 @@ export default {
     MultipaneResizer,
     VueEditor,
     slVueTree,
-    context,
-    filters,
-    listings
+    Context,
+    Filters,
+    Listings
   }
 }

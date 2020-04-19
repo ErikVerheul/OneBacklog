@@ -1,4 +1,4 @@
-import appHeader from '../header/header.vue'
+import AppHeader from '../header/header.vue'
 import router from '../../router'
 import { utilities } from '../mixins/utilities.js'
 
@@ -368,6 +368,6 @@ export default {
   },
 
   components: {
-    'app-header': appHeader
+    'app-header': AppHeader
   }
 }

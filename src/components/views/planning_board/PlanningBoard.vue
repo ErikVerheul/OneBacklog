@@ -52,7 +52,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import appHeader from '../../header/header.vue'
+import AppHeader from '../../header/header.vue'
 import StoryLane from './StoryLane'
 import { utilities } from '../../mixins/utilities.js'
 
@@ -145,7 +145,7 @@ export default {
 
   name: 'PlanningBoard',
   components: {
-    'app-header': appHeader,
+    'app-header': AppHeader,
     'story-lane': StoryLane
   }
 }

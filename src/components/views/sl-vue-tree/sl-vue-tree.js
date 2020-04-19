@@ -220,6 +220,7 @@ export default {
 			return true
 		},
 
+		/* Programmatically set the selection to one node */
 		setSelectedNodes(node) {
 			this.selectedNodes = [node]
 		},

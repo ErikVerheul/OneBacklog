@@ -410,10 +410,10 @@
 </template>
 
 <script>
-import appHeader from '../header/header.vue'
+import AppHeader from '../header/header.vue'
 export default {
   components: {
-    'app-header': appHeader
+    'app-header': AppHeader
   }
 }
 </script>
