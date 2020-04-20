@@ -305,7 +305,7 @@ const actions = {
 			const error = []
 			for (let r of results) {
                 const doc = r.docs[0].ok
-                //ToDo: add histoty here?
+                // no need to add history here as the data is only used to update the tree model (no update of the database)
 				docs.push(doc)
 				if (r.docs[0].error) error.push(r.docs[0].error)
 			}
