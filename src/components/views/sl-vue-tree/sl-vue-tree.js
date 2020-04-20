@@ -842,7 +842,7 @@ const methods = {
 	},
 
 	/* Clear any outstanding filters and searches of the current product (default) or all products */
-	resetFilters(caller, allProducts = this.$store.state.currentView = 'coarseProduct') {
+	resetFilters(caller, allProducts = this.$store.state.currentView === 'coarseProduct') {
 		// eslint-disable-next-line no-console
 		console.log('resetFilters is called by ' + caller)
 		if (this.$store.state.filterOn) {

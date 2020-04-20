@@ -117,10 +117,7 @@ const methods = {
             // update globals to new default
             this.$store.state.currentProductId = newDefaultId
             this.$store.state.currentDefaultProductId = newDefaultId
-            // load the product doc if not already in memory
-            if (this.$store.state.nodeSelected._id !== newDefaultId) {
-                this.$store.dispatch('loadDoc', newDefaultId)
-            }
+            this.$store.dispatch('loadDoc', newDefaultId)
         }
         // remove products from the tree view
         let removedCount = 0
