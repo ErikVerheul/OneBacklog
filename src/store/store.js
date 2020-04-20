@@ -108,7 +108,6 @@ export default new Vuex.Store({
 		filterText: 'Filter in tree view',
 		filterOn: false,
 		findIdOn: false,
-		shortId: '',
 		searchOn: false,
 		keyword: '',
 		cookieAutenticated: false,

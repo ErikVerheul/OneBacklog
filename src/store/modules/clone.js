@@ -47,7 +47,7 @@ function showProduct(leafLevel) {
                 parentId,
                 sprintId: doc.sprintId,
                 _id: doc._id,
-                shortId: doc.shortId,
+                shortId: doc._id.slice(-5),
                 dependencies: doc.dependencies || [],
                 conditionalFor: doc.conditionalFor || [],
                 title: doc.title,
@@ -98,11 +98,11 @@ const actions = {
             }
             // patch the documents
             for (let i = 0; i < docs.length; i++) {
-                // compute a new id and shortId, remember old id
+                // compute a new id, remember old id
                 const oldId = docs[i]._id
                 // A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-                const newShortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
-                const newId = Date.now().toString().concat(newShortId)
+                const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
+                const newId = Date.now().toString().concat(ext)
                 // the first document is the product
                 if (i === 0) {
                     newProductId = newId
@@ -114,7 +114,6 @@ const actions = {
                     docs[0].title = newProductTitle
                 }
                 docs[i]._id = newId
-                docs[i].shortId = newShortId
                 docs[i].productId = newProductId
                 docs[i].history = [{
                     "cloneEvent": [docs[i].level, docs[i].subtype, orgProductTitle],

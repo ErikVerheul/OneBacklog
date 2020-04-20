@@ -91,9 +91,7 @@ export default {
         },
 
         doCloneItem(node) {
-            const ids = this.createId()
-            const newId = ids.id
-            const newShortId = ids.extension
+            const newId = this.createId()
             let insertPosition
 
             const prevNode = window.slVueTree.getPreviousNode(node.path)
@@ -114,7 +112,7 @@ export default {
             // prepare the new node for insertion
             const newNode = {
                 _id: newId,
-                shortId: newShortId,
+                shortId: newId.slice(-5),
                 title: 'COPY: ' + node.title,
                 isLeaf: node.isLeaf,
                 dependencies: [],
@@ -151,7 +149,6 @@ export default {
                 "productId": currentDoc.productId,
                 "parentId": newNode.parentId,
                 "_id": newNode._id,
-                "shortId": newNode.shortId,
                 "type": "backlogItem",
                 "team": currentDoc.team,
                 "level": newNode.level,
@@ -211,7 +208,10 @@ export default {
             let idx
             let now = Date.now()
             // prepare the new node for insertion and set isSelected to true
+            const _id = this.createId()
             const newNode = {
+                _id,
+                shortId: _id.slice(-5),
                 productId: this.$store.state.currentProductId,
                 dependencies: [],
                 conditionalFor: [],
@@ -284,9 +284,6 @@ export default {
             newNode.level = path.length
 
             if (this.haveWritePermission[insertLevel]) {
-                const ids = this.createId()
-                newNode._id = ids.id
-                newNode.shortId = ids.extension
                 if (newNodeLocation.placement === 'inside') {
                     // unselect the node that was clicked before the insert and expand it to show the inserted node
                     this.contextNodeSelected.isSelected = false
@@ -302,8 +299,7 @@ export default {
                 this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
                 // create a new document and store it
                 const newDoc = {
-                    "_id": newNode._id,
-                    "shortId": newNode.shortId,
+                    "_id": _id,
                     "type": "backlogItem",
                     "productId": newNode.productId,
                     "parentId": newNode.parentId,

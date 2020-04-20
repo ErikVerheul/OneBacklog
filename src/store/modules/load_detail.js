@@ -112,7 +112,7 @@ const mutations = {
                         productId: null,
                         parentId: null,
                         _id,
-                        shortId: '0',
+                        shortId: _id.slice(-5),
                         dependencies,
                         conditionalFor,
                         title,
@@ -171,12 +171,11 @@ const mutations = {
                 } else if (history[0].resetHistoryEvent && !history[0].resetCommentsEvent) {
                     lastChange = lastComment.timestamp
                 } else lastChange = history[0].timestamp > lastComment.timestamp ? history[0].timestamp : lastComment.timestamp
-
                 let newNode = {
                     path,
                     pathStr: JSON.stringify(path),
                     ind,
-                    level: path.length,
+                    level,
                     productId,
                     parentId,
                     sprintId,

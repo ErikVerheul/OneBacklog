@@ -116,7 +116,7 @@ const actions = {
                             productId,
                             parentId: null,
                             _id,
-                            shortId: '0',
+                            shortId: _id.slice(-5),
                             dependencies,
                             conditionalFor,
                             title,

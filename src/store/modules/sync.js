@@ -226,7 +226,7 @@ const actions = {
 										"parentId": doc.parentId,
 										"sprintId": doc.sprintId,
 										"_id": doc._id,
-										"shortId": doc.shortId,
+										"shortId": doc._id.slice(-5),
 										"dependencies": doc.dependencies || [],
 										"conditionalFor": doc.conditionalFor || [],
 										"title": doc.title,

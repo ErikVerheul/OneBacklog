@@ -282,7 +282,7 @@ const actions = {
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId.*/
 					"shortIdFilter": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc.shortId], 1);}'
+						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc._id.slice(-5)], 1);}'
 					},
 					/* Filter on document type 'backlogItem' but skip the dummy req areas product, then emit the product id and title.*/
 					"products": {
@@ -339,7 +339,6 @@ const actions = {
 		// create root document
 		const rootDoc = {
 			"_id": "root",
-			"shortId": "root",
 			"type": "backlogItem",
 			"level": DATABASELEVEL,
 			"state": 2,
@@ -426,12 +425,11 @@ const actions = {
 		dispatch
 	}, dbName) {
 		// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-		const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
-		const _id = Date.now().toString().concat(shortId)
+		const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
+		const _id = Date.now().toString().concat(ext)
 		// create a new document and store it
 		const newDoc = {
 			"_id": _id,
-			"shortId": shortId,
 			"type": "backlogItem",
 			"productId": _id,
 			"parentId": "root",

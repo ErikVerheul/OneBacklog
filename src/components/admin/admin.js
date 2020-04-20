@@ -79,7 +79,7 @@ export default {
     },
 
     doCreateProduct() {
-      const ids = this.createId()
+      const _id = this.createId()
       const myCurrentProductNodes = window.slVueTree.getProducts()
       // get the last product node
       const lastProductNode = myCurrentProductNodes.slice(-1)[0]
@@ -88,10 +88,9 @@ export default {
 
       // create a new document
       const newProduct = {
-        _id: ids.id,
-        shortId: ids.extension,
+        _id,
         type: 'backlogItem',
-        productId: ids.id,
+        productId: _id,
         parentId: 'root',
         team: 'not assigned yet',
         level: PRODUCTLEVEL,
@@ -114,7 +113,7 @@ export default {
         productId: newProduct.productId,
         parentId: newProduct.parentId,
         _id: newProduct._id,
-        shortId: newProduct.shortId,
+        shortId: newProduct._id.slice(-5),
         dependencies: [],
         conditionalFor: [],
         title: newProduct.title,
@@ -142,11 +141,11 @@ export default {
       // add the product to the treemodel, the path etc. will be calculated
       window.slVueTree.insert(cursorPosition, [newNode], false)
       // update the users product roles, subscriptions and product selection array
-      this.$store.state.userData.myProductsRoles[ids.id] = ['admin']
-      this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, ids.id)
-      this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, ids.id)
+      this.$store.state.userData.myProductsRoles[_id] = ['admin']
+      this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, _id)
+      this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, _id)
       this.$store.state.myProductOptions.push({
-        value: ids.id,
+        value: _id,
         text: newProduct.title
       })
       // update the database and add the product to this user's subscriptions and productsRoles
@@ -309,7 +308,7 @@ export default {
 
       const defaultSprintCalendar = []
       for (let i = 0; i < numberOfSprints; i++) {
-        const sprintId = this.createId().id
+        const sprintId = this.createId()
         const obj = {
           id: sprintId,
           name: 'sprint-' + i,

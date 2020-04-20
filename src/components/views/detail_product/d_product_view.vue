@@ -192,7 +192,7 @@
                 :value="$store.state.currentDoc.title"
                 @blur="updateTitle()"
               ></b-input>
-              <div class="d-table-cell tac">Id = {{ $store.state.currentDoc.shortId }}</div>
+              <div class="d-table-cell tac">Id = {{ $store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
               </div>

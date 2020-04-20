@@ -10,8 +10,8 @@ export const utilities = {
 	methods: {
 		/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 		createId() {
-			const shortId = Math.random().toString(36).replace('0.', '').substr(0, 5)
-			return { id: Date.now().toString().concat(shortId), extension: shortId}
+			const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
+			return Date.now().toString().concat(ext)
 		},
 
 		/* Return the sprint record with the id or null if not found */
