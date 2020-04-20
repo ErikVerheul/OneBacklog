@@ -1,4 +1,3 @@
-import { utilities } from '../../mixins/utilities.js'
 import CommonContext from '../common_context.js'
 
 const INFO = 0
@@ -8,13 +7,12 @@ const TASKLEVEL = 6
 var movedNode = null
 
 export default {
-  mixins: [utilities],
   extends: CommonContext,
-  props: ['sprints'],
 
   created() {
     this.TOSPRINT = 11
     this.FROMSPRINT = 12
+    this.sprints = this.getCurrentAndNextSprint()
   },
 
   data() {
@@ -321,13 +319,13 @@ export default {
       window.assignToSprintRef.show()
     },
 
-    doRemoveFromSprint() {
-      function getSprintName(id) {
-        if (id === this.sprints.currentSprint.id) {
-          return this.sprints.currentSprint.name
-        } else return this.sprints.nextSprint.name
-      }
+    getSprintName(id) {
+      if (id === this.sprints.currentSprint.id) {
+        return this.sprints.currentSprint.name
+      } else return this.sprints.nextSprint.name
+    },
 
+    doRemoveFromSprint() {
       const currentId = this.$store.state.currentDoc._id
       const node = window.slVueTree.getNodeById(currentId)
       if (node === null) return
@@ -342,13 +340,13 @@ export default {
       }
       // show children nodes
       window.slVueTree.getNodeById(currentId).isExpanded = true
-      this.$store.dispatch('removeSprintIds', { itemIds, sprintName: getSprintName(sprintId) })
+      this.$store.dispatch('removeSprintIds', { itemIds, sprintName: this.getSprintName(sprintId) })
       // create an entry for undoing the remove-from-sprint in a last-in first-out sequence
       const entry = {
         type: 'undoRemoveSprintIds',
         itemIds,
         sprintId,
-        sprintName: getSprintName(this.selectedSprint)
+        sprintName: this.getSprintName(this.selectedSprint)
       }
       this.$store.state.changeHistory.unshift(entry)
     }

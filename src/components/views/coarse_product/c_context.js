@@ -1,12 +1,10 @@
-import { utilities } from '../../mixins/utilities.js'
 import CommonContext from '../common_context.js'
 
 const INFO = 0
 const WARNING = 1
 const AREA_PRODUCTID = '0'
 
-export default {
-  mixins: [utilities],
+export default {name: 'Context',
   extends: CommonContext,
 
   methods: {

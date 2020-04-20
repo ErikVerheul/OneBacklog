@@ -36,9 +36,12 @@ function shortEndDate(sprint) {
 export default {
   mixins: [utilities],
 
+  created() {
+    sprints = this.getCurrentAndNextSprint()
+  },
+
   mounted() {
     window.assignToSprintRef = this.$refs.assignToSprintRef
-    sprints = this.getCurrentAndNextSprint()
     const currentSprintTxt = sprints.currentSprint.name + ' started ' + shortStartDate(sprints.currentSprint) + ' and ending ' + shortEndDate(sprints.currentSprint)
     const nextSprintTxt = sprints.nextSprint.name + ' starting ' + shortStartDate(sprints.nextSprint) + ' and ending ' + shortEndDate(sprints.nextSprint)
     this.sprintOptions = [
