@@ -250,7 +250,10 @@ const actions = {
 								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
 						}`
 					},
-					/* Filter on document type 'backlogItem', then filter the changes which need distributed to other users. */
+					/*
+					* Filter on document type 'backlogItem', then filter the changes which need distributed to other users.
+					* Documents with no history or comments array are skipped (eg. config and log)
+					*/
 					"changesFilter": {
 						"map": `function(doc) {
 							if (doc.type == "backlogItem") {
