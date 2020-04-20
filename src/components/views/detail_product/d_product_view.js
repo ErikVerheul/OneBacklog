@@ -10,7 +10,6 @@ import ToSprint from './d_tosprint.vue'
 
 const INFO = 0
 const WARNING = 1
-const SHORTKEYLENGTH = 5
 const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'detailProduct'
 var returning = false
@@ -47,52 +46,6 @@ export default {
       // window.slVueTree.getSelectedNodes()
       this.showLastEvent(`Returning to the Product details`, INFO)
     }
-
-    function isEmpty(str) {
-      return !str.replace(/\s+/, '').length;
-    }
-
-    function shortIdCheck() {
-      const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-      if (this.shortId.length !== SHORTKEYLENGTH) return false
-
-      for (let i = 0; i < this.shortId.length; i++) {
-        if (!alphanum.includes(this.shortId.substring(i, i + 1).toLowerCase())) return false
-      }
-      return true
-    }
-
-    let el = document.getElementById("findItemOnId")
-    // fire the search on short id on pressing enter in the select-on-Id input field (instead of submitting the form)
-    el.addEventListener("keypress", (event) => {
-      if (event.keyCode === 13) {
-        event.preventDefault()
-        // check for valid input and convert to lowercase
-        if (shortIdCheck) {
-          window.slVueTree.resetFilters('findItemOnId')
-          this.findItemOnId(this.shortId.toLowerCase())
-        }
-      }
-    })
-    el.addEventListener("input", () => {
-      if (isEmpty(el.value)) {
-        window.slVueTree.resetFindOnId('findItemOnId')
-      }
-    })
-
-    let el2 = document.getElementById("searchInput")
-    // fire the search button on pressing enter in the search input field (instead of submitting the form)
-    el2.addEventListener("keypress", (event) => {
-      if (event.keyCode === 13) {
-        event.preventDefault()
-        this.searchInTitles()
-      }
-    })
-    el2.addEventListener("input", () => {
-      if (isEmpty(el2.value)) {
-        window.slVueTree.resetFilters('searchInput')
-      }
-    })
   },
 
   data() {
