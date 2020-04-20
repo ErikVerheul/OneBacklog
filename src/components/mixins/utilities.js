@@ -6,7 +6,8 @@ const CRITICAL = 3
 const PBILEVEL = 5
 const TASKLEVEL = 6
 const DEFAULTCOLOR = '#408FAE'
-export const utilities = {
+
+const utilities = {
 	methods: {
 		/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 		createId() {
@@ -129,4 +130,8 @@ export const utilities = {
 			return title.substring(0, length - 4) + '...'
 		}
 	}
+}
+
+export {
+	utilities
 }
