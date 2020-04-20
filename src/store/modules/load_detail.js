@@ -9,6 +9,7 @@ const TASKLEVEL = 6
 const HOURINMILIS = 3600000
 const AREA_PRODUCTID = '0'
 var parentNodes = {}
+var orphansFound = []
 
 function setChangeTimestamps(history, lastComment) {
     // search history for the last changes within the last hour
@@ -70,17 +71,16 @@ function setChangeTimestamps(history, lastComment) {
 const state = {
     docsCount: 0,
     insertedCount: 0,
-    orphansCount: 0,
-    orphansFound: { userData: null, orphans: [] }
+    orphansCount: 0
 }
 
 const mutations = {
 	/*
 	 * The database is sorted by productId, level and priority.
-	 * The documents are read top down by level. In parentNodes the read items are linked to to their id's.
-	 * The object parentNodes is used to insert siblings to their parent. Reading top down guarantees that the parents are read before any siblings.
-	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view
-	 * The root and the top level product nodes are not draggable
+	 * The documents are read top down by level. In parentNodes the created tree nodes are mapped to to their id's.
+	 * The map is used to insert siblings to their parent. The CouchDb design filter sort order guarantees that the parents are read before any siblings.
+	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view.
+	 * The root and the top level product nodes are not draggable.
 	 */
     processProduct(state, payload) {
         const rootState = payload.rootState
@@ -220,7 +220,7 @@ const mutations = {
                 parentNodes[_id] = newNode
             } else {
                 state.orphansCount++
-                state.orphansFound.orphans.push({ id: _id, parentId, productId: productId })
+                orphansFound.push({ id: _id, parentId, productId: productId })
                 // eslint-disable-next-line no-console
                 console.log('processProduct: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
             }
@@ -265,8 +265,6 @@ const actions = {
         commit,
         dispatch
     }) {
-        // add a reference to the userData for logging
-        state.orphansFound.userData = rootState.userData
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter',
@@ -275,13 +273,13 @@ const actions = {
             commit('processProduct', { rootState, batch: res.data.rows })
             commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
             // log any detected orphans if present
-            if (state.orphansFound.orphans.length > 0) {
-                for (let o of state.orphansFound.orphans) {
+            if (orphansFound.length > 0) {
+                for (let o of orphansFound) {
                     const msg = 'Orphan found with Id = ' + o.id + ', parentId = ' + o.parentId + ' and  productId = ' + o.productId
                     let newLog = {
                         event: msg,
                         level: 'CRITICAL',
-                        by: state.orphansFound.userData.user,
+                        by: rootState.userData.user,
                         timestamp: Date.now(),
                         timestampStr: new Date().toString()
                     }

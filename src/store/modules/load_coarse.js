@@ -7,12 +7,12 @@ const FEATURELEVEL = 4
 const HOURINMILIS = 3600000
 const AREA_PRODUCTID = '0'
 var parentNodes = {}
+var orphansFound = []
 
 const state = {
     docsCount: 0,
     insertedCount: 0,
-    orphansCount: 0,
-    orphansFound: { userData: null, orphans: [] }
+    orphansCount: 0
 }
 
 function setChangeTimestamps(history, lastComment) {
@@ -79,8 +79,6 @@ const actions = {
         state,
         commit
     }) {
-        // add a reference to the userData for logging
-        state.orphansFound.userData = rootState.userData
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/areaFilter',
@@ -213,7 +211,7 @@ const actions = {
                     parentNodes[_id] = newNode
                 } else {
                     state.orphansCount++
-                    state.orphansFound.orphans.push({ id: _id, parentId, productId: level })
+                    orphansFound.push({ id: _id, parentId, productId: level })
                     // eslint-disable-next-line no-console
                     console.log('loadOverview: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
                 }
@@ -221,13 +219,13 @@ const actions = {
 
             commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
             // log any detected orphans if present
-            if (state.orphansFound.orphans.length > 0) {
-                for (let o of state.orphansFound.orphans) {
+            if (orphansFound.length > 0) {
+                for (let o of orphansFound) {
                     const msg = 'Orphan found with Id = ' + o.id + ', parentId = ' + o.parentId + ' and  productId = ' + o.productId
                     let newLog = {
                         event: msg,
                         level: 'CRITICAL',
-                        by: state.orphansFound.userData.user,
+                        by: rootState.userData.user,
                         timestamp: Date.now(),
                         timestampStr: new Date().toString()
                     }
