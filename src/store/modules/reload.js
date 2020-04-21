@@ -84,7 +84,7 @@ const actions = {
 
 	/*
 	* Load document by _id and make it the current backlog item
-	* If a product is loaded set the current product title
+	* If a product is loaded, set the current product title
 	*/
 	loadDoc({
 		rootState,

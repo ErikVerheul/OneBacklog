@@ -8,11 +8,13 @@ const HOURINMILIS = 3600000
 const AREA_PRODUCTID = '0'
 var parentNodes = {}
 var orphansFound = []
+var levelErrorsFound = []
 
 const state = {
     docsCount: 0,
     insertedCount: 0,
-    orphansCount: 0
+    orphansCount: 0,
+    levelErrorCount: 0
 }
 
 function setChangeTimestamps(history, lastComment) {
@@ -163,6 +165,11 @@ const actions = {
                     const path = parentPath.concat(ind)
                     const changeTimes = setChangeTimestamps(history, lastComment)
 
+                    // check for level error
+                    if (level !== path.length) {
+                        state.levelErrorCount++
+                        levelErrorsFound.push({ id: _id, parentId, productId, dbLevel: level, pathLength: path.length })
+                    }
                     let newNode = {
                         path,
                         pathStr: JSON.stringify(path),
@@ -212,16 +219,33 @@ const actions = {
                 } else {
                     state.orphansCount++
                     orphansFound.push({ id: _id, parentId, productId: level })
-                    // eslint-disable-next-line no-console
-                    console.log('loadOverview: orphan found with _id = ' + _id + ', parentId = ' + parentId + ' and productId = ' + productId)
                 }
             }
 
             commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
-            // log any detected orphans if present
-            if (orphansFound.length > 0) {
+            // log any detected orphans, if present
+            if (state.orphansCount > 0) {
                 for (let o of orphansFound) {
-                    const msg = 'Orphan found with Id = ' + o.id + ', parentId = ' + o.parentId + ' and  productId = ' + o.productId
+                    const msg = `Orphan found with Id = ${o.id}, parentId = ${o.parentId} and productId = ${o.productId}`
+                    // eslint-disable-next-line no-console
+                    console.log('processProduct: ' + msg)
+                    let newLog = {
+                        event: msg,
+                        level: 'CRITICAL',
+                        by: rootState.userData.user,
+                        timestamp: Date.now(),
+                        timestampStr: new Date().toString()
+                    }
+                    rootState.logState.unsavedLogs.push(newLog)
+                }
+            }
+            // log any detected level errors, if present
+            if (state.levelErrorCount > 0) {
+                for (let l of levelErrorsFound) {
+                    const msg = `Level error found with Id = ${l.id}, parentId = ${l.parentId} and productId = ${l.productId}.\n` +
+                        `The level read in the document is ${l.dbLevel}. According the read parentId the level should be ${l.pathLength}.`
+                    // eslint-disable-next-line no-console
+                    console.log('processProduct: ' + msg)
                     let newLog = {
                         event: msg,
                         level: 'CRITICAL',
