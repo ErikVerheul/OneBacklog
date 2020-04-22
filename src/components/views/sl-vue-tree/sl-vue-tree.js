@@ -689,14 +689,19 @@ const methods = {
 		return success
 	},
 
+	/*
+	* Restore the nodes in their previous (source) position.
+	* Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
+	*/
 	moveBack(entry) {
 		const beforeDropStatus = entry.beforeDropStatus
 		const sourceParentId = beforeDropStatus.sourceParentId
 		const targetParentId = beforeDropStatus.targetParentId
-		// data used for restoring the tree view at undo only
 		const movedNodesData = beforeDropStatus.movedNodesData
 		for (let m of movedNodesData.sourceIndMap) {
 			const parentNode = this.getNodeById(sourceParentId)
+			if (parentNode === null) return false
+
 			let cursorPosition
 			if (m.sourceInd === 0) {
 				cursorPosition = {
@@ -710,6 +715,8 @@ const methods = {
 				} else {
 					topSibling = parentNode.children[m.sourceInd - (m.targetInd > m.sourceInd ? 1 : 0)]
 				}
+				if (topSibling === undefined) return false
+
 				cursorPosition = {
 					nodeModel: topSibling,
 					placement: 'after'
@@ -718,12 +725,17 @@ const methods = {
 			this.remove([m.node])
 			this.insert(cursorPosition, [m.node])
 		}
+		return true
 	},
 
 	/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
 	moveNodes(cursorPosition, nodes) {
 		// save the status of source and target before move
+		const sourceProductId = nodes[0].productId
+		const sourceParentId = nodes[0].parentId
+		const sourceLevel = nodes[0].level
 		const targetNode = cursorPosition.nodeModel
+		const targetProductId = targetNode.productId
 		let targetParentId
 		let targetLevel
 		let insertInd
@@ -736,20 +748,29 @@ const methods = {
 			targetLevel = targetNode.level
 			insertInd = targetNode.ind
 		}
-		// map the source index to the node reference
+		// map the source index to the node reference and set the doRevertOrder boolean
 		const sourceIndMap = []
+		let doRevertOrder = false
 		for (let i = 0; i < nodes.length; i++) {
+			if (sourceParentId === targetParentId && insertInd < nodes[i].ind) doRevertOrder = true
 			sourceIndMap.push({ node: nodes[i], sourceInd: nodes[i].ind, targetInd: insertInd + i })
 		}
+
+		let sortedIndMap
+		if (doRevertOrder) {
+			// revert the order to enable proper undo
+			sortedIndMap = sourceIndMap.sort((a, b) => b.sourceInd - a.sourceInd)
+		} else sortedIndMap = sourceIndMap
+
 		const beforeDropStatus = {
-			sourceProductId: nodes[0].productId,
-			sourceParentId: nodes[0].parentId,
-			sourceLevel: nodes[0].level,
-			targetProductId: targetNode.productId,
+			sourceProductId,
+			sourceParentId,
+			sourceLevel,
+			targetProductId,
 			targetParentId,
 			targetLevel,
 			// data used for restoring the tree view at undo only
-			movedNodesData: { nodes, sourceIndMap }
+			movedNodesData: { nodes, sourceIndMap: sortedIndMap }
 		}
 
 		this.remove(nodes)

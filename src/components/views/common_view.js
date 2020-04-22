@@ -3,6 +3,7 @@ import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
+const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const REMOVED = 0
@@ -70,7 +71,7 @@ function mounted() {
   })
 }
 
-function  data() {
+function data() {
   return {
     userStorySubtype: 0,
     spikeSubtype: 1,
@@ -353,8 +354,7 @@ const methods = {
         } else this.showLastEvent('Item was already removed', INFO)
         break
       case 'undoMove':
-        {
-          window.slVueTree.moveBack(entry)
+        if (window.slVueTree.moveBack(entry)) {
           const beforeDropStatus = entry.beforeDropStatus
           // update the nodes in the database; swap source and target
           const moveInfo = {
@@ -382,7 +382,7 @@ const methods = {
           }
           this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items })
           if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
-        }
+        } else this.showLastEvent('Undo failed. Sign out and -in again to recover.', ERROR)
         break
       case 'undoRemove':
         // restore the removed node
@@ -436,7 +436,7 @@ const methods = {
         break
       case 'undoRemoveSprintIds':
         this.$store.dispatch('addSprintIds', { itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
-      break
+        break
       case 'undoSetDependency':
         {
           const lastDependencyId = entry.nodeWithDependencies.dependencies.pop()
@@ -734,7 +734,7 @@ const methods = {
       // this info is the same for all nodes moved
       type: 'move',
       sourceProductId: beforeDropStatus.sourceProductId,
-      sourceParentId : beforeDropStatus.sourceParentId,
+      sourceParentId: beforeDropStatus.sourceParentId,
       sourceLevel: beforeDropStatus.sourceLevel,
       levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
       targetProductId: beforeDropStatus.targetProductId,
