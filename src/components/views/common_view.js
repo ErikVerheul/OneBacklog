@@ -297,6 +297,45 @@ const methods = {
     // window.slVueTree.showVisibility('searchInTitles', FEATURELEVEL)
   },
 
+  /*
+	* Restore the nodes in their previous (source) position.
+	* Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
+	*/
+  moveBack(entry) {
+    const beforeDropStatus = entry.beforeDropStatus
+    const sourceParentId = beforeDropStatus.sourceParentId
+    const targetParentId = beforeDropStatus.targetParentId
+    const movedNodesData = beforeDropStatus.movedNodesData
+    for (let m of movedNodesData.sourceIndMap) {
+      const parentNode = window.slVueTree.getNodeById(sourceParentId)
+      if (parentNode === null) return false
+
+      let cursorPosition
+      if (m.sourceInd === 0) {
+        cursorPosition = {
+          nodeModel: parentNode,
+          placement: 'inside'
+        }
+      } else {
+        let topSibling
+        if (sourceParentId !== targetParentId) {
+          topSibling = parentNode.children[m.sourceInd - 1]
+        } else {
+          topSibling = parentNode.children[m.sourceInd - (m.targetInd > m.sourceInd ? 1 : 0)]
+        }
+        if (topSibling === undefined) return false
+
+        cursorPosition = {
+          nodeModel: topSibling,
+          placement: 'after'
+        }
+      }
+      window.slVueTree.remove([m.node])
+      window.slVueTree.insert(cursorPosition, [m.node])
+    }
+    return true
+  },
+
   onUndoEvent() {
     const entry = this.$store.state.changeHistory.splice(0, 1)[0]
     switch (entry.type) {
@@ -354,7 +393,7 @@ const methods = {
         } else this.showLastEvent('Item was already removed', INFO)
         break
       case 'undoMove':
-        if (window.slVueTree.moveBack(entry)) {
+        if (this.moveBack(entry)) {
           const beforeDropStatus = entry.beforeDropStatus
           // update the nodes in the database; swap source and target
           const moveInfo = {
