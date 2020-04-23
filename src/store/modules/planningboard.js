@@ -220,8 +220,10 @@ const actions = {
 			// this event is excluded from the history view
 			const newHist = {
 				"updateTaskOrderEvent": payload,
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
+				"by": rootState.userData.user,
+                "timestamp": Date.now(),
+                "sessionId": rootState.userData.sessionId,
+                "distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
