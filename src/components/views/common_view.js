@@ -405,6 +405,8 @@ const methods = {
             targetProductId: beforeDropStatus.sourceProductId,
             targetParentId: beforeDropStatus.sourceParentId,
             // placement: not available
+            sourceParentTitle: beforeDropStatus.sourceParentTitle,
+            targetParentTitle: beforeDropStatus.targetParentTitle
           }
           const items = []
           for (let m of beforeDropStatus.movedNodesData.sourceIndMap) {
@@ -778,7 +780,9 @@ const methods = {
       levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
       targetProductId: beforeDropStatus.targetProductId,
       targetParentId: beforeDropStatus.targetParentId,
-      placement: position.placement
+      placement: position.placement,
+      sourceParentTitle: beforeDropStatus.sourceParentTitle,
+      targetParentTitle: beforeDropStatus.targetParentTitle
     }
     let items = []
     for (let dn of draggingNodes) {

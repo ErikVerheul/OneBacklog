@@ -709,6 +709,11 @@ const methods = {
 			targetLevel = targetNode.level
 			insertInd = targetNode.ind
 		}
+		// get titles for history reporting
+		const sourceProductTitle = window.slVueTree.getNodeById(sourceProductId).title
+		const sourceParentTitle = window.slVueTree.getNodeById(sourceParentId).title
+		const targetProductTitle = window.slVueTree.getNodeById(targetProductId).title
+		const targetParentTitle = window.slVueTree.getNodeById(targetParentId).title
 		// map the source index to the node reference and set the doRevertOrder boolean
 		const sourceIndMap = []
 		let doRevertOrder = false
@@ -728,10 +733,14 @@ const methods = {
 		this.insert(cursorPosition, nodes)
 		return {
 			sourceProductId,
+			sourceProductTitle,
 			sourceParentId,
+			sourceParentTitle,
 			sourceLevel,
 			targetProductId,
+			targetProductTitle,
 			targetParentId,
+			targetParentTitle,
 			targetLevel,
 			// data used for restoring the tree view at undo only
 			movedNodesData: { nodes, sourceIndMap: sortedIndMap }

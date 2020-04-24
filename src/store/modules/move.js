@@ -41,12 +41,8 @@ const actions = {
 					const item = getPayLoadItem(doc._id)
 					let newHist = {}
 					if (m.type === 'move') {
-						const sourceProductNode = window.slVueTree.getNodeById(m.sourceProductId)
-						const sourceParentTitle = sourceProductNode.title || undefined
-						const targetProductNode = window.slVueTree.getNodeById(m.targetProductId)
-						const targetParentTitle = targetProductNode.title || undefined
 						newHist = {
-							nodeDroppedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, targetParentTitle, item.childCount, sourceParentTitle,
+							nodeDroppedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle,
 							m.placement, m.sourceParentId, m.targetParentId, item.sourceInd],
 							by: rootState.userData.user,
 							timestamp: Date.now(),

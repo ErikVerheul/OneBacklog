@@ -291,7 +291,11 @@ const methods = {
         levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
         targetProductId: beforeDropStatus.targetProductId,
         targetParentId: beforeDropStatus.targetParentId,
-        placement: targetPosition.placement
+        placement: targetPosition.placement,
+        sourceProductTitle: beforeDropStatus.sourceProductTitle,
+        sourceParentTitle: beforeDropStatus.sourceParentTitle,
+        targetProductTitle: beforeDropStatus.targetProductTitle,
+        targetParentTitle: beforeDropStatus.targetParentTitle
       }
 
       const oneItem = {
