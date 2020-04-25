@@ -61,7 +61,8 @@ const computed = {
       let histItem = this.$store.state.currentDoc.history[i]
       let allText = ""
       let keys = Object.keys(histItem)
-      if (keys[0] === "ignoreEvent" || keys[0] === "updateTaskOrderEvent") continue
+      if (keys[0] === "ignoreEvent" || keys[0] === "nodesMovedEvent" || keys[0] === "updateTaskOrderEvent") continue
+
       for (let j = 0; j < keys.length; j++) {
         if (keys[j] === "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
         if (keys[j] === "cloneEvent") allText += this.mkCloneEvent(histItem[keys[j]])
