@@ -306,9 +306,12 @@ const methods = {
     const sourceParentId = beforeDropStatus.sourceParentId
     const targetParentId = beforeDropStatus.targetParentId
     const movedNodesData = beforeDropStatus.movedNodesData
+    const parentNode = window.slVueTree.getNodeById(sourceParentId)
+    if (parentNode === null) return false
+
     for (let m of movedNodesData.sourceIndMap) {
-      const parentNode = window.slVueTree.getNodeById(sourceParentId)
-      if (parentNode === null) return false
+      const node = window.slVueTree.getNodeById(m.nodeId)
+      if (node === null) return false
 
       let cursorPosition
       if (m.sourceInd === 0) {
@@ -330,13 +333,21 @@ const methods = {
           placement: 'after'
         }
       }
-      window.slVueTree.remove([m.node])
-      window.slVueTree.insert(cursorPosition, [m.node])
+      window.slVueTree.remove([node])
+      window.slVueTree.insert(cursorPosition, [node])
     }
     return true
   },
 
   onUndoEvent() {
+    function swap(sourceIndMap) {
+      for (let m of sourceIndMap) {
+        let val = m.sourceInd
+        m.sourceInd = m.targetInd
+        m.targetInd = val
+      }
+      return sourceIndMap
+    }
     const entry = this.$store.state.changeHistory.splice(0, 1)[0]
     switch (entry.type) {
       case 'undoAddSprintIds':
@@ -408,16 +419,20 @@ const methods = {
             sourceParentTitle: beforeDropStatus.sourceParentTitle,
             targetParentTitle: beforeDropStatus.targetParentTitle
           }
+          const swappedSourceIndMap = swap(beforeDropStatus.movedNodesData.sourceIndMap)
           const items = []
-          for (let m of beforeDropStatus.movedNodesData.sourceIndMap) {
+          for (let m of swappedSourceIndMap) {
+            const node = window.slVueTree.getNodeById(m.nodeId)
+            if (node === null) break
+
             // remove the <moved> badge
-            m.node.data.lastPositionChange = 0
+            node.data.lastPositionChange = 0
             const payloadItem = {
-              id: m.node._id,
+              id: m.nodeId,
               sourceInd: m.targetInd,
-              newlyCalculatedPriority: m.node.data.priority,
+              newlyCalculatedPriority: node.data.priority,
               targetInd: m.sourceInd,
-              childCount: m.node.children.length
+              childCount: node.children.length
             }
             items.push(payloadItem)
           }
