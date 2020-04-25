@@ -719,7 +719,7 @@ const methods = {
 		let doRevertOrder = false
 		for (let i = 0; i < nodes.length; i++) {
 			if (sourceParentId === targetParentId && insertInd < nodes[i].ind) doRevertOrder = true
-			sourceIndMap.push({ node: nodes[i], sourceInd: nodes[i].ind, targetInd: insertInd + i })
+			sourceIndMap.push({ nodeId: nodes[i]._id, sourceInd: nodes[i].ind, targetInd: insertInd + i })
 		}
 
 		// create a new array for reactive tree update
