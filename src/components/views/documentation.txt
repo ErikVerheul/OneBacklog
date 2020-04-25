@@ -259,45 +259,46 @@ Example:
 
 Thee events and their usage:      
 
-distibuted	mailed		event                       	file
------------------------------------------------------------------
-Y	            Y	    acceptanceEvent	              	update.js
-Y	            Y	    addCommentEvent	              	update.js
-Y				Y		addSprintIdsEvent				update.js
-N	            Y	    cloneEvent	                  	clone.js
-Y	            Y	    commentToHistoryEvent	        update.js
-Y	            Y	    conditionRemovedEvent	        update.js
-Y	            N	    createEvent 	                common.context.js 2X
-N	            N		  								superpo.vue
-N	            N		  								initdb.js
-N	            N		  								utils.js
-N				N		createRootEvent					intdb.js
-Y	            Y	    dependencyRemovedEvent 	      	update.js
-Y	            Y	    descriptionEvent	            update.js
-N				N		docRemovedDescendantEvent		remove.js
-Y	            Y	    docRestoredEvent 	            undo.js
-N	            N	    grandParentDocRestoredEvent	  	undo.js
-N				Y		newChildEvent					load.js
-Y	            Y	    nodeDroppedEvent	            move.js
-Y	            Y	    nodeUndoMoveEvent	            move.js
-Y	            Y	    removeAttachmentEvent	        attachments.js
-N	            Y	    removedFromParentEvent	      	remove.js
-Y 				Y 		removeSprintIdsEvent			update.js
-Y	            N	    updateParentHistEvent	        remove.js
-Y	            N	    updateTaskOrderEvent	        planningboard.js
-Y	            Y	    setConditionsEvent	          	update.js
-Y	            Y	    setDependenciesEvent	        update.js
-Y	            Y	    setHrsEvent	                  	update.js
-Y	            Y	    setPointsEvent	              	update.js
-Y	            Y	    setSizeEvent	                update.js
-Y	            Y	    setStateEvent	                update.js
-Y	            Y	    setSubTypeEvent	              	update.js
-N				N		setTeamEventDescendant			update.js
-Y	            Y	    setTeamOwnerEvent	            update.js
-Y	            Y	    setTitleEvent	                update.js
-N				N		subscribeEvent					update.js
-Y	            Y	    uploadAttachmentEvent	        attachments.js
-N				N		resetHistoryEvent				utils.js
+distibuted	mailed	listed	event                       	file
+----------------------------------------------------------------
+Y            Y	     Y    acceptanceEvent	              	update.js
+Y            Y	     Y    addCommentEvent	              	update.js
+Y			 Y	     Y    addSprintIdsEvent					update.js
+N            Y	     Y    cloneEvent	                  	clone.js
+Y            Y	     Y    commentToHistoryEvent	        	update.js
+Y            Y	     Y    conditionRemovedEvent	        	update.js
+Y            N	     Y    createEvent 	                	common.context.js 2X
+N            N	     Y  	  								superpo.vue
+N            N	     Y  	  								initdb.js
+N            N	     Y  	  								utils.js
+N			 N	     Y    createRootEvent					intdb.js
+Y            Y	     Y    dependencyRemovedEvent 	      	update.js
+Y            Y	     Y    descriptionEvent	            	update.js
+N			 N	     Y    docRemovedDescendantEvent			remove.js
+Y            Y	     Y    docRestoredEvent 	            	undo.js
+N            N	     Y    grandParentDocRestoredEvent	  	undo.js
+N			 Y	     Y    newChildEvent						load.js
+Y            Y	     Y    nodeDroppedEvent	            	move.js
+Y            N	     N    nodesMovedEvent	 	            move.js
+Y            Y	     Y    nodeUndoMoveEvent	            	move.js
+Y            Y	     Y    removeAttachmentEvent	        	attachments.js
+N            Y	     Y    removedFromParentEvent	      	remove.js
+Y 			 Y 	     Y    removeSprintIdsEvent				update.js
+Y            N	     Y    updateParentHistEvent	        	remove.js
+Y            N	     N    updateTaskOrderEvent	        	planningboard.js
+Y            Y	     Y    setConditionsEvent	          	update.js
+Y            Y	     Y    setDependenciesEvent	        	update.js
+Y            Y	     Y    setHrsEvent	                  	update.js
+Y            Y	     Y    setPointsEvent	              	update.js
+Y            Y	     Y    setSizeEvent	                	update.js
+Y            Y	     Y    setStateEvent	                	update.js
+Y            Y	     Y    setSubTypeEvent	              	update.js
+N			 N	     Y    setTeamEventDescendant			update.js
+Y            Y	     Y    setTeamOwnerEvent	            	update.js
+Y            Y	     Y    setTitleEvent	                	update.js
+N			 N	     Y    subscribeEvent					update.js
+Y            Y	     Y    uploadAttachmentEvent	        	attachments.js
+N			 N	     Y    resetHistoryEvent					utils.js
 
 KNOWN ERRORS:
 
