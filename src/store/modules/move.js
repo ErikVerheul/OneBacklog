@@ -47,7 +47,7 @@ const actions = {
 							by: rootState.userData.user,
 							timestamp: Date.now(),
 							sessionId: rootState.userData.sessionId,
-							distributeEvent: true
+							distributeEvent: false
 						}
 					} else {
 						// undo move
@@ -56,7 +56,7 @@ const actions = {
 							by: rootState.userData.user,
 							timestamp: Date.now(),
 							sessionId: rootState.userData.sessionId,
-							distributeEvent: true
+							distributeEvent: false
 						}
 					}
 					doc.history.unshift(newHist)
@@ -81,7 +81,8 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+			const toDispatch = { 'addHistToTargetParent': payload }
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'updateMovedItemsBulk' })
 
 			// if moving to another product or another level, update the descendants of the moved(back) items
 			if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
@@ -96,6 +97,37 @@ const actions = {
 			}
 		}).catch(e => {
 			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	addHistToTargetParent({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.moveInfo.targetParentId
+		}).then(res => {
+			let tmpDoc = res.data
+			const items = []
+			for (let item of payload.items) {
+				items.push({ id: item.id, newlyCalculatedPriority: item.newlyCalculatedPriority })
+			}
+			const newHist = {
+				"nodesMovedEvent": [payload.moveInfo.targetParentId, items, payload.moveInfo.type],
+				"by": rootState.userData.user,
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			tmpDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+
+		}).catch(error => {
+			let msg = 'getMovedDescendentIds: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

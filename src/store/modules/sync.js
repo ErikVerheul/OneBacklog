@@ -142,6 +142,10 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
+				// if (doc.type == "backlogItem") console.log('listenForChanges-test: document with _id ' + doc._id + ' is processed, priority = ' + doc.priority +
+				// ' lastHistType = ' + Object.keys(doc.history[0])[0] + ' history timestamp = ' + String(new Date(doc.history[0].timestamp)).substring(0, 24) +
+				// ' comments timestamp = ' + String(new Date(doc.comments[0].timestamp)).substring(0, 24) + ' title = ' + doc.title)
+
 				if (doc.type == "backlogItem" && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
 					const lastHistObj = doc.history[0]
 					// ToDo: remove this and solve it on the detail level
@@ -331,34 +335,36 @@ const actions = {
 										dispatch('restoreBranch', doc)
 									}
 									break
-								case 'nodeDroppedEvent':
-								case 'nodeUndoMoveEvent':
-									{	// check if the node has moved location
-										let parentNode = window.slVueTree.getNodeById(doc.parentId)
-										if (node === null) break
+								case 'nodesMovedEvent':
+									{
+										const targetParentId = lastHistObj['nodesMovedEvent'][0]
+										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
+										const parentNode = window.slVueTree.getNodeById(targetParentId)
+										if (parentNode === null) return false
 
-										let locationInfo = getLocationInfo(doc.priority, parentNode)
-										if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
-											// move the node to the new position w/r to its siblings; first remove the node and its children, then insert
-											window.slVueTree.remove([node])
-											node.data.priority = doc.priority
-											// do not recalculate the priority during insert
-											if (locationInfo.newInd === 0) {
-												window.slVueTree.insert({
-													nodeModel: locationInfo.prevNode,
-													placement: 'inside'
-												}, [node], false)
-											} else {
-												// insert after prevNode
-												window.slVueTree.insert({
-													nodeModel: locationInfo.prevNode,
-													placement: 'after'
-												}, [node], false)
+										for (let item of lastHistObj['nodesMovedEvent'][1]) {
+											const node = window.slVueTree.getNodeById(item.id)
+											let locationInfo = getLocationInfo(item.newlyCalculatedPriority, parentNode)
+											if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
+												// move the node to the new position w/r to its siblings; first remove the node, then insert
+												window.slVueTree.remove([node])
+												node.data.priority = item.newlyCalculatedPriority
+												// do not recalculate the priority during insert
+												if (locationInfo.newInd === 0) {
+													window.slVueTree.insert({
+														nodeModel: locationInfo.prevNode,
+														placement: 'inside'
+													}, [node], false)
+												} else {
+													// insert after prevNode
+													window.slVueTree.insert({
+														nodeModel: locationInfo.prevNode,
+														placement: 'after'
+													}, [node], false)
+												}
+												if (lastHistObj['nodesMovedEvent'][2] == 'move') node.data.lastPositionChange = lastHistoryTimestamp
+												if (lastHistObj['nodesMovedEvent'][2] == 'undoMove') node.data.lastPositionChange = 0
 											}
-											if (histEvent === 'nodeUndoMoveEvent') {
-												// remove the <moved> badge
-												node.data.lastPositionChange = 0
-											} else node.data.lastPositionChange = lastHistoryTimestamp
 										}
 									}
 									break
@@ -441,7 +447,7 @@ const actions = {
 									break
 								default:
 									// eslint-disable-next-line no-console
-									if (rootState.debug) console.log('sync: not found, event = ' + histEvent)
+									if (rootState.debug) console.log('sync.detailProduct: event not found, name = ' + histEvent)
 							}
 						}
 						// process events for the planning board
@@ -460,13 +466,16 @@ const actions = {
 										commit('updateBoard', { rootState, storyId: doc.parentId, taskId: doc._id, prevState, newState: doc.state, newTaskPosition })
 									}
 									break
+								default:
+									// eslint-disable-next-line no-console
+									if (rootState.debug) console.log('sync.planningBoard: event not found, name = ' + histEvent)
 							}
 						}
 					}
 				}
 			} // end of loop
 			// recurse
-			dispatch('listenForChanges')
+			if (!rootState.stopListenForChanges) dispatch('listenForChanges')
 		}).catch(error => {
 			let msg = 'Listening for changes made by other users failed with ' + error
 			// eslint-disable-next-line no-console
