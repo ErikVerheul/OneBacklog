@@ -250,17 +250,27 @@ const methods = {
      * 1. Disallow drop on node were the user has no write authority
      * 2. Disallow drop when moving over more than 1 level.
      * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest level (tasklevel).
+     * 4. Disallow the drop of multiple nodes within the range of the selected nodes.
      * precondition: the selected nodes have all the same parent (same level)
      */
+    const dropInd = position.nodeModel.ind
+    let sourceMinInd = Number.MAX_SAFE_INTEGER
+    let sourceMaxind = 0
+    for (let d of draggingNodes) {
+      if (d.ind < sourceMinInd) sourceMinInd = d.ind
+      if (d.ind > sourceMaxind) sourceMaxind = d.ind
+    }
     let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
       const levelChange = Math.abs(targetLevel - sourceLevel)
       const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
       const failedCheck2 = levelChange > 1
       const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.taskLevel
+      const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
       if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
       if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
       if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
-      return failedCheck1 || failedCheck2 || failedCheck3
+      if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', WARNING)
+      return failedCheck1 || failedCheck2 || failedCheck3 || failedCheck4
     }
     const sourceLevel = draggingNodes[0].level
     let targetLevel = position.nodeModel.level
