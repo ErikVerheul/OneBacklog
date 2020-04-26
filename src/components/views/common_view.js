@@ -301,20 +301,16 @@ const methods = {
 	* Restore the nodes in their previous (source) position.
 	* Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
 	*/
-  moveBack(entry) {
-    const beforeDropStatus = entry.beforeDropStatus
-    const sourceParentId = beforeDropStatus.sourceParentId
-    const targetParentId = beforeDropStatus.targetParentId
-    const movedNodesData = beforeDropStatus.movedNodesData
-    const parentNode = window.slVueTree.getNodeById(sourceParentId)
+  moveBack(sourceParentId, targetParentId, swappedIndmap) {
+    const parentNode = window.slVueTree.getNodeById(targetParentId)
     if (parentNode === null) return false
 
-    for (let m of movedNodesData.sourceIndMap) {
-      const node = window.slVueTree.getNodeById(m.nodeId)
+    for (let s of swappedIndmap) {
+      const node = window.slVueTree.getNodeById(s.nodeId)
       if (node === null) return false
 
       let cursorPosition
-      if (m.sourceInd === 0) {
+      if (s.targetInd === 0) {
         cursorPosition = {
           nodeModel: parentNode,
           placement: 'inside'
@@ -322,9 +318,9 @@ const methods = {
       } else {
         let topSibling
         if (sourceParentId !== targetParentId) {
-          topSibling = parentNode.children[m.sourceInd - 1]
+          topSibling = parentNode.children[s.targetInd - 1]
         } else {
-          topSibling = parentNode.children[m.sourceInd - (m.targetInd > m.sourceInd ? 1 : 0)]
+          topSibling = parentNode.children[s.targetInd - (s.sourceInd > s.targetInd ? 1 : 0)]
         }
         if (topSibling === undefined) return false
 
@@ -340,14 +336,6 @@ const methods = {
   },
 
   onUndoEvent() {
-    function swap(sourceIndMap) {
-      for (let m of sourceIndMap) {
-        let val = m.sourceInd
-        m.sourceInd = m.targetInd
-        m.targetInd = val
-      }
-      return sourceIndMap
-    }
     const entry = this.$store.state.changeHistory.splice(0, 1)[0]
     switch (entry.type) {
       case 'undoAddSprintIds':
@@ -404,41 +392,58 @@ const methods = {
         } else this.showLastEvent('Item was already removed', INFO)
         break
       case 'undoMove':
-        if (this.moveBack(entry)) {
+        {
           const beforeDropStatus = entry.beforeDropStatus
-          // update the nodes in the database; swap source and target
-          const moveInfo = {
-            type: 'undoMove',
-            sourceProductId: beforeDropStatus.targetProductId,
-            sourceParentId: beforeDropStatus.targetParentId,
-            sourceLevel: beforeDropStatus.targetLevel,
-            levelShift: beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel,
-            targetProductId: beforeDropStatus.sourceProductId,
-            targetParentId: beforeDropStatus.sourceParentId,
-            // placement: not available
-            sourceParentTitle: beforeDropStatus.sourceParentTitle,
-            targetParentTitle: beforeDropStatus.targetParentTitle
-          }
-          const swappedSourceIndMap = swap(beforeDropStatus.movedNodesData.sourceIndMap)
-          const items = []
-          for (let m of swappedSourceIndMap) {
-            const node = window.slVueTree.getNodeById(m.nodeId)
-            if (node === null) break
+          const sourceIndMap = beforeDropStatus.movedNodesData.sourceIndMap
+          // swap source and target
+          const sourceProductId = beforeDropStatus.targetProductId
+          const sourceParentId = beforeDropStatus.targetParentId
+          const sourceLevel = beforeDropStatus.targetLevel
+          const sourceParentTitle = beforeDropStatus.targetParentTitle
+          const targetProductId = beforeDropStatus.sourceProductId
+          const targetParentId = beforeDropStatus.sourceParentId
+          const targetParentTitle = beforeDropStatus.sourceParentTitle
+          const levelShift = beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel
 
-            // remove the <moved> badge
-            node.data.lastPositionChange = 0
-            const payloadItem = {
-              id: m.nodeId,
-              sourceInd: m.targetInd,
-              newlyCalculatedPriority: node.data.priority,
-              targetInd: m.sourceInd,
-              childCount: node.children.length
-            }
-            items.push(payloadItem)
+          const swappedIndmap = sourceIndMap.slice()
+          for (let m of sourceIndMap) {
+            let val = m.sourceInd
+            m.sourceInd = m.targetInd
+            m.targetInd = val
           }
-          this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items })
-          if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
-        } else this.showLastEvent('Undo failed. Sign out and -in again to recover.', ERROR)
+          if (this.moveBack(sourceParentId, targetParentId, swappedIndmap)) {
+            // update the nodes in the database
+            const moveInfo = {
+              type: 'undoMove',
+              sourceProductId,
+              sourceParentId,
+              sourceLevel,
+              levelShift,
+              targetProductId,
+              targetParentId,
+              sourceParentTitle,
+              targetParentTitle
+            }
+            const items = []
+            for (let m of swappedIndmap) {
+              const node = window.slVueTree.getNodeById(m.nodeId)
+              if (node === null) break
+
+              // remove the <moved> badge
+              node.data.lastPositionChange = 0
+              const payloadItem = {
+                id: m.nodeId,
+                sourceInd: m.sourceInd,
+                newlyCalculatedPriority: node.data.priority,
+                targetInd: m.targetInd,
+                childCount: node.children.length
+              }
+              items.push(payloadItem)
+            }
+            this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items })
+            if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
+          } else this.showLastEvent('Undo failed. Sign out and -in again to recover.', ERROR)
+        }
         break
       case 'undoRemove':
         // restore the removed node
