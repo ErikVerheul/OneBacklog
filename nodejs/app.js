@@ -119,7 +119,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "setHrsEvent":
             return mkHeader() + `<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>` + mkFooter()
         case "setPointsAndStatusEvent":
-            return mkHeader() + `<h3>Story points estimate changed from ${value[0]} to ${value[1]}. The item state changed from '${getItemStateText(value[2])}' to '${getItemStateText(value[3])}'</h3>` +
+            return mkHeader() + `<h3>Story points estimate changed from ${value[0]} to ${value[1]}. The item state changed from '${getItemStateText(dbName, value[2])}' to '${getItemStateText(dbName, value[3])}'</h3>` +
                 `<p>This backlog item is now assigned to team '${value[5]}'</p>` + mkFooter()
         case "setPointsEvent":
             return mkHeader() + `<h3>The item size changed from ${value[0]} to ${value[1]} story points</h3>` + mkFooter()
