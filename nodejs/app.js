@@ -2,7 +2,7 @@
 require('dotenv').config();
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
     "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent", "newChildEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent",
-    "setConditionsEvent", "setDependenciesEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
+    "setConditionsEvent", "setDependenciesEvent", "setHrsEvent", "setPointsAndStatusEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
     "removeSprintIdsEvent", "setTitleEvent", "uploadAttachmentEvent"];
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984');
 const atob = require('atob');
@@ -70,7 +70,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
             return mkHeader() + `<h3>The user added a comment:</h3><p>${atob(value)}</p>` + mkFooter()
         case "addSprintIdsEvent":
             {
-                let txt =  `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
+                let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
                 if (value[3]) txt += ` The item was assigned to a sprint before.`
                 return mkHeader() + `<h3>${txt}</h3>` + mkFooter()
             }
@@ -118,6 +118,9 @@ function mkHtml(dbName, eventType, value, event, doc) {
             return mkHeader() + `<h3>Dependencies set for this item changed from ${convertToShortIds(value[0])} to ${convertToShortIds(value[1])} (short Ids)</h3>` + mkFooter()
         case "setHrsEvent":
             return mkHeader() + `<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>` + mkFooter()
+        case "setPointsAndStatusEvent":
+            return mkHeader() + `<h3>Story points estimate changed from ${value[0]} to ${value[1]}. The item state changed from '${getItemStateText(value[2])}' to '${getItemStateText(value[3])}'</h3>` +
+                `<p>This backlog item is now assigned to team '${value[5]}'</p>` + mkFooter()
         case "setPointsEvent":
             return mkHeader() + `<h3>The item size changed from ${value[0]} to ${value[1]} story points</h3>` + mkFooter()
         case "setSizeEvent":

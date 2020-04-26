@@ -7,6 +7,8 @@ const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const REMOVED = 0
+const NEW = 2
+const READY = 3
 const STATE_NEW_OR_TODO = 2
 const STATE_READY_OR_INPROGRESS = 3
 const DONE = 5
@@ -109,6 +111,7 @@ const computed = {
     'canCreateComments',
     'canUploadAttachments',
     'getCurrentItemLevel',
+    'getCurrentItemState',
     'getCurrentItemTsSize',
     // from startup.js
     'haveWritePermission'
@@ -359,6 +362,16 @@ const methods = {
       case 'undoTsSizeChange':
         this.$store.dispatch('setSize', { 'newSizeIdx': entry.oldTsSize, 'timestamp': Date.now() })
         this.showLastEvent('Change of item T-shirt size is undone', INFO)
+        break
+      case 'undoStoryPointsAndStateChange':
+        this.$store.dispatch('setStoryPoints', {
+          newPoints: entry.oldStoryPoints,
+          state: entry.oldState,
+          team: entry.oldTeam,
+          timestamp: Date.now()
+        })
+        this.$store.commit('updateNodeSelected', { state: entry.oldState, team: entry.oldTeam, lastStateChange: 0, lastChange: 0 })
+        this.showLastEvent('Change of item story points and state to Ready is undone', INFO)
         break
       case 'undoStoryPointsChange':
         this.$store.dispatch('setStoryPoints', { 'newPoints': entry.oldStoryPoints, 'timestamp': Date.now() })
@@ -644,9 +657,13 @@ const methods = {
     }
   },
 
+  /*
+  * Any authorized user can assign story points to a NEW item. That will assign his team to this item and change the state to READY.
+  * Only authorized users who are member of the owning team can change story points at any other state.
+  */
   updateStoryPoints() {
     if (this.haveWritePermission[this.getCurrentItemLevel]) {
-      if (this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
+      if (this.getCurrentItemState === NEW || this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
         const oldStoryPoints = this.$store.state.currentDoc.spsize
         const now = Date.now()
         let el = document.getElementById("storyPointsId")
@@ -654,17 +671,36 @@ const methods = {
           el.value = '?'
           return
         }
-        this.$store.commit('updateNodeSelected', { lastChange: now })
-        this.$store.dispatch('setStoryPoints', {
-          'newPoints': parseInt(el.value),
-          'timestamp': now
-        })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-          type: 'undoStoryPointsChange',
-          oldStoryPoints
+        if (this.getCurrentItemState === NEW) {
+          // when state is 'new' change state to 'ready' and assign the user's team as owner
+          this.$store.dispatch('setStoryPoints', {
+            newPoints: parseInt(el.value),
+            state: READY,
+            team: this.$store.state.userData.myTeam,
+            timestamp: now
+          })
+          // create an entry for undoing the change in a last-in first-out sequence
+          const entry = {
+            type: 'undoStoryPointsAndStateChange',
+            oldStoryPoints,
+            oldState: NEW,
+            oldTeam: this.$store.state.currentDoc.team
+          }
+          this.$store.state.changeHistory.unshift(entry)
+          this.$store.commit('updateNodeSelected', { state: READY, team: this.$store.state.userData.myTeam, lastStateChange: now, lastChange: now })
+        } else {
+          this.$store.dispatch('setStoryPoints', {
+            newPoints: parseInt(el.value),
+            timestamp: now
+          })
+          // create an entry for undoing the change in a last-in first-out sequence
+          const entry = {
+            type: 'undoStoryPointsChange',
+            oldStoryPoints
+          }
+          this.$store.state.changeHistory.unshift(entry)
+          this.$store.commit('updateNodeSelected', { lastChange: now })
         }
-        this.$store.state.changeHistory.unshift(entry)
       } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change story points of this item", WARNING)
     } else {
       this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)

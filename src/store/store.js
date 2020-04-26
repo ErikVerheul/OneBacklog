@@ -179,6 +179,9 @@ export default new Vuex.Store({
 		getCurrentItemLevel(state) {
 			if (state.currentDoc) return state.currentDoc.level
 		},
+		getCurrentItemState(state) {
+			if (state.currentDoc) return state.currentDoc.state
+		},
 
 		getStoryPoints(state) {
 			let sum = 0

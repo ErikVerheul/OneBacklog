@@ -375,17 +375,35 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
-			const oldPoints = tmpDoc.spsize
-			const newHist = {
-				"setPointsEvent": [oldPoints, payload.newPoints],
-				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
+			if (payload.state || payload.team) {
+				const oldPoints = tmpDoc.spsize
+				const oldState = tmpDoc.state
+				const oldTeam = tmpDoc.team
+				const newHist = {
+					"setPointsAndStatusEvent": [oldPoints, payload.newPoints, oldState, payload.state, oldTeam, payload.team],
+					"by": rootState.userData.user,
+					"timestamp": payload.timestamp,
+					"sessionId": rootState.userData.sessionId,
+					"distributeEvent": true
+				}
+				tmpDoc.history.unshift(newHist)
+				tmpDoc.spsize = payload.newPoints
+				tmpDoc.state = payload.state
+				tmpDoc.team = payload.team
+				commit('updateCurrentDoc', { spsize: payload.newPoints, state: payload.state, team: payload.team, newHist })
+			} else {
+				const oldPoints = tmpDoc.spsize
+				const newHist = {
+					"setPointsEvent": [oldPoints, payload.newPoints],
+					"by": rootState.userData.user,
+					"timestamp": payload.timestamp,
+					"sessionId": rootState.userData.sessionId,
+					"distributeEvent": true
+				}
+				tmpDoc.spsize = payload.newPoints
+				tmpDoc.history.unshift(newHist)
+				commit('updateCurrentDoc', { spsize: payload.newPoints, newHist })
 			}
-			tmpDoc.spsize = payload.newPoints
-			tmpDoc.history.unshift(newHist)
-			commit('updateCurrentDoc', { spsize: payload.newPoints, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error
@@ -879,7 +897,7 @@ const actions = {
 		}).then((res) => {
 			if (payload.forceUpdateCurrentDoc || rootState.currentDoc._id === res.data.id) {
 				// create/update the current document in memory with the new revision number
-				commit('updateCurrentDoc', { newDoc: payload.updatedDoc,  _rev: res.data.rev })
+				commit('updateCurrentDoc', { newDoc: payload.updatedDoc, _rev: res.data.rev })
 			}
 			rootState.isTeamCreated = true
 			// execute passed function if provided
