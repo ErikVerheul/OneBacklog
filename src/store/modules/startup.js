@@ -268,11 +268,15 @@ const actions = {
             } else {
                 if (!rootState.configData.defaultSprintCalendar) {
                     // missing calendar
-                    alert("Error: No default sprint calendar is set. Consult your administrator. The application will exit.")
-                    commit('resetData', null, { root: true })
-                    router.replace('/')
-                }
-                dispatch('getRoot')
+                    if (rootGetters.isAdmin) {
+                        alert("Error: No default sprint calendar is set. You will be redirected to the Admin view where you can create one.")
+                        router.replace('/admin')
+                    } else {
+                        alert("Error: No default sprint calendar is set. Consult your administrator. The application will exit.")
+                        commit('resetData', null, { root: true })
+                        router.replace('/')
+                    }
+                } else dispatch('getRoot')
             }
         }).catch(error => {
             let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
@@ -282,31 +286,31 @@ const actions = {
         })
     },
 
-     /* Load the root of the backlog items into the current document */
-	getRoot({
+    /* Load the root of the backlog items into the current document */
+    getRoot({
         rootState,
         commit,
-		dispatch,
-	}) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/root',
-		}).then(res => {
+        dispatch,
+    }) {
+        globalAxios({
+            method: 'GET',
+            url: rootState.userData.currentDb + '/root',
+        }).then(res => {
             commit('updateCurrentDoc', { newDoc: res.data })
-			// eslint-disable-next-line no-console
+            // eslint-disable-next-line no-console
             if (rootState.debug) console.log("The root document is read")
             // open the products view by default
             router.push('/detailProduct')
-		}).catch(error => {
-			let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
-			if (error.response.status === 404) {
-				msg += ' , is your default database ' + rootState.userData.currentDb + ' deleted?'
-			}
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
+        }).catch(error => {
+            let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
+            if (error.response.status === 404) {
+                msg += ' , is your default database ' + rootState.userData.currentDb + ' deleted?'
+            }
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
 }
 
 export default {

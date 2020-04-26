@@ -895,7 +895,7 @@ const actions = {
 			url: payload.dbName + '/' + _id,
 			data: payload.updatedDoc
 		}).then((res) => {
-			if (payload.forceUpdateCurrentDoc || rootState.currentDoc._id === res.data.id) {
+			if (payload.forceUpdateCurrentDoc || rootState.currentDoc && (rootState.currentDoc._id === res.data.id)) {
 				// create/update the current document in memory with the new revision number
 				commit('updateCurrentDoc', { newDoc: payload.updatedDoc, _rev: res.data.rev })
 			}
