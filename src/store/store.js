@@ -55,6 +55,7 @@ export default new Vuex.Store({
 		currentDefaultProductId: null,
 		currentProductId: null,
 		currentProductTitle: "",
+		stopListenForChanges: false,
 		// loading
 		treeNodes: [],
 		// detail view
@@ -405,6 +406,7 @@ export default new Vuex.Store({
 
 		resetData(state) {
 			state.treeNodes = []
+			state.stopListenForChanges = true
 			state.lastTreeView = undefined
 			state.currentDefaultProductId = null
 			state.currentProductId = null
@@ -420,7 +422,7 @@ export default new Vuex.Store({
 			state.warning = ''
 
 			clearInterval(state.runningCookieRefreshId)
-			clearInterval(state.logging.runningWatchdogId)
+			clearInterval(state.logState.runningWatchdogId)
 		}
 	},
 
@@ -510,12 +512,6 @@ export default new Vuex.Store({
 			commit('resetData')
 			router.replace('/')
 		},
-	},
-
-	// prevent getters.$refs.contextMenuRef return undefined after hot reload
-	beforeDestroy(state) {
-		clearInterval(state.runningCookieRefreshId)
-		clearInterval(state.logging.runningWatchdogId)
 	},
 
 	modules: {

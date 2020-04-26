@@ -129,7 +129,7 @@ const actions = {
 		}
 
 		// stop listening if offline. watchdog will start it automatically when online again
-		if (!rootState.online) return
+		if (rootState.stopListenForChanges || !rootState.online) return
 
 		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true&since=now'
 		rootState.listenForChangesRunning = true
@@ -475,7 +475,7 @@ const actions = {
 				}
 			} // end of loop
 			// recurse
-			if (!rootState.stopListenForChanges) dispatch('listenForChanges')
+			dispatch('listenForChanges')
 		}).catch(error => {
 			let msg = 'Listening for changes made by other users failed with ' + error
 			// eslint-disable-next-line no-console
