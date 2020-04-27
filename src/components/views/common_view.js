@@ -114,6 +114,7 @@ const computed = {
     'canUploadAttachments',
     'getCurrentItemLevel',
     'getCurrentItemState',
+    'getItemSprintName',
     'getCurrentItemTsSize',
     // from startup.js
     'haveWritePermission'

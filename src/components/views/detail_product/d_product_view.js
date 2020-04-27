@@ -117,6 +117,20 @@ const watch = {
 }
 
 const methods = {
+  getItemInfo() {
+    let txt = ''
+    if (this.getCurrentItemLevel < this.taskLevel) {
+      txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
+    } else {
+      txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${this.$store.state.currentDoc.taskOwner}' of team '${this.$store.state.currentDoc.team}'`
+    }
+    if (this.getCurrentItemLevel >= this.pbiLevel && this.getItemSprintName) {
+      txt += ` (Sprint '${this.getItemSprintName})'`
+    }
+    return txt
+  },
+
+  /* Return true if in the current or next sprint */
   inSprint(node) {
     const sprintId = node.sprintId
     if (!sprintId) {
@@ -138,7 +152,7 @@ const methods = {
     return false
   },
 
-  getSprintTxt(node) {
+  getTaskState(node) {
     const sprintId = node.sprintId
     if (sprintId === this.sprints.currentSprint.id) {
       return 'current'

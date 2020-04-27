@@ -182,6 +182,13 @@ export default new Vuex.Store({
 		getCurrentItemState(state) {
 			if (state.currentDoc) return state.currentDoc.state
 		},
+		getItemSprintName(state) {
+			if (state.currentDoc.sprintId && state.configData.defaultSprintCalendar) {
+				for (let s of state.configData.defaultSprintCalendar) {
+					if (s.id === state.currentDoc.sprintId) return s.name
+				}
+			}
+		},
 
 		getStoryPoints(state) {
 			let sum = 0

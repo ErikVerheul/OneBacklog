@@ -157,7 +157,7 @@
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
 
               <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
-              <b-badge v-if="inSprint(node)" variant="info">In  {{ getSprintTxt(node) }} sprint</b-badge>
+              <b-badge v-if="inSprint(node)" variant="info">In  {{ getTaskState(node) }} sprint</b-badge>
             </template>
 
             <template slot="toggle" slot-scope="{ node }">
@@ -200,8 +200,7 @@
           </div>
           <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div class="d-table w-100">
-              <p v-if="getCurrentItemLevel < taskLevel" class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
-              <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by '{{ $store.state.currentDoc.taskOwner }}' of team '{{ $store.state.currentDoc.team }}'</p>
+              <p class="title is-6"> {{ getItemInfo() }}</p>
               <div v-if="getCurrentItemLevel==this.pbiLevel" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group
