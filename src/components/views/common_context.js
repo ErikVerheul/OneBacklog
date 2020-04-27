@@ -356,7 +356,7 @@ const methods = {
         window.slVueTree.traverseModels((nm) => {
             let descendants = window.slVueTree.getDescendantsInfo(nm).descendants
             if (descendants.length > 0) {
-                let highestState = 0
+                let highestState = this.newState
                 let allDone = true
                 for (let desc of descendants) {
                     if (desc.data.state > highestState) highestState = desc.data.state

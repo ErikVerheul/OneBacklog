@@ -744,16 +744,16 @@ const methods = {
     function changeState(vm, owningTeam) {
       const descendants = window.slVueTree.getDescendantsInfo(vm.$store.state.nodeSelected).descendants
       if (descendants.length > 0) {
-        let highestState = 0
+        let highestState = vm.newState
         let allDone = true
-        for (let desc of descendants) {
-          if (desc.data.state > highestState) highestState = desc.data.state
-          if (desc.data.state < this.doneState && desc.data.state !== this.removedState) allDone = false
+        for (let d of descendants) {
+          if (d.data.state > highestState) highestState = d.data.state
+          if (d.data.state < vm.doneState && d.data.state !== vm.removedState) allDone = false
         }
-        if (idx > highestState || idx === this.doneState && !allDone) {
+        if (idx > highestState || idx === vm.doneState && !allDone) {
           // node has a higher state than any of its descendants or set to done while one of its descendants is not done
           vm.$store.commit('updateNodeSelected', { inconsistentState: true })
-          if (idx === this.doneState && !allDone) {
+          if (idx === vm.doneState && !allDone) {
             vm.showLastEvent("You are assigning an inconsistant state to this node. Not all descendants are done.", WARNING)
           } else vm.showLastEvent(`You are assigning an inconsistant state to this node. You can set it to '${vm.getItemStateText(highestState)}'.`, WARNING)
         } else {
