@@ -5,14 +5,14 @@ import { utilities } from '../mixins/utilities.js'
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
-const REMOVED = 0
-const ONHOLD = 1
-const DONE = 5
 const STATE_NEW_OR_TODO = 2
 const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 
 function created() {
+    this.removedState = 0
+    this.onholdState = 1
+    this.doneState = 5
     this.databaseLevel = 1
     this.productLevel = 2
     this.epicLevel = 3
@@ -360,11 +360,11 @@ const methods = {
                 let allDone = true
                 for (let desc of descendants) {
                     if (desc.data.state > highestState) highestState = desc.data.state
-                    if (desc.data.state < DONE &&
-                        desc.data.state !== REMOVED &&
-                        desc.data.state !== ONHOLD) allDone = false
+                    if (desc.data.state < this.doneState &&
+                        desc.data.state !== this.removedState &&
+                        desc.data.state !== this.onholdState) allDone = false
                 }
-                if (nm.data.state > highestState || nm.data.state === DONE && !allDone) {
+                if (nm.data.state > highestState || nm.data.state === this.doneState && !allDone) {
                     // node has a higher state than any of its descendants or set to done while one of its descendants is not done
                     if (!nm.data.inconsistentState) nm.data.lastChange = Date.now()
                     nm.data.inconsistentState = true

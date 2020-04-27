@@ -6,16 +6,18 @@ const WARNING = 1
 const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
-const REMOVED = 0
-const NEW = 2
-const READY = 3
 const STATE_NEW_OR_TODO = 2
 const STATE_READY_OR_INPROGRESS = 3
-const DONE = 5
 const SHORTKEYLENGTH = 5
 var violationsWereFound = false
 
 function created() {
+  this.removedState = 0
+  this.onholdState = 1
+  this.newState = 2
+  this.readyState = 3
+  this.inProgressState = 4
+  this.doneState = 5
   this.databaseLevel = 1
   this.productLevel = 2
   this.epicLevel = 3
@@ -663,7 +665,7 @@ const methods = {
   */
   updateStoryPoints() {
     if (this.haveWritePermission[this.getCurrentItemLevel]) {
-      if (this.getCurrentItemState === NEW || this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
+      if (this.getCurrentItemState === this.newState || this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
         const oldStoryPoints = this.$store.state.currentDoc.spsize
         const now = Date.now()
         let el = document.getElementById("storyPointsId")
@@ -671,11 +673,11 @@ const methods = {
           el.value = '?'
           return
         }
-        if (this.getCurrentItemState === NEW) {
+        if (this.getCurrentItemState === this.newState) {
           // when state is 'new' change state to 'ready' and assign the user's team as owner
           this.$store.dispatch('setStoryPoints', {
             newPoints: parseInt(el.value),
-            state: READY,
+            state: this.readyState,
             team: this.$store.state.userData.myTeam,
             timestamp: now
           })
@@ -683,11 +685,11 @@ const methods = {
           const entry = {
             type: 'undoStoryPointsAndStateChange',
             oldStoryPoints,
-            oldState: NEW,
+            oldState: this.newState,
             oldTeam: this.$store.state.currentDoc.team
           }
           this.$store.state.changeHistory.unshift(entry)
-          this.$store.commit('updateNodeSelected', { state: READY, team: this.$store.state.userData.myTeam, lastStateChange: now, lastChange: now })
+          this.$store.commit('updateNodeSelected', { state: this.readyState, team: this.$store.state.userData.myTeam, lastStateChange: now, lastChange: now })
         } else {
           this.$store.dispatch('setStoryPoints', {
             newPoints: parseInt(el.value),
@@ -746,12 +748,12 @@ const methods = {
         let allDone = true
         for (let desc of descendants) {
           if (desc.data.state > highestState) highestState = desc.data.state
-          if (desc.data.state < DONE && desc.data.state !== REMOVED) allDone = false
+          if (desc.data.state < this.doneState && desc.data.state !== this.removedState) allDone = false
         }
-        if (idx > highestState || idx === DONE && !allDone) {
+        if (idx > highestState || idx === this.doneState && !allDone) {
           // node has a higher state than any of its descendants or set to done while one of its descendants is not done
           vm.$store.commit('updateNodeSelected', { inconsistentState: true })
-          if (idx === DONE && !allDone) {
+          if (idx === this.doneState && !allDone) {
             vm.showLastEvent("You are assigning an inconsistant state to this node. Not all descendants are done.", WARNING)
           } else vm.showLastEvent(`You are assigning an inconsistant state to this node. You can set it to '${vm.getItemStateText(highestState)}'.`, WARNING)
         } else {
