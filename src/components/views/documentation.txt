@@ -23,7 +23,6 @@ Database--------------------------------------------------- node
 "parentId"(string)----------------------------------------- parentId
 "_id"(string)---------------------------------------------- _id
 "shortId"(string)------------------------------------------ shortId
-"sprintId"(string)----------------------------------------- sprintId
 "taskOwner"(string)---------------------------------------- data.taskOwner
 "type": "backlogItem" 
 "team"(string)--------------------------------------------- data.team
@@ -42,6 +41,7 @@ Database--------------------------------------------------- node
 "description"(string, base-64 encoded, decoded in rootState.currentDoc) 
 "acceptanceCriteria"(string, base-64 encoded, decoded in rootState.currentDoc)
 "priority"(Integer)---------------------------------------- data.priority
+"sprintId"(string)----------------------------------------- data.sprintId
 "comments": []
 "history": []
 "delmark"(boolean)

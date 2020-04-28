@@ -13,6 +13,7 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		// console.log('updateMovedItemsBulk: payload = ' + JSON.stringify(payload, null, 2))
 		// lookup to not rely on the order of the response being the same as in the request
 		function getPayLoadItem(id) {
 			for (let item of payload.items) {
@@ -65,9 +66,11 @@ const actions = {
 					doc.parentId = m.targetParentId
 					doc.level = doc.level + m.levelShift
 					doc.priority = item.newlyCalculatedPriority
+					doc.sprintId = m.targetSprintId
 					docs.push(doc)
-					// show the history update in the current opened item
-					if (doc._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
+					// show the history and other updated props in the current opened item
+					if (doc._id === rootState.currentDoc._id) commit('updateCurrentDoc',
+						{ newHist, productId: doc.productId, parentId: doc.parentId, level: doc.level, priority: doc.priority, sprintId: doc.sprintId })
 				}
 				if (envelope.error) error.push(envelope.error)
 			}
@@ -117,7 +120,14 @@ const actions = {
 				items.push({ id: item.id, newlyCalculatedPriority: item.newlyCalculatedPriority })
 			}
 			const newHist = {
-				"nodesMovedEvent": [payload.moveInfo.targetParentId, items, payload.moveInfo.type],
+				"nodesMovedEvent": [
+					payload.moveInfo.targetParentId,
+					items,
+					payload.moveInfo.type,
+					payload.moveInfo.sourceParentId,
+					payload.moveInfo.sourcePlanningBoardTasks,
+					payload.moveInfo.targetPlanningBoardTasks
+				],
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
@@ -197,11 +207,11 @@ const actions = {
 					doc.level = doc.level + updates.levelShift
 					// priority does not change for descendents
 					const newHist = {
-                        "ignoreEvent": ['updateMovedDescendantsBulk'],
-                        "timestamp": Date.now(),
-                        "distributeEvent": false
-                    }
-                    doc.history.unshift(newHist)
+						"ignoreEvent": ['updateMovedDescendantsBulk'],
+						"timestamp": Date.now(),
+						"distributeEvent": false
+					}
+					doc.history.unshift(newHist)
 					docs.push(doc)
 				}
 				if (envelope.error) error.push(envelope.error)

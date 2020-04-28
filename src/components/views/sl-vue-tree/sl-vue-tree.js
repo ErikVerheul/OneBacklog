@@ -7,6 +7,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
+const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 
 import { eventBus } from "../../../main"
@@ -694,6 +695,7 @@ const methods = {
 		// save the status of source and target before move
 		const sourceProductId = nodes[0].productId
 		const sourceParentId = nodes[0].parentId
+		const sourceSprintId = nodes[0].data.sprintId
 		const sourceLevel = nodes[0].level
 		const targetNode = cursorPosition.nodeModel
 		const targetProductId = targetNode.productId
@@ -710,10 +712,12 @@ const methods = {
 			insertInd = targetNode.ind
 		}
 		// get titles for history reporting
+		const targetParent = window.slVueTree.getNodeById(targetParentId)
+		const targetSprintId = targetParent.data.sprintId
 		const sourceProductTitle = window.slVueTree.getNodeById(sourceProductId).title
 		const sourceParentTitle = window.slVueTree.getNodeById(sourceParentId).title
 		const targetProductTitle = window.slVueTree.getNodeById(targetProductId).title
-		const targetParentTitle = window.slVueTree.getNodeById(targetParentId).title
+		const targetParentTitle = targetParent.title
 		// map the source index to the node reference and set the doRevertOrder boolean
 		const sourceIndMap = []
 		let doRevertOrder = false
@@ -731,17 +735,27 @@ const methods = {
 
 		this.remove(nodes)
 		this.insert(cursorPosition, nodes)
+
+		// set the sprintId if the nodes are tasks and moved to a pbi that has a sprintId assigned to it
+		for (let n of nodes) {
+			if (n.level === TASKLEVEL && targetSprintId) {
+				n.data.sprintId = targetSprintId
+			} else n.data.sprintId = undefined
+		}
+		console.log('moveNodes: targetSprintId = ' + targetSprintId)
 		return {
 			sourceProductId,
 			sourceProductTitle,
 			sourceParentId,
 			sourceParentTitle,
+			sourceSprintId,
 			sourceLevel,
 			targetProductId,
 			targetProductTitle,
 			targetParentId,
 			targetParentTitle,
 			targetLevel,
+			targetSprintId,
 			// data used for restoring the tree view at undo only
 			movedNodesData: { nodes, sourceIndMap: sortedIndMap }
 		}

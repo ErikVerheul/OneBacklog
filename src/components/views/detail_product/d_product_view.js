@@ -132,7 +132,7 @@ const methods = {
 
   /* Return true if in the current or next sprint */
   inSprint(node) {
-    const sprintId = node.sprintId
+    const sprintId = node.data.sprintId
     if (!sprintId) {
       // item not in any sprint
       return false
@@ -153,7 +153,7 @@ const methods = {
   },
 
   getTaskState(node) {
-    const sprintId = node.sprintId
+    const sprintId = node.data.sprintId
     if (sprintId === this.sprints.currentSprint.id) {
       return 'current'
     }

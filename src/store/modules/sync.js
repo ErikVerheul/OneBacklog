@@ -159,14 +159,14 @@ const actions = {
 
 						dispatch('doBlinck', doc)
 
-						const treeInview = rootState.currentView === 'coarseProduct' || rootState.currentView === 'detailProduct'
-						const documentInView = treeInview && doc._id === rootState.currentDoc._id
+						const treeLoaded = rootState.treeNodes.length > 0
+						const isCurrentDocument = treeLoaded && doc._id === rootState.currentDoc._id
 						// get data from last history addition
 						const lastHistoryTimestamp = lastHistObj.timestamp
 						const histEvent = Object.keys(lastHistObj)[0]
 						// show the history update
-						if (documentInView) rootState.currentDoc.history = doc.history
-						if (treeInview) {
+						if (isCurrentDocument) rootState.currentDoc.history = doc.history
+						if (treeLoaded) {
 							const node = window.slVueTree.getNodeById(doc._id)
 							// process comments
 							if (doc.comments[0].distributeEvent && (!lastHistObj.distributed || doc.comments[0].timestamp > lastHistoryTimestamp)) {
@@ -176,7 +176,7 @@ const actions = {
 									case 'addCommentEvent':
 										node.data.lastCommentAddition = doc.comments[0].timestamp
 										// show the comments update
-										if (documentInView) rootState.currentDoc.comments = doc.comments
+										if (isCurrentDocument) rootState.currentDoc.comments = doc.comments
 										break
 								}
 								// nothing else to do when processing a comments change
@@ -195,13 +195,13 @@ const actions = {
 							// process other events for tree views
 							switch (histEvent) {
 								case 'acceptanceEvent':
-									if (documentInView) {
+									if (isCurrentDocument) {
 										commit('updateCurrentDoc', { acceptanceCriteria: doc.acceptanceCriteria })
 										node.data.lastContentChange = lastHistoryTimestamp
 									}
 									break
 								case 'commentToHistoryEvent':
-									if (documentInView) {
+									if (isCurrentDocument) {
 										rootState.currentDoc.history = doc.history
 										node.data.lastCommentToHistory = doc.history[0].timestamp
 									}
@@ -314,7 +314,7 @@ const actions = {
 									}
 									break
 								case 'descriptionEvent':
-									if (documentInView) {
+									if (isCurrentDocument) {
 										commit('updateCurrentDoc', { description: doc.description })
 										node.data.lastContentChange = lastHistoryTimestamp
 									}
@@ -342,8 +342,10 @@ const actions = {
 										const parentNode = window.slVueTree.getNodeById(targetParentId)
 										if (parentNode === null) return false
 
+										const sprintId = lastHistObj['nodesMovedEvent'][5]
 										for (let item of lastHistObj['nodesMovedEvent'][1]) {
 											const node = window.slVueTree.getNodeById(item.id)
+											if (node.level === TASKLEVEL) node.data.sprintId = sprintId
 											let locationInfo = getLocationInfo(item.newlyCalculatedPriority, parentNode)
 											if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 												// move the node to the new position w/r to its siblings; first remove the node, then insert
@@ -401,58 +403,83 @@ const actions = {
 									break
 								case 'setConditionsEvent':
 									node.conditionalFor = doc.conditionalFor
-									if (documentInView) rootState.currentDoc.conditionalFor = doc.conditionalFor
+									if (isCurrentDocument) rootState.currentDoc.conditionalFor = doc.conditionalFor
 									break
 								case 'setDependenciesEvent':
 									node.dependencies = doc.dependencies
-									if (documentInView) rootState.currentDoc.dependencies = doc.dependencies
+									if (isCurrentDocument) rootState.currentDoc.dependencies = doc.dependencies
 									break
 								case 'setHrsEvent':
-									if (documentInView) rootState.currentDoc.spikepersonhours = doc.spikepersonhours
+									if (isCurrentDocument) rootState.currentDoc.spikepersonhours = doc.spikepersonhours
 									break
 								case 'setPointsEvent':
-									if (documentInView) rootState.currentDoc.spsize = doc.spsize
+									if (isCurrentDocument) rootState.currentDoc.spsize = doc.spsize
 									break
 								case 'setSizeEvent':
-									if (documentInView) rootState.currentDoc.tssize = doc.tssize
+									if (isCurrentDocument) rootState.currentDoc.tssize = doc.tssize
 									break
 								case 'setStateEvent':
 									node.data.state = doc.state
 									node.data.lastStateChange = lastHistoryTimestamp
-									if (documentInView) rootState.currentDoc.state = doc.state
+									if (isCurrentDocument) rootState.currentDoc.state = doc.state
 									break
 								case 'setSubTypeEvent':
 									node.data.subtype = doc.subtype
-									if (documentInView) rootState.currentDoc.subtype = doc.subtype
+									if (isCurrentDocument) rootState.currentDoc.subtype = doc.subtype
 									break
 								case 'setTeamOwnerEvent':
 									node.data.team = doc.team
-									if (documentInView) rootState.currentDoc.team = doc.team
+									if (isCurrentDocument) rootState.currentDoc.team = doc.team
 									break
 								case 'setTitleEvent':
 									node.title = doc.title
 									node.data.lastContentChange = lastHistoryTimestamp
-									if (documentInView) rootState.currentDoc.title = doc.title
+									if (isCurrentDocument) rootState.currentDoc.title = doc.title
 									break
 								case 'uploadAttachmentEvent':
 									node.data.lastAttachmentAddition = lastHistoryTimestamp
 									break
 								case 'addSprintIdsEvent':
-									node.sprintId = doc.sprintId
-									if (documentInView) rootState.currentDoc.sprintId = doc.sprintId
+									node.data.sprintId = doc.sprintId
+									if (isCurrentDocument) rootState.currentDoc.sprintId = doc.sprintId
 									break
 								case 'removeSprintIdsEvent':
 									node.sprintId = undefined
-									if (documentInView) rootState.currentDoc.sprintId = undefined
+									if (isCurrentDocument) rootState.currentDoc.sprintId = undefined
 									break
 								default:
 									// eslint-disable-next-line no-console
-									if (rootState.debug) console.log('sync.detailProduct: event not found, name = ' + histEvent)
+									if (rootState.debug && histEvent !== 'nodeDroppedEvent') console.log('sync.detailProduct: event not found, name = ' + histEvent)
 							}
 						}
 						// process events for the planning board
 						if (rootState.currentView === 'planningBoard') {
 							switch (histEvent) {
+								case 'addSprintIdsEvent':
+
+									break
+								case 'nodesMovedEvent':
+									if (doc.level === PBILEVEL) {
+										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
+										const sourceParentId = lastHistObj['nodesMovedEvent'][3]
+										const sourcePlanningBoardTasks = lastHistObj['nodesMovedEvent'][4]
+										if (sourcePlanningBoardTasks) {
+											for (let s of rootState.stories) {
+												if (s.storyId === sourceParentId) {
+													s.tasks = sourcePlanningBoardTasks
+												}
+											}
+										}
+										const targetPlanningBoardTasks = lastHistObj['nodesMovedEvent'][5]
+										if (targetPlanningBoardTasks) {
+											for (let s of rootState.stories) {
+												if (s.storyId === doc._id) {
+													s.tasks = targetPlanningBoardTasks
+												}
+											}
+										}
+									}
+									break
 								case 'updateTaskOrderEvent':
 									{
 										const taskUpdates = lastHistObj['updateTaskOrderEvent']
@@ -489,7 +516,7 @@ const actions = {
 		rootState
 	}, doc) {
 		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('listenForChanges: document with _id ' + doc._id + ' is processed, priority = ' + doc.priority +
+		if (rootState.debug) console.log('listenForChanges: document with _id ' + doc._id + ' is processed, current view = ' + rootState.currentView + ' priority = ' + doc.priority +
 			' lastHistType = ' + Object.keys(doc.history[0])[0] + ' history timestamp = ' + String(new Date(doc.history[0].timestamp)).substring(0, 24) +
 			' comments timestamp = ' + String(new Date(doc.comments[0].timestamp)).substring(0, 24) + ' title = ' + doc.title)
 		rootState.eventSyncColor = '#e6f7ff'

@@ -784,7 +784,7 @@ const actions = {
 					doc.sprintId = payload.sprintId
 					// update the tree view
 					const node = window.slVueTree.getNodeById(doc._id)
-					if (node) node.sprintId = payload.sprintId
+					if (node) node.data.sprintId = payload.sprintId
 
 					const newHist = {
 						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned],
@@ -843,7 +843,7 @@ const actions = {
 					doc.sprintId = undefined
 					// update the tree view
 					const node = window.slVueTree.getNodeById(doc._id)
-					if (node) node.sprintId = undefined
+					if (node) node.data.sprintId = undefined
 
 					const newHist = {
 						"removeSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName],

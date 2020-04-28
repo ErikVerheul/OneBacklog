@@ -185,7 +185,6 @@ const mutations = {
                     level,
                     productId,
                     parentId,
-                    sprintId,
                     _id,
                     shortId: _id.slice(-5),
                     dependencies,
@@ -203,6 +202,7 @@ const mutations = {
                     data: {
                         priority,
                         state: itemState,
+                        sprintId,
                         reqarea,
                         reqAreaItemcolor,
                         team,

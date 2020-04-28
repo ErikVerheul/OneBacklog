@@ -415,11 +415,15 @@ const methods = {
           const sourceProductId = beforeDropStatus.targetProductId
           const sourceParentId = beforeDropStatus.targetParentId
           const sourceLevel = beforeDropStatus.targetLevel
+          const sourceSprintId = beforeDropStatus.targetSprintId
           const sourceParentTitle = beforeDropStatus.targetParentTitle
+
+          const levelShift = beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel
+
           const targetProductId = beforeDropStatus.sourceProductId
           const targetParentId = beforeDropStatus.sourceParentId
+          const targetSprintId = beforeDropStatus.sourceSprintId
           const targetParentTitle = beforeDropStatus.sourceParentTitle
-          const levelShift = beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel
 
           const swappedIndmap = sourceIndMap.slice()
           for (let m of sourceIndMap) {
@@ -434,11 +438,15 @@ const methods = {
               sourceProductId,
               sourceParentId,
               sourceLevel,
+              sourceSprintId,
+              sourceParentTitle,
+              sourcePlanningBoardTasks: sourceParentId !== targetParentId ? this.calcTasks(sourceParentId) : undefined,
               levelShift,
               targetProductId,
               targetParentId,
-              sourceParentTitle,
-              targetParentTitle
+              targetSprintId,
+              targetParentTitle,
+              targetPlanningBoardTasks: this.calcTasks(targetParentId)
             }
             const items = []
             for (let m of swappedIndmap) {
@@ -824,6 +832,40 @@ const methods = {
     }
   },
 
+  calcTasks(parentId) {
+    const TODO_STATE = 2
+    const INPROGRESS_STATE = 3
+    const TEST_REVIEW_STATE = 4
+    const DONE_STATE = 5
+    const parentNode =  window.slVueTree.getNodeById(parentId)
+    if (parentNode && parentNode.level === this.pbiLevel) {
+      const siblings = parentNode.children
+      const tasks = {
+        [TODO_STATE]: [],
+        [INPROGRESS_STATE]: [],
+        [TEST_REVIEW_STATE]: [],
+        [DONE_STATE]: []
+      }
+      for (let s of siblings) {
+        switch (s.data.state) {
+          case TODO_STATE:
+            tasks[TODO_STATE].push({ id: s._id, text: s.title })
+            break
+          case INPROGRESS_STATE:
+            tasks[INPROGRESS_STATE].push({ id: s._id, text: s.title })
+            break
+          case TEST_REVIEW_STATE:
+            tasks[TEST_REVIEW_STATE].push({ id: s._id, text: s.title })
+            break
+          case DONE_STATE:
+            tasks[DONE_STATE].push({ id: s._id, text: s.title })
+            break
+        }
+      }
+      return tasks
+    } else return undefined
+  },
+
   /* Update the database when one or more nodes are dropped on another location */
   nodeDropped(beforeDropStatus, draggingNodes, position) {
     const clickedLevel = beforeDropStatus.sourceLevel
@@ -836,12 +878,18 @@ const methods = {
       sourceProductId: beforeDropStatus.sourceProductId,
       sourceParentId: beforeDropStatus.sourceParentId,
       sourceLevel: beforeDropStatus.sourceLevel,
+      sourceSprintId: beforeDropStatus.sourceSprintId,
+      sourceParentTitle: beforeDropStatus.sourceParentTitle,
+      sourcePlanningBoardTasks: beforeDropStatus.sourceParentId !== beforeDropStatus.targetParentId ? this.calcTasks(beforeDropStatus.sourceParentId) : undefined,
+
       levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
+      placement: position.placement,
+
       targetProductId: beforeDropStatus.targetProductId,
       targetParentId: beforeDropStatus.targetParentId,
-      placement: position.placement,
-      sourceParentTitle: beforeDropStatus.sourceParentTitle,
-      targetParentTitle: beforeDropStatus.targetParentTitle
+      targetSprintId: beforeDropStatus.targetSprintId,
+      targetParentTitle: beforeDropStatus.targetParentTitle,
+      targetPlanningBoardTasks: this.calcTasks(beforeDropStatus.targetParentId)
     }
     let items = []
     for (let dn of draggingNodes) {

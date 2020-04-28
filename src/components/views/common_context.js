@@ -267,8 +267,8 @@ const methods = {
             taskOwner = this.$store.state.userData.user
             newNode.data.taskOwner = taskOwner
             // when inserting a task, copy the sprintId from the parent PBI or sibling task
-            sprintId = this.contextNodeSelected.sprintId
-            newNode.sprintId = sprintId
+            sprintId = this.contextNodeSelected.data.sprintId
+            newNode.data.sprintId = sprintId
         }
 
         newNode.data.team = team

@@ -41,7 +41,7 @@ const methods = {
       this.hasDependencies = node.dependencies && node.dependencies.length > 0
       this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
       this.allowRemoval = this.haveWritePermission[node.level]
-      this.isInSprint = node.sprintId && this.isCurrentOrNextPrintId(node.sprintId)
+      this.isInSprint = node.data.sprintId && this.isCurrentOrNextPrintId(node.data.sprintId)
       window.showContextMenuRef.show()
     }
   },
@@ -261,6 +261,7 @@ const methods = {
     }
   },
 
+  /* ToDo: moved item must be above target level */
   moveItemToOtherProduct() {
     if (this.$store.state.moveOngoing) {
       const targetPosition = window.slVueTree.lastSelectCursorPosition
@@ -288,12 +289,15 @@ const methods = {
         sourceProductId: beforeDropStatus.sourceProductId,
         sourceParentId: beforeDropStatus.sourceParentId,
         sourceLevel: beforeDropStatus.sourceLevel,
-        levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
-        targetProductId: beforeDropStatus.targetProductId,
-        targetParentId: beforeDropStatus.targetParentId,
-        placement: targetPosition.placement,
+        sourceSprintId: beforeDropStatus.sourceSprintId,
         sourceProductTitle: beforeDropStatus.sourceProductTitle,
         sourceParentTitle: beforeDropStatus.sourceParentTitle,
+
+        levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
+        placement: targetPosition.placement,
+
+        targetProductId: beforeDropStatus.targetProductId,
+        targetParentId: beforeDropStatus.targetParentId,
         targetProductTitle: beforeDropStatus.targetProductTitle,
         targetParentTitle: beforeDropStatus.targetParentTitle
       }
@@ -331,7 +335,7 @@ const methods = {
     const node = window.slVueTree.getNodeById(currentId)
     if (node === null) return
 
-    const sprintId = node.sprintId
+    const sprintId = node.data.sprintId
     let itemIds = []
     if (this.$store.state.currentDoc.level === PBILEVEL) {
       itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
