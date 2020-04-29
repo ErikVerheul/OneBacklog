@@ -142,10 +142,6 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
-				// if (doc.type == "backlogItem") console.log('listenForChanges-test: document with _id ' + doc._id + ' is processed, priority = ' + doc.priority +
-				// ' lastHistType = ' + Object.keys(doc.history[0])[0] + ' history timestamp = ' + String(new Date(doc.history[0].timestamp)).substring(0, 24) +
-				// ' comments timestamp = ' + String(new Date(doc.comments[0].timestamp)).substring(0, 24) + ' title = ' + doc.title)
-
 				if (doc.type == "backlogItem" && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
 					const lastHistObj = doc.history[0]
 					// ToDo: remove this and solve it on the detail level
@@ -459,22 +455,57 @@ const actions = {
 
 									break
 								case 'nodesMovedEvent':
-									if (doc.level === PBILEVEL) {
-										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
-										const sourceParentId = lastHistObj['nodesMovedEvent'][3]
-										const sourcePlanningBoardTasks = lastHistObj['nodesMovedEvent'][4]
-										if (sourcePlanningBoardTasks) {
-											for (let s of rootState.stories) {
-												if (s.storyId === sourceParentId) {
-													s.tasks = sourcePlanningBoardTasks
+									{
+										console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
+										const sourceSprintId = lastHistObj['nodesMovedEvent'][4]
+										const targetSprintId = lastHistObj['nodesMovedEvent'][5]
+										if (!sourceSprintId && !targetSprintId) {
+											// no changes to the planning board
+											break
+										}
+										if (sourceSprintId && !targetSprintId) {
+											// move out of a sprint
+											console.log("sync.nodesMovedEvent: move out of a sprint")
+											const sourceParentId = lastHistObj['nodesMovedEvent'][3]
+											const sourcePlanningBoardTasks = lastHistObj['nodesMovedEvent'][6]
+											if (sourcePlanningBoardTasks) {
+												for (let s of rootState.stories) {
+													if (s.storyId === sourceParentId) {
+														s.tasks = sourcePlanningBoardTasks
+													}
 												}
 											}
-										}
-										const targetPlanningBoardTasks = lastHistObj['nodesMovedEvent'][5]
-										if (targetPlanningBoardTasks) {
-											for (let s of rootState.stories) {
-												if (s.storyId === doc._id) {
-													s.tasks = targetPlanningBoardTasks
+										} else if (doc.level === PBILEVEL) {
+											if (!sourceSprintId && targetSprintId) {
+												// move into a sprint
+												console.log("sync.nodesMovedEvent: move into a sprint")
+												const targetPlanningBoardTasks = lastHistObj['nodesMovedEvent'][7]
+												if (targetPlanningBoardTasks) {
+													for (let s of rootState.stories) {
+														if (s.storyId === doc._id) {
+															s.tasks = targetPlanningBoardTasks
+														}
+													}
+												}
+											} else {
+												// move within a sprint or between sprints
+												console.log("sync.nodesMovedEvent: move within a sprint or between sprints")
+												const sourceParentId = lastHistObj['nodesMovedEvent'][3]
+												const sourcePlanningBoardTasks = lastHistObj['nodesMovedEvent'][6]
+												if (sourcePlanningBoardTasks) {
+													for (let s of rootState.stories) {
+														if (s.storyId === sourceParentId) {
+															s.tasks = sourcePlanningBoardTasks
+														}
+													}
+												}
+												const targetPlanningBoardTasks = lastHistObj['nodesMovedEvent'][7]
+												if (targetPlanningBoardTasks) {
+													for (let s of rootState.stories) {
+														if (s.storyId === doc._id) {
+															s.tasks = targetPlanningBoardTasks
+														}
+													}
 												}
 											}
 										}

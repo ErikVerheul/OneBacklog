@@ -125,6 +125,8 @@ const actions = {
 					items,
 					payload.moveInfo.type,
 					payload.moveInfo.sourceParentId,
+					payload.moveInfo.sourceSprintId,
+					payload.moveInfo.targetSprintId,
 					payload.moveInfo.sourcePlanningBoardTasks,
 					payload.moveInfo.targetPlanningBoardTasks
 				],

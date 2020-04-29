@@ -425,6 +425,8 @@ const methods = {
           const targetSprintId = beforeDropStatus.sourceSprintId
           const targetParentTitle = beforeDropStatus.sourceParentTitle
 
+          console.log('undoMove: sourceSprintId = ' + sourceSprintId + ' targetSprint = ' + targetSprintId)
+
           const swappedIndmap = sourceIndMap.slice()
           for (let m of sourceIndMap) {
             let val = m.sourceInd
@@ -453,6 +455,8 @@ const methods = {
               const node = window.slVueTree.getNodeById(m.nodeId)
               if (node === null) break
 
+              // reset the sprintId
+              node.data.sprintId = targetSprintId
               // remove the <moved> badge
               node.data.lastPositionChange = 0
               const payloadItem = {
@@ -837,7 +841,7 @@ const methods = {
     const INPROGRESS_STATE = 3
     const TEST_REVIEW_STATE = 4
     const DONE_STATE = 5
-    const parentNode =  window.slVueTree.getNodeById(parentId)
+    const parentNode = window.slVueTree.getNodeById(parentId)
     if (parentNode && parentNode.level === this.pbiLevel) {
       const siblings = parentNode.children
       const tasks = {
@@ -870,7 +874,7 @@ const methods = {
   nodeDropped(beforeDropStatus, draggingNodes, position) {
     const clickedLevel = beforeDropStatus.sourceLevel
 
-    let levelChange = beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel
+    const levelShift = beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel
     // update the nodes in the database
     const moveInfo = {
       // this info is the same for all nodes moved
@@ -882,7 +886,7 @@ const methods = {
       sourceParentTitle: beforeDropStatus.sourceParentTitle,
       sourcePlanningBoardTasks: beforeDropStatus.sourceParentId !== beforeDropStatus.targetParentId ? this.calcTasks(beforeDropStatus.sourceParentId) : undefined,
 
-      levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
+      levelShift,
       placement: position.placement,
 
       targetProductId: beforeDropStatus.targetProductId,
@@ -926,7 +930,7 @@ const methods = {
       } else {
         evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
       }
-      if (levelChange !== 0) evt += ' as ' + this.getLevelText(beforeDropStatus.targetLevel)
+      if (levelShift !== 0) evt += ' as ' + this.getLevelText(beforeDropStatus.targetLevel)
       this.showLastEvent(evt, INFO)
     }
   },

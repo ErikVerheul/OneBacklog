@@ -7,6 +7,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
+const PBILEVEL = 5
 const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 
@@ -714,6 +715,7 @@ const methods = {
 		// get titles for history reporting
 		const targetParent = window.slVueTree.getNodeById(targetParentId)
 		const targetSprintId = targetParent.data.sprintId
+		const targetParentLevel = targetLevel - 1
 		const sourceProductTitle = window.slVueTree.getNodeById(sourceProductId).title
 		const sourceParentTitle = window.slVueTree.getNodeById(sourceParentId).title
 		const targetProductTitle = window.slVueTree.getNodeById(targetProductId).title
@@ -736,13 +738,13 @@ const methods = {
 		this.remove(nodes)
 		this.insert(cursorPosition, nodes)
 
-		// set the sprintId if the nodes are tasks and moved to a pbi that has a sprintId assigned to it
+		// set the sprintId if the nodes are tasks and moved to a pbi that has a sprintId assigned to it, if not, remove the sprintId
 		for (let n of nodes) {
-			if (n.level === TASKLEVEL && targetSprintId) {
+			if (n.level === TASKLEVEL && targetParentLevel === PBILEVEL && targetSprintId) {
 				n.data.sprintId = targetSprintId
 			} else n.data.sprintId = undefined
 		}
-		console.log('moveNodes: targetSprintId = ' + targetSprintId)
+		console.log('moveNodes: sourceSprintId = ' + sourceSprintId + ' targetSprintId = ' + targetSprintId)
 		return {
 			sourceProductId,
 			sourceProductTitle,
