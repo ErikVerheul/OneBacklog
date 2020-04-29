@@ -99,7 +99,7 @@ const actions = {
 							rootState.logState.unsavedLogs = []
 						}
 						// we have a working connection to the database; restart synchronization if needed
-						if (!rootState.listenForChangesRunning) {
+						if (!rootState.stopListenForChanges && !rootState.listenForChangesRunning) {
 							dispatch('listenForChanges')
 							let msg = "Watchdog restarted listening for changes"
 							// eslint-disable-next-line no-console

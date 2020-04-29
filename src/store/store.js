@@ -417,6 +417,7 @@ export default new Vuex.Store({
 		resetData(state) {
 			state.treeNodes = []
 			state.stopListenForChanges = true
+			state.listenForChangesRunning = false
 			state.lastTreeView = undefined
 			state.currentDefaultProductId = null
 			state.currentProductId = null
