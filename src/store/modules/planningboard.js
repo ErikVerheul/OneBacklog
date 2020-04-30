@@ -8,10 +8,26 @@ const TODO = 2
 const INPROGRESS = 3
 const TESTREVIEW = 4
 const DONE = 5
+const parentIdToNameMap = {}
 
 
 function composeRangeString(id, team) {
 	return `startkey=["${id}","${team}",${PBILEVEL}, ${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}",${TASKLEVEL}, ${Number.MAX_SAFE_INTEGER}]`
+}
+
+function getParentName(id) {
+	let name = parentIdToNameMap[id]
+	if (name) {
+		return name
+	} else {
+		const parent = window.slVueTree.getNodeById(id)
+		if (parent) {
+			name = parent.title
+			parentIdToNameMap[id] = name
+			return name
+		}
+	}
+	return 'unknown'
 }
 
 const mutations = {
@@ -21,12 +37,14 @@ const mutations = {
 		// console.log('createSprint: payload.storieResults = ' + JSON.stringify(payload.storieResults, null, 2))
 		for (let i = 0; i < payload.storieResults.length; i++) {
 			const storyId = payload.storieResults[i].id
+			const featureName = getParentName(payload.storieResults[i].value[1])
 			const storyTitle = payload.storieResults[i].value[2]
 			const subType = payload.storieResults[i].value[4]
 			const storySize = payload.storieResults[i].value[6]
 			const newStory = {
 				idx: i,
 				storyId,
+				featureName,
 				title: storyTitle,
 				size: storySize,
 				subType,
@@ -87,7 +105,8 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString(payload.sprintId, payload.team)
 		}).then(res => {
-			const results = res.data.rows
+			// sort the results on parentId --> stories are grouped for the same feature and first created (oldest) features on top
+			const results = res.data.rows.sort((a, b) => a.value[1] > b.value[1])
 			for (let r of results) {
 				const level = r.value[3]
 				if (level === PBILEVEL) storieResults.push(r)
@@ -196,8 +215,8 @@ const actions = {
 			}
 
 			const toDispatch = {
-                syncOtherPlanningBoards: payload.taskUpdates
-            }
+				syncOtherPlanningBoards: payload.taskUpdates
+			}
 
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'resetTaskPriorities' })
 		}).catch(e => {
@@ -227,9 +246,9 @@ const actions = {
 			const newHist = {
 				"updateTaskOrderEvent": { sprintId: rootState.loadedSprintId, taskUpdates: payload },
 				"by": rootState.userData.user,
-                "timestamp": Date.now(),
-                "sessionId": rootState.userData.sessionId,
-                "distributeEvent": true
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })

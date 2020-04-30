@@ -13,6 +13,7 @@
       <span class="text-muted"> #{{ getShortId(story.storyId) }}</span>
       {{ story.title }}
       <p>size = {{ story.size }}</p>
+      <p>F: {{ story.featureName }}</p>
     </div>
   </div>
 </template>
