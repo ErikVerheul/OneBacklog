@@ -52,7 +52,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('loadItemByShortId: document with _id ' + doc._id + ' is loaded.')
 				} else {
-					commit('showLastEvent', { txt: `The document with id ${shortId} is found but not in your assigned products.`, severity: WARNING })
+					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your assigned products.`, severity: WARNING })
 				}
 			} else commit('showLastEvent', { txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING })
 		})
