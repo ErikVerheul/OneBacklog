@@ -78,7 +78,7 @@ export default {
     // reload when the user changes team
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateTeam') {
-        this.$store.dispatch('loadPlanningBoard', {sprint: this.selectedSprint, team: state.userData.myTeam })
+        this.$store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: state.userData.myTeam })
       }
     });
   },
@@ -115,7 +115,7 @@ export default {
   watch: {
     // initially load the current sprint and reload when the user selects another sprint
     selectedSprint: function(newVal) {
-      this.$store.dispatch('loadPlanningBoard', {sprint: newVal, team: this.$store.state.userData.myTeam })
+      this.$store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.$store.state.userData.myTeam })
     }
   },
 

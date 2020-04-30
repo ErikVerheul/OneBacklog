@@ -274,6 +274,8 @@ const actions = {
             url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter',
         }).then(res => {
             rootState.lastTreeView = 'detailProduct'
+            rootState.loadedTreeDepth = TASKLEVEL
+            rootState.loadedSprintId = null
             commit('processProduct', { rootState, batch: res.data.rows })
             commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
             // log any detected orphans, if present

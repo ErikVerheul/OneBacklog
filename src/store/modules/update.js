@@ -425,7 +425,7 @@ const actions = {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
 			const newHist = {
-				"setStateEvent": [oldState, payload.newState, payload.team, payload.position],
+				"setStateEvent": [oldState, payload.newState, payload.team, payload.position, rootState.loadedSprintId],
 				"by": rootState.userData.user,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
@@ -755,125 +755,6 @@ const actions = {
 		}).catch(error => {
 			const msg = 'addTeamToDatabase: Could not read config document ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	addSprintIds({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
-		const docsToGet = []
-		for (let id of payload.itemIds) {
-			docsToGet.push({ "id": id })
-		}
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
-		}).then(res => {
-			const results = res.data.results
-			const docs = []
-			const error = []
-			for (let r of results) {
-				const envelope = r.docs[0]
-				if (envelope.ok) {
-					const doc = envelope.ok
-					const reAssigned = doc.sprintId !== undefined
-					doc.sprintId = payload.sprintId
-					// update the tree view
-					const node = window.slVueTree.getNodeById(doc._id)
-					if (node) node.data.sprintId = payload.sprintId
-
-					const newHist = {
-						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned],
-						"by": rootState.userData.user,
-						"timestamp": Date.now(),
-						"sessionId": rootState.userData.sessionId,
-						"distributeEvent": true
-					}
-					doc.history.unshift(newHist)
-					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
-					docs.push(doc)
-				}
-
-				if (envelope.error) error.push(envelope.error)
-			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'addSprintIds: These documents cannot change requirement area: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
-			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(e => {
-			let msg = 'addSprintIds: Could not read batch of documents: ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	removeSprintIds({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
-		const docsToGet = []
-		for (let id of payload.itemIds) {
-			docsToGet.push({ "id": id })
-		}
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
-		}).then(res => {
-			const results = res.data.results
-			const docs = []
-			const error = []
-			for (let r of results) {
-				const envelope = r.docs[0]
-				if (envelope.ok) {
-					const doc = envelope.ok
-					doc.sprintId = undefined
-					// update the tree view
-					const node = window.slVueTree.getNodeById(doc._id)
-					if (node) node.data.sprintId = undefined
-
-					const newHist = {
-						"removeSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName],
-						"by": rootState.userData.user,
-						"timestamp": Date.now(),
-						"sessionId": rootState.userData.sessionId,
-						"distributeEvent": true
-					}
-					doc.history.unshift(newHist)
-					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
-					docs.push(doc)
-				}
-
-				if (envelope.error) error.push(envelope.error)
-			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'removeSprintIds: These documents cannot change requirement area: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
-			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-		}).catch(e => {
-			let msg = 'removeSprintIds: Could not read batch of documents: ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},

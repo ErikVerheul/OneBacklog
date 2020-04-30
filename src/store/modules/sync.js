@@ -2,7 +2,6 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const PRODUCTLEVEL = 2
-const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
 const INFO = 0
@@ -128,6 +127,29 @@ const actions = {
 			return rootState.configData.subtype[idx]
 		}
 
+		function replaceSourceTasks(rootState, lastHistObj) {
+			const sourceParentId = lastHistObj['nodesMovedEvent'][3]
+			const sourcePlanningBoardTasks = lastHistObj['nodesMovedEvent'][6]
+			if (sourcePlanningBoardTasks) {
+				for (let s of rootState.stories) {
+					if (s.storyId === sourceParentId) {
+						s.tasks = sourcePlanningBoardTasks
+					}
+				}
+			}
+		}
+
+		function replaceTargetTasks(rootState, lastHistObj, doc) {
+			const targetPlanningBoardTasks = lastHistObj['nodesMovedEvent'][7]
+			if (targetPlanningBoardTasks) {
+				for (let s of rootState.stories) {
+					if (s.storyId === doc._id) {
+						s.tasks = targetPlanningBoardTasks
+					}
+				}
+			}
+		}
+
 		// stop listening if offline. watchdog will start it automatically when online again
 		if (rootState.stopListenForChanges || !rootState.online) return
 
@@ -144,25 +166,22 @@ const actions = {
 				let doc = r.doc
 				if (doc.type == "backlogItem" && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
 					const lastHistObj = doc.history[0]
-					// ToDo: remove this and solve it on the detail level
-					if (rootState.currentView === 'coarseProduct' && doc.level > FEATURELEVEL) {
-						// skip level changes above feature level when in products overview
-						continue
-					}
 					if (doc.history[0].sessionId !== rootState.userData.sessionId &&
 						rootState.userData.myProductSubscriptions.includes(doc.productId) ||
 						removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
-
-						dispatch('doBlinck', doc)
-
-						const treeLoaded = rootState.treeNodes.length > 0
-						const isCurrentDocument = treeLoaded && doc._id === rootState.currentDoc._id
 						// get data from last history addition
 						const lastHistoryTimestamp = lastHistObj.timestamp
 						const histEvent = Object.keys(lastHistObj)[0]
-						// show the history update
-						if (isCurrentDocument) rootState.currentDoc.history = doc.history
-						if (treeLoaded) {
+						// process events on tree items that are loaded (eg. 'products overview' has no pbi and task items)
+						if (doc.level <= rootState.loadedTreeDepth) {
+
+							dispatch('doBlinck', doc)
+
+							const isCurrentDocument = doc._id === rootState.currentDoc._id
+							if (isCurrentDocument) {
+								// show this history update
+								rootState.currentDoc.history = doc.history
+							}
 							const node = window.slVueTree.getNodeById(doc._id)
 							// process comments
 							if (doc.comments[0].distributeEvent && (!lastHistObj.distributed || doc.comments[0].timestamp > lastHistoryTimestamp)) {
@@ -333,15 +352,17 @@ const actions = {
 									break
 								case 'nodesMovedEvent':
 									{
-										const targetParentId = lastHistObj['nodesMovedEvent'][0]
 										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
-										const parentNode = window.slVueTree.getNodeById(targetParentId)
-										if (parentNode === null) return false
+										const parentNode = window.slVueTree.getNodeById(lastHistObj['nodesMovedEvent'][0])
+										if (parentNode === null) break
 
-										const sprintId = lastHistObj['nodesMovedEvent'][5]
 										for (let item of lastHistObj['nodesMovedEvent'][1]) {
+											if (item.level > rootState.loadedTreeDepth) {
+												// skip items that are not available in the tree
+												continue
+											}
 											const node = window.slVueTree.getNodeById(item.id)
-											if (node.level === TASKLEVEL) node.data.sprintId = sprintId
+											if (node.level === TASKLEVEL) node.data.sprintId = lastHistObj['nodesMovedEvent'][5]
 											let locationInfo = getLocationInfo(item.newlyCalculatedPriority, parentNode)
 											if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 												// move the node to the new position w/r to its siblings; first remove the node, then insert
@@ -369,6 +390,7 @@ const actions = {
 								case 'removeAttachmentEvent':
 									node.data.lastAttachmentAddition = 0
 									break
+								// ToDo: what about removedFromParentEvent currently not distributed?
 								case 'updateParentHistEvent':
 									if (doc.delmark) {
 										// remove any dependency references to/from outside the removed items
@@ -445,18 +467,32 @@ const actions = {
 									break
 								default:
 									// eslint-disable-next-line no-console
-									if (rootState.debug && histEvent !== 'nodeDroppedEvent') console.log('sync.detailProduct: event not found, name = ' + histEvent)
+									if (rootState.debug &&
+										histEvent !== 'nodeDroppedEvent' &&
+										histEvent !== 'updateTaskOrderEvent') {
+										console.log('sync.trees: event not found, name = ' + histEvent)
+									}
 							}
 						}
-						// process events for the planning board
+						// process events for the planning board if displayed
 						if (rootState.currentView === 'planningBoard') {
 							switch (histEvent) {
 								case 'addSprintIdsEvent':
-
+									{
+										const sprintId = lastHistObj['addSprintIdsEvent'][5]
+										if (sprintId === rootState.loadedSprintId) {
+											// console.log("sync.nodesMovedEvent: lastHistObj['addSprintIdsEvent'] = " + JSON.stringify(lastHistObj['addSprintIdsEvent'], null, 2))
+											const triggerBoardReload = lastHistObj['addSprintIdsEvent'][4]
+											if (triggerBoardReload) {
+												console.log('addSprintIdsEvent: reload the board for sprintId = ' + sprintId)
+												dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
+											}
+										}
+									}
 									break
 								case 'nodesMovedEvent':
 									{
-										console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
+										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
 										const sourceSprintId = lastHistObj['nodesMovedEvent'][4]
 										const targetSprintId = lastHistObj['nodesMovedEvent'][5]
 										if (!sourceSprintId && !targetSprintId) {
@@ -466,59 +502,29 @@ const actions = {
 										if (sourceSprintId && !targetSprintId) {
 											// move out of a sprint
 											console.log("sync.nodesMovedEvent: move out of a sprint")
-											const sourceParentId = lastHistObj['nodesMovedEvent'][3]
-											const sourcePlanningBoardTasks = lastHistObj['nodesMovedEvent'][6]
-											if (sourcePlanningBoardTasks) {
-												for (let s of rootState.stories) {
-													if (s.storyId === sourceParentId) {
-														s.tasks = sourcePlanningBoardTasks
-													}
-												}
-											}
+											if (sourceSprintId === rootState.loadedSprintId) replaceSourceTasks(rootState, lastHistObj)
 										} else if (doc.level === PBILEVEL) {
 											if (!sourceSprintId && targetSprintId) {
 												// move into a sprint
 												console.log("sync.nodesMovedEvent: move into a sprint")
-												const targetPlanningBoardTasks = lastHistObj['nodesMovedEvent'][7]
-												if (targetPlanningBoardTasks) {
-													for (let s of rootState.stories) {
-														if (s.storyId === doc._id) {
-															s.tasks = targetPlanningBoardTasks
-														}
-													}
-												}
+												if (targetSprintId === rootState.loadedSprintId) replaceTargetTasks(rootState, lastHistObj, doc)
 											} else {
 												// move within a sprint or between sprints
 												console.log("sync.nodesMovedEvent: move within a sprint or between sprints")
-												const sourceParentId = lastHistObj['nodesMovedEvent'][3]
-												const sourcePlanningBoardTasks = lastHistObj['nodesMovedEvent'][6]
-												if (sourcePlanningBoardTasks) {
-													for (let s of rootState.stories) {
-														if (s.storyId === sourceParentId) {
-															s.tasks = sourcePlanningBoardTasks
-														}
-													}
-												}
-												const targetPlanningBoardTasks = lastHistObj['nodesMovedEvent'][7]
-												if (targetPlanningBoardTasks) {
-													for (let s of rootState.stories) {
-														if (s.storyId === doc._id) {
-															s.tasks = targetPlanningBoardTasks
-														}
-													}
-												}
+												if (sourceSprintId === rootState.loadedSprintId) replaceSourceTasks(rootState, lastHistObj)
+												if (targetSprintId === rootState.loadedSprintId) replaceTargetTasks(rootState, lastHistObj, doc)
 											}
 										}
 									}
 									break
 								case 'updateTaskOrderEvent':
-									{
-										const taskUpdates = lastHistObj['updateTaskOrderEvent']
+									if (lastHistObj['updateTaskOrderEvent'].sprintId === rootState.loadedSprintId) {
+										const taskUpdates = lastHistObj['updateTaskOrderEvent'].taskUpdates
 										rootState.stories[taskUpdates.idx].tasks[taskUpdates.id] = taskUpdates.tasks
 									}
 									break
 								case 'setStateEvent':
-									{
+									if (lastHistObj['setStateEvent'][4] === rootState.loadedSprintId) {
 										const prevState = lastHistObj.setStateEvent[0]
 										const newTaskPosition = lastHistObj.setStateEvent[3]
 										commit('updateBoard', { rootState, storyId: doc.parentId, taskId: doc._id, prevState, newState: doc.state, newTaskPosition })

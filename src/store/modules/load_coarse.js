@@ -86,6 +86,8 @@ const actions = {
             url: rootState.userData.currentDb + '/_design/design1/_view/areaFilter',
         }).then(res => {
             rootState.lastTreeView = 'coarseProduct'
+            rootState.loadedTreeDepth = FEATURELEVEL
+            rootState.loadedSprintId = null
             const batch = res.data.rows
             for (let item of batch) {
                 const _id = item.id

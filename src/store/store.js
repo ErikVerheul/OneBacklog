@@ -56,8 +56,9 @@ export default new Vuex.Store({
 		currentProductId: null,
 		currentProductTitle: "",
 		stopListenForChanges: false,
-		// loading
+		// tree loading
 		treeNodes: [],
+		loadedTreeDepth: undefined,
 		// detail view
 		reqAreaMapper: {},
 		// coarse view
@@ -118,6 +119,7 @@ export default new Vuex.Store({
 		runningCookieRefreshId: null,
 		uploadDone: true,
 		// planning board
+		loadedSprintId: null,
 		stories: []
 	},
 
@@ -416,6 +418,8 @@ export default new Vuex.Store({
 
 		resetData(state) {
 			state.treeNodes = []
+			state.loadedSprintId = null
+			state.loadedTreeDepth = undefined
 			state.stopListenForChanges = true
 			state.listenForChangesRunning = false
 			state.lastTreeView = undefined

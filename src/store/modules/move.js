@@ -117,7 +117,7 @@ const actions = {
 			let tmpDoc = res.data
 			const items = []
 			for (let item of payload.items) {
-				items.push({ id: item.id, newlyCalculatedPriority: item.newlyCalculatedPriority })
+				items.push({ id: item.id, level: item.level, newlyCalculatedPriority: item.newlyCalculatedPriority })
 			}
 			const newHist = {
 				"nodesMovedEvent": [

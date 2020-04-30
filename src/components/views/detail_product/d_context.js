@@ -304,6 +304,7 @@ const methods = {
 
       const oneItem = {
         id: movedNode._id,
+        level: movedNode.level,
         sourceInd: savedInd,
         newlyCalculatedPriority: movedNode.data.priority,
         targetInd: movedNode.ind,

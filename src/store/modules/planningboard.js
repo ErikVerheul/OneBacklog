@@ -17,6 +17,7 @@ function composeRangeString(id, team) {
 const mutations = {
 	createSprint(state, payload) {
 		const rootState = payload.rootState
+		rootState.loadedSprintId = payload.sprintId
 		// console.log('createSprint: payload.storieResults = ' + JSON.stringify(payload.storieResults, null, 2))
 		for (let i = 0; i < payload.storieResults.length; i++) {
 			const storyId = payload.storieResults[i].id
@@ -84,7 +85,7 @@ const actions = {
 		const taskResults = []
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString(payload.sprint.id, payload.team)
+			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString(payload.sprintId, payload.team)
 		}).then(res => {
 			const results = res.data.rows
 			for (let r of results) {
@@ -92,7 +93,7 @@ const actions = {
 				if (level === PBILEVEL) storieResults.push(r)
 				if (level === TASKLEVEL) taskResults.push(r)
 			}
-			commit('createSprint', { rootState, storieResults, taskResults })
+			commit('createSprint', { rootState, sprintId: payload.sprintId, storieResults, taskResults })
 		}).catch(error => {
 			let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -137,8 +138,7 @@ const actions = {
 			})
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
-				dispatch('resetTaskPriorities', afterMoveIds)
-				dispatch('syncOtherPlanningBoards', payload)
+				dispatch('resetTaskPriorities', { afterMoveIds, taskUpdates: payload })
 			}
 		}
 	},
@@ -146,12 +146,12 @@ const actions = {
 	resetTaskPriorities({
 		rootState,
 		dispatch
-	}, afterMoveIds) {
+	}, payload) {
 		const docsToGet = []
-		for (let id of afterMoveIds) {
+		for (let id of payload.afterMoveIds) {
 			docsToGet.push({ "id": id })
 		}
-		const stepSize = Math.floor((Number.MAX_SAFE_INTEGER - Number.MIN_SAFE_INTEGER) / (afterMoveIds.length + 1))
+		const stepSize = Math.floor((Number.MAX_SAFE_INTEGER - Number.MIN_SAFE_INTEGER) / (payload.afterMoveIds.length + 1))
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
@@ -161,8 +161,8 @@ const actions = {
 			const docs = []
 			const error = []
 			function getIndex(id) {
-				for (let i = 0; i < afterMoveIds.length; i++) {
-					if (afterMoveIds[i] === id) return i
+				for (let i = 0; i < payload.afterMoveIds.length; i++) {
+					if (payload.afterMoveIds[i] === id) return i
 				}
 			}
 
@@ -183,17 +183,23 @@ const actions = {
 
 				if (envelope.error) error.push(envelope.error)
 			}
+
 			if (error.length > 0) {
 				let errorStr = ''
 				for (let e of error) {
 					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
-				let msg = 'resetTaskPriorities: These documents cannot change requirement area: ' + errorStr
+				let msg = 'resetTaskPriorities: These documents cannot change task priority: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+
+			const toDispatch = {
+                syncOtherPlanningBoards: payload.taskUpdates
+            }
+
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'resetTaskPriorities' })
 		}).catch(e => {
 			let msg = 'resetTaskPriorities: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -219,7 +225,7 @@ const actions = {
 			let tmpDoc = res.data
 			// this event is excluded from the history view
 			const newHist = {
-				"updateTaskOrderEvent": payload,
+				"updateTaskOrderEvent": { sprintId: rootState.loadedSprintId, taskUpdates: payload },
 				"by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -229,6 +235,127 @@ const actions = {
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setColor: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	addSprintIds({
+		rootState,
+		commit,
+		dispatch
+	}, payload) {
+		const docsToGet = []
+		for (let id of payload.itemIds) {
+			docsToGet.push({ "id": id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			let triggerBoardReload = true
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const reAssigned = doc.sprintId !== undefined
+					doc.sprintId = payload.sprintId
+					// update the tree view
+					const node = window.slVueTree.getNodeById(doc._id)
+					if (node) node.data.sprintId = payload.sprintId
+
+					const newHist = {
+						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned, triggerBoardReload, payload.sprintId],
+						"by": rootState.userData.user,
+						"timestamp": Date.now(),
+						"sessionId": rootState.userData.sessionId,
+						"distributeEvent": true
+					}
+					doc.history.unshift(newHist)
+					triggerBoardReload = false
+					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
+					docs.push(doc)
+				}
+
+				if (envelope.error) error.push(envelope.error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+				}
+				let msg = 'addSprintIds: These documents cannot change requirement area: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+		}).catch(e => {
+			let msg = 'addSprintIds: Could not read batch of documents: ' + e
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	removeSprintIds({
+		rootState,
+		commit,
+		dispatch
+	}, payload) {
+		const docsToGet = []
+		for (let id of payload.itemIds) {
+			docsToGet.push({ "id": id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					doc.sprintId = undefined
+					// update the tree view
+					const node = window.slVueTree.getNodeById(doc._id)
+					if (node) node.data.sprintId = undefined
+
+					const newHist = {
+						"removeSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName],
+						"by": rootState.userData.user,
+						"timestamp": Date.now(),
+						"sessionId": rootState.userData.sessionId,
+						"distributeEvent": true
+					}
+					doc.history.unshift(newHist)
+					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
+					docs.push(doc)
+				}
+
+				if (envelope.error) error.push(envelope.error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+				}
+				let msg = 'removeSprintIds: These documents cannot change requirement area: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+		}).catch(e => {
+			let msg = 'removeSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

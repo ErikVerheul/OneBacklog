@@ -461,6 +461,7 @@ const methods = {
               node.data.lastPositionChange = 0
               const payloadItem = {
                 id: m.nodeId,
+                level: node.level,
                 sourceInd: m.sourceInd,
                 newlyCalculatedPriority: node.data.priority,
                 targetInd: m.targetInd,
@@ -899,6 +900,7 @@ const methods = {
     for (let dn of draggingNodes) {
       const payloadItem = {
         id: dn._id,
+        level: dn.level,
         sourceInd: dn.savedInd,
         newlyCalculatedPriority: dn.data.priority,
         targetInd: dn.ind,
