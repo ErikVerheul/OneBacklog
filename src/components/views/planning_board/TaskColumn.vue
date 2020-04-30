@@ -9,7 +9,6 @@
         </div>
       </draggable>
     </div>
-    <div class="b-card-footer text-muted">{{itemCount}}</div>
   </div>
 </template>
 
@@ -25,11 +24,6 @@ export default {
     draggable: Draggable
   },
   computed: {
-    itemCount () {
-      if (!this.tasks) return ''
-      if (this.tasks.length === 1) return '1 task'
-      return `${this.tasks.length} tasks`
-    },
     draggables: {
       get () {
         return this.tasks
