@@ -117,6 +117,8 @@ const actions = {
             }
             tmpDoc.history.unshift(newHist)
             tmpDoc.delmark = false
+            // update currentDoc
+            rootState.currentDoc = tmpDoc
             const toDispatch = { 'updateGrandParentHist': entry }
             dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'restoreParent' })
         }).catch(error => {
