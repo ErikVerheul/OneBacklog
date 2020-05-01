@@ -439,7 +439,7 @@ const actions = {
 			}],
 			// do not distribute this event; other users have no access rights yet
 			"history": [{
-				"createEvent": [PRODUCTLEVEL, dbName, 1],
+				"ignoreEvent": [PRODUCTLEVEL, dbName, 1],
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),
 				"distributeEvent": false
