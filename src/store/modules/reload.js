@@ -60,7 +60,7 @@ const actions = {
 			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + '. Error = ' + error))
 	},
 
-	/* Read the parent title before creating the document */
+	/* Add history to the parent and than save the document */
 	createDoc({
 		rootState,
 		dispatch
@@ -70,10 +70,10 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
-			const tmpDoc = res.data
-			tmpDoc.history.unshift(payload.parentHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, forceUpdateCurrentDoc: true })
+			const updatedDoc = res.data
+			updatedDoc.history.unshift(payload.parentHist)
+			const toDispatch = { 'updateDoc': { dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, forceUpdateCurrentDoc: true }}
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'createDoc' })
 		}).catch(error => {
 			let msg = 'createDoc: Could not read parent document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console

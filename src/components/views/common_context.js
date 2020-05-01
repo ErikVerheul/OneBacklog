@@ -338,7 +338,7 @@ const methods = {
                 "timestamp": Date.now(),
                 "distributeEvent": false
             }
-            // update the database
+            // update the parent history and than save the new document
             this.$store.dispatch('createDoc', { newDoc, parentHist })
             // create an entry for undoing the change in a last-in first-out sequence
             const entry = {
