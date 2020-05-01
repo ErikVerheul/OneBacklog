@@ -165,6 +165,7 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
+				// if (doc.type == "backlogItem") dispatch('doBlinck', doc)
 				if (doc.type == "backlogItem" && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
 					const lastHistObj = doc.history[0]
 					if (doc.history[0].sessionId !== rootState.userData.sessionId &&
@@ -261,6 +262,7 @@ const actions = {
 											"savedDoShow": true,
 											"data": {
 												state: doc.state,
+												sprintId: doc.sprintId,
 												subtype: 0,
 												priority: undefined,
 												team: doc.team,
@@ -395,7 +397,7 @@ const actions = {
 								case 'updateParentHistEvent':
 									if (doc.delmark) {
 										// remove any dependency references to/from outside the removed items
-										window.slVueTree.correctDependencies(lastHistObj.updateParentHistEvent[0], lastHistObj.updateParentHistEvent[1])
+										// ToDo: fix error --> window.slVueTree.correctDependencies(lastHistObj.updateParentHistEvent[0], lastHistObj.updateParentHistEvent[1])
 										if (node) {
 											window.slVueTree.remove([node])
 											if (lastHistObj.by === rootState.userData.user) {
@@ -416,8 +418,6 @@ const actions = {
 												}
 											} else commit('showLastEvent', { txt: `Another user removed a ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
 										}
-										// nothing else to do after removing the node
-										continue
 									}
 									break
 								case 'setConditionsEvent':
@@ -471,7 +471,8 @@ const actions = {
 									if (rootState.debug &&
 										histEvent !== 'nodeDroppedEvent' &&
 										histEvent !== 'updateTaskOrderEvent') {
-										console.log('sync.trees: event not found, name = ' + histEvent)
+										// eslint-disable-next-line no-console
+										if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
 									}
 							}
 						}
@@ -527,6 +528,24 @@ const actions = {
 										}
 									}
 									break
+								case 'updateParentHistEvent':
+									if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
+										// a task is removed from a user story currently displayed on the planning board
+										for (let s of rootState.stories) {
+											if (s.storyId === doc.parentId) {
+												const newArray = []
+												for (let t of s.tasks[doc.state]) {
+													if (t.id !== doc._id) newArray.push(t)
+												}
+												s.tasks[doc.state] = newArray
+											}
+										}
+									}
+									if (doc.sprintId === rootState.loadedSprintId && doc.level === PBILEVEL) {
+										// a user story is removed that is currently displayed on the planning board
+										dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
+									}
+								break
 								case 'updateTaskOrderEvent':
 									if (lastHistObj['updateTaskOrderEvent'].sprintId === rootState.loadedSprintId) {
 										const taskUpdates = lastHistObj['updateTaskOrderEvent'].taskUpdates
