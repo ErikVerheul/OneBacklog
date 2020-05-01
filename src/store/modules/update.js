@@ -425,7 +425,7 @@ const actions = {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
 			const newHist = {
-				"setStateEvent": [oldState, payload.newState, payload.team, payload.position, rootState.loadedSprintId],
+				"setStateEvent": [oldState, payload.newState, payload.team, payload.position],
 				"by": rootState.userData.user,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
