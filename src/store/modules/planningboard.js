@@ -260,6 +260,12 @@ const actions = {
 		})
 	},
 
+	/*
+	* From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint ||
+	* for undo: see undoRemoveSprintIds
+    * - When a feature is selected all its descendents (PBI's and tasks) are assigned
+    * - When a PBI is selected, that PBI and it descendent tasks are assigned
+    */
 	addSprintIds({
 		rootState,
 		commit,
