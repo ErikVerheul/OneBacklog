@@ -469,7 +469,6 @@ const actions = {
 								default:
 									// eslint-disable-next-line no-console
 									if (rootState.debug &&
-										histEvent !== 'nodeDroppedEvent' &&
 										histEvent !== 'updateTaskOrderEvent') {
 										// eslint-disable-next-line no-console
 										if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
@@ -501,6 +500,21 @@ const actions = {
 										}
 									}
 								break
+								case 'docRestoredEvent':
+									if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
+										// a task removal is undone from a user story currently displayed on the planning board
+										for (let s of rootState.stories) {
+											if (s.storyId === doc.parentId) {
+												const newArray = s.tasks[doc.state].slice()
+												newArray.push({ id: doc._id, test: doc.title })
+												s.tasks[doc.state] = newArray
+											}
+										}
+									} else {
+										// a user story or higher is undone from removal that could be displayed on the planning board
+										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+									}
+								break
 								case 'nodesMovedEvent':
 									{
 										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
@@ -528,7 +542,7 @@ const actions = {
 										}
 									}
 									break
-								case 'updateParentHistEvent':
+								case 'removedWithDescendantsEvent':
 									if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
 										// a task is removed from a user story currently displayed on the planning board
 										for (let s of rootState.stories) {
@@ -540,10 +554,9 @@ const actions = {
 												s.tasks[doc.state] = newArray
 											}
 										}
-									}
-									if (doc.sprintId === rootState.loadedSprintId && doc.level === PBILEVEL) {
-										// a user story is removed that is currently displayed on the planning board
-										dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
+									} else {
+										// a user story or higher is removed that could be displayed on the planning board
+										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
 								break
 								case 'updateTaskOrderEvent':
@@ -553,7 +566,7 @@ const actions = {
 									}
 									break
 								case 'setStateEvent':
-									if (lastHistObj['setStateEvent'][4] === rootState.loadedSprintId) {
+									if (doc.sprintId === rootState.loadedSprintId) {
 										const prevState = lastHistObj.setStateEvent[0]
 										const newTaskPosition = lastHistObj.setStateEvent[3]
 										commit('updateBoard', { rootState, storyId: doc.parentId, taskId: doc._id, prevState, newState: doc.state, newTaskPosition })
