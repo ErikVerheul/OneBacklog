@@ -276,7 +276,7 @@ N			 N	     Y    docRemovedDescendantEvent			remove.js
 Y            Y	     Y    docRestoredEvent 	            	undo.js
 N            N	     Y    grandParentDocRestoredEvent	  	undo.js
 N			 Y	     Y    newChildEvent						load.js
-Y            Y	     Y    nodeDroppedEvent	            	move.js
+N            Y	     Y    nodeDroppedEvent	            	move.js
 Y            N	     N    nodesMovedEvent	 	            move.js
 Y            Y	     Y    nodeUndoMoveEvent	            	move.js
 Y            Y	     Y    removeAttachmentEvent	        	attachments.js
