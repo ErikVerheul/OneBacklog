@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
+const TODOSTATE = 2
 const INFO = 0
 const WARNING = 1
 var removedProducts = []
@@ -182,7 +183,7 @@ const actions = {
 								// show this history update
 								rootState.currentDoc.history = doc.history
 							}
-							const node = window.slVueTree.getNodeById(doc._id)
+							let node = window.slVueTree.getNodeById(doc._id)
 							// process comments
 							if (doc.comments[0].distributeEvent && (!lastHistObj.distributed || doc.comments[0].timestamp > lastHistoryTimestamp)) {
 								const commentsEvent = Object.keys(doc.comments[0])[0]
@@ -235,7 +236,7 @@ const actions = {
 										}
 										// create the node
 										const locationInfo = getLocationInfo(doc.priority, parentNode)
-										let newNode = {
+										node = {
 											"path": locationInfo.newPath,
 											"pathStr": JSON.stringify(locationInfo.newPath),
 											"ind": locationInfo.newInd,
@@ -275,7 +276,7 @@ const actions = {
 										window.slVueTree.insert({
 											nodeModel: locationInfo.prevNode,
 											placement: locationInfo.newInd === 0 ? 'inside' : 'after'
-										}, [newNode])
+										}, [node])
 									}
 									break
 								case 'conditionRemovedEvent':
@@ -478,18 +479,27 @@ const actions = {
 						if (rootState.currentView === 'planningBoard') {
 							switch (histEvent) {
 								case 'addSprintIdsEvent':
-									{
+									{	// assign pbi with or without tasks to a sprint
 										const sprintId = lastHistObj['addSprintIdsEvent'][5]
 										if (sprintId === rootState.loadedSprintId) {
-											// console.log("sync.nodesMovedEvent: lastHistObj['addSprintIdsEvent'] = " + JSON.stringify(lastHistObj['addSprintIdsEvent'], null, 2))
 											const triggerBoardReload = lastHistObj['addSprintIdsEvent'][4]
 											if (triggerBoardReload) {
-												console.log('addSprintIdsEvent: reload the board for sprintId = ' + sprintId)
 												dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
 											}
 										}
 									}
 									break
+								case 'createEvent':
+									if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
+										// a new task is created in a user story currently displayed on the planning board
+										for (let s of rootState.stories) {
+											if (s.storyId === doc.parentId) {
+												const todoTasks = s.tasks[TODOSTATE]
+												todoTasks.unshift({ id: doc._id, text: doc.title })
+											}
+										}
+									}
+								break
 								case 'nodesMovedEvent':
 									{
 										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
