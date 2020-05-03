@@ -228,6 +228,7 @@ const actions = {
 		})
 	},
 
+	/* Syncs the order of tasks between planning boards; does change the priorities in the database; must reload to see the changes in the tree view */
 	syncOtherPlanningBoards({
 		rootState,
 		dispatch

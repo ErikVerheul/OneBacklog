@@ -413,6 +413,7 @@ const actions = {
 		})
 	},
 
+	// when called from the planning board user must reload the tree to see the update
 	setState({
 		rootState,
 		commit,
