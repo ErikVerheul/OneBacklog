@@ -18,7 +18,7 @@ import TaskItem from './TaskItem'
 
 export default {
   name: 'TaskColumn',
-  props: ['tasks', 'title', 'id', 'idx'],
+  props: ['tasks', 'title', 'state', 'idx'],
   components: {
     item: TaskItem,
     draggable: Draggable
@@ -31,7 +31,7 @@ export default {
       set (tasks) {
         this.$store.dispatch('updateTasks', {
           tasks,
-          id: this.id,
+          state: this.state,
           idx: this.idx
         })
       }

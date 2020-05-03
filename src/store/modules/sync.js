@@ -548,7 +548,7 @@ const actions = {
 								case 'updateTaskOrderEvent':
 									if (doc.sprintId === rootState.loadedSprintId) {
 										const taskUpdates = lastHistObj['updateTaskOrderEvent'].taskUpdates
-										rootState.stories[taskUpdates.idx].tasks[taskUpdates.id] = taskUpdates.tasks
+										rootState.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
 									}
 									break
 								case 'setStateEvent':

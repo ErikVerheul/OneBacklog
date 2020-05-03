@@ -126,14 +126,14 @@ const actions = {
 		dispatch
 	}, payload) {
 		const beforeMoveIds = []
-		for (let t of rootState.stories[payload.idx].tasks[payload.id]) {
+		for (let t of rootState.stories[payload.idx].tasks[payload.state]) {
 			beforeMoveIds.push(t.id)
 		}
 		// update the tasks
-		rootState.stories[payload.idx].tasks[payload.id] = payload.tasks
+		rootState.stories[payload.idx].tasks[payload.state] = payload.tasks
 
 		const afterMoveIds = []
-		for (let t of rootState.stories[payload.idx].tasks[payload.id]) {
+		for (let t of rootState.stories[payload.idx].tasks[payload.state]) {
 			afterMoveIds.push(t.id)
 		}
 		// update the task state change in the database
@@ -151,7 +151,7 @@ const actions = {
 
 			dispatch('setState', {
 				'id': newTaskId,
-				newState: payload.id,
+				newState: payload.state,
 				position: newTaskPosition,
 				'timestamp': Date.now(),
 			})
