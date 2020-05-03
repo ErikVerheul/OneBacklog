@@ -95,7 +95,7 @@ const actions = {
 				}
 				for (let it of payload.items) {
 					// run in parallel for all moved nodes
-					dispatch('getMovedDescendentIds', { updates, id: it.id })
+					dispatch('getMovedChildrenIds', { updates, id: it.id })
 				}
 			}
 		}).catch(e => {
@@ -139,7 +139,7 @@ const actions = {
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 
 		}).catch(error => {
-			let msg = 'getMovedDescendentIds: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+			let msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -153,12 +153,12 @@ const actions = {
 		for (let r of payload.results) {
 			const id = r.id
 			descendentIds.push(id)
-			dispatch('getMovedDescendentIds', { updates: payload.updates, id })
+			dispatch('getMovedChildrenIds', { updates: payload.updates, id })
 		}
 		dispatch('updateMovedDescendantsBulk', { updates: payload.updates, descendentIds })
 	},
 
-	getMovedDescendentIds({
+	getMovedChildrenIds({
 		rootState,
 		dispatch
 	}, payload) {
@@ -173,7 +173,7 @@ const actions = {
 			}
 
 		}).catch(error => {
-			let msg = 'getMovedDescendentIds: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+			let msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
