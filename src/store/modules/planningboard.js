@@ -157,6 +157,7 @@ const actions = {
 			})
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
+				// task changed position, task did not change state
 				dispatch('resetTaskPriorities', { afterMoveIds, taskUpdates: payload })
 			}
 		}
