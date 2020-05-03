@@ -185,65 +185,6 @@ const methods = {
     }
   },
 
-  /*
-  * In the database both the selected node and all its descendants will be tagged with a delmark
-  * The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
-  */
-  doRemove() {
-    const selectedNode = this.contextNodeSelected
-    if (this.haveWritePermission[selectedNode.level]) {
-      const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
-      this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
-      // when removing a product
-      if (selectedNode.level === this.productLevel) {
-        // cannot remove the last assigned product or product in the tree
-        if (this.$store.state.userData.userAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
-          this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
-          return
-        }
-      }
-      // set remove mark in the database on the clicked item and descendants (if any)
-      this.$store.dispatch('removeItemAndDescendents', { productId: this.$store.state.currentProductId, node: selectedNode, descendantsIds: descendantsInfo.ids })
-      // remove any dependency references to/from outside the removed items
-      const removed = window.slVueTree.correctDependencies(this.$store.state.currentProductId, descendantsInfo.ids)
-      // create an entry for undoing the remove in a last-in first-out sequence
-      const entry = {
-        type: 'undoRemove',
-        removedNode: selectedNode,
-        isProductRemoved: selectedNode.level === this.productLevel,
-        descendants: descendantsInfo.descendants,
-        removedIntDependencies: removed.removedIntDependencies,
-        removedIntConditions: removed.removedIntConditions,
-        removedExtDependencies: removed.removedExtDependencies,
-        removedExtConditions: removed.removedExtConditions
-      }
-
-      if (entry.isProductRemoved) {
-        entry.removedProductRoles = this.$store.state.userData.myProductsRoles[selectedNode._id]
-      }
-
-      this.$store.state.changeHistory.unshift(entry)
-      // before removal select the predecessor or successor of the removed node (sibling or parent)
-      const prevNode = window.slVueTree.getPreviousNode(selectedNode.path)
-      let nowSelectedNode = prevNode
-      if (prevNode.level === this.databaseLevel) {
-        // if a product is to be removed and the previous node is root, select the next product
-        const nextProduct = window.slVueTree.getNextSibling(selectedNode.path)
-        if (nextProduct === null) {
-          // there is no next product; cannot remove the last product; note that this action is already blocked with a warming
-          return
-        }
-        nowSelectedNode = nextProduct
-      }
-      this.$store.commit('updateNodeSelected', { newNode: nowSelectedNode, isSelected: true })
-      this.$store.state.currentProductId = nowSelectedNode.productId
-      // load the new selected item
-      this.$store.dispatch('loadDoc', nowSelectedNode._id)
-      // remove the node and its children
-      window.slVueTree.remove([selectedNode])
-    } else this.showLastEvent("Sorry, your assigned role(s) disallow you to remove this item", WARNING)
-  },
-
   doChangeTeam() {
     this.contextNodeSelected.data.team = this.$store.state.userData.myTeam
     if (this.contextNodeSelected.level > this.featureLevel) {
