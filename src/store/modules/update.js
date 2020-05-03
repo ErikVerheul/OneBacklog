@@ -413,7 +413,7 @@ const actions = {
 		})
 	},
 
-	// when called from the planning board user must reload the tree to see the update
+	/* When called from the planning board the tree is aldo updated with the new state */
 	setState({
 		rootState,
 		commit,
@@ -439,7 +439,15 @@ const actions = {
 				tmpDoc.team = payload.team
 			}
 			tmpDoc.history.unshift(newHist)
-			if (rootState.currentDoc._id === payload.id) commit('updateCurrentDoc', { state: payload.newState, newHist })
+			if (rootState.currentDoc._id === payload.id) {
+				commit('updateCurrentDoc', { state: payload.newState, newHist })
+			} else if (rootState.lastTreeView === 'detailProduct') {
+				const node = window.slVueTree.getNodeById(tmpDoc._id)
+				if (node) {
+					node.data.state = payload.newState
+					node.data.lastStateChange = Date.now()
+				}
+			}
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setState: Could not read document with _id ' + payload.id + '. Error = ' + error
