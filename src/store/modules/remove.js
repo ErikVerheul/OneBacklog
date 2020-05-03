@@ -6,11 +6,11 @@ const PRODUCTLEVEL = 2
 
 // returns a new array
 function removeFromArray(arr, item) {
-	const newArr = []
-	for (let el of arr) {
-		if (el !== item) newArr.push(el)
-	}
-	return newArr
+    const newArr = []
+    for (let el of arr) {
+        if (el !== item) newArr.push(el)
+    }
+    return newArr
 }
 
 const actions = {
@@ -57,9 +57,9 @@ const actions = {
             }
             if (error.length > 0) {
                 let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
+                for (let e of error) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+                }
                 let msg = 'removeDependencies: These documents cannot be updated: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
@@ -117,9 +117,9 @@ const actions = {
             }
             if (error.length > 0) {
                 let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
+                for (let e of error) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+                }
                 let msg = 'removeConditions: These documents cannot be updated: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
@@ -156,7 +156,14 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removedFromParentEvent": [payload.node.level, payload.node.title, payload.descendantsIds.length, payload.node.data.subtype, payload.extDepsCount, payload.extCondsCount],
+                "removedFromParentEvent": [
+                    payload.node.level,
+                    payload.node.title,
+                    payload.descendantsIds.length,
+                    payload.node.data.subtype,
+                    payload.extDepsCount,
+                    payload.extCondsCount
+                ],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -242,9 +249,9 @@ const actions = {
 
             if (error.length > 0) {
                 let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
+                for (let e of error) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+                }
                 let msg = 'removeDescendents: These documents cannot be marked for removal: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
@@ -288,7 +295,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removedWithDescendantsEvent": [payload.descendantsIds, payload.extDepsCount, payload.extCondsCount],
+                "removedWithDescendantsEvent": [payload.descendantsIds, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -310,8 +317,8 @@ const actions = {
             dispatch('updateDoc', {
                 dbName: rootState.userData.currentDb,
                 updatedDoc: tmpDoc,
-                onSuccessCallback: function() { rootState.busyRemoving = false },
-                onFailureCallback: function() { rootState.busyRemoving = false }
+                onSuccessCallback: function () { rootState.busyRemoving = false },
+                onFailureCallback: function () { rootState.busyRemoving = false }
             })
         }).catch(error => {
             let msg = 'updateParentHist: Could not read document with _id ' + _id + ',' + error
@@ -367,9 +374,9 @@ const actions = {
             }
             if (error.length > 0) {
                 let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
+                for (let e of error) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+                }
                 let msg = 'removeExtDependencies: These documents cannot be updated for their set dependencies: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
@@ -430,9 +437,9 @@ const actions = {
             }
             if (error.length > 0) {
                 let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
+                for (let e of error) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+                }
                 let msg = 'removeExtConditions: These documents cannot be updated for their set conditions: ' + errorStr
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)

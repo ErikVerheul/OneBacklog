@@ -109,7 +109,7 @@ const actions = {
             }
             const newHist = {
                 "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies,
-                    entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles],
+                    entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,

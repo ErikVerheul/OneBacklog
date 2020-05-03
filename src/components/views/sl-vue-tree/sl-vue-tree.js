@@ -434,9 +434,11 @@ const methods = {
 		}
 	},
 
+	/* Collect meta data on the descendants of the node including the assigned sprintIds */
 	getDescendantsInfo(node) {
 		const ids = []
 		const descendants = []
+		const sprintIds = []
 		let initLevel = node.level
 		let count = 0
 		let maxDepth = node.level
@@ -444,6 +446,7 @@ const methods = {
 			if (this.comparePaths(nm.path, node.path) === 1) {
 				ids.push(nm._id)
 				descendants.push(nm)
+				if (nm.data.sprintId && !sprintIds.includes(nm.data.sprintId)) sprintIds.push(nm.data.sprintId)
 				count++
 				if (nm.level > maxDepth) maxDepth = nm.level
 			}
@@ -451,6 +454,7 @@ const methods = {
 		return {
 			ids,
 			descendants,
+			sprintIds,
 			count,
 			depth: maxDepth - initLevel
 		}
