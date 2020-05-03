@@ -4,9 +4,9 @@ import globalAxios from 'axios'
 const PRODUCTLEVEL = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const TODOSTATE = 2
 const INFO = 0
 const WARNING = 1
+const TODO = 2
 var removedProducts = []
 
 // returns a new array so that it is reactive
@@ -32,28 +32,6 @@ function removeFromArray(arr, item) {
 * - Only updates for products the user is subscribed to are processed and those products which were remotely deleted so that these deletetions can be remotely undone
 * After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
 */
-
-const mutations = {
-	updateBoard(state, payload) {
-		for (let s of payload.rootState.stories) {
-			if (s.storyId === payload.storyId) {
-				const sourceColumn = s.tasks[payload.prevState]
-				const targetColumn = s.tasks[payload.newState]
-				let movedTask
-				const newSourceColumn = []
-				for (let t of sourceColumn) {
-					if (t.id === payload.taskId) {
-						movedTask = t
-					} else newSourceColumn.push(t)
-				}
-				s.tasks[payload.prevState] = newSourceColumn
-				if (payload.newTaskPosition) {
-					targetColumn.splice(payload.newTaskPosition, 0, movedTask)
-				} else targetColumn.unshift(movedTask)
-			}
-		}
-	}
-}
 
 const actions = {
 	listenForChanges({
@@ -469,7 +447,7 @@ const actions = {
 								default:
 									// eslint-disable-next-line no-console
 									if (rootState.debug &&
-										histEvent !== 'updateTaskOrderEvent') {
+										histEvent !== 'updateTaskOrderEvent' && histEvent !== 'removedWithDescendantsEvent') {
 										// eslint-disable-next-line no-console
 										if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
 									}
@@ -479,7 +457,7 @@ const actions = {
 						if (rootState.currentView === 'planningBoard') {
 							switch (histEvent) {
 								case 'addSprintIdsEvent':
-									{	// assign pbi with or without tasks to a sprint
+									{	// assign story with or without tasks to a sprint
 										const sprintId = lastHistObj['addSprintIdsEvent'][5]
 										if (sprintId === rootState.loadedSprintId) {
 											const triggerBoardReload = lastHistObj['addSprintIdsEvent'][4]
@@ -490,31 +468,36 @@ const actions = {
 									}
 									break
 								case 'createEvent':
-									if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
-										// a new task is created in a user story currently displayed on the planning board
-										for (let s of rootState.stories) {
-											if (s.storyId === doc.parentId) {
-												const todoTasks = s.tasks[TODOSTATE]
-												todoTasks.unshift({ id: doc._id, text: doc.title })
+									if (doc.sprintId === rootState.loadedSprintId) {
+										if (doc.level === TASKLEVEL) {
+											// a new task is created in a user story currently on the planning board
+											for (let s of rootState.stories) {
+												if (s.storyId === doc.parentId) {
+													const todoTasks = s.tasks[TODO]
+													todoTasks.unshift({ id: doc._id, text: doc.title })
+												}
 											}
 										}
 									}
-								break
+									break
 								case 'docRestoredEvent':
-									if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
-										// a task removal is undone from a user story currently displayed on the planning board
-										for (let s of rootState.stories) {
-											if (s.storyId === doc.parentId) {
-												const newArray = s.tasks[doc.state].slice()
-												newArray.push({ id: doc._id, test: doc.title })
-												s.tasks[doc.state] = newArray
+									if (lastHistObj['docRestoredEvent'][6].includes(rootState.loadedSprintId)) {
+										// one or more of the removed items or their descendants are assigned to the loaded sprint and restored now
+										if (doc.level === TASKLEVEL) {
+											// a task removal is undone from a user story currently on the planning board
+											for (let s of rootState.stories) {
+												if (s.storyId === doc.parentId) {
+													const newArray = s.tasks[doc.state].slice()
+													newArray.push({ id: doc._id, test: doc.title })
+													s.tasks[doc.state] = newArray
+												}
 											}
+										} else {
+											// a user story removal is undone
+											dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 										}
-									} else {
-										// a user story or higher is undone from removal that could be displayed on the planning board
-										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
-								break
+									break
 								case 'nodesMovedEvent':
 									{
 										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
@@ -543,24 +526,27 @@ const actions = {
 									}
 									break
 								case 'removedWithDescendantsEvent':
-									if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
-										// a task is removed from a user story currently displayed on the planning board
-										for (let s of rootState.stories) {
-											if (s.storyId === doc.parentId) {
-												const newArray = []
-												for (let t of s.tasks[doc.state]) {
-													if (t.id !== doc._id) newArray.push(t)
+									if (lastHistObj['removedWithDescendantsEvent'][3].includes(rootState.loadedSprintId)) {
+										// one or more of the removed items or their descendants are no longer assigned to the loaded sprint and removed from the board
+										if (doc.level === TASKLEVEL) {
+											// a task is removed from a user story currently displayed on the planning board
+											for (let s of rootState.stories) {
+												if (s.storyId === doc.parentId) {
+													const newArray = []
+													for (let t of s.tasks[doc.state]) {
+														if (t.id !== doc._id) newArray.push(t)
+													}
+													s.tasks[doc.state] = newArray
 												}
-												s.tasks[doc.state] = newArray
 											}
+										} else {
+											// a user story is removed from the planning board
+											dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 										}
-									} else {
-										// a user story or higher is removed that could be displayed on the planning board
-										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
-								break
+									break
 								case 'updateTaskOrderEvent':
-									if (lastHistObj['updateTaskOrderEvent'].sprintId === rootState.loadedSprintId) {
+									if (doc.sprintId === rootState.loadedSprintId) {
 										const taskUpdates = lastHistObj['updateTaskOrderEvent'].taskUpdates
 										rootState.stories[taskUpdates.idx].tasks[taskUpdates.id] = taskUpdates.tasks
 									}
@@ -569,7 +555,23 @@ const actions = {
 									if (doc.sprintId === rootState.loadedSprintId) {
 										const prevState = lastHistObj.setStateEvent[0]
 										const newTaskPosition = lastHistObj.setStateEvent[3]
-										commit('updateBoard', { rootState, storyId: doc.parentId, taskId: doc._id, prevState, newState: doc.state, newTaskPosition })
+										for (let s of rootState.stories) {
+											if (s.storyId === doc.parentId) {
+												const sourceColumn = s.tasks[prevState]
+												const targetColumn = s.tasks[doc.state]
+												let movedTask
+												const newSourceColumn = []
+												for (let t of sourceColumn) {
+													if (t.id === doc._id) {
+														movedTask = t
+													} else newSourceColumn.push(t)
+												}
+												s.tasks[prevState] = newSourceColumn
+												if (newTaskPosition) {
+													targetColumn.splice(newTaskPosition, 0, movedTask)
+												} else targetColumn.unshift(movedTask)
+											}
+										}
 									}
 									break
 								default:
@@ -606,6 +608,5 @@ const actions = {
 }
 
 export default {
-	mutations,
 	actions
 }
