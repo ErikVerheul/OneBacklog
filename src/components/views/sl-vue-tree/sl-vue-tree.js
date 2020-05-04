@@ -219,7 +219,7 @@ const methods = {
 	},
 
 	/* Programmatically set the selection to one node */
-	setSelectedNodes(node) {
+	setSelectedNode(node) {
 		this.selectedNodes = [node]
 	},
 
@@ -748,7 +748,7 @@ const methods = {
 				n.data.sprintId = targetSprintId
 			} else n.data.sprintId = undefined
 		}
-		console.log('moveNodes: sourceSprintId = ' + sourceSprintId + ' targetSprintId = ' + targetSprintId)
+		// console.log('moveNodes: sourceSprintId = ' + sourceSprintId + ' targetSprintId = ' + targetSprintId)
 		return {
 			sourceProductId,
 			sourceProductTitle,

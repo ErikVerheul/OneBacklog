@@ -473,7 +473,7 @@ const methods = {
             }
 
             this.$store.state.changeHistory.unshift(entry)
-            // before removal select the predecessor or successor of the removed node (sibling or parent)
+            // before removal select the predecessor of the removed node (sibling or parent)
             const prevNode = window.slVueTree.getPreviousNode(selectedNode.path)
             let nowSelectedNode = prevNode
             if (prevNode.level === this.databaseLevel) {
@@ -486,6 +486,8 @@ const methods = {
                 nowSelectedNode = nextProduct
             }
             this.$store.commit('updateNodeSelected', { newNode: nowSelectedNode, isSelected: true })
+            // if a node is selected programmatically, call setSelectedNode
+            window.slVueTree.setSelectedNode(nowSelectedNode)
             this.$store.state.currentProductId = nowSelectedNode.productId
             // load the new selected item
             this.$store.dispatch('loadDoc', nowSelectedNode._id)
