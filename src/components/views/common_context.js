@@ -441,7 +441,7 @@ const methods = {
                 }
             }
             // FOR COARSE VIEW ONLY: when removing a requirement area, items assigned to this area should be updated
-            // ToDo: the tree is is not retored after unde but the database is
+            // ToDo: the tree is is not restored after undo, but the database is
             if (selectedNode.productId === AREA_PRODUCTID) {
                 window.slVueTree.resetReqArea(selectedNode._id)
             }

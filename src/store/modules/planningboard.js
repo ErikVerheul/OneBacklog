@@ -11,8 +11,12 @@ const DONE = 5
 const parentIdToNameMap = {}
 
 
-function composeRangeString(id, team) {
+function composeRangeString1(id, team) {
 	return `startkey=["${id}","${team}",${PBILEVEL}, ${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}",${TASKLEVEL}, ${Number.MAX_SAFE_INTEGER}]`
+}
+
+function composeRangeString2(id) {
+	return `startkey="${id}"&endkey="${id}"`
 }
 
 function getParentName(id) {
@@ -103,7 +107,7 @@ const actions = {
 		const taskResults = []
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString(payload.sprintId, payload.team)
+			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(payload.sprintId, payload.team)
 		}).then(res => {
 			// sort the results on parentId --> stories are grouped for the same feature and first created (oldest) features on top
 			const results = res.data.rows.sort((a, b) => a.value[1] > b.value[1])
@@ -125,15 +129,16 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		const story = rootState.stories[payload.idx]
 		const beforeMoveIds = []
-		for (let t of rootState.stories[payload.idx].tasks[payload.state]) {
+		for (let t of story.tasks[payload.state]) {
 			beforeMoveIds.push(t.id)
 		}
 		// update the tasks
-		rootState.stories[payload.idx].tasks[payload.state] = payload.tasks
+		story.tasks[payload.state] = payload.tasks
 
 		const afterMoveIds = []
-		for (let t of rootState.stories[payload.idx].tasks[payload.state]) {
+		for (let t of story.tasks[payload.state]) {
 			afterMoveIds.push(t.id)
 		}
 		// update the task state change in the database
@@ -158,70 +163,96 @@ const actions = {
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
 				// task changed position, task did not change state
-				dispatch('resetTaskPriorities', { afterMoveIds, taskUpdates: payload })
+				dispatch('updateMovedTasks', { storyId: story.storyId, afterMoveIds, taskUpdates: payload })
 			}
 		}
 	},
 
-	resetTaskPriorities({
+	/* Load the children of the story and update the priorities of the moved tasks */
+	updateMovedTasks({
 		rootState,
 		dispatch
 	}, payload) {
-		const docsToGet = []
-		for (let id of payload.afterMoveIds) {
-			docsToGet.push({ "id": id })
-		}
-		const stepSize = Math.floor((Number.MAX_SAFE_INTEGER - Number.MIN_SAFE_INTEGER) / (payload.afterMoveIds.length + 1))
 		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString2(payload.storyId) + '&include_docs=true'
 		}).then(res => {
-			const results = res.data.results
-			const docs = []
-			const error = []
-			function getIndex(id) {
-				for (let i = 0; i < payload.afterMoveIds.length; i++) {
-					if (payload.afterMoveIds[i] === id) return i
-				}
-			}
+            const docs = res.data.rows.map((r) => r.doc)
+			docs.sort((a,b) => b.priority - a.priority)
 
-			for (let r of results) {
-				const envelope = r.docs[0]
-				if (envelope.ok) {
-					const doc = envelope.ok
-					const idx = getIndex(doc._id)
-					doc.priority = Math.floor(Number.MAX_SAFE_INTEGER - (idx + 1) * stepSize)
-					const newHist = {
-						"ignoreEvent": ['resetTaskPriorities'],
-						"timestamp": Date.now(),
-						"distributeEvent": false
+			const mapper = []
+			for (let r of docs) {
+				if (payload.afterMoveIds.includes(r._id)) {
+					mapper.push({ child: r, priority: r.priority, reordered: true })
+				} else mapper.push({ child: r, reordered: false })
+			}
+			const newChildren = []
+			let afterMoveIdx = 0
+			for (let m of mapper) {
+				if (!m.reordered) {
+					newChildren.push(m.child)
+				} else {
+					for (let d of docs) {
+						if (d._id === payload.afterMoveIds[afterMoveIdx]) {
+							d.priority = m.priority
+							newChildren.push(d)
+							afterMoveIdx++
+							break
+						}
 					}
-					doc.history.unshift(newHist)
-					docs.push(doc)
 				}
-
-				if (envelope.error) error.push(envelope.error)
 			}
 
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+			if (rootState.lastTreeView === 'detailProduct') {
+				// update the position of the tasks of the story and update the index and priority values in the tree
+				const storyNode = window.slVueTree.getNodeById(payload.storyId)
+				if (!storyNode) return
+
+				const mapper = []
+				for (let c of storyNode.children) {
+					if (payload.afterMoveIds.includes(c._id)) {
+						mapper.push({ child: c, priority: c.data.priority, reordered: true })
+					} else mapper.push({ child: c, reordered: false })
 				}
-				let msg = 'resetTaskPriorities: These documents cannot change task priority: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
+				const newTreeChildren = []
+				let ind = 0
+				let afterMoveIdx = 0
+				for (let m of mapper) {
+					if (!m.reordered) {
+						newTreeChildren.push(m.child)
+					} else {
+						for (let c of storyNode.children) {
+							if (c._id === payload.afterMoveIds[afterMoveIdx]) {
+								c.ind = ind
+								c.data.priority = m.priority
+								newTreeChildren.push(c)
+								afterMoveIdx++
+								break
+							}
+						}
+					}
+					ind++
+				}
+				storyNode.children = newTreeChildren
 			}
 
 			const toDispatch = {
-				syncOtherPlanningBoards: payload.taskUpdates
+				syncOtherPlanningBoards: { storyId: payload.storyId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds }
 			}
 
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'resetTaskPriorities' })
+			// must set history
+			for (let c of newChildren) {
+				const newHist = {
+					"ignoreEvent": ['updateMovedTasks'],
+					"timestamp": Date.now(),
+					"distributeEvent": false
+				}
+				c.history.unshift(newHist)
+			}
+
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: newChildren, toDispatch, caller: 'updateMovedTasks' })
 		}).catch(e => {
-			let msg = 'resetTaskPriorities: Could not read batch of documents: ' + e
+			let msg = 'updateMovedTasks: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -233,20 +264,14 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		let _id
-		for (let s of rootState.stories) {
-			if (s.idx === payload.idx) {
-				_id = s.storyId
-			}
-		}
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + payload.storyId,
 		}).then(res => {
 			let tmpDoc = res.data
-			// this event is excluded from the history view
+			// this event is excluded from the history view and uses an object instead of an array to pass data
 			const newHist = {
-				"updateTaskOrderEvent": { sprintId: rootState.loadedSprintId, taskUpdates: payload },
+				"updateTaskOrderEvent": { sprintId: rootState.loadedSprintId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds },
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
@@ -255,7 +280,7 @@ const actions = {
 			tmpDoc.history.unshift(newHist)
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
-			let msg = 'setColor: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'setColor: Could not read document with _id ' + payload.storyId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -265,9 +290,9 @@ const actions = {
 	/*
 	* From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint ||
 	* for undo: see undoRemoveSprintIds
-    * - When a feature is selected all its descendents (PBI's and tasks) are assigned
-    * - When a PBI is selected, that PBI and it descendent tasks are assigned
-    */
+	* - When a feature is selected all its descendents (PBI's and tasks) are assigned
+	* - When a PBI is selected, that PBI and it descendent tasks are assigned
+	*/
 	addSprintIds({
 		rootState,
 		commit,

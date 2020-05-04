@@ -333,7 +333,6 @@ const actions = {
 									break
 								case 'nodesMovedEvent':
 									{
-										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
 										const parentNode = window.slVueTree.getNodeById(lastHistObj['nodesMovedEvent'][0])
 										if (parentNode === null) break
 
@@ -444,10 +443,45 @@ const actions = {
 									node.sprintId = undefined
 									if (isCurrentDocument) rootState.currentDoc.sprintId = undefined
 									break
+								case 'updateTaskOrderEvent':
+									if (rootState.lastTreeView === 'detailProduct') {
+										// update the position of the tasks of the story and update the index and priority values in the tree
+										const afterMoveIds = lastHistObj['updateTaskOrderEvent'].afterMoveIds
+										const storyNode = window.slVueTree.getNodeById(doc._id)
+										if (!storyNode) return
+
+										const mapper = []
+										for (let c of storyNode.children) {
+											if (afterMoveIds.includes(c._id)) {
+												mapper.push({ child: c, priority: c.data.priority, reordered: true })
+											} else mapper.push({ child: c, reordered: false })
+										}
+										const newTreeChildren = []
+										let ind = 0
+										let afterMoveIdx = 0
+										for (let m of mapper) {
+											if (!m.reordered) {
+												newTreeChildren.push(m.child)
+											} else {
+												for (let c of storyNode.children) {
+													if (c._id === afterMoveIds[afterMoveIdx]) {
+														c.ind = ind
+														c.data.priority = m.priority
+														newTreeChildren.push(c)
+														afterMoveIdx++
+														break
+													}
+												}
+											}
+											ind++
+										}
+										storyNode.children = newTreeChildren
+									}
+									break
 								default:
 									// eslint-disable-next-line no-console
 									if (rootState.debug &&
-										histEvent !== 'updateTaskOrderEvent' && histEvent !== 'removedWithDescendantsEvent') {
+										histEvent !== 'removedWithDescendantsEvent') {
 										// eslint-disable-next-line no-console
 										if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
 									}
