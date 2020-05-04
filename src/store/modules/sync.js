@@ -370,11 +370,10 @@ const actions = {
 								case 'removeAttachmentEvent':
 									node.data.lastAttachmentAddition = 0
 									break
-								// ToDo: what about removedFromParentEvent currently not distributed?
-								case 'updateParentHistEvent':
+								case 'removedWithDescendantsEvent':
 									if (doc.delmark) {
 										// remove any dependency references to/from outside the removed items
-										// ToDo: fix error --> window.slVueTree.correctDependencies(lastHistObj.updateParentHistEvent[0], lastHistObj.updateParentHistEvent[1])
+										window.slVueTree.correctDependencies(lastHistObj.removedWithDescendantsEvent[0], lastHistObj.removedWithDescendantsEvent[1])
 										if (node) {
 											window.slVueTree.remove([node])
 											if (lastHistObj.by === rootState.userData.user) {
@@ -480,8 +479,7 @@ const actions = {
 									break
 								default:
 									// eslint-disable-next-line no-console
-									if (rootState.debug &&
-										histEvent !== 'removedWithDescendantsEvent') {
+									if (rootState.debug) {
 										// eslint-disable-next-line no-console
 										if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
 									}
@@ -560,7 +558,7 @@ const actions = {
 									}
 									break
 								case 'removedWithDescendantsEvent':
-									if (lastHistObj['removedWithDescendantsEvent'][3].includes(rootState.loadedSprintId)) {
+									if (lastHistObj['removedWithDescendantsEvent'][4].includes(rootState.loadedSprintId)) {
 										// one or more of the removed items or their descendants are no longer assigned to the loaded sprint and removed from the board
 										if (doc.level === TASKLEVEL) {
 											// a task is removed from a user story currently displayed on the planning board

@@ -160,9 +160,7 @@ const actions = {
                     payload.node.level,
                     payload.node.title,
                     payload.descendantsIds.length,
-                    payload.node.data.subtype,
-                    payload.extDepsCount,
-                    payload.extCondsCount
+                    payload.node.data.subtype
                 ],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
@@ -295,7 +293,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removedWithDescendantsEvent": [payload.descendantsIds, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
+                "removedWithDescendantsEvent": [payload.productId, payload.descendantsIds, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,

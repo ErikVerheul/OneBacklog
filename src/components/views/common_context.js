@@ -448,7 +448,7 @@ const methods = {
             // set remove mark in the database on the clicked item and descendants (if any)
             this.$store.dispatch('removeItemAndDescendents',
                 {
-                    productId: this.$store.state.currentProductId,
+                    productId: selectedNode.productId,
                     node: selectedNode,
                     descendantsIds: descendantsInfo.ids,
                     sprintIds: descendantsInfo.sprintIds

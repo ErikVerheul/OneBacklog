@@ -275,8 +275,7 @@ const methods = {
   },
 
   mkRemovedFromParentEvent(value) {
-    return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are removed from this parent.</h5>
-      <p>From the descendants ${value[4]} external dependencies and ${value[5]} external conditions were removed.</p>`
+    return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are removed from this parent.</h5>`
   },
 
   mkDocRemovedDescendantEvent(value) {
@@ -284,8 +283,8 @@ const methods = {
   },
 
   mkRemovedWithDescendantsEvent(value) {
-    return `<h5>This item and ${value[0].length} descendants are removed.</h5>
-      <p>From the descendants ${value[1]} external dependencies and ${value[2]} external conditions were removed.</p>`
+    return `<h5>This item and ${value[1].length} descendants are removed.</h5>
+      <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
   },
 
   mkGrandParentDocRestoredEvent(value) {
