@@ -216,12 +216,6 @@ const methods = {
     this.updateDescription()
     // both an update of the description and the acceptance criteria should NOT happen
     this.updateAcceptance()
-
-    if (!window.slVueTree.haveSameParent(selNodes)) {
-      this.showLastEvent('You can only select nodes with the same parent.', WARNING)
-      return
-    }
-
     this.$store.state.selectedNodes = selNodes
     // update the first (highest in hierarchie) selected node
     const firstNodeSelected = selNodes[0]

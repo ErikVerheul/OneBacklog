@@ -207,37 +207,43 @@ const methods = {
 		if (!this.isRoot) eventBus.$emit('contextMenu', node)
 	},
 
-	haveSameParent(nodes) {
-		let parentId = nodes[0].parentId
-		for (let i = 1; i < nodes.length; i++) {
-			if (nodes[i].parentId !== parentId) {
-				return false
-			}
-		}
-		return true
-	},
-
-	/* Select a node from the tree */
+	/* Select a node from the tree; a node must have ben selected before; multiple nodes must have the same parent */
 	select(cursorPosition, event) {
 		this.lastSelectCursorPosition = cursorPosition
 		const selNode = cursorPosition.nodeModel
-		const lastSelectedNode = this.$store.state.selectedNodes.slice(-1)[0]
-		this.preventDrag = false
-		// ctrl-select mode is allowed only if nodes are above productlevel (epics, features and higher) and on the same level
-		if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.ctrlKey)) {
-			// single selection mode: unselect all currently selected nodes, clear selectedNodes array
-			console.log('select: single selection mode')
-			for (let n of this.$store.state.selectedNodes) {
-				n.isSelected = false
-				console.log('select: unselected ' + n.title)
+		const lastSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
+		if (selNode.isSelectable && lastSelectedNode) {
+			this.preventDrag = false
+			// ctrl-select or shift-select mode is allowed only if nodes have the same parent and are above productlevel (epics, features and higher)
+			if (selNode.level > PRODUCTLEVEL && this.allowMultiselect && selNode.parentId === lastSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
+				if (event.ctrlKey) {
+					// multi selection
+					selNode.isSelected = true
+					this.$store.state.selectedNodes.push(selNode)
+				} else {
+					if (event.shiftKey) {
+						// range selection
+						const siblings = this.getNodeSiblings(selNode.path)
+						for (let s of siblings) {
+							if (s.ind > lastSelectedNode.ind && s.ind <= selNode.ind) {
+								if (s.isSelectable) {
+									s.isSelected = true
+									this.$store.state.selectedNodes.push(s)
+								}
+							}
+						}
+					}
+				}
+			} else {
+				// single selection mode: unselect all currently selected nodes, clear selectedNodes array
+				for (let n of this.$store.state.selectedNodes) {
+					n.isSelected = false
+				}
+				this.$store.state.selectedNodes = []
+
+				selNode.isSelected = true
+				this.$store.state.selectedNodes.push(selNode)
 			}
-			this.$store.state.selectedNodes = []
-		}
-		// single and multi selection: select the clicked node if allowed
-		if (selNode.isSelectable) {
-			selNode.isSelected = true
-			this.$store.state.selectedNodes.push(selNode)
-			console.log('select: this.$store.state.selectedNodes.map((n) => n.title) = ' + this.$store.state.selectedNodes.map((n) => n.title))
 			this.emitSelect(this.$store.state.selectedNodes, event)
 		}
 	},
