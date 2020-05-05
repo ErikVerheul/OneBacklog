@@ -425,7 +425,7 @@ const methods = {
           const targetSprintId = beforeDropStatus.sourceSprintId
           const targetParentTitle = beforeDropStatus.sourceParentTitle
 
-          console.log('undoMove: sourceSprintId = ' + sourceSprintId + ' targetSprint = ' + targetSprintId)
+          // console.log('undoMove: sourceSprintId = ' + sourceSprintId + ' targetSprint = ' + targetSprintId)
 
           const swappedIndmap = sourceIndMap.slice()
           for (let m of sourceIndMap) {
@@ -501,8 +501,6 @@ const methods = {
           // unselect the current node and select the recovered node
           this.$store.commit('updateNodeSelected', { isSelected: false })
           this.$store.commit('updateNodeSelected', { newNode: entry.removedNode, isSelected: true })
-          // if a node is selected programmatically, call setSelectedNode
-          window.slVueTree.setSelectedNode(entry.removedNode)
           this.$store.state.currentProductId = entry.removedNode.productId
           // restore the removed dependencies
           for (let d of entry.removedIntDependencies) {

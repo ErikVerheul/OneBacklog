@@ -101,9 +101,9 @@ export default new Vuex.Store({
 		userData: {},
 		showHeaderDropDowns: true,
 		nodeSelected: null,
+		selectedNodes: [],
 		moveOngoing: false,
 		selectNodeOngoing: false,
-		numberOfNodesSelected: 0,
 		lastEvent: '',
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
@@ -217,6 +217,7 @@ export default new Vuex.Store({
 		updateNodeSelected(state, payload) {
 			if (payload.newNode) {
 				state.nodeSelected = payload.newNode
+				state.selectedNodes = [payload.newNode]
 			}
 			const keys = Object.keys(payload)
 			for (let k of keys) {

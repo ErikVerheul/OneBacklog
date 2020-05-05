@@ -486,8 +486,6 @@ const methods = {
                 nowSelectedNode = nextProduct
             }
             this.$store.commit('updateNodeSelected', { newNode: nowSelectedNode, isSelected: true })
-            // if a node is selected programmatically, call setSelectedNode
-            window.slVueTree.setSelectedNode(nowSelectedNode)
             this.$store.state.currentProductId = nowSelectedNode.productId
             // load the new selected item
             this.$store.dispatch('loadDoc', nowSelectedNode._id)

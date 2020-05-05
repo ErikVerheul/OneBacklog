@@ -213,7 +213,7 @@ const actions = {
                     state.insertedCount++
 
                     if (_id === rootState.currentDefaultProductId) {
-                        window.slVueTree.setSelectedNode(newNode)
+                        rootState.selectedNodes = [newNode]
                     }
 
                     parentNode.children.push(newNode)

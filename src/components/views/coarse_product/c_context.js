@@ -1,9 +1,5 @@
 import CommonContext from '../common_context.js'
 
-const INFO = 0
-const WARNING = 1
-const AREA_PRODUCTID = '0'
-
 const methods = {
   showContextMenu(node) {
     this.contextOptionSelected = undefined
@@ -14,7 +10,7 @@ const methods = {
     // for access to the context menu all roles get an extra level, however they cannot change the item's properties
     const extraLevel = node.level < this.pbiLevel ? node.level + 1 : node.level
     if (this.isReqAreaItem || this.haveWritePermission[extraLevel] &&
-      node.level > this.databaseLevel && this.$store.state.numberOfNodesSelected === 1) {
+      node.level > this.databaseLevel && this.$store.state.selectedNodes.length === 1) {
       const parentNode = window.slVueTree.getParentNode(node)
       this.contextNodeSelected = node
       this.contextParentTeam = parentNode.data.team

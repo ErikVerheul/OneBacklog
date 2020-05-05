@@ -87,7 +87,6 @@ function assignNewPrios(nodes, predecessorNode, successorNode) {
 
 function data() {
 	return {
-		selectedNodes: [],
 		draggableNodes: [],
 		rootCursorPosition: null,
 		mouseIsDown: false,
@@ -218,28 +217,28 @@ const methods = {
 		return true
 	},
 
-	/* Programmatically set the selection to one node */
-	setSelectedNode(node) {
-		this.selectedNodes = [node]
-	},
-
 	/* Select a node from the tree */
 	select(cursorPosition, event) {
 		this.lastSelectCursorPosition = cursorPosition
 		const selNode = cursorPosition.nodeModel
-		const lastSelectedNode = this.selectedNodes.slice(-1)
+		const lastSelectedNode = this.$store.state.selectedNodes.slice(-1)[0]
 		this.preventDrag = false
-		// shift-select mode is allowed only if nodes are above productlevel (epics, features and higher) and on the same level
-		if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode[0] && selNode.level === lastSelectedNode[0].level && this.allowMultiselect && event && event.shiftKey)) {
+		// ctrl-select mode is allowed only if nodes are above productlevel (epics, features and higher) and on the same level
+		if (!(selNode.level > PRODUCTLEVEL && lastSelectedNode && selNode.level === lastSelectedNode.level && this.allowMultiselect && event && event.ctrlKey)) {
 			// single selection mode: unselect all currently selected nodes, clear selectedNodes array
-			for (let n of this.selectedNodes) n.isSelected = false
-			this.selectedNodes = []
+			console.log('select: single selection mode')
+			for (let n of this.$store.state.selectedNodes) {
+				n.isSelected = false
+				console.log('select: unselected ' + n.title)
+			}
+			this.$store.state.selectedNodes = []
 		}
 		// single and multi selection: select the clicked node if allowed
 		if (selNode.isSelectable) {
-			this.$store.commit('updateNodeSelected', { newNode: selNode, isSelected: true })
-			this.selectedNodes.push(selNode)
-			this.emitSelect(this.selectedNodes, event)
+			selNode.isSelected = true
+			this.$store.state.selectedNodes.push(selNode)
+			console.log('select: this.$store.state.selectedNodes.map((n) => n.title) = ' + this.$store.state.selectedNodes.map((n) => n.title))
+			this.emitSelect(this.$store.state.selectedNodes, event)
 		}
 	},
 
@@ -248,9 +247,9 @@ const methods = {
 		if (selNode === null) return
 
 		if (selNode.isSelectable) {
-			// single selection mode: unselect all currently selected nodes, clear this.selectedNodes array and select the fetched node
-			for (let n of this.selectedNodes) n.isSelected = false
-			this.selectedNodes = [selNode]
+			// single selection mode: unselect all currently selected nodes, clear this.$store.state.selectedNodes array and select the fetched node
+			for (let n of this.$store.state.selectedNodes) n.isSelected = false
+			this.$store.state.selectedNodes = [selNode]
 			this.$store.commit('updateNodeSelected', { newNode: selNode, isSelected: true })
 		}
 	},
@@ -274,7 +273,7 @@ const methods = {
 		// calculate only once
 		if (isDragStarted) {
 			this.draggableNodes = []
-			for (let node of this.selectedNodes) {
+			for (let node of this.$store.state.selectedNodes) {
 				if (node.isDraggable) {
 					this.draggableNodes.push(node)
 				}
@@ -831,7 +830,7 @@ const methods = {
 			}
 			// select the item
 			if (nm.shortId === node.shortId) {
-				this.selectedNodes = [nm]
+				this.$store.state.selectedNodes = [nm]
 				this.$store.commit('updateNodeSelected', { newNode: nm, isSelected: true })
 				return false
 			}

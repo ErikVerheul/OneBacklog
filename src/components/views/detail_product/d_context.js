@@ -27,7 +27,7 @@ const methods = {
     // user must have write access on this level && user cannot remove the database && only one node can be selected
     // for access to the context menu all roles get an extra level, however they cannot change the item's properties
     const extraLevel = node.level < this.taskLevel ? node.level + 1 : node.level
-    if (this.haveWritePermission[extraLevel] && node.level > this.databaseLevel && this.$store.state.numberOfNodesSelected === 1) {
+    if (this.haveWritePermission[extraLevel] && node.level > this.databaseLevel && this.$store.state.selectedNodes.length === 1) {
       const parentNode = window.slVueTree.getParentNode(node)
       this.contextNodeSelected = node
       this.contextParentTeam = parentNode.data.team

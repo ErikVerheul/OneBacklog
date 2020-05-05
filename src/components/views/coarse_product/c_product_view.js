@@ -164,10 +164,8 @@ const methods = {
       return
     }
 
-    this.$store.state.numberOfNodesSelected = selNodes.length
     // update the first (highest in hierarchie) selected node
     const firstNodeSelected = selNodes[0]
-    this.$store.commit('updateNodeSelected', { newNode: firstNodeSelected })
     // if the user clicked on a node of another product (not root)
     if (firstNodeSelected._id !== 'root' && this.$store.state.currentProductId !== firstNodeSelected.productId) {
       // update current productId and title
