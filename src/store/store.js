@@ -278,8 +278,8 @@ export default new Vuex.Store({
 					case 'subtype':
 						nodeSelected.data.subtype = payload.subtype
 						break
-					case 'reqAreaItemColor':
-						nodeSelected.data.reqAreaItemColor = payload.reqAreaItemColor
+					case 'reqAreaItemcolor':
+						nodeSelected.data.reqAreaItemcolor = payload.reqAreaItemcolor
 						break
 					case 'lastPositionChange':
 						nodeSelected.data.lastPositionChange = payload.lastPositionChange
