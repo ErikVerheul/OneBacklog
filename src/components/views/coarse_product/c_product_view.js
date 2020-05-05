@@ -140,7 +140,7 @@ const methods = {
       this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
       // expand the newly selected product up to the found item
       window.slVueTree.showAndSelectItem(node)
-      // update the selected node
+      // select the node
       this.$store.commit('updateNodeSelected', { newNode: node })
       // load the document if not already in memory
       if (node._id !== this.$store.state.currentDoc._id) {
@@ -158,28 +158,26 @@ const methods = {
     this.updateDescription()
     // both an update of the description and the acceptance criteria should NOT happen
     this.updateAcceptance()
-    // update the first (highest in hierarchie) selected node
-    const firstNodeSelected = selNodes[0]
     // if the user clicked on a node of another product (not root)
-    if (firstNodeSelected._id !== 'root' && this.$store.state.currentProductId !== firstNodeSelected.productId) {
+    if (this.getNodeSelected._id !== 'root' && this.$store.state.currentProductId !== this.getNodeSelected.productId) {
       // update current productId and title
-      this.$store.state.currentProductId = firstNodeSelected.productId
-      this.$store.state.currentProductTitle = firstNodeSelected.title
+      this.$store.state.currentProductId = this.getNodeSelected.productId
+      this.$store.state.currentProductTitle = this.getNodeSelected.title
     }
     // load the document if not already in memory
-    if (firstNodeSelected._id !== this.$store.state.currentDoc._id) {
-      this.$store.dispatch('loadDoc', firstNodeSelected._id)
+    if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
+      this.$store.dispatch('loadDoc', this.getNodeSelected._id)
     }
-    const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
-    const title = this.itemTitleTrunc(60, selNodes[0].title)
+    const warnMsg = !this.haveWritePermission[this.getNodeSelected.level] ? " You only have READ permission" : ""
+    const title = this.itemTitleTrunc(60, this.getNodeSelected.title)
     let evt = ""
     if (selNodes.length === 1) {
       this.selectedNodesTitle = title
-      evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
-      if (selNodes[0].data.reqarea) evt += ` The item is member of requirement area '${this.$store.state.reqAreaMapper[selNodes[0].data.reqarea]}'`
+      evt = `${this.getLevelText(this.getNodeSelected.level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
+      if (this.getNodeSelected.data.reqarea) evt += ` The item is member of requirement area '${this.$store.state.reqAreaMapper[this.getNodeSelected.data.reqarea]}'`
     } else {
       this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-      evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.` + warnMsg
+      evt = `${this.getLevelText(this.getNodeSelected.level)} ${this.selectedNodesTitle} are selected.` + warnMsg
     }
     this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
   },
@@ -279,7 +277,7 @@ const methods = {
   * If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse
   */
   doSetReqArea() {
-    const oldParentReqArea = this.$store.state.nodeSelected.data.reqarea
+    const oldParentReqArea = this.getNodeSelected.data.reqarea
     const newReqAreaId = this.selReqAreaId
     this.$store.commit('updateNodeSelected', { reqarea: newReqAreaId })
 

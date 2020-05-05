@@ -136,7 +136,7 @@ const methods = {
         // insert the new node in the tree and assign the priority to this node
         window.slVueTree.insert(insertPosition, [newNode])
         // and select the new node
-        this.$store.commit('updateNodeSelected', { newNode, isSelected: true })
+        this.$store.commit('updateNodeSelected', { newNode })
 
         this.showLastEvent("Item of type " + this.getLevelText(newNode.level) + " is inserted as a copy of '" + node.title + "'.", INFO)
         // create a new document and store it
@@ -292,7 +292,7 @@ const methods = {
             // insert the new node in the tree
             window.slVueTree.insert(newNodeLocation, [newNode])
             // and select the new node
-            this.$store.commit('updateNodeSelected', { newNode, isSelected: true })
+            this.$store.commit('updateNodeSelected', { newNode })
             this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
             // create a new document and store it
             const newDoc = {
@@ -485,7 +485,7 @@ const methods = {
                 }
                 nowSelectedNode = nextProduct
             }
-            this.$store.commit('updateNodeSelected', { newNode: nowSelectedNode, isSelected: true })
+            this.$store.commit('updateNodeSelected', { newNode: nowSelectedNode })
             this.$store.state.currentProductId = nowSelectedNode.productId
             // load the new selected item
             this.$store.dispatch('loadDoc', nowSelectedNode._id)

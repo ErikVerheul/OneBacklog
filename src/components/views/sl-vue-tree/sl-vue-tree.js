@@ -211,38 +211,28 @@ const methods = {
 	select(cursorPosition, event) {
 		this.lastSelectCursorPosition = cursorPosition
 		const selNode = cursorPosition.nodeModel
-		const lastSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
-		if (selNode.isSelectable && lastSelectedNode) {
+		if (selNode.isSelectable) {
 			this.preventDrag = false
+			const lastSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
 			// ctrl-select or shift-select mode is allowed only if nodes have the same parent and are above productlevel (epics, features and higher)
 			if (selNode.level > PRODUCTLEVEL && this.allowMultiselect && selNode.parentId === lastSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
 				if (event.ctrlKey) {
 					// multi selection
-					selNode.isSelected = true
-					this.$store.state.selectedNodes.push(selNode)
+					this.$store.commit('addSelectedNode', selNode)
 				} else {
 					if (event.shiftKey) {
 						// range selection
 						const siblings = this.getNodeSiblings(selNode.path)
 						for (let s of siblings) {
 							if (s.ind > lastSelectedNode.ind && s.ind <= selNode.ind) {
-								if (s.isSelectable) {
-									s.isSelected = true
-									this.$store.state.selectedNodes.push(s)
-								}
+								this.$store.commit('addSelectedNode', s)
 							}
 						}
 					}
 				}
 			} else {
-				// single selection mode: unselect all currently selected nodes, clear selectedNodes array
-				for (let n of this.$store.state.selectedNodes) {
-					n.isSelected = false
-				}
-				this.$store.state.selectedNodes = []
-
-				selNode.isSelected = true
-				this.$store.state.selectedNodes.push(selNode)
+				// single selection mode
+				this.$store.commit('renewSelectedNodes', selNode)
 			}
 			this.emitSelect(this.$store.state.selectedNodes, event)
 		}
@@ -256,7 +246,7 @@ const methods = {
 			// single selection mode: unselect all currently selected nodes, clear this.$store.state.selectedNodes array and select the fetched node
 			for (let n of this.$store.state.selectedNodes) n.isSelected = false
 			this.$store.state.selectedNodes = [selNode]
-			this.$store.commit('updateNodeSelected', { newNode: selNode, isSelected: true })
+			this.$store.commit('updateNodeSelected', { newNode: selNode })
 		}
 	},
 
@@ -837,7 +827,7 @@ const methods = {
 			// select the item
 			if (nm.shortId === node.shortId) {
 				this.$store.state.selectedNodes = [nm]
-				this.$store.commit('updateNodeSelected', { newNode: nm, isSelected: true })
+				this.$store.commit('updateNodeSelected', { newNode: nm })
 				return false
 			}
 		})

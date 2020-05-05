@@ -198,7 +198,7 @@ const methods = {
       this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
       // expand the newly selected product up to the found item
       window.slVueTree.showAndSelectItem(node)
-      // update the selected node
+      // select the node
       this.$store.commit('updateNodeSelected', { newNode: node })
       // load the document if not already in memory
       if (node._id !== this.$store.state.currentDoc._id) {
@@ -216,27 +216,24 @@ const methods = {
     this.updateDescription()
     // both an update of the description and the acceptance criteria should NOT happen
     this.updateAcceptance()
-    this.$store.state.selectedNodes = selNodes
-    // update the first (highest in hierarchie) selected node
-    const firstNodeSelected = selNodes[0]
     // if the root node is selected do nothing
-    if (firstNodeSelected._id !== 'root') {
+    if (this.getNodeSelected._id !== 'root') {
       // if the user clicked on a node of another product
-      if (this.$store.state.currentProductId !== firstNodeSelected.productId) {
+      if (this.$store.state.currentProductId !== this.getNodeSelected.productId) {
         // clear any outstanding filters
         window.slVueTree.resetFilters('onNodesSelected')
         // collapse the previously selected product
         window.slVueTree.collapseTree()
         // update current productId and title
-        this.$store.state.currentProductId = firstNodeSelected.productId
-        this.$store.state.currentProductTitle = firstNodeSelected.title
+        this.$store.state.currentProductId = this.getNodeSelected.productId
+        this.$store.state.currentProductTitle = this.getNodeSelected.title
         // expand the newly selected product up to the feature level
         window.slVueTree.expandTree()
       }
     }
     // load the document if not already in memory
-    if (firstNodeSelected._id !== this.$store.state.currentDoc._id) {
-      this.$store.dispatch('loadDoc', firstNodeSelected._id)
+    if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
+      this.$store.dispatch('loadDoc', this.getNodeSelected._id)
     }
     const warnMsg = !this.haveWritePermission[selNodes[0].level] ? " You only have READ permission" : ""
     const title = this.itemTitleTrunc(60, selNodes[0].title)

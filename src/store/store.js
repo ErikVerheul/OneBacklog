@@ -40,16 +40,16 @@ export default new Vuex.Store({
 	state: {
 		// console log settings
 		debug: true,
-		showWatchdogInfo: false,
 		isProductAssigned: false,
+		showWatchdogInfo: false,
 		// loading options
 		autoCorrectUserProfile: true,
 		// logging
 		logState: {
-			unsavedLogs: [],
-			savedLogs: [],
+			logSavePending: false,
 			runningWatchdogId: null,
-			logSavePending: false
+			savedLogs: [],
+			unsavedLogs: []
 		},
 		//startup
 		currentDefaultProductId: null,
@@ -57,74 +57,76 @@ export default new Vuex.Store({
 		currentProductTitle: "",
 		stopListenForChanges: false,
 		// tree loading
-		treeNodes: [],
 		loadedTreeDepth: undefined,
-		// detail view
+		treeNodes: [],
+		// detail tree view
 		reqAreaMapper: {},
-		// coarse view
+		// coarse tree view
+		currentView: undefined,
 		colorMapper: {},
 		reqAreaOptions: [],
-		// view settings
-		currentView: undefined,
-		lastTreeView: undefined,
-		// product view
-		selectedForView: 'comments',
+		// detail & coarse tree views
+		busyRemoving: false,
+		currentDoc: null,
 		changeHistory: [],
 		filterForComment: "",
 		filterForHistory: "",
-		busyRemoving: false,
+		filterText: 'Filter in tree view',
+		filterOn: false,
+		findIdOn: false,
+		keyword: '',
+		moveOngoing: false,
+		lastEvent: '',
+		lastTreeView: undefined,
+		searchOn: false,
+		selectedForView: 'comments',
+		selectedNodes: [],
+		selectNodeOngoing: false,
+		uploadDone: true,
 		// utilities for server Admin and admin
-		seqKey: 0,
 		areDatabasesFound: false,
 		areProductsFound: false,
 		areTeamsFound: false,
-		isSprintCalendarFound: false,
 		backendMessages: [],
 		databaseOptions: undefined,
 		defaultSprintCalendar: [],
 		fetchedTeams: [],
-		isDatabaseCreated: false,
 		isCurrentDbChanged: false,
+		isDatabaseCreated: false,
+		isHistAndCommReset: false,
 		isProductCreated: false,
 		isPurgeReady: false,
+		isSprintCalendarFound: false,
 		isTeamCreated: false,
-		isUserFound: false,
 		isUserCreated: false,
+		isUserFound: false,
 		isUserUpdated: false,
-		isHistAndCommReset: false,
 		selectedDatabaseName: '',
+		seqKey: 0,
 		warning: '',
 		// app wide globals
-		myProductOptions: [],
+		configData: null,
+		cookieAutenticated: false,
 		demo: true,
-		online: true,
-		userData: {},
-		showHeaderDropDowns: true,
-		nodeSelected: null,
-		selectedNodes: [],
-		moveOngoing: false,
-		selectNodeOngoing: false,
-		lastEvent: '',
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
-		filterText: 'Filter in tree view',
-		filterOn: false,
-		findIdOn: false,
-		searchOn: false,
-		keyword: '',
-		cookieAutenticated: false,
 		listenForChangesRunning: false,
-		configData: null,
-		currentDoc: null,
+		myProductOptions: [],
+		online: true,
 		runningCookieRefreshId: null,
-		uploadDone: true,
+		showHeaderDropDowns: true,
+		userData: {},
 		// planning board
 		loadedSprintId: null,
 		stories: []
 	},
 
 	getters: {
-		// note that the roles of _admin and admin are generic (not product specific)
+		getNodeSelected(state) {
+			// return the last selected node or undefined when no node is selected
+			return state.selectedNodes.slice(-1)[0]
+		},
+
 		leafLevel(state) {
 			if (state.currentView === 'detailProduct') return TASKLEVEL
 			if (state.currentView === 'coarseProduct') return FEATURELEVEL
@@ -139,6 +141,7 @@ export default new Vuex.Store({
 			const emails = state.currentDoc.followers.map(e => e.email)
 			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
+		// note that the roles of _admin and admin are generic (not product specific)
 		isServerAdmin(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("_admin")
 		},
@@ -213,74 +216,91 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
+		addSelectedNode(state, newNode) {
+			if (newNode.isSelectable) {
+				newNode.isSelected = true
+				if (!state.selectedNodes.includes(newNode)) state.selectedNodes.push(newNode)
+			}
+		},
+
+		renewSelectedNodes(state, newNode) {
+			if (newNode.isSelectable) {
+				for (let n of state.selectedNodes) n.isSelected = false
+				newNode.isSelected = true
+				state.selectedNodes = [newNode]
+			}
+		},
+
 		/* Update the currently selected node. Note that not all props are covered */
 		updateNodeSelected(state, payload) {
-			if (payload.newNode) {
-				state.nodeSelected = payload.newNode
+			if (payload.newNode && payload.newNode.isSelectable) {
+				for (let n of state.selectedNodes) n.isSelected = false
+				payload.newNode.isSelected = true
 				state.selectedNodes = [payload.newNode]
 			}
 			const keys = Object.keys(payload)
+			const nodeSelected = state.selectedNodes.slice(-1)[0]
 			for (let k of keys) {
 				switch (k) {
 					case 'productId':
-						state.nodeSelected.productId = payload.productId
+						nodeSelected.productId = payload.productId
 						break
 					case 'title':
-						state.nodeSelected.title = payload.title
+						nodeSelected.title = payload.title
 						break
 					case 'isSelected':
-						state.nodeSelected.isSelected = payload.isSelected
+						nodeSelected.isSelected = payload.isSelected
 						break
 					case 'isExpanded':
-						state.nodeSelected.isExpanded = payload.isExpanded
+						nodeSelected.isExpanded = payload.isExpanded
 						break
 					case 'markViolation':
-						state.nodeSelected.markViolation = payload.markViolation
+						nodeSelected.markViolation = payload.markViolation
 						break
 					case 'state':
-						state.nodeSelected.data.state = payload.state
+						nodeSelected.data.state = payload.state
 						break
 					case 'reqarea':
-						state.nodeSelected.data.reqarea = payload.reqarea
+						nodeSelected.data.reqarea = payload.reqarea
 						break
 					case 'sprintId':
-						state.nodeSelected.data.sprintId = payload.sprintId
+						nodeSelected.data.sprintId = payload.sprintId
 						break
 					case 'inconsistentState':
-						state.nodeSelected.data.inconsistentState = payload.inconsistentState
+						nodeSelected.data.inconsistentState = payload.inconsistentState
 						break
 					case 'team':
-						state.nodeSelected.data.team = payload.team
+						nodeSelected.data.team = payload.team
 						break
 					case 'taskOwner':
-						state.nodeSelected.data.taskOwner = payload.taskOwner
+						nodeSelected.data.taskOwner = payload.taskOwner
 						break
 					case 'subtype':
-						state.nodeSelected.data.subtype = payload.subtype
+						nodeSelected.data.subtype = payload.subtype
 						break
 					case 'reqAreaItemColor':
-						state.nodeSelected.data.reqAreaItemColor = payload.reqAreaItemColor
+						nodeSelected.data.reqAreaItemColor = payload.reqAreaItemColor
 						break
 					case 'lastPositionChange':
-						state.nodeSelected.data.lastPositionChange = payload.lastPositionChange
+						nodeSelected.data.lastPositionChange = payload.lastPositionChange
 						break
 					case 'lastStateChange':
-						state.nodeSelected.data.lastStateChange = payload.lastStateChange
+						nodeSelected.data.lastStateChange = payload.lastStateChange
 						break
 					case 'lastContentChange':
-						state.nodeSelected.data.lastContentChange = payload.lastContentChange
+						nodeSelected.data.lastContentChange = payload.lastContentChange
 						break
 					case 'lastCommentAddition':
-						state.nodeSelected.data.lastCommentAddition = payload.lastCommentAddition
+						nodeSelected.data.lastCommentAddition = payload.lastCommentAddition
 						break
 					case 'lastAttachmentAddition':
-						state.nodeSelected.data.lastAttachmentAddition = payload.lastAttachmentAddition
+						nodeSelected.data.lastAttachmentAddition = payload.lastAttachmentAddition
 						break
 					case 'lastCommentToHistory':
-						state.nodeSelected.data.lastCommentToHistory = payload.lastCommentToHistory
+						nodeSelected.data.lastCommentToHistory = payload.lastCommentToHistory
 						break
 					case 'lastChange':
-						state.nodeSelected.data.lastChange = payload.lastChange
+						nodeSelected.data.lastChange = payload.lastChange
 						break
 					default:
 						// eslint-disable-next-line no-console

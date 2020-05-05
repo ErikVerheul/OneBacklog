@@ -109,6 +109,7 @@ function data() {
 const computed = {
   ...mapGetters([
     // from store.js
+    'getNodeSelected',
     'isFollower',
     'canCreateComments',
     'canUploadAttachments',
@@ -500,7 +501,7 @@ const methods = {
           }
           // unselect the current node and select the recovered node
           this.$store.commit('updateNodeSelected', { isSelected: false })
-          this.$store.commit('updateNodeSelected', { newNode: entry.removedNode, isSelected: true })
+          this.$store.commit('updateNodeSelected', { newNode: entry.removedNode })
           this.$store.state.currentProductId = entry.removedNode.productId
           // restore the removed dependencies
           for (let d of entry.removedIntDependencies) {
@@ -756,7 +757,7 @@ const methods = {
   */
   onStateChange(idx) {
     function changeState(vm, owningTeam) {
-      const descendants = window.slVueTree.getDescendantsInfo(vm.$store.state.nodeSelected).descendants
+      const descendants = window.slVueTree.getDescendantsInfo(vm.getNodeSelected).descendants
       if (descendants.length > 0) {
         let highestState = vm.newState
         let allDone = true
@@ -779,9 +780,9 @@ const methods = {
       const now = Date.now()
       vm.$store.commit('updateNodeSelected', { state: idx, team: owningTeam, lastStateChange: now, lastChange: now })
       vm.$store.dispatch('setState', {
-        'id': vm.$store.state.nodeSelected._id,
+        'id': vm.getNodeSelected._id,
         'newState': idx,
-        'position': vm.$store.state.nodeSelected.ind,
+        'position': vm.getNodeSelected.ind,
         'team': owningTeam,
         'timestamp': now
       })
@@ -789,16 +790,16 @@ const methods = {
       const entry = {
         type: 'undoStateChange',
         oldState,
-        node: vm.$store.state.nodeSelected
+        node: vm.getNodeSelected
       }
       vm.$store.state.changeHistory.unshift(entry)
     }
 
     if (this.haveWritePermission[this.getCurrentItemLevel]) {
       // any user can change from state 'New' to state 'Ready'; the owning team of the item is set to the users team
-      if (this.$store.state.nodeSelected.data.state === STATE_NEW_OR_TODO && idx === STATE_READY_OR_INPROGRESS) {
+      if (this.getNodeSelected.data.state === STATE_NEW_OR_TODO && idx === STATE_READY_OR_INPROGRESS) {
         changeState(this, this.$store.state.userData.myTeam)
-        const parentNode = window.slVueTree.getParentNode(this.$store.state.nodeSelected)
+        const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
         if (parentNode.level >= this.featureLevel && parentNode.data.team !== this.$store.state.userData.myTeam) {
           this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
             this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
