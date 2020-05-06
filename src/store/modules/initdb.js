@@ -195,7 +195,9 @@ const actions = {
 				"The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
 				"The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
 			],
-			"teams": [],
+			"teams": [
+				"not assigned yet"
+			],
 		}
 		globalAxios({
 			method: 'POST',
@@ -439,7 +441,7 @@ const actions = {
 			}],
 			// do not distribute this event; other users have no access rights yet
 			"history": [{
-				"ignoreEvent": [PRODUCTLEVEL, dbName, 1],
+				"createEvent": [PRODUCTLEVEL, 'root', 1],
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),
 				"distributeEvent": false
