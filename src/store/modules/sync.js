@@ -2,6 +2,7 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 const PRODUCTLEVEL = 2
+const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
 const INFO = 0
@@ -602,6 +603,37 @@ const actions = {
 												if (newTaskPosition) {
 													targetColumn.splice(newTaskPosition, 0, movedTask)
 												} else targetColumn.unshift(movedTask)
+											}
+										}
+									}
+									break
+								case 'setTitleEvent':
+									if (doc.level === FEATURELEVEL) {
+										for (let s of rootState.stories) {
+											if (s.featureId === doc._id) {
+												s.featureName = doc.title
+											}
+										}
+									}
+									if (doc.sprintId === rootState.loadedSprintId) {
+										if (doc.level === PBILEVEL) {
+											for (let s of rootState.stories) {
+												if (s.storyId === doc._id) {
+													s.title = doc.title
+												}
+											}
+										}
+										if (doc.level === TASKLEVEL) {
+											for (let s of rootState.stories) {
+												if (s.storyId === doc.parentId) {
+													const tasks = s.tasks
+													const phase = tasks[doc.state]
+													for (let t of phase) {
+														if (t.id === doc._id) {
+															t.text = doc.title
+														}
+													}
+												}
 											}
 										}
 									}

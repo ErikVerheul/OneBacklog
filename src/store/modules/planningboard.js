@@ -41,13 +41,15 @@ const mutations = {
 		// console.log('createSprint: payload.storieResults = ' + JSON.stringify(payload.storieResults, null, 2))
 		for (let i = 0; i < payload.storieResults.length; i++) {
 			const storyId = payload.storieResults[i].id
-			const featureName = getParentName(payload.storieResults[i].value[1])
+			const featureId = payload.storieResults[i].value[1]
+			const featureName = getParentName(featureId)
 			const storyTitle = payload.storieResults[i].value[2]
 			const subType = payload.storieResults[i].value[4]
 			const storySize = payload.storieResults[i].value[6]
 			const newStory = {
 				idx: i,
 				storyId,
+				featureId,
 				featureName,
 				title: storyTitle,
 				size: storySize,
