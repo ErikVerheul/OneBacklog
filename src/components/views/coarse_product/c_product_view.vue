@@ -195,10 +195,7 @@
           </div>
           <div class="pane" :style="{ minHeight: '40px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <template v-if="!isReqAreaItem" >
-                <p v-if="getCurrentItemLevel < taskLevel" class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by team '{{ $store.state.currentDoc.team }}'</p>
-                <p v-else class="title is-6">This {{ getLevelText(getCurrentItemLevel) }} is owned by '{{ $store.state.currentDoc.taskOwner }}' of team '{{ $store.state.currentDoc.team }}'</p>
-              </template>
+              <p v-if="!isReqAreaItem" class="title is-6">{{ getItemInfo() }}</p>
               <span v-else>
                 <b-form-group>
                   Choose a display color for this requirement area:

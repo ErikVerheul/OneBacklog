@@ -119,13 +119,15 @@ const watch = {
 const methods = {
   getItemInfo() {
     let txt = ''
-    if (this.getCurrentItemLevel < this.taskLevel) {
-      txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
-    } else {
-      txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${this.$store.state.currentDoc.taskOwner}' of team '${this.$store.state.currentDoc.team}'`
-    }
-    if (this.getCurrentItemLevel >= this.pbiLevel && this.getItemSprintName) {
-      txt += ` (Sprint '${this.getItemSprintName})'`
+    if (this.getCurrentItemLevel !== this.productLevel) {
+      if (this.getCurrentItemLevel < this.taskLevel) {
+        txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
+      } else {
+        txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${this.$store.state.currentDoc.taskOwner}' of team '${this.$store.state.currentDoc.team}'`
+      }
+      if (this.getCurrentItemLevel >= this.pbiLevel && this.getItemSprintName) {
+        txt += ` (Sprint '${this.getItemSprintName})'`
+      }
     }
     return txt
   },

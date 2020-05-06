@@ -120,6 +120,14 @@ const watch = {
 }
 
 const methods = {
+  getItemInfo() {
+    let txt = ''
+    if (this.getCurrentItemLevel !== this.productLevel) {
+      txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
+    }
+    return txt
+  },
+
   onTreeIsLoaded() {
     this.dependencyViolationsFound()
     this.createColorMapper()
