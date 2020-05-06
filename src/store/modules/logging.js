@@ -114,7 +114,6 @@ const actions = {
 							log.entries.unshift(newLog)
 						}
 						log.entries = log.entries.slice(0, MAXLOGSIZE)
-						console.log('watchDog: is saving the log, rootState.listenForChangesRunning = ' + rootState.listenForChangesRunning)
 						dispatch('saveLog', { log, caller: 'watchdog' })
 					}).catch(error => {
 						// eslint-disable-next-line no-console
@@ -173,7 +172,7 @@ const actions = {
 				}).then(res => {
 					let log = res.data
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log("doLog: The log is fetched")
+					if (rootState.debug) console.log('doLog: The log is fetched')
 
 					if (rootState.logState.unsavedLogs.length > 0) {
 						rootState.logState.savedLogs = []
@@ -185,7 +184,6 @@ const actions = {
 						rootState.logState.unsavedLogs = []
 						log.entries = log.entries.slice(0, MAXLOGSIZE)
 						rootState.logState.logSavePending = true
-						console.log('doLog: is saving the log')
 						dispatch('saveLog', { log, caller: 'doLog' })
 						// check if the cause of one of the log entries is the loss of connection to the database
 						dispatch('checkConnection')
