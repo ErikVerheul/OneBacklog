@@ -300,6 +300,11 @@ const methods = {
   doCreateCalendar() {
     const startDate = new Date(this.startDateStr)
     startDate.setUTCHours(parseInt(this.sprintStartTimeStr))
+    if (startDate > Date.now()) {
+      this.localMessage = 'The first sprint starts at ' + startDate.toString() + '. Select a start date and time in the (near) past.'
+      return
+    }
+
     const sprintLengthMillis = parseInt(this.sprintLengthStr) * 24 * 60 * 60000
     const numberOfSprints = parseInt(this.numberOfSprintsStr)
 

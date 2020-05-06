@@ -232,7 +232,7 @@
             <template v-if="!startDateStr" sm="12">
             <b-col>
               <center>
-                <p>Choose the start date of the first sprint:</p>
+                <p>Choose the start date of the first sprint before todays UTC noon:</p>
                 <b-calendar v-model="startDateStr"></b-calendar>
               </center>
             </b-col>
