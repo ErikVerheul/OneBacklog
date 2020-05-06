@@ -16,6 +16,7 @@ var returning = false
 
 function beforeCreate() {
   this.$store.state.currentView = thisView
+  this.$store.state.stopListenForChanges = false
   if (thisView !== this.$store.state.lastTreeView) {
     this.$store.state.treeNodes = []
     this.$store.state.changeHistory = []

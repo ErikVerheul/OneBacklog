@@ -114,7 +114,8 @@ const actions = {
 							log.entries.unshift(newLog)
 						}
 						log.entries = log.entries.slice(0, MAXLOGSIZE)
-						dispatch('saveLog', log)
+						console.log('watchDog: is saving the log, rootState.listenForChangesRunning = ' + rootState.listenForChangesRunning)
+						dispatch('saveLog', { log, caller: 'watchdog' })
 					}).catch(error => {
 						// eslint-disable-next-line no-console
 						console.log('watchdog: Could not read the log, ' + error)
@@ -184,7 +185,8 @@ const actions = {
 						rootState.logState.unsavedLogs = []
 						log.entries = log.entries.slice(0, MAXLOGSIZE)
 						rootState.logState.logSavePending = true
-						dispatch('saveLog', log)
+						console.log('doLog: is saving the log')
+						dispatch('saveLog', { log, caller: 'doLog' })
 						// check if the cause of one of the log entries is the loss of connection to the database
 						dispatch('checkConnection')
 					}
@@ -206,15 +208,15 @@ const actions = {
 	// save the log
 	saveLog({
 		rootState
-	}, log) {
+	}, payload) {
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + LOGDOCNAME,
-			data: log
+			data: payload.log
 		}).then(() => {
 			rootState.logState.logSavePending = false
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log("saveLog: The log is saved")
+			if (rootState.debug) console.log('saveLog: The log is saved by ' + payload.caller)
 		})
 			// eslint-disable-next-line no-console
 			.catch(error => {
