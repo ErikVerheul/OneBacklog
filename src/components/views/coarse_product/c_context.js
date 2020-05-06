@@ -1,31 +1,35 @@
 import CommonContext from '../common_context.js'
 
+const WARNING = 1
+
 const methods = {
   showContextMenu(node) {
-    this.contextOptionSelected = undefined
-    this.listItemText = ''
-    this.showAssistance = false
-    this.disableOkButton = true
-    // user must have write access on this level && user cannot remove the database && only one node can be selected
-    // for access to the context menu all roles get an extra level, however they cannot change the item's properties
-    const extraLevel = node.level < this.pbiLevel ? node.level + 1 : node.level
-    if (this.isReqAreaItem || this.haveWritePermission[extraLevel] &&
-      node.level > this.databaseLevel && this.$store.state.selectedNodes.length === 1) {
-      const parentNode = window.slVueTree.getParentNode(node)
-      this.contextNodeSelected = node
-      this.contextParentTeam = parentNode.data.team
-      this.contextParentType = this.getLevelText(parentNode.level)
-      this.contextNodeTitle = node.title
-      this.contextNodeLevel = node.level
-      this.contextNodeType = this.getLevelText(node.level)
-      this.contextChildType = this.getLevelText(node.level + 1)
-      this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
-      this.contextNodeTeam = node.data.team
-      this.hasDependencies = node.dependencies && node.dependencies.length > 0
-      this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
-      this.allowRemoval = this.isReqAreaItem || this.haveWritePermission[node.level]
-      window.showContextMenuRef.show()
-    }
+    if (this.$store.state.selectedNodes.length === 1) {
+      this.contextOptionSelected = undefined
+      this.listItemText = ''
+      this.showAssistance = false
+      this.disableOkButton = true
+      // user must have write access on this level && user cannot remove the database
+      // for access to the context menu all roles get an extra level, however they cannot change the item's properties
+      const extraLevel = node.level < this.pbiLevel ? node.level + 1 : node.level
+      if (this.isReqAreaItem || this.haveWritePermission[extraLevel] &&
+        node.level > this.databaseLevel && this.$store.state.selectedNodes.length === 1) {
+        const parentNode = window.slVueTree.getParentNode(node)
+        this.contextNodeSelected = node
+        this.contextParentTeam = parentNode.data.team
+        this.contextParentType = this.getLevelText(parentNode.level)
+        this.contextNodeTitle = node.title
+        this.contextNodeLevel = node.level
+        this.contextNodeType = this.getLevelText(node.level)
+        this.contextChildType = this.getLevelText(node.level + 1)
+        this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
+        this.contextNodeTeam = node.data.team
+        this.hasDependencies = node.dependencies && node.dependencies.length > 0
+        this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
+        this.allowRemoval = this.isReqAreaItem || this.haveWritePermission[node.level]
+        window.showContextMenuRef.show()
+      } else this.showLastEvent(`You have no access to the context menu on this level. Contact your administator.`, WARNING)
+    } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
   },
 
   showSelected(idx) {
