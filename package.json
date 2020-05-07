@@ -16,7 +16,7 @@
     "axios": "^0.19.2",
     "bootstrap-vue": "^2.11.0",
     "core-js": "^3.6.4",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "serve": "^11.3.0",
     "vue": "^2.6.11",
     "vue-multipane": "^0.9.5",
