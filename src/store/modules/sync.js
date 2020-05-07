@@ -408,6 +408,14 @@ const actions = {
 								case 'setHrsEvent':
 									if (isCurrentDocument) rootState.currentDoc.spikepersonhours = doc.spikepersonhours
 									break
+								case 'setPointsAndStatusEvent':
+									node.data.state = doc.state
+									node.data.lastStateChange = lastHistoryTimestamp
+									if (isCurrentDocument) {
+										rootState.currentDoc.spsize = doc.spsize
+										rootState.currentDoc.state = doc.state
+									}
+									break
 								case 'setPointsEvent':
 									if (isCurrentDocument) rootState.currentDoc.spsize = doc.spsize
 									break
@@ -584,6 +592,18 @@ const actions = {
 										rootState.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
 									}
 									break
+								case 'setPointsEvent':
+								case 'setPointsAndStatusEvent':
+									if (doc.sprintId === rootState.loadedSprintId) {
+										if (doc.level === PBILEVEL) {
+											for (let s of rootState.stories) {
+												if (s.storyId === doc._id) {
+													s.size = doc.spsize
+												}
+											}
+										}
+									}
+									break
 								case 'setStateEvent':
 									if (doc.sprintId === rootState.loadedSprintId) {
 										const prevState = lastHistObj.setStateEvent[0]
@@ -605,6 +625,11 @@ const actions = {
 												} else targetColumn.unshift(movedTask)
 											}
 										}
+									}
+									break
+								case 'setTeamOwnerEvent':
+									if (doc.sprintId === rootState.loadedSprintId) {
+										dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
 									}
 									break
 								case 'setTitleEvent':
