@@ -37,7 +37,6 @@ function getParentName(id) {
 const mutations = {
 	createSprint(state, payload) {
 		const rootState = payload.rootState
-		rootState.loadedSprintId = payload.sprintId
 		// console.log('createSprint: payload.storieResults = ' + JSON.stringify(payload.storieResults, null, 2))
 		for (let i = 0; i < payload.storieResults.length; i++) {
 			const storyId = payload.storieResults[i].id
@@ -111,6 +110,8 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(payload.sprintId, payload.team)
 		}).then(res => {
+			// save the last loaded sprintId
+			rootState.loadedSprintId = payload.sprintId
 			// sort the results on parentId --> stories are grouped for the same feature and first created (oldest) features on top
 			const results = res.data.rows.sort((a, b) => a.value[1] > b.value[1])
 			for (let r of results) {

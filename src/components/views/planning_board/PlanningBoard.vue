@@ -3,10 +3,8 @@
     <app-header>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
-          <b-nav-text>
-            Start: {{ getStartDateString }}
-          </b-nav-text>
-          <div class="divider"/>
+        <b-nav-text>Start: {{ getStartDateString }}</b-nav-text>
+        <div class="divider" />
       </b-navbar-nav>
 
       <b-navbar-nav>
@@ -16,10 +14,8 @@
       </b-navbar-nav>
 
       <b-navbar-nav>
-        <div class="divider"/>
-        <b-nav-text>
-          End: {{ getEndDateString }}
-        </b-nav-text>
+        <div class="divider" />
+        <b-nav-text>End: {{ getEndDateString }}</b-nav-text>
       </b-navbar-nav>
     </app-header>
     <b-container fluid>
@@ -64,17 +60,28 @@ export default {
   },
 
   created() {
-    // load the current sprint before any sprint is selected
-    const now = Date.now()
-    let currentSprint = undefined
-    for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
-      const s = this.$store.state.configData.defaultSprintCalendar[i]
-      if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
-        currentSprint = s
-        break
+    if (this.$store.state.loadedSprintId) {
+      // load the last loaded sprint again
+      for (let s of this.$store.state.configData.defaultSprintCalendar) {
+        if (s.id === this.$store.state.loadedSprintId) {
+          this.selectedSprint = s
+          break
+        }
       }
     }
-    this.selectedSprint = currentSprint
+    if (!this.selectedSprint) {
+      // load the current sprint
+      const now = Date.now()
+      let currentSprint = undefined
+      for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
+        const s = this.$store.state.configData.defaultSprintCalendar[i]
+        if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
+          currentSprint = s
+          break
+        }
+      }
+      this.selectedSprint = currentSprint
+    }
     // reload when the user changes team
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateTeam') {
@@ -114,7 +121,7 @@ export default {
 
   watch: {
     // initially load the current sprint and reload when the user selects another sprint
-    selectedSprint: function(newVal) {
+    selectedSprint: function (newVal) {
       this.$store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.$store.state.userData.myTeam })
     }
   },
@@ -153,13 +160,13 @@ export default {
 
 <style scoped>
 .divider {
-    width:15px;
-    height:auto;
-    display:inline-block;
+  width: 15px;
+  height: auto;
+  display: inline-block;
 }
 
 .title-bar {
-  background-color: #408FAE;
+  background-color: #408fae;
   padding-top: 4px;
 }
 
