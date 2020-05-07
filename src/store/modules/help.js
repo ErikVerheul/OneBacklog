@@ -121,7 +121,7 @@ const state = {
         You are about to copy a product backlog item.<br/>
         </p>
         <hr>
-        <p>This feature makes a shallow copy of a product backlog item and places it above the copied item. Not copied are the descendants, history, comments, attachments and dependencies. The state of the copied item is set to 'new'. The title is prepended with 'COPY: '.
+        <p>This feature makes a shallow copy of a product backlog item and places it above the copied item. Not copied are the descendants, history, comments, attachments and dependencies. The state of the copied item is set to 'new'. The title is prepended with 'COPY:'
         </p>`,
 
         setDependency: `<h4>Item dependency help</h4>

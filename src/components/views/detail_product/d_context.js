@@ -107,7 +107,7 @@ const methods = {
         this.assistanceText = this.$store.state.help.help.team
         if (this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.$store.state.userData.myTeam) {
           this.contextWarning = "WARNING: The team of parent " + this.contextParentType + " (" + this.contextParentTeam +
-            ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Please read the assistance text"
+            ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Read the assistance text."
         } else this.contextWarning = undefined
         this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
         break

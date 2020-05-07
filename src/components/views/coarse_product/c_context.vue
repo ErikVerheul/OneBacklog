@@ -164,7 +164,7 @@
           variant="outline-primary"
           @click="showAssistance='true'"
         >Need assistance?</b-button>
-        <b-alert class="d-block text-left" :show="showAssistance" v-html="assistanceText"></b-alert>
+        <div v-if="showAssistance" class="d-block text-left border" v-html="assistanceText"></div>
         <div v-if="contextWarning" class="d-block warning">{{ contextWarning }}</div>
       </div>
     </template>
