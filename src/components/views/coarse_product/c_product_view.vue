@@ -72,6 +72,7 @@
             <h3 align="right">
               State:
               <b-dropdown id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
+                <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
                 <b-dropdown-item @click="onStateChange(newState)">{{ getItemStateText(newState) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(readyState)">{{ getItemStateText(readyState) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(inProgressState)">{{ getItemStateText(inProgressState) }}</b-dropdown-item>
