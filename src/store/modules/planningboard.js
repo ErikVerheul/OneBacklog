@@ -4,12 +4,6 @@ import globalAxios from 'axios'
 const ERROR = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const TODO = 2
-const INPROGRESS = 3
-const TESTREVIEW = 4
-const DONE = 5
-const parentIdToNameMap = {}
-
 
 function composeRangeString1(id, team) {
 	return `startkey=["${id}","${team}",${PBILEVEL}, ${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}",${TASKLEVEL}, ${Number.MAX_SAFE_INTEGER}]`
@@ -17,84 +11,6 @@ function composeRangeString1(id, team) {
 
 function composeRangeString2(id) {
 	return `startkey="${id}"&endkey="${id}"`
-}
-
-function getParentName(id) {
-	let name = parentIdToNameMap[id]
-	if (name) {
-		return name
-	} else {
-		const parent = window.slVueTree.getNodeById(id)
-		if (parent) {
-			name = parent.title
-			parentIdToNameMap[id] = name
-			return name
-		}
-	}
-	return 'unknown'
-}
-
-const mutations = {
-	createSprint(state, payload) {
-		const rootState = payload.rootState
-		// console.log('createSprint: payload.storieResults = ' + JSON.stringify(payload.storieResults, null, 2))
-		for (let i = 0; i < payload.storieResults.length; i++) {
-			const storyId = payload.storieResults[i].id
-			const featureId = payload.storieResults[i].value[1]
-			const featureName = getParentName(featureId)
-			const storyTitle = payload.storieResults[i].value[2]
-			const subType = payload.storieResults[i].value[4]
-			const storySize = payload.storieResults[i].value[6]
-			const newStory = {
-				idx: i,
-				storyId,
-				featureId,
-				featureName,
-				title: storyTitle,
-				size: storySize,
-				subType,
-				tasks: {
-					[TODO]: [],
-					[INPROGRESS]: [],
-					[TESTREVIEW]: [],
-					[DONE]: []
-				}
-			}
-
-			for (let t of payload.taskResults) {
-				if (t.value[1] === storyId) {
-					const taskState = t.value[5]
-					switch (taskState) {
-						case TODO:
-							newStory.tasks[TODO].push({
-								id: t.id,
-								text: t.value[2]
-							})
-							break
-						case INPROGRESS:
-							newStory.tasks[INPROGRESS].push({
-								id: t.id,
-								text: t.value[2]
-							})
-							break
-						case TESTREVIEW:
-							newStory.tasks[TESTREVIEW].push({
-								id: t.id,
-								text: t.value[2]
-							})
-							break
-						case DONE:
-							newStory.tasks[DONE].push({
-								id: t.id,
-								text: t.value[2]
-							})
-							break
-					}
-				}
-			}
-			rootState.stories.push(newStory)
-		}
-	}
 }
 
 const actions = {
@@ -119,7 +35,7 @@ const actions = {
 				if (level === PBILEVEL) storieResults.push(r)
 				if (level === TASKLEVEL) taskResults.push(r)
 			}
-			commit('createSprint', { rootState, sprintId: payload.sprintId, storieResults, taskResults })
+			commit('createSprint', { sprintId: payload.sprintId, storieResults, taskResults })
 		}).catch(error => {
 			let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -419,6 +335,5 @@ const actions = {
 }
 
 export default {
-	mutations,
 	actions
 }
