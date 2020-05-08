@@ -27,13 +27,13 @@
             </template>
             <b-dropdown-item v-if="!isAuthenticated">No options here when not signed in</b-dropdown-item>
             <b-dropdown-item
-              v-if="isAuthenticated && $store.state.userData.myDatabases.length > 1"
+              v-if="isAuthenticated && $store.state.currentView !== 'planningBoard' && $store.state.userData.myDatabases.length > 1"
               @click="changeDatabase"
             >Change database</b-dropdown-item>
             <template v-if="isAuthenticated">
               <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>
               <b-dropdown-item
-                v-if="$store.state.currentView !== 'coarseProduct' && $store.state.userData.userAssignedProductIds.length > 1"
+                v-if="$store.state.currentView === 'detailProduct' && $store.state.userData.userAssignedProductIds.length > 1"
                 @click="selectProducts"
               >Select products</b-dropdown-item>
             </template>
