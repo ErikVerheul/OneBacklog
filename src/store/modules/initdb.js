@@ -118,7 +118,7 @@ const actions = {
 			"_id": "config",
 			"type": "config",
 			"changedBy": "Erik",
-			"changeDate": 1584908085489,
+			"changeDate": 1575036814777,
 
 			"itemType": [
 				"RequirementArea",
@@ -152,7 +152,7 @@ const actions = {
 				"On hold",
 				"ToDo",
 				"In progress",
-				"Ready for test",
+				"Ready for test/review",
 				"Done"
 			],
 
