@@ -2,7 +2,7 @@
   <div :class="getClass(columnName)">
     <div class="b-card-block">
       <span class="text-muted">#{{ getShortId(item.id) }}</span>
-      {{ item.text }}
+      {{ item.title }}
     </div>
   </div>
 </template>

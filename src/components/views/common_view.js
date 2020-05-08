@@ -855,16 +855,16 @@ const methods = {
       for (let s of siblings) {
         switch (s.data.state) {
           case TODO_STATE:
-            tasks[TODO_STATE].push({ id: s._id, text: s.title })
+            tasks[TODO_STATE].push({ id: s._id, title: s.title })
             break
           case INPROGRESS_STATE:
-            tasks[INPROGRESS_STATE].push({ id: s._id, text: s.title })
+            tasks[INPROGRESS_STATE].push({ id: s._id, title: s.title })
             break
           case TEST_REVIEW_STATE:
-            tasks[TEST_REVIEW_STATE].push({ id: s._id, text: s.title })
+            tasks[TEST_REVIEW_STATE].push({ id: s._id, title: s.title })
             break
           case DONE_STATE:
-            tasks[DONE_STATE].push({ id: s._id, text: s.title })
+            tasks[DONE_STATE].push({ id: s._id, title: s.title })
             break
         }
       }

@@ -515,7 +515,7 @@ const actions = {
 											for (let s of rootState.stories) {
 												if (s.storyId === doc.parentId) {
 													const todoTasks = s.tasks[TODO]
-													todoTasks.unshift({ id: doc._id, text: doc.title })
+													todoTasks.unshift({ id: doc._id, title: doc.title })
 												}
 											}
 										}
@@ -658,7 +658,7 @@ const actions = {
 													const phase = tasks[doc.state]
 													for (let t of phase) {
 														if (t.id === doc._id) {
-															t.text = doc.title
+															t.title = doc.title
 														}
 													}
 												}
