@@ -541,7 +541,6 @@ const actions = {
 									break
 								case 'nodesMovedEvent':
 									{
-										// console.log("sync.nodesMovedEvent: lastHistObj['nodesMovedEvent'] = " + JSON.stringify(lastHistObj['nodesMovedEvent'], null, 2))
 										const sourceSprintId = lastHistObj['nodesMovedEvent'][4]
 										const targetSprintId = lastHistObj['nodesMovedEvent'][5]
 										if (!sourceSprintId && !targetSprintId) {
@@ -550,16 +549,13 @@ const actions = {
 										}
 										if (sourceSprintId && !targetSprintId) {
 											// move out of a sprint
-											console.log("sync.nodesMovedEvent: move out of a sprint")
 											if (sourceSprintId === rootState.loadedSprintId) replaceSourceTasks(rootState, lastHistObj)
 										} else if (doc.level === PBILEVEL) {
 											if (!sourceSprintId && targetSprintId) {
 												// move into a sprint
-												console.log("sync.nodesMovedEvent: move into a sprint")
 												if (targetSprintId === rootState.loadedSprintId) replaceTargetTasks(rootState, lastHistObj, doc)
 											} else {
 												// move within a sprint or between sprints
-												console.log("sync.nodesMovedEvent: move within a sprint or between sprints")
 												if (sourceSprintId === rootState.loadedSprintId) replaceSourceTasks(rootState, lastHistObj)
 												if (targetSprintId === rootState.loadedSprintId) replaceTargetTasks(rootState, lastHistObj, doc)
 											}
@@ -619,10 +615,17 @@ const actions = {
 														movedTask = t
 													} else newSourceColumn.push(t)
 												}
-												s.tasks[prevState] = newSourceColumn
-												if (newTaskPosition) {
-													targetColumn.splice(newTaskPosition, 0, movedTask)
-												} else targetColumn.unshift(movedTask)
+												if (movedTask) {
+													s.tasks[prevState] = newSourceColumn
+													if (newTaskPosition !== 0) {
+														targetColumn.splice(newTaskPosition, 0, movedTask)
+													} else targetColumn.unshift(movedTask)
+												} else {
+													// ToDo: find root cause of this error
+													console.log('sync.setStateEvent: movedTask not found, doc._id = ' + doc._id + ' doc.state = ' + doc.state)
+													console.log('sync.setStateEvent: movedTask not found, sourceColumn = ' + JSON.stringify(sourceColumn, null, 2))
+													console.log('sync.setStateEvent: movedTask not found, lastHistObj = ' + JSON.stringify(lastHistObj, null, 2))
+												}
 											}
 										}
 									}
