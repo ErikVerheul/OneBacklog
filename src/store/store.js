@@ -484,25 +484,29 @@ export default new Vuex.Store({
 							case TODO:
 								newStory.tasks[TODO].push({
 									id: t.id,
-									text: t.value[2]
+									text: t.value[2],
+									taskOwner: t.value[7]
 								})
 								break
 							case INPROGRESS:
 								newStory.tasks[INPROGRESS].push({
 									id: t.id,
-									text: t.value[2]
+									text: t.value[2],
+									taskOwner: t.value[7]
 								})
 								break
 							case TESTREVIEW:
 								newStory.tasks[TESTREVIEW].push({
 									id: t.id,
-									text: t.value[2]
+									text: t.value[2],
+									taskOwner: t.value[7]
 								})
 								break
 							case DONE:
 								newStory.tasks[DONE].push({
 									id: t.id,
-									text: t.value[2]
+									text: t.value[2],
+									taskOwner: t.value[7]
 								})
 								break
 						}
