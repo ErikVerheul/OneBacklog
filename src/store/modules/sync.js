@@ -108,8 +108,8 @@ const actions = {
 		}
 
 		function replaceSourceTasks(rootState, lastHistObj) {
-			const sourceParentId = lastHistObj['nodesMovedEvent'][3]
-			const sourcePlanningBoardTasks = lastHistObj['nodesMovedEvent'][6]
+			const sourceParentId = lastHistObj.nodesMovedEvent[3]
+			const sourcePlanningBoardTasks = lastHistObj.nodesMovedEvent[6]
 			if (sourcePlanningBoardTasks) {
 				for (let s of rootState.stories) {
 					if (s.storyId === sourceParentId) {
@@ -120,7 +120,7 @@ const actions = {
 		}
 
 		function replaceTargetTasks(rootState, lastHistObj, doc) {
-			const targetPlanningBoardTasks = lastHistObj['nodesMovedEvent'][7]
+			const targetPlanningBoardTasks = lastHistObj.nodesMovedEvent[7]
 			if (targetPlanningBoardTasks) {
 				for (let s of rootState.stories) {
 					if (s.storyId === doc._id) {
@@ -321,7 +321,7 @@ const actions = {
 										if (lastHistObj.by === rootState.userData.user) {
 											// re-enter the product to the users product roles, subscriptions, product ids and product selection array
 											commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
-											rootState.userData.myProductsRoles[doc._id] = lastHistObj['docRestoredEvent'][5]
+											rootState.userData.myProductsRoles[doc._id] = lastHistObj.docRestoredEvent[5]
 											rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
 											rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
 											rootState.myProductOptions.push({
@@ -334,16 +334,16 @@ const actions = {
 									break
 								case 'nodesMovedEvent':
 									{
-										const parentNode = window.slVueTree.getNodeById(lastHistObj['nodesMovedEvent'][0])
+										const parentNode = window.slVueTree.getNodeById(lastHistObj.nodesMovedEvent[0])
 										if (parentNode === null) break
 
-										for (let item of lastHistObj['nodesMovedEvent'][1]) {
+										for (let item of lastHistObj.nodesMovedEvent[1]) {
 											if (item.level > rootState.loadedTreeDepth) {
 												// skip items that are not available in the tree
 												continue
 											}
 											const node = window.slVueTree.getNodeById(item.id)
-											if (node.level === TASKLEVEL) node.data.sprintId = lastHistObj['nodesMovedEvent'][5]
+											if (node.level === TASKLEVEL) node.data.sprintId = lastHistObj.nodesMovedEvent[5]
 											let locationInfo = getLocationInfo(item.newlyCalculatedPriority, parentNode)
 											if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 												// move the node to the new position w/r to its siblings; first remove the node, then insert
@@ -362,8 +362,8 @@ const actions = {
 														placement: 'after'
 													}, [node], false)
 												}
-												if (lastHistObj['nodesMovedEvent'][2] == 'move') node.data.lastPositionChange = lastHistoryTimestamp
-												if (lastHistObj['nodesMovedEvent'][2] == 'undoMove') node.data.lastPositionChange = 0
+												if (lastHistObj.nodesMovedEvent[2] == 'move') node.data.lastPositionChange = lastHistoryTimestamp
+												if (lastHistObj.nodesMovedEvent[2] == 'undoMove') node.data.lastPositionChange = 0
 											}
 										}
 									}
@@ -454,7 +454,7 @@ const actions = {
 								case 'updateTaskOrderEvent':
 									if (rootState.lastTreeView === 'detailProduct') {
 										// update the position of the tasks of the story and update the index and priority values in the tree
-										const afterMoveIds = lastHistObj['updateTaskOrderEvent'].afterMoveIds
+										const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
 										const storyNode = window.slVueTree.getNodeById(doc._id)
 										if (!storyNode) return
 
@@ -499,9 +499,9 @@ const actions = {
 							switch (histEvent) {
 								case 'addSprintIdsEvent':
 									{	// assign story with or without tasks to a sprint
-										const sprintId = lastHistObj['addSprintIdsEvent'][5]
+										const sprintId = lastHistObj.addSprintIdsEvent[5]
 										if (sprintId === rootState.loadedSprintId) {
-											const triggerBoardReload = lastHistObj['addSprintIdsEvent'][4]
+											const triggerBoardReload = lastHistObj.addSprintIdsEvent[4]
 											if (triggerBoardReload) {
 												dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
 											}
@@ -522,7 +522,7 @@ const actions = {
 									}
 									break
 								case 'docRestoredEvent':
-									if (lastHistObj['docRestoredEvent'][6].includes(rootState.loadedSprintId)) {
+									if (lastHistObj.docRestoredEvent[6].includes(rootState.loadedSprintId)) {
 										// one or more of the removed items or their descendants are assigned to the loaded sprint and restored now
 										if (doc.level === TASKLEVEL) {
 											// a task removal is undone from a user story currently on the planning board
@@ -541,8 +541,8 @@ const actions = {
 									break
 								case 'nodesMovedEvent':
 									{
-										const sourceSprintId = lastHistObj['nodesMovedEvent'][4]
-										const targetSprintId = lastHistObj['nodesMovedEvent'][5]
+										const sourceSprintId = lastHistObj.nodesMovedEvent[4]
+										const targetSprintId = lastHistObj.nodesMovedEvent[5]
 										if (!sourceSprintId && !targetSprintId) {
 											// no changes to the planning board
 											break
@@ -563,7 +563,7 @@ const actions = {
 									}
 									break
 								case 'removedWithDescendantsEvent':
-									if (lastHistObj['removedWithDescendantsEvent'][4].includes(rootState.loadedSprintId)) {
+									if (lastHistObj.removedWithDescendantsEvent[4].includes(rootState.loadedSprintId)) {
 										// one or more of the removed items or their descendants are no longer assigned to the loaded sprint and removed from the board
 										if (doc.level === TASKLEVEL) {
 											// a task is removed from a user story currently displayed on the planning board
@@ -584,7 +584,7 @@ const actions = {
 									break
 								case 'updateTaskOrderEvent':
 									if (doc.sprintId === rootState.loadedSprintId) {
-										const taskUpdates = lastHistObj['updateTaskOrderEvent'].taskUpdates
+										const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates
 										rootState.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
 									}
 									break
