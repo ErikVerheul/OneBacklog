@@ -6,6 +6,20 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.7 - 10 May 2020 Feature update and bug fixes</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Full sync from tree view to planning board</li>
+					<li>Demotion/promotion of PBI's to and from tasks with undo (causes an upwards compatibility break!)</li>
+					<li>Show feature title in story card in planning board</li>
+					<li>Planning bord sorted by feature (oldest on top)</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Regression: Assistance text not showing</li>
+					<li>User options in planning view now limited to this view</li>
+				</ul>
+				<hr>
 				<h3>v.0.9.6 - 26 April 2020 Feature update and bug fixes</h3>
 				<p>New features:</p>
 				<ul>

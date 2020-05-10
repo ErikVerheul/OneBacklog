@@ -622,11 +622,6 @@ const actions = {
 													if (newTaskPosition !== 0) {
 														targetColumn.splice(newTaskPosition, 0, movedTask)
 													} else targetColumn.unshift(movedTask)
-												} else {
-													// ToDo: find root cause of this error
-													console.log('sync.setStateEvent: movedTask not found, doc._id = ' + doc._id + ' doc.state = ' + doc.state)
-													console.log('sync.setStateEvent: movedTask not found, sourceColumn = ' + JSON.stringify(sourceColumn, null, 2))
-													console.log('sync.setStateEvent: movedTask not found, lastHistObj = ' + JSON.stringify(lastHistObj, null, 2))
 												}
 											}
 										}
