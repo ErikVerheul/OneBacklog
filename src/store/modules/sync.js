@@ -107,29 +107,6 @@ const actions = {
 			return rootState.configData.subtype[idx]
 		}
 
-		function replaceSourceTasks(rootState, lastHistObj) {
-			const sourceParentId = lastHistObj.nodesMovedEvent[3]
-			const sourcePlanningBoardTasks = lastHistObj.nodesMovedEvent[6]
-			if (sourcePlanningBoardTasks) {
-				for (let s of rootState.stories) {
-					if (s.storyId === sourceParentId) {
-						s.tasks = sourcePlanningBoardTasks
-					}
-				}
-			}
-		}
-
-		function replaceTargetTasks(rootState, lastHistObj, doc) {
-			const targetPlanningBoardTasks = lastHistObj.nodesMovedEvent[7]
-			if (targetPlanningBoardTasks) {
-				for (let s of rootState.stories) {
-					if (s.storyId === doc._id) {
-						s.tasks = targetPlanningBoardTasks
-					}
-				}
-			}
-		}
-
 		// stop listening if offline. watchdog will start it automatically when online again
 		if (rootState.stopListenForChanges || !rootState.online) return
 
@@ -334,7 +311,7 @@ const actions = {
 									break
 								case 'nodesMovedEvent':
 									{
-										const parentNode = window.slVueTree.getNodeById(lastHistObj.nodesMovedEvent[0])
+										const parentNode = window.slVueTree.getNodeById(doc._id)
 										if (parentNode === null) break
 
 										for (let item of lastHistObj.nodesMovedEvent[1]) {
@@ -343,7 +320,7 @@ const actions = {
 												continue
 											}
 											const node = window.slVueTree.getNodeById(item.id)
-											if (node.level === TASKLEVEL) node.data.sprintId = lastHistObj.nodesMovedEvent[5]
+											if (node.level === PBILEVEL || node.level === TASKLEVEL) node.data.sprintId = lastHistObj.nodesMovedEvent[4]
 											let locationInfo = getLocationInfo(item.newlyCalculatedPriority, parentNode)
 											if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 												// move the node to the new position w/r to its siblings; first remove the node, then insert
@@ -362,8 +339,8 @@ const actions = {
 														placement: 'after'
 													}, [node], false)
 												}
-												if (lastHistObj.nodesMovedEvent[2] == 'move') node.data.lastPositionChange = lastHistoryTimestamp
-												if (lastHistObj.nodesMovedEvent[2] == 'undoMove') node.data.lastPositionChange = 0
+												if (lastHistObj.nodesMovedEvent[0] == 'move') node.data.lastPositionChange = lastHistoryTimestamp
+												if (lastHistObj.nodesMovedEvent[0] == 'undoMove') node.data.lastPositionChange = 0
 											}
 										}
 									}
@@ -541,25 +518,50 @@ const actions = {
 									break
 								case 'nodesMovedEvent':
 									{
-										const sourceSprintId = lastHistObj.nodesMovedEvent[4]
-										const targetSprintId = lastHistObj.nodesMovedEvent[5]
+										// console.log('sync:nodesMovedEvent rootState.stories = ' + JSON.stringify(rootState.stories, null, 2))
+										// console.log('sync:nodesMovedEvent lastHistObj = ' + JSON.stringify(lastHistObj, null, 2))
+										const sourceParentId = lastHistObj.nodesMovedEvent[2]
+										const targetParentId = doc._id
+										const sourceSprintId = lastHistObj.nodesMovedEvent[3]
+										const targetSprintId = lastHistObj.nodesMovedEvent[4]
+
 										if (!sourceSprintId && !targetSprintId) {
 											// no changes to the planning board
 											break
 										}
-										if (sourceSprintId && !targetSprintId) {
-											// move out of a sprint
-											if (sourceSprintId === rootState.loadedSprintId) replaceSourceTasks(rootState, lastHistObj)
-										} else if (doc.level === PBILEVEL) {
-											if (!sourceSprintId && targetSprintId) {
-												// move into a sprint
-												if (targetSprintId === rootState.loadedSprintId) replaceTargetTasks(rootState, lastHistObj, doc)
-											} else {
-												// move within a sprint or between sprints
-												if (sourceSprintId === rootState.loadedSprintId) replaceSourceTasks(rootState, lastHistObj)
-												if (targetSprintId === rootState.loadedSprintId) replaceTargetTasks(rootState, lastHistObj, doc)
-											}
+										if (sourceSprintId === rootState.loadedSprintId || targetSprintId === rootState.loadedSprintId) {
+											if (sourceParentId === targetParentId) {
+												// move position of items within the same task column
+												const movedItems = lastHistObj.nodesMovedEvent[1]
+												let tasks
+												for (let s of rootState.stories) {
+													if (s.storyId === targetParentId) {
+														const columnKeys = Object.keys(s.tasks)
+														for (let ck of columnKeys) {
+															for (let item of movedItems) {
+																for (let t of s.tasks[ck]) {
+																	if (t.id === item.id) {
+																		t.priority = item.newlyCalculatedPriority
+																		tasks = s.tasks[ck]
+																		break
+																	}
+																}
+															}
+														}
+														if (tasks) break
+													}
+												}
+												if (tasks) {
+													tasks.sort((a, b) => b.priority - a.priority)
+													break
+												}
+											} else dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 										}
+									}
+									break
+								case 'removeSprintIdsEvent':
+									if (doc.sprintId === rootState.loadedSprintId) {
+										dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
 									}
 									break
 								case 'removedWithDescendantsEvent':

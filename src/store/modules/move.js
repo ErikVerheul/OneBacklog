@@ -121,14 +121,11 @@ const actions = {
 			}
 			const newHist = {
 				"nodesMovedEvent": [
-					payload.moveInfo.targetParentId,
-					items,
 					payload.moveInfo.type,
+					items,
 					payload.moveInfo.sourceParentId,
 					payload.moveInfo.sourceSprintId,
-					payload.moveInfo.targetSprintId,
-					payload.moveInfo.sourcePlanningBoardTasks,
-					payload.moveInfo.targetPlanningBoardTasks
+					payload.moveInfo.targetSprintId
 				],
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),

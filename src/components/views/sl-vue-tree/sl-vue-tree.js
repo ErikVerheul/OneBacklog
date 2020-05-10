@@ -9,6 +9,7 @@ const WARNING = 1
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
+const STATE_NEW_OR_TODO = 2
 const AREA_PRODUCTID = '0'
 
 import { eventBus } from "../../../main"
@@ -711,20 +712,17 @@ const methods = {
 			targetLevel = targetNode.level
 			insertInd = targetNode.ind
 		}
-		// get titles for history reporting
 		const targetParent = window.slVueTree.getNodeById(targetParentId)
-		const targetSprintId = targetParent.data.sprintId
-		const targetParentLevel = targetLevel - 1
 		const sourceProductTitle = window.slVueTree.getNodeById(sourceProductId).title
 		const sourceParentTitle = window.slVueTree.getNodeById(sourceParentId).title
 		const targetProductTitle = window.slVueTree.getNodeById(targetProductId).title
 		const targetParentTitle = targetParent.title
-		// map the source index to the node reference and set the doRevertOrder boolean
+		// map the source index to the node reference and set the doRevertOrder boolean. Also save the state for the move undo of tasks
 		const sourceIndMap = []
 		let doRevertOrder = false
 		for (let i = 0; i < nodes.length; i++) {
 			if (sourceParentId === targetParentId && insertInd < nodes[i].ind) doRevertOrder = true
-			sourceIndMap.push({ nodeId: nodes[i]._id, sourceInd: nodes[i].ind, targetInd: insertInd + i })
+			sourceIndMap.push({ nodeId: nodes[i]._id, sourceInd: nodes[i].ind, targetInd: insertInd + i, sourceState: nodes[i].data.state })
 		}
 
 		// create a new array for reactive tree update
@@ -737,13 +735,30 @@ const methods = {
 		this.remove(nodes)
 		this.insert(cursorPosition, nodes)
 
-		// set the sprintId if the nodes are tasks and moved to a pbi that has a sprintId assigned to it, if not, remove the sprintId
-		for (let n of nodes) {
-			if (n.level === TASKLEVEL && targetParentLevel === PBILEVEL && targetSprintId) {
-				n.data.sprintId = targetSprintId
-			} else n.data.sprintId = undefined
+		// ------------ update the sprint the nodes are in ---------------
+		if (targetLevel === TASKLEVEL) {
+			// nodes are moved from any level to task level
+			if (targetParent.data.sprintId) {
+				for (let n of nodes) {
+					// assign the sprintId of the parent PBI
+					n.data.sprintId = targetParent.data.sprintId
+				}
+			}
 		}
-		// console.log('moveNodes: sourceSprintId = ' + sourceSprintId + ' targetSprintId = ' + targetSprintId)
+		if (sourceSprintId && targetLevel < sourceLevel) {
+			// PBI's and/or tasks assigned to a sprint were moved up in the hierarchy
+			for (let n of nodes) {
+				// reset the sprintIds
+				n.data.sprintId = undefined
+				if (n.children) {
+					for (let c of n.children) {
+						c.data.sprintId = undefined
+					}
+				}
+			}
+		}
+		const targetSprintId = nodes[0].data.sprintId
+
 		return {
 			sourceProductId,
 			sourceProductTitle,
