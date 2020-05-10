@@ -90,17 +90,17 @@ const utilities = {
 		},
 
 		getItemStateText(idx) {
-			if (this.$store.state.currentDoc.level < TASKLEVEL) {
-				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
-					return 'Error: unknown state'
-				}
-				return this.$store.state.configData.itemState[idx]
-			} else {
-				if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
-					return 'Error: unknown state'
-				}
-				return this.$store.state.configData.taskState[idx]
+			if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+				return 'Error: unknown state'
 			}
+			return this.$store.state.configData.itemState[idx]
+		},
+
+		getTaskStateText(idx) {
+			if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+				return 'Error: unknown state'
+			}
+			return this.$store.state.configData.taskState[idx]
 		},
 
 		getNodeStateText(node) {

@@ -12,7 +12,7 @@ const AREA_PRODUCTID = '0'
 function created() {
     this.removedState = 0
     this.onholdState = 1
-    this.doneState = 5
+    this.doneState = 6
     this.databaseLevel = 1
     this.productLevel = 2
     this.epicLevel = 3

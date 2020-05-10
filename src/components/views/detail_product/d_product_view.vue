@@ -71,7 +71,7 @@
           <b-col cols="2">
             <h3 align="right">
               State:
-              <b-dropdown id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
+              <b-dropdown v-if="$store.state.currentDoc.level < taskLevel" id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
                 <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
                 <b-dropdown-item @click="onStateChange(newState)">{{ getItemStateText(newState) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(readyState)">{{ getItemStateText(readyState) }}</b-dropdown-item>
@@ -80,6 +80,16 @@
                 <b-dropdown-divider></b-dropdown-divider>
                 <b-dropdown-item @click="onStateChange(onholdState)">{{ getItemStateText(onholdState) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(removedState)">{{ getItemStateText(removedState) }}</b-dropdown-item>
+              </b-dropdown>
+              <b-dropdown v-else id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
+                <template slot="button-content">{{ getTaskStateText($store.state.currentDoc.state) }}</template>
+                <b-dropdown-item @click="onStateChange(todoState)">{{ getTaskStateText(todoState) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(inProgressState)">{{ getTaskStateText(inProgressState) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(ReadyForTestReview)">{{ getTaskStateText(ReadyForTestReview) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(doneState)">{{ getTaskStateText(doneState) }}</b-dropdown-item>
+                <b-dropdown-divider></b-dropdown-divider>
+                <b-dropdown-item @click="onStateChange(onholdState)">{{ getTaskStateText(onholdState) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(removedState)">{{ getTaskStateText(removedState) }}</b-dropdown-item>
               </b-dropdown>
             </h3>
           </b-col>
@@ -134,7 +144,7 @@
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
-              {{ patchTitle(node) }}
+              {{ patchTitle(node) }}:{{ node.data.priority }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
@@ -157,7 +167,7 @@
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
 
               <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
-              <b-badge v-if="inSprint(node)" variant="info">In  {{ getTaskState(node) }} sprint</b-badge>
+              <b-badge v-if="inSprint(node)" variant="info">In {{ getSprintText(node) }} sprint</b-badge>
             </template>
 
             <template slot="toggle" slot-scope="{ node }">

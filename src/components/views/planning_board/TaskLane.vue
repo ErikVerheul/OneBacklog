@@ -52,9 +52,9 @@ export default {
   props: ['idx'],
   created() {
     this.TODO = 2,
-    this.INPROGRESS = 3,
-    this.TESTREVIEW = 4,
-    this.DONE = 5
+    this.INPROGRESS = 4,
+    this.TESTREVIEW = 5,
+    this.DONE = 6
   },
   components: {
     'task-column': TaskColumn,

@@ -27,9 +27,10 @@ const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
 const TODO = 2
-const INPROGRESS = 3
-const TESTREVIEW = 4
-const DONE = 5
+const READY = 3
+const INPROGRESS = 4
+const TESTREVIEW = 5
+const DONE = 6
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
@@ -482,31 +483,36 @@ export default new Vuex.Store({
 						const taskState = t.value[5]
 						switch (taskState) {
 							case TODO:
+							case READY:
 								newStory.tasks[TODO].push({
 									id: t.id,
 									title: t.value[2],
-									taskOwner: t.value[7]
+									taskOwner: t.value[7],
+									priority: -t.key[3]
 								})
 								break
 							case INPROGRESS:
 								newStory.tasks[INPROGRESS].push({
 									id: t.id,
 									title: t.value[2],
-									taskOwner: t.value[7]
+									taskOwner: t.value[7],
+									priority: -t.key[3]
 								})
 								break
 							case TESTREVIEW:
 								newStory.tasks[TESTREVIEW].push({
 									id: t.id,
 									title: t.value[2],
-									taskOwner: t.value[7]
+									taskOwner: t.value[7],
+									priority: -t.key[3]
 								})
 								break
 							case DONE:
 								newStory.tasks[DONE].push({
 									id: t.id,
 									title: t.value[2],
-									taskOwner: t.value[7]
+									taskOwner: t.value[7],
+									priority: -t.key[3]
 								})
 								break
 						}

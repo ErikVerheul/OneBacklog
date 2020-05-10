@@ -224,6 +224,19 @@ and for the task item:
 5   "Done"
 ],
 
+As per release 0.9.7
+itemState				taskState
+0   "Removed"			"Removed"
+1   "On hold"			"On hold"
+2   "New"				"ToDo"
+3   "Ready"				"ToDo"
+4   "In progress"		"In progress"
+5	"In progress"		"Ready for test/review"
+6   "Done"				"Done"
+
+Items can move to tasks and back
+
+
 The store holds an object with the data of the current user. This object is initialised with the _session data.
 // email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myProductViewFilterSettings are updated when otherUserData and config are read
 // the first (index 0) product in myProductSubscriptions is by definition the default product

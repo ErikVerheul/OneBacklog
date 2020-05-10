@@ -144,8 +144,7 @@ const methods = {
       // no sprint definitions available
       return false
     }
-    const itemSprint = this.getSprint(sprintId)
-    if (itemSprint === null) {
+    if (this.getSprint(sprintId) === null) {
       // sprint not found
       return false
     }
@@ -155,7 +154,7 @@ const methods = {
     return false
   },
 
-  getTaskState(node) {
+  getSprintText(node) {
     const sprintId = node.data.sprintId
     if (sprintId === this.sprints.currentSprint.id) {
       return 'current'

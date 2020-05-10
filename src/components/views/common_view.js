@@ -6,8 +6,8 @@ const WARNING = 1
 const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
-const STATE_NEW_OR_TODO = 2
-const STATE_READY_OR_INPROGRESS = 3
+const STATE_NEW = 2
+const STATE_READY = 3
 const SHORTKEYLENGTH = 5
 var violationsWereFound = false
 
@@ -17,7 +17,11 @@ function created() {
   this.newState = 2
   this.readyState = 3
   this.inProgressState = 4
-  this.doneState = 5
+  this.doneState = 6
+
+  this.todoState = 2
+  this.ReadyForTestReview = 5
+
   this.databaseLevel = 1
   this.productLevel = 2
   this.epicLevel = 3
@@ -443,21 +447,24 @@ const methods = {
               sourceLevel,
               sourceSprintId,
               sourceParentTitle,
-              sourcePlanningBoardTasks: sourceParentId !== targetParentId ? this.calcTasks(sourceParentId) : undefined,
               levelShift,
               targetProductId,
               targetParentId,
               targetSprintId,
-              targetParentTitle,
-              targetPlanningBoardTasks: this.calcTasks(targetParentId)
+              targetParentTitle
             }
             const items = []
             for (let m of swappedIndmap) {
               const node = window.slVueTree.getNodeById(m.nodeId)
               if (node === null) break
 
-              // reset the sprintId
+              // [only for detail view] reset the sprintId
               node.data.sprintId = targetSprintId
+              if (node.level === this.pbiLevel && node.children) {
+                for (let c of node.children) {
+                  c.data.sprintId = targetSprintId
+                }
+              }
               // remove the <moved> badge
               node.data.lastPositionChange = 0
               const payloadItem = {
@@ -796,8 +803,8 @@ const methods = {
     }
 
     if (this.haveWritePermission[this.getCurrentItemLevel]) {
-      // any user can change from state 'New' to state 'Ready'; the owning team of the item is set to the users team
-      if (this.getNodeSelected.data.state === STATE_NEW_OR_TODO && idx === STATE_READY_OR_INPROGRESS) {
+      // any user can change PBI's from state 'New' to state 'Ready'; the owning team of the item is set to the users team
+      if (this.getNodeSelected.data.state === STATE_NEW && idx === STATE_READY) {
         changeState(this, this.$store.state.userData.myTeam)
         const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
         if (parentNode.level >= this.featureLevel && parentNode.data.team !== this.$store.state.userData.myTeam) {
@@ -838,40 +845,6 @@ const methods = {
     }
   },
 
-  calcTasks(parentId) {
-    const TODO_STATE = 2
-    const INPROGRESS_STATE = 3
-    const TEST_REVIEW_STATE = 4
-    const DONE_STATE = 5
-    const parentNode = window.slVueTree.getNodeById(parentId)
-    if (parentNode && parentNode.level === this.pbiLevel) {
-      const siblings = parentNode.children
-      const tasks = {
-        [TODO_STATE]: [],
-        [INPROGRESS_STATE]: [],
-        [TEST_REVIEW_STATE]: [],
-        [DONE_STATE]: []
-      }
-      for (let s of siblings) {
-        switch (s.data.state) {
-          case TODO_STATE:
-            tasks[TODO_STATE].push({ id: s._id, title: s.title, taskOwner: s.data.taskOwner })
-            break
-          case INPROGRESS_STATE:
-            tasks[INPROGRESS_STATE].push({ id: s._id, title: s.title, taskOwner: s.data.taskOwner })
-            break
-          case TEST_REVIEW_STATE:
-            tasks[TEST_REVIEW_STATE].push({ id: s._id, title: s.title, taskOwner: s.data.taskOwner })
-            break
-          case DONE_STATE:
-            tasks[DONE_STATE].push({ id: s._id, title: s.title, taskOwner: s.data.taskOwner })
-            break
-        }
-      }
-      return tasks
-    } else return undefined
-  },
-
   /* Update the database when one or more nodes are dropped on another location */
   nodeDropped(beforeDropStatus, draggingNodes, position) {
     const clickedLevel = beforeDropStatus.sourceLevel
@@ -886,7 +859,6 @@ const methods = {
       sourceLevel: beforeDropStatus.sourceLevel,
       sourceSprintId: beforeDropStatus.sourceSprintId,
       sourceParentTitle: beforeDropStatus.sourceParentTitle,
-      sourcePlanningBoardTasks: beforeDropStatus.sourceParentId !== beforeDropStatus.targetParentId ? this.calcTasks(beforeDropStatus.sourceParentId) : undefined,
 
       levelShift,
       placement: position.placement,
@@ -894,8 +866,7 @@ const methods = {
       targetProductId: beforeDropStatus.targetProductId,
       targetParentId: beforeDropStatus.targetParentId,
       targetSprintId: beforeDropStatus.targetSprintId,
-      targetParentTitle: beforeDropStatus.targetParentTitle,
-      targetPlanningBoardTasks: this.calcTasks(beforeDropStatus.targetParentId)
+      targetParentTitle: beforeDropStatus.targetParentTitle
     }
     let items = []
     for (let dn of draggingNodes) {
