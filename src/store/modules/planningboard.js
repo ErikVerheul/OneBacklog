@@ -96,8 +96,8 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString2(payload.storyId) + '&include_docs=true'
 		}).then(res => {
-            const docs = res.data.rows.map((r) => r.doc)
-			docs.sort((a,b) => b.priority - a.priority)
+			const docs = res.data.rows.map((r) => r.doc)
+			docs.sort((a, b) => b.priority - a.priority)
 
 			const mapper = []
 			for (let r of docs) {
@@ -206,6 +206,33 @@ const actions = {
 		})
 	},
 
+	/* Create an event to trigger a planning reload after items are assigned or unassigned to a sprint */
+	notifyParentOnSprintAssignment({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.parentId
+		}).then(res => {
+			let tmpDoc = res.data
+			const newHist = {
+				"sprintAssigned": [payload.sprintId, payload.sprintName],
+				"by": rootState.userData.user,
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			tmpDoc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+		}).catch(error => {
+			let msg = 'notifyParentOnSprintAssignment: Could not read document with _id ' + payload.parentId + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	/*
 	* From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint ||
 	* for undo: see undoRemoveSprintIds
@@ -229,7 +256,6 @@ const actions = {
 			const results = res.data.results
 			const docs = []
 			const error = []
-			let triggerBoardReload = true
 			for (let r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
@@ -241,14 +267,13 @@ const actions = {
 					if (node) node.data.sprintId = payload.sprintId
 
 					const newHist = {
-						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned, triggerBoardReload, payload.sprintId],
+						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned, payload.sprintId],
 						"by": rootState.userData.user,
 						"timestamp": Date.now(),
 						"sessionId": rootState.userData.sessionId,
 						"distributeEvent": true
 					}
 					doc.history.unshift(newHist)
-					triggerBoardReload = false
 					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
 					docs.push(doc)
 				}
@@ -265,7 +290,12 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+
+			const toDispatch = {
+				notifyParentOnSprintAssignment: payload
+			}
+
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'addSprintIds' })
 		}).catch(e => {
 			let msg = 'addSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -324,7 +354,12 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+
+			const toDispatch = {
+				notifyParentOnSprintAssignment: payload
+			}
+
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'notifyParentOnSprintAssignment' })
 		}).catch(e => {
 			let msg = 'removeSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console

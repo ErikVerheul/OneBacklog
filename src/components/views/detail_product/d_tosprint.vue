@@ -85,11 +85,15 @@ export default {
       }
       // show children nodes
       window.slVueTree.getNodeById(currentId).isExpanded = true
-      const sprintName = getSprintName(this.selectedSprint)
-      this.$store.dispatch('addSprintIds', { itemIds, sprintId: this.selectedSprint, sprintName })
+
+      const sprintId = this.selectedSprint
+      const sprintName = getSprintName(sprintId)
+      this.$store.dispatch('addSprintIds', { parentId: currentId, itemIds, sprintId, sprintName })
       // create an entry for undoing the add-to-sprint in a last-in first-out sequence
         const entry = {
           type: 'undoAddSprintIds',
+          parentId: currentId,
+          sprintId,
           itemIds,
           sprintName
         }

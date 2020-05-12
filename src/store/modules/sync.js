@@ -130,11 +130,16 @@ const actions = {
 						// get data from last history addition
 						const lastHistoryTimestamp = lastHistObj.timestamp
 						const histEvent = Object.keys(lastHistObj)[0]
-						// process events on tree items that are loaded (eg. 'products overview' has no pbi and task items)
-						if (doc.level <= rootState.loadedTreeDepth) {
+						// nodesMovedEvent loads the parent of the items that moved
+						const updateTree = histEvent === 'nodesMovedEvent' ? doc.level < rootState.loadedTreeDepth : doc.level <= rootState.loadedTreeDepth
+						// the event handler for 'sprintAssigned' will determine if the sprint is in view
+						let updateBoard = rootState.currentView === 'planningBoard' && histEvent === 'sprintAssigned' && doc.team === rootState.userData.myTeam ||
+							rootState.currentView === 'planningBoard' && doc.sprintId === rootState.loadedSprintId && doc.team === rootState.userData.myTeam
+						if (updateTree || updateBoard) dispatch('doBlinck', doc)
 
-							dispatch('doBlinck', doc)
-
+						if (updateTree) {
+							console.log('sync:updateTree with event ' + histEvent)
+							// process events on tree items that are loaded (eg. 'products overview' has no pbi and task items)
 							const isCurrentDocument = doc._id === rootState.currentDoc._id
 							if (isCurrentDocument) {
 								// show this history update
@@ -158,10 +163,7 @@ const actions = {
 							// check for exception
 							if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent') {
 								commit('showLastEvent', { txt: `Another user changed item ${doc._id.slice(-5)} which is missing in your view`, severity: WARNING })
-								let msg = 'sync: cannot find node with id = ' + doc._id
-								// eslint-disable-next-line no-console
-								if (rootState.debug) console.log(msg)
-								dispatch('doLog', { event: msg, level: WARNING })
+								dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: WARNING })
 								continue
 							}
 							reportOddTimestamp(doc.history[0].timestamp, histEvent, doc._id)
@@ -464,36 +466,23 @@ const actions = {
 									}
 									break
 								default:
-									// eslint-disable-next-line no-console
-									if (rootState.debug) {
+									if (rootState.debug && histEvent !== 'sprintAssigned')
 										// eslint-disable-next-line no-console
-										if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
-									}
+										console.log('sync.trees: event not found, name = ' + histEvent)
 							}
 						}
-						// process events for the planning board if displayed
-						if (rootState.currentView === 'planningBoard') {
+
+						if (updateBoard) {
+							console.log('sync:updateBoard with event ' + histEvent)
+							// process events for the planning board if displayed
 							switch (histEvent) {
-								case 'addSprintIdsEvent':
-									{	// assign story with or without tasks to a sprint
-										const sprintId = lastHistObj.addSprintIdsEvent[5]
-										if (sprintId === rootState.loadedSprintId) {
-											const triggerBoardReload = lastHistObj.addSprintIdsEvent[4]
-											if (triggerBoardReload) {
-												dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
-											}
-										}
-									}
-									break
 								case 'createEvent':
-									if (doc.sprintId === rootState.loadedSprintId) {
-										if (doc.level === TASKLEVEL) {
-											// a new task is created in a user story currently on the planning board
-											for (let s of rootState.stories) {
-												if (s.storyId === doc.parentId) {
-													const todoTasks = s.tasks[TODO]
-													todoTasks.unshift({ id: doc._id, title: doc.title })
-												}
+									if (doc.level === TASKLEVEL) {
+										// a new task is created in a user story currently on the planning board
+										for (let s of rootState.stories) {
+											if (s.storyId === doc.parentId) {
+												const todoTasks = s.tasks[TODO]
+												todoTasks.unshift({ id: doc._id, title: doc.title })
 											}
 										}
 									}
@@ -559,11 +548,6 @@ const actions = {
 										}
 									}
 									break
-								case 'removeSprintIdsEvent':
-									if (doc.sprintId === rootState.loadedSprintId) {
-										dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
-									}
-									break
 								case 'removedWithDescendantsEvent':
 									if (lastHistObj.removedWithDescendantsEvent[4].includes(rootState.loadedSprintId)) {
 										// one or more of the removed items or their descendants are no longer assigned to the loaded sprint and removed from the board
@@ -585,25 +569,24 @@ const actions = {
 									}
 									break
 								case 'updateTaskOrderEvent':
-									if (doc.sprintId === rootState.loadedSprintId) {
+									{
 										const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates
 										rootState.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
 									}
 									break
 								case 'setPointsEvent':
 								case 'setPointsAndStatusEvent':
-									if (doc.sprintId === rootState.loadedSprintId) {
-										if (doc.level === PBILEVEL) {
-											for (let s of rootState.stories) {
-												if (s.storyId === doc._id) {
-													s.size = doc.spsize
-												}
+									if (doc.level === PBILEVEL) {
+										for (let s of rootState.stories) {
+											if (s.storyId === doc._id) {
+												s.size = doc.spsize
+												break
 											}
 										}
 									}
 									break
 								case 'setStateEvent':
-									if (doc.sprintId === rootState.loadedSprintId) {
+									{
 										const prevState = lastHistObj.setStateEvent[0]
 										const newTaskPosition = lastHistObj.setStateEvent[3]
 										for (let s of rootState.stories) {
@@ -628,27 +611,27 @@ const actions = {
 									}
 									break
 								case 'setTeamOwnerEvent':
-									if (doc.sprintId === rootState.loadedSprintId) {
-										dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
-									}
+									dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
 									break
 								case 'setTitleEvent':
-									if (doc.level === FEATURELEVEL) {
-										for (let s of rootState.stories) {
-											if (s.featureId === doc._id) {
-												s.featureName = doc.title
+									switch (doc.level) {
+										case FEATURELEVEL:
+											for (let s of rootState.stories) {
+												if (s.featureId === doc._id) {
+													s.featureName = doc.title
+													break
+												}
 											}
-										}
-									}
-									if (doc.sprintId === rootState.loadedSprintId) {
-										if (doc.level === PBILEVEL) {
+											break
+										case PBILEVEL:
 											for (let s of rootState.stories) {
 												if (s.storyId === doc._id) {
 													s.title = doc.title
+													break
 												}
 											}
-										}
-										if (doc.level === TASKLEVEL) {
+											break
+										case TASKLEVEL:
 											for (let s of rootState.stories) {
 												if (s.storyId === doc.parentId) {
 													const tasks = s.tasks
@@ -656,16 +639,29 @@ const actions = {
 													for (let t of phase) {
 														if (t.id === doc._id) {
 															t.title = doc.title
+															break
 														}
 													}
 												}
 											}
+											break
+									}
+									break
+								case 'sprintAssigned':
+									{
+										const sprintId = lastHistObj.sprintAssigned[0]
+										if (sprintId === rootState.loadedSprintId) {
+											dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
 										}
 									}
 									break
 								default:
 									// eslint-disable-next-line no-console
-									if (rootState.debug) console.log('sync.planningBoard: event not found, name = ' + histEvent)
+									if (rootState.debug &&
+										histEvent !== 'addSprintIdsEvent' &&
+										histEvent !== 'removeSprintIdsEvent')
+										// eslint-disable-next-line no-console
+										console.log('sync.planningBoard: event not found, name = ' + histEvent)
 							}
 						}
 					}

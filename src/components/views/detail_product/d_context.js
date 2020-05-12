@@ -289,10 +289,11 @@ const methods = {
     }
     // show children nodes
     window.slVueTree.getNodeById(currentId).isExpanded = true
-    this.$store.dispatch('removeSprintIds', { itemIds, sprintName: this.getSprintName(sprintId) })
+    this.$store.dispatch('removeSprintIds', { parentId: currentId, sprintId, itemIds, sprintName: this.getSprintName(sprintId) })
     // create an entry for undoing the remove-from-sprint in a last-in first-out sequence
     const entry = {
       type: 'undoRemoveSprintIds',
+      parentId: currentId,
       itemIds,
       sprintId,
       sprintName: this.getSprintName(this.selectedSprint)

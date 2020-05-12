@@ -276,7 +276,7 @@ distibuted	mailed	listed	event                       	file
 ----------------------------------------------------------------
 Y            Y	     Y    acceptanceEvent	              	update.js
 Y            Y	     Y    addCommentEvent	              	update.js
-Y			 Y	     Y    addSprintIdsEvent					update.js
+Y			 Y	     Y    addSprintIdsEvent					planningboard.js
 N            Y	     Y    cloneEvent	                  	clone.js
 Y            Y	     Y    commentToHistoryEvent	        	update.js
 Y            Y	     Y    conditionRemovedEvent	        	update.js
@@ -309,6 +309,7 @@ N			 N	     Y    setTeamEventDescendant			update.js
 Y            Y	     Y    setTeamOwnerEvent	            	update.js
 Y            Y	     Y    setTitleEvent	                	update.js
 N			 N	     Y    subscribeEvent					update.js
+Y			 N	     N    sprintAssigned					planningboard.js
 Y            Y	     Y    uploadAttachmentEvent	        	attachments.js
 N			 N	     Y    resetHistoryEvent					utils.js
 

@@ -350,7 +350,7 @@ const methods = {
     const entry = this.$store.state.changeHistory.splice(0, 1)[0]
     switch (entry.type) {
       case 'undoAddSprintIds':
-        this.$store.dispatch('removeSprintIds', { itemIds: entry.itemIds, sprintName: entry.sprintName })
+        this.$store.dispatch('removeSprintIds', { parentId: entry.parentId, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName })
         break
       case 'undoSelectedPbiType':
         this.$store.commit('updateNodeSelected', { subtype: entry.oldPbiType })
@@ -533,7 +533,7 @@ const methods = {
         }
         break
       case 'undoRemoveSprintIds':
-        this.$store.dispatch('addSprintIds', { itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
+        this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
         break
       case 'undoSetDependency':
         {
