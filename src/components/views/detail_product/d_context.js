@@ -28,7 +28,7 @@ const methods = {
       // user must have write access on this level && user cannot remove the database
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties
       const extraLevel = node.level < this.taskLevel ? node.level + 1 : node.level
-      if (this.haveWritePermission[extraLevel] && node.level > this.databaseLevel) {
+      if (this.haveAccess(extraLevel, node.data.team, 'open the context menu')) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
         this.contextParentTeam = parentNode.data.team
@@ -41,10 +41,10 @@ const methods = {
         this.contextNodeTeam = node.data.team
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
-        this.allowRemoval = this.haveWritePermission[node.level]
+        this.allowRemoval = true
         this.isInSprint = node.data.sprintId && this.isCurrentOrNextPrintId(node.data.sprintId)
         window.showContextMenuRef.show()
-      } else this.showLastEvent(`You have no access to the context menu on this level. Contact your administator.`, WARNING)
+      } else this.allowRemoval = false
     } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
   },
 

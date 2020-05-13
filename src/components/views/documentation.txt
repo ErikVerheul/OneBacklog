@@ -119,6 +119,11 @@ These roles are set during loading by haveWritePermission(...).
 
 	Note that this getter returns permissions for the current product or all products (admin and APO)
 
+Access to team owned items
+--------------------------
+By default an item is owned by dummy team 'not assigned yet' or is undefined
+When an level authorized user changes state of an item the item is assigned to the user's team
+Items with an assigned team can only be moved, removed, or changed by members of that team.
 
 Sprint Backlog
 ==============
@@ -204,26 +209,6 @@ In the CONFIG document the PBI subtypes are defined
   ],
 
 In the CONFIG document the item states are defined
-As per release 0.9.3.1:
-"itemState": [
-0   "Removed",
-1   "On hold",
-2   "New",
-3   "Ready",
-4   "In progress",
-5   "Done"
-],
-
-and for the task item:
-"taskState": [
-0   "Removed",
-1   "On hold",
-2   "ToDo",
-3   "In progress",
-4   "Ready for test", // optional
-5   "Done"
-],
-
 As per release 0.9.7
 itemState				taskState
 0   "Removed"			"Removed"

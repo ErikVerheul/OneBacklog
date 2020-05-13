@@ -120,9 +120,7 @@ const computed = {
     'getCurrentItemLevel',
     'getCurrentItemState',
     'getItemSprintName',
-    'getCurrentItemTsSize',
-    // from startup.js
-    'haveWritePermission'
+    'getCurrentItemTsSize'
   ]),
 
   welcomeMessage() {
@@ -600,7 +598,7 @@ const methods = {
   updateDescription() {
     // skip update when not changed
     if (this.$store.state.currentDoc.description !== this.newDescription) {
-      if (this.haveWritePermission[this.getCurrentItemLevel]) {
+      if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
         const oldDescription = this.$store.state.currentDoc.description
         const now = Date.now()
         this.$store.commit('updateNodeSelected', { lastContentChange: now, lastChange: now })
@@ -617,8 +615,6 @@ const methods = {
           oldDescription
         }
         this.$store.state.changeHistory.unshift(entry)
-      } else {
-        this.showLastEvent("Sorry, your assigned role(s) disallow you to change the description of this item", WARNING)
       }
     }
   },
@@ -626,7 +622,7 @@ const methods = {
   updateAcceptance() {
     // skip update when not changed
     if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
-      if (this.haveWritePermission[this.getCurrentItemLevel]) {
+      if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
         const oldAcceptance = this.$store.state.currentDoc.acceptanceCriteria
         const now = Date.now()
         this.$store.commit('updateNodeSelected', { lastContentChange: now, lastChange: now })
@@ -643,41 +639,35 @@ const methods = {
           oldAcceptance
         }
         this.$store.state.changeHistory.unshift(entry)
-      } else {
-        this.showLastEvent("Sorry, your assigned role(s) disallow you to change the acceptance criteria of this item", WARNING)
       }
     }
   },
 
   updateTsSize() {
-    if (this.haveWritePermission[this.getCurrentItemLevel]) {
-      if (this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
-        const now = Date.now()
-        let size = document.getElementById("tShirtSizeId").value.toUpperCase()
-        const sizeArray = this.$store.state.configData.tsSize
-        if (sizeArray.includes(size)) {
-          // size is not a node prop; no update needed
-          this.$store.commit('updateNodeSelected', { lastChange: now })
-          this.$store.dispatch('setSize', {
-            'newSizeIdx': sizeArray.indexOf(size),
-            'timestamp': now
-          })
-          // create an entry for undoing the change in a last-in first-out sequence
-          const entry = {
-            type: 'undoTsSizeChange',
-            oldTsSize: this.$store.state.currentDoc.tssize
-          }
-          this.$store.state.changeHistory.unshift(entry)
-        } else {
-          let sizes = ''
-          for (let i = 0; i < sizeArray.length - 1; i++) {
-            sizes += sizeArray[i] + ', '
-          }
-          alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
+    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
+      const now = Date.now()
+      let size = document.getElementById("tShirtSizeId").value.toUpperCase()
+      const sizeArray = this.$store.state.configData.tsSize
+      if (sizeArray.includes(size)) {
+        // size is not a node prop; no update needed
+        this.$store.commit('updateNodeSelected', { lastChange: now })
+        this.$store.dispatch('setSize', {
+          'newSizeIdx': sizeArray.indexOf(size),
+          'timestamp': now
+        })
+        // create an entry for undoing the change in a last-in first-out sequence
+        const entry = {
+          type: 'undoTsSizeChange',
+          oldTsSize: this.$store.state.currentDoc.tssize
         }
-      } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change the t-shirt size of this item", WARNING)
-    } else {
-      this.showLastEvent("Sorry, your assigned role(s) disallow you to change the t-shirt size of this item", WARNING)
+        this.$store.state.changeHistory.unshift(entry)
+      } else {
+        let sizes = ''
+        for (let i = 0; i < sizeArray.length - 1; i++) {
+          sizes += sizeArray[i] + ', '
+        }
+        alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
+      }
     }
   },
 
@@ -686,75 +676,68 @@ const methods = {
   * Only authorized users who are member of the owning team can change story points at any other state.
   */
   updateStoryPoints() {
-    if (this.haveWritePermission[this.getCurrentItemLevel]) {
-      if (this.getCurrentItemState === this.newState || this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
-        const oldStoryPoints = this.$store.state.currentDoc.spsize
-        const now = Date.now()
-        let el = document.getElementById("storyPointsId")
-        if (isNaN(el.value) || el.value < 0) {
-          el.value = '?'
-          return
+    const skipTestOnTeam = this.getCurrentItemState === this.newState
+    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item', skipTestOnTeam)) {
+      const oldStoryPoints = this.$store.state.currentDoc.spsize
+      const now = Date.now()
+      let el = document.getElementById("storyPointsId")
+      if (isNaN(el.value) || el.value < 0) {
+        el.value = '?'
+        return
+      }
+      if (skipTestOnTeam) {
+        // when state is 'new' change state to 'ready' and assign the user's team as owner
+        this.$store.dispatch('setStoryPoints', {
+          newPoints: parseInt(el.value),
+          state: this.readyState,
+          team: this.$store.state.userData.myTeam,
+          timestamp: now
+        })
+        // create an entry for undoing the change in a last-in first-out sequence
+        const entry = {
+          type: 'undoStoryPointsAndStateChange',
+          oldStoryPoints,
+          oldState: this.newState,
+          oldTeam: this.$store.state.currentDoc.team
         }
-        if (this.getCurrentItemState === this.newState) {
-          // when state is 'new' change state to 'ready' and assign the user's team as owner
-          this.$store.dispatch('setStoryPoints', {
-            newPoints: parseInt(el.value),
-            state: this.readyState,
-            team: this.$store.state.userData.myTeam,
-            timestamp: now
-          })
-          // create an entry for undoing the change in a last-in first-out sequence
-          const entry = {
-            type: 'undoStoryPointsAndStateChange',
-            oldStoryPoints,
-            oldState: this.newState,
-            oldTeam: this.$store.state.currentDoc.team
-          }
-          this.$store.state.changeHistory.unshift(entry)
-          this.$store.commit('updateNodeSelected', { state: this.readyState, team: this.$store.state.userData.myTeam, lastStateChange: now, lastChange: now })
-        } else {
-          this.$store.dispatch('setStoryPoints', {
-            newPoints: parseInt(el.value),
-            timestamp: now
-          })
-          // create an entry for undoing the change in a last-in first-out sequence
-          const entry = {
-            type: 'undoStoryPointsChange',
-            oldStoryPoints
-          }
-          this.$store.state.changeHistory.unshift(entry)
-          this.$store.commit('updateNodeSelected', { lastChange: now })
+        this.$store.state.changeHistory.unshift(entry)
+        this.$store.commit('updateNodeSelected', { state: this.readyState, team: this.$store.state.userData.myTeam, lastStateChange: now, lastChange: now })
+      } else {
+        this.$store.dispatch('setStoryPoints', {
+          newPoints: parseInt(el.value),
+          timestamp: now
+        })
+        // create an entry for undoing the change in a last-in first-out sequence
+        const entry = {
+          type: 'undoStoryPointsChange',
+          oldStoryPoints
         }
-      } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change story points of this item", WARNING)
-    } else {
-      this.showLastEvent("Sorry, your assigned role(s) disallow you to change the story points size of this item", WARNING)
+        this.$store.state.changeHistory.unshift(entry)
+        this.$store.commit('updateNodeSelected', { lastChange: now })
+      }
     }
   },
 
   updatePersonHours() {
-    if (this.haveWritePermission[this.getCurrentItemLevel]) {
-      if (this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
-        const oldPersonHours = this.$store.state.currentDoc.spikepersonhours
-        const now = Date.now()
-        let el = document.getElementById("personHoursId")
-        if (isNaN(el.value) || el.value < 0) {
-          el.value = '?'
-          return
-        }
-        this.$store.commit('updateNodeSelected', { lastChange: now })
-        this.$store.dispatch('setPersonHours', {
-          'newHrs': el.value,
-          'timestamp': now
-        })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-          type: 'undoPersonHoursChange',
-          oldPersonHours
-        }
-        this.$store.state.changeHistory.unshift(entry)
-      } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change story person hours of this item", WARNING)
-    } else {
-      this.showLastEvent("Sorry, your assigned role(s) disallow you to change the person hours of this item", WARNING)
+    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
+      const oldPersonHours = this.$store.state.currentDoc.spikepersonhours
+      const now = Date.now()
+      let el = document.getElementById("personHoursId")
+      if (isNaN(el.value) || el.value < 0) {
+        el.value = '?'
+        return
+      }
+      this.$store.commit('updateNodeSelected', { lastChange: now })
+      this.$store.dispatch('setPersonHours', {
+        'newHrs': el.value,
+        'timestamp': now
+      })
+      // create an entry for undoing the change in a last-in first-out sequence
+      const entry = {
+        type: 'undoPersonHoursChange',
+        oldPersonHours
+      }
+      this.$store.state.changeHistory.unshift(entry)
     }
   },
 
@@ -802,22 +785,16 @@ const methods = {
       vm.$store.state.changeHistory.unshift(entry)
     }
 
-    if (this.haveWritePermission[this.getCurrentItemLevel]) {
+    const skipTestOnTeam = this.getNodeSelected.data.state === STATE_NEW && idx === STATE_READY
+    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item', skipTestOnTeam)) {
       // any user can change PBI's from state 'New' to state 'Ready'; the owning team of the item is set to the users team
-      if (this.getNodeSelected.data.state === STATE_NEW && idx === STATE_READY) {
-        changeState(this, this.$store.state.userData.myTeam)
-        const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
-        if (parentNode.level >= this.featureLevel && parentNode.data.team !== this.$store.state.userData.myTeam) {
-          this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
-            this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
-        }
-      } else {
-        if (this.$store.state.currentDoc.team === this.$store.state.userData.myTeam) {
-          // all other state changes; no team update
-          changeState(this, this.$store.state.currentDoc.team)
-        } else this.showLastEvent("Sorry, only members of team '" + this.$store.state.currentDoc.team + "' can change the state of this item", WARNING)
+      changeState(this, this.$store.state.userData.myTeam)
+      const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
+      if (parentNode.level >= this.featureLevel && parentNode.data.team !== this.$store.state.userData.myTeam) {
+        this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
+          this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
       }
-    } else this.showLastEvent("Sorry, your assigned role(s) disallow you to change the state of this item", WARNING)
+    }
   },
 
   updateTitle() {
@@ -825,7 +802,7 @@ const methods = {
     const newTitle = document.getElementById("titleField").value
     if (oldTitle === newTitle) return
 
-    if (this.haveWritePermission[this.getCurrentItemLevel]) {
+    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
       const now = Date.now()
       // update the current node
       this.$store.commit('updateNodeSelected', { title: newTitle, lastContentChange: now, lastChange: now })
@@ -840,8 +817,6 @@ const methods = {
         oldTitle
       }
       this.$store.state.changeHistory.unshift(entry)
-    } else {
-      this.showLastEvent("Sorry, your assigned role(s) disallow you to change the title of this item", WARNING)
     }
   },
 

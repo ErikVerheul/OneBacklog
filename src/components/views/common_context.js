@@ -69,8 +69,9 @@ function mounted() {
 
 const computed = {
     ...mapGetters([
-        // from startup.js
-        'haveWritePermission'
+        // from store.js
+        'isAPO',
+        'myTeam'
     ]),
     isReqAreaItem() {
         return this.$store.state.currentDoc.productId === AREA_PRODUCTID
@@ -257,7 +258,7 @@ const methods = {
             parentTitle = this.contextNodeSelected.title
         }
 
-        let team = 'not assigned yet'
+        let team = this.myTeam
         let sprintId = undefined
         let taskOwner = undefined
         if (insertLevel === TASKLEVEL) {
@@ -280,7 +281,7 @@ const methods = {
         newNode.ind = idx
         newNode.level = path.length
 
-        if (this.haveWritePermission[insertLevel]) {
+        if (this.haveAccess(insertLevel, team, 'create new items of this type')) {
             if (newNodeLocation.placement === 'inside') {
                 // unselect the node that was clicked before the insert and expand it to show the inserted node
                 this.contextNodeSelected.isSelected = false
@@ -346,8 +347,6 @@ const methods = {
                 newNode
             }
             this.$store.state.changeHistory.unshift(entry)
-        } else {
-            this.showLastEvent("Sorry, your assigned role(s) disallow you to create new items of this type", WARNING)
         }
     },
 
@@ -429,7 +428,7 @@ const methods = {
     */
     doRemove() {
         const selectedNode = this.contextNodeSelected
-        if (this.haveWritePermission[selectedNode.level]) {
+        if (this.haveAccess(selectedNode.level, selectedNode.data.team, 'remove this item')) {
             const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
             this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
             // when removing a product
@@ -491,7 +490,7 @@ const methods = {
             this.$store.dispatch('loadDoc', nowSelectedNode._id)
             // remove the node and its children
             window.slVueTree.remove([selectedNode])
-        } else this.showLastEvent("Sorry, your assigned role(s) disallow you to remove this item", WARNING)
+        }
     },
 
     /* Remove the dependency from the view only, not yet in the database. */

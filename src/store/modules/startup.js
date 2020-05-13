@@ -5,75 +5,6 @@ import router from '../../router'
 
 const INFO = 0
 const ERROR = 2
-const DATABASELEVEL = 1
-const PRODUCTLEVEL = 2
-const EPICLEVEL = 3
-const FEATURELEVEL = 4
-const PBILEVEL = 5
-const TASKLEVEL = 6
-const AREA_PRODUCTID = '0'
-
-const getters = {
-	/*
-	* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
-	* Note that level 0 is not used and the root of the tree starts with level 1.
-	* Note that admins and guests have no write permissions.
-	* See documentation.txt for the role definitions.
-	*
-	* Note that rootState MUST be the third argument. The fourth argument is rootGetters.
-	*/
-    haveWritePermission(state, getters, rootState, rootGetters) {
-        let levels = []
-        for (let i = 0; i <= PBILEVEL; i++) {
-            // initialize with false
-            levels.push(false)
-        }
-        if (rootState.userData.userAssignedProductIds.includes(rootState.currentProductId)) {
-            // assing specific write permissions for the current product only if that product is assigned the this user
-            let myCurrentProductRoles = rootState.userData.myProductsRoles[rootState.currentProductId]
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(`haveWritePermission: For productId ${rootState.currentProductId} my roles are ${myCurrentProductRoles}`)
-            if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
-                // my roles are not defined -> no write permission on any level
-                return levels
-            }
-
-            if (myCurrentProductRoles.includes('PO')) {
-                levels[PRODUCTLEVEL] = true
-                levels[EPICLEVEL] = true
-                levels[FEATURELEVEL] = true
-                levels[PBILEVEL] = true
-            }
-
-            if (myCurrentProductRoles.includes('APO')) {
-                levels[PRODUCTLEVEL] = true
-            }
-
-            if (myCurrentProductRoles.includes('developer')) {
-                levels[FEATURELEVEL] = true
-                levels[PBILEVEL] = true
-                levels[TASKLEVEL] = true
-            }
-        }
-        // assign specific write permissions to any product even if that product is not assigned to this user
-        if (rootGetters.isServerAdmin) {
-            levels[DATABASELEVEL] = true
-        }
-
-        if (rootGetters.isAdmin) {
-            levels[PRODUCTLEVEL] = true
-        }
-
-        // if the user is APO for any product that user has access to the Requirements areas overview dummy product
-        if (rootState.currentProductId === AREA_PRODUCTID && rootState.userData.sessionRoles.includes("APO")) {
-            levels[PRODUCTLEVEL] = true
-            levels[EPICLEVEL] = true
-        }
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)
-        return levels
-    },
-}
 
 const actions = {
 	/*
@@ -314,6 +245,5 @@ const actions = {
 }
 
 export default {
-    getters,
     actions
 }

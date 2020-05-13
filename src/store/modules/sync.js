@@ -121,7 +121,6 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
-				// if (doc.type == "backlogItem") dispatch('doBlinck', doc)
 				if (doc.type == "backlogItem" && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
 					const lastHistObj = doc.history[0]
 					if (doc.history[0].sessionId !== rootState.userData.sessionId &&

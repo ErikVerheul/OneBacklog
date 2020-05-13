@@ -26,14 +26,20 @@ const INFO = 0
 const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
+
 const TODO = 2
 const READY = 3
 const INPROGRESS = 4
 const TESTREVIEW = 5
 const DONE = 6
+
+const DATABASELEVEL = 1
+const PRODUCTLEVEL = 2
+const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
+const AREA_PRODUCTID = '0'
 
 Vue.use(Vuex)
 
@@ -127,7 +133,6 @@ export default new Vuex.Store({
 			// return the last selected node or undefined when no node is selected
 			return state.selectedNodes.slice(-1)[0]
 		},
-
 		leafLevel(state) {
 			if (state.currentView === 'detailProduct') return TASKLEVEL
 			if (state.currentView === 'coarseProduct') return FEATURELEVEL
@@ -149,13 +154,12 @@ export default new Vuex.Store({
 		isAdmin(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("admin")
 		},
+		isAPO(state, getters) {
+			return getters.isAuthenticated && state.userData.sessionRoles.includes("APO")
+		},
 		isPO(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
-		},
-		isAPO(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isAuthenticated && myCurrentProductRoles.includes("APO")
 		},
 		isDeveloper(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
@@ -195,7 +199,73 @@ export default new Vuex.Store({
 				}
 			}
 		},
+		myTeam(state) {
+			return state.userData.myTeam
+		},
+		myProductRoles(state, getters) {
+			if (getters.isAuthenticated) {
+				return state.userData.myProductsRoles[state.currentProductId]
+			} else return []
+		},
+		/*
+		* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
+		* Note that level 0 is not used and the root of the tree starts with level 1.
+		* Note that admins and guests have no write permissions.
+		* See documentation.txt for the role definitions.
+		*/
+		haveWritePermission(state, getters) {
+			let levels = []
+			for (let i = 0; i <= PBILEVEL; i++) {
+				// initialize with false
+				levels.push(false)
+			}
+			if (state.userData.userAssignedProductIds.includes(state.currentProductId)) {
+				// assing specific write permissions for the current product only if that product is assigned the this user
+				let myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				// eslint-disable-next-line no-console
+				if (state.debug) console.log(`haveWritePermission: For productId ${state.currentProductId} my roles are ${myCurrentProductRoles}`)
+				if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
+					// my roles are not defined -> no write permission on any level
+					return levels
+				}
 
+				if (myCurrentProductRoles.includes('PO')) {
+					levels[PRODUCTLEVEL] = true
+					levels[EPICLEVEL] = true
+					levels[FEATURELEVEL] = true
+					levels[PBILEVEL] = true
+				}
+
+				if (myCurrentProductRoles.includes('APO')) {
+					levels[PRODUCTLEVEL] = true
+				}
+
+				if (myCurrentProductRoles.includes('developer')) {
+					levels[FEATURELEVEL] = true
+					levels[PBILEVEL] = true
+					levels[TASKLEVEL] = true
+				}
+			}
+			// assign specific write permissions to any product even if that product is not assigned to this user
+			if (getters.isServerAdmin) {
+				levels[DATABASELEVEL] = true
+			}
+
+			if (getters.isAdmin) {
+				levels[PRODUCTLEVEL] = true
+			}
+
+			// if the user is APO for any product that user has access to the Requirements areas overview dummy product
+			if (state.currentProductId === AREA_PRODUCTID && state.userData.sessionRoles.includes("APO")) {
+				levels[PRODUCTLEVEL] = true
+				levels[EPICLEVEL] = true
+			}
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)
+			return levels
+		},
+
+		// planning board getters
 		getStoryPoints(state) {
 			let sum = 0
 			for (let s of state.stories) {
@@ -203,7 +273,6 @@ export default new Vuex.Store({
 			}
 			return sum
 		},
-
 		getStoryPointsDone(state) {
 			let sum = 0
 			for (let s of state.stories) {

@@ -7,9 +7,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
-const PBILEVEL = 5
 const TASKLEVEL = 6
-const STATE_NEW_OR_TODO = 2
 const AREA_PRODUCTID = '0'
 
 import { eventBus } from "../../../main"

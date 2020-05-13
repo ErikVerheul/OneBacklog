@@ -176,24 +176,23 @@ const methods = {
     if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
       this.$store.dispatch('loadDoc', this.getNodeSelected._id)
     }
-    const warnMsg = !this.haveWritePermission[this.getNodeSelected.level] ? " You only have READ permission" : ""
     const title = this.itemTitleTrunc(60, this.getNodeSelected.title)
     let evt = ""
     if (selNodes.length === 1) {
       this.selectedNodesTitle = title
-      evt = `${this.getLevelText(this.getNodeSelected.level)} '${this.selectedNodesTitle}' is selected.` + warnMsg
+      evt = `${this.getLevelText(this.getNodeSelected.level)} '${this.selectedNodesTitle}' is selected.`
       if (this.getNodeSelected.data.reqarea) evt += ` The item is member of requirement area '${this.$store.state.reqAreaMapper[this.getNodeSelected.data.reqarea]}'`
     } else {
       this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-      evt = `${this.getLevelText(this.getNodeSelected.level)} ${this.selectedNodesTitle} are selected.` + warnMsg
+      evt = `${this.getLevelText(this.getNodeSelected.level)} ${this.selectedNodesTitle} are selected.`
     }
-    this.showLastEvent(evt, warnMsg === "" ? INFO : WARNING)
+    this.showLastEvent(evt, INFO)
   },
 
   /* Use this event to check if the drag is allowed. If not, issue a warning */
   beforeNodeDropped(draggingNodes, position, cancel) {
     /*
-     * 1. Disallow drop on node were the user has no write authority
+     * 1. Disallow drop on node were the user has no write authority and below a parent owned by another team
      * 2. Disallow drop when moving over more than 1 level
      * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest permitted level
      * 4. Disallow the drop of multiple nodes within the range of the selected nodes.
@@ -201,42 +200,43 @@ const methods = {
      * 6. Cannot move regular items into the 'Reuirement areas overview' dummy product (silent cancel)
      * precondition: the selected nodes have all the same parent (same level)
      */
-    const dropInd = position.nodeModel.ind
-    let sourceMinInd = Number.MAX_SAFE_INTEGER
-    let sourceMaxind = 0
-    for (let d of draggingNodes) {
-      if (d.ind < sourceMinInd) sourceMinInd = d.ind
-      if (d.ind > sourceMaxind) sourceMaxind = d.ind
-    }
-    let checkDropNotAllowed = (node) => {
-      const sourceProductId = draggingNodes[0].productId
-      const targetProductId = position.nodeModel.productId
-      const sourceLevel = draggingNodes[0].level
-      let targetLevel = position.nodeModel.level
-      // are we dropping 'inside' a node creating children to that node?
-      if (position.placement === 'inside') targetLevel++
-      const levelChange = Math.abs(targetLevel - sourceLevel)
-      const failedCheck1 = !this.haveWritePermission[position.nodeModel.level]
-      const failedCheck2 = levelChange > 1
-      const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
-      const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
-      const failedCheck5 = node.parentId === this.areaProductId && (position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside')
-      const failedCheck6 = targetProductId === this.areaProductId && sourceProductId !== this.areaProductId
-      if (failedCheck1) this.showLastEvent('Your role settings do not allow you to drop on this position', WARNING)
-      if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
-      if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
-      if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', WARNING)
-      return failedCheck1 || failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5 || failedCheck6
-    }
+    const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
+    if (this.haveAccess(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
+      const dropInd = position.nodeModel.ind
+      let sourceMinInd = Number.MAX_SAFE_INTEGER
+      let sourceMaxind = 0
+      for (let d of draggingNodes) {
+        if (d.ind < sourceMinInd) sourceMinInd = d.ind
+        if (d.ind > sourceMaxind) sourceMaxind = d.ind
+      }
+      let checkDropNotAllowed = (node) => {
+        const sourceProductId = draggingNodes[0].productId
+        const targetProductId = position.nodeModel.productId
+        const sourceLevel = draggingNodes[0].level
+        let targetLevel = position.nodeModel.level
+        // are we dropping 'inside' a node creating children to that node?
+        if (position.placement === 'inside') targetLevel++
+        const levelChange = Math.abs(targetLevel - sourceLevel)
+        const failedCheck2 = levelChange > 1
+        const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
+        const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
+        const failedCheck5 = node.parentId === this.areaProductId && (position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside')
+        const failedCheck6 = targetProductId === this.areaProductId && sourceProductId !== this.areaProductId
+        if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
+        if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
+        if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', WARNING)
+        return failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5 || failedCheck6
+      }
 
-    if (checkDropNotAllowed(draggingNodes[0])) {
-      cancel(true)
-      return
-    }
-    // save the current index
-    for (let n of draggingNodes) {
-      n.savedInd = n.ind
-    }
+      if (checkDropNotAllowed(draggingNodes[0])) {
+        cancel(true)
+        return
+      }
+      // save the current index
+      for (let n of draggingNodes) {
+        n.savedInd = n.ind
+      }
+    } else cancel(true)
   },
 
   /* Create a new object to maintain reactivity */

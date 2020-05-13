@@ -11,18 +11,15 @@ const DEFAULTCOLOR = '#408FAE'
 
 const utilities = {
 	methods: {
+		clearLastEvent() {
+			this.$store.state.lastEvent = 'Event message is cleared.'
+			this.$store.state.eventBgColor = DEFAULTCOLOR
+		},
+
 		/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 		createId() {
 			const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
 			return Date.now().toString().concat(ext)
-		},
-
-		/* Return the sprint record with the id or null if not found */
-		getSprint(id) {
-			for (let s of this.$store.state.configData.defaultSprintCalendar) {
-				if (s.id === id) return s
-			}
-			return null
 		},
 
 		getCurrentAndNextSprint() {
@@ -43,6 +40,92 @@ const utilities = {
 			}
 
 			return { currentSprint, nextSprint }
+		},
+
+		getItemStateText(idx) {
+			if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+				return 'Error: unknown state'
+			}
+			return this.$store.state.configData.itemState[idx]
+		},
+
+		/* mappings from config document*/
+		getLevelText(level, subtype = 0) {
+			if (level < 0 || level > TASKLEVEL) {
+				return 'Level not supported'
+			}
+			if (level === PBILEVEL) {
+				return this.getSubType(subtype)
+			}
+			return this.$store.state.configData.itemType[level]
+		},
+
+		getNodeStateText(node) {
+			const idx = node.data.state
+			if (node.level < TASKLEVEL) {
+				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.itemState[idx]
+			} else {
+				if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+					return 'Error: unknown state'
+				}
+				return this.$store.state.configData.taskState[idx]
+			}
+		},
+
+		/* Return the sprint record with the id or null if not found */
+		getSprint(id) {
+			for (let s of this.$store.state.configData.defaultSprintCalendar) {
+				if (s.id === id) return s
+			}
+			return null
+		},
+
+		getSubType(idx) {
+			if (idx < 0 || idx >= this.$store.state.configData.subtype.length) {
+				return 'Error: unknown subtype'
+			}
+			return this.$store.state.configData.subtype[idx]
+		},
+
+		getTaskStateText(idx) {
+			if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+				return 'Error: unknown state'
+			}
+			return this.$store.state.configData.taskState[idx]
+		},
+
+		getTsSize(idx) {
+			if (idx < 0 || idx >= this.$store.state.configData.tsSize.length) {
+				return 'Error: unknown T-shirt size'
+			}
+			return this.$store.state.configData.tsSize[idx]
+		},
+
+		haveAccess(level, itemTeam, forAction, skipTestOnTeam = false) {
+			const noTeamAssigned = itemTeam === 'not yet assigned' || itemTeam === undefined || itemTeam === null
+			const canAccessOnTeam = skipTestOnTeam || itemTeam === this.$store.getters.myTeam || noTeamAssigned
+			const canAccessOnLevel = this.$store.getters.haveWritePermission[level]
+			console.log('haveAccess: noTeamAssigned = ' + noTeamAssigned + ' canAccessOnTeam = ' + canAccessOnTeam + ' canAccessOnLevel = ' + canAccessOnLevel)
+			if (canAccessOnTeam && canAccessOnLevel) return true
+
+			if (!canAccessOnTeam && !canAccessOnLevel) {
+				this.showLastEvent(`Sorry, your assigned role(s) ${this.$store.getters.myProductRoles} and team membership disallow you to ${forAction}`, WARNING)
+			}
+			if (!canAccessOnTeam && canAccessOnLevel) {
+				this.showLastEvent(`You must be member of team ${itemTeam} to ${forAction}`, WARNING)
+			}
+			if (canAccessOnTeam && !canAccessOnLevel) {
+				this.showLastEvent(`Sorry, your assigned role(s) ${this.myProductRoles} disallow you to ${forAction}`, WARNING)
+			}
+			return false
+		},
+
+		itemTitleTrunc(length, title) {
+			if (title.length <= length) return title;
+			return title.substring(0, length - 4) + '...'
 		},
 
 		isCurrentOrNextPrintId(id) {
@@ -71,71 +154,6 @@ const utilities = {
 			this.$store.state.lastEvent = txt
 			this.$store.state.eventBgColor = eventBgColor
 		},
-
-
-		clearLastEvent() {
-			this.$store.state.lastEvent = 'Event message is cleared.'
-			this.$store.state.eventBgColor = DEFAULTCOLOR
-		},
-
-		/* mappings from config document*/
-		getLevelText(level, subtype = 0) {
-			if (level < 0 || level > TASKLEVEL) {
-				return 'Level not supported'
-			}
-			if (level === PBILEVEL) {
-				return this.getSubType(subtype)
-			}
-			return this.$store.state.configData.itemType[level]
-		},
-
-		getItemStateText(idx) {
-			if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
-				return 'Error: unknown state'
-			}
-			return this.$store.state.configData.itemState[idx]
-		},
-
-		getTaskStateText(idx) {
-			if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
-				return 'Error: unknown state'
-			}
-			return this.$store.state.configData.taskState[idx]
-		},
-
-		getNodeStateText(node) {
-			const idx = node.data.state
-			if (node.level < TASKLEVEL) {
-				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
-					return 'Error: unknown state'
-				}
-				return this.$store.state.configData.itemState[idx]
-			} else {
-				if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
-					return 'Error: unknown state'
-				}
-				return this.$store.state.configData.taskState[idx]
-			}
-		},
-
-		getTsSize(idx) {
-			if (idx < 0 || idx >= this.$store.state.configData.tsSize.length) {
-				return 'Error: unknown T-shirt size'
-			}
-			return this.$store.state.configData.tsSize[idx]
-		},
-
-		getSubType(idx) {
-			if (idx < 0 || idx >= this.$store.state.configData.subtype.length) {
-				return 'Error: unknown subtype'
-			}
-			return this.$store.state.configData.subtype[idx]
-		},
-
-		itemTitleTrunc(length, title) {
-			if (title.length <= length) return title;
-			return title.substring(0, length - 4) + '...'
-		}
 	}
 }
 
