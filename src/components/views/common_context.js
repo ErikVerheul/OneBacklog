@@ -1,5 +1,4 @@
 import { mapGetters } from 'vuex'
-import { eventBus } from '../../main'
 import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
@@ -57,14 +56,6 @@ function data() {
         dependenciesObjects: [],
         conditionsObjects: []
     }
-}
-
-function mounted() {
-    // to fix this.$refs.contextMenuRef undefined when routing away and back, expose instance to the global namespace
-    window.showContextMenuRef = this.$refs.contextMenuRef
-    eventBus.$on('contextMenu', (node) => {
-        this.showContextMenu(node)
-    })
 }
 
 const computed = {
@@ -582,7 +573,6 @@ export default {
     mixins: [utilities],
     created,
     data,
-    mounted,
     computed,
     methods
 }

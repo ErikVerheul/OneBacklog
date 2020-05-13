@@ -1,4 +1,5 @@
 import CommonContext from '../common_context.js'
+import { eventBus } from '../../../main'
 
 const INFO = 0
 const WARNING = 1
@@ -10,6 +11,13 @@ function created() {
   this.TOSPRINT = 11
   this.FROMSPRINT = 12
   this.sprints = this.getCurrentAndNextSprint()
+}
+
+function mounted() {
+  eventBus.$on('contextMenu', (node) => {
+    console.log('d_context is called')
+    if (this.$refs.d_contextMenuRef) this.showContextMenu(node)
+  })
 }
 
 function data() {
@@ -43,7 +51,7 @@ const methods = {
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = true
         this.isInSprint = node.data.sprintId && this.isCurrentOrNextPrintId(node.data.sprintId)
-        window.showContextMenuRef.show()
+        this.$refs.d_contextMenuRef.show()
       } else this.allowRemoval = false
     } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
   },
@@ -305,6 +313,7 @@ const methods = {
 export default {
   extends: CommonContext,
   created,
+  mounted,
   data,
   methods
 }

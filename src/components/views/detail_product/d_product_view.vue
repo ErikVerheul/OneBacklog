@@ -305,12 +305,11 @@
       </div>
     </multipane>
 
-    <!-- Context modal -->
-    <context></context>
-    <!-- Filter modal -->
     <filters></filters>
     <!-- ToSprint modal -->
     <toSprint></toSprint>
+    <!-- Context modal -->
+    <DcontextMenu></DcontextMenu>
 
     <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
       <b-form-group>

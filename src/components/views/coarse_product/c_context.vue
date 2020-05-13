@@ -1,6 +1,6 @@
 <template>
   <b-modal
-    ref="contextMenuRef"
+    ref="c_contextMenuRef"
     :ok-disabled="disableOkButton"
     @ok="procSelected"
     @cancel="doCancel"

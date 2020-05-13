@@ -1,6 +1,14 @@
 import CommonContext from '../common_context.js'
+import { eventBus } from '../../../main'
 
 const WARNING = 1
+
+function mounted() {
+  eventBus.$on('contextMenu', (node) => {
+    console.log('c_context is called')
+    if (this.$refs.c_contextMenuRef) this.showContextMenu(node)
+  })
+}
 
 const methods = {
   showContextMenu(node) {
@@ -13,7 +21,7 @@ const methods = {
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties
       const extraLevel = node.level < this.pbiLevel ? node.level + 1 : node.level
       console.log('showContextMenu: this.isAPO = ' + this.isAPO + ' this.isReqAreaItem = ' + this.isReqAreaItem)
-      if (this.isAPO && this.isReqAreaItem || this.haveAccess(extraLevel, node.data.team, 'open the context menu') &&
+      if (this.isAPO && this.isReqAreaItem || this.haveAccess(extraLevel, node.data.team, 'open the context menu', this.isReqAreaItem) &&
         node.level > this.databaseLevel && this.$store.state.selectedNodes.length === 1) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
@@ -28,7 +36,7 @@ const methods = {
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = true
-        window.showContextMenuRef.show()
+        this.$refs.c_contextMenuRef.show()
       } else this.allowRemoval = this.isReqAreaItem
     } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
   },
@@ -149,5 +157,6 @@ const methods = {
 
 export default {
   extends: CommonContext,
+  mounted,
   methods
 }

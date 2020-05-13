@@ -3,7 +3,7 @@ import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import CommonView from '../common_view.js'
-import Context from './c_context.vue'
+import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
 
@@ -318,7 +318,7 @@ const components = {
   MultipaneResizer,
   VueEditor,
   slVueTree,
-  Context,
+  CcontextMenu,
   Filters,
   Listings
 }

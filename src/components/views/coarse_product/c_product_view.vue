@@ -293,8 +293,8 @@
         </multipane>
       </div>
     </multipane>
-    <!-- context modals -->
-    <context></context>
+    <!-- Context modal -->
+    <CcontextMenu></CcontextMenu>
     <!-- color select -->
     <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor" title="Select a color">
       <h4>Enter a color in hex format eg. #567cd6</h4>
