@@ -1,7 +1,7 @@
 <template>
   <div class="b-cards-margin">
     <h3 v-if="idx === 0" class="b-card-header">{{ title }}</h3>
-    <hr>
+    <hr />
     <div class="b-card-body">
       <draggable v-model="draggables" :group="idx.toString()">
         <div v-for="item in tasks" :key="item.id">
@@ -15,6 +15,7 @@
 <script>
 import Draggable from 'vuedraggable'
 import TaskItem from './TaskItem'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'TaskColumn',
@@ -24,16 +25,21 @@ export default {
     draggable: Draggable
   },
   computed: {
+    ...mapGetters([
+      'isDeveloper',
+      'isPO'
+    ]),
     draggables: {
-      get () {
+      get() {
         return this.tasks
       },
-      set (tasks) {
-        this.$store.dispatch('updateTasks', {
-          tasks,
-          state: this.state,
-          idx: this.idx
-        })
+      set(tasks) {
+        if (this.isDeveloper || this.isPO)
+          this.$store.dispatch('updateTasks', {
+            tasks,
+            state: this.state,
+            idx: this.idx
+          })
       }
     }
   }
