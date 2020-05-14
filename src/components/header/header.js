@@ -19,7 +19,7 @@ function data() {
         newPassword2: "",
         selectedProducts: this.$store.state.userData.myProductSubscriptions,
         defaultProductOptions: [],
-        myTeam: '',
+        selectedTeam: '',
         myDatabase: '',
         databaseOptions: [],
         teamOptions: [],
@@ -47,7 +47,7 @@ const methods = {
     },
 
     changeTeam() {
-        this.myTeam = this.$store.state.userData.myTeam
+        this.selectedTeam = this.$store.state.userData.myTeam
         this.$refs.changeTeamRef.show()
         this.teamOptions = []
         for (let team of this.$store.state.configData.teams) {
@@ -74,7 +74,7 @@ const methods = {
     },
 
     doChangeTeam() {
-        this.$store.dispatch('changeTeam', this.myTeam)
+        this.$store.dispatch('changeTeam', this.selectedTeam)
     },
 
     /* Return if nothing is selected; set default product if 1 is selected; call selectDefaultProductRef if > 1 is selected */
