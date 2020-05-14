@@ -11,12 +11,8 @@ function created() {
   this.TOSPRINT = 11
   this.FROMSPRINT = 12
   this.sprints = this.getCurrentAndNextSprint()
-}
-
-function mounted() {
   eventBus.$on('contextMenu', (node) => {
-    console.log('d_context is called')
-    if (this.$refs.d_contextMenuRef) this.showContextMenu(node)
+    this.showContextMenu(node)
   })
 }
 
@@ -313,7 +309,6 @@ const methods = {
 export default {
   extends: CommonContext,
   created,
-  mounted,
   data,
   methods
 }

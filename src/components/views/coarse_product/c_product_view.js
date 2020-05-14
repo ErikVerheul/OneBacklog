@@ -6,6 +6,7 @@ import CommonView from '../common_view.js'
 import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
+import { eventBus } from '../../../main'
 
 const INFO = 0
 const WARNING = 1
@@ -31,6 +32,11 @@ function beforeCreate() {
     this.$store.state.findIdOn = false
     this.$store.dispatch('loadOverview')
   } else returning = true
+}
+
+function created() {
+  // must reset the event listener to prevent duplicated
+  eventBus.$off('contextMenu')
 }
 
 function mounted() {
@@ -162,6 +168,7 @@ const methods = {
 
   /* event handling */
   onNodesSelected(selNodes) {
+    console.log('onNodesSelected in C')
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription()
     // both an update of the description and the acceptance criteria should NOT happen
@@ -326,6 +333,7 @@ const components = {
 export default {
   extends: CommonView,
   beforeCreate,
+  created,
   mounted,
   data,
   computed,

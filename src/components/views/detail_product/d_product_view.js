@@ -7,6 +7,7 @@ import DcontextMenu from './d_context.vue'
 import Filters from './d_filters.vue'
 import Listings from './d_listings.vue'
 import ToSprint from './d_tosprint.vue'
+import { eventBus } from '../../../main'
 
 const INFO = 0
 const WARNING = 1
@@ -34,6 +35,8 @@ function beforeCreate() {
 }
 
 function created() {
+  // must reset the event listener to prevent duplicated
+  eventBus.$off('contextMenu')
   this.sprints = this.getCurrentAndNextSprint()
 }
 
@@ -212,6 +215,7 @@ const methods = {
 
   /* event handling */
   onNodesSelected(selNodes) {
+    console.log('onNodesSelected in D')
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription()
     // both an update of the description and the acceptance criteria should NOT happen

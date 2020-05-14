@@ -3,10 +3,9 @@ import { eventBus } from '../../../main'
 
 const WARNING = 1
 
-function mounted() {
+function created() {
   eventBus.$on('contextMenu', (node) => {
-    console.log('c_context is called')
-    if (this.$refs.c_contextMenuRef) this.showContextMenu(node)
+    this.showContextMenu(node)
   })
 }
 
@@ -157,6 +156,6 @@ const methods = {
 
 export default {
   extends: CommonContext,
-  mounted,
+  created,
   methods
 }
