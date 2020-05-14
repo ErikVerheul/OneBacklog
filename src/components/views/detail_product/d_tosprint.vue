@@ -74,7 +74,7 @@ export default {
       const currentId = this.$store.state.currentDoc._id
       let itemIds = []
       if (this.$store.state.currentDoc.level === FEATURELEVEL) {
-        itemIds = window.slVueTree.getDescendantsInfoOnId(currentId).ids
+        itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
         if (itemIds.length === 0) {
           this.showLastEvent(`This feature has no PBI's to add to the sprint`, WARNING)
           return

@@ -3,6 +3,7 @@ import { eventBus } from '../../../main'
 
 const INFO = 0
 const WARNING = 1
+const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
 var movedNode = null
@@ -287,6 +288,9 @@ const methods = {
 
     const sprintId = node.data.sprintId
     let itemIds = []
+    if (this.$store.state.currentDoc.level === FEATURELEVEL) {
+      itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
+    }
     if (this.$store.state.currentDoc.level === PBILEVEL) {
       itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
     }
