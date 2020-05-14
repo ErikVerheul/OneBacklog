@@ -304,6 +304,7 @@ const actions = {
 		})
 	},
 
+	/* Remove the sprintId only if equal to sprintId specified leaving items assigned to other sprints unattached */
 	removeSprintIds({
 		rootState,
 		commit,
@@ -325,10 +326,10 @@ const actions = {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
-					doc.sprintId = undefined
+					if (doc.sprintId === payload.sprintId) doc.sprintId = undefined
 					// update the tree view
 					const node = window.slVueTree.getNodeById(doc._id)
-					if (node) node.data.sprintId = undefined
+					if (node && node.data.sprintId === payload.sprintId) node.data.sprintId = undefined
 
 					const newHist = {
 						"removeSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName],
