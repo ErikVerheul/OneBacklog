@@ -16,12 +16,10 @@ const methods = {
       this.listItemText = ''
       this.showAssistance = false
       this.disableOkButton = true
-      // user must have write access on this level && user cannot remove the database
-      // for access to the context menu all roles get an extra level, however they cannot change the item's properties
+      // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
       const extraLevel = node.level < this.pbiLevel ? node.level + 1 : node.level
-      console.log('showContextMenu: this.isAPO = ' + this.isAPO + ' this.isReqAreaItem = ' + this.isReqAreaItem)
-      if (this.isAPO && this.isReqAreaItem || this.haveAccess(extraLevel, node.data.team, 'open the context menu', this.isReqAreaItem) &&
-        node.level > this.databaseLevel && this.$store.state.selectedNodes.length === 1) {
+      console.log('C showContextMenu: this.isAPO = ' + this.isAPO + ' this.isReqAreaItem = ' + this.isReqAreaItem)
+      if (this.haveAccess(extraLevel, node.data.team, 'open the context menu')) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
         this.contextParentTeam = parentNode.data.team
@@ -35,7 +33,10 @@ const methods = {
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = true
-        this.$refs.c_contextMenuRef.show()
+        if (this.$refs.c_contextMenuRef) {
+          // prevent error message on recompile
+          this.$refs.c_contextMenuRef.show()
+        }
       } else this.allowRemoval = this.isReqAreaItem
     } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
   },

@@ -60,7 +60,6 @@ function data() {
 
 const computed = {
     ...mapGetters([
-        // from store.js
         'isAPO',
         'myTeam'
     ]),

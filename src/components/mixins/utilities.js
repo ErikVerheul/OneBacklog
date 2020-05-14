@@ -1,4 +1,5 @@
 import router from '../../router'
+import { mapGetters } from 'vuex'
 
 const DEBUG = -1
 const INFO = 0
@@ -10,6 +11,16 @@ const TASKLEVEL = 6
 const DEFAULTCOLOR = '#408FAE'
 
 const utilities = {
+	computed: {
+		...mapGetters([
+			'myTeam',
+			'haveWritePermission',
+			'myProductRoles',
+			'isAPO',
+			'isReqAreaItem'
+		]),
+	},
+
 	methods: {
 		clearLastEvent() {
 			this.$store.state.lastEvent = 'Event message is cleared.'
@@ -106,19 +117,19 @@ const utilities = {
 
 		haveAccess(level, itemTeam, forAction, skipTestOnTeam = false) {
 			const noTeamAssigned = itemTeam === 'not yet assigned' || itemTeam === undefined || itemTeam === null
-			const canAccessOnTeam = skipTestOnTeam || itemTeam === this.$store.getters.myTeam || noTeamAssigned
-			const canAccessOnLevel = this.$store.getters.haveWritePermission[level]
-			console.log('haveAccess: noTeamAssigned = ' + noTeamAssigned + ' canAccessOnTeam = ' + canAccessOnTeam + ' canAccessOnLevel = ' + canAccessOnLevel)
+			const whenApoUpdatingReqAreaItem = this.isAPO && this.isReqAreaItem
+			const canAccessOnTeam = whenApoUpdatingReqAreaItem || skipTestOnTeam || itemTeam === this.myTeam || noTeamAssigned
+			const canAccessOnLevel = whenApoUpdatingReqAreaItem || this.haveWritePermission[level]
 			if (canAccessOnTeam && canAccessOnLevel) return true
 
 			if (!canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(`Sorry, your assigned role(s) ${this.$store.getters.myProductRoles} and team membership disallow you to ${forAction}`, WARNING)
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] and team membership disallow you to ${forAction}`, WARNING)
 			}
 			if (!canAccessOnTeam && canAccessOnLevel) {
 				this.showLastEvent(`You must be member of team ${itemTeam} to ${forAction}`, WARNING)
 			}
 			if (canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(`Sorry, your assigned role(s) ${this.myProductRoles} disallow you to ${forAction}`, WARNING)
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] disallow you to ${forAction}`, WARNING)
 			}
 			return false
 		},

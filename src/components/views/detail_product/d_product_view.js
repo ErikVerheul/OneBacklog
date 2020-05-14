@@ -215,7 +215,6 @@ const methods = {
 
   /* event handling */
   onNodesSelected(selNodes) {
-    console.log('onNodesSelected in D')
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription()
     // both an update of the description and the acceptance criteria should NOT happen

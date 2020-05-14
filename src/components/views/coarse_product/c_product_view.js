@@ -7,12 +7,12 @@ import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
 import { eventBus } from '../../../main'
+import { mapGetters } from 'vuex'
 
 const INFO = 0
 const WARNING = 1
 const ALLPRODUCTS = true
 const FILTERBUTTONTEXT = 'Filter in tree view'
-const EPICLEVEL = 3
 const thisView = 'coarseProduct'
 var returning = false
 
@@ -65,9 +65,9 @@ function data() {
 }
 
 const computed = {
-  isReqAreaItem() {
-    return this.$store.state.currentDoc.productId === this.areaProductId && this.$store.state.currentDoc.level === EPICLEVEL
-  },
+  ...mapGetters([
+    'isReqAreaItem'
+  ]),
 
   /*
   * Check for a valid color hex code:
@@ -168,7 +168,6 @@ const methods = {
 
   /* event handling */
   onNodesSelected(selNodes) {
-    console.log('onNodesSelected in C')
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription()
     // both an update of the description and the acceptance criteria should NOT happen

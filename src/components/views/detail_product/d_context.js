@@ -29,8 +29,7 @@ const methods = {
       this.listItemText = ''
       this.showAssistance = false
       this.disableOkButton = true
-      // user must have write access on this level && user cannot remove the database
-      // for access to the context menu all roles get an extra level, however they cannot change the item's properties
+      // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
       const extraLevel = node.level < this.taskLevel ? node.level + 1 : node.level
       if (this.haveAccess(extraLevel, node.data.team, 'open the context menu')) {
         const parentNode = window.slVueTree.getParentNode(node)
@@ -47,7 +46,10 @@ const methods = {
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = true
         this.isInSprint = node.data.sprintId && this.isCurrentOrNextPrintId(node.data.sprintId)
-        this.$refs.d_contextMenuRef.show()
+        if (this.$refs.d_contextMenuRef) {
+          // prevent error message on recompile
+          this.$refs.d_contextMenuRef.show()
+        }
       } else this.allowRemoval = false
     } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
   },

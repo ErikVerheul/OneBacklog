@@ -169,6 +169,9 @@ export default new Vuex.Store({
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
 		},
+		isReqAreaItem(state) {
+			return state.currentDoc.productId === AREA_PRODUCTID
+		},
 		canCreateComments(state, getters) {
 			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 			return getters.isServerAdmin || getters.isAdmin ||
@@ -256,7 +259,7 @@ export default new Vuex.Store({
 			}
 
 			// if the user is APO for any product that user has access to the Requirements areas overview dummy product
-			if (state.currentProductId === AREA_PRODUCTID && state.userData.sessionRoles.includes("APO")) {
+			if (state.currentProductId === AREA_PRODUCTID && getters.isAPO) {
 				levels[PRODUCTLEVEL] = true
 				levels[EPICLEVEL] = true
 			}

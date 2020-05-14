@@ -112,7 +112,6 @@ function data() {
 
 const computed = {
   ...mapGetters([
-    // from store.js
     'getNodeSelected',
     'isFollower',
     'canCreateComments',
