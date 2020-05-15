@@ -60,6 +60,7 @@ function data() {
 
 const computed = {
     ...mapGetters([
+        'isPO',
         'isAPO',
         'myTeam'
     ]),

@@ -41,7 +41,7 @@
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
           <template v-if="contextNodeTeam !== $store.state.userData.myTeam">
             <b-list-group-item
-              v-if="contextNodeLevel > featureLevel"
+              v-if="contextNodeLevel > pbiLevel"
               button
               :active="contextOptionSelected === ASIGNTOMYTEAM"
               variant="dark"
