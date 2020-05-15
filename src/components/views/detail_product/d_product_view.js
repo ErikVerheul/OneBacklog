@@ -127,7 +127,7 @@ const methods = {
       } else {
         txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${this.$store.state.currentDoc.taskOwner}' of team '${this.$store.state.currentDoc.team}'`
       }
-      if (this.getCurrentItemLevel >= this.pbiLevel && this.getItemSprintName) {
+      if (this.getCurrentItemLevel >= this.featureLevel && this.getItemSprintName) {
         txt += ` (Sprint '${this.getItemSprintName})'`
       }
     }
