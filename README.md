@@ -125,7 +125,7 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
     </ul>
 </div>
 
-<b>Sprint Backlog</b><br />
+<b>Sprint Backlog</b><br /><br />
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/planning-board.png)
 <p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
 <p>From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:</p>
