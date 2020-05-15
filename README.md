@@ -81,8 +81,8 @@ The use of the electronic planning board is optional and only advised for use wh
 - <b>new</b>
 - <b>ready</b> (refinement done, effort estimated)
 - <b>in progress</b> (now in a sprint)
-- <b>on hold</b> (not in a sprint anymore, waiting on the backlog)
 - <b>done</b> (delivered wrt the DoD)
+- <b>on hold</b> (not in a sprint anymore, waiting on the backlog)
 - <b>removed</b> (when created by mistake, eg. a duplicate)
 
 <b>Task status values:</b>
@@ -112,9 +112,8 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/example-screen.png)
 
 - A short key of 5 characters alphamumeric are available for the users for direct lookup and reference in communications.
-- When the short key is not unique (chances for a duplicate are 1 in 10.000 in a 5000 item product) the application warns the user.
 - The history of priority and attribute changes of products, epics, features, pbi's are stored and easily accessible. 
-- The type of product, epic, feature and pbi can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature, that feature to an epic. The reverse can also be done.
+- The type of product, epic, feature, pbi and task can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature, that feature to an epic. The reverse can also be done.
 - A user can subscribe to change notices of any item of any product assigned to that user. The change notices are sent to his email address.
 - Users can add comments to an item and to the automatic history log.
 - Attachments can be added to each backlog item type.
@@ -126,10 +125,9 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
     </ul>
 </div>
 
-<b>Sprint Backlog</b>
+<b>Sprint Backlog</b><br />
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/planning-board.png)
 <p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
-
 <p>From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:</p>
 <ul>
     <li>When a feature is selected all its descendents (PBI's and tasks) are assigned</li>
