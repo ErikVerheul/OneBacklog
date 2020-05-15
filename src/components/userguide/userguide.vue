@@ -149,11 +149,9 @@
 				</div>
 				<div id="pb">
 					<h4>Sprint planning board</h4>
-					<p>[Under development]</p>
 					<div class="indent20">
 						<b-img :src="require('./planning-board.png')" alt="Example planning board" />
 						<p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
-						<p>Note: The board is under development. A contxt menu to add/remove tasks is missing.</p>
 					</div>
 				</div>
 				<div id="sv">
