@@ -58,7 +58,7 @@
             name="databaseOptions"
           ></b-form-radio-group>
         </b-form-group>
-        <p>After you have changed the database Sign-out and -in again to connect to the selected database</p>
+        <p>After you have changed the database you will be signed-out. Sign-in again to connect to the selected database</p>
       </b-container>
     </b-modal>
 

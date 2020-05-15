@@ -1,9 +1,9 @@
 import Licence from "./licence.vue"
+import router from '../../router'
 import { mapGetters } from 'vuex'
 import { utilities } from '../mixins/utilities.js'
 
 const INFO = 0
-const WARNING = 1
 const MINPASSWORDLENGTH = 8
 
 function created() {
@@ -67,10 +67,10 @@ const methods = {
 
     doChangeDatabase() {
         window.slVueTree.resetFilters('doChangeDatabase')
-        const msg = "You changed database. Sign out and -in again to see the change"
-        this.$store.state.warning = msg
-        this.showLastEvent(msg, WARNING)
-        this.$store.dispatch('changeCurrentDb', this.myDatabase)
+        if (this.myDatabase !== this.$store.state.userData.currentDb) {
+            this.$store.dispatch('changeCurrentDb', this.myDatabase)
+            router.replace('/')
+        }
     },
 
     doChangeTeam() {

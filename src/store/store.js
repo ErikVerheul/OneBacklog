@@ -658,6 +658,7 @@ export default new Vuex.Store({
 		/* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refrehed within 10 minutes */
 		signin({
 			dispatch,
+			commit,
 			state
 		}, authData) {
 			function create_UUID() {
@@ -675,6 +676,7 @@ export default new Vuex.Store({
 				url: '/_session',
 				data: authData
 			}).then(res => {
+				commit('resetData')
 				// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myFilterSettings are updated when otherUserData and config are read
 				state.userData = {
 					user: res.data.name,
