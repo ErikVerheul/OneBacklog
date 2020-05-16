@@ -196,7 +196,7 @@ const methods = {
 
   doChangeTeam() {
     this.contextNodeSelected.data.team = this.$store.state.userData.myTeam
-    if (this.contextNodeSelected.level > this.featureLevel) {
+    if (this.contextNodeSelected.level > this.pbiLevel) {
       this.$store.dispatch('setTeam', [])
       this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
     } else {
