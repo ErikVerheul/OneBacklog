@@ -6,7 +6,6 @@ const WARNING = 1
 const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
-const STATE_NEW = 2
 const STATE_READY = 3
 const SHORTKEYLENGTH = 5
 var violationsWereFound = false
@@ -744,7 +743,7 @@ const methods = {
   * An authorized user can change state if member of the team which owns this item or when the item is new and changed to 'Ready'.
   * Issue a warning when assigns a higher state to a parent with children witch all have a lower state.
   */
-  onStateChange(idx) {
+  onStateChange(newState) {
     function changeState(vm, owningTeam) {
       const descendants = window.slVueTree.getDescendantsInfo(vm.getNodeSelected).descendants
       if (descendants.length > 0) {
@@ -754,10 +753,10 @@ const methods = {
           if (d.data.state > highestState) highestState = d.data.state
           if (d.data.state < vm.doneState && d.data.state !== vm.removedState) allDone = false
         }
-        if (idx > highestState || idx === vm.doneState && !allDone) {
+        if (newState > highestState || newState === vm.doneState && !allDone) {
           // node has a higher state than any of its descendants or set to done while one of its descendants is not done
           vm.$store.commit('updateNodeSelected', { inconsistentState: true })
-          if (idx === vm.doneState && !allDone) {
+          if (newState === vm.doneState && !allDone) {
             vm.showLastEvent("You are assigning an inconsistant state to this node. Not all descendants are done.", WARNING)
           } else vm.showLastEvent(`You are assigning an inconsistant state to this node. You can set it to '${vm.getItemStateText(highestState)}'.`, WARNING)
         } else {
@@ -767,10 +766,10 @@ const methods = {
       }
       const oldState = vm.$store.state.currentDoc.state
       const now = Date.now()
-      vm.$store.commit('updateNodeSelected', { state: idx, team: owningTeam, lastStateChange: now, lastChange: now })
+      vm.$store.commit('updateNodeSelected', { state: newState, team: owningTeam, lastStateChange: now, lastChange: now })
       vm.$store.dispatch('setState', {
         'id': vm.getNodeSelected._id,
-        'newState': idx,
+        'newState': newState,
         'position': vm.getNodeSelected.ind,
         'team': owningTeam,
         'timestamp': now
@@ -784,12 +783,12 @@ const methods = {
       vm.$store.state.changeHistory.unshift(entry)
     }
 
-    const skipTestOnTeam = this.getNodeSelected.data.state === STATE_NEW && idx === STATE_READY
+    const skipTestOnTeam = this.$store.state.currentDoc.team === 'not assigned yet' && newState === STATE_READY
+    // any user with level access can change items not yet assigned to a team to state 'Ready'; the owning team of the item is set to the users team
     if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item', skipTestOnTeam)) {
-      // any user can change PBI's from state 'New' to state 'Ready'; the owning team of the item is set to the users team
       changeState(this, this.$store.state.userData.myTeam)
       const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
-      if (parentNode.level >= this.featureLevel && parentNode.data.team !== this.$store.state.userData.myTeam) {
+      if (parentNode.data.team !== this.$store.state.userData.myTeam) {
         this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
           this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
       }
