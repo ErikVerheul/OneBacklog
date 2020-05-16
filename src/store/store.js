@@ -511,26 +511,38 @@ export default new Vuex.Store({
 		},
 
 		createSprint(state, payload) {
-			const parentIdToNameMap = {}
-			function getParentName(id) {
-				let name = parentIdToNameMap[id]
-				if (name) {
-					return name
+			const featureIdToNodeMap = {}
+			const epicIdToNodeMap = {}
+			const productIdToNodeMap = {}
+			function getParentNode(id, parentIdToNodeMap) {
+				let parent = parentIdToNodeMap[id]
+				if (parent) {
+					return parent
 				} else {
-					const parent = window.slVueTree.getNodeById(id)
+					parent = window.slVueTree.getNodeById(id)
 					if (parent) {
-						name = parent.title
-						parentIdToNameMap[id] = name
-						return name
+						parentIdToNodeMap[id] = parent
+						return parent
 					}
 				}
-				return 'unknown'
+				return null
 			}
 
 			for (let i = 0; i < payload.storieResults.length; i++) {
 				const storyId = payload.storieResults[i].id
 				const featureId = payload.storieResults[i].value[1]
-				const featureName = getParentName(featureId)
+				const featureNode = getParentNode(featureId, featureIdToNodeMap)
+				if (!featureNode) continue
+
+				const featureName = featureNode.title
+				const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
+				if (!epicNode) continue
+
+				const epicName = epicNode.title
+				const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
+				if (!productNode) continue
+
+				const productName = productNode.title
 				const storyTitle = payload.storieResults[i].value[2]
 				const subType = payload.storieResults[i].value[4]
 				const storySize = payload.storieResults[i].value[6]
@@ -539,6 +551,8 @@ export default new Vuex.Store({
 					storyId,
 					featureId,
 					featureName,
+					epicName,
+					productName,
 					title: storyTitle,
 					size: storySize,
 					subType,

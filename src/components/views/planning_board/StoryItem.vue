@@ -10,10 +10,16 @@
       <i class="colorRed" v-if="story.subType === 2">
         <font-awesome-icon icon="bug" />
       </i>
-      <span class="text-muted"> #{{ getShortId(story.storyId) }}</span>
+      <span class="text-muted">#{{ getShortId(story.storyId) }}</span>
       {{ story.title }}
       <p>size = {{ story.size }}</p>
-      <p>F: {{ story.featureName }}</p>
+      <p>
+        F: {{ story.featureName }}
+        <br />
+        E: {{ story.epicName }}
+        <br />
+        P: {{ story.productName }}
+      </p>
     </div>
   </div>
 </template>
