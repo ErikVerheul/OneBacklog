@@ -369,21 +369,26 @@ const methods = {
         break
       case 'undoStoryPointsAndStateChange':
         this.$store.dispatch('setStoryPoints', {
-          newPoints: entry.oldStoryPoints,
-          state: entry.oldState,
-          team: entry.oldTeam,
+          node: entry.node,
+          descendants: entry.descendants,
+          newPoints: entry.oldPoints,
+          newState: entry.oldState,
+          newTeam: entry.oldTeam,
           timestamp: Date.now()
         })
-        this.$store.commit('updateNodeSelected', { state: entry.oldState, team: entry.oldTeam, lastStateChange: 0, lastChange: 0 })
         this.showLastEvent('Change of item story points and state to Ready is undone', INFO)
         break
       case 'undoStoryPointsChange':
-        this.$store.dispatch('setStoryPoints', { 'newPoints': entry.oldStoryPoints, 'timestamp': Date.now() })
+        this.$store.dispatch('setStoryPoints', { 'newPoints': entry.oldPoints, 'timestamp': Date.now() })
         this.showLastEvent('Change of item story points is undone', INFO)
         break
       case 'undoPersonHoursChange':
         this.$store.dispatch('setPersonHours', { 'newHrs': entry.oldPersonHours, 'timestamp': Date.now() })
         this.showLastEvent('Change of spike person hours is undone', INFO)
+        break
+      case 'undoChangeTeam':
+        this.$store.dispatch('setTeam', { parentNode: entry.parentNode, newTeam: entry.oldTeam, descendants: entry.descendants })
+        this.showLastEvent('Change owning team is undone', INFO)
         break
       case 'undoStateChange':
         entry.node.data.state = entry.oldState
@@ -670,13 +675,13 @@ const methods = {
   },
 
   /*
-  * Any authorized user can assign story points to a NEW item. That will assign his team to this item and change the state to READY.
+  * Any level authorized user can assign story points to a NEW item that has no team yet. That will assign his team to this item and change the state to READY.
   * Only authorized users who are member of the owning team can change story points at any other state.
   */
   updateStoryPoints() {
-    const skipTestOnTeam = this.getCurrentItemState === this.newState
+    const skipTestOnTeam = this.$store.state.currentDoc.team === 'not assigned yet' && this.getCurrentItemState === this.newState
     if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item', skipTestOnTeam)) {
-      const oldStoryPoints = this.$store.state.currentDoc.spsize
+      const oldPoints = this.$store.state.currentDoc.spsize
       const now = Date.now()
       let el = document.getElementById("storyPointsId")
       if (isNaN(el.value) || el.value < 0) {
@@ -684,17 +689,23 @@ const methods = {
         return
       }
       if (skipTestOnTeam) {
-        // when state is 'new' change state to 'ready' and assign the user's team as owner
+        // when state is 'new', change state to 'ready' and assign the user's team as owner to this item and its descendants
+        const node = this.getNodeSelected
+        const descendants = window.slVueTree.getDescendantsInfo(node).descendants
         this.$store.dispatch('setStoryPoints', {
+          node,
+          descendants,
           newPoints: parseInt(el.value),
-          state: this.readyState,
-          team: this.$store.state.userData.myTeam,
+          newState: this.readyState,
+          newTeam: this.$store.state.userData.myTeam,
           timestamp: now
         })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
           type: 'undoStoryPointsAndStateChange',
-          oldStoryPoints,
+          node,
+          descendants,
+          oldPoints,
           oldState: this.newState,
           oldTeam: this.$store.state.currentDoc.team
         }
@@ -708,7 +719,7 @@ const methods = {
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
           type: 'undoStoryPointsChange',
-          oldStoryPoints
+          oldPoints
         }
         this.$store.state.changeHistory.unshift(entry)
         this.$store.commit('updateNodeSelected', { lastChange: now })
@@ -741,7 +752,7 @@ const methods = {
 
   /*
   * An authorized user can change state if member of the team which owns this item or when the item is new and changed to 'Ready'.
-  * Issue a warning when assigns a higher state to a parent with children witch all have a lower state.
+  * Issue a warning when the user assigns a higher state to a parent with children witch all have a lower state.
   */
   onStateChange(newState) {
     function changeState(vm, owningTeam) {
@@ -771,7 +782,7 @@ const methods = {
         'id': vm.getNodeSelected._id,
         'newState': newState,
         'position': vm.getNodeSelected.ind,
-        'team': owningTeam,
+        'newTeam': owningTeam,
         'timestamp': now
       })
       // create an entry for undoing the change in a last-in first-out sequence
@@ -784,7 +795,6 @@ const methods = {
     }
 
     const skipTestOnTeam = this.$store.state.currentDoc.team === 'not assigned yet' && newState === STATE_READY
-    // any user with level access can change items not yet assigned to a team to state 'Ready'; the owning team of the item is set to the users team
     if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item', skipTestOnTeam)) {
       changeState(this, this.$store.state.userData.myTeam)
       const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)

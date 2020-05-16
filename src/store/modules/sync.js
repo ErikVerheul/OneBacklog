@@ -388,10 +388,12 @@ const actions = {
 									break
 								case 'setPointsAndStatusEvent':
 									node.data.state = doc.state
+									node.data.team = doc.team
 									node.data.lastStateChange = lastHistoryTimestamp
 									if (isCurrentDocument) {
 										rootState.currentDoc.spsize = doc.spsize
 										rootState.currentDoc.state = doc.state
+										rootState.currentDoc.team = doc.team
 									}
 									break
 								case 'setPointsEvent':

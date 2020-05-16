@@ -369,18 +369,20 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			let tmpDoc = res.data
-			if (payload.state || payload.team) {
+			if (payload.newState && (tmpDoc.state || payload.newState)) {
+				// also change state
 				const oldPoints = tmpDoc.spsize
 				const oldState = tmpDoc.state
 				const oldTeam = tmpDoc.team
 				const newHist = {
-					"setPointsAndStatusEvent": [oldPoints, payload.newPoints, oldState, payload.state, oldTeam, payload.team],
+					"setPointsAndStatusEvent": [oldPoints, payload.newPoints, oldState, payload.newState, oldTeam, payload.newTeam],
 					"by": rootState.userData.user,
 					"timestamp": payload.timestamp,
 					"sessionId": rootState.userData.sessionId,
@@ -388,9 +390,14 @@ const actions = {
 				}
 				tmpDoc.history.unshift(newHist)
 				tmpDoc.spsize = payload.newPoints
-				tmpDoc.state = payload.state
-				tmpDoc.team = payload.team
-				commit('updateCurrentDoc', { spsize: payload.newPoints, state: payload.state, team: payload.team, newHist })
+				tmpDoc.state = payload.newState
+				tmpDoc.team = payload.newTeam
+				node.data.state = payload.newState
+				if (oldTeam !== payload.newTeam) {
+					// also change team
+					node.data.team = payload.newTeam
+					if (payload.descendants.length > 0) dispatch('setTeamDescendantsBulk', { newTeam: payload.newTeam, parentTitle: payload.node.title, descendants: payload.descendants })
+				}
 			} else {
 				const oldPoints = tmpDoc.spsize
 				const newHist = {
@@ -406,7 +413,7 @@ const actions = {
 			}
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
-			let msg = 'setStoryPoints: Could not read document with _id ' + _id + '. Error = ' + error
+			let msg = 'setStoryPoints: Could not read document with _id ' + id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -426,7 +433,7 @@ const actions = {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
 			const newHist = {
-				"setStateEvent": [oldState, payload.newState, payload.team, payload.position],
+				"setStateEvent": [oldState, payload.newState, payload.newTeam, payload.position],
 				"by": rootState.userData.user,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
@@ -434,9 +441,9 @@ const actions = {
 			}
 			tmpDoc.state = payload.newState
 			// also set the team if provided
-			if (payload.team) {
-				commit('updateCurrentDoc', { team: payload.team })
-				tmpDoc.team = payload.team
+			if (payload.newTeam) {
+				commit('updateCurrentDoc', { team: payload.newTeam })
+				tmpDoc.team = payload.newTeam
 			}
 			tmpDoc.history.unshift(newHist)
 			if (rootState.currentDoc._id === payload.id) {
@@ -461,31 +468,35 @@ const actions = {
 		rootState,
 		commit,
 		dispatch
-	}, descendants) {
-		const _id = rootState.currentDoc._id
+	}, payload) {
+		const id = payload.parentNode._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldTeam = tmpDoc.team
-			const newTeam = rootState.userData.myTeam
-			if (newTeam != oldTeam) {
+			if (payload.newTeam != oldTeam) {
+				// update the tree
+				payload.parentNode.data.team = payload.newTeam
+				for (let desc of payload.descendants) {
+					desc.data.team = payload.newTeam
+				}
 				const newHist = {
-					"setTeamOwnerEvent": [oldTeam, newTeam, descendants.length],
+					"setTeamOwnerEvent": [oldTeam, payload.newTeam, payload.descendants.length],
 					"by": rootState.userData.user,
 					"timestamp": Date.now(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}
-				tmpDoc.team = newTeam
+				tmpDoc.team = payload.newTeam
 				tmpDoc.history.unshift(newHist)
-				commit('updateCurrentDoc', { team: newTeam, newHist })
+				commit('updateCurrentDoc', { team: payload.newTeam, newHist })
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-				if (descendants.length > 0) dispatch('setTeamDescendantsBulk', { parentTitle: rootState.currentDoc.title, descendants })
+				if (payload.descendants.length > 0) dispatch('setTeamDescendantsBulk', { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: payload.descendants })
 			}
 		}).catch(error => {
-			let msg = 'setTeam: Could not read document with _id ' + _id + '. Error = ' + error
+			let msg = 'setTeam: Could not read document with _id ' + id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -506,7 +517,6 @@ const actions = {
 			url: rootState.userData.currentDb + '/_bulk_get',
 			data: { "docs": docsToGet },
 		}).then(res => {
-			const newTeam = rootState.userData.myTeam
 			const results = res.data.results
 			const docs = []
 			const error = []
@@ -515,9 +525,9 @@ const actions = {
 				if (envelope.ok) {
 					const doc = envelope.ok
 					const oldTeam = doc.team
-					if (newTeam != oldTeam) {
+					if (payload.newTeam != oldTeam) {
 						const newHist = {
-							"setTeamEventDescendant": [oldTeam, newTeam, payload.parentTitle],
+							"setTeamEventDescendant": [oldTeam, payload.newTeam, payload.parentTitle],
 							"by": rootState.userData.user,
 							"timestamp": Date.now(),
 							"sessionId": rootState.userData.sessionId,
@@ -525,7 +535,7 @@ const actions = {
 						}
 						doc.history.unshift(newHist)
 						// set the team name
-						doc.team = newTeam
+						doc.team = payload.newTeam
 						docs.push(doc)
 					}
 				}

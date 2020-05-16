@@ -195,19 +195,24 @@ const methods = {
   },
 
   doChangeTeam() {
-    this.contextNodeSelected.data.team = this.$store.state.userData.myTeam
-    if (this.contextNodeSelected.level > this.pbiLevel) {
-      this.$store.dispatch('setTeam', [])
-      this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
-    } else {
-      if (this.contextNodeSelected.level >= this.productLevel) {
-        const descendantsInfo = window.slVueTree.getDescendantsInfo(this.contextNodeSelected)
-        for (let desc of descendantsInfo.descendants) {
-          desc.data.team = this.$store.state.userData.myTeam
-        }
-        this.$store.dispatch('setTeam', descendantsInfo.descendants)
-        this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
+    if (this.contextNodeSelected.level > this.productLevel) {
+      // can assign team from epic level and down (higher level numbers)
+      const oldTeam = this.contextNodeSelected.data.team
+      const newTeam = this.$store.state.userData.myTeam
+      const descendantsInfo = window.slVueTree.getDescendantsInfo(this.contextNodeSelected)
+      // create an entry for undoing the change in a last-in first-out sequence
+      const entry = {
+        type: 'undoChangeTeam',
+        parentNode: this.contextNodeSelected,
+        oldTeam,
+        descendants: descendantsInfo.descendants
       }
+      this.$store.state.changeHistory.unshift(entry)
+      this.$store.dispatch('setTeam', { parentNode: this.contextNodeSelected, newTeam, descendants: descendantsInfo.descendants })
+      if (descendantsInfo.count === 0) {
+        this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
+      } else
+        this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
     }
   },
 
