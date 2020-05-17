@@ -171,7 +171,7 @@ const methods = {
         this.doRemove()
         break
       case this.ASIGNTOMYTEAM:
-        this.doChangeTeam()
+        this.doAssignToMyTeam()
         break
       case this.CHECKSTATES:
         this.doCheckStates()
@@ -194,25 +194,26 @@ const methods = {
     }
   },
 
-  doChangeTeam() {
+  doAssignToMyTeam() {
     if (this.contextNodeSelected.level > this.productLevel) {
       // can assign team from epic level and down (higher level numbers)
-      const oldTeam = this.contextNodeSelected.data.team
+      const node = this.contextNodeSelected
+      const oldTeam = node.data.team
       const newTeam = this.$store.state.userData.myTeam
-      const descendantsInfo = window.slVueTree.getDescendantsInfo(this.contextNodeSelected)
+      const descendantsInfo = window.slVueTree.getDescendantsInfo(node)
       // create an entry for undoing the change in a last-in first-out sequence
       const entry = {
         type: 'undoChangeTeam',
-        parentNode: this.contextNodeSelected,
+        node,
         oldTeam,
         descendants: descendantsInfo.descendants
       }
       this.$store.state.changeHistory.unshift(entry)
-      this.$store.dispatch('setTeam', { parentNode: this.contextNodeSelected, newTeam, descendants: descendantsInfo.descendants })
+      this.$store.dispatch('setTeam', { node, newTeam, descendants: descendantsInfo.descendants })
       if (descendantsInfo.count === 0) {
-        this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
+        this.showLastEvent(`The owning team of '${node.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
       } else
-        this.showLastEvent(`The owning team of '${this.contextNodeSelected.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
+        this.showLastEvent(`The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
     }
   },
 
