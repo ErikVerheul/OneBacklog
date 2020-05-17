@@ -73,8 +73,9 @@ const actions = {
 				newTaskPosition++
 			}
 
-			dispatch('setState', {
-				'id': newTaskId,
+			const node = window.slVueTree.getNodeById(newTaskId)
+			if (node) dispatch('setState', {
+				node,
 				newState: payload.state,
 				position: newTaskPosition,
 				'timestamp': Date.now(),
