@@ -111,6 +111,7 @@ function data() {
 
 const computed = {
   ...mapGetters([
+    'getpreviousNodeSelected',
     'getNodeSelected',
     'isFollower',
     'canCreateComments',
@@ -347,24 +348,22 @@ const methods = {
     switch (entry.type) {
       case 'undoAddSprintIds':
         this.$store.dispatch('removeSprintIds', { parentId: entry.parentId, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName })
+        this.showLastEvent('Item(s) to sprint assignment is undone', INFO)
         break
       case 'undoSelectedPbiType':
-        this.$store.commit('updateNodeSelected', { subtype: entry.oldPbiType })
-        this.$store.dispatch('setSubType', { 'newSubType': entry.oldPbiType, 'timestamp': Date.now() })
+        this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: Date.now() })
         this.showLastEvent('Change of item type is undone', INFO)
         break
       case 'undoDescriptionChange':
-        this.$store.state.currentDoc.description = entry.oldDescription
-        this.$store.dispatch('saveDescription', { 'newDescription': entry.oldDescription, 'timestamp': Date.now() })
+        this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: Date.now() })
         this.showLastEvent('Change of item description type is undone', INFO)
         break
       case 'undoAcceptanceChange':
-        this.$store.state.currentDoc.acceptanceCriteria = entry.oldAcceptance
-        this.$store.dispatch('saveAcceptance', { 'newAcceptance': entry.oldAcceptance, 'timestamp': Date.now() })
+        this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: Date.now() })
         this.showLastEvent('Change of item acceptance criteria type is undone', INFO)
         break
       case 'undoTsSizeChange':
-        this.$store.dispatch('setSize', { 'newSizeIdx': entry.oldTsSize, 'timestamp': Date.now() })
+        this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: Date.now() })
         this.showLastEvent('Change of item T-shirt size is undone', INFO)
         break
       case 'undoStoryPointsAndStateChange':
@@ -379,32 +378,30 @@ const methods = {
         this.showLastEvent('Change of item story points and state to Ready is undone', INFO)
         break
       case 'undoStoryPointsChange':
-        this.$store.dispatch('setStoryPoints', { 'newPoints': entry.oldPoints, 'timestamp': Date.now() })
+        this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: Date.now() })
         this.showLastEvent('Change of item story points is undone', INFO)
         break
       case 'undoPersonHoursChange':
-        this.$store.dispatch('setPersonHours', { 'newHrs': entry.oldPersonHours, 'timestamp': Date.now() })
+        this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: Date.now() })
         this.showLastEvent('Change of spike person hours is undone', INFO)
         break
       case 'undoChangeTeam':
-        this.$store.dispatch('setTeam', { parentNode: entry.parentNode, newTeam: entry.oldTeam, descendants: entry.descendants })
-        this.showLastEvent('Change owning team is undone', INFO)
+        this.$store.dispatch('setTeam', { node: entry.node, newTeam: entry.oldTeam, descendants: entry.descendants })
+        this.showLastEvent('Change of owning team is undone', INFO)
         break
       case 'undoStateChange':
-        entry.node.data.state = entry.oldState
         // reset inconsistency mark if set
         entry.node.data.inconsistentState = false
         this.$store.dispatch('setState', {
-          'id': entry.node._id,
-          'newState': entry.oldState,
-          'position': entry.node.ind,
-          'timestamp': Date.now()
+          node: entry.node,
+          newState: entry.oldState,
+          position: entry.node.ind,
+          timestamp: Date.now()
         })
         this.showLastEvent('Change of item state is undone', INFO)
         break
       case 'undoTitleChange':
-        this.$store.commit('updateNodeSelected', { title: entry.oldTitle })
-        this.$store.dispatch('setDocTitle', { 'newTitle': entry.oldTitle, 'timestamp': Date.now() })
+        this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: Date.now() })
         this.showLastEvent('Change of item title is undone', INFO)
         break
       case 'undoNewNode':
@@ -423,16 +420,11 @@ const methods = {
           const sourceLevel = beforeDropStatus.targetLevel
           const sourceSprintId = beforeDropStatus.targetSprintId
           const sourceParentTitle = beforeDropStatus.targetParentTitle
-
           const levelShift = beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel
-
           const targetProductId = beforeDropStatus.sourceProductId
           const targetParentId = beforeDropStatus.sourceParentId
           const targetSprintId = beforeDropStatus.sourceSprintId
           const targetParentTitle = beforeDropStatus.sourceParentTitle
-
-          // console.log('undoMove: sourceSprintId = ' + sourceSprintId + ' targetSprint = ' + targetSprintId)
-
           const swappedIndmap = sourceIndMap.slice()
           for (let m of sourceIndMap) {
             let val = m.sourceInd
@@ -535,6 +527,7 @@ const methods = {
         break
       case 'undoRemoveSprintIds':
         this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
+        this.showLastEvent('Item(s) from sprint removal is undone', INFO)
         break
       case 'undoSetDependency':
         {
@@ -554,7 +547,6 @@ const methods = {
         }
         break
     }
-    // window.slVueTree.showVisibility('onUndoEvent', FEATURELEVEL)
   },
 
   subscribeClicked() {
@@ -598,10 +590,11 @@ const methods = {
   },
 
   /* Tree and database update methods */
-  updateDescription() {
-    // skip update when not changed
+  updateDescription(previousNodeSelected) {
     if (this.$store.state.currentDoc.description !== this.newDescription) {
+      // skip update when not changed
       if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
+        const node = previousNodeSelected || this.getNodeSelected
         const oldDescription = this.$store.state.currentDoc.description
         const now = Date.now()
         this.$store.commit('updateNodeSelected', { lastContentChange: now, lastChange: now })
@@ -609,11 +602,13 @@ const methods = {
         this.$store.state.currentDoc.description = this.newDescription
         // update the doc in the database
         this.$store.dispatch('saveDescription', {
-          'newDescription': this.newDescription,
-          'timestamp': now
+          node,
+          newDescription: this.newDescription,
+          timestamp: now
         })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
+          node,
           type: 'undoDescriptionChange',
           oldDescription
         }
@@ -622,10 +617,11 @@ const methods = {
     }
   },
 
-  updateAcceptance() {
+  updateAcceptance(previousNodeSelected) {
     // skip update when not changed
     if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
       if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
+        const node = previousNodeSelected || this.getNodeSelected
         const oldAcceptance = this.$store.state.currentDoc.acceptanceCriteria
         const now = Date.now()
         this.$store.commit('updateNodeSelected', { lastContentChange: now, lastChange: now })
@@ -633,11 +629,13 @@ const methods = {
         this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
         // update the doc in the database
         this.$store.dispatch('saveAcceptance', {
-          'newAcceptance': this.newAcceptance,
-          'timestamp': now
+          node,
+          newAcceptance: this.newAcceptance,
+          timestamp: now
         })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
+          node,
           type: 'undoAcceptanceChange',
           oldAcceptance
         }
@@ -648,18 +646,21 @@ const methods = {
 
   updateTsSize() {
     if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
+      const node = this.getNodeSelected
       const now = Date.now()
       let size = document.getElementById("tShirtSizeId").value.toUpperCase()
       const sizeArray = this.$store.state.configData.tsSize
       if (sizeArray.includes(size)) {
         // size is not a node prop; no update needed
         this.$store.commit('updateNodeSelected', { lastChange: now })
-        this.$store.dispatch('setSize', {
-          'newSizeIdx': sizeArray.indexOf(size),
-          'timestamp': now
+        this.$store.dispatch('setTsSize', {
+          node,
+          newSizeIdx: sizeArray.indexOf(size),
+          timestamp: now
         })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
+          node,
           type: 'undoTsSizeChange',
           oldTsSize: this.$store.state.currentDoc.tssize
         }
@@ -681,6 +682,7 @@ const methods = {
   updateStoryPoints() {
     const skipTestOnTeam = this.$store.state.currentDoc.team === 'not assigned yet' && this.getCurrentItemState === this.newState
     if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item', skipTestOnTeam)) {
+      const node = this.getNodeSelected
       const oldPoints = this.$store.state.currentDoc.spsize
       const now = Date.now()
       let el = document.getElementById("storyPointsId")
@@ -690,7 +692,6 @@ const methods = {
       }
       if (skipTestOnTeam) {
         // when state is 'new', change state to 'ready' and assign the user's team as owner to this item and its descendants
-        const node = this.getNodeSelected
         const descendants = window.slVueTree.getDescendantsInfo(node).descendants
         this.$store.dispatch('setStoryPoints', {
           node,
@@ -713,11 +714,13 @@ const methods = {
         this.$store.commit('updateNodeSelected', { state: this.readyState, team: this.$store.state.userData.myTeam, lastStateChange: now, lastChange: now })
       } else {
         this.$store.dispatch('setStoryPoints', {
+          node,
           newPoints: parseInt(el.value),
           timestamp: now
         })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
+          node,
           type: 'undoStoryPointsChange',
           oldPoints
         }
@@ -729,6 +732,7 @@ const methods = {
 
   updatePersonHours() {
     if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
+      const node = this.getNodeSelected
       const oldPersonHours = this.$store.state.currentDoc.spikepersonhours
       const now = Date.now()
       let el = document.getElementById("personHoursId")
@@ -736,13 +740,14 @@ const methods = {
         el.value = '?'
         return
       }
-      this.$store.commit('updateNodeSelected', { lastChange: now })
       this.$store.dispatch('setPersonHours', {
-        'newHrs': el.value,
-        'timestamp': now
+        node,
+        newHrs: el.value,
+        timestamp: now
       })
       // create an entry for undoing the change in a last-in first-out sequence
       const entry = {
+        node,
         type: 'undoPersonHoursChange',
         oldPersonHours
       }
@@ -775,21 +780,20 @@ const methods = {
           vm.clearLastEvent()
         }
       }
+      const node = vm.getNodeSelected
       const oldState = vm.$store.state.currentDoc.state
-      const now = Date.now()
-      vm.$store.commit('updateNodeSelected', { state: newState, team: owningTeam, lastStateChange: now, lastChange: now })
       vm.$store.dispatch('setState', {
-        'id': vm.getNodeSelected._id,
-        'newState': newState,
-        'position': vm.getNodeSelected.ind,
-        'newTeam': owningTeam,
-        'timestamp': now
+        node,
+        newState: newState,
+        position: vm.getNodeSelected.ind,
+        newTeam: owningTeam,
+        timestamp: Date.now()
       })
       // create an entry for undoing the change in a last-in first-out sequence
       const entry = {
         type: 'undoStateChange',
-        oldState,
-        node: vm.getNodeSelected
+        node,
+        oldState
       }
       vm.$store.state.changeHistory.unshift(entry)
     }
@@ -811,16 +815,19 @@ const methods = {
     if (oldTitle === newTitle) return
 
     if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
+      const node = this.getNodeSelected
       const now = Date.now()
       // update the current node
       this.$store.commit('updateNodeSelected', { title: newTitle, lastContentChange: now, lastChange: now })
       // update current document in database
       this.$store.dispatch('setDocTitle', {
-        'newTitle': newTitle,
-        'timestamp': now
+        node,
+        newTitle: newTitle,
+        timestamp: now
       })
       // create an entry for undoing the change in a last-in first-out sequence
       const entry = {
+        node,
         type: 'undoTitleChange',
         oldTitle
       }

@@ -126,7 +126,7 @@ const utilities = {
 				this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] and team membership disallow you to ${forAction}`, WARNING)
 			}
 			if (!canAccessOnTeam && canAccessOnLevel) {
-				this.showLastEvent(`You must be member of team ${itemTeam} to ${forAction}`, WARNING)
+				this.showLastEvent(`You must be member of team '${itemTeam}' to ${forAction}`, WARNING)
 			}
 			if (canAccessOnTeam && !canAccessOnLevel) {
 				this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] disallow you to ${forAction}`, WARNING)

@@ -60,16 +60,19 @@ const watch = {
     // prevent looping
     if (val !== this.$store.state.currentDoc.subtype) {
       if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the pbi type')) {
+        const node = this.getNodeSelected
         const now = Date.now()
         this.$store.commit('updateNodeSelected', { subtype: val, lastChange: now })
         this.$store.dispatch('setSubType', {
-          'newSubType': val,
-          'timestamp': now
+          node,
+          newSubType: val,
+          timestamp: now
         })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
           type: 'undoSelectedPbiType',
-          oldPbiType: this.$store.state.currentDoc.subtype
+          node,
+          oldSubType: this.$store.state.currentDoc.subtype
         }
         this.$store.state.changeHistory.unshift(entry)
       }
@@ -216,9 +219,9 @@ const methods = {
   /* event handling */
   onNodesSelected(selNodes) {
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
-    this.updateDescription()
+    this.updateDescription(this.getpreviousNodeSelected)
     // both an update of the description and the acceptance criteria should NOT happen
-    this.updateAcceptance()
+    this.updateAcceptance(this.getpreviousNodeSelected)
     // if the root node is selected do nothing
     if (this.getNodeSelected._id !== 'root') {
       // if the user clicked on a node of another product

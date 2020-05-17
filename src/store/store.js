@@ -87,6 +87,7 @@ export default new Vuex.Store({
 		lastTreeView: undefined,
 		searchOn: false,
 		selectedForView: 'comments',
+		previousSelectedNode: undefined,
 		selectedNodes: [],
 		selectNodeOngoing: false,
 		uploadDone: true,
@@ -129,8 +130,12 @@ export default new Vuex.Store({
 	},
 
 	getters: {
+		/* Rreturn the previous selected node or the currently selected node if no previous node was selected */
+		getpreviousNodeSelected(state) {
+			return state.previousSelectedNode
+		},
+		/* eturn the last selected node or undefined when no node is selected */
 		getNodeSelected(state) {
-			// return the last selected node or undefined when no node is selected
 			return state.selectedNodes.slice(-1)[0]
 		},
 		leafLevel(state) {
@@ -290,6 +295,7 @@ export default new Vuex.Store({
 
 	mutations: {
 		addSelectedNode(state, newNode) {
+			state.previousSelectedNode = state.selectedNodes.slice(-1)[0] || newNode
 			if (newNode.isSelectable) {
 				newNode.isSelected = true
 				if (!state.selectedNodes.includes(newNode)) state.selectedNodes.push(newNode)
@@ -297,6 +303,7 @@ export default new Vuex.Store({
 		},
 
 		renewSelectedNodes(state, newNode) {
+			state.previousSelectedNode = state.selectedNodes.slice(-1)[0] || newNode
 			if (newNode.isSelectable) {
 				for (let n of state.selectedNodes) n.isSelected = false
 				newNode.isSelected = true
@@ -419,7 +426,7 @@ export default new Vuex.Store({
 						state.currentDoc.sprintId = payload.sprintId
 						break
 					case 'team':
-						state.currentDoc.team = payload.team
+						if (payload.team) state.currentDoc.team = payload.team
 						break
 					case 'level':
 						state.currentDoc.level = payload.level

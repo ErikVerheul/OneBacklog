@@ -182,15 +182,16 @@ const actions = {
 		})
 	},
 
-	setSize({
+	setTsSize({
 		rootState,
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldSize = tmpDoc.tssize
@@ -203,10 +204,13 @@ const actions = {
 			}
 			tmpDoc.tssize = payload.newSizeIdx
 			tmpDoc.history.unshift(newHist)
-			commit('updateCurrentDoc', { tssize: payload.newSizeIdx, newHist })
+			node.data.tssize = payload.newSizeIdx
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			if (rootState.currentDoc._id === id) {
+				commit('updateCurrentDoc', { tssize: payload.newSizeIdx, newHist })
+			}
 		}).catch(error => {
-			let msg = 'setSize: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'setTsSize: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -338,10 +342,11 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldHrs = tmpDoc.spikepersonhours
@@ -354,10 +359,13 @@ const actions = {
 			}
 			tmpDoc.spikepersonhours = payload.newHrs
 			tmpDoc.history.unshift(newHist)
-			commit('updateCurrentDoc', { spikepersonhours: payload.newHrs, newHist })
+			node.data.lastChange = payload.timestamp
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			if (rootState.currentDoc._id === id) {
+				commit('updateCurrentDoc', { spikepersonhours: payload.newHrs, newHist })
+			}
 		}).catch(error => {
-			let msg = 'setPersonHours: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'setPersonHours: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -426,9 +434,11 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + payload.id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
@@ -442,22 +452,18 @@ const actions = {
 			tmpDoc.state = payload.newState
 			// also set the team if provided
 			if (payload.newTeam) {
-				commit('updateCurrentDoc', { team: payload.newTeam })
 				tmpDoc.team = payload.newTeam
 			}
 			tmpDoc.history.unshift(newHist)
-			if (rootState.currentDoc._id === payload.id) {
-				commit('updateCurrentDoc', { state: payload.newState, newHist })
-			} else if (rootState.lastTreeView === 'detailProduct') {
-				const node = window.slVueTree.getNodeById(tmpDoc._id)
-				if (node) {
-					node.data.state = payload.newState
-					node.data.lastStateChange = Date.now()
-				}
-			}
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			node.data.state = payload.newState
+			if (payload.newTeam) node.data.team = payload.newTeam
+			node.data.lastStateChange = payload.timestamp
+			if (rootState.currentDoc._id === id) {
+				commit('updateCurrentDoc', { state: payload.newState, team: payload.newTeam, newHist })
+			}
 		}).catch(error => {
-			let msg = 'setState: Could not read document with _id ' + payload.id + '. Error = ' + error
+			let msg = 'setState: Could not read document with id ' + id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -469,7 +475,8 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const id = payload.parentNode._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id,
@@ -478,7 +485,7 @@ const actions = {
 			const oldTeam = tmpDoc.team
 			if (payload.newTeam != oldTeam) {
 				// update the tree
-				payload.parentNode.data.team = payload.newTeam
+				node.data.team = payload.newTeam
 				for (let desc of payload.descendants) {
 					desc.data.team = payload.newTeam
 				}
@@ -565,10 +572,11 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			const oldTitle = rootState.currentDoc.title
 			let tmpDoc = res.data
@@ -581,10 +589,13 @@ const actions = {
 			}
 			tmpDoc.history.unshift(newHist)
 			tmpDoc.title = payload.newTitle
-			commit('updateCurrentDoc', { title: payload.newTitle, newHist })
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			node.title = payload.newTitle
+			if (rootState.currentDoc._id === id) {
+				commit('updateCurrentDoc', { title: payload.newTitle, newHist })
+			}
 		}).catch(error => {
-			let msg = 'setDocTitle: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'setDocTitle: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -596,10 +607,11 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
@@ -611,10 +623,13 @@ const actions = {
 			}
 			tmpDoc.history.unshift(newHist)
 			tmpDoc.subtype = payload.newSubType
-			commit('updateCurrentDoc', { subtype: payload.newSubType, newHist })
+			node.data.subtype = payload.newSubType
+			if (rootState.currentDoc._id === id) {
+				commit('updateCurrentDoc', { subtype: payload.newSubType, newHist })
+			}
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
-			let msg = 'setSubType: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'setSubType: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -626,10 +641,11 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			let tmpDoc = res.data
 			// encode to base64
@@ -642,11 +658,13 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			commit('updateCurrentDoc', { newHist })
 			tmpDoc.description = newEncodedDescription
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			if (rootState.currentDoc._id === id) {
+				commit('updateCurrentDoc', { newHist })
+			}
 		}).catch(error => {
-			let msg = 'saveDescription: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'saveDescription: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -658,10 +676,11 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + id,
 		}).then(res => {
 			let tmpDoc = res.data
 			// encode to base64
@@ -674,11 +693,13 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			commit('updateCurrentDoc', { newHist })
 			tmpDoc.acceptanceCriteria = newEncodedAcceptance
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			if (rootState.currentDoc._id === id) {
+				commit('updateCurrentDoc', { newHist })
+			}
 		}).catch(error => {
-			let msg = 'saveAcceptance: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'saveAcceptance: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
