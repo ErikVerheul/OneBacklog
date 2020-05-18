@@ -7,6 +7,8 @@ const PBILEVEL = 5
 const TASKLEVEL = 6
 const INFO = 0
 const WARNING = 1
+const REMOVED = 0
+const ON_HOLD = 1
 const TODO = 2
 var removedProducts = []
 
@@ -431,6 +433,11 @@ const actions = {
 									node.sprintId = undefined
 									if (isCurrentDocument) rootState.currentDoc.sprintId = undefined
 									break
+								case 'taskRemoved':
+									node.data.state = REMOVED
+									node.data.lastStateChange = Date.now()
+									if (isCurrentDocument) rootState.currentDoc.state = REMOVED
+									break
 								case 'updateTaskOrderEvent':
 									if (rootState.lastTreeView === 'detailProduct') {
 										// update the position of the tasks of the story and update the index and priority values in the tree
@@ -589,23 +596,46 @@ const actions = {
 								case 'setStateEvent':
 									{
 										const prevState = lastHistObj.setStateEvent[0]
-										const newTaskPosition = lastHistObj.setStateEvent[3]
-										for (let s of rootState.stories) {
-											if (s.storyId === doc.parentId) {
-												const sourceColumn = s.tasks[prevState]
-												const targetColumn = s.tasks[doc.state]
-												let movedTask
-												const newSourceColumn = []
-												for (let t of sourceColumn) {
-													if (t.id === doc._id) {
-														movedTask = t
-													} else newSourceColumn.push(t)
+										if (prevState === REMOVED || prevState === ON_HOLD) {
+											// must insert on the board
+											for (let s of rootState.stories) {
+												if (s.storyId === doc.parentId) {
+													const targetColumn = s.tasks[doc.state]
+													targetColumn.unshift({
+														id: doc._id,
+														title: doc.title,
+														taskOwner: doc.taskOwner,
+														priority: doc.priority
+													})
+													targetColumn.sort((a, b) => b.priority - a.priority)
 												}
-												if (movedTask) {
-													s.tasks[prevState] = newSourceColumn
-													if (newTaskPosition !== 0) {
-														targetColumn.splice(newTaskPosition, 0, movedTask)
-													} else targetColumn.unshift(movedTask)
+											}
+										} else if (doc.state === REMOVED || doc.state === ON_HOLD) {
+											// must remove from the board
+											commit('removeTaskFromBoard', {
+												storyId: doc.parentId,
+												currentState: prevState,
+												id: doc._id,
+											})
+										} else {
+											const newTaskPosition = lastHistObj.setStateEvent[3]
+											for (let s of rootState.stories) {
+												if (s.storyId === doc.parentId) {
+													const sourceColumn = s.tasks[prevState]
+													const targetColumn = s.tasks[doc.state]
+													let movedTask
+													const newSourceColumn = []
+													for (let t of sourceColumn) {
+														if (t.id === doc._id) {
+															movedTask = t
+														} else newSourceColumn.push(t)
+													}
+													if (movedTask) {
+														s.tasks[prevState] = newSourceColumn
+														if (newTaskPosition !== 0) {
+															targetColumn.splice(newTaskPosition, 0, movedTask)
+														} else targetColumn.unshift(movedTask)
+													}
 												}
 											}
 										}
@@ -655,6 +685,14 @@ const actions = {
 											dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
 										}
 									}
+									break
+								case 'taskRemoved':
+									commit('removeTaskFromBoard', {
+										storyId: doc.parentId,
+										currentState: lastHistObj.taskRemoved[1],
+										id: doc._id,
+									})
+									console.log('sync.setStateEvent3: rootState.stories = ' + JSON.stringify(rootState.stories, null, 2))
 									break
 								default:
 									// eslint-disable-next-line no-console
