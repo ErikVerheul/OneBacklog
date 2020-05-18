@@ -638,11 +638,27 @@ export default new Vuex.Store({
 
 			clearInterval(state.runningCookieRefreshId)
 			clearInterval(state.logState.runningWatchdogId)
+		},
+
+		//////////////////// planning board //////////////////////////
+
+		removeTaskFromBoard(state, payload) {
+			for (let s of state.stories) {
+				if (s.storyId === payload.storyId) {
+					let stateTasks = s.tasks[payload.currentState]
+					const newTasks = []
+					for (let t of stateTasks) {
+						if (t.id !== payload.id) newTasks.push(t)
+					}
+					s.tasks[payload.currentState] = newTasks
+					break
+				}
+			}
 		}
 	},
 
 	actions: {
-		/* Refresh the autentication cookie */
+		/* Refresh the authentication cookie */
 		refreshCookie({
 			dispatch,
 			state
