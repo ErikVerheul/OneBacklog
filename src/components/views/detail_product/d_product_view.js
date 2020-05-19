@@ -220,7 +220,6 @@ const methods = {
   onNodesSelected(selNodes) {
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription(this.getpreviousNodeSelected)
-    // both an update of the description and the acceptance criteria should NOT happen
     this.updateAcceptance(this.getpreviousNodeSelected)
     // if the root node is selected do nothing
     if (this.getNodeSelected._id !== 'root') {
