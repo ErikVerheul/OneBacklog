@@ -298,7 +298,7 @@ const actions = {
             if (state.levelErrorCount > 0) {
                 for (let l of levelErrorsFound) {
                     const msg1 = `Level error found with Id = ${l.id}, parentId = ${l.parentId} and productId = ${l.productId}.`
-                    const msg2 = `The level read in the document is ${l.dbLevel}. According the read parentId the level should be ${l.pathLength}.`
+                    const msg2 = `The level read in the document is ${l.dbLevel}. According to the read parent the level should be ${l.pathLength}.`
                     // eslint-disable-next-line no-console
                     console.log('processProduct: ' + msg1 + '\n' + msg2)
                     let newLog = {
