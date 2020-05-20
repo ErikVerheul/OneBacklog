@@ -123,6 +123,7 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
+				if (doc.history) console.log('listenForChanges: histevent = ' + JSON.stringify(Object.keys(doc.history[0])[0], null, 2))
 				if (doc.type == "backlogItem" && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
 					const lastHistObj = doc.history[0]
 					if (doc.history[0].sessionId !== rootState.userData.sessionId &&
@@ -162,7 +163,7 @@ const actions = {
 								continue
 							}
 							// check for exception
-							if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent') {
+							if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent' && histEvent !== 'createTaskEvent') {
 								commit('showLastEvent', { txt: `Another user changed item ${doc._id.slice(-5)} which is missing in your view`, severity: WARNING })
 								dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: WARNING })
 								continue
@@ -182,6 +183,7 @@ const actions = {
 										node.data.lastCommentToHistory = doc.history[0].timestamp
 									}
 									break
+								case 'createTaskEvent':
 								case 'createEvent':
 									if (node === null) {
 										// node is newly created
@@ -433,7 +435,7 @@ const actions = {
 									node.sprintId = undefined
 									if (isCurrentDocument) rootState.currentDoc.sprintId = undefined
 									break
-								case 'taskRemoved':
+								case 'taskRemovedEvent':
 									node.data.state = REMOVED
 									node.data.lastStateChange = Date.now()
 									if (isCurrentDocument) rootState.currentDoc.state = REMOVED
@@ -485,14 +487,10 @@ const actions = {
 							// process events for the planning board if displayed
 							switch (histEvent) {
 								case 'createEvent':
+								case 'createTaskEvent':
 									if (doc.level === TASKLEVEL) {
-										// a new task is created in a user story currently on the planning board
-										for (let s of rootState.stories) {
-											if (s.storyId === doc.parentId) {
-												const todoTasks = s.tasks[TODO]
-												todoTasks.unshift({ id: doc._id, title: doc.title })
-											}
-										}
+										// a new task is created in a user story currently on this planning board
+										commit('addTaskToBoard', doc)
 									}
 									break
 								case 'docRestoredEvent':
@@ -500,13 +498,7 @@ const actions = {
 										// one or more of the removed items or their descendants are assigned to the loaded sprint and restored now
 										if (doc.level === TASKLEVEL) {
 											// a task removal is undone from a user story currently on the planning board
-											for (let s of rootState.stories) {
-												if (s.storyId === doc.parentId) {
-													const newArray = s.tasks[doc.state].slice()
-													newArray.push({ id: doc._id, test: doc.title })
-													s.tasks[doc.state] = newArray
-												}
-											}
+											commit('addTaskToBoard', doc)
 										} else {
 											// a user story removal is undone
 											dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
@@ -594,29 +586,13 @@ const actions = {
 									}
 									break
 								case 'setStateEvent':
-									{
+									if (doc.level === TASKLEVEL) {
 										const prevState = lastHistObj.setStateEvent[0]
 										if (prevState === REMOVED || prevState === ON_HOLD) {
-											// must insert on the board
-											for (let s of rootState.stories) {
-												if (s.storyId === doc.parentId) {
-													const targetColumn = s.tasks[doc.state]
-													targetColumn.unshift({
-														id: doc._id,
-														title: doc.title,
-														taskOwner: doc.taskOwner,
-														priority: doc.priority
-													})
-													targetColumn.sort((a, b) => b.priority - a.priority)
-												}
-											}
+											commit('addTaskToBoard', doc)
 										} else if (doc.state === REMOVED || doc.state === ON_HOLD) {
 											// must remove from the board
-											commit('removeTaskFromBoard', {
-												storyId: doc.parentId,
-												currentState: prevState,
-												id: doc._id,
-											})
+											commit('removeTaskFromBoard', { prevState, doc })
 										} else {
 											const newTaskPosition = lastHistObj.setStateEvent[3]
 											for (let s of rootState.stories) {
@@ -636,6 +612,8 @@ const actions = {
 															targetColumn.splice(newTaskPosition, 0, movedTask)
 														} else targetColumn.unshift(movedTask)
 													}
+													sourceColumn.sort((a, b) => b.priority - a.priority)
+													targetColumn.sort((a, b) => b.priority - a.priority)
 												}
 											}
 										}
@@ -666,8 +644,8 @@ const actions = {
 											for (let s of rootState.stories) {
 												if (s.storyId === doc.parentId) {
 													const tasks = s.tasks
-													const phase = tasks[doc.state]
-													for (let t of phase) {
+													const targetColumn = tasks[doc.state]
+													for (let t of targetColumn) {
 														if (t.id === doc._id) {
 															t.title = doc.title
 															break
@@ -686,13 +664,11 @@ const actions = {
 										}
 									}
 									break
-								case 'taskRemoved':
-									commit('removeTaskFromBoard', {
-										storyId: doc.parentId,
-										currentState: lastHistObj.taskRemoved[1],
-										id: doc._id,
-									})
-									console.log('sync.setStateEvent3: rootState.stories = ' + JSON.stringify(rootState.stories, null, 2))
+								case 'taskRemovedEvent':
+									{
+										const prevState = lastHistObj.taskRemovedEvent[1]
+										commit('removeTaskFromBoard', { prevState, doc })
+									}
 									break
 								default:
 									// eslint-disable-next-line no-console

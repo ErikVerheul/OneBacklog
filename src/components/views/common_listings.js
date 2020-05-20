@@ -69,6 +69,7 @@ const computed = {
         if (keys[j] === "commentToHistoryEvent") allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
         if (keys[j] === "conditionRemovedEvent") allText += this.mkConditionRemovedEvent(histItem[keys[j]])
         if (keys[j] === "createEvent") allText += this.mkCreateEvent(histItem[keys[j]])
+        if (keys[j] === "createTaskEvent") allText += this.mkCreateTaskEvent(histItem[keys[j]])
         if (keys[j] === "createRootEvent") allText += this.mkCreateRootEvent(histItem[keys[j]])
         if (keys[j] === "dependencyRemovedEvent") allText += this.mkDependencyRemovedEvent(histItem[keys[j]])
         if (keys[j] === "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
@@ -93,6 +94,7 @@ const computed = {
         if (keys[j] === "setTeamOwnerEvent") allText += this.mkSetTeamOwnerEvent(histItem[keys[j]])
         if (keys[j] === "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
         if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
+        if (keys[j] === "taskRemovedEvent") allText += this.mkTaskRemovedEvent(histItem[keys[j]])
         if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
         if (keys[j] === "resetHistoryEvent") allText += this.mkResetHistoryEvent(histItem[keys[j]])
         if (keys[j] === "addSprintIdsEvent") allText += this.mkAddSprintIdsEvent(histItem[keys[j]])
@@ -108,7 +110,6 @@ const computed = {
     return filteredHistory
   }
 }
-
 const methods = {
   getAttachments() {
     if (this.$store.state.currentDoc._attachments) {
@@ -144,6 +145,7 @@ const methods = {
     if (key === "commentToHistoryEvent") return this.mkCommentToHistoryEvent(value)
     if (key === "conditionRemovedEvent") return this.mkConditionRemovedEvent(value)
     if (key === "createEvent") return this.mkCreateEvent(value)
+    if (key === "createTaskEvent") return this.mkCreateTaskEvent(value)
     if (key === "createRootEvent") return this.mkCreateRootEvent(value)
     if (key === "dependencyRemovedEvent") return this.mkDependencyRemovedEvent(value)
     if (key === "descriptionEvent") return this.mkDescriptionEvent(value)
@@ -168,6 +170,7 @@ const methods = {
     if (key === "setTeamOwnerEvent") return this.mkSetTeamOwnerEvent(value)
     if (key === "setTitleEvent") return this.mkSetTitleEvent(value)
     if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
+    if (key === "taskRemovedEvent") return this.mkTaskRemovedEvent(value)
     if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
     if (key === "resetHistoryEvent") return this.mkResetHistoryEvent(value)
     if (key === "addSprintIdsEvent") return this.mkAddSprintIdsEvent(value)
@@ -199,6 +202,10 @@ const methods = {
 
   mkCreateEvent(value) {
     return `<h5>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h5>`
+  },
+
+  mkCreateTaskEvent(value) {
+    return `<h5>This task was created under parent '${value[0]}'.</h5>`
   },
 
   mkConditionRemovedEvent(value) {
@@ -317,6 +324,10 @@ const methods = {
 
   mkComment(value) {
     return window.atob(value)
+  },
+
+  mkTaskRemovedEvent(value) {
+    return `<h5>This task is removed from story '${value[0]}'.</h5>`
   },
 
   mkUploadAttachmentEvent(value) {

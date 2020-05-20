@@ -191,17 +191,13 @@ const methods = {
      * This method also contains 'Product details' view specific code
      */
     doInsertNewItem() {
-        const locationPath = this.contextNodeSelected.path
         let newNodeLocation
-        let path
-        let idx
         let now = Date.now()
         // prepare the new node for insertion and set isSelected to true
         const _id = this.createId()
         const newNode = {
             _id,
             shortId: _id.slice(-5),
-            productId: this.$store.state.currentProductId,
             dependencies: [],
             conditionalFor: [],
             children: [],
@@ -213,40 +209,25 @@ const methods = {
             doShow: true,
             savedDoShow: true,
             data: {
-                priority: null,
                 state: STATE_NEW_OR_TODO,
                 subtype: 0,
                 lastChange: now
             }
         }
         let insertLevel = this.contextNodeSelected.level
-        let parentTitle
         if (this.contextOptionSelected === this.INSERTBELOW) {
             // new node is a sibling placed below (after) the selected node
             newNodeLocation = {
                 nodeModel: this.contextNodeSelected,
                 placement: 'after'
             }
-            idx = locationPath.slice(-1)[0] + 1
-            path = locationPath.slice(0, -1).concat(idx)
-            newNode.parentId = this.contextNodeSelected.parentId
-            newNode.title = 'New ' + this.getLevelText(insertLevel)
-            newNode.isLeaf = (insertLevel < this.taskLevel) ? false : true
-            parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
         } else {
             // new node is a child placed a level lower (inside) than the selected node
             insertLevel += 1
-
             newNodeLocation = {
                 nodeModel: this.contextNodeSelected,
                 placement: 'inside'
             }
-            idx = 0
-            path = this.contextNodeSelected.path.concat(0)
-            newNode.parentId = this.contextNodeSelected._id
-            newNode.title = 'New ' + this.getLevelText(insertLevel)
-            newNode.isLeaf = (insertLevel < this.taskLevel) ? false : true
-            parentTitle = this.contextNodeSelected.title
         }
 
         let team = this.myTeam
@@ -264,13 +245,7 @@ const methods = {
         }
 
         newNode.data.team = team
-        // overwrite the title when creating a new req area
-        if (newNode.parentId === AREA_PRODUCTID) newNode.title = 'New requirement area'
-        // add the location values
-        newNode.path = path
-        newNode.pathStr = JSON.stringify(path)
-        newNode.ind = idx
-        newNode.level = path.length
+        newNode.title = newNode.parentId === AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(insertLevel)
 
         if (this.haveAccess(insertLevel, team, 'create new items of this type')) {
             if (newNodeLocation.placement === 'inside') {
@@ -281,12 +256,13 @@ const methods = {
                 // unselect the node that was clicked before the insert
                 this.contextNodeSelected.isSelected = false
             }
-            // insert the new node in the tree
+            // insert the new node in the tree and set the productId, parentId, the location parameters and priority
             window.slVueTree.insert(newNodeLocation, [newNode])
             // and select the new node
             this.$store.commit('updateNodeSelected', { newNode })
             this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
             // create a new document and store it
+            const parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
             const newDoc = {
                 "_id": _id,
                 "type": "backlogItem",
@@ -436,12 +412,15 @@ const methods = {
                 window.slVueTree.resetReqArea(selectedNode._id)
             }
             // set remove mark in the database on the clicked item and descendants (if any)
+            let sprintIds = []
+            if (selectedNode.data.sprintId) sprintIds.push(selectedNode.data.sprintId)
+            sprintIds.concat(descendantsInfo.sprintIds)
             this.$store.dispatch('removeItemAndDescendents',
                 {
                     productId: selectedNode.productId,
                     node: selectedNode,
                     descendantsIds: descendantsInfo.ids,
-                    sprintIds: descendantsInfo.sprintIds
+                    sprintIds
                 })
             // remove any dependency references to/from outside the removed items; note: these cannot be undone
             const removed = window.slVueTree.correctDependencies(this.$store.state.currentProductId, descendantsInfo.ids)

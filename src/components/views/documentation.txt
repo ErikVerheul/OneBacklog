@@ -268,6 +268,7 @@ Y            Y	     Y    conditionRemovedEvent	        	update.js
 Y            N	     Y    createEvent 	                	common.context.js 2X
 N            N	     Y  	  								superpo.vue
 N			 N	     Y    createRootEvent					intdb.js
+Y            N	     Y    createTaskEvent 	                planningboard.js
 Y            Y	     Y    dependencyRemovedEvent 	      	update.js
 Y            Y	     Y    descriptionEvent	            	update.js
 N			 N	     Y    docRemovedDescendantEvent			remove.js
@@ -295,6 +296,7 @@ Y            Y	     Y    setTeamOwnerEvent	            	update.js
 Y            Y	     Y    setTitleEvent	                	update.js
 N			 N	     Y    subscribeEvent					update.js
 Y			 N	     N    sprintAssigned					planningboard.js
+Y            N       Y    taskRemovedEvent					planningboard.js
 Y            Y	     Y    uploadAttachmentEvent	        	attachments.js
 N			 N	     Y    resetHistoryEvent					utils.js
 

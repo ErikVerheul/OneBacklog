@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 const ERROR = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
+const REMOVED = 0
 
 function composeRangeString1(id, team) {
 	return `startkey=["${id}","${team}",${PBILEVEL}, ${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}",${TASKLEVEL}, ${Number.MAX_SAFE_INTEGER}]`
@@ -364,6 +365,155 @@ const actions = {
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'notifyParentOnSprintAssignment' })
 		}).catch(e => {
 			let msg = 'removeSprintIds: Could not read batch of documents: ' + e
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	boardAddTask({
+		rootState,
+		dispatch
+	}, payload) {
+		// read the story to get the productId and the story title
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.storyId
+		}).then(res => {
+			let storyDoc = res.data
+			const now = Date.now()
+			let newTaskPriority
+			if (rootState.lastTreeView === 'detailProduct') {
+				// update the tree data
+				const newNode = {
+					_id: payload.taskId,
+					shortId: payload.taskId.slice(-5),
+					sprintId: rootState.loadedSprintId,
+					isLeaf: true,
+					title: payload.taskTitle,
+					dependencies: [],
+					conditionalFor: [],
+					children: [],
+					isExpanded: false,
+					savedIsExpanded: false,
+					isDraggable: true,
+					isSelectable: true,
+					isSelected: false,
+					doShow: true,
+					savedDoShow: true,
+					data: {
+						state: payload.state,
+						subtype: 0,
+						team: rootState.userData.myTeam,
+						taskOwner: rootState.userData.user,
+						lastChange: now
+					}
+				}
+				const cursorPosition = {
+					nodeModel: window.slVueTree.getNodeById(storyDoc._id),
+					placement: 'inside'
+				}
+				// insert the new node in the tree and set the productId, parentId, the location parameters and priority
+				window.slVueTree.insert(cursorPosition, [newNode])
+				newTaskPriority = newNode.data.priority
+			}
+			const parentHist = {
+				"taskAddedEvent": [payload.storyId, payload.currentState, payload.taskTitle],
+				"by": rootState.userData.user,
+				"timestamp": now,
+				"distributeEvent": false
+			}
+			// create a new document and store it
+			const newDoc = {
+				"_id": payload.taskId,
+				"type": "backlogItem",
+				"productId": storyDoc.productId,
+				"parentId": storyDoc._id,
+				"sprintId": rootState.loadedSprintId,
+				"team": rootState.userData.myTeam,
+				"taskOwner": rootState.userData.user,
+				"level": TASKLEVEL,
+				"subtype": 0,
+				"state": payload.state,
+				"tssize": 3,
+				"spsize": 0,
+				"spikepersonhours": 0,
+				"reqarea": null,
+				"dependencies": [],
+				"conditionalFor": [],
+				"title": payload.taskTitle,
+				"followers": [],
+				"description": window.btoa(""),
+				"acceptanceCriteria": window.btoa("<p>See the acceptance criteria of the story/spike/defect.</p>"),
+				"priority": newTaskPriority ? newTaskPriority : payload.priority + 100,
+				"comments": [{
+					"ignoreEvent": 'comments initiated',
+					"timestamp": 0,
+					"distributeEvent": false
+				}],
+				"history": [{
+					"createTaskEvent": [storyDoc.title],
+					"by": rootState.userData.user,
+					"timestamp": now,
+					"sessionId":rootState.userData.sessionId,
+					"distributeEvent": true
+				}],
+				"delmark": false
+			}
+			// update the parent history and than save the new document
+			dispatch('createDoc', { newDoc, parentHist })
+			// a new task is created in a user story currently on the planning board
+			for (let s of rootState.stories) {
+				if (s.storyId === newDoc.parentId) {
+					const targetColumn = s.tasks[newDoc.state]
+					targetColumn.unshift({
+						id: newDoc._id,
+						title: newDoc.title,
+						taskOwner: newDoc.taskOwner,
+						priority: newDoc.priority
+					})
+					targetColumn.sort((a, b) => b.priority - a.priority)
+				}
+			}
+		}).catch(error => {
+			let msg = 'boardAddTask: Could not read document with id ' + payload.taskId + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	boardRemoveTask({
+		rootState,
+		dispatch,
+		commit
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.taskId
+		}).then(res => {
+			let doc = res.data
+			const prevState = doc.state
+			doc.state = REMOVED
+			const newHist = {
+				"taskRemovedEvent": [payload.storyTitle, payload.currentState],
+				"by": rootState.userData.user,
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			doc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc })
+			commit('removeTaskFromBoard', { prevState, doc })
+			if (rootState.lastTreeView === 'detailProduct') {
+				const node = window.slVueTree.getNodeById(payload.taskId)
+				if (node) {
+					node.data.state = REMOVED
+					node.data.lastStateChange = Date.now()
+				}
+			}
+		}).catch(error => {
+			let msg = 'boardRemoveTask: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

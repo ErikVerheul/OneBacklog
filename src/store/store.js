@@ -537,6 +537,7 @@ export default new Vuex.Store({
 
 			for (let i = 0; i < payload.storieResults.length; i++) {
 				const storyId = payload.storieResults[i].id
+				const storyTitle = payload.storieResults[i].value[2]
 				const featureId = payload.storieResults[i].value[1]
 				const featureNode = getParentNode(featureId, featureIdToNodeMap)
 				if (!featureNode) continue
@@ -550,7 +551,6 @@ export default new Vuex.Store({
 				if (!productNode) continue
 
 				const productName = productNode.title
-				const storyTitle = payload.storieResults[i].value[2]
 				const subType = payload.storieResults[i].value[4]
 				const storySize = payload.storieResults[i].value[6]
 				const newStory = {
@@ -642,15 +642,30 @@ export default new Vuex.Store({
 
 		//////////////////// planning board //////////////////////////
 
+		addTaskToBoard(state, doc) {
+			for (let s of state.stories) {
+				if (s.storyId === doc.parentId) {
+					const targetColumn = s.tasks[doc.state]
+					targetColumn.unshift({
+						id: doc._id,
+						title: doc.title,
+						taskOwner: doc.taskOwner,
+						priority: doc.priority
+					})
+					targetColumn.sort((a, b) => b.priority - a.priority)
+				}
+			}
+		},
+
 		removeTaskFromBoard(state, payload) {
 			for (let s of state.stories) {
-				if (s.storyId === payload.storyId) {
-					let stateTasks = s.tasks[payload.currentState]
+				if (s.storyId === payload.doc.parentId) {
+					let stateTasks = s.tasks[payload.prevState]
 					const newTasks = []
 					for (let t of stateTasks) {
-						if (t.id !== payload.id) newTasks.push(t)
+						if (t.id !== payload.doc._id) newTasks.push(t)
 					}
-					s.tasks[payload.currentState] = newTasks
+					s.tasks[payload.prevState] = newTasks
 					break
 				}
 			}

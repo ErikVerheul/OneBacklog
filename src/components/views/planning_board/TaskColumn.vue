@@ -5,7 +5,7 @@
     <div class="b-card-body">
       <draggable v-model="draggables" :group="idx.toString()">
         <div v-for="item in tasks" :key="item.id">
-          <item :item="item" :columnName="title"></item>
+          <taskitem :storyId="storyId" :storyTitle="storyTitle" :state="state" :columnName="title" :item="item"></taskitem>
         </div>
       </draggable>
     </div>
@@ -19,9 +19,9 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'TaskColumn',
-  props: ['tasks', 'title', 'state', 'idx'],
+  props: ['storyId', 'storyTitle', 'tasks', 'title', 'state', 'idx'],
   components: {
-    item: TaskItem,
+    taskitem: TaskItem,
     draggable: Draggable
   },
   computed: {

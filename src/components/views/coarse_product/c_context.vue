@@ -141,7 +141,7 @@
               :active="contextOptionSelected === REMOVEITEM"
               variant="danger"
               @click="showSelected(REMOVEITEM)"
-            >Remove this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
+            >Delete this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
           </template>
         </template>
 
