@@ -95,6 +95,7 @@ const computed = {
         if (keys[j] === "setTitleEvent") allText += this.mkSetTitleEvent(histItem[keys[j]])
         if (keys[j] === "subscribeEvent") allText += this.mkSubscribeEvent(histItem[keys[j]])
         if (keys[j] === "taskRemovedEvent") allText += this.mkTaskRemovedEvent(histItem[keys[j]])
+        if (keys[j] === "updateTaskOwnerEvent") allText += this.mkUpdateTaskOwnerEvent(histItem[keys[j]])
         if (keys[j] === "uploadAttachmentEvent") allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
         if (keys[j] === "resetHistoryEvent") allText += this.mkResetHistoryEvent(histItem[keys[j]])
         if (keys[j] === "addSprintIdsEvent") allText += this.mkAddSprintIdsEvent(histItem[keys[j]])
@@ -110,6 +111,7 @@ const computed = {
     return filteredHistory
   }
 }
+
 const methods = {
   getAttachments() {
     if (this.$store.state.currentDoc._attachments) {
@@ -171,6 +173,7 @@ const methods = {
     if (key === "setTitleEvent") return this.mkSetTitleEvent(value)
     if (key === "subscribeEvent") return this.mkSubscribeEvent(value)
     if (key === "taskRemovedEvent") return this.mkTaskRemovedEvent(value)
+    if (key === "updateTaskOwnerEvent") return this.mkUpdateTaskOwnerEvent(value)
     if (key === "uploadAttachmentEvent") return this.mkUploadAttachmentEvent(value)
     if (key === "resetHistoryEvent") return this.mkResetHistoryEvent(value)
     if (key === "addSprintIdsEvent") return this.mkAddSprintIdsEvent(value)
@@ -328,6 +331,10 @@ const methods = {
 
   mkTaskRemovedEvent(value) {
     return `<h5>This task is removed from story '${value[0]}'.</h5>`
+  },
+
+  mkUpdateTaskOwnerEvent(value) {
+    return `<h5>Task owner is changed from '${value[0]}' to '${value[1]}'.</h5>`
   },
 
   mkUploadAttachmentEvent(value) {

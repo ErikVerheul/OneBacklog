@@ -371,6 +371,7 @@ const actions = {
 		})
 	},
 
+	/* Update the parent history and than save the new document */
 	boardAddTask({
 		rootState,
 		dispatch
@@ -455,7 +456,7 @@ const actions = {
 					"createTaskEvent": [storyDoc.title],
 					"by": rootState.userData.user,
 					"timestamp": now,
-					"sessionId":rootState.userData.sessionId,
+					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}],
 				"delmark": false
@@ -477,6 +478,104 @@ const actions = {
 			}
 		}).catch(error => {
 			let msg = 'boardAddTask: Could not read document with id ' + payload.taskId + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	boardUpdateTaskTitle({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.taskId
+		}).then(res => {
+			let doc = res.data
+			const oldTitle = doc.title
+			doc.title = payload.newTaskTitle
+			const newHist = {
+				"setTitleEvent": [oldTitle, doc.title ],
+				"by": rootState.userData.user,
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			doc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc })
+			// update the board
+			for (let s of rootState.stories) {
+				if (s.storyId === doc.parentId) {
+					const tasks = s.tasks
+					const targetColumn = tasks[doc.state]
+					for (let t of targetColumn) {
+						if (t.id === doc._id) {
+							t.title = doc.title
+							break
+						}
+					}
+					break
+				}
+			}
+			if (rootState.lastTreeView === 'detailProduct') {
+				// update the tree model
+				const node = window.slVueTree.getNodeById(payload.taskId)
+				if (node) {
+					node.title = doc.title
+				}
+			}
+		}).catch(error => {
+			let msg = 'boardUpdateTaskTitle: Could not read document with id ' + payload.taskId + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	boardUpdateTaskOwner({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.taskId
+		}).then(res => {
+			let doc = res.data
+			const oldTaskOwner = doc.taskOwner
+			doc.taskOwner = payload.newTaskOwner
+			const newHist = {
+				"updateTaskOwnerEvent": [oldTaskOwner, doc.taskOwner ],
+				"by": rootState.userData.user,
+				"timestamp": Date.now(),
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
+			}
+			doc.history.unshift(newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc })
+			// update the board
+			for (let s of rootState.stories) {
+				if (s.storyId === doc.parentId) {
+					const tasks = s.tasks
+					const targetColumn = tasks[doc.state]
+					for (let t of targetColumn) {
+						if (t.id === doc._id) {
+							t.taskOwner = doc.taskOwner
+							break
+						}
+					}
+					break
+				}
+			}
+			if (rootState.lastTreeView === 'detailProduct') {
+				// update the tree model
+				const node = window.slVueTree.getNodeById(payload.taskId)
+				if (node) {
+					node.data.taskOwner = doc.taskOwner
+				}
+			}
+		}).catch(error => {
+			let msg = 'boardUpdateTaskOwner: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

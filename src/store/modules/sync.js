@@ -560,6 +560,7 @@ const actions = {
 														if (t.id !== doc._id) newArray.push(t)
 													}
 													s.tasks[doc.state] = newArray
+													break
 												}
 											}
 										} else {
@@ -586,12 +587,12 @@ const actions = {
 									}
 									break
 								case 'setStateEvent':
+									// ToDo: use priority instead of position
 									if (doc.level === TASKLEVEL) {
 										const prevState = lastHistObj.setStateEvent[0]
 										if (prevState === REMOVED || prevState === ON_HOLD) {
 											commit('addTaskToBoard', doc)
 										} else if (doc.state === REMOVED || doc.state === ON_HOLD) {
-											// must remove from the board
 											commit('removeTaskFromBoard', { prevState, doc })
 										} else {
 											const newTaskPosition = lastHistObj.setStateEvent[3]
@@ -612,8 +613,7 @@ const actions = {
 															targetColumn.splice(newTaskPosition, 0, movedTask)
 														} else targetColumn.unshift(movedTask)
 													}
-													sourceColumn.sort((a, b) => b.priority - a.priority)
-													targetColumn.sort((a, b) => b.priority - a.priority)
+													break
 												}
 											}
 										}
@@ -651,6 +651,7 @@ const actions = {
 															break
 														}
 													}
+													break
 												}
 											}
 											break

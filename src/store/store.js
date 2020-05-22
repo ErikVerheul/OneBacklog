@@ -653,6 +653,7 @@ export default new Vuex.Store({
 						priority: doc.priority
 					})
 					targetColumn.sort((a, b) => b.priority - a.priority)
+					break
 				}
 			}
 		},
