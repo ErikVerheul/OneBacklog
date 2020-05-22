@@ -776,8 +776,9 @@ const actions = {
 			url: payload.dbName + '/config',
 		}).then(res => {
 			const tmpConfig = res.data
-			if (!tmpConfig.teams.includes(payload.newTeam)) {
-				tmpConfig.teams.push(payload.newTeam)
+			const allTeams = Object.keys(tmpConfig.teams)
+			if (!allTeams.includes(payload.newTeam)) {
+				tmpConfig.teams[payload.newTeam] = []
 				dispatch('updateDoc', {
 					dbName: payload.dbName,
 					updatedDoc: tmpConfig,
@@ -797,6 +798,40 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
+	},
+
+	updateTeams({
+		rootState,
+		dispatch
+	}, payload) {
+		rootState.backendMessages = []
+		rootState.isTeamCreated = false
+		if (payload.newTeam !== payload.oldTeam) {
+			globalAxios({
+				method: 'GET',
+				url: payload.dbName + '/config',
+			}).then(res => {
+				const tmpConfig = res.data
+				const oldTeam = tmpConfig.teams[payload.oldTeam]
+				const updatedOldTeam = []
+				for (let m of oldTeam) {
+					if (m !== payload.userName) updatedOldTeam.push(m)
+				}
+				tmpConfig.teams[payload.oldTeam] = updatedOldTeam
+
+				const newTeam = tmpConfig.teams[payload.newTeam]
+				if (!newTeam.includes(payload.userName)) newTeam.push(payload.userName)
+				tmpConfig.teams[payload.newTeam] = newTeam
+				dispatch('updateDoc', { dbName: payload.dbName, updatedDoc: tmpConfig })
+				// update the config in memory
+				rootState.configData.teams = tmpConfig.teams
+				rootState.configData.teams.sort()
+			}).catch(error => {
+				const msg = 'addTeamToDatabase: Could not read config document ' + error
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+				dispatch('doLog', { event: msg, level: ERROR })
+			})
+		}
 	},
 
 	/*

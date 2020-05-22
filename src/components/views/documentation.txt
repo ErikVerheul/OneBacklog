@@ -221,6 +221,15 @@ itemState				taskState
 
 Items can move to tasks and back
 
+In the CONFIG document the teams and their members are stored:
+As per release 0.9.8
+"teams": {
+    "not assigned yet": [userName-1, userName-2],
+    "another team": [userName-3, userName-4],
+},
+
+The default team is "not assigned yet". A user can be member of one team only at the time.
+
 
 The store holds an object with the data of the current user. This object is initialised with the _session data.
 // email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myProductViewFilterSettings are updated when otherUserData and config are read
@@ -293,11 +302,12 @@ Y            Y	     Y    setStateEvent	                	update.js
 Y            Y	     Y    setSubTypeEvent	              	update.js
 N			 N	     Y    setTeamEventDescendant			update.js
 Y            Y	     Y    setTeamOwnerEvent	            	update.js
-Y            Y	     Y    setTitleEvent	                	update.js
+Y            Y	     Y    setTitleEvent	                	update.js, planningboard.js
 N			 N	     Y    subscribeEvent					update.js
 Y			 N	     N    sprintAssigned					planningboard.js
 Y            N       Y    taskRemovedEvent					planningboard.js
 Y            Y	     Y    uploadAttachmentEvent	        	attachments.js
+Y            N	     Y    uploadTaskOwnerEvent	        	planningboard.js
 N			 N	     Y    resetHistoryEvent					utils.js
 
 KNOWN ERRORS:

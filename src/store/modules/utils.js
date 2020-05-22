@@ -239,7 +239,7 @@ const actions = {
       url: dbName + '/config',
     }).then(res => {
       if (res.data.teams) {
-        rootState.fetchedTeams = res.data.teams
+        rootState.fetchedTeams = Object.keys(res.data.teams)
         rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
         rootState.areTeamsFound = true
       } else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: no team names are found' })

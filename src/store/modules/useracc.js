@@ -141,8 +141,11 @@ const actions = {
       // update the user data
       commit('updateTeam', newTeam)
       let tmpUserData = res.data
+      const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
       tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
       dispatch('updateUser', { data: tmpUserData })
+      // update the config document
+      dispatch('updateTeams', { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam })
       let msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + newTeam
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)

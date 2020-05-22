@@ -50,7 +50,7 @@ const methods = {
         this.selectedTeam = this.$store.state.userData.myTeam
         this.$refs.changeTeamRef.show()
         this.teamOptions = []
-        for (let team of this.$store.state.configData.teams) {
+        for (let team of Object.keys(this.$store.state.configData.teams)) {
             this.teamOptions.push(team)
         }
     },
