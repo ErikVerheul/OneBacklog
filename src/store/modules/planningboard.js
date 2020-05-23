@@ -7,7 +7,9 @@ const TASKLEVEL = 6
 const REMOVED = 0
 
 function composeRangeString1(id, team) {
-	return `startkey=["${id}","${team}",${PBILEVEL}, ${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}",${TASKLEVEL}, ${Number.MAX_SAFE_INTEGER}]`
+	const MIN_ID = ""
+	const MAX_ID = "999999999999zzzzz"
+	return `startkey=["${id}","${team}","${MIN_ID}",${PBILEVEL},"${MIN_ID}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}",${TASKLEVEL},"${MAX_ID}",${Number.MAX_SAFE_INTEGER}]`
 }
 
 function composeRangeString2(id) {
@@ -29,10 +31,9 @@ const actions = {
 		}).then(res => {
 			// save the last loaded sprintId
 			rootState.loadedSprintId = payload.sprintId
-			// sort the results on parentId --> stories are grouped for the same feature and first created (oldest) features on top
-			const results = res.data.rows.sort((a, b) => a.value[1] > b.value[1])
+			const results = res.data.rows
 			for (let r of results) {
-				const level = r.value[3]
+				const level = r.key[3]
 				if (level === PBILEVEL) storieResults.push(r)
 				if (level === TASKLEVEL) taskResults.push(r)
 			}

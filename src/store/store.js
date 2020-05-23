@@ -537,8 +537,8 @@ export default new Vuex.Store({
 
 			for (let i = 0; i < payload.storieResults.length; i++) {
 				const storyId = payload.storieResults[i].id
-				const storyTitle = payload.storieResults[i].value[2]
-				const featureId = payload.storieResults[i].value[1]
+				const storyTitle = payload.storieResults[i].value[0]
+				const featureId = payload.storieResults[i].key[4]
 				const featureNode = getParentNode(featureId, featureIdToNodeMap)
 				if (!featureNode) continue
 
@@ -551,8 +551,8 @@ export default new Vuex.Store({
 				if (!productNode) continue
 
 				const productName = productNode.title
-				const subType = payload.storieResults[i].value[4]
-				const storySize = payload.storieResults[i].value[6]
+				const subType = payload.storieResults[i].value[1]
+				const storySize = payload.storieResults[i].value[3]
 				const newStory = {
 					idx: i,
 					storyId,
@@ -572,40 +572,40 @@ export default new Vuex.Store({
 				}
 
 				for (let t of payload.taskResults) {
-					if (t.value[1] === storyId) {
-						const taskState = t.value[5]
+					if (t.key[4] === storyId) {
+						const taskState = t.value[2]
 						switch (taskState) {
 							case TODO:
 							case READY:
 								newStory.tasks[TODO].push({
 									id: t.id,
-									title: t.value[2],
-									taskOwner: t.value[7],
-									priority: -t.key[3]
+									title: t.value[0],
+									taskOwner: t.value[4],
+									priority: -t.key[5]
 								})
 								break
 							case INPROGRESS:
 								newStory.tasks[INPROGRESS].push({
 									id: t.id,
-									title: t.value[2],
-									taskOwner: t.value[7],
-									priority: -t.key[3]
+									title: t.value[0],
+									taskOwner: t.value[4],
+									priority: -t.key[5]
 								})
 								break
 							case TESTREVIEW:
 								newStory.tasks[TESTREVIEW].push({
 									id: t.id,
-									title: t.value[2],
-									taskOwner: t.value[7],
-									priority: -t.key[3]
+									title: t.value[0],
+									taskOwner: t.value[4],
+									priority: -t.key[5]
 								})
 								break
 							case DONE:
 								newStory.tasks[DONE].push({
 									id: t.id,
-									title: t.value[2],
-									taskOwner: t.value[7],
-									priority: -t.key[3]
+									title: t.value[0],
+									taskOwner: t.value[4],
+									priority: -t.key[5]
 								})
 								break
 						}
