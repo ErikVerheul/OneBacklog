@@ -13,7 +13,7 @@
       <span class="text-muted">#{{ getShortId(story.storyId) }}</span>
       {{ story.title }}
       <p>size = {{ story.size }}</p>
-      <p>
+      <p class="small-text">
         F: {{ story.featureName }}
         <br />
         E: {{ story.epicName }}
@@ -37,6 +37,10 @@ export default {
 </script>
 
 <style scoped>
+.small-text {
+  font-size: small
+}
+
 .b-card-block {
   padding: 15px;
   font-size: 12pt;
