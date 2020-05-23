@@ -36,6 +36,12 @@
             >Change task owner</b-list-group-item>
             <b-list-group-item
               button
+              :active="contextOptionSelected === ID_TO_CLIPBOARD"
+              variant="dark"
+              @click="prepSelected(ID_TO_CLIPBOARD)"
+            >Copy short id to clipboard</b-list-group-item>
+            <b-list-group-item
+              button
               :active="contextOptionSelected === REMOVE_TASK"
               variant="dark"
               @click="prepSelected(REMOVE_TASK)"
@@ -82,7 +88,8 @@ export default {
     this.ADD_TASK = 0
     this.CHANGE_TITLE = 1
     this.CHANGE_OWNER = 2
-    this.REMOVE_TASK = 3
+    this.ID_TO_CLIPBOARD = 3
+    this.REMOVE_TASK = 4
 
     this.$store.state.backendMessages = []
     this.$store.state.useracc.allUsers = []
@@ -127,6 +134,10 @@ export default {
           this.listItemText = 'Change the owner of this task'
           this.selectedUser = this.$store.state.userData.user
           break
+        case this.ID_TO_CLIPBOARD:
+          this.assistanceText = undefined
+          this.listItemText = 'Copy the short id of this task to the clipboard'
+          break
         case this.REMOVE_TASK:
           this.assistanceText = undefined
           this.listItemText = 'Remove this task'
@@ -148,6 +159,15 @@ export default {
           break
         case this.CHANGE_OWNER:
           this.$store.dispatch('boardUpdateTaskOwner', { taskId: this.item.id, newTaskOwner: this.selectedUser })
+          break
+        case this.ID_TO_CLIPBOARD:
+          navigator.clipboard.writeText(this.item.id.slice(-5)).then(function () {
+            // eslint-disable-next-line no-console
+            console.log('TaskItem.procSelected: clipboard successfully set')
+          }, function () {
+            // eslint-disable-next-line no-console
+            console.log('TaskItem.procSelected: clipboard write failed')
+          });
           break
         case this.REMOVE_TASK:
           this.$store.dispatch('boardRemoveTask', { taskId: this.item.id, storyTitle: this.storyTitle, currentState: this.state })
