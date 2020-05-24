@@ -20,7 +20,6 @@
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>
-					<li>Regression: Assistance text not showing</li>
 					<li>Fix bug updating wrong document after changing content and click on other node</li>
 				</ul>
 				<p>Design changes:</p>
