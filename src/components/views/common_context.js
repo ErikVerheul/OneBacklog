@@ -176,7 +176,7 @@ const methods = {
             "distributeEvent": false
         }
         // update the database
-        this.$store.dispatch('createDoc', { newDoc, parentHist })
+        this.$store.dispatch('createDocWithParentHist', { newDoc, parentHist })
         // create an entry for undoing the change in a last-in first-out sequence
         const entry = {
             type: 'undoNewNode',
@@ -283,7 +283,7 @@ const methods = {
                 "title": newNode.title,
                 "followers": [],
                 "description": window.btoa(""),
-                "acceptanceCriteria": window.btoa("<p>Please do not neglect</p>"),
+                "acceptanceCriteria": insertLevel < this.taskLevel ? window.btoa("<p>Please do not neglect</p>") : window.btoa("<p>See the acceptance criteria of the story/spike/defect.</p>"),
                 "priority": newNode.data.priority,
                 "comments": [{
                     "ignoreEvent": 'comments initiated',
@@ -307,7 +307,7 @@ const methods = {
                 "distributeEvent": false
             }
             // update the parent history and than save the new document
-            this.$store.dispatch('createDoc', { newDoc, parentHist })
+            this.$store.dispatch('createDocWithParentHist', { newDoc, parentHist })
             // create an entry for undoing the change in a last-in first-out sequence
             const entry = {
                 type: 'undoNewNode',
