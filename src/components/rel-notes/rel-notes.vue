@@ -6,6 +6,29 @@
 			<b-col cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
+				<h3>v.0.9.8 - 24 May 2020 Feature update and bug fixes</h3>
+				<p>New features:</p>
+				<ul>
+					<li>Sync support for task removal and on-hold added</li>
+					<li>Context menu item 'Copy short id to clipboard' implemented for planning board</li>
+					<li>Context menu items 'Add a new task' and 'Remove this task' implemented for planning board</li>
+					<li>Context menu items 'Change task title' and 'Change task owner' implemented for planning board</li>
+					<li>Remove the sprintId only if equal to sprintId specified, leaving items assigned to other sprints unattached</li>
+					<li>Allow the PO to open the contextmenu of items of another team to reassign the items to his current team</li>
+					<li>Include team membership in all authorization checks</li>
+					<li>Sign-out automatically when changing database</li>
+				</ul>
+				<p>Bug fixes:</p>
+				<ul>
+					<li>Regression: Assistance text not showing</li>
+					<li>Fix bug updating wrong document after changing content and click on other node</li>
+				</ul>
+				<p>Design changes:</p>
+				<ul>
+					<li>Have the database sort the planning board [NOT downwards compatible]</li>
+					<li>Store team membership in the config document [NOT downwards compatible]</li>
+				</ul>
+				<hr>
 				<h3>v.0.9.7 - 10 May 2020 Feature update and bug fixes</h3>
 				<p>New features:</p>
 				<ul>
