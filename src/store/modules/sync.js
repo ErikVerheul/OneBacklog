@@ -9,7 +9,6 @@ const INFO = 0
 const WARNING = 1
 const REMOVED = 0
 const ON_HOLD = 1
-const TODO = 2
 var removedProducts = []
 
 // returns a new array so that it is reactive
@@ -123,7 +122,7 @@ const actions = {
 			if (rootState.debug) console.log('listenForChanges: time = ' + new Date(Date.now()))
 			for (let r of data.results) {
 				let doc = r.doc
-				if (doc.history) console.log('listenForChanges: histevent = ' + JSON.stringify(Object.keys(doc.history[0])[0], null, 2))
+				// if (doc.history) console.log('listenForChanges: histevent = ' + JSON.stringify(Object.keys(doc.history[0])[0], null, 2))
 				if (doc.type == "backlogItem" && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
 					const lastHistObj = doc.history[0]
 					if (doc.history[0].sessionId !== rootState.userData.sessionId &&
@@ -550,22 +549,24 @@ const actions = {
 									break
 								case 'removedWithDescendantsEvent':
 									if (lastHistObj.removedWithDescendantsEvent[4].includes(rootState.loadedSprintId)) {
-										// one or more of the removed items or their descendants are no longer assigned to the loaded sprint and removed from the board
-										if (doc.level === TASKLEVEL) {
-											// a task is removed from a user story currently displayed on the planning board
-											for (let s of rootState.stories) {
-												if (s.storyId === doc.parentId) {
-													const newArray = []
-													for (let t of s.tasks[doc.state]) {
-														if (t.id !== doc._id) newArray.push(t)
+										if (doc.state !== REMOVED) {
+											// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
+											if (doc.level === TASKLEVEL) {
+												// a task is removed from a user story currently displayed on the planning board
+												for (let s of rootState.stories) {
+													if (s.storyId === doc.parentId) {
+														const newArray = []
+														for (let t of s.tasks[doc.state]) {
+															if (t.id !== doc._id) newArray.push(t)
+														}
+														s.tasks[doc.state] = newArray
+														break
 													}
-													s.tasks[doc.state] = newArray
-													break
 												}
+											} else {
+												// a user story is removed from the planning board
+												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 											}
-										} else {
-											// a user story is removed from the planning board
-											dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 										}
 									}
 									break
