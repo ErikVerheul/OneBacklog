@@ -377,6 +377,22 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		// calculate a priority between the prio of the task with the highest prio of this story and the upper limit
+		function calcPriority(allTasks) {
+			const columns = Object.keys(allTasks)
+			let highestPriority = Number.MIN_SAFE_INTEGER
+			let taskFound = false
+			for (let c of columns) {
+				for (let t of allTasks[c]) {
+					taskFound = true
+					if (t.priority > highestPriority) highestPriority = t.priority
+				}
+			}
+			if (taskFound) {
+				return Math.floor(highestPriority + (Number.MAX_SAFE_INTEGER - highestPriority) / 2)
+			} else return 0
+		}
+
 		// read the story to get the productId and the story title
 		globalAxios({
 			method: 'GET',
@@ -384,7 +400,6 @@ const actions = {
 		}).then(res => {
 			let storyDoc = res.data
 			const now = Date.now()
-			let newTaskPriority
 			if (rootState.lastTreeView === 'detailProduct') {
 				// update the tree data
 				const newNode = {
@@ -411,19 +426,28 @@ const actions = {
 						lastChange: now
 					}
 				}
+				// position the new node as the first child of story
 				const cursorPosition = {
 					nodeModel: window.slVueTree.getNodeById(storyDoc._id),
 					placement: 'inside'
 				}
 				// insert the new node in the tree and set the productId, parentId, the location parameters and priority
 				window.slVueTree.insert(cursorPosition, [newNode])
-				newTaskPriority = newNode.data.priority
 			}
-			const parentHist = {
-				"taskAddedEvent": [payload.storyId, payload.currentState, payload.taskTitle],
-				"by": rootState.userData.user,
-				"timestamp": now,
-				"distributeEvent": false
+			// a new task is created in a user story currently on the planning board
+			let taskPriority = 0
+			for (let s of rootState.stories) {
+				if (s.storyId === storyDoc._id) {
+					const targetColumn = s.tasks[payload.state]
+					taskPriority = calcPriority(s.tasks)
+					targetColumn.unshift({
+						id: payload.taskId,
+						title: payload.taskTitle,
+						taskOwner: rootState.userData.user,
+						priority: taskPriority
+					})
+					break
+				}
 			}
 			// create a new document and store it
 			const newDoc = {
@@ -447,7 +471,7 @@ const actions = {
 				"followers": [],
 				"description": window.btoa(""),
 				"acceptanceCriteria": window.btoa("<p>See the acceptance criteria of the story/spike/defect.</p>"),
-				"priority": newTaskPriority ? newTaskPriority : payload.priority + 100,
+				"priority": taskPriority,
 				"comments": [{
 					"ignoreEvent": 'comments initiated',
 					"timestamp": 0,
@@ -462,21 +486,7 @@ const actions = {
 				}],
 				"delmark": false
 			}
-			// update the parent history and than save the new document
-			dispatch('createDoc', { newDoc, parentHist })
-			// a new task is created in a user story currently on the planning board
-			for (let s of rootState.stories) {
-				if (s.storyId === newDoc.parentId) {
-					const targetColumn = s.tasks[newDoc.state]
-					targetColumn.unshift({
-						id: newDoc._id,
-						title: newDoc.title,
-						taskOwner: newDoc.taskOwner,
-						priority: newDoc.priority
-					})
-					targetColumn.sort((a, b) => b.priority - a.priority)
-				}
-			}
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: newDoc, forceUpdateCurrentDoc: true })
 		}).catch(error => {
 			let msg = 'boardAddTask: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
@@ -497,7 +507,7 @@ const actions = {
 			const oldTitle = doc.title
 			doc.title = payload.newTaskTitle
 			const newHist = {
-				"setTitleEvent": [oldTitle, doc.title ],
+				"setTitleEvent": [oldTitle, doc.title],
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
@@ -546,7 +556,7 @@ const actions = {
 			const oldTaskOwner = doc.taskOwner
 			doc.taskOwner = payload.newTaskOwner
 			const newHist = {
-				"updateTaskOwnerEvent": [oldTaskOwner, doc.taskOwner ],
+				"updateTaskOwnerEvent": [oldTaskOwner, doc.taskOwner],
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
