@@ -802,9 +802,11 @@ const methods = {
     if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item', skipTestOnTeam)) {
       changeState(this, this.$store.state.userData.myTeam)
       const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
-      if (parentNode.data.team !== this.$store.state.userData.myTeam) {
-        this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
-          this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
+      if (parentNode._id != 'root') {
+        if (parentNode.data.team !== this.$store.state.userData.myTeam) {
+          this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
+            this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
+        }
       }
     }
   },
