@@ -197,6 +197,9 @@
 <script src="./d_context.js"></script>
 
 <style scoped>
+.border {
+  padding: 10px;
+}
 .message {
   margin: 10px;
 }
