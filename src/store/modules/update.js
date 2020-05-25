@@ -5,6 +5,9 @@ const INFO = 0
 const WARNING = 1
 const ERROR = 2
 const PRODUCTLEVEL = 2
+const REMOVED = 0
+const ON_HOLD = 1
+const DONE = 6
 
 /* Remove 'ignoreEvent' elements from history */
 function cleanHistory(doc) {
@@ -446,6 +449,22 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		// recalculate and (re)set the inconsistency state of the parent item
+		function checkParentState() {
+			const parentNode = window.slVueTree.getParentNode(node)
+			if (parentNode && parentNode.data.state === DONE) {
+				const descendants = window.slVueTree.getDescendantsInfo(parentNode).descendants
+				let hasInconsistentState = false
+				for (let d of descendants) {
+					if (d.data.state === REMOVED || d.data.state === ON_HOLD) continue
+					if (d.data.state !== DONE) {
+						hasInconsistentState = true
+						break
+					}
+				}
+				parentNode.data.inconsistentState = hasInconsistentState
+			}
+		}
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id,
@@ -472,6 +491,7 @@ const actions = {
 			if (rootState.currentDoc._id === id) {
 				commit('updateCurrentDoc', { state: payload.newState, team: payload.newTeam, newHist })
 			}
+			checkParentState()
 		}).catch(error => {
 			let msg = 'setState: Could not read document with id ' + id + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -1003,7 +1023,7 @@ const actions = {
 		}).then(res => {
 			const updatedDoc = res.data
 			updatedDoc.history.unshift(payload.parentHist)
-			const toDispatch = { 'updateDoc': { dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, forceUpdateCurrentDoc: true }}
+			const toDispatch = { 'updateDoc': { dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, forceUpdateCurrentDoc: true } }
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'createDocWithParentHist' })
 		}).catch(error => {
 			let msg = 'createDocWithParentHist: Could not read parent document with id ' + _id + ', ' + error
