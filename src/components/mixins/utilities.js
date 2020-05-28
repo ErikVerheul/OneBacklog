@@ -6,21 +6,18 @@ const INFO = 0
 const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
-const PBILEVEL = 5
-const TASKLEVEL = 6
 const DEFAULTCOLOR = '#408FAE'
 
-const utilities = {
-	computed: {
-		...mapGetters([
-			'myTeam',
-			'haveWritePermission',
-			'myProductRoles',
-			'isAPO',
-			'isReqAreaItem'
-		]),
-	},
+const DATABASELEVEL = 1
+const PRODUCTLEVEL = 2
+const EPICLEVEL = 3
+const FEATURELEVEL = 4
+const PBILEVEL = 5
+const TASKLEVEL = 6
 
+const AREA_PRODUCTID = '0'
+
+const utilities = {
 	methods: {
 		clearLastEvent() {
 			this.$store.state.lastEvent = 'Event message is cleared.'
@@ -115,25 +112,6 @@ const utilities = {
 			return this.$store.state.configData.tsSize[idx]
 		},
 
-		haveAccess(level, itemTeam, forAction, skipTestOnTeam = false) {
-			const noTeamAssigned = itemTeam === 'not yet assigned' || itemTeam === undefined || itemTeam === null
-			const whenApoUpdatingReqAreaItem = this.isAPO && this.isReqAreaItem
-			const canAccessOnTeam = whenApoUpdatingReqAreaItem || skipTestOnTeam || itemTeam === this.myTeam || noTeamAssigned
-			const canAccessOnLevel = whenApoUpdatingReqAreaItem || this.haveWritePermission[level]
-			if (canAccessOnTeam && canAccessOnLevel) return true
-
-			if (!canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] and team membership disallow you to ${forAction}`, WARNING)
-			}
-			if (!canAccessOnTeam && canAccessOnLevel) {
-				this.showLastEvent(`You must be member of team '${itemTeam}' to ${forAction}`, WARNING)
-			}
-			if (canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] disallow you to ${forAction}`, WARNING)
-			}
-			return false
-		},
-
 		itemTitleTrunc(length, title) {
 			if (title.length <= length) return title;
 			return title.substring(0, length - 4) + '...'
@@ -168,6 +146,100 @@ const utilities = {
 	}
 }
 
+const authorization = {
+	computed: {
+		...mapGetters([
+			'myTeam',
+			'myProductRoles',
+			'isServerAdmin',
+			'isAdmin',
+			'isAPO',
+			'isReqAreaItem'
+		]),
+	},
+
+	methods: {
+		/*
+		* Returns true if the user has write access to the product at the given level. If no productId is specified the current productId is used.
+		* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
+		* Note that level 0 is not used and the root of the tree starts with level 1.
+		* Note that admins and guests have no write permissions.
+		* See documentation.txt for the role definitions.
+		*/
+		haveWritePermission(level, productId = this.$store.state.currentProductId) {
+			let levels = []
+			for (let i = 0; i <= PBILEVEL; i++) {
+				// initialize with false
+				levels.push(false)
+			}
+			if (this.$store.state.userData.userAssignedProductIds.includes(productId)) {
+				// assing specific write permissions for the current product only if that product is assigned the this user
+				let myCurrentProductRoles = this.$store.state.userData.myProductsRoles[productId]
+				// eslint-disable-next-line no-console
+				if (this.$store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${myCurrentProductRoles}`)
+				if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
+					// my roles are not defined -> no write permission on any level
+					return levels
+				}
+
+				if (myCurrentProductRoles.includes('PO')) {
+					levels[PRODUCTLEVEL] = true
+					levels[EPICLEVEL] = true
+					levels[FEATURELEVEL] = true
+					levels[PBILEVEL] = true
+				}
+
+				if (myCurrentProductRoles.includes('APO')) {
+					levels[PRODUCTLEVEL] = true
+				}
+
+				if (myCurrentProductRoles.includes('developer')) {
+					levels[FEATURELEVEL] = true
+					levels[PBILEVEL] = true
+					levels[TASKLEVEL] = true
+				}
+			}
+			// assign specific write permissions to any product even if that product is not assigned to this user
+			if (this.isServerAdmin) {
+				levels[DATABASELEVEL] = true
+			}
+
+			if (this.isAdmin) {
+				levels[PRODUCTLEVEL] = true
+			}
+
+			// if the user is APO for any product that user has access to the Requirements areas overview dummy product
+			if (productId === AREA_PRODUCTID && this.isAPO) {
+				levels[PRODUCTLEVEL] = true
+				levels[EPICLEVEL] = true
+			}
+			// eslint-disable-next-line no-console
+			if (this.$store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)
+			return levels[level]
+		},
+
+		haveAccessInTree(level, itemTeam, forAction, skipTestOnTeam = false) {
+			const noTeamAssigned = itemTeam === 'not yet assigned' || itemTeam === undefined || itemTeam === null
+			const whenApoUpdatingReqAreaItem = this.isAPO && this.isReqAreaItem
+			const canAccessOnTeam = whenApoUpdatingReqAreaItem || skipTestOnTeam || itemTeam === this.myTeam || noTeamAssigned
+			const canAccessOnLevel = whenApoUpdatingReqAreaItem || this.haveWritePermission(level, this.$store.state.currentProductId)
+			if (canAccessOnTeam && canAccessOnLevel) return true
+
+			if (!canAccessOnTeam && !canAccessOnLevel) {
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] and team membership disallow you to ${forAction}`, WARNING)
+			}
+			if (!canAccessOnTeam && canAccessOnLevel) {
+				this.showLastEvent(`You must be member of team '${itemTeam}' to ${forAction}`, WARNING)
+			}
+			if (canAccessOnTeam && !canAccessOnLevel) {
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] disallow you to ${forAction}`, WARNING)
+			}
+			return false
+		}
+	}
+}
+
 export {
-	utilities
+	utilities,
+	authorization
 }

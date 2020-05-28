@@ -35,7 +35,7 @@ function beforeCreate() {
 }
 
 function created() {
-  // must reset the event listener to prevent duplicated
+  // must reset the event listener to prevent duplication
   eventBus.$off('contextMenu')
   this.sprints = this.getCurrentAndNextSprint()
 }
@@ -59,7 +59,7 @@ const watch = {
   'selectedPbiType': function (val) {
     // prevent looping
     if (val !== this.$store.state.currentDoc.subtype) {
-      if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the pbi type')) {
+      if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the pbi type')) {
         const node = this.getNodeSelected
         const now = Date.now()
         this.$store.commit('updateNodeSelected', { subtype: val, lastChange: now })
@@ -262,7 +262,7 @@ const methods = {
      * precondition: the selected nodes have all the same parent (same level)
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
-    if (this.haveAccess(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
+    if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
       const dropInd = position.nodeModel.ind
       let sourceMinInd = Number.MAX_SAFE_INTEGER
       let sourceMaxind = 0

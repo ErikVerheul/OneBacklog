@@ -504,6 +504,9 @@ const actions = {
 										}
 									}
 									break
+								case 'importToSprintEvent':
+									dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+									break
 								case 'nodesMovedEvent':
 									{
 										// console.log('sync:nodesMovedEvent rootState.stories = ' + JSON.stringify(rootState.stories, null, 2))
@@ -675,6 +678,7 @@ const actions = {
 								default:
 									// eslint-disable-next-line no-console
 									if (rootState.debug &&
+										// item to sprint addition and removal is handled on the parent level by the 'sprintAssigned' event
 										histEvent !== 'addSprintIdsEvent' &&
 										histEvent !== 'removeSprintIdsEvent')
 										// eslint-disable-next-line no-console

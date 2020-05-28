@@ -76,11 +76,14 @@
 </template>
 
 <script>
-import { utilities } from '../../mixins/utilities.js'
+import { utilities, authorization } from '../../mixins/utilities.js'
+import { mapGetters } from 'vuex'
+const TASKLEVEL = 6
+
 export default {
-  mixins: [utilities],
+  mixins: [utilities, authorization],
   name: 'TaskItem',
-  props: ['storyId', 'storyTitle', 'state', 'columnName', 'item'],
+  props: ['productId', 'storyId', 'storyTitle', 'state', 'columnName', 'item'],
 
   created() {
     this.ADD_TASK = 0
@@ -88,10 +91,6 @@ export default {
     this.CHANGE_OWNER = 2
     this.ID_TO_CLIPBOARD = 3
     this.REMOVE_TASK = 4
-
-    this.$store.state.backendMessages = []
-    this.$store.state.useracc.allUsers = []
-    this.$store.dispatch('getAllUsers')
   },
 
   data() {
@@ -106,6 +105,12 @@ export default {
       theClass: 'b-card task-column-item'
     }
   },
+
+  computed: {
+		...mapGetters([
+			'myProductRoles'
+		]),
+	},
 
   methods: {
     getShortId(id) {
@@ -151,29 +156,33 @@ export default {
     },
 
     procSelected() {
-      this.showAssistance = false
-      switch (this.contextOptionSelected) {
-        case this.ADD_TASK:
-          this.$store.dispatch('boardAddTask', { storyId: this.storyId, state: this.state, taskId: this.createId(), taskTitle: this.newTaskTitle })
-          break
-        case this.CHANGE_TITLE:
-          this.$store.dispatch('boardUpdateTaskTitle', { taskId: this.item.id, newTaskTitle: this.changedTaskTitle })
-          break
-        case this.CHANGE_OWNER:
-          this.$store.dispatch('boardUpdateTaskOwner', { taskId: this.item.id, newTaskOwner: this.selectedUser })
-          break
-        case this.ID_TO_CLIPBOARD:
-          navigator.clipboard.writeText(this.item.id.slice(-5)).then(function () {
-            // eslint-disable-next-line no-console
-            console.log('TaskItem.procSelected: clipboard successfully set')
-          }, function () {
-            // eslint-disable-next-line no-console
-            console.log('TaskItem.procSelected: clipboard write failed')
-          });
-          break
-        case this.REMOVE_TASK:
-          this.$store.dispatch('boardRemoveTask', { taskId: this.item.id, storyTitle: this.storyTitle, currentState: this.state })
-          break
+      if (this.haveWritePermission(TASKLEVEL, this.productId)) {
+        this.showAssistance = false
+        switch (this.contextOptionSelected) {
+          case this.ADD_TASK:
+            this.$store.dispatch('boardAddTask', { storyId: this.storyId, state: this.state, taskId: this.createId(), taskTitle: this.newTaskTitle })
+            break
+          case this.CHANGE_TITLE:
+            this.$store.dispatch('boardUpdateTaskTitle', { taskId: this.item.id, newTaskTitle: this.changedTaskTitle })
+            break
+          case this.CHANGE_OWNER:
+            this.$store.dispatch('boardUpdateTaskOwner', { taskId: this.item.id, newTaskOwner: this.selectedUser })
+            break
+          case this.ID_TO_CLIPBOARD:
+            navigator.clipboard.writeText(this.item.id.slice(-5)).then(function () {
+              // eslint-disable-next-line no-console
+              console.log('TaskItem.procSelected: clipboard successfully set')
+            }, function () {
+              // eslint-disable-next-line no-console
+              console.log('TaskItem.procSelected: clipboard write failed')
+            });
+            break
+          case this.REMOVE_TASK:
+            this.$store.dispatch('boardRemoveTask', { taskId: this.item.id, storyTitle: this.storyTitle, currentState: this.state })
+            break
+        }
+      } else {
+        this.$store.state.warningText = `Sorry, your assigned role(s) [${this.myProductRoles}] for this product disallow you to execute this action`
       }
     },
 

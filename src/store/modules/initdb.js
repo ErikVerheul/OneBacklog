@@ -291,6 +291,12 @@ const actions = {
 						"map": `function(doc) {
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= 5 && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.level, doc.parentId, doc.priority * -1], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
 						}`
+					},
+					/* Filter on tasks assigned to sprints not done */
+					"tasksNotDone": {
+						"map": `function(doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level === 6 && doc.sprintId && doc.state < 6) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, doc.priority * -1], doc._id);
+						}`
 					}
 				},
 				"language": "javascript"

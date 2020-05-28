@@ -32,9 +32,6 @@ const INPROGRESS = 4
 const TESTREVIEW = 5
 const DONE = 6
 
-const DATABASELEVEL = 1
-const PRODUCTLEVEL = 2
-const EPICLEVEL = 3
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
@@ -125,22 +122,19 @@ export default new Vuex.Store({
 		userData: {},
 		// planning board
 		loadedSprintId: null,
-		stories: []
+		stories: [],
+		warningText: '',
+		cannotImportProducts: []
 	},
 
 	getters: {
-		/* Rreturn the previous selected node or the currently selected node if no previous node was selected */
+		/* Return the previous selected node or the currently selected node if no previous node was selected */
 		getpreviousNodeSelected(state) {
 			return state.previousSelectedNode
 		},
-		/* eturn the last selected node or undefined when no node is selected */
+		/* Return the last selected node or undefined when no node is selected */
 		getNodeSelected(state) {
 			return state.selectedNodes.slice(-1)[0]
-		},
-		leafLevel(state) {
-			if (state.currentView === 'detailProduct') return TASKLEVEL
-			if (state.currentView === 'coarseProduct') return FEATURELEVEL
-			return PBILEVEL
 		},
 		isAuthenticated(state) {
 			return state.userData.user !== undefined
@@ -151,44 +145,8 @@ export default new Vuex.Store({
 			const emails = state.currentDoc.followers.map(e => e.email)
 			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
-		// note that the roles of _admin and admin are generic (not product specific)
-		isServerAdmin(state, getters) {
-			return getters.isAuthenticated && state.userData.sessionRoles.includes("_admin")
-		},
-		isAdmin(state, getters) {
-			return getters.isAuthenticated && state.userData.sessionRoles.includes("admin")
-		},
-		isAPO(state, getters) {
-			return getters.isAuthenticated && state.userData.sessionRoles.includes("APO")
-		},
-		isPO(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
-		},
-		isDeveloper(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
-		},
-		isGuest(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
-		},
 		isReqAreaItem(state) {
 			return state.currentDoc.productId === AREA_PRODUCTID
-		},
-		canCreateComments(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isServerAdmin || getters.isAdmin ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
-		},
-		canUploadAttachments(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isServerAdmin || getters.isAdmin ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 		},
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
@@ -206,73 +164,57 @@ export default new Vuex.Store({
 				}
 			}
 		},
-		myTeam(state) {
-			return state.userData.myTeam
+		leafLevel(state) {
+			if (state.currentView === 'detailProduct') return TASKLEVEL
+			if (state.currentView === 'coarseProduct') return FEATURELEVEL
+			return PBILEVEL
 		},
 		myProductRoles(state, getters) {
 			if (getters.isAuthenticated) {
 				return state.userData.myProductsRoles[state.currentProductId]
 			} else return []
 		},
-		/*
-		* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
-		* Note that level 0 is not used and the root of the tree starts with level 1.
-		* Note that admins and guests have no write permissions.
-		* See documentation.txt for the role definitions.
-		*/
-		haveWritePermission(state, getters) {
-			let levels = []
-			for (let i = 0; i <= PBILEVEL; i++) {
-				// initialize with false
-				levels.push(false)
-			}
-			if (state.userData.userAssignedProductIds.includes(state.currentProductId)) {
-				// assing specific write permissions for the current product only if that product is assigned the this user
-				let myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-				// eslint-disable-next-line no-console
-				if (state.debug) console.log(`haveWritePermission: For productId ${state.currentProductId} my roles are ${myCurrentProductRoles}`)
-				if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
-					// my roles are not defined -> no write permission on any level
-					return levels
-				}
-
-				if (myCurrentProductRoles.includes('PO')) {
-					levels[PRODUCTLEVEL] = true
-					levels[EPICLEVEL] = true
-					levels[FEATURELEVEL] = true
-					levels[PBILEVEL] = true
-				}
-
-				if (myCurrentProductRoles.includes('APO')) {
-					levels[PRODUCTLEVEL] = true
-				}
-
-				if (myCurrentProductRoles.includes('developer')) {
-					levels[FEATURELEVEL] = true
-					levels[PBILEVEL] = true
-					levels[TASKLEVEL] = true
-				}
-			}
-			// assign specific write permissions to any product even if that product is not assigned to this user
-			if (getters.isServerAdmin) {
-				levels[DATABASELEVEL] = true
-			}
-
-			if (getters.isAdmin) {
-				levels[PRODUCTLEVEL] = true
-			}
-
-			// if the user is APO for any product that user has access to the Requirements areas overview dummy product
-			if (state.currentProductId === AREA_PRODUCTID && getters.isAPO) {
-				levels[PRODUCTLEVEL] = true
-				levels[EPICLEVEL] = true
-			}
-			// eslint-disable-next-line no-console
-			if (state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASELEVEL, PRODUCTLEVEL, EPICLEVEL, FEATURELEVEL, PBILEVEL]: ${levels}`)
-			return levels
+		myTeam(state) {
+			return state.userData.myTeam
 		},
-
-		// planning board getters
+		///////////////////////// generic (not product specific) roles ////////////////////////
+		isServerAdmin(state, getters) {
+			return getters.isAuthenticated && state.userData.sessionRoles.includes("_admin")
+		},
+		isAdmin(state, getters) {
+			return getters.isAuthenticated && state.userData.sessionRoles.includes("admin")
+		},
+		isAPO(state, getters) {
+			return getters.isAuthenticated && state.userData.sessionRoles.includes("APO")
+		},
+		/////////////////////////////// product specific roles //////////////////////////////
+		isPO(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
+		},
+		isDeveloper(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+		},
+		isGuest(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
+		},
+		canCreateComments(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isServerAdmin || getters.isAdmin ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+		},
+		canUploadAttachments(state, getters) {
+			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+			return getters.isServerAdmin || getters.isAdmin ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
+				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+		},
+		/////////////////////////////// planning board getters //////////////////////////////
 		getStoryPoints(state) {
 			let sum = 0
 			for (let s of state.stories) {
@@ -536,8 +478,10 @@ export default new Vuex.Store({
 
 			for (let i = 0; i < payload.storieResults.length; i++) {
 				const storyId = payload.storieResults[i].id
-				const storyTitle = payload.storieResults[i].value[0]
+				const productId = payload.storieResults[i].key[2]
 				const featureId = payload.storieResults[i].key[4]
+				const storyTitle = payload.storieResults[i].value[0]
+
 				const featureNode = getParentNode(featureId, featureIdToNodeMap)
 				if (!featureNode) continue
 
@@ -558,6 +502,7 @@ export default new Vuex.Store({
 					featureId,
 					featureName,
 					epicName,
+					productId,
 					productName,
 					title: storyTitle,
 					size: storySize,

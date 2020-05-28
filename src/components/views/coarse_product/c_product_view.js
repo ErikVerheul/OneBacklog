@@ -207,7 +207,7 @@ const methods = {
      * precondition: the selected nodes have all the same parent (same level)
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
-    if (this.haveAccess(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
+    if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
       const dropInd = position.nodeModel.ind
       let sourceMinInd = Number.MAX_SAFE_INTEGER
       let sourceMaxind = 0

@@ -39,7 +39,7 @@
     <template v-else>
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
-          <template v-if="contextNodeTeam !== $store.state.userData.myTeam">
+          <template v-if="contextNodeTeam !== myTeam">
             <b-list-group-item
               v-if="contextNodeLevel > pbiLevel"
               button

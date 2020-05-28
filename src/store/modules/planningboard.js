@@ -5,15 +5,22 @@ const ERROR = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
 const REMOVED = 0
+const MIN_ID = ""
+const MAX_ID = "999999999999zzzzz"
 
 function composeRangeString1(id, team) {
-	const MIN_ID = ""
-	const MAX_ID = "999999999999zzzzz"
 	return `startkey=["${id}","${team}","${MIN_ID}",${PBILEVEL},"${MIN_ID}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}",${TASKLEVEL},"${MAX_ID}",${Number.MAX_SAFE_INTEGER}]`
 }
-
-function composeRangeString2(id) {
+function composeRangeString2(team) {
+	return `startkey=["${team}","${MIN_ID}","${MIN_ID}","${MIN_ID}",${Number.MIN_SAFE_INTEGER}]&endkey=["${team}","${MAX_ID}","${MAX_ID}","${MAX_ID}",${Number.MAX_SAFE_INTEGER}]`
+}
+function composeRangeString3(id) {
 	return `startkey="${id}"&endkey="${id}"`
+}
+
+const state = {
+	parentIdsToImport: [],
+	taskIdsToImport: []
 }
 
 const actions = {
@@ -38,8 +45,135 @@ const actions = {
 				if (level === TASKLEVEL) taskResults.push(r)
 			}
 			commit('createSprint', { sprintId: payload.sprintId, storieResults, taskResults })
+			dispatch('loadUnfinished', rootState.userData.myTeam)
 		}).catch(error => {
 			let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/*
+	* Load unfished tasks from previous sprints.
+	* Skip tasks from products not assigned to this user.
+	* Skip tasks from products where the user is not the PO or developer for that product.
+	* Also load the parent (the story) of the unfinished task.
+	* Save the task and story ids.
+	*/
+	loadUnfinished({
+		rootState,
+		state,
+		dispatch
+	}, team) {
+		const now = Date.now()
+		function isPreviousSprint(sprintId) {
+			for (let s of rootState.configData.defaultSprintCalendar) {
+				if (s.id === sprintId) {
+					return (now > s.startTimestamp + s.sprintLength)
+				}
+			}
+		}
+
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/tasksNotDone?' + composeRangeString2(team)
+		}).then(res => {
+			const results = res.data.rows
+			state.parentIdsToImport = []
+			state.taskIdsToImport = []
+			for (let r of results) {
+				const sprintId = r.key[1]
+				const productId = r.key[2]
+				if (isPreviousSprint(sprintId)) {
+					if (rootState.userData.userAssignedProductIds.includes(productId) &&
+						(rootState.userData.myProductsRoles[productId].includes('PO') ||
+							rootState.userData.myProductsRoles[productId].includes('developer'))) {
+						const parentId = r.key[3]
+						if (!state.parentIdsToImport.includes(parentId)) state.parentIdsToImport.push(parentId)
+						const id = r.value
+						state.taskIdsToImport.push(id)
+					} else {
+						if (!rootState.cannotImportProducts.includes(productId)) rootState.cannotImportProducts.push(productId)
+					}
+				}
+			}
+			const cannotImportCount = rootState.cannotImportProducts.length
+			if (cannotImportCount > 0) rootState.warningText = `You cannot import all unfinished tasks as ${cannotImportCount} product(s) are not assigned to you`
+		}).catch(error => {
+			let msg = 'loadUnfinished: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	importInSprint({
+		rootState,
+		state,
+		commit,
+		dispatch
+	}, newSprintId) {
+		const docsToGet = []
+		for (let id of state.parentIdsToImport.concat(state.taskIdsToImport)) {
+			docsToGet.push({ "id": id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			const docs = []
+			const error = []
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const oldSprintId = doc.sprintId
+					doc.sprintId = newSprintId
+					if (rootState.lastTreeView === 'detailProduct') {
+						// update the tree view
+						const node = window.slVueTree.getNodeById(doc._id)
+						if (node) node.data.sprintId = newSprintId
+					}
+					let oldSprintName
+					for (let s of rootState.configData.defaultSprintCalendar) {
+						if (s.id === oldSprintId) oldSprintName = s.name
+					}
+					let newSprintName
+					for (let s of rootState.configData.defaultSprintCalendar) {
+						if (s.id === newSprintId) newSprintName = s.name
+					}
+					const newHist = {
+						"importToSprintEvent": [doc.level, doc.subtype, oldSprintName, newSprintName],
+						"by": rootState.userData.user,
+						"timestamp": Date.now(),
+						"sessionId": rootState.userData.sessionId,
+						"distributeEvent": true
+					}
+					doc.history.unshift(newHist)
+					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
+					docs.push(doc)
+				}
+
+				if (envelope.error) error.push(envelope.error)
+			}
+			if (error.length > 0) {
+				let errorStr = ''
+				for (let e of error) {
+					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+				}
+				let msg = 'importInSprint: These documents cannot be imported: ' + errorStr
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
+
+			const toDispatch = { loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'importInSprint' })
+		}).catch(e => {
+			let msg = 'importInSprint: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -97,7 +231,7 @@ const actions = {
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString2(payload.storyId) + '&include_docs=true'
+			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString3(payload.storyId) + '&include_docs=true'
 		}).then(res => {
 			const docs = res.data.rows.map((r) => r.doc)
 			docs.sort((a, b) => b.priority - a.priority)
@@ -288,7 +422,7 @@ const actions = {
 				for (let e of error) {
 					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
-				let msg = 'addSprintIds: These documents cannot change requirement area: ' + errorStr
+				let msg = 'addSprintIds: These documents cannot be added to the sprint: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
@@ -353,7 +487,7 @@ const actions = {
 				for (let e of error) {
 					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
-				let msg = 'removeSprintIds: These documents cannot change requirement area: ' + errorStr
+				let msg = 'removeSprintIds: These documents cannot be removed from the sprint: ' + errorStr
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
@@ -632,5 +766,6 @@ const actions = {
 }
 
 export default {
+	state,
 	actions
 }

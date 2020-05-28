@@ -33,6 +33,7 @@ const computed = {
         'isServerAdmin',
         'isAPO',
         'isAdmin',
+        'myTeam'
     ]),
 }
 
@@ -47,7 +48,7 @@ const methods = {
     },
 
     changeTeam() {
-        this.selectedTeam = this.$store.state.userData.myTeam
+        this.selectedTeam = this.myTeam
         this.$refs.changeTeamRef.show()
         this.teamOptions = []
         for (let team of Object.keys(this.$store.state.configData.teams)) {

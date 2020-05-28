@@ -1,5 +1,5 @@
 import { mapGetters } from 'vuex'
-import { utilities } from '../mixins/utilities.js'
+import { utilities, authorization } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
@@ -247,7 +247,7 @@ const methods = {
         newNode.data.team = team
         newNode.title = newNode.parentId === AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(insertLevel)
 
-        if (this.haveAccess(insertLevel, team, 'create new items of this type')) {
+        if (this.haveAccessInTree(insertLevel, team, 'create new items of this type')) {
             if (newNodeLocation.placement === 'inside') {
                 // unselect the node that was clicked before the insert and expand it to show the inserted node
                 this.contextNodeSelected.isSelected = false
@@ -395,7 +395,7 @@ const methods = {
     */
     doRemove() {
         const selectedNode = this.contextNodeSelected
-        if (this.haveAccess(selectedNode.level, selectedNode.data.team, 'remove this item')) {
+        if (this.haveAccessInTree(selectedNode.level, selectedNode.data.team, 'remove this item')) {
             const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
             this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
             // when removing a product
@@ -549,7 +549,7 @@ const methods = {
 }
 
 export default {
-    mixins: [utilities],
+    mixins: [utilities, authorization],
     created,
     data,
     computed,

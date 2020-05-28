@@ -1,6 +1,6 @@
 <template>
   <b-modal
-    size="lg"
+    size="xl"
     ref="assignToSprintRef"
     @ok="sprintSelected"
     :title="contextNodeTitle"
@@ -42,8 +42,8 @@ export default {
 
   mounted() {
     window.assignToSprintRef = this.$refs.assignToSprintRef
-    const currentSprintTxt = sprints.currentSprint.name + ' started ' + shortStartDate(sprints.currentSprint) + ' and ending ' + shortEndDate(sprints.currentSprint)
-    const nextSprintTxt = sprints.nextSprint.name + ' starting ' + shortStartDate(sprints.nextSprint) + ' and ending ' + shortEndDate(sprints.nextSprint)
+    const currentSprintTxt = `Current sprint: '${sprints.currentSprint.name}' started ${shortStartDate(sprints.currentSprint)} and ending ${shortEndDate(sprints.currentSprint)}`
+    const nextSprintTxt = `Next sprint: '${sprints.nextSprint.name}' starting ${shortStartDate(sprints.nextSprint)} and ending ${shortEndDate(sprints.nextSprint)}`
     this.sprintOptions = [
       { text: currentSprintTxt, value: sprints.currentSprint.id },
       { text: nextSprintTxt, value: sprints.nextSprint.id }

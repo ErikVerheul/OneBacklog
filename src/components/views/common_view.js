@@ -1,5 +1,5 @@
 import { mapGetters } from 'vuex'
-import { utilities } from '../mixins/utilities.js'
+import { utilities, authorization } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
@@ -119,15 +119,16 @@ const computed = {
     'getCurrentItemLevel',
     'getCurrentItemState',
     'getItemSprintName',
-    'getCurrentItemTsSize'
+    'getCurrentItemTsSize',
+    'myTeam'
   ]),
 
   welcomeMessage() {
     const msg_1 = `Welcome '${this.$store.state.userData.user}'.`
     let msg_2
-    if (this.$store.state.userData.myTeam === 'not assigned yet') {
+    if (this.myTeam === 'not assigned yet') {
       msg_2 = ' You are not a team member.'
-    } else msg_2 = ` You are member of team '${this.$store.state.userData.myTeam}'.`
+    } else msg_2 = ` You are member of team '${this.myTeam}'.`
     let msg_3
     if (this.$store.state.userData.userAssignedProductIds.length === 1)
       msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}. You have 1 product.`
@@ -593,7 +594,7 @@ const methods = {
   updateDescription(previousNodeSelected) {
     if (this.$store.state.currentDoc.description !== this.newDescription) {
       // skip update when not changed
-      if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
+      if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
         const node = previousNodeSelected || this.getNodeSelected
         const oldDescription = this.$store.state.currentDoc.description
         const now = Date.now()
@@ -620,7 +621,7 @@ const methods = {
   updateAcceptance(previousNodeSelected) {
     // skip update when not changed
     if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
-      if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
+      if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
         const node = previousNodeSelected || this.getNodeSelected
         const oldAcceptance = this.$store.state.currentDoc.acceptanceCriteria
         const now = Date.now()
@@ -645,7 +646,7 @@ const methods = {
   },
 
   updateTsSize() {
-    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
+    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
       const node = this.getNodeSelected
       const now = Date.now()
       let size = document.getElementById("tShirtSizeId").value.toUpperCase()
@@ -681,7 +682,7 @@ const methods = {
   */
   updateStoryPoints() {
     const skipTestOnTeam = this.$store.state.currentDoc.team === 'not assigned yet' && this.getCurrentItemState === this.newState
-    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item', skipTestOnTeam)) {
+    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item', skipTestOnTeam)) {
       const node = this.getNodeSelected
       const oldPoints = this.$store.state.currentDoc.spsize
       const now = Date.now()
@@ -698,7 +699,7 @@ const methods = {
           descendants,
           newPoints: parseInt(el.value),
           newState: this.readyState,
-          newTeam: this.$store.state.userData.myTeam,
+          newTeam: this.myTeam,
           timestamp: now
         })
         // create an entry for undoing the change in a last-in first-out sequence
@@ -711,7 +712,7 @@ const methods = {
           oldTeam: this.$store.state.currentDoc.team
         }
         this.$store.state.changeHistory.unshift(entry)
-        this.$store.commit('updateNodeSelected', { state: this.readyState, team: this.$store.state.userData.myTeam, lastStateChange: now, lastChange: now })
+        this.$store.commit('updateNodeSelected', { state: this.readyState, team: this.myTeam, lastStateChange: now, lastChange: now })
       } else {
         this.$store.dispatch('setStoryPoints', {
           node,
@@ -731,7 +732,7 @@ const methods = {
   },
 
   updatePersonHours() {
-    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
+    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
       const node = this.getNodeSelected
       const oldPersonHours = this.$store.state.currentDoc.spikepersonhours
       const now = Date.now()
@@ -799,13 +800,13 @@ const methods = {
     }
 
     const skipTestOnTeam = this.$store.state.currentDoc.team === 'not assigned yet' && newState === STATE_READY
-    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item', skipTestOnTeam)) {
-      changeState(this, this.$store.state.userData.myTeam)
+    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item', skipTestOnTeam)) {
+      changeState(this, this.myTeam)
       const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
       if (parentNode._id != 'root') {
-        if (parentNode.data.team !== this.$store.state.userData.myTeam) {
+        if (parentNode.data.team !== this.myTeam) {
           this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
-            this.$store.state.userData.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
+            this.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
         }
       }
     }
@@ -816,7 +817,7 @@ const methods = {
     const newTitle = document.getElementById("titleField").value
     if (oldTitle === newTitle) return
 
-    if (this.haveAccess(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
+    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
       const node = this.getNodeSelected
       const now = Date.now()
       // update the current node
@@ -912,7 +913,7 @@ const methods = {
 }
 
 export default {
-  mixins: [utilities],
+  mixins: [utilities, authorization],
   created,
   mounted,
   data,

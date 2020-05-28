@@ -19,9 +19,9 @@
       </b-navbar-nav>
     </app-header>
     <b-container fluid>
-      <b-row class="title-bar">
+      <b-row v-if="!showWarning" class="title-bar">
         <b-col cols="5">
-          <h5>team '{{ $store.state.userData.myTeam }}'</h5>
+          <h5>Welcome {{ userData.user}} from team '{{ userData.myTeam }}'</h5>
         </b-col>
         <b-col cols="4">
           <h5>{{ $store.getters.getStoryPoints }} story points in this sprint</h5>
@@ -33,8 +33,14 @@
           <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
         </b-col>
       </b-row>
-    </b-container>
-    <b-container fluid>
+      <b-row v-else class="warning-bar">
+        <b-col cols="11">
+          <h5>{{ $store.state.warningText }}</h5>
+        </b-col>
+        <b-col cols="1">
+          <b-button @click="clearWarning()" size="sm">Dismiss</b-button>
+        </b-col>
+      </b-row>
       <div v-for="story in $store.state.stories" :key="story.idx">
         <b-row>
           <b-col cols="12">
@@ -43,23 +49,66 @@
         </b-row>
       </div>
     </b-container>
+    <b-modal
+      v-if="currentSprintLoaded && askForImport() && unfinishedWork"
+      @ok="procSelected"
+      v-model="currentSprintLoaded"
+      title="Import unfinished tasks from previous sprints?"
+    >
+      <b-list-group>
+        <b-list-group-item
+          button
+          :active="contextOptionSelected === MOVE_TASKS"
+          variant="dark"
+          @click="prepSelected(MOVE_TASKS)"
+        >Yes, please</b-list-group-item>
+        <b-list-group-item
+          button
+          :active="contextOptionSelected === NO_NOT_YET"
+          variant="dark"
+          @click="prepSelected(NO_NOT_YET)"
+        >No, not yet</b-list-group-item>
+        <b-list-group-item
+          button
+          :active="contextOptionSelected === NO_STOP_ASKING"
+          variant="danger"
+          @click="prepSelected(NO_STOP_ASKING)"
+        >No, and do not ask again</b-list-group-item>
+      </b-list-group>
+      <p class="message">{{ showInfo() }}</p>
+      <div class="d-block text-center">
+        <b-button
+          v-if="contextOptionSelected !== undefined"
+          v-show="!showAssistance"
+          size="sm"
+          variant="outline-primary"
+          @click="showAssistance='true'"
+        >Need assistance?</b-button>
+        <div v-if="showAssistance" class="d-block text-left border" v-html="assistanceText"></div>
+      </div>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import AppHeader from '../../header/header.vue'
 import StoryLane from './StoryLane'
-import { utilities } from '../../mixins/utilities.js'
+import { utilities, authorization } from '../../mixins/utilities.js'
 
 export default {
-  mixins: [utilities],
+  mixins: [utilities, authorization],
 
   beforeCreate() {
     this.$store.state.currentView = 'planningBoard'
   },
 
   created() {
+    this.MOVE_TASKS = 0
+    this.NO_NOT_YET = 1
+    this.NO_STOP_ASKING = 2
+
     if (this.$store.state.loadedSprintId) {
       // load the last loaded sprint again
       for (let s of this.$store.state.configData.defaultSprintCalendar) {
@@ -94,6 +143,7 @@ export default {
     // create the sprint selection options, recent first + next sprint on top
     const now = Date.now()
     let getNextSprint = true
+    let getCurrSprint = true
     for (let i = this.$store.state.configData.defaultSprintCalendar.length - 1; i >= 0; i--) {
       const sprint = this.$store.state.configData.defaultSprintCalendar[i]
       if (sprint.startTimestamp > now) continue
@@ -102,6 +152,13 @@ export default {
         const nextSprint = this.$store.state.configData.defaultSprintCalendar[i + 1]
         this.options.push({ value: nextSprint, text: nextSprint.name + ' (next sprint)' })
         getNextSprint = false
+      }
+      if (getCurrSprint) {
+        const currSprint = sprint
+        this.options.push({ value: currSprint, text: currSprint.name + ' (current sprint)' })
+        this.currentSprintId = sprint.id
+        getCurrSprint = false
+        continue
       }
       this.options.push({ value: sprint, text: sprint.name })
     }
@@ -113,21 +170,37 @@ export default {
 
   data() {
     return {
+      contextOptionSelected: undefined,
+      showAssistance: false,
+      assistanceText: '',
       selectedSprint: null,
+      currentSprintLoaded: false,
+      currentSprintId: undefined,
       options: [],
-      selectedTeam: this.$store.state.userData.myTeam
     }
   },
 
   watch: {
     // initially load the current sprint and reload when the user selects another sprint
     selectedSprint: function (newVal) {
-      this.$store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.$store.state.userData.myTeam })
+      this.currentSprintLoaded = newVal.id === this.currentSprintId
+      this.$store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.userData.myTeam })
     }
   },
 
   computed: {
+    ...mapGetters([
+      'myTeam'
+    ]),
     ...mapState(['userData']),
+
+    showWarning() {
+      return this.$store.state.warningText !== ''
+    },
+
+    unfinishedWork() {
+      return this.$store.state.planningboard.taskIdsToImport.length > 0
+    },
 
     getStartDateString() {
       if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp).toString().substring(0, 33)
@@ -150,6 +223,52 @@ export default {
     }
   },
 
+  methods: {
+    clearWarning() {
+      this.$store.state.warningText = ''
+    },
+
+    askForImport() {
+      if (!this.userData.doNotAskForImport) return true
+      return !this.userData.doNotAskForImport.includes(this.currentSprintId)
+    },
+
+    showInfo() {
+      return `Found ${this.$store.state.planningboard.taskIdsToImport.length} unfinished tasks in ${this.$store.state.planningboard.parentIdsToImport.length} stories to import`
+    },
+
+    prepSelected(idx) {
+      this.showAssistance = false
+      this.contextOptionSelected = idx
+      switch (this.contextOptionSelected) {
+        case this.MOVE_TASKS:
+          this.assistanceText = undefined
+          break
+        case this.NO_NOT_YET:
+          this.assistanceText = undefined
+          break
+        case this.NO_STOP_ASKING:
+          this.assistanceText = undefined
+          break
+      }
+    },
+
+    procSelected() {
+      this.showAssistance = false
+      switch (this.contextOptionSelected) {
+        case this.MOVE_TASKS:
+          this.$store.dispatch('importInSprint', this.currentSprintId)
+          break
+        case this.NO_NOT_YET:
+          // do nothing
+          break
+        case this.NO_STOP_ASKING:
+          this.$store.dispatch('registerNoSprintImport', this.currentSprintId)
+          break
+      }
+    }
+  },
+
   name: 'PlanningBoard',
   components: {
     'app-header': AppHeader,
@@ -159,6 +278,9 @@ export default {
 </script>
 
 <style scoped>
+.message {
+  margin: 10px;
+}
 .divider {
   width: 15px;
   height: auto;
@@ -168,6 +290,12 @@ export default {
 .title-bar {
   background-color: #408fae;
   padding-top: 4px;
+}
+
+.warning-bar {
+  background-color: orange;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .square {

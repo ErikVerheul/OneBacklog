@@ -76,6 +76,7 @@ const computed = {
         if (keys[j] === "docRemovedDescendantEvent") allText += this.mkDocRemovedDescendantEvent(histItem[keys[j]])
         if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
         if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
+        if (keys[j] === "importToSprintEvent") allText += this.mkImportToSprintEvent(histItem[keys[j]])
         if (keys[j] === "newChildEvent") allText += this.mkNewChildEvent(histItem[keys[j]])
         if (keys[j] === "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
         if (keys[j] === "nodeUndoMoveEvent") allText += this.mkNodeUndoMoveEvent(histItem[keys[j]])
@@ -154,6 +155,7 @@ const methods = {
     if (key === "docRemovedDescendantEvent") return this.mkDocRemovedDescendantEvent(value)
     if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
     if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
+    if (key === "importToSprintEvent") return this.mkImportToSprintEvent(value)
     if (key === "newChildEvent") return this.mkNewChildEvent(value)
     if (key === "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
     if (key === "nodeUndoMoveEvent") return this.mkNodeUndoMoveEvent(value)
@@ -299,6 +301,10 @@ const methods = {
 
   mkGrandParentDocRestoredEvent(value) {
     return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are restored from removal.</h5>`
+  },
+
+  mkImportToSprintEvent(value) {
+    return `<h5>This ${this.getLevelText(value[0], value[1])} was imported from sprint '${value[2]}' to sprint '${value[3]}'.</h5>`
   },
 
   mkNewChildEvent(value) {

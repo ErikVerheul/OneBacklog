@@ -38,6 +38,7 @@ const actions = {
     })
   },
 
+  /* Only admins have the access rights to this call */
   getAllUsers({
     rootState,
     state,
@@ -138,7 +139,7 @@ const actions = {
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
-      // update the user data
+      // update the user data, the planningBoard.vue listens to this change and will repaint
       commit('updateTeam', newTeam)
       let tmpUserData = res.data
       const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
@@ -315,6 +316,29 @@ const actions = {
         rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
         dispatch('doLog', { event: msg, level: ERROR })
       })
+    })
+  },
+
+  registerNoSprintImport({
+    rootState,
+    dispatch
+  }, sprintId) {
+    globalAxios({
+      method: 'GET',
+      url: '/_users/org.couchdb.user:' + rootState.userData.user,
+    }).then(res => {
+      const tmpUserData = res.data
+      if (tmpUserData.doNotAskForImport) {
+        tmpUserData.doNotAskForImport.push(sprintId)
+      } else tmpUserData.doNotAskForImport = [sprintId]
+      // update the current user data
+      rootState.userData.doNotAskForImport = tmpUserData.doNotAskForImport
+      dispatch('updateUser', { data: tmpUserData })
+    }).catch(error => {
+      const msg = 'registerNoSprintImport: Could not update do not ask for import for user ' + rootState.userData.user + ', ' + error
+      // eslint-disable-next-line no-console
+      if (rootState.debug) console.log(msg)
+      dispatch('doLog', { event: msg, level: ERROR })
     })
   },
 

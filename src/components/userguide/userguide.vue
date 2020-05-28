@@ -8,15 +8,14 @@
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
 				<p>When you, as CouchDB super admin, have installed CouchDB and the web application you have to <a href="#start_using">initialize the first database</a>.</p>
 				<h4>The header</h4>
-				<p>Always mention the version number located after the app name when reporting issues. When you click on the release number you will the <b>release notes </b> will be displayed.</p>
+				<p>Always mention the version number located after the app name when reporting issues. When you click on the release number the <b>release notes </b> will be displayed.</p>
 				<h5>User guide</h5>
 				<p>This text</p>
+				<h5>Filters and searches</h5>
+				<p>For &apos;Filter in tree &apos;, &apos;Find on Id&apos; and &apos;Search in titles&apos; see <a href="#tv-features">Tree view search and filtering</a></p>
 				<h5>Select your view</h5>
-				<p><a href="#pv">Product details</a></p>
-				<p><a href="#rv">Products overview</a></p>
-				<p><a href="#pb">Sprint planning board</a></p>
-				<p><a href="#tv-features">Tree view search and filtering</a></p>
-				<p><a href="#sv">Maintenance views</a></p>
+				<p>For &apos;Select your view&apos; see <a href="#pv">Product details</a>, <a href="#rv">Products overview</a> and <a href="#pb">Sprint planning board</a></p>
+				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or server admin.
 				<h5><em>User</em></h5>
 				<ul>
 					<li>Change database: Only applicable for users with products in more than one database.</li>
@@ -152,6 +151,20 @@
 					<div class="indent20">
 						<b-img :src="require('./planning-board.png')" alt="Example planning board" />
 						<p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
+						<p>When you right click on a task the context menu is opened:</p>
+						<b-img :src="require('./task-context.png')" alt="Task context menu" />
+						<p>Note: Removing a task does not delete the task. In the Product details view you can change the state back to &apos;In progress&apos; or any other state.</p>
+						<p>Left click on a &apos;Click to create a task here&apos; button to create a task in a column without task.</p>
+						<h5>Unfinished tasks</h5>
+						<b-img :src="require('./unfinished-tasks.png')" alt="Unfinished tasks" />
+						<p>If your team has any tasks not DONE is a previous sprint this modal will pop up when a PO or developer opens the planning board. Select &apos;No, do not ask again&apos; to stop showing this message during this sprint. In the next sprint it will show up again.</p>
+						<h5>Sprint ending, start of next sprint</h5>
+						<p>When the end date and time of a sprint is due, the next sprint starts automatically. When the current sprint is about to end use the Product details view to:</p>
+						<ul>
+							<li>Remove unfinished items from the current sprint, to be picked later, or</li>
+							<li>Assign the unfinished items to the next sprint, or</li>
+							<li>Do nothing with the unfinished items and use the import feature as soon as the new sprint has started.</li>
+						</ul>
 					</div>
 				</div>
 				<div id="sv">

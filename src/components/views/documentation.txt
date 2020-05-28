@@ -283,6 +283,7 @@ Y            Y	     Y    descriptionEvent	            	update.js
 N			 N	     Y    docRemovedDescendantEvent			remove.js
 Y            Y	     Y    docRestoredEvent 	            	undo.js
 N            N	     Y    grandParentDocRestoredEvent	  	undo.js
+Y            N       Y    importToSprintEvent               planningboard.js
 N			 Y	     Y    newChildEvent						load.js
 N            Y	     Y    nodeDroppedEvent	            	move.js
 Y            N	     N    nodesMovedEvent	 	            move.js

@@ -1,3 +1,4 @@
+import { mapGetters } from 'vuex'
 import CommonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
@@ -23,6 +24,12 @@ function data() {
   }
 }
 
+const computed = {
+  ...mapGetters([
+      'myTeam'
+  ]),
+}
+
 const methods = {
   showContextMenu(node) {
     if (this.$store.state.selectedNodes.length === 1) {
@@ -32,7 +39,7 @@ const methods = {
       this.disableOkButton = true
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
       const extraLevel = node.level < this.taskLevel ? node.level + 1 : node.level
-      if (this.haveAccess(extraLevel, node.data.team, 'open the context menu', this.isPO)) {
+      if (this.haveAccessInTree(extraLevel, node.data.team, 'open the context menu', this.isPO)) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
         this.contextParentTeam = parentNode.data.team
@@ -112,11 +119,11 @@ const methods = {
         break
       case this.ASIGNTOMYTEAM:
         this.assistanceText = this.$store.state.help.help.team
-        if (this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.$store.state.userData.myTeam) {
+        if (this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.myTeam) {
           this.contextWarning = "WARNING: The team of parent " + this.contextParentType + " (" + this.contextParentTeam +
-            ") and your team (" + this.$store.state.userData.myTeam + ") do not match. Read the assistance text."
+            ") and your team (" + this.myTeam + ") do not match. Read the assistance text."
         } else this.contextWarning = undefined
-        this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.$store.state.userData.myTeam}'`
+        this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'`
         break
       case this.CHECKSTATES:
         this.assistanceText = this.$store.state.help.help.consistencyCheck
@@ -199,7 +206,7 @@ const methods = {
       // can assign team from epic level and down (higher level numbers)
       const node = this.contextNodeSelected
       const oldTeam = node.data.team
-      const newTeam = this.$store.state.userData.myTeam
+      const newTeam = this.myTeam
       const descendantsInfo = window.slVueTree.getDescendantsInfo(node)
       // create an entry for undoing the change in a last-in first-out sequence
       const entry = {
@@ -211,9 +218,9 @@ const methods = {
       this.$store.state.changeHistory.unshift(entry)
       this.$store.dispatch('setTeam', { node, newTeam, descendants: descendantsInfo.descendants })
       if (descendantsInfo.count === 0) {
-        this.showLastEvent(`The owning team of '${node.title}' is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
+        this.showLastEvent(`The owning team of '${node.title}' is changed to '${this.myTeam}'.`, INFO)
       } else
-        this.showLastEvent(`The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${this.$store.state.userData.myTeam}'.`, INFO)
+        this.showLastEvent(`The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${this.myTeam}'.`, INFO)
     }
   },
 
@@ -322,5 +329,6 @@ export default {
   extends: CommonContext,
   created,
   data,
+  computed,
   methods
 }

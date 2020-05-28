@@ -64,7 +64,7 @@
 
     <b-modal size="lg" ref="changeTeamRef" @ok="doChangeTeam" title="Change your team">
       <b-container align-v="true">
-        <h5>Select your new team. Your current team is '{{ $store.state.userData.myTeam }}'</h5>
+        <h5>Select your new team. Your current team is '{{ myTeam }}'</h5>
         <b-form-group>
           <b-form-radio-group v-model="selectedTeam" :options="teamOptions" name="teamOptions"></b-form-radio-group>
         </b-form-group>

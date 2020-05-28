@@ -10,6 +10,7 @@
           title="Todo"
           :tasks="$store.state.stories[idx].tasks[TODO]"
           :idx="idx"
+          :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
           :storyTitle="$store.state.stories[idx].title"
         ></task-column>
@@ -20,6 +21,7 @@
           title="In progress"
           :tasks="$store.state.stories[idx].tasks[INPROGRESS]"
           :idx="idx"
+          :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
           :storyTitle="$store.state.stories[idx].title"
         ></task-column>
@@ -30,6 +32,7 @@
           title="Test / review"
           :tasks="$store.state.stories[idx].tasks[TESTREVIEW]"
           :idx="idx"
+          :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
           :storyTitle="$store.state.stories[idx].title"
         ></task-column>
@@ -40,6 +43,7 @@
           title="Done"
           :tasks="$store.state.stories[idx].tasks[DONE]"
           :idx="idx"
+          :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
           :storyTitle="$store.state.stories[idx].title"
         ></task-column>
