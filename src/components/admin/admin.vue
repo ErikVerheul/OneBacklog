@@ -228,62 +228,56 @@
         </div>
         <div v-if="isDatabaseSelected && !$store.state.isSprintCalendarFound && creatingCalendar">
           <b-row>
-            <h4>Create a new calendar</h4>
-            <template v-if="!startDateStr" sm="12">
-            <b-col>
+            <b-col cols="12"><h4>Create a new calendar</h4></b-col>
+
+            <b-col v-if="!startDateStr" sm="12">
               <center>
-                <p>Choose the start date of the first sprint before todays UTC noon:</p>
+                <p>Choose the start date of the first sprint:</p>
                 <b-calendar v-model="startDateStr"></b-calendar>
               </center>
             </b-col>
-            </template>
-            <template v-else>
-              <b-col sm="4"></b-col>
-              <b-col sm="4">
-                <center>
-                  <h4>Selected start date of the first sprint is {{ startDateStr }}</h4>
-                  <b-form @submit="onSubmit" @reset="onReset" v-if="show">
-                    <b-form-group
-                      id="input-group-1"
-                      label="Enter the daytime hour (UTC) the sprint starts and ends:"
-                      label-for="input-1"
-                      description="Choose a number from 0 to 23 and use the UTC clock."
-                    >
-                      <b-form-input
-                        id="input-1"
-                        v-model="sprintStartTimeStr"
-                        type="number"
-                        min="0"
-                        max="23"
-                        step="1"
-                        required
-                      ></b-form-input>
-                    </b-form-group>
+            <b-col v-else sm="12">
+              <center>
+                <h4>Selected start date of the first sprint is {{ startDateStr }}</h4>
+                <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+                  <b-form-group
+                    id="input-group-1"
+                    label="Enter the daytime hour (UTC) the sprint starts and ends:"
+                    label-for="input-1"
+                    description="Choose a number from 0 to 23 and use the UTC clock."
+                  >
+                    <b-form-input
+                      id="input-1"
+                      v-model="sprintStartTimeStr"
+                      type="number"
+                      min="0"
+                      max="23"
+                      step="1"
+                      required
+                    ></b-form-input>
+                  </b-form-group>
 
-                    <b-form-group
-                      id="input-group-2"
-                      label="Enter the sprint length in days:"
-                      label-for="input-2"
-                    >
-                      <b-form-input id="input-2" v-model="sprintLengthStr" type="number" min="1" required></b-form-input>
-                    </b-form-group>
+                  <b-form-group
+                    id="input-group-2"
+                    label="Enter the sprint length in days:"
+                    label-for="input-2"
+                  >
+                    <b-form-input id="input-2" v-model="sprintLengthStr" type="number" min="1" required></b-form-input>
+                  </b-form-group>
 
-                    <b-form-group
-                      id="input-group-3"
-                      label="Enter the number of sprints to generate:"
-                      label-for="input-3"
-                    >
-                      <b-form-input id="input-3" v-model="numberOfSprintsStr" type="number" min="1" required></b-form-input>
-                    </b-form-group>
+                  <b-form-group
+                    id="input-group-3"
+                    label="Enter the number of sprints to generate:"
+                    label-for="input-3"
+                  >
+                    <b-form-input id="input-3" v-model="numberOfSprintsStr" type="number" min="1" required></b-form-input>
+                  </b-form-group>
 
-                    <b-button class="m-1" type="submit">Submit</b-button>
-                    <b-button class="m-1" type="reset" variant="danger">Reset</b-button>
-                  </b-form>
-                </center>
-              </b-col>
-              <!-- a bogus error from Vetur -->
-              <b-col sm="4"></b-col>
-            </template>
+                  <b-button class="m-1" type="submit">Submit</b-button>
+                  <b-button class="m-1" type="reset" variant="danger">Reset</b-button>
+                </b-form>
+              </center>
+            </b-col>
           </b-row>
         </div>
         <div v-if="isDatabaseSelected && $store.state.isSprintCalendarFound && !creatingCalendar">
