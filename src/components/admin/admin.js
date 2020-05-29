@@ -4,6 +4,8 @@ import { utilities } from '../mixins/utilities.js'
 
 const PRODUCTLEVEL = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
+const HOUR_MILIS = 60 * 60000
+const DAY_MILIS = 24 * HOUR_MILIS
 
 // returns a new array so that it is reactive
 function addToArray(arr, item) {
@@ -17,6 +19,15 @@ function mounted() {
   this.$store.state.backendMessages = []
   this.$store.dispatch('getAllUsers')
   this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+  // get the current sprint number
+  const now = Date.now()
+  for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
+    const s = this.$store.state.configData.defaultSprintCalendar[i]
+    if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
+      this.currentSprintNr = i
+      break
+    }
+  }
 }
 
 function data() {
@@ -47,7 +58,41 @@ function data() {
     sprintLengthStr: '14',
     numberOfSprintsStr: '26',
     show: true,
-    workflowStatusMsg: 'found'
+    workflowStatusMsg: 'found',
+    extendNumberStr: '',
+    changedNumberStr: '',
+    changedDurationStr: '',
+    changedHourStr: '',
+    currentSprintNr: undefined
+  }
+}
+
+const computed = {
+  extendDisableOkButton() {
+    return !(!isNaN(this.extendNumberStr) && parseInt(this.extendNumberStr) > 0 && Number.isInteger(parseFloat(this.extendNumberStr)))
+  },
+
+  acceptSprintnr() {
+    return !isNaN(this.changedNumberStr) && parseInt(this.changedNumberStr) >= this.currentSprintNr && Number.isInteger(parseFloat(this.changedNumberStr)) &&
+    parseInt(this.changedNumberStr) < this.$store.state.configData.defaultSprintCalendar.length
+  },
+
+  acceptNewSprintLength() {
+    return !isNaN(this.changedDurationStr) && parseInt(this.changedDurationStr) > 0 && Number.isInteger(parseFloat(this.changedDurationStr)) &&
+    parseInt(this.changedDurationStr) <= 28
+  },
+
+  acceptHourChange() {
+    return !isNaN(this.changedHourStr) && parseInt(this.changedHourStr) >= -12 && Number.isInteger(parseFloat(this.changedHourStr)) &&
+    parseInt(this.changedHourStr) <= 12
+  },
+
+  acceptNewEndDate() {
+    return this.getSprint().startTimestamp + this.changedDurationStr * DAY_MILIS + this.changedHourStr * HOUR_MILIS >= Date.now()
+  },
+
+  changeDisableOkButton () {
+    return !this.acceptSprintnr || !this.acceptNewSprintLength || !this.acceptHourChange
   }
 }
 
@@ -147,6 +192,69 @@ const methods = {
     })
     // update the database and add the product to this user's subscriptions and productsRoles
     this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['admin'] })
+  },
+
+  getSprint() {
+    return this.$store.state.configData.defaultSprintCalendar[parseInt(this.changedNumberStr)]
+  },
+
+  getStartDate() {
+    return new Date(this.getSprint().startTimestamp).toString()
+  },
+
+  getDuration() {
+    return this.getSprint().sprintLength / DAY_MILIS
+  },
+
+  getEndDate() {
+    return new Date(this.getSprint().startTimestamp + this.getSprint().sprintLength).toString()
+  },
+
+  calcNewEndDate() {
+    const newSprintLength = this.changedDurationStr * DAY_MILIS + this.changedHourStr * HOUR_MILIS
+    return new Date(this.getSprint().startTimestamp + newSprintLength).toString()
+  },
+
+  doChangeCalendar() {
+    const currentCalendar = this.$store.state.configData.defaultSprintCalendar
+    const calendarLength = currentCalendar.length
+    const unChangedCalendar = currentCalendar.slice(0, parseInt(this.changedNumberStr))
+    const changedSprint = this.$store.state.configData.defaultSprintCalendar[parseInt(this.changedNumberStr)]
+    const sprintLengthChange = this.changedDurationStr * DAY_MILIS - changedSprint.sprintLength + this.changedHourStr * HOUR_MILIS
+    changedSprint.sprintLength += sprintLengthChange
+    const newSprintCalendar = unChangedCalendar.concat(changedSprint)
+    let prevSprintEnd = changedSprint.startTimestamp + changedSprint.sprintLength
+    for (let i = newSprintCalendar.length; i < calendarLength; i++) {
+      const sprint = currentCalendar[i]
+      sprint.startTimestamp = prevSprintEnd
+      newSprintCalendar.push(sprint)
+      prevSprintEnd = sprint.startTimestamp + sprint.sprintLength
+    }
+    this.$store.dispatch('saveSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
+  },
+
+  doExtendCalendar() {
+    const currentCalendar = this.$store.state.configData.defaultSprintCalendar
+    const lastSprint = currentCalendar.slice(-1)[0]
+    const sprintLengthMillis = lastSprint.sprintLength
+    const numberOfSprints = parseInt(this.extendNumberStr)
+    const startIdx = currentCalendar.length
+    const startDate = lastSprint.startTimestamp + lastSprint.sprintLength
+    const extendSprintCalendar = []
+    let j = 0
+    for (let i = startIdx; i < startIdx + numberOfSprints; i++) {
+      const sprintId = this.createId()
+      const obj = {
+        id: sprintId,
+        name: 'sprint-' + i,
+        startTimestamp: startDate.valueOf() + j * sprintLengthMillis,
+        sprintLength: sprintLengthMillis
+      }
+      extendSprintCalendar.push(obj)
+      j++
+    }
+    const newSprintCalendar = currentCalendar.concat(extendSprintCalendar)
+    this.$store.dispatch('saveSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
   },
 
   removeProduct() {
@@ -290,6 +398,7 @@ const methods = {
     this.$store.state.isSprintCalendarFound = false
     this.startDateStr = undefined
     this.workflowStatusMsg = 'found'
+    this.extendNumberStr = undefined
   },
 
   doLoadCalendar() {
@@ -305,7 +414,7 @@ const methods = {
       return
     }
 
-    const sprintLengthMillis = parseInt(this.sprintLengthStr) * 24 * 60 * 60000
+    const sprintLengthMillis = parseInt(this.sprintLengthStr) * DAY_MILIS
     const numberOfSprints = parseInt(this.numberOfSprintsStr)
 
     const defaultSprintCalendar = []
@@ -373,9 +482,10 @@ const components = {
 }
 
 export default {
-    mixins: [utilities],
-    data,
-    mounted,
-    methods,
-    components
+  mixins: [utilities],
+  computed,
+  data,
+  mounted,
+  methods,
+  components
 }

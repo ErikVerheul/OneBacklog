@@ -221,6 +221,7 @@
             ></b-form-radio-group>
           </b-form-group>
           <b-button class="m-1" @click="doLoadCalendar">Continue</b-button>
+          <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
         </div>
         <div v-if="isDatabaseSelected && !$store.state.isSprintCalendarFound && !creatingCalendar">
           <h5>The calendar is not found, create a new calendar</h5>
@@ -228,7 +229,7 @@
         </div>
         <div v-if="isDatabaseSelected && !$store.state.isSprintCalendarFound && creatingCalendar">
           <b-row>
-            <b-col cols="12"><h4>Create a new calendar</h4></b-col>
+            <b-col cols="12"><h4>Create the default calendar</h4></b-col>
 
             <b-col v-if="!startDateStr" sm="12">
               <center>
@@ -282,8 +283,101 @@
         </div>
         <div v-if="isDatabaseSelected && $store.state.isSprintCalendarFound && !creatingCalendar">
           <h5>The calendar is {{ workflowStatusMsg }}, modify calendar</h5>
-          <p>NOT IMPLEMENTED YET</p>
+          <b-list-group>
+            <b-list-group-item button v-b-modal.modal-extend>Extend the current calendar</b-list-group-item>
+            <b-list-group-item button v-b-modal.modal-change>Change a sprint and all its successors </b-list-group-item>
+          </b-list-group>
+          <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
         </div>
+        <b-modal @ok="doExtendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton" title="Extend the number of sprints">
+          <b-form-input v-model="extendNumberStr" type="number" placeholder="Enter the number of extensions"></b-form-input>
+        </b-modal>
+        <b-modal @ok="doChangeCalendar" id="modal-change" :ok-disabled="changeDisableOkButton" title="Change a sprint" size="lg">
+          <b-container fluid>
+            <b-row class="mb-1">
+              <b-col cols="3">
+                Sprint number:
+              </b-col>
+              <b-col cols="9">
+                <b-form-input v-model="changedNumberStr" type="number" placeholder="Enter the sprint number"></b-form-input>
+              </b-col>
+            </b-row>
+            <div v-if="acceptSprintnr">
+              <b-row class="mb-1">
+                <b-col cols="2">
+                  Selected:
+                </b-col>
+                <b-col cols="10">
+                  sprint-{{changedNumberStr}}
+                </b-col>
+              </b-row>
+              <b-row class="mb-1">
+                <b-col cols="2">
+                  Starting:
+                </b-col>
+                <b-col cols="10">
+                  {{ getStartDate() }}
+                </b-col>
+              </b-row>
+              <b-row class="mb-1">
+                <b-col cols="2">
+                  Duration:
+                </b-col>
+                <b-col cols="10">
+                  {{ getDuration() }} days
+                </b-col>
+              </b-row>
+              <b-row class="mb-1">
+                <b-col cols="2">
+                  Ending:
+                </b-col>
+                <b-col cols="10">
+                  {{ getEndDate() }}
+                </b-col>
+              </b-row>
+              <b-row class="mb-1">
+                <b-col cols="3">
+                    New duration:
+                </b-col>
+                <b-col cols="9">
+                  <b-form-input v-model="changedDurationStr" type="number" placeholder="Enter a new duration in days (1-28)"></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="mb-1">
+                <b-col cols="3">
+                    Hours shift:
+                </b-col>
+                <b-col cols="9">
+                  <b-form-input v-model="changedHourStr" type="number" placeholder="Shift the hour of day (-12,+12)"></b-form-input>
+                </b-col>
+              </b-row>
+            </div>
+            <div v-if="acceptSprintnr && acceptNewSprintLength && acceptHourChange && acceptNewEndDate">
+              <b-row class="mb-1">
+                <b-col cols="12">
+                  Your changes:
+                </b-col>
+              </b-row>
+              <b-row class="mb-1">
+                <b-col cols="2">
+                  Duration:
+                </b-col>
+                <b-col cols="10">
+                  {{ changedDurationStr }} days
+                </b-col>
+              </b-row>
+              <b-row class="mb-1">
+                <b-col cols="2">
+                  Ending:
+                </b-col>
+                <b-col cols="10">
+                  {{ calcNewEndDate() }}
+                </b-col>
+              </b-row>
+              <p class="margin-colorRed">All subsequent sprints will change start end ending. Their duration will not change.</p>
+            </div>
+          </b-container>
+        </b-modal>
       </div>
 
       <div v-if="optionSelected === 'Change my default database to any available database'">
@@ -345,11 +439,16 @@
 <script src="./admin.js"></script>
 
 <style lang="css" scoped>
-h4,
-h5 {
-  margin-top: 20px;
-}
-.colorRed {
-  color: red;
-}
+  h4,h5 {
+    margin-top: 20px;
+  }
+
+  .margin-colorRed {
+    margin-top:20px;
+    color: red;
+  }
+
+  .colorRed {
+    color: red;
+  }
 </style>
