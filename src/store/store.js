@@ -121,6 +121,7 @@ export default new Vuex.Store({
 		showHeaderDropDowns: true,
 		userData: {},
 		// planning board
+		sprintCalendar: [],
 		loadedSprintId: null,
 		stories: [],
 		warningText: '',

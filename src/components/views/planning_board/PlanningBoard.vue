@@ -111,7 +111,7 @@ export default {
 
     if (this.$store.state.loadedSprintId) {
       // load the last loaded sprint again
-      for (let s of this.$store.state.configData.defaultSprintCalendar) {
+      for (let s of this.$store.state.sprintCalendar) {
         if (s.id === this.$store.state.loadedSprintId) {
           this.selectedSprint = s
           break
@@ -122,8 +122,8 @@ export default {
       // load the current sprint
       const now = Date.now()
       let currentSprint = undefined
-      for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
-        const s = this.$store.state.configData.defaultSprintCalendar[i]
+      for (let i = 0; i < this.$store.state.sprintCalendar.length; i++) {
+        const s = this.$store.state.sprintCalendar[i]
         if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
           currentSprint = s
           break
@@ -144,12 +144,12 @@ export default {
     const now = Date.now()
     let getNextSprint = true
     let getCurrSprint = true
-    for (let i = this.$store.state.configData.defaultSprintCalendar.length - 1; i >= 0; i--) {
-      const sprint = this.$store.state.configData.defaultSprintCalendar[i]
+    for (let i = this.$store.state.sprintCalendar.length - 1; i >= 0; i--) {
+      const sprint = this.$store.state.sprintCalendar[i]
       if (sprint.startTimestamp > now) continue
 
       if (getNextSprint) {
-        const nextSprint = this.$store.state.configData.defaultSprintCalendar[i + 1]
+        const nextSprint = this.$store.state.sprintCalendar[i + 1]
         this.options.push({ value: nextSprint, text: nextSprint.name + ' (next sprint)' })
         getNextSprint = false
       }

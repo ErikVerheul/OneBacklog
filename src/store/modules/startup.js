@@ -198,7 +198,10 @@ const actions = {
                         router.replace('/')
                     }
             } else {
-                if (!rootState.configData.defaultSprintCalendar) {
+                if (rootState.configData.defaultSprintCalendar) {
+                    rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+                    dispatch('getRoot')
+                } else {
                     // missing calendar
                     if (rootGetters.isAdmin) {
                         alert("Error: No default sprint calendar is set. You will be redirected to the Admin view where you can create one.")
@@ -208,7 +211,7 @@ const actions = {
                         commit('resetData', null, { root: true })
                         router.replace('/')
                     }
-                } else dispatch('getRoot')
+                }
             }
         }).catch(error => {
             let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error

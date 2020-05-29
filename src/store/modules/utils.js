@@ -288,6 +288,7 @@ const actions = {
       let updatedDoc = res.data
       updatedDoc["defaultSprintCalendar"] = payload.newSprintCalendar
       dispatch('updateDoc', { dbName: payload.dbName, updatedDoc })
+      rootState.configData.defaultSprintCalendar = payload.newSprintCalendar
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveSprintCalendar: calendar is saved' })
     }).catch(error => {
       let msg = 'saveSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error

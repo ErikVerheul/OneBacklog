@@ -68,7 +68,7 @@ const actions = {
 	}, team) {
 		const now = Date.now()
 		function isPreviousSprint(sprintId) {
-			for (let s of rootState.configData.defaultSprintCalendar) {
+			for (let s of rootState.sprintCalendar) {
 				if (s.id === sprintId) {
 					return (now > s.startTimestamp + s.sprintLength)
 				}
@@ -138,11 +138,11 @@ const actions = {
 						if (node) node.data.sprintId = newSprintId
 					}
 					let oldSprintName
-					for (let s of rootState.configData.defaultSprintCalendar) {
+					for (let s of rootState.sprintCalendar) {
 						if (s.id === oldSprintId) oldSprintName = s.name
 					}
 					let newSprintName
-					for (let s of rootState.configData.defaultSprintCalendar) {
+					for (let s of rootState.sprintCalendar) {
 						if (s.id === newSprintId) newSprintName = s.name
 					}
 					const newHist = {
