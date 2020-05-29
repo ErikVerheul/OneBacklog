@@ -23,7 +23,7 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doCreateBackup">Start backup</b-button>
-        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
+        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel" variant="seablue">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'Restore a database from backup'">
@@ -38,7 +38,7 @@
         </b-form-group>
         <p>Database {{ dbToReplace }} will be replaced by the backup</p>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup">Start restore</b-button>
-        <b-button v-if="canCancel" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="canCancel" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
       </div>
 
       <div v-if="optionSelected === 'Create a new database'">
@@ -52,11 +52,11 @@
           <li>A database with this name must not already exist</li>
         </ul>
         <b-form-input v-model="newDbName" placeholder="Enter the database name"></b-form-input>
-        <b-button v-if="newDbName === ''" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="newDbName === ''" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         <div v-if="newDbName !== ''">
           <p>Database {{ newDbName }} will be created</p>
           <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="doCreateDatabase">Start creation</b-button>
-          <b-button class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
+          <b-button class="m-1" @click="cancel" variant="seablue">Return</b-button>
         </div>
       </div>
 
@@ -71,7 +71,7 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="doPurgeDb">Purge removed documents and compact the database</b-button>
-        <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         <div v-if="$store.state.isPurgeReady">
           <h4>Succes! The purge is ready</h4>
         </div>
@@ -88,7 +88,7 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb">Change my database</b-button>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         <div v-if="$store.state.isCurrentDbChanged">
           <h4>Succes! Sign-out and -in to see the product view of the {{ $store.state.selectedDatabaseName }} database</h4>
           <div>
@@ -119,7 +119,7 @@
           </b-col>
         </b-row>
         <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm">Remove history and comments</b-button>
-        <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         <div v-if="$store.state.isHistAndCommReset">
           <h4>Succes! History and comments are removed</h4>
         </div>
@@ -139,14 +139,14 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-button variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
-        <b-button class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
+        <b-button class="m-1" @click="cancel" variant="seablue">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'All FAUXTON tasks'">
         <h2>All FAUXTON tasks</h2>
         <h4>As server admin you have all other feautures available in FAUXTON, read the documentation</h4>
         <b-button class="m-1" @click="doFauxton">Start FAUXTON</b-button>
-        <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
       </div>
 
@@ -348,5 +348,10 @@ h4 {
 }
 .colorRed {
   color: red;
+}
+
+.btn-seablue {
+  background-color: #408fae;
+  color: white;
 }
 </style>

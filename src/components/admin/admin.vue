@@ -16,7 +16,7 @@
         <h2>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h2>
         <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
         <b-button v-if="!$store.state.isProductCreated && productTitle !== ''" class="m-1" @click="doCreateProduct">Create product</b-button>
-        <b-button v-if="!$store.state.isProductCreated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.isProductCreated" class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
         <div v-if="$store.state.isProductCreated">
           <h4>Select the products view to see the new product</h4>
           <b-button class="m-1" @click="cancel">return</b-button>
@@ -33,7 +33,7 @@
           <li>When undoing the removal the users who signed-in in between the removal and undo, will have no access to the product. An admin must register the product for them.</li>
         </ul>
         <b-button class="m-1" @click="showProductView()">Switch to product view</b-button>
-        <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+        <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
       </div>
 
       <div v-if="optionSelected === 'Create a user'">
@@ -60,7 +60,7 @@
             </b-col>
             <b-col sm="12">
               <b-button v-if="!credentialsReady" class="m-1" @click="checkCredentials">Continue</b-button>
-              <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+              <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
             </b-col>
           </b-row>
         </template>
@@ -75,7 +75,7 @@
 
         <div v-if="credentialsReady">
           <b-button v-if="!dbSelected" class="m-1" @click="doGetDbProducts(true)">Continue</b-button>
-          <b-button v-if="!dbSelected" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+          <b-button v-if="!dbSelected" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
 
           <div v-if="dbSelected && $store.state.areProductsFound">
             Creating user '{{ userName }}'
@@ -97,8 +97,8 @@
             </div>
             <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="doCreateUser">Create this user</b-button>
             <hr>
-            <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
-            <b-button v-if="$store.state.isUserCreated" class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
+            <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
+            <b-button v-if="$store.state.isUserCreated" class="m-1" @click="cancel" variant="seablue">Return</b-button>
           </div>
         </div>
       </div>
@@ -120,7 +120,7 @@
             </b-col>
           </b-row>
           <b-button v-if="selectedUser && !$store.state.isUserFound" class="m-1" @click="doFetchUser">Update this user's permissions</b-button>
-          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+          <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         </div>
 
         <div v-if="$store.state.isUserFound">
@@ -168,7 +168,7 @@
             </b-col>
             <b-col v-if="!$store.state.areProductsFound" sm="12">
               <b-button class="m-1" @click="doGetDbProducts(false)">Continue</b-button>
-              <b-button class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
+              <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
             </b-col>
             <b-col sm="12">
               <div v-if="$store.state.areProductsFound">
@@ -184,8 +184,8 @@
                 </div>
                 <p>If you changed your own account, sign-in again to see the effect</p>
                 <b-button v-if="$store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doUpdateUser">Update this user</b-button>
-                <b-button v-if="!$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="outline-primary">Cancel</b-button>
-                <b-button v-if="$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+                <b-button v-if="!$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
+                <b-button v-if="$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="seablue">Return</b-button>
               </div>
             </b-col>
           </b-row>
@@ -205,8 +205,8 @@
         </b-form-group>
         <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
         <b-button v-if="!$store.state.isTeamCreated && teamName !== ''" class="m-1" @click="doCreateTeam">Create this team</b-button>
-        <b-button v-if="!$store.state.isTeamCreated" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
-        <b-button v-if="$store.state.isTeamCreated" class="m-1" @click="cancel" variant="outline-primary">Return</b-button>
+        <b-button v-if="!$store.state.isTeamCreated" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
+        <b-button v-if="$store.state.isTeamCreated" class="m-1" @click="cancel" variant="seablue">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'Sprint calendar'">
@@ -221,7 +221,7 @@
             ></b-form-radio-group>
           </b-form-group>
           <b-button class="m-1" @click="doLoadCalendar">Continue</b-button>
-          <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+          <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
         </div>
         <div v-if="isDatabaseSelected && !$store.state.isSprintCalendarFound && !creatingCalendar">
           <h5>The calendar is not found, create a new calendar</h5>
@@ -287,7 +287,7 @@
             <b-list-group-item button v-b-modal.modal-extend>Extend the current calendar</b-list-group-item>
             <b-list-group-item button v-b-modal.modal-change>Change a sprint and all its successors </b-list-group-item>
           </b-list-group>
-          <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+          <b-button class="m-1" @click="cancel()" variant="seablue">Return</b-button>
         </div>
         <b-modal @ok="doExtendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton" title="Extend the number of sprints">
           <b-form-input v-model="extendNumberStr" type="number" placeholder="Enter the number of extensions"></b-form-input>
@@ -391,7 +391,7 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb">Change my database</b-button>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         <div v-if="$store.state.isCurrentDbChanged">
           <h4>Succes! Sign-out and -in to see the product view of the {{ $store.state.selectedDatabaseName }} database</h4>
           <div>
@@ -411,6 +411,7 @@
           ></b-form-radio-group>
         </b-form-group>
         <b-button v-if="!$store.state.areTeamsFound" class="m-1" @click="doGetTeamsOfDb">List teams</b-button>
+        <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         <div v-if="$store.state.areTeamsFound">
           <h4>List of teams and members working on products in database '{{ $store.state.selectedDatabaseName }}'</h4>
           <hr>
@@ -421,7 +422,7 @@
             </div>
             <hr>
           </div>
-          <b-button class="m-1" @click="cancel()" variant="outline-primary">Return</b-button>
+          <b-button class="m-1" @click="cancel()" variant="seablue">Return</b-button>
         </div>
       </div>
       <p>{{ localMessage }}</p>
@@ -439,16 +440,22 @@
 <script src="./admin.js"></script>
 
 <style lang="css" scoped>
-  h4,h5 {
-    margin-top: 20px;
-  }
+h4,
+h5 {
+  margin-top: 20px;
+}
 
-  .margin-colorRed {
-    margin-top:20px;
-    color: red;
-  }
+.btn-seablue {
+  background-color: #408fae;
+  color: white;
+}
 
-  .colorRed {
-    color: red;
-  }
+.margin-colorRed {
+  margin-top: 20px;
+  color: red;
+}
+
+.colorRed {
+  color: red;
+}
 </style>
