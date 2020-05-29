@@ -39,7 +39,7 @@
     <template v-else>
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
-          <template v-if="contextNodeTeam !== myTeam">
+          <template v-if="contextNodeLevel > productLevel && contextNodeTeam !== myTeam">
             <b-list-group-item
               v-if="contextNodeLevel > pbiLevel"
               button
@@ -48,8 +48,7 @@
               @click="showSelected(ASIGNTOMYTEAM)"
             >Assign this {{ contextNodeType }} to my team</b-list-group-item>
 
-            <b-list-group-item
-              v-else-if="contextNodeLevel >= productLevel"
+            <b-list-group-item v-else
               button
               :active="contextOptionSelected === ASIGNTOMYTEAM"
               variant="dark"

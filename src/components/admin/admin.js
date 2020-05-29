@@ -3,6 +3,7 @@ import router from '../../router'
 import { utilities } from '../mixins/utilities.js'
 
 const PRODUCTLEVEL = 2
+const INPROGRESS = 4
 const ALLBUTSYSTEMANDBACKUPS = 3
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
@@ -136,7 +137,7 @@ const methods = {
       parentId: 'root',
       team: 'not assigned yet',
       level: PRODUCTLEVEL,
-      state: 0,
+      state: INPROGRESS,
       reqarea: null,
       title: this.productTitle,
       followers: [],

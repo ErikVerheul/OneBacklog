@@ -71,7 +71,7 @@ const actions = {
     const position = Object.keys(rootState.userData.myProductsRoles).length + 1
     // do not distribute this event; other users have no access rights yet
     product.history = [{
-      "ignoreEvent": [PRODUCTLEVEL, rootState.userData.currentDb, position],
+      "createEvent": [PRODUCTLEVEL, rootState.userData.currentDb, position],
       "by": rootState.userData.user,
       "timestamp": Date.now(),
       "distributeEvent": false
