@@ -174,7 +174,7 @@ const ALLBUTSYSTEMANDBACKUPS = 3
 export default {
   data() {
     return {
-      optionSelected: 'select a task',
+      optionSelected: 'Select a task',
       canCancel: true,
       asyncFired: false,
       localMessage: '',
@@ -327,7 +327,7 @@ export default {
     cancel() {
       this.localMessage = ''
       this.$store.state.backendMessages = []
-      this.optionSelected = 'select a task'
+      this.optionSelected = 'Select a task'
     },
 
     signIn() {
