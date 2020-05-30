@@ -93,6 +93,7 @@ export default new Vuex.Store({
 		areTeamsFound: false,
 		backendMessages: [],
 		databaseOptions: undefined,
+		userDatabaseOptions: undefined,
 		defaultSprintCalendar: [],
 		fetchedTeams: [],
 		isCurrentDbChanged: false,

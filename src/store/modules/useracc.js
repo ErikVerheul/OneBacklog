@@ -24,7 +24,7 @@ const actions = {
     }).then(res => {
       state.fetchedUserData = res.data
       state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? true : false
-      rootState.databaseOptions = Object.keys(state.fetchedUserData.myDatabases)
+      rootState.userDatabaseOptions = Object.keys(state.fetchedUserData.myDatabases)
       // preset with the current database of the user
       rootState.selectedDatabaseName = state.fetchedUserData.currentDb
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Successfully fetched user ' + userName })

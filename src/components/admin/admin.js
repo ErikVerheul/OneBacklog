@@ -33,13 +33,14 @@ function mounted() {
 
 function data() {
   return {
-    optionSelected: 'select a task',
+    dbIsSelected: false,
+    lastOptionSelected: 'Select a task',
+    optionSelected: 'Select a task',
     productTitle: "",
     userName: undefined,
     password: undefined,
     userEmail: undefined,
     credentialsReady: false,
-    dbSelected: false,
     teamName: '',
     roleOptions: [
       { text: 'PO', value: 'PO' },
@@ -49,7 +50,6 @@ function data() {
     ],
     allRoles: [],
     localMessage: '',
-    moveDatabase: false,
     selectedUser: undefined,
     userOptions: [],
     isDatabaseSelected: false,
@@ -64,7 +64,8 @@ function data() {
     changedNumberStr: '',
     changedDurationStr: '',
     changedHourStr: '',
-    currentSprintNr: undefined
+    currentSprintNr: undefined,
+    isUserDbSelected: false
   }
 }
 
@@ -118,7 +119,9 @@ const methods = {
   },
 
   createProduct() {
+    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Create a product'
+    this.dbIsSelected = false
   },
 
   doCreateProduct() {
@@ -216,7 +219,7 @@ const methods = {
     return new Date(this.getSprint().startTimestamp + newSprintLength).toString()
   },
 
-  doChangeCalendar() {
+  changeSprintInCalendar() {
     const currentCalendar = this.$store.state.configData.defaultSprintCalendar
     const calendarLength = currentCalendar.length
     const unChangedCalendar = currentCalendar.slice(0, parseInt(this.changedNumberStr))
@@ -234,7 +237,7 @@ const methods = {
     this.$store.dispatch('saveSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
   },
 
-  doExtendCalendar() {
+  extendCalendar() {
     const currentCalendar = this.$store.state.configData.defaultSprintCalendar
     const lastSprint = currentCalendar.slice(-1)[0]
     const sprintLengthMillis = lastSprint.sprintLength
@@ -259,7 +262,9 @@ const methods = {
   },
 
   removeProduct() {
+    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Remove a product'
+    this.dbIsSelected = false
   },
 
   showProductView() {
@@ -283,19 +288,19 @@ const methods = {
   },
 
   /* Get all product titles of the selected database in $store.state.useracc.dbProducts */
-  doGetDbProducts(createNewUser) {
-    this.dbSelected = true
+  callGetDbProducts(createNewUser) {
     this.$store.state.useracc.dbProducts = undefined
     this.$store.dispatch('getDbProducts', { dbName: this.$store.state.selectedDatabaseName, createNewUser })
   },
 
   createUser() {
+    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Create a user'
+    this.dbIsSelected = false
     this.userName = undefined
     this.password = undefined
     this.userEmail = undefined
     this.credentialsReady = false
-    this.dbSelected = false
     this.localMessage = ''
     this.$store.state.useracc.dbProducts = undefined
     this.$store.state.useracc.userIsAdmin = false
@@ -340,13 +345,15 @@ const methods = {
   },
 
   maintainUsers() {
+    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Maintain users'
+    this.dbIsSelected = false
+    this.isUserDbSelected = false
     this.localMessage = ''
     this.$store.state.backendMessages = []
     this.$store.state.isUserFound = false
     this.$store.state.areDatabasesFound = false
     this.$store.state.areProductsFound = false
-    this.$store.state.selectedDatabaseName = ''
     this.$store.state.isUserUpdated = false
     // populate the userOptions array
     this.userOptions = []
@@ -357,8 +364,12 @@ const methods = {
 
   /* Creates fetchedUserData and have the prod.roles set in products */
   doFetchUser() {
-    this.moveDatabase = false
     this.$store.dispatch('getUser', this.selectedUser)
+  },
+
+  doSelectUserDb(dbName) {
+    this.$store.state.selectedDatabaseName = dbName
+    this.isUserDbSelected = true
   },
 
   doUpdateUser() {
@@ -392,19 +403,16 @@ const methods = {
   },
 
   createOrUpdateCalendar() {
+    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Sprint calendar'
+    this.checkForExistingCalendar = true
+    this.$store.state.isSprintCalendarFound = false
+    this.dbIsSelected = false
     this.creatingCalendar = false
     this.$store.state.backendMessages = []
-    this.isDatabaseSelected = false
-    this.$store.state.isSprintCalendarFound = false
     this.startDateStr = undefined
     this.workflowStatusMsg = 'found'
     this.extendNumberStr = undefined
-  },
-
-  doLoadCalendar() {
-    this.isDatabaseSelected = true
-    this.$store.dispatch('getSprintCalendar', this.$store.state.selectedDatabaseName)
   },
 
   doCreateCalendar() {
@@ -429,15 +437,15 @@ const methods = {
       }
       defaultSprintCalendar.push(obj)
     }
-    this.creatingCalendar = false
-    this.$store.state.isSprintCalendarFound = true
     this.$store.state.backendMessages = []
     this.workflowStatusMsg = 'created'
     this.$store.dispatch('saveSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: defaultSprintCalendar })
   },
 
   createTeam() {
+    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Create a team'
+    this.dbIsSelected = false
     this.teamName = ''
     this.$store.state.isTeamCreated = false
   },
@@ -446,18 +454,15 @@ const methods = {
     this.$store.dispatch('addTeamToDatabase', { dbName: this.$store.state.selectedDatabaseName, newTeam: this.teamName })
   },
 
-  changeMyDb() {
-    this.optionSelected = 'Change my default database to any available database'
-    this.localMessage = ''
-    this.$store.state.isCurrentDbChanged = false
-  },
-
-  doChangeMyDb() {
-    this.$store.dispatch('changeCurrentDb', this.$store.state.selectedDatabaseName)
+  doLoadSprintCalendar() {
+    this.checkForExistingCalendar = false
+    this.$store.dispatch('getSprintCalendar', this.$store.state.selectedDatabaseName)
   },
 
   listTeams() {
+    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'List teams'
+    this.dbIsSelected = false
     this.$store.state.backendMessages = []
     this.$store.state.fetchedTeams = []
     this.$store.state.areTeamsFound = false
@@ -468,7 +473,8 @@ const methods = {
   },
 
   cancel() {
-    this.optionSelected = 'select a task'
+    this.optionSelected = 'Select a task'
+    this.dbIsSelected = false
     this.$store.state.backendMessages = []
   },
 
