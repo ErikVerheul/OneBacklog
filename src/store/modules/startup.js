@@ -13,8 +13,9 @@ const actions = {
 	* 2. getOtherUserData
 	* 3. getAllProducts - calls updateUser if databases or products are missing
     * 4. getConfig
-    * 5. getRoot
-    * 6. route to products view
+    * 5. getAllTeams
+    * 6. getRoot
+    * 7. route to products view
 	*/
 
     /* Get all non-backup or system database names */
@@ -200,7 +201,7 @@ const actions = {
             } else {
                 if (rootState.configData.defaultSprintCalendar) {
                     rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
-                    dispatch('getRoot')
+                    dispatch('getAllTeams', rootState.userData.currentDb)
                 } else {
                     // missing calendar
                     if (rootGetters.isAdmin) {
@@ -215,6 +216,29 @@ const actions = {
             }
         }).catch(error => {
             let msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
+
+    getAllTeams({
+        rootState,
+        dispatch
+    }, dbName) {
+        rootState.teams = {}
+        globalAxios({
+            method: 'GET',
+            url: dbName + '/_design/design1/_view/teams',
+        }).then(res => {
+            // save in memory
+            const teams = res.data.rows
+			for (let t of teams) {
+				rootState.teams[t.key] = t.value
+            }
+            dispatch('getRoot')
+        }).catch(error => {
+            let msg = `getAllTeams: Could not read the teams in database '${dbName}', ${error}`
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

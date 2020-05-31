@@ -149,7 +149,7 @@
           </div>
 
           <div v-if="optionSelected === 'Create a user'">
-            <template v-if="!credentialsReady">
+            <div v-if="!credentialsReady">
               <h4>Create a user with access to the '{{ $store.state.selectedDatabaseName }}' database and products</h4>
               <b-row>
                 <b-col sm="2">
@@ -175,7 +175,7 @@
                   <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
                 </b-col>
               </b-row>
-            </template>
+            </div>
             <div v-if="credentialsReady">
               <b-button class="m-1" @click="callGetDbProducts(true)">Continue</b-button>
               <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
@@ -272,8 +272,9 @@
                         <b-form-input id="input-3" v-model="numberOfSprintsStr" type="number" min="1" required></b-form-input>
                       </b-form-group>
 
-                      <b-button class="m-1" type="submit">Submit</b-button>
-                      <b-button class="m-1" type="reset" variant="danger">Reset</b-button>
+                      <b-button v-if="!$store.state.isDefaultSprintCalendarSaved" class="m-1" type="submit">Submit</b-button>
+                      <b-button v-if="!$store.state.isDefaultSprintCalendarSaved" class="m-1" type="reset" variant="seablue">Reset</b-button>
+                      <b-button v-if="$store.state.isDefaultSprintCalendarSaved" @click="signIn()" class="m-1" variant="seablue">Exit</b-button>
                     </b-form>
                   </center>
                 </b-col>

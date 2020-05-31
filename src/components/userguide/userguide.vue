@@ -202,6 +202,7 @@
 					<li>installDesignFilters: Success, the design document is created</li>
 					<li>createRootDoc: Success, the root document is created</li>
 					<li>createReqAreasParent: Success, the parent document is created</li>
+					<li>createDefaultTeam: Success, default team with _id 15909494155233cnpb is created</li>
 					<li>createFirstProduct: Product with _id 15808352512486doy6 is created</li>
 					<li>addProductToUser: The product with Id 15808352512486doy6 is added to your profile with roles admin</li>
 					<li>updateUser: The profile of user 'couchdbadmin' is updated successfully</li>

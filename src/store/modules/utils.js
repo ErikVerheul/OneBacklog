@@ -236,15 +236,17 @@ const actions = {
     rootState.fetchedTeams = []
     globalAxios({
       method: 'GET',
-      url: dbName + '/config',
+      url: dbName + '/_design/design1/_view/teams?include_docs=true',
     }).then(res => {
-      if (res.data.teams) {
-        rootState.fetchedTeams = Object.keys(res.data.teams)
-        rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
-        rootState.areTeamsFound = true
-      } else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: no team names are found' })
+      const rows = res.data.rows
+      for (let r of rows) {
+        const doc = r.doc
+        rootState.fetchedTeams.push(doc.teamName)
+      }
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getTeamNames: success, ' + rootState.fetchedTeams.length + ' team names are read' })
+      rootState.areTeamsFound = true
     }).catch(error => {
-      let msg = 'getTeamNames: Could not read config document of database ' + dbName + ', ' + error
+      let msg = `getTeamNames: Could not read the documents from database '${dbName}', ${error}`
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
@@ -290,6 +292,7 @@ const actions = {
       dispatch('updateDoc', { dbName: payload.dbName, updatedDoc })
       rootState.configData.defaultSprintCalendar = payload.newSprintCalendar
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveSprintCalendar: calendar is saved' })
+      rootState.isDefaultSprintCalendarSaved = true
     }).catch(error => {
       let msg = 'saveSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })

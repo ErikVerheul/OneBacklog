@@ -3,26 +3,32 @@ import globalAxios from 'axios'
 
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
-const ERROR = 2
 const AREA_PRODUCTID = '0'
+
+function createId() {
+	// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
+	const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
+	return Date.now().toString().concat(ext)
+}
 
 const actions = {
 	/*
 	* Order of execution:
-	* 1. createDatabase - also calls setDatabasePermissions and createUserIfNotExistent and set isDatabaseCreated to false
+	* 1. createDatabases - also calls setDatabasePermissions and createUserIfNotExistent and set isDatabaseInitiated to false
 	* 2. createLog
 	* 3. createConfig
 	* 4. installDesignViews
 	* 5. installDesignFilters
 	* 6. createRootDoc & createReqAreasParent
-	* 7. createFirstProduct
-	* 8. addProductToUser in useracc.js and set isDatabaseCreated to true
+	* 7. createDefaultTeam
+	* 8. createFirstProduct
+	* 9. addProductToUser in useracc.js and set isDatabaseInitiated to true when successful
 	*/
 	createDatabase({
 		rootState,
 		dispatch
 	}, payload) {
-		rootState.isDatabaseCreated = false
+		rootState.isDatabaseInitiated = false
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'PUT',
@@ -196,10 +202,7 @@ const actions = {
 				"The product backog item of type 'User story' is the regular type as described in the Scrum guide",
 				"The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better",
 				"The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end"
-			],
-			"teams": {
-				"not assigned yet": []
-			},
+			]
 		}
 		globalAxios({
 			method: 'POST',
@@ -297,6 +300,12 @@ const actions = {
 						"map": `function(doc) {
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level === 6 && doc.sprintId && doc.state < 6) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, doc.priority * -1], doc._id);
 						}`
+					},
+					/* Filter on teams */
+					"teams": {
+						"map": `function (doc) {
+							if (doc.type ==='team' && !doc.delmark) emit(doc.teamName, doc.members);
+						  }`
 					}
 				},
 				"language": "javascript"
@@ -367,10 +376,43 @@ const actions = {
 			url: payload.dbName + '/root',
 			data: rootDoc
 		}).then(() => {
-			dispatch('createFirstProduct', payload.dbName)
+			dispatch('createDefaultTeam', payload.dbName)
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createRootDoc: Success, the root document is created' })
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createRootDoc: Failure, cannot create the root document, ' + error })
+		})
+	},
+
+	createDefaultTeam({
+		rootState,
+		dispatch
+	}, dbName) {
+		const _id = createId()
+		const defaultTeam = 'not assigned yet'
+		// create a new document and store it
+		const newDoc = {
+			"_id": _id,
+			"type": 'team',
+			"teamName": defaultTeam,
+			"members": [],
+			"history": [
+				{
+					"teamCreationEvent": [defaultTeam],
+					"by": rootState.userData.user,
+					"timestamp": Date.now(),
+					"distributeEvent": false
+				}],
+			"delmark": false
+		}
+		globalAxios({
+			method: 'PUT',
+			url: dbName + '/' + _id,
+			data: newDoc
+		}).then(() => {
+			dispatch('createFirstProduct', dbName)
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createDefaultTeam: Success, default team with _id ' + _id + ' is created' })
+		}).catch(error => {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createDefaultTeam: Failure, cannot create the default team, ' + error })
 		})
 	},
 
@@ -424,9 +466,7 @@ const actions = {
 		rootState,
 		dispatch
 	}, dbName) {
-		// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-		const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
-		const _id = Date.now().toString().concat(ext)
+		const _id = createId()
 		// create a new document and store it
 		const newDoc = {
 			"_id": _id,
@@ -456,19 +496,15 @@ const actions = {
 			}],
 			"delmark": false
 		}
-
 		globalAxios({
 			method: 'PUT',
 			url: dbName + '/' + _id,
 			data: newDoc
 		}).then(() => {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Product with _id ' + _id + ' is created' })
 			dispatch('addProductToUser', { dbName, productId: _id, userRoles: ['*'] })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Success, product with _id ' + _id + ' is created' })
 		}).catch(error => {
-			let msg = 'createFirstProduct: Could not create document with id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Failure, cannot create first product, ' + error })
 		})
 	}
 }

@@ -30,13 +30,13 @@
           </b-col>
         </b-row>
       </b-form-group>
-      <div v-if="!$store.state.isDatabaseCreated">
-          <b-button v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</b-button>
+      <div v-if="!$store.state.isDatabaseInitiated">
+          <b-button v-if="dbName" class="m-1" @click="doCreateDatabase">Create databases</b-button>
           <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
-      <div v-if="$store.state.isDatabaseCreated">
+      <div v-if="$store.state.isDatabaseInitiated">
         <h5>Succes! Apart from being a CouchDb 'server admin' you have the 'admin' role.</h5>
-        <h5>Exit and sign-in again. The 'Admin view' will open. Create a sprint calendar and create the first users and set their roles. Assign one or more admins to take over your admin task.</h5>
+        <h5>Exit and sign-in again. The 'Admin' view will open. Create a default sprint calendar and create the first users and set their roles. Assign one or more admins to take over your admin task.</h5>
         <b-button class="m-1" @click="signIn" variant="outline-primary">Exit</b-button>
       </div>
       <div v-if="$store.state.backendMessages.length > 0">
@@ -88,7 +88,7 @@ export default {
     },
 
     signIn() {
-      this.$store.state.isDatabaseCreated = false
+      this.$store.state.isDatabaseInitiated = false
       this.$store.state.backendMessages = []
       this.$store.commit('resetData', null, { root: true })
       router.replace('/')

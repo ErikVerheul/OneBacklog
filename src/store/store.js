@@ -47,6 +47,10 @@ export default new Vuex.Store({
 		showWatchdogInfo: false,
 		// loading options
 		autoCorrectUserProfile: true,
+		// creating a CouchDb instance
+		isDatabaseInitiated: false,
+		// all databases
+		teams: {},
 		// logging
 		logState: {
 			logSavePending: false,
@@ -54,7 +58,7 @@ export default new Vuex.Store({
 			savedLogs: [],
 			unsavedLogs: []
 		},
-		//startup
+		// startup
 		currentDefaultProductId: null,
 		currentProductId: null,
 		currentProductTitle: "",
@@ -102,6 +106,7 @@ export default new Vuex.Store({
 		isProductCreated: false,
 		isPurgeReady: false,
 		isSprintCalendarFound: false,
+		isDefaultSprintCalendarSaved: false,
 		isTeamCreated: false,
 		isUserCreated: false,
 		isUserFound: false,
@@ -122,11 +127,11 @@ export default new Vuex.Store({
 		showHeaderDropDowns: true,
 		userData: {},
 		// planning board
-		sprintCalendar: [],
+		cannotImportProducts: [],
 		loadedSprintId: null,
+		sprintCalendar: [],
 		stories: [],
-		warningText: '',
-		cannotImportProducts: []
+		warningText: ''
 	},
 
 	getters: {

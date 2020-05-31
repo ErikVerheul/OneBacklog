@@ -146,7 +146,7 @@ const actions = {
       tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
       dispatch('updateUser', { data: tmpUserData })
       // update the config document
-      dispatch('updateTeams', { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam })
+      dispatch('updateTeamsInDb', { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam })
       let msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + newTeam
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
@@ -194,6 +194,7 @@ const actions = {
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
+      rootState.isDatabaseInitiated = true
       rootState.isDatabaseCreated = true
       rootState.isProductCreated = true
       let tmpUserData = res.data

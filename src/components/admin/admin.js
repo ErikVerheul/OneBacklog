@@ -20,13 +20,15 @@ function mounted() {
   this.$store.state.backendMessages = []
   this.$store.dispatch('getAllUsers')
   this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
-  // get the current sprint number
-  const now = Date.now()
-  for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
-    const s = this.$store.state.configData.defaultSprintCalendar[i]
-    if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
-      this.currentSprintNr = i
-      break
+  // get the current sprint number if the calendar is available
+  if (this.$store.state.configData.defaultSprintCalendar) {
+    const now = Date.now()
+    for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
+      const s = this.$store.state.configData.defaultSprintCalendar[i]
+      if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
+        this.currentSprintNr = i
+        break
+      }
     }
   }
 }
@@ -76,24 +78,24 @@ const computed = {
 
   acceptSprintnr() {
     return !isNaN(this.changedNumberStr) && parseInt(this.changedNumberStr) >= this.currentSprintNr && Number.isInteger(parseFloat(this.changedNumberStr)) &&
-    parseInt(this.changedNumberStr) < this.$store.state.configData.defaultSprintCalendar.length
+      parseInt(this.changedNumberStr) < this.$store.state.configData.defaultSprintCalendar.length
   },
 
   acceptNewSprintLength() {
     return !isNaN(this.changedDurationStr) && parseInt(this.changedDurationStr) > 0 && Number.isInteger(parseFloat(this.changedDurationStr)) &&
-    parseInt(this.changedDurationStr) <= 28
+      parseInt(this.changedDurationStr) <= 28
   },
 
   acceptHourChange() {
     return !isNaN(this.changedHourStr) && parseInt(this.changedHourStr) >= -12 && Number.isInteger(parseFloat(this.changedHourStr)) &&
-    parseInt(this.changedHourStr) <= 12
+      parseInt(this.changedHourStr) <= 12
   },
 
   acceptNewEndDate() {
     return this.getSprint().startTimestamp + this.changedDurationStr * DAY_MILIS + this.changedHourStr * HOUR_MILIS >= Date.now()
   },
 
-  changeDisableOkButton () {
+  changeDisableOkButton() {
     return !this.acceptSprintnr || !this.acceptNewSprintLength || !this.acceptHourChange
   }
 }
@@ -407,6 +409,7 @@ const methods = {
     this.optionSelected = 'Sprint calendar'
     this.checkForExistingCalendar = true
     this.$store.state.isSprintCalendarFound = false
+    this.$store.state.isDefaultSprintCalendarSaved = false
     this.dbIsSelected = false
     this.creatingCalendar = false
     this.$store.state.backendMessages = []
@@ -451,7 +454,7 @@ const methods = {
   },
 
   doCreateTeam() {
-    this.$store.dispatch('addTeamToDatabase', { dbName: this.$store.state.selectedDatabaseName, newTeam: this.teamName })
+    this.$store.dispatch('addTeamToDb', { id: this.createId(), dbName: this.$store.state.selectedDatabaseName, teamName: this.teamName })
   },
 
   doLoadSprintCalendar() {

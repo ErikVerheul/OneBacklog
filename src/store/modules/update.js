@@ -795,71 +795,120 @@ const actions = {
 		})
 	},
 
-	addTeamToDatabase({
+	addTeamToDb({
 		rootState,
 		dispatch
 	}, payload) {
-		rootState.backendMessages = []
-		rootState.isTeamCreated = false
+		const dbName = payload.dbName
+		const teamName = payload.teamName
 		globalAxios({
 			method: 'GET',
-			url: payload.dbName + '/config',
+			url: dbName + '/_design/design1/_view/teams',
 		}).then(res => {
-			const tmpConfig = res.data
-			const allTeams = Object.keys(tmpConfig.teams)
-			if (!allTeams.includes(payload.newTeam)) {
-				tmpConfig.teams[payload.newTeam] = []
+			const teams = res.data.rows
+			let teamExists = false
+			for (let t of teams) {
+				if (t.key === teamName) {
+					teamExists = true
+					break
+				}
+			}
+			if (!teamExists) {
+				const updatedDoc = {
+					"_id": payload.id,
+					"type": 'team',
+					"teamName": teamName,
+					"members": [],
+					"history": [
+						{
+							"teamCreationEvent": [teamName],
+							"by": rootState.userData.user,
+							"timestamp": Date.now(),
+							"distributeEvent": false
+						}],
+					"delmark": false
+				}
+				rootState.backendMessages = []
 				dispatch('updateDoc', {
-					dbName: payload.dbName,
-					updatedDoc: tmpConfig,
-					onSuccessCallback: function () {
+					dbName,
+					updatedDoc,
+					onSuccessCallback: function() {
 						rootState.isTeamCreated = true
 						rootState.backendMessages.push({
-							seqKey: rootState.seqKey++, msg: "addTeamToDatabase: Team '" + payload.newTeam + "' is created in database " + payload.dbName
+							seqKey: rootState.seqKey++, msg: `doCreateTeam: Team '${teamName}' is created in database '${dbName}'`
+						})
+					},
+					onFailureCallback: function() {
+						rootState.isTeamCreated = false
+						rootState.backendMessages.push({
+							seqKey: rootState.seqKey++, msg: `doCreateTeam: The creation of team '${teamName}' failed. See the log in database '${dbName}'`
 						})
 					}
 				})
 			} else {
 				rootState.backendMessages.push({
-					seqKey: rootState.seqKey++, msg: "addTeamToDatabase: Cannot add team name '" + payload.newTeam + "'. Reason: team already exist in database " + payload.dbName
+					seqKey: rootState.seqKey++, msg: `addTeamToDb: Cannot add team name '${teamName}'. Reason: team already exist in database '${dbName}'`
 				})
 			}
 		}).catch(error => {
-			const msg = 'addTeamToDatabase: Could not read config document ' + error
+			let msg = `'ddTeamToDb: Could not read the teams in database '${dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
 
-	updateTeams({
+	updateTeamsInDb({
 		rootState,
 		dispatch
 	}, payload) {
-		rootState.backendMessages = []
-		rootState.isTeamCreated = false
-		if (payload.newTeam !== payload.oldTeam) {
+		const dbName = payload.dbName
+		if (payload.oldTeam !== payload.newTeam) {
 			globalAxios({
 				method: 'GET',
-				url: payload.dbName + '/config',
+				url: dbName + '/_design/design1/_view/teams?include_docs=true',
 			}).then(res => {
-				const tmpConfig = res.data
-				const oldTeam = tmpConfig.teams[payload.oldTeam]
-				const updatedOldTeam = []
-				for (let m of oldTeam) {
-					if (m !== payload.userName) updatedOldTeam.push(m)
+				const rows = res.data.rows
+				let oldTeamDoc
+				let newTeamDoc
+				for (let r of rows) {
+					const doc = r.doc
+					if (doc.teamName === payload.oldTeam) oldTeamDoc = doc
+					if (doc.teamName === payload.newTeam) newTeamDoc = doc
 				}
-				tmpConfig.teams[payload.oldTeam] = updatedOldTeam
-
-				const newTeam = tmpConfig.teams[payload.newTeam]
-				if (!newTeam.includes(payload.userName)) newTeam.push(payload.userName)
-				tmpConfig.teams[payload.newTeam] = newTeam
-				dispatch('updateDoc', { dbName: payload.dbName, updatedDoc: tmpConfig })
-				// update the config in memory
-				rootState.configData.teams = tmpConfig.teams
-				rootState.configData.teams.sort()
+				if (oldTeamDoc && newTeamDoc) {
+					const oldTeamDocNewMembers = []
+					for (let m of oldTeamDoc.members) {
+						if (m !== payload.userName) oldTeamDocNewMembers.push(m)
+					}
+					oldTeamDoc.members = oldTeamDocNewMembers
+					if (!newTeamDoc.members.includes(payload.userName)) newTeamDoc.members.push(payload.userName)
+					const leaveHist = {
+						"leavingTeamEvent": [payload.userName],
+						"by": rootState.userData.user,
+						"timestamp": Date.now(),
+						"distributeEvent": false
+					}
+					oldTeamDoc.history.unshift(leaveHist)
+					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc })
+					const joinHist = {
+						"joiningTeamEvent": [payload.userName],
+						"by": rootState.userData.user,
+						"timestamp": Date.now(),
+						"distributeEvent": false
+					}
+					oldTeamDoc.history.unshift(joinHist)
+					dispatch('updateDoc', { dbName, updatedDoc: newTeamDoc })
+					// update the team list in memory
+					rootState.teams[payload.oldTeam] = oldTeamDoc.members
+					rootState.teams[payload.newTeam] = newTeamDoc.members
+				}
 			}).catch(error => {
-				const msg = 'addTeamToDatabase: Could not read config document ' + error
+				let msg = `updateTeamInDb: Could not read the teams in database '${dbName}', ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			})
 		}
