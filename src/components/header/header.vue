@@ -156,6 +156,24 @@
 
 <script src="./header.js"></script>
 
+<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
+<!-- define this drop-down button style globally -->
+<style>
+#dropdownMenuButton > button {
+  width: 100%;
+}
+
+#dropdownMenuButton__BV_toggle_ {
+  width: 100%;
+}
+
+.btn.btn-secondary.dropdown-toggle {
+  background-color: #408fae;
+  color: white;
+  border-radius: 0.25rem;
+}
+</style>
+
 <style scoped>
 .input-field {
   margin: 10px;

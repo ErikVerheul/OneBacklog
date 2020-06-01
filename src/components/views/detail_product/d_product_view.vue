@@ -355,23 +355,6 @@
 
 <script src="./d_product_view.js"></script>
 
-<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
-<style>
-#dropdownMenuButton > button {
-  width: 100%;
-}
-
-#dropdownMenuButton__BV_toggle_ {
-  width: 100%;
-}
-
-.btn.btn-secondary.dropdown-toggle {
-  background-color: #408fae;
-  color: white;
-  border-radius: 0.25rem;
-}
-</style>
-
 <style lang="scss" scoped>
 @import "../../../css/sl-vue-tree-dark.css";
 
