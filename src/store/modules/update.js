@@ -832,13 +832,14 @@ const actions = {
 				dispatch('updateDoc', {
 					dbName,
 					updatedDoc,
-					onSuccessCallback: function() {
+					onSuccessCallback: function () {
 						rootState.isTeamCreated = true
+						rootState.teams[teamName] = []
 						rootState.backendMessages.push({
 							seqKey: rootState.seqKey++, msg: `doCreateTeam: Team '${teamName}' is created in database '${dbName}'`
 						})
 					},
-					onFailureCallback: function() {
+					onFailureCallback: function () {
 						rootState.isTeamCreated = false
 						rootState.backendMessages.push({
 							seqKey: rootState.seqKey++, msg: `doCreateTeam: The creation of team '${teamName}' failed. See the log in database '${dbName}'`
@@ -852,6 +853,44 @@ const actions = {
 			}
 		}).catch(error => {
 			let msg = `'ddTeamToDb: Could not read the teams in database '${dbName}'. ${error}`
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	removeTeamsFromDb({
+		rootState,
+		dispatch
+	}, payload) {
+		const dbName = payload.dbName
+		const teamNamesToRemove = payload.teamNamesToRemove
+		globalAxios({
+			method: 'GET',
+			url: dbName + '/_design/design1/_view/teams?include_docs=true',
+		}).then(res => {
+			const results = res.data.rows
+			const docsToRemove = []
+			for (let r of results) {
+				const doc = r.doc
+				if (teamNamesToRemove.includes(doc.teamName)) {
+					doc.delmark = true
+					docsToRemove.push(doc)
+				}
+			}
+			dispatch('updateBulk', {
+				dbName,
+				docs: docsToRemove,
+				onSuccessCallback: function () {
+					rootState.areTeamsRemoved = true
+					rootState.backendMessages.push({
+						seqKey: rootState.seqKey++, msg: `removeTeamsFromDb: Teams [${teamNamesToRemove}] are removed from database '${dbName}'`
+					})
+				},
+			})
+		}).catch(error => {
+			let msg = `'removeTeamsFromDb: Could not read the teams in database '${dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)

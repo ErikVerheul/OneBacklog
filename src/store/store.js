@@ -95,6 +95,7 @@ export default new Vuex.Store({
 		areDatabasesFound: false,
 		areProductsFound: false,
 		areTeamsFound: false,
+		areTeamsRemoved: false,
 		backendMessages: [],
 		databaseOptions: undefined,
 		userDatabaseOptions: undefined,
@@ -113,6 +114,9 @@ export default new Vuex.Store({
 		isUserUpdated: false,
 		selectedDatabaseName: '',
 		seqKey: 0,
+		teamsToRemoveIds: [],
+		teamsToRemoveOptions: [],
+		userOptions: [],
 		warning: '',
 		// app wide globals
 		configData: null,

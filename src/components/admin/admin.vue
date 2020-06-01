@@ -8,6 +8,7 @@
       <b-button block @click="createUser">Create a user</b-button>
       <b-button block @click="maintainUsers">Maintain users</b-button>
       <b-button block @click="createTeam">Create a team</b-button>
+      <b-button block @click="removeTeams">Remove teams without members</b-button>
       <b-button block @click="createOrUpdateCalendar">Create / Maintain default sprint calendar</b-button>
       <b-button block @click="listTeams">List teams</b-button>
       <template v-if="optionSelected != 'Select a task'">
@@ -22,7 +23,7 @@
                 <b-form-group>
                   <b-form-select
                     v-model="selectedUser"
-                    :options="userOptions"
+                    :options="this.$store.state.userOptions"
                   ></b-form-select>
                 </b-form-group>
               </b-col>
@@ -120,34 +121,10 @@
               stacked
             ></b-form-radio-group>
           </b-form-group>
-          <b-button class="m-1" @click="dbIsSelected = true">Continue</b-button>
+          <b-button class="m-1" @click="doAfterDbIsSelected()">Continue</b-button>
           <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
         </div>
         <div v-else>
-          <div v-if="optionSelected === 'Create a product'">
-            <h2>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h2>
-            <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
-            <b-button v-if="!$store.state.isProductCreated && productTitle !== ''" class="m-1" @click="doCreateProduct">Create product</b-button>
-            <b-button v-if="!$store.state.isProductCreated" class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
-            <div v-if="$store.state.isProductCreated">
-              <h4>Select the products view to see the new product</h4>
-              <b-button class="m-1" @click="cancel">return</b-button>
-            </div>
-          </div>
-
-          <div v-if="optionSelected === 'Remove a product'">
-            <h2>Remove a product from the current database '{{ $store.state.userData.currentDb }}'</h2>
-            <p>As super Po you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
-            <p>When doing so be aware of:</p>
-            <ul>
-              <li>Online users will see the product and all descendents disappear.</li>
-              <li>Users who sign-in after the removal will miss the product.</li>
-              <li>When undoing the removal the users who signed-in in between the removal and undo, will have no access to the product. An admin must register the product for them.</li>
-            </ul>
-            <b-button class="m-1" @click="showProductView()">Switch to product view</b-button>
-            <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
-          </div>
-
           <div v-if="optionSelected === 'Create a user'">
             <div v-if="!credentialsReady">
               <h4>Create a user with access to the '{{ $store.state.selectedDatabaseName }}' database and products</h4>
@@ -177,9 +154,6 @@
               </b-row>
             </div>
             <div v-if="credentialsReady">
-              <b-button class="m-1" @click="callGetDbProducts(true)">Continue</b-button>
-              <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
-
               <div v-if="$store.state.areProductsFound">
                 Creating user '{{ userName }}'
                 <h5>Make this user an 'admin'?</h5>
@@ -188,7 +162,7 @@
                 >Tick to add this role
                 </b-form-checkbox>
                 <hr>
-                <h5>Assign (additional) the roles to each product in database '{{ $store.state.selectedDatabaseName }}'</h5>
+                <h5>Assign (additional) roles to each product in database '{{ $store.state.selectedDatabaseName }}'</h5>
                 <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
                   {{ prod.value }}:
                   <b-form-group>
@@ -201,18 +175,53 @@
                 <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="doCreateUser">Create this user</b-button>
                 <hr>
                 <b-button v-if="!$store.state.isUserCreated" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
-                <b-button v-if="$store.state.isUserCreated" class="m-1" @click="cancel" variant="seablue">Return</b-button>
+              </div>
+              <div v-else>
+                <p>No products found to assign to this user in database {{ $store.state.selectedDatabaseName }}</p>
               </div>
             </div>
           </div>
 
+          <div v-if="optionSelected === 'Create a product'">
+            <h2>Create a new product in the current database '{{ $store.state.userData.currentDb }}' by entering its title:</h2>
+            <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
+            <b-button v-if="!$store.state.isProductCreated && productTitle !== ''" class="m-1" @click="doCreateProduct">Create product</b-button>
+            <b-button v-if="!$store.state.isProductCreated" class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
+            <h4 v-if="$store.state.isProductCreated">Select the products view to see the new product</h4>
+          </div>
+
+          <div v-if="optionSelected === 'Remove a product'">
+            <h2>Remove a product from the current database '{{ $store.state.userData.currentDb }}'</h2>
+            <p>As super Po you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
+            <p>When doing so be aware of:</p>
+            <ul>
+              <li>Online users will see the product and all descendents disappear.</li>
+              <li>Users who sign-in after the removal will miss the product.</li>
+              <li>When undoing the removal the users who signed-in between the removal and undo, will have no access to the product. An admin must register the product for them.</li>
+            </ul>
+            <b-button class="m-1" @click="showProductView()">Switch to product view</b-button>
+            <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
+          </div>
+
           <div v-if="optionSelected === 'Create a team'">
             <h4>Create a team for users with products in database '{{ $store.state.selectedDatabaseName }}'</h4>
-            <p>When created the user of that database can choose to become a member of the team</p>
+            <p>When created any user of that database can choose to become a member of the team</p>
             <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>
             <b-button v-if="!$store.state.isTeamCreated && teamName !== ''" class="m-1" @click="doCreateTeam">Create this team</b-button>
             <b-button v-if="!$store.state.isTeamCreated" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
-            <b-button v-if="$store.state.isTeamCreated" class="m-1" @click="cancel" variant="seablue">Return</b-button>
+          </div>
+
+          <div v-if="optionSelected === 'Remove teams without members'">
+            <h4>Remove teams without members in database '{{ $store.state.selectedDatabaseName }}'</h4>
+            <b-form-group label="Select one or more teams to remove">
+              <b-form-checkbox-group
+                v-model="teamNamesToRemove"
+                :options="$store.state.teamsToRemoveOptions"
+              ></b-form-checkbox-group>
+            </b-form-group>
+
+            <b-button v-if="!$store.state.areTeamsRemoved" class="m-1" @click="doRemoveTeams(teamNamesToRemove)">Remove teams</b-button>
+            <b-button v-if="!$store.state.areTeamsRemoved" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
           </div>
 
           <div v-if="optionSelected === 'Sprint calendar'">
@@ -370,16 +379,14 @@
           </div>
 
           <div v-if="optionSelected === 'List teams'">
-            <h4 v-if="!$store.state.areTeamsFound">List the teams of users with products in database '{{ $store.state.selectedDatabaseName }}'</h4>
-            <b-button v-if="!$store.state.areTeamsFound" class="m-1" @click="doGetTeamsOfDb">List teams</b-button>
-            <b-button v-if="!$store.state.areTeamsFound" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
-            <div v-if="$store.state.areTeamsFound">
+            <p v-if="!$store.state.areTeamsFound"> No teams found</p>
+            <div v-else>
               <h4>List of teams and members working on products in database '{{ $store.state.selectedDatabaseName }}'</h4>
               <hr>
-              <div v-for="teamName in $store.state.fetchedTeams" :key="teamName">
-                <b>Team '{{ teamName }}'</b>
+              <div v-for="team in $store.state.fetchedTeams" :key="team.teamName">
+                <b>Team '{{ team.teamName }}'</b>
                 <div v-for="userRec in $store.state.useracc.allUsers" :key="userRec.name">
-                  <i v-if="teamName === userRec.team"> '{{ userRec.name }}' is member of this team </i>
+                  <i v-if="team.teamName === userRec.team"> '{{ userRec.name }}' is member of this team </i>
                 </div>
                 <hr>
               </div>

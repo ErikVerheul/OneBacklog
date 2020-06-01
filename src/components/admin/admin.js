@@ -18,7 +18,6 @@ function addToArray(arr, item) {
 
 function mounted() {
   this.$store.state.backendMessages = []
-  this.$store.dispatch('getAllUsers')
   this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
   // get the current sprint number if the calendar is available
   if (this.$store.state.configData.defaultSprintCalendar) {
@@ -36,7 +35,6 @@ function mounted() {
 function data() {
   return {
     dbIsSelected: false,
-    lastOptionSelected: 'Select a task',
     optionSelected: 'Select a task',
     productTitle: "",
     userName: undefined,
@@ -53,7 +51,6 @@ function data() {
     allRoles: [],
     localMessage: '',
     selectedUser: undefined,
-    userOptions: [],
     isDatabaseSelected: false,
     creatingCalendar: false,
     startDateStr: '',
@@ -67,7 +64,8 @@ function data() {
     changedDurationStr: '',
     changedHourStr: '',
     currentSprintNr: undefined,
-    isUserDbSelected: false
+    isUserDbSelected: false,
+    teamNamesToRemove: []
   }
 }
 
@@ -120,10 +118,29 @@ const methods = {
     })
   },
 
+  doAfterDbIsSelected() {
+    switch (this.optionSelected) {
+      case 'Create a user':
+        this.callGetDbProducts(true)
+        break
+      case 'List teams':
+        this.$store.dispatch('getAllUsers')
+        this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
+      break
+      case 'Remove teams without members':
+        this.teamNamesToRemove = []
+        this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
+        break
+    }
+    this.dbIsSelected = true
+  },
+
   createProduct() {
-    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Create a product'
+    this.productTitle = ''
+    this.$store.state.isProductCreated = false
     this.dbIsSelected = false
+    this.$store.state.backendMessages = []
   },
 
   doCreateProduct() {
@@ -264,7 +281,6 @@ const methods = {
   },
 
   removeProduct() {
-    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Remove a product'
     this.dbIsSelected = false
   },
@@ -291,20 +307,17 @@ const methods = {
 
   /* Get all product titles of the selected database in $store.state.useracc.dbProducts */
   callGetDbProducts(createNewUser) {
-    this.$store.state.useracc.dbProducts = undefined
     this.$store.dispatch('getDbProducts', { dbName: this.$store.state.selectedDatabaseName, createNewUser })
   },
 
   createUser() {
-    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Create a user'
-    this.dbIsSelected = false
     this.userName = undefined
     this.password = undefined
     this.userEmail = undefined
     this.credentialsReady = false
+    this.$store.state.backendMessages = []
     this.localMessage = ''
-    this.$store.state.useracc.dbProducts = undefined
     this.$store.state.useracc.userIsAdmin = false
     this.$store.state.isUserCreated = false
   },
@@ -347,9 +360,7 @@ const methods = {
   },
 
   maintainUsers() {
-    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Maintain users'
-    this.dbIsSelected = false
     this.isUserDbSelected = false
     this.localMessage = ''
     this.$store.state.backendMessages = []
@@ -357,11 +368,7 @@ const methods = {
     this.$store.state.areDatabasesFound = false
     this.$store.state.areProductsFound = false
     this.$store.state.isUserUpdated = false
-    // populate the userOptions array
-    this.userOptions = []
-    for (let u of this.$store.state.useracc.allUsers) {
-      this.userOptions.push(u.name)
-    }
+    this.$store.dispatch('getAllUsers')
   },
 
   /* Creates fetchedUserData and have the prod.roles set in products */
@@ -405,7 +412,6 @@ const methods = {
   },
 
   createOrUpdateCalendar() {
-    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Sprint calendar'
     this.checkForExistingCalendar = true
     this.$store.state.isSprintCalendarFound = false
@@ -446,7 +452,6 @@ const methods = {
   },
 
   createTeam() {
-    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'Create a team'
     this.dbIsSelected = false
     this.teamName = ''
@@ -457,13 +462,22 @@ const methods = {
     this.$store.dispatch('addTeamToDb', { id: this.createId(), dbName: this.$store.state.selectedDatabaseName, teamName: this.teamName })
   },
 
+  removeTeams() {
+    this.optionSelected = 'Remove teams without members'
+    this.dbIsSelected = false
+    this.$store.state.areTeamsRemoved = false
+  },
+
+  doRemoveTeams(teamNamesToRemove) {
+    this.$store.dispatch('removeTeamsFromDb', { dbName: this.$store.state.selectedDatabaseName, teamNamesToRemove })
+  },
+
   doLoadSprintCalendar() {
     this.checkForExistingCalendar = false
     this.$store.dispatch('getSprintCalendar', this.$store.state.selectedDatabaseName)
   },
 
   listTeams() {
-    this.lastOptionSelected = this.optionSelected
     this.optionSelected = 'List teams'
     this.dbIsSelected = false
     this.$store.state.backendMessages = []
@@ -472,7 +486,7 @@ const methods = {
   },
 
   doGetTeamsOfDb() {
-    this.$store.dispatch('getTeamNames', this.$store.state.selectedDatabaseName)
+    this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
   },
 
   cancel() {

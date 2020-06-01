@@ -6,7 +6,7 @@ const ERROR = 2
 const state = {
   fetchedUserData: null,
   userIsAdmin: false,
-  dbProducts: undefined,
+  dbProducts: [],
   allUsers: []
 }
 
@@ -65,6 +65,11 @@ const actions = {
             state.allUsers.push(userRec)
           }
         }
+      }
+      // populate the userOptions array
+      rootState.userOptions = []
+      for (let u of state.allUsers) {
+        rootState.userOptions.push(u.name)
       }
     }).catch(error => {
       let msg = 'getAllUsers: Could not read the _users database:' + error

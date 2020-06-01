@@ -220,12 +220,13 @@ itemState				taskState
 
 Items can move to tasks and back
 
-In the CONFIG document the teams and their members are stored:
-As per release 0.9.8
+The teams, their members and the optional team calendar are stored in documents of type 'team':
+As per release 0.9.9
 "teams": {
     "not assigned yet": [userName-1, userName-2],
     "another team": [userName-3, userName-4],
 },
+teamCalendar: []
 
 The default team is "not assigned yet". A user can be member of one team only at the time.
 
