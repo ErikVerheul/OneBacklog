@@ -218,11 +218,13 @@ const authorization = {
 			return levels[level]
 		},
 
-		haveAccessInTree(level, itemTeam, forAction, skipTestOnTeam = false) {
+		haveAccessInTree(level, itemTeam, forAction, skipTestOnTeam = false, allowExtraLevel = false) {
 			const noTeamAssigned = itemTeam === 'not yet assigned' || itemTeam === undefined || itemTeam === null
 			const whenApoUpdatingReqAreaItem = this.isAPO && this.isReqAreaItem
 			const canAccessOnTeam = whenApoUpdatingReqAreaItem || skipTestOnTeam || itemTeam === this.myTeam || noTeamAssigned
-			const canAccessOnLevel = whenApoUpdatingReqAreaItem || this.haveWritePermission(level, this.$store.state.currentProductId)
+			const canAccessOnLevel = whenApoUpdatingReqAreaItem || this.haveWritePermission(level, this.$store.state.currentProductId) ||
+				allowExtraLevel && this.haveWritePermission(level + 1, this.$store.state.currentProductId)
+
 			if (canAccessOnTeam && canAccessOnLevel) return true
 
 			if (!canAccessOnTeam && !canAccessOnLevel) {
