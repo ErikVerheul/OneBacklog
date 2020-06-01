@@ -24,10 +24,10 @@
           <h5>Welcome {{ userData.user}} from team '{{ userData.myTeam }}'</h5>
         </b-col>
         <b-col cols="4">
-          <h5>{{ $store.getters.getStoryPoints }} story points in this sprint</h5>
+          <h5>{{ getStoryPoints }} story points in this sprint</h5>
         </b-col>
         <b-col cols="2">
-          <h5>points done: {{ $store.getters.getStoryPointsDone }}</h5>
+          <h5>points done: {{ getStoryPointsDone }}</h5>
         </b-col>
         <b-col cols="1">
           <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
@@ -190,6 +190,8 @@ export default {
 
   computed: {
     ...mapGetters([
+      'getStoryPoints',
+      'getStoryPointsDone',
       'myTeam'
     ]),
     ...mapState(['userData']),

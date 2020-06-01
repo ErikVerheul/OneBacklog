@@ -1,6 +1,9 @@
 /*
  * This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
  */
+import { mapGetters } from 'vuex'
+import { eventBus } from "../../../main"
+import { utilities } from '../../mixins/utilities.js'
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const FILTERBUTTONTEXT = 'Filter in tree view'
@@ -9,9 +12,6 @@ const WARNING = 1
 const FEATURELEVEL = 4
 const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
-
-import { eventBus } from "../../../main"
-import { utilities } from '../../mixins/utilities.js'
 
 const props = {
 	value: {
@@ -122,6 +122,10 @@ const watch = {
 }
 
 const computed = {
+	...mapGetters([
+		'leafLevel'
+	]),
+
 	cursorPosition() {
 		if (this.isRoot) return this.rootCursorPosition;
 		return this.getParentComponent().cursorPosition;
@@ -149,7 +153,7 @@ const computed = {
 		const gaps = []
 		let i = this.nodeLevel
 		while (i-- > 0) gaps.push(i)
-		if (this.nodeLevel + 1 === this.$store.getters.leafLevel) gaps.push(i)
+		if (this.nodeLevel + 1 === this.leafLevel) gaps.push(i)
 		return gaps
 	},
 
@@ -534,7 +538,7 @@ const methods = {
 		}
 		this.currentValue[0].children = newChildren
 		// recalculate the paths in the tree
-		updatePaths([0], newChildren, this.$store.getters.leafLevel)
+		updatePaths([0], newChildren, this.leafLevel)
 	},
 
 	getRootNode() {
@@ -654,8 +658,8 @@ const methods = {
 			successorNode = destSiblings[nodes.length] || null
 			if (destNodeModel.path.length === 1) {
 				// inserting a product
-				updatePaths(destNodeModel.path, destSiblings, this.$store.getters.leafLevel)
-			} else updatePaths(destNodeModel.path, destSiblings, this.$store.getters.leafLevel, 0, parentId, productId)
+				updatePaths(destNodeModel.path, destSiblings, this.leafLevel)
+			} else updatePaths(destNodeModel.path, destSiblings, this.leafLevel, 0, parentId, productId)
 		} else {
 			// insert before or after the cursor position
 			const destSiblings = this.getNodeSiblings(destNodeModel.path)
@@ -667,8 +671,8 @@ const methods = {
 			successorNode = destSiblings[insertInd + nodes.length] || null
 			if (parentPath.length === 1) {
 				// inserting a product
-				updatePaths(parentPath, destSiblings, this.$store.getters.leafLevel, insertInd)
-			} else updatePaths(parentPath, destSiblings, this.$store.getters.leafLevel, insertInd, parentId, productId)
+				updatePaths(parentPath, destSiblings, this.leafLevel, insertInd)
+			} else updatePaths(parentPath, destSiblings, this.leafLevel, insertInd, parentId, productId)
 		}
 		if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 	},
@@ -682,7 +686,7 @@ const methods = {
 				const removeInd = node.ind
 				const parentPath = node.path.slice(0, -1)
 				siblings.splice(removeInd, 1)
-				updatePaths(parentPath, siblings, this.$store.getters.leafLevel, removeInd)
+				updatePaths(parentPath, siblings, this.leafLevel, removeInd)
 				success = true
 			}
 		}

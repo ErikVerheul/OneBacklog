@@ -37,6 +37,7 @@
                 @click="selectProducts"
               >Select products</b-dropdown-item>
             </template>
+            <b-dropdown-item v-if="isPO" @click="changeTeamCalendar">Change team calendar</b-dropdown-item>
             <b-dropdown-item v-if="isAuthenticated" @click="changePassword">Change password</b-dropdown-item>
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
             <b-dropdown-item v-if="isAuthenticated" @click="onSignout">Sign Out</b-dropdown-item>
@@ -108,7 +109,7 @@
         <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'">
           <h2>Demo users cannot change the password</h2>
         </template>
-        <template v-if="isAuthenticated && $store.getters.isServerAdmin">
+        <template v-if="isAuthenticated && isServerAdmin">
           <h2>Demo users cannot change the password</h2>
         </template>
         <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user !== 'demoUser'">
@@ -150,6 +151,16 @@
           </b-row>
         </template>
       </b-container>
+    </b-modal>
+
+    <b-modal
+      v-model="changeTeamCalendarModel"
+      :ok-disabled="disableOkButton"
+      @ok="doChangeTeamCalendar"
+      title="Create or change team calendar"
+    >
+
+
     </b-modal>
   </div>
 </template>

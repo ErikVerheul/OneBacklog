@@ -66,6 +66,7 @@ export default new Vuex.Store({
 		// tree loading
 		loadedTreeDepth: undefined,
 		treeNodes: [],
+		treeIsLoaded: false,
 		// detail tree view
 		reqAreaMapper: {},
 		// coarse tree view
@@ -188,7 +189,7 @@ export default new Vuex.Store({
 		myTeam(state) {
 			return state.userData.myTeam
 		},
-		///////////////////////// generic (not product specific) roles ////////////////////////
+		//////////////////////// generic (not product specific) roles ////////////////////////
 		isServerAdmin(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("_admin")
 		},
@@ -198,32 +199,43 @@ export default new Vuex.Store({
 		isAPO(state, getters) {
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("APO")
 		},
-		/////////////////////////////// product specific roles //////////////////////////////
+		/////////////////////////////// product specific roles ///////////////////////////////
+		////  NOT available until the user data are read and the currentProductId is set   ///
 		isPO(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
+			if (state.treeIsLoaded) {
+				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
+			} else return false
 		},
 		isDeveloper(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+			if (state.treeIsLoaded) {
+				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+			} else return false
 		},
 		isGuest(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
+			if (state.treeIsLoaded) {
+				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
+			} else return false
 		},
 		canCreateComments(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isServerAdmin || getters.isAdmin ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+			if (state.treeIsLoaded) {
+				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				return getters.isServerAdmin || getters.isAdmin ||
+					getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+					getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
+					getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+			} else return false
 		},
 		canUploadAttachments(state, getters) {
-			const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-			return getters.isServerAdmin || getters.isAdmin ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
-				getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+			if (state.treeIsLoaded) {
+				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				return getters.isServerAdmin || getters.isAdmin ||
+					getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
+					getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
+					getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+			} else return false
 		},
 		/////////////////////////////// planning board getters //////////////////////////////
 		getStoryPoints(state) {
@@ -583,6 +595,7 @@ export default new Vuex.Store({
 			state.currentProductTitle = ''
 			state.isProductAssigned = false
 			state.myProductOptions = []
+			state.treeIsLoaded = false
 			state.userData = {}
 			state.changeHistory = []
 			state.showHeaderDropDowns = true

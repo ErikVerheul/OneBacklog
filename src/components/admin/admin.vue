@@ -390,7 +390,6 @@
                 </div>
                 <hr>
               </div>
-              <b-button class="m-1" @click="cancel()" variant="seablue">Return</b-button>
             </div>
           </div>
         </div>

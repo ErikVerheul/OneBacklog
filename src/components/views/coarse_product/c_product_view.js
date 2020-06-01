@@ -135,6 +135,7 @@ const methods = {
   },
 
   onTreeIsLoaded() {
+    this.$store.state.treeIsLoaded = true
     this.dependencyViolationsFound()
     this.createColorMapper()
   },
@@ -273,7 +274,7 @@ const methods = {
   },
 
   setReqArea(reqarea) {
-    if (this.$store.getters.isAPO) {
+    if (this.isAPO) {
       this.selReqAreaId = reqarea
       // set the req area options
       const currReqAreaNodes = window.slVueTree.getReqAreaNodes()

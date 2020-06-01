@@ -14,6 +14,8 @@ function created() {
 function data() {
     return {
         appVersion: "OneBackLog v.0.9.8",
+        changeTeamCalendarModel: false,
+        disableOkButton: false,
         oldPassword: "",
         newPassword1: "",
         newPassword2: "",
@@ -33,6 +35,7 @@ const computed = {
         'isServerAdmin',
         'isAPO',
         'isAdmin',
+        'isPO',
         'myTeam'
     ]),
 }
@@ -60,8 +63,17 @@ const methods = {
         this.$refs.selectProductsRef.show()
     },
 
+    changeTeamCalendar() {
+
+        this.changeTeamCalendarModel = true
+    },
+
+    doChangeTeamCalendar() {
+
+    },
+
     changePassword() {
-        if (this.$store.getters.isServerAdmin)
+        if (this.isServerAdmin)
             alert("As a 'server admin' you cannot change your password here. Use Fauxton instead")
         else this.$refs.changePwRef.show()
     },

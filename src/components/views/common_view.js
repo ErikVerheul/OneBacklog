@@ -111,15 +111,16 @@ function data() {
 
 const computed = {
   ...mapGetters([
-    'getpreviousNodeSelected',
-    'getNodeSelected',
-    'isFollower',
     'canCreateComments',
     'canUploadAttachments',
+    'getpreviousNodeSelected',
+    'getNodeSelected',
     'getCurrentItemLevel',
     'getCurrentItemState',
     'getItemSprintName',
     'getCurrentItemTsSize',
+    'isAPO',
+    'isFollower',
     'myTeam'
   ]),
 
