@@ -134,7 +134,7 @@ export default {
         case this.CHANGE_OWNER:
           // populate the userOptions array
           this.userOptions = []
-          for (let userName of this.$store.state.teams[this.$store.state.userData.myTeam].members) {
+          for (let userName of this.$store.state.allTeams[this.$store.state.userData.myTeam].members) {
             this.userOptions.push(userName)
           }
           this.assistanceText = undefined

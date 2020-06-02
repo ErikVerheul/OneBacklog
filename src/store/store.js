@@ -10,6 +10,7 @@ import clone from './modules/clone'
 import sync from './modules/sync'
 import useracc from './modules/useracc'
 import update from './modules/update'
+import teams from './modules/teams'
 import attachments from './modules/attachments'
 import move from './modules/move'
 import undo from './modules/undo'
@@ -49,8 +50,6 @@ export default new Vuex.Store({
 		autoCorrectUserProfile: true,
 		// creating a CouchDb instance
 		isDatabaseInitiated: false,
-		// all databases
-		teams: {},
 		// logging
 		logState: {
 			logSavePending: false,
@@ -65,6 +64,7 @@ export default new Vuex.Store({
 		stopListenForChanges: false,
 		// tree loading
 		loadedTreeDepth: undefined,
+		allTeams: {},
 		treeNodes: [],
 		// detail tree view
 		reqAreaMapper: {},
@@ -253,6 +253,11 @@ export default new Vuex.Store({
 					s.tasks[DONE].length > 0) sum += s.size
 			}
 			return sum
+		},
+
+		/////////////////////////////////////// calendar ////////////////////////////////////
+		teamCalendarInUse(state) {
+			return state.sprintCalendar !== state.configData.defaultSprintCalendar
 		}
 	},
 
@@ -738,6 +743,7 @@ export default new Vuex.Store({
 		sync,
 		useracc,
 		update,
+		teams,
 		attachments,
 		move,
 		undo,

@@ -41,7 +41,7 @@ function mounted() {
   window.myFilters = this.$refs.myFiltersRef
   // set the available team options
   this.teamOptions = []
-  for (let team of Object.keys(this.$store.state.teams)) {
+  for (let team of Object.keys(this.$store.state.allTeams)) {
     this.teamOptions.push(team)
   }
   // remove non existing teams
