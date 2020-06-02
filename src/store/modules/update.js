@@ -834,7 +834,7 @@ const actions = {
 					updatedDoc,
 					onSuccessCallback: function () {
 						rootState.isTeamCreated = true
-						rootState.teams[teamName] = []
+						rootState.teams[teamName] = { id: payload.id, members: [] }
 						rootState.backendMessages.push({
 							seqKey: rootState.seqKey++, msg: `doCreateTeam: Team '${teamName}' is created in database '${dbName}'`
 						})
@@ -940,8 +940,8 @@ const actions = {
 					oldTeamDoc.history.unshift(joinHist)
 					dispatch('updateDoc', { dbName, updatedDoc: newTeamDoc })
 					// update the team list in memory
-					rootState.teams[payload.oldTeam] = oldTeamDoc.members
-					rootState.teams[payload.newTeam] = newTeamDoc.members
+					rootState.teams[payload.oldTeam].members = oldTeamDoc.members
+					rootState.teams[payload.newTeam].members = newTeamDoc.members
 				}
 			}).catch(error => {
 				let msg = `updateTeamInDb: Could not read the teams in database '${dbName}', ${error}`

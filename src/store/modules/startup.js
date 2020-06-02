@@ -234,7 +234,7 @@ const actions = {
             // save in memory
             const teams = res.data.rows
 			for (let t of teams) {
-				rootState.teams[t.key] = t.value
+				rootState.teams[t.key] = { id: t.id, members: t.value }
             }
             dispatch('getRoot')
         }).catch(error => {
