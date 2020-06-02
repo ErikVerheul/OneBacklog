@@ -817,11 +817,7 @@ const actions = {
 				commit('updateCurrentDoc', { newDoc: payload.updatedDoc, _rev: res.data.rev })
 			}
 			// execute passed function if provided
-			if (payload.onSuccessCallback !== undefined) {
-				const nrOfParameters = payload.onSuccessCallback.length
-				if (nrOfParameters === 0) payload.onSuccessCallback()
-				if (nrOfParameters === 1) payload.onSuccessCallback(payload.updatedDoc)
-			}
+			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
 			// additional dispatches
 			if (payload.toDispatch) {
 				for (let name of Object.keys(payload.toDispatch)) {
@@ -832,11 +828,7 @@ const actions = {
 			}
 		}).catch(error => {
 			// execute passed function if provided
-			if (payload.onFailureCallback !== undefined) {
-				const nrOfParameters = payload.onFailureCallback.length
-				if (nrOfParameters === 0) payload.onFailureCallback()
-				if (nrOfParameters === 1) payload.onFailureCallback(payload.updatedDoc)
-			}
+			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
 			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
@@ -871,12 +863,7 @@ const actions = {
 				dispatch('doLog', { event: msg, level: WARNING })
 			}
 			// execute passed function if provided
-			if (payload.onSuccessCallback !== undefined) {
-				const nrOfParameters = payload.onSuccessCallback.length
-				if (nrOfParameters === 0) payload.onSuccessCallback()
-				if (nrOfParameters === 1) payload.onSuccessCallback(payload.docs)
-
-			}
+			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
 			// additional dispatches
 			if (payload.toDispatch) {
 				for (let name of Object.keys(payload.toDispatch)) {
@@ -886,11 +873,7 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			if (payload.onFailureCallback !== undefined) {
-				const nrOfParameters = payload.onFailureCallback.length
-				if (nrOfParameters === 0) payload.onFailureCallback()
-				if (nrOfParameters === 1) payload.onFailureCallback(payload.docs)
-			}
+			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
 			let msg = 'updateBulk: Could not update batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)

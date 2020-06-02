@@ -360,19 +360,11 @@ const actions = {
     }).then(() => {
       rootState.isUserUpdated = true
       // execute passed callback if provided
-      if (payload.onSuccessCallback !== undefined) {
-        const nrOfParameters = payload.onSuccessCallback.length
-        if (nrOfParameters === 0) payload.onSuccessCallback()
-        if (nrOfParameters === 1) payload.onSuccessCallback(payload.updatedDoc)
-      }
+      if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + payload.data.name + "' is updated successfully" })
     }).catch(error => {
       // execute passed callback if provided
-      if (payload.onFailureCallback !== undefined) {
-        const nrOfParameters = payload.onFailureCallback.length
-        if (nrOfParameters === 0) payload.onFailureCallback()
-        if (nrOfParameters === 1) payload.onFailureCallback(payload.updatedDoc)
-      }
+      if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
       let msg = "updateUser: Could not update the profile of user '" + payload.data.name + "', " + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // eslint-disable-next-line no-console

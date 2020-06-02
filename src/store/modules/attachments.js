@@ -87,11 +87,11 @@ const actions = {
 
                 dispatch('updateDoc', {
                     dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
-                    onSuccessCallback: function(updatedDoc) {
+                    onSuccessCallback: function() {
                         rootState.uploadDone = true
-                        if (updatedDoc._id === rootState.currentDoc._id) {
+                        if (tmpDoc._id === rootState.currentDoc._id) {
                             // the user did not select another document while the attachment was uploaded
-                            commit('updateCurrentDoc', { _attachments: updatedDoc._attachments, newHist })
+                            commit('updateCurrentDoc', { _attachments: tmpDoc._attachments, newHist })
                         }
                     },
                     onFailureCallback: function () { rootState.uploadDone = true },
