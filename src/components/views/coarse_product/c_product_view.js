@@ -135,7 +135,6 @@ const methods = {
   },
 
   onTreeIsLoaded() {
-    this.$store.state.treeIsLoaded = true
     this.dependencyViolationsFound()
     this.createColorMapper()
   },

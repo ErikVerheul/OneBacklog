@@ -66,7 +66,6 @@ export default new Vuex.Store({
 		// tree loading
 		loadedTreeDepth: undefined,
 		treeNodes: [],
-		treeIsLoaded: false,
 		// detail tree view
 		reqAreaMapper: {},
 		// coarse tree view
@@ -200,27 +199,27 @@ export default new Vuex.Store({
 			return getters.isAuthenticated && state.userData.sessionRoles.includes("APO")
 		},
 		/////////////////////////////// product specific roles ///////////////////////////////
-		////  NOT available until the user data are read and the currentProductId is set   ///
+		////  available after the the user data are read and the currentProductId is set   ///
 		isPO(state, getters) {
-			if (state.treeIsLoaded) {
+			if (state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 				return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
 			} else return false
 		},
 		isDeveloper(state, getters) {
-			if (state.treeIsLoaded) {
+			if (state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 				return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
 			} else return false
 		},
 		isGuest(state, getters) {
-			if (state.treeIsLoaded) {
+			if (state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 				return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
 			} else return false
 		},
 		canCreateComments(state, getters) {
-			if (state.treeIsLoaded) {
+			if (state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 				return getters.isServerAdmin || getters.isAdmin ||
 					getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
@@ -229,7 +228,7 @@ export default new Vuex.Store({
 			} else return false
 		},
 		canUploadAttachments(state, getters) {
-			if (state.treeIsLoaded) {
+			if (state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
 				return getters.isServerAdmin || getters.isAdmin ||
 					getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
@@ -595,7 +594,6 @@ export default new Vuex.Store({
 			state.currentProductTitle = ''
 			state.isProductAssigned = false
 			state.myProductOptions = []
-			state.treeIsLoaded = false
 			state.userData = {}
 			state.changeHistory = []
 			state.showHeaderDropDowns = true

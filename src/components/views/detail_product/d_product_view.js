@@ -169,7 +169,6 @@ const methods = {
   },
 
   onTreeIsLoaded() {
-    this.$store.state.treeIsLoaded = true
     window.slVueTree.setDescendentsReqArea()
     this.dependencyViolationsFound()
   },
