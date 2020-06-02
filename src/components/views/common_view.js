@@ -121,7 +121,8 @@ const computed = {
     'getCurrentItemTsSize',
     'isAPO',
     'isFollower',
-    'myTeam'
+    'myTeam',
+    'teamCalendarInUse'
   ]),
 
   welcomeMessage() {

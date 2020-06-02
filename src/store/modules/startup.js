@@ -201,7 +201,7 @@ const actions = {
             } else {
                 if (rootState.configData.defaultSprintCalendar) {
                     rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
-                    dispatch('getAllTeams', rootState.userData.currentDb)
+                    dispatch('getAllTeams')
                 } else {
                     // missing calendar
                     if (rootGetters.isAdmin) {
@@ -225,20 +225,24 @@ const actions = {
     getAllTeams({
         rootState,
         dispatch
-    }, dbName) {
-        rootState.teams = {}
+    }) {
+        rootState.allTeams = {}
         globalAxios({
             method: 'GET',
-            url: dbName + '/_design/design1/_view/teams',
+            url: rootState.userData.currentDb + '/_design/design1/_view/teams',
         }).then(res => {
             // save in memory
             const teams = res.data.rows
 			for (let t of teams) {
-				rootState.teams[t.key] = { id: t.id, members: t.value }
+                rootState.allTeams[t.key] = { id: t.id, members: t.value }
+                if (rootState.userData.myTeam === t.key) {
+                    // load team calendar if present
+                    dispatch('loadTeamCalendar', t.id)
+                }
             }
             dispatch('getRoot')
         }).catch(error => {
-            let msg = `getAllTeams: Could not read the teams in database '${dbName}', ${error}`
+            let msg = `getAllTeams: Could not read the teams in database '${rootState.userData.currentDb}', ${error}`
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

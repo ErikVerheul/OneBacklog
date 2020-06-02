@@ -144,13 +144,13 @@ const actions = {
       method: 'GET',
       url: '/_users/org.couchdb.user:' + rootState.userData.user,
     }).then(res => {
-      // update the user data, the planningBoard.vue listens to this change and will repaint
+      // update the user data, the planningBoard.vue listens to this change and will repaint if in view
       commit('updateTeam', newTeam)
       let tmpUserData = res.data
       const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
       tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
       dispatch('updateUser', { data: tmpUserData })
-      // update the config document
+      // update the team membership
       dispatch('updateTeamsInDb', { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam })
       let msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + newTeam
       // eslint-disable-next-line no-console
