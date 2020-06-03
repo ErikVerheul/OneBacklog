@@ -20,10 +20,10 @@ function mounted() {
   this.$store.state.backendMessages = []
   this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
   // get the current sprint number if the calendar is available
-  if (this.$store.state.configData.defaultSprintCalendar) {
+  if (this.$store.state.adminDefaultSprintCalendar) {
     const now = Date.now()
-    for (let i = 0; i < this.$store.state.configData.defaultSprintCalendar.length; i++) {
-      const s = this.$store.state.configData.defaultSprintCalendar[i]
+    for (let i = 0; i < this.$store.state.adminDefaultSprintCalendar.length; i++) {
+      const s = this.$store.state.adminDefaultSprintCalendar[i]
       if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
         this.currentSprintNr = i
         break
@@ -76,7 +76,7 @@ const computed = {
 
   acceptSprintnr() {
     return !isNaN(this.changedNumberStr) && parseInt(this.changedNumberStr) >= this.currentSprintNr && Number.isInteger(parseFloat(this.changedNumberStr)) &&
-      parseInt(this.changedNumberStr) < this.$store.state.configData.defaultSprintCalendar.length
+      parseInt(this.changedNumberStr) < this.$store.state.adminDefaultSprintCalendar.length
   },
 
   acceptNewSprintLength() {
@@ -218,7 +218,7 @@ const methods = {
   },
 
   getSprint() {
-    return this.$store.state.configData.defaultSprintCalendar[parseInt(this.changedNumberStr)]
+    return this.$store.state.adminDefaultSprintCalendar[parseInt(this.changedNumberStr)]
   },
 
   getStartDate() {
@@ -239,10 +239,10 @@ const methods = {
   },
 
   changeSprintInCalendar() {
-    const currentCalendar = this.$store.state.configData.defaultSprintCalendar
+    const currentCalendar = this.$store.state.adminDefaultSprintCalendar
     const calendarLength = currentCalendar.length
     const unChangedCalendar = currentCalendar.slice(0, parseInt(this.changedNumberStr))
-    const changedSprint = this.$store.state.configData.defaultSprintCalendar[parseInt(this.changedNumberStr)]
+    const changedSprint = this.$store.state.adminDefaultSprintCalendar[parseInt(this.changedNumberStr)]
     const sprintLengthChange = this.changedDurationStr * DAY_MILIS - changedSprint.sprintLength + this.changedHourStr * HOUR_MILIS
     changedSprint.sprintLength += sprintLengthChange
     const newSprintCalendar = unChangedCalendar.concat(changedSprint)
@@ -253,11 +253,11 @@ const methods = {
       newSprintCalendar.push(sprint)
       prevSprintEnd = sprint.startTimestamp + sprint.sprintLength
     }
-    this.$store.dispatch('saveSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
+    this.$store.dispatch('saveDbDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
   },
 
   extendCalendar() {
-    const currentCalendar = this.$store.state.configData.defaultSprintCalendar
+    const currentCalendar = this.$store.state.adminDefaultSprintCalendar
     const lastSprint = currentCalendar.slice(-1)[0]
     const sprintLengthMillis = lastSprint.sprintLength
     const numberOfSprints = parseInt(this.extendNumberStr)
@@ -277,7 +277,7 @@ const methods = {
       j++
     }
     const newSprintCalendar = currentCalendar.concat(extendSprintCalendar)
-    this.$store.dispatch('saveSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
+    this.$store.dispatch('saveDbDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
   },
 
   removeProduct() {
@@ -415,7 +415,7 @@ const methods = {
     this.optionSelected = 'Sprint calendar'
     this.checkForExistingCalendar = true
     this.$store.state.isSprintCalendarFound = false
-    this.$store.state.isDefaultSprintCalendarSaved = false
+    this.$store.state.isadminDefaultSprintCalendarSaved = false
     this.dbIsSelected = false
     this.creatingCalendar = false
     this.$store.state.backendMessages = []
@@ -435,7 +435,7 @@ const methods = {
     const sprintLengthMillis = parseInt(this.sprintLengthStr) * DAY_MILIS
     const numberOfSprints = parseInt(this.numberOfSprintsStr)
 
-    const defaultSprintCalendar = []
+    const adminDefaultSprintCalendar = []
     for (let i = 0; i < numberOfSprints; i++) {
       const sprintId = this.createId()
       const obj = {
@@ -444,11 +444,11 @@ const methods = {
         startTimestamp: startDate.valueOf() + i * sprintLengthMillis,
         sprintLength: sprintLengthMillis
       }
-      defaultSprintCalendar.push(obj)
+      adminDefaultSprintCalendar.push(obj)
     }
     this.$store.state.backendMessages = []
     this.workflowStatusMsg = 'created'
-    this.$store.dispatch('saveSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: defaultSprintCalendar })
+    this.$store.dispatch('saveDbDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: adminDefaultSprintCalendar })
   },
 
   createTeam() {
@@ -474,7 +474,7 @@ const methods = {
 
   doLoadSprintCalendar() {
     this.checkForExistingCalendar = false
-    this.$store.dispatch('getSprintCalendar', this.$store.state.selectedDatabaseName)
+    this.$store.dispatch('getDbDefaultSprintCalendar', this.$store.state.selectedDatabaseName)
   },
 
   listTeams() {

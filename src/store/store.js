@@ -99,7 +99,7 @@ export default new Vuex.Store({
 		backendMessages: [],
 		databaseOptions: undefined,
 		userDatabaseOptions: undefined,
-		defaultSprintCalendar: [],
+		adminDefaultSprintCalendar: [],
 		fetchedTeams: [],
 		isCurrentDbChanged: false,
 		isDatabaseCreated: false,
@@ -169,8 +169,8 @@ export default new Vuex.Store({
 			if (state.currentDoc) return state.currentDoc.state
 		},
 		getItemSprintName(state) {
-			if (state.currentDoc.sprintId && state.configData.defaultSprintCalendar) {
-				for (let s of state.configData.defaultSprintCalendar) {
+			if (state.currentDoc.sprintId && state.sprintCalendar) {
+				for (let s of state.sprintCalendar) {
 					if (s.id === state.currentDoc.sprintId) return s.name
 				}
 			}

@@ -19,7 +19,7 @@ import { utilities } from '../../mixins/utilities.js'
 const WARNING = 1
 const FEATURELEVEL = 4
 const PBILEVEL = 5
-var sprints
+var recentSprints
 
 function shortStartDate(sprint) {
   const date = new Date(sprint.startTimestamp)
@@ -37,16 +37,16 @@ export default {
   mixins: [utilities],
 
   created() {
-    sprints = this.getCurrentAndNextSprint()
+    recentSprints = this.getCurrentAndNextSprint()
   },
 
   mounted() {
     window.assignToSprintRef = this.$refs.assignToSprintRef
-    const currentSprintTxt = `Current sprint: '${sprints.currentSprint.name}' started ${shortStartDate(sprints.currentSprint)} and ending ${shortEndDate(sprints.currentSprint)}`
-    const nextSprintTxt = `Next sprint: '${sprints.nextSprint.name}' starting ${shortStartDate(sprints.nextSprint)} and ending ${shortEndDate(sprints.nextSprint)}`
+    const currentSprintTxt = `Current sprint: '${recentSprints.currentSprint.name}' started ${shortStartDate(recentSprints.currentSprint)} and ending ${shortEndDate(recentSprints.currentSprint)}`
+    const nextSprintTxt = `Next sprint: '${recentSprints.nextSprint.name}' starting ${shortStartDate(recentSprints.nextSprint)} and ending ${shortEndDate(recentSprints.nextSprint)}`
     this.sprintOptions = [
-      { text: currentSprintTxt, value: sprints.currentSprint.id },
-      { text: nextSprintTxt, value: sprints.nextSprint.id }
+      { text: currentSprintTxt, value: recentSprints.currentSprint.id },
+      { text: nextSprintTxt, value: recentSprints.nextSprint.id }
     ]
   },
 
@@ -66,9 +66,9 @@ export default {
     */
     sprintSelected() {
       function getSprintName(id) {
-        if (id === sprints.currentSprint.id) {
-          return sprints.currentSprint.name
-        } else return sprints.nextSprint.name
+        if (id === recentSprints.currentSprint.id) {
+          return recentSprints.currentSprint.name
+        } else return recentSprints.nextSprint.name
       }
 
       const currentId = this.$store.state.currentDoc._id

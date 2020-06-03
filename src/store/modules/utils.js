@@ -260,24 +260,24 @@ const actions = {
 		})
 	},
 
-	getSprintCalendar({
+	/* Get the default sprint calendar of a specific database (for admin use only) */
+	getDbDefaultSprintCalendar({
 		rootState,
 		dispatch
 	}, dbName) {
 		rootState.isSprintCalendarFound = false
 		rootState.backendMessages = []
-		rootState.defaultSprintCalendar = []
 		globalAxios({
 			method: 'GET',
 			url: dbName + '/config',
 		}).then(res => {
 			if (res.data.defaultSprintCalendar) {
-				rootState.defaultSprintCalendar = res.data.defaultSprintCalendar
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getSprintCalendar: success, ' + rootState.defaultSprintCalendar.length + ' sprint periods are read' })
+				rootState.adminDefaultSprintCalendar = res.data.defaultSprintCalendar
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getDbDefaultSprintCalendar: success, ' + res.data.defaultSprintCalendar.length + ' sprint periods are read' })
 				rootState.isSprintCalendarFound = true
-			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getSprintCalendar: no calendar is found' })
+			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getDbDefaultSprintCalendar: no calendar is found' })
 		}).catch(error => {
-			let msg = 'getSprintCalendar: Could not read config document of database ' + dbName + ', ' + error
+			let msg = 'getDbDefaultSprintCalendar: Could not read config document of database ' + dbName + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -285,7 +285,8 @@ const actions = {
 		})
 	},
 
-	saveSprintCalendar({
+	/* Save the default sprint calendar of a specific database (for admin use only) */
+	saveDbDefaultSprintCalendar({
 		rootState,
 		dispatch
 	}, payload) {
@@ -295,12 +296,15 @@ const actions = {
 		}).then(res => {
 			let updatedDoc = res.data
 			updatedDoc["defaultSprintCalendar"] = payload.newSprintCalendar
-			dispatch('updateDoc', { dbName: payload.dbName, updatedDoc })
-			rootState.configData.defaultSprintCalendar = payload.newSprintCalendar
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveSprintCalendar: calendar is saved' })
-			rootState.isDefaultSprintCalendarSaved = true
+			dispatch('updateDoc', {
+				dbName: payload.dbName, updatedDoc, onSuccessCallback: () => {
+					rootState.adminDefaultSprintCalendar = payload.newSprintCalendar
+					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveDbDefaultSprintCalendar: calendar is saved' })
+					rootState.isDefaultSprintCalendarSaved = true
+				}
+			})
 		}).catch(error => {
-			let msg = 'saveSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
+			let msg = 'saveDbDefaultSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)

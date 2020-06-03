@@ -1,5 +1,5 @@
 import { mapGetters } from 'vuex'
-import { utilities, authorization } from '../mixins/utilities.js'
+import { authorization, utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
@@ -915,7 +915,7 @@ const methods = {
 }
 
 export default {
-  mixins: [utilities, authorization],
+  mixins: [authorization, utilities],
   created,
   mounted,
   data,
