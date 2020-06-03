@@ -35,8 +35,4 @@
 .space3px {
   margin: 3px;
 }
-.btn-seablue {
-  background-color: rgb(220, 223, 217);
-  color: #408fae;
-}
 </style>

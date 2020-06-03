@@ -414,11 +414,6 @@ h5 {
   margin-top: 20px;
 }
 
-.btn-seablue {
-  background-color: #408fae;
-  color: white;
-}
-
 .margin-colorRed {
   margin-top: 20px;
   color: red;
