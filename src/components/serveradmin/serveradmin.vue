@@ -242,7 +242,7 @@ export default {
         dbTargetName: this.dbToReplace
       }
       this.localMessage = payload.dbTargetName + ' will be replaced by ' + payload.dbSourceName + '. Please wait ...'
-      this.$store.dispatch('overwriteDB', payload)
+      this.$store.dispatch('replaceDB', payload)
     },
 
     createNewDb() {
