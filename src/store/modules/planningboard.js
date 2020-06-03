@@ -171,7 +171,7 @@ const actions = {
 			}
 
 			const toDispatch = { loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'importInSprint' })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 		}).catch(e => {
 			let msg = 'importInSprint: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -306,7 +306,7 @@ const actions = {
 				c.history.unshift(newHist)
 			}
 
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: newChildren, toDispatch, caller: 'updateMovedTasks' })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: newChildren, toDispatch })
 		}).catch(e => {
 			let msg = 'updateMovedTasks: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -432,7 +432,7 @@ const actions = {
 				notifyParentOnSprintAssignment: payload
 			}
 
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'addSprintIds' })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 		}).catch(e => {
 			let msg = 'addSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -497,7 +497,7 @@ const actions = {
 				notifyParentOnSprintAssignment: payload
 			}
 
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'notifyParentOnSprintAssignment' })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 		}).catch(e => {
 			let msg = 'removeSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console

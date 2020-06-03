@@ -822,7 +822,7 @@ const actions = {
 			if (payload.toDispatch) {
 				for (let name of Object.keys(payload.toDispatch)) {
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('updateDoc: calling ' + name)
+					if (rootState.debug) console.log('updateDoc: dispatching ' + name)
 					dispatch(name, payload.toDispatch[name])
 				}
 			}
@@ -856,7 +856,6 @@ const actions = {
 			}
 			// eslint-disable-next-line no-console
 			let msg = 'updateBulk: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
-			if (payload.caller) msg += `\nupdateBulk was called by ${payload.caller}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			if (updateConflict > 0 || otherError > 0) {
@@ -868,7 +867,7 @@ const actions = {
 			if (payload.toDispatch) {
 				for (let name of Object.keys(payload.toDispatch)) {
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('updateBulk: calling ' + name)
+					if (rootState.debug) console.log('updateBulk: dispatching ' + name)
 					dispatch(name, payload.toDispatch[name])
 				}
 			}

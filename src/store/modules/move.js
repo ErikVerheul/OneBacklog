@@ -85,7 +85,7 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			const toDispatch = { 'addHistToTargetParent': payload }
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'updateMovedItemsBulk' })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 
 			// if moving to another product or another level, update the descendants of the moved(back) items
 			if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
