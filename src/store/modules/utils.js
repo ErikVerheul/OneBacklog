@@ -75,23 +75,23 @@ const actions = {
 			"by": rootState.userData.user,
 			"timestamp": Date.now(),
 			"distributeEvent": false
-		}],
-			globalAxios({
-				method: 'PUT',
-				url: payload.dbName + '/' + _id,
-				data: product
-			}).then(() => {
-				const msg = `createProduct: Product '${product.title}' is created`
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-				// add the product to this user's subscriptions and productsRoles
-				dispatch('addProductToUser', { dbName: payload.dbName, productId: _id, userRoles: payload.userRoles })
-			}).catch(error => {
-				const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
-			})
+		}]
+		globalAxios({
+			method: 'PUT',
+			url: payload.dbName + '/' + _id,
+			data: product
+		}).then(() => {
+			const msg = `createProduct: Product '${product.title}' is created`
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// add the product to this user's subscriptions and productsRoles
+			dispatch('addProductToUser', { dbName: payload.dbName, productId: _id, userRoles: payload.userRoles })
+		}).catch(error => {
+			const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
 	},
 
 	copyDB({
@@ -128,7 +128,7 @@ const actions = {
 		})
 	},
 
-	overwriteDB({
+	replaceDB({
 		rootState,
 		dispatch
 	}, payload) {
@@ -324,13 +324,12 @@ const actions = {
 				docsToUpdate.push({ "id": res.data.rows[i].id })
 			}
 			dispatch('resetHistAndComm', { dbName: payload.dbName, docs: docsToUpdate, olderThan: payload.age })
+		}).catch(error => {
+			// eslint-disable-next-line no-console
+			console.log(error)
+			state.message = error.response.data
+			state.errorMessage = error.message
 		})
-			.catch(error => {
-				// eslint-disable-next-line no-console
-				console.log(error)
-				state.message = error.response.data
-				state.errorMessage = error.message
-			})
 	},
 
 	resetHistAndComm({
@@ -397,13 +396,12 @@ const actions = {
 				console.log(msg)
 			}
 			dispatch('updateBulk', { dbName: payload.dbName, docs, onSuccessCallback: () => { rootState.isHistAndCommReset = true } })
+		}).catch(error => {
+			let msg = 'resetHistAndComm: Could not read batch of documents: ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
 		})
-			.catch(e => {
-				let msg = 'resetHistAndComm: Could not read batch of documents: ' + e
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
-			})
 	},
 }
 
