@@ -315,8 +315,8 @@ const actions = {
             dispatch('updateDoc', {
                 dbName: rootState.userData.currentDb,
                 updatedDoc: tmpDoc,
-                onSuccessCallback: function () { rootState.busyRemoving = false },
-                onFailureCallback: function () { rootState.busyRemoving = false }
+                onSuccessCallback: () => { rootState.busyRemoving = false },
+                onFailureCallback: () => { rootState.busyRemoving = false }
             })
         }).catch(error => {
             let msg = 'updateParentHist: Could not read document with _id ' + _id + ',' + error

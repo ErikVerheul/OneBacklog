@@ -78,14 +78,14 @@ const actions = {
 				dispatch('updateDoc', {
 					dbName,
 					updatedDoc,
-					onSuccessCallback: function () {
+					onSuccessCallback: () => {
 						rootState.isTeamCreated = true
 						rootState.allTeams[teamName] = { id: payload.id, members: [] }
 						rootState.backendMessages.push({
 							seqKey: rootState.seqKey++, msg: `doCreateTeam: Team '${teamName}' is created in database '${dbName}'`
 						})
 					},
-					onFailureCallback: function () {
+					onFailureCallback: () => {
 						rootState.isTeamCreated = false
 						rootState.backendMessages.push({
 							seqKey: rootState.seqKey++, msg: `doCreateTeam: The creation of team '${teamName}' failed. See the log in database '${dbName}'`
@@ -128,7 +128,7 @@ const actions = {
 			dispatch('updateBulk', {
 				dbName,
 				docs: docsToRemove,
-				onSuccessCallback: function () {
+				onSuccessCallback: () => {
 					rootState.areTeamsRemoved = true
 					rootState.backendMessages.push({
 						seqKey: rootState.seqKey++, msg: `removeTeamsFromDb: Teams [${teamNamesToRemove}] are removed from database '${dbName}'`
@@ -178,17 +178,18 @@ const actions = {
 					}
 					oldTeamDoc.history.unshift(leaveHist)
 					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc })
+
 					const joinHist = {
 						"joiningTeamEvent": [payload.userName],
 						"by": rootState.userData.user,
 						"timestamp": Date.now(),
 						"distributeEvent": false
 					}
-					oldTeamDoc.history.unshift(joinHist)
+					newTeamDoc.history.unshift(joinHist)
 					dispatch('updateDoc', {
 						dbName,
 						updatedDoc: newTeamDoc,
-						onSuccessCallback: function () {
+						onSuccessCallback: () => {
 							// update the team list in memory
 							rootState.allTeams[payload.oldTeam].members = oldTeamDoc.members
 							rootState.allTeams[payload.newTeam].members = newTeamDoc.members

@@ -312,7 +312,7 @@ const actions = {
       }
       dispatch('updateUser', {
         data: tmpUserData,
-        onSuccessCallback: function () {
+        onSuccessCallback: () => {
           rootState.isCurrentDbChanged = true
           const msg = "changeDbInProfile: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
           rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
