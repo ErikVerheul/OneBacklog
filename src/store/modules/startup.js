@@ -11,9 +11,9 @@ const actions = {
 	* Order of execution:
 	* 1. getDatabases
 	* 2. getOtherUserData
-	* 3. getAllProducts - calls updateUser if databases or products are missing
+	* 3. getAllProducts and call updateUser if databases or products are missing
     * 4. getConfig
-    * 5. getAllTeams
+    * 5. getAllTeams and load the team calendar if present
     * 6. getRoot
     * 7. route to products view
 	*/
@@ -200,6 +200,7 @@ const actions = {
                     }
             } else {
                 if (rootState.configData.defaultSprintCalendar) {
+                    // assign the default calender to the sprint calendar; this calendar will be replaced if a team has its own calendar
                     rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
                     dispatch('getAllTeams')
                 } else {
@@ -274,6 +275,43 @@ const actions = {
             dispatch('doLog', { event: msg, level: ERROR })
         })
     },
+
+    /*
+	* Load the team calendar by _id and if existing make it the current team's calendar.
+	* If the team calendar does not exist replace the current calendat with the default calendar.
+	*/
+	loadTeamCalendar({
+		rootState,
+		rootGetters,
+		dispatch
+	}, _id) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + _id,
+		}).then(res => {
+			const doc = res.data
+			if (doc.type === 'team') {
+				if (doc.teamCalendar && doc.teamCalendar.length > 0) {
+					// replace the defaultSprintCalendar or other team calendar with this team calendar
+					rootState.sprintCalendar = doc.teamCalendar
+				} else {
+					// eslint-disable-next-line no-console
+					console.log('loadTeamCalendar: No team calendar found')
+					if (rootGetters.teamCalendarInUse) {
+						// replace the team calendar with the default
+						rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+					}
+				}
+			}
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('loadTeamCalendar: document with _id ' + _id + ' is loaded.')
+		}).catch(error => {
+			let msg = 'loadTeamCalendar: Could not read document with _id ' + _id + ', ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	}
 }
 
 export default {

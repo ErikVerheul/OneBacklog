@@ -4,43 +4,6 @@ import globalAxios from 'axios'
 const ERROR = 2
 
 const actions = {
-    /*
-	* Load the team calendar by _id and if existing make it the current team's calendar.
-	* If the team calendar does not exist replace the current calendat with the default calendar.
-	*/
-	loadTeamCalendar({
-		rootState,
-		rootGetters,
-		dispatch
-	}, _id) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
-		}).then(res => {
-			const doc = res.data
-			if (doc.type === 'team') {
-				if (doc.teamCalendar && doc.teamCalendar.length > 0) {
-					// replace the defaultSprintCalendar or other team calendar with this team calendar
-					rootState.sprintCalendar = doc.teamCalendar
-				} else {
-					// eslint-disable-next-line no-console
-					console.log('loadTeamCalendar: No team calendar found')
-					if (rootGetters.teamCalendarInUse) {
-						// replace the team calendar with the default
-						rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
-					}
-				}
-			}
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('loadTeamCalendar: document with _id ' + _id + ' is loaded.')
-		}).catch(error => {
-			let msg = 'loadTeamCalendar: Could not read document with _id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
 	addTeamToDb({
 		rootState,
 		dispatch
@@ -170,43 +133,47 @@ const actions = {
 					}
 					oldTeamDoc.members = oldTeamDocNewMembers
 					if (!newTeamDoc.members.includes(payload.userName)) newTeamDoc.members.push(payload.userName)
+					const now = Date.now()
 					const leaveHist = {
 						"leavingTeamEvent": [payload.userName],
 						"by": rootState.userData.user,
-						"timestamp": Date.now(),
+						"timestamp": now,
 						"distributeEvent": false
 					}
 					oldTeamDoc.history.unshift(leaveHist)
-					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc })
 
 					const joinHist = {
 						"joiningTeamEvent": [payload.userName],
 						"by": rootState.userData.user,
-						"timestamp": Date.now(),
+						"timestamp": now,
 						"distributeEvent": false
 					}
 					newTeamDoc.history.unshift(joinHist)
-					dispatch('updateDoc', {
-						dbName,
-						updatedDoc: newTeamDoc,
-						onSuccessCallback: () => {
-							// update the team list in memory
-							rootState.allTeams[payload.oldTeam].members = oldTeamDoc.members
-							rootState.allTeams[payload.newTeam].members = newTeamDoc.members
-							// update the team calendar
-							if (newTeamDoc.teamCalendar && newTeamDoc.teamCalendar.length > 0) {
-								// replace the defaultSprintCalendar or other team calendar with this team calendar
-								rootState.sprintCalendar = newTeamDoc.teamCalendar
-							} else {
-								// eslint-disable-next-line no-console
-								console.log('updateTeamsInDb: No team calendar found')
-								if (rootGetters.teamCalendarInUse) {
-									// replace the team calendar with the default
-									rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+
+					const toDispatch = {
+						'updateDoc': {
+							dbName,
+							updatedDoc: newTeamDoc,
+							onSuccessCallback: () => {
+								// update the team list in memory
+								rootState.allTeams[payload.oldTeam].members = oldTeamDoc.members
+								rootState.allTeams[payload.newTeam].members = newTeamDoc.members
+								// update the team calendar
+								if (newTeamDoc.teamCalendar && newTeamDoc.teamCalendar.length > 0) {
+									// replace the defaultSprintCalendar or other team calendar with this team calendar
+									rootState.sprintCalendar = newTeamDoc.teamCalendar
+								} else {
+									// eslint-disable-next-line no-console
+									console.log('updateTeamsInDb: No team calendar found')
+									if (rootGetters.teamCalendarInUse) {
+										// replace the team calendar with the default
+										rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+									}
 								}
-							}
-						},
-					})
+							},
+						}
+					}
+					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc, toDispatch })
 				}
 			}).catch(error => {
 				let msg = `updateTeamInDb: Could not read the teams in database '${dbName}', ${error}`
