@@ -135,7 +135,8 @@ From the 'Product details' view context menu features and PBI's can be selected 
 Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.
 
 SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
-For now the calendar is stored in de database CONFIG file. Eventually teams can have their own sprint calendar.
+The calendar is stored in each database CONFIG file. The PO of a team can create a team calendar from the default calendar and change that calendar at will.
+A team calendar will be removed by an admin if the team is removed. 
 
 defaultSprintCalendar = [
 	{
