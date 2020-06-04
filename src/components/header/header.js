@@ -36,7 +36,8 @@ const computed = {
         'isAPO',
         'isAdmin',
         'isPO',
-        'myTeam'
+        'myTeam',
+        'teamCalendarInUse'
     ]),
 }
 
