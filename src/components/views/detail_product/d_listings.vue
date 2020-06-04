@@ -32,11 +32,9 @@
 <script src="./d_listings.js"></script>
 
 <style scoped>
+@import "../../../css/onebacklog.css";
+
 .space3px {
   margin: 3px;
-}
-.btn-seablueInverted {
-  background-color: rgb(220, 223, 217);
-  color: #408fae;
 }
 </style>

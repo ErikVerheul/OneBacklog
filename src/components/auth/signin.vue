@@ -70,7 +70,9 @@ export default {
 
 </script>
 
-<style lang="css" scoped>
+<style scoped>
+@import "../../css/onebacklog.css";
+
 .signin-form {
   width: 400px;
   margin: 30px auto;

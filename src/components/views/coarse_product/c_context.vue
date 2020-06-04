@@ -174,6 +174,8 @@
 <script src="./c_context.js"></script>
 
 <style scoped>
+@import "../../../css/onebacklog.css";
+
 .message {
   margin: 10px;
 }

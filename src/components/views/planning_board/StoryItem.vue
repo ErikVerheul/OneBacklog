@@ -38,7 +38,7 @@ export default {
 
 <style scoped>
 .small-text {
-  font-size: small
+  font-size: small;
 }
 
 .b-card-block {
@@ -52,9 +52,5 @@ export default {
 
 .colorYellow {
   color: #ffff00;
-}
-
-.colorRed {
-  color: red;
 }
 </style>

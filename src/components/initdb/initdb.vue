@@ -101,7 +101,7 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style scoped>
 h4,
 h5 {
   margin-top: 20px;

@@ -357,6 +357,7 @@
 
 <style lang="scss" scoped>
 @import "../../../css/sl-vue-tree-dark.css";
+@import "../../../css/onebacklog.css";
 
 // horizontal panes
 .horizontal-panes {
@@ -489,14 +490,6 @@
   height: 25px;
  }
 
-.colorRed {
-  color: red;
-}
-
-.colorSeaBlue {
-  color: #408fae;
-}
-
 .colorBlue {
   color: #0099ff;
 }
@@ -515,11 +508,6 @@
 
 .colorWhite {
   color: #ffffff;
-}
-
-.btn-seablue {
-  background-color: #408fae;
-  color: white;
 }
 
 input[type="number"] {

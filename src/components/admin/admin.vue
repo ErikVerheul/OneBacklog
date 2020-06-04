@@ -408,7 +408,9 @@
 
 <script src="./admin.js"></script>
 
-<style lang="css" scoped>
+<style scoped>
+@import "../../css/onebacklog.css";
+
 h4,
 h5 {
   margin-top: 20px;
@@ -416,10 +418,6 @@ h5 {
 
 .margin-colorRed {
   margin-top: 20px;
-  color: red;
-}
-
-.colorRed {
   color: red;
 }
 </style>

@@ -106,13 +106,17 @@
 
     <b-modal size="lg" ref="changePwRef" @ok="doChangePw" title="Change your password">
       <b-container align-v="true">
-        <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'">
+        <template
+          v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'"
+        >
           <h2>Demo users cannot change the password</h2>
         </template>
         <template v-if="isAuthenticated && isServerAdmin">
           <h2>Demo users cannot change the password</h2>
         </template>
-        <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user !== 'demoUser'">
+        <template
+          v-if="isAuthenticated && $store.state.demo && $store.state.userData.user !== 'demoUser'"
+        >
           <b-row class="my-1">
             <b-card bg-variant="light">
               <b-form-group
@@ -154,11 +158,22 @@
     </b-modal>
 
     <b-modal
+      size="lg"
       v-model="changeTeamCalendarModel"
       :ok-disabled="disableOkButton"
       @ok="doChangeTeamCalendar"
       title="Create or change team calendar"
     >
+    <template v-if="!teamCalendarInUse">
+      <p>Your current team '{{ myTeam }}' is using the default calendar maintained by your admin. You can create a calendar for this team based on the default calendar.
+        When created, this team cannot return to the default. You have to maintain this calendar.</p>
+      <b-button variant="seablue">Create team calendar</b-button>
+
+    </template>
+    <template v-else>
+      <p>Your current team '{{ myTeam }}' has its own calendar for its sprint planning.</p>
+
+    </template>
 
 
     </b-modal>
@@ -167,25 +182,9 @@
 
 <script src="./header.js"></script>
 
-<!-- see https://stackoverflow.com/questions/50763152/rendering-custom-styles-in-bootstrap-vue -->
-<!-- define this drop-down button style globally -->
-<style>
-#dropdownMenuButton > button {
-  width: 100%;
-}
-
-#dropdownMenuButton__BV_toggle_ {
-  width: 100%;
-}
-
-.btn.btn-secondary.dropdown-toggle {
-  background-color: #408fae;
-  color: white;
-  border-radius: 0.25rem;
-}
-</style>
-
 <style scoped>
+@import "../../css/onebacklog.css";
+
 .input-field {
   margin: 10px;
 }

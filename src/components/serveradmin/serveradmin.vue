@@ -342,16 +342,10 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style scoped>
+@import "../../css/onebacklog.css";
+
 h4 {
   margin-top: 20px;
-}
-.colorRed {
-  color: red;
-}
-
-.btn-seablue {
-  background-color: #408fae;
-  color: white;
 }
 </style>

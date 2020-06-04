@@ -227,7 +227,7 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style scoped>
 .left-column {
   text-align: left;
   background-color: #408fae;

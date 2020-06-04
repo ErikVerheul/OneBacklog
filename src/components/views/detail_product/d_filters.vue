@@ -114,9 +114,11 @@
 </template>
 
 <style scoped>
-    .indent20 {
-        padding-left: 20px;
-    }
+@import "../../../css/onebacklog.css";
+
+.indent20 {
+  padding-left: 20px;
+}
 </style>
 
 <script src="./d_filters.js"></script>
