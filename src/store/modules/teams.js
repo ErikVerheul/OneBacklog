@@ -88,9 +88,11 @@ const actions = {
 					docsToRemove.push(doc)
 				}
 			}
+			const toDispatch = { 'retireTeams': { dbName, teamNamesToRetire: teamNamesToRemove } }
 			dispatch('updateBulk', {
 				dbName,
 				docs: docsToRemove,
+				toDispatch,
 				onSuccessCallback: () => {
 					rootState.areTeamsRemoved = true
 					rootState.backendMessages.push({
@@ -101,6 +103,44 @@ const actions = {
 		}).catch(error => {
 			let msg = `'removeTeamsFromDb: Could not read the teams in database '${dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/* Add deceased † symbol to the team names of retired teams in the database and tree model */
+	retireTeams({
+		rootState,
+		dispatch
+	}, payload) {
+		const dbName = payload.dbName
+		const teamNamesToRetire = payload.teamNamesToRetire
+		globalAxios({
+			method: 'GET',
+			url: dbName + '/_design/design1/_view/ownedByTeam?include_docs=true'
+		}).then(res => {
+			const results = res.data.rows
+			const docs = []
+			for (let r of results) {
+				const doc = r.doc
+				if (teamNamesToRetire.includes(doc.team)) {
+					doc.team = doc.team + '†'
+					docs.push(doc)
+				}
+			}
+			// write back and update tree model
+			dispatch('updateBulk', {
+				dbName, docs, onSuccessCallback: () => {
+					window.slVueTree.traverseModels((nm) => {
+						if (nm.data.team && teamNamesToRetire.includes(nm.data.team)) {
+							nm.data.team = nm.data.team + '†'
+						}
+					})
+				}
+			})
+		}).catch(error => {
+			let msg = 'retireTeams: Could not read the items from database ' + dbName + ',' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
