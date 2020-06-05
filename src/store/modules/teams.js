@@ -23,7 +23,7 @@ const actions = {
 				}
 			}
 			if (!teamExists) {
-				const updatedDoc = {
+				const newDoc = {
 					"_id": payload.id,
 					"type": 'team',
 					"teamName": teamName,
@@ -40,7 +40,7 @@ const actions = {
 				rootState.backendMessages = []
 				dispatch('updateDoc', {
 					dbName,
-					updatedDoc,
+					updatedDoc: newDoc,
 					onSuccessCallback: () => {
 						rootState.isTeamCreated = true
 						rootState.allTeams[teamName] = { id: payload.id, members: [] }

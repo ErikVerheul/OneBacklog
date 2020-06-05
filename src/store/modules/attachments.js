@@ -94,8 +94,7 @@ const actions = {
                             commit('updateCurrentDoc', { _attachments: tmpDoc._attachments, newHist })
                         }
                     },
-                    onFailureCallback: () => { rootState.uploadDone = true },
-                    caller: 'uploadAttachmentAsync'
+                    onFailureCallback: () => { rootState.uploadDone = true }
                 })
             }).catch(error => {
                 rootState.uploadDone = true
@@ -127,10 +126,13 @@ const actions = {
                     "distributeEvent": true
                 }
                 tmpDoc.history.unshift(newHist)
-                tmpDoc._attachments = rootState.currentDoc._attachments
 
-                commit('updateCurrentDoc', { newHist })
-                dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+                tmpDoc._attachments = rootState.currentDoc._attachments
+                dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+                    onSuccessCallback: () => {
+                        commit('updateCurrentDoc', { newHist })
+                    }
+                })
             }
         }).catch(error => {
             let msg = 'removeAttachmentAsync: Could not read document with _id ' + _id + ', ' + error

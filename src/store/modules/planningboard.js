@@ -153,7 +153,6 @@ const actions = {
 						"distributeEvent": true
 					}
 					doc.history.unshift(newHist)
-					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
 					docs.push(doc)
 				}
 
@@ -171,7 +170,15 @@ const actions = {
 			}
 
 			const toDispatch = { loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, toDispatch,
+				onSuccessCallback: () => {
+					for (let d of docs) {
+						// show the history in the current opened item
+						if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist: d.history[0] })
+					}
+				}
+			})
 		}).catch(e => {
 			let msg = 'importInSprint: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -258,40 +265,6 @@ const actions = {
 					}
 				}
 			}
-
-			if (rootState.lastTreeView === 'detailProduct') {
-				// update the position of the tasks of the story and update the index and priority values in the tree
-				const storyNode = window.slVueTree.getNodeById(payload.storyId)
-				if (!storyNode) return
-
-				const mapper = []
-				for (let c of storyNode.children) {
-					if (payload.afterMoveIds.includes(c._id)) {
-						mapper.push({ child: c, priority: c.data.priority, reordered: true })
-					} else mapper.push({ child: c, reordered: false })
-				}
-				const newTreeChildren = []
-				let ind = 0
-				let afterMoveIdx = 0
-				for (let m of mapper) {
-					if (!m.reordered) {
-						newTreeChildren.push(m.child)
-					} else {
-						for (let c of storyNode.children) {
-							if (c._id === payload.afterMoveIds[afterMoveIdx]) {
-								c.ind = ind
-								c.data.priority = m.priority
-								newTreeChildren.push(c)
-								afterMoveIdx++
-								break
-							}
-						}
-					}
-					ind++
-				}
-				storyNode.children = newTreeChildren
-			}
-
 			const toDispatch = {
 				syncOtherPlanningBoards: { storyId: payload.storyId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds }
 			}
@@ -306,7 +279,43 @@ const actions = {
 				c.history.unshift(newHist)
 			}
 
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: newChildren, toDispatch })
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs: newChildren, toDispatch,
+				onSuccessCallback: () => {
+					if (rootState.lastTreeView === 'detailProduct') {
+						// update the position of the tasks of the story and update the index and priority values in the tree
+						const storyNode = window.slVueTree.getNodeById(payload.storyId)
+						if (!storyNode) return
+
+						const mapper = []
+						for (let c of storyNode.children) {
+							if (payload.afterMoveIds.includes(c._id)) {
+								mapper.push({ child: c, priority: c.data.priority, reordered: true })
+							} else mapper.push({ child: c, reordered: false })
+						}
+						const newTreeChildren = []
+						let ind = 0
+						let afterMoveIdx = 0
+						for (let m of mapper) {
+							if (!m.reordered) {
+								newTreeChildren.push(m.child)
+							} else {
+								for (let c of storyNode.children) {
+									if (c._id === payload.afterMoveIds[afterMoveIdx]) {
+										c.ind = ind
+										c.data.priority = m.priority
+										newTreeChildren.push(c)
+										afterMoveIdx++
+										break
+									}
+								}
+							}
+							ind++
+						}
+						storyNode.children = newTreeChildren
+					}
+				}
+			})
 		}).catch(e => {
 			let msg = 'updateMovedTasks: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -334,6 +343,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setColor: Could not read document with _id ' + payload.storyId + ', ' + error
@@ -361,6 +371,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'notifyParentOnSprintAssignment: Could not read document with _id ' + payload.parentId + ', ' + error
@@ -399,9 +410,6 @@ const actions = {
 					const doc = envelope.ok
 					const reAssigned = doc.sprintId !== undefined
 					doc.sprintId = payload.sprintId
-					// update the tree view
-					const node = window.slVueTree.getNodeById(doc._id)
-					if (node) node.data.sprintId = payload.sprintId
 
 					const newHist = {
 						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned, payload.sprintId],
@@ -411,7 +419,6 @@ const actions = {
 						"distributeEvent": true
 					}
 					doc.history.unshift(newHist)
-					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
 					docs.push(doc)
 				}
 
@@ -428,11 +435,19 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 
-			const toDispatch = {
-				notifyParentOnSprintAssignment: payload
-			}
-
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+			const toDispatch = { notifyParentOnSprintAssignment: payload }
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, toDispatch,
+				onSuccessCallback: () => {
+					for (let d of docs) {
+						// update the tree view
+						const node = window.slVueTree.getNodeById(d._id)
+						if (node) node.data.sprintId = payload.sprintId
+						// show the history in the current opened item
+						if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist: d.history[0] })
+					}
+				}
+			})
 		}).catch(e => {
 			let msg = 'addSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -464,10 +479,6 @@ const actions = {
 				if (envelope.ok) {
 					const doc = envelope.ok
 					if (doc.sprintId === payload.sprintId) doc.sprintId = undefined
-					// update the tree view
-					const node = window.slVueTree.getNodeById(doc._id)
-					if (node && node.data.sprintId === payload.sprintId) node.data.sprintId = undefined
-
 					const newHist = {
 						"removeSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName],
 						"by": rootState.userData.user,
@@ -493,11 +504,18 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 
-			const toDispatch = {
-				notifyParentOnSprintAssignment: payload
-			}
-
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+			const toDispatch = { notifyParentOnSprintAssignment: payload }
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, toDispatch,
+				onSuccessCallback: () => {
+					for (let d of docs) {
+						// update the tree view
+						const node = window.slVueTree.getNodeById(d._id)
+						if (node && node.data.sprintId === payload.sprintId) node.data.sprintId = undefined
+						if (rootState.currentDoc._id === d._id) commit('updateCurrentDoc', { newHist: d.history[0] })
+					}
+				}
+			})
 		}).catch(e => {
 			let msg = 'removeSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -533,57 +551,15 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + payload.storyId
 		}).then(res => {
 			let storyDoc = res.data
-			const now = Date.now()
-			if (rootState.lastTreeView === 'detailProduct') {
-				// update the tree data
-				const newNode = {
-					_id: payload.taskId,
-					shortId: payload.taskId.slice(-5),
-					sprintId: rootState.loadedSprintId,
-					isLeaf: true,
-					title: payload.taskTitle,
-					dependencies: [],
-					conditionalFor: [],
-					children: [],
-					isExpanded: false,
-					savedIsExpanded: false,
-					isDraggable: true,
-					isSelectable: true,
-					isSelected: false,
-					doShow: true,
-					savedDoShow: true,
-					data: {
-						state: payload.state,
-						subtype: 0,
-						team: rootState.userData.myTeam,
-						taskOwner: rootState.userData.user,
-						lastChange: now
-					}
-				}
-				// position the new node as the first child of story
-				const cursorPosition = {
-					nodeModel: window.slVueTree.getNodeById(storyDoc._id),
-					placement: 'inside'
-				}
-				// insert the new node in the tree and set the productId, parentId, the location parameters and priority
-				window.slVueTree.insert(cursorPosition, [newNode])
-			}
-			// a new task is created in a user story currently on the planning board
+			// a new task is created in a user story currently on the planning board; calculate its prioriry
 			let taskPriority = 0
 			for (let s of rootState.stories) {
 				if (s.storyId === storyDoc._id) {
-					const targetColumn = s.tasks[payload.state]
 					taskPriority = calcPriority(s.tasks)
-					targetColumn.unshift({
-						id: payload.taskId,
-						title: payload.taskTitle,
-						taskOwner: rootState.userData.user,
-						priority: taskPriority
-					})
 					break
 				}
 			}
-			// create a new document and store it
+			// create a new document, including history, and store it on top of the column
 			const newDoc = {
 				"_id": payload.taskId,
 				"type": "backlogItem",
@@ -614,13 +590,65 @@ const actions = {
 				"history": [{
 					"createTaskEvent": [storyDoc.title],
 					"by": rootState.userData.user,
-					"timestamp": now,
+					"timestamp": Date.now(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}],
 				"delmark": false
 			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: newDoc, forceUpdateCurrentDoc: true })
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: newDoc,
+				onSuccessCallback: () => {
+					if (rootState.lastTreeView === 'detailProduct') {
+						// update the tree data
+						const newNode = {
+							_id: payload.taskId,
+							shortId: payload.taskId.slice(-5),
+							isLeaf: true,
+							title: payload.taskTitle,
+							dependencies: [],
+							conditionalFor: [],
+							children: [],
+							isExpanded: false,
+							savedIsExpanded: false,
+							isDraggable: true,
+							isSelectable: true,
+							isSelected: false,
+							doShow: true,
+							savedDoShow: true,
+							data: {
+								state: payload.state,
+								subtype: 0,
+								sprintId: rootState.loadedSprintId,
+								team: rootState.userData.myTeam,
+								taskOwner: rootState.userData.user,
+								lastChange: Date.now()
+							}
+						}
+						// position the new node as the first child of story
+						const cursorPosition = {
+							nodeModel: window.slVueTree.getNodeById(storyDoc._id),
+							placement: 'inside'
+						}
+						// insert the new node in the tree and set the productId, parentId, the location parameters and priority
+						window.slVueTree.insert(cursorPosition, [newNode])
+					}
+					// place the task on the planning board
+					for (let s of rootState.stories) {
+						if (s.storyId === storyDoc._id) {
+							const targetColumn = s.tasks[payload.state]
+							targetColumn.unshift({
+								id: payload.taskId,
+								title: payload.taskTitle,
+								taskOwner: rootState.userData.user,
+								priority: taskPriority
+							})
+							break
+						}
+					}
+				},
+				forceUpdateCurrentDoc: true
+			})
 		}).catch(error => {
 			let msg = 'boardAddTask: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
@@ -648,28 +676,33 @@ const actions = {
 				"distributeEvent": true
 			}
 			doc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc })
-			// update the board
-			for (let s of rootState.stories) {
-				if (s.storyId === doc.parentId) {
-					const tasks = s.tasks
-					const targetColumn = tasks[doc.state]
-					for (let t of targetColumn) {
-						if (t.id === doc._id) {
-							t.title = doc.title
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: doc,
+				onSuccessCallback: () => {
+					// update the board
+					for (let s of rootState.stories) {
+						if (s.storyId === doc.parentId) {
+							const tasks = s.tasks
+							const targetColumn = tasks[doc.state]
+							for (let t of targetColumn) {
+								if (t.id === doc._id) {
+									t.title = doc.title
+									break
+								}
+							}
 							break
 						}
 					}
-					break
+					if (rootState.lastTreeView === 'detailProduct') {
+						// update the tree model
+						const node = window.slVueTree.getNodeById(payload.taskId)
+						if (node) {
+							node.title = doc.title
+						}
+					}
 				}
-			}
-			if (rootState.lastTreeView === 'detailProduct') {
-				// update the tree model
-				const node = window.slVueTree.getNodeById(payload.taskId)
-				if (node) {
-					node.title = doc.title
-				}
-			}
+			})
 		}).catch(error => {
 			let msg = 'boardUpdateTaskTitle: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
@@ -697,28 +730,19 @@ const actions = {
 				"distributeEvent": true
 			}
 			doc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc })
-			// update the board
-			for (let s of rootState.stories) {
-				if (s.storyId === doc.parentId) {
-					const tasks = s.tasks
-					const targetColumn = tasks[doc.state]
-					for (let t of targetColumn) {
-						if (t.id === doc._id) {
-							t.taskOwner = doc.taskOwner
-							break
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: doc,
+				onSuccessCallback: () => {
+					if (rootState.lastTreeView === 'detailProduct') {
+						// update the tree model
+						const node = window.slVueTree.getNodeById(payload.taskId)
+						if (node) {
+							node.data.taskOwner = doc.taskOwner
 						}
 					}
-					break
 				}
-			}
-			if (rootState.lastTreeView === 'detailProduct') {
-				// update the tree model
-				const node = window.slVueTree.getNodeById(payload.taskId)
-				if (node) {
-					node.data.taskOwner = doc.taskOwner
-				}
-			}
+			})
 		}).catch(error => {
 			let msg = 'boardUpdateTaskOwner: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
@@ -747,15 +771,20 @@ const actions = {
 				"distributeEvent": true
 			}
 			doc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc })
-			commit('removeTaskFromBoard', { prevState, doc })
-			if (rootState.lastTreeView === 'detailProduct') {
-				const node = window.slVueTree.getNodeById(payload.taskId)
-				if (node) {
-					node.data.state = REMOVED
-					node.data.lastStateChange = Date.now()
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: doc,
+				onSuccessCallback: () => {
+					commit('removeTaskFromBoard', { prevState, doc })
+					if (rootState.lastTreeView === 'detailProduct') {
+						const node = window.slVueTree.getNodeById(payload.taskId)
+						if (node) {
+							node.data.state = REMOVED
+							node.data.lastStateChange = Date.now()
+						}
+					}
 				}
-			}
+			})
 		}).catch(error => {
 			let msg = 'boardRemoveTask: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console

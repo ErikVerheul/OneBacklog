@@ -40,10 +40,15 @@ const actions = {
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
-			commit('updateCurrentDoc', { reqarea: payload.reqarea, newHist })
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+
 			payload.oldParentReqArea = oldDocArea
-			if (payload.childIds.length > 0) dispatch('updateReqAreaChildren', payload)
+			const toDispatch = payload.childIds.length > 0 ? { 'updateReqAreaChildren': payload } : undefined
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
+				onSuccessCallback: () => {
+					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { reqarea: payload.reqarea, newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'updateReqArea: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -143,8 +148,13 @@ const actions = {
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
-			commit('updateCurrentDoc', { color: newColor, newHist })
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { color: newColor, newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'setColor: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -184,9 +194,13 @@ const actions = {
 			}
 			tmpDoc.followers = tmpFollowers
 			tmpDoc.history.unshift(newHist)
-			// show the followers and history update in the current opened item
-			commit('updateCurrentDoc', { followers: tmpFollowers, newHist })
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { followers: tmpFollowers, newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'changeSubsription: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -215,13 +229,16 @@ const actions = {
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.tssize = payload.newSizeIdx
 			tmpDoc.history.unshift(newHist)
-			node.data.tssize = payload.newSizeIdx
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			if (rootState.currentDoc._id === id) {
-				commit('updateCurrentDoc', { tssize: payload.newSizeIdx, newHist })
-			}
+
+			tmpDoc.tssize = payload.newSizeIdx
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					node.data.tssize = payload.newSizeIdx
+					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { tssize: payload.newSizeIdx, newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'setTsSize: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -248,10 +265,16 @@ const actions = {
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.dependencies = payload.dependencies
 			tmpDoc.history.unshift(newHist)
-			if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch: { setConditions: payload.conditionalForPayload } })
+
+			tmpDoc.dependencies = payload.dependencies
+			const toDispatch = { setConditions: payload.conditionalForPayload }
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
+				onSuccessCallback: () => {
+					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'setDepAndCond: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -278,10 +301,15 @@ const actions = {
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.conditionalFor = payload.conditionalFor
 			tmpDoc.history.unshift(newHist)
-			if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+
+			tmpDoc.conditionalFor = payload.conditionalFor
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'setConditions: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -311,6 +339,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+
 			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch: { removeConditions: { ref: _id, depOnDocuments: payload.removedIds } } })
 		}).catch(error => {
 			let msg = 'updateDep: Could not read document with _id ' + _id + ', ' + error
@@ -341,6 +370,7 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+
 			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch: { removeDependencies: { ref: _id, condForDocuments: payload.removedIds } } })
 		}).catch(error => {
 			let msg = 'updateCon: Could not read document with _id ' + _id + ', ' + error
@@ -370,13 +400,16 @@ const actions = {
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.spikepersonhours = payload.newHrs
 			tmpDoc.history.unshift(newHist)
-			node.data.lastChange = payload.timestamp
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			if (rootState.currentDoc._id === id) {
-				commit('updateCurrentDoc', { spikepersonhours: payload.newHrs, newHist })
-			}
+
+			tmpDoc.spikepersonhours = payload.newHrs
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					node.data.lastChange = payload.timestamp
+					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { spikepersonhours: payload.newHrs, newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'setPersonHours: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -398,7 +431,7 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			if (payload.newState && (tmpDoc.state || payload.newState)) {
-				// also change state
+				// update size, team and state
 				const oldPoints = tmpDoc.spsize
 				const oldState = tmpDoc.state
 				const oldTeam = tmpDoc.team
@@ -410,16 +443,28 @@ const actions = {
 					"distributeEvent": true
 				}
 				tmpDoc.history.unshift(newHist)
+
 				tmpDoc.spsize = payload.newPoints
 				tmpDoc.state = payload.newState
 				tmpDoc.team = payload.newTeam
-				node.data.state = payload.newState
-				if (oldTeam !== payload.newTeam) {
-					// also change team
-					node.data.team = payload.newTeam
-					if (payload.descendants.length > 0) dispatch('setTeamDescendantsBulk', { newTeam: payload.newTeam, parentTitle: payload.node.title, descendants: payload.descendants })
-				}
+				const toDispatch = oldTeam !== payload.newTeam ? {
+					// on team change update the team of the descendants
+					'setTeamDescendantsBulk': {
+						newTeam: payload.newTeam, parentTitle: payload.node.title, descendants: payload.descendants,
+						onSuccessCallback: () => {
+							node.data.team = payload.newTeam
+						}
+					}
+				} : undefined
+
+				dispatch('updateDoc', {
+					dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
+					onSuccessCallback: () => {
+						node.data.state = payload.newState
+					}
+				})
 			} else {
+				// update size only
 				const oldPoints = tmpDoc.spsize
 				const newHist = {
 					"setPointsEvent": [oldPoints, payload.newPoints],
@@ -428,11 +473,16 @@ const actions = {
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}
-				tmpDoc.spsize = payload.newPoints
 				tmpDoc.history.unshift(newHist)
-				commit('updateCurrentDoc', { spsize: payload.newPoints, newHist })
+
+				tmpDoc.spsize = payload.newPoints
+				dispatch('updateDoc', {
+					dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+					onSuccessCallback: () => {
+						if (id === rootState.currentDoc._id) commit('updateCurrentDoc', { spsize: payload.newPoints, newHist })
+					}
+				})
 			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
 			let msg = 'setStoryPoints: Could not read document with _id ' + id + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -449,22 +499,6 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
-		// recalculate and (re)set the inconsistency state of the parent item
-		function checkParentState() {
-			const parentNode = window.slVueTree.getParentNode(node)
-			if (parentNode && parentNode.data.state === DONE) {
-				const descendants = window.slVueTree.getDescendantsInfo(parentNode).descendants
-				let hasInconsistentState = false
-				for (let d of descendants) {
-					if (d.data.state === REMOVED || d.data.state === ON_HOLD) continue
-					if (d.data.state !== DONE) {
-						hasInconsistentState = true
-						break
-					}
-				}
-				parentNode.data.inconsistentState = hasInconsistentState
-			}
-		}
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id,
@@ -478,20 +512,34 @@ const actions = {
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
+			tmpDoc.history.unshift(newHist)
+
 			tmpDoc.state = payload.newState
 			// also set the team if provided
-			if (payload.newTeam) {
-				tmpDoc.team = payload.newTeam
-			}
-			tmpDoc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			node.data.state = payload.newState
-			if (payload.newTeam) node.data.team = payload.newTeam
-			node.data.lastStateChange = payload.timestamp
-			if (rootState.currentDoc._id === id) {
-				commit('updateCurrentDoc', { state: payload.newState, team: payload.newTeam, newHist })
-			}
-			checkParentState()
+			if (payload.newTeam) tmpDoc.team = payload.newTeam
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					node.data.state = payload.newState
+					if (payload.newTeam) node.data.team = payload.newTeam
+					node.data.lastStateChange = payload.timestamp
+					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { state: payload.newState, team: payload.newTeam, newHist })
+					// recalculate and (re)set the inconsistency state of the parent item
+					const parentNode = window.slVueTree.getParentNode(node)
+					if (parentNode && parentNode.data.state === DONE) {
+						const descendants = window.slVueTree.getDescendantsInfo(parentNode).descendants
+						let hasInconsistentState = false
+						for (let d of descendants) {
+							if (d.data.state === REMOVED || d.data.state === ON_HOLD) continue
+							if (d.data.state !== DONE) {
+								hasInconsistentState = true
+								break
+							}
+						}
+						parentNode.data.inconsistentState = hasInconsistentState
+					}
+				}
+			})
 		}).catch(error => {
 			let msg = 'setState: Could not read document with id ' + id + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -514,11 +562,6 @@ const actions = {
 			let tmpDoc = res.data
 			const oldTeam = tmpDoc.team
 			if (payload.newTeam != oldTeam) {
-				// update the tree
-				node.data.team = payload.newTeam
-				for (let desc of payload.descendants) {
-					desc.data.team = payload.newTeam
-				}
 				const newHist = {
 					"setTeamOwnerEvent": [oldTeam, payload.newTeam, payload.descendants.length],
 					"by": rootState.userData.user,
@@ -526,11 +569,21 @@ const actions = {
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}
-				tmpDoc.team = payload.newTeam
 				tmpDoc.history.unshift(newHist)
-				commit('updateCurrentDoc', { team: payload.newTeam, newHist })
-				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-				if (payload.descendants.length > 0) dispatch('setTeamDescendantsBulk', { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: payload.descendants })
+
+				tmpDoc.team = payload.newTeam
+				const toDispatch = payload.descendants.length > 0 ? { 'setTeamDescendantsBulk': { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: payload.descendants } } : undefined
+				dispatch('updateDoc', {
+					dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
+					onSuccessCallback: () => {
+						// update the tree
+						node.data.team = payload.newTeam
+						for (let desc of payload.descendants) {
+							desc.data.team = payload.newTeam
+						}
+						if (id === rootState.currentDoc._id) commit('updateCurrentDoc', { team: payload.newTeam, newHist })
+					}
+				})
 			}
 		}).catch(error => {
 			let msg = 'setTeam: Could not read document with _id ' + id + '. Error = ' + error
@@ -618,12 +671,15 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+
 			tmpDoc.title = payload.newTitle
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			node.title = payload.newTitle
-			if (rootState.currentDoc._id === id) {
-				commit('updateCurrentDoc', { title: payload.newTitle, newHist })
-			}
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					node.title = payload.newTitle
+					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { title: payload.newTitle, newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'setDocTitle: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -652,12 +708,15 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+
 			tmpDoc.subtype = payload.newSubType
-			node.data.subtype = payload.newSubType
-			if (rootState.currentDoc._id === id) {
-				commit('updateCurrentDoc', { subtype: payload.newSubType, newHist })
-			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					node.data.subtype = payload.newSubType
+					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { subtype: payload.newSubType, newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'setSubType: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -688,11 +747,14 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+
 			tmpDoc.description = newEncodedDescription
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			if (rootState.currentDoc._id === id) {
-				commit('updateCurrentDoc', { newHist })
-			}
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'saveDescription: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -723,11 +785,14 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+
 			tmpDoc.acceptanceCriteria = newEncodedAcceptance
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-			if (rootState.currentDoc._id === id) {
-				commit('updateCurrentDoc', { newHist })
-			}
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'saveAcceptance: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -755,8 +820,13 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.comments.unshift(newComment)
-			commit('updateCurrentDoc', { newComment })
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newComment })
+				}
+			})
 		}).catch(error => {
 			let msg = 'addComment: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -785,8 +855,13 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			commit('updateCurrentDoc', { newHist })
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				onSuccessCallback: () => {
+					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
+				}
+			})
 		}).catch(error => {
 			let msg = 'addHistoryComment: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
@@ -839,6 +914,7 @@ const actions = {
 
 	updateBulk({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		globalAxios({
@@ -860,15 +936,20 @@ const actions = {
 			if (rootState.debug) console.log(msg)
 			if (updateConflict > 0 || otherError > 0) {
 				dispatch('doLog', { event: msg, level: WARNING })
-			}
-			// execute passed function if provided
-			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
-			// additional dispatches
-			if (payload.toDispatch) {
-				for (let name of Object.keys(payload.toDispatch)) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('updateBulk: dispatching ' + name)
-					dispatch(name, payload.toDispatch[name])
+				// execute passed function if provided
+				if (payload.onFailureCallback !== undefined) {
+					payload.onFailureCallback()
+				} else commit('showLastEvent', { txt: `The update failed due to conflicts or errors. Try again after sign-out or contact your administrator`, severity: WARNING })
+			} else {
+				// execute passed function if provided
+				if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+				// additional dispatches
+				if (payload.toDispatch) {
+					for (let name of Object.keys(payload.toDispatch)) {
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log('updateBulk: dispatching ' + name)
+						dispatch(name, payload.toDispatch[name])
+					}
 				}
 			}
 		}).catch(error => {

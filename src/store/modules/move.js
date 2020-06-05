@@ -1,6 +1,6 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
+const WARNING = 1
 const ERROR = 2
 
 function composeRangeString(id) {
@@ -68,9 +68,6 @@ const actions = {
 					doc.priority = item.newlyCalculatedPriority
 					doc.sprintId = m.targetSprintId
 					docs.push(doc)
-					// show the history and other updated props in the current opened item
-					if (doc._id === rootState.currentDoc._id) commit('updateCurrentDoc',
-						{ newHist, productId: doc.productId, parentId: doc.parentId, level: doc.level, priority: doc.priority, sprintId: doc.sprintId })
 				}
 				if (envelope.error) error.push(envelope.error)
 			}
@@ -83,20 +80,10 @@ const actions = {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
-			}
-			const toDispatch = { 'addHistToTargetParent': payload }
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
-
-			// if moving to another product or another level, update the descendants of the moved(back) items
-			if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
-				const updates = {
-					targetProductId: m.targetProductId,
-					levelShift: m.levelShift
-				}
-				for (let it of payload.items) {
-					// run in parallel for all moved nodes
-					dispatch('getMovedChildrenIds', { updates, id: it.id })
-				}
+				commit('showLastEvent', { txt: `The move failed due to update errors. Try again after sign-out or contact your administrator`, severity: WARNING })
+			} else {
+				payload.docs = docs
+				dispatch('saveMovedItems', payload)
 			}
 		}).catch(e => {
 			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
@@ -106,6 +93,62 @@ const actions = {
 		})
 	},
 
+	saveMovedItems({
+		rootState,
+		commit,
+		dispatch
+	}, payload) {
+		// console.log('updateMovedItemsBulk: payload = ' + JSON.stringify(payload, null, 2))
+		const m = payload.moveInfo
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_docs',
+			data: { "docs": payload.docs },
+		}).then(res => {
+			let updateOk = 0
+			let updateConflict = 0
+			let otherError = 0
+			for (let result of res.data) {
+				if (result.ok) updateOk++
+				if (result.error === 'conflict') updateConflict++
+				if (result.error && result.error != 'conflict') otherError++
+			}
+			// eslint-disable-next-line no-console
+			let msg = 'saveMovedItems: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			if (updateConflict > 0 || otherError > 0) {
+				commit('showLastEvent', { txt: `The move failed due to update conflicts or errors. Try again after sign-out or contact your administrator`, severity: WARNING })
+				dispatch('doLog', { event: msg, level: WARNING })
+			} else {
+				// no conflicts, no other errors
+				for (let d of payload.docs) {
+					// show the history and other updated props in the current opened item
+					if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc',
+						{ newHist: d.history[0], productId: d.productId, parentId: d.parentId, level: d.level, priority: d.priority, sprintId: d.sprintId })
+				}
+				dispatch('addHistToTargetParent', payload)
+				// if moving to another product or another level, update the descendants of the moved(back) items
+				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
+					const updates = {
+						targetProductId: m.targetProductId,
+						levelShift: m.levelShift
+					}
+					for (let it of payload.items) {
+						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
+						dispatch('getMovedChildrenIds', { updates, id: it.id })
+					}
+				}
+			}
+		}).catch(error => {
+			let msg = 'saveMovedItems: Could not save the moved documents: ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/* Add history to the target parent of the moved items; continue on error */
 	addHistToTargetParent({
 		rootState,
 		dispatch
@@ -136,7 +179,7 @@ const actions = {
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 
 		}).catch(error => {
-			let msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+			let msg = 'addHistToTargetParent: Failed to add move history to parent with id ' + payload.moveInfo.targetParentId + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -193,7 +236,6 @@ const actions = {
 			url: rootState.userData.currentDb + '/_bulk_get',
 			data: { docs: docsToGet },
 		}).then(res => {
-			// console.log('updateMovedDescendantsBulk: res = ' + JSON.stringify(res, null, 2))
 			const results = res.data.results
 			const docs = []
 			const error = []

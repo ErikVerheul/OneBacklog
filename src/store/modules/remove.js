@@ -168,9 +168,8 @@ const actions = {
                 "distributeEvent": false
             }
             tmpDoc.history.unshift(newHist)
-            const toDispatch = {
-                removeDescendents: payload
-            }
+
+            const toDispatch = { removeDescendents: payload }
             dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'removeItemAndDescendents' })
         }).catch(error => {
             rootState.busyRemoving = false
@@ -260,9 +259,7 @@ const actions = {
             payload.extCondsCount = externalConditions.length
 
             // transfer these calls to updateBulk so that they are executed after successful removal only
-            const toDispatch = {
-                updateParentHist: payload
-            }
+            const toDispatch = { updateParentHist: payload }
             if (externalDependencies.length > 0) {
                 // remove the conditions in the documents not removed which match the externalDependencies
                 toDispatch.removeExtDependencies = externalDependencies
@@ -301,21 +298,24 @@ const actions = {
             }
             tmpDoc.delmark = true
             tmpDoc.history.unshift(newHist)
-            if (payload.node.level === PRODUCTLEVEL) {
-                // remove the product from the users product roles, subscriptions and product selection array
-                delete rootState.userData.myProductsRoles[_id]
-                if (rootState.userData.myProductSubscriptions.includes(_id)) {
-                    rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, _id)
-                    rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, _id)
-                    const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(_id)
-                    rootState.myProductOptions.splice(removeIdx, 1)
-                }
-            }
+
             // declare the removal as completed when this update has finished (successful or not)
             dispatch('updateDoc', {
                 dbName: rootState.userData.currentDb,
                 updatedDoc: tmpDoc,
-                onSuccessCallback: () => { rootState.busyRemoving = false },
+                onSuccessCallback: () => {
+                    if (payload.node.level === PRODUCTLEVEL) {
+                        // remove the product from the users product roles, subscriptions and product selection array
+                        delete rootState.userData.myProductsRoles[_id]
+                        if (rootState.userData.myProductSubscriptions.includes(_id)) {
+                            rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, _id)
+                            rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, _id)
+                            const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(_id)
+                            rootState.myProductOptions.splice(removeIdx, 1)
+                        }
+                    }
+                    rootState.busyRemoving = false
+                },
                 onFailureCallback: () => { rootState.busyRemoving = false }
             })
         }).catch(error => {

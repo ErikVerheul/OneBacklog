@@ -89,6 +89,7 @@ const actions = {
     /* The parent is the removed node and parent of the removed children. The grandParent is the parent of the removed node and was not removed. */
     restoreParent({
         rootState,
+        commit,
         dispatch
     }, entry) {
         const _id = entry.removedNode._id
@@ -96,17 +97,7 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/' + _id,
         }).then(res => {
-            let tmpDoc = res.data
-            if (entry.isProductRemoved) {
-                // re-enter the product to the users product roles, subscriptions, product ids and product selection array
-                rootState.userData.myProductsRoles[_id] = entry.removedProductRoles
-                rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, _id)
-                rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, _id)
-                rootState.myProductOptions.push({
-                    value: _id,
-                    text: entry.removedNode.title
-                })
-            }
+            let updatedDoc = res.data
             const newHist = {
                 "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies,
                     entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds],
@@ -115,12 +106,25 @@ const actions = {
                 "sessionId": rootState.userData.sessionId,
                 "distributeEvent": true
             }
-            tmpDoc.history.unshift(newHist)
-            tmpDoc.delmark = false
-            // update currentDoc
-            rootState.currentDoc = tmpDoc
+            updatedDoc.history.unshift(newHist)
+
+            updatedDoc.delmark = false
             const toDispatch = { 'updateGrandParentHist': entry }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'restoreParent' })
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch,
+                onSuccessCallback: () => {
+                    if (entry.isProductRemoved) {
+                        // re-enter the product to the users product roles, subscriptions, product ids and product selection array
+                        rootState.userData.myProductsRoles[_id] = entry.removedProductRoles
+                        rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, _id)
+                        rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, _id)
+                        rootState.myProductOptions.push({
+                            value: _id,
+                            text: entry.removedNode.title
+                        })
+                    }
+                    commit('updateCurrentDoc', { newDoc: updatedDoc })
+                }
+            })
         }).catch(error => {
             let msg = 'restoreParent: Could not read document with _id ' + _id + ', ' + error
             // eslint-disable-next-line no-console
@@ -148,13 +152,14 @@ const actions = {
                 "distributeEvent": false
             }
             grandParentDoc.history.unshift(newHist)
+
             // unmark for removal in case it was removed
             if (grandParentDoc.delmark) {
                 commit('showLastEvent', { txt: `The document representing the item to restore under was removed. The removal is made undone.`, severity: WARNING })
                 grandParentDoc.delmark = false
             }
             const toDispatch = { 'restoreExtDepsAndConds': entry }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch, caller: 'updateGrandParentHist' })
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch })
         }).catch(error => {
             let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
             // eslint-disable-next-line no-console
