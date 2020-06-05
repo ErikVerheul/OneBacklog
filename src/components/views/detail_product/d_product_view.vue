@@ -261,7 +261,7 @@
               v-model="acceptanceCriteria"
               :editorToolbar="editorToolbar"
               id="acceptanceCriteriaField"
-              @blur="updateAcceptance"
+              @blur="updateAcceptance()"
             ></vue-editor>
           </div>
           <multipane-resizer></multipane-resizer>
