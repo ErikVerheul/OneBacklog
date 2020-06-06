@@ -347,7 +347,7 @@ const methods = {
   },
 
   onUndoEvent() {
-    const entry = this.$store.state.changeHistory.splice(0, 1)[0]
+    const entry = this.$store.state.changeHistory.shift()
     switch (entry.type) {
       case 'undoAddSprintIds':
         this.$store.dispatch('removeSprintIds', { parentId: entry.parentId, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName })
@@ -369,17 +369,6 @@ const methods = {
         this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: Date.now() })
         this.showLastEvent('Change of item T-shirt size is undone', INFO)
         break
-      case 'undoStoryPointsAndStateChange':
-        this.$store.dispatch('setStoryPoints', {
-          node: entry.node,
-          descendants: entry.descendants,
-          newPoints: entry.oldPoints,
-          newState: entry.oldState,
-          newTeam: entry.oldTeam,
-          timestamp: Date.now()
-        })
-        this.showLastEvent('Change of item story points and state to Ready is undone', INFO)
-        break
       case 'undoStoryPointsChange':
         this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: Date.now() })
         this.showLastEvent('Change of item story points is undone', INFO)
@@ -389,7 +378,7 @@ const methods = {
         this.showLastEvent('Change of spike person hours is undone', INFO)
         break
       case 'undoChangeTeam':
-        this.$store.dispatch('setTeam', { node: entry.node, newTeam: entry.oldTeam, descendants: entry.descendants })
+        this.$store.dispatch('setTeam', { node: entry.node, newTeam: entry.oldTeam })
         this.showLastEvent('Change of owning team is undone', INFO)
         break
       case 'undoStateChange':
@@ -479,53 +468,55 @@ const methods = {
         }
         break
       case 'undoRemove':
-        // restore the removed node
-        var parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
-        if (parentNode) {
-          this.$store.dispatch("restoreItemAndDescendents", entry)
-          const path = entry.removedNode.path
-          const prevNode = window.slVueTree.getPreviousNode(path)
-          if (entry.removedNode.path.slice(-1)[0] === 0) {
-            // the previous node is the parent
-            const cursorPosition = {
-              nodeModel: prevNode,
-              placement: 'inside'
+        {
+          // restore the removed node
+          let parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
+          if (parentNode) {
+            this.$store.dispatch("restoreItemAndDescendents", entry)
+            const path = entry.removedNode.path
+            const prevNode = window.slVueTree.getPreviousNode(path)
+            if (entry.removedNode.path.slice(-1)[0] === 0) {
+              // the previous node is the parent
+              const cursorPosition = {
+                nodeModel: prevNode,
+                placement: 'inside'
+              }
+              // do not recalculate priorities when inserting a product node
+              window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
+            } else {
+              // the previous node is a sibling
+              const cursorPosition = {
+                nodeModel: prevNode,
+                placement: 'after'
+              }
+              // do not recalculate priorities when inserting a product node
+              window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
             }
-            // do not recalculate priorities when inserting a product node
-            window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
+            // unselect the current node and select the recovered node
+            this.$store.commit('updateNodeSelected', { isSelected: false })
+            this.$store.commit('updateNodeSelected', { newNode: entry.removedNode })
+            this.$store.state.currentProductId = entry.removedNode.productId
+            // restore the removed dependencies
+            for (let d of entry.removedIntDependencies) {
+              const node = window.slVueTree.getNodeById(d.id)
+              if (node !== null) node.dependencies.push(d.dependentOn)
+            }
+            for (let d of entry.removedExtDependencies) {
+              const node = window.slVueTree.getNodeById(d.id)
+              if (node !== null) node.dependencies.push(d.dependentOn)
+            }
+            for (let c of entry.removedIntConditions) {
+              const node = window.slVueTree.getNodeById(c.id)
+              if (node !== null) node.conditionalFor.push(c.conditionalFor)
+            }
+            for (let c of entry.removedExtConditions) {
+              const node = window.slVueTree.getNodeById(c.id)
+              if (node !== null) node.conditionalFor.push(c.conditionalFor)
+            }
+            this.showLastEvent('Item(s) remove is undone', INFO)
           } else {
-            // the previous node is a sibling
-            const cursorPosition = {
-              nodeModel: prevNode,
-              placement: 'after'
-            }
-            // do not recalculate priorities when inserting a product node
-            window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
+            this.showLastEvent(`Cannot restore the removed items in the tree view. The parent node was removed`, WARNING)
           }
-          // unselect the current node and select the recovered node
-          this.$store.commit('updateNodeSelected', { isSelected: false })
-          this.$store.commit('updateNodeSelected', { newNode: entry.removedNode })
-          this.$store.state.currentProductId = entry.removedNode.productId
-          // restore the removed dependencies
-          for (let d of entry.removedIntDependencies) {
-            const node = window.slVueTree.getNodeById(d.id)
-            if (node !== null) node.dependencies.push(d.dependentOn)
-          }
-          for (let d of entry.removedExtDependencies) {
-            const node = window.slVueTree.getNodeById(d.id)
-            if (node !== null) node.dependencies.push(d.dependentOn)
-          }
-          for (let c of entry.removedIntConditions) {
-            const node = window.slVueTree.getNodeById(c.id)
-            if (node !== null) node.conditionalFor.push(c.conditionalFor)
-          }
-          for (let c of entry.removedExtConditions) {
-            const node = window.slVueTree.getNodeById(c.id)
-            if (node !== null) node.conditionalFor.push(c.conditionalFor)
-          }
-          this.showLastEvent('Item(s) remove is undone', INFO)
-        } else {
-          this.showLastEvent(`Cannot restore the removed items in the tree view. The parent node was removed`, WARNING)
         }
         break
       case 'undoRemoveSprintIds':
@@ -593,56 +584,30 @@ const methods = {
   },
 
   /* Tree and database update methods */
-  updateDescription(previousNodeSelected) {
+  updateDescription() {
     if (this.$store.state.currentDoc.description !== this.newDescription) {
       // skip update when not changed
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
-        const node = previousNodeSelected || this.getNodeSelected
-        const oldDescription = this.$store.state.currentDoc.description
-        const now = Date.now()
-        this.$store.commit('updateNodeSelected', { lastContentChange: now, lastChange: now })
-        // update the current doc in memory
-        this.$store.state.currentDoc.description = this.newDescription
-        // update the doc in the database
         this.$store.dispatch('saveDescription', {
-          node,
+          node: this.getNodeSelected,
           newDescription: this.newDescription,
-          timestamp: now
+          timestamp: Date.now(),
+          createUndo: true
         })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-          node,
-          type: 'undoDescriptionChange',
-          oldDescription
-        }
-        this.$store.state.changeHistory.unshift(entry)
       }
     }
   },
 
-  updateAcceptance(previousNodeSelected) {
+  updateAcceptance() {
     // skip update when not changed
     if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
-        const node = previousNodeSelected || this.getNodeSelected
-        const oldAcceptance = this.$store.state.currentDoc.acceptanceCriteria
-        const now = Date.now()
-        this.$store.commit('updateNodeSelected', { lastContentChange: now, lastChange: now })
-        // update the current doc in memory
-        this.$store.state.currentDoc.acceptanceCriteria = this.newAcceptance
-        // update the doc in the database
         this.$store.dispatch('saveAcceptance', {
-          node,
+          node: this.getNodeSelected,
           newAcceptance: this.newAcceptance,
-          timestamp: now
+          timestamp: Date.now(),
+          createUndo: true
         })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-          node,
-          type: 'undoAcceptanceChange',
-          oldAcceptance
-        }
-        this.$store.state.changeHistory.unshift(entry)
       }
     }
   },
@@ -659,15 +624,9 @@ const methods = {
         this.$store.dispatch('setTsSize', {
           node,
           newSizeIdx: sizeArray.indexOf(size),
-          timestamp: now
+          timestamp: now,
+          createUndo: true
         })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-          node,
-          type: 'undoTsSizeChange',
-          oldTsSize: this.$store.state.currentDoc.tssize
-        }
-        this.$store.state.changeHistory.unshift(entry)
       } else {
         let sizes = ''
         for (let i = 0; i < sizeArray.length - 1; i++) {
@@ -678,66 +637,27 @@ const methods = {
     }
   },
 
-  /*
-  * Any level authorized user can assign story points to a NEW item that has no team yet. That will assign his team to this item and change the state to READY.
-  * Only authorized users who are member of the owning team can change story points at any other state.
-  */
+  /* Only authorized users who are member of the owning team can change story points. */
   updateStoryPoints() {
-    const skipTestOnTeam = this.$store.state.currentDoc.team === 'not assigned yet' && this.getCurrentItemState === this.newState
-    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item', skipTestOnTeam)) {
+    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item')) {
       const node = this.getNodeSelected
-      const oldPoints = this.$store.state.currentDoc.spsize
-      const now = Date.now()
       let el = document.getElementById("storyPointsId")
       if (isNaN(el.value) || el.value < 0) {
         el.value = '?'
         return
       }
-      if (skipTestOnTeam) {
-        // when state is 'new', change state to 'ready' and assign the user's team as owner to this item and its descendants
-        const descendants = window.slVueTree.getDescendantsInfo(node).descendants
-        this.$store.dispatch('setStoryPoints', {
-          node,
-          descendants,
-          newPoints: parseInt(el.value),
-          newState: this.readyState,
-          newTeam: this.myTeam,
-          timestamp: now
-        })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-          type: 'undoStoryPointsAndStateChange',
-          node,
-          descendants,
-          oldPoints,
-          oldState: this.newState,
-          oldTeam: this.$store.state.currentDoc.team
-        }
-        this.$store.state.changeHistory.unshift(entry)
-        this.$store.commit('updateNodeSelected', { state: this.readyState, team: this.myTeam, lastStateChange: now, lastChange: now })
-      } else {
-        this.$store.dispatch('setStoryPoints', {
-          node,
-          newPoints: parseInt(el.value),
-          timestamp: now
-        })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-          node,
-          type: 'undoStoryPointsChange',
-          oldPoints
-        }
-        this.$store.state.changeHistory.unshift(entry)
-        this.$store.commit('updateNodeSelected', { lastChange: now })
-      }
+      this.$store.dispatch('setStoryPoints', {
+        node,
+        newPoints: parseInt(el.value),
+        timestamp: Date.now(),
+        createUndo: true
+      })
     }
   },
 
   updatePersonHours() {
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
       const node = this.getNodeSelected
-      const oldPersonHours = this.$store.state.currentDoc.spikepersonhours
-      const now = Date.now()
       let el = document.getElementById("personHoursId")
       if (isNaN(el.value) || el.value < 0) {
         el.value = '?'
@@ -746,24 +666,20 @@ const methods = {
       this.$store.dispatch('setPersonHours', {
         node,
         newHrs: el.value,
-        timestamp: now
+        timestamp: Date.now(),
+        createUndo: true
       })
-      // create an entry for undoing the change in a last-in first-out sequence
-      const entry = {
-        node,
-        type: 'undoPersonHoursChange',
-        oldPersonHours
-      }
-      this.$store.state.changeHistory.unshift(entry)
     }
   },
 
   /*
-  * An authorized user can change state if member of the team which owns this item or when the item is new and changed to 'Ready'.
-  * Issue a warning when the user assigns a higher state to a parent with children witch all have a lower state.
+  * An authorized user can change state if member of the team owning this item.
+  * Issue a warning when the user assigns a state to a parent:
+  * - to DONE when not all descendants are done
+  * - higher than the state of any of its descendants
   */
   onStateChange(newState) {
-    function changeState(vm, owningTeam) {
+    function changeState(vm) {
       const descendants = window.slVueTree.getDescendantsInfo(vm.getNodeSelected).descendants
       if (descendants.length > 0) {
         let highestState = vm.newState
@@ -784,26 +700,17 @@ const methods = {
         }
       }
       const node = vm.getNodeSelected
-      const oldState = vm.$store.state.currentDoc.state
       vm.$store.dispatch('setState', {
         node,
         newState: newState,
         position: vm.getNodeSelected.ind,
-        newTeam: owningTeam,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        createUndo: true
       })
-      // create an entry for undoing the change in a last-in first-out sequence
-      const entry = {
-        type: 'undoStateChange',
-        node,
-        oldState
-      }
-      vm.$store.state.changeHistory.unshift(entry)
     }
 
-    const skipTestOnTeam = this.$store.state.currentDoc.team === 'not assigned yet' && newState === STATE_READY
-    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item', skipTestOnTeam)) {
-      changeState(this, this.myTeam)
+    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
+      changeState(this)
       const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
       if (parentNode._id != 'root') {
         if (parentNode.data.team !== this.myTeam) {
@@ -828,15 +735,9 @@ const methods = {
       this.$store.dispatch('setDocTitle', {
         node,
         newTitle: newTitle,
-        timestamp: now
+        timestamp: now,
+        createUndo: true
       })
-      // create an entry for undoing the change in a last-in first-out sequence
-      const entry = {
-        node,
-        type: 'undoTitleChange',
-        oldTitle
-      }
-      this.$store.state.changeHistory.unshift(entry)
     }
   },
 
@@ -875,16 +776,8 @@ const methods = {
       }
       items.push(payloadItem)
     }
-    // console.log('nodeDropped: moveInfo = ' + JSON.stringify(moveInfo, null, 2))
-    // console.log('nodeDropped: items = ' + JSON.stringify(items, null, 2))
-    this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items })
 
-    // create an entry for undoing the move in a last-in first-out sequence
-    const entry = {
-      type: 'undoMove',
-      beforeDropStatus
-    }
-    this.$store.state.changeHistory.unshift(entry)
+    this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items, createUndo: true })
 
     for (let n of draggingNodes) {
       n.data.lastPositionChange = Date.now()

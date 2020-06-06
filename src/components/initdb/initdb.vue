@@ -31,7 +31,7 @@
         </b-row>
       </b-form-group>
       <div v-if="!$store.state.isDatabaseInitiated">
-          <b-button v-if="dbName" class="m-1" @click="doCreateDatabase">Create databases</b-button>
+          <b-button v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</b-button>
           <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
       </div>
       <div v-if="$store.state.isDatabaseInitiated">

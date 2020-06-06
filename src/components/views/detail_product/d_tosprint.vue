@@ -1,10 +1,5 @@
 <template>
-  <b-modal
-    size="xl"
-    ref="assignToSprintRef"
-    @ok="sprintSelected"
-    :title="contextNodeTitle"
-  >
+  <b-modal size="xl" ref="assignToSprintRef" @ok="sprintSelected" :title="contextNodeTitle">
     <div>
       <b-form-group label="Assing this item to a sprint">
         <b-form-radio-group v-model="selectedSprint" :options="sprintOptions" stacked></b-form-radio-group>
@@ -78,26 +73,14 @@ export default {
         if (itemIds.length === 0) {
           this.showLastEvent(`This feature has no PBI's to add to the sprint`, WARNING)
           return
-          }
+        }
       }
       if (this.$store.state.currentDoc.level === PBILEVEL) {
         itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
       }
-      // show children nodes
-      window.slVueTree.getNodeById(currentId).isExpanded = true
-
       const sprintId = this.selectedSprint
       const sprintName = getSprintName(sprintId)
-      this.$store.dispatch('addSprintIds', { parentId: currentId, itemIds, sprintId, sprintName })
-      // create an entry for undoing the add-to-sprint in a last-in first-out sequence
-        const entry = {
-          type: 'undoAddSprintIds',
-          parentId: currentId,
-          sprintId,
-          itemIds,
-          sprintName
-        }
-        this.$store.state.changeHistory.unshift(entry)
+      this.$store.dispatch('addSprintIds', { parentId: currentId, itemIds, sprintId, sprintName, createUndo: true })
     },
   }
 }

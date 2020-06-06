@@ -389,16 +389,6 @@ const actions = {
 								case 'setHrsEvent':
 									if (isCurrentDocument) rootState.currentDoc.spikepersonhours = doc.spikepersonhours
 									break
-								case 'setPointsAndStatusEvent':
-									node.data.state = doc.state
-									node.data.team = doc.team
-									node.data.lastStateChange = lastHistoryTimestamp
-									if (isCurrentDocument) {
-										rootState.currentDoc.spsize = doc.spsize
-										rootState.currentDoc.state = doc.state
-										rootState.currentDoc.team = doc.team
-									}
-									break
 								case 'setPointsEvent':
 									if (isCurrentDocument) rootState.currentDoc.spsize = doc.spsize
 									break
@@ -580,7 +570,6 @@ const actions = {
 									}
 									break
 								case 'setPointsEvent':
-								case 'setPointsAndStatusEvent':
 									if (doc.level === PBILEVEL) {
 										for (let s of rootState.stories) {
 											if (s.storyId === doc._id) {
@@ -591,7 +580,6 @@ const actions = {
 									}
 									break
 								case 'setStateEvent':
-									// ToDo: use priority instead of position
 									if (doc.level === TASKLEVEL) {
 										const prevState = lastHistObj.setStateEvent[0]
 										if (prevState === REMOVED || prevState === ON_HOLD) {

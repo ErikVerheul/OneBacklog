@@ -81,23 +81,21 @@ const methods = {
 
     doCloneItem(node) {
         const newId = this.createId()
-        let insertPosition
-
+        let newNodeLocation
         const prevNode = window.slVueTree.getPreviousNode(node.path)
         if (node.path.slice(-1)[0] === 0) {
             // the previous node is the parent
-            insertPosition = {
+            newNodeLocation = {
                 nodeModel: prevNode,
                 placement: 'inside'
             }
         } else {
             // the previous node is a sibling
-            insertPosition = {
+            newNodeLocation = {
                 nodeModel: prevNode,
                 placement: 'after'
             }
         }
-
         // prepare the new node for insertion
         const newNode = {
             _id: newId,
@@ -125,14 +123,13 @@ const methods = {
         }
         // unselect the node that was clicked before the insert
         this.contextNodeSelected.isSelected = false
-        // insert the new node in the tree and assign the priority to this node
-        window.slVueTree.insert(insertPosition, [newNode])
+        // must insert the new node in the tree first to get the productId, parentId, pririty and set the location parameters
+        window.slVueTree.insert(newNodeLocation, [newNode])
         // and select the new node
         this.$store.commit('updateNodeSelected', { newNode })
 
-        this.showLastEvent("Item of type " + this.getLevelText(newNode.level) + " is inserted as a copy of '" + node.title + "'.", INFO)
+        this.showLastEvent(`Item of type ${this.getLevelText(newNode.level)} is inserted as a copy of '${node.title}'.`, INFO)
         // create a new document and store it
-        const parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
         const currentDoc = this.$store.state.currentDoc
         const newDoc = {
             "productId": currentDoc.productId,
@@ -160,7 +157,7 @@ const methods = {
                 "distributeEvent": false
             }],
             "history": [{
-                "createEvent": [newNode.level, parentTitle, newNode.ind + 1],
+                "createEvent": [newNode.level, window.slVueTree.getParentNode(newNode).title, newNode.ind + 1],
                 "by": this.$store.state.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": this.$store.state.userData.sessionId,
@@ -168,21 +165,8 @@ const methods = {
             }],
             "delmark": false
         }
-        // create a history event for the parent to trigger an email message to followers
-        const parentHist = {
-            "newChildEvent": [newNode.level, newNode.ind + 1],
-            "by": this.$store.state.userData.user,
-            "timestamp": Date.now(),
-            "distributeEvent": false
-        }
         // update the database
-        this.$store.dispatch('createDocWithParentHist', { newDoc, parentHist })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-            type: 'undoNewNode',
-            newNode
-        }
-        this.$store.state.changeHistory.unshift(entry)
+        this.$store.dispatch('createDocWithParentHist', { newNode, newDoc, newNodeLocation })
     },
 
     /*
@@ -243,7 +227,6 @@ const methods = {
             sprintId = this.contextNodeSelected.data.sprintId
             newNode.data.sprintId = sprintId
         }
-
         newNode.data.team = team
         newNode.title = newNode.parentId === AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(insertLevel)
 
@@ -256,13 +239,12 @@ const methods = {
                 // unselect the node that was clicked before the insert
                 this.contextNodeSelected.isSelected = false
             }
-            // insert the new node in the tree and set the productId, parentId, the location parameters and priority
+            // must insert the new node in the tree first to get the productId, parentId, pririty and set the location parameters
             window.slVueTree.insert(newNodeLocation, [newNode])
             // and select the new node
             this.$store.commit('updateNodeSelected', { newNode })
             this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
             // create a new document and store it
-            const parentTitle = window.slVueTree.getNodeById(newNode.parentId).title
             const newDoc = {
                 "_id": _id,
                 "type": "backlogItem",
@@ -270,7 +252,7 @@ const methods = {
                 "parentId": newNode.parentId,
                 "sprintId": sprintId,
                 "team": team,
-                "taskOwner": taskOwner,
+                "taskOwner": newNode.data.taskOwner,
                 "level": insertLevel,
                 "subtype": 0,
                 "state": STATE_NEW_OR_TODO,
@@ -291,7 +273,7 @@ const methods = {
                     "distributeEvent": false
                 }],
                 "history": [{
-                    "createEvent": [insertLevel, parentTitle, newNode.ind + 1],
+                    "createEvent": [insertLevel, window.slVueTree.getParentNode(newNode).title, newNode.ind + 1],
                     "by": this.$store.state.userData.user,
                     "timestamp": Date.now(),
                     "sessionId": this.$store.state.userData.sessionId,
@@ -299,21 +281,8 @@ const methods = {
                 }],
                 "delmark": false
             }
-            // create a history event for the parent to trigger an email message to followers
-            const parentHist = {
-                "newChildEvent": [insertLevel, newNode.ind + 1],
-                "by": this.$store.state.userData.user,
-                "timestamp": Date.now(),
-                "distributeEvent": false
-            }
             // update the parent history and than save the new document
-            this.$store.dispatch('createDocWithParentHist', { newDoc, parentHist })
-            // create an entry for undoing the change in a last-in first-out sequence
-            const entry = {
-                type: 'undoNewNode',
-                newNode
-            }
-            this.$store.state.changeHistory.unshift(entry)
+            this.$store.dispatch('createDocWithParentHist', { newNode, newDoc, newNodeLocation })
         }
     },
 
@@ -353,15 +322,7 @@ const methods = {
             const conditionalForPayload = { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor }
             const nodeWithDependencies = this.getNodeWithDependencies()
             nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
-            const dependenciesPayload = { _id: nodeWithDependencies._id, dependencies: nodeWithDependencies.dependencies, conditionalForPayload }
-            this.$store.dispatch('setDepAndCond', dependenciesPayload)
-            this.$store.state.selectNodeOngoing = false
-            // create an entry for undoing the change in a last-in first-out sequence
-            const entry = {
-                type: 'undoSetDependency',
-                nodeWithDependencies
-            }
-            this.$store.state.changeHistory.unshift(entry)
+            this.$store.dispatch('setDepAndCond', { _id: nodeWithDependencies._id, dependencies: nodeWithDependencies.dependencies, conditionalForPayload })
         } else {
             // save the id of the node the dependencies will be attached to
             this.nodeWithDependenciesId = this.contextNodeSelected._id
@@ -395,6 +356,7 @@ const methods = {
     */
     doRemove() {
         const selectedNode = this.contextNodeSelected
+        console.log('doRemove: selectedNode.title = ' + selectedNode.title )
         if (this.haveAccessInTree(selectedNode.level, selectedNode.data.team, 'remove this item')) {
             const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
             this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
@@ -415,51 +377,13 @@ const methods = {
             let sprintIds = []
             if (selectedNode.data.sprintId) sprintIds.push(selectedNode.data.sprintId)
             sprintIds.concat(descendantsInfo.sprintIds)
-            this.$store.dispatch('removeItemAndDescendents',
-                {
-                    productId: selectedNode.productId,
-                    node: selectedNode,
-                    descendantsIds: descendantsInfo.ids,
-                    sprintIds
-                })
-            // remove any dependency references to/from outside the removed items; note: these cannot be undone
-            const removed = window.slVueTree.correctDependencies(this.$store.state.currentProductId, descendantsInfo.ids)
-            // create an entry for undoing the remove in a last-in first-out sequence
-            const entry = {
-                type: 'undoRemove',
-                removedNode: selectedNode,
-                isProductRemoved: selectedNode.level === this.productLevel,
-                descendants: descendantsInfo.descendants,
-                removedIntDependencies: removed.removedIntDependencies,
-                removedIntConditions: removed.removedIntConditions,
-                removedExtDependencies: removed.removedExtDependencies,
-                removedExtConditions: removed.removedExtConditions,
-                sprintIds: descendantsInfo.sprintIds
-            }
-
-            if (entry.isProductRemoved) {
-                entry.removedProductRoles = this.$store.state.userData.myProductsRoles[selectedNode._id]
-            }
-
-            this.$store.state.changeHistory.unshift(entry)
-            // before removal select the predecessor of the removed node (sibling or parent)
-            const prevNode = window.slVueTree.getPreviousNode(selectedNode.path)
-            let nowSelectedNode = prevNode
-            if (prevNode.level === this.databaseLevel) {
-                // if a product is to be removed and the previous node is root, select the next product
-                const nextProduct = window.slVueTree.getNextSibling(selectedNode.path)
-                if (nextProduct === null) {
-                    // there is no next product; cannot remove the last product; note that this action is already blocked with a warming
-                    return
-                }
-                nowSelectedNode = nextProduct
-            }
-            this.$store.commit('updateNodeSelected', { newNode: nowSelectedNode })
-            this.$store.state.currentProductId = nowSelectedNode.productId
-            // load the new selected item
-            this.$store.dispatch('loadDoc', nowSelectedNode._id)
-            // remove the node and its children
-            window.slVueTree.remove([selectedNode])
+            this.$store.dispatch('removeItemAndDescendents', {
+                productId: selectedNode.productId,
+                node: selectedNode,
+                descendantsInfo,
+                sprintIds,
+                createUndo: true
+            })
         }
     },
 

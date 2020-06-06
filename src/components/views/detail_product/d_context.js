@@ -205,22 +205,8 @@ const methods = {
     if (this.contextNodeSelected.level > this.productLevel) {
       // can assign team from epic level and down (higher level numbers)
       const node = this.contextNodeSelected
-      const oldTeam = node.data.team
       const newTeam = this.myTeam
-      const descendantsInfo = window.slVueTree.getDescendantsInfo(node)
-      // create an entry for undoing the change in a last-in first-out sequence
-      const entry = {
-        type: 'undoChangeTeam',
-        node,
-        oldTeam,
-        descendants: descendantsInfo.descendants
-      }
-      this.$store.state.changeHistory.unshift(entry)
-      this.$store.dispatch('setTeam', { node, newTeam, descendants: descendantsInfo.descendants })
-      if (descendantsInfo.count === 0) {
-        this.showLastEvent(`The owning team of '${node.title}' is changed to '${this.myTeam}'.`, INFO)
-      } else
-        this.showLastEvent(`The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${this.myTeam}'.`, INFO)
+      this.$store.dispatch('setTeam', { node, newTeam, createUndo: true })
     }
   },
 
@@ -238,13 +224,6 @@ const methods = {
 
       // move the node to the new place and update the productId and parentId; movedNode is updated by this call
       const beforeDropStatus = window.slVueTree.moveNodes(targetPosition, [movedNode])
-
-      // create an entry for undoing the move in a last-in first-out sequence
-      const entry = {
-        type: 'undoMove',
-        beforeDropStatus
-      }
-      this.$store.state.changeHistory.unshift(entry)
 
       const moveInfo = {
         // this info is the same for all nodes moved
@@ -275,7 +254,7 @@ const methods = {
       }
 
       // update the database
-      this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items: [oneItem] })
+      this.$store.dispatch('updateMovedItemsBulk', { beforeDropStatus, moveInfo, items: [oneItem], createUndo: true })
       this.$store.state.moveOngoing = false
     } else {
       this.$store.state.moveOngoing = true
@@ -310,18 +289,7 @@ const methods = {
     if (this.$store.state.currentDoc.level === TASKLEVEL) {
       itemIds = [currentId]
     }
-    // show children nodes
-    window.slVueTree.getNodeById(currentId).isExpanded = true
-    this.$store.dispatch('removeSprintIds', { parentId: currentId, sprintId, itemIds, sprintName: this.getSprintName(sprintId) })
-    // create an entry for undoing the remove-from-sprint in a last-in first-out sequence
-    const entry = {
-      type: 'undoRemoveSprintIds',
-      parentId: currentId,
-      itemIds,
-      sprintId,
-      sprintName: this.getSprintName(this.selectedSprint)
-    }
-    this.$store.state.changeHistory.unshift(entry)
+    this.$store.dispatch('removeSprintIds', { parentId: currentId, sprintId, itemIds, sprintName: this.getSprintName(sprintId), createUndo: false })
   }
 }
 

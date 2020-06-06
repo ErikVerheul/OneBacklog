@@ -257,7 +257,9 @@ export default new Vuex.Store({
 
 		/////////////////////////////////////// calendar ////////////////////////////////////
 		teamCalendarInUse(state) {
-			return state.sprintCalendar !== state.configData.defaultSprintCalendar
+			if (state.configData) {
+				return state.sprintCalendar !== state.configData.defaultSprintCalendar
+			} else return false
 		}
 	},
 

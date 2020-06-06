@@ -86,7 +86,6 @@ const computed = {
         if (keys[j] === "setConditionsEvent") allText += this.mkSetConditionsEvent(histItem[keys[j]])
         if (keys[j] === "setDependenciesEvent") allText += this.mkSetDependenciesEvent(histItem[keys[j]])
         if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
-        if (keys[j] === "setPointsAndStatusEvent") allText += this.mkSetPointsAndStatusEvent(histItem[keys[j]])
         if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
         if (keys[j] === "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
         if (keys[j] === "setStateEvent") allText += this.mkSetStateEvent(histItem[keys[j]])
@@ -165,7 +164,6 @@ const methods = {
     if (key === "setConditionsEvent") return this.mkSetConditionsEvent(value)
     if (key === "setDependenciesEvent") return this.mkSetDependenciesEvent(value)
     if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
-    if (key === "setPointsAndStatusEvent") return this.mkSetPointsAndStatusEvent(value)
     if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
     if (key === "setSizeEvent") return this.mkSetSizeEvent(value)
     if (key === "setStateEvent") return this.mkSetStateEvent(value)
@@ -223,11 +221,6 @@ const methods = {
 
   mkSetSizeEvent(value) {
     return "<h5>T-Shirt estimate changed from </h5>" + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
-  },
-
-  mkSetPointsAndStatusEvent(value) {
-    return `<h5>Story points estimate changed from ${value[0]} to ${value[1]}. The item state changed from '${this.getItemStateText(value[2])}' to '${this.getItemStateText(value[3])}'</h5>` +
-      `<p>This backlog item is now assigned to team '${value[5]}'</p>`
   },
 
   mkSetPointsEvent(value) {
@@ -295,7 +288,7 @@ const methods = {
   },
 
   mkRemovedWithDescendantsEvent(value) {
-    return `<h5>This item and ${value[1].length} descendants are removed.</h5>
+    return `<h5>This item and ${value[1]} descendants are removed.</h5>
       <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
   },
 

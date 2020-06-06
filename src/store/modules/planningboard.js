@@ -410,7 +410,6 @@ const actions = {
 					const doc = envelope.ok
 					const reAssigned = doc.sprintId !== undefined
 					doc.sprintId = payload.sprintId
-
 					const newHist = {
 						"addSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName, reAssigned, payload.sprintId],
 						"by": rootState.userData.user,
@@ -433,21 +432,35 @@ const actions = {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
-			}
-
-			const toDispatch = { notifyParentOnSprintAssignment: payload }
-			dispatch('updateBulk', {
-				dbName: rootState.userData.currentDb, docs, toDispatch,
-				onSuccessCallback: () => {
-					for (let d of docs) {
-						// update the tree view
-						const node = window.slVueTree.getNodeById(d._id)
-						if (node) node.data.sprintId = payload.sprintId
-						// show the history in the current opened item
-						if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist: d.history[0] })
+			} else {
+				const toDispatch = { notifyParentOnSprintAssignment: payload }
+				dispatch('updateBulk', {
+					dbName: rootState.userData.currentDb, docs, toDispatch,
+					onSuccessCallback: () => {
+						for (let d of docs) {
+							// update the tree view
+							const node = window.slVueTree.getNodeById(d._id)
+							if (node) node.data.sprintId = d.sprintId
+							// show the history in the current opened item
+							if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist: d.history[0] })
+						}
+						// show child nodes
+						const parentNode = window.slVueTree.getNodeById(payload.parentId)
+						if (parentNode) parentNode.isExpanded = true
+						if (payload.createUndo) {
+							// create an entry for undoing the add-to-sprint for use with removeSprintIds action
+							const entry = {
+								type: 'undoAddSprintIds',
+								parentId: payload.parentId,
+								sprintId: payload.sprintId,
+								itemIds: payload.itemIds,
+								sprintName: payload.sprintName
+							}
+							rootState.changeHistory.unshift(entry)
+						}
 					}
-				}
-			})
+				})
+			}
 		}).catch(e => {
 			let msg = 'addSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -514,6 +527,17 @@ const actions = {
 						if (node && node.data.sprintId === payload.sprintId) node.data.sprintId = undefined
 						if (rootState.currentDoc._id === d._id) commit('updateCurrentDoc', { newHist: d.history[0] })
 					}
+					// show children nodes
+					window.slVueTree.getNodeById(payload.parentId).isExpanded = true
+					// create an entry for undoing the remove-from-sprint in a last-in first-out sequence
+					const entry = {
+						type: 'undoRemoveSprintIds',
+						parentId: payload.parentId,
+						itemIds: payload.itemIds,
+						sprintId: payload.sprintId,
+						sprintName: this.getSprintName(this.selectedSprint)
+					}
+					rootState.changeHistory.unshift(entry)
 				}
 			})
 		}).catch(e => {

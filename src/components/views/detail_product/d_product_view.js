@@ -66,15 +66,9 @@ const watch = {
         this.$store.dispatch('setSubType', {
           node,
           newSubType: val,
-          timestamp: now
+          timestamp: now,
+          createUndo: true
         })
-        // create an entry for undoing the change in a last-in first-out sequence
-        const entry = {
-          type: 'undoSelectedPbiType',
-          node,
-          oldSubType: this.$store.state.currentDoc.subtype
-        }
-        this.$store.state.changeHistory.unshift(entry)
       }
     }
   },

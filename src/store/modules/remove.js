@@ -159,7 +159,7 @@ const actions = {
                 "removedFromParentEvent": [
                     payload.node.level,
                     payload.node.title,
-                    payload.descendantsIds.length,
+                    payload.descendantsInfo.count,
                     payload.node.data.subtype
                 ],
                 "by": rootState.userData.user,
@@ -170,7 +170,7 @@ const actions = {
             tmpDoc.history.unshift(newHist)
 
             const toDispatch = { removeDescendents: payload }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'removeItemAndDescendents' })
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch })
         }).catch(error => {
             rootState.busyRemoving = false
             let msg = 'removeItemAndDescendents: Could not read document with _id ' + _id + ', ' + error
@@ -183,10 +183,11 @@ const actions = {
     /* Mark the descendants of the parent for removal. Do not distribute this event as distributing the parent removal will suffice */
     removeDescendents({
         rootState,
+        commit,
         dispatch
     }, payload) {
         const docsToGet = []
-        for (let d of payload.descendantsIds) {
+        for (let d of payload.descendantsInfo.ids) {
             docsToGet.push({ "id": d })
         }
         globalAxios({
@@ -194,7 +195,6 @@ const actions = {
             url: rootState.userData.currentDb + '/_bulk_get',
             data: { "docs": docsToGet },
         }).then(res => {
-            // console.log('removeDescendents: res = ' + JSON.stringify(res, null, 2))
             const results = res.data.results
             const docs = []
             const error = []
@@ -218,7 +218,7 @@ const actions = {
                     if (doc.dependencies) {
                         const internalDependencies = []
                         for (let d of doc.dependencies) {
-                            if (payload.descendantsIds.includes(d)) {
+                            if (payload.descendantsInfo.ids.includes(d)) {
                                 internalDependencies.push(d)
                             } else {
                                 thisNodesExtDependencies.dependencies.push(d)
@@ -230,7 +230,7 @@ const actions = {
                     if (doc.conditionalFor) {
                         const internalConditions = []
                         for (let c of doc.conditionalFor) {
-                            if (payload.descendantsIds.includes(c)) {
+                            if (payload.descendantsInfo.ids.includes(c)) {
                                 internalConditions.push(c)
                             } else {
                                 thisNodesExtConditions.conditions.push(c)
@@ -254,6 +254,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
+
             // add externalDependencies and externalConditions to the payload
             payload.extDepsCount = externalDependencies.length
             payload.extCondsCount = externalConditions.length
@@ -268,7 +269,48 @@ const actions = {
                 // remove the dependencies in the documents not removed which match the externalConditions
                 toDispatch.removeExtConditions = externalConditions
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+            dispatch('updateBulk', {
+                dbName: rootState.userData.currentDb, docs, toDispatch, onSuccessCallback: () => {
+                    // remove any dependency references to/from outside the removed items; note: these cannot be undone
+                    const removed = window.slVueTree.correctDependencies(rootState.currentProductId, payload.descendantsInfo.ids)
+                    // before removal select the predecessor of the removed node (sibling or parent)
+                    const prevNode = window.slVueTree.getPreviousNode(payload.node.path)
+                    let nowSelectedNode = prevNode
+                    if (prevNode.level === this.databaseLevel) {
+                        // if a product is to be removed and the previous node is root, select the next product
+                        const nextProduct = window.slVueTree.getNextSibling(payload.node.path)
+                        if (nextProduct === null) {
+                            // there is no next product; cannot remove the last product; note that this action is already blocked with a warming
+                            return
+                        }
+                        nowSelectedNode = nextProduct
+                    }
+                    commit('updateNodeSelected', { newNode: nowSelectedNode })
+                    rootState.currentProductId = nowSelectedNode.productId
+                    // load the new selected item
+                    dispatch('loadDoc', nowSelectedNode._id)
+                    // remove the node and its children
+                    window.slVueTree.remove([payload.node])
+                    if (payload.createUndo) {
+                        // create an entry for undoing the remove in a last-in first-out sequence
+                        const entry = {
+                            type: 'undoRemove',
+                            removedNode: payload.node,
+                            isProductRemoved: payload.node.level === this.productLevel,
+                            descendants: payload.descendantsInfo.descendants,
+                            removedIntDependencies: removed.removedIntDependencies,
+                            removedIntConditions: removed.removedIntConditions,
+                            removedExtDependencies: removed.removedExtDependencies,
+                            removedExtConditions: removed.removedExtConditions,
+                            sprintIds: payload.descendantsInfo.sprintIds
+                        }
+                        if (entry.isProductRemoved) {
+                            entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
+                        }
+                        rootState.changeHistory.unshift(entry)
+                    }
+                }
+            })
         }).catch(e => {
             rootState.busyRemoving = false
             let msg = 'removeDescendents: Could not read batch of documents: ' + e
@@ -290,7 +332,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removedWithDescendantsEvent": [payload.productId, payload.descendantsIds, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
+                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo.count, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,

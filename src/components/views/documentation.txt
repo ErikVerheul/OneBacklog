@@ -297,7 +297,6 @@ Y            N	     N    updateTaskOrderEvent	        	planningboard.js
 Y            Y	     Y    setConditionsEvent	          	update.js
 Y            Y	     Y    setDependenciesEvent	        	update.js
 Y            Y	     Y    setHrsEvent	                  	update.js
-Y            Y	     Y    setPointsAndStatusEvent          	update.js
 Y            Y	     Y    setPointsEvent	              	update.js
 Y            Y	     Y    setSizeEvent	                	update.js
 Y            Y	     Y    setStateEvent	                	update.js

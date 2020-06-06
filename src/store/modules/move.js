@@ -98,7 +98,6 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		// console.log('updateMovedItemsBulk: payload = ' + JSON.stringify(payload, null, 2))
 		const m = payload.moveInfo
 		globalAxios({
 			method: 'POST',
@@ -138,6 +137,14 @@ const actions = {
 						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
 						dispatch('getMovedChildrenIds', { updates, id: it.id })
 					}
+				}
+				if (payload.createUndo) {
+					// create an entry for undoing the move in a last-in first-out sequence
+					const entry = {
+						type: 'undoMove',
+						beforeDropStatus: payload.beforeDropStatus
+					}
+					rootState.changeHistory.unshift(entry)
 				}
 			}
 		}).catch(error => {
