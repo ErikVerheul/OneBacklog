@@ -13,8 +13,6 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		// console.log('updateMovedItemsBulk: payload = ' + JSON.stringify(payload, null, 2))
-
 		const bds = payload.beforeDropStatus
 		let items = []
 		let moveInfo = []
@@ -149,7 +147,6 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 				commit('showLastEvent', { txt: `The move failed due to update errors. Try again after sign-out or contact your administrator`, severity: WARNING })
 			} else {
-				// console.log('updateMovedItemsBulk: docs = ' + JSON.stringify(docs, null, 2))
 				dispatch('saveMovedItems', { beforeDropStatus: bds, moveInfo, items, docs, move: payload.move })
 			}
 		}).catch(e => {
@@ -204,6 +201,7 @@ const actions = {
 					}
 					for (let it of items) {
 						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
+						// ToDo: the user can hit the undo button before these processes finish!
 						dispatch('getMovedChildrenIds', { updates, id: it.id })
 					}
 				}
@@ -225,7 +223,7 @@ const actions = {
 		})
 	},
 
-	/* Add history to the target parent of the moved items; continue on error */
+	/* Add history to the target parent of the moved items for syncing other users */
 	addHistToTargetParent({
 		rootState,
 		dispatch
