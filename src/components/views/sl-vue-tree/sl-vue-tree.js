@@ -696,6 +696,7 @@ const methods = {
 	/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
 	moveNodes(cursorPosition, nodes) {
 		// save the status of source and target before move
+		const placement = cursorPosition.placement
 		const sourceProductId = nodes[0].productId
 		const sourceParentId = nodes[0].parentId
 		const sourceSprintId = nodes[0].data.sprintId
@@ -762,6 +763,7 @@ const methods = {
 		const targetSprintId = nodes[0].data.sprintId
 
 		return {
+			placement,
 			sourceProductId,
 			sourceProductTitle,
 			sourceParentId,
@@ -775,7 +777,7 @@ const methods = {
 			targetLevel,
 			targetSprintId,
 			// data used for restoring the tree view at undo only
-			movedNodesData: { nodes, sourceIndMap: sortedIndMap }
+			movedNodesData: { sourceIndMap: sortedIndMap }
 		}
 	},
 

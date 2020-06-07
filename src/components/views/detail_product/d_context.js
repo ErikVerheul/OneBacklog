@@ -221,29 +221,8 @@ const methods = {
       }
 
       const savedInd = movedNode.ind
-
       // move the node to the new place and update the productId and parentId; movedNode is updated by this call
       const beforeDropStatus = window.slVueTree.moveNodes(targetPosition, [movedNode])
-
-      const moveInfo = {
-        // this info is the same for all nodes moved
-        type: 'move',
-        sourceProductId: beforeDropStatus.sourceProductId,
-        sourceParentId: beforeDropStatus.sourceParentId,
-        sourceLevel: beforeDropStatus.sourceLevel,
-        sourceSprintId: beforeDropStatus.sourceSprintId,
-        sourceProductTitle: beforeDropStatus.sourceProductTitle,
-        sourceParentTitle: beforeDropStatus.sourceParentTitle,
-
-        levelShift: beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel,
-        placement: targetPosition.placement,
-
-        targetProductId: beforeDropStatus.targetProductId,
-        targetParentId: beforeDropStatus.targetParentId,
-        targetProductTitle: beforeDropStatus.targetProductTitle,
-        targetParentTitle: beforeDropStatus.targetParentTitle
-      }
-
       const oneItem = {
         id: movedNode._id,
         level: movedNode.level,
@@ -254,7 +233,7 @@ const methods = {
       }
 
       // update the database
-      this.$store.dispatch('updateMovedItemsBulk', { beforeDropStatus, moveInfo, items: [oneItem], createUndo: true })
+      this.$store.dispatch('updateMovedItemsBulk', {  beforeDropStatus, items: [oneItem], move: true })
       this.$store.state.moveOngoing = false
     } else {
       this.$store.state.moveOngoing = true

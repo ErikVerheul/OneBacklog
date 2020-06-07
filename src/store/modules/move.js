@@ -14,19 +14,86 @@ const actions = {
 		dispatch
 	}, payload) {
 		// console.log('updateMovedItemsBulk: payload = ' + JSON.stringify(payload, null, 2))
+
+		const bds = payload.beforeDropStatus
+		let items = []
+		let moveInfo = []
+		if (payload.move) {
+			items = payload.items
+			moveInfo = {
+				// this info is the same for all nodes moved
+				type: 'move',
+				sourceProductId: bds.sourceProductId,
+				sourceParentId: bds.sourceParentId,
+				sourceLevel: bds.sourceLevel,
+				sourceSprintId: bds.sourceSprintId,
+				sourceProductTitle: bds.sourceProductTitle,
+				sourceParentTitle: bds.sourceParentTitle,
+
+				levelShift: bds.targetLevel - bds.sourceLevel,
+				placement: bds.placement,
+
+				targetProductId: bds.targetProductId,
+				targetParentId: bds.targetParentId,
+				targetProductTitle: bds.targetProductTitle,
+				targetParentTitle: bds.targetParentTitle
+			}
+		} else  if (payload.undoMove) {
+			moveInfo = {
+				type: 'undoMove',
+				sourceProductId: bds.targetProductId,
+				sourceParentId: bds.targetParentId,
+				sourceLevel: bds.targetLevel,
+				sourceSprintId: bds.targetSprintId,
+				sourceParentTitle: bds.targetParentTitle,
+				levelShift: bds.sourceLevel - bds.targetLevel,
+				targetProductId: bds.sourceProductId,
+				targetParentId: bds.sourceParentId,
+				targetSprintId: bds.sourceSprintId,
+				targetParentTitle: bds.sourceParentTitle,
+			}
+
+			const swappedIndmap = payload.swappedIndmap
+			const targetSprintId = bds.sourceSprintId
+			for (let m of swappedIndmap) {
+				const node = window.slVueTree.getNodeById(m.nodeId)
+				if (node === null) break
+
+				// [only for detail view] reset the sprintId
+				node.data.sprintId = targetSprintId
+				if (node.level === this.pbiLevel && node.children) {
+					for (let c of node.children) {
+						c.data.sprintId = targetSprintId
+					}
+				}
+				// remove the <moved> badge
+				node.data.lastPositionChange = 0
+				// create item
+				const payloadItem = {
+					id: m.nodeId,
+					level: node.level,
+					sourceInd: m.sourceInd,
+					newlyCalculatedPriority: node.data.priority,
+					targetInd: m.targetInd,
+					childCount: node.children.length
+				}
+				items.push(payloadItem)
+			}
+		} else return
+
 		// lookup to not rely on the order of the response being the same as in the request
 		function getPayLoadItem(id) {
-			for (let item of payload.items) {
+			for (let item of items) {
 				if (item.id === id) {
 					return item
 				}
 			}
 		}
 		const docsToGet = []
-		for (let item of payload.items) {
+		for (let item of items) {
 			docsToGet.push({ "id": item.id })
 		}
-		const m = payload.moveInfo
+		const m = moveInfo
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
@@ -41,7 +108,7 @@ const actions = {
 					const doc = envelope.ok
 					const item = getPayLoadItem(doc._id)
 					let newHist = {}
-					if (m.type === 'move') {
+					if (payload.move) {
 						newHist = {
 							nodeDroppedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle,
 							m.placement, m.sourceParentId, m.targetParentId, item.sourceInd],
@@ -50,8 +117,7 @@ const actions = {
 							sessionId: rootState.userData.sessionId,
 							distributeEvent: false
 						}
-					} else {
-						// undo move
+					} else if (payload.undoMove) {
 						newHist = {
 							nodeUndoMoveEvent: [rootState.userData.user],
 							by: rootState.userData.user,
@@ -59,7 +125,8 @@ const actions = {
 							sessionId: rootState.userData.sessionId,
 							distributeEvent: false
 						}
-					}
+					} else return
+
 					doc.history.unshift(newHist)
 
 					doc.productId = m.targetProductId
@@ -82,8 +149,8 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 				commit('showLastEvent', { txt: `The move failed due to update errors. Try again after sign-out or contact your administrator`, severity: WARNING })
 			} else {
-				payload.docs = docs
-				dispatch('saveMovedItems', payload)
+				// console.log('updateMovedItemsBulk: docs = ' + JSON.stringify(docs, null, 2))
+				dispatch('saveMovedItems', { beforeDropStatus: bds, moveInfo, items, docs, move: payload.move })
 			}
 		}).catch(e => {
 			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
@@ -99,10 +166,12 @@ const actions = {
 		dispatch
 	}, payload) {
 		const m = payload.moveInfo
+		const items = payload.items
+		const docs = payload.docs
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_docs',
-			data: { "docs": payload.docs },
+			data: { "docs": docs },
 		}).then(res => {
 			let updateOk = 0
 			let updateConflict = 0
@@ -121,28 +190,29 @@ const actions = {
 				dispatch('doLog', { event: msg, level: WARNING })
 			} else {
 				// no conflicts, no other errors
-				for (let d of payload.docs) {
+				for (let d of docs) {
 					// show the history and other updated props in the current opened item
 					if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc',
 						{ newHist: d.history[0], productId: d.productId, parentId: d.parentId, level: d.level, priority: d.priority, sprintId: d.sprintId })
 				}
-				dispatch('addHistToTargetParent', payload)
+				dispatch('addHistToTargetParent', { moveInfo: m, items })
 				// if moving to another product or another level, update the descendants of the moved(back) items
 				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
 					const updates = {
 						targetProductId: m.targetProductId,
 						levelShift: m.levelShift
 					}
-					for (let it of payload.items) {
+					for (let it of items) {
 						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
 						dispatch('getMovedChildrenIds', { updates, id: it.id })
 					}
 				}
-				if (payload.createUndo) {
+				if (payload.move) {
 					// create an entry for undoing the move in a last-in first-out sequence
 					const entry = {
 						type: 'undoMove',
-						beforeDropStatus: payload.beforeDropStatus
+						beforeDropStatus: payload.beforeDropStatus,
+						items
 					}
 					rootState.changeHistory.unshift(entry)
 				}

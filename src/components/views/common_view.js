@@ -407,16 +407,8 @@ const methods = {
           const beforeDropStatus = entry.beforeDropStatus
           const sourceIndMap = beforeDropStatus.movedNodesData.sourceIndMap
           // swap source and target
-          const sourceProductId = beforeDropStatus.targetProductId
           const sourceParentId = beforeDropStatus.targetParentId
-          const sourceLevel = beforeDropStatus.targetLevel
-          const sourceSprintId = beforeDropStatus.targetSprintId
-          const sourceParentTitle = beforeDropStatus.targetParentTitle
-          const levelShift = beforeDropStatus.sourceLevel - beforeDropStatus.targetLevel
-          const targetProductId = beforeDropStatus.sourceProductId
           const targetParentId = beforeDropStatus.sourceParentId
-          const targetSprintId = beforeDropStatus.sourceSprintId
-          const targetParentTitle = beforeDropStatus.sourceParentTitle
           const swappedIndmap = sourceIndMap.slice()
           for (let m of sourceIndMap) {
             let val = m.sourceInd
@@ -425,44 +417,7 @@ const methods = {
           }
           if (this.moveBack(sourceParentId, targetParentId, swappedIndmap)) {
             // update the nodes in the database
-            const moveInfo = {
-              type: 'undoMove',
-              sourceProductId,
-              sourceParentId,
-              sourceLevel,
-              sourceSprintId,
-              sourceParentTitle,
-              levelShift,
-              targetProductId,
-              targetParentId,
-              targetSprintId,
-              targetParentTitle
-            }
-            const items = []
-            for (let m of swappedIndmap) {
-              const node = window.slVueTree.getNodeById(m.nodeId)
-              if (node === null) break
-
-              // [only for detail view] reset the sprintId
-              node.data.sprintId = targetSprintId
-              if (node.level === this.pbiLevel && node.children) {
-                for (let c of node.children) {
-                  c.data.sprintId = targetSprintId
-                }
-              }
-              // remove the <moved> badge
-              node.data.lastPositionChange = 0
-              const payloadItem = {
-                id: m.nodeId,
-                level: node.level,
-                sourceInd: m.sourceInd,
-                newlyCalculatedPriority: node.data.priority,
-                targetInd: m.targetInd,
-                childCount: node.children.length
-              }
-              items.push(payloadItem)
-            }
-            this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items })
+            this.$store.dispatch('updateMovedItemsBulk', { beforeDropStatus, swappedIndmap, undoMove: true })
             if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
           } else this.showLastEvent('Undo failed. Sign out and -in again to recover.', ERROR)
         }
@@ -747,23 +702,6 @@ const methods = {
 
     const levelShift = beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel
     // update the nodes in the database
-    const moveInfo = {
-      // this info is the same for all nodes moved
-      type: 'move',
-      sourceProductId: beforeDropStatus.sourceProductId,
-      sourceParentId: beforeDropStatus.sourceParentId,
-      sourceLevel: beforeDropStatus.sourceLevel,
-      sourceSprintId: beforeDropStatus.sourceSprintId,
-      sourceParentTitle: beforeDropStatus.sourceParentTitle,
-
-      levelShift,
-      placement: position.placement,
-
-      targetProductId: beforeDropStatus.targetProductId,
-      targetParentId: beforeDropStatus.targetParentId,
-      targetSprintId: beforeDropStatus.targetSprintId,
-      targetParentTitle: beforeDropStatus.targetParentTitle
-    }
     let items = []
     for (let dn of draggingNodes) {
       const payloadItem = {
@@ -777,7 +715,7 @@ const methods = {
       items.push(payloadItem)
     }
 
-    this.$store.dispatch('updateMovedItemsBulk', { moveInfo, items, createUndo: true })
+    this.$store.dispatch('updateMovedItemsBulk', { beforeDropStatus, items, move: true })
 
     for (let n of draggingNodes) {
       n.data.lastPositionChange = Date.now()
