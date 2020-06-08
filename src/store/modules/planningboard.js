@@ -535,7 +535,7 @@ const actions = {
 						parentId: payload.parentId,
 						itemIds: payload.itemIds,
 						sprintId: payload.sprintId,
-						sprintName: this.getSprintName(this.selectedSprint)
+						sprintName: payload.sprintName
 					}
 					rootState.changeHistory.unshift(entry)
 				}
