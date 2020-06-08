@@ -312,16 +312,16 @@ const methods = {
 	* Restore the nodes in their previous (source) position.
 	* Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
 	*/
-  moveBack(sourceParentId, targetParentId, swappedIndmap) {
+  moveBack(sourceParentId, targetParentId, reverseMoveMap) {
     const parentNode = window.slVueTree.getNodeById(targetParentId)
     if (parentNode === null) return false
 
-    for (let s of swappedIndmap) {
-      const node = window.slVueTree.getNodeById(s.nodeId)
+    for (let r of reverseMoveMap) {
+      const node = window.slVueTree.getNodeById(r.nodeId)
       if (node === null) return false
 
       let cursorPosition
-      if (s.targetInd === 0) {
+      if (r.targetInd === 0) {
         cursorPosition = {
           nodeModel: parentNode,
           placement: 'inside'
@@ -329,9 +329,9 @@ const methods = {
       } else {
         let topSibling
         if (sourceParentId !== targetParentId) {
-          topSibling = parentNode.children[s.targetInd - 1]
+          topSibling = parentNode.children[r.targetInd - 1]
         } else {
-          topSibling = parentNode.children[s.targetInd - (s.sourceInd > s.targetInd ? 1 : 0)]
+          topSibling = parentNode.children[r.targetInd - (r.sourceInd > r.targetInd ? 1 : 0)]
         }
         if (topSibling === undefined) return false
 
@@ -342,6 +342,8 @@ const methods = {
       }
       window.slVueTree.remove([node])
       window.slVueTree.insert(cursorPosition, [node])
+      // restore the sprintId
+      node.data.sprintId = r.sprintId
     }
     return true
   },
@@ -404,20 +406,14 @@ const methods = {
         break
       case 'undoMove':
         {
-          const beforeDropStatus = entry.beforeDropStatus
-          const sourceIndMap = beforeDropStatus.movedNodesData.sourceIndMap
+          const moveDataContainer = entry.moveDataContainer
+          const reverseMoveMap = moveDataContainer.reverseMoveMap
           // swap source and target
-          const sourceParentId = beforeDropStatus.targetParentId
-          const targetParentId = beforeDropStatus.sourceParentId
-          const swappedIndmap = sourceIndMap.slice()
-          for (let m of sourceIndMap) {
-            let val = m.sourceInd
-            m.sourceInd = m.targetInd
-            m.targetInd = val
-          }
-          if (this.moveBack(sourceParentId, targetParentId, swappedIndmap)) {
+          const sourceParentId = moveDataContainer.targetParentId
+          const targetParentId = moveDataContainer.sourceParentId
+          if (this.moveBack(sourceParentId, targetParentId, reverseMoveMap)) {
             // update the nodes in the database
-            this.$store.dispatch('updateMovedItemsBulk', { beforeDropStatus, swappedIndmap, undoMove: true })
+            this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, undoMove: true })
             if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', INFO)
           } else this.showLastEvent('Undo failed. Sign out and -in again to recover.', ERROR)
         }
@@ -697,25 +693,10 @@ const methods = {
   },
 
   /* Update the database when one or more nodes are dropped on another location */
-  nodeDropped(beforeDropStatus, draggingNodes, position) {
-    const clickedLevel = beforeDropStatus.sourceLevel
-
-    const levelShift = beforeDropStatus.targetLevel - beforeDropStatus.sourceLevel
-    // update the nodes in the database
-    let items = []
-    for (let dn of draggingNodes) {
-      const payloadItem = {
-        id: dn._id,
-        level: dn.level,
-        sourceInd: dn.savedInd,
-        newlyCalculatedPriority: dn.data.priority,
-        targetInd: dn.ind,
-        childCount: dn.children.length
-      }
-      items.push(payloadItem)
-    }
-
-    this.$store.dispatch('updateMovedItemsBulk', { beforeDropStatus, items, move: true })
+  nodeDropped(moveDataContainer, draggingNodes, position) {
+    const clickedLevel = moveDataContainer.sourceLevel
+    const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
+    this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
 
     for (let n of draggingNodes) {
       n.data.lastPositionChange = Date.now()
@@ -730,7 +711,7 @@ const methods = {
       } else {
         evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
       }
-      if (levelShift !== 0) evt += ' as ' + this.getLevelText(beforeDropStatus.targetLevel)
+      if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
       this.showLastEvent(evt, INFO)
     }
   },

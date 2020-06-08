@@ -193,8 +193,8 @@ const methods = {
 		this.getRootComponent().$emit('beforedrop', draggingNodes, position, cancel);
 	},
 
-	emitDrop(beforeDropStatus, draggingNodes, position, event) {
-		this.getRootComponent().$emit('drop', beforeDropStatus, draggingNodes, position, event);
+	emitDrop(moveDataContainer, draggingNodes, position, event) {
+		this.getRootComponent().$emit('drop', moveDataContainer, draggingNodes, position, event);
 	},
 
 	emitToggle(toggledNode, event) {
@@ -372,9 +372,9 @@ const methods = {
 		// sort the nodes on priority (highest first)
 		this.draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
 		// move the nodes and save the status 'as is' before the move
-		const beforeDropStatus = this.moveNodes(this.cursorPosition, this.draggableNodes)
+		const moveDataContainer = this.moveNodes(this.cursorPosition, this.draggableNodes)
 
-		this.emitDrop(beforeDropStatus, this.draggableNodes, this.cursorPosition, event)
+		this.emitDrop(moveDataContainer, this.draggableNodes, this.cursorPosition, event)
 		this.stopDrag()
 	},
 
@@ -720,20 +720,16 @@ const methods = {
 		const sourceParentTitle = window.slVueTree.getNodeById(sourceParentId).title
 		const targetProductTitle = window.slVueTree.getNodeById(targetProductId).title
 		const targetParentTitle = targetParent.title
-		// map the source index to the node reference and set the doRevertOrder boolean. Also save the state for the move undo of tasks
-		const sourceIndMap = []
-		let doRevertOrder = false
+		// map the source and target node location and the target sprintIdto the node id
+		const forwardMoveMap = []
 		for (let i = 0; i < nodes.length; i++) {
-			if (sourceParentId === targetParentId && insertInd < nodes[i].ind) doRevertOrder = true
-			sourceIndMap.push({ nodeId: nodes[i]._id, sourceInd: nodes[i].ind, targetInd: insertInd + i, sourceState: nodes[i].data.state })
+			forwardMoveMap.push({ nodeId: nodes[i]._id, sourceInd: nodes[i].ind, targetInd: insertInd + i, sprintId: targetNode.data.sprintId })
 		}
-
-		// create a new array for reactive tree update
-		let sortedIndMap
-		if (doRevertOrder) {
-			// revert the order to enable proper undo
-			sortedIndMap = sourceIndMap.sort((a, b) => b.sourceInd - a.sourceInd)
-		} else sortedIndMap = sourceIndMap
+		// create an mapping to move the items back to their original position on undo; also restore the sprintId
+		const reverseMoveMap = []
+		for (let i = 0; i < nodes.length; i++) {
+			reverseMoveMap.push({ nodeId: nodes[i]._id, sourceInd: insertInd + i , targetInd: nodes[i].ind, sprintId: nodes[i].data.sprintId })
+		}
 
 		this.remove(nodes)
 		this.insert(cursorPosition, nodes)
@@ -748,19 +744,14 @@ const methods = {
 				}
 			}
 		}
-		if (sourceSprintId && targetLevel < sourceLevel) {
+		if (sourceSprintId && targetLevel < FEATURELEVEL) {
 			// PBI's and/or tasks assigned to a sprint were moved up in the hierarchy
 			for (let n of nodes) {
 				// reset the sprintIds
 				n.data.sprintId = undefined
-				if (n.children) {
-					for (let c of n.children) {
-						c.data.sprintId = undefined
-					}
-				}
 			}
 		}
-		const targetSprintId = nodes[0].data.sprintId
+		const targetSprintId = targetNode.data.sprintId
 
 		return {
 			placement,
@@ -776,8 +767,8 @@ const methods = {
 			targetParentTitle,
 			targetLevel,
 			targetSprintId,
-			// data used for restoring the tree view at undo only
-			movedNodesData: { sourceIndMap: sortedIndMap }
+			forwardMoveMap,
+			reverseMoveMap
 		}
 	},
 

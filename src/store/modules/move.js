@@ -13,11 +13,26 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const bds = payload.beforeDropStatus
+		const bds = payload.moveDataContainer
 		let items = []
 		let moveInfo = []
 		if (payload.move) {
-			items = payload.items
+			for (let s of bds.forwardMoveMap) {
+				const node = window.slVueTree.getNodeById(s.nodeId)
+				if (node === null) break
+				// create item
+				const payloadItem = {
+					id: s.nodeId,
+					level: node.level,
+					sourceInd: s.sourceInd,
+					newlyCalculatedPriority: node.data.priority,
+					targetInd: s.targetInd,
+					childCount: node.children.length,
+					sprintId: s.sprintId
+				}
+
+				items.push(payloadItem)
+			}
 			moveInfo = {
 				// this info is the same for all nodes moved
 				type: 'move',
@@ -33,47 +48,45 @@ const actions = {
 
 				targetProductId: bds.targetProductId,
 				targetParentId: bds.targetParentId,
+				targetSprintId: bds.targetSprintId,
 				targetProductTitle: bds.targetProductTitle,
 				targetParentTitle: bds.targetParentTitle
 			}
-		} else  if (payload.undoMove) {
+		} else if (payload.undoMove) {
 			moveInfo = {
 				type: 'undoMove',
 				sourceProductId: bds.targetProductId,
 				sourceParentId: bds.targetParentId,
 				sourceLevel: bds.targetLevel,
-				sourceSprintId: bds.targetSprintId,
 				sourceParentTitle: bds.targetParentTitle,
 				levelShift: bds.sourceLevel - bds.targetLevel,
 				targetProductId: bds.sourceProductId,
 				targetParentId: bds.sourceParentId,
-				targetSprintId: bds.sourceSprintId,
 				targetParentTitle: bds.sourceParentTitle,
 			}
 
-			const swappedIndmap = payload.swappedIndmap
-			const targetSprintId = bds.sourceSprintId
-			for (let m of swappedIndmap) {
-				const node = window.slVueTree.getNodeById(m.nodeId)
+			for (let s of bds.reverseMoveMap) {
+				const node = window.slVueTree.getNodeById(s.nodeId)
 				if (node === null) break
 
 				// [only for detail view] reset the sprintId
-				node.data.sprintId = targetSprintId
+				node.data.sprintId = s.sprintId
 				if (node.level === this.pbiLevel && node.children) {
 					for (let c of node.children) {
-						c.data.sprintId = targetSprintId
+						c.data.sprintId = s.sprintId
 					}
 				}
 				// remove the <moved> badge
 				node.data.lastPositionChange = 0
 				// create item
 				const payloadItem = {
-					id: m.nodeId,
+					id: s.nodeId,
 					level: node.level,
-					sourceInd: m.sourceInd,
+					sourceInd: s.sourceInd,
 					newlyCalculatedPriority: node.data.priority,
-					targetInd: m.targetInd,
-					childCount: node.children.length
+					targetInd: s.targetInd,
+					childCount: node.children.length,
+					sprintId: s.sprintId
 				}
 				items.push(payloadItem)
 			}
@@ -131,7 +144,7 @@ const actions = {
 					doc.parentId = m.targetParentId
 					doc.level = doc.level + m.levelShift
 					doc.priority = item.newlyCalculatedPriority
-					doc.sprintId = m.targetSprintId
+					doc.sprintId = item.sprintId
 					docs.push(doc)
 				}
 				if (envelope.error) error.push(envelope.error)
@@ -147,7 +160,7 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 				commit('showLastEvent', { txt: `The move failed due to update errors. Try again after sign-out or contact your administrator`, severity: WARNING })
 			} else {
-				dispatch('saveMovedItems', { beforeDropStatus: bds, moveInfo, items, docs, move: payload.move })
+				dispatch('saveMovedItems', { moveDataContainer: bds, moveInfo, items, docs, move: payload.move })
 			}
 		}).catch(e => {
 			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
@@ -209,7 +222,7 @@ const actions = {
 					// create an entry for undoing the move in a last-in first-out sequence
 					const entry = {
 						type: 'undoMove',
-						beforeDropStatus: payload.beforeDropStatus,
+						moveDataContainer: payload.moveDataContainer,
 						items
 					}
 					rootState.changeHistory.unshift(entry)
