@@ -180,6 +180,9 @@ export default new Vuex.Store({
 			if (state.currentView === 'coarseProduct') return FEATURELEVEL
 			return PBILEVEL
 		},
+		myAssignedProductIds(state) {
+			return state.userData.userAssignedProductIds
+		},
 		myProductRoles(state, getters) {
 			if (getters.isAuthenticated) {
 				return state.userData.myProductsRoles[state.currentProductId]
@@ -201,39 +204,41 @@ export default new Vuex.Store({
 		/////////////////////////////// product specific roles ///////////////////////////////
 		////  available after the the user data are read and the currentProductId is set   ///
 		isPO(state, getters) {
-			if (state.currentProductId) {
+			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-				return getters.isAuthenticated && myCurrentProductRoles.includes("PO")
+				return myCurrentProductRoles && myCurrentProductRoles.includes("PO")
 			} else return false
 		},
 		isDeveloper(state, getters) {
-			if (state.currentProductId) {
+			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-				return getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+				return myCurrentProductRoles && myCurrentProductRoles.includes("developer")
 			} else return false
 		},
 		isGuest(state, getters) {
-			if (state.currentProductId) {
+			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-				return getters.isAuthenticated && myCurrentProductRoles.includes.includes("guest")
+				return myCurrentProductRoles && myCurrentProductRoles.includes.includes("guest")
 			} else return false
 		},
 		canCreateComments(state, getters) {
-			if (state.currentProductId) {
+			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-				return getters.isServerAdmin || getters.isAdmin ||
-					getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
-					getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
-					getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+				return myCurrentProductRoles &&
+					(getters.isServerAdmin || getters.isAdmin ||
+						myCurrentProductRoles.includes("PO") ||
+						myCurrentProductRoles.includes("APO") ||
+						myCurrentProductRoles.includes("developer"))
 			} else return false
 		},
 		canUploadAttachments(state, getters) {
-			if (state.currentProductId) {
+			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
-				return getters.isServerAdmin || getters.isAdmin ||
-					getters.isAuthenticated && myCurrentProductRoles.includes("PO") ||
-					getters.isAuthenticated && myCurrentProductRoles.includes("APO") ||
-					getters.isAuthenticated && myCurrentProductRoles.includes("developer")
+				return myCurrentProductRoles &&
+					(getters.isServerAdmin || getters.isAdmin ||
+						myCurrentProductRoles.includes("PO") ||
+						myCurrentProductRoles.includes("APO") ||
+						myCurrentProductRoles.includes("developer"))
 			} else return false
 		},
 		/////////////////////////////// planning board getters //////////////////////////////
