@@ -122,7 +122,7 @@
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
-              {{ patchTitle(node) }}:{{node.data.reqarea}}
+              {{ patchTitle(node) }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
