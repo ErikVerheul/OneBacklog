@@ -36,6 +36,7 @@ const computed = {
         'isAPO',
         'isAdmin',
         'isPO',
+        'myAssignedProductIds',
         'myTeam',
         'teamCalendarInUse'
     ]),
@@ -146,7 +147,7 @@ const methods = {
         this.$store.state.userData.myProductSubscriptions = []
         const missingIds = []
         for (let productId of productIds) {
-            if (this.$store.state.userData.userAssignedProductIds.includes(productId)) {
+            if (this.myAssignedProductIds.includes(productId)) {
                 this.$store.state.userData.myProductSubscriptions.push(productId)
                 if (window.slVueTree.getNodeById(productId) === null) {
                     missingIds.push(productId)

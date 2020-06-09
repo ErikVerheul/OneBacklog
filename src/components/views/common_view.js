@@ -6,7 +6,6 @@ const WARNING = 1
 const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
-const STATE_READY = 3
 const SHORTKEYLENGTH = 5
 var violationsWereFound = false
 
@@ -121,6 +120,7 @@ const computed = {
     'getCurrentItemTsSize',
     'isAPO',
     'isFollower',
+    'myAssignedProductIds',
     'myTeam',
     'teamCalendarInUse'
   ]),
@@ -132,11 +132,11 @@ const computed = {
       msg_2 = ' You are not a team member.'
     } else msg_2 = ` You are member of team '${this.myTeam}'.`
     let msg_3
-    if (this.$store.state.userData.userAssignedProductIds.length === 1)
+    if (this.myAssignedProductIds.length === 1)
       msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}. You have 1 product.`
     else
       msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}'.` +
-        ` You selected ${this.$store.state.userData.myProductSubscriptions.length} from ${this.$store.state.userData.userAssignedProductIds.length} products.`
+        ` You selected ${this.$store.state.userData.myProductSubscriptions.length} from ${this.myAssignedProductIds.length} products.`
     return msg_1 + msg_2 + msg_3
   },
 
@@ -317,8 +317,8 @@ const methods = {
     if (parentNode === null) return false
 
     for (let r of reverseMoveMap) {
-      const node = window.slVueTree.getNodeById(r.nodeId)
-      if (node === null) return false
+      const node = r.node
+      if (!node) return false
 
       let cursorPosition
       if (r.targetInd === 0) {
@@ -692,25 +692,20 @@ const methods = {
     }
   },
 
-  /* Update the database when one or more nodes are dropped on another location */
-  nodeDropped(moveDataContainer, draggingNodes, position) {
+  /* Move the nodes and save the status 'as is' before the move and pdate the database when one or more nodes are dropped on another location */
+  nodeDropped(nodes, cursorPosition) {
+		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
     const clickedLevel = moveDataContainer.sourceLevel
     const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
     this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
 
-    for (let n of draggingNodes) {
-      n.data.lastPositionChange = Date.now()
-    }
-
     if (!this.dependencyViolationsFound()) {
-      // create the event message
-      const title = this.itemTitleTrunc(60, draggingNodes[0].title)
+      // show the event message if no dependency message is displayed
+      const title = this.itemTitleTrunc(60, nodes[0].title)
       let evt = ""
-      if (draggingNodes.length === 1) {
-        evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${position.placement} '${position.nodeModel.title}'`
-      } else {
-        evt = `${this.getLevelText(clickedLevel)} '${title}' and ${draggingNodes.length - 1} other item(s) are dropped ${position.placement} '${position.nodeModel.title}'`
-      }
+      if (nodes.length === 1) {
+        evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
+      } else evt = `${this.getLevelText(clickedLevel)} '${title}' and ${nodes.length - 1} other item(s) are dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
       if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
       this.showLastEvent(evt, INFO)
     }

@@ -27,7 +27,8 @@ const authorization = {
 			'isServerAdmin',
 			'isAdmin',
 			'isAPO',
-			'isReqAreaItem'
+			'isReqAreaItem',
+			'myAssignedProductIds'
 		]),
 	},
 
@@ -45,7 +46,7 @@ const authorization = {
 				// initialize with false
 				levels.push(false)
 			}
-			if (this.$store.state.userData.userAssignedProductIds.includes(productId)) {
+			if (this.myAssignedProductIds.includes(productId)) {
 				// assing specific write permissions for the current product only if that product is assigned the this user
 				let myCurrentProductRoles = this.$store.state.userData.myProductsRoles[productId]
 				// eslint-disable-next-line no-console
@@ -240,6 +241,98 @@ const utilities = {
 				if (s.id === id) return s
 			}
 			return null
+		},
+
+		/////////////////////////////////////// move items //////////////////////////////////////
+
+		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
+		moveNodes(nodes, cursorPosition) {
+			// save the status of source and target before move
+			const placement = cursorPosition.placement
+			const sourceProductId = nodes[0].productId
+			const sourceParentId = nodes[0].parentId
+			const sourceSprintId = nodes[0].data.sprintId
+			const sourceLevel = nodes[0].level
+			const targetNode = cursorPosition.nodeModel
+			const targetProductId = targetNode.productId
+			let targetParent
+			let targetParentId
+			let targetLevel
+			let insertInd
+			if (cursorPosition.placement === 'inside') {
+				targetParent = targetNode
+				targetParentId = targetNode._id
+				targetLevel = targetNode.level + 1
+				insertInd = 0
+			} else {
+				targetParent = window.slVueTree.getParentNode(targetNode)
+				targetParentId = targetNode.parentId
+				targetLevel = targetNode.level
+				insertInd = targetNode.ind
+			}
+			const sourceProductTitle = window.slVueTree.getNodeById(sourceProductId).title
+			const sourceParentTitle = window.slVueTree.getNodeById(sourceParentId).title
+			const targetProductTitle = window.slVueTree.getNodeById(targetProductId).title
+			const targetParentTitle = targetParent.title
+
+			// map the source and target node location and the target sprintIdto the node id
+			let doRevertOrder = false
+			const forwardMoveMap = []
+			for (let i = 0; i < nodes.length; i++) {
+				if (sourceParentId === targetParentId && insertInd < nodes[i].ind) doRevertOrder = true
+				forwardMoveMap.push({ node: nodes[i], sourceInd: nodes[i].ind, targetInd: insertInd + i, sprintId: targetNode.data.sprintId })
+			}
+			// create an mapping to move the items back to their original position on undo; also restore the sprintId and the date/time the item was moved
+			const reverseMoveMap = []
+			for (let i = 0; i < nodes.length; i++) {
+				reverseMoveMap.push({ node: nodes[i], sourceInd: insertInd + i, targetInd: nodes[i].ind, sprintId: nodes[i].data.sprintId, lastPositionChange: nodes[i].data.lastPositionChange })
+			}
+
+			let sortedIndMap
+			if (doRevertOrder) {
+				// revert the order to enable proper undo when moving multiple items
+				sortedIndMap = reverseMoveMap.sort((a, b) => b.targetInd - a.targetInd)
+			} else sortedIndMap = reverseMoveMap
+
+			window.slVueTree.remove(nodes)
+			window.slVueTree.insert(cursorPosition, nodes)
+
+			// ------------ update the sprint the nodes are in ---------------
+			if (targetLevel === this.taskLevel) {
+				// nodes are moved from any level to task level
+				if (targetParent.data.sprintId) {
+					for (let n of nodes) {
+						// assign the sprintId of the parent PBI
+						n.data.sprintId = targetParent.data.sprintId
+					}
+				}
+			}
+			if (sourceSprintId && targetLevel < this.featureLevel) {
+				// PBI's and/or tasks assigned to a sprint were moved up in the hierarchy
+				for (let n of nodes) {
+					// reset the sprintIds
+					n.data.sprintId = undefined
+				}
+			}
+			const targetSprintId = targetNode.data.sprintId
+
+			return {
+				placement,
+				sourceProductId,
+				sourceProductTitle,
+				sourceParentId,
+				sourceParentTitle,
+				sourceSprintId,
+				sourceLevel,
+				targetProductId,
+				targetProductTitle,
+				targetParentId,
+				targetParentTitle,
+				targetLevel,
+				targetSprintId,
+				forwardMoveMap,
+				reverseMoveMap: sortedIndMap
+			}
 		}
 	}
 }

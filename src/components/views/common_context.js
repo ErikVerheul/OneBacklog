@@ -62,6 +62,7 @@ const computed = {
     ...mapGetters([
         'isPO',
         'isAPO',
+        'myAssignedProductIds',
         'myTeam'
     ]),
     isReqAreaItem() {
@@ -356,14 +357,13 @@ const methods = {
     */
     doRemove() {
         const selectedNode = this.contextNodeSelected
-        console.log('doRemove: selectedNode.title = ' + selectedNode.title )
         if (this.haveAccessInTree(selectedNode.level, selectedNode.data.team, 'remove this item')) {
             const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
             this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
             // when removing a product
             if (selectedNode.level === this.productLevel) {
                 // cannot remove the last assigned product or product in the tree
-                if (this.$store.state.userData.userAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
+                if (this.myAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
                     this.showLastEvent("You cannot remove your last assigned product, but you can remove the epics", WARNING)
                     return
                 }
