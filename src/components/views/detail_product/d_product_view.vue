@@ -4,7 +4,7 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-nav-form>
-          <b-button class="m-1" v-show="$store.state.changeHistory.length > 0 && !$store.state.busyRemoving" @click="onUndoEvent()">Undo</b-button>
+          <b-button class="m-1" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
           <b-button class="m-1" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
           <div class="divider"/>
           <b-input-group>
@@ -144,7 +144,7 @@
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
-              {{ patchTitle(node) }}
+              {{ patchTitle(node) }}:{{node.data.reqarea}}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"

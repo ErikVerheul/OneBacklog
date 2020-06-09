@@ -1,31 +1,33 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
+const INFO = 0
 const WARNING = 1
 const ERROR = 2
+const AREA_PRODUCTID = '0'
 
 // returns a new array so that it is reactive
 function addToArray(arr, item) {
-	const newArr = []
-	for (let el of arr) newArr.push(el)
+    const newArr = []
+    for (let el of arr) newArr.push(el)
     newArr.push(item)
-	return newArr
+    return newArr
 }
 
 const actions = {
     /*
     * ToDo: create undo's if any of these steps fail
     * Order of execution:
-    * 1. descendants
-    * 2. parent of the descendants
+    * 1. restore descendants (no history attached)
+    * 2. parent of the descendants and update the tree
     * 3. grandparent of the descendants (if removed then undo the removal)
     * 4. dependencies & conditions
-    *  If any of these steps fail the next steps are not executed but not undone
+    * If any of these steps fail the next steps are not executed but not undone
     */
 
     /* Unmark the removed item and its descendants for removal. Do not distribute this event */
     restoreItemAndDescendents({
         rootState,
+        commit,
         dispatch
     }, entry) {
         const docsToGet = []
@@ -37,7 +39,6 @@ const actions = {
             url: rootState.userData.currentDb + '/_bulk_get',
             data: { "docs": docsToGet },
         }).then(res => {
-            // console.log('restoreItemAndDescendents: res = ' + JSON.stringify(res, null, 2))
             const results = res.data.results
             const docs = []
             const errors = []
@@ -67,6 +68,7 @@ const actions = {
                 if (r.docs[0].error) errors.push(r.docs[0].error)
             }
             if (errors.length > 0) {
+                commit('showLastEvent', { txt: 'Undo failed', severity: ERROR })
                 let errorStr = ''
                 for (let e of errors) {
                     errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
@@ -100,7 +102,7 @@ const actions = {
             let updatedDoc = res.data
             const newHist = {
                 "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies,
-                    entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds],
+                entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -110,8 +112,17 @@ const actions = {
 
             updatedDoc.delmark = false
             const toDispatch = { 'updateGrandParentHist': entry }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch,
+            dispatch('updateDoc', {
+                dbName: rootState.userData.currentDb, updatedDoc, toDispatch,
                 onSuccessCallback: () => {
+                    // FOR PRODUCTS OVERVIEW ONLY: when undoing the removal of a requirement area, items must be reassigned to this area
+                    if (entry.removedNode.productId === AREA_PRODUCTID) {
+                        window.slVueTree.traverseModels((nm) => {
+                            if (entry.itemsRemovedFromReqArea.includes(nm._id)) {
+                                nm.data.reqarea = entry.removedNode._id
+                            }
+                        })
+                    }
                     if (entry.isProductRemoved) {
                         // re-enter the product to the users product roles, subscriptions, product ids and product selection array
                         rootState.userData.myProductsRoles[_id] = entry.removedProductRoles
@@ -122,6 +133,46 @@ const actions = {
                             text: entry.removedNode.title
                         })
                     }
+                    const path = entry.removedNode.path
+                    const prevNode = window.slVueTree.getPreviousNode(path)
+                    let cursorPosition
+                    if (entry.removedNode.path.slice(-1)[0] === 0) {
+                        // the previous node is the parent
+                        cursorPosition = {
+                            nodeModel: prevNode,
+                            placement: 'inside'
+                        }
+                    } else {
+                        // the previous node is a sibling
+                        cursorPosition = {
+                            nodeModel: prevNode,
+                            placement: 'after'
+                        }
+                    }
+                    // do not recalculate priorities when inserting a product node
+                    window.slVueTree.insert(cursorPosition, [entry.removedNode], entry.removedNode.parentId !== 'root')
+                    // unselect the current node and select the recovered node
+                    commit('updateNodeSelected', { isSelected: false })
+                    commit('updateNodeSelected', { newNode: entry.removedNode })
+                    rootState.currentProductId = entry.removedNode.productId
+                    // restore the removed dependencies
+                    for (let d of entry.removedIntDependencies) {
+                        const node = window.slVueTree.getNodeById(d.id)
+                        if (node !== null) node.dependencies.push(d.dependentOn)
+                    }
+                    for (let d of entry.removedExtDependencies) {
+                        const node = window.slVueTree.getNodeById(d.id)
+                        if (node !== null) node.dependencies.push(d.dependentOn)
+                    }
+                    for (let c of entry.removedIntConditions) {
+                        const node = window.slVueTree.getNodeById(c.id)
+                        if (node !== null) node.conditionalFor.push(c.conditionalFor)
+                    }
+                    for (let c of entry.removedExtConditions) {
+                        const node = window.slVueTree.getNodeById(c.id)
+                        if (node !== null) node.conditionalFor.push(c.conditionalFor)
+                    }
+                    commit('showLastEvent', { txt: 'Item(s) remove is undone', severity: INFO })
                     commit('updateCurrentDoc', { newDoc: updatedDoc })
                 }
             })

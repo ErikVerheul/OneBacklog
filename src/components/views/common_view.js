@@ -400,7 +400,12 @@ const methods = {
         break
       case 'undoNewNode':
         if (window.slVueTree.remove([entry.newNode])) {
-          this.$store.dispatch('removeItemAndDescendents', { productId: entry.newNode.productId, node: entry.newNode, descendantsIds: [], sprintIds: [] })
+          this.$store.dispatch('removeItemAndDescendents', {
+            productId: entry.newNode.productId,
+            node: entry.newNode,
+            descendantsInfo: [],
+            sprintIds: []
+          })
           this.showLastEvent('Item addition is undone', INFO)
         } else this.showLastEvent('Item was already removed', INFO)
         break
@@ -421,53 +426,7 @@ const methods = {
       case 'undoRemove':
         {
           // restore the removed node
-          let parentNode = window.slVueTree.getNodeById(entry.removedNode.parentId)
-          if (parentNode) {
-            this.$store.dispatch("restoreItemAndDescendents", entry)
-            const path = entry.removedNode.path
-            const prevNode = window.slVueTree.getPreviousNode(path)
-            if (entry.removedNode.path.slice(-1)[0] === 0) {
-              // the previous node is the parent
-              const cursorPosition = {
-                nodeModel: prevNode,
-                placement: 'inside'
-              }
-              // do not recalculate priorities when inserting a product node
-              window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
-            } else {
-              // the previous node is a sibling
-              const cursorPosition = {
-                nodeModel: prevNode,
-                placement: 'after'
-              }
-              // do not recalculate priorities when inserting a product node
-              window.slVueTree.insert(cursorPosition, [entry.removedNode], parentNode._id !== 'root')
-            }
-            // unselect the current node and select the recovered node
-            this.$store.commit('updateNodeSelected', { isSelected: false })
-            this.$store.commit('updateNodeSelected', { newNode: entry.removedNode })
-            this.$store.state.currentProductId = entry.removedNode.productId
-            // restore the removed dependencies
-            for (let d of entry.removedIntDependencies) {
-              const node = window.slVueTree.getNodeById(d.id)
-              if (node !== null) node.dependencies.push(d.dependentOn)
-            }
-            for (let d of entry.removedExtDependencies) {
-              const node = window.slVueTree.getNodeById(d.id)
-              if (node !== null) node.dependencies.push(d.dependentOn)
-            }
-            for (let c of entry.removedIntConditions) {
-              const node = window.slVueTree.getNodeById(c.id)
-              if (node !== null) node.conditionalFor.push(c.conditionalFor)
-            }
-            for (let c of entry.removedExtConditions) {
-              const node = window.slVueTree.getNodeById(c.id)
-              if (node !== null) node.conditionalFor.push(c.conditionalFor)
-            }
-            this.showLastEvent('Item(s) remove is undone', INFO)
-          } else {
-            this.showLastEvent(`Cannot restore the removed items in the tree view. The parent node was removed`, WARNING)
-          }
+          this.$store.dispatch("restoreItemAndDescendents", entry)
         }
         break
       case 'undoRemoveSprintIds':
@@ -694,7 +653,7 @@ const methods = {
 
   /* Move the nodes and save the status 'as is' before the move and pdate the database when one or more nodes are dropped on another location */
   nodeDropped(nodes, cursorPosition) {
-		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
+    const moveDataContainer = this.moveNodes(nodes, cursorPosition)
     const clickedLevel = moveDataContainer.sourceLevel
     const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
     this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })

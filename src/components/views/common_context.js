@@ -368,21 +368,12 @@ const methods = {
                     return
                 }
             }
-            // FOR COARSE VIEW ONLY: when removing a requirement area, items assigned to this area should be updated
-            // ToDo: the tree is is not restored after undo, but the database is
-            if (selectedNode.productId === AREA_PRODUCTID) {
-                window.slVueTree.resetReqArea(selectedNode._id)
-            }
             // set remove mark in the database on the clicked item and descendants (if any)
-            let sprintIds = []
-            if (selectedNode.data.sprintId) sprintIds.push(selectedNode.data.sprintId)
-            sprintIds.concat(descendantsInfo.sprintIds)
             this.$store.dispatch('removeItemAndDescendents', {
                 productId: selectedNode.productId,
                 node: selectedNode,
                 descendantsInfo,
-                sprintIds,
-                createUndo: true
+                sprintIds: selectedNode.data.sprintId ? [selectedNode.data.sprintId] : []
             })
         }
     },

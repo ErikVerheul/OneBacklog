@@ -632,14 +632,6 @@ const methods = {
 		return idsWithReqArea
 	},
 
-	resetReqArea(id) {
-		this.traverseModels((nm) => {
-			if (nm.data.reqarea === id) {
-				nm.data.reqarea = null
-			}
-		})
-	},
-
 	/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. */
 	insert(cursorPosition, nodes, calculatePrios = true) {
 		const destNodeModel = cursorPosition.nodeModel

@@ -3,6 +3,7 @@ import globalAxios from 'axios'
 
 const ERROR = 2
 const PRODUCTLEVEL = 2
+const AREA_PRODUCTID = '0'
 
 // returns a new array
 function removeFromArray(arr, item) {
@@ -140,7 +141,7 @@ const actions = {
     * 1. add history to grandparent of the descendants. ToDo: update history if removal fails,
     * 2. remove descendants,
     * 3. remove parent (declare the removal as completed when this update has finished), dependencies and conditions in parallel.
-    *  If any of these steps fail the next steps are not executed but not undone
+    * If step 1 or 2 fails the next steps are not executed but the successful steps are not undone
     */
 
     /* Add history to the parent of the removed node */
@@ -148,7 +149,6 @@ const actions = {
         rootState,
         dispatch
     }, payload) {
-        rootState.busyRemoving = true
         const _id = payload.node.parentId
         globalAxios({
             method: 'GET',
@@ -172,7 +172,6 @@ const actions = {
             const toDispatch = { removeDescendents: payload }
             dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch })
         }).catch(error => {
-            rootState.busyRemoving = false
             let msg = 'removeItemAndDescendents: Could not read document with _id ' + _id + ', ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
@@ -183,7 +182,6 @@ const actions = {
     /* Mark the descendants of the parent for removal. Do not distribute this event as distributing the parent removal will suffice */
     removeDescendents({
         rootState,
-        commit,
         dispatch
     }, payload) {
         const docsToGet = []
@@ -210,9 +208,7 @@ const actions = {
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
-                    // mark for removal
-                    doc.delmark = true
-                    docs.push(doc)
+
                     // find external dependencies (to or from items outside the range if this bulk) for removal; leave internal dependencies as is
                     let thisNodesExtDependencies = { id: doc._id, dependencies: [] }
                     if (doc.dependencies) {
@@ -240,6 +236,9 @@ const actions = {
                     }
                     if (thisNodesExtDependencies.dependencies.length > 0) externalDependencies.push(thisNodesExtDependencies)
                     if (thisNodesExtConditions.conditions.length > 0) externalConditions.push(thisNodesExtConditions)
+                    // mark for removal
+                    doc.delmark = true
+                    docs.push(doc)
                 }
                 if (r.docs[0].error) error.push(r.docs[0].error)
             }
@@ -253,24 +252,67 @@ const actions = {
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
-            }
+            } else {
+                // add externalDependencies and externalConditions to the payload
+                payload.extDepsCount = externalDependencies.length
+                payload.extCondsCount = externalConditions.length
 
-            // add externalDependencies and externalConditions to the payload
-            payload.extDepsCount = externalDependencies.length
-            payload.extCondsCount = externalConditions.length
+                // transfer these calls to updateBulk so that they are executed after successful removal only
+                const toDispatch = { updateParentHist: payload }
+                if (externalDependencies.length > 0) {
+                    // remove the conditions in the documents not removed which match the externalDependencies
+                    toDispatch.removeExtDependencies = externalDependencies
+                }
+                if (externalConditions.length > 0) {
+                    // remove the dependencies in the documents not removed which match the externalConditions
+                    toDispatch.removeExtConditions = externalConditions
+                }
+                dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+            }
+        }).catch(error => {
+            let msg = 'removeDescendents: Could not read batch of documents: ' + error
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
 
-            // transfer these calls to updateBulk so that they are executed after successful removal only
-            const toDispatch = { updateParentHist: payload }
-            if (externalDependencies.length > 0) {
-                // remove the conditions in the documents not removed which match the externalDependencies
-                toDispatch.removeExtDependencies = externalDependencies
+    /* Remove the parent(node clicked) document and add history to it */
+    updateParentHist({
+        rootState,
+        commit,
+        dispatch
+    }, payload) {
+        const _id = payload.node._id
+        globalAxios({
+            method: 'GET',
+            url: rootState.userData.currentDb + '/' + _id,
+        }).then(res => {
+            let tmpDoc = res.data
+            const newHist = {
+                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo.count, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
+                "by": rootState.userData.user,
+                "timestamp": Date.now(),
+                "sessionId": rootState.userData.sessionId,
+                "distributeEvent": true
             }
-            if (externalConditions.length > 0) {
-                // remove the dependencies in the documents not removed which match the externalConditions
-                toDispatch.removeExtConditions = externalConditions
-            }
-            dispatch('updateBulk', {
-                dbName: rootState.userData.currentDb, docs, toDispatch, onSuccessCallback: () => {
+            tmpDoc.history.unshift(newHist)
+
+            tmpDoc.delmark = true
+            dispatch('updateDoc', {
+                dbName: rootState.userData.currentDb,
+                updatedDoc: tmpDoc,
+                onSuccessCallback: () => {
+                    // FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
+                    const itemsRemovedFromReqArea = []
+                    if (payload.productId === AREA_PRODUCTID) {
+                        window.slVueTree.traverseModels((nm) => {
+                            if (nm.data.reqarea === _id) {
+                                nm.data.reqarea = null
+                                itemsRemovedFromReqArea.push(nm._id)
+                            }
+                        })
+                    }
                     // remove any dependency references to/from outside the removed items; note: these cannot be undone
                     const removed = window.slVueTree.correctDependencies(rootState.currentProductId, payload.descendantsInfo.ids)
                     // before removal select the predecessor of the removed node (sibling or parent)
@@ -291,61 +333,7 @@ const actions = {
                     dispatch('loadDoc', nowSelectedNode._id)
                     // remove the node and its children
                     window.slVueTree.remove([payload.node])
-                    if (payload.createUndo) {
-                        // create an entry for undoing the remove in a last-in first-out sequence
-                        const entry = {
-                            type: 'undoRemove',
-                            removedNode: payload.node,
-                            isProductRemoved: payload.node.level === this.productLevel,
-                            descendants: payload.descendantsInfo.descendants,
-                            removedIntDependencies: removed.removedIntDependencies,
-                            removedIntConditions: removed.removedIntConditions,
-                            removedExtDependencies: removed.removedExtDependencies,
-                            removedExtConditions: removed.removedExtConditions,
-                            sprintIds: payload.descendantsInfo.sprintIds
-                        }
-                        if (entry.isProductRemoved) {
-                            entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
-                        }
-                        rootState.changeHistory.unshift(entry)
-                    }
-                }
-            })
-        }).catch(e => {
-            rootState.busyRemoving = false
-            let msg = 'removeDescendents: Could not read batch of documents: ' + e
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
-    },
 
-    /* Add history to the removed document */
-    updateParentHist({
-        rootState,
-        dispatch
-    }, payload) {
-        const _id = payload.node._id
-        globalAxios({
-            method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id,
-        }).then(res => {
-            let tmpDoc = res.data
-            const newHist = {
-                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo.count, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
-                "by": rootState.userData.user,
-                "timestamp": Date.now(),
-                "sessionId": rootState.userData.sessionId,
-                "distributeEvent": true
-            }
-            tmpDoc.delmark = true
-            tmpDoc.history.unshift(newHist)
-
-            // declare the removal as completed when this update has finished (successful or not)
-            dispatch('updateDoc', {
-                dbName: rootState.userData.currentDb,
-                updatedDoc: tmpDoc,
-                onSuccessCallback: () => {
                     if (payload.node.level === PRODUCTLEVEL) {
                         // remove the product from the users product roles, subscriptions and product selection array
                         delete rootState.userData.myProductsRoles[_id]
@@ -356,9 +344,24 @@ const actions = {
                             rootState.myProductOptions.splice(removeIdx, 1)
                         }
                     }
-                    rootState.busyRemoving = false
-                },
-                onFailureCallback: () => { rootState.busyRemoving = false }
+                    // create an entry for undoing the remove in a last-in first-out sequence
+                    const entry = {
+                        type: 'undoRemove',
+                        removedNode: payload.node,
+                        isProductRemoved: payload.node.level === this.productLevel,
+                        descendants: payload.descendantsInfo.descendants,
+                        removedIntDependencies: removed.removedIntDependencies,
+                        removedIntConditions: removed.removedIntConditions,
+                        removedExtDependencies: removed.removedExtDependencies,
+                        removedExtConditions: removed.removedExtConditions,
+                        sprintIds: payload.descendantsInfo.sprintIds,
+                        itemsRemovedFromReqArea
+                    }
+                    if (entry.isProductRemoved) {
+                        entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
+                    }
+                    rootState.changeHistory.unshift(entry)
+                }
             })
         }).catch(error => {
             let msg = 'updateParentHist: Could not read document with _id ' + _id + ',' + error

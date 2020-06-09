@@ -73,7 +73,6 @@ export default new Vuex.Store({
 		colorMapper: {},
 		reqAreaOptions: [],
 		// detail & coarse tree views
-		busyRemoving: false,
 		currentDoc: null,
 		changeHistory: [],
 		filterForComment: "",
