@@ -138,7 +138,7 @@ const actions = {
     /*
     * ToDo: create undo's if any of these steps fail
     * Order of execution:
-    * 1. add history to grandparent of the descendants. ToDo: update history if removal fails,
+    * 1. add history to the descendants of the removed parent
     * 2. remove descendants,
     * 3. remove parent (declare the removal as completed when this update has finished), dependencies and conditions in parallel.
     * If step 1 or 2 fails the next steps are not executed but the successful steps are not undone
@@ -258,7 +258,7 @@ const actions = {
                 payload.extCondsCount = externalConditions.length
 
                 // transfer these calls to updateBulk so that they are executed after successful removal only
-                const toDispatch = { updateParentHist: payload }
+                const toDispatch = { removeParentAddHist: payload }
                 if (externalDependencies.length > 0) {
                     // remove the conditions in the documents not removed which match the externalDependencies
                     toDispatch.removeExtDependencies = externalDependencies
@@ -278,7 +278,7 @@ const actions = {
     },
 
     /* Remove the parent(node clicked) document and add history to it */
-    updateParentHist({
+    removeParentAddHist({
         rootState,
         commit,
         dispatch
@@ -364,7 +364,7 @@ const actions = {
                 }
             })
         }).catch(error => {
-            let msg = 'updateParentHist: Could not read document with _id ' + _id + ',' + error
+            let msg = 'removeParentAddHist: Could not read document with _id ' + _id + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
