@@ -13,80 +13,81 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const bds = payload.moveDataContainer
+		const mdc = payload.moveDataContainer
 		let items = []
 		let moveInfo = []
 		if (payload.move) {
-			for (let s of bds.forwardMoveMap) {
-				const node = window.slVueTree.getNodeById(s.nodeId)
+			for (let f of mdc.forwardMoveMap) {
+				const node = f.node
 				if (node === null) break
+				// set the <moved> badge
+				node.data.lastPositionChange = Date.now()
 				// create item
 				const payloadItem = {
-					id: s.nodeId,
+					id: node._id,
 					level: node.level,
-					sourceInd: s.sourceInd,
+					sourceInd: f.sourceInd,
 					newlyCalculatedPriority: node.data.priority,
-					targetInd: s.targetInd,
+					targetInd: f.targetInd,
 					childCount: node.children.length,
-					sprintId: s.sprintId
+					sprintId: f.sprintId
 				}
-
 				items.push(payloadItem)
 			}
 			moveInfo = {
 				// this info is the same for all nodes moved
 				type: 'move',
-				sourceProductId: bds.sourceProductId,
-				sourceParentId: bds.sourceParentId,
-				sourceLevel: bds.sourceLevel,
-				sourceSprintId: bds.sourceSprintId,
-				sourceProductTitle: bds.sourceProductTitle,
-				sourceParentTitle: bds.sourceParentTitle,
+				sourceProductId: mdc.sourceProductId,
+				sourceParentId: mdc.sourceParentId,
+				sourceLevel: mdc.sourceLevel,
+				sourceSprintId: mdc.sourceSprintId,
+				sourceProductTitle: mdc.sourceProductTitle,
+				sourceParentTitle: mdc.sourceParentTitle,
 
-				levelShift: bds.targetLevel - bds.sourceLevel,
-				placement: bds.placement,
+				levelShift: mdc.targetLevel - mdc.sourceLevel,
+				placement: mdc.placement,
 
-				targetProductId: bds.targetProductId,
-				targetParentId: bds.targetParentId,
-				targetSprintId: bds.targetSprintId,
-				targetProductTitle: bds.targetProductTitle,
-				targetParentTitle: bds.targetParentTitle
+				targetProductId: mdc.targetProductId,
+				targetParentId: mdc.targetParentId,
+				targetSprintId: mdc.targetSprintId,
+				targetProductTitle: mdc.targetProductTitle,
+				targetParentTitle: mdc.targetParentTitle
 			}
 		} else if (payload.undoMove) {
 			moveInfo = {
 				type: 'undoMove',
-				sourceProductId: bds.targetProductId,
-				sourceParentId: bds.targetParentId,
-				sourceLevel: bds.targetLevel,
-				sourceParentTitle: bds.targetParentTitle,
-				levelShift: bds.sourceLevel - bds.targetLevel,
-				targetProductId: bds.sourceProductId,
-				targetParentId: bds.sourceParentId,
-				targetParentTitle: bds.sourceParentTitle,
+				sourceProductId: mdc.targetProductId,
+				sourceParentId: mdc.targetParentId,
+				sourceLevel: mdc.targetLevel,
+				sourceParentTitle: mdc.targetParentTitle,
+				levelShift: mdc.sourceLevel - mdc.targetLevel,
+				targetProductId: mdc.sourceProductId,
+				targetParentId: mdc.sourceParentId,
+				targetParentTitle: mdc.sourceParentTitle,
 			}
 
-			for (let s of bds.reverseMoveMap) {
-				const node = window.slVueTree.getNodeById(s.nodeId)
+			for (let r of mdc.reverseMoveMap) {
+				const node = r.node
 				if (node === null) break
 
 				// [only for detail view] reset the sprintId
-				node.data.sprintId = s.sprintId
+				node.data.sprintId = r.sprintId
 				if (node.level === this.pbiLevel && node.children) {
 					for (let c of node.children) {
-						c.data.sprintId = s.sprintId
+						c.data.sprintId = r.sprintId
 					}
 				}
-				// remove the <moved> badge
-				node.data.lastPositionChange = 0
+				// reset the <moved> badge
+				node.data.lastPositionChange = r.lastPositionChange
 				// create item
 				const payloadItem = {
-					id: s.nodeId,
+					id: node._id,
 					level: node.level,
-					sourceInd: s.sourceInd,
+					sourceInd: r.sourceInd,
 					newlyCalculatedPriority: node.data.priority,
-					targetInd: s.targetInd,
+					targetInd: r.targetInd,
 					childCount: node.children.length,
-					sprintId: s.sprintId
+					sprintId: r.sprintId
 				}
 				items.push(payloadItem)
 			}
@@ -160,7 +161,7 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 				commit('showLastEvent', { txt: `The move failed due to update errors. Try again after sign-out or contact your administrator`, severity: WARNING })
 			} else {
-				dispatch('saveMovedItems', { moveDataContainer: bds, moveInfo, items, docs, move: payload.move })
+				dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move })
 			}
 		}).catch(e => {
 			let msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
