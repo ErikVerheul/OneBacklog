@@ -134,7 +134,7 @@
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel === featureLevel || contextNodeLevel === pbiLevel"
+              v-if="canAssignSprint"
               button
               :active="contextOptionSelected === TOSPRINT"
               variant="dark"
@@ -142,7 +142,7 @@
             >Assing this {{ contextNodeType }} to a sprint</b-list-group-item>
 
             <b-list-group-item
-              v-if="isInSprint && (contextNodeLevel === featureLevel || contextNodeLevel === pbiLevel)"
+              v-if="isInSprint"
               button
               :active="contextOptionSelected === FROMSPRINT"
               variant="dark"

@@ -1,12 +1,14 @@
+import { utilities } from '../../mixins/utilities.js'
 import { mapGetters } from 'vuex'
 import CommonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
-const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
+const REMOVED = 0
+const ON_HOLD = 1
 var movedNode = null
 
 function created() {
@@ -20,7 +22,8 @@ function created() {
 
 function data() {
   return {
-    isInSprint: false
+    isInSprint: false,
+    canAssignSprint: false
   }
 }
 
@@ -54,12 +57,22 @@ const methods = {
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = true
         this.isInSprint = node.data.sprintId && this.isCurrentOrNextPrintId(node.data.sprintId)
+        this.canAssignSprint = this.calcCanAssignSprint(node)
         if (this.$refs.d_contextMenuRef) {
           // prevent error message on recompile
           this.$refs.d_contextMenuRef.show()
         }
       } else this.allowRemoval = false
     } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
+  },
+
+  /* Can only assign features, pbi's and tasks to a sprint; Cannot assign a feature without pbi's to a sprint; cannot assign Removed or On-hold items */
+  calcCanAssignSprint(node) {
+    if (node.level === this.featureLevel) {
+      if (!node.children || node.children && node.children.length === 0) return false
+    }
+    return node.data.state !== REMOVED && node.data.state !== ON_HOLD &&
+      (this.contextNodeLevel === this.featureLevel || this.contextNodeLevel === this.pbiLevel || this.contextNodeLevel === this.taskLevel)
   },
 
   showSelected(idx) {
@@ -221,7 +234,7 @@ const methods = {
       }
 
       // move the node to the new place and update the productId and parentId; movedNode is updated by this call
-      const moveDataContainer = window.slVueTree.moveNodes(targetPosition, [movedNode])
+      const moveDataContainer = window.slVueTree.moveNodes([movedNode], targetPosition)
 
       // update the database
       this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
@@ -264,6 +277,7 @@ const methods = {
 }
 
 export default {
+  mixins: [utilities],
   extends: CommonContext,
   created,
   data,

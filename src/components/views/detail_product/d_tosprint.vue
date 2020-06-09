@@ -1,5 +1,5 @@
 <template>
-  <b-modal size="xl" ref="assignToSprintRef" @ok="sprintSelected" :title="contextNodeTitle">
+  <b-modal size="xl" ref="assignToSprintRef" @ok="addItemToSprint" :title="contextNodeTitle">
     <div>
       <b-form-group label="Assing this item to a sprint">
         <b-form-radio-group v-model="selectedSprint" :options="sprintOptions" stacked></b-form-radio-group>
@@ -11,9 +11,11 @@
 
 <script>
 import { utilities } from '../../mixins/utilities.js'
-const WARNING = 1
 const FEATURELEVEL = 4
 const PBILEVEL = 5
+const TASKLEVEL = 6
+const REMOVED = 0
+const ON_HOLD = 1
 var recentSprints
 
 function shortStartDate(sprint) {
@@ -58,29 +60,40 @@ export default {
     * From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:
     * - When a feature is selected all its descendents (PBI's and tasks) are assigned
     * - When a PBI is selected, that PBI and it descendent tasks are assigned
+    * - When a task is selected only that task is assigned to the sprint
+    * - Items with state OnHold or Removed cannot be assigned to a sprint
     */
-    sprintSelected() {
+    addItemToSprint() {
       function getSprintName(id) {
         if (id === recentSprints.currentSprint.id) {
           return recentSprints.currentSprint.name
         } else return recentSprints.nextSprint.name
       }
 
-      const currentId = this.$store.state.currentDoc._id
-      let itemIds = []
-      if (this.$store.state.currentDoc.level === FEATURELEVEL) {
-        itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
-        if (itemIds.length === 0) {
-          this.showLastEvent(`This feature has no PBI's to add to the sprint`, WARNING)
-          return
+      function stateOk(state) {
+        return state !== ON_HOLD && state !== REMOVED
+      }
+
+      const currentDoc = this.$store.state.currentDoc
+      if (stateOk(currentDoc.state)) {
+        const docLevel = this.$store.state.currentDoc.level
+        let itemIds = []
+
+        if (docLevel === FEATURELEVEL || docLevel === PBILEVEL) {
+          itemIds = [currentDoc._id]
+          const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
+          for (let d of descendants) {
+            if (stateOk(d.data.state)) itemIds.push(d._id)
+          }
         }
+
+        if (docLevel === TASKLEVEL) {
+          itemIds = [currentDoc._id]
+        }
+        const sprintId = this.selectedSprint
+        const sprintName = getSprintName(sprintId)
+        this.$store.dispatch('addSprintIds', { parentId: currentDoc._id, itemIds, sprintId, sprintName, createUndo: true })
       }
-      if (this.$store.state.currentDoc.level === PBILEVEL) {
-        itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
-      }
-      const sprintId = this.selectedSprint
-      const sprintName = getSprintName(sprintId)
-      this.$store.dispatch('addSprintIds', { parentId: currentId, itemIds, sprintId, sprintName, createUndo: true })
     },
   }
 }
