@@ -272,7 +272,7 @@ const actions = {
 			url: dbName + '/config',
 		}).then(res => {
 			if (res.data.defaultSprintCalendar) {
-				rootState.adminDefaultSprintCalendar = res.data.defaultSprintCalendar
+				rootState.defaultSprintCalendar = res.data.defaultSprintCalendar
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getDbDefaultSprintCalendar: success, ' + res.data.defaultSprintCalendar.length + ' sprint periods are read' })
 				rootState.isSprintCalendarFound = true
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getDbDefaultSprintCalendar: no calendar is found' })
@@ -295,10 +295,10 @@ const actions = {
 			url: payload.dbName + '/config',
 		}).then(res => {
 			let updatedDoc = res.data
+			updatedDoc["defaultSprintCalendar"] = payload.newSprintCalendar
 			dispatch('updateDoc', {
 				dbName: payload.dbName, updatedDoc, onSuccessCallback: () => {
-					updatedDoc["defaultSprintCalendar"] = payload.newSprintCalendar
-					rootState.adminDefaultSprintCalendar = payload.newSprintCalendar
+					rootState.defaultSprintCalendar = payload.newSprintCalendar
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveDbDefaultSprintCalendar: calendar is saved' })
 					rootState.isDefaultSprintCalendarSaved = true
 				}

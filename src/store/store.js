@@ -49,6 +49,7 @@ export default new Vuex.Store({
 		// loading options
 		autoCorrectUserProfile: true,
 		// creating a CouchDb instance
+		createDefaultCalendar: false,
 		isDatabaseInitiated: false,
 		// logging
 		logState: {
@@ -98,7 +99,7 @@ export default new Vuex.Store({
 		backendMessages: [],
 		databaseOptions: undefined,
 		userDatabaseOptions: undefined,
-		adminDefaultSprintCalendar: [],
+		defaultSprintCalendar: [],
 		fetchedTeams: [],
 		isCurrentDbChanged: false,
 		isDatabaseCreated: false,
@@ -268,6 +269,10 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
+		mustCreateDefaultCalendar(state) {
+			state.createDefaultCalendar = true
+		},
+
 		addSelectedNode(state, newNode) {
 			state.previousSelectedNode = state.selectedNodes.slice(-1)[0] || newNode
 			if (newNode.isSelectable) {
@@ -593,6 +598,7 @@ export default new Vuex.Store({
 		},
 
 		resetData(state) {
+			state.createDefaultCalendar = false
 			state.treeNodes = []
 			state.stories = []
 			state.loadedSprintId = null
