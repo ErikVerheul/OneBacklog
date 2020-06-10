@@ -207,6 +207,7 @@ const actions = {
                     // missing calendar
                     if (rootGetters.isAdmin) {
                         alert("Error: No default sprint calendar is set. You will be redirected to the Admin view where you can create one.")
+                        commit('mustCreateDefaultCalendar')
                         router.replace('/admin')
                     } else {
                         alert("Error: No default sprint calendar is set. Consult your administrator. The application will exit.")

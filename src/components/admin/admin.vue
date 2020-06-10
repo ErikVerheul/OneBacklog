@@ -226,7 +226,7 @@
 
           <div v-if="optionSelected === 'Sprint calendar'">
             <h4>Maintain the default sprint calendar of database '{{ $store.state.selectedDatabaseName }}' or create a new one when not existant</h4>
-            <div v-if="checkForExistingCalendar">
+            <div v-if="!$store.state.createDefaultCalendar && checkForExistingCalendar">
               <b-button @click="doLoadSprintCalendar" variant="seablue">Load the sprint calendar</b-button>
             </div>
             <div v-else-if="!$store.state.isSprintCalendarFound && !creatingCalendar">
