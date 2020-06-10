@@ -945,7 +945,7 @@ const actions = {
 	}, payload) {
 		const _id = payload.updatedDoc._id
 		// eslint-disable-next-line no-console
-		console.log('updateDoc: updating document with _id = ' + _id)
+		console.log('updateDoc: updating document with _id = ' + _id + ' in database ' + payload.dbName)
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/' + _id,
