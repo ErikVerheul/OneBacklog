@@ -416,6 +416,7 @@ const methods = {
           // swap source and target
           const sourceParentId = moveDataContainer.targetParentId
           const targetParentId = moveDataContainer.sourceParentId
+          // the nodes are restored prior to the database update as we need the newly calculated priority to store
           if (this.moveBack(sourceParentId, targetParentId, reverseMoveMap)) {
             // update the nodes in the database
             this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, undoMove: true })

@@ -223,7 +223,6 @@ const methods = {
     }
   },
 
-  /* ToDo: moved item must be above target level */
   moveItemToOtherProduct() {
     if (this.$store.state.moveOngoing) {
       const targetPosition = window.slVueTree.lastSelectCursorPosition
