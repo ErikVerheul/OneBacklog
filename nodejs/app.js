@@ -1,7 +1,7 @@
 'use strict';
 require('dotenv').config();
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-    "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent", "newChildEvent", "nodeDroppedEvent", "nodeUndoMoveEvent", "removeAttachmentEvent", "removedFromParentEvent",
+    "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removedFromParentEvent",
     "setConditionsEvent", "setDependenciesEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
     "removeSprintIdsEvent", "setTitleEvent", "uploadAttachmentEvent"];
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984');
@@ -88,10 +88,11 @@ function mkHtml(dbName, eventType, value, event, doc) {
             return mkHeader() + `<h3>This item and ${value[0]} descendants are restored from removal.</h3>` + mkFooter()
         case "newChildEvent":
             return mkHeader() + `<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}.</h3>` + mkFooter()
-        case "nodeDroppedEvent":
+        case "nodeMovedEvent":
             {
+                const moveType = value[13] === 'undoMove' ? ' back' : ''
                 let txt
-                if (value[7] !== value[8]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
+                if (value[7] !== value[8]) { txt = `<h5>The item was moved${moveType} from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
                 if (value[0] === value[1]) {
                     txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
                     txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ""
@@ -103,8 +104,6 @@ function mkHtml(dbName, eventType, value, event, doc) {
                     return mkHeader() + txt + mkFooter()
                 }
             }
-        case "nodeUndoMoveEvent":
-            return mkHeader() + `<h3>The previous move is made undone</h3>` + mkFooter()
         case "removeAttachmentEvent":
             return mkHeader() + `<h3>Attachment with title '${value[0]}' is removed from this item</h3>` + mkFooter()
         case "removedFromParentEvent":

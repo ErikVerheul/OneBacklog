@@ -142,6 +142,14 @@
             >Assing this {{ contextNodeType }} to a sprint</b-list-group-item>
 
             <b-list-group-item
+              v-if="canAssignSprintToTask"
+              button
+              :active="contextOptionSelected === TASKTOSPRINT"
+              variant="dark"
+              @click="showSelected(TASKTOSPRINT)"
+            >Assing this task to the sprint</b-list-group-item>
+
+            <b-list-group-item
               v-if="isInSprint"
               button
               :active="contextOptionSelected === FROMSPRINT"

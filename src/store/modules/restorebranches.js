@@ -30,17 +30,13 @@ function setChangeTimestamps(history, lastComment) {
         }
         const event = Object.keys(histItem)[0]
         // get the most recent change of position
-        if (lastPositionChange === 0 && event === 'nodeDroppedEvent') {
+        if (lastPositionChange === 0 && event === 'nodeMovedEvent') {
             if (!nodeUndoMoveEventWasIssued) {
                 lastPositionChange = histItem.timestamp
                 nodeUndoMoveEventWasIssued = false
             } else {
                 lastPositionChange = 0
             }
-        }
-        // reset the timestamp when undoing the change of position
-        if (event === 'nodeUndoMoveEvent') {
-            nodeUndoMoveEventWasIssued = true
         }
         // get the most recent change of state
         if (lastStateChange === 0 && (event === 'setStateEvent') || event === 'createEvent') {
@@ -76,7 +72,7 @@ function cleanHistory(history) {
 	const now = Date.now()
 	const cleanedHist = []
 	for (var i = 0; i < history.length; i++) {
-		if ((now - history[i].timestamp < hour) && Object.keys(history[i])[0] !== 'ignoreEvent') cleanedHist.push(history[i])
+		if (Object.keys(history[i])[0] !== 'ignoreEvent' && (now - history[i].timestamp < hour)) cleanedHist.push(history[i])
     }
     if (cleanedHist.length === 0) cleanedHist.push(history[0])
     return cleanedHist

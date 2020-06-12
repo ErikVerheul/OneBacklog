@@ -47,7 +47,6 @@ const actions = {
                 if (doc) {
                     const newHist = {
                         "ignoreEvent": ['restoreItemAndDescendents'],
-                        "timestamp": Date.now(),
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
@@ -259,7 +258,6 @@ const actions = {
                         }
                     const newHist = {
                         "ignoreEvent": ['restoreExtDepsAndConds'],
-                        "timestamp": Date.now(),
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)

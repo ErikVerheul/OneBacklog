@@ -369,12 +369,13 @@ export default new Vuex.Store({
 		},
 
 		/*
-		* Update the currently loaded document.
+		* Update or replace the currently loaded document.
 		* Decode the description and acceptence criteria.
 		* Note that not all fields are covered
 		*/
 		updateCurrentDoc(state, payload) {
 			if (payload.newDoc) {
+				// replace the currently loaded document
 				state.currentDoc = payload.newDoc
 				// decode from base64 + replace the encoded data
 				state.currentDoc.description = window.atob(payload.newDoc.description)

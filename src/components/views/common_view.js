@@ -380,7 +380,7 @@ const methods = {
         this.showLastEvent('Change of spike person hours is undone', INFO)
         break
       case 'undoChangeTeam':
-        this.$store.dispatch('setTeam', { node: entry.node, newTeam: entry.oldTeam })
+        this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam })
         this.showLastEvent('Change of owning team is undone', INFO)
         break
       case 'undoStateChange':

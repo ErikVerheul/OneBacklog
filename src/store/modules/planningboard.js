@@ -150,7 +150,7 @@ const actions = {
 						"by": rootState.userData.user,
 						"timestamp": Date.now(),
 						"sessionId": rootState.userData.sessionId,
-						"distributeEvent": true
+						"distributeEvent": false
 					}
 					doc.history.unshift(newHist)
 					docs.push(doc)
@@ -169,16 +169,12 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 
-			const toDispatch = { loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }
-			dispatch('updateBulk', {
-				dbName: rootState.userData.currentDb, docs, toDispatch,
-				onSuccessCallback: () => {
-					for (let d of docs) {
-						// show the history in the current opened item
-						if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist: d.history[0] })
-					}
-				}
-			})
+			const toDispatch = {
+				loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam },
+				// also trigger the reload of other sessions with this board open
+				triggerBoardReload: { parentId: 'messenger', sprintId: rootState.loadedSprintId }
+			}
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 		}).catch(e => {
 			let msg = 'importInSprint: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -273,7 +269,6 @@ const actions = {
 			for (let c of newChildren) {
 				const newHist = {
 					"ignoreEvent": ['updateMovedTasks'],
-					"timestamp": Date.now(),
 					"distributeEvent": false
 				}
 				c.history.unshift(newHist)
@@ -324,7 +319,7 @@ const actions = {
 		})
 	},
 
-	/* Syncs the order of tasks between planning boards; does change the priorities in the database; must reload to see the changes in the tree view */
+	/* Syncs the order of tasks between planning boards */
 	syncOtherPlanningBoards({
 		rootState,
 		dispatch
@@ -354,7 +349,7 @@ const actions = {
 	},
 
 	/* Create an event to trigger a planning reload after items are assigned or unassigned to a sprint */
-	notifyParentOnSprintAssignment({
+	triggerBoardReload({
 		rootState,
 		dispatch
 	}, payload) {
@@ -364,17 +359,18 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
-				"sprintAssigned": [payload.sprintId, payload.sprintName],
+				"boardReloadEvent": [payload.sprintId, rootState.userData.myTeam],
 				"by": rootState.userData.user,
 				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
-			tmpDoc.history.unshift(newHist)
+			// replace the history
+			tmpDoc.history = [newHist]
 
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
 		}).catch(error => {
-			let msg = 'notifyParentOnSprintAssignment: Could not read document with _id ' + payload.parentId + ', ' + error
+			let msg = 'triggerBoardReload: Could not read document with _id ' + payload.parentId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -384,8 +380,9 @@ const actions = {
 	/*
 	* From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint ||
 	* for undo: see undoRemoveSprintIds
-	* - When a feature is selected all its descendents (PBI's and tasks) are assigned
+	* - When a feature is selected all its descendants (PBI's and tasks) are assigned
 	* - When a PBI is selected, that PBI and it descendent tasks are assigned
+	* - When a a task is selected the parentId is the task the task id
 	*/
 	addSprintIds({
 		rootState,
@@ -415,7 +412,7 @@ const actions = {
 						"by": rootState.userData.user,
 						"timestamp": Date.now(),
 						"sessionId": rootState.userData.sessionId,
-						"distributeEvent": true
+						"distributeEvent": false
 					}
 					doc.history.unshift(newHist)
 					docs.push(doc)
@@ -433,7 +430,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			} else {
-				const toDispatch = { notifyParentOnSprintAssignment: payload }
+				const toDispatch = { triggerBoardReload: payload }
 				dispatch('updateBulk', {
 					dbName: rootState.userData.currentDb, docs, toDispatch,
 					onSuccessCallback: () => {
@@ -469,7 +466,7 @@ const actions = {
 		})
 	},
 
-	/* Remove the sprintId only if equal to sprintId specified leaving items assigned to other sprints unattached */
+	/* Remove the sprintId only if equal to sprintId specified, leaving items assigned to other sprints untouched */
 	removeSprintIds({
 		rootState,
 		commit,
@@ -497,7 +494,7 @@ const actions = {
 						"by": rootState.userData.user,
 						"timestamp": Date.now(),
 						"sessionId": rootState.userData.sessionId,
-						"distributeEvent": true
+						"distributeEvent": false
 					}
 					doc.history.unshift(newHist)
 					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
@@ -517,7 +514,7 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
 
-			const toDispatch = { notifyParentOnSprintAssignment: payload }
+			const toDispatch = { triggerBoardReload: payload }
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb, docs, toDispatch,
 				onSuccessCallback: () => {
@@ -608,7 +605,6 @@ const actions = {
 				"priority": taskPriority,
 				"comments": [{
 					"ignoreEvent": 'comments initiated',
-					"timestamp": 0,
 					"distributeEvent": false
 				}],
 				"history": [{
@@ -670,8 +666,7 @@ const actions = {
 							break
 						}
 					}
-				},
-				forceUpdateCurrentDoc: true
+				}
 			})
 		}).catch(error => {
 			let msg = 'boardAddTask: Could not read document with id ' + payload.taskId + ', ' + error

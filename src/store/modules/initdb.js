@@ -23,6 +23,7 @@ const actions = {
 	* 7. createDefaultTeam
 	* 8. createFirstProduct
 	* 9. addProductToUser in useracc.js and set isDatabaseInitiated to true when successful
+	* 10. createMessenger
 	*/
 	createDatabase({
 		rootState,
@@ -236,7 +237,7 @@ const actions = {
 							const now = Date.now()
 							const cleanedHist = []
 							for (var i = 0; i < doc.history.length; i++) {
-								if ((now - doc.history[i].timestamp < hour) && Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent' && (now - doc.history[i].timestamp < hour)) cleanedHist.push(doc.history[i])
 							}
 							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
 							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.productId, doc.level, doc.priority * -1],
@@ -250,7 +251,7 @@ const actions = {
 							const now = Date.now()
 							const cleanedHist = []
 							for (var i = 0; i < doc.history.length; i++) {
-								if ((now - doc.history[i].timestamp < hour) && Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent' && (now - doc.history[i].timestamp < hour)) cleanedHist.push(doc.history[i])
 							}
 							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level < 5) emit([doc.productId, doc.level, doc.priority * -1],
@@ -270,7 +271,7 @@ const actions = {
 							const now = Date.now()
 							const cleanedHist = []
 							for (var i = 0; i < doc.history.length; i++) {
-								if ((now - doc.history[i].timestamp < hour) && Object.keys(doc.history[i])[0] !== 'ignoreEvent') cleanedHist.push(doc.history[i])
+								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent' && (now - doc.history[i].timestamp < hour)) cleanedHist.push(doc.history[i])
 							}
 							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '0') emit(doc.parentId,
@@ -359,7 +360,6 @@ const actions = {
 			"priority": 0,
 			"comments": [{
 				"ignoreEvent": 'comments initiated',
-				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			// do not distribute this event; other users have no access rights yet
@@ -439,7 +439,6 @@ const actions = {
 			"priority": 0,
 			"comments": [{
 				"ignoreEvent": 'comments initiated',
-				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			// do not distribute this event; other users have no access rights yet
@@ -484,7 +483,6 @@ const actions = {
 			"priority": 0,
 			"comments": [{
 				"ignoreEvent": 'comments initiated',
-				"timestamp": 0,
 				"distributeEvent": false
 			}],
 			// do not distribute this event; other users have no access rights yet
@@ -502,9 +500,46 @@ const actions = {
 			data: newDoc
 		}).then(() => {
 			dispatch('addProductToUser', { dbName, productId: _id, userRoles: ['*'] })
+			dispatch('createMessenger')
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Success, product with _id ' + _id + ' is created' })
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Failure, cannot create first product, ' + error })
+		})
+	},
+
+	createMessenger({
+		rootState,
+		dispatch
+	}, dbName) {
+		const _id = 'messenger'
+		// create a new document and store it
+		const newDoc = {
+			"_id": "messenger",
+			"type": "backlogItem",
+			"title": "A dummy backlogIten to pass messages to other users. The first element of the history array is used to pass the event to all other open sessions",
+			"comments": [
+				{
+					"ignoreEvent": "comments initiated",
+					"distributeEvent": false
+				}
+			],
+			"history": [
+				{
+					"ignoreEvent": ["messenger"],
+					"distributeEvent": false
+				}
+			],
+			"delmark": false
+		}
+		globalAxios({
+			method: 'PUT',
+			url: dbName + '/' + _id,
+			data: newDoc
+		}).then(() => {
+			dispatch('createMessenger', { dbName, productId: _id, userRoles: ['*'] })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createMessenger: Success, product with _id ' + _id + ' is created' })
+		}).catch(error => {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createMessenger: Failure, cannot create first product, ' + error })
 		})
 	}
 }

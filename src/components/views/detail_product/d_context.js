@@ -14,6 +14,7 @@ var movedNode = null
 function created() {
   this.TOSPRINT = 11
   this.FROMSPRINT = 12
+  this.TASKTOSPRINT = 13
   this.sprints = this.getCurrentAndNextSprint()
   eventBus.$on('contextMenu', (node) => {
     this.showContextMenu(node)
@@ -23,7 +24,8 @@ function created() {
 function data() {
   return {
     isInSprint: false,
-    canAssignSprint: false
+    canAssignSprint: false,
+    canAssignSprintToTask: false
   }
 }
 
@@ -58,6 +60,7 @@ const methods = {
         this.allowRemoval = true
         this.isInSprint = node.data.sprintId && this.isCurrentOrNextPrintId(node.data.sprintId)
         this.canAssignSprint = this.calcCanAssignSprint(node)
+        this.canAssignSprintToTask = this.calcCanAssignSprintToTask(node)
         if (this.$refs.d_contextMenuRef) {
           // prevent error message on recompile
           this.$refs.d_contextMenuRef.show()
@@ -66,13 +69,19 @@ const methods = {
     } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
   },
 
-  /* Can only assign features, pbi's and tasks to a sprint; Cannot assign a feature without pbi's to a sprint; cannot assign Removed or On-hold items */
+  /* Can only assign features and pbi's to a sprint; Cannot assign a feature without pbi's to a sprint; cannot assign Removed or On-hold items */
   calcCanAssignSprint(node) {
     if (node.level === this.featureLevel) {
       if (!node.children || node.children && node.children.length === 0) return false
     }
     return node.data.state !== REMOVED && node.data.state !== ON_HOLD &&
-      (this.contextNodeLevel === this.featureLevel || this.contextNodeLevel === this.pbiLevel || this.contextNodeLevel === this.taskLevel)
+      (this.contextNodeLevel === this.featureLevel || this.contextNodeLevel === this.pbiLevel)
+  },
+  /* Can only assign tasks to a sprint if not in a sprint yet and not Removed or On-hold */
+  calcCanAssignSprintToTask(node) {
+    if (node.level === this.taskLevel) {
+      return !node.data.sprintId && node.data.state !== REMOVED && node.data.state !== ON_HOLD
+    }
   },
 
   showSelected(idx) {
@@ -208,6 +217,9 @@ const methods = {
       case this.TOSPRINT:
         this.doAddToSprint()
         break
+      case this.TASKTOSPRINT:
+        this.doAddTaskToSprint()
+        break
       case this.FROMSPRINT:
         this.doRemoveFromSprint()
         break
@@ -219,7 +231,7 @@ const methods = {
       // can assign team from epic level and down (higher level numbers)
       const node = this.contextNodeSelected
       const newTeam = this.myTeam
-      this.$store.dispatch('setTeam', { node, newTeam, createUndo: true })
+      this.$store.dispatch('assignToMyTeam', { node, newTeam, createUndo: true })
     }
   },
 
@@ -247,6 +259,16 @@ const methods = {
 
   doAddToSprint() {
     window.assignToSprintRef.show()
+  },
+
+  doAddTaskToSprint() {
+    const currentId = this.$store.state.currentDoc._id
+    const node = window.slVueTree.getNodeById(currentId)
+    if (node === null) return
+    const parent = window.slVueTree.getParentNode(node)
+    const sprintId = parent.data.sprintId
+    const sprintName = this.getSprintName(sprintId)
+    this.$store.dispatch('addSprintIds', { parentId: currentId, itemIds: [currentId], sprintId, sprintName, createUndo: true })
   },
 
   getSprintName(id) {

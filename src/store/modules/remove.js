@@ -47,8 +47,7 @@ const actions = {
                     }
                     doc.dependencies = newDependencies
                     const newHist = {
-                        "ignoreEvent": ['dependency removed'],
-                        "timestamp": Date.now(),
+                        "ignoreEvent": ['removeDependencies'],
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
@@ -107,8 +106,7 @@ const actions = {
                     }
                     doc.conditionalFor = newConditions
                     const newHist = {
-                        "ignoreEvent": ['condition removed'],
-                        "timestamp": Date.now(),
+                        "ignoreEvent": ['removeConditions'],
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
@@ -202,9 +200,7 @@ const actions = {
                 const doc = r.docs[0].ok
                 if (doc) {
                     const newHist = {
-                        "docRemovedDescendantEvent": [payload.node.level, payload.node.data.subtype, payload.node.title],
-                        "by": rootState.userData.user,
-                        "timestamp": Date.now(),
+                        "ignoreEvent": ['removeDescendents'],
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
@@ -406,7 +402,6 @@ const actions = {
                     }
                     const newHist = {
                         "ignoreEvent": ['removeExtDependencies'],
-                        "timestamp": Date.now(),
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
@@ -469,7 +464,6 @@ const actions = {
                     }
                     const newHist = {
                         "ignoreEvent": ['removeExtConditions'],
-                        "timestamp": Date.now(),
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)

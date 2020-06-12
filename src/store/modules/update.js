@@ -36,7 +36,6 @@ const actions = {
 			tmpDoc.reqarea = payload.reqarea
 			const newHist = {
 				"ignoreEvent": ['updateReqArea'],
-				"timestamp": Date.now(),
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
@@ -101,7 +100,6 @@ const actions = {
 					if (updated) {
 						const newHist = {
 							"ignoreEvent": ['updateReqAreaChildren'],
-							"timestamp": Date.now(),
 							"distributeEvent": false
 						}
 						doc.history.unshift(newHist)
@@ -144,7 +142,6 @@ const actions = {
 			tmpDoc.color = newColor
 			const newHist = {
 				"ignoreEvent": ['updateColorDb'],
-				"timestamp": Date.now(),
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
@@ -556,12 +553,13 @@ const actions = {
 		})
 	},
 
-	setTeam({
+	assignToMyTeam({
 		rootState,
 		commit,
 		dispatch
 	}, payload) {
 		const node = payload.node
+		const descendantsInfo = window.slVueTree.getDescendantsInfo(node)
 		const id = node._id
 		globalAxios({
 			method: 'GET',
@@ -571,7 +569,7 @@ const actions = {
 			const oldTeam = tmpDoc.team
 			if (payload.newTeam != oldTeam) {
 				const newHist = {
-					"setTeamOwnerEvent": [oldTeam, payload.newTeam, payload.descendants.length],
+					"setTeamOwnerEvent": [oldTeam, payload.newTeam, descendantsInfo.count],
 					"by": rootState.userData.user,
 					"timestamp": Date.now(),
 					"sessionId": rootState.userData.sessionId,
@@ -580,22 +578,24 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 
 				tmpDoc.team = payload.newTeam
-				const toDispatch = payload.descendants.length > 0 ? { 'setTeamDescendantsBulk': { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: payload.descendants } } : undefined
+				const toDispatch = descendantsInfo.count > 0 ? {
+					'setTeamDescendantsBulk': { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: descendantsInfo.descendants }
+				} : undefined
+
 				dispatch('updateDoc', {
 					dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
 					onSuccessCallback: () => {
 						// update the tree
 						node.data.team = payload.newTeam
-						const descendantsInfo = window.slVueTree.getDescendantsInfo(node)
 						for (let d of descendantsInfo.descendants) {
 							d.data.team = payload.newTeam
 						}
 						if (id === rootState.currentDoc._id) commit('updateCurrentDoc', { team: payload.newTeam, newHist })
 
 						if (descendantsInfo.count === 0) {
-							commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${this.myTeam}'.`, severity: INFO })
-						} else
-							commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${this.myTeam}'.`, severity: INFO })
+							commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootState.userData.myTeam}'.`, severity: INFO })
+						} else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootState.userData.myTeam}'.`, severity: INFO })
+
 						if (payload.createUndo) {
 							// create an entry for undoing the change in a last-in first-out sequence
 							const entry = {
@@ -609,7 +609,7 @@ const actions = {
 				})
 			}
 		}).catch(error => {
-			let msg = 'setTeam: Could not read document with _id ' + id + '. Error = ' + error
+			let msg = 'assignToMyTeam: Could not read document with _id ' + id + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -746,7 +746,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					this.$store.commit('updateNodeSelected', { subtype: payload.newSubType, lastChange: Date.now() })
+					commit('updateNodeSelected', { subtype: payload.newSubType, lastChange: Date.now() })
 					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { subtype: payload.newSubType, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -910,9 +910,9 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		}).then(res => {
 			let tmpDoc = res.data
-			const newComment = window.btoa(payload.comment)
+			const newCommentToHistory = window.btoa(payload.comment)
 			const newHist = {
-				"commentToHistoryEvent": [newComment],
+				"commentToHistoryEvent": [newCommentToHistory],
 				"by": rootState.userData.user,
 				"timestamp": payload.timestamp,
 				"sessionId": rootState.userData.sessionId,
@@ -936,11 +936,9 @@ const actions = {
 
 	/*
 	* Create or update an existing document by creating a new revision.
-	* Update the currentDoc in memory if forceUpdateCurrentDoc = true or if the updated document has the same id as the currentDoc.
 	*/
 	updateDoc({
 		rootState,
-		commit,
 		dispatch
 	}, payload) {
 		const _id = payload.updatedDoc._id
@@ -950,11 +948,7 @@ const actions = {
 			method: 'PUT',
 			url: payload.dbName + '/' + _id,
 			data: payload.updatedDoc
-		}).then((res) => {
-			if (payload.forceUpdateCurrentDoc || rootState.currentDoc && (rootState.currentDoc._id === res.data.id)) {
-				// create/update the current document in memory with the new revision number
-				commit('updateCurrentDoc', { newDoc: payload.updatedDoc, _rev: res.data.rev })
-			}
+		}).then(() => {
 			// execute passed function if provided
 			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
 			// additional dispatches
@@ -1071,6 +1065,7 @@ const actions = {
 	/* Add history to the parent and than save the document */
 	createDocWithParentHist({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		const _id = payload.newDoc.parentId
@@ -1089,7 +1084,8 @@ const actions = {
 			updatedDoc.history.unshift(parentHist)
 			const toDispatch = {
 				'updateDoc': {
-					dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, forceUpdateCurrentDoc: true, onSuccessCallback: () => {
+					dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, onSuccessCallback: () => {
+						if (rootState.currentDoc._id === _id) commit('updateCurrentDoc', { newDoc: payload.newDoc, newHist: parentHist })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoNewNode',

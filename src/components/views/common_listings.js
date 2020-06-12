@@ -61,7 +61,7 @@ const computed = {
       let histItem = this.$store.state.currentDoc.history[i]
       let allText = ""
       let keys = Object.keys(histItem)
-      if (keys[0] === "ignoreEvent" || keys[0] === "nodesMovedEvent" || keys[0] === "updateTaskOrderEvent") continue
+      if (keys[0] === "ignoreEvent" || keys[0] === "updateTaskOrderEvent") continue
 
       for (let j = 0; j < keys.length; j++) {
         if (keys[j] === "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
@@ -73,13 +73,11 @@ const computed = {
         if (keys[j] === "createRootEvent") allText += this.mkCreateRootEvent(histItem[keys[j]])
         if (keys[j] === "dependencyRemovedEvent") allText += this.mkDependencyRemovedEvent(histItem[keys[j]])
         if (keys[j] === "descriptionEvent") allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
-        if (keys[j] === "docRemovedDescendantEvent") allText += this.mkDocRemovedDescendantEvent(histItem[keys[j]])
         if (keys[j] === "docRestoredEvent") allText += this.mkDocRestoredEvent(histItem[keys[j]])
         if (keys[j] === "grandParentDocRestoredEvent") allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
         if (keys[j] === "importToSprintEvent") allText += this.mkImportToSprintEvent(histItem[keys[j]])
         if (keys[j] === "newChildEvent") allText += this.mkNewChildEvent(histItem[keys[j]])
-        if (keys[j] === "nodeDroppedEvent") allText += this.mkNodeDroppedEvent(histItem[keys[j]])
-        if (keys[j] === "nodeUndoMoveEvent") allText += this.mkNodeUndoMoveEvent(histItem[keys[j]])
+        if (keys[j] === "nodeMovedEvent") allText += this.mkNodeMovedEvent(histItem[keys[j]])
         if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
         if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
         if (keys[j] === "removedWithDescendantsEvent") allText += this.mkRemovedWithDescendantsEvent(histItem[keys[j]])
@@ -151,13 +149,11 @@ const methods = {
     if (key === "createRootEvent") return this.mkCreateRootEvent(value)
     if (key === "dependencyRemovedEvent") return this.mkDependencyRemovedEvent(value)
     if (key === "descriptionEvent") return this.mkDescriptionEvent(value)
-    if (key === "docRemovedDescendantEvent") return this.mkDocRemovedDescendantEvent(value)
     if (key === "docRestoredEvent") return this.mkDocRestoredEvent(value)
     if (key === "grandParentDocRestoredEvent") return this.mkGrandParentDocRestoredEvent(value)
     if (key === "importToSprintEvent") return this.mkImportToSprintEvent(value)
     if (key === "newChildEvent") return this.mkNewChildEvent(value)
-    if (key === "nodeDroppedEvent") return this.mkNodeDroppedEvent(value)
-    if (key === "nodeUndoMoveEvent") return this.mkNodeUndoMoveEvent(value)
+    if (key === "nodeMovedEvent") return this.mkNodeMovedEvent(value)
     if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
     if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
     if (key === "removedWithDescendantsEvent") return this.mkRemovedWithDescendantsEvent(value)
@@ -260,9 +256,10 @@ const methods = {
     return "<h5>The acceptance criteria of the item have changed:<hr></h5>" + window.atob(value[0]) + "<hr>" + window.atob(value[1]) + "<hr>"
   },
 
-  mkNodeDroppedEvent(value) {
+  mkNodeMovedEvent(value) {
+    const moveType = value[13] === 'undoMove' ? ' back' : ''
     let txt
-    if (value[7] !== value[8]) { txt = `<h5>The item was moved from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
+    if (value[7] !== value[8]) { txt = `<h5>The item was moved${moveType} from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
     if (value[0] === value[1]) {
       txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
       txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ""
@@ -275,16 +272,8 @@ const methods = {
     }
   },
 
-  mkNodeUndoMoveEvent(value) {
-    return `<h5>The previous move by user '${value[0]}' is undone</h5>`
-  },
-
   mkRemovedFromParentEvent(value) {
     return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are removed from this parent.</h5>`
-  },
-
-  mkDocRemovedDescendantEvent(value) {
-    return `<h5>This item was removed as descendant of ${this.getLevelText(value[0], value[1])} '${value[2]}'</h5>`
   },
 
   mkRemovedWithDescendantsEvent(value) {

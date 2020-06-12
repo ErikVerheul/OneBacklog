@@ -8,6 +8,13 @@ function composeRangeString(id) {
 }
 
 const actions = {
+	/*
+    * ToDo: create undo's if any of these steps fail
+    * Order of execution:
+    * 1. update the moved nodes with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
+    * 2. if moving to another product or level, call getMovedChildrenIds
+    * 2.1 update the productId (not parentId) and level of the descendants in updateMovedDescendantsBulk. History is ignored
+    */
 	updateMovedItemsBulk({
 		rootState,
 		commit,
@@ -17,30 +24,12 @@ const actions = {
 		let items = []
 		let moveInfo = []
 		if (payload.move) {
-			for (let f of mdc.forwardMoveMap) {
-				const node = f.node
-				if (node === null) break
-				// set the <moved> badge
-				node.data.lastPositionChange = Date.now()
-				// create item
-				const payloadItem = {
-					id: node._id,
-					level: node.level,
-					sourceInd: f.sourceInd,
-					newlyCalculatedPriority: node.data.priority,
-					targetInd: f.targetInd,
-					childCount: node.children.length,
-					sprintId: f.sprintId
-				}
-				items.push(payloadItem)
-			}
 			moveInfo = {
 				// this info is the same for all nodes moved
 				type: 'move',
 				sourceProductId: mdc.sourceProductId,
 				sourceParentId: mdc.sourceParentId,
 				sourceLevel: mdc.sourceLevel,
-				sourceSprintId: mdc.sourceSprintId,
 				sourceProductTitle: mdc.sourceProductTitle,
 				sourceParentTitle: mdc.sourceParentTitle,
 
@@ -49,9 +38,29 @@ const actions = {
 
 				targetProductId: mdc.targetProductId,
 				targetParentId: mdc.targetParentId,
-				targetSprintId: mdc.targetSprintId,
 				targetProductTitle: mdc.targetProductTitle,
 				targetParentTitle: mdc.targetParentTitle
+			}
+
+			for (let f of mdc.forwardMoveMap) {
+				const node = f.node
+				if (node === null) continue
+				// set the sprintId and the <moved> badge
+				commit('updateNodeSelected', { sprintId: f.targetSprintId, lastPositionChange:  Date.now() })
+				// update the currently visible document
+				if (node._id === rootState.currentDoc._id) commit('updateCurrentDoc', { sprintId: f.targetSprintId })
+				// create item
+				const payloadItem = {
+					id: node._id,
+					level: node.level,
+					sourceInd: f.sourceInd,
+					newlyCalculatedPriority: node.data.priority,
+					targetInd: f.targetInd,
+					childCount: node.children.length,
+					sourceSprintId: f.sourceSprintId,
+					targetSprintId: f.targetSprintId
+				}
+				items.push(payloadItem)
 			}
 		} else if (payload.undoMove) {
 			moveInfo = {
@@ -68,17 +77,11 @@ const actions = {
 
 			for (let r of mdc.reverseMoveMap) {
 				const node = r.node
-				if (node === null) break
-
-				// [only for detail view] reset the sprintId
-				node.data.sprintId = r.sprintId
-				if (node.level === this.pbiLevel && node.children) {
-					for (let c of node.children) {
-						c.data.sprintId = r.sprintId
-					}
-				}
-				// reset the <moved> badge
-				node.data.lastPositionChange = r.lastPositionChange
+				if (node === null) continue
+				// reset the sprintId and the <moved> badge
+				commit('updateNodeSelected', { sprintId: r.targetSprintId, lastPositionChange: r.lastPositionChange })
+				// update the currently visible document
+				if (node._id === rootState.currentDoc._id) commit('updateCurrentDoc', { sprintId: r.targetSprintId })
 				// create item
 				const payloadItem = {
 					id: node._id,
@@ -87,7 +90,9 @@ const actions = {
 					newlyCalculatedPriority: node.data.priority,
 					targetInd: r.targetInd,
 					childCount: node.children.length,
-					sprintId: r.sprintId
+					sourceSprintId: r.sourceSprintId,
+					targetSprintId: r.targetSprintId,
+					lastPositionChange: r.lastPositionChange
 				}
 				items.push(payloadItem)
 			}
@@ -119,25 +124,14 @@ const actions = {
 				if (envelope.ok) {
 					const doc = envelope.ok
 					const item = getPayLoadItem(doc._id)
-					let newHist = {}
-					if (payload.move) {
-						newHist = {
-							nodeDroppedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle,
-							m.placement, m.sourceParentId, m.targetParentId, item.sourceInd],
-							by: rootState.userData.user,
-							timestamp: Date.now(),
-							sessionId: rootState.userData.sessionId,
-							distributeEvent: false
-						}
-					} else if (payload.undoMove) {
-						newHist = {
-							nodeUndoMoveEvent: [rootState.userData.user],
-							by: rootState.userData.user,
-							timestamp: Date.now(),
-							sessionId: rootState.userData.sessionId,
-							distributeEvent: false
-						}
-					} else return
+					const newHist = {
+						nodeMovedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId, m.targetParentId,
+						item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange],
+						by: rootState.userData.user,
+						timestamp: Date.now(),
+						sessionId: rootState.userData.sessionId,
+						distributeEvent: true
+					}
 
 					doc.history.unshift(newHist)
 
@@ -145,7 +139,7 @@ const actions = {
 					doc.parentId = m.targetParentId
 					doc.level = doc.level + m.levelShift
 					doc.priority = item.newlyCalculatedPriority
-					doc.sprintId = item.sprintId
+					doc.sprintId = item.targetSprintId
 					docs.push(doc)
 				}
 				if (envelope.error) error.push(envelope.error)
@@ -202,11 +196,9 @@ const actions = {
 			} else {
 				// no conflicts, no other errors
 				for (let d of docs) {
-					// show the history and other updated props in the current opened item
-					if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc',
-						{ newHist: d.history[0], productId: d.productId, parentId: d.parentId, level: d.level, priority: d.priority, sprintId: d.sprintId })
+					// show the history in the current opened item
+					if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist: d.history[0] })
 				}
-				dispatch('addHistToTargetParent', { moveInfo: m, items })
 				// if moving to another product or another level, update the descendants of the moved(back) items
 				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
 					const updates = {
@@ -231,44 +223,6 @@ const actions = {
 			}
 		}).catch(error => {
 			let msg = 'saveMovedItems: Could not save the moved documents: ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Add history to the target parent of the moved items for syncing other users */
-	addHistToTargetParent({
-		rootState,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + payload.moveInfo.targetParentId
-		}).then(res => {
-			let tmpDoc = res.data
-			const items = []
-			for (let item of payload.items) {
-				items.push({ id: item.id, level: item.level, newlyCalculatedPriority: item.newlyCalculatedPriority })
-			}
-			const newHist = {
-				"nodesMovedEvent": [
-					payload.moveInfo.type,
-					items,
-					payload.moveInfo.sourceParentId,
-					payload.moveInfo.sourceSprintId,
-					payload.moveInfo.targetSprintId
-				],
-				"by": rootState.userData.user,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
-			}
-			tmpDoc.history.unshift(newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
-
-		}).catch(error => {
-			let msg = 'addHistToTargetParent: Failed to add move history to parent with id ' + payload.moveInfo.targetParentId + '. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -300,7 +254,6 @@ const actions = {
 				// process next level
 				dispatch('processDescendents', { updates: payload.updates, results })
 			}
-
 		}).catch(error => {
 			let msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
 			// eslint-disable-next-line no-console
@@ -333,12 +286,11 @@ const actions = {
 				if (envelope.ok) {
 					const doc = envelope.ok
 					doc.productId = updates.targetProductId
-					// the parentId does not change for descendents
+					// the parentId does not change for descendants
 					doc.level = doc.level + updates.levelShift
-					// priority does not change for descendents
+					// priority does not change for descendants
 					const newHist = {
 						"ignoreEvent": ['updateMovedDescendantsBulk'],
-						"timestamp": Date.now(),
 						"distributeEvent": false
 					}
 					doc.history.unshift(newHist)

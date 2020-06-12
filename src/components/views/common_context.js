@@ -154,7 +154,6 @@ const methods = {
             "priority": newNode.data.priority,
             "comments": [{
                 "ignoreEvent": 'comments initiated',
-                "timestamp": 0,
                 "distributeEvent": false
             }],
             "history": [{
@@ -166,7 +165,7 @@ const methods = {
             }],
             "delmark": false
         }
-        // update the database
+        // update the database and replace the current document with this document
         this.$store.dispatch('createDocWithParentHist', { newNode, newDoc, newNodeLocation })
     },
 
@@ -270,7 +269,6 @@ const methods = {
                 "priority": newNode.data.priority,
                 "comments": [{
                     "ignoreEvent": 'comments initiated',
-                    "timestamp": 0,
                     "distributeEvent": false
                 }],
                 "history": [{

@@ -251,7 +251,6 @@ const utilities = {
 			const placement = cursorPosition.placement
 			const sourceProductId = nodes[0].productId
 			const sourceParentId = nodes[0].parentId
-			const sourceSprintId = nodes[0].data.sprintId
 			const sourceLevel = nodes[0].level
 			const targetNode = cursorPosition.nodeModel
 			const targetProductId = targetNode.productId
@@ -275,17 +274,51 @@ const utilities = {
 			const targetProductTitle = window.slVueTree.getNodeById(targetProductId).title
 			const targetParentTitle = targetParent.title
 
-			// map the source and target node location and the target sprintIdto the node id
+			// map the source and target node location and the source and target sprintId to the node id
 			let doRevertOrder = false
 			const forwardMoveMap = []
 			for (let i = 0; i < nodes.length; i++) {
+				// ------------ set source and target sprint ids ---------------
+				const sourceSprintId = nodes[i].data.sprintId
+				let targetSprintId = undefined
+				if (targetLevel === this.pbiLevel || targetLevel === this.taskLevel) {
+					// node is moved from any level to pbi or task level
+					if (targetParent.data.sprintId) {
+						targetSprintId = targetParent.data.sprintId
+					}
+				}
+
+				// check if the undo mapping need to be sorted in reverse order to accommodate the restore of multiple items
 				if (sourceParentId === targetParentId && insertInd < nodes[i].ind) doRevertOrder = true
-				forwardMoveMap.push({ node: nodes[i], sourceInd: nodes[i].ind, targetInd: insertInd + i, sprintId: targetNode.data.sprintId })
+				forwardMoveMap.push({
+					node: nodes[i],
+					sourceInd: nodes[i].ind,
+					targetInd: insertInd + i,
+					sourceSprintId,
+					targetSprintId
+				})
 			}
 			// create an mapping to move the items back to their original position on undo; also restore the sprintId and the date/time the item was moved
 			const reverseMoveMap = []
 			for (let i = 0; i < nodes.length; i++) {
-				reverseMoveMap.push({ node: nodes[i], sourceInd: insertInd + i, targetInd: nodes[i].ind, sprintId: nodes[i].data.sprintId, lastPositionChange: nodes[i].data.lastPositionChange })
+				// ------------ set source and target sprint ids ---------------
+				const targetSprintId = nodes[i].data.sprintId
+				let sourceSprintId = undefined
+				if (targetLevel === this.pbiLevel || targetLevel === this.taskLevel) {
+					// node is moved from any level to pbi or task level
+					if (targetParent.data.sprintId) {
+						sourceSprintId = targetParent.data.sprintId
+					}
+				}
+
+				reverseMoveMap.push({
+					node: nodes[i],
+					sourceInd: insertInd + i,
+					targetInd: nodes[i].ind,
+					sourceSprintId,
+					targetSprintId,
+					lastPositionChange: nodes[i].data.lastPositionChange
+				})
 			}
 
 			let sortedIndMap
@@ -297,39 +330,18 @@ const utilities = {
 			window.slVueTree.remove(nodes)
 			window.slVueTree.insert(cursorPosition, nodes)
 
-			// ------------ update the sprint the nodes are in ---------------
-			if (targetLevel === this.taskLevel) {
-				// nodes are moved from any level to task level
-				if (targetParent.data.sprintId) {
-					for (let n of nodes) {
-						// assign the sprintId of the parent PBI
-						n.data.sprintId = targetParent.data.sprintId
-					}
-				}
-			}
-			if (sourceSprintId && targetLevel < this.featureLevel) {
-				// PBI's and/or tasks assigned to a sprint were moved up in the hierarchy
-				for (let n of nodes) {
-					// reset the sprintIds
-					n.data.sprintId = undefined
-				}
-			}
-			const targetSprintId = targetNode.data.sprintId
-
 			return {
 				placement,
 				sourceProductId,
 				sourceProductTitle,
 				sourceParentId,
 				sourceParentTitle,
-				sourceSprintId,
 				sourceLevel,
 				targetProductId,
 				targetProductTitle,
 				targetParentId,
 				targetParentTitle,
 				targetLevel,
-				targetSprintId,
 				forwardMoveMap,
 				reverseMoveMap: sortedIndMap
 			}

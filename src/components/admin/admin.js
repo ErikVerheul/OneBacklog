@@ -168,7 +168,6 @@ const methods = {
 			priority,
 			comments: [{
 				ignoreEvent: 'comments initiated',
-				timestamp: 0,
 				distributeEvent: false
 			}],
 			delmark: false
