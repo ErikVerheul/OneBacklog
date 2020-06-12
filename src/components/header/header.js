@@ -13,7 +13,7 @@ function created() {
 
 function data() {
     return {
-        appVersion: "OneBackLog v.0.9.8",
+        appVersion: "OneBackLog v.0.9.9",
         changeTeamCalendarModel: false,
         disableOkButton: false,
         oldPassword: "",

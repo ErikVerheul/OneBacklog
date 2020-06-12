@@ -6,6 +6,22 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.0.9.9 - 12 June 2020 Feature update and bug fixes</h3>
+          <p>New features:</p>
+          <ul>
+            <li>Allow tasks to be added individually to the sprint set for the user story</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix bug updating the acceptance criteria</li>
+            <li>Fix bug when updating the default calendar</li>
+          </ul>
+          <p>Design changes:</p>
+          <ul>
+            <li>Introduction of a document with the sole purpose to sync a planning board repaint [NOT downwards compatible]</li>
+            <li>Descendants of moved nodes are synced individually (not via the parent)</li>
+          </ul>
+          <hr />
           <h3>v.0.9.8 - 24 May 2020 Feature update and bug fixes</h3>
           <p>New features:</p>
           <ul>
