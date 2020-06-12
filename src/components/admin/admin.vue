@@ -195,7 +195,7 @@
             <p>As super Po you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
             <p>When doing so be aware of:</p>
             <ul>
-              <li>Online users will see the product and all descendents disappear.</li>
+              <li>Online users will see the product and all descendants disappear.</li>
               <li>Users who sign-in after the removal will miss the product.</li>
               <li>When undoing the removal the users who signed-in between the removal and undo, will have no access to the product. An admin must register the product for them.</li>
             </ul>

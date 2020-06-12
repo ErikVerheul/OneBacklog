@@ -58,7 +58,7 @@ export default {
   methods: {
     /*
     * From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:
-    * - When a feature is selected all its descendents (PBI's and tasks) are assigned
+    * - When a feature is selected all its descendants (PBI's and tasks) are assigned
     * - When a PBI is selected, that PBI and it descendent tasks are assigned
     * - When a task is selected only that task is assigned to the sprint
     * - Items with state OnHold or Removed cannot be assigned to a sprint

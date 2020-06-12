@@ -919,7 +919,7 @@ const methods = {
 		return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 	},
 
-	/* If a feature belongs to a req area set that area also to its descendents */
+	/* If a feature belongs to a req area set that area also to its descendants */
 	setDescendentsReqArea() {
 		let reqArea = null
 		this.traverseModels((nm) => {
