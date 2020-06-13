@@ -10,6 +10,7 @@
           <p>New features:</p>
           <ul>
             <li>Allow tasks to be added individually to the sprint set for the user story</li>
+            <li>PO's can create and maintain a team specific calendar for their team</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
