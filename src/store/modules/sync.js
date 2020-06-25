@@ -65,8 +65,8 @@ const actions = {
 					newPath.push(i)
 				}
 				return {
-					prevNode: prevNode,
-					newPath: newPath,
+					prevNode,
+					newPath,
 					newInd: i
 				}
 			} else {
@@ -75,7 +75,7 @@ const actions = {
 				newPath.push(0)
 				return {
 					prevNode: parentNode,
-					newPath: newPath,
+					newPath,
 					newInd: 0
 				}
 			}
@@ -176,16 +176,10 @@ const actions = {
 							// process other events for tree views
 							switch (histEvent) {
 								case 'acceptanceEvent':
-									if (isCurrentDocument) {
-										commit('updateCurrentDoc', { acceptanceCriteria: doc.acceptanceCriteria })
-										node.data.lastContentChange = lastHistoryTimestamp
-									}
+									commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: doc.acceptanceCriteria, lastContentChange: doc.lastContentChange, newHist: doc.history[0] })
 									break
 								case 'commentToHistoryEvent':
-									if (isCurrentDocument) {
-										rootState.currentDoc.history = doc.history
-										node.data.lastCommentToHistory = doc.history[0].timestamp
-									}
+									commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: doc.lastCommentToHistory, newHist: doc.history[0] })
 									break
 								case 'createTaskEvent':
 								case 'createEvent':
@@ -244,6 +238,7 @@ const actions = {
 											nodeModel: locationInfo.prevNode,
 											placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 										}, [node])
+										// do not cimmit any cahnges to the tree model. As the user has to navigate to the new node the data will be loaded.
 									}
 									break
 								case 'conditionRemovedEvent':
@@ -257,18 +252,18 @@ const actions = {
 											if (id !== removedCondId) newCons.push(id)
 										}
 										node.conditionalFor = newCons
-										const removedIds = lastHistObj.conditionRemovedEvent[0]
-										// update the dependencies in the tree
-										for (let id of removedIds) {
-											const node = window.slVueTree.getNodeById(id)
-											if (node === null) break
+										// const removedIds = lastHistObj.conditionRemovedEvent[0]
+										// // update the dependencies in the tree
+										// for (let id of removedIds) {
+										// 	const node = window.slVueTree.getNodeById(id)
+										// 	if (node === null) break
 
-											const depsIdArray = []
-											for (let depId of node.dependencies) {
-												if (depId !== removedCondId) depsIdArray.push(depId)
-											}
-											node.dependencies = depsIdArray
-										}
+										// 	const depsIdArray = []
+										// 	for (let depId of node.dependencies) {
+										// 		if (depId !== removedCondId) depsIdArray.push(depId)
+										// 	}
+										// 	node.dependencies = depsIdArray
+										// }
 									}
 									break
 								case 'dependencyRemovedEvent':
@@ -282,25 +277,22 @@ const actions = {
 											if (id !== removedDepId) newDeps.push(id)
 										}
 										node.dependencies = newDeps
-										const removedIds = lastHistObj.dependencyRemovedEvent[0]
+										// const removedIds = lastHistObj.dependencyRemovedEvent[0]
 										// update the conditions in the tree
-										for (let id of removedIds) {
-											const node = window.slVueTree.getNodeById(id)
-											if (node === null) break
+										// for (let id of removedIds) {
+										// 	const node = window.slVueTree.getNodeById(id)
+										// 	if (node === null) break
 
-											const conIdArray = []
-											for (let condId of node.conditionalFor) {
-												if (condId !== removedDepId) conIdArray.push(condId)
-											}
-											node.conditionalFor = conIdArray
-										}
+										// 	const conIdArray = []
+										// 	for (let condId of node.conditionalFor) {
+										// 		if (condId !== removedDepId) conIdArray.push(condId)
+										// 	}
+										// 	node.conditionalFor = conIdArray
+										// }
 									}
 									break
 								case 'descriptionEvent':
-									if (isCurrentDocument) {
-										commit('updateCurrentDoc', { description: doc.description })
-										node.data.lastContentChange = lastHistoryTimestamp
-									}
+									commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastHistoryTimestamp: node.data.lastContentChange, newHist: doc.history[0] })
 									break
 								case 'docRestoredEvent':
 									{	// node	is restored from a previous removal
@@ -358,7 +350,7 @@ const actions = {
 								case 'removedWithDescendantsEvent':
 									if (doc.delmark) {
 										// remove any dependency references to/from outside the removed items
-										window.slVueTree.correctDependencies(lastHistObj.removedWithDescendantsEvent[0], lastHistObj.removedWithDescendantsEvent[1])
+										window.slVueTree.correctDependencies(lastHistObj.removedWithDescendantsEvent[0], lastHistObj.removedWithDescendantsEvent[1].ids)
 										if (node) {
 											window.slVueTree.remove([node])
 											if (lastHistObj.by === rootState.userData.user) {
@@ -382,12 +374,10 @@ const actions = {
 									}
 									break
 								case 'setConditionsEvent':
-									node.conditionalFor = doc.conditionalFor
-									if (isCurrentDocument) rootState.currentDoc.conditionalFor = doc.conditionalFor
+									commit('updateNodesAndCurrentDoc', { node, addConditionalFor: doc.conditionalFor.slice(-1), lastChange: doc.lastChange, newHist: doc.history[0] })
 									break
 								case 'setDependenciesEvent':
-									node.dependencies = doc.dependencies
-									if (isCurrentDocument) rootState.currentDoc.dependencies = doc.dependencies
+									commit('updateNodesAndCurrentDoc', { node, addDependencyOn: doc.dependencies.slice(-1), lastChange: doc.lastChange, newHist: doc.history[0] })
 									break
 								case 'setHrsEvent':
 									if (isCurrentDocument) rootState.currentDoc.spikepersonhours = doc.spikepersonhours

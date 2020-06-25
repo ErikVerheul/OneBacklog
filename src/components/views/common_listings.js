@@ -277,7 +277,7 @@ const methods = {
   },
 
   mkRemovedWithDescendantsEvent(value) {
-    return `<h5>This item and ${value[1]} descendants are removed.</h5>
+    return `<h5>This item and ${value[1].count} descendants are removed.</h5>
       <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
   },
 
@@ -298,11 +298,11 @@ const methods = {
   },
 
   mkSetDependenciesEvent(value) {
-    return `<h5>Dependencies set for this item changed from '${convertToShortIds(value[0])}' to '${convertToShortIds(value[1])}' (short Ids).</h5>`
+    return `<h5>This item is set to be dependent on item '${value[1]}'.</h5>`
   },
 
   mkSetConditionsEvent(value) {
-    return `<h5>Conditions set for this item changed from '${convertToShortIds(value[1])}' to '${convertToShortIds(value[2])}' (short Ids).</h5>`
+    return `<h5>This item is set to be conditional for item '${value[1]}'.</h5>`
   },
 
   mkBy(value) {

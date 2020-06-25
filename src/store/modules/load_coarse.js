@@ -4,7 +4,6 @@ import globalAxios from 'axios'
 const INFO = 0
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const HOURINMILIS = 3600000
 const AREA_PRODUCTID = '0'
 var parentNodes = {}
 var orphansFound = []
@@ -17,59 +16,6 @@ const state = {
     levelErrorCount: 0
 }
 
-function setChangeTimestamps(history, lastComment) {
-    // search history for the last changes within the last hour
-    let lastPositionChange = 0
-    let lastStateChange = 0
-    let lastContentChange = 0
-    let lastCommentAddition = 0
-    let lastAttachmentAddition = 0
-    let lastCommentToHistory = 0
-    let nodeUndoMoveEventWasIssued = false
-    for (let histItem of history) {
-        if (Date.now() - histItem.timestamp > HOURINMILIS) {
-            // skip events longer than a hour ago
-            break
-        }
-        const event = Object.keys(histItem)[0]
-        // get the most recent change of position
-        if (lastPositionChange === 0 && event === 'nodeMovedEvent') {
-            if (!nodeUndoMoveEventWasIssued) {
-                lastPositionChange = histItem.timestamp
-                nodeUndoMoveEventWasIssued = false
-            } else {
-                lastPositionChange = 0
-            }
-        }
-        // get the most recent change of state
-        if (lastStateChange === 0 && (event === 'setStateEvent') || event === 'createEvent') {
-            lastStateChange = histItem.timestamp
-        }
-        // get the most recent change of content
-        if (lastContentChange === 0 && (event === 'setTitleEvent') || event === 'descriptionEvent' || event === 'acceptanceEvent') {
-            lastContentChange = histItem.timestamp
-        }
-        // get the most recent addition of comments to the history
-        if (lastAttachmentAddition === 0 && event === 'uploadAttachmentEvent') {
-            lastAttachmentAddition = histItem.timestamp
-        }
-        // get the most recent addition of comments to the history
-        if (lastCommentToHistory === 0 && event === 'commentToHistoryEvent') {
-            lastCommentToHistory = histItem.timestamp
-        }
-    }
-    // get the last time a comment was added; comments have their own array
-    lastCommentAddition = lastComment.timestamp
-    return {
-        lastPositionChange,
-        lastStateChange,
-        lastContentChange,
-        lastCommentAddition,
-        lastAttachmentAddition,
-        lastCommentToHistory
-    }
-}
-
 const actions = {
     /* Load all items from all products */
     loadOverview({
@@ -79,7 +25,7 @@ const actions = {
     }) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/areaFilter',
+            url: rootState.userData.currentDb + '/_design/design1/_view/overview',
         }).then(res => {
             rootState.lastTreeView = 'coarseProduct'
             rootState.loadedTreeDepth = FEATURELEVEL
@@ -98,9 +44,17 @@ const actions = {
                 const subtype = item.value[5]
                 const dependencies = item.value[6] || []
                 const conditionalFor = item.value[7] || []
-                const history = item.value[8]
-                const lastComment = item.value[9]
+                const lastHistoryEntry = item.value[8]
+                const lastCommentEntry = item.value[9]
                 const reqAreaItemcolor = item.value[10] || null
+                const sprintId = item.value[11]
+                const lastAttachmentAddition = item.value[12] || 0
+                const lastChange = item.value[13] || 0
+                const lastCommentAddition = item.value[14] || 0
+                const lastCommentToHistory = item.value[15] || 0
+                const lastContentChange = item.value[16] || 0
+                const lastPositionChange = item.value[17] || 0
+                const lastStateChange = item.value[18] || 0
 
                 if (level === 1) {
                     state.docsCount++
@@ -148,12 +102,6 @@ const actions = {
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
                 // products cannot be dragged
                 const isDraggable = level > PRODUCTLEVEL
-                let lastChange
-                if (history[0].resetCommentsEvent && !history[0].resetHistoryEvent) {
-                    lastChange = history[0].timestamp
-                } else if (history[0].resetHistoryEvent && !history[0].resetCommentsEvent) {
-                    lastChange = lastComment.timestamp
-                } else lastChange = history[0].timestamp > lastComment.timestamp ? history[0].timestamp : lastComment.timestamp
                 // show all nodes
                 const doShow = true
                 if (parentNodes[parentId] !== undefined) {
@@ -161,7 +109,6 @@ const actions = {
                     const ind = parentNode.children.length
                     const parentPath = parentNode.path
                     const path = parentPath.concat(ind)
-                    const changeTimes = setChangeTimestamps(history, lastComment)
 
                     // check for level error
                     if (level !== path.length) {
@@ -190,19 +137,20 @@ const actions = {
                         doShow,
                         savedDoShow: doShow,
                         data: {
+                            lastAttachmentAddition,
+                            lastChange,
+                            lastCommentAddition,
+                            lastCommentToHistory,
+                            lastContentChange,
+                            lastPositionChange,
+                            lastStateChange,
                             priority,
-                            state: itemState,
                             reqarea,
                             reqAreaItemcolor,
-                            team,
-                            lastPositionChange: changeTimes.lastPositionChange,
-                            lastStateChange: changeTimes.lastStateChange,
-                            lastContentChange: changeTimes.lastContentChange,
-                            lastCommentAddition: changeTimes.lastCommentAddition,
-                            lastAttachmentAddition: changeTimes.lastAttachmentAddition,
-                            lastCommentToHistory: changeTimes.lastCommentToHistory,
+                            sprintId,
+                            state: itemState,
                             subtype,
-                            lastChange
+                            team
                         }
                     }
 

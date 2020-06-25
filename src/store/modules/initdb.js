@@ -360,6 +360,7 @@ const actions = {
 			"priority": 0,
 			"comments": [{
 				"ignoreEvent": 'comments initiated',
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
 			// do not distribute this event; other users have no access rights yet
@@ -439,6 +440,7 @@ const actions = {
 			"priority": 0,
 			"comments": [{
 				"ignoreEvent": 'comments initiated',
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
 			// do not distribute this event; other users have no access rights yet
@@ -483,6 +485,7 @@ const actions = {
 			"priority": 0,
 			"comments": [{
 				"ignoreEvent": 'comments initiated',
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}],
 			// do not distribute this event; other users have no access rights yet
@@ -520,6 +523,7 @@ const actions = {
 			"comments": [
 				{
 					"ignoreEvent": "comments initiated",
+					"timestamp": Date.now(),
 					"distributeEvent": false
 				}
 			],

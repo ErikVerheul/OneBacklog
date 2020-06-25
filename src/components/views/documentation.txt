@@ -38,8 +38,8 @@ Database--------------------------------------------------- node
 "conditionalFor": []--------------------------------------- conditionalFor
 "title"(string)-------------------------------------------- title
 "followers": [] 
-"description"(string, base-64 encoded, decoded in rootState.currentDoc) 
-"acceptanceCriteria"(string, base-64 encoded, decoded in rootState.currentDoc)
+"description"(string, base-64 encoded, decoded in rootState.updateNodesAndCurrentDoc) 
+"acceptanceCriteria"(string, base-64 encoded, decoded in rootState.updateNodesAndCurrentDoc)
 "priority"(Integer)---------------------------------------- data.priority
 "sprintId"(string)----------------------------------------- data.sprintId
 "comments": []
@@ -47,14 +47,14 @@ Database--------------------------------------------------- node
 "delmark"(boolean)
 "_attachments": {}
 ----------------------------------------------------------- data.inconsistentState: false // calculated on consistency check
------------------------------------------------------------ data.lastPositionChange, // lookup in history
------------------------------------------------------------ data.lastStateChange, // lookup in doc history
------------------------------------------------------------ data.lastContentChange, // lookup in doc history
------------------------------------------------------------ data.lastCommentAddition, // lookup in doc comments
------------------------------------------------------------ data.lastAttachmentAddition, // lookup in doc history
------------------------------------------------------------ data.lastCommentToHistory, // lookup in doc history
------------------------------------------------------------ data.lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
------------------------------------------------------------ savedInd // when dragging a node the source ind is stored here
+"lastPositionChange"--------------------------------------- data.lastPositionChange,
+"lastStateChange"------------------------------------------ data.lastStateChange,
+"lastContentChange"---------------------------------------- data.lastContentChange, // last change of title, description or acceptance criteria
+"lastCommentAddition"-------------------------------------- data.lastCommentAddition,
+"lastAttachmentAddition"----------------------------------- data.lastAttachmentAddition,
+"lastAttachmentRemoval"------------------------------------ data.lastAttachmentRemoval,
+"lastCommentToHistory"------------------------------------- data.lastCommentToHistory,
+"lastChange"----------------------------------------------- data.lastChange:, // calculated on save on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
 
 The item types are defined in the CONFIG file:
 "itemType": [
@@ -194,13 +194,13 @@ data: {
 ....taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self
 ....subtype: doc.subtype,
 ....reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = '0', level = 3)
-....lastPositionChange, // lookup in history
-....lastStateChange, // lookup in doc history
-....lastContentChange, // lookup in doc history
-....lastCommentAddition, // lookup in doc comments
-....lastAttachmentAddition, // lookup in doc history
-....lastCommentToHistory, // lookup in doc history
-....lastChange: Date.now(), // set on load, updated on change of title, priority, productId, parentId, state, subtype(3x), tsSize, acceptance and description
+....lastPositionChange: doc.lastPositionChange,
+....lastStateChange: doc.lastStateChange,
+....lastContentChange: doc.lastContentChange,
+....lastCommentAddition: doc.lastCommentAddition,
+....lastAttachmentAddition: doc.lastAttachmentAddition,
+....lastCommentToHistory: doc.lastCommentToHistory,
+....lastChange: Date.now(), // calculated on load, updated on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
 }
 
 In the CONFIG document the PBI subtypes are defined

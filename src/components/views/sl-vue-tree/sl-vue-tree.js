@@ -184,24 +184,20 @@ const methods = {
 		this.getRootComponent().$emit('loaded')
 	},
 
-	emitSelect(selectedNodes, event) {
-		this.getRootComponent().$emit('nodesAreSelected', selectedNodes, event);
+	emitSelect() {
+		this.getRootComponent().$emit('nodesAreSelected');
 	},
 
 	emitBeforeDrop(draggingNodes, position, cancel) {
 		this.getRootComponent().$emit('beforedrop', draggingNodes, position, cancel);
 	},
 
-	emitDrop(moveDataContainer, draggingNodes, position, event) {
-		this.getRootComponent().$emit('drop', moveDataContainer, draggingNodes, position, event);
+	emitDrop(draggingNodes, position) {
+		this.getRootComponent().$emit('drop', draggingNodes, position);
 	},
 
 	emitToggle(toggledNode, event) {
 		this.getRootComponent().$emit('toggle', toggledNode, event);
-	},
-
-	emitNodeClick(node, event) {
-		this.getRootComponent().$emit('nodeclick', node, event);
 	},
 
 	// trigger the context component via the eventbus unless on root
@@ -209,7 +205,16 @@ const methods = {
 		if (!this.isRoot) eventBus.$emit('contextMenu', node)
 	},
 
-	/* Select a node from the tree; a node must have ben selected before; multiple nodes must have the same parent */
+	/* Returns true if the path starts with the subPath */
+	isInPath(subPath, path) {
+		if (subPath.length > path.length) return false
+		for (let i = 0; i < subPath.length; i++) {
+			if (subPath[i] !== path[i]) return false
+		}
+		return true
+	},
+
+	/* Select a node from the tree; a node must have been selected before; multiple nodes must have the same parent */
 	select(cursorPosition, event) {
 		this.lastSelectCursorPosition = cursorPosition
 		const selNode = cursorPosition.nodeModel
@@ -236,20 +241,15 @@ const methods = {
 				// single selection mode
 				this.$store.commit('renewSelectedNodes', selNode)
 			}
-			this.emitSelect(this.$store.state.selectedNodes, event)
+			// access the selected nodes using the store: $store.state.selectedNodes
+			this.emitSelect()
 		}
 	},
 
 	selectNodeById(id) {
 		const selNode = this.getNodeById(id)
 		if (selNode === null) return
-
-		if (selNode.isSelectable) {
-			// single selection mode: unselect all currently selected nodes, clear this.$store.state.selectedNodes array and select the fetched node
-			for (let n of this.$store.state.selectedNodes) n.isSelected = false
-			this.$store.state.selectedNodes = [selNode]
-			this.$store.commit('updateNodeSelected', { newNode: selNode })
-		}
+		this.$store.commit('updateNodesAndCurrentDoc', { selectNode: selNode })
 	},
 
 	onMousemoveHandler(event) {
@@ -340,9 +340,14 @@ const methods = {
 		}
 
 		// check if nodes are possible to insert
-		for (let draggingNode of this.draggableNodes) {
+		for (let dn of this.draggableNodes) {
 			// cannot drag to it self
-			if (draggingNode.pathStr === this.cursorPosition.nodeModel.pathStr) {
+			if (dn.pathStr === this.cursorPosition.nodeModel.pathStr) {
+				this.stopDrag()
+				return
+			}
+			if (this.isInPath(dn.path, this.cursorPosition.nodeModel.path)) {
+				this.showLastEvent('Cannot drop a node inside itself or its descendants', WARNING)
 				this.stopDrag()
 				return
 			}
@@ -353,7 +358,7 @@ const methods = {
 				return
 			}
 			// prevent placement on wrong level when the user selects the parent as target node to insert after
-			if (this.cursorPosition.placement === 'after' && this.cursorPosition.nodeModel.level < draggingNode.level) {
+			if (this.cursorPosition.placement === 'after' && this.cursorPosition.nodeModel.level < dn.level) {
 				this.stopDrag()
 				return
 			}
@@ -371,7 +376,7 @@ const methods = {
 		// sort the nodes on priority (highest first)
 		this.draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
 
-		this.emitDrop( this.draggableNodes, this.cursorPosition, event)
+		this.emitDrop( this.draggableNodes, this.cursorPosition)
 		this.stopDrag()
 	},
 
@@ -546,22 +551,6 @@ const methods = {
 		return this.currentValue[0].children
 	},
 
-	getChildNodesOfParent(id) {
-		const node = this.getNodeById(id)
-		if (node === null) return []
-		return node.children
-	},
-
-	getChildIdsOfParent(id) {
-		const node = this.getNodeById(id)
-		if (node === null) return []
-		const childIds = []
-		for (let c of node.children) {
-			childIds.push(c._id)
-		}
-		return childIds
-	},
-
 	/*
 	* Traverse the node models breadth first
 	* Stop when the call back returns false
@@ -726,19 +715,11 @@ const methods = {
 	},
 
 	showAndSelectItem(node) {
-		// returns true if the path starts with the subPath
-		function isInPath(subPath, path) {
-			if (subPath.length > path.length) return false
-			for (let i = 0; i < subPath.length; i++) {
-				if (subPath[i] !== path[i]) return false
-			}
-			return true
-		}
 		this.traverseModels((nm) => {
 			// unselect any previous selections
 			nm.isSelected = false
 			// if on the node path
-			if (isInPath(nm.path, node.path)) {
+			if (this.isInPath(nm.path, node.path)) {
 				nm.savedIsExpanded = true
 				nm.isExpanded = true
 				nm.savedDoShow = true
@@ -746,8 +727,7 @@ const methods = {
 			}
 			// select the item
 			if (nm.shortId === node.shortId) {
-				this.$store.state.selectedNodes = [nm]
-				this.$store.commit('updateNodeSelected', { newNode: nm })
+				this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nm })
 				return false
 			}
 		})

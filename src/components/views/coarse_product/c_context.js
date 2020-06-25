@@ -145,10 +145,10 @@ const methods = {
         this.doSetDependency()
         break
       case this.SHOWDEPENDENCIES:
-        this.doUpdateDependencies()
+        this.doRemoveDependencies()
         break
       case this.SHOWCONDITIONS:
-        this.doUpdateConditions()
+        this.doRemoveConditions()
         break
     }
   }

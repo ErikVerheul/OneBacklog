@@ -132,7 +132,7 @@ const methods = {
             // update globals to new default
             this.$store.state.currentProductId = newDefaultId
             this.$store.state.currentDefaultProductId = newDefaultId
-            this.$store.dispatch('loadDoc', newDefaultId)
+            this.$store.dispatch('loadDoc', { id: newDefaultId })
         }
         // remove products from the tree view
         let removedCount = 0

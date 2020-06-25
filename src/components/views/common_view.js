@@ -259,6 +259,10 @@ const methods = {
     return node.data.lastCommentToHistory ? Date.now() - node.data.lastCommentToHistory < HOURINMILIS : false
   },
 
+  hasOtherUpdate(node) {
+    return node.data.lastChange ? Date.now() - node.data.lastChange < HOURINMILIS : false
+  },
+
   onSetMyFilters() {
     if (this.$store.state.filterOn) {
       window.slVueTree.resetFilters('onSetMyFilters')
@@ -356,31 +360,31 @@ const methods = {
         this.showLastEvent('Item(s) to sprint assignment is undone', INFO)
         break
       case 'undoSelectedPbiType':
-        this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: Date.now() })
+        this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange })
         this.showLastEvent('Change of item type is undone', INFO)
         break
       case 'undoDescriptionChange':
-        this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: Date.now() })
+        this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange })
         this.showLastEvent('Change of item description type is undone', INFO)
         break
       case 'undoAcceptanceChange':
-        this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: Date.now() })
+        this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange })
         this.showLastEvent('Change of item acceptance criteria type is undone', INFO)
         break
       case 'undoTsSizeChange':
-        this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: Date.now() })
+        this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange })
         this.showLastEvent('Change of item T-shirt size is undone', INFO)
         break
       case 'undoStoryPointsChange':
-        this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: Date.now() })
+        this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange })
         this.showLastEvent('Change of item story points is undone', INFO)
         break
       case 'undoPersonHoursChange':
-        this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: Date.now() })
+        this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange })
         this.showLastEvent('Change of spike person hours is undone', INFO)
         break
       case 'undoChangeTeam':
-        this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam })
+        this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange })
         this.showLastEvent('Change of owning team is undone', INFO)
         break
       case 'undoStateChange':
@@ -390,12 +394,12 @@ const methods = {
           node: entry.node,
           newState: entry.oldState,
           position: entry.node.ind,
-          timestamp: Date.now()
+          timestamp: entry.prevLastChange
         })
         this.showLastEvent('Change of item state is undone', INFO)
         break
       case 'undoTitleChange':
-        this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: Date.now() })
+        this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange })
         this.showLastEvent('Change of item title is undone', INFO)
         break
       case 'undoNewNode':
@@ -436,26 +440,29 @@ const methods = {
         break
       case 'undoSetDependency':
         {
-          const lastDependencyId = entry.nodeWithDependencies.dependencies.pop()
-          const conditionalForNode = window.slVueTree.getNodeById(lastDependencyId)
-          if (conditionalForNode !== null) {
-            conditionalForNode.conditionalFor.pop()
-            const _id = entry.nodeWithDependencies._id
-            const newDeps = entry.nodeWithDependencies.dependencies
-            // dispatch the update in the database
-            this.$store.dispatch('updateDep', { _id, newDeps, removedIds: [lastDependencyId] })
-            this.showLastEvent('Dependency set is undone', INFO)
-          } else {
-            entry.nodeWithDependencies.dependencies.push(lastDependencyId)
-            this.showLastEvent('Cannot undo dependency set. The item with the condition is missing', WARNING)
-          }
+          // get and remove the last added dependency id
+          const lastDependencyId = entry.dependentOnNode.dependencies.pop()
+          const conditionalForNode = entry.conditionalForNode
+          // remove the last added conditionalFor id
+          conditionalForNode.conditionalFor.pop()
+          const newDeps = entry.dependentOnNode.dependencies
+          entry.dependentOnNode.data.lastChange = entry.dependentOnPrevLastChange
+          entry.conditionalForNode.data.lastChange = entry.conditionalForprevLastChange
+          // dispatch the update in the database
+          this.$store.dispatch('removeDependenciesAsync', {
+            _id: entry.dependentOnNode._id,
+            newDeps,
+            removedIds: [lastDependencyId],
+            undoSet: { dependentOnPrevLastChange: entry.dependentOnPrevLastChange, conditionalForprevLastChange: entry.conditionalForprevLastChange }
+          })
+          this.showLastEvent('Dependency set is undone', INFO)
         }
         break
     }
   },
 
   subscribeClicked() {
-    this.$store.dispatch('changeSubsription')
+    this.$store.dispatch('changeSubsription', { timestamp: Date.now() })
   },
 
   filterComments() {
@@ -463,12 +470,10 @@ const methods = {
   },
 
   uploadAttachment() {
-    const now = Date.now()
-    this.$store.commit('updateNodeSelected', { lastAttachmentAddition: now, lastChange: now })
     this.$store.dispatch('uploadAttachmentAsync', {
       fileInfo: this.fileInfo,
       currentDocId: this.$store.state.currentDoc._id,
-      timestamp: now
+      timestamp: Date.now()
     })
   },
 
@@ -477,30 +482,26 @@ const methods = {
   },
 
   insertComment() {
-    const now = Date.now()
-    this.$store.commit('updateNodeSelected', { lastCommentAddition: now, lastChange: now })
     this.$store.dispatch('addComment', {
       'comment': this.newComment,
-      'timestamp': now
+      'timestamp': Date.now()
     })
   },
 
   insertHist() {
-    const now = Date.now()
-    this.$store.commit('updateNodeSelected', { lastCommentToHistory: now, lastChange: now })
     this.$store.dispatch('addHistoryComment', {
       'comment': this.newHistory,
-      'timestamp': now
+      'timestamp': Date.now()
     })
   },
 
   /* Tree and database update methods */
-  updateDescription() {
+  updateDescription(node = this.getNodeSelected) {
     if (this.$store.state.currentDoc.description !== this.newDescription) {
       // skip update when not changed
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
         this.$store.dispatch('saveDescription', {
-          node: this.getNodeSelected,
+          node,
           newDescription: this.newDescription,
           timestamp: Date.now(),
           createUndo: true
@@ -509,12 +510,12 @@ const methods = {
     }
   },
 
-  updateAcceptance() {
+  updateAcceptance(node = this.getNodeSelected) {
     // skip update when not changed
     if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
         this.$store.dispatch('saveAcceptance', {
-          node: this.getNodeSelected,
+          node,
           newAcceptance: this.newAcceptance,
           timestamp: Date.now(),
           createUndo: true
@@ -526,16 +527,13 @@ const methods = {
   updateTsSize() {
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
       const node = this.getNodeSelected
-      const now = Date.now()
       let size = document.getElementById("tShirtSizeId").value.toUpperCase()
       const sizeArray = this.$store.state.configData.tsSize
       if (sizeArray.includes(size)) {
-        // size is not a node prop; no update needed
-        this.$store.commit('updateNodeSelected', { lastChange: now })
         this.$store.dispatch('setTsSize', {
           node,
           newSizeIdx: sizeArray.indexOf(size),
-          timestamp: now,
+          timestamp: Date.now(),
           createUndo: true
         })
       } else {
@@ -591,7 +589,8 @@ const methods = {
   */
   onStateChange(newState) {
     function changeState(vm) {
-      const descendants = window.slVueTree.getDescendantsInfo(vm.getNodeSelected).descendants
+      const node = vm.getNodeSelected
+      const descendants = window.slVueTree.getDescendantsInfo(node).descendants
       if (descendants.length > 0) {
         let highestState = vm.newState
         let allDone = true
@@ -601,16 +600,16 @@ const methods = {
         }
         if (newState > highestState || newState === vm.doneState && !allDone) {
           // node has a higher state than any of its descendants or set to done while one of its descendants is not done
-          vm.$store.commit('updateNodeSelected', { inconsistentState: true })
+          vm.$store.commit('updateNodesAndCurrentDoc', { node, inconsistentState: true })
           if (newState === vm.doneState && !allDone) {
             vm.showLastEvent("You are assigning an inconsistant state to this node. Not all descendants are done.", WARNING)
           } else vm.showLastEvent(`You are assigning an inconsistant state to this node. You can set it to '${vm.getItemStateText(highestState)}'.`, WARNING)
         } else {
-          vm.$store.commit('updateNodeSelected', { inconsistentState: false })
+          vm.$store.commit('updateNodesAndCurrentDoc', { node, inconsistentState: false })
           vm.clearLastEvent()
         }
       }
-      const node = vm.getNodeSelected
+
       vm.$store.dispatch('setState', {
         node,
         newState: newState,
@@ -639,14 +638,11 @@ const methods = {
 
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
       const node = this.getNodeSelected
-      const now = Date.now()
-      // update the current node
-      this.$store.commit('updateNodeSelected', { title: newTitle, lastContentChange: now, lastChange: now })
       // update current document in database
       this.$store.dispatch('setDocTitle', {
         node,
         newTitle: newTitle,
-        timestamp: now,
+        timestamp: Date.now(),
         createUndo: true
       })
     }

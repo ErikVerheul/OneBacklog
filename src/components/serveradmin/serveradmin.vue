@@ -38,7 +38,7 @@
         </b-form-group>
         <p>Database {{ dbToReplace }} will be replaced by the backup</p>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup">Start restore</b-button>
-        <b-button v-if="canCancel" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
+        <b-button v-if="canCancel" class="m-1" @click="cancel" variant="seablue">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'Create a new database'">

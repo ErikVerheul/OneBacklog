@@ -9,7 +9,7 @@ function composeRangeString(id) {
 
 const actions = {
 	/*
-    * ToDo: create undo's if any of these steps fail
+    * Note: the tree model is updated before the database is. To update the database the new priority must be calculated first while inserting the node.
     * Order of execution:
     * 1. update the moved nodes with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
     * 2. if moving to another product or level, call getMovedChildrenIds
@@ -45,12 +45,11 @@ const actions = {
 			for (let f of mdc.forwardMoveMap) {
 				const node = f.node
 				if (node === null) continue
-				// set the sprintId and the <moved> badge
-				commit('updateNodeSelected', { sprintId: f.targetSprintId, lastPositionChange:  Date.now() })
-				// update the currently visible document
-				if (node._id === rootState.currentDoc._id) commit('updateCurrentDoc', { sprintId: f.targetSprintId })
+				// set the sprintId and the <moved> badge with the lastPositionChange timestamp
+				// commit('updateNodesAndCurrentDoc', { sprintId: f.targetSprintId, lastPositionChange:  Date.now() })
 				// create item
 				const payloadItem = {
+					node,
 					id: node._id,
 					level: node.level,
 					sourceInd: f.sourceInd,
@@ -58,7 +57,8 @@ const actions = {
 					targetInd: f.targetInd,
 					childCount: node.children.length,
 					sourceSprintId: f.sourceSprintId,
-					targetSprintId: f.targetSprintId
+					targetSprintId: f.targetSprintId,
+					lastPositionChange: Date.now()
 				}
 				items.push(payloadItem)
 			}
@@ -79,11 +79,10 @@ const actions = {
 				const node = r.node
 				if (node === null) continue
 				// reset the sprintId and the <moved> badge
-				commit('updateNodeSelected', { sprintId: r.targetSprintId, lastPositionChange: r.lastPositionChange })
-				// update the currently visible document
-				if (node._id === rootState.currentDoc._id) commit('updateCurrentDoc', { sprintId: r.targetSprintId })
+				// commit('updateNodesAndCurrentDoc', { sprintId: r.targetSprintId, lastPositionChange: r.lastPositionChange })
 				// create item
 				const payloadItem = {
+					node,
 					id: node._id,
 					level: node.level,
 					sourceInd: r.sourceInd,
@@ -140,6 +139,8 @@ const actions = {
 					doc.level = doc.level + m.levelShift
 					doc.priority = item.newlyCalculatedPriority
 					doc.sprintId = item.targetSprintId
+					doc.lastPositionChange = item.lastPositionChange
+					doc.lastChange = item.lastPositionChange
 					docs.push(doc)
 				}
 				if (envelope.error) error.push(envelope.error)
@@ -195,9 +196,9 @@ const actions = {
 				dispatch('doLog', { event: msg, level: WARNING })
 			} else {
 				// no conflicts, no other errors
-				for (let d of docs) {
+				for (let it of items) {
 					// show the history in the current opened item
-					if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist: d.history[0] })
+					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
 				}
 				// if moving to another product or another level, update the descendants of the moved(back) items
 				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
@@ -291,6 +292,7 @@ const actions = {
 					// priority does not change for descendants
 					const newHist = {
 						"ignoreEvent": ['updateMovedDescendantsBulk'],
+						"timestamp": Date.now(),
 						"distributeEvent": false
 					}
 					doc.history.unshift(newHist)

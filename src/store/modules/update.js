@@ -4,7 +4,6 @@ import globalAxios from 'axios'
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
-const PRODUCTLEVEL = 2
 const REMOVED = 0
 const ON_HOLD = 1
 const DONE = 6
@@ -21,6 +20,7 @@ function cleanHistory(doc) {
 
 const actions = {
 	/* Update the req area of the item (null for no req area set) */
+	//ToDo: create undo
 	updateReqArea({
 		rootState,
 		commit,
@@ -36,16 +36,18 @@ const actions = {
 			tmpDoc.reqarea = payload.reqarea
 			const newHist = {
 				"ignoreEvent": ['updateReqArea'],
+				"timestamp": payload.timestamp,
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
-
+			tmpDoc.lastChange = payload.timestamp
+			// add to payload
 			payload.oldParentReqArea = oldDocArea
-			const toDispatch = payload.childIds.length > 0 ? { 'updateReqAreaChildren': payload } : undefined
+			const toDispatch = { 'updateReqAreaChildren': payload }
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
 				onSuccessCallback: () => {
-					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { reqarea: payload.reqarea, newHist })
+					commit('updateNodesAndCurrentDoc', { reqarea: payload.reqarea, lastChange: payload.timestamp, newHist })
 				}
 			})
 		}).catch(error => {
@@ -64,8 +66,9 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		const childIds = payload.node.children.map((n) => n._id)
 		const docsToGet = []
-		for (let c of payload.childIds) {
+		for (let c of childIds) {
 			docsToGet.push({ "id": c })
 		}
 		globalAxios({
@@ -76,13 +79,13 @@ const actions = {
 			const results = res.data.results
 			const docs = []
 			const error = []
+			const oldParentReqArea = payload.oldParentReqArea
+			const newReqArea = payload.reqarea
 			for (let r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
 					const currentReqArea = doc.reqarea
-					const oldParentReqArea = payload.oldParentReqArea
-					const newReqArea = payload.reqarea
 					let updated = false
 					if (newReqArea !== null) {
 						// set: set for items which have no req area set yet
@@ -100,6 +103,7 @@ const actions = {
 					if (updated) {
 						const newHist = {
 							"ignoreEvent": ['updateReqAreaChildren'],
+							"timestamp": Date.now(),
 							"distributeEvent": false
 						}
 						doc.history.unshift(newHist)
@@ -118,7 +122,26 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, onSuccessCallback: () => {
+					// set reqarea for the child nodes
+					const childNodes = payload.node.children
+					for (let c of childNodes) {
+						const currentReqArea = c.data.reqarea
+						if (newReqArea !== null) {
+							// set: set for items which have no req area set yet
+							if (!currentReqArea || currentReqArea === oldParentReqArea) {
+								c.data.reqarea = newReqArea
+							}
+						} else {
+							// remove: if reqarea was set and equal to old req area of the parent delete it
+							if (currentReqArea && currentReqArea === oldParentReqArea) {
+								c.data.reqarea = null
+							}
+						}
+					}
+				}
+			})
 		}).catch(e => {
 			let msg = 'updateReqAreaChildren: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -127,11 +150,12 @@ const actions = {
 		})
 	},
 
+	// ToDo: create undo
 	updateColorDb({
 		rootState,
 		commit,
 		dispatch
-	}, newColor) {
+	}, payload) {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
@@ -139,17 +163,20 @@ const actions = {
 		}).then(res => {
 			let tmpDoc = res.data
 			// update the req area document
-			tmpDoc.color = newColor
+			tmpDoc.color = payload.newColor
 			const newHist = {
 				"ignoreEvent": ['updateColorDb'],
+				"timestamp": payload.timestamp,
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
+			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { color: newColor, newHist })
+					commit('updateNodesAndCurrentDoc', { reqAreaItemcolor: payload.newColor, lastChange: payload.timestamp, newHist })
+					payload.recreateColorMapper()
 				}
 			})
 		}).catch(error => {
@@ -165,7 +192,7 @@ const actions = {
 		commit,
 		rootGetters,
 		dispatch
-	}) {
+	}, payload) {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
@@ -186,16 +213,17 @@ const actions = {
 			const newHist = {
 				"subscribeEvent": [wasFollower],
 				"by": rootState.userData.user,
-				"timestamp": Date.now(),
+				"timestamp": payload.timestamp,
 				"distributeEvent": false
 			}
 			tmpDoc.followers = tmpFollowers
 			tmpDoc.history.unshift(newHist)
+			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { followers: tmpFollowers, newHist })
+					commit('updateNodesAndCurrentDoc', { followers: tmpFollowers, lastChange: payload.timestamp, newHist })
 				}
 			})
 		}).catch(error => {
@@ -227,6 +255,8 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			const prevLastChange = tmpDoc.lastChange
+			tmpDoc.lastChange = payload.timestamp
 
 			tmpDoc.tssize = payload.newSizeIdx
 			dispatch('updateDoc', {
@@ -234,13 +264,14 @@ const actions = {
 				onSuccessCallback: () => {
 					node.data.tssize = payload.newSizeIdx
 					commit('showLastEvent', { txt: `The T-shirt size of this item is changed`, severity: INFO })
-					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { tssize: payload.newSizeIdx, newHist })
+					commit('updateNodesAndCurrentDoc', { tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
 							type: 'undoTsSizeChange',
-							oldTsSize
+							oldTsSize,
+							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
 					}
@@ -248,145 +279,6 @@ const actions = {
 			})
 		}).catch(error => {
 			let msg = 'setTsSize: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	setDepAndCond({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
-		const _id = payload._id
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
-		}).then(res => {
-			let tmpDoc = res.data
-			const newHist = {
-				"setDependenciesEvent": [tmpDoc.dependencies, payload.dependencies],
-				"by": rootState.userData.user,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
-			}
-			tmpDoc.history.unshift(newHist)
-
-			tmpDoc.dependencies = payload.dependencies
-			const toDispatch = {
-				setConditions: payload.conditionalForPayload, onSuccessCallback: () => {
-					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
-					rootState.selectNodeOngoing = false
-					// create an entry for undoing the change in a last-in first-out sequence
-					const entry = {
-						type: 'undoSetDependency',
-						nodeWithDependencies: payload.dependencies
-					}
-					rootState.changeHistory.unshift(entry)
-				}
-			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch })
-		}).catch(error => {
-			let msg = 'setDepAndCond: Could not read document with _id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	setConditions({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
-		const _id = payload._id
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
-		}).then(res => {
-			let tmpDoc = res.data
-			const newHist = {
-				"setConditionsEvent": [tmpDoc.conditionalFor, payload.conditionalFor],
-				"by": rootState.userData.user,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
-			}
-			tmpDoc.history.unshift(newHist)
-
-			tmpDoc.conditionalFor = payload.conditionalFor
-			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
-				onSuccessCallback: () => {
-					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
-				}
-			})
-		}).catch(error => {
-			let msg = 'setConditions: Could not read document with _id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Update the dependencies and the corresponding conditions in the database. */
-	updateDep({
-		rootState,
-		dispatch
-	}, payload) {
-		const dbName = rootState.userData.currentDb
-		const _id = payload._id
-		globalAxios({
-			method: 'GET',
-			url: dbName + '/' + _id,
-		}).then(res => {
-			let tmpDoc = res.data
-			tmpDoc.dependencies = payload.newDeps
-			const newHist = {
-				"dependencyRemovedEvent": [payload.removedIds],
-				"by": rootState.userData.user,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
-			}
-			tmpDoc.history.unshift(newHist)
-
-			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch: { removeConditions: { ref: _id, depOnDocuments: payload.removedIds } } })
-		}).catch(error => {
-			let msg = 'updateDep: Could not read document with _id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Update the conditions and the corresponding dependencies in the database. */
-	updateCon({
-		rootState,
-		dispatch
-	}, payload) {
-		const dbName = rootState.userData.currentDb
-		const _id = payload._id
-		globalAxios({
-			method: 'GET',
-			url: dbName + '/' + _id,
-		}).then(res => {
-			let tmpDoc = res.data
-			tmpDoc.conditionalFor = payload.newCons
-			const newHist = {
-				"conditionRemovedEvent": [payload.removedIds],
-				"by": rootState.userData.user,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
-			}
-			tmpDoc.history.unshift(newHist)
-
-			dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch: { removeDependencies: { ref: _id, condForDocuments: payload.removedIds } } })
-		}).catch(error => {
-			let msg = 'updateCon: Could not read document with _id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -414,20 +306,22 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			const prevLastChange = tmpDoc.lastChange
+			tmpDoc.lastChange = payload.timestamp
 
 			tmpDoc.spikepersonhours = payload.newHrs
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					node.data.lastChange = payload.timestamp
 					commit('showLastEvent', { txt: `The maximum effort of this spike is changed`, severity: INFO })
-					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { spikepersonhours: payload.newHrs, newHist })
+					commit('updateNodesAndCurrentDoc', { spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
 							type: 'undoPersonHoursChange',
-							oldPersonHours
+							oldPersonHours,
+							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
 					}
@@ -465,17 +359,19 @@ const actions = {
 			tmpDoc.history.unshift(newHist)
 
 			tmpDoc.spsize = payload.newPoints
+			const prevLastChange = tmpDoc.lastChange || 0
+			tmpDoc.lastChange = payload.timestamp
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodeSelected', { state: payload.newState, lastStateChange: Date.now() })
-					if (id === rootState.currentDoc._id) commit('updateCurrentDoc', { spsize: payload.newPoints, newHist })
+					commit('updateNodesAndCurrentDoc', { spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
 							type: 'undoStoryPointsChange',
-							oldPoints
+							oldPoints,
+							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
 					}
@@ -490,6 +386,7 @@ const actions = {
 	},
 
 	/* When called from the planning board the tree is aldo updated with the new state */
+	// ToDo: add previous team to undo, remove timestamp from payload
 	setState({
 		rootState,
 		commit,
@@ -511,15 +408,17 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			const prevLastStateChange = tmpDoc.lastStateChange
+			tmpDoc.lastStateChange = payload.timestamp
+			const prevLastChange = tmpDoc.lastChange
+			tmpDoc.lastChange = payload.timestamp
 
 			tmpDoc.state = payload.newState
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					node.data.state = payload.newState
 					if (payload.newTeam) node.data.team = payload.newTeam
-					node.data.lastStateChange = payload.timestamp
-					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { state: payload.newState, team: payload.newTeam, newHist })
+					commit('updateNodesAndCurrentDoc', { state: payload.newState, team: payload.newTeam, lastStateChange: payload.timestamp, newHist })
 					// recalculate and (re)set the inconsistency state of the parent item
 					const parentNode = window.slVueTree.getParentNode(node)
 					if (parentNode && parentNode.data.state === DONE) {
@@ -539,7 +438,9 @@ const actions = {
 						const entry = {
 							type: 'undoStateChange',
 							node,
-							oldState
+							oldState,
+							prevLastStateChange,
+							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
 					}
@@ -571,11 +472,13 @@ const actions = {
 				const newHist = {
 					"setTeamOwnerEvent": [oldTeam, payload.newTeam, descendantsInfo.count],
 					"by": rootState.userData.user,
-					"timestamp": Date.now(),
+					"timestamp": payload.timestamp,
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}
 				tmpDoc.history.unshift(newHist)
+				const prevLastChange = tmpDoc.lastChange || 0
+				tmpDoc.lastChange = payload.timestamp
 
 				tmpDoc.team = payload.newTeam
 				const toDispatch = descendantsInfo.count > 0 ? {
@@ -590,7 +493,7 @@ const actions = {
 						for (let d of descendantsInfo.descendants) {
 							d.data.team = payload.newTeam
 						}
-						if (id === rootState.currentDoc._id) commit('updateCurrentDoc', { team: payload.newTeam, newHist })
+						commit('updateNodesAndCurrentDoc', { team: payload.newTeam, lastChange: payload.timestamp, newHist })
 
 						if (descendantsInfo.count === 0) {
 							commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootState.userData.myTeam}'.`, severity: INFO })
@@ -601,7 +504,8 @@ const actions = {
 							const entry = {
 								type: 'undoChangeTeam',
 								node,
-								oldTeam
+								oldTeam,
+								prevLastChange
 							}
 							rootState.changeHistory.unshift(entry)
 						}
@@ -694,19 +598,22 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			const prevLastContentChange = tmpDoc.lastContentChange || 0
+			tmpDoc.lastContentChange = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
 
 			tmpDoc.title = payload.newTitle
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					node.title = payload.newTitle
-					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { title: payload.newTitle, newHist })
+					commit('updateNodesAndCurrentDoc', { title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
 							type: 'undoTitleChange',
-							oldTitle
+							oldTitle,
+							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
 					}
@@ -740,20 +647,22 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			const prevLastChange = tmpDoc.lastChange || 0
+			tmpDoc.lastChange = payload.timestamp
 
 			const oldSubType = tmpDoc.subtype
 			tmpDoc.subtype = payload.newSubType
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodeSelected', { subtype: payload.newSubType, lastChange: Date.now() })
-					if (rootState.currentDoc._id === id) commit('updateCurrentDoc', { subtype: payload.newSubType, newHist })
+					commit('updateNodesAndCurrentDoc', { subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoSelectedPbiType',
 							node,
-							oldSubType
+							oldSubType,
+							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
 					}
@@ -791,18 +700,22 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			const prevLastContentChange = tmpDoc.lastContentChange || 0
+			tmpDoc.lastContentChange = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
 
 			tmpDoc.description = newEncodedDescription
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodeSelected', { lastContentChange: Date.now() })
+					commit('updateNodesAndCurrentDoc', { lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
 							type: 'undoDescriptionChange',
-							oldDescription
+							oldDescription,
+							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
 					}
@@ -840,18 +753,22 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			const prevLastContentChange = tmpDoc.lastContentChange || 0
+			tmpDoc.lastContentChange = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
 
 			tmpDoc.acceptanceCriteria = newEncodedAcceptance
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodeSelected', { lastContentChange: Date.now() })
+					commit('updateNodesAndCurrentDoc', { lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
 							type: 'undoAcceptanceChange',
-							oldAcceptance
+							oldAcceptance,
+							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
 					}
@@ -865,6 +782,7 @@ const actions = {
 		})
 	},
 
+	// ToDo: create indo?
 	addComment({
 		rootState,
 		commit,
@@ -884,11 +802,13 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.comments.unshift(newComment)
+			tmpDoc.lastCommentAddition = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newComment })
+					commit('updateNodesAndCurrentDoc', { newComment, lastCommentAddition: payload.timestamp })
 				}
 			})
 		}).catch(error => {
@@ -899,6 +819,7 @@ const actions = {
 		})
 	},
 
+	// ToDo: create undo?
 	addHistoryComment({
 		rootState,
 		commit,
@@ -919,11 +840,13 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			tmpDoc.lastCommentToHistory = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					if (_id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist })
+					commit('updateNodesAndCurrentDoc', { lastCommentToHistory: payload.timestamp, newHist })
 				}
 			})
 		}).catch(error => {
@@ -1050,7 +973,7 @@ const actions = {
 						if (rootState.debug) console.log(msg)
 						dispatch('doLog', { event: msg, level: WARNING })
 					}
-					commit('updateCurrentDoc', { newDoc: cleanHistory(doc) })
+					commit('updateNodesAndCurrentDoc', { newDoc: cleanHistory(doc) })
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('loadItemByShortId: document with _id ' + doc._id + ' is loaded.')
 				} else {
@@ -1065,7 +988,6 @@ const actions = {
 	/* Add history to the parent and than save the document */
 	createDocWithParentHist({
 		rootState,
-		commit,
 		dispatch
 	}, payload) {
 		const _id = payload.newDoc.parentId
@@ -1081,11 +1003,11 @@ const actions = {
 				"timestamp": Date.now(),
 				"distributeEvent": false
 			}
+			updatedDoc.lastChange = Date.now()
 			updatedDoc.history.unshift(parentHist)
 			const toDispatch = {
 				'updateDoc': {
 					dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, onSuccessCallback: () => {
-						if (rootState.currentDoc._id === _id) commit('updateCurrentDoc', { newDoc: payload.newDoc, newHist: parentHist })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoNewNode',
@@ -1104,25 +1026,25 @@ const actions = {
 		})
 	},
 
-	/*
-	* Load document by _id and make it the current backlog item
-	* On success, update the current product title
-	*/
+	/* Load document by _id and make it the current backlog item */
 	loadDoc({
 		rootState,
 		commit,
 		dispatch
-	}, _id) {
+	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + payload.id,
 		}).then(res => {
-			commit('updateCurrentDoc', { newDoc: cleanHistory(res.data) })
-			if (rootState.currentDoc.level === PRODUCTLEVEL) rootState.currentProductTitle = rootState.currentDoc.title
+			commit('updateNodesAndCurrentDoc', { newDoc: cleanHistory(res.data) })
+			// execute passed function if provided
+			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('loadDoc: document with _id ' + _id + ' is loaded.')
+			if (rootState.debug) console.log('loadDoc: document with id ' + payload.id + ' is loaded.')
 		}).catch(error => {
-			let msg = 'loadDoc: Could not read document with _id ' + _id + ', ' + error
+			// execute passed function if provided
+			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
+			let msg = 'loadDoc: Could not read document with _id ' + payload.id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

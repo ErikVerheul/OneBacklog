@@ -174,7 +174,7 @@
           :active="contextOptionSelected === SETDEPENDENCY"
           variant="dark"
           @click="showSelected(SETDEPENDENCY)"
-        >Select this node as a condition for '{{ getNodeWithDependencies().title }}'</b-list-group-item>
+        >Select this node as a condition for '{{ dependentOnNode.title }}'</b-list-group-item>
 
         <b-list-group-item
           v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.currentProductId"

@@ -84,15 +84,13 @@ const actions = {
                     "distributeEvent": true
                 }
                 tmpDoc.history.unshift(newHist)
+                tmpDoc.lastAttachmentAddition = payload.timestamp
 
                 dispatch('updateDoc', {
                     dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
                     onSuccessCallback: () => {
                         rootState.uploadDone = true
-                        if (tmpDoc._id === rootState.currentDoc._id) {
-                            // the user did not select another document while the attachment was uploaded
-                            commit('updateCurrentDoc', { _attachments: tmpDoc._attachments, newHist })
-                        }
+                        commit('updateNodesAndCurrentDoc', { _attachments: tmpDoc._attachments, lastAttachmentAddition: tmpDoc.lastAttachmentAddition, newHist })
                     },
                     onFailureCallback: () => { rootState.uploadDone = true }
                 })
@@ -106,6 +104,7 @@ const actions = {
         }
     },
 
+    // ToDo: show badge in tree when attachemnt is recently removed
     removeAttachmentAsync({
         rootState,
         commit,
@@ -126,11 +125,14 @@ const actions = {
                     "distributeEvent": true
                 }
                 tmpDoc.history.unshift(newHist)
+                tmpDoc.lastAttachmentRemoval = Date.now()
 
+                // curentDoc is allready updated
                 tmpDoc._attachments = rootState.currentDoc._attachments
-                dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+                dispatch('updateDoc', {
+                    dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
                     onSuccessCallback: () => {
-                        commit('updateCurrentDoc', { newHist })
+                        commit('updateNodesAndCurrentDoc', { lastAttachmentRemoval: tmpDoc.lastAttachmentRemoval, newHist })
                     }
                 })
             }

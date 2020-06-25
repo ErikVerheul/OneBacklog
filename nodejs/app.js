@@ -112,9 +112,9 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "removeSprintIdsEvent":
             return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>` + mkFooter()
         case "setConditionsEvent":
-            return mkHeader() + `<h3>Conditions on this item set for ${convertToShortIds(value[0])} are now set for ${convertToShortIds(value[1])} (short Ids)</h3>` + mkFooter()
+            return mkHeader() + `<h3>This item is set to be conditional for item '${value[1]}'.</h3>` + mkFooter()
         case "setDependenciesEvent":
-            return mkHeader() + `<h3>Dependencies set for this item changed from ${convertToShortIds(value[0])} to ${convertToShortIds(value[1])} (short Ids)</h3>` + mkFooter()
+            return mkHeader() + `<h3>This item is set to be dependent on item '${value[1]}'.</h3>` + mkFooter()
         case "setHrsEvent":
             return mkHeader() + `<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>` + mkFooter()
         case "setPointsEvent":

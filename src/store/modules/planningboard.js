@@ -269,6 +269,7 @@ const actions = {
 			for (let c of newChildren) {
 				const newHist = {
 					"ignoreEvent": ['updateMovedTasks'],
+					"timestamp": Date.now(),
 					"distributeEvent": false
 				}
 				c.history.unshift(newHist)
@@ -439,7 +440,7 @@ const actions = {
 							const node = window.slVueTree.getNodeById(d._id)
 							if (node) node.data.sprintId = d.sprintId
 							// show the history in the current opened item
-							if (d._id === rootState.currentDoc._id) commit('updateCurrentDoc', { newHist: d.history[0] })
+							if (d._id === rootState.currentDoc._id) commit('updateNodesAndCurrentDoc', { node, newHist: d.history[0] })
 						}
 						// show child nodes
 						const parentNode = window.slVueTree.getNodeById(payload.parentId)
@@ -496,8 +497,8 @@ const actions = {
 						"sessionId": rootState.userData.sessionId,
 						"distributeEvent": false
 					}
+					doc.lastChange = Date.now()
 					doc.history.unshift(newHist)
-					if (rootState.currentDoc._id === doc._id) commit('updateCurrentDoc', { newHist })
 					docs.push(doc)
 				}
 
@@ -521,8 +522,11 @@ const actions = {
 					for (let d of docs) {
 						// update the tree view
 						const node = window.slVueTree.getNodeById(d._id)
-						if (node && node.data.sprintId === payload.sprintId) node.data.sprintId = undefined
-						if (rootState.currentDoc._id === d._id) commit('updateCurrentDoc', { newHist: d.history[0] })
+						if (node) {
+							if (node.data.sprintId === payload.sprintId) {
+								commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, newHist: d.history[0] })
+							} else commit('updateNodesAndCurrentDoc', { node, newHist: d.history[0] })
+						}
 					}
 					// show children nodes
 					window.slVueTree.getNodeById(payload.parentId).isExpanded = true
@@ -605,6 +609,7 @@ const actions = {
 				"priority": taskPriority,
 				"comments": [{
 					"ignoreEvent": 'comments initiated',
+					"timestamp": Date.now(),
 					"distributeEvent": false
 				}],
 				"history": [{

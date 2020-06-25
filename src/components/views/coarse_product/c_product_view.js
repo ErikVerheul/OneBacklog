@@ -154,11 +154,10 @@ const methods = {
       this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
       // expand the newly selected product up to the found item
       window.slVueTree.showAndSelectItem(node)
-      // select the node
-      this.$store.commit('updateNodeSelected', { newNode: node })
       // load the document if not already in memory
       if (node._id !== this.$store.state.currentDoc._id) {
-        this.$store.dispatch('loadDoc', node._id)
+        // select the node after loading the document
+        this.$store.dispatch('loadDoc', { id: node._id, onSuccessCallback: () => { this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node }) } })
       }
     } else {
       // the node is not found in the current product selection; try to find it in the database
@@ -167,11 +166,11 @@ const methods = {
   },
 
   /* event handling */
-  onNodesSelected(selNodes) {
+  onNodesSelected() {
+    const selNodes = this.$store.state.selectedNodes
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
-    this.updateDescription()
-    // both an update of the description and the acceptance criteria should NOT happen
-    this.updateAcceptance()
+    this.updateDescription(this.getpreviousNodeSelected)
+    this.updateAcceptance(this.getpreviousNodeSelected)
     // if the user clicked on a node of another product (not root)
     if (this.getNodeSelected._id !== 'root' && this.$store.state.currentProductId !== this.getNodeSelected.productId) {
       // update current productId and title
@@ -180,7 +179,7 @@ const methods = {
     }
     // load the document if not already in memory
     if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
-      this.$store.dispatch('loadDoc', this.getNodeSelected._id)
+      this.$store.dispatch('loadDoc', { id: this.getNodeSelected._id })
     }
     const title = this.itemTitleTrunc(60, this.getNodeSelected.title)
     let evt = ""
@@ -203,18 +202,12 @@ const methods = {
      * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest permitted level
      * 4. Disallow the drop of multiple nodes within the range of the selected nodes.
      * 5. The requirement area nodes cannot be moved from their parent or inside each other (silent cancel)
-     * 6. Cannot move regular items into the 'Reuirement areas overview' dummy product (silent cancel)
+     * 6. Cannot move regular items into the 'Requirement areas overview' dummy product (silent cancel)
      * precondition: the selected nodes have all the same parent (same level)
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
     if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
-      const dropInd = position.nodeModel.ind
-      let sourceMinInd = Number.MAX_SAFE_INTEGER
-      let sourceMaxind = 0
-      for (let d of draggingNodes) {
-        if (d.ind < sourceMinInd) sourceMinInd = d.ind
-        if (d.ind > sourceMaxind) sourceMaxind = d.ind
-      }
+
       let checkDropNotAllowed = (node) => {
         const sourceProductId = draggingNodes[0].productId
         const targetProductId = position.nodeModel.productId
@@ -225,6 +218,13 @@ const methods = {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
+        const dropInd = position.nodeModel.ind
+        let sourceMinInd = Number.MAX_SAFE_INTEGER
+        let sourceMaxind = 0
+        for (let d of draggingNodes) {
+          if (d.ind < sourceMinInd) sourceMinInd = d.ind
+          if (d.ind > sourceMaxind) sourceMaxind = d.ind
+        }
         const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
         const failedCheck5 = node.parentId === this.areaProductId && (position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside')
         const failedCheck6 = targetProductId === this.areaProductId && sourceProductId !== this.areaProductId
@@ -237,10 +237,6 @@ const methods = {
       if (checkDropNotAllowed(draggingNodes[0])) {
         cancel(true)
         return
-      }
-      // save the current index
-      for (let n of draggingNodes) {
-        n.savedInd = n.ind
       }
     } else cancel(true)
   },
@@ -260,16 +256,12 @@ const methods = {
       this.$store.state.currentDoc.color = '#567cd6'
       this.colorSelectShow = true
     } else {
-      this.$store.commit('updateNodeSelected', { reqAreaItemcolor: this.$store.state.currentDoc.color })
-      this.createColorMapper()
-      this.$store.dispatch('updateColorDb', this.$store.state.currentDoc.color)
+      this.$store.dispatch('updateColorDb', { newColor: this.$store.state.currentDoc.color, timestamp: Date.now(), recreateColorMapper: () => { this.createColorMapper() } })
     }
   },
 
   setUserColor() {
-    this.$store.commit('updateNodeSelected', { reqAreaItemcolor: this.userReqAreaItemcolor })
-    this.createColorMapper()
-    this.$store.dispatch('updateColorDb', this.userReqAreaItemcolor)
+    this.$store.dispatch('updateColorDb', { newColor: this.userReqAreaItemcolor, timestamp: Date.now(), recreateColorMapper: () => { this.createColorMapper() } })
   },
 
   setReqArea(reqarea) {
@@ -291,30 +283,7 @@ const methods = {
   * If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse
   */
   doSetReqArea() {
-    const oldParentReqArea = this.getNodeSelected.data.reqarea
-    const newReqAreaId = this.selReqAreaId
-    this.$store.commit('updateNodeSelected', { reqarea: newReqAreaId })
-
-    this.$store.state.currentDoc.reqarea = newReqAreaId
-    // set reqarea for the child nodes
-    const childNodes = window.slVueTree.getChildNodesOfParent(this.$store.state.currentDoc._id)
-    for (let c of childNodes) {
-      const currentReqArea = c.data.reqarea
-      if (newReqAreaId !== null) {
-        // set: set for items which have no req area set yet
-        if (!currentReqArea || currentReqArea === oldParentReqArea) {
-          c.data.reqarea = newReqAreaId
-        }
-      } else {
-        // remove: if reqarea was set and equal to old req area of the parent delete it
-        if (currentReqArea && currentReqArea === oldParentReqArea) {
-          c.data.reqarea = null
-        }
-      }
-    }
-    // update the db
-    const childIds = window.slVueTree.getChildIdsOfParent(this.$store.state.currentDoc._id)
-    this.$store.dispatch('updateReqArea', { reqarea: this.selReqAreaId, childIds })
+    this.$store.dispatch('updateReqArea', { node: this.getNodeSelected, reqarea: this.selReqAreaId, timestamp: Date.now() })
   }
 }
 

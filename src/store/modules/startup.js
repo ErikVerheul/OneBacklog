@@ -83,7 +83,7 @@ const actions = {
             dispatch('doLog', { event: msg, level: INFO })
             dispatch('getAllProducts', { dbName: rootState.userData.currentDb, allUserData, currentDbSettings })
         }).catch(error => {
-            if (error.response.status === 404) {
+            if (error.response && error.response.status === 404) {
                 // the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
                 if (rootState.online && rootState.userData.sessionRoles.includes("_admin")) {
                     // eslint-disable-next-line no-console
@@ -261,14 +261,14 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/root',
         }).then(res => {
-            commit('updateCurrentDoc', { newDoc: res.data })
+            commit('updateNodesAndCurrentDoc', { newDoc: res.data })
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log("The root document is read")
             // open the products view by default
             router.push('/detailProduct')
         }).catch(error => {
             let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error
-            if (error.response.status === 404) {
+            if (error.response && error.response.status === 404) {
                 msg += ' , is your default database ' + rootState.userData.currentDb + ' deleted?'
             }
             // eslint-disable-next-line no-console

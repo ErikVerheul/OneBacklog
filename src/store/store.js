@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import globalAxios from 'axios'
 import router from '../router'
+import dependencies from './modules/dependencies'
 import logging from './modules/logging'
 import startup from './modules/startup'
 import initdb from './modules/initdb'
@@ -87,7 +88,7 @@ export default new Vuex.Store({
 		lastTreeView: undefined,
 		searchOn: false,
 		selectedForView: 'comments',
-		previousSelectedNode: undefined,
+		previousSelectedNodes: undefined,
 		selectedNodes: [],
 		selectNodeOngoing: false,
 		uploadDone: true,
@@ -141,7 +142,7 @@ export default new Vuex.Store({
 	getters: {
 		/* Return the previous selected node or the currently selected node if no previous node was selected */
 		getpreviousNodeSelected(state) {
-			return state.previousSelectedNode
+			return state.previousSelectedNodes.slice(-1)[0]
 		},
 		/* Return the last selected node or undefined when no node is selected */
 		getNodeSelected(state) {
@@ -274,7 +275,7 @@ export default new Vuex.Store({
 		},
 
 		addSelectedNode(state, newNode) {
-			state.previousSelectedNode = state.selectedNodes.slice(-1)[0] || newNode
+			state.previousSelectedNodes = state.selectedNodes || [newNode]
 			if (newNode.isSelectable) {
 				newNode.isSelected = true
 				if (!state.selectedNodes.includes(newNode)) state.selectedNodes.push(newNode)
@@ -282,7 +283,7 @@ export default new Vuex.Store({
 		},
 
 		renewSelectedNodes(state, newNode) {
-			state.previousSelectedNode = state.selectedNodes.slice(-1)[0] || newNode
+			state.previousSelectedNodes = state.selectedNodes || [newNode]
 			if (newNode.isSelectable) {
 				for (let n of state.selectedNodes) n.isSelected = false
 				newNode.isSelected = true
@@ -290,184 +291,248 @@ export default new Vuex.Store({
 			}
 		},
 
-		/* Update the currently selected node. Note that not all props are covered */
-		updateNodeSelected(state, payload) {
-			if (payload.newNode && payload.newNode.isSelectable) {
-				for (let n of state.selectedNodes) n.isSelected = false
-				payload.newNode.isSelected = true
-				state.selectedNodes = [payload.newNode]
-			}
-			const keys = Object.keys(payload)
-			const nodeSelected = state.selectedNodes.slice(-1)[0]
-			for (let k of keys) {
-				switch (k) {
-					case 'productId':
-						nodeSelected.productId = payload.productId
-						break
-					case 'title':
-						nodeSelected.title = payload.title
-						break
-					case 'isSelected':
-						nodeSelected.isSelected = payload.isSelected
-						break
-					case 'isExpanded':
-						nodeSelected.isExpanded = payload.isExpanded
-						break
-					case 'markViolation':
-						nodeSelected.markViolation = payload.markViolation
-						break
-					case 'state':
-						nodeSelected.data.state = payload.state
-						break
-					case 'reqarea':
-						nodeSelected.data.reqarea = payload.reqarea
-						break
-					case 'sprintId':
-						nodeSelected.data.sprintId = payload.sprintId
-						break
-					case 'inconsistentState':
-						nodeSelected.data.inconsistentState = payload.inconsistentState
-						break
-					case 'team':
-						nodeSelected.data.team = payload.team
-						break
-					case 'taskOwner':
-						nodeSelected.data.taskOwner = payload.taskOwner
-						break
-					case 'subtype':
-						nodeSelected.data.subtype = payload.subtype
-						break
-					case 'reqAreaItemcolor':
-						nodeSelected.data.reqAreaItemcolor = payload.reqAreaItemcolor
-						break
-					case 'lastPositionChange':
-						nodeSelected.data.lastPositionChange = payload.lastPositionChange
-						break
-					case 'lastStateChange':
-						nodeSelected.data.lastStateChange = payload.lastStateChange
-						break
-					case 'lastContentChange':
-						nodeSelected.data.lastContentChange = payload.lastContentChange
-						break
-					case 'lastCommentAddition':
-						nodeSelected.data.lastCommentAddition = payload.lastCommentAddition
-						break
-					case 'lastAttachmentAddition':
-						nodeSelected.data.lastAttachmentAddition = payload.lastAttachmentAddition
-						break
-					case 'lastCommentToHistory':
-						nodeSelected.data.lastCommentToHistory = payload.lastCommentToHistory
-						break
-					case 'lastChange':
-						nodeSelected.data.lastChange = payload.lastChange
-						break
-					default:
-						// eslint-disable-next-line no-console
-						if (k !== 'newNode') console.log('nodeSelected: cannot update nodeSelected, unknown key = ' + k)
+		updateNodesAndCurrentDoc(state, payload) {
+			if (payload.newNode) {
+				// if the new node is selectable, save the currently selected nodes, unselect all previous selected nodes and select the new node
+				const newNode = payload.newNode
+				if (newNode.isSelectable) {
+					state.previousSelectedNodes = state.selectedNodes || [newNode]
+					for (let n of state.selectedNodes) n.isSelected = false
+					newNode.isSelected = true
+					state.selectedNodes = [newNode]
 				}
 			}
-		},
-
-		/*
-		* Update or replace the currently loaded document.
-		* Decode the description and acceptence criteria.
-		* Note that not all fields are covered
-		*/
-		updateCurrentDoc(state, payload) {
 			if (payload.newDoc) {
+				// decode from base64 + replace the encoded data
+				payload.newDoc.description = window.atob(payload.newDoc.description)
+				payload.newDoc.acceptanceCriteria = window.atob(payload.newDoc.acceptanceCriteria)
 				// replace the currently loaded document
 				state.currentDoc = payload.newDoc
-				// decode from base64 + replace the encoded data
-				state.currentDoc.description = window.atob(payload.newDoc.description)
-				state.currentDoc.acceptanceCriteria = window.atob(payload.newDoc.acceptanceCriteria)
 			}
-			const keys = Object.keys(payload)
-			for (let k of keys) {
-				switch (k) {
-					case '_rev':
-						state.currentDoc._rev = payload._rev
-						break
-					case '_attachments':
-						state.currentDoc._attachments = payload._attachments
-						break
-					case 'shortId':
-						state.currentDoc.shortId = payload.shortId
-						break
-					case 'productId':
-						state.currentDoc.productId = payload.productId
-						break
-					case 'parentId':
-						state.currentDoc.parentId = payload.parentId
-						break
-					case 'reqarea':
-						state.currentDoc.reqarea = payload.reqarea
-						break
-					case 'sprintId':
-						state.currentDoc.sprintId = payload.sprintId
-						break
-					case 'team':
-						if (payload.team) state.currentDoc.team = payload.team
-						break
-					case 'level':
-						state.currentDoc.level = payload.level
-						break
-					case 'subtype':
-						state.currentDoc.subtype = payload.subtype
-						break
-					case 'state':
-						state.currentDoc.state = payload.state
-						break
-					case 'tssize':
-						state.currentDoc.tssize = payload.tssize
-						break
-					case 'spsize':
-						state.currentDoc.spsize = payload.spsize
-						break
-					case 'spikepersonhours':
-						state.currentDoc.spikepersonhours = payload.spikepersonhours
-						break
-					case 'title':
-						state.currentDoc.title = payload.title
-						break
-					case 'followers':
-						state.currentDoc.followers = payload.followers
-						break
-					case 'newFollower':
-						state.currentDoc.followers.push(payload.newFollower)
-						break
-					case 'leavingFollower':
-						{
-							const updatedFollowers = []
-							for (let f of state.currentDoc.followers) {
-								if (f !== payload.leavingFollower) updatedFollowers.push(f)
+
+			if (!payload.newNode && !payload.newDoc) {
+				// if no node is specified in the payload the last selected node will be updated
+				const node = payload.node || payload.selectNode || payload.unselectNode || state.selectedNodes.slice(-1)[0]
+				const keys = Object.keys(payload)
+				console.log('updateNodesAndCurrentDoc: node.title = ' + node.title + ' keys = ' + keys)
+				// apply changes on the nodes in the tree view
+				if (node.data) for (let k of keys) {
+					switch (k) {
+						case 'addConditionalFor':
+							if (node.conditionalFor) { node.conditionalFor.push(payload.addConditionalFor) } else node.conditionalFor = payload.addConditionalFor
+							break
+						case 'addDependencyOn':
+							if (node.dependencies) { node.dependencies.push(payload.addDependencyOn) } else node.dependencies = payload.addDependencyOn
+							break
+						case 'conditionsremoved':
+							break
+						case 'dependenciesRemoved':
+							break
+						case 'inconsistentState':
+							node.data.inconsistentState = payload.inconsistentState
+							break
+						case 'isExpanded':
+							node.isExpanded = payload.isExpanded
+							break
+						case 'isSelected':
+							node.isSelected = payload.isSelected
+							break
+						case 'lastAttachmentAddition':
+							node.data.lastAttachmentAddition = payload.lastAttachmentAddition
+							node.data.lastChange = payload.lastAttachmentAddition
+							break
+						case 'lastChange':
+							console.log('lastChange update to ' + payload.lastChange + ' in ' + node.title)
+							node.data.lastChange = payload.lastChange
+							break
+						case 'lastCommentAddition':
+							node.data.lastCommentAddition = payload.lastCommentAddition
+							node.data.lastChange = payload.lastCommentAddition
+							break
+						case 'lastCommentToHistory':
+							node.data.lastCommentToHistory = payload.lastCommentToHistory
+							node.data.lastChange = payload.lastCommentToHistory
+							break
+						case 'lastContentChange':
+							node.data.lastContentChange = payload.lastContentChange
+							node.data.lastChange = payload.lastContentChange
+							break
+						case 'lastPositionChange':
+							console.log('lastPositionChange update to ' + payload.lastPositionChange + ' in ' + node.title)
+							node.data.lastPositionChange = payload.lastPositionChange
+							node.data.lastChange = payload.lastPositionChange
+							break
+						case 'lastStateChange':
+							node.data.lastStateChange = payload.lastStateChange
+							node.data.lastChange = payload.lastStateChange
+							break
+						case 'markViolation':
+							node.markViolation = payload.markViolation
+							break
+						case 'productId':
+							node.productId = payload.productId
+							break
+						case 'reqarea':
+							node.data.reqarea = payload.reqarea
+							break
+						case 'reqAreaItemcolor':
+							node.data.reqAreaItemcolor = payload.reqAreaItemcolor
+							break
+						case 'selectNode':
+							if (node.isSelectable) {
+								state.previousSelectedNodes = state.selectedNodes || [node]
+								for (let n of state.selectedNodes) n.isSelected = false
+								node.isSelected = true
+								state.selectedNodes = [node]
 							}
-							state.currentDoc.followers = updatedFollowers
+							break
+						case 'sprintId':
+							node.data.sprintId = payload.sprintId
+							break
+						case 'state':
+							node.data.state = payload.state
+							break
+						case 'subtype':
+							node.data.subtype = payload.subtype
+							break
+						case 'taskOwner':
+							node.data.taskOwner = payload.taskOwner
+							break
+						case 'team':
+							node.data.team = payload.team
+							break
+						case 'title':
+							node.title = payload.title
+							break
+						case 'unselectNode':
+							state.previousSelectedNodes = state.selectedNodes || [node]
+							state.selectedNodes = []
+							for (let n of state.selectedNodes) {
+								if (n !== n) state.selectedNodes.push(n)
+							}
+							node.isSelected = false
+							break
+					}
+				} else console.log('updateNodesAndCurrentDoc: node.data is undefined for keys = ' + keys)
+				for (let sn of state.selectedNodes) {
+					if (sn._id === state.currentDoc._id) {
+						// apply changes on the currently displayed item
+						for (let k of keys) {
+							switch (k) {
+								case '_attachments':
+									state.currentDoc._attachments = payload._attachments
+									break
+								case '_rev':
+									state.currentDoc._rev = payload._rev
+									break
+								case 'acceptanceCriteria':
+									state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
+									break
+								case 'conditionalFor':
+									state.currentDoc.conditionalFor = payload.conditionalFor
+									break
+								case 'delmark':
+									state.currentDoc.delmark = payload.delmark
+									break
+								case 'dependencies':
+									state.currentDoc.dependencies = payload.dependencies
+									break
+								case 'description':
+									state.currentDoc.description = window.atob(payload.description)
+									break
+								case 'followers':
+									state.currentDoc.followers = payload.followers
+									break
+								case 'lastAttachmentAddition':
+									state.currentDoc.lastAttachmentAddition = payload.lastAttachmentAddition
+									break
+								case 'lastAttachmentRemoval':
+									state.currentDoc.lastAttachmentRemoval = payload.lastAttachmentRemoval
+									break
+								case 'lastChange':
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'lastCommentAddition':
+									state.currentDoc.lastCommentAddition = payload.lastCommentAddition
+									break
+								case 'lastCommentToHistory':
+									state.currentDoc.lastCommentToHistory = payload.lastCommentToHistory
+									break
+								case 'lastContentChange':
+									state.currentDoc.lastContentChange = payload.lastContentChange
+									break
+								case 'lastPositionChange':
+									state.currentDoc.lastPositionChange = payload.lastPositionChange
+									break
+								case 'lastStateChange':
+									state.currentDoc.lastStateChange = payload.lastStateChange
+									break
+								case 'leavingFollower':
+									{
+										const updatedFollowers = []
+										for (let f of state.currentDoc.followers) {
+											if (f !== payload.leavingFollower) updatedFollowers.push(f)
+										}
+										state.currentDoc.followers = updatedFollowers
+									}
+									break
+								case 'level':
+									state.currentDoc.level = payload.level
+									break
+								case 'newComment':
+									state.currentDoc.comments.unshift(payload.newComment)
+									break
+								case 'newFollower':
+									state.currentDoc.followers.push(payload.newFollower)
+									break
+								case 'newHist':
+									state.currentDoc.history.unshift(payload.newHist)
+									break
+								case 'parentId':
+									state.currentDoc.parentId = payload.parentId
+									break
+								case 'priority':
+									state.currentDoc.priority = payload.priority
+									break
+								case 'productId':
+									state.currentDoc.productId = payload.productId
+									break
+								case 'reqarea':
+									state.currentDoc.reqarea = payload.reqarea
+									break
+								case 'reqAreaItemcolor':
+									state.currentDoc.color = payload.reqAreaItemcolor
+									break
+								case 'shortId':
+									state.currentDoc.shortId = payload.shortId
+									break
+								case 'spikepersonhours':
+									state.currentDoc.spikepersonhours = payload.spikepersonhours
+									break
+								case 'sprintId':
+									state.currentDoc.sprintId = payload.sprintId
+									break
+								case 'spsize':
+									state.currentDoc.spsize = payload.spsize
+									break
+								case 'subtype':
+									state.currentDoc.subtype = payload.subtype
+									break
+								case 'state':
+									state.currentDoc.state = payload.state
+									break
+								case 'team':
+									if (payload.team) state.currentDoc.team = payload.team
+									break
+								case 'title':
+									state.currentDoc.title = payload.title
+									break
+								case 'tssize':
+									state.currentDoc.tssize = payload.tssize
+									break
+							}
 						}
-						break
-					case 'description':
-						state.currentDoc.description = window.atob(payload.description)
-						break
-					case 'acceptanceCriteria':
-						state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
-						break
-					case 'priority':
-						state.currentDoc.priority = payload.priority
-						break
-					case 'newComment':
-						state.currentDoc.comments.unshift(payload.newComment)
-						break
-					case 'newHist':
-						state.currentDoc.history.unshift(payload.newHist)
-						break
-					case 'delmark':
-						state.currentDoc.delmark = payload.delmark
-						break
-					case 'color':
-						state.currentDoc.color = payload.color
-						break
-					default:
-						// eslint-disable-next-line no-console
-						if (k !== 'newDoc') console.log('currentDoc: cannot update currentDoc, unknown key = ' + k)
+					}
 				}
 			}
 		},
@@ -748,6 +813,7 @@ export default new Vuex.Store({
 	},
 
 	modules: {
+		dependencies,
 		startup,
 		initdb,
 		logging,

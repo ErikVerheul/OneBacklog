@@ -44,6 +44,7 @@ function data() {
         contextNodeTeam: '',
         contextChildType: '',
         contextOptionSelected: undefined,
+        dependentOnNode: undefined,
         listItemText: '',
         assistanceText: 'No assistance available',
         showAssistance: false,
@@ -71,11 +72,6 @@ const computed = {
 }
 
 const methods = {
-    // returns null when the node does not exist
-    getNodeWithDependencies() {
-        return window.slVueTree.getNodeById(this.nodeWithDependenciesId)
-    },
-
     doCloneProduct() {
         this.$store.dispatch('cloneProduct')
     },
@@ -127,7 +123,7 @@ const methods = {
         // must insert the new node in the tree first to get the productId, parentId, pririty and set the location parameters
         window.slVueTree.insert(newNodeLocation, [newNode])
         // and select the new node
-        this.$store.commit('updateNodeSelected', { newNode })
+        this.$store.commit('updateNodesAndCurrentDoc', { newNode })
 
         this.showLastEvent(`Item of type ${this.getLevelText(newNode.level)} is inserted as a copy of '${node.title}'.`, INFO)
         // create a new document and store it
@@ -154,6 +150,7 @@ const methods = {
             "priority": newNode.data.priority,
             "comments": [{
                 "ignoreEvent": 'comments initiated',
+                "timestamp": Date.now(),
                 "distributeEvent": false
             }],
             "history": [{
@@ -166,7 +163,7 @@ const methods = {
             "delmark": false
         }
         // update the database and replace the current document with this document
-        this.$store.dispatch('createDocWithParentHist', { newNode, newDoc, newNodeLocation })
+        this.$store.dispatch('createDocWithParentHist', { newNode, newDoc })
     },
 
     /*
@@ -239,10 +236,10 @@ const methods = {
                 // unselect the node that was clicked before the insert
                 this.contextNodeSelected.isSelected = false
             }
-            // must insert the new node in the tree first to get the productId, parentId, pririty and set the location parameters
+            // must insert the new node in the tree first to get the productId, parentId, priority and set the location parameters
             window.slVueTree.insert(newNodeLocation, [newNode])
             // and select the new node
-            this.$store.commit('updateNodeSelected', { newNode })
+            this.$store.commit('updateNodesAndCurrentDoc', { newNode })
             this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
             // create a new document and store it
             const newDoc = {
@@ -269,6 +266,7 @@ const methods = {
                 "priority": newNode.data.priority,
                 "comments": [{
                     "ignoreEvent": 'comments initiated',
+                    "timestamp": Date.now(),
                     "distributeEvent": false
                 }],
                 "history": [{
@@ -281,7 +279,7 @@ const methods = {
                 "delmark": false
             }
             // update the parent history and than save the new document
-            this.$store.dispatch('createDocWithParentHist', { newNode, newDoc, newNodeLocation })
+            this.$store.dispatch('createDocWithParentHist', { newNode, newDoc })
         }
     },
 
@@ -315,36 +313,30 @@ const methods = {
 
     doSetDependency() {
         if (this.$store.state.selectNodeOngoing) {
-            if (this.contextNodeSelected.conditionalFor) {
-                this.contextNodeSelected.conditionalFor.push(this.nodeWithDependenciesId)
-            } else this.contextNodeSelected.conditionalFor = this.nodeWithDependenciesId
-            const conditionalForPayload = { _id: this.contextNodeSelected._id, conditionalFor: this.contextNodeSelected.conditionalFor }
-            const nodeWithDependencies = this.getNodeWithDependencies()
-            nodeWithDependencies.dependencies.push(this.contextNodeSelected._id)
-            this.$store.dispatch('setDepAndCond', { _id: nodeWithDependencies._id, dependencies: nodeWithDependencies.dependencies, conditionalForPayload })
+            this.$store.dispatch('setDepAndCond', { dependentOnNode: this.dependentOnNode, conditionalForNode: this.contextNodeSelected, timestamp: Date.now() })
         } else {
-            // save the id of the node the dependencies will be attached to
-            this.nodeWithDependenciesId = this.contextNodeSelected._id
+            // save the node the dependency will be added to
+            this.dependentOnNode = this.contextNodeSelected
             this.$store.state.selectNodeOngoing = true
         }
     },
 
     getDependencies() {
         this.dependenciesObjects = []
-        for (let depObj of this.contextNodeSelected.dependencies) {
-            const item = window.slVueTree.getNodeById(depObj)
+        for (let depId of this.contextNodeSelected.dependencies) {
+            const item = window.slVueTree.getNodeById(depId)
             if (item) {
-                this.dependenciesObjects.push({ _id: depObj, title: item.title })
+                this.dependenciesObjects.push({ _id: depId, title: item.title })
             }
         }
     },
 
     getConditions() {
         this.conditionsObjects = []
-        for (let conObj of this.contextNodeSelected.conditionalFor) {
-            const item = window.slVueTree.getNodeById(conObj)
+        for (let conId of this.contextNodeSelected.conditionalFor) {
+            const item = window.slVueTree.getNodeById(conId)
             if (item) {
-                this.conditionsObjects.push({ _id: conObj, title: item.title })
+                this.conditionsObjects.push({ _id: conId, title: item.title })
             }
         }
     },
@@ -395,7 +387,7 @@ const methods = {
     },
 
     /* Update the dependencies and the corresponding conditions in the tree model and the database. */
-    doUpdateDependencies() {
+    doRemoveDependencies() {
         const depIdArray = []
         for (let depObj of this.dependenciesObjects) {
             depIdArray.push(depObj._id)
@@ -407,7 +399,7 @@ const methods = {
         // update the dependencies in the tree
         this.contextNodeSelected.dependencies = depIdArray
         // dispatch the update in the database
-        this.$store.dispatch('updateDep', { _id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds })
+        this.$store.dispatch('removeDependenciesAsync', { _id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds, timestamp: Date.now() })
         // update the conditions in the tree
         for (let id of removedIds) {
             const node = window.slVueTree.getNodeById(id)
@@ -425,7 +417,7 @@ const methods = {
     },
 
     /* Update the conditions and the corresponding dependencies in the tree model and the database. */
-    doUpdateConditions() {
+    doRemoveConditions() {
         const conIdArray = []
         for (let conObj of this.conditionsObjects) {
             conIdArray.push(conObj._id)
@@ -437,7 +429,7 @@ const methods = {
         // update the conditions in the tree
         this.contextNodeSelected.conditionalFor = conIdArray
         // dispatch the update in the database
-        this.$store.dispatch('updateCon', { _id: this.contextNodeSelected._id, newCons: conIdArray, removedIds })
+        this.$store.dispatch('removeConditionsAsync', { _id: this.contextNodeSelected._id, newCons: conIdArray, removedIds })
         // update the dependencies in the tree
         for (let id of removedIds) {
             const node = window.slVueTree.getNodeById(id)

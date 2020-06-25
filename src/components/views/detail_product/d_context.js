@@ -86,11 +86,11 @@ const methods = {
 
   showSelected(idx) {
     function checkNode(vm, selNode) {
-      if (selNode._id === vm.nodeWithDependenciesId) {
+      if (selNode._id === vm.dependentOnNode._id) {
         vm.contextWarning = "WARNING: Item cannot be dependent on it self"
         return false
       }
-      const nodeWithDependencies = vm.getNodeWithDependencies()
+      const nodeWithDependencies = vm.dependentOnNode
       if (nodeWithDependencies.dependencies.includes(selNode._id)) {
         vm.contextWarning = "WARNING: Cannot add the same dependency twice"
         return false
@@ -209,10 +209,10 @@ const methods = {
         this.doSetDependency()
         break
       case this.SHOWDEPENDENCIES:
-        this.doUpdateDependencies()
+        this.doRemoveDependencies()
         break
       case this.SHOWCONDITIONS:
-        this.doUpdateConditions()
+        this.doRemoveConditions()
         break
       case this.TOSPRINT:
         this.doAddToSprint()
@@ -231,7 +231,7 @@ const methods = {
       // can assign team from epic level and down (higher level numbers)
       const node = this.contextNodeSelected
       const newTeam = this.myTeam
-      this.$store.dispatch('assignToMyTeam', { node, newTeam, createUndo: true })
+      this.$store.dispatch('assignToMyTeam', { node, newTeam, timestamp: Date.now(), createUndo: true })
     }
   },
 

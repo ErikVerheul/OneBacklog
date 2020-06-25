@@ -5,77 +5,12 @@ const ERROR = 2
 const WARNING = 1
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const HOURINMILIS = 3600000
 var fromHistory
 var histArray
 var newDefaultId
 
 function composeRangeString(id) {
     return `startkey="${id}"&endkey="${id}"`
-}
-
-function setChangeTimestamps(history, lastComment) {
-    // search history for the last changes within the last hour
-    let lastPositionChange = 0
-    let lastStateChange = 0
-    let lastContentChange = 0
-    let lastCommentAddition = 0
-    let lastAttachmentAddition = 0
-    let lastCommentToHistory = 0
-    let nodeUndoMoveEventWasIssued = false
-    for (let histItem of history) {
-        if (Date.now() - histItem.timestamp > HOURINMILIS) {
-            // skip events longer than a hour ago
-            break
-        }
-        const event = Object.keys(histItem)[0]
-        // get the most recent change of position
-        if (lastPositionChange === 0 && event === 'nodeMovedEvent') {
-            if (!nodeUndoMoveEventWasIssued) {
-                lastPositionChange = histItem.timestamp
-                nodeUndoMoveEventWasIssued = false
-            } else {
-                lastPositionChange = 0
-            }
-        }
-        // get the most recent change of state
-        if (lastStateChange === 0 && (event === 'setStateEvent') || event === 'createEvent') {
-            lastStateChange = histItem.timestamp
-        }
-        // get the most recent change of content
-        if (lastContentChange === 0 && (event === 'setTitleEvent') || event === 'descriptionEvent' || event === 'acceptanceEvent') {
-            lastContentChange = histItem.timestamp
-        }
-        // get the most recent addition of comments to the history
-        if (lastAttachmentAddition === 0 && event === 'uploadAttachmentEvent') {
-            lastAttachmentAddition = histItem.timestamp
-        }
-        // get the most recent addition of comments to the history
-        if (lastCommentToHistory === 0 && event === 'commentToHistoryEvent') {
-            lastCommentToHistory = histItem.timestamp
-        }
-    }
-    // get the last time a comment was added; comments have their own array
-    lastCommentAddition = lastComment.timestamp
-    return {
-        lastPositionChange,
-        lastStateChange,
-        lastContentChange,
-        lastCommentAddition,
-        lastAttachmentAddition,
-        lastCommentToHistory
-    }
-}
-
-function cleanHistory(history) {
-    const hour = 3600000
-	const now = Date.now()
-	const cleanedHist = []
-	for (var i = 0; i < history.length; i++) {
-		if (Object.keys(history[i])[0] !== 'ignoreEvent' && (now - history[i].timestamp < hour)) cleanedHist.push(history[i])
-    }
-    if (cleanedHist.length === 0) cleanedHist.push(history[0])
-    return cleanedHist
 }
 
 function convertToResults(docs) {
@@ -95,8 +30,19 @@ function convertToResults(docs) {
         res.value.push(d.subtype)
         res.value.push(d.dependencies)
         res.value.push(d.conditionalFor)
-        res.value.push(cleanHistory(d.history))
+        res.value.push(d.history[0])
         res.value.push(d.comments[0])
+        res.value.push(d.color)
+        res.value.push(d.sprintId)
+        res.value.push(d.lastAttachmentAddition)
+        res.value.push(d.lastAttachmentAddition)
+        res.value.push(d.lastAttachmentAddition)
+        res.value.push(d.lastChange)
+        res.value.push(d.lastCommentAddition)
+        res.value.push(d.lastCommentToHistory)
+        res.value.push(d.lastContentChange)
+        res.value.push(d.lastPositionChange)
+        res.value.push(d.lastStateChange)
 
         results.push(res)
     }
@@ -133,8 +79,8 @@ const actions = {
                     newPath.push(i)
                 }
                 return {
-                    prevNode: prevNode,
-                    newPath: newPath,
+                    prevNode,
+                    newPath,
                     newInd: i
                 }
             } else {
@@ -143,7 +89,7 @@ const actions = {
                 newPath.push(0)
                 return {
                     prevNode: parentNode,
-                    newPath: newPath,
+                    newPath,
                     newInd: 0
                 }
             }
@@ -162,21 +108,24 @@ const actions = {
             const subtype = item.value[7]
             const dependencies = item.value[8] || []
             const conditionalFor = item.value[9] || []
-            const history = item.value[10]
-            const lastComment = item.value[11]
+            // for future use:
+            // const lastHistoryEntry = item.value[10]
+            // const lastCommentEntry = item.value[11]
+            const reqAreaItemcolor = item.value[12] || null
+            const sprintId = item.value[13]
+            const lastAttachmentAddition = item.value[14] || 0
+            const lastChange = item.value[15] || 0
+            const lastCommentAddition = item.value[16] || 0
+            const lastCommentToHistory = item.value[17] || 0
+            const lastContentChange = item.value[18] || 0
+            const lastPositionChange = item.value[19] || 0
+            const lastStateChange = item.value[20] || 0
 
             const parentNode = window.slVueTree.getNodeById(parentId)
             if (parentNode) {
                 // create the node
                 const locationInfo = getLocationInfo(priority, parentNode)
                 const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
-                const changeTimes = setChangeTimestamps(history, lastComment)
-                let lastChange
-                if (history[0].resetCommentsEvent && !history[0].resetHistoryEvent) {
-                    lastChange = history[0].timestamp
-                } else if (history[0].resetHistoryEvent && !history[0].resetCommentsEvent) {
-                    lastChange = lastComment.timestamp
-                } else lastChange = history[0].timestamp > lastComment.timestamp ? history[0].timestamp : lastComment.timestamp
                 let newNode = {
                     path: locationInfo.newPath,
                     pathStr: JSON.stringify(locationInfo.newPath),
@@ -186,8 +135,8 @@ const actions = {
                     parentId,
                     _id,
                     shortId: _id.slice(-5),
-                    dependencies: dependencies || [],
-                    conditionalFor: conditionalFor || [],
+                    dependencies,
+                    conditionalFor,
                     title,
                     isLeaf: level === getters.leafLevel,
                     children: [],
@@ -199,18 +148,20 @@ const actions = {
                     doShow: true,
                     savedDoShow: true,
                     data: {
+                        lastAttachmentAddition,
+                        lastChange,
+                        lastCommentAddition,
+                        lastCommentToHistory,
+                        lastContentChange,
+                        lastPositionChange,
+                        lastStateChange,
                         priority,
-                        state: itemState,
                         reqarea,
-                        team,
+                        reqAreaItemcolor,
+                        sprintId,
+                        state: itemState,
                         subtype,
-                        lastPositionChange: changeTimes.lastPositionChange,
-                        lastStateChange: changeTimes.lastStateChange,
-                        lastContentChange: changeTimes.lastContentChange,
-                        lastCommentAddition: changeTimes.lastCommentAddition,
-                        lastAttachmentAddition: changeTimes.lastAttachmentAddition,
-                        lastCommentToHistory: changeTimes.lastCommentToHistory,
-                        lastChange
+                        team
                     }
                 }
                 window.slVueTree.insert({
@@ -281,7 +232,7 @@ const actions = {
         dispatch('processItems', convertToResults(docs))
     },
 
-    /* addProducts uses restoreBranches to load a product as a branche */
+    /* addProducts uses restoreBranches to load a product as a branch */
     addProducts({
 		rootState,
 		dispatch

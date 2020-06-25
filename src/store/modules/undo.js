@@ -47,6 +47,7 @@ const actions = {
                 if (doc) {
                     const newHist = {
                         "ignoreEvent": ['restoreItemAndDescendents'],
+                        "timestamp": Date.now(),
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
@@ -150,9 +151,8 @@ const actions = {
                     }
                     // do not recalculate priorities when inserting a product node
                     window.slVueTree.insert(cursorPosition, [entry.removedNode], entry.removedNode.parentId !== 'root')
-                    // unselect the current node and select the recovered node
-                    commit('updateNodeSelected', { isSelected: false })
-                    commit('updateNodeSelected', { newNode: entry.removedNode })
+                    // select the recovered node
+                    commit('updateNodesAndCurrentDoc', { selectNode: entry.removedNode })
                     rootState.currentProductId = entry.removedNode.productId
                     // restore the removed dependencies
                     for (let d of entry.removedIntDependencies) {
@@ -172,7 +172,7 @@ const actions = {
                         if (node !== null) node.conditionalFor.push(c.conditionalFor)
                     }
                     commit('showLastEvent', { txt: 'Item(s) remove is undone', severity: INFO })
-                    commit('updateCurrentDoc', { newDoc: updatedDoc })
+                    commit('updateNodesAndCurrentDoc', { newDoc: updatedDoc })
                 }
             })
         }).catch(error => {
@@ -258,6 +258,7 @@ const actions = {
                         }
                     const newHist = {
                         "ignoreEvent": ['restoreExtDepsAndConds'],
+                        "timestamp": Date.now(),
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)

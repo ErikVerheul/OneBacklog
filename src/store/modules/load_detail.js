@@ -6,64 +6,10 @@ const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const TASKLEVEL = 6
-const HOURINMILIS = 3600000
 const AREA_PRODUCTID = '0'
 var parentNodes = {}
 var orphansFound = []
 var levelErrorsFound = []
-
-function setChangeTimestamps(history, lastComment) {
-    // search history for the last changes within the last hour
-    let lastPositionChange = 0
-    let lastStateChange = 0
-    let lastContentChange = 0
-    let lastCommentAddition = 0
-    let lastAttachmentAddition = 0
-    let lastCommentToHistory = 0
-    let nodeUndoMoveEventWasIssued = false
-    for (let histItem of history) {
-        if (Date.now() - histItem.timestamp > HOURINMILIS) {
-            // skip events longer than a hour ago
-            break
-        }
-        const event = Object.keys(histItem)[0]
-        // get the most recent change of position
-        if (lastPositionChange === 0 && event === 'nodeMovedEvent') {
-            if (!nodeUndoMoveEventWasIssued) {
-                lastPositionChange = histItem.timestamp
-                nodeUndoMoveEventWasIssued = false
-            } else {
-                lastPositionChange = 0
-            }
-        }
-        // get the most recent change of state
-        if (lastStateChange === 0 && (event === 'setStateEvent') || event === 'createEvent') {
-            lastStateChange = histItem.timestamp
-        }
-        // get the most recent change of content
-        if (lastContentChange === 0 && (event === 'setTitleEvent') || event === 'descriptionEvent' || event === 'acceptanceEvent') {
-            lastContentChange = histItem.timestamp
-        }
-        // get the most recent addition of comments to the history
-        if (lastAttachmentAddition === 0 && event === 'uploadAttachmentEvent') {
-            lastAttachmentAddition = histItem.timestamp
-        }
-        // get the most recent addition of comments to the history
-        if (lastCommentToHistory === 0 && event === 'commentToHistoryEvent') {
-            lastCommentToHistory = histItem.timestamp
-        }
-    }
-    // get the last time a comment was added; comments have their own array
-    lastCommentAddition = lastComment.timestamp
-    return {
-        lastPositionChange,
-        lastStateChange,
-        lastContentChange,
-        lastCommentAddition,
-        lastAttachmentAddition,
-        lastCommentToHistory
-    }
-}
 
 const state = {
     docsCount: 0,
@@ -86,6 +32,7 @@ const mutations = {
             const _id = item.id
             const productId = item.key[0]
             const level = item.key[1]
+            // negate the priority
             const priority = -item.key[2]
             const parentId = item.value[1]
             const reqarea = item.value[0] || null
@@ -95,10 +42,19 @@ const mutations = {
             const subtype = item.value[5]
             const dependencies = item.value[6] || []
             const conditionalFor = item.value[7] || []
-            const history = item.value[8]
-            const lastComment = item.value[9]
+            // for future use:
+            // const lastHistoryEntry = item.value[8]
+            // const lastCommentEntry = item.value[9]
             const reqAreaItemcolor = item.value[10] || null
             const sprintId = item.value[11]
+            const lastAttachmentAddition = item.value[12] || 0
+            const lastChange = item.value[13] || 0
+            const lastCommentAddition = item.value[14] || 0
+            const lastCommentToHistory = item.value[15] || 0
+            const lastContentChange = item.value[16] || 0
+            const lastPositionChange = item.value[17] || 0
+            const lastStateChange = item.value[18] || 0
+
             // initialize with the root document
             if (level === 1) {
                 rootState.treeNodes = [
@@ -162,13 +118,6 @@ const mutations = {
                 const ind = parentNode.children.length
                 const parentPath = parentNode.path
                 const path = parentPath.concat(ind)
-                const changeTimes = setChangeTimestamps(history, lastComment)
-                let lastChange
-                if (history[0].resetCommentsEvent && !history[0].resetHistoryEvent) {
-                    lastChange = history[0].timestamp
-                } else if (history[0].resetHistoryEvent && !history[0].resetCommentsEvent) {
-                    lastChange = lastComment.timestamp
-                } else lastChange = history[0].timestamp > lastComment.timestamp ? history[0].timestamp : lastComment.timestamp
                 // check for level error
                 if (level !== path.length) {
                     state.levelErrorCount++
@@ -196,20 +145,20 @@ const mutations = {
                     doShow,
                     savedDoShow: doShow,
                     data: {
+                        lastAttachmentAddition,
+                        lastChange,
+                        lastCommentAddition,
+                        lastCommentToHistory,
+                        lastContentChange,
+                        lastPositionChange,
+                        lastStateChange,
                         priority,
-                        state: itemState,
-                        sprintId,
                         reqarea,
                         reqAreaItemcolor,
-                        team,
-                        lastPositionChange: changeTimes.lastPositionChange,
-                        lastStateChange: changeTimes.lastStateChange,
-                        lastContentChange: changeTimes.lastContentChange,
-                        lastCommentAddition: changeTimes.lastCommentAddition,
-                        lastAttachmentAddition: changeTimes.lastAttachmentAddition,
-                        lastCommentToHistory: changeTimes.lastCommentToHistory,
+                        sprintId,
+                        state: itemState,
                         subtype,
-                        lastChange
+                        team
                     }
                 }
 
@@ -243,13 +192,13 @@ const actions = {
         }).then(res => {
             rootState.currentProductId = _id
             rootState.currentProductTitle = res.data.title
-            commit('updateCurrentDoc', { newDoc: res.data })
+            commit('updateNodesAndCurrentDoc', { newDoc: res.data })
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log('loadProductDetails: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
             dispatch('loadAssignedAndSubscribed')
         }).catch(error => {
             let msg = `loadProductDetails: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
-            if (!error.response || error.response.status === 404) {
+            if (error.response && error.response.status === 404) {
                 msg += `, is your default product deleted?`
             }
             // eslint-disable-next-line no-console
@@ -267,7 +216,7 @@ const actions = {
     }) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/allItemsFilter',
+            url: rootState.userData.currentDb + '/_design/design1/_view/details',
         }).then(res => {
             rootState.lastTreeView = 'detailProduct'
             rootState.loadedTreeDepth = TASKLEVEL

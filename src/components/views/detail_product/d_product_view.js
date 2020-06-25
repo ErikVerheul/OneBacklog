@@ -61,12 +61,10 @@ const watch = {
     if (val !== this.$store.state.currentDoc.subtype) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the pbi type')) {
         const node = this.getNodeSelected
-        const now = Date.now()
-        this.$store.commit('updateNodeSelected', { subtype: val, lastChange: now })
         this.$store.dispatch('setSubType', {
           node,
           newSubType: val,
-          timestamp: now,
+          timestamp: Date.now(),
           createUndo: true
         })
       }
@@ -198,11 +196,10 @@ const methods = {
       this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
       // expand the newly selected product up to the found item
       window.slVueTree.showAndSelectItem(node)
-      // select the node
-      this.$store.commit('updateNodeSelected', { newNode: node })
       // load the document if not already in memory
       if (node._id !== this.$store.state.currentDoc._id) {
-        this.$store.dispatch('loadDoc', node._id)
+        // select the node after loading the document
+        this.$store.dispatch('loadDoc', { id: node._id, onSuccessCallback: () => { this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node }) } })
       }
     } else {
       // the node is not found in the current product selection; try to find it in the database
@@ -211,7 +208,8 @@ const methods = {
   },
 
   /* event handling */
-  onNodesSelected(selNodes) {
+  onNodesSelected() {
+    const selNodes = this.$store.state.selectedNodes
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription(this.getpreviousNodeSelected)
     this.updateAcceptance(this.getpreviousNodeSelected)
@@ -232,7 +230,8 @@ const methods = {
     }
     // load the document if not already in memory
     if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
-      this.$store.dispatch('loadDoc', this.getNodeSelected._id)
+      console.log('onNodesSelected: loading this.getNodeSelected.title = ' + this.getNodeSelected.title)
+      this.$store.dispatch('loadDoc', { id: this.getNodeSelected._id })
     }
     const title = this.itemTitleTrunc(60, selNodes[0].title)
     let evt = ""
@@ -257,23 +256,25 @@ const methods = {
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
     if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
-      const dropInd = position.nodeModel.ind
-      let sourceMinInd = Number.MAX_SAFE_INTEGER
-      let sourceMaxind = 0
-      for (let d of draggingNodes) {
-        if (d.ind < sourceMinInd) sourceMinInd = d.ind
-        if (d.ind > sourceMaxind) sourceMaxind = d.ind
-      }
+
       let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.taskLevel
+        const dropInd = position.nodeModel.ind
+        let sourceMinInd = Number.MAX_SAFE_INTEGER
+        let sourceMaxind = 0
+        for (let d of draggingNodes) {
+          if (d.ind < sourceMinInd) sourceMinInd = d.ind
+          if (d.ind > sourceMaxind) sourceMaxind = d.ind
+        }
         const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
         if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
         if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
         if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', WARNING)
         return failedCheck2 || failedCheck3 || failedCheck4
       }
+
       const sourceLevel = draggingNodes[0].level
       let targetLevel = position.nodeModel.level
       // are we dropping 'inside' a node creating children to that node?
@@ -281,10 +282,6 @@ const methods = {
       if (checkDropNotAllowed(draggingNodes[0], sourceLevel, targetLevel)) {
         cancel(true)
         return
-      }
-      // save the current index
-      for (let n of draggingNodes) {
-        n.savedInd = n.ind
       }
     } else cancel(true)
   },

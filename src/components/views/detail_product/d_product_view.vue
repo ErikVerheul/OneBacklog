@@ -144,7 +144,7 @@
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
-              {{ patchTitle(node) }}
+              {{ patchTitle(node) }}:{{ node.data.lastChange }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"
@@ -160,7 +160,7 @@
               <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
 
               <b-badge
-                v-if="hasContentChanged(node) || hasCommentToHistory(node)"
+                v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)"
                 variant="info"
               >See history</b-badge>
 

@@ -23,7 +23,6 @@
         @mousedown="onNodeMousedownHandler($event, node)"
         @mouseup="onNodeMouseupHandler($event)"
         @contextmenu="emitNodeContextmenu(node)"
-        @click="emitNodeClick(node, $event)"
         :path="node.pathStr"
         :class="{
             'sl-vue-tree-cursor-hover':

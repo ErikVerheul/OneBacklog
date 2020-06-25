@@ -15,124 +15,6 @@ function removeFromArray(arr, item) {
 }
 
 const actions = {
-    /* Remove the dependent_on reference in the dependencies array in a batch of documents */
-    removeDependencies({
-        rootState,
-        dispatch
-    }, payload) {
-        if (Object.keys(payload.condForDocuments).length === 0) return
-
-        const docsToGet = []
-        for (let id of payload.condForDocuments) {
-            docsToGet.push({ "id": id })
-        }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
-        }).then(res => {
-            const results = res.data.results
-            const docs = []
-            const error = []
-            for (let r of results) {
-                const doc = r.docs[0].ok
-                if (doc) {
-                    const newDependencies = []
-                    if (doc.dependencies) {
-                        for (let d of doc.dependencies) {
-                            if (d !== payload.ref) {
-                                newDependencies.push(d)
-                            }
-                        }
-                    }
-                    doc.dependencies = newDependencies
-                    const newHist = {
-                        "ignoreEvent": ['removeDependencies'],
-                        "distributeEvent": false
-                    }
-                    doc.history.unshift(newHist)
-                    docs.push(doc)
-                }
-                if (r.docs[0].error) error.push(r.docs[0].error)
-            }
-            if (error.length > 0) {
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'removeDependencies: These documents cannot be updated: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
-            }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-        }).catch(e => {
-            let msg = 'removeDependencies: Could not read batch of documents: ' + e
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
-    },
-
-    /* Remove the conditional_for reference in the conditionalFor array in a batch of documents */
-    removeConditions({
-        rootState,
-        dispatch
-    }, payload) {
-        if (Object.keys(payload.depOnDocuments).length === 0) return
-
-        const docsToGet = []
-        for (let id of payload.depOnDocuments) {
-            docsToGet.push({ "id": id })
-        }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
-        }).then(res => {
-            const results = res.data.results
-            const docs = []
-            const error = []
-            for (let r of results) {
-                const doc = r.docs[0].ok
-                if (doc) {
-                    const newConditions = []
-                    if (doc.conditionalFor) {
-                        for (let c of doc.conditionalFor) {
-                            if (c !== payload.ref) {
-                                newConditions.push(c)
-                            }
-                        }
-                    }
-                    doc.conditionalFor = newConditions
-                    const newHist = {
-                        "ignoreEvent": ['removeConditions'],
-                        "distributeEvent": false
-                    }
-                    doc.history.unshift(newHist)
-                    docs.push(doc)
-                }
-                if (r.docs[0].error) error.push(r.docs[0].error)
-            }
-            if (error.length > 0) {
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'removeConditions: These documents cannot be updated: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
-            }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-        }).catch(e => {
-            let msg = 'removeConditions: Could not read batch of documents: ' + e
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
-    },
-
     /*
     * ToDo: create undo's if any of these steps fail
     * Order of execution:
@@ -201,6 +83,7 @@ const actions = {
                 if (doc) {
                     const newHist = {
                         "ignoreEvent": ['removeDescendents'],
+                        "timestamp": Date.now(),
                         "distributeEvent": false
                     }
                     doc.history.unshift(newHist)
@@ -254,14 +137,14 @@ const actions = {
                 payload.extCondsCount = externalConditions.length
 
                 // transfer these calls to updateBulk so that they are executed after successful removal only
-                const toDispatch = { removeParentAddHist: payload }
+                const toDispatch = { removeParentAndAddHist: payload }
                 if (externalDependencies.length > 0) {
                     // remove the conditions in the documents not removed which match the externalDependencies
-                    toDispatch.removeExtDependencies = externalDependencies
+                    toDispatch.removeExtDependenciesAsync = externalDependencies
                 }
                 if (externalConditions.length > 0) {
                     // remove the dependencies in the documents not removed which match the externalConditions
-                    toDispatch.removeExtConditions = externalConditions
+                    toDispatch.removeExtConditionsAsync = externalConditions
                 }
                 dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
             }
@@ -274,7 +157,7 @@ const actions = {
     },
 
     /* Remove the parent(node clicked) document and add history to it */
-    removeParentAddHist({
+    removeParentAndAddHist({
         rootState,
         commit,
         dispatch
@@ -286,7 +169,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo.count, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
+                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -323,10 +206,9 @@ const actions = {
                         }
                         nowSelectedNode = nextProduct
                     }
-                    commit('updateNodeSelected', { newNode: nowSelectedNode })
-                    rootState.currentProductId = nowSelectedNode.productId
+                    commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode, productId: nowSelectedNode.productId })
                     // load the new selected item
-                    dispatch('loadDoc', nowSelectedNode._id)
+                    dispatch('loadDoc', { id: nowSelectedNode._id })
                     // remove the node and its children
                     window.slVueTree.remove([payload.node])
 
@@ -360,131 +242,7 @@ const actions = {
                 }
             })
         }).catch(error => {
-            let msg = 'removeParentAddHist: Could not read document with _id ' + _id + ',' + error
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
-    },
-
-    removeExtDependencies({
-        rootState,
-        dispatch
-    }, externalDependencies) {
-        function getDepItem(id) {
-            for (let item of externalDependencies) {
-                for (let d of item.dependencies) {
-                    if (d === id) return item
-                }
-            }
-        }
-        const docsToGet = []
-        const docs = []
-        const error = []
-        for (let d of externalDependencies) {
-            for (let dd of d.dependencies) {
-                docsToGet.push({ "id": dd })
-            }
-        }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
-        }).then(res => {
-            const results = res.data.results
-            for (let r of results) {
-                const doc = r.docs[0].ok
-                const depItem = getDepItem(doc._id)
-                if (doc && doc.conditionalFor && depItem) {
-                    let newConditionalFor = []
-                    for (let c of doc.conditionalFor) {
-                        if (c !== depItem.id) newConditionalFor.push(c)
-                    }
-                    const newHist = {
-                        "ignoreEvent": ['removeExtDependencies'],
-                        "distributeEvent": false
-                    }
-                    doc.history.unshift(newHist)
-                    doc.conditionalFor = newConditionalFor
-                    docs.push(doc)
-                }
-                if (r.docs[0].error) error.push(r.docs[0].error)
-            }
-            if (error.length > 0) {
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'removeExtDependencies: These documents cannot be updated for their set dependencies: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
-            }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-        }).catch(e => {
-            let msg = 'removeExtDependencies: Could not read batch of documents: ' + e
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
-    },
-
-    removeExtConditions({
-        rootState,
-        dispatch
-    }, externalConditions) {
-        function getCondItem(id) {
-            for (let item of externalConditions) {
-                for (let c of item.conditions) {
-                    if (c === id) return item
-                }
-            }
-        }
-        const docsToGet = []
-        const docs = []
-        const error = []
-        for (let c of externalConditions) {
-            for (let cc of c.conditions) {
-                docsToGet.push({ "id": cc })
-            }
-        }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
-        }).then(res => {
-            const results = res.data.results
-            for (let r of results) {
-                const doc = r.docs[0].ok
-                const condItem = getCondItem(doc._id)
-                if (doc && doc.dependencies && condItem) {
-                    let newDependencies = []
-                    for (let d of doc.dependencies) {
-                        if (d !== condItem.id) newDependencies.push(d)
-                    }
-                    const newHist = {
-                        "ignoreEvent": ['removeExtConditions'],
-                        "distributeEvent": false
-                    }
-                    doc.history.unshift(newHist)
-                    doc.dependencies = newDependencies
-                    docs.push(doc)
-                }
-                if (r.docs[0].error) error.push(r.docs[0].error)
-            }
-            if (error.length > 0) {
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'removeExtConditions: These documents cannot be updated for their set conditions: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
-            }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
-        }).catch(e => {
-            let msg = 'removeExtConditions: Could not read batch of documents: ' + e
+            let msg = 'removeParentAndAddHist: Could not read document with _id ' + _id + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
