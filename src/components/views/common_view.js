@@ -429,34 +429,14 @@ const methods = {
         }
         break
       case 'undoRemove':
-        {
-          // restore the removed node
-          this.$store.dispatch("restoreItemAndDescendents", entry)
-        }
+        this.$store.dispatch("restoreItemAndDescendents", entry)
         break
       case 'undoRemoveSprintIds':
         this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
         this.showLastEvent('Item(s) from sprint removal is undone', INFO)
         break
       case 'undoSetDependency':
-        {
-          // get and remove the last added dependency id
-          const lastDependencyId = entry.dependentOnNode.dependencies.pop()
-          const conditionalForNode = entry.conditionalForNode
-          // remove the last added conditionalFor id
-          conditionalForNode.conditionalFor.pop()
-          const newDeps = entry.dependentOnNode.dependencies
-          entry.dependentOnNode.data.lastChange = entry.dependentOnPrevLastChange
-          entry.conditionalForNode.data.lastChange = entry.conditionalForprevLastChange
-          // dispatch the update in the database
-          this.$store.dispatch('removeDependenciesAsync', {
-            _id: entry.dependentOnNode._id,
-            newDeps,
-            removedIds: [lastDependencyId],
-            undoSet: { dependentOnPrevLastChange: entry.dependentOnPrevLastChange, conditionalForprevLastChange: entry.conditionalForprevLastChange }
-          })
-          this.showLastEvent('Dependency set is undone', INFO)
-        }
+        this.$store.dispatch('undoSetDependencyAsync', entry)
         break
     }
   },

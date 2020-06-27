@@ -294,8 +294,8 @@ N            Y	     Y    removedFromParentEvent	      	remove.js
 Y 			 Y 	     Y    removeSprintIdsEvent				update.js
 Y            N	     Y    removedWithDescendantsEvent	    remove.js				ToDo: also in mail?
 Y            N	     N    updateTaskOrderEvent	        	planningboard.js
-Y            Y	     Y    setConditionsEvent	          	update.js
-Y            Y	     Y    setDependenciesEvent	        	update.js
+Y            Y	     Y    setConditionEvent	          		update.js
+Y            Y	     Y    setDependencyEvent	        	update.js
 Y            Y	     Y    setHrsEvent	                  	update.js
 Y            Y	     Y    setPointsEvent	              	update.js
 Y            Y	     Y    setSizeEvent	                	update.js

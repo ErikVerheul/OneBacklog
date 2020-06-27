@@ -325,8 +325,10 @@ export default new Vuex.Store({
 							if (node.dependencies) { node.dependencies.push(payload.addDependencyOn) } else node.dependencies = payload.addDependencyOn
 							break
 						case 'conditionsremoved':
+							node.conditionalFor = payload.conditionsremoved
 							break
 						case 'dependenciesRemoved':
+							node.dependencies = payload.dependenciesRemoved
 							break
 						case 'inconsistentState':
 							node.data.inconsistentState = payload.inconsistentState
@@ -371,6 +373,12 @@ export default new Vuex.Store({
 							break
 						case 'productId':
 							node.productId = payload.productId
+							break
+						case 'removeLastConditionalFor':
+							node.conditionalFor = node.conditionalFor.slice(0, -1)
+							break
+						case 'removeLastDependencyOn':
+							node.dependencies = node.dependencies.slice(0, -1)
 							break
 						case 'reqarea':
 							node.data.reqarea = payload.reqarea

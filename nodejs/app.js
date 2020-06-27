@@ -2,7 +2,7 @@
 require('dotenv').config();
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
     "dependencyRemovedEvent", "descriptionEvent", "docRestoredEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removedFromParentEvent",
-    "setConditionsEvent", "setDependenciesEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
+    "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
     "removeSprintIdsEvent", "setTitleEvent", "uploadAttachmentEvent"];
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984');
 const atob = require('atob');
@@ -79,9 +79,21 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "commentToHistoryEvent":
             return mkHeader() + `<h3>The user added comment:</h3><p>${atob(value[0])}</p><h3>to the history of this item</h3>` + mkFooter()
         case "conditionRemovedEvent":
-            return mkHeader() + `<h3>The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.</h3>` + mkFooter()
+            {
+                let s
+                if (value[1]) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` }
+                else if (value[0].length === 1) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` }
+                else s = `The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
+                return mkHeader() + `<h3>${s}</h3>` + + mkFooter()
+            }
         case "dependencyRemovedEvent":
-            return mkHeader() + `<h3>The dependencies on items ${convertToShortIds(value[0])} (short Ids) were removed from this item.</h3>` + mkFooter()
+            {
+                let s
+                if (value[1]) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` }
+                else if (value[0].length === 1) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` }
+                else s = `The dependencies for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
+                return mkHeader() + `<h3>${s}</h3>` + + mkFooter()
+            }
         case "descriptionEvent":
             return mkHeader() + `<h3>The description changed from:</h3><p>${atob(value[0])}</p> to <p>${atob(value[1])}</p>` + mkFooter()
         case "docRestoredEvent":
@@ -111,9 +123,11 @@ function mkHtml(dbName, eventType, value, event, doc) {
             <p>From the descendants ${value[4]} external dependencies and ${value[5]} external conditions were removed.</p>` + mkFooter()
         case "removeSprintIdsEvent":
             return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>` + mkFooter()
-        case "setConditionsEvent":
+        case "setConditionEvent":
+            if (value[2]) return mkHeader() + `<h3>The previous condition set for item '${value[1]} is undone'.</h3>` + mkFooter()
             return mkHeader() + `<h3>This item is set to be conditional for item '${value[1]}'.</h3>` + mkFooter()
-        case "setDependenciesEvent":
+        case "setDependencyEvent":
+            if (value[2]) return mkHeader() + `<h3>The previous dependency set on item '${value[1]} is undone'.</h3>` + mkFooter()
             return mkHeader() + `<h3>This item is set to be dependent on item '${value[1]}'.</h3>` + mkFooter()
         case "setHrsEvent":
             return mkHeader() + `<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>` + mkFooter()

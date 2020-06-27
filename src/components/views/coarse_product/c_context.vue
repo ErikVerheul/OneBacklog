@@ -8,7 +8,8 @@
   >
     <template v-if="contextOptionSelected === SHOWDEPENDENCIES || contextOptionSelected === SHOWCONDITIONS">
       <template v-if="contextOptionSelected === SHOWDEPENDENCIES">
-        <p>Click on a red button to remove the dependency:</p>
+        <p>Click on a red button to remove the dependency:<br/>
+        (Use the Details view to remove dependencies on the PBI level)</p>
         <div v-for="(dependency) in dependenciesObjects" :key="dependency._id">
           <span>
             {{ dependency.title }}
@@ -22,7 +23,8 @@
         </div>
       </template>
       <template v-if="contextOptionSelected === SHOWCONDITIONS">
-        <p>Click on a red button to remove the condition for:</p>
+        <p>Click on a red button to remove the condition for:<br/>
+        (Use the Details view to remove conditions on the PBI level)</p>
         <div v-for="(condition) in conditionsObjects" :key="condition._id">
           <span>
             {{ condition.title }}
@@ -151,7 +153,7 @@
           :active="contextOptionSelected === SETDEPENDENCY"
           variant="dark"
           @click="showSelected(SETDEPENDENCY)"
-        >Select this node as a condition for '{{ getNodeWithDependencies().title }}'</b-list-group-item>
+        >Select this node as a condition for '{{ dependentOnNode.title }}'</b-list-group-item>
 
       </b-list-group>
 

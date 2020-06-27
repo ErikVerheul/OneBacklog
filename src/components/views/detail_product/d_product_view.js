@@ -230,7 +230,6 @@ const methods = {
     }
     // load the document if not already in memory
     if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
-      console.log('onNodesSelected: loading this.getNodeSelected.title = ' + this.getNodeSelected.title)
       this.$store.dispatch('loadDoc', { id: this.getNodeSelected._id })
     }
     const title = this.itemTitleTrunc(60, selNodes[0].title)

@@ -81,8 +81,8 @@ const computed = {
         if (keys[j] === "removeAttachmentEvent") allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
         if (keys[j] === "removedFromParentEvent") allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
         if (keys[j] === "removedWithDescendantsEvent") allText += this.mkRemovedWithDescendantsEvent(histItem[keys[j]])
-        if (keys[j] === "setConditionsEvent") allText += this.mkSetConditionsEvent(histItem[keys[j]])
-        if (keys[j] === "setDependenciesEvent") allText += this.mkSetDependenciesEvent(histItem[keys[j]])
+        if (keys[j] === "setConditionEvent") allText += this.mkSetConditionsEvent(histItem[keys[j]])
+        if (keys[j] === "setDependencyEvent") allText += this.mkSetDependenciesEvent(histItem[keys[j]])
         if (keys[j] === "setHrsEvent") allText += this.mkSetHrsEvent(histItem[keys[j]])
         if (keys[j] === "setPointsEvent") allText += this.mkSetPointsEvent(histItem[keys[j]])
         if (keys[j] === "setSizeEvent") allText += this.mkSetSizeEvent(histItem[keys[j]])
@@ -157,8 +157,8 @@ const methods = {
     if (key === "removeAttachmentEvent") return this.mkRemoveAttachmentEvent(value)
     if (key === "removedFromParentEvent") return this.mkRemovedFromParentEvent(value)
     if (key === "removedWithDescendantsEvent") return this.mkRemovedWithDescendantsEvent(value)
-    if (key === "setConditionsEvent") return this.mkSetConditionsEvent(value)
-    if (key === "setDependenciesEvent") return this.mkSetDependenciesEvent(value)
+    if (key === "setConditionEvent") return this.mkSetConditionsEvent(value)
+    if (key === "setDependencyEvent") return this.mkSetDependenciesEvent(value)
     if (key === "setHrsEvent") return this.mkSetHrsEvent(value)
     if (key === "setPointsEvent") return this.mkSetPointsEvent(value)
     if (key === "setSizeEvent") return this.mkSetSizeEvent(value)
@@ -208,11 +208,19 @@ const methods = {
   },
 
   mkConditionRemovedEvent(value) {
-    return `<h5>The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.</h5>`
+    let s
+    if (value[1]) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.`}
+    else if (value[0].length === 1) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` }
+    else s = `The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
+    return `<h5>${s}</h5>`
   },
 
   mkDependencyRemovedEvent(value) {
-    return `<h5>The dependencies on items ${convertToShortIds(value[0])} (short Ids) were removed from this item.</h5>`
+    let s
+    if (value[1]) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.`}
+    else if (value[0].length === 1) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` }
+    else s = `The dependencies for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
+    return `<h5>${s}</h5>`
   },
 
   mkSetSizeEvent(value) {
@@ -297,12 +305,14 @@ const methods = {
     return `<h5>This item and ${value[0]} descendants are restored from removal.</h5>`
   },
 
-  mkSetDependenciesEvent(value) {
-    return `<h5>This item is set to be dependent on item '${value[1]}'.</h5>`
+  mkSetConditionsEvent(value) {
+    if (value[2]) return `<h5>The previous condition set for item '${value[1]} is undone'.</h5>`
+    return `<h5>This item is set to be conditional for item '${value[1]}'.</h5>`
   },
 
-  mkSetConditionsEvent(value) {
-    return `<h5>This item is set to be conditional for item '${value[1]}'.</h5>`
+  mkSetDependenciesEvent(value) {
+    if (value[2]) return `<h5>The previous dependency set on item '${value[1]} is undone'.</h5>`
+    return `<h5>This item is set to be dependent on item '${value[1]}'.</h5>`
   },
 
   mkBy(value) {

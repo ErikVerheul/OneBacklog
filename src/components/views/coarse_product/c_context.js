@@ -42,11 +42,11 @@ const methods = {
 
   showSelected(idx) {
     function checkNode(vm, selNode) {
-      if (selNode._id === vm.nodeWithDependenciesId) {
+      if (selNode._id === vm.dependentOnNode._id) {
         vm.contextWarning = "WARNING: Item cannot be dependent on it self"
         return false
       }
-      const nodeWithDependencies = vm.getNodeWithDependencies()
+      const nodeWithDependencies = vm.dependentOnNode
       if (nodeWithDependencies.dependencies.includes(selNode._id)) {
         vm.contextWarning = "WARNING: Cannot add the same dependency twice"
         return false

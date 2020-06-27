@@ -368,7 +368,7 @@ const methods = {
         }
     },
 
-    /* Remove the dependency from the view only, not yet in the database. */
+    /* Remove the dependency from the modal view only, not yet in the database and tree model. */
     removeDependency(id) {
         const objArray = []
         for (let depObj of this.dependenciesObjects) {
@@ -377,7 +377,7 @@ const methods = {
         this.dependenciesObjects = objArray
     },
 
-    /* Remove the condition from the view only, not yet in the database. */
+    /* Remove the condition from the modal view only, not yet in the database and tree model. */
     removeCondition(id) {
         const objArray = []
         for (let conObj of this.conditionsObjects) {
@@ -396,24 +396,7 @@ const methods = {
         for (let id of this.contextNodeSelected.dependencies) {
             if (!depIdArray.includes(id)) removedIds.push(id)
         }
-        // update the dependencies in the tree
-        this.contextNodeSelected.dependencies = depIdArray
-        // dispatch the update in the database
-        this.$store.dispatch('removeDependenciesAsync', { _id: this.contextNodeSelected._id, newDeps: depIdArray, removedIds, timestamp: Date.now() })
-        // update the conditions in the tree
-        for (let id of removedIds) {
-            const node = window.slVueTree.getNodeById(id)
-            if (node === null) {
-                this.showLastEvent('Unexpected error. Node not found.', ERROR)
-                break
-            }
-
-            const conIdArray = []
-            for (let condId of node.conditionalFor) {
-                if (condId !== this.contextNodeSelected._id) conIdArray.push(id)
-            }
-            node.conditionalFor = conIdArray
-        }
+        this.$store.dispatch('removeDependenciesAsync', { node: this.contextNodeSelected, newDeps: depIdArray, removedIds, timestamp: Date.now() })
     },
 
     /* Update the conditions and the corresponding dependencies in the tree model and the database. */
@@ -426,24 +409,7 @@ const methods = {
         for (let id of this.contextNodeSelected.conditionalFor) {
             if (!conIdArray.includes(id)) removedIds.push(id)
         }
-        // update the conditions in the tree
-        this.contextNodeSelected.conditionalFor = conIdArray
-        // dispatch the update in the database
-        this.$store.dispatch('removeConditionsAsync', { _id: this.contextNodeSelected._id, newCons: conIdArray, removedIds })
-        // update the dependencies in the tree
-        for (let id of removedIds) {
-            const node = window.slVueTree.getNodeById(id)
-            if (node === null) {
-                this.showLastEvent('Unexpected error. Node not found.', ERROR)
-                break
-            }
-
-            const depIdArray = []
-            for (let depId of node.dependencies) {
-                if (depId !== this.contextNodeSelected._id) depIdArray.push(id)
-            }
-            node.dependencies = depIdArray
-        }
+        this.$store.dispatch('removeConditionsAsync', { node: this.contextNodeSelected, newCons: conIdArray, removedIds, timestamp: Date.now() })
     },
 
     doCancel() {
