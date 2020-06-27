@@ -124,7 +124,7 @@ const actions = {
 					// process events on tree items that are loaded (eg. 'products overview' has no pbi and task items)
 					const isCurrentDocument = doc._id === rootState.currentDoc._id
 					if (isCurrentDocument) {
-						// show this history update
+						// replace the history of the currently opened document; do not add newHist when caling updateNodesAndCurrentDoc
 						rootState.currentDoc.history = doc.history
 					}
 					let node = window.slVueTree.getNodeById(doc._id)
@@ -152,10 +152,10 @@ const actions = {
 					// process other events for tree views
 					switch (histEvent) {
 						case 'acceptanceEvent':
-							commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: doc.acceptanceCriteria, lastContentChange: doc.lastContentChange, newHist: doc.history[0] })
+							commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: doc.acceptanceCriteria, lastContentChange: doc.lastContentChange })
 							break
 						case 'commentToHistoryEvent':
-							commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: doc.lastCommentToHistory, newHist: doc.history[0] })
+							commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: doc.lastCommentToHistory })
 							break
 						case 'createTaskEvent':
 						case 'createEvent':
@@ -214,17 +214,17 @@ const actions = {
 									nodeModel: locationInfo.prevNode,
 									placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 								}, [node])
-								// do not cimmit any cahnges to the tree model. As the user has to navigate to the new node the data will be loaded.
+								// do not commit any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
 							}
 							break
 						case 'conditionRemovedEvent':
-							commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange, newHist: doc.history[0] })
+							commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange })
 							break
 						case 'dependencyRemovedEvent':
-							commit('updateNodesAndCurrentDoc', { node, dependenciesRemoved: doc.dependencies, lastChange: doc.lastChange, newHist: doc.history[0] })
+							commit('updateNodesAndCurrentDoc', { node, dependenciesRemoved: doc.dependencies, lastChange: doc.lastChange })
 							break
 						case 'descriptionEvent':
-							commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastHistoryTimestamp: node.data.lastContentChange, newHist: doc.history[0] })
+							commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastHistoryTimestamp: node.data.lastContentChange })
 							break
 						case 'docRestoredEvent':
 							{	// node	is restored from a previous removal
@@ -271,13 +271,13 @@ const actions = {
 											placement: 'after'
 										}, [node], false)
 									}
-									if (item[13] == 'move') node.data.lastPositionChange = lastHistoryTimestamp
-									if (item[13] == 'undoMove') node.data.lastPositionChange = item[14]
+									if (item[13] == 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
+									if (item[13] == 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: item[14] })
 								}
 							}
 							break
 						case 'removeAttachmentEvent':
-							node.data.lastAttachmentAddition = 0
+							commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: 0 })
 							break
 						case 'removedWithDescendantsEvent':
 							if (doc.delmark) {
@@ -308,57 +308,54 @@ const actions = {
 						case 'setConditionEvent':
 							if (lastHistObj.setConditionEvent[2]) {
 								// undo single addition
-								commit('updateNodesAndCurrentDoc', { node, removeLastConditionalFor: null, lastChange: doc.lastChange, newHist: doc.history[0] })
-							} else commit('updateNodesAndCurrentDoc', { node, addConditionalFor: doc.conditionalFor.slice(-1), lastChange: doc.lastChange, newHist: doc.history[0] })
+								commit('updateNodesAndCurrentDoc', { node, removeLastConditionalFor: null, lastChange: doc.lastChange })
+							} else commit('updateNodesAndCurrentDoc', { node, addConditionalFor: doc.conditionalFor.slice(-1), lastChange: doc.lastChange })
 							break
 						case 'setDependencyEvent':
 							if (lastHistObj.setDependencyEvent[2]) {
 								// undo single addition
-								commit('updateNodesAndCurrentDoc', { node, removeLastDependencyOn: null, lastChange: doc.lastChange, newHist: doc.history[0] })
-							} else commit('updateNodesAndCurrentDoc', { node, addDependencyOn: doc.dependencies.slice(-1), lastChange: doc.lastChange, newHist: doc.history[0] })
+								commit('updateNodesAndCurrentDoc', { node, removeLastDependencyOn: null, lastChange: doc.lastChange })
+							} else commit('updateNodesAndCurrentDoc', { node, addDependencyOn: doc.dependencies.slice(-1), lastChange: doc.lastChange })
 							break
 						case 'setHrsEvent':
-							if (isCurrentDocument) rootState.currentDoc.spikepersonhours = doc.spikepersonhours
+							commit('updateNodesAndCurrentDoc', { node, spikepersonhours: doc.spikepersonhours, lastChange: doc.lastChange })
 							break
 						case 'setPointsEvent':
-							if (isCurrentDocument) rootState.currentDoc.spsize = doc.spsize
+							commit('updateNodesAndCurrentDoc', { node, spsize: doc.spsize, lastChange: doc.lastChange })
 							break
 						case 'setSizeEvent':
-							if (isCurrentDocument) rootState.currentDoc.tssize = doc.tssize
+							commit('updateNodesAndCurrentDoc', { node, tssize: doc.tssize, lastChange: doc.lastChange })
 							break
 						case 'setStateEvent':
-							node.data.state = doc.state
-							node.data.lastStateChange = lastHistoryTimestamp
-							if (isCurrentDocument) rootState.currentDoc.state = doc.state
+							commit('updateNodesAndCurrentDoc', { node, state: doc.state, lastStateChange: doc.lastStateChange })
 							break
 						case 'setSubTypeEvent':
-							node.data.subtype = doc.subtype
-							if (isCurrentDocument) rootState.currentDoc.subtype = doc.subtype
+							commit('updateNodesAndCurrentDoc', { node, subtype: doc.subtype, lastChange: doc.lastChange })
 							break
 						case 'setTeamOwnerEvent':
-							node.data.team = doc.team
-							if (isCurrentDocument) rootState.currentDoc.team = doc.team
+							commit('updateNodesAndCurrentDoc', { node, team: doc.team, lastChange: doc.lastChange })
 							break
 						case 'setTitleEvent':
-							node.title = doc.title
-							node.data.lastContentChange = lastHistoryTimestamp
-							if (isCurrentDocument) rootState.currentDoc.title = doc.title
+							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
 							break
 						case 'uploadAttachmentEvent':
-							node.data.lastAttachmentAddition = lastHistoryTimestamp
+							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastAttachmentAddition: doc.lastAttachmentAddition })
 							break
 						case 'addSprintIdsEvent':
-							node.data.sprintId = doc.sprintId
-							if (isCurrentDocument) rootState.currentDoc.sprintId = doc.sprintId
+							commit('updateNodesAndCurrentDoc', { node, sprintId: doc.sprintId, lastChange: doc.lastChange })
 							break
 						case 'removeSprintIdsEvent':
-							node.sprintId = undefined
-							if (isCurrentDocument) rootState.currentDoc.sprintId = undefined
+							commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
 							break
+						/////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
 						case 'taskRemovedEvent':
 							node.data.state = REMOVED
 							node.data.lastStateChange = Date.now()
-							if (isCurrentDocument) rootState.currentDoc.state = REMOVED
+							if (isCurrentDocument) {
+								rootState.currentDoc.state = REMOVED
+								// show this history update
+								rootState.currentDoc.history = doc.history
+							}
 							break
 						case 'updateTaskOrderEvent':
 							if (rootState.lastTreeView === 'detailProduct') {
