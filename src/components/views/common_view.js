@@ -510,12 +510,15 @@ const methods = {
       let size = document.getElementById("tShirtSizeId").value.toUpperCase()
       const sizeArray = this.$store.state.configData.tsSize
       if (sizeArray.includes(size)) {
-        this.$store.dispatch('setTsSize', {
-          node,
-          newSizeIdx: sizeArray.indexOf(size),
-          timestamp: Date.now(),
-          createUndo: true
-        })
+        const newSizeIdx = sizeArray.indexOf(size)
+        if (newSizeIdx !== this.$store.state.currentDoc.tssize) {
+          this.$store.dispatch('setTsSize', {
+            node,
+            newSizeIdx,
+            timestamp: Date.now(),
+            createUndo: true
+          })
+        }
       } else {
         let sizes = ''
         for (let i = 0; i < sizeArray.length - 1; i++) {
@@ -535,12 +538,15 @@ const methods = {
         el.value = '?'
         return
       }
-      this.$store.dispatch('setStoryPoints', {
-        node,
-        newPoints: parseInt(el.value),
-        timestamp: Date.now(),
-        createUndo: true
-      })
+      const newPoints = parseInt(el.value)
+      if (newPoints !== this.$store.state.currentDoc.spsize) {
+        this.$store.dispatch('setStoryPoints', {
+          node,
+          newPoints,
+          timestamp: Date.now(),
+          createUndo: true
+        })
+      }
     }
   },
 
@@ -552,12 +558,15 @@ const methods = {
         el.value = '?'
         return
       }
-      this.$store.dispatch('setPersonHours', {
-        node,
-        newHrs: el.value,
-        timestamp: Date.now(),
-        createUndo: true
-      })
+      const newHrs = el.value
+      if (newHrs !== this.$store.state.currentDoc.spikepersonhours) {
+        this.$store.dispatch('setPersonHours', {
+          node,
+          newHrs,
+          timestamp: Date.now(),
+          createUndo: true
+        })
+      }
     }
   },
 
@@ -582,8 +591,8 @@ const methods = {
           // node has a higher state than any of its descendants or set to done while one of its descendants is not done
           vm.$store.commit('updateNodesAndCurrentDoc', { node, inconsistentState: true })
           if (newState === vm.doneState && !allDone) {
-            vm.showLastEvent("You are assigning an inconsistant state to this node. Not all descendants are done.", WARNING)
-          } else vm.showLastEvent(`You are assigning an inconsistant state to this node. You can set it to '${vm.getItemStateText(highestState)}'.`, WARNING)
+            vm.showLastEvent("You are assigning an inconsistant state to this item. Not all descendants are done.", WARNING)
+          } else vm.showLastEvent(`You are assigning an inconsistant state to this item. None of the item's descendants reached this state.`, WARNING)
         } else {
           vm.$store.commit('updateNodesAndCurrentDoc', { node, inconsistentState: false })
           vm.clearLastEvent()
@@ -592,20 +601,21 @@ const methods = {
 
       vm.$store.dispatch('setState', {
         node,
-        newState: newState,
+        newState,
         position: vm.getNodeSelected.ind,
         timestamp: Date.now(),
         createUndo: true
       })
     }
-
-    if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
-      changeState(this)
-      const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
-      if (parentNode._id != 'root') {
-        if (parentNode.data.team !== this.myTeam) {
-          this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
-            this.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
+    if (newState !== this.$store.state.currentDoc.state) {
+      if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
+        changeState(this)
+        const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
+        if (parentNode._id != 'root') {
+          if (parentNode.data.team !== this.myTeam) {
+            this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
+              this.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
+          }
         }
       }
     }
