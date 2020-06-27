@@ -594,9 +594,11 @@ const actions = {
 							}
 					}
 				}
-			} catch (err) {
+			} catch (error) {
+				let msg = 'Listening for changes made by other users failed while processing document with id ' + doc._id + ', ' + error
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('Sync: doProc failed processing document with id = ' + doc._id)
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: WARNING })
 			}
 		}
 
@@ -653,6 +655,7 @@ const actions = {
 			for (let r of data.results) {
 				let doc = r.doc
 				if (doc.type == "backlogItem" && (doc.history[0].sessionId !== rootState.userData.sessionId && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent))) {
+					// filter on distributed events in backlog items and from other sessions (not the session that created the events)
 					dispatch('processDoc', doc)
 				}
 			}
