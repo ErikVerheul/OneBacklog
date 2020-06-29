@@ -538,6 +538,16 @@ const actions = {
 								}
 							}
 							break
+						case 'setSubTypeEvent':
+							if (doc.sprintId === rootState.loadedSprintId && doc.level === PBILEVEL) {
+								for (let s of rootState.stories) {
+									if (s.storyId === doc._id) {
+										s.subType = doc.subtype
+										break
+									}
+								}
+							}
+							break
 						case 'setTeamOwnerEvent':
 							// the item is now uwned by my team ToDo: if the item is a task insert direct without reload
 							dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
