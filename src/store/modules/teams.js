@@ -1,6 +1,6 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
+const WARNING = 1
 const ERROR = 2
 
 const actions = {
@@ -150,6 +150,7 @@ const actions = {
 	updateTeamsInDb({
 		rootState,
 		rootGetters,
+		commit,
 		dispatch
 	}, payload) {
 		const dbName = payload.dbName
@@ -167,6 +168,15 @@ const actions = {
 					if (doc.teamName === payload.newTeam) newTeamDoc = doc
 				}
 				if (oldTeamDoc && newTeamDoc) {
+					if (newTeamDoc.teamCalendar && newTeamDoc.teamCalendar.length > 0) {
+						// check if the teamcalendar needs to be extended
+						const lastTeamSprint = newTeamDoc.teamCalendar.slice(-1)[0]
+						if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
+							commit('showLastEvent', { txt: `Team '${newTeamDoc.teamName}' ran out of sprints. You cannot join this team until your PO creates new sprints`, severity: WARNING })
+							return
+						}
+					}
+
 					const oldTeamDocNewMembers = []
 					for (let m of oldTeamDoc.members) {
 						if (m !== payload.userName) oldTeamDocNewMembers.push(m)
@@ -214,6 +224,9 @@ const actions = {
 						}
 					}
 					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc, toDispatch })
+				} else {
+					if (!oldTeamDoc) commit('showLastEvent', { txt: `Team '${payload.oldTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: WARNING })
+					if (!newTeamDoc) commit('showLastEvent', { txt: `Team '${payload.newTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: WARNING })
 				}
 			}).catch(error => {
 				let msg = `updateTeamInDb: Could not read the teams in database '${dbName}', ${error}`
@@ -223,8 +236,7 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			})
 		}
-	},
-
+	}
 }
 
 export default {
