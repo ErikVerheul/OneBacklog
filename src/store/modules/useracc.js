@@ -1,6 +1,5 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-const INFO = 0
 const ERROR = 2
 
 const state = {
@@ -131,34 +130,6 @@ const actions = {
 			dispatch('updateUser', { data: tmpUserData })
 		}).catch(error => {
 			let msg = 'saveMyFilterSettings: User ' + rootState.userData.user + ' cannot save the product filter settings. Error = ' + error
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	changeTeam({
-		rootState,
-		commit,
-		dispatch
-	}, newTeam) {
-		globalAxios({
-			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
-		}).then(res => {
-			// update the user data, the planningBoard.vue listens to this change and will repaint if in view
-			commit('updateTeam', newTeam)
-			let tmpUserData = res.data
-			const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
-			tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
-			dispatch('updateUser', { data: tmpUserData })
-			// update the team membership
-			dispatch('updateTeamsInDb', { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam })
-			let msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + newTeam
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: INFO })
-		}).catch(error => {
-			let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + '. Error = ' + error
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
@@ -364,6 +335,14 @@ const actions = {
 			}
 			// execute passed callback if provided
 			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+			// additional dispatches
+			if (payload.toDispatch) {
+				for (let name of Object.keys(payload.toDispatch)) {
+					// eslint-disable-next-line no-console
+					if (rootState.debug) console.log('updateUser: dispatching ' + name)
+					dispatch(name, payload.toDispatch[name])
+				}
+			}
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + payload.data.name + "' is updated successfully" })
 		}).catch(error => {
 			// execute passed callback if provided

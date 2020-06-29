@@ -1,9 +1,30 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
+const INFO = 0
 const WARNING = 1
 const ERROR = 2
 
 const actions = {
+	changeTeam({
+		rootState,
+		dispatch
+	}, newTeam) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+		}).then(res => {
+			let tmpUserData = res.data
+			const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
+			tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
+			const toDispatch = { 'updateTeamsInDb': { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } }
+			dispatch('updateUser', { data: tmpUserData, toDispatch })
+		}).catch(error => {
+			let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + '. Error = ' + error
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	addTeamToDb({
 		rootState,
 		dispatch
@@ -220,6 +241,12 @@ const actions = {
 										rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
 									}
 								}
+								// update the user data, the planningBoard.vue listens to this change and will repaint if in view
+								commit('updateTeam', payload.newTeam)
+								let msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + payload.newTeam
+								// eslint-disable-next-line no-console
+								if (rootState.debug) console.log(msg)
+								dispatch('doLog', { event: msg, level: INFO })
 							},
 						}
 					}
