@@ -228,10 +228,6 @@ const utilities = {
 					break
 				}
 			}
-			if (!currentSprint || !nextSprint) {
-				alert("Error: No current and next sprint are defined in the sprint calendar. Consult your administrator. The application will exit.")
-				router.replace('/')
-			}
 			return { currentSprint, nextSprint }
 		},
 
