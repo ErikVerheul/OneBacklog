@@ -6,6 +6,12 @@ import router from '../../router'
 const INFO = 0
 const ERROR = 2
 
+function createId() {
+    // A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
+    const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
+    return Date.now().toString().concat(ext)
+}
+
 const actions = {
 	/*
 	* Order of execution:
@@ -14,8 +20,8 @@ const actions = {
 	* 3. getAllProducts and call updateUser if databases or products are missing
     * 4. getConfig
     * 5. getAllTeams and load the team calendar if present
-    * 6. getRoot
-    * 7. route to products view
+    * 6. if the team calendar is present and ran out of sprints, extend this calender with new sprints and save the team document
+    * 7. getRoot and route to products view
 	*/
 
     /* Get all non-backup or system database names */
@@ -200,9 +206,23 @@ const actions = {
                     }
             } else {
                 if (rootState.configData.defaultSprintCalendar) {
-                    // assign the default calender to the sprint calendar; this calendar will be replaced if a team has its own calendar
-                    rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
-                    dispatch('getAllTeams')
+                    const lastSprint = rootState.configData.defaultSprintCalendar.slice(-1)[0]
+                    if (lastSprint.startTimestamp - lastSprint.sprintLength < Date.now()) {
+                        // sprint calendar ran out of sprints
+                        if (rootGetters.isAdmin) {
+                            alert("Error: The default sprint calendar ran out of sprints. You will be redirected to the Admin view where you can extend the calendar.")
+                            commit('mustCreateDefaultCalendar')
+                            router.replace('/admin')
+                        } else {
+                            alert("Error: The default sprint calendar ran out of sprints. Consult your administrator. The application will exit.")
+                            commit('resetData', null, { root: true })
+                            router.replace('/')
+                        }
+                    } else {
+                        // assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
+                        rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+                        dispatch('getAllTeams')
+                    }
                 } else {
                     // missing calendar
                     if (rootGetters.isAdmin) {
@@ -233,22 +253,106 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/teams',
         }).then(res => {
-            // save in memory
             const teams = res.data.rows
-			for (let t of teams) {
+            let userInATeam = false
+            for (let t of teams) {
                 rootState.allTeams[t.key] = { id: t.id, members: t.value }
                 if (rootState.userData.myTeam === t.key) {
+                    userInATeam = true
                     // load team calendar if present
                     dispatch('loadTeamCalendar', t.id)
                 }
             }
-            dispatch('getRoot')
+            if (!userInATeam) {
+                // continue to load the tree model
+                dispatch('getRoot')
+            }
         }).catch(error => {
             let msg = `getAllTeams: Could not read the teams in database '${rootState.userData.currentDb}', ${error}`
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
         })
+    },
+
+    /*
+	* Load the team calendar by _id and if present make it the current team's calendar.
+	* If the team calendar does not exist replace the current calendar with the default calendar.
+	*/
+    loadTeamCalendar({
+        rootState,
+        rootGetters,
+        dispatch
+    }, _id) {
+        globalAxios({
+            method: 'GET',
+            url: rootState.userData.currentDb + '/' + _id,
+        }).then(res => {
+            const doc = res.data
+            if (doc.teamCalendar && doc.teamCalendar.length > 0) {
+                // the team calendar is present; check if the team calendar needs to be extended
+                const lastTeamSprint = doc.teamCalendar.slice(-1)[0]
+                if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
+                    dispatch('extendTeamCalendar', doc)
+                } else {
+                    // replace the defaultSprintCalendar or other team calendar with this team calendar
+                    rootState.sprintCalendar = doc.teamCalendar
+                    dispatch('getRoot')
+                }
+            } else {
+                // eslint-disable-next-line no-console
+                console.log('loadTeamCalendar: No team calendar found')
+                if (rootGetters.teamCalendarInUse) {
+                    // replace the team calendar with the default
+                    rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+                }
+                dispatch('getRoot')
+            }
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log('loadTeamCalendar: document with _id ' + _id + ' is loaded.')
+        }).catch(error => {
+            let msg = 'loadTeamCalendar: Could not read document with _id ' + _id + ', ' + error
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
+
+    extendTeamCalendar({
+        rootState,
+        dispatch
+    }, doc) {
+        const extTeamCalendar = doc.teamCalendar.slice()
+        function createName(prevSprintName) {
+            if (prevSprintName.startsWith('sprint-')) {
+                const prevSprintNrStr = prevSprintName.substr(7)
+                const prevSprintNr = parseInt(prevSprintNrStr)
+                return 'sprint-' + (prevSprintNr + 1)
+            }
+        }
+        let newSprintCount = 0
+        while (extTeamCalendar.slice(-1)[0].startTimestamp - extTeamCalendar.slice(-1)[0].sprintLength < Date.now()) {
+            const prevSprint = extTeamCalendar.slice(-1)[0]
+            const newSprint = {
+                "id": createId(),
+                "name": createName(prevSprint.name),
+                "startTimestamp": prevSprint.startTimestamp + prevSprint.sprintLength,
+                "sprintLength": prevSprint.sprintLength
+            }
+            newSprintCount++
+            extTeamCalendar.push(newSprint)
+            const msg = `The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: INFO })
+        }
+
+        doc.teamCalendar = extTeamCalendar
+        // replace the defaultSprintCalendar or other team calendar with this team calendar
+        rootState.sprintCalendar = extTeamCalendar
+        // update the team with the extended team calendar and continue loading the tree model
+        const toDispatch = { getRoot: null }
+        dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch })
     },
 
     /* Load the root of the backlog items into the current document */
@@ -275,44 +379,8 @@ const actions = {
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
         })
-    },
+    }
 
-    /*
-	* Load the team calendar by _id and if existing make it the current team's calendar.
-	* If the team calendar does not exist replace the current calendat with the default calendar.
-	*/
-	loadTeamCalendar({
-		rootState,
-		rootGetters,
-		dispatch
-	}, _id) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
-		}).then(res => {
-			const doc = res.data
-			if (doc.type === 'team') {
-				if (doc.teamCalendar && doc.teamCalendar.length > 0) {
-					// replace the defaultSprintCalendar or other team calendar with this team calendar
-					rootState.sprintCalendar = doc.teamCalendar
-				} else {
-					// eslint-disable-next-line no-console
-					console.log('loadTeamCalendar: No team calendar found')
-					if (rootGetters.teamCalendarInUse) {
-						// replace the team calendar with the default
-						rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
-					}
-				}
-			}
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('loadTeamCalendar: document with _id ' + _id + ' is loaded.')
-		}).catch(error => {
-			let msg = 'loadTeamCalendar: Could not read document with _id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	}
 }
 
 export default {
