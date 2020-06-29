@@ -1,6 +1,6 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
+const INFO = 0
 const ERROR = 2
 const PRODUCTLEVEL = 2
 const AREA_PRODUCTID = '0'
@@ -239,6 +239,7 @@ const actions = {
                         entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
                     }
                     rootState.changeHistory.unshift(entry)
+                    if (payload.showUndoneMsg) commit('showLastEvent', { txt: `Item creation is undone`, severity: INFO })
                 }
             })
         }).catch(error => {

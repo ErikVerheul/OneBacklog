@@ -293,7 +293,7 @@ const methods = {
     if (this.$store.state.currentDoc.level === TASKLEVEL) {
       itemIds = [currentId]
     }
-    this.$store.dispatch('removeSprintIds', { parentId: currentId, sprintId, itemIds, sprintName: this.getSprintName(sprintId), createUndo: false })
+    this.$store.dispatch('removeSprintIds', { parentId: currentId, sprintId, itemIds, sprintName: this.getSprintName(sprintId) })
   }
 }
 

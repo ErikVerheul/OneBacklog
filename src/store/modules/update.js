@@ -274,7 +274,7 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					}
+					} else commit('showLastEvent', { txt: `Change of item T-shirt size is undone`, severity: INFO })
 				}
 			})
 		}).catch(error => {
@@ -324,7 +324,7 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					}
+					} else commit('showLastEvent', { txt: `Change of spike person hours is undone`, severity: INFO })
 				}
 			})
 		}).catch(error => {
@@ -374,7 +374,7 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					}
+					} else commit('showLastEvent', { txt: `Change of item story points is undone`, severity: INFO })
 				}
 			})
 		}).catch(error => {
@@ -386,7 +386,6 @@ const actions = {
 	},
 
 	/* When called from the planning board the tree is aldo updated with the new state */
-	// ToDo: add previous team to undo, remove timestamp from payload
 	setState({
 		rootState,
 		commit,
@@ -417,8 +416,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					if (payload.newTeam) node.data.team = payload.newTeam
-					commit('updateNodesAndCurrentDoc', { state: payload.newState, team: payload.newTeam, lastStateChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { state: payload.newState, lastStateChange: payload.timestamp, newHist })
 					// recalculate and (re)set the inconsistency state of the parent item
 					const parentNode = window.slVueTree.getParentNode(node)
 					if (parentNode && parentNode.data.state === DONE) {
@@ -444,6 +442,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					}
+					if (payload.showUndoneMsg) commit('showLastEvent', { txt: `Change of item state is undone`, severity: INFO })
 				}
 			})
 		}).catch(error => {
@@ -508,7 +507,7 @@ const actions = {
 								prevLastChange
 							}
 							rootState.changeHistory.unshift(entry)
-						}
+						} else commit('showLastEvent', { txt: `Change of owning team is undone`, severity: INFO })
 					}
 				})
 			}
@@ -616,7 +615,7 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					}
+					} else commit('showLastEvent', { txt: `Change of item title is undone`, severity: INFO })
 				}
 			})
 		}).catch(error => {
@@ -665,7 +664,7 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					}
+					} else commit('showLastEvent', { txt: `Change of item type is undone`, severity: INFO })
 				}
 			})
 		}).catch(error => {
@@ -718,7 +717,7 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					}
+					} else commit('showLastEvent', { txt: `Change of item description type is undone`, severity: INFO })
 				}
 			})
 		}).catch(error => {
@@ -771,7 +770,7 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					}
+					} else commit('showLastEvent', { txt: `Change of item acceptance criteria type is undone`, severity: INFO })
 				}
 			})
 		}).catch(error => {

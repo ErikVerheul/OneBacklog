@@ -357,60 +357,37 @@ const methods = {
     switch (entry.type) {
       case 'undoAddSprintIds':
         this.$store.dispatch('removeSprintIds', { parentId: entry.parentId, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName })
-        this.showLastEvent('Item(s) to sprint assignment is undone', INFO)
         break
       case 'undoSelectedPbiType':
         this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange })
-        this.showLastEvent('Change of item type is undone', INFO)
         break
       case 'undoDescriptionChange':
         this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange })
-        this.showLastEvent('Change of item description type is undone', INFO)
         break
       case 'undoAcceptanceChange':
         this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange })
-        this.showLastEvent('Change of item acceptance criteria type is undone', INFO)
         break
       case 'undoTsSizeChange':
         this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange })
-        this.showLastEvent('Change of item T-shirt size is undone', INFO)
         break
       case 'undoStoryPointsChange':
         this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange })
-        this.showLastEvent('Change of item story points is undone', INFO)
         break
       case 'undoPersonHoursChange':
         this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange })
-        this.showLastEvent('Change of spike person hours is undone', INFO)
         break
       case 'undoChangeTeam':
         this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange })
-        this.showLastEvent('Change of owning team is undone', INFO)
         break
       case 'undoStateChange':
-        // reset inconsistency mark if set
-        entry.node.data.inconsistentState = false
-        this.$store.dispatch('setState', {
-          node: entry.node,
-          newState: entry.oldState,
-          position: entry.node.ind,
-          timestamp: entry.prevLastChange
-        })
-        this.showLastEvent('Change of item state is undone', INFO)
+        this.$store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, showUndoneMsg: true })
         break
       case 'undoTitleChange':
         this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange })
-        this.showLastEvent('Change of item title is undone', INFO)
         break
       case 'undoNewNode':
         if (window.slVueTree.remove([entry.newNode])) {
-          this.$store.dispatch('removeItemAndDescendents', {
-            productId: entry.newNode.productId,
-            node: entry.newNode,
-            descendantsInfo: [],
-            sprintIds: []
-          })
-          this.showLastEvent('Item addition is undone', INFO)
+          this.$store.dispatch('removeItemAndDescendents', { productId: entry.newNode.productId, node: entry.newNode, descendantsInfo: [], sprintIds: [] })
         } else this.showLastEvent('Item was already removed', INFO)
         break
       case 'undoMove':
@@ -433,7 +410,6 @@ const methods = {
         break
       case 'undoRemoveSprintIds':
         this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
-        this.showLastEvent('Item(s) from sprint removal is undone', INFO)
         break
       case 'undoSetDependency':
         this.$store.dispatch('undoSetDependencyAsync', entry)
@@ -599,13 +575,7 @@ const methods = {
         }
       }
 
-      vm.$store.dispatch('setState', {
-        node,
-        newState,
-        position: vm.getNodeSelected.ind,
-        timestamp: Date.now(),
-        createUndo: true
-      })
+      vm.$store.dispatch('setState', { node, newState, position: vm.getNodeSelected.ind, timestamp: Date.now(), createUndo: true })
     }
     if (newState !== this.$store.state.currentDoc.state) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {

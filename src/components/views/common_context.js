@@ -363,7 +363,8 @@ const methods = {
                 productId: selectedNode.productId,
                 node: selectedNode,
                 descendantsInfo,
-                sprintIds: selectedNode.data.sprintId ? [selectedNode.data.sprintId] : []
+                sprintIds: selectedNode.data.sprintId ? [selectedNode.data.sprintId] : [],
+                showUndoneMsg: true
             })
         }
     },

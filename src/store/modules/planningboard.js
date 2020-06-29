@@ -1,6 +1,6 @@
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
+const INFO = 0
 const ERROR = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
@@ -213,12 +213,7 @@ const actions = {
 			}
 
 			const node = window.slVueTree.getNodeById(newTaskId)
-			if (node) dispatch('setState', {
-				node,
-				newState: payload.state,
-				position: newTaskPosition,
-				'timestamp': Date.now(),
-			})
+			if (node) dispatch('setState', { node, newState: payload.state, position: newTaskPosition, 'timestamp': Date.now() })
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
 				// task changed position, task did not change state
@@ -455,7 +450,7 @@ const actions = {
 								sprintName: payload.sprintName
 							}
 							rootState.changeHistory.unshift(entry)
-						}
+						} else commit('showLastEvent', { txt: `Item(s) from sprint removal is undone`, severity: INFO })
 					}
 				})
 			}
@@ -539,6 +534,7 @@ const actions = {
 						sprintName: payload.sprintName
 					}
 					rootState.changeHistory.unshift(entry)
+					commit('showLastEvent', { txt: `Item(s) to sprint assignment is removed`, severity: INFO })
 				}
 			})
 		}).catch(e => {
