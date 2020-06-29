@@ -2,6 +2,7 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 const INFO = 0
 const ERROR = 2
+const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
 const REMOVED = 0
@@ -30,6 +31,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		rootState.stories = []
+		const featureResults = []
 		const storieResults = []
 		const taskResults = []
 		globalAxios({
@@ -40,11 +42,12 @@ const actions = {
 			rootState.loadedSprintId = payload.sprintId
 			const results = res.data.rows
 			for (let r of results) {
-				const level = r.key[3]
+				const level = r.key[4]
+				if (level === FEATURELEVEL) featureResults.push(r)
 				if (level === PBILEVEL) storieResults.push(r)
 				if (level === TASKLEVEL) taskResults.push(r)
 			}
-			commit('createSprint', { sprintId: payload.sprintId, storieResults, taskResults })
+			commit('createSprint', { sprintId: payload.sprintId, featureResults, storieResults, taskResults })
 			dispatch('loadUnfinished', rootState.userData.myTeam)
 		}).catch(error => {
 			let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
@@ -111,7 +114,6 @@ const actions = {
 	importInSprint({
 		rootState,
 		state,
-		commit,
 		dispatch
 	}, newSprintId) {
 		const docsToGet = []

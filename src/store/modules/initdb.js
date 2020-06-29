@@ -293,7 +293,7 @@ const actions = {
 					/* Filter on document type 'backlogItem', then emit sprintId, team level and (minus) priority to load the tasks in order as represented in the tree view */
 					"sprints": {
 						"map": `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= 5 && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.level, doc.parentId, doc.priority * -1], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= 4 && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, doc.priority * -1], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
 						}`
 					},
 					/* Filter on tasks assigned to sprints not done */

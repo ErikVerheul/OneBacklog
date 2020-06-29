@@ -311,117 +311,121 @@ export default new Vuex.Store({
 			}
 
 			if (!payload.newNode && !payload.newDoc) {
-				// if no node is specified in the payload the last selected node will be updated
+				// if no node is specified in the payload the last selected node is updated
 				const node = payload.node || payload.selectNode || payload.unselectNode || state.selectedNodes.slice(-1)[0]
 				const keys = Object.keys(payload)
-				console.log('updateNodesAndCurrentDoc: node.title = ' + node.title + ' keys = ' + keys)
-				// apply changes on the nodes in the tree view
-				if (node.data) for (let k of keys) {
-					switch (k) {
-						case 'addConditionalFor':
-							if (node.conditionalFor) { node.conditionalFor.push(payload.addConditionalFor) } else node.conditionalFor = payload.addConditionalFor
-							break
-						case 'addDependencyOn':
-							if (node.dependencies) { node.dependencies.push(payload.addDependencyOn) } else node.dependencies = payload.addDependencyOn
-							break
-						case 'conditionsremoved':
-							node.conditionalFor = payload.conditionsremoved
-							break
-						case 'dependenciesRemoved':
-							node.dependencies = payload.dependenciesRemoved
-							break
-						case 'inconsistentState':
-							node.data.inconsistentState = payload.inconsistentState
-							break
-						case 'isExpanded':
-							node.isExpanded = payload.isExpanded
-							break
-						case 'isSelected':
-							node.isSelected = payload.isSelected
-							break
-						case 'lastAttachmentAddition':
-							node.data.lastAttachmentAddition = payload.lastAttachmentAddition
-							node.data.lastChange = payload.lastAttachmentAddition
-							break
-						case 'lastChange':
-							console.log('lastChange update to ' + payload.lastChange + ' in ' + node.title)
-							node.data.lastChange = payload.lastChange
-							break
-						case 'lastCommentAddition':
-							node.data.lastCommentAddition = payload.lastCommentAddition
-							node.data.lastChange = payload.lastCommentAddition
-							break
-						case 'lastCommentToHistory':
-							node.data.lastCommentToHistory = payload.lastCommentToHistory
-							node.data.lastChange = payload.lastCommentToHistory
-							break
-						case 'lastContentChange':
-							node.data.lastContentChange = payload.lastContentChange
-							node.data.lastChange = payload.lastContentChange
-							break
-						case 'lastPositionChange':
-							console.log('lastPositionChange update to ' + payload.lastPositionChange + ' in ' + node.title)
-							node.data.lastPositionChange = payload.lastPositionChange
-							node.data.lastChange = payload.lastPositionChange
-							break
-						case 'lastStateChange':
-							node.data.lastStateChange = payload.lastStateChange
-							node.data.lastChange = payload.lastStateChange
-							break
-						case 'markViolation':
-							node.markViolation = payload.markViolation
-							break
-						case 'productId':
-							node.productId = payload.productId
-							break
-						case 'removeLastConditionalFor':
-							node.conditionalFor = node.conditionalFor.slice(0, -1)
-							break
-						case 'removeLastDependencyOn':
-							node.dependencies = node.dependencies.slice(0, -1)
-							break
-						case 'reqarea':
-							node.data.reqarea = payload.reqarea
-							break
-						case 'reqAreaItemcolor':
-							node.data.reqAreaItemcolor = payload.reqAreaItemcolor
-							break
-						case 'selectNode':
-							if (node.isSelectable) {
+				if (node) {
+					// apply changes on the nodes in the tree view
+					for (let k of keys) {
+						switch (k) {
+							case 'addConditionalFor':
+								if (node.conditionalFor) { node.conditionalFor.push(payload.addConditionalFor) } else node.conditionalFor = payload.addConditionalFor
+								break
+							case 'addDependencyOn':
+								if (node.dependencies) { node.dependencies.push(payload.addDependencyOn) } else node.dependencies = payload.addDependencyOn
+								break
+							case 'conditionsremoved':
+								node.conditionalFor = payload.conditionsremoved
+								break
+							case 'dependenciesRemoved':
+								node.dependencies = payload.dependenciesRemoved
+								break
+							case 'inconsistentState':
+								node.data.inconsistentState = payload.inconsistentState
+								break
+							case 'isExpanded':
+								node.isExpanded = payload.isExpanded
+								break
+							case 'isSelected':
+								node.isSelected = payload.isSelected
+								break
+							case 'lastAttachmentAddition':
+								node.data.lastAttachmentAddition = payload.lastAttachmentAddition
+								node.data.lastChange = payload.lastAttachmentAddition
+								break
+							case 'lastChange':
+								node.data.lastChange = payload.lastChange
+								break
+							case 'lastCommentAddition':
+								node.data.lastCommentAddition = payload.lastCommentAddition
+								node.data.lastChange = payload.lastCommentAddition
+								break
+							case 'lastCommentToHistory':
+								node.data.lastCommentToHistory = payload.lastCommentToHistory
+								node.data.lastChange = payload.lastCommentToHistory
+								break
+							case 'lastContentChange':
+								node.data.lastContentChange = payload.lastContentChange
+								node.data.lastChange = payload.lastContentChange
+								break
+							case 'lastPositionChange':
+								node.data.lastPositionChange = payload.lastPositionChange
+								node.data.lastChange = payload.lastPositionChange
+								break
+							case 'lastStateChange':
+								node.data.lastStateChange = payload.lastStateChange
+								node.data.lastChange = payload.lastStateChange
+								break
+							case 'markViolation':
+								node.markViolation = payload.markViolation
+								break
+							case 'node':
+								break
+							case 'productId':
+								node.productId = payload.productId
+								break
+							case 'removeLastConditionalFor':
+								node.conditionalFor = node.conditionalFor.slice(0, -1)
+								break
+							case 'removeLastDependencyOn':
+								node.dependencies = node.dependencies.slice(0, -1)
+								break
+							case 'reqarea':
+								node.data.reqarea = payload.reqarea
+								break
+							case 'reqAreaItemcolor':
+								node.data.reqAreaItemcolor = payload.reqAreaItemcolor
+								break
+							case 'selectNode':
+								if (node.isSelectable) {
+									state.previousSelectedNodes = state.selectedNodes || [node]
+									for (let n of state.selectedNodes) n.isSelected = false
+									node.isSelected = true
+									state.selectedNodes = [node]
+								}
+								break
+							case 'sprintId':
+								node.data.sprintId = payload.sprintId
+								break
+							case 'state':
+								node.data.state = payload.state
+								break
+							case 'subtype':
+								node.data.subtype = payload.subtype
+								break
+							case 'taskOwner':
+								node.data.taskOwner = payload.taskOwner
+								break
+							case 'team':
+								node.data.team = payload.team
+								break
+							case 'title':
+								node.title = payload.title
+								break
+							case 'unselectNode':
 								state.previousSelectedNodes = state.selectedNodes || [node]
-								for (let n of state.selectedNodes) n.isSelected = false
-								node.isSelected = true
-								state.selectedNodes = [node]
-							}
-							break
-						case 'sprintId':
-							node.data.sprintId = payload.sprintId
-							break
-						case 'state':
-							node.data.state = payload.state
-							break
-						case 'subtype':
-							node.data.subtype = payload.subtype
-							break
-						case 'taskOwner':
-							node.data.taskOwner = payload.taskOwner
-							break
-						case 'team':
-							node.data.team = payload.team
-							break
-						case 'title':
-							node.title = payload.title
-							break
-						case 'unselectNode':
-							state.previousSelectedNodes = state.selectedNodes || [node]
-							state.selectedNodes = []
-							for (let n of state.selectedNodes) {
-								if (n !== n) state.selectedNodes.push(n)
-							}
-							node.isSelected = false
-							break
+								state.selectedNodes = []
+								for (let n of state.selectedNodes) {
+									if (n !== n) state.selectedNodes.push(n)
+								}
+								node.isSelected = false
+								break
+							default:
+								// eslint-disable-next-line no-console
+								if (state.debug) console.log('updateNodesAndCurrentDoc: property ' + k + ' has no matching update, node.title = ' + node.title + ', keys = ' + keys)
+						}
 					}
-				} else console.log('updateNodesAndCurrentDoc: node.data is undefined for keys = ' + keys)
+				}
 				for (let sn of state.selectedNodes) {
 					if (sn._id === state.currentDoc._id) {
 						// apply changes on the currently displayed item
@@ -496,6 +500,8 @@ export default new Vuex.Store({
 								case 'newHist':
 									state.currentDoc.history.unshift(payload.newHist)
 									break
+								case 'node':
+									break
 								case 'parentId':
 									state.currentDoc.parentId = payload.parentId
 									break
@@ -538,6 +544,9 @@ export default new Vuex.Store({
 								case 'tssize':
 									state.currentDoc.tssize = payload.tssize
 									break
+								default:
+									// eslint-disable-next-line no-console
+									if (state.debug) console.log('updateNodesAndCurrentDoc: property ' + k + ' has no matching update, state.currentDoc.title = ' + state.currentDoc.title + ', keys = ' + keys)
 							}
 						}
 					}
@@ -588,86 +597,91 @@ export default new Vuex.Store({
 				return null
 			}
 
-			for (let i = 0; i < payload.storieResults.length; i++) {
-				const storyId = payload.storieResults[i].id
-				const productId = payload.storieResults[i].key[2]
-				const featureId = payload.storieResults[i].key[4]
-				const storyTitle = payload.storieResults[i].value[0]
+			let storyIdx = 0
+			for (let f of payload.featureResults) {
+				for (let s of payload.storieResults) {
+					const featureId = s.key[3]
+					if (f.id === featureId) {
+						const storyId = s.id
+						const productId = s.key[2]
+						const storyTitle = s.value[0]
+						const featureNode = getParentNode(featureId, featureIdToNodeMap)
+						if (!featureNode) continue
 
-				const featureNode = getParentNode(featureId, featureIdToNodeMap)
-				if (!featureNode) continue
+						const featureName = featureNode.title
+						const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
+						if (!epicNode) continue
 
-				const featureName = featureNode.title
-				const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
-				if (!epicNode) continue
+						const epicName = epicNode.title
+						const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
+						if (!productNode) continue
 
-				const epicName = epicNode.title
-				const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
-				if (!productNode) continue
-
-				const productName = productNode.title
-				const subType = payload.storieResults[i].value[1]
-				const storySize = payload.storieResults[i].value[3]
-				const newStory = {
-					idx: i,
-					storyId,
-					featureId,
-					featureName,
-					epicName,
-					productId,
-					productName,
-					title: storyTitle,
-					size: storySize,
-					subType,
-					tasks: {
-						[TODO]: [],
-						[INPROGRESS]: [],
-						[TESTREVIEW]: [],
-						[DONE]: []
-					}
-				}
-
-				for (let t of payload.taskResults) {
-					if (t.key[4] === storyId) {
-						const taskState = t.value[2]
-						switch (taskState) {
-							case TODO:
-							case READY:
-								newStory.tasks[TODO].push({
-									id: t.id,
-									title: t.value[0],
-									taskOwner: t.value[4],
-									priority: -t.key[5]
-								})
-								break
-							case INPROGRESS:
-								newStory.tasks[INPROGRESS].push({
-									id: t.id,
-									title: t.value[0],
-									taskOwner: t.value[4],
-									priority: -t.key[5]
-								})
-								break
-							case TESTREVIEW:
-								newStory.tasks[TESTREVIEW].push({
-									id: t.id,
-									title: t.value[0],
-									taskOwner: t.value[4],
-									priority: -t.key[5]
-								})
-								break
-							case DONE:
-								newStory.tasks[DONE].push({
-									id: t.id,
-									title: t.value[0],
-									taskOwner: t.value[4],
-									priority: -t.key[5]
-								})
-								break
+						const productName = productNode.title
+						const subType = s.value[1]
+						const storySize = s.value[3]
+						const newStory = {
+							idx: storyIdx,
+							storyId,
+							featureId,
+							featureName,
+							epicName,
+							productId,
+							productName,
+							title: storyTitle,
+							size: storySize,
+							subType,
+							tasks: {
+								[TODO]: [],
+								[INPROGRESS]: [],
+								[TESTREVIEW]: [],
+								[DONE]: []
+							}
 						}
+
+						for (let t of payload.taskResults) {
+							if (t.key[3] === storyId) {
+								const taskState = t.value[2]
+								switch (taskState) {
+									case TODO:
+									case READY:
+										newStory.tasks[TODO].push({
+											id: t.id,
+											title: t.value[0],
+											taskOwner: t.value[4],
+											priority: -t.key[5]
+										})
+										break
+									case INPROGRESS:
+										newStory.tasks[INPROGRESS].push({
+											id: t.id,
+											title: t.value[0],
+											taskOwner: t.value[4],
+											priority: -t.key[5]
+										})
+										break
+									case TESTREVIEW:
+										newStory.tasks[TESTREVIEW].push({
+											id: t.id,
+											title: t.value[0],
+											taskOwner: t.value[4],
+											priority: -t.key[5]
+										})
+										break
+									case DONE:
+										newStory.tasks[DONE].push({
+											id: t.id,
+											title: t.value[0],
+											taskOwner: t.value[4],
+											priority: -t.key[5]
+										})
+										break
+								}
+							}
+						}
+						state.stories.push(newStory)
+						storyIdx++
 					}
 				}
-				state.stories.push(newStory)
 			}
 		},
 
