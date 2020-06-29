@@ -282,7 +282,7 @@ const actions = {
                         for (let condId of depOnNode.conditionalFor) {
                             if (condId !== payload.node._id) conIdArray.push(id)
                         }
-                        // no need to pass history as the currenly selcted node is the node wth the conditions
+                        // no need to pass history as the currenly selected node is the node wth the conditions
                         commit('updateNodesAndCurrentDoc', { node: depOnNode, conditionsremoved: conIdArray, lastChange: payload.timestamp })
                     }
                 }
