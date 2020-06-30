@@ -579,6 +579,34 @@ export default new Vuex.Store({
 			state.lastEvent = payload.txt
 		},
 
+		resetData(state) {
+			state.createDefaultCalendar = false
+			state.treeNodes = []
+			state.stories = []
+			state.loadedSprintId = null
+			state.loadedTreeDepth = undefined
+			state.stopListenForChanges = true
+			state.listenForChangesRunning = false
+			state.lastTreeView = undefined
+			state.currentDefaultProductId = null
+			state.currentProductId = null
+			state.currentProductTitle = ''
+			state.isProductAssigned = false
+			state.myProductOptions = []
+			state.userData = {}
+			state.changeHistory = []
+			state.showHeaderDropDowns = true
+			state.lastEvent = ''
+			state.configData = null
+			state.currentDoc = null
+			state.warning = ''
+
+			clearInterval(state.runningCookieRefreshId)
+			clearInterval(state.logState.runningWatchdogId)
+		},
+
+		//////////////////// planning board //////////////////////////
+
 		/* Show the items in the order as they appear in the tree view */
 		createSprint(state, payload) {
 			const featureIdToNodeMap = {}
@@ -685,34 +713,6 @@ export default new Vuex.Store({
 				}
 			}
 		},
-
-		resetData(state) {
-			state.createDefaultCalendar = false
-			state.treeNodes = []
-			state.stories = []
-			state.loadedSprintId = null
-			state.loadedTreeDepth = undefined
-			state.stopListenForChanges = true
-			state.listenForChangesRunning = false
-			state.lastTreeView = undefined
-			state.currentDefaultProductId = null
-			state.currentProductId = null
-			state.currentProductTitle = ''
-			state.isProductAssigned = false
-			state.myProductOptions = []
-			state.userData = {}
-			state.changeHistory = []
-			state.showHeaderDropDowns = true
-			state.lastEvent = ''
-			state.configData = null
-			state.currentDoc = null
-			state.warning = ''
-
-			clearInterval(state.runningCookieRefreshId)
-			clearInterval(state.logState.runningWatchdogId)
-		},
-
-		//////////////////// planning board //////////////////////////
 
 		addTaskToBoard(state, doc) {
 			for (let s of state.stories) {
