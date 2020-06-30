@@ -579,6 +579,7 @@ export default new Vuex.Store({
 			state.lastEvent = payload.txt
 		},
 
+		/* Show the items in the order as they appear in the tree view */
 		createSprint(state, payload) {
 			const featureIdToNodeMap = {}
 			const epicIdToNodeMap = {}
@@ -598,7 +599,7 @@ export default new Vuex.Store({
 			}
 
 			let storyIdx = 0
-			for (let f of payload.featureResults) {
+			for (let f of payload.featureMap) {
 				for (let s of payload.storieResults) {
 					const featureId = s.key[3]
 					if (f.id === featureId) {

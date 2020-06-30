@@ -10,7 +10,7 @@ const MIN_ID = ""
 const MAX_ID = "999999999999zzzzz"
 
 function composeRangeString1(id, team) {
-	return `startkey=["${id}","${team}","${MIN_ID}",${PBILEVEL},"${MIN_ID}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}",${TASKLEVEL},"${MAX_ID}",${Number.MAX_SAFE_INTEGER}]`
+	return `startkey=["${id}","${team}","${MIN_ID}","${MIN_ID}",${PBILEVEL},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}","${MAX_ID}",${TASKLEVEL},${Number.MAX_SAFE_INTEGER}]`
 }
 function composeRangeString2(team) {
 	return `startkey=["${team}","${MIN_ID}","${MIN_ID}","${MIN_ID}",${Number.MIN_SAFE_INTEGER}]&endkey=["${team}","${MAX_ID}","${MAX_ID}","${MAX_ID}",${Number.MAX_SAFE_INTEGER}]`
@@ -31,7 +31,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		rootState.stories = []
-		const featureResults = []
+		const featureMap = []
 		const storieResults = []
 		const taskResults = []
 		globalAxios({
@@ -43,11 +43,15 @@ const actions = {
 			const results = res.data.rows
 			for (let r of results) {
 				const level = r.key[4]
-				if (level === FEATURELEVEL) featureResults.push(r)
-				if (level === PBILEVEL) storieResults.push(r)
+				if (level === PBILEVEL) {
+					const feature = window.slVueTree.getNodeById(r.key[3])
+					if (feature) featureMap.push({ path: feature.path, id: feature._id })
+					storieResults.push(r)
+				}
 				if (level === TASKLEVEL) taskResults.push(r)
 			}
-			commit('createSprint', { sprintId: payload.sprintId, featureResults, storieResults, taskResults })
+			featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
+			commit('createSprint', { sprintId: payload.sprintId, featureMap, storieResults, taskResults })
 			dispatch('loadUnfinished', rootState.userData.myTeam)
 		}).catch(error => {
 			let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
