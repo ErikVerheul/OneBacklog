@@ -430,14 +430,15 @@ const actions = {
 						case 'nodeMovedEvent':
 							{
 								const item = lastHistObj.nodeMovedEvent
-								const sourceSprintId = item[11]
-								if (doc.sprintId === rootState.loadedSprintId || sourceSprintId === rootState.loadedSprintId) {
+								if (doc.sprintId === rootState.loadedSprintId || window.slVueTree.getDescendantsInfoOnId(doc._id).sprintIds.includes(rootState.loadedSprintId)) {
 									// the item is moved in, within or out of the loaded sprint
+									const sourceLevel = item[0]
+									const targetLevel = item[1]
 									const sourceParentId = item[7]
 									const targetParentId = item[8]
 									const newlyCalculatedPriority = item[10]
 									const targetSprintId = item[12]
-									if (sourceParentId === targetParentId) {
+									if (sourceLevel === TASKLEVEL && targetLevel === TASKLEVEL && sourceParentId === targetParentId) {
 										// move position of items within the same user story
 										let tasks
 										for (let s of rootState.stories) {
