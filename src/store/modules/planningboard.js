@@ -2,12 +2,13 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 const INFO = 0
 const ERROR = 2
-const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
 const REMOVED = 0
 const MIN_ID = ""
 const MAX_ID = "999999999999zzzzz"
+var loadRequests = 0
+var busyLoading = false
 
 function composeRangeString1(id, team) {
 	return `startkey=["${id}","${team}","${MIN_ID}","${MIN_ID}",${PBILEVEL},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}","${MAX_ID}",${TASKLEVEL},${Number.MAX_SAFE_INTEGER}]`
@@ -25,44 +26,54 @@ const state = {
 }
 
 const actions = {
+	/* Multiple calls to this action are serialized */
 	loadPlanningBoard({
 		rootState,
 		commit,
 		dispatch
 	}, payload) {
-		rootState.stories = []
-		const featureMap = []
-		const storieResults = []
-		const taskResults = []
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(payload.sprintId, payload.team)
-		}).then(res => {
-			// save the last loaded sprintId
-			rootState.loadedSprintId = payload.sprintId
-			const results = res.data.rows
-			for (let r of results) {
-				const level = r.key[4]
-				if (level === PBILEVEL) {
-					const feature = window.slVueTree.getNodeById(r.key[3])
-					if (feature) featureMap.push({ path: feature.path, id: feature._id })
-					storieResults.push(r)
+		if (!busyLoading) {
+			busyLoading = true
+			rootState.stories = []
+			const featureMap = []
+			const storieResults = []
+			const taskResults = []
+			globalAxios({
+				method: 'GET',
+				url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(payload.sprintId, payload.team)
+			}).then(res => {
+				// save the last loaded sprintId
+				rootState.loadedSprintId = payload.sprintId
+				const results = res.data.rows
+				for (let r of results) {
+					const level = r.key[4]
+					if (level === PBILEVEL) {
+						const feature = window.slVueTree.getNodeById(r.key[3])
+						if (feature) featureMap.push({ path: feature.path, id: feature._id })
+						storieResults.push(r)
+					}
+					if (level === TASKLEVEL) taskResults.push(r)
 				}
-				if (level === TASKLEVEL) taskResults.push(r)
-			}
-			featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
-			commit('createSprint', { sprintId: payload.sprintId, featureMap, storieResults, taskResults })
-			dispatch('loadUnfinished', rootState.userData.myTeam)
-		}).catch(error => {
-			let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
+				// order the items as in the tree view
+				featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
+				commit('createSprint', { sprintId: payload.sprintId, featureMap, storieResults, taskResults })
+				busyLoading = false
+				loadRequests--
+				if (loadRequests > 0) {
+					loadRequests--
+					dispatch('loadPlanningBoard', payload)
+				} else dispatch('loadUnfinished', rootState.userData.myTeam)
+			}).catch(error => {
+				let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			})
+		} loadRequests++
 	},
 
 	/*
-	* Load unfished tasks from previous sprints.
+	* Load unfinished tasks from previous sprints.
 	* Skip tasks from products not assigned to this user.
 	* Skip tasks from products where the user is not the PO or developer for that product.
 	* Also load the parent (the story) of the unfinished task.
