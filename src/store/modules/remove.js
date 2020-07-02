@@ -169,7 +169,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo, payload.extDepsCount, payload.extCondsCount, payload.sprintIds],
+                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo, payload.extDepsCount, payload.extCondsCount, payload.descendantsInfo.sprintIds],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,

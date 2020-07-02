@@ -30,8 +30,8 @@ function removeFromArray(arr, item) {
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
 * - Select from the changes in documents of type 'backlogItem' the items with a history or comments array and a first entry tagged for distribution (exluding config, log and possibly others)
-* - When a user starts multiple sessions each session has a different sessionId. These sessions are not synced.
-* - Only updates for products the user is subscribed to are processed and those products which were remotely deleted so that these deletetions can be remotely undone
+* - When a user starts multiple sessions each session has a different sessionId. These sessions are synced also.
+* - Only updates for products the user is subscribed to are processed and those products which were remotely deleted so that these deletetions can be remotely undone.
 * After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
 */
 
@@ -111,10 +111,10 @@ const actions = {
 		async function doProc(doc) {
 			try {
 				const updateTree = histEvent !== 'ignoreEvent' && doc.level <= rootState.loadedTreeDepth
-				// only update the tree for documents available in the currently loaded tree model
+				// update the tree only for documents available in the currently loaded tree model
 				const updateBoard = histEvent !== 'ignoreEvent' && rootState.currentView === 'planningBoard' &&
 					(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent' || histEvent === 'triggerBoardReload')
-				// only update the board if loaded and the item represented by the document is assigned to my team. Exceptions for events:
+				// update the board only if loaded and the item represented by the document is assigned to my team. Exceptions for events:
 				// - setTeamOwnerEvent: also update the board if an item changes team (the doc is assigned to another team or no team)
 				// - triggerBoardReload: also trigger a reload from the feature level (the doc is the feature parent and has no team ownership)
 
@@ -124,7 +124,7 @@ const actions = {
 					// process events on tree items that are loaded (eg. 'products overview' has no pbi and task items)
 					const isCurrentDocument = doc._id === rootState.currentDoc._id
 					if (isCurrentDocument) {
-						// replace the history of the currently opened document; do not add newHist when caling updateNodesAndCurrentDoc
+						// replace the history of the currently opened document
 						rootState.currentDoc.history = doc.history
 					}
 					let node = window.slVueTree.getNodeById(doc._id)
@@ -401,7 +401,7 @@ const actions = {
 				if (updateBoard) {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('sync:updateBoard with event ' + histEvent)
-					// process events for the planning board if displayed
+					// process events for the planning board
 					switch (histEvent) {
 						case 'createEvent':
 						case 'createTaskEvent':
@@ -410,34 +410,42 @@ const actions = {
 									// a new task is created on another user's product details view or board
 									commit('addTaskToBoard', doc)
 								} else if (doc.level === PBILEVEL) {
-									// a user story is created in another user's product details view
+									// a user story is created
 									dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 								}
 							}
 							break
 						case 'docRestoredEvent':
-							if (doc.sprintId === rootState.loadedSprintId && lastHistObj.docRestoredEvent[6].includes(rootState.loadedSprintId)) {
-								// one or more of the removed items or their descendants assigned to the loaded sprint are restored
-								if (doc.level === TASKLEVEL) {
-									// a task removal is undone from a user story currently on the planning board
-									commit('addTaskToBoard', doc)
-								} else if (doc.level === PBILEVEL) {
-									// a user story removal is undone
-									dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+							{
+								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.docRestoredEvent[6])
+								console.log('sync.docRestoredEvent: involvedSprintIds = ' + involvedSprintIds + ', rootState.loadedSprintId = ' + rootState.loadedSprintId + ', doc.sprintId = ' + doc.sprintId)
+								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
+									// one or more of the removed items or their descendants assigned to the loaded sprint are restored
+									if (doc.level === TASKLEVEL) {
+										// a task removal is undone from a user story currently on the planning board
+										commit('addTaskToBoard', doc)
+									} else {
+										console.log('sync.docRestoredEvent: loading planning board')
+										// a higher level removal is undone
+										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+									}
 								}
 							}
 							break
 						case 'nodeMovedEvent':
 							{
 								const item = lastHistObj.nodeMovedEvent
-								if (doc.sprintId === rootState.loadedSprintId || window.slVueTree.getDescendantsInfoOnId(doc._id).sprintIds.includes(rootState.loadedSprintId)) {
+								const sourceSprintId = item[11]
+								const targetSprintId = item[12]
+								const involvedSprintIds = [doc.sprintId].concat([sourceSprintId]).concat([targetSprintId]).concat(window.slVueTree.getDescendantsInfoOnId(doc._id).sprintIds)
+								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
 									// the item is moved in, within or out of the loaded sprint
 									const sourceLevel = item[0]
 									const targetLevel = item[1]
 									const sourceParentId = item[7]
 									const targetParentId = item[8]
 									const newlyCalculatedPriority = item[10]
-									const targetSprintId = item[12]
+
 									if (sourceLevel === TASKLEVEL && targetLevel === TASKLEVEL && sourceParentId === targetParentId) {
 										// move position of items within the same user story
 										let tasks
@@ -468,25 +476,29 @@ const actions = {
 							}
 							break
 						case 'removedWithDescendantsEvent':
-							if (doc.sprintId === rootState.loadedSprintId && lastHistObj.removedWithDescendantsEvent[4].includes(rootState.loadedSprintId)) {
-								// REMOVED state items are not on the board anyway
-								if (doc.state !== REMOVED) {
-									// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
-									if (doc.level === TASKLEVEL) {
-										// a task is removed from a user story currently displayed on the planning board
-										for (let s of rootState.stories) {
-											if (s.storyId === doc.parentId) {
-												const newArray = []
-												for (let t of s.tasks[doc.state]) {
-													if (t.id !== doc._id) newArray.push(t)
+							{
+								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.removedWithDescendantsEvent[4])
+								console.log('sync.removedWithDescendantsEvent: involvedSprintIds = ' + involvedSprintIds + ', rootState.loadedSprintId = ' + rootState.loadedSprintId + ', doc.sprintId = ' + doc.sprintId)
+								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
+									// REMOVED state items are not on the board anyway
+									if (doc.state !== REMOVED) {
+										// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
+										if (doc.level === TASKLEVEL) {
+											// a task is removed from a user story currently displayed on the planning board
+											for (let s of rootState.stories) {
+												if (s.storyId === doc.parentId) {
+													const newArray = []
+													for (let t of s.tasks[doc.state]) {
+														if (t.id !== doc._id) newArray.push(t)
+													}
+													s.tasks[doc.state] = newArray
+													break
 												}
-												s.tasks[doc.state] = newArray
-												break
 											}
+										} else {
+											// a user story is removed from the planning board
+											dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 										}
-									} else {
-										// a user story is removed from the planning board
-										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
 								}
 							}
@@ -550,7 +562,7 @@ const actions = {
 							}
 							break
 						case 'setTeamOwnerEvent':
-							// the item is now uwned by my team ToDo: if the item is a task insert direct without reload
+							// the item is now owned by my team. ToDo: if the item is a task, insert direct without reload
 							dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
 							break
 						case 'setTitleEvent':
@@ -644,6 +656,7 @@ const actions = {
 		}, 1000)
 	},
 
+	/* Listen for document changes and process in parallel */
 	listenForChanges({
 		rootState,
 		dispatch
@@ -657,13 +670,13 @@ const actions = {
 			method: 'GET',
 			url: url,
 		}).then(res => {
-			// to avoid missing changes must immediately check for additional changes
+			// to avoid missing changes immediately check for additional changes
 			dispatch('listenForChanges')
 			let data = res.data
 			for (let r of data.results) {
 				let doc = r.doc
 				if (doc.type == "backlogItem" && (doc.history[0].sessionId !== rootState.userData.sessionId && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent))) {
-					// filter on distributed events in backlog items and from other sessions (not the session that created the events)
+					// filter on distributed events in backlog items from other sessions (not the session that created the events)
 					dispatch('processDoc', doc)
 				}
 			}
