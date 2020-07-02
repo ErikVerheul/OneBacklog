@@ -134,7 +134,7 @@ const actions = {
                 }
             }
             if (screenedSubscriptions.length === 0) {
-                // if no default is set assign the first defined product from the productsRoles
+                // if no default is set, assign the first defined product from the productsRoles
                 screenedSubscriptions = [Object.keys(payload.currentDbSettings.productsRoles)[0]]
             }
             rootState.userData.myProductSubscriptions = screenedSubscriptions
@@ -149,22 +149,25 @@ const actions = {
                 }
             }
             // update the user profile for missing products
-            const missingProductRolesIds = []
+            const missingProductsRolesIds = []
             for (let id of Object.keys(payload.currentDbSettings.productsRoles)) {
                 if (!availableProductIds.includes(id)) {
-                    missingProductRolesIds.push(id)
+                    missingProductsRolesIds.push(id)
                 }
             }
-            if (rootState.autoCorrectUserProfile) {
+            if (rootState.autoCorrectUserProfile && missingProductsRolesIds.length > 0) {
                 let newUserData = payload.allUserData
-                for (let id of missingProductRolesIds) {
+                for (let id of missingProductsRolesIds) {
                     delete newUserData.myDatabases[rootState.userData.currentDb].productsRoles[id]
-                }
-                for (let id of missingProductRolesIds) {
                     const position = newUserData.myDatabases[rootState.userData.currentDb].subscriptions.indexOf(id)
                     if (position !== -1) newUserData.myDatabases[rootState.userData.currentDb].subscriptions.splice(position, 1)
                 }
+                // update user data loaded in getOtherUserData
                 dispatch('updateUser', { data: newUserData })
+                const msg = `User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
+                // eslint-disable-next-line no-console
+                if (rootState.debug) console.log(msg)
+                dispatch('doLog', { event: msg, level: INFO })
             }
             if (rootState.userData.myProductsRoles && Object.keys(rootState.userData.myProductsRoles).length > 0) {
                 rootState.isProductAssigned = true
@@ -176,7 +179,6 @@ const actions = {
             dispatch('getConfig')
         }).catch(error => {
             let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
-            rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
