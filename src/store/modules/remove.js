@@ -4,7 +4,6 @@ const INFO = 0
 const ERROR = 2
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
-const PBILEVEL = 4
 const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 
@@ -15,6 +14,13 @@ function removeFromArray(arr, item) {
         if (el !== item) newArr.push(el)
     }
     return newArr
+}
+
+function getLevelText(configData, level) {
+    if (level < 0 || level > TASKLEVEL) {
+        return 'Level not supported'
+    }
+    return configData.itemType[level]
 }
 
 const actions = {
@@ -30,8 +36,10 @@ const actions = {
     /* Add history to the parent of the removed node */
     removeItemAndDescendents({
         rootState,
-        dispatch
+        dispatch,
+        commit
     }, payload) {
+        commit('showLastEvent', { txt: `Busy removing ${getLevelText(rootState.configData, payload.node.level)} and ${payload.descendantsInfo.count} descendants ...`, severity: INFO })
         const _id = payload.node.parentId
         globalAxios({
             method: 'GET',
@@ -165,23 +173,6 @@ const actions = {
         commit,
         dispatch
     }, payload) {
-        function getLevelText(level, subtype = 0) {
-			if (level < 0 || level > TASKLEVEL) {
-				return 'Level not supported'
-			}
-			if (level === PBILEVEL) {
-				return getSubType(subtype)
-			}
-			return rootState.configData.itemType[level]
-		}
-
-		function getSubType(idx) {
-			if (idx < 0 || idx >= rootState.configData.subtype.length) {
-				return 'Error: unknown subtype'
-			}
-			return rootState.configData.subtype[idx]
-        }
-
         const _id = payload.node._id
         globalAxios({
             method: 'GET',
@@ -262,7 +253,7 @@ const actions = {
                     if (payload.showUndoneMsg) {
                         commit('showLastEvent', { txt: `Item creation is undone`, severity: INFO })
                     } else {
-                        commit('showLastEvent', { txt: `The ${getLevelText(payload.node.level)} and ${payload.descendantsInfo.count} descendants are removed`, severity: INFO })
+                        commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.node.level)} and ${payload.descendantsInfo.count} descendants are removed`, severity: INFO })
                     }
                 }
             })

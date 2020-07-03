@@ -227,6 +227,7 @@ const actions = {
 							commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastHistoryTimestamp: node.data.lastContentChange })
 							break
 						case 'docRestoredEvent':
+							commit('showLastEvent', { txt: `Busy restoring ${getLevelText(doc.level, doc.subtype)} as initiated in another session...`, severity: INFO })
 							dispatch('restoreBranch', {
 								doc, onSuccessCallback: () => {
 									if (doc.level === PRODUCTLEVEL) {

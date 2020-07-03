@@ -406,6 +406,7 @@ const methods = {
         }
         break
       case 'undoRemove':
+        this.showLastEvent('Busy undoing remove...', INFO)
         this.$store.dispatch("restoreItemAndDescendents", entry)
         break
       case 'undoRemoveSprintIds':
