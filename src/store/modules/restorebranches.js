@@ -49,13 +49,15 @@ function convertToResults(docs) {
     return results
 }
 
+var startRestore = true
+var getChildrenRunning = 0
 const actions = {
     processItems({
         rootState,
         getters,
         dispatch,
         commit
-    }, results) {
+    }, payload) {
         /*
 		 * When the parentNode exists this function returns an object with:
 		 * - the previous node (can be the parent)
@@ -95,7 +97,7 @@ const actions = {
             }
         }
 
-        for (let item of results) {
+        for (let item of payload.results) {
             const _id = item.id
             const parentId = item.key
             const reqarea = item.value[0] || null
@@ -185,7 +187,7 @@ const actions = {
                     // select the product node in the tree
                     if (_id === newDefaultId) window.slVueTree.selectNodeById(newDefaultId)
                 }
-                dispatch('getChildren', _id)
+                dispatch('getChildren', { _id, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
             } else {
                 commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
                 let msg = 'Sync.processItems: a remote restore of the tree view failed. Cannot find the parent of ' + parentId
@@ -199,15 +201,30 @@ const actions = {
     getChildren({
         rootState,
         dispatch
-    }, _id) {
+    }, payload) {
+        getChildrenRunning++
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMapValues?' + composeRangeString(_id)
+            url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMapValues?' + composeRangeString(payload._id)
         }).then(res => {
+            getChildrenRunning--
             const results = res.data.rows
             if (results.length > 0) {
                 // process next level
-                dispatch('processItems', results)
+                dispatch('processItems', { results, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
+            } else startRestore = false
+
+            if (!startRestore && getChildrenRunning === 0) {
+                // execute passed function if provided
+                if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+                // additional dispatches
+                if (payload.toDispatch) {
+                    for (let name of Object.keys(payload.toDispatch)) {
+                        // eslint-disable-next-line no-console
+                        if (rootState.debug) console.log('updateDoc: dispatching ' + name)
+                        dispatch(name, payload.toDispatch[name])
+                    }
+                }
             }
         }).catch(error => {
             let msg = 'restorebranches.getChildren: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
@@ -219,61 +236,63 @@ const actions = {
 
     restoreBranch({
         dispatch
-    }, doc) {
+    }, payload) {
         fromHistory = true
-        histArray = doc.history[0]["docRestoredEvent"]
-        dispatch('processItems', convertToResults([doc]))
+        startRestore = true
+        histArray = payload.doc.history[0]["docRestoredEvent"]
+        getChildrenRunning = 0
+        dispatch('processItems', { results: convertToResults([payload.doc]), toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
     },
 
     restorebranches({
         dispatch
     }, docs) {
         fromHistory = false
-        dispatch('processItems', convertToResults(docs))
+        dispatch('processItems', { results: convertToResults(docs) })
     },
 
     /* addProducts uses restoreBranches to load a product as a branch */
     addProducts({
-		rootState,
-		dispatch
-	}, payload) {
+        rootState,
+        dispatch
+    }, payload) {
         newDefaultId = payload.newDefaultId
-		const docsToGet = []
-		for (let id of payload.missingIds) {
-			docsToGet.push({ "id": id })
-		}
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
-		}).then(res => {
-			const results = res.data.results
-			const docs = []
-			const error = []
-			for (let r of results) {
+        const docsToGet = []
+        for (let id of payload.missingIds) {
+            docsToGet.push({ "id": id })
+        }
+        globalAxios({
+            method: 'POST',
+            url: rootState.userData.currentDb + '/_bulk_get',
+            data: { "docs": docsToGet },
+        }).then(res => {
+            const results = res.data.results
+            const docs = []
+            const error = []
+            for (let r of results) {
                 const doc = r.docs[0].ok
                 // no need to add history here as the data is only used to update the tree model (no update of the database)
-				docs.push(doc)
-				if (r.docs[0].error) error.push(r.docs[0].error)
-			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'addProducts: These products cannot be added: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
-			}
-			dispatch('restorebranches', docs)
-		}).catch(e => {
-			let msg = 'addProducts: Could not add products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
+                docs.push(doc)
+                if (r.docs[0].error) error.push(r.docs[0].error)
+            }
+            if (error.length > 0) {
+                let errorStr = ''
+                for (let e of error) {
+                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+                }
+                let msg = 'addProducts: These products cannot be added: ' + errorStr
+                // eslint-disable-next-line no-console
+                if (rootState.debug) console.log(msg)
+                dispatch('doLog', { event: msg, level: ERROR })
+            }
+            dispatch('restorebranches', docs)
+        }).catch(e => {
+            let msg = 'addProducts: Could not add products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + e
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
 
 }
 
