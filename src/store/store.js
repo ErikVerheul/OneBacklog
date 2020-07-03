@@ -41,6 +41,16 @@ const AREA_PRODUCTID = '0'
 
 Vue.use(Vuex)
 
+/* If the node is selectable, save the currently selected nodes, unselect all previous selected nodes and select the node */
+function renewSelection(state, node) {
+	if (node.isSelectable) {
+		state.previousSelectedNodes = state.selectedNodes || [node]
+		for (let n of state.selectedNodes) n.isSelected = false
+		node.isSelected = true
+		state.selectedNodes = [node]
+	}
+}
+
 export default new Vuex.Store({
 	state: {
 		// console log settings
@@ -275,33 +285,22 @@ export default new Vuex.Store({
 		},
 
 		addSelectedNode(state, newNode) {
-			state.previousSelectedNodes = state.selectedNodes || [newNode]
 			if (newNode.isSelectable) {
+				state.previousSelectedNodes = state.selectedNodes || [newNode]
 				newNode.isSelected = true
 				if (!state.selectedNodes.includes(newNode)) state.selectedNodes.push(newNode)
 			}
 		},
 
 		renewSelectedNodes(state, newNode) {
-			state.previousSelectedNodes = state.selectedNodes || [newNode]
-			if (newNode.isSelectable) {
-				for (let n of state.selectedNodes) n.isSelected = false
-				newNode.isSelected = true
-				state.selectedNodes = [newNode]
-			}
+			renewSelection(state, newNode)
 		},
 
 		updateNodesAndCurrentDoc(state, payload) {
 			if (payload.newNode) {
-				// if the new node is selectable, save the currently selected nodes, unselect all previous selected nodes and select the new node
-				const newNode = payload.newNode
-				if (newNode.isSelectable) {
-					state.previousSelectedNodes = state.selectedNodes || [newNode]
-					for (let n of state.selectedNodes) n.isSelected = false
-					newNode.isSelected = true
-					state.selectedNodes = [newNode]
-				}
+				renewSelection(state, payload.newNode)
 			}
+
 			if (payload.newDoc) {
 				// decode from base64 + replace the encoded data
 				payload.newDoc.description = window.atob(payload.newDoc.description)
