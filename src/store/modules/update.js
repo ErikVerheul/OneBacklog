@@ -863,12 +863,12 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const _id = payload.updatedDoc._id
+		const id = payload.updatedDoc._id
 		// eslint-disable-next-line no-console
-		console.log('updateDoc: updating document with _id = ' + _id + ' in database ' + payload.dbName)
+		console.log('updateDoc: updating document with _id = ' + id + ' in database ' + payload.dbName)
 		globalAxios({
 			method: 'PUT',
-			url: payload.dbName + '/' + _id,
+			url: payload.dbName + '/' + id,
 			data: payload.updatedDoc
 		}).then(() => {
 			// execute passed function if provided
@@ -884,7 +884,7 @@ const actions = {
 		}).catch(error => {
 			// execute passed function if provided
 			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
-			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + _id + ', ' + error
+			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + id + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)

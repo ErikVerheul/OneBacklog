@@ -39,6 +39,7 @@ const actions = {
         dispatch,
         commit
     }, payload) {
+        payload.descendantsInfo = window.slVueTree.getDescendantsInfo(payload.node)
         commit('showLastEvent', { txt: `Busy removing ${getLevelText(rootState.configData, payload.node.level)} and ${payload.descendantsInfo.count} descendants ...`, severity: INFO })
         const _id = payload.node.parentId
         globalAxios({
@@ -75,96 +76,98 @@ const actions = {
         rootState,
         dispatch
     }, payload) {
-        const docsToGet = []
-        for (let d of payload.descendantsInfo.ids) {
-            docsToGet.push({ "id": d })
-        }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
-        }).then(res => {
-            const results = res.data.results
-            const docs = []
-            const error = []
-            const externalDependencies = []
-            const externalConditions = []
-            for (let r of results) {
-                const doc = r.docs[0].ok
-                if (doc) {
-                    const newHist = {
-                        "ignoreEvent": ['removeDescendents'],
-                        "timestamp": Date.now(),
-                        "distributeEvent": false
-                    }
-                    doc.history.unshift(newHist)
-
-                    // find external dependencies (to or from items outside the range if this bulk) for removal; leave internal dependencies as is
-                    let thisNodesExtDependencies = { id: doc._id, dependencies: [] }
-                    if (doc.dependencies) {
-                        const internalDependencies = []
-                        for (let d of doc.dependencies) {
-                            if (payload.descendantsInfo.ids.includes(d)) {
-                                internalDependencies.push(d)
-                            } else {
-                                thisNodesExtDependencies.dependencies.push(d)
-                            }
-                        }
-                        doc.dependencies = internalDependencies
-                    }
-                    let thisNodesExtConditions = { id: doc._id, conditions: [] }
-                    if (doc.conditionalFor) {
-                        const internalConditions = []
-                        for (let c of doc.conditionalFor) {
-                            if (payload.descendantsInfo.ids.includes(c)) {
-                                internalConditions.push(c)
-                            } else {
-                                thisNodesExtConditions.conditions.push(c)
-                            }
-                        }
-                        doc.conditionalFor = internalConditions
-                    }
-                    if (thisNodesExtDependencies.dependencies.length > 0) externalDependencies.push(thisNodesExtDependencies)
-                    if (thisNodesExtConditions.conditions.length > 0) externalConditions.push(thisNodesExtConditions)
-                    // mark for removal
-                    doc.delmark = true
-                    docs.push(doc)
-                }
-                if (r.docs[0].error) error.push(r.docs[0].error)
+        if (payload.descendantsInfo.count > 0) {
+            const docsToGet = []
+            for (let d of payload.descendantsInfo.ids) {
+                docsToGet.push({ "id": d })
             }
+            globalAxios({
+                method: 'POST',
+                url: rootState.userData.currentDb + '/_bulk_get',
+                data: { "docs": docsToGet },
+            }).then(res => {
+                const results = res.data.results
+                const docs = []
+                const error = []
+                const externalDependencies = []
+                const externalConditions = []
+                for (let r of results) {
+                    const doc = r.docs[0].ok
+                    if (doc) {
+                        const newHist = {
+                            "ignoreEvent": ['removeDescendents'],
+                            "timestamp": Date.now(),
+                            "distributeEvent": false
+                        }
+                        doc.history.unshift(newHist)
 
-            if (error.length > 0) {
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+                        // find external dependencies (to or from items outside the range if this bulk) for removal; leave internal dependencies as is
+                        let thisNodesExtDependencies = { id: doc._id, dependencies: [] }
+                        if (doc.dependencies) {
+                            const internalDependencies = []
+                            for (let d of doc.dependencies) {
+                                if (payload.descendantsInfo.ids.includes(d)) {
+                                    internalDependencies.push(d)
+                                } else {
+                                    thisNodesExtDependencies.dependencies.push(d)
+                                }
+                            }
+                            doc.dependencies = internalDependencies
+                        }
+                        let thisNodesExtConditions = { id: doc._id, conditions: [] }
+                        if (doc.conditionalFor) {
+                            const internalConditions = []
+                            for (let c of doc.conditionalFor) {
+                                if (payload.descendantsInfo.ids.includes(c)) {
+                                    internalConditions.push(c)
+                                } else {
+                                    thisNodesExtConditions.conditions.push(c)
+                                }
+                            }
+                            doc.conditionalFor = internalConditions
+                        }
+                        if (thisNodesExtDependencies.dependencies.length > 0) externalDependencies.push(thisNodesExtDependencies)
+                        if (thisNodesExtConditions.conditions.length > 0) externalConditions.push(thisNodesExtConditions)
+                        // mark for removal
+                        doc.delmark = true
+                        docs.push(doc)
+                    }
+                    if (r.docs[0].error) error.push(r.docs[0].error)
                 }
-                let msg = 'removeDescendents: These documents cannot be marked for removal: ' + errorStr
+
+                if (error.length > 0) {
+                    let errorStr = ''
+                    for (let e of error) {
+                        errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+                    }
+                    let msg = 'removeDescendents: These documents cannot be marked for removal: ' + errorStr
+                    // eslint-disable-next-line no-console
+                    if (rootState.debug) console.log(msg)
+                    dispatch('doLog', { event: msg, level: ERROR })
+                } else {
+                    // add externalDependencies and externalConditions to the payload
+                    payload.extDepsCount = externalDependencies.length
+                    payload.extCondsCount = externalConditions.length
+
+                    // transfer these calls to updateBulk so that they are executed after successful removal only
+                    const toDispatch = { removeParentAndAddHist: payload }
+                    if (externalDependencies.length > 0) {
+                        // remove the conditions in the documents not removed which match the externalDependencies
+                        toDispatch.removeExtDependenciesAsync = externalDependencies
+                    }
+                    if (externalConditions.length > 0) {
+                        // remove the dependencies in the documents not removed which match the externalConditions
+                        toDispatch.removeExtConditionsAsync = externalConditions
+                    }
+                    dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+                }
+            }).catch(error => {
+                let msg = 'removeDescendents: Could not read batch of documents: ' + error
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
-            } else {
-                // add externalDependencies and externalConditions to the payload
-                payload.extDepsCount = externalDependencies.length
-                payload.extCondsCount = externalConditions.length
-
-                // transfer these calls to updateBulk so that they are executed after successful removal only
-                const toDispatch = { removeParentAndAddHist: payload }
-                if (externalDependencies.length > 0) {
-                    // remove the conditions in the documents not removed which match the externalDependencies
-                    toDispatch.removeExtDependenciesAsync = externalDependencies
-                }
-                if (externalConditions.length > 0) {
-                    // remove the dependencies in the documents not removed which match the externalConditions
-                    toDispatch.removeExtConditionsAsync = externalConditions
-                }
-                dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
-            }
-        }).catch(error => {
-            let msg = 'removeDescendents: Could not read batch of documents: ' + error
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
+            })
+        } else dispatch('removeParentAndAddHist', payload)
     },
 
     /* Remove the parent(node clicked) document and add history to it */

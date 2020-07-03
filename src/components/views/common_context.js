@@ -347,7 +347,6 @@ const methods = {
     doRemove() {
         const selectedNode = this.contextNodeSelected
         if (this.haveAccessInTree(selectedNode.level, selectedNode.data.team, 'remove this item')) {
-            const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
             // when removing a product
             if (selectedNode.level === this.productLevel) {
                 // cannot remove the last assigned product or product in the tree
@@ -359,8 +358,7 @@ const methods = {
             // set remove mark in the database on the clicked item and descendants (if any)
             this.$store.dispatch('removeItemAndDescendents', {
                 productId: selectedNode.productId,
-                node: selectedNode,
-                descendantsInfo
+                node: selectedNode
             })
         }
     },
