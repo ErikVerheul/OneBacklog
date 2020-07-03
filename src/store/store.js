@@ -418,13 +418,13 @@ export default new Vuex.Store({
 								state.previousSelectedNodes = state.selectedNodes || [node]
 								state.selectedNodes = []
 								for (let n of state.selectedNodes) {
-									if (n !== n) state.selectedNodes.push(n)
+									if (n !== node) state.selectedNodes.push(n)
 								}
 								node.isSelected = false
 								break
 							default:
 								// eslint-disable-next-line no-console
-								if (state.debug) console.log('updateNodesAndCurrentDoc: property ' + k + ' has no matching update, node.title = ' + node.title + ', keys = ' + keys)
+								if (state.debug) console.log(`updateNodesAndCurrentDoc: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
 						}
 					}
 				}
@@ -519,6 +519,8 @@ export default new Vuex.Store({
 								case 'reqAreaItemcolor':
 									state.currentDoc.color = payload.reqAreaItemcolor
 									break
+								case 'selectNode':
+									break
 								case 'shortId':
 									state.currentDoc.shortId = payload.shortId
 									break
@@ -548,7 +550,7 @@ export default new Vuex.Store({
 									break
 								default:
 									// eslint-disable-next-line no-console
-									if (state.debug) console.log('updateNodesAndCurrentDoc: property ' + k + ' has no matching update, state.currentDoc.title = ' + state.currentDoc.title + ', keys = ' + keys)
+									if (state.debug) console.log(`updateNodesAndCurrentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`)
 							}
 						}
 					}
