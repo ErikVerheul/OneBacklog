@@ -285,14 +285,16 @@ const actions = {
         rootState,
         rootGetters,
         dispatch
-    }, _id) {
+    }, id) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id,
+            url: rootState.userData.currentDb + '/' + id,
         }).then(res => {
             const doc = res.data
             if (doc.teamCalendar && doc.teamCalendar.length > 0) {
-                // the team calendar is present; check if the team calendar needs to be extended
+                // eslint-disable-next-line no-console
+                if (rootState.debug) console.log('loadTeamCalendar: Team document with calendar is loaded; id = ' + id)
+                // check if the team calendar needs to be extended
                 const lastTeamSprint = doc.teamCalendar.slice(-1)[0]
                 if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
                     dispatch('extendTeamCalendar', doc)
@@ -303,17 +305,15 @@ const actions = {
                 }
             } else {
                 // eslint-disable-next-line no-console
-                console.log('loadTeamCalendar: No team calendar found')
+                if (rootState.debug) console.log('loadTeamCalendar: No team calendar found in team document; id = ' + id)
                 if (rootGetters.teamCalendarInUse) {
                     // replace the team calendar with the default
                     rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
                 }
                 dispatch('getRoot')
             }
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log('loadTeamCalendar: document with _id ' + _id + ' is loaded.')
         }).catch(error => {
-            let msg = 'loadTeamCalendar: Could not read document with _id ' + _id + ', ' + error
+            let msg = 'loadTeamCalendar: Could not read document with id ' + id + ', ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
