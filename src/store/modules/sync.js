@@ -81,12 +81,12 @@ const actions = {
 			}
 		}
 
-		function reportOddTimestamp(timestamp, eventName, docId) {
-			if (timestamp - Date.now() > 10000) {
-				let msg = `An event ${event} older than 10 seconds from another user was received. The document id is ${docId}`
+		function reportOddTimestamp(event, docId) {
+			if (Date.now() - event.timestamp > 1000) {
+				let msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is older than 1 second.`
 				commit('showLastEvent', { txt: msg, severity: WARNING })
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
+				if (rootState.debug) console.log(msg + ` The document id is ${docId}.`)
 				dispatch('doLog', { event: msg, level: WARNING })
 			}
 		}
@@ -131,7 +131,7 @@ const actions = {
 					// process comments
 					if (doc.comments[0].distributeEvent && (!lastHistObj.distributed || doc.comments[0].timestamp > lastHistoryTimestamp)) {
 						const commentsEvent = Object.keys(doc.comments[0])[0]
-						reportOddTimestamp(doc.comments[0].timestamp, commentsEvent, doc._id)
+						reportOddTimestamp(doc.comments[0], doc._id)
 						switch (commentsEvent) {
 							case 'addCommentEvent':
 								node.data.lastCommentAddition = doc.comments[0].timestamp
@@ -148,7 +148,7 @@ const actions = {
 						dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: WARNING })
 						return
 					}
-					reportOddTimestamp(doc.history[0].timestamp, histEvent, doc._id)
+					reportOddTimestamp(doc.history[0], doc._id)
 					// process other events for tree views
 					switch (histEvent) {
 						case 'acceptanceEvent':
