@@ -9,16 +9,6 @@ const ON_HOLD = 1
 const DONE = 6
 const TASKLEVEL = 6
 
-/* Remove 'ignoreEvent' elements from history */
-function cleanHistory(doc) {
-	const cleanedHistory = []
-	for (let h of doc.history) {
-		if (Object.keys(h)[0] !== 'ignoreEvent') cleanedHistory.push(h)
-	}
-	doc.history = cleanedHistory
-	return doc
-}
-
 function getLevelText(configData, level) {
     if (level < 0 || level > TASKLEVEL) {
         return 'Level not supported'
@@ -980,7 +970,7 @@ const actions = {
 						if (rootState.debug) console.log(msg)
 						dispatch('doLog', { event: msg, level: WARNING })
 					}
-					commit('updateNodesAndCurrentDoc', { newDoc: cleanHistory(doc) })
+					commit('updateNodesAndCurrentDoc', { newDoc: doc })
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('loadItemByShortId: document with _id ' + doc._id + ' is loaded.')
 				} else {
@@ -1047,7 +1037,7 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + payload.id,
 		}).then(res => {
-			commit('updateNodesAndCurrentDoc', { newDoc: cleanHistory(res.data) })
+			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 			// execute passed function if provided
 			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
 			// eslint-disable-next-line no-console

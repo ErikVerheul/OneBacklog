@@ -51,6 +51,16 @@ function renewSelection(state, node) {
 	}
 }
 
+/* Remove 'ignoreEvent' elements from history */
+function cleanHistory(doc) {
+	const cleanedHistory = []
+	for (let h of doc.history) {
+		if (Object.keys(h)[0] !== 'ignoreEvent') cleanedHistory.push(h)
+	}
+	doc.history = cleanedHistory
+	return doc
+}
+
 export default new Vuex.Store({
 	state: {
 		// console log settings
@@ -306,7 +316,7 @@ export default new Vuex.Store({
 				payload.newDoc.description = window.atob(payload.newDoc.description)
 				payload.newDoc.acceptanceCriteria = window.atob(payload.newDoc.acceptanceCriteria)
 				// replace the currently loaded document
-				state.currentDoc = payload.newDoc
+				state.currentDoc = cleanHistory(payload.newDoc)
 			}
 
 			if (!payload.newNode && !payload.newDoc) {
