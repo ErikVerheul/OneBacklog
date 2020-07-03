@@ -227,24 +227,31 @@ const actions = {
 							commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastHistoryTimestamp: node.data.lastContentChange })
 							break
 						case 'docRestoredEvent':
-							commit('showLastEvent', { txt: `Busy restoring ${getLevelText(doc.level, doc.subtype)} as initiated in another session...`, severity: INFO })
-							dispatch('restoreBranch', {
-								doc, onSuccessCallback: () => {
-									if (doc.level === PRODUCTLEVEL) {
-										// re-enter the product to the users product roles, subscriptions, product ids and product selection array
-										rootState.userData.myProductsRoles[doc._id] = lastHistObj.docRestoredEvent[5]
-										rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
-										rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
-										rootState.myProductOptions.push({
-											value: doc._id,
-											text: doc.title
-										})
-									}
-									if (lastHistObj.by === rootState.userData.user) {
-										commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
-									} else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
+							{
+								commit('showLastEvent', { txt: `Busy restoring ${getLevelText(doc.level, doc.subtype)} as initiated in another session...`, severity: INFO })
+								let toDispatch = undefined
+								if (updateBoard && doc.level !== TASKLEVEL) {
+									// postpone the board update until the document is restored
+									toDispatch = { 'loadPlanningBoard': { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }
 								}
-							})
+								dispatch('restoreBranch', {
+									doc, toDispatch, onSuccessCallback: () => {
+										if (doc.level === PRODUCTLEVEL) {
+											// re-enter the product to the users product roles, subscriptions, product ids and product selection array
+											rootState.userData.myProductsRoles[doc._id] = lastHistObj.docRestoredEvent[5]
+											rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
+											rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
+											rootState.myProductOptions.push({
+												value: doc._id,
+												text: doc.title
+											})
+										}
+										if (lastHistObj.by === rootState.userData.user) {
+											commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
+										} else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
+									}
+								})
+							}
 							break
 						case 'nodeMovedEvent':
 							{
@@ -418,16 +425,11 @@ const actions = {
 						case 'docRestoredEvent':
 							{
 								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.docRestoredEvent[6])
-								console.log('sync.docRestoredEvent: involvedSprintIds = ' + involvedSprintIds + ', rootState.loadedSprintId = ' + rootState.loadedSprintId + ', doc.sprintId = ' + doc.sprintId)
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
 									// one or more of the removed items or their descendants assigned to the loaded sprint are restored
 									if (doc.level === TASKLEVEL) {
 										// a task removal is undone from a user story currently on the planning board
 										commit('addTaskToBoard', doc)
-									} else {
-										console.log('sync.docRestoredEvent: loading planning board')
-										// a higher level removal is undone
-										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
 								}
 							}
@@ -478,7 +480,6 @@ const actions = {
 						case 'removedWithDescendantsEvent':
 							{
 								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.removedWithDescendantsEvent[4])
-								console.log('sync.removedWithDescendantsEvent: involvedSprintIds = ' + involvedSprintIds + ', rootState.loadedSprintId = ' + rootState.loadedSprintId + ', doc.sprintId = ' + doc.sprintId)
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
 									// REMOVED state items are not on the board anyway
 									if (doc.state !== REMOVED) {
