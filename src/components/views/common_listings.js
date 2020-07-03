@@ -285,7 +285,7 @@ const methods = {
   },
 
   mkRemovedWithDescendantsEvent(value) {
-    return `<h5>This item and ${value[1].count} descendants are removed.</h5>
+    return `<h5>This item and ${value[1].length} descendants are removed.</h5>
       <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
   },
 

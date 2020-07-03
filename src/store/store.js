@@ -369,6 +369,8 @@ export default new Vuex.Store({
 							case 'markViolation':
 								node.markViolation = payload.markViolation
 								break
+							case 'newHist':
+								break
 							case 'node':
 								break
 							case 'productId':

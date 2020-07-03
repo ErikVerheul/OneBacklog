@@ -291,8 +291,8 @@ Y            Y	     Y    nodeMovedEvent	            	move.js
 N            N	     N    nodesMovedParentEvent	 	        move.js					ToDo: use this event for history reporting?
 Y            Y	     Y    removeAttachmentEvent	        	attachments.js
 N            Y	     Y    removedFromParentEvent	      	remove.js
+Y            N       Y    removedWithDescendantsEvent       remove.js
 Y 			 Y 	     Y    removeSprintIdsEvent				update.js
-Y            N	     Y    removedWithDescendantsEvent	    remove.js				ToDo: also in mail?
 Y            N	     N    updateTaskOrderEvent	        	planningboard.js
 Y            Y	     Y    setConditionEvent	          		update.js
 Y            Y	     Y    setDependencyEvent	        	update.js

@@ -71,7 +71,7 @@ const methods = {
     },
 
     doChangeTeamCalendar() {
-
+        // ToDo: implementation
     },
 
     changePassword() {

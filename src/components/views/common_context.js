@@ -3,7 +3,6 @@ import { authorization, utilities } from '../mixins/utilities.js'
 
 const INFO = 0
 const WARNING = 1
-const ERROR = 2
 const STATE_NEW_OR_TODO = 2
 const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
@@ -349,7 +348,6 @@ const methods = {
         const selectedNode = this.contextNodeSelected
         if (this.haveAccessInTree(selectedNode.level, selectedNode.data.team, 'remove this item')) {
             const descendantsInfo = window.slVueTree.getDescendantsInfo(selectedNode)
-            this.showLastEvent(`The ${this.getLevelText(selectedNode.level)} and ${descendantsInfo.count} descendants are removed`, INFO)
             // when removing a product
             if (selectedNode.level === this.productLevel) {
                 // cannot remove the last assigned product or product in the tree
@@ -362,8 +360,7 @@ const methods = {
             this.$store.dispatch('removeItemAndDescendents', {
                 productId: selectedNode.productId,
                 node: selectedNode,
-                descendantsInfo,
-                showUndoneMsg: true
+                descendantsInfo
             })
         }
     },

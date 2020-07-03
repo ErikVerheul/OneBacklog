@@ -144,7 +144,7 @@
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
-              {{ patchTitle(node) }}:{{ node.data.lastChange }}
+              {{ patchTitle(node) }}
               <b-badge
                 v-if="node.data.inconsistentState"
                 variant="danger"

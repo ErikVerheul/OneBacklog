@@ -227,20 +227,23 @@ const actions = {
 							commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastHistoryTimestamp: node.data.lastContentChange })
 							break
 						case 'docRestoredEvent':
-							{	// node	is restored from a previous removal
-								if (lastHistObj.by === rootState.userData.user) {
-									// re-enter the product to the users product roles, subscriptions, product ids and product selection array
-									commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
-									rootState.userData.myProductsRoles[doc._id] = lastHistObj.docRestoredEvent[5]
-									rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
-									rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
-									rootState.myProductOptions.push({
-										value: doc._id,
-										text: doc.title
-									})
-								} else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
-								dispatch('restoreBranch', doc)
-							}
+							dispatch('restoreBranch', {
+								doc, onSuccessCallback: () => {
+									if (doc.level === PRODUCTLEVEL) {
+										// re-enter the product to the users product roles, subscriptions, product ids and product selection array
+										rootState.userData.myProductsRoles[doc._id] = lastHistObj.docRestoredEvent[5]
+										rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
+										rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
+										rootState.myProductOptions.push({
+											value: doc._id,
+											text: doc.title
+										})
+									}
+									if (lastHistObj.by === rootState.userData.user) {
+										commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
+									} else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
+								}
+							})
 							break
 						case 'nodeMovedEvent':
 							{
@@ -280,29 +283,25 @@ const actions = {
 							commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: 0 })
 							break
 						case 'removedWithDescendantsEvent':
-							if (doc.delmark) {
+							if (node && doc.delmark) {
 								// remove any dependency references to/from outside the removed items
-								window.slVueTree.correctDependencies(lastHistObj.removedWithDescendantsEvent[0], lastHistObj.removedWithDescendantsEvent[1].ids)
-								if (node) {
-									window.slVueTree.remove([node])
-									if (lastHistObj.by === rootState.userData.user) {
-										commit('showLastEvent', {
-											txt: `You removed a ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO
-										})
-										if (node.level === PRODUCTLEVEL) {
-											// save some data of the removed product for restore at undo.
-											removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
-											// remove the product from the users product roles, subscriptions and product selection array
-											delete rootState.userData.myProductsRoles[node._id]
-											if (rootState.userData.myProductSubscriptions.includes(node._id)) {
-												rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, node._id)
-												rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, node._id)
-												const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(node._id)
-												rootState.myProductOptions.splice(removeIdx, 1)
-											}
-										}
-									} else commit('showLastEvent', { txt: `Another user removed a ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
+								window.slVueTree.correctDependencies(lastHistObj.removedWithDescendantsEvent[0], lastHistObj.removedWithDescendantsEvent[1])
+								if (node.level === PRODUCTLEVEL) {
+									// save some data of the removed product for restore at undo.
+									removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
+									// remove the product from the users product roles, subscriptions and product selection array
+									delete rootState.userData.myProductsRoles[node._id]
+									if (rootState.userData.myProductSubscriptions.includes(node._id)) {
+										rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, node._id)
+										rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, node._id)
+										const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(node._id)
+										rootState.myProductOptions.splice(removeIdx, 1)
+									}
 								}
+								window.slVueTree.remove([node])
+								if (lastHistObj.by === rootState.userData.user) {
+									commit('showLastEvent', { txt: `You removed a ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
+								} else commit('showLastEvent', { txt: `Another user removed a ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
 							}
 							break
 						case 'setConditionEvent':
