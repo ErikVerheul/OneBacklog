@@ -7,6 +7,7 @@ const ERROR = 2
 const REMOVED = 0
 const ON_HOLD = 1
 const DONE = 6
+const TASKLEVEL = 6
 
 /* Remove 'ignoreEvent' elements from history */
 function cleanHistory(doc) {
@@ -16,6 +17,13 @@ function cleanHistory(doc) {
 	}
 	doc.history = cleanedHistory
 	return doc
+}
+
+function getLevelText(configData, level) {
+    if (level < 0 || level > TASKLEVEL) {
+        return 'Level not supported'
+    }
+    return configData.itemType[level]
 }
 
 const actions = {
@@ -987,7 +995,8 @@ const actions = {
 	/* Add history to the parent and than save the document */
 	createDocWithParentHist({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, payload) {
 		const _id = payload.newDoc.parentId
 		globalAxios({
@@ -1013,6 +1022,9 @@ const actions = {
 							newNode: payload.newNode
 						}
 						rootState.changeHistory.unshift(entry)
+						// select and show the new node
+						commit('updateNodesAndCurrentDoc', { newNode: payload.newNode, newDoc: payload.newDoc })
+						commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: INFO })
 					}
 				}
 			}

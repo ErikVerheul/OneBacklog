@@ -117,14 +117,8 @@ const methods = {
                 lastChange: 0
             }
         }
-        // unselect the node that was clicked before the insert
-        this.contextNodeSelected.isSelected = false
         // must insert the new node in the tree first to get the productId, parentId, pririty and set the location parameters
         window.slVueTree.insert(newNodeLocation, [newNode])
-        // and select the new node
-        this.$store.commit('updateNodesAndCurrentDoc', { newNode })
-
-        this.showLastEvent(`Item of type ${this.getLevelText(newNode.level)} is inserted as a copy of '${node.title}'.`, INFO)
         // create a new document and store it
         const currentDoc = this.$store.state.currentDoc
         const newDoc = {
@@ -237,9 +231,7 @@ const methods = {
             }
             // must insert the new node in the tree first to get the productId, parentId, priority and set the location parameters
             window.slVueTree.insert(newNodeLocation, [newNode])
-            // and select the new node
-            this.$store.commit('updateNodesAndCurrentDoc', { newNode })
-            this.showLastEvent('Item of type ' + this.getLevelText(insertLevel) + ' is inserted', INFO)
+
             // create a new document and store it
             const newDoc = {
                 "_id": _id,
