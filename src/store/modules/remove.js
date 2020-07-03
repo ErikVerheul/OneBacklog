@@ -2,7 +2,10 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 const INFO = 0
 const ERROR = 2
+const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
+const PBILEVEL = 4
+const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 
 // returns a new array
@@ -162,6 +165,23 @@ const actions = {
         commit,
         dispatch
     }, payload) {
+        function getLevelText(level, subtype = 0) {
+			if (level < 0 || level > TASKLEVEL) {
+				return 'Level not supported'
+			}
+			if (level === PBILEVEL) {
+				return getSubType(subtype)
+			}
+			return rootState.configData.itemType[level]
+		}
+
+		function getSubType(idx) {
+			if (idx < 0 || idx >= rootState.configData.subtype.length) {
+				return 'Error: unknown subtype'
+			}
+			return rootState.configData.subtype[idx]
+        }
+
         const _id = payload.node._id
         globalAxios({
             method: 'GET',
@@ -169,7 +189,7 @@ const actions = {
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
-                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo, payload.extDepsCount, payload.extCondsCount, payload.descendantsInfo.sprintIds],
+                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo.ids, payload.extDepsCount, payload.extCondsCount, payload.descendantsInfo.sprintIds],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -197,7 +217,7 @@ const actions = {
                     // before removal select the predecessor of the removed node (sibling or parent)
                     const prevNode = window.slVueTree.getPreviousNode(payload.node.path)
                     let nowSelectedNode = prevNode
-                    if (prevNode.level === this.databaseLevel) {
+                    if (prevNode.level === DATABASELEVEL) {
                         // if a product is to be removed and the previous node is root, select the next product
                         const nextProduct = window.slVueTree.getNextSibling(payload.node.path)
                         if (nextProduct === null) {
@@ -226,7 +246,7 @@ const actions = {
                     const entry = {
                         type: 'undoRemove',
                         removedNode: payload.node,
-                        isProductRemoved: payload.node.level === this.productLevel,
+                        isProductRemoved: payload.node.level === PRODUCTLEVEL,
                         descendants: payload.descendantsInfo.descendants,
                         removedIntDependencies: removed.removedIntDependencies,
                         removedIntConditions: removed.removedIntConditions,
@@ -239,7 +259,11 @@ const actions = {
                         entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
                     }
                     rootState.changeHistory.unshift(entry)
-                    if (payload.showUndoneMsg) commit('showLastEvent', { txt: `Item creation is undone`, severity: INFO })
+                    if (payload.showUndoneMsg) {
+                        commit('showLastEvent', { txt: `Item creation is undone`, severity: INFO })
+                    } else {
+                        commit('showLastEvent', { txt: `The ${getLevelText(payload.node.level)} and ${payload.descendantsInfo.count} descendants are removed`, severity: INFO })
+                    }
                 }
             })
         }).catch(error => {
