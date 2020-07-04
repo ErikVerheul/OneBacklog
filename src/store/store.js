@@ -437,130 +437,128 @@ export default new Vuex.Store({
 						}
 					}
 				}
-				for (let sn of state.selectedNodes) {
-					if (sn._id === state.currentDoc._id) {
-						// apply changes on the currently displayed item
-						for (let k of keys) {
-							switch (k) {
-								case '_attachments':
-									state.currentDoc._attachments = payload._attachments
-									break
-								case '_rev':
-									state.currentDoc._rev = payload._rev
-									break
-								case 'acceptanceCriteria':
-									state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
-									break
-								case 'conditionalFor':
-									state.currentDoc.conditionalFor = payload.conditionalFor
-									break
-								case 'delmark':
-									state.currentDoc.delmark = payload.delmark
-									break
-								case 'dependencies':
-									state.currentDoc.dependencies = payload.dependencies
-									break
-								case 'description':
-									state.currentDoc.description = window.atob(payload.description)
-									break
-								case 'followers':
-									state.currentDoc.followers = payload.followers
-									break
-								case 'lastAttachmentAddition':
-									state.currentDoc.lastAttachmentAddition = payload.lastAttachmentAddition
-									break
-								case 'lastAttachmentRemoval':
-									state.currentDoc.lastAttachmentRemoval = payload.lastAttachmentRemoval
-									break
-								case 'lastChange':
-									state.currentDoc.lastChange = payload.lastChange
-									break
-								case 'lastCommentAddition':
-									state.currentDoc.lastCommentAddition = payload.lastCommentAddition
-									break
-								case 'lastCommentToHistory':
-									state.currentDoc.lastCommentToHistory = payload.lastCommentToHistory
-									break
-								case 'lastContentChange':
-									state.currentDoc.lastContentChange = payload.lastContentChange
-									break
-								case 'lastPositionChange':
-									state.currentDoc.lastPositionChange = payload.lastPositionChange
-									break
-								case 'lastStateChange':
-									state.currentDoc.lastStateChange = payload.lastStateChange
-									break
-								case 'leavingFollower':
-									{
-										const updatedFollowers = []
-										for (let f of state.currentDoc.followers) {
-											if (f !== payload.leavingFollower) updatedFollowers.push(f)
-										}
-										state.currentDoc.followers = updatedFollowers
+				if (node._id === state.currentDoc._id) {
+					// apply changes on the currently displayed item
+					for (let k of keys) {
+						switch (k) {
+							case '_attachments':
+								state.currentDoc._attachments = payload._attachments
+								break
+							case '_rev':
+								state.currentDoc._rev = payload._rev
+								break
+							case 'acceptanceCriteria':
+								state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
+								break
+							case 'conditionalFor':
+								state.currentDoc.conditionalFor = payload.conditionalFor
+								break
+							case 'delmark':
+								state.currentDoc.delmark = payload.delmark
+								break
+							case 'dependencies':
+								state.currentDoc.dependencies = payload.dependencies
+								break
+							case 'description':
+								state.currentDoc.description = window.atob(payload.description)
+								break
+							case 'followers':
+								state.currentDoc.followers = payload.followers
+								break
+							case 'lastAttachmentAddition':
+								state.currentDoc.lastAttachmentAddition = payload.lastAttachmentAddition
+								break
+							case 'lastAttachmentRemoval':
+								state.currentDoc.lastAttachmentRemoval = payload.lastAttachmentRemoval
+								break
+							case 'lastChange':
+								state.currentDoc.lastChange = payload.lastChange
+								break
+							case 'lastCommentAddition':
+								state.currentDoc.lastCommentAddition = payload.lastCommentAddition
+								break
+							case 'lastCommentToHistory':
+								state.currentDoc.lastCommentToHistory = payload.lastCommentToHistory
+								break
+							case 'lastContentChange':
+								state.currentDoc.lastContentChange = payload.lastContentChange
+								break
+							case 'lastPositionChange':
+								state.currentDoc.lastPositionChange = payload.lastPositionChange
+								break
+							case 'lastStateChange':
+								state.currentDoc.lastStateChange = payload.lastStateChange
+								break
+							case 'leavingFollower':
+								{
+									const updatedFollowers = []
+									for (let f of state.currentDoc.followers) {
+										if (f !== payload.leavingFollower) updatedFollowers.push(f)
 									}
-									break
-								case 'level':
-									state.currentDoc.level = payload.level
-									break
-								case 'newComment':
-									state.currentDoc.comments.unshift(payload.newComment)
-									break
-								case 'newFollower':
-									state.currentDoc.followers.push(payload.newFollower)
-									break
-								case 'newHist':
-									state.currentDoc.history.unshift(payload.newHist)
-									break
-								case 'node':
-									break
-								case 'parentId':
-									state.currentDoc.parentId = payload.parentId
-									break
-								case 'priority':
-									state.currentDoc.priority = payload.priority
-									break
-								case 'productId':
-									state.currentDoc.productId = payload.productId
-									break
-								case 'reqarea':
-									state.currentDoc.reqarea = payload.reqarea
-									break
-								case 'reqAreaItemcolor':
-									state.currentDoc.color = payload.reqAreaItemcolor
-									break
-								case 'selectNode':
-									break
-								case 'shortId':
-									state.currentDoc.shortId = payload.shortId
-									break
-								case 'spikepersonhours':
-									state.currentDoc.spikepersonhours = payload.spikepersonhours
-									break
-								case 'sprintId':
-									state.currentDoc.sprintId = payload.sprintId
-									break
-								case 'spsize':
-									state.currentDoc.spsize = payload.spsize
-									break
-								case 'subtype':
-									state.currentDoc.subtype = payload.subtype
-									break
-								case 'state':
-									state.currentDoc.state = payload.state
-									break
-								case 'team':
-									if (payload.team) state.currentDoc.team = payload.team
-									break
-								case 'title':
-									state.currentDoc.title = payload.title
-									break
-								case 'tssize':
-									state.currentDoc.tssize = payload.tssize
-									break
-								default:
-									// eslint-disable-next-line no-console
-									if (state.debug) console.log(`updateNodesAndCurrentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`)
-							}
+									state.currentDoc.followers = updatedFollowers
+								}
+								break
+							case 'level':
+								state.currentDoc.level = payload.level
+								break
+							case 'newComment':
+								state.currentDoc.comments.unshift(payload.newComment)
+								break
+							case 'newFollower':
+								state.currentDoc.followers.push(payload.newFollower)
+								break
+							case 'newHist':
+								state.currentDoc.history.unshift(payload.newHist)
+								break
+							case 'node':
+								break
+							case 'parentId':
+								state.currentDoc.parentId = payload.parentId
+								break
+							case 'priority':
+								state.currentDoc.priority = payload.priority
+								break
+							case 'productId':
+								state.currentDoc.productId = payload.productId
+								break
+							case 'reqarea':
+								state.currentDoc.reqarea = payload.reqarea
+								break
+							case 'reqAreaItemcolor':
+								state.currentDoc.color = payload.reqAreaItemcolor
+								break
+							case 'selectNode':
+								break
+							case 'shortId':
+								state.currentDoc.shortId = payload.shortId
+								break
+							case 'spikepersonhours':
+								state.currentDoc.spikepersonhours = payload.spikepersonhours
+								break
+							case 'sprintId':
+								state.currentDoc.sprintId = payload.sprintId
+								break
+							case 'spsize':
+								state.currentDoc.spsize = payload.spsize
+								break
+							case 'subtype':
+								state.currentDoc.subtype = payload.subtype
+								break
+							case 'state':
+								state.currentDoc.state = payload.state
+								break
+							case 'team':
+								if (payload.team) state.currentDoc.team = payload.team
+								break
+							case 'title':
+								state.currentDoc.title = payload.title
+								break
+							case 'tssize':
+								state.currentDoc.tssize = payload.tssize
+								break
+							default:
+								// eslint-disable-next-line no-console
+								if (state.debug) console.log(`updateNodesAndCurrentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`)
 						}
 					}
 				}
