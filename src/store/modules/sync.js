@@ -214,7 +214,7 @@ const actions = {
 									nodeModel: locationInfo.prevNode,
 									placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 								}, [node])
-								// do not commit any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
+								// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
 							}
 							break
 						case 'conditionRemovedEvent':
@@ -356,13 +356,7 @@ const actions = {
 							break
 						/////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
 						case 'taskRemovedEvent':
-							node.data.state = REMOVED
-							node.data.lastStateChange = Date.now()
-							if (isCurrentDocument) {
-								rootState.currentDoc.state = REMOVED
-								// show this history update
-								rootState.currentDoc.history = doc.history
-							}
+							commit('updateNodesAndCurrentDoc', { node, state: REMOVED, lastStateChange: Date.now() })
 							break
 						case 'updateTaskOrderEvent':
 							if (rootState.lastTreeView === 'detailProduct') {
