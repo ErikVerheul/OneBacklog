@@ -35,6 +35,7 @@ const actions = {
 		if (!busyLoading) {
 			busyLoading = true
 			rootState.stories = []
+			const pathsFound = []
 			const featureMap = []
 			const storieResults = []
 			const taskResults = []
@@ -48,9 +49,16 @@ const actions = {
 				for (let r of results) {
 					const level = r.key[4]
 					if (level === PBILEVEL) {
-						const feature = window.slVueTree.getNodeById(r.key[3])
-						if (feature) featureMap.push({ path: feature.path, id: feature._id })
-						storieResults.push(r)
+						const featureId = r.key[3]
+						const feature = window.slVueTree.getNodeById(featureId)
+						if (feature) {
+							if (!pathsFound.includes(feature.pathStr)) {
+								featureMap.push({ path: feature.path, id: feature._id })
+							}
+							pathsFound.push(feature.pathStr)
+							// stories without a associated feature are skipped
+							storieResults.push(r)
+						}
 					}
 					if (level === TASKLEVEL) taskResults.push(r)
 				}
