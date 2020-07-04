@@ -379,6 +379,7 @@ export default new Vuex.Store({
 								node.markViolation = payload.markViolation
 								break
 							case 'newHist':
+								// nodes do not contain history
 								break
 							case 'node':
 								break
