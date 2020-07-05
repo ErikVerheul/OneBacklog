@@ -207,7 +207,7 @@ const actions = {
             parentNodes = {}
         })
             // eslint-disable-next-line no-console
-            .catch(error => console.log('loadOverview: Could not read from database ' + rootState.userData.currentDb + '. Error = ' + error))
+            .catch(error => console.log('loadOverview: Could not read from database ' + rootState.userData.currentDb + ',' + error))
     },
 
 }

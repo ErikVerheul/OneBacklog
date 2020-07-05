@@ -19,7 +19,7 @@ const actions = {
 			const toDispatch = { 'updateTeamsInDb': { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } }
 			dispatch('updateUser', { data: tmpUserData, toDispatch })
 		}).catch(error => {
-			let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + '. Error = ' + error
+			let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + ',' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: ERROR })
 		})

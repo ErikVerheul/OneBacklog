@@ -227,7 +227,7 @@ const actions = {
                 }
             }
         }).catch(error => {
-            let msg = 'restorebranches.getChildren: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+            let msg = 'restorebranches.getChildren: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

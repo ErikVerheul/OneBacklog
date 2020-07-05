@@ -178,7 +178,7 @@ const actions = {
             // postpone the warning message for 'no product found' until the configuration is loaded
             dispatch('getConfig')
         }).catch(error => {
-            let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
+            let msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

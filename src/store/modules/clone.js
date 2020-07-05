@@ -129,7 +129,7 @@ const actions = {
             // save the new product in the database
             dispatch('storeProduct', docs)
         }).catch(error => {
-            let msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error
+            let msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

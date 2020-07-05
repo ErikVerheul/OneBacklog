@@ -376,7 +376,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			let msg = 'setStoryPoints: Could not read document with _id ' + id + '. Error = ' + error
+			let msg = 'setStoryPoints: Could not read document with _id ' + id + ',' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -444,7 +444,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			let msg = 'setState: Could not read document with id ' + id + '. Error = ' + error
+			let msg = 'setState: Could not read document with id ' + id + ',' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -510,7 +510,7 @@ const actions = {
 				})
 			}
 		}).catch(error => {
-			let msg = 'assignToMyTeam: Could not read document with _id ' + id + '. Error = ' + error
+			let msg = 'assignToMyTeam: Could not read document with _id ' + id + ',' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -979,7 +979,7 @@ const actions = {
 			} else commit('showLastEvent', { txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING })
 		})
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + '. Error = ' + error))
+			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + ',' + error))
 	},
 
 	/* Add history to the parent and than save the document */

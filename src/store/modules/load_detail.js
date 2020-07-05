@@ -266,7 +266,7 @@ const actions = {
             parentNodes = {}
         })
             // eslint-disable-next-line no-console
-            .catch(error => console.log('loadAssignedAndSubscribed: Could not read a product from database ' + rootState.userData.currentDb + '. Error = ' + error))
+            .catch(error => console.log('loadAssignedAndSubscribed: Could not read a product from database ' + rootState.userData.currentDb + ',' + error))
     }
 }
 

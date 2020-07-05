@@ -108,7 +108,7 @@ const actions = {
 			}
 
 		}).catch(error => {
-			let msg = 'getDbProducts: Could not find products of database ' + payload.dbName + '. Error = ' + error
+			let msg = 'getDbProducts: Could not find products of database ' + payload.dbName + ',' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -147,7 +147,7 @@ const actions = {
 			tmpUserData["password"] = newPassword
 			dispatch('updateUser', { data: tmpUserData })
 		}).catch(error => {
-			let msg = 'changePW: Could not change password for user ' + rootState.userData.user + '. Error = ' + error
+			let msg = 'changePW: Could not change password for user ' + rootState.userData.user + ',' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
@@ -240,7 +240,7 @@ const actions = {
 			}
 			dispatch('changeDbInProfile', { dbName, productIds: availableProductIds })
 		}).catch(error => {
-			let msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + '. Error = ' + error
+			let msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + ',' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
