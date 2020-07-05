@@ -231,31 +231,11 @@ const actions = {
 					 * Select the 'backlogitem' document type and skip removed documents.
 					 * History items older than one hour or of type 'ignoreEvent' are removed but at least one item (the most recent) must be selected.
 					 */
-					"allItemsFilter": {
+					"details": {
 						"map": `function(doc) {
-							const hour = 3600000
-							const now = Date.now()
-							const cleanedHist = []
-							for (var i = 0; i < doc.history.length; i++) {
-								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent' && (now - doc.history[i].timestamp < hour)) cleanedHist.push(doc.history[i])
-							}
-							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
 							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.productId, doc.level, doc.priority * -1],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color, doc.sprintId]);
-						}`
-					},
-					/* Filter up to and including the feature level */
-					"areaFilter": {
-						"map": `function(doc) {
-							const hour = 3600000
-							const now = Date.now()
-							const cleanedHist = []
-							for (var i = 0; i < doc.history.length; i++) {
-								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent' && (now - doc.history[i].timestamp < hour)) cleanedHist.push(doc.history[i])
-							}
-							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level < 5) emit([doc.productId, doc.level, doc.priority * -1],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
+								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
 						}`
 					},
 					/* Filter on parentIds to map documents to their parent */
@@ -267,20 +247,22 @@ const actions = {
 					/* Filter on parentIds to map documents to their parent and provide filtered values so that the whole document is not needed  */
 					"docToParentMapValues": {
 						"map": `function(doc) {
-							const hour = 3600000
-							const now = Date.now()
-							const cleanedHist = []
-							for (var i = 0; i < doc.history.length; i++) {
-								if (Object.keys(doc.history[i])[0] !== 'ignoreEvent' && (now - doc.history[i].timestamp < hour)) cleanedHist.push(doc.history[i])
-							}
-							if (cleanedHist.length === 0) cleanedHist.push(doc.history[0])
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '0') emit(doc.parentId,
-								[doc.reqarea, doc.productId, doc.priority, doc.level, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, cleanedHist, doc.comments[0], doc.color]);
+								[doc.reqarea, doc.productId, doc.priority, doc.level, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
+								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
 						}`
 					},
-					/* Filter on document type 'backlogItem', then sort on shortId.*/
-					"shortIdFilter": {
-						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc._id.slice(-5)], 1);}'
+					/* Filter up to and including the feature level */
+					"overview": {
+						"map": `function(doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level < 5) emit([doc.productId, doc.level, doc.priority * -1],
+								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
+								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
+						}`
+					},
+					/* Filter and sort documents by team.*/
+					"ownedByTeam": {
+						"map": 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.team) emit(doc.team, 1);}'
 					},
 					/* Filter on document type 'backlogItem' but skip the dummy req areas product, then emit the product id and title.*/
 					"products": {
@@ -289,6 +271,10 @@ const actions = {
 					/* Filter on document type 'backlogItem', then emit the product _rev of the removed documents.*/
 					"removed": {
 						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.delmark || doc._deleted) emit(doc._rev, 1);}'
+					},
+					/* Filter on document type 'backlogItem', then sort on shortId.*/
+					"shortIdFilter": {
+						"map": 'function (doc) {if (doc.type == "backlogItem" && doc.level > 1) emit([doc._id.slice(-5)], 1);}'
 					},
 					/* Filter on document type 'backlogItem', then emit sprintId, team level and (minus) priority to load the tasks in order as represented in the tree view */
 					"sprints": {
@@ -503,7 +489,7 @@ const actions = {
 			data: newDoc
 		}).then(() => {
 			dispatch('addProductToUser', { dbName, productId: _id, userRoles: ['*'] })
-			dispatch('createMessenger')
+			dispatch('createMessenger', dbName)
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Success, product with _id ' + _id + ' is created' })
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Failure, cannot create first product, ' + error })
@@ -512,7 +498,6 @@ const actions = {
 
 	createMessenger({
 		rootState,
-		dispatch
 	}, dbName) {
 		const _id = 'messenger'
 		// create a new document and store it
@@ -540,10 +525,9 @@ const actions = {
 			url: dbName + '/' + _id,
 			data: newDoc
 		}).then(() => {
-			dispatch('createMessenger', { dbName, productId: _id, userRoles: ['*'] })
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createMessenger: Success, product with _id ' + _id + ' is created' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createMessenger: Success, messenger document is created' })
 		}).catch(error => {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createMessenger: Failure, cannot create first product, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createMessenger: Failure, cannot create messenger document, ' + error })
 		})
 	}
 }
