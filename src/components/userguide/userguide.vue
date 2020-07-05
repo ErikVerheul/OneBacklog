@@ -193,18 +193,18 @@
 				<p>When you, as server admin, login with your super admin credentials the application will notice that you are unknown in the _users database. That will trigger a conversation where you name the first database and enter your e-mail address.</p>
 				<p>Click on 'Create database' to start the creation. If you entered a database name testdb and a valid e-mail address and all goes well you will see:</p>
 				<ul>
-					<li>createDatabase: Success, empty database erikdb7 is created</li>
-					<li>setDatabasePermissions: Success, database permissions for erikdb7 are set</li>
-					<li>createLog: Success, log for database erikdb7 is created</li>
 					<li>createUser: Successfully created user couchdbadmin</li>
+					<li>createLog: Success, log for database test is created</li>
+					<li>setDatabasePermissions: Success, database permissions for test are set</li>
 					<li>createConfig: Success, the configuration document is created</li>
 					<li>installDesignViews: Success, the design document is created</li>
 					<li>installDesignFilters: Success, the design document is created</li>
 					<li>createRootDoc: Success, the root document is created</li>
 					<li>createReqAreasParent: Success, the parent document is created</li>
-					<li>createDefaultTeam: Success, default team with _id 15909494155233cnpb is created</li>
-					<li>createFirstProduct: Product with _id 15808352512486doy6 is created</li>
-					<li>addProductToUser: The product with Id 15808352512486doy6 is added to your profile with roles admin</li>
+					<li>createDefaultTeam: Success, default team with _id 15939385179343ke4w is created</li>
+					<li>createFirstProduct: Success, product with _id 1593938517978ogbd5 is created</li>
+					<li>addProductToUser: The product with Id 1593938517978ogbd5 is added to your profile with roles admin</li>
+					<li>createMessenger: Success, messenger document is created</li>
 					<li>updateUser: The profile of user 'couchdbadmin' is updated successfully</li>
 				</ul>
 				<p>Click on 'Exit' and sign-in again to see the product view with the root document and the first product,<br>
