@@ -493,7 +493,6 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
-			const error = []
 			for (let r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
@@ -510,45 +509,32 @@ const actions = {
 					doc.history.unshift(newHist)
 					docs.push(doc)
 				}
-
-				if (envelope.error) error.push(envelope.error)
 			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'addSprintIds: These documents cannot be added to the sprint: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
-			} else {
-				const toDispatch = { triggerBoardReload: payload }
-				dispatch('updateBulk', {
-					dbName: rootState.userData.currentDb, docs, toDispatch,
-					onSuccessCallback: () => {
-						for (let d of docs) {
-							// update the tree view and show the history in the current opened item
-							const node = window.slVueTree.getNodeById(d._id)
-							if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: d.sprintId, newHist: d.history[0] })
-						}
-						// show child nodes
-						const parentNode = window.slVueTree.getNodeById(payload.parentId)
-						if (parentNode) parentNode.isExpanded = true
-						if (payload.createUndo) {
-							// create an entry for undoing the add-to-sprint for use with removeSprintIds action
-							const entry = {
-								type: 'undoAddSprintIds',
-								parentId: payload.parentId,
-								sprintId: payload.sprintId,
-								itemIds: payload.itemIds,
-								sprintName: payload.sprintName
-							}
-							rootState.changeHistory.unshift(entry)
-						} else commit('showLastEvent', { txt: `Item(s) from sprint removal is undone`, severity: INFO })
+			const toDispatch = { triggerBoardReload: payload }
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, toDispatch,
+				onSuccessCallback: () => {
+					for (let d of docs) {
+						// update the tree view and show the history in the current opened item
+						const node = window.slVueTree.getNodeById(d._id)
+						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: d.sprintId, newHist: d.history[0] })
 					}
-				})
-			}
+					// show child nodes
+					const parentNode = window.slVueTree.getNodeById(payload.parentId)
+					if (parentNode) parentNode.isExpanded = true
+					if (payload.createUndo) {
+						// create an entry for undoing the add-to-sprint for use with removeSprintIds action
+						const entry = {
+							type: 'undoAddSprintIds',
+							parentId: payload.parentId,
+							sprintId: payload.sprintId,
+							itemIds: payload.itemIds,
+							sprintName: payload.sprintName
+						}
+						rootState.changeHistory.unshift(entry)
+					} else commit('showLastEvent', { txt: `Item(s) from sprint removal is undone`, severity: INFO })
+				}
+			})
 		}).catch(e => {
 			let msg = 'addSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -574,12 +560,11 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
-			const error = []
 			for (let r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
-					if (doc.sprintId === payload.sprintId) doc.sprintId = undefined
+					doc.sprintId = undefined
 					const newHist = {
 						"removeSprintIdsEvent": [doc.level, doc.subtype, payload.sprintName],
 						"by": rootState.userData.user,
@@ -591,18 +576,6 @@ const actions = {
 					doc.history.unshift(newHist)
 					docs.push(doc)
 				}
-
-				if (envelope.error) error.push(envelope.error)
-			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'removeSprintIds: These documents cannot be removed from the sprint: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
 			}
 
 			const toDispatch = { triggerBoardReload: payload }
@@ -612,11 +585,7 @@ const actions = {
 					for (let d of docs) {
 						// update the tree view
 						const node = window.slVueTree.getNodeById(d._id)
-						if (node) {
-							if (node.data.sprintId === payload.sprintId) {
-								commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, newHist: d.history[0] })
-							} else commit('updateNodesAndCurrentDoc', { node, newHist: d.history[0] })
-						}
+						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, newHist: d.history[0] })
 					}
 					// show children nodes
 					window.slVueTree.getNodeById(payload.parentId).isExpanded = true
