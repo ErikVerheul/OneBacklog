@@ -8,7 +8,6 @@ const TASKLEVEL = 6
 const AREA_PRODUCTID = '0'
 
 function created() {
-    this.removedState = 0
     this.onholdState = 1
     this.doneState = 6
     this.databaseLevel = 1
@@ -284,7 +283,6 @@ const methods = {
                 for (let desc of descendants) {
                     if (desc.data.state > highestState) highestState = desc.data.state
                     if (desc.data.state < this.doneState &&
-                        desc.data.state !== this.removedState &&
                         desc.data.state !== this.onholdState) allDone = false
                 }
                 if (nm.data.state > highestState || nm.data.state === this.doneState && !allDone) {

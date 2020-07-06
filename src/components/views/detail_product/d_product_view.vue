@@ -79,7 +79,6 @@
                 <b-dropdown-item @click="onStateChange(doneState)">{{ getItemStateText(doneState) }}</b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
                 <b-dropdown-item @click="onStateChange(onholdState)">{{ getItemStateText(onholdState) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(removedState)">{{ getItemStateText(removedState) }}</b-dropdown-item>
               </b-dropdown>
               <b-dropdown v-else id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
                 <template slot="button-content">{{ getTaskStateText($store.state.currentDoc.state) }}</template>
@@ -89,7 +88,6 @@
                 <b-dropdown-item @click="onStateChange(doneState)">{{ getTaskStateText(doneState) }}</b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
                 <b-dropdown-item @click="onStateChange(onholdState)">{{ getTaskStateText(onholdState) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(removedState)">{{ getTaskStateText(removedState) }}</b-dropdown-item>
               </b-dropdown>
             </h3>
           </b-col>

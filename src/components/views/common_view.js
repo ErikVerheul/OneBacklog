@@ -10,7 +10,6 @@ const SHORTKEYLENGTH = 5
 var violationsWereFound = false
 
 function created() {
-  this.removedState = 0
   this.onholdState = 1
   this.newState = 2
   this.readyState = 3
@@ -347,7 +346,7 @@ const methods = {
       window.slVueTree.remove([node])
       window.slVueTree.insert(cursorPosition, [node])
       // restore the sprintId
-      node.data.sprintId = r.sprintId
+      this.$store.commit('updateNodesAndCurrentDoc', { node, sprintId: r.sprintId })
     }
     return true
   },
@@ -562,7 +561,7 @@ const methods = {
         let allDone = true
         for (let d of descendants) {
           if (d.data.state > highestState) highestState = d.data.state
-          if (d.data.state < vm.doneState && d.data.state !== vm.removedState) allDone = false
+          if (d.data.state < vm.doneState) allDone = false
         }
         if (newState > highestState || newState === vm.doneState && !allDone) {
           // node has a higher state than any of its descendants or set to done while one of its descendants is not done

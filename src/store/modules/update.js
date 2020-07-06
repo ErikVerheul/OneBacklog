@@ -4,7 +4,6 @@ import globalAxios from 'axios'
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
-const REMOVED = 0
 const ON_HOLD = 1
 const DONE = 6
 const TASKLEVEL = 6
@@ -260,7 +259,6 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					node.data.tssize = payload.newSizeIdx
 					commit('showLastEvent', { txt: `The T-shirt size of this item is changed`, severity: INFO })
 					commit('updateNodesAndCurrentDoc', { tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
@@ -405,23 +403,23 @@ const actions = {
 				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
+			tmpDoc.state = payload.newState
 			const prevLastStateChange = tmpDoc.lastStateChange
 			tmpDoc.lastStateChange = payload.timestamp
 			const prevLastChange = tmpDoc.lastChange
 			tmpDoc.lastChange = payload.timestamp
 
-			tmpDoc.state = payload.newState
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { state: payload.newState, lastStateChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
 					// recalculate and (re)set the inconsistency state of the parent item
 					const parentNode = window.slVueTree.getParentNode(node)
 					if (parentNode && parentNode.data.state === DONE) {
 						const descendants = window.slVueTree.getDescendantsInfo(parentNode).descendants
 						let hasInconsistentState = false
 						for (let d of descendants) {
-							if (d.data.state === REMOVED || d.data.state === ON_HOLD) continue
+							if (d.data.state === ON_HOLD) continue
 							if (d.data.state !== DONE) {
 								hasInconsistentState = true
 								break
@@ -486,11 +484,10 @@ const actions = {
 					dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
 					onSuccessCallback: () => {
 						// update the tree
-						node.data.team = payload.newTeam
 						for (let d of descendantsInfo.descendants) {
-							d.data.team = payload.newTeam
+							commit('updateNodesAndCurrentDoc', { node: d, team: payload.newTeam, lastChange: payload.timestamp, newHist })
 						}
-						commit('updateNodesAndCurrentDoc', { team: payload.newTeam, lastChange: payload.timestamp, newHist })
+						commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam, lastChange: payload.timestamp, newHist })
 
 						if (descendantsInfo.count === 0) {
 							commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootState.userData.myTeam}'.`, severity: INFO })

@@ -6,6 +6,17 @@
       </b-col>
       <b-col>
         <task-column
+          :state="ON_HOLD"
+          title="[On hold]"
+          :tasks="$store.state.stories[idx].tasks[ON_HOLD]"
+          :idx="idx"
+          :productId="$store.state.stories[idx].productId"
+          :storyId="$store.state.stories[idx].storyId"
+          :storyTitle="$store.state.stories[idx].title"
+        ></task-column>
+      </b-col>
+      <b-col>
+        <task-column
           :state="TODO"
           title="Todo"
           :tasks="$store.state.stories[idx].tasks[TODO]"
@@ -60,10 +71,11 @@ export default {
   name: 'StoryLane',
   props: ['idx'],
   created() {
-    this.TODO = 2,
-      this.INPROGRESS = 4,
-      this.TESTREVIEW = 5,
-      this.DONE = 6
+    this.ON_HOLD = 1
+    this.TODO = 2
+    this.INPROGRESS = 4
+    this.TESTREVIEW = 5
+    this.DONE = 6
   },
   components: {
     'task-column': TaskColumn,

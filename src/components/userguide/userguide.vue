@@ -15,6 +15,7 @@
 				<p>For &apos;Filter in tree &apos;, &apos;Find on Id&apos; and &apos;Search in titles&apos; see <a href="#tv-features">Tree view search and filtering</a></p>
 				<h5>Select your view</h5>
 				<p>For &apos;Select your view&apos; see <a href="#pv">Product details</a>, <a href="#rv">Products overview</a> and <a href="#pb">Sprint planning board</a></p>
+				<p>In the Product details view you van assign a sprint to a PBI or task. <a href="#sp">See Sprint assignment</a></p>
 				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or server admin.
 				<h5><em>User</em></h5>
 				<ul>
@@ -93,7 +94,6 @@
 							<li>done (delivered wrt the Definition of Done)</li>
 							<li>---------------------------------------------------------------</li>
 							<li>on hold (not in a sprint anymore, waiting on the backlog)</li>
-							<li>removed</li>
 						</ul>
 						Tasks have slightly different states:
 						<ul>
@@ -103,7 +103,6 @@
 							<li>done (delivered wrt the Definition of Done)</li>
 							<li>---------------------------------------------------------------</li>
 							<li>on hold (still in the sprint, waiting to be continued)</li>
-							<li>removed</li>
 						</ul>
 					</p>
 					<p>Dependencies:</p>
@@ -145,6 +144,11 @@
 						<h5>Recent changes + Search in titles</h5>
 						<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
 					</div>
+				</div>
+				<div id="sp">
+					<h4>Sprint assignment</h4>
+					<p>A PBI can be assigned to the current or upcoming sprint. All tasks of the PBI are assigned to that sprint too. Each individual task can be unassigned. New tasks are automatically assigned to the PBI's sprint.<br/>
+					When a PBI has no assigned sprint but a sprint is assigned to one of its tasks that sprint is also assigned to the PBI.</p>
 				</div>
 				<div id="pb">
 					<h4>Sprint planning board</h4>

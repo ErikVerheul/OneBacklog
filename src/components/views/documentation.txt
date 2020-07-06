@@ -132,7 +132,6 @@ From the 'Product details' view context menu features, PBI's and tasks can be se
  - A feature without PBI's cannot be assigned to a sprint
  - When a PBI is selected, that PBI and it descendent tasks are assigned
  - Individual tasks can also be assigned to a sprint
- - Features, PBI's and tasks that are Removed or On-hold cannot be assigned to a sprint
 
 Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.
 
@@ -211,9 +210,8 @@ In the CONFIG document the PBI subtypes are defined
   ],
 
 In the CONFIG document the item states are defined
-As per release 0.9.7
+As per release 1.0
 itemState				taskState
-0   "Removed"			"Removed"
 1   "On hold"			"On hold"
 2   "New"				"ToDo"
 3   "Ready"				"ToDo"

@@ -134,15 +134,15 @@
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
-              v-if="canAssignSprint"
+              v-if="canAssignPbiToSprint"
               button
-              :active="contextOptionSelected === TOSPRINT"
+              :active="contextOptionSelected === PBITOSPRINT"
               variant="dark"
-              @click="showSelected(TOSPRINT)"
+              @click="showSelected(PBITOSPRINT)"
             >Assing this {{ contextNodeType }} to a sprint</b-list-group-item>
 
             <b-list-group-item
-              v-if="canAssignSprintToTask"
+              v-if="canAssignTaskToSprint"
               button
               :active="contextOptionSelected === TASKTOSPRINT"
               variant="dark"

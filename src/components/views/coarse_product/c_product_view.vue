@@ -79,7 +79,6 @@
                 <b-dropdown-item @click="onStateChange(doneState)">{{ getItemStateText(doneState) }}</b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
                 <b-dropdown-item @click="onStateChange(onholdState)">{{ getItemStateText(onholdState) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(removedState)">{{ getItemStateText(removedState) }}</b-dropdown-item>
               </b-dropdown>
             </h3>
           </b-col>

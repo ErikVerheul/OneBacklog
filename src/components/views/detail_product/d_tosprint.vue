@@ -2,7 +2,7 @@
   <b-modal size="xl" ref="assignToSprintRef" @ok="addItemToSprint" :title="contextNodeTitle">
     <div>
       <b-form-group label="Assing this item to a sprint">
-        <b-form-radio-group v-model="selectedSprint" :options="sprintOptions" stacked></b-form-radio-group>
+        <b-form-radio-group v-model="selectedSprintId" :options="sprintOptions" stacked></b-form-radio-group>
       </b-form-group>
     </div>
   </b-modal>
@@ -11,11 +11,8 @@
 
 <script>
 import { utilities } from '../../mixins/utilities.js'
-const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const REMOVED = 0
-const ON_HOLD = 1
 var recentSprints
 
 function shortStartDate(sprint) {
@@ -51,18 +48,13 @@ export default {
     return {
       contextNodeTitle: this.$store.state.currentDoc.title,
       sprintOptions: [],
-      selectedSprint: undefined
+      selectedSprintId: undefined
     }
   },
 
   methods: {
-    /*
-    * From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:
-    * - When a feature is selected all its descendants (PBI's and tasks) are assigned
-    * - When a PBI is selected, that PBI and it descendent tasks are assigned
-    * - When a task is selected only that task is assigned to the sprint
-    * - Items with state OnHold or Removed cannot be assigned to a sprint
-    */
+
+    /* From the 'Product details' view context menu a PBI or a task can be selected to be assigned to the current or next sprint */
     addItemToSprint() {
       function getSprintName(id) {
         if (id === recentSprints.currentSprint.id) {
@@ -70,29 +62,26 @@ export default {
         } else return recentSprints.nextSprint.name
       }
 
-      function stateOk(state) {
-        return state !== ON_HOLD && state !== REMOVED
+      const currentDoc = this.$store.state.currentDoc
+      const itemLevel = currentDoc.level
+      const sprintId = this.selectedSprintId
+      const sprintName = getSprintName(sprintId)
+
+      // when a PBI is selected, that PBI and it descendent tasks are assigned to the sprint
+      if (itemLevel === PBILEVEL) {
+        const itemIds = [currentDoc._id]
+        const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
+        for (let d of descendants) {
+          itemIds.push(d._id)
+        }
+        this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName, createUndo: true })
       }
 
-      const currentDoc = this.$store.state.currentDoc
-      if (stateOk(currentDoc.state)) {
-        const docLevel = this.$store.state.currentDoc.level
-        let itemIds = []
-
-        if (docLevel === FEATURELEVEL || docLevel === PBILEVEL) {
-          itemIds = [currentDoc._id]
-          const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
-          for (let d of descendants) {
-            if (stateOk(d.data.state)) itemIds.push(d._id)
-          }
-        }
-
-        if (docLevel === TASKLEVEL) {
-          itemIds = [currentDoc._id]
-        }
-        const sprintId = this.selectedSprint
-        const sprintName = getSprintName(sprintId)
-        this.$store.dispatch('addSprintIds', { parentId: currentDoc._id, itemIds, sprintId, sprintName, createUndo: true })
+      if (itemLevel === TASKLEVEL) {
+        // when a task is selected, the task's PBI and the task are assigned to the sprint
+        const pbiNode = window.slVueTree.getNodeById(currentDoc.parentId)
+        const itemIds = [pbiNode._id, currentDoc._id]
+        this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName, createUndo: true })
       }
     },
   }

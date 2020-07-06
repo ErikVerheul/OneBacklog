@@ -4,15 +4,12 @@ import CommonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
 const WARNING = 1
-const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const REMOVED = 0
-const ON_HOLD = 1
 var movedNode = null
 
 function created() {
-  this.TOSPRINT = 11
+  this.PBITOSPRINT = 11
   this.FROMSPRINT = 12
   this.TASKTOSPRINT = 13
   this.sprints = this.getCurrentAndNextSprint()
@@ -24,8 +21,8 @@ function created() {
 function data() {
   return {
     isInSprint: false,
-    canAssignSprint: false,
-    canAssignSprintToTask: false
+    canAssignPbiToSprint: false,
+    canAssignTaskToSprint: false
   }
 }
 
@@ -59,29 +56,16 @@ const methods = {
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = true
         this.isInSprint = node.data.sprintId && this.isCurrentOrNextPrintId(node.data.sprintId)
-        this.canAssignSprint = this.calcCanAssignSprint(node)
-        this.canAssignSprintToTask = this.calcCanAssignSprintToTask(node)
+        // can only assign pbi's to a sprint if not in a sprint already
+        this.canAssignPbiToSprint = node.level === this.pbiLevel && !node.data.sprintId
+        // can only assign tasks to a sprint if not in a sprint already
+        this.canAssignTaskToSprint = node.level === this.taskLevel && !node.data.sprintId
         if (this.$refs.d_contextMenuRef) {
           // prevent error message on recompile
           this.$refs.d_contextMenuRef.show()
         }
       } else this.allowRemoval = false
     } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
-  },
-
-  /* Can only assign features and pbi's to a sprint; Cannot assign a feature without pbi's to a sprint; cannot assign Removed or On-hold items */
-  calcCanAssignSprint(node) {
-    if (node.level === this.featureLevel) {
-      if (!node.children || node.children && node.children.length === 0) return false
-    }
-    return node.data.state !== REMOVED && node.data.state !== ON_HOLD &&
-      (this.contextNodeLevel === this.featureLevel || this.contextNodeLevel === this.pbiLevel)
-  },
-  /* Can only assign tasks to a sprint if not in a sprint yet and not Removed or On-hold */
-  calcCanAssignSprintToTask(node) {
-    if (node.level === this.taskLevel) {
-      return !node.data.sprintId && node.data.state !== REMOVED && node.data.state !== ON_HOLD
-    }
   },
 
   showSelected(idx) {
@@ -214,8 +198,8 @@ const methods = {
       case this.SHOWCONDITIONS:
         this.doRemoveConditions()
         break
-      case this.TOSPRINT:
-        this.doAddToSprint()
+      case this.PBITOSPRINT:
+        this.doAddPbiToSprint()
         break
       case this.TASKTOSPRINT:
         this.doAddTaskToSprint()
@@ -257,18 +241,20 @@ const methods = {
     }
   },
 
-  doAddToSprint() {
+  doAddPbiToSprint() {
     window.assignToSprintRef.show()
   },
 
   doAddTaskToSprint() {
-    const currentId = this.$store.state.currentDoc._id
-    const node = window.slVueTree.getNodeById(currentId)
-    if (node === null) return
-    const parent = window.slVueTree.getParentNode(node)
-    const sprintId = parent.data.sprintId
-    const sprintName = this.getSprintName(sprintId)
-    this.$store.dispatch('addSprintIds', { parentId: currentId, itemIds: [currentId], sprintId, sprintName, createUndo: true })
+    const pbiNode = window.slVueTree.getParentNode(this.contextNodeSelected)
+    const sprintId = pbiNode.data.sprintId
+    if (sprintId) {
+      const sprintName = this.getSprintName(sprintId)
+      // assign the task to the same sprint the PBI is assigned to
+      this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [this.contextNodeSelected._id], sprintId, sprintName, createUndo: true })
+    } else {
+      window.assignToSprintRef.show()
+    }
   },
 
   getSprintName(id) {
@@ -284,9 +270,6 @@ const methods = {
 
     const sprintId = node.data.sprintId
     let itemIds = []
-    if (this.$store.state.currentDoc.level === FEATURELEVEL) {
-      itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
-    }
     if (this.$store.state.currentDoc.level === PBILEVEL) {
       itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
     }

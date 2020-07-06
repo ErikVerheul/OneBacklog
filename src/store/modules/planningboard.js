@@ -4,7 +4,7 @@ const INFO = 0
 const ERROR = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const REMOVED = 0
+const DONE = 6
 const MIN_ID = ""
 const MAX_ID = "999999999999zzzzz"
 var loadRequests = 0
@@ -32,6 +32,13 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		function isCurrentSprint(sprintId) {
+			for (let s of rootState.sprintCalendar) {
+				if (s.id === sprintId) {
+					return (Date.now() > s.startTimestamp && Date.now() < s.startTimestamp + s.sprintLength)
+				}
+			}
+		}
 		if (!busyLoading) {
 			busyLoading = true
 			rootState.stories = []
@@ -39,6 +46,7 @@ const actions = {
 			const featureMap = []
 			const storieResults = []
 			const taskResults = []
+			const storyIdsWithTasksDone = []
 			globalAxios({
 				method: 'GET',
 				url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(payload.sprintId, payload.team)
@@ -47,6 +55,7 @@ const actions = {
 				rootState.loadedSprintId = payload.sprintId
 				const results = res.data.rows
 				for (let r of results) {
+					console.log('loadPlanningBoard: result = ' + JSON.stringify(r, null, 2))
 					const level = r.key[4]
 					if (level === PBILEVEL) {
 						const featureId = r.key[3]
@@ -60,7 +69,19 @@ const actions = {
 							storieResults.push(r)
 						}
 					}
-					if (level === TASKLEVEL) taskResults.push(r)
+					if (level === TASKLEVEL) {
+						taskResults.push(r)
+						if (r.value[2] === DONE) storyIdsWithTasksDone.push(r.key[3])
+					}
+				}
+				console.log('loadPlanningBoard: storyIdsWithTasksDone = ' + storyIdsWithTasksDone)
+				// extend storieResults with stories with 'done' tasks
+				for (let r of results) {
+					console.log('loadPlanningBoard: r.id = ' + r.id)
+					if (storyIdsWithTasksDone.includes(r.id) && !storieResults.Object.keys[0].includes(r.id)) {
+						console.log('loadPlanningBoard: push storieResult = ' + JSON.stringify(r, null, 2))
+						storieResults.push(r)
+					}
 				}
 				// order the items as in the tree view
 				featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
@@ -70,9 +91,9 @@ const actions = {
 				if (loadRequests > 0) {
 					loadRequests--
 					dispatch('loadPlanningBoard', payload)
-				} else dispatch('loadUnfinished', rootState.userData.myTeam)
+				} else if (isCurrentSprint(payload.sprintId)) dispatch('loadUnfinished', rootState.userData.myTeam)
 			}).catch(error => {
-				let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+				let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
@@ -92,11 +113,10 @@ const actions = {
 		state,
 		dispatch
 	}, team) {
-		const now = Date.now()
-		function isPreviousSprint(sprintId) {
+		function isAnyPreviousSprint(sprintId) {
 			for (let s of rootState.sprintCalendar) {
 				if (s.id === sprintId) {
-					return (now > s.startTimestamp + s.sprintLength)
+					return (Date.now() > s.startTimestamp + s.sprintLength)
 				}
 			}
 		}
@@ -111,7 +131,7 @@ const actions = {
 			for (let r of results) {
 				const sprintId = r.key[1]
 				const productId = r.key[2]
-				if (isPreviousSprint(sprintId)) {
+				if (isAnyPreviousSprint(sprintId)) {
 					if (rootState.userData.userAssignedProductIds.includes(productId) &&
 						(rootState.userData.myProductsRoles[productId].includes('PO') ||
 							rootState.userData.myProductsRoles[productId].includes('developer'))) {
@@ -127,7 +147,7 @@ const actions = {
 			const cannotImportCount = rootState.cannotImportProducts.length
 			if (cannotImportCount > 0) rootState.warningText = `You cannot import all unfinished tasks as ${cannotImportCount} product(s) are not assigned to you`
 		}).catch(error => {
-			let msg = 'loadUnfinished: Could not read the items from database ' + rootState.userData.currentDb + '. Error = ' + error
+			let msg = 'loadUnfinished: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -137,7 +157,8 @@ const actions = {
 	importInSprint({
 		rootState,
 		state,
-		dispatch
+		dispatch,
+		commit
 	}, newSprintId) {
 		const docsToGet = []
 		for (let id of state.parentIdsToImport.concat(state.taskIdsToImport)) {
@@ -160,7 +181,7 @@ const actions = {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree view
 						const node = window.slVueTree.getNodeById(doc._id)
-						if (node) node.data.sprintId = newSprintId
+						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId })
 					}
 					let oldSprintName
 					for (let s of rootState.sprintCalendar) {
@@ -456,11 +477,9 @@ const actions = {
 					dbName: rootState.userData.currentDb, docs, toDispatch,
 					onSuccessCallback: () => {
 						for (let d of docs) {
-							// update the tree view
+							// update the tree view and show the history in the current opened item
 							const node = window.slVueTree.getNodeById(d._id)
-							if (node) node.data.sprintId = d.sprintId
-							// show the history in the current opened item
-							if (d._id === rootState.currentDoc._id) commit('updateNodesAndCurrentDoc', { node, newHist: d.history[0] })
+							if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: d.sprintId, newHist: d.history[0] })
 						}
 						// show child nodes
 						const parentNode = window.slVueTree.getNodeById(payload.parentId)
@@ -758,7 +777,8 @@ const actions = {
 
 	boardUpdateTaskOwner({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, payload) {
 		globalAxios({
 			method: 'GET',
@@ -783,55 +803,13 @@ const actions = {
 						// update the tree model
 						const node = window.slVueTree.getNodeById(payload.taskId)
 						if (node) {
-							node.data.taskOwner = doc.taskOwner
+							commit('updateNodesAndCurrentDoc', { node, taskOwner: doc.taskOwner })
 						}
 					}
 				}
 			})
 		}).catch(error => {
 			let msg = 'boardUpdateTaskOwner: Could not read document with id ' + payload.taskId + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	boardRemoveTask({
-		rootState,
-		dispatch,
-		commit
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + payload.taskId
-		}).then(res => {
-			let doc = res.data
-			const prevState = doc.state
-			doc.state = REMOVED
-			const newHist = {
-				"taskRemovedEvent": [payload.storyTitle, payload.currentState],
-				"by": rootState.userData.user,
-				"timestamp": Date.now(),
-				"sessionId": rootState.userData.sessionId,
-				"distributeEvent": true
-			}
-			doc.history.unshift(newHist)
-
-			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: doc,
-				onSuccessCallback: () => {
-					commit('removeTaskFromBoard', { prevState, doc })
-					if (rootState.lastTreeView === 'detailProduct') {
-						const node = window.slVueTree.getNodeById(payload.taskId)
-						if (node) {
-							node.data.state = REMOVED
-							node.data.lastStateChange = Date.now()
-						}
-					}
-				}
-			})
-		}).catch(error => {
-			let msg = 'boardRemoveTask: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

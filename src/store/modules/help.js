@@ -96,7 +96,7 @@ const state = {
         </p>
         <hr>
         <p>A feature is done if and only if all of its user stories, spikes and defects are done. An epic is done when all its user stories are done.
-        This check will turn the Done badge to red and add a question mark to the text. Removed items are not taken into account, but 'On hold' items are.
+        This check will turn the Done badge to red and add a question mark to the text. 'On hold' items are not taken into account.
         </p>
         <p>The warning badge also appears when the state of an item if higher (progressed further) than any of its decendants.
         </p>

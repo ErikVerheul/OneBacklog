@@ -39,12 +39,6 @@
             variant="dark"
             @click="prepSelected(ID_TO_CLIPBOARD)"
           >Copy short id to clipboard</b-list-group-item>
-          <b-list-group-item
-            button
-            :active="contextOptionSelected === REMOVE_TASK"
-            variant="dark"
-            @click="prepSelected(REMOVE_TASK)"
-          >Remove this task</b-list-group-item>
         </b-list-group>
 
         <div v-if="contextOptionSelected === ADD_TASK" class="title_block">
@@ -67,9 +61,6 @@
           </b-row>
         </div>
 
-        <div v-if="contextOptionSelected === REMOVE_TASK" class="title_block">
-          <b-col sm="12">Click OK to confirm</b-col>
-        </div>
       </template>
     </b-modal>
   </div>
@@ -90,7 +81,6 @@ export default {
     this.CHANGE_TITLE = 1
     this.CHANGE_OWNER = 2
     this.ID_TO_CLIPBOARD = 3
-    this.REMOVE_TASK = 4
   },
 
   data() {
@@ -145,10 +135,6 @@ export default {
           this.assistanceText = undefined
           this.listItemText = 'Copy the short id of this task to the clipboard'
           break
-        case this.REMOVE_TASK:
-          this.assistanceText = undefined
-          this.listItemText = 'Remove this task'
-          break
         default:
           this.assistanceText = 'No assistance available'
           this.listItemText = 'nothing selected as yet'
@@ -177,9 +163,6 @@ export default {
               console.log('TaskItem.procSelected: clipboard write failed')
             });
             break
-          case this.REMOVE_TASK:
-            this.$store.dispatch('boardRemoveTask', { taskId: this.item.id, storyTitle: this.storyTitle, currentState: this.state })
-            break
         }
       } else {
         this.$store.state.warningText = `Sorry, your assigned role(s) [${this.myProductRoles}] for this product disallow you to execute this action`
@@ -202,6 +185,7 @@ export default {
 
     getClass(name) {
       switch (name) {
+        case "[On hold]":
         case 'Todo':
         case 'In progress':
         case 'Test / review':

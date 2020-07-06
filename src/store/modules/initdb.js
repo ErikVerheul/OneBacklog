@@ -147,7 +147,6 @@ const actions = {
 			],
 
 			"itemState": [
-				"Removed",
 				"On hold",
 				"New",
 				"Ready",
@@ -156,7 +155,6 @@ const actions = {
 				"Done"
 			],
 			"taskState": [
-				"Removed",
 				"On hold",
 				"ToDo",
 				"ToDo",
@@ -171,7 +169,6 @@ const actions = {
 				"The state 'In progress' means that the item is worked on in a (past) sprint",
 				"The state 'On hold' means that work at the item has stopped and will be resumed later or cancelled and Removed from the backlog",
 				"The state Done means that the item is ready for deployment and meets all criteria set by the definition of done",
-				"The state Removed means that work on the item will never start or was cancelled"
 			],
 
 			"tsSize": [

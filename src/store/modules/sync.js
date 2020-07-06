@@ -7,8 +7,6 @@ const PBILEVEL = 5
 const TASKLEVEL = 6
 const INFO = 0
 const WARNING = 1
-const REMOVED = 0
-const ON_HOLD = 1
 var removedProducts = []
 
 // returns a new array so that it is reactive
@@ -263,7 +261,7 @@ const actions = {
 									return
 								}
 								const node = window.slVueTree.getNodeById(doc._id)
-								if (node.level === PBILEVEL || node.level === TASKLEVEL) node.data.sprintId = item[12]
+								if (node.level === PBILEVEL || node.level === TASKLEVEL) commit('updateNodesAndCurrentDoc', { node, sprintId: item[12] })
 								let locationInfo = getLocationInfo(item[10], parentNode)
 								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 									// move the node to the new position w/r to its siblings; first remove the node, then insert
@@ -355,9 +353,6 @@ const actions = {
 							commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
 							break
 						/////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
-						case 'taskRemovedEvent':
-							commit('updateNodesAndCurrentDoc', { node, state: REMOVED, lastStateChange: Date.now() })
-							break
 						case 'updateTaskOrderEvent':
 							if (rootState.lastTreeView === 'detailProduct') {
 								// update the position of the tasks of the story and update the index and priority values in the tree
@@ -475,25 +470,22 @@ const actions = {
 							{
 								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.removedWithDescendantsEvent[4])
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
-									// REMOVED state items are not on the board anyway
-									if (doc.state !== REMOVED) {
-										// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
-										if (doc.level === TASKLEVEL) {
-											// a task is removed from a user story currently displayed on the planning board
-											for (let s of rootState.stories) {
-												if (s.storyId === doc.parentId) {
-													const newArray = []
-													for (let t of s.tasks[doc.state]) {
-														if (t.id !== doc._id) newArray.push(t)
-													}
-													s.tasks[doc.state] = newArray
-													break
+									// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
+									if (doc.level === TASKLEVEL) {
+										// a task is removed from a user story currently displayed on the planning board
+										for (let s of rootState.stories) {
+											if (s.storyId === doc.parentId) {
+												const newArray = []
+												for (let t of s.tasks[doc.state]) {
+													if (t.id !== doc._id) newArray.push(t)
 												}
+												s.tasks[doc.state] = newArray
+												break
 											}
-										} else {
-											// a user story is removed from the planning board
-											dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 										}
+									} else {
+										// a user story is removed from the planning board
+										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
 								}
 							}
@@ -517,31 +509,25 @@ const actions = {
 						case 'setStateEvent':
 							if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
 								const prevState = lastHistObj.setStateEvent[0]
-								if (prevState === REMOVED || prevState === ON_HOLD) {
-									commit('addTaskToBoard', doc)
-								} else if (doc.state === REMOVED || doc.state === ON_HOLD) {
-									commit('removeTaskFromBoard', { prevState, doc })
-								} else {
-									const newTaskPosition = lastHistObj.setStateEvent[3]
-									for (let s of rootState.stories) {
-										if (s.storyId === doc.parentId) {
-											const sourceColumn = s.tasks[prevState]
-											const targetColumn = s.tasks[doc.state]
-											let movedTask
-											const newSourceColumn = []
-											for (let t of sourceColumn) {
-												if (t.id === doc._id) {
-													movedTask = t
-												} else newSourceColumn.push(t)
-											}
-											if (movedTask) {
-												s.tasks[prevState] = newSourceColumn
-												if (newTaskPosition !== 0) {
-													targetColumn.splice(newTaskPosition, 0, movedTask)
-												} else targetColumn.unshift(movedTask)
-											}
-											break
+								const newTaskPosition = lastHistObj.setStateEvent[3]
+								for (let s of rootState.stories) {
+									if (s.storyId === doc.parentId) {
+										const sourceColumn = s.tasks[prevState]
+										const targetColumn = s.tasks[doc.state]
+										let movedTask
+										const newSourceColumn = []
+										for (let t of sourceColumn) {
+											if (t.id === doc._id) {
+												movedTask = t
+											} else newSourceColumn.push(t)
 										}
+										if (movedTask) {
+											s.tasks[prevState] = newSourceColumn
+											if (newTaskPosition !== 0) {
+												targetColumn.splice(newTaskPosition, 0, movedTask)
+											} else targetColumn.unshift(movedTask)
+										}
+										break
 									}
 								}
 							}

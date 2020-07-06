@@ -28,6 +28,7 @@ const WARNING = 1
 const ERROR = 2
 const CRITICAL = 3
 
+const ON_HOLD = 1
 const TODO = 2
 const READY = 3
 const INPROGRESS = 4
@@ -672,6 +673,7 @@ export default new Vuex.Store({
 							size: storySize,
 							subType,
 							tasks: {
+								[ON_HOLD]: [],
 								[TODO]: [],
 								[INPROGRESS]: [],
 								[TESTREVIEW]: [],
@@ -683,6 +685,14 @@ export default new Vuex.Store({
 							if (t.key[3] === storyId) {
 								const taskState = t.value[2]
 								switch (taskState) {
+									case ON_HOLD:
+										newStory.tasks[ON_HOLD].push({
+											id: t.id,
+											title: t.value[0],
+											taskOwner: t.value[4],
+											priority: -t.key[5]
+										})
+										break
 									case TODO:
 									case READY:
 										newStory.tasks[TODO].push({
