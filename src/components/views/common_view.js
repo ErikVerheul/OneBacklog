@@ -551,6 +551,7 @@ const methods = {
   * Issue a warning when the user assigns a state to a parent:
   * - to DONE when not all descendants are done
   * - higher than the state of any of its descendants
+  *  ToDo: when setting the state to on-hold also set the state of all descendants to on-hold
   */
   onStateChange(newState) {
     function changeState(vm) {
