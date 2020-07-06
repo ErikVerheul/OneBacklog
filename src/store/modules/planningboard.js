@@ -4,7 +4,6 @@ const INFO = 0
 const ERROR = 2
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const DONE = 6
 const MIN_ID = ""
 const MAX_ID = "999999999999zzzzz"
 var loadRequests = 0
@@ -22,13 +21,17 @@ function composeRangeString3(id) {
 
 const state = {
 	parentIdsToImport: [],
-	taskIdsToImport: []
+	taskIdsToImport: [],
+	featureMap: [],
+	pbiResults: [],
+	pathsFound: []
 }
 
 const actions = {
 	/* Multiple calls to this action are serialized */
 	loadPlanningBoard({
 		rootState,
+		state,
 		commit,
 		dispatch
 	}, payload) {
@@ -42,11 +45,9 @@ const actions = {
 		if (!busyLoading) {
 			busyLoading = true
 			rootState.stories = []
-			const pathsFound = []
-			const featureMap = []
-			const storieResults = []
-			const taskResults = []
-			const storyIdsWithTasksDone = []
+			state.featureMap = []
+			state.pbiResults = []
+			state.pathsFound = []
 			globalAxios({
 				method: 'GET',
 				url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(payload.sprintId, payload.team)
@@ -54,44 +55,48 @@ const actions = {
 				// save the last loaded sprintId
 				rootState.loadedSprintId = payload.sprintId
 				const results = res.data.rows
+				const foundPbiIds = []
+				const taskResults = []
+				const missingPbiIds = []
 				for (let r of results) {
-					console.log('loadPlanningBoard: result = ' + JSON.stringify(r, null, 2))
 					const level = r.key[4]
 					if (level === PBILEVEL) {
+						const pbiId = r.id
+						if (!foundPbiIds.includes(pbiId)) foundPbiIds.push(pbiId)
 						const featureId = r.key[3]
 						const feature = window.slVueTree.getNodeById(featureId)
 						if (feature) {
-							if (!pathsFound.includes(feature.pathStr)) {
-								featureMap.push({ path: feature.path, id: feature._id })
+							if (!state.pathsFound.includes(feature.pathStr)) {
+								state.featureMap.push({ path: feature.path, id: feature._id })
 							}
-							pathsFound.push(feature.pathStr)
+							state.pathsFound.push(feature.pathStr)
 							// stories without a associated feature are skipped
-							storieResults.push(r)
+							state.pbiResults.push(r)
 						}
 					}
 					if (level === TASKLEVEL) {
 						taskResults.push(r)
-						if (r.value[2] === DONE) storyIdsWithTasksDone.push(r.key[3])
+						const pbiId = r.key[3]
+						if (!foundPbiIds.includes(pbiId)) {
+							foundPbiIds.push(pbiId)
+							if (!missingPbiIds.includes(pbiId)) missingPbiIds.push(pbiId)
+						}
 					}
 				}
-				console.log('loadPlanningBoard: storyIdsWithTasksDone = ' + storyIdsWithTasksDone)
-				// extend storieResults with stories with 'done' tasks
-				for (let r of results) {
-					console.log('loadPlanningBoard: r.id = ' + r.id)
-					if (storyIdsWithTasksDone.includes(r.id) && !storieResults.Object.keys[0].includes(r.id)) {
-						console.log('loadPlanningBoard: push storieResult = ' + JSON.stringify(r, null, 2))
-						storieResults.push(r)
+
+				dispatch('loadMissingPbis', {
+					missingPbiIds, onSuccessCallBack: () => {
+						// order the items as in the tree view
+						state.featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
+						commit('createSprint', { sprintId: payload.sprintId, featureMap: state.featureMap, pbiResults: state.pbiResults, taskResults })
+						busyLoading = false
+						loadRequests--
+						if (loadRequests > 0) {
+							loadRequests--
+							dispatch('loadPlanningBoard', payload)
+						} else if (isCurrentSprint(payload.sprintId)) dispatch('loadUnfinished', rootState.userData.myTeam)
 					}
-				}
-				// order the items as in the tree view
-				featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
-				commit('createSprint', { sprintId: payload.sprintId, featureMap, storieResults, taskResults })
-				busyLoading = false
-				loadRequests--
-				if (loadRequests > 0) {
-					loadRequests--
-					dispatch('loadPlanningBoard', payload)
-				} else if (isCurrentSprint(payload.sprintId)) dispatch('loadUnfinished', rootState.userData.myTeam)
+				})
 			}).catch(error => {
 				let msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
 				// eslint-disable-next-line no-console
@@ -99,6 +104,52 @@ const actions = {
 				dispatch('doLog', { event: msg, level: ERROR })
 			})
 		} loadRequests++
+	},
+
+	/* Extend featureMap and pbiResults with PBIs moved to another sprint */
+	loadMissingPbis({
+		rootState,
+		state,
+		dispatch
+	}, payload) {
+		const docsToGet = []
+		for (let id of payload.missingPbiIds) {
+			docsToGet.push({ "id": id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { "docs": docsToGet },
+		}).then(res => {
+			const results = res.data.results
+			for (let r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const newPbiResult = {
+						id: doc._id,
+						key: [doc.printId, doc.team, doc.productId, doc.parentId, doc.level, doc.priority],
+						value: [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]
+					}
+					const featureId = doc.parentId
+					const feature = window.slVueTree.getNodeById(featureId)
+					if (feature) {
+						if (!state.pathsFound.includes(feature.pathStr)) {
+							state.featureMap.push({ path: feature.path, id: feature._id })
+						}
+						state.pathsFound.push(feature.pathStr)
+						// stories without a associated feature are skipped
+						state.pbiResults.push(newPbiResult)
+					}
+				}
+			}
+			payload.onSuccessCallBack()
+		}).catch(error => {
+			let msg = 'loadMissingPbis: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
 	},
 
 	/*

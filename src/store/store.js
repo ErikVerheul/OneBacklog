@@ -641,7 +641,7 @@ export default new Vuex.Store({
 
 			let storyIdx = 0
 			for (let f of payload.featureMap) {
-				for (let s of payload.storieResults) {
+				for (let s of payload.pbiResults) {
 					const featureId = s.key[3]
 					if (f.id === featureId) {
 						const storyId = s.id
