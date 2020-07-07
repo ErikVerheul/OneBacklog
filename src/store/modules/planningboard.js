@@ -222,7 +222,6 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
-			const error = []
 			for (let r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
@@ -252,18 +251,6 @@ const actions = {
 					doc.history.unshift(newHist)
 					docs.push(doc)
 				}
-
-				if (envelope.error) error.push(envelope.error)
-			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'importInSprint: These documents cannot be imported: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
 			}
 
 			const toDispatch = {
@@ -473,9 +460,6 @@ const actions = {
 	/*
 	* From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint ||
 	* for undo: see undoRemoveSprintIds
-	* - When a feature is selected all its descendants (PBI's and tasks) are assigned
-	* - When a PBI is selected, that PBI and it descendent tasks are assigned
-	* - When a a task is selected the parentId is the task the task id
 	*/
 	addSprintIds({
 		rootState,
@@ -598,7 +582,7 @@ const actions = {
 						sprintName: payload.sprintName
 					}
 					rootState.changeHistory.unshift(entry)
-					commit('showLastEvent', { txt: `Item(s) to sprint assignment is removed`, severity: INFO })
+					commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: INFO })
 				}
 			})
 		}).catch(e => {
