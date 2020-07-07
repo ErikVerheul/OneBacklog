@@ -54,7 +54,7 @@ const methods = {
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = true
-        this.isInSprint = node.data.sprintId && this.isCurrentOrNextPrintId(node.data.sprintId)
+        this.isInSprint = node.data.sprintId ? true : false
         // can only assign pbi's to a sprint if not in a sprint already
         this.canAssignPbiToSprint = node.level === this.pbiLevel && !node.data.sprintId
         // can only assign tasks to a sprint if not in a sprint already

@@ -1,4 +1,3 @@
-import router from '../../router'
 import { mapGetters } from 'vuex'
 
 const DEBUG = -1
@@ -16,8 +15,6 @@ const PBILEVEL = 5
 const TASKLEVEL = 6
 
 const AREA_PRODUCTID = '0'
-
-
 
 const authorization = {
 	computed: {
@@ -185,11 +182,6 @@ const utilities = {
 		itemTitleTrunc(length, title) {
 			if (title.length <= length) return title;
 			return title.substring(0, length - 4) + '...'
-		},
-
-		isCurrentOrNextPrintId(id) {
-			const sprints = this.getCurrentAndNextSprint()
-			return id === sprints.currentSprint.id || id === sprints.nextSprint.id
 		},
 
 		showLastEvent(txt, severity) {
