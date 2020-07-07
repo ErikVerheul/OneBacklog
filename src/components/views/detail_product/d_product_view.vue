@@ -348,6 +348,7 @@
     <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
       <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
+
   </div>
 </template>
 

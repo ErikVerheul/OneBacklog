@@ -53,10 +53,9 @@ export default {
   },
 
   methods: {
-
     /*
     * From the 'Product details' view context menu a PBI or a task can be selected to be assigned to the current or next sprint
-    * Only items that are not in a sprint already can be assigned.
+    * Only items that are not in a sprint already can be assigned to a sprint.
     */
     addItemToSprint() {
       function getSprintName(id) {
@@ -72,11 +71,12 @@ export default {
       const sprintId = this.selectedSprintId
       const sprintName = getSprintName(sprintId)
 
-      // when a PBI is selected, that PBI and it descendent tasks are assigned to the sprint
+      // when a PBI is selected, that PBI and it descendent tasks that have no sprint assigned yet, are assigned to the sprint
       if (itemLevel === PBILEVEL) {
         const itemIds = [currentDoc._id]
         const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
         for (let d of descendants) {
+          console.log('addItemToSprint: d.data.sprintId = ' + d.data.sprintId + ' d.title = ' + d.title)
           if (!d.data.sprintId) itemIds.push(d._id)
         }
         this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName, createUndo: true })
