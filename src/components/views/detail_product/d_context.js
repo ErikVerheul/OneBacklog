@@ -5,7 +5,6 @@ import { eventBus } from '../../../main'
 
 const WARNING = 1
 const PBILEVEL = 5
-const TASKLEVEL = 6
 var movedNode = null
 
 function created() {
@@ -48,7 +47,7 @@ const methods = {
         this.contextParentType = this.getLevelText(parentNode.level)
         this.contextNodeTitle = node.title
         this.contextNodeLevel = node.level
-        this.contextNodeType = this.getLevelText(node.level)
+        this.contextNodeType = this.getLevelText(node.level, node.data.subtype)
         this.contextChildType = this.getLevelText(node.level + 1)
         this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
         this.contextNodeTeam = node.data.team
@@ -245,13 +244,15 @@ const methods = {
     window.assignToSprintRef.show()
   },
 
+  /* Assign the task to the sprint of its PBI; or if the PBI has no sprint assigned ask the user to select. */
   doAddTaskToSprint() {
-    const pbiNode = window.slVueTree.getParentNode(this.contextNodeSelected)
-    const sprintId = pbiNode.data.sprintId
-    if (sprintId) {
-      const sprintName = this.getSprintName(sprintId)
+    const taskNode = this.contextNodeSelected
+    const pbiNode = window.slVueTree.getParentNode(taskNode)
+    const pbiSprintId = pbiNode.data.sprintId
+    if (pbiSprintId) {
+      const sprintName = this.getSprintName(pbiSprintId)
       // assign the task to the same sprint the PBI is assigned to
-      this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [this.contextNodeSelected._id], sprintId, sprintName, createUndo: true })
+      this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName, createUndo: true })
     } else {
       window.assignToSprintRef.show()
     }
@@ -264,19 +265,16 @@ const methods = {
   },
 
   doRemoveFromSprint() {
-    const currentId = this.$store.state.currentDoc._id
-    const node = window.slVueTree.getNodeById(currentId)
-    if (node === null) return
-
+    const node = this.contextNodeSelected
     const sprintId = node.data.sprintId
-    let itemIds = []
-    if (this.$store.state.currentDoc.level === PBILEVEL) {
-      itemIds = [currentId].concat(window.slVueTree.getDescendantsInfoOnId(currentId).ids)
+    let itemIds = [node._id]
+    if (node.level === PBILEVEL) {
+      for (let d of window.slVueTree.getDescendantsInfo(node).descendants) {
+        // only remove the sprintId of descendants with the same sprintId as the parent
+        if (d.data.sprintId === sprintId) itemIds.push(d._id)
+      }
     }
-    if (this.$store.state.currentDoc.level === TASKLEVEL) {
-      itemIds = [currentId]
-    }
-    this.$store.dispatch('removeSprintIds', { parentId: currentId, sprintId, itemIds, sprintName: this.getSprintName(sprintId) })
+    this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: this.getSprintName(sprintId) })
   }
 }
 
