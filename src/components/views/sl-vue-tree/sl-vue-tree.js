@@ -10,7 +10,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
-const AREA_PRODUCTID = '0'
+const AREA_PRODUCTID = '-REQAREA-PRODUCT'
 
 const props = {
 	value: {

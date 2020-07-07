@@ -31,7 +31,7 @@ Database--------------------------------------------------- node
 "state"(Integer)------------------------------------------- data.state
 "tssize"(Integer)
 "spsize"(Integer)
-"color"(hex)----------------------------------------------- reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = '0', level = 3)
+"color"(hex)----------------------------------------------- reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = '-REQAREA-PRODUCT', level = 3)
 "spikepersonhours"(Integer)
 "reqarea"(string)------------------------------------------ data.reqarea
 "dependencies": []----------------------------------------- dependencies
@@ -67,7 +67,7 @@ The item types are defined in the CONFIG file:
 	"Task"
   ],
 
-Requirement areas are children of the 'Requirments areas overview' dummy product with id '0'. All req areas have productId = parentId = '0'.
+Requirement areas are children of the 'Requirments areas overview' dummy product with id '-REQAREA-PRODUCT'. All req areas have productId = parentId = '-REQAREA-PRODUCT'.
 
 These types map to the level attribute in the database documents and in the tree nodes
 
@@ -192,7 +192,7 @@ data: {
 ....team: doc.team, // the team membership of the user who updated the state the last time
 ....taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self
 ....subtype: doc.subtype,
-....reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = '0', level = 3)
+....reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = '-REQAREA-PRODUCT', level = 3)
 ....lastPositionChange: doc.lastPositionChange,
 ....lastStateChange: doc.lastStateChange,
 ....lastContentChange: doc.lastContentChange,

@@ -25,7 +25,7 @@ function created() {
   this.featureLevel = 4
   this.pbiLevel = 5
   this.taskLevel = 6
-  this.areaProductId = '0'
+  this.areaProductId = '-REQAREA-PRODUCT'
 }
 
 function mounted() {

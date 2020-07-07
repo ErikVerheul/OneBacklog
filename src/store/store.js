@@ -38,7 +38,7 @@ const DONE = 6
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const AREA_PRODUCTID = '0'
+const AREA_PRODUCTID = '-REQAREA-PRODUCT'
 
 Vue.use(Vuex)
 

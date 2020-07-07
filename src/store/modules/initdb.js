@@ -3,7 +3,7 @@ import globalAxios from 'axios'
 
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
-const AREA_PRODUCTID = '0'
+const AREA_PRODUCTID = '-REQAREA-PRODUCT'
 
 function createId() {
 	// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
@@ -240,13 +240,13 @@ const actions = {
 					/* Filter on parentIds to map documents to their parent */
 					"docToParentMap": {
 						"map": `function (doc) {
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '0') emit(doc.parentId, 1);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '-REQAREA-PRODUCT') emit(doc.parentId, 1);
 						}`
 					},
 					/* Filter on parentIds to map documents to their parent and provide filtered values so that the whole document is not needed  */
 					"docToParentMapValues": {
 						"map": `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '0') emit(doc.parentId,
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > 1 && doc.parentId !== '-REQAREA-PRODUCT') emit(doc.parentId,
 								[doc.reqarea, doc.productId, doc.priority, doc.level, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
 						}`

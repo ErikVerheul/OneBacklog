@@ -5,7 +5,7 @@ const ERROR = 2
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const TASKLEVEL = 6
-const AREA_PRODUCTID = '0'
+const AREA_PRODUCTID = '-REQAREA-PRODUCT'
 
 // returns a new array
 function removeFromArray(arr, item) {

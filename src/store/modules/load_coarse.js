@@ -4,7 +4,7 @@ import globalAxios from 'axios'
 const INFO = 0
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const AREA_PRODUCTID = '0'
+const AREA_PRODUCTID = '-REQAREA-PRODUCT'
 var parentNodes = {}
 var orphansFound = []
 var levelErrorsFound = []
