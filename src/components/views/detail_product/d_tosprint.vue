@@ -76,7 +76,6 @@ export default {
         const itemIds = [currentDoc._id]
         const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
         for (let d of descendants) {
-          console.log('addItemToSprint: d.data.sprintId = ' + d.data.sprintId + ' d.title = ' + d.title)
           if (!d.data.sprintId) itemIds.push(d._id)
         }
         this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName, createUndo: true })
