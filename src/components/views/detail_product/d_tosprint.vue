@@ -54,7 +54,10 @@ export default {
 
   methods: {
 
-    /* From the 'Product details' view context menu a PBI or a task can be selected to be assigned to the current or next sprint */
+    /*
+    * From the 'Product details' view context menu a PBI or a task can be selected to be assigned to the current or next sprint
+    * Only items that are not in a sprint already can be assigned.
+    */
     addItemToSprint() {
       function getSprintName(id) {
         if (id === recentSprints.currentSprint.id) {
@@ -63,6 +66,8 @@ export default {
       }
 
       const currentDoc = this.$store.state.currentDoc
+      if (currentDoc.sprintId) return
+
       const itemLevel = currentDoc.level
       const sprintId = this.selectedSprintId
       const sprintName = getSprintName(sprintId)
@@ -72,7 +77,7 @@ export default {
         const itemIds = [currentDoc._id]
         const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
         for (let d of descendants) {
-          itemIds.push(d._id)
+          if (!d.data.sprintId) itemIds.push(d._id)
         }
         this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName, createUndo: true })
       }
@@ -80,8 +85,10 @@ export default {
       if (itemLevel === TASKLEVEL) {
         // when a task is selected, the task's PBI and the task are assigned to the sprint
         const pbiNode = window.slVueTree.getNodeById(currentDoc.parentId)
-        const itemIds = [pbiNode._id, currentDoc._id]
-        this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName, createUndo: true })
+        if (!pbiNode.data.sprintId) {
+          const itemIds = [pbiNode._id, currentDoc._id]
+          this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName, createUndo: true })
+        }
       }
     },
   }
