@@ -28,9 +28,9 @@ const actions = {
     * ToDo: create undo's if any of these steps fail
     * Order of execution:
     * 1. add history to the descendants of the removed parent
-    * 2. remove descendants,
+    * 2. if present remove descendants,
     * 3. remove parent (declare the removal as completed when this update has finished), dependencies and conditions in parallel.
-    * If step 1 or 2 fails the next steps are not executed but the successful steps are not undone
+    * 4. if a requirement area is removed also remove all references to this req area in all items
     */
 
     /* Add history to the parent of the removed node */
@@ -135,32 +135,21 @@ const actions = {
                     if (r.docs[0].error) error.push(r.docs[0].error)
                 }
 
-                if (error.length > 0) {
-                    let errorStr = ''
-                    for (let e of error) {
-                        errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                    }
-                    let msg = 'removeDescendents: These documents cannot be marked for removal: ' + errorStr
-                    // eslint-disable-next-line no-console
-                    if (rootState.debug) console.log(msg)
-                    dispatch('doLog', { event: msg, level: ERROR })
-                } else {
-                    // add externalDependencies and externalConditions to the payload
-                    payload.extDepsCount = externalDependencies.length
-                    payload.extCondsCount = externalConditions.length
+                // add externalDependencies and externalConditions to the payload
+                payload.extDepsCount = externalDependencies.length
+                payload.extCondsCount = externalConditions.length
 
-                    // transfer these calls to updateBulk so that they are executed after successful removal only
-                    const toDispatch = { removeParentAndAddHist: payload }
-                    if (externalDependencies.length > 0) {
-                        // remove the conditions in the documents not removed which match the externalDependencies
-                        toDispatch.removeExtDependenciesAsync = externalDependencies
-                    }
-                    if (externalConditions.length > 0) {
-                        // remove the dependencies in the documents not removed which match the externalConditions
-                        toDispatch.removeExtConditionsAsync = externalConditions
-                    }
-                    dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+                // transfer these calls to updateBulk so that they are executed after successful removal only
+                const toDispatch = { removeParentAndAddHist: payload }
+                if (externalDependencies.length > 0) {
+                    // remove the conditions in the documents not removed which match the externalDependencies
+                    toDispatch.removeExtDependenciesAsync = externalDependencies
                 }
+                if (externalConditions.length > 0) {
+                    // remove the dependencies in the documents not removed which match the externalConditions
+                    toDispatch.removeExtConditionsAsync = externalConditions
+                }
+                dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
             }).catch(error => {
                 let msg = 'removeDescendents: Could not read batch of documents: ' + error
                 // eslint-disable-next-line no-console
@@ -176,14 +165,33 @@ const actions = {
         commit,
         dispatch
     }, payload) {
-        const _id = payload.node._id
+        const id = payload.node._id
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id,
+            url: rootState.userData.currentDb + '/' + id,
         }).then(res => {
             let tmpDoc = res.data
+
+            // FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
+            const itemsRemovedFromReqArea = []
+            if (payload.productId === AREA_PRODUCTID) {
+                window.slVueTree.traverseModels((nm) => {
+                    if (nm.data.reqarea === id) {
+                        delete nm.data.reqarea
+                        itemsRemovedFromReqArea.push(nm._id)
+                    }
+                })
+            }
+
             const newHist = {
-                "removedWithDescendantsEvent": [payload.productId, payload.descendantsInfo.ids, payload.extDepsCount, payload.extCondsCount, payload.descendantsInfo.sprintIds],
+                "removedWithDescendantsEvent": [
+                    payload.productId,
+                    payload.descendantsInfo.ids,
+                    payload.extDepsCount,
+                    payload.extCondsCount,
+                    payload.descendantsInfo.sprintIds,
+                    id
+                ],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -192,20 +200,16 @@ const actions = {
             tmpDoc.history.unshift(newHist)
 
             tmpDoc.delmark = true
+
+            let toDispatch = undefined
+            if (payload.productId === AREA_PRODUCTID) {
+                // remove reqarea assignments
+                toDispatch = { 'removeReqAreaAssignments': id }
+            }
             dispatch('updateDoc', {
                 dbName: rootState.userData.currentDb,
-                updatedDoc: tmpDoc,
+                updatedDoc: tmpDoc, toDispatch,
                 onSuccessCallback: () => {
-                    // FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
-                    const itemsRemovedFromReqArea = []
-                    if (payload.productId === AREA_PRODUCTID) {
-                        window.slVueTree.traverseModels((nm) => {
-                            if (nm.data.reqarea === _id) {
-                                nm.data.reqarea = null
-                                itemsRemovedFromReqArea.push(nm._id)
-                            }
-                        })
-                    }
                     // remove any dependency references to/from outside the removed items; note: these cannot be undone
                     const removed = window.slVueTree.correctDependencies(rootState.currentProductId, payload.descendantsInfo.ids)
                     // before removal select the predecessor of the removed node (sibling or parent)
@@ -228,11 +232,11 @@ const actions = {
 
                     if (payload.node.level === PRODUCTLEVEL) {
                         // remove the product from the users product roles, subscriptions and product selection array
-                        delete rootState.userData.myProductsRoles[_id]
-                        if (rootState.userData.myProductSubscriptions.includes(_id)) {
-                            rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, _id)
-                            rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, _id)
-                            const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(_id)
+                        delete rootState.userData.myProductsRoles[id]
+                        if (rootState.userData.myProductSubscriptions.includes(id)) {
+                            rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, id)
+                            rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, id)
+                            const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(id)
                             rootState.myProductOptions.splice(removeIdx, 1)
                         }
                     }
@@ -261,7 +265,37 @@ const actions = {
                 }
             })
         }).catch(error => {
-            let msg = 'removeParentAndAddHist: Could not read document with _id ' + _id + ',' + error
+            let msg = 'removeParentAndAddHist: Could not read document with _id ' + id + ',' + error
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
+
+    removeReqAreaAssignments({
+        rootState,
+        dispatch
+    }, reqArea) {
+        globalAxios({
+            method: 'GET',
+            url: rootState.userData.currentDb + '/_design/design1/_view/assignedToReqArea?' + `startkey="${reqArea}"&endkey="${reqArea}"&include_docs=true`
+        }).then(res => {
+            const updatedDocs = []
+            const results = res.data.rows
+            for (let r of results) {
+                const doc = r.doc
+                delete doc.reqarea
+                const newHist = {
+                    "ignoreEvent": ['removeReqAreaAssignments'],
+                    "timestamp": Date.now(),
+                    "distributeEvent": false
+                }
+                doc.history.unshift(newHist)
+                updatedDocs.push(doc)
+            }
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs })
+        }).catch(error => {
+            let msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

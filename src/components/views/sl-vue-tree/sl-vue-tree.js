@@ -688,7 +688,7 @@ const methods = {
 		const currentProduct = allProducts ? undefined : this.getProductModels()
 		this.traverseModels((nm) => {
 			if (nm.level === PRODUCTLEVEL) {
-				// skip requirements area dummy product
+				// skip requirement areas dummy product
 				if (nm._id === AREA_PRODUCTID) return
 				nm.isExpanded = false
 			}
@@ -737,7 +737,7 @@ const methods = {
 	resetTree(allProducts) {
 		const currentProduct = allProducts ? undefined : this.getProductModels()
 		this.traverseModels((nm) => {
-			// skip requirements area dummy product
+			// skip requirement areas dummy product
 			if (nm._id === AREA_PRODUCTID) return
 
 			nm.isHighlighted = false
@@ -899,7 +899,7 @@ const methods = {
 		return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 	},
 
-	/* If a feature belongs to a req area set that area also to its descendants */
+	/* If a feature belongs to a req area, set that area also to its descendants */
 	setDescendentsReqArea() {
 		let reqArea = null
 		this.traverseModels((nm) => {

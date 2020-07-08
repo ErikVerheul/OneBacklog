@@ -244,11 +244,13 @@ const methods = {
   /* Create a new object to maintain reactivity */
   createColorMapper() {
     const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
-    const newColorMapper = {}
-    for (let nm of currReqAreaNodes) {
-      newColorMapper[nm._id] = { reqAreaItemcolor: nm.data.reqAreaItemcolor }
+    if (currReqAreaNodes) {
+      const newColorMapper = {}
+      for (let nm of currReqAreaNodes) {
+        newColorMapper[nm._id] = { reqAreaItemcolor: nm.data.reqAreaItemcolor }
+      }
+      this.$store.state.colorMapper = newColorMapper
     }
-    this.$store.state.colorMapper = newColorMapper
   },
 
   updateColor() {
@@ -269,13 +271,15 @@ const methods = {
       this.selReqAreaId = reqarea
       // set the req area options
       const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
-      this.$store.state.reqAreaOptions = []
-      for (let nm of currReqAreaNodes) {
-        this.$store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
-      }
-      if (this.selReqAreaId !== null) this.$store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
-      this.setReqAreaShow = true
-    } else this.showLastEvent("Sorry, your assigned role(s) disallow you to assing requirement areas", WARNING)
+      if (currReqAreaNodes) {
+        this.$store.state.reqAreaOptions = []
+        for (let nm of currReqAreaNodes) {
+          this.$store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
+        }
+        if (this.selReqAreaId !== null) this.$store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
+        this.setReqAreaShow = true
+      } else this.showLastEvent("Sorry, your assigned role(s) disallow you to assing requirement areas", WARNING)
+    }
   },
 
   /*

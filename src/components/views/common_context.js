@@ -27,6 +27,7 @@ function created() {
     this.SHOWCONDITIONS = 8
     this.CLONEPRODUCT = 9
     this.CLONEITEM = 10
+    this.REMOVEREQAREA = 11
 }
 
 function data() {

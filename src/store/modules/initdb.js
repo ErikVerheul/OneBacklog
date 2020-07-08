@@ -225,6 +225,12 @@ const actions = {
 			url: payload.dbName + '/_design/design1',
 			data: {
 				"views": {
+					/* Filter on items with assigned requirement area */
+					"assignedToReqArea": {
+						"map": `function (doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.reqarea) emit(doc.reqarea, 1);
+						}`
+					},
 					/*
 					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
 					 * Select the 'backlogitem' document type and skip removed documents.

@@ -61,9 +61,9 @@
               <b-list-group-item
                 v-if="allowRemoval && contextNodeLevel >= productLevel"
                 button
-                :active="contextOptionSelected === REMOVEITEM"
+                :active="contextOptionSelected === REMOVEREQAREA"
                 variant="danger"
-                @click="showSelected(REMOVEITEM)"
+                @click="showSelected(REMOVEREQAREA)"
               >Remove this requirement area</b-list-group-item>
             </template>
           </template>

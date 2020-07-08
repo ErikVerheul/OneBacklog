@@ -7,6 +7,7 @@ const PBILEVEL = 5
 const TASKLEVEL = 6
 const INFO = 0
 const WARNING = 1
+const AREA_PRODUCTID = '-REQAREA-PRODUCT'
 var removedProducts = []
 
 // returns a new array so that it is reactive
@@ -108,14 +109,6 @@ const actions = {
 
 		async function doProc(doc) {
 			try {
-				const updateTree = histEvent !== 'ignoreEvent' && doc.level <= rootState.loadedTreeDepth
-				// update the tree only for documents available in the currently loaded tree model
-				const updateBoard = histEvent !== 'ignoreEvent' && rootState.currentView === 'planningBoard' &&
-					(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent' || histEvent === 'triggerBoardReload')
-				// update the board only if loaded and the item represented by the document is assigned to my team. Exceptions for events:
-				// - setTeamOwnerEvent: also update the board if an item changes team (the doc is assigned to another team or no team)
-				// - triggerBoardReload: also trigger a reload from the feature level (the doc is the feature parent and has no team ownership)
-
 				if (updateTree) {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('sync:updateTree with event ' + histEvent)
@@ -607,6 +600,13 @@ const actions = {
 		// get data from last history addition
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
+		const updateTree = histEvent !== 'ignoreEvent' && doc.level <= rootState.loadedTreeDepth
+		// update the tree only for documents available in the currently loaded tree model
+		const updateBoard = histEvent !== 'ignoreEvent' && rootState.currentView === 'planningBoard' &&
+			(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent' || histEvent === 'triggerBoardReload')
+		// update the board only if loaded and the item represented by the document is assigned to my team. Exceptions for events:
+		// - setTeamOwnerEvent: also update the board if an item changes team (the doc is assigned to another team or no team)
+		// - triggerBoardReload: also trigger a reload from the feature level (the doc is the feature parent and has no team ownership)
 
 		// boardReloadEvent: this event is passed via the 'messenger' dummy backlogitem, the team name is in the message not in the doc
 		if (histEvent === 'boardReloadEvent') {
@@ -617,10 +617,64 @@ const actions = {
 				dispatch('doBlinck', doc)
 				dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
 			}
-		} else if (rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
-			// only load product items the user is authorised to including products that are restored from deletion by this user
-			dispatch('doBlinck', doc)
-			doProc(doc)
+		} else {
+			if (updateTree && doc.productId === AREA_PRODUCTID) {
+				dispatch('doBlinck', doc)
+				// special case: changes to the aiignment of requirement area
+				switch (histEvent) {
+					case 'removedWithDescendantsEvent':
+						if (doc.delmark) {
+							// remove references to the requirement area
+							const reqAreaId = lastHistObj.removedWithDescendantsEvent[5]
+							window.slVueTree.traverseModels((nm) => {
+								if (nm.data.reqarea === reqAreaId) {
+									delete nm.data.reqarea
+								}
+							})
+							if (rootState.currentView === 'coarseProduct') {
+								const node = window.slVueTree.getNodeById(doc._id)
+								if (node) window.slVueTree.remove([node])
+							}
+							if (lastHistObj.by === rootState.userData.user) {
+								commit('showLastEvent', { txt: `You removed a requirement area in another session`, severity: INFO })
+							} else commit('showLastEvent', { txt: `Another user removed a requirement area`, severity: INFO })
+						}
+						break
+					case 'docRestoredEvent':
+						{
+							// restore references to the requirement area
+							const reqAreaId = doc._id
+							const itemsRemovedFromReqArea = lastHistObj.docRestoredEvent[7]
+							window.slVueTree.traverseModels((nm) => {
+								if (itemsRemovedFromReqArea.includes(nm._id)) {
+									nm.data.reqarea = reqAreaId
+								}
+							})
+							window.slVueTree.setDescendentsReqArea()
+
+							if (rootState.currentView === 'coarseProduct') {
+								dispatch('restoreBranch', {
+									doc, onSuccessCallback: () => {
+										if (lastHistObj.by === rootState.userData.user) {
+											commit('showLastEvent', { txt: `You restored a removed requirement area in another session`, severity: INFO })
+										} else commit('showLastEvent', { txt: `Another user restored a removed requirement area`, severity: INFO })
+									}
+								})
+							} else {
+								if (lastHistObj.by === rootState.userData.user) {
+									commit('showLastEvent', { txt: `You restored a removed requirement area in another session`, severity: INFO })
+								} else commit('showLastEvent', { txt: `Another user restored a removed requirement area`, severity: INFO })
+							}
+						}
+						break
+				}
+			} else {
+				if (rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
+					// only process updates of items the user is authorised to including products that are restored from deletion by this user
+					dispatch('doBlinck', doc)
+					doProc(doc)
+				}
+			}
 		}
 	},
 

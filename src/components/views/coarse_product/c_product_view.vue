@@ -161,7 +161,7 @@
               <template v-if="node.productId === areaProductId">
                 <p v-if="node._id !== areaProductId" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemcolor}"></p>
               </template>
-              <p v-else-if="node.level > productLevel">
+              <p v-else-if="$store.state.colorMapper && node.level > productLevel">
                 <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
                   v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemcolor}"
                   @click="setReqArea(node.data.reqarea)" squared size="sm">Change

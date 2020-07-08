@@ -102,7 +102,7 @@ const actions = {
             let updatedDoc = res.data
             const newHist = {
                 "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies,
-                entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds],
+                entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds, entry.itemsRemovedFromReqArea],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
@@ -209,6 +209,10 @@ const actions = {
                 grandParentDoc.delmark = false
             }
             const toDispatch = { 'restoreExtDepsAndConds': entry }
+            if (entry.removedNode.productId === AREA_PRODUCTID) {
+                // restore the removed references to the requirement area
+                toDispatch.restoreReqarea = entry
+            }
             dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch })
         }).catch(error => {
             let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
@@ -281,6 +285,49 @@ const actions = {
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
         }).catch(e => {
             let msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + e
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
+
+    /* Restore the requirement area references */
+    restoreReqarea({
+        rootState,
+        dispatch
+    }, entry) {
+        const docsToGet = []
+        for (let id of entry.itemsRemovedFromReqArea) {
+            docsToGet.push({ "id": id })
+        }
+        if (docsToGet.length === 0) {
+            // nothing to do
+            return
+        }
+        globalAxios({
+            method: 'POST',
+            url: rootState.userData.currentDb + '/_bulk_get',
+            data: { "docs": docsToGet },
+        }).then(res => {
+            const results = res.data.results
+            const docs = []
+            for (let r of results) {
+                const doc = r.docs[0].ok
+                if (doc) {
+                    doc.reqarea = entry.removedNode._id
+                    const newHist = {
+                        "ignoreEvent": ['restoreExtDepsAndConds'],
+                        "timestamp": Date.now(),
+                        "distributeEvent": false
+                    }
+                    doc.history.unshift(newHist)
+
+                    docs.push(doc)
+                }
+            }
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+        }).catch(e => {
+            let msg = 'restoreReqarea: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

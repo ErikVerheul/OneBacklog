@@ -89,6 +89,10 @@ const methods = {
           this.disableOkButton = true
         } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
         break
+      case this.REMOVEREQAREA:
+        this.assistanceText = 'No assistance available'
+        this.listItemText = `Remove this requirement area`
+        break
       case this.CHECKSTATES:
         this.assistanceText = this.$store.state.help.help.consistencyCheck
         this.listItemText = `Start the check. See in the tree if any red badges appear`
@@ -136,6 +140,7 @@ const methods = {
         this.doInsertNewItem()
         break
       case this.REMOVEITEM:
+      case this.REMOVEREQAREA:
         this.doRemove()
         break
       case this.CHECKSTATES:
