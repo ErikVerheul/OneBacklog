@@ -163,7 +163,7 @@ const methods = {
             }
         }
         if (missingIds.length > 0) {
-            this.showLastEvent(`${missingIds.length} more products are loaded`, INFO)
+            this.showLastEvent(`${this.$store.state.userData.myProductSubscriptions.length} products are loaded`, INFO)
             this.$store.dispatch('addProducts', { missingIds, newDefaultId })
         }
         this.$store.dispatch('updateSubscriptions', productIds)
