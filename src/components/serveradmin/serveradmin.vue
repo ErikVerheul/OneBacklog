@@ -37,7 +37,8 @@
           ></b-form-radio-group>
         </b-form-group>
         <p>Database {{ dbToReplace }} will be replaced by the backup</p>
-        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup">Start restore</b-button>
+        <b-button v-if="!$store.state.utils.copyBusy && !currentDbRestored" class="m-1" @click="doRestoreBackup">Start restore</b-button>
+        <b-button v-if="!$store.state.utils.copyBusy && currentDbRestored" class="m-1" @click="signIn()">Exit</b-button>
         <b-button v-if="canCancel" class="m-1" @click="cancel" variant="seablue">Return</b-button>
       </div>
 
@@ -182,7 +183,8 @@ export default {
       dbToOverwrite: '',
       newDbName: '',
       productName: '',
-      removeAge: 365
+      removeAge: 365,
+      currentDbRestored: false
     }
   },
 
@@ -237,12 +239,16 @@ export default {
     },
 
     doRestoreBackup() {
+      this.canCancel = false
       const payload = {
         dbSourceName: this.$store.state.selectedDatabaseName,
         dbTargetName: this.dbToReplace
       }
       this.localMessage = payload.dbTargetName + ' will be replaced by ' + payload.dbSourceName + '. Please wait ...'
       this.$store.dispatch('replaceDB', payload)
+      // assume the restore succeeds
+      console.log('this.dbToReplace = ' + this.dbToReplace + ', this.$store.state.userData.currentDb = ' + this.$store.state.userData.currentDb)
+      if (this.dbToReplace === this.$store.state.userData.currentDb) this.currentDbRestored = true
     },
 
     createNewDb() {
