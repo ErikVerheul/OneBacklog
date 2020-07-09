@@ -155,7 +155,7 @@ const methods = {
             }],
             "delmark": false
         }
-        // update the database and replace the current document with this document
+        // update the database and select this document
         this.$store.dispatch('createDocWithParentHist', { newNode, newDoc })
     },
 
@@ -347,10 +347,7 @@ const methods = {
                 }
             }
             // set remove mark in the database on the clicked item and descendants (if any)
-            this.$store.dispatch('removeItemAndDescendents', {
-                productId: selectedNode.productId,
-                node: selectedNode
-            })
+            this.$store.dispatch('removeItemAndDescendents', { node: selectedNode })
         }
     },
 

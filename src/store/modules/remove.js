@@ -174,7 +174,7 @@ const actions = {
 
             // FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
             const itemsRemovedFromReqArea = []
-            if (payload.productId === AREA_PRODUCTID) {
+            if (payload.node.productId === AREA_PRODUCTID) {
                 window.slVueTree.traverseModels((nm) => {
                     if (nm.data.reqarea === id) {
                         delete nm.data.reqarea
@@ -185,7 +185,7 @@ const actions = {
 
             const newHist = {
                 "removedWithDescendantsEvent": [
-                    payload.productId,
+                    payload.node.productId,
                     payload.descendantsInfo.ids,
                     payload.extDepsCount,
                     payload.extCondsCount,
@@ -202,7 +202,7 @@ const actions = {
             tmpDoc.delmark = true
 
             let toDispatch = undefined
-            if (payload.productId === AREA_PRODUCTID) {
+            if (payload.node.productId === AREA_PRODUCTID) {
                 // remove reqarea assignments
                 toDispatch = { 'removeReqAreaAssignments': id }
             }
@@ -224,7 +224,7 @@ const actions = {
                         }
                         nowSelectedNode = nextProduct
                     }
-                    commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode, productId: nowSelectedNode.productId })
+                    commit('updateNodesAndCurrentDoc', { selectNode: payload.node })
                     // load the new selected item
                     dispatch('loadDoc', { id: nowSelectedNode._id })
                     // remove the node and its children

@@ -385,9 +385,7 @@ const methods = {
         this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange })
         break
       case 'undoNewNode':
-        if (window.slVueTree.remove([entry.newNode])) {
-          this.$store.dispatch('removeItemAndDescendents', { productId: entry.newNode.productId, node: entry.newNode })
-        } else this.showLastEvent('Item was already removed', INFO)
+        this.$store.dispatch('removeItemAndDescendents', { node: entry.newNode })
         break
       case 'undoMove':
         {
