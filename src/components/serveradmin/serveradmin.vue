@@ -247,7 +247,6 @@ export default {
       this.localMessage = payload.dbTargetName + ' will be replaced by ' + payload.dbSourceName + '. Please wait ...'
       this.$store.dispatch('replaceDB', payload)
       // assume the restore succeeds
-      console.log('this.dbToReplace = ' + this.dbToReplace + ', this.$store.state.userData.currentDb = ' + this.$store.state.userData.currentDb)
       if (this.dbToReplace === this.$store.state.userData.currentDb) this.currentDbRestored = true
     },
 
