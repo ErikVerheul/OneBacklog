@@ -7,7 +7,7 @@ const PBILEVEL = 5
 const TASKLEVEL = 6
 const INFO = 0
 const WARNING = 1
-const AREA_PRODUCTID = '-REQAREA-PRODUCT'
+const AREA_PRODUCTID = 'requirement-areas'
 var removedProducts = []
 
 // returns a new array so that it is reactive

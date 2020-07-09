@@ -3,7 +3,7 @@ import CommonFilters from '../common_filters.js'
 
 const INFO = 0
 const PRODUCTLEVEL = 2
-const AREA_PRODUCTID = '-REQAREA-PRODUCT'
+const AREA_PRODUCTID = 'requirement-areas'
 const methods = {
   /* Apply the AND logic to the included filters */
   onApplyMyFilters() {

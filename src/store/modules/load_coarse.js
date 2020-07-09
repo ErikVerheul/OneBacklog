@@ -4,7 +4,7 @@ import globalAxios from 'axios'
 const INFO = 0
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
-const AREA_PRODUCTID = '-REQAREA-PRODUCT'
+const AREA_PRODUCTID = 'requirement-areas'
 var parentNodes = {}
 var orphansFound = []
 var levelErrorsFound = []
@@ -33,7 +33,8 @@ const actions = {
             const batch = res.data.rows
             for (let item of batch) {
                 const _id = item.id
-                const productId = item.key[0]
+                // the productId of the 'requirement-areas' top dummy product document is null to have it ordened below root in the details view
+                const productId = item.key[0] || AREA_PRODUCTID
                 const level = item.key[1]
                 const priority = -item.key[2]
                 const parentId = item.value[1]

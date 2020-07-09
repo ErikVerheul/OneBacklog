@@ -5,7 +5,7 @@ const INFO = 0
 const WARNING = 1
 const STATE_NEW_OR_TODO = 2
 const TASKLEVEL = 6
-const AREA_PRODUCTID = '-REQAREA-PRODUCT'
+const AREA_PRODUCTID = 'requirement-areas'
 
 function created() {
     this.onholdState = 1

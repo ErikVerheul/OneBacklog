@@ -38,7 +38,7 @@ const DONE = 6
 const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
-const AREA_PRODUCTID = '-REQAREA-PRODUCT'
+const AREA_PRODUCTID = 'requirement-areas'
 
 Vue.use(Vuex)
 
@@ -179,7 +179,7 @@ export default new Vuex.Store({
 			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
 		isReqAreaItem(state) {
-			return state.currentDoc.productId === AREA_PRODUCTID
+			return state.currentDoc._id === AREA_PRODUCTID || state.currentDoc.productId === AREA_PRODUCTID
 		},
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]

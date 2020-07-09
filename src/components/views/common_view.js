@@ -25,7 +25,7 @@ function created() {
   this.featureLevel = 4
   this.pbiLevel = 5
   this.taskLevel = 6
-  this.areaProductId = '-REQAREA-PRODUCT'
+  this.areaProductId = 'requirement-areas'
 }
 
 function mounted() {

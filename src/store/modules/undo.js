@@ -3,7 +3,7 @@ import globalAxios from 'axios'
 const INFO = 0
 const WARNING = 1
 const ERROR = 2
-const AREA_PRODUCTID = '-REQAREA-PRODUCT'
+const AREA_PRODUCTID = 'requirement-areas'
 
 // returns a new array so that it is reactive
 function addToArray(arr, item) {

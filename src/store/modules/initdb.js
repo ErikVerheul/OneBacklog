@@ -3,7 +3,7 @@ import globalAxios from 'axios'
 
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
-const AREA_PRODUCTID = '-REQAREA-PRODUCT'
+const AREA_PRODUCTID = 'requirement-areas'
 
 function createId() {
 	// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
@@ -227,7 +227,7 @@ const actions = {
 				"views": {
 					/* Filter on items with assigned requirement area */
 					"assignedToReqArea": {
-						"map": `function (doc) {
+						"map": `function(doc) {
 							if (doc.type == "backlogItem" && !doc.delmark && doc.reqarea) emit(doc.reqarea, 1);
 						}`
 					},
@@ -245,16 +245,16 @@ const actions = {
 					},
 					/* Filter on parentIds to map documents to their parent */
 					"docToParentMap": {
-						"map": `function (doc) {
+						"map": `function(doc) {
 							const databaseLevel = 1
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level > databaseLevel && doc.parentId !== '-REQAREA-PRODUCT') emit(doc.parentId, 1);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > databaseLevel && doc.parentId !== 'requirement-areas') emit(doc.parentId, 1);
 						}`
 					},
 					/* Filter on parentIds to map documents to their parent and provide filtered values so that the whole document is not needed  */
 					"docToParentMapValues": {
 						"map": `function(doc) {
 							const databaseLevel = 1
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level > databaseLevel && doc.parentId !== '-REQAREA-PRODUCT') emit(doc.parentId,
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > databaseLevel && doc.parentId !== 'requirement-areas') emit(doc.parentId,
 								[doc.reqarea, doc.productId, doc.priority, doc.level, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
 						}`
@@ -274,9 +274,9 @@ const actions = {
 					},
 					/* Filter on document type 'backlogItem' but skip the dummy req areas product, then emit the product id and title.*/
 					"products": {
-						"map": `function (doc) {
+						"map": `function(doc) {
 							const productLevel = 2
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level === productLevel && doc._id !== "-REQAREA-PRODUCT") emit(doc._id, doc.title);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level === productLevel && doc._id !== "requirement-areas") emit(doc._id, doc.title);
 						}`
 					},
 					/* Filter on document type 'backlogItem', then emit the product _rev of the removed documents.*/
@@ -285,7 +285,7 @@ const actions = {
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId.*/
 					"shortIdFilter": {
-						"map": `function (doc) {
+						"map": `function(doc) {
 							const databaseLevel = 1
 							if (doc.type == "backlogItem" && doc.level > databaseLevel) emit([doc._id.slice(-5)], 1);
 						}`
@@ -307,7 +307,7 @@ const actions = {
 					},
 					/* Filter on teams */
 					"teams": {
-						"map": `function (doc) {
+						"map": `function(doc) {
 							if (doc.type ==='team' && !doc.delmark) emit(doc.teamName, doc.members);
 						  }`
 					}
@@ -350,7 +350,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		// create root document
-		const rootDoc = {
+		const doc = {
 			"_id": "root",
 			"type": "backlogItem",
 			"level": DATABASELEVEL,
@@ -378,7 +378,7 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/root',
-			data: rootDoc
+			data: doc
 		}).then(() => {
 			dispatch('createDefaultTeam', payload.dbName)
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createRootDoc: Success, the root document is created' })
@@ -424,10 +424,9 @@ const actions = {
 		rootState,
 	}, payload) {
 		// create parent document
-		const rootDoc = {
-			"_id": AREA_PRODUCTID,
+		const doc = {
+			"_id": "requirement-areas",
 			"type": "backlogItem",
-			"productId": AREA_PRODUCTID,
 			"parentId": "root",
 			"team": "n/a",
 			"level": 2,
@@ -458,7 +457,7 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/' + AREA_PRODUCTID,
-			data: rootDoc
+			data: doc
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createReqAreasParent: Success, the parent document is created' })
 		}).catch(error => {
@@ -472,7 +471,7 @@ const actions = {
 	}, dbName) {
 		const _id = createId()
 		// create a new document and store it
-		const newDoc = {
+		const doc = {
 			"_id": _id,
 			"type": "backlogItem",
 			"productId": _id,
@@ -503,7 +502,7 @@ const actions = {
 		globalAxios({
 			method: 'PUT',
 			url: dbName + '/' + _id,
-			data: newDoc
+			data: doc
 		}).then(() => {
 			dispatch('addProductToUser', { dbName, productId: _id, userRoles: ['*'] })
 			dispatch('createMessenger', dbName)

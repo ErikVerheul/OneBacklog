@@ -14,7 +14,7 @@ const FEATURELEVEL = 4
 const PBILEVEL = 5
 const TASKLEVEL = 6
 
-const AREA_PRODUCTID = '-REQAREA-PRODUCT'
+const AREA_PRODUCTID = 'requirement-areas'
 
 const authorization = {
 	computed: {
