@@ -64,10 +64,7 @@ const computed = {
         'isAPO',
         'myAssignedProductIds',
         'myTeam'
-    ]),
-    isReqAreaItem() {
-        return this.$store.state.currentDoc.productId === AREA_PRODUCTID
-    }
+    ])
 }
 
 const methods = {

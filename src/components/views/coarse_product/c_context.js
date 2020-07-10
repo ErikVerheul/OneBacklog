@@ -1,5 +1,6 @@
 import CommonContext from '../common_context.js'
 import { eventBus } from '../../../main'
+import { mapGetters } from 'vuex'
 
 const WARNING = 1
 
@@ -7,6 +8,12 @@ function created() {
   eventBus.$on('contextMenu', (node) => {
     this.showContextMenu(node)
   })
+}
+
+const computed = {
+  ...mapGetters([
+    'isReqAreaItem'
+  ]),
 }
 
 const methods = {
@@ -18,7 +25,7 @@ const methods = {
       this.disableOkButton = true
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
       const allowExtraLevel = node.level < this.taskLevel
-      if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', this.isPO, allowExtraLevel)) {
+      if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', this.isPO || this.isAPO, allowExtraLevel)) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
         this.contextParentTeam = parentNode.data.team
@@ -162,5 +169,6 @@ const methods = {
 export default {
   extends: CommonContext,
   created,
+  computed,
   methods
 }
