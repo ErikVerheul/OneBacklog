@@ -10,6 +10,8 @@ const AREA_PRODUCTID = 'requirement-areas'
 var parentNodes = {}
 var orphansFound = []
 var levelErrorsFound = []
+var allIds = []
+var insertedIds = []
 
 const state = {
     docsCount: 0,
@@ -168,6 +170,8 @@ const mutations = {
                     rootState.selectedNodes = [newNode]
                 }
 
+                insertedIds.push(newNode._id)
+
                 parentNode.children.push(newNode)
                 parentNodes[_id] = newNode
             } else {
@@ -218,6 +222,7 @@ const actions = {
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/details',
         }).then(res => {
+            allIds = res.data.rows.map((r) => r.id)
             rootState.lastTreeView = 'detailProduct'
             rootState.loadedTreeDepth = TASKLEVEL
             rootState.loadedSprintId = null
@@ -264,6 +269,11 @@ const actions = {
             }
             // reset load parameters
             parentNodes = {}
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log('All items from ' + res.data.rows.length + ' documents are loaded')
+            for (let id of allIds) {
+                if (!insertedIds.includes(id)) console.log('id missing = ' + id)
+            }
         })
             // eslint-disable-next-line no-console
             .catch(error => console.log('loadAssignedAndSubscribed: Could not read a product from database ' + rootState.userData.currentDb + ',' + error))
