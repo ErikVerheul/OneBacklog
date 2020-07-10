@@ -74,6 +74,15 @@ function mounted() {
       window.slVueTree.resetFilters('searchInput')
     }
   })
+
+  let el3 = document.getElementById("titleField")
+  // update the item title on pressing enter
+  el3.addEventListener("keypress", (event) => {
+    if (event.keyCode === 13) {
+      event.preventDefault()
+      this.updateTitle()
+    }
+  })
 }
 
 function data() {
