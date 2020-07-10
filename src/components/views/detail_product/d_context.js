@@ -115,10 +115,10 @@ const methods = {
       case this.REMOVEITEM:
         this.assistanceText = this.$store.state.help.help.remove
         if (this.hasDependencies) {
-          this.listItemText = "WARNING: this item has dependencies on other items. Remove them first."
+          this.listItemText = "WARNING: this item has dependencies on other items. Remove the dependency/dependencies first."
           this.disableOkButton = true
         } else if (this.hasConditions) {
-          this.listItemText = "WARNING: this item is conditional for other items. Remove them first"
+          this.listItemText = "WARNING: this item is conditional for other items. Remove the condition(s) first"
           this.disableOkButton = true
         } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
         break
