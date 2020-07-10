@@ -88,7 +88,6 @@ const actions = {
         rootState,
         dispatch
     }, node) {
-        // set the range of documents to load
         const productId = node.productId
         globalAxios({
             method: 'GET',
