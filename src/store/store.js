@@ -17,10 +17,11 @@ import move from './modules/move'
 import undo from './modules/undo'
 import remove from './modules/remove'
 import utils from './modules/utils'
+import removebranch from './modules/removebranch.js'
 import restorebranches from './modules/restorebranches'
-import loadproducts from './modules/load_detail.js'
-import loadreqareas from './modules/load_coarse.js'
-import planningboard from './modules/planningboard.js'
+import loadproducts from './modules/load_detail'
+import loadoverview from './modules/load_coarse'
+import planningboard from './modules/planningboard'
 
 const DEBUG = -1
 const INFO = 0
@@ -873,9 +874,10 @@ export default new Vuex.Store({
 		undo,
 		remove,
 		utils,
+		removebranch,
 		restorebranches,
 		loadproducts,
-		loadreqareas,
+		loadoverview,
 		planningboard
 	}
 
