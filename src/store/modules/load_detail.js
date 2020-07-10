@@ -92,6 +92,7 @@ const mutations = {
                 parentNodes.root = rootState.treeNodes[0]
                 state.docsCount++
                 state.insertedCount++
+                insertedIds.push(_id)
                 continue
             }
             // create req areas to title mapper and req areas to color mapper
