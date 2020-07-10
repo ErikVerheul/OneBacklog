@@ -86,16 +86,6 @@ const methods = {
         this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
         this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
         break
-      case this.REMOVEITEM:
-        this.assistanceText = this.$store.state.help.help.remove
-        if (this.hasDependencies) {
-          this.listItemText = "WARNING: this item has dependencies on other items. Remove the dependency/dependencies first."
-          this.disableOkButton = true
-        } else if (this.hasConditions) {
-          this.listItemText = "WARNING: this item is conditional for other items. Remove the condition(s) first"
-          this.disableOkButton = true
-        } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
-        break
       case this.REMOVEREQAREA:
         this.assistanceText = 'No assistance available'
         this.listItemText = `Remove this requirement area`
@@ -146,7 +136,6 @@ const methods = {
       case this.INSERTINSIDE:
         this.doInsertNewItem()
         break
-      case this.REMOVEITEM:
       case this.REMOVEREQAREA:
         this.doRemove()
         break
