@@ -407,6 +407,31 @@ const actions = {
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
 	},
+
+	//////////////// utility not integrated in user interface //////////////////
+	removeFromFilter({
+        rootState,
+        dispatch
+    }) {
+        globalAxios({
+            method: 'GET',
+            url: rootState.userData.currentDb + '/_design/design1/_view/to-delete?include_docs=true',
+        }).then(res => {
+			const items = res.data.rows
+			const docs = []
+			for (let it of items) {
+				const doc = it.doc
+				doc.delmark = true
+				docs.push(doc)
+			}
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+        }).catch(error => {
+            let msg = `removeFromFilter: Could not read the teams in database '${rootState.userData.currentDb}', ${error}`
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
 }
 
 export default {
