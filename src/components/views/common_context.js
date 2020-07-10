@@ -71,8 +71,8 @@ const computed = {
 }
 
 const methods = {
-    doCloneProduct() {
-        this.$store.dispatch('cloneProduct')
+    doCloneProduct(node) {
+        this.$store.dispatch('cloneProduct', node)
     },
 
     doCloneItem(node) {

@@ -165,7 +165,7 @@ const methods = {
     this.showAssistance = false
     switch (this.contextOptionSelected) {
       case this.CLONEPRODUCT:
-        this.doCloneProduct()
+        this.doCloneProduct(this.contextNodeSelected)
         break
       case this.CLONEITEM:
         this.doCloneItem(this.contextNodeSelected)

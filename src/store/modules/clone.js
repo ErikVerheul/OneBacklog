@@ -5,10 +5,13 @@ const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const TASKLEVEL = 6
-var docs = []
 var newProductId
 var orgProductTitle
 var newProductTitle
+
+function composeRangeString(id) {
+	return `startkey=["${id}",${PRODUCTLEVEL},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${TASKLEVEL},${Number.MAX_SAFE_INTEGER}]`
+}
 
 // returns a new array so that it is reactive
 function addToArray(arr, item) {
@@ -18,7 +21,7 @@ function addToArray(arr, item) {
     return newArr
 }
 
-function showProduct(leafLevel) {
+function showProduct(docs, leafLevel) {
     let parentNodes = { root: window.slVueTree.getNodeById('root') }
     for (let doc of docs) {
         const parentId = doc.parentId
@@ -77,30 +80,35 @@ function showProduct(leafLevel) {
 }
 
 const actions = {
-    // Load the current product
+    /*
+    * Load the current product document and all its descendants.
+    * History and attachments are not copied
+    */
     cloneProduct({
         rootState,
         dispatch
-    }) {
+    }, node) {
         // set the range of documents to load
-        const productId = rootState.currentProductId
-        const rangeString = `startkey=["${productId}",0]&endkey=["${productId}",${TASKLEVEL}]`
+        const productId = node.productId
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/details?' + rangeString + '&include_docs=true',
+            url: rootState.userData.currentDb + '/_design/design1/_view/details?' + composeRangeString(productId) + '&include_docs=true',
         }).then(res => {
             // extract the documents
-            docs = []
-            for (let el of res.data.rows) {
+            const docs = []
+            for (let r of res.data.rows) {
+                const doc = r.doc
                 // remove the revision
-                delete el.doc._rev
-                docs.push(el.doc)
+                delete doc._rev
+                // must remove _attachments stub to avoid CouchDB error 412 'Precondition failed'
+                delete doc._attachments
+                docs.push(doc)
             }
             // patch the documents
             for (let i = 0; i < docs.length; i++) {
                 // compute a new id, remember old id
                 const oldId = docs[i]._id
-                // A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
+                // a copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
                 const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
                 const newId = Date.now().toString().concat(ext)
                 // the first document is the product
@@ -159,7 +167,7 @@ const actions = {
             // save in the database
             dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
             // show the product clone in the tree view
-            showProduct(getters.leafLevel)
+            showProduct(docs, getters.leafLevel)
             // eslint-disable-next-line no-console
             console.log('storeProduct: ' + res.data.length + ' documents are processed')
         }).catch(error => {
