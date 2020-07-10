@@ -202,7 +202,7 @@ const actions = {
                 }
             }
             // eslint-disable-next-line no-console
-            if (rootState.debug) console.log('All items from ' + batch.length + ' documents are loaded')
+            if (rootState.debug) console.log(batch.length + ' documents are loaded')
             parentNodes = {}
         })
             // eslint-disable-next-line no-console
