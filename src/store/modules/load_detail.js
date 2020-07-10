@@ -271,7 +271,8 @@ const actions = {
             parentNodes = {}
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log('All items from ' + res.data.rows.length + ' documents are loaded')
-            for (let id of allIds) {
+            if (rootState.debug) for (let id of allIds) {
+                // eslint-disable-next-line no-console
                 if (!insertedIds.includes(id)) console.log('id missing = ' + id)
             }
         })
