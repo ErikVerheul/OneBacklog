@@ -343,8 +343,8 @@ const methods = {
                     return
                 }
             }
-            // set remove mark in the database on the clicked item and descendants (if any)
-            this.$store.dispatch('removeItemAndDescendents', { node: selectedNode })
+            // set remove mark in the database on the clicked item and descendants (if any), then remove the node
+            this.$store.dispatch('removeBranch', { node: selectedNode, showUndoneMsg: false })
         }
     },
 

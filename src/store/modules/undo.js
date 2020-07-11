@@ -31,8 +31,8 @@ const actions = {
         dispatch
     }, entry) {
         const docsToGet = []
-        for (let d of entry.descendants) {
-            docsToGet.push({ "id": d._id })
+        for (let id of entry.docsRemovedIds) {
+            docsToGet.push({ "id": id })
         }
         globalAxios({
             method: 'POST',
@@ -101,7 +101,7 @@ const actions = {
         }).then(res => {
             let updatedDoc = res.data
             const newHist = {
-                "docRestoredEvent": [entry.descendants.length, entry.removedIntDependencies, entry.removedExtDependencies,
+                "docRestoredEvent": [entry.docsRemovedIds.length - 1, entry.removedIntDependencies, entry.removedExtDependencies,
                 entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds, entry.itemsRemovedFromReqArea],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
@@ -196,7 +196,7 @@ const actions = {
         }).then(res => {
             let grandParentDoc = res.data
             const newHist = {
-                "grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.descendants.length, entry.removedNode.data.subtype],
+                "grandParentDocRestoredEvent": [entry.removedNode.level, entry.removedNode.title, entry.docsRemovedIds.length - 1, entry.removedNode.data.subtype],
                 "by": rootState.userData.user,
                 "timestamp": Date.now(),
                 "distributeEvent": false

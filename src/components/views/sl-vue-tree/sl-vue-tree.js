@@ -846,7 +846,7 @@ const methods = {
 	},
 
 	/* When nodes are deleted orphan dependencies can be created. This method removes them. */
-	correctDependencies(productId, nodeIds) {
+	correctDependencies(nodeIds) {
 		const removedIntDependencies = []
 		const removedIntConditions = []
 		const removedExtDependencies = []
@@ -895,7 +895,7 @@ const methods = {
 				}
 				nm.conditionalFor = newConditionalFor
 			}
-		}, this.getProductModels(productId))
+		})
 		return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 	},
 

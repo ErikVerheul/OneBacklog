@@ -15,9 +15,8 @@ import teams from './modules/teams'
 import attachments from './modules/attachments'
 import move from './modules/move'
 import undo from './modules/undo'
-import remove from './modules/remove'
 import utils from './modules/utils'
-import removebranch from './modules/removebranch.js'
+import removebranch from './modules/removebranch'
 import restorebranches from './modules/restorebranches'
 import loadproducts from './modules/load_detail'
 import loadoverview from './modules/load_coarse'
@@ -872,7 +871,6 @@ export default new Vuex.Store({
 		attachments,
 		move,
 		undo,
-		remove,
 		utils,
 		removebranch,
 		restorebranches,

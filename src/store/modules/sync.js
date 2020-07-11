@@ -284,7 +284,7 @@ const actions = {
 						case 'removedWithDescendantsEvent':
 							if (node && doc.delmark) {
 								// remove any dependency references to/from outside the removed items
-								window.slVueTree.correctDependencies(lastHistObj.removedWithDescendantsEvent[0], lastHistObj.removedWithDescendantsEvent[1])
+								window.slVueTree.correctDependencies(lastHistObj.removedWithDescendantsEvent[1])
 								if (node.level === PRODUCTLEVEL) {
 									// save some data of the removed product for restore at undo.
 									removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
@@ -618,14 +618,14 @@ const actions = {
 				dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
 			}
 		} else {
-			if (updateTree && doc.productId === AREA_PRODUCTID) {
+			if (updateTree && doc.productId === AREA_PRODUCTID && (histEvent === 'removedWithDescendantsEvent' || histEvent === 'docRestoredEvent')) {
 				dispatch('doBlinck', doc)
-				// special case: changes to the aiignment of requirement area
+				// special case: changes to the alignment of requirement area
 				switch (histEvent) {
 					case 'removedWithDescendantsEvent':
 						if (doc.delmark) {
 							// remove references to the requirement area
-							const reqAreaId = lastHistObj.removedWithDescendantsEvent[5]
+							const reqAreaId = lastHistObj.removedWithDescendantsEvent[0]
 							window.slVueTree.traverseModels((nm) => {
 								if (nm.data.reqarea === reqAreaId) {
 									delete nm.data.reqarea
@@ -669,7 +669,7 @@ const actions = {
 						break
 				}
 			} else {
-				if (rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
+				if (doc.productId === AREA_PRODUCTID || rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
 					// only process updates of items the user is authorised to including products that are restored from deletion by this user
 					dispatch('doBlinck', doc)
 					doProc(doc)

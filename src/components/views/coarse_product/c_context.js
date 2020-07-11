@@ -34,7 +34,6 @@ const methods = {
         this.contextNodeLevel = node.level
         this.contextNodeType = this.getLevelText(node.level)
         this.contextChildType = this.getLevelText(node.level + 1)
-        this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
         this.contextNodeTeam = node.data.team
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
@@ -86,6 +85,7 @@ const methods = {
         this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
         this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
         break
+
       case this.REMOVEREQAREA:
         this.assistanceText = 'No assistance available'
         this.listItemText = `Remove this requirement area`
@@ -136,6 +136,7 @@ const methods = {
       case this.INSERTINSIDE:
         this.doInsertNewItem()
         break
+      case this.REMOVEITEM:
       case this.REMOVEREQAREA:
         this.doRemove()
         break

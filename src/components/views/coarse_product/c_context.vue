@@ -136,6 +136,14 @@
               variant="dark"
               @click="showSelected(CLONEITEM)"
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
+
+            <b-list-group-item
+              v-if="allowRemoval && contextNodeLevel >= productLevel"
+              button
+              :active="contextOptionSelected === REMOVEITEM"
+              variant="danger"
+              @click="showSelected(REMOVEITEM)"
+            >Delete this {{ contextNodeType }} and all its descendants</b-list-group-item>
           </template>
         </template>
 

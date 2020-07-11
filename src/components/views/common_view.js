@@ -394,7 +394,7 @@ const methods = {
         this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange })
         break
       case 'undoNewNode':
-        this.$store.dispatch('removeItemAndDescendents', { node: entry.newNode })
+        this.$store.dispatch('removeBranch', { node: entry.newNode, showUndoneMsg: true })
         break
       case 'undoMove':
         {

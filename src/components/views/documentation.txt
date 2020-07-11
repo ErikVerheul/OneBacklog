@@ -272,6 +272,7 @@ distibuted	mailed	listed	event                       	file
 Y            Y	     Y    acceptanceEvent	              	update.js
 Y            Y	     Y    addCommentEvent	              	update.js
 Y			 Y	     Y    addSprintIdsEvent					planningboard.js
+Y			 Y	     Y    branchRemoveEvent					removeBranch.js
 N            Y	     Y    cloneEvent	                  	clone.js
 Y            Y	     Y    commentToHistoryEvent	        	update.js
 Y            Y	     Y    conditionRemovedEvent	        	update.js
