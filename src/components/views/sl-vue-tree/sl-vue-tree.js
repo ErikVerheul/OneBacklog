@@ -853,9 +853,9 @@ const methods = {
 		const removedExtConditions = []
 		this.traverseModels((nm) => {
 			const newDependencies = []
-			if (nm.dependencies && nm._id) {
+			if (nm.dependencies && nm.dependencies.length > 0) {
 				if (nodeIds.includes(nm._id)) {
-					// nm is one of the nodes
+					// nm is one of the deleted nodes
 					for (let d of nm.dependencies) {
 						// dependency references within the nodes survive
 						if (nodeIds.includes(d)) {
@@ -875,9 +875,9 @@ const methods = {
 			}
 
 			const newConditionalFor = []
-			if (nm.conditionalFor && nm._id) {
+			if (nm.conditionalFor && nm.conditionalFor.length > 0) {
 				if (nodeIds.includes(nm._id)) {
-					// nm is one of the nodes
+					// nm is one of the deleted nodes
 					for (let c of nm.conditionalFor) {
 						// dependency references within the nodes survive
 						if (nodeIds.includes(c)) {

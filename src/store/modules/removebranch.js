@@ -8,9 +8,10 @@ const PRODUCTLEVEL = 2
 const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
 var docsRemovedIds = []
-var docIdsWithDepsOrConds = []
-var extDepsCount = 0
-var extCondsCount = 0
+var removedDeps = {}
+var removedConds = {}
+var extDepsRemovedCount = 0
+var extCondsRemovedCount = 0
 var removedSprintIds = []
 
 function composeRangeString(id) {
@@ -41,16 +42,16 @@ const actions = {
     }, payload) {
         for (let doc of payload.results) {
             docsRemovedIds.push(doc._id)
-
             if (doc.dependencies && doc.dependencies.length > 0) {
-                docIdsWithDepsOrConds.concat(doc.dependencies)
-                extDepsCount += doc.dependencies.length
+                for (let d of doc.dependencies) {
+                    removedDeps[d] = { dependentOn: doc._id, level: doc.level }
+                }
             }
             if (doc.conditionalFor && doc.conditionalFor.length > 0) {
-                docIdsWithDepsOrConds.concat(doc.conditionalFor)
-                extCondsCount += doc.conditionalFor.length
+                for (let c of doc.conditionalFor) {
+                    removedConds[c] = { conditionalFor: doc._id, level: doc.Level }
+                }
             }
-
             if (doc.sprintId) removedSprintIds.push(doc.sprintId)
             // mark for removal
             doc.delmark = true
@@ -83,8 +84,8 @@ const actions = {
                 dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), showUndoneMsg: payload.showUndoneMsg })
             } else {
                 if (getChildrenRunning === 0) {
-                    // add history to the the removed item and its parent
-                    dispatch('addRemoveHist', { node: payload.node, showUndoneMsg: payload.showUndoneMsg })
+                    // db iteration ready
+                    dispatch('removeExternalConds', payload)
                 }
             }
         }).catch(error => {
@@ -117,6 +118,85 @@ const actions = {
         })
     },
 
+    removeExternalConds({
+        rootState,
+        dispatch
+    }, payload) {
+        const docsToGet = []
+        for (let d of Object.keys(removedDeps)) {
+            docsToGet.push({ "id": d })
+        }
+        globalAxios({
+            method: 'POST',
+            url: rootState.userData.currentDb + '/_bulk_get',
+            data: { "docs": docsToGet },
+        }).then(res => {
+            const results = res.data.results
+            const docs = []
+            for (let r of results) {
+                const doc = r.docs[0].ok
+                // removedDeps[d] = { dependentOn: doc._id, level: doc.Level }
+                if (doc) {
+                    if (doc.level < removedDeps[doc._id].level) {
+                        const newConditionalFor = []
+                        for (let c of doc.conditionalFor) {
+                            if (c !== removedDeps[doc._id].dependentOn) newConditionalFor.push(c)
+                        }
+                        doc.conditionalFor = newConditionalFor
+                        extCondsRemovedCount++
+                    }
+                    docs.push(doc)
+                }
+            }
+            const toDispatch = { removeExternalDeps: payload }
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+        }).catch(e => {
+            let msg = 'removeExternalConds: Could not read batch of documents: ' + e
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
+
+    removeExternalDeps({
+        rootState,
+        dispatch
+    }, payload) {
+        const docsToGet = []
+        for (let c of Object.keys(removedConds)) {
+            docsToGet.push({ "id": c })
+        }
+        globalAxios({
+            method: 'POST',
+            url: rootState.userData.currentDb + '/_bulk_get',
+            data: { "docs": docsToGet },
+        }).then(res => {
+            const results = res.data.results
+            const docs = []
+            for (let r of results) {
+                const doc = r.docs[0].ok
+                if (doc) {
+                    if (doc.level < removedConds[doc._id].level) {
+                        const newDependencies = []
+                        for (let d of doc.dependencies) {
+                            if (d !== removedConds[doc._id].conditionalFor) newDependencies.push(d)
+                        }
+                        doc.dependencies = newDependencies
+                        extDepsRemovedCount++
+                    }
+                    docs.push(doc)
+                }
+            }
+            const toDispatch = { addRemoveHist: { node: payload.node, showUndoneMsg: payload.showUndoneMsg } }
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+        }).catch(e => {
+            let msg = 'removeExternalDeps: Could not read batch of documents: ' + e
+            // eslint-disable-next-line no-console
+            if (rootState.debug) console.log(msg)
+            dispatch('doLog', { event: msg, level: ERROR })
+        })
+    },
+
     /* Add history to the removed item it self */
     addRemoveHist({
         rootState,
@@ -129,13 +209,12 @@ const actions = {
             url: rootState.userData.currentDb + '/' + id
         }).then(res => {
             const doc = res.data
-
             const newHist = {
                 "removedWithDescendantsEvent": [
                     id,
                     docsRemovedIds,
-                    extDepsCount,
-                    extCondsCount,
+                    extDepsRemovedCount,
+                    extCondsRemovedCount,
                     removedSprintIds
                 ],
                 "by": rootState.userData.user,
@@ -201,6 +280,7 @@ const actions = {
                     }
 
                     // remove any dependency references to/from outside the removed items; note: these cannot be undone
+
                     const removed = window.slVueTree.correctDependencies(docsRemovedIds)
                     // before removal select the predecessor of the removed node (sibling or parent)
                     const prevNode = window.slVueTree.getPreviousNode(payload.node.path)
@@ -214,7 +294,7 @@ const actions = {
                         }
                         nowSelectedNode = nextProduct
                     }
-                    commit('updateNodesAndCurrentDoc', { selectNode: payload.node })
+                    commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
                     // load the new selected item
                     dispatch('loadDoc', { id: nowSelectedNode._id })
                     // remove the node and its children

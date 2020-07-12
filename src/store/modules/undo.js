@@ -238,6 +238,7 @@ const actions = {
             // nothing to do
             return
         }
+        console.log('restoreExtDepsAndConds: docsToGet = ' + JSON.stringify(docsToGet, null, 2))
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',

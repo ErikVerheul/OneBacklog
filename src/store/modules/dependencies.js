@@ -157,8 +157,8 @@ const actions = {
 
             dispatch('updateDoc', {
                 dbName, updatedDoc: tmpDoc, onSuccessCallback: () => {
-                    commit('updateNodesAndCurrentDoc', { node: payload.dependentOnNode, removeLastDependencyOn: payload.conditionalForNode._id, lastChange: payload.dependentOnPrevLastChange, newHist: payload.hist })
-                    commit('updateNodesAndCurrentDoc', { node: payload.conditionalForNode, removeLastConditionalFor: payload.dependentOnNode._id, lastChange: payload.conditionalForprevLastChange, newHist })
+                    commit('updateNodesAndCurrentDoc', { node: payload.dependentOnNode, removeLastDependencyOn: null, lastChange: payload.dependentOnPrevLastChange, newHist: payload.hist })
+                    commit('updateNodesAndCurrentDoc', { node: payload.conditionalForNode, removeLastConditionalFor: null, lastChange: payload.conditionalForprevLastChange, newHist })
                     commit('showLastEvent', { txt: `Dependency set is undone`, severity: INFO })
                 }
             })
@@ -176,7 +176,6 @@ const actions = {
         rootState,
         dispatch
     }, payload) {
-        console.log('removeDependenciesAsync')
         const dbName = rootState.userData.currentDb
         const id = payload.node._id
         globalAxios({
@@ -215,8 +214,6 @@ const actions = {
         commit,
         dispatch
     }, payload) {
-        console.log('alsoRemoveConditions')
-
         const docsToGet = []
         for (let id of payload.removedIds) {
             docsToGet.push({ "id": id })
@@ -300,7 +297,6 @@ const actions = {
         rootState,
         dispatch
     }, payload) {
-        console.log('removeConditionsAsync')
         const dbName = rootState.userData.currentDb
         const id = payload.node._id
         globalAxios({
@@ -340,8 +336,6 @@ const actions = {
         commit,
         dispatch
     }, payload) {
-        console.log('alsoRemoveDependenciesAsync')
-
         const docsToGet = []
         for (let id of payload.removedIds) {
             docsToGet.push({ "id": id })

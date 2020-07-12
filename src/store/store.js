@@ -452,8 +452,14 @@ export default new Vuex.Store({
 							case 'acceptanceCriteria':
 								state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
 								break
+							case 'addConditionalFor':
+								break
 							case 'conditionalFor':
 								state.currentDoc.conditionalFor = payload.conditionalFor
+								break
+							case 'conditionsremoved':
+								break
+							case 'dependenciesRemoved':
 								break
 							case 'delmark':
 								state.currentDoc.delmark = payload.delmark
@@ -522,6 +528,12 @@ export default new Vuex.Store({
 								break
 							case 'productId':
 								state.currentDoc.productId = payload.productId
+								break
+							case 'removeLastConditionalFor':
+								state.currentDoc.conditionalFor.slice(0, -1)
+								break
+							case 'removeLastDependencyOn':
+								state.currentDoc.dependencies.slice(0, -1)
 								break
 							case 'reqarea':
 								state.currentDoc.reqarea = payload.reqarea
