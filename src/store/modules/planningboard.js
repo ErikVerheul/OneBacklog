@@ -119,7 +119,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			data: { "docs": docsToGet }
 		}).then(res => {
 			const results = res.data.results
 			for (let r of results) {
@@ -218,7 +218,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			data: { "docs": docsToGet }
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
@@ -406,7 +406,7 @@ const actions = {
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + payload.storyId,
+			url: rootState.userData.currentDb + '/' + payload.storyId
 		}).then(res => {
 			let tmpDoc = res.data
 			// this event is excluded from the history view and uses an object instead of an array to pass data
@@ -473,7 +473,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			data: { "docs": docsToGet }
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
@@ -540,7 +540,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			data: { "docs": docsToGet }
 		}).then(res => {
 			const results = res.data.results
 			const docs = []

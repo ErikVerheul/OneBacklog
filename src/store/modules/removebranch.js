@@ -129,7 +129,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             const results = res.data.results
             const docs = []
@@ -169,7 +169,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             const results = res.data.results
             const docs = []

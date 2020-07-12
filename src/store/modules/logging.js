@@ -80,7 +80,7 @@ const actions = {
 				if (logsToSave > 0 || !rootState.listenForChangesRunning) {
 					globalAxios({
 						method: 'GET',
-						url: rootState.userData.currentDb + '/' + LOGDOCNAME,
+						url: rootState.userData.currentDb + '/' + LOGDOCNAME
 					}).then(res => {
 						let log = res.data
 						// save the stored logs
@@ -168,7 +168,7 @@ const actions = {
 				// store all unsaved logs
 				globalAxios({
 					method: 'GET',
-					url: rootState.userData.currentDb + '/' + LOGDOCNAME,
+					url: rootState.userData.currentDb + '/' + LOGDOCNAME
 				}).then(res => {
 					let log = res.data
 					// eslint-disable-next-line no-console

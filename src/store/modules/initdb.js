@@ -33,7 +33,7 @@ const actions = {
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'PUT',
-			url: payload.dbName,
+			url: payload.dbName
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createDatabase: Success, empty database ' + payload.dbName + ' is created' })
 			dispatch('setDatabasePermissions', payload)

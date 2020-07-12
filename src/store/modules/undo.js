@@ -37,7 +37,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             const results = res.data.results
             const docs = []
@@ -97,7 +97,7 @@ const actions = {
         const _id = entry.removedNode._id
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id,
+            url: rootState.userData.currentDb + '/' + _id
         }).then(res => {
             let updatedDoc = res.data
             const newHist = {
@@ -192,7 +192,7 @@ const actions = {
         const _id = entry.removedNode.parentId
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id,
+            url: rootState.userData.currentDb + '/' + _id
         }).then(res => {
             let grandParentDoc = res.data
             const newHist = {
@@ -238,11 +238,10 @@ const actions = {
             // nothing to do
             return
         }
-        console.log('restoreExtDepsAndConds: docsToGet = ' + JSON.stringify(docsToGet, null, 2))
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             // console.log('restoreExtDepsAndConds: res = ' + JSON.stringify(res, null, 2))
             const results = res.data.results
@@ -308,7 +307,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             const results = res.data.results
             const docs = []

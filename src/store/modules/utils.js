@@ -29,7 +29,7 @@ const actions = {
 		rootState.areDatabasesFound = false
 		globalAxios({
 			method: 'GET',
-			url: '/_all_dbs',
+			url: '/_all_dbs'
 		}).then(res => {
 			rootState.areDatabasesFound = true
 			rootState.databaseOptions = []
@@ -135,7 +135,7 @@ const actions = {
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'DELETE',
-			url: payload.dbTargetName,
+			url: payload.dbTargetName
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + payload.dbTargetName + ' has been deleted' })
 			dispatch('copyDB', payload)
@@ -153,7 +153,7 @@ const actions = {
 	}, dbName) {
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/_design/design1/_view/removed',
+			url: dbName + '/_design/design1/_view/removed'
 		}).then(res => {
 			const removed = res.data.rows
 			const data = []
@@ -181,7 +181,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_purge',
-			data: payload.data[payload.idx],
+			data: payload.data[payload.idx]
 		}).then(() => {
 			// recurse as there is nu bulk purge available
 			payload.idx++
@@ -216,7 +216,7 @@ const actions = {
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'DELETE',
-			url: dbName,
+			url: dbName
 		}).then(() => {
 			if (rootState.databaseOptions.includes(dbName)) {
 				rootState.databaseOptions = removeFromArray(rootState.databaseOptions, dbName)
@@ -237,7 +237,7 @@ const actions = {
 		rootState.fetchedTeams = []
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/_design/design1/_view/teams',
+			url: dbName + '/_design/design1/_view/teams'
 		}).then(res => {
 			const rows = res.data.rows
 			for (let r of rows) {
@@ -269,7 +269,7 @@ const actions = {
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/config',
+			url: dbName + '/config'
 		}).then(res => {
 			if (res.data.defaultSprintCalendar) {
 				rootState.defaultSprintCalendar = res.data.defaultSprintCalendar
@@ -292,7 +292,7 @@ const actions = {
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: payload.dbName + '/config',
+			url: payload.dbName + '/config'
 		}).then(res => {
 			let updatedDoc = res.data
 			updatedDoc["defaultSprintCalendar"] = payload.newSprintCalendar
@@ -319,7 +319,7 @@ const actions = {
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: payload.dbName + '/_all_docs',
+			url: payload.dbName + '/_all_docs'
 		}).then(res => {
 			rootState.isHistAndCommReset = false
 			rootState.backendMessages = []
@@ -345,7 +345,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_get',
-			data: { "docs": payload.docs },
+			data: { "docs": payload.docs }
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
@@ -415,7 +415,7 @@ const actions = {
     }) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/to-delete?include_docs=true',
+            url: rootState.userData.currentDb + '/_design/design1/_view/to-delete?include_docs=true'
         }).then(res => {
 			const items = res.data.rows
 			const docs = []

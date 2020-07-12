@@ -26,7 +26,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldDocArea = tmpDoc.reqarea
@@ -71,7 +71,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			data: { "docs": docsToGet }
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
@@ -156,7 +156,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id
 		}).then(res => {
 			let tmpDoc = res.data
 			// update the req area document
@@ -193,7 +193,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id
 		}).then(res => {
 			let tmpDoc = res.data
 			const wasFollower = rootGetters.isFollower
@@ -240,7 +240,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldTsSize = tmpDoc.tssize
@@ -290,7 +290,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldPersonHours = tmpDoc.spikepersonhours
@@ -340,7 +340,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			// update size only
@@ -391,7 +391,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldState = tmpDoc.state
@@ -459,7 +459,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldTeam = tmpDoc.team
@@ -526,7 +526,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { "docs": docsToGet },
+			data: { "docs": docsToGet }
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
@@ -580,7 +580,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			const oldTitle = rootState.currentDoc.title
 			let tmpDoc = res.data
@@ -630,7 +630,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			const newHist = {
@@ -679,7 +679,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			// decode from base64
@@ -732,7 +732,7 @@ const actions = {
 		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			// decode from base64
@@ -785,7 +785,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id
 		}).then((res) => {
 			let tmpDoc = res.data
 			const newComment = {
@@ -822,7 +822,7 @@ const actions = {
 		const _id = rootState.currentDoc._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id
 		}).then(res => {
 			let tmpDoc = res.data
 			const newCommentToHistory = window.btoa(payload.comment)
@@ -895,7 +895,7 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_docs',
-			data: { "docs": payload.docs },
+			data: { "docs": payload.docs }
 		}).then(res => {
 			let updateOk = 0
 			let updateConflict = 0
@@ -945,7 +945,7 @@ const actions = {
 		const rangeStr = `/_design/design1/_view/shortIdFilter?startkey=["${shortId}"]&endkey=["${shortId}"]&include_docs=true`
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + rangeStr,
+			url: rootState.userData.currentDb + rangeStr
 		}).then(res => {
 			const rows = res.data.rows
 			if (rows.length > 0) {
@@ -988,7 +988,7 @@ const actions = {
 		const _id = payload.newDoc.parentId
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id,
+			url: rootState.userData.currentDb + '/' + _id
 		}).then(res => {
 			const updatedDoc = res.data
 			// create a history event for the parent to trigger an email message to followers
@@ -1032,7 +1032,7 @@ const actions = {
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + payload.id,
+			url: rootState.userData.currentDb + '/' + payload.id
 		}).then(res => {
 			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 			// execute passed function if provided

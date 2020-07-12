@@ -57,7 +57,7 @@ const actions = {
             const newEncodedAttachment = arrayBufferToBase64(attachment)
             globalAxios({
                 method: 'GET',
-                url: rootState.userData.currentDb + '/' + _id,
+                url: rootState.userData.currentDb + '/' + _id
             }).then(res => {
                 let tmpDoc = res.data
                 if (!tmpDoc._attachments) {
@@ -113,7 +113,7 @@ const actions = {
         const _id = rootState.currentDoc._id
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id,
+            url: rootState.userData.currentDb + '/' + _id
         }).then(res => {
             let tmpDoc = res.data
             if (tmpDoc._attachments) {

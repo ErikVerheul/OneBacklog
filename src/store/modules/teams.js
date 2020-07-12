@@ -33,7 +33,7 @@ const actions = {
 		const teamName = payload.teamName
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/_design/design1/_view/teams',
+			url: dbName + '/_design/design1/_view/teams'
 		}).then(res => {
 			const teams = res.data.rows
 			let teamExists = false
@@ -98,7 +98,7 @@ const actions = {
 		const teamNamesToRemove = payload.teamNamesToRemove
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/_design/design1/_view/teams?include_docs=true',
+			url: dbName + '/_design/design1/_view/teams?include_docs=true'
 		}).then(res => {
 			const results = res.data.rows
 			const docsToRemove = []
@@ -178,7 +178,7 @@ const actions = {
 		if (payload.oldTeam !== payload.newTeam) {
 			globalAxios({
 				method: 'GET',
-				url: dbName + '/_design/design1/_view/teams?include_docs=true',
+				url: dbName + '/_design/design1/_view/teams?include_docs=true'
 			}).then(res => {
 				const rows = res.data.rows
 				let oldTeamDoc

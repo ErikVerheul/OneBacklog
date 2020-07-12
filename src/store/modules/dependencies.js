@@ -13,7 +13,7 @@ const actions = {
         const id = payload.dependentOnNode._id
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + id,
+            url: rootState.userData.currentDb + '/' + id
         }).then(res => {
             let tmpDoc = res.data
             const newHist = {
@@ -48,7 +48,7 @@ const actions = {
         const id = payload.conditionalForNode._id
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + id,
+            url: rootState.userData.currentDb + '/' + id
         }).then(res => {
             let tmpDoc = res.data
             const timestamp = Date.now()
@@ -104,7 +104,7 @@ const actions = {
         let id = payload.dependentOnNode._id
         globalAxios({
             method: 'GET',
-            url: dbName + '/' + id,
+            url: dbName + '/' + id
         }).then(res => {
             let tmpDoc = res.data
             tmpDoc.dependencies = tmpDoc.dependencies.slice(0, -1)
@@ -141,7 +141,7 @@ const actions = {
         let id = payload.conditionalForNode._id
         globalAxios({
             method: 'GET',
-            url: dbName + '/' + id,
+            url: dbName + '/' + id
         }).then(res => {
             let tmpDoc = res.data
             tmpDoc.conditionalFor = tmpDoc.conditionalFor.slice(0, -1)
@@ -180,7 +180,7 @@ const actions = {
         const id = payload.node._id
         globalAxios({
             method: 'GET',
-            url: dbName + '/' + id,
+            url: dbName + '/' + id
         }).then(res => {
             let tmpDoc = res.data
             tmpDoc.dependencies = payload.newDeps
@@ -221,7 +221,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             const results = res.data.results
             const docs = []
@@ -301,7 +301,7 @@ const actions = {
         const id = payload.node._id
         globalAxios({
             method: 'GET',
-            url: dbName + '/' + id,
+            url: dbName + '/' + id
         }).then(res => {
             let tmpDoc = res.data
             // update the conditions
@@ -343,7 +343,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             const results = res.data.results
             const docs = []
@@ -437,7 +437,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             const results = res.data.results
             for (let r of results) {
@@ -500,7 +500,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet },
+            data: { "docs": docsToGet }
         }).then(res => {
             const results = res.data.results
             for (let r of results) {

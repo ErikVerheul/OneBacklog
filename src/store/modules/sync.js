@@ -703,7 +703,7 @@ const actions = {
 		rootState.listenForChangesRunning = true
 		globalAxios({
 			method: 'GET',
-			url: url,
+			url
 		}).then(res => {
 			// to avoid missing changes immediately check for additional changes
 			dispatch('listenForChanges')

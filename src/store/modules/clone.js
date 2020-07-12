@@ -91,7 +91,7 @@ const actions = {
         const productId = node.productId
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/details?' + composeRangeString(productId) + '&include_docs=true',
+            url: rootState.userData.currentDb + '/_design/design1/_view/details?' + composeRangeString(productId) + '&include_docs=true'
         }).then(res => {
             // extract the documents
             const docs = []
@@ -151,7 +151,7 @@ const actions = {
         globalAxios({
             method: 'POST',
             url: rootState.userData.currentDb + '/_bulk_docs',
-            data: { "docs": docs },
+            data: { "docs": docs }
         }).then(res => {
             // add the productId to my myProductSubscriptions
             rootState.userData.myProductSubscriptions.push(newProductId)

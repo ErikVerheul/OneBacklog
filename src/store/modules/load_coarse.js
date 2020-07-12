@@ -25,7 +25,7 @@ const actions = {
     }) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/overview',
+            url: rootState.userData.currentDb + '/_design/design1/_view/overview'
         }).then(res => {
             rootState.lastTreeView = 'coarseProduct'
             rootState.loadedTreeDepth = FEATURELEVEL

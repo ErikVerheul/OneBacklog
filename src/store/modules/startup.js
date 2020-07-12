@@ -31,7 +31,7 @@ const actions = {
     }) {
         globalAxios({
             method: 'GET',
-            url: '/_all_dbs',
+            url: '/_all_dbs'
         }).then(res => {
             const foundDbNames = []
             for (let dbName of res.data) {
@@ -55,7 +55,7 @@ const actions = {
     }, foundDbNames) {
         globalAxios({
             method: 'GET',
-            url: '_users/org.couchdb.user:' + rootState.userData.user,
+            url: '_users/org.couchdb.user:' + rootState.userData.user
         }).then(res => {
             let allUserData = res.data
             // check if the default user database exists
@@ -114,7 +114,7 @@ const actions = {
     }, payload) {
         globalAxios({
             method: 'GET',
-            url: payload.dbName + '/_design/design1/_view/products',
+            url: payload.dbName + '/_design/design1/_view/products'
         }).then(res => {
             const currentProductsEnvelope = res.data.rows
             const availableProductIds = []
@@ -194,7 +194,7 @@ const actions = {
     }) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/config',
+            url: rootState.userData.currentDb + '/config'
         }).then(res => {
             rootState.configData = res.data
             // eslint-disable-next-line no-console
@@ -253,7 +253,7 @@ const actions = {
         rootState.allTeams = {}
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/teams',
+            url: rootState.userData.currentDb + '/_design/design1/_view/teams'
         }).then(res => {
             const teams = res.data.rows
             let userInATeam = false
@@ -288,7 +288,7 @@ const actions = {
     }, id) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + id,
+            url: rootState.userData.currentDb + '/' + id
         }).then(res => {
             const doc = res.data
             if (doc.teamCalendar && doc.teamCalendar.length > 0) {
@@ -365,7 +365,7 @@ const actions = {
     }) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/root',
+            url: rootState.userData.currentDb + '/root'
         }).then(res => {
             commit('updateNodesAndCurrentDoc', { newDoc: res.data })
             // eslint-disable-next-line no-console

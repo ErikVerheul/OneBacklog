@@ -216,7 +216,7 @@ const actions = {
     }) {
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/_design/design1/_view/details',
+            url: rootState.userData.currentDb + '/_design/design1/_view/details'
         }).then(res => {
             rootState.lastTreeView = 'detailProduct'
             rootState.loadedTreeDepth = TASKLEVEL

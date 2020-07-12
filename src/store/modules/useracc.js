@@ -19,7 +19,7 @@ const actions = {
 		rootState.isUserFound = false
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + userName,
+			url: '/_users/org.couchdb.user:' + userName
 		}).then(res => {
 			state.fetchedUserData = res.data
 			state.userIsAdmin = state.fetchedUserData.roles.includes('admin') ? true : false
@@ -48,7 +48,7 @@ const actions = {
 		state.allUsers = []
 		globalAxios({
 			method: 'GET',
-			url: '_users/_design/_auth/_view/list-all',
+			url: '_users/_design/_auth/_view/list-all'
 		}).then(res => {
 			const rows = res.data.rows
 			if (rows.length > 0) {
@@ -91,7 +91,7 @@ const actions = {
 		rootState.areProductsFound = false
 		globalAxios({
 			method: 'GET',
-			url: payload.dbName + '/_design/design1/_view/products',
+			url: payload.dbName + '/_design/design1/_view/products'
 		}).then(res => {
 			rootState.areProductsFound = true
 			state.dbProducts = res.data.rows
@@ -122,7 +122,7 @@ const actions = {
 	}, newFilterSettings) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			let tmpUserData = res.data
 			rootState.userData.myFilterSettings = newFilterSettings
@@ -140,7 +140,7 @@ const actions = {
 	}, newPassword) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			rootState.userData.password = newPassword
 			let tmpUserData = res.data
@@ -168,7 +168,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			rootState.isDatabaseInitiated = true
 			rootState.isDatabaseCreated = true
@@ -211,7 +211,7 @@ const actions = {
 	}, newSubscriptions) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			const tmpUserData = res.data
 			tmpUserData.myDatabases[rootState.userData.currentDb].subscriptions = newSubscriptions
@@ -230,7 +230,7 @@ const actions = {
 	}, dbName) {
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/_design/design1/_view/products',
+			url: dbName + '/_design/design1/_view/products'
 		}).then(res => {
 			const currentProductsEnvelope = res.data.rows
 			const availableProductIds = []
@@ -261,7 +261,7 @@ const actions = {
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			let tmpUserData = res.data
 			const newDbEntry = {
@@ -302,7 +302,7 @@ const actions = {
 	}, sprintId) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			const tmpUserData = res.data
 			if (tmpUserData.doNotAskForImport) {
@@ -363,7 +363,7 @@ const actions = {
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + userData.name,
+			url: '/_users/org.couchdb.user:' + userData.name
 		}).then(() => {
 			let msg = 'createUserIfNotExistent: Cannot create user "' + userData.name + '" that already exists'
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
