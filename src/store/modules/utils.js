@@ -341,7 +341,6 @@ const actions = {
 		dispatch
 	}, payload) {
 		const dayMillis = 24 * 60 * 60000
-		const now = Date.now()
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_get',
@@ -350,6 +349,7 @@ const actions = {
 			const results = res.data.results
 			const docs = []
 			const error = []
+			const now = Date.now()
 			for (let r of results) {
 				const doc = r.docs[0].ok
 				if (doc) {

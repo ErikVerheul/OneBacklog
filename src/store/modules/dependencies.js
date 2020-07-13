@@ -55,7 +55,7 @@ const actions = {
             const newHist = {
                 "setConditionEvent": [payload.dependentOnNode._id, payload.dependentOnNode.title],
                 "by": rootState.userData.user,
-                "timestamp":timestamp,
+                "timestamp": timestamp,
                 "sessionId": rootState.userData.sessionId,
                 "distributeEvent": true
             }
@@ -187,7 +187,7 @@ const actions = {
             const newHist = {
                 "dependencyRemovedEvent": [payload.removedIds],
                 "by": rootState.userData.user,
-                "timestamp": payload.timestamp,
+                "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
                 "distributeEvent": true
             }
@@ -243,7 +243,7 @@ const actions = {
                     const newHist = {
                         "conditionRemovedEvent": [[payload.node._id], payload.node.title],
                         "sessionId": rootState.userData.sessionId,
-                        "timestamp": payload.timestamp,
+                        "timestamp": Date.now(),
                         "distributeEvent": true
                     }
                     doc.history.unshift(newHist)
@@ -309,7 +309,7 @@ const actions = {
             const newHist = {
                 "conditionRemovedEvent": [payload.removedIds],
                 "by": rootState.userData.user,
-                "timestamp": payload.timestamp,
+                "timestamp": Date.now(),
                 "sessionId": rootState.userData.sessionId,
                 "distributeEvent": true
             }
@@ -366,7 +366,7 @@ const actions = {
                     const newHist = {
                         "dependencyRemovedEvent": [[payload.node._id], payload.node.title],
                         "sessionId": rootState.userData.sessionId,
-                        "timestamp": payload.timestamp,
+                        "timestamp": Date.now(),
                         "distributeEvent": true
                     }
                     doc.history.unshift(newHist)

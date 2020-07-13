@@ -79,7 +79,7 @@ const actions = {
                 const newHist = {
                     "uploadAttachmentEvent": [title, payload.fileInfo.size, payload.fileInfo.type],
                     "by": rootState.userData.user,
-                    "timestamp": payload.timestamp,
+                    "timestamp": Date.now(),
                     "sessionId": rootState.userData.sessionId,
                     "distributeEvent": true
                 }

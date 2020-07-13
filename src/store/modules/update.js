@@ -33,7 +33,7 @@ const actions = {
 			tmpDoc.reqarea = payload.reqarea
 			const newHist = {
 				"ignoreEvent": ['updateReqArea'],
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
@@ -163,7 +163,7 @@ const actions = {
 			tmpDoc.color = payload.newColor
 			const newHist = {
 				"ignoreEvent": ['updateColorDb'],
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}
 			tmpDoc.history.unshift(newHist)
@@ -210,7 +210,7 @@ const actions = {
 			const newHist = {
 				"subscribeEvent": [wasFollower],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"distributeEvent": false
 			}
 			tmpDoc.followers = tmpFollowers
@@ -247,7 +247,7 @@ const actions = {
 			const newHist = {
 				"setSizeEvent": [oldTsSize, payload.newSizeIdx],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -297,7 +297,7 @@ const actions = {
 			const newHist = {
 				"setHrsEvent": [oldPersonHours, payload.newHrs],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -348,7 +348,7 @@ const actions = {
 			const newHist = {
 				"setPointsEvent": [oldPoints, payload.newPoints],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -398,7 +398,7 @@ const actions = {
 			const newHist = {
 				"setStateEvent": [oldState, payload.newState, payload.newTeam, payload.position],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -467,7 +467,7 @@ const actions = {
 				const newHist = {
 					"setTeamOwnerEvent": [oldTeam, payload.newTeam, descendantsInfo.count],
 					"by": rootState.userData.user,
-					"timestamp": payload.timestamp,
+					"timestamp": Date.now(),
 					"sessionId": rootState.userData.sessionId,
 					"distributeEvent": true
 				}
@@ -587,7 +587,7 @@ const actions = {
 			const newHist = {
 				"setTitleEvent": [oldTitle, payload.newTitle],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -636,7 +636,7 @@ const actions = {
 			const newHist = {
 				"setSubTypeEvent": [rootState.currentDoc.subtype, payload.newSubType],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -689,7 +689,7 @@ const actions = {
 			const newHist = {
 				"descriptionEvent": [res.data.description, newEncodedDescription],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -742,7 +742,7 @@ const actions = {
 			const newHist = {
 				"acceptanceEvent": [res.data.acceptanceCriteria, newEncodedAcceptance],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -791,7 +791,7 @@ const actions = {
 			const newComment = {
 				"addCommentEvent": window.btoa(payload.comment),
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
@@ -829,7 +829,7 @@ const actions = {
 			const newHist = {
 				"commentToHistoryEvent": [newCommentToHistory],
 				"by": rootState.userData.user,
-				"timestamp": payload.timestamp,
+				"timestamp": Date.now(),
 				"sessionId": rootState.userData.sessionId,
 				"distributeEvent": true
 			}
