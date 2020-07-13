@@ -8,6 +8,7 @@ const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.
 const atob = require('atob');
 const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' });
 const PBILEVEL = 5;
+const TASKLEVEL = 6;
 var db;
 var configData = {};
 var runData = {};
@@ -20,16 +21,16 @@ function getSubTypeText(dbName, idx) {
 }
 
 function getLevelText(dbName, level, subtype) {
-    if (level < 0 || level > PBILEVEL) return 'Level not supported'
+    if (level < 0 || level > TASKLEVEL) return `'Level not supported'`
 
-    if (subtype !== undefined && level === PBILEVEL) {
+    if (subtype && level === PBILEVEL) {
         return getSubTypeText(dbName, subtype)
     } else return configData[dbName].itemType[level]
 }
 
 function getItemStateText(dbName, idx) {
-    if (idx < 0 || idx > PBILEVEL) {
-        return 'Error: unknown state'
+    if (idx < 0 || idx > TASKLEVEL) {
+        return `'Error: unknown state'`
     }
     return configData[dbName].itemState[idx]
 }
@@ -43,7 +44,7 @@ function getTsSize(dbName, idx) {
 
 function mkHtml(dbName, eventType, value, event, doc) {
     function mkHeader() {
-        return `<html><p>User '${event.by}' made a change in the '${getLevelText(dbName, doc.level, doc.subtype)}' with title:</p>
+        return `<html><p>User '${event.by}' made a change in the ${getLevelText(dbName, doc.level, doc.subtype)} with title:</p>
             <h3>'${doc.title}'</h3>`
     }
     function mkFooter() {
