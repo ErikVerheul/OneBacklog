@@ -254,15 +254,20 @@ The entry for undoing the remove in a last-in first-out sequence
 The removed node is the parent of the removed children.
 Example:
   const entry = {
-    type: 'undoRemove',
-    removedNode: selectedNode,
-    isProductRemoved: selectedNode.level === this.productLevel,
-    descendants: descendantsInfo.descendants,
-    removedIntDependencies: removed.removedIntDependencies,
-    removedIntConditions: removed.removedIntConditions,
-    removedExtDependencies: removed.removedExtDependencies,
-    removedExtConditions: removed.removedExtConditions
-  }
+	type: 'undoRemove',
+	removedNode: payload.node,
+	isProductRemoved: payload.node.level === PRODUCTLEVEL,
+	docsRemovedIds,
+	removedIntDependencies: removed.removedIntDependencies,
+	removedIntConditions: removed.removedIntConditions,
+	removedExtDependencies: removed.removedExtDependencies,
+	removedExtConditions: removed.removedExtConditions,
+	sprintIds: removedSprintIds,
+	itemsRemovedFromReqArea
+}
+if (entry.isProductRemoved) {
+	entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
+}
 
 Thee events and their usage:      
 

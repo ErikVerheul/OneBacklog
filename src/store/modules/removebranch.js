@@ -280,8 +280,7 @@ const actions = {
                     }
 
                     // remove any dependency references to/from outside the removed items; note: these cannot be undone
-
-                    const removed = window.slVueTree.correctDependencies(docsRemovedIds)
+                    const removed = window.slVueTree.correctDependencies(payload.node.productId, docsRemovedIds)
                     // before removal select the predecessor of the removed node (sibling or parent)
                     const prevNode = window.slVueTree.getPreviousNode(payload.node.path)
                     let nowSelectedNode = prevNode

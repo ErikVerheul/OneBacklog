@@ -135,7 +135,7 @@ const actions = {
 					}
 					// check for exception
 					if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent' && histEvent !== 'createTaskEvent') {
-						commit('showLastEvent', { txt: `Another user changed item ${doc._id.slice(-5)} which is missing in your view`, severity: WARNING })
+						commit('showLastEvent', { txt: `Another user changed item ${doc._id} which is missing in your view`, severity: WARNING })
 						dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: WARNING })
 						return
 					}
@@ -284,7 +284,7 @@ const actions = {
 						case 'removedWithDescendantsEvent':
 							if (node && doc.delmark) {
 								// remove any dependency references to/from outside the removed items
-								window.slVueTree.correctDependencies(lastHistObj.removedWithDescendantsEvent[1])
+								window.slVueTree.correctDependencies(node.productId, lastHistObj.removedWithDescendantsEvent[1])
 								if (node.level === PRODUCTLEVEL) {
 									// save some data of the removed product for restore at undo.
 									removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
@@ -618,28 +618,10 @@ const actions = {
 				dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
 			}
 		} else {
-			if (updateTree && doc.productId === AREA_PRODUCTID && (histEvent === 'removedWithDescendantsEvent' || histEvent === 'docRestoredEvent')) {
+			if (updateTree && doc.productId === AREA_PRODUCTID) {
+				// special case: requirement areas changes
 				dispatch('doBlinck', doc)
-				// special case: changes to the alignment of requirement area
 				switch (histEvent) {
-					case 'removedWithDescendantsEvent':
-						if (doc.delmark) {
-							// remove references to the requirement area
-							const reqAreaId = lastHistObj.removedWithDescendantsEvent[0]
-							window.slVueTree.traverseModels((nm) => {
-								if (nm.data.reqarea === reqAreaId) {
-									delete nm.data.reqarea
-								}
-							})
-							if (rootState.currentView === 'coarseProduct') {
-								const node = window.slVueTree.getNodeById(doc._id)
-								if (node) window.slVueTree.remove([node])
-							}
-							if (lastHistObj.by === rootState.userData.user) {
-								commit('showLastEvent', { txt: `You removed a requirement area in another session`, severity: INFO })
-							} else commit('showLastEvent', { txt: `Another user removed a requirement area`, severity: INFO })
-						}
-						break
 					case 'docRestoredEvent':
 						{
 							// restore references to the requirement area
@@ -651,25 +633,103 @@ const actions = {
 								}
 							})
 							window.slVueTree.setDescendentsReqArea()
-
-							if (rootState.currentView === 'coarseProduct') {
-								dispatch('restoreBranch', {
-									doc, onSuccessCallback: () => {
-										if (lastHistObj.by === rootState.userData.user) {
-											commit('showLastEvent', { txt: `You restored a removed requirement area in another session`, severity: INFO })
-										} else commit('showLastEvent', { txt: `Another user restored a removed requirement area`, severity: INFO })
-									}
-								})
-							} else {
-								if (lastHistObj.by === rootState.userData.user) {
-									commit('showLastEvent', { txt: `You restored a removed requirement area in another session`, severity: INFO })
-								} else commit('showLastEvent', { txt: `Another user restored a removed requirement area`, severity: INFO })
-							}
+						}
+						break
+					case 'removedWithDescendantsEvent':
+						{
+							// remove references to the requirement area
+							const reqAreaId = lastHistObj.removedWithDescendantsEvent[0]
+							window.slVueTree.traverseModels((nm) => {
+								if (nm.data.reqarea === reqAreaId) {
+									delete nm.data.reqarea
+								}
+							})
 						}
 						break
 				}
+
+				if (rootState.currentView === 'coarseProduct') {
+					const node = window.slVueTree.getNodeById(doc._id)
+					switch (histEvent) {
+						case 'createEvent':
+							if (node === null) {
+								// node is newly created
+								const parentNode = window.slVueTree.getNodeById(doc.parentId)
+								if (parentNode === null) {
+									let msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
+										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
+									// eslint-disable-next-line no-console
+									if (rootState.debug) console.log(msg)
+									dispatch('doLog', { event: msg, level: WARNING })
+									return
+								}
+								// create the node
+								const locationInfo = getLocationInfo(doc.priority, parentNode)
+								const newNode = {
+									"path": locationInfo.newPath,
+									"pathStr": JSON.stringify(locationInfo.newPath),
+									"ind": locationInfo.newInd,
+									"level": locationInfo.newPath.length,
+
+									"productId": doc.productId,
+									"parentId": doc.parentId,
+									"sprintId": doc.sprintId,
+									"_id": doc._id,
+									"shortId": doc._id.slice(-5),
+									"title": doc.title,
+									"isLeaf": (locationInfo.newPath.length < getters.leafLevel) ? false : true,
+									"children": [],
+									"isSelected": false,
+									"isExpanded": true,
+									"savedIsExpanded": true,
+									"isSelectable": true,
+									"isDraggable": false,
+									"doShow": true,
+									"savedDoShow": true,
+									"data": {
+										state: doc.state,
+										subtype: 0,
+										priority: undefined,
+										team: doc.team,
+										lastPositionChange: 0,
+										lastStateChange: 0,
+										lastContentChange: 0,
+										lastCommentAddition: 0,
+										lastAttachmentAddition: 0,
+										lastCommentToHistory: 0,
+										lastChange: lastHistoryTimestamp
+									}
+								}
+								window.slVueTree.insert({
+									nodeModel: locationInfo.prevNode,
+									placement: locationInfo.newInd === 0 ? 'inside' : 'after'
+								}, [newNode])
+								// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
+							}
+							break
+						case 'docRestoredEvent':
+							dispatch('restoreBranch', {
+								doc, onSuccessCallback: () => {
+									if (lastHistObj.by === rootState.userData.user) {
+										commit('showLastEvent', { txt: `You restored a removed requirement area in another session`, severity: INFO })
+									} else commit('showLastEvent', { txt: `Another user restored a removed requirement area`, severity: INFO })
+								}
+							})
+							break
+						case 'removedWithDescendantsEvent':
+							// remove the node
+							window.slVueTree.remove([node])
+							if (lastHistObj.by === rootState.userData.user) {
+								commit('showLastEvent', { txt: `You removed a requirement area in another session`, severity: INFO })
+							} else commit('showLastEvent', { txt: `Another user removed a requirement area`, severity: INFO })
+							break
+						case 'setTitleEvent':
+							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
+							break
+					}
+				}
 			} else {
-				if (doc.productId === AREA_PRODUCTID || rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
+				if (rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
 					// only process updates of items the user is authorised to including products that are restored from deletion by this user
 					dispatch('doBlinck', doc)
 					doProc(doc)
