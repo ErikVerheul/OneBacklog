@@ -22,7 +22,6 @@ Database--------------------------------------------------- node
 "productId"(string)---------------------------------------- productId
 "parentId"(string)----------------------------------------- parentId
 "_id"(string)---------------------------------------------- _id
-"shortId"(string)------------------------------------------ shortId
 "taskOwner"(string)---------------------------------------- data.taskOwner
 "type": "backlogItem" 
 "team"(string)--------------------------------------------- data.team
@@ -167,7 +166,7 @@ level: path.length,
 productId: doc.productId,
 parentId: doc.parentId,
 _id: doc._id,
-shortId: doc.shortId,
+shortId: doc._id.slice(-5)
 children: [],
 
 title: doc.title,

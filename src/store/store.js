@@ -543,9 +543,6 @@ export default new Vuex.Store({
 								break
 							case 'selectNode':
 								break
-							case 'shortId':
-								state.currentDoc.shortId = payload.shortId
-								break
 							case 'spikepersonhours':
 								state.currentDoc.spikepersonhours = payload.spikepersonhours
 								break
