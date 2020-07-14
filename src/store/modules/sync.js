@@ -17,6 +17,7 @@ function addToArray(arr, item) {
 	newArr.push(item)
 	return newArr
 }
+
 // returns a new array so that it is reactive
 function removeFromArray(arr, item) {
 	const newArr = []
@@ -107,6 +108,96 @@ const actions = {
 			return rootState.configData.subtype[idx]
 		}
 
+		function createNode(doc) {
+			const parentNode = window.slVueTree.getNodeById(doc.parentId)
+			if (parentNode === null) {
+				let msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
+					doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: WARNING })
+				return
+			}
+			// create the node
+			const locationInfo = getLocationInfo(doc.priority, parentNode)
+			const node = {
+				"path": locationInfo.newPath,
+				"pathStr": JSON.stringify(locationInfo.newPath),
+				"ind": locationInfo.newInd,
+				"level": locationInfo.newPath.length,
+
+				"productId": doc.productId,
+				"parentId": doc.parentId,
+				"sprintId": doc.sprintId,
+				"_id": doc._id,
+				"shortId": doc._id.slice(-5),
+				"dependencies": doc.dependencies || [],
+				"conditionalFor": doc.conditionalFor || [],
+				"title": doc.title,
+				"isLeaf": (locationInfo.newPath.length < getters.leafLevel) ? false : true,
+				"children": [],
+				"isSelected": false,
+				"isExpanded": true,
+				"savedIsExpanded": true,
+				"isSelectable": true,
+				"isDraggable": doc.level > PRODUCTLEVEL,
+				"doShow": true,
+				"savedDoShow": true,
+				"data": {
+					state: doc.state,
+					sprintId: doc.sprintId,
+					subtype: 0,
+					priority: undefined,
+					team: doc.team,
+					lastPositionChange: 0,
+					lastStateChange: 0,
+					lastContentChange: 0,
+					lastCommentAddition: 0,
+					lastAttachmentAddition: 0,
+					lastCommentToHistory: 0,
+					lastChange: lastHistoryTimestamp
+				}
+			}
+			window.slVueTree.insert({
+				nodeModel: locationInfo.prevNode,
+				placement: locationInfo.newInd === 0 ? 'inside' : 'after'
+			}, [node])
+			// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
+		}
+
+		function moveNode(doc) {
+			const parentNode = window.slVueTree.getNodeById(doc.parentId)
+			if (parentNode === null) return
+			const item = lastHistObj.nodeMovedEvent
+			if (item[1] > rootState.loadedTreeDepth) {
+				// skip items that are not available in the tree
+				return
+			}
+			const node = window.slVueTree.getNodeById(doc._id)
+			if (node.level === PBILEVEL || node.level === TASKLEVEL) commit('updateNodesAndCurrentDoc', { node, sprintId: item[12] })
+			let locationInfo = getLocationInfo(item[10], parentNode)
+			if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
+				// move the node to the new position w/r to its siblings; first remove the node, then insert
+				window.slVueTree.remove([node])
+				node.data.priority = item[10]
+				// do not recalculate the priority during insert
+				if (locationInfo.newInd === 0) {
+					window.slVueTree.insert({
+						nodeModel: locationInfo.prevNode,
+						placement: 'inside'
+					}, [node], false)
+				} else {
+					// insert after prevNode
+					window.slVueTree.insert({
+						nodeModel: locationInfo.prevNode,
+						placement: 'after'
+					}, [node], false)
+				}
+				if (item[13] == 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
+				if (item[13] == 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: item[14] })
+			}
+		}
+
 		async function doProc(doc) {
 			try {
 				if (updateTree) {
@@ -150,63 +241,7 @@ const actions = {
 							break
 						case 'createTaskEvent':
 						case 'createEvent':
-							if (node === null) {
-								// node is newly created
-								const parentNode = window.slVueTree.getNodeById(doc.parentId)
-								if (parentNode === null) {
-									let msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
-										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
-									// eslint-disable-next-line no-console
-									if (rootState.debug) console.log(msg)
-									dispatch('doLog', { event: msg, level: WARNING })
-									return
-								}
-								// create the node
-								const locationInfo = getLocationInfo(doc.priority, parentNode)
-								node = {
-									"path": locationInfo.newPath,
-									"pathStr": JSON.stringify(locationInfo.newPath),
-									"ind": locationInfo.newInd,
-									"level": locationInfo.newPath.length,
-
-									"productId": doc.productId,
-									"parentId": doc.parentId,
-									"sprintId": doc.sprintId,
-									"_id": doc._id,
-									"shortId": doc._id.slice(-5),
-									"dependencies": doc.dependencies || [],
-									"conditionalFor": doc.conditionalFor || [],
-									"title": doc.title,
-									"isLeaf": (locationInfo.newPath.length < getters.leafLevel) ? false : true,
-									"children": [],
-									"isSelected": false,
-									"isExpanded": true,
-									"savedIsExpanded": true,
-									"isSelectable": true,
-									"isDraggable": doc.level > PRODUCTLEVEL,
-									"doShow": true,
-									"savedDoShow": true,
-									"data": {
-										state: doc.state,
-										sprintId: doc.sprintId,
-										subtype: 0,
-										priority: undefined,
-										team: doc.team,
-										lastPositionChange: 0,
-										lastStateChange: 0,
-										lastContentChange: 0,
-										lastCommentAddition: 0,
-										lastAttachmentAddition: 0,
-										lastCommentToHistory: 0,
-										lastChange: lastHistoryTimestamp
-									}
-								}
-								window.slVueTree.insert({
-									nodeModel: locationInfo.prevNode,
-									placement: locationInfo.newInd === 0 ? 'inside' : 'after'
-								}, [node])
-								// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
-							}
+							if (node === null) createNode(doc)
 							break
 						case 'conditionRemovedEvent':
 							commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange })
@@ -245,38 +280,7 @@ const actions = {
 							}
 							break
 						case 'nodeMovedEvent':
-							{
-								const parentNode = window.slVueTree.getNodeById(doc.parentId)
-								if (parentNode === null) break
-								const item = lastHistObj.nodeMovedEvent
-								if (item[1] > rootState.loadedTreeDepth) {
-									// skip items that are not available in the tree
-									return
-								}
-								const node = window.slVueTree.getNodeById(doc._id)
-								if (node.level === PBILEVEL || node.level === TASKLEVEL) commit('updateNodesAndCurrentDoc', { node, sprintId: item[12] })
-								let locationInfo = getLocationInfo(item[10], parentNode)
-								if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
-									// move the node to the new position w/r to its siblings; first remove the node, then insert
-									window.slVueTree.remove([node])
-									node.data.priority = item[10]
-									// do not recalculate the priority during insert
-									if (locationInfo.newInd === 0) {
-										window.slVueTree.insert({
-											nodeModel: locationInfo.prevNode,
-											placement: 'inside'
-										}, [node], false)
-									} else {
-										// insert after prevNode
-										window.slVueTree.insert({
-											nodeModel: locationInfo.prevNode,
-											placement: 'after'
-										}, [node], false)
-									}
-									if (item[13] == 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
-									if (item[13] == 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: item[14] })
-								}
-							}
+							moveNode(doc)
 							break
 						case 'removeAttachmentEvent':
 							commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: 0 })
@@ -622,6 +626,10 @@ const actions = {
 				// special case: requirement areas changes
 				dispatch('doBlinck', doc)
 				switch (histEvent) {
+					case 'changeReqAreaColorEvent':
+						commit('updateColorMapper', { id: doc._id, newColor: doc.color })
+						commit('createColorMapper')
+						break
 					case 'docRestoredEvent':
 						{
 							// restore references to the requirement area
@@ -652,60 +660,7 @@ const actions = {
 					const node = window.slVueTree.getNodeById(doc._id)
 					switch (histEvent) {
 						case 'createEvent':
-							if (node === null) {
-								// node is newly created
-								const parentNode = window.slVueTree.getNodeById(doc.parentId)
-								if (parentNode === null) {
-									let msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
-										doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
-									// eslint-disable-next-line no-console
-									if (rootState.debug) console.log(msg)
-									dispatch('doLog', { event: msg, level: WARNING })
-									return
-								}
-								// create the node
-								const locationInfo = getLocationInfo(doc.priority, parentNode)
-								const newNode = {
-									"path": locationInfo.newPath,
-									"pathStr": JSON.stringify(locationInfo.newPath),
-									"ind": locationInfo.newInd,
-									"level": locationInfo.newPath.length,
-
-									"productId": doc.productId,
-									"parentId": doc.parentId,
-									"sprintId": doc.sprintId,
-									"_id": doc._id,
-									"shortId": doc._id.slice(-5),
-									"title": doc.title,
-									"isLeaf": (locationInfo.newPath.length < getters.leafLevel) ? false : true,
-									"children": [],
-									"isSelected": false,
-									"isExpanded": true,
-									"savedIsExpanded": true,
-									"isSelectable": true,
-									"isDraggable": false,
-									"doShow": true,
-									"savedDoShow": true,
-									"data": {
-										state: doc.state,
-										subtype: 0,
-										priority: undefined,
-										team: doc.team,
-										lastPositionChange: 0,
-										lastStateChange: 0,
-										lastContentChange: 0,
-										lastCommentAddition: 0,
-										lastAttachmentAddition: 0,
-										lastCommentToHistory: 0,
-										lastChange: lastHistoryTimestamp
-									}
-								}
-								window.slVueTree.insert({
-									nodeModel: locationInfo.prevNode,
-									placement: locationInfo.newInd === 0 ? 'inside' : 'after'
-								}, [newNode])
-								// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
-							}
+							if (node === null) createNode(doc)
 							break
 						case 'docRestoredEvent':
 							dispatch('restoreBranch', {
@@ -716,12 +671,16 @@ const actions = {
 								}
 							})
 							break
+						case 'nodeMovedEvent':
+							moveNode(doc)
+							break
 						case 'removedWithDescendantsEvent':
-							// remove the node
-							window.slVueTree.remove([node])
-							if (lastHistObj.by === rootState.userData.user) {
-								commit('showLastEvent', { txt: `You removed a requirement area in another session`, severity: INFO })
-							} else commit('showLastEvent', { txt: `Another user removed a requirement area`, severity: INFO })
+							if (node) {
+								window.slVueTree.remove([node])
+								if (lastHistObj.by === rootState.userData.user) {
+									commit('showLastEvent', { txt: `You removed a requirement area in another session`, severity: INFO })
+								} else commit('showLastEvent', { txt: `Another user removed a requirement area`, severity: INFO })
+							}
 							break
 						case 'setTitleEvent':
 							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
@@ -729,6 +688,7 @@ const actions = {
 					}
 				}
 			} else {
+				// not AREA_PRODUCTID, continue with updateTree and updateBoard
 				if (rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
 					// only process updates of items the user is authorised to including products that are restored from deletion by this user
 					dispatch('doBlinck', doc)
