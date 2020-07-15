@@ -79,7 +79,7 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             const toDispatch = { 'restoreParent': entry }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendents' })
         }).catch(e => {
             let msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
@@ -282,7 +282,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreExtDepsAndConds' })
         }).catch(e => {
             let msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
@@ -325,7 +325,7 @@ const actions = {
                     docs.push(doc)
                 }
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreReqarea' })
         }).catch(e => {
             let msg = 'restoreReqarea: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console

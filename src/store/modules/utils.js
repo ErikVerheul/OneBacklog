@@ -399,7 +399,7 @@ const actions = {
 				// eslint-disable-next-line no-console
 				console.log(msg)
 			}
-			dispatch('updateBulk', { dbName: payload.dbName, docs, onSuccessCallback: () => { rootState.isHistAndCommReset = true } })
+			dispatch('updateBulk', { dbName: payload.dbName, docs, caller: 'resetHistAndComm', onSuccessCallback: () => { rootState.isHistAndCommReset = true } })
 		}).catch(error => {
 			let msg = 'resetHistAndComm: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console
@@ -424,7 +424,7 @@ const actions = {
 				doc.delmark = true
 				docs.push(doc)
 			}
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeFromFilter' })
         }).catch(error => {
             let msg = `removeFromFilter: Could not read the teams in database '${rootState.userData.currentDb}', ${error}`
             // eslint-disable-next-line no-console

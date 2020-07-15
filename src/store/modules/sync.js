@@ -1,3 +1,36 @@
+/*
+* Events processed in sync:
+* 'acceptanceEvent':				see process other events for tree views
+* 'addCommentEvent':				see switch (commentsEvent)
+* 'addSprintIdsEvent':				see process other events for tree views
+* 'boardReloadEvent':				see histEvent === 'boardReloadEvent'
+* 'changeReqAreaColorEvent':		see updateTree && doc.productId === AREA_PRODUCTID
+* 'commentToHistoryEvent':			see process other events for tree views
+* 'conditionRemovedEvent':			see process other events for tree views
+* 'createEvent':					see process other events for tree views	+	see if (updateBoard)
+* 'createTaskEvent':				see process other events for tree views	+	see if (updateBoard)
+* 'dependencyRemovedEvent':			see process other events for tree views
+* 'descriptionEvent':				see process other events for tree views
+* 'docRestoredEvent':				see process other events for tree views	+	see if (updateBoard)
+* 'nodeMovedEvent':					see process other events for tree views	+	see if (updateBoard)
+* 'removeAttachmentEvent':			see process other events for tree views
+* 'removedWithDescendantsEvent':	see process other events for tree views +	see if (updateBoard)
+* 'removeSprintIdsEvent':			see process other events for tree views
+* 'setConditionEvent':				see process other events for tree views
+* 'setDependencyEvent':				see process other events for tree views
+* 'setHrsEvent':					see process other events for tree views
+* 'setPointsEvent':					see process other events for tree views	+	see if (updateBoard)
+* 'setSizeEvent':					see process other events for tree views
+* 'setStateEvent':					see process other events for tree views	+	see if (updateBoard)
+* 'setSubTypeEvent':				see process other events for tree views	+	see if (updateBoard)
+* 'setTeamOwnerEvent':				see process other events for tree views	+	see if (updateBoard)
+* 'setTitleEvent':					see process other events for tree views	+	see if (updateBoard)
+* 'taskRemovedEvent':															see if (updateBoard)
+* 'uploadAttachmentEvent':			see process other events for tree views +	see if (updateBoard)
+* 'updateTaskOrderEvent':														see if (updateBoard)
+* 'uploadTaskOwnerEvent':														see if (updateBoard)
+*/
+
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
@@ -130,7 +163,6 @@ const actions = {
 				"parentId": doc.parentId,
 				"sprintId": doc.sprintId,
 				"_id": doc._id,
-				"shortId": doc._id.slice(-5),
 				"dependencies": doc.dependencies || [],
 				"conditionalFor": doc.conditionalFor || [],
 				"title": doc.title,
@@ -236,21 +268,24 @@ const actions = {
 						case 'acceptanceEvent':
 							commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: doc.acceptanceCriteria, lastContentChange: doc.lastContentChange })
 							break
+						case 'addSprintIdsEvent':
+							commit('updateNodesAndCurrentDoc', { node, sprintId: doc.sprintId, lastChange: doc.lastChange })
+							break
 						case 'commentToHistoryEvent':
 							commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: doc.lastCommentToHistory })
 							break
-						case 'createTaskEvent':
-						case 'createEvent':
-							if (node === null) createNode(doc)
-							break
 						case 'conditionRemovedEvent':
 							commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange })
+							break
+						case 'createEvent':
+						case 'createTaskEvent':
+							if (node === null) createNode(doc)
 							break
 						case 'dependencyRemovedEvent':
 							commit('updateNodesAndCurrentDoc', { node, dependenciesRemoved: doc.dependencies, lastChange: doc.lastChange })
 							break
 						case 'descriptionEvent':
-							commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastHistoryTimestamp: node.data.lastContentChange })
+							commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastContentChange: doc.lastContentChange })
 							break
 						case 'docRestoredEvent':
 							{
@@ -283,7 +318,7 @@ const actions = {
 							moveNode(doc)
 							break
 						case 'removeAttachmentEvent':
-							commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: 0 })
+							commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: doc.lastAttachmentAddition })
 							break
 						case 'removedWithDescendantsEvent':
 							if (node && doc.delmark) {
@@ -306,6 +341,9 @@ const actions = {
 									commit('showLastEvent', { txt: `You removed a ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
 								} else commit('showLastEvent', { txt: `Another user removed a ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
 							}
+							break
+						case 'removeSprintIdsEvent':
+							commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
 							break
 						case 'setConditionEvent':
 							if (lastHistObj.setConditionEvent[2]) {
@@ -342,12 +380,6 @@ const actions = {
 							break
 						case 'uploadAttachmentEvent':
 							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastAttachmentAddition: doc.lastAttachmentAddition })
-							break
-						case 'addSprintIdsEvent':
-							commit('updateNodesAndCurrentDoc', { node, sprintId: doc.sprintId, lastChange: doc.lastChange })
-							break
-						case 'removeSprintIdsEvent':
-							commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
 							break
 						/////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
 						case 'updateTaskOrderEvent':
@@ -487,12 +519,6 @@ const actions = {
 								}
 							}
 							break
-						case 'updateTaskOrderEvent':
-							if (doc.sprintId === rootState.loadedSprintId) {
-								const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates
-								rootState.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
-							}
-							break
 						case 'setPointsEvent':
 							if (doc.sprintId === rootState.loadedSprintId && doc.level === PBILEVEL) {
 								for (let s of rootState.stories) {
@@ -585,6 +611,12 @@ const actions = {
 								commit('removeTaskFromBoard', { prevState, doc })
 							}
 							break
+						case 'updateTaskOrderEvent':
+							if (doc.sprintId === rootState.loadedSprintId) {
+								const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates
+								rootState.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
+							}
+							break
 						default:
 							if (doc.sprintId === rootState.loadedSprintId) {
 								// eslint-disable-next-line no-console
@@ -628,7 +660,6 @@ const actions = {
 				switch (histEvent) {
 					case 'changeReqAreaColorEvent':
 						commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-						commit('createColorMapper')
 						break
 					case 'docRestoredEvent':
 						{
@@ -659,6 +690,9 @@ const actions = {
 				if (rootState.currentView === 'coarseProduct') {
 					const node = window.slVueTree.getNodeById(doc._id)
 					switch (histEvent) {
+						case 'changeReqAreaColorEvent':
+							commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
+							break
 						case 'createEvent':
 							if (node === null) createNode(doc)
 							break

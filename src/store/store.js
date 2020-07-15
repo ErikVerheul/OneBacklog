@@ -291,6 +291,28 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
+		/* Create or re-create the color mapper from the defined req areas (only available in Products overview) */
+		createColorMapper(state) {
+			const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
+			if (currReqAreaNodes) {
+				state.colorMapper = {}
+				for (let nm of currReqAreaNodes) {
+					state.colorMapper[nm._id] = { reqAreaItemColor: nm.data.reqAreaItemColor }
+				}
+			}
+		},
+
+		/* Change one color; must create a new object for reactivity */
+		updateColorMapper(state, payload) {
+			const newColorMapper = {}
+			for (let id of Object.keys(state.colorMapper)) {
+				if (id === payload.id) {
+					newColorMapper[id] = { reqAreaItemColor: payload.newColor }
+				} else newColorMapper[id] = state.colorMapper[id]
+			}
+			state.colorMapper = newColorMapper
+		},
+
 		mustCreateDefaultCalendar(state) {
 			state.createDefaultCalendar = true
 		},
@@ -321,13 +343,21 @@ export default new Vuex.Store({
 			}
 
 			if (!payload.newNode && !payload.newDoc) {
-				// if no node is specified in the payload the last selected node is updated
-				const node = payload.node || payload.selectNode || payload.unselectNode || state.selectedNodes.slice(-1)[0]
+				const node = payload.node || payload.selectNode || payload.unselectNode
 				const keys = Object.keys(payload)
 				if (node) {
 					// apply changes on the nodes in the tree view
 					for (let k of keys) {
 						switch (k) {
+							case '_attachments':
+								// not stored in the node
+								break
+							case '_rev':
+								// not stored in the node
+								break
+							case 'acceptanceCriteria':
+								// not stored in the node
+								break
 							case 'addConditionalFor':
 								if (node.conditionalFor) { node.conditionalFor.push(payload.addConditionalFor) } else node.conditionalFor = payload.addConditionalFor
 								break
@@ -339,6 +369,15 @@ export default new Vuex.Store({
 								break
 							case 'dependenciesRemoved':
 								node.dependencies = payload.dependenciesRemoved
+								break
+							case 'delmark':
+								// not stored in the node
+								break
+							case 'description':
+								// not stored in the node
+								break
+							case 'followers':
+								// not stored in the node
 								break
 							case 'inconsistentState':
 								node.data.inconsistentState = payload.inconsistentState
@@ -352,6 +391,9 @@ export default new Vuex.Store({
 							case 'lastAttachmentAddition':
 								node.data.lastAttachmentAddition = payload.lastAttachmentAddition
 								node.data.lastChange = payload.lastAttachmentAddition
+								break
+							case 'lastAttachmentRemoval':
+								// not stored in the node
 								break
 							case 'lastChange':
 								node.data.lastChange = payload.lastChange
@@ -376,13 +418,32 @@ export default new Vuex.Store({
 								node.data.lastStateChange = payload.lastStateChange
 								node.data.lastChange = payload.lastStateChange
 								break
+							case 'leavingFollower':
+								// not stored in the node
+								break
+							case 'level':
+								node.level = payload.level
+								break
 							case 'markViolation':
 								node.markViolation = payload.markViolation
 								break
+							case 'newComment':
+								// not stored in the node
+								break
+							case 'newFollower':
+								// not stored in the node
+								break
 							case 'newHist':
-								// nodes do not contain history
+								// not stored in the node
 								break
 							case 'node':
+								// used to pass the node
+								break
+							case 'parentId':
+								node.parentId = payload.parentId
+								break
+							case 'priority':
+								node.data.priority = payload.priority
 								break
 							case 'productId':
 								node.productId = payload.productId
@@ -396,8 +457,8 @@ export default new Vuex.Store({
 							case 'reqarea':
 								node.data.reqarea = payload.reqarea
 								break
-							case 'reqAreaItemcolor':
-								node.data.reqAreaItemcolor = payload.reqAreaItemcolor
+							case 'reqAreaItemColor':
+								node.data.reqAreaItemColor = payload.reqAreaItemColor
 								break
 							case 'selectNode':
 								if (node.isSelectable) {
@@ -407,8 +468,14 @@ export default new Vuex.Store({
 									state.selectedNodes = [node]
 								}
 								break
+							case 'spikepersonhours':
+								// not stored in the node
+								break
 							case 'sprintId':
 								node.data.sprintId = payload.sprintId
+								break
+							case 'spsize':
+								// not stored in the node
 								break
 							case 'state':
 								node.data.state = payload.state
@@ -425,6 +492,9 @@ export default new Vuex.Store({
 							case 'title':
 								node.title = payload.title
 								break
+							case 'tssize':
+								// not stored in the node
+								break
 							case 'unselectNode':
 								state.previousSelectedNodes = state.selectedNodes || [node]
 								state.selectedNodes = []
@@ -435,143 +505,173 @@ export default new Vuex.Store({
 								break
 							default:
 								// eslint-disable-next-line no-console
-								if (state.debug) console.log(`updateNodesAndCurrentDoc: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
+								if (state.debug) console.log(`updateNodesAndCurrentDoc.update node: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
 						}
 					}
-				}
-				if (node._id === state.currentDoc._id) {
-					// apply changes on the currently displayed item
-					for (let k of keys) {
-						switch (k) {
-							case '_attachments':
-								state.currentDoc._attachments = payload._attachments
-								break
-							case '_rev':
-								state.currentDoc._rev = payload._rev
-								break
-							case 'acceptanceCriteria':
-								state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
-								break
-							case 'addConditionalFor':
-								break
-							case 'conditionalFor':
-								state.currentDoc.conditionalFor = payload.conditionalFor
-								break
-							case 'conditionsremoved':
-								break
-							case 'dependenciesRemoved':
-								break
-							case 'delmark':
-								state.currentDoc.delmark = payload.delmark
-								break
-							case 'dependencies':
-								state.currentDoc.dependencies = payload.dependencies
-								break
-							case 'description':
-								state.currentDoc.description = window.atob(payload.description)
-								break
-							case 'followers':
-								state.currentDoc.followers = payload.followers
-								break
-							case 'lastAttachmentAddition':
-								state.currentDoc.lastAttachmentAddition = payload.lastAttachmentAddition
-								break
-							case 'lastAttachmentRemoval':
-								state.currentDoc.lastAttachmentRemoval = payload.lastAttachmentRemoval
-								break
-							case 'lastChange':
-								state.currentDoc.lastChange = payload.lastChange
-								break
-							case 'lastCommentAddition':
-								state.currentDoc.lastCommentAddition = payload.lastCommentAddition
-								break
-							case 'lastCommentToHistory':
-								state.currentDoc.lastCommentToHistory = payload.lastCommentToHistory
-								break
-							case 'lastContentChange':
-								state.currentDoc.lastContentChange = payload.lastContentChange
-								break
-							case 'lastPositionChange':
-								state.currentDoc.lastPositionChange = payload.lastPositionChange
-								break
-							case 'lastStateChange':
-								state.currentDoc.lastStateChange = payload.lastStateChange
-								break
-							case 'leavingFollower':
-								{
-									const updatedFollowers = []
-									for (let f of state.currentDoc.followers) {
-										if (f !== payload.leavingFollower) updatedFollowers.push(f)
+					if (node._id === state.currentDoc._id) {
+						// apply changes on the currently selected document
+						for (let k of keys) {
+							switch (k) {
+								case '_attachments':
+									state.currentDoc._attachments = payload._attachments
+									break
+								case '_rev':
+									state.currentDoc._rev = payload._rev
+									break
+								case 'acceptanceCriteria':
+									state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
+									break
+								case 'addConditionalFor':
+									if (state.currentDoc.conditionalFor) { state.currentDoc.conditionalFor.push(payload.addConditionalFor) } else state.currentDoc.conditionalFor = payload.addConditionalFor
+									break
+								case 'addDependencyOn':
+									if (state.currentDoc.dependencies) { state.currentDoc.dependencies.push(payload.addDependencyOn) } else state.currentDoc.dependencies = payload.addDependencyOn
+									break
+								case 'conditionsremoved':
+									state.currentDoc.conditionalFor = payload.conditionsremoved
+									break
+								case 'dependenciesRemoved':
+									state.currentDoc.dependencies = payload.dependenciesRemoved
+									break
+								case 'delmark':
+									state.currentDoc.delmark = payload.delmark
+									break
+								case 'description':
+									state.currentDoc.description = window.atob(payload.description)
+									break
+								case 'followers':
+									state.currentDoc.followers = payload.followers
+									break
+								case 'inconsistentState':
+									// not a database field
+									break
+								case 'isExpanded':
+									// not a database field
+									break
+								case 'isSelected':
+									// not a database field
+									break
+								case 'lastAttachmentAddition':
+									state.currentDoc.lastAttachmentAddition = payload.lastAttachmentAddition
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'lastAttachmentRemoval':
+									state.currentDoc.lastAttachmentRemoval = payload.lastAttachmentRemoval
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'lastChange':
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'lastCommentAddition':
+									state.currentDoc.lastCommentAddition = payload.lastCommentAddition
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'lastCommentToHistory':
+									state.currentDoc.lastCommentToHistory = payload.lastCommentToHistory
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'lastContentChange':
+									state.currentDoc.lastContentChange = payload.lastContentChange
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'lastPositionChange':
+									state.currentDoc.lastPositionChange = payload.lastPositionChange
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'lastStateChange':
+									state.currentDoc.lastStateChange = payload.lastStateChange
+									state.currentDoc.lastChange = payload.lastChange
+									break
+								case 'leavingFollower':
+									{
+										const updatedFollowers = []
+										for (let f of state.currentDoc.followers) {
+											if (f !== payload.leavingFollower) updatedFollowers.push(f)
+										}
+										state.currentDoc.followers = updatedFollowers
 									}
-									state.currentDoc.followers = updatedFollowers
-								}
-								break
-							case 'level':
-								state.currentDoc.level = payload.level
-								break
-							case 'newComment':
-								state.currentDoc.comments.unshift(payload.newComment)
-								break
-							case 'newFollower':
-								state.currentDoc.followers.push(payload.newFollower)
-								break
-							case 'newHist':
-								state.currentDoc.history.unshift(payload.newHist)
-								break
-							case 'node':
-								break
-							case 'parentId':
-								state.currentDoc.parentId = payload.parentId
-								break
-							case 'priority':
-								state.currentDoc.priority = payload.priority
-								break
-							case 'productId':
-								state.currentDoc.productId = payload.productId
-								break
-							case 'removeLastConditionalFor':
-								state.currentDoc.conditionalFor.slice(0, -1)
-								break
-							case 'removeLastDependencyOn':
-								state.currentDoc.dependencies.slice(0, -1)
-								break
-							case 'reqarea':
-								state.currentDoc.reqarea = payload.reqarea
-								break
-							case 'reqAreaItemcolor':
-								state.currentDoc.color = payload.reqAreaItemcolor
-								break
-							case 'selectNode':
-								break
-							case 'spikepersonhours':
-								state.currentDoc.spikepersonhours = payload.spikepersonhours
-								break
-							case 'sprintId':
-								state.currentDoc.sprintId = payload.sprintId
-								break
-							case 'spsize':
-								state.currentDoc.spsize = payload.spsize
-								break
-							case 'subtype':
-								state.currentDoc.subtype = payload.subtype
-								break
-							case 'state':
-								state.currentDoc.state = payload.state
-								break
-							case 'team':
-								if (payload.team) state.currentDoc.team = payload.team
-								break
-							case 'title':
-								state.currentDoc.title = payload.title
-								break
-							case 'tssize':
-								state.currentDoc.tssize = payload.tssize
-								break
-							default:
-								// eslint-disable-next-line no-console
-								if (state.debug) console.log(`updateNodesAndCurrentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`)
+									break
+								case 'level':
+									state.currentDoc.level = payload.level
+									break
+								case 'markViolation':
+									// not a database field
+									break
+								case 'newComment':
+									state.currentDoc.comments.unshift(payload.newComment)
+									break
+								case 'newFollower':
+									state.currentDoc.followers.push(payload.newFollower)
+									break
+								case 'newHist':
+									state.currentDoc.history.unshift(payload.newHist)
+									break
+								case 'node':
+									// not a database field
+									break
+								case 'parentId':
+									state.currentDoc.parentId = payload.parentId
+									break
+								case 'priority':
+									state.currentDoc.priority = payload.priority
+									break
+								case 'productId':
+									state.currentDoc.productId = payload.productId
+									break
+								case 'removeLastConditionalFor':
+									state.currentDoc.conditionalFor.slice(0, -1)
+									break
+								case 'removeLastDependencyOn':
+									state.currentDoc.dependencies.slice(0, -1)
+									break
+								case 'reqarea':
+									state.currentDoc.reqarea = payload.reqarea
+									break
+								case 'reqAreaItemColor':
+									state.currentDoc.color = payload.reqAreaItemColor
+									break
+								case 'selectNode':
+									// not a database field
+									break
+								case 'spikepersonhours':
+									state.currentDoc.spikepersonhours = payload.spikepersonhours
+									break
+								case 'sprintId':
+									state.currentDoc.sprintId = payload.sprintId
+									break
+								case 'spsize':
+									state.currentDoc.spsize = payload.spsize
+									break
+								case 'state':
+									state.currentDoc.state = payload.state
+									break
+								case 'subtype':
+									state.currentDoc.subtype = payload.subtype
+									break
+								case 'taskOwner':
+									state.currentDoc.taskOwner = payload.taskOwner
+									break
+								case 'team':
+									if (payload.team) state.currentDoc.team = payload.team
+									break
+								case 'title':
+									state.currentDoc.title = payload.title
+									break
+								case 'tssize':
+									state.currentDoc.tssize = payload.tssize
+									break
+								case 'unselectNode':
+									// not a database field
+									break
+								default:
+									// eslint-disable-next-line no-console
+									if (state.debug) console.log(`updateNodesAndCurrentDoc.update currentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`)
+							}
 						}
 					}
+				} else {
+					// eslint-disable-next-line no-console
+					if (state.debug) console.log(`updateNodesAndCurrentDoc failed: cannot apply changes as no valid node is passed, keys are: ${keys}`)
 				}
 			}
 		},

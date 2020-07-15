@@ -60,7 +60,8 @@ function data() {
     colorSelectShow: false,
     userReqAreaItemcolor: '#567cd6',
     setReqAreaShow: false,
-    selReqAreaId: undefined
+    selReqAreaId: undefined,
+    selReqAreaColor: undefined
   }
 }
 
@@ -136,14 +137,14 @@ const methods = {
 
   onTreeIsLoaded() {
     this.dependencyViolationsFound()
-    this.createColorMapper()
+    this.$store.commit('createColorMapper')
   },
 
   findItemOnId(shortId) {
     let node
-    window.slVueTree.traverseModels((nodeModel) => {
-      if (nodeModel.shortId === shortId) {
-        node = nodeModel
+    window.slVueTree.traverseModels((nm) => {
+      if (nm._id.slice(-5) === shortId) {
+        node = nm
         return false
       }
     })
@@ -171,27 +172,33 @@ const methods = {
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription(this.getpreviousNodeSelected)
     this.updateAcceptance(this.getpreviousNodeSelected)
-    // if the user clicked on a node of another product (not root)
-    if (this.getNodeSelected._id !== 'root' && this.$store.state.currentProductId !== this.getNodeSelected.productId) {
-      // update current productId and title
-      this.$store.state.currentProductId = this.getNodeSelected.productId
-      this.$store.state.currentProductTitle = this.getNodeSelected.title
-    }
+
     // load the document if not already in memory
     if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
-      this.$store.dispatch('loadDoc', { id: this.getNodeSelected._id })
+      this.$store.dispatch('loadDoc', {
+        id: this.getNodeSelected._id, onSuccessCallback: () => {
+          // preset the req area color if available
+          this.selReqAreaColor = this.getNodeSelected.data.reqAreaItemColor
+          // if the user clicked on a node of another product (not root)
+          if (this.getNodeSelected._id !== 'root' && this.$store.state.currentProductId !== this.getNodeSelected.productId) {
+            // update current productId and title
+            this.$store.state.currentProductId = this.getNodeSelected.productId
+            this.$store.state.currentProductTitle = this.getNodeSelected.title
+          }
+          const title = this.itemTitleTrunc(60, this.getNodeSelected.title)
+          let evt = ""
+          if (selNodes.length === 1) {
+            this.selectedNodesTitle = title
+            evt = `${this.getLevelText(this.getNodeSelected.level)} '${this.selectedNodesTitle}' is selected.`
+            if (this.getNodeSelected.data.reqarea) evt += ` The item is member of requirement area '${this.$store.state.reqAreaMapper[this.getNodeSelected.data.reqarea]}'`
+          } else {
+            this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
+            evt = `${this.getLevelText(this.getNodeSelected.level)} ${this.selectedNodesTitle} are selected.`
+          }
+          this.showLastEvent(evt, INFO)
+        }
+      })
     }
-    const title = this.itemTitleTrunc(60, this.getNodeSelected.title)
-    let evt = ""
-    if (selNodes.length === 1) {
-      this.selectedNodesTitle = title
-      evt = `${this.getLevelText(this.getNodeSelected.level)} '${this.selectedNodesTitle}' is selected.`
-      if (this.getNodeSelected.data.reqarea) evt += ` The item is member of requirement area '${this.$store.state.reqAreaMapper[this.getNodeSelected.data.reqarea]}'`
-    } else {
-      this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-      evt = `${this.getLevelText(this.getNodeSelected.level)} ${this.selectedNodesTitle} are selected.`
-    }
-    this.showLastEvent(evt, INFO)
   },
 
   /* Use this event to check if the drag is allowed. If not, issue a warning */
@@ -204,10 +211,10 @@ const methods = {
      * 5. The requirement area nodes cannot be moved from their parent or inside each other (silent cancel)
      * 6. Cannot move regular items into the 'Requirement areas overview' dummy product (silent cancel)
      * precondition: the selected nodes have all the same parent (same level)
+     * Area PO's need not to be member of the item's team
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
-    if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
-
+    if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position', this.isAPO)) {
       let checkDropNotAllowed = (node) => {
         const sourceProductId = draggingNodes[0].productId
         const targetProductId = position.nodeModel.productId
@@ -241,29 +248,17 @@ const methods = {
     } else cancel(true)
   },
 
-  /* Create a new object to maintain reactivity */
-  createColorMapper() {
-    const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
-    if (currReqAreaNodes) {
-      const newColorMapper = {}
-      for (let nm of currReqAreaNodes) {
-        newColorMapper[nm._id] = { reqAreaItemcolor: nm.data.reqAreaItemcolor }
-      }
-      this.$store.state.colorMapper = newColorMapper
-    }
-  },
-
-  updateColor() {
-    if (this.$store.state.currentDoc.color === 'user choice') {
-      this.$store.state.currentDoc.color = '#567cd6'
+  updateColor(value) {
+    if (value === 'user choice') {
+      this.selReqAreaColor = '#567cd6'
       this.colorSelectShow = true
     } else {
-      this.$store.dispatch('updateColorDb', { newColor: this.$store.state.currentDoc.color, timestamp: Date.now(), recreateColorMapper: () => { this.createColorMapper() } })
+      this.setUserColor(value)
     }
   },
 
-  setUserColor() {
-    this.$store.dispatch('updateColorDb', { newColor: this.userReqAreaItemcolor, timestamp: Date.now(), recreateColorMapper: () => { this.createColorMapper() } })
+  setUserColor(newColor) {
+    this.$store.dispatch('updateColorDb', { node: this.getNodeSelected, newColor, createUndo: true })
   },
 
   setReqArea(reqarea) {

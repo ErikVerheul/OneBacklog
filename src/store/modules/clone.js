@@ -50,7 +50,6 @@ function showProduct(docs, leafLevel) {
                 parentId,
                 sprintId: doc.sprintId,
                 _id: doc._id,
-                shortId: doc._id.slice(-5),
                 dependencies: doc.dependencies || [],
                 conditionalFor: doc.conditionalFor || [],
                 title: doc.title,
@@ -67,7 +66,7 @@ function showProduct(docs, leafLevel) {
                     priority: doc.priority,
                     state: doc.state,
                     reqarea: doc.reqarea,
-                    reqAreaItemcolor: doc.color,
+                    reqAreaItemColor: doc.color,
                     team: doc.team,
                     subtype: doc.subtype,
                     lastChange

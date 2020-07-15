@@ -113,7 +113,7 @@ const actions = {
             // for future use:
             // const lastHistoryEntry = item.value[10]
             // const lastCommentEntry = item.value[11]
-            const reqAreaItemcolor = item.value[12] || null
+            const reqAreaItemColor = item.value[12] || null
             const sprintId = item.value[13]
             const lastAttachmentAddition = item.value[14] || 0
             const lastChange = item.value[15] || 0
@@ -136,7 +136,6 @@ const actions = {
                     productId,
                     parentId,
                     _id,
-                    shortId: _id.slice(-5),
                     dependencies,
                     conditionalFor,
                     title,
@@ -159,7 +158,7 @@ const actions = {
                         lastStateChange,
                         priority,
                         reqarea,
-                        reqAreaItemcolor,
+                        reqAreaItemColor,
                         sprintId,
                         state: itemState,
                         subtype,
@@ -221,7 +220,7 @@ const actions = {
                 if (payload.toDispatch) {
                     for (let name of Object.keys(payload.toDispatch)) {
                         // eslint-disable-next-line no-console
-                        if (rootState.debug) console.log('updateDoc: dispatching ' + name)
+                        if (rootState.debug) console.log('restoreBranch(es).getChildren: dispatching ' + name)
                         dispatch(name, payload.toDispatch[name])
                     }
                 }

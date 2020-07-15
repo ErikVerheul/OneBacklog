@@ -726,7 +726,7 @@ const methods = {
 				nm.doShow = true
 			}
 			// select the item
-			if (nm.shortId === node.shortId) {
+			if (nm.shortId === node._id.slice(-5)) {
 				this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nm })
 				return false
 			}
@@ -853,7 +853,7 @@ const methods = {
 		const removedExtConditions = []
 		this.traverseModels((nm) => {
 			const newDependencies = []
-			if (nm.dependencies && nm.dependencies.length > 0) {
+			if (nm.dependencies && nm._id) {
 				if (nodeIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
 					for (let d of nm.dependencies) {
@@ -875,7 +875,7 @@ const methods = {
 			}
 
 			const newConditionalFor = []
-			if (nm.conditionalFor && nm.conditionalFor.length > 0) {
+			if (nm.conditionalFor && nm._id) {
 				if (nodeIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
 					for (let c of nm.conditionalFor) {

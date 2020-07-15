@@ -45,7 +45,7 @@ const actions = {
                 const subtype = item.value[5]
                 const dependencies = item.value[6] || []
                 const conditionalFor = item.value[7] || []
-                const reqAreaItemcolor = item.value[10] || null
+                const reqAreaItemColor = item.value[10] || null
                 const sprintId = item.value[11]
                 const lastAttachmentAddition = item.value[12] || 0
                 const lastChange = item.value[13] || 0
@@ -67,7 +67,6 @@ const actions = {
                             productId,
                             parentId: null,
                             _id,
-                            shortId: _id.slice(-5),
                             dependencies,
                             conditionalFor,
                             title,
@@ -122,7 +121,6 @@ const actions = {
                         productId,
                         parentId,
                         _id,
-                        shortId: _id.slice(-5),
                         dependencies,
                         conditionalFor,
                         title,
@@ -145,7 +143,7 @@ const actions = {
                             lastStateChange,
                             priority,
                             reqarea,
-                            reqAreaItemcolor,
+                            reqAreaItemColor,
                             sprintId,
                             state: itemState,
                             subtype,

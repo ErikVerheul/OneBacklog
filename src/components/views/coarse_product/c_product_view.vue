@@ -159,11 +159,11 @@
 
             <template slot="sidebar" slot-scope="{ node }">
               <template v-if="node.productId === areaProductId">
-                <p v-if="node._id !== areaProductId" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemcolor}"></p>
+                <p v-if="node._id !== areaProductId" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemColor}"></p>
               </template>
               <p v-else-if="$store.state.colorMapper && node.level > productLevel">
                 <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
-                  v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemcolor}"
+                  v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"
                   @click="setReqArea(node.data.reqarea)" squared size="sm">Change
                 </b-button>
                 <b-button v-else @click="setReqArea(null)" squared variant="seablueLight" size="sm">Set</b-button>
@@ -196,12 +196,13 @@
           <div class="pane" :style="{ minHeight: '40px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
               <p v-if="!isReqAreaItem" class="title is-6">{{ getItemInfo() }}</p>
+              <!-- do not use parenthesis with @change: see https://stackoverflow.com/questions/53106723/bootstrap-vue-select-sending-old-value -->
               <span v-else>
                 <b-form-group>
                   Choose a display color for this requirement area:
                   <b-form-radio-group
-                    @input="updateColor()"
-                    v-model="$store.state.currentDoc.color"
+                    v-model="selReqAreaColor"
+                    @change="updateColor"
                     value-field="hexCode"
                     text-field="color"
                     :options="colorOptions"
@@ -295,7 +296,7 @@
     <!-- Context modal -->
     <CcontextMenu></CcontextMenu>
     <!-- color select -->
-    <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor" title="Select a color">
+    <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color">
       <h4>Enter a color in hex format eg. #567cd6</h4>
       <b-form-input v-model="userReqAreaItemcolor" :state="colorState"></b-form-input>
     </b-modal>

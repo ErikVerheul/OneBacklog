@@ -90,7 +90,7 @@ const actions = {
                     dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
                     onSuccessCallback: () => {
                         rootState.uploadDone = true
-                        commit('updateNodesAndCurrentDoc', { _attachments: tmpDoc._attachments, lastAttachmentAddition: tmpDoc.lastAttachmentAddition, newHist })
+                        commit('updateNodesAndCurrentDoc', { node: payload.node, _attachments: tmpDoc._attachments, lastAttachmentAddition: tmpDoc.lastAttachmentAddition, newHist })
                     },
                     onFailureCallback: () => { rootState.uploadDone = true }
                 })
@@ -104,21 +104,22 @@ const actions = {
         }
     },
 
-    // ToDo: show badge in tree when attachemnt is recently removed
+    // ToDo: show badge in tree when attachment is recently removed
     removeAttachmentAsync({
         rootState,
         commit,
         dispatch
-    }, title) {
-        const _id = rootState.currentDoc._id
+    }, payload) {
+        const node = payload.node
+        const id = node._id
         globalAxios({
             method: 'GET',
-            url: rootState.userData.currentDb + '/' + _id
+            url: rootState.userData.currentDb + '/' + id
         }).then(res => {
             let tmpDoc = res.data
             if (tmpDoc._attachments) {
                 const newHist = {
-                    "removeAttachmentEvent": [title],
+                    "removeAttachmentEvent": [payload.attachmentTitle],
                     "by": rootState.userData.user,
                     "timestamp": Date.now(),
                     "sessionId": rootState.userData.sessionId,
@@ -132,12 +133,12 @@ const actions = {
                 dispatch('updateDoc', {
                     dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
                     onSuccessCallback: () => {
-                        commit('updateNodesAndCurrentDoc', { lastAttachmentRemoval: tmpDoc.lastAttachmentRemoval, newHist })
+                        commit('updateNodesAndCurrentDoc', { node: payload.node, lastAttachmentAddition: 0, lastAttachmentRemoval: tmpDoc.lastAttachmentRemoval, newHist })
                     }
                 })
             }
         }).catch(error => {
-            let msg = 'removeAttachmentAsync: Could not read document with _id ' + _id + ', ' + error
+            let msg = 'removeAttachmentAsync: Could not read document with _id ' + id + ', ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })

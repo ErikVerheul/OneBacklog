@@ -172,7 +172,7 @@ const methods = {
   findItemOnId(shortId) {
     let node
     window.slVueTree.traverseModels((nodeModel) => {
-      if (nodeModel.shortId === shortId) {
+      if (nodeModel._id.slice(-5) === shortId) {
         node = nodeModel
         return false
       }
@@ -213,35 +213,39 @@ const methods = {
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription(this.getpreviousNodeSelected)
     this.updateAcceptance(this.getpreviousNodeSelected)
-    // if the root node is selected do nothing
-    if (this.getNodeSelected._id !== 'root') {
-      // if the user clicked on a node of another product
-      if (this.$store.state.currentProductId !== this.getNodeSelected.productId) {
-        // clear any outstanding filters
-        window.slVueTree.resetFilters('onNodesSelected')
-        // collapse the previously selected product
-        window.slVueTree.collapseTree()
-        // update current productId and title
-        this.$store.state.currentProductId = this.getNodeSelected.productId
-        this.$store.state.currentProductTitle = this.getNodeSelected.title
-        // expand the newly selected product up to the feature level
-        window.slVueTree.expandTree()
-      }
-    }
+
     // load the document if not already in memory
     if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
-      this.$store.dispatch('loadDoc', { id: this.getNodeSelected._id })
+      this.$store.dispatch('loadDoc', {
+        id: this.getNodeSelected._id, onSuccessCallback: () => {
+          // if the root node is selected do nothing
+          if (this.getNodeSelected._id !== 'root') {
+            // if the user clicked on a node of another product
+            if (this.$store.state.currentProductId !== this.getNodeSelected.productId) {
+              // clear any outstanding filters
+              window.slVueTree.resetFilters('onNodesSelected')
+              // collapse the previously selected product
+              window.slVueTree.collapseTree()
+              // update current productId and title
+              this.$store.state.currentProductId = this.getNodeSelected.productId
+              this.$store.state.currentProductTitle = this.getNodeSelected.title
+              // expand the newly selected product up to the feature level
+              window.slVueTree.expandTree()
+            }
+          }
+          const title = this.itemTitleTrunc(60, selNodes[0].title)
+          let evt = ""
+          if (selNodes.length === 1) {
+            this.selectedNodesTitle = title
+            evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.`
+          } else {
+            this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
+            evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.`
+          }
+          this.showLastEvent(evt, INFO)
+        }
+      })
     }
-    const title = this.itemTitleTrunc(60, selNodes[0].title)
-    let evt = ""
-    if (selNodes.length === 1) {
-      this.selectedNodesTitle = title
-      evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.`
-    } else {
-      this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-      evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.`
-    }
-    this.showLastEvent(evt, INFO)
   },
 
   /* Use this event to check if the drag is allowed. If not, issue a warning */

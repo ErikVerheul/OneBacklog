@@ -363,38 +363,17 @@ const methods = {
   onUndoEvent() {
     const entry = this.$store.state.changeHistory.shift()
     switch (entry.type) {
-      case 'undoAddSprintIds':
-        this.$store.dispatch('removeSprintIds', { parentId: entry.parentId, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName })
-        break
-      case 'undoSelectedPbiType':
-        this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange })
-        break
-      case 'undoDescriptionChange':
-        this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange })
-        break
       case 'undoAcceptanceChange':
         this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange })
         break
-      case 'undoTsSizeChange':
-        this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange })
-        break
-      case 'undoStoryPointsChange':
-        this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange })
-        break
-      case 'undoPersonHoursChange':
-        this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange })
+      case 'undoAddSprintIds':
+        this.$store.dispatch('removeSprintIds', { parentId: entry.parentId, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName })
         break
       case 'undoChangeTeam':
         this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange })
         break
-      case 'undoStateChange':
-        this.$store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, showUndoneMsg: true })
-        break
-      case 'undoTitleChange':
-        this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange })
-        break
-      case 'undoNewNode':
-        this.$store.dispatch('removeBranch', { node: entry.newNode, showUndoneMsg: true })
+      case 'undoDescriptionChange':
+        this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange })
         break
       case 'undoMove':
         {
@@ -411,6 +390,15 @@ const methods = {
           } else this.showLastEvent('Undo failed. Sign out and -in again to recover.', ERROR)
         }
         break
+      case 'undoNewNode':
+        this.$store.dispatch('removeBranch', { node: entry.newNode, showUndoneMsg: true })
+        break
+      case 'undoReqAreaColorChange':
+        this.$store.dispatch('updateColorDb', { node: entry.node, newColor: entry.prevColor, createUndo: false })
+        break
+      case 'undoPersonHoursChange':
+        this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange })
+        break
       case 'undoRemove':
         this.showLastEvent('Busy undoing remove...', INFO)
         this.$store.dispatch("restoreItemAndDescendents", entry)
@@ -418,14 +406,29 @@ const methods = {
       case 'undoRemoveSprintIds':
         this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
         break
+      case 'undoSelectedPbiType':
+        this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange })
+        break
       case 'undoSetDependency':
         this.$store.dispatch('undoSetDependencyAsync', entry)
+        break
+      case 'undoStateChange':
+        this.$store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, showUndoneMsg: true })
+        break
+      case 'undoStoryPointsChange':
+        this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange })
+        break
+      case 'undoTitleChange':
+        this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange })
+        break
+      case 'undoTsSizeChange':
+        this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange })
         break
     }
   },
 
   subscribeClicked() {
-    this.$store.dispatch('changeSubsription', { timestamp: Date.now() })
+    this.$store.dispatch('changeSubsription', { node: this.getNodeSelected, timestamp: Date.now() })
   },
 
   filterComments() {
@@ -434,6 +437,7 @@ const methods = {
 
   uploadAttachment() {
     this.$store.dispatch('uploadAttachmentAsync', {
+      node: this.getNodeSelected,
       fileInfo: this.fileInfo,
       currentDocId: this.$store.state.currentDoc._id,
       timestamp: Date.now()
@@ -446,15 +450,17 @@ const methods = {
 
   insertComment() {
     this.$store.dispatch('addComment', {
-      'comment': this.newComment,
-      'timestamp': Date.now()
+      node: this.getNodeSelected,
+      comment: this.newComment,
+      timestamp: Date.now()
     })
   },
 
   insertHist() {
     this.$store.dispatch('addHistoryComment', {
-      'comment': this.newHistory,
-      'timestamp': Date.now()
+      node: this.getNodeSelected,
+      comment: this.newHistory,
+      timestamp: Date.now()
     })
   },
 

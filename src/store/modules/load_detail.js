@@ -45,7 +45,7 @@ const mutations = {
             // for future use:
             // const lastHistoryEntry = item.value[8]
             // const lastCommentEntry = item.value[9]
-            const reqAreaItemcolor = item.value[10] || null
+            const reqAreaItemColor = item.value[10] || null
             const sprintId = item.value[11]
             const lastAttachmentAddition = item.value[12] || 0
             const lastChange = item.value[13] || 0
@@ -66,7 +66,6 @@ const mutations = {
                         productId: null,
                         parentId: null,
                         _id,
-                        shortId: _id.slice(-5),
                         dependencies,
                         conditionalFor,
                         title,
@@ -96,7 +95,7 @@ const mutations = {
             if (productId === AREA_PRODUCTID) {
                 if (level === 3) {
                     rootState.reqAreaMapper[_id] = title
-                    rootState.colorMapper[_id] = { reqAreaItemcolor }
+                    rootState.colorMapper[_id] = { reqAreaItemColor }
                 }
                 continue
             }
@@ -131,7 +130,6 @@ const mutations = {
                     productId,
                     parentId,
                     _id,
-                    shortId: _id.slice(-5),
                     dependencies,
                     conditionalFor,
                     title,
@@ -154,7 +152,7 @@ const mutations = {
                         lastStateChange,
                         priority,
                         reqarea,
-                        reqAreaItemcolor,
+                        reqAreaItemColor,
                         sprintId,
                         state: itemState,
                         subtype,

@@ -238,6 +238,7 @@ const actions = {
                         }
                     }
                     doc.conditionalFor = newConditions
+                    // ToDo
                     const prevLastChange = doc.lastChange || 0
                     doc.lastChange = payload.timestamp
                     const newHist = {
@@ -266,7 +267,7 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', {
-                dbName: rootState.userData.currentDb, docs,
+                dbName: rootState.userData.currentDb, docs, caller: 'alsoRemoveConditions',
                 onSuccessCallback: () => {
                     // update the dependencies in the tree model
                     commit('updateNodesAndCurrentDoc', { node: payload.node, dependenciesRemoved: payload.newDeps, lastChange: payload.timestamp, newHist: payload.hist })
@@ -389,7 +390,7 @@ const actions = {
                 dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', {
-                dbName: rootState.userData.currentDb, docs,
+                dbName: rootState.userData.currentDb, docs, caller: 'alsoRemoveDependenciesAsync',
                 onSuccessCallback: () => {
                     // update the conditions in the tree model
                     commit('updateNodesAndCurrentDoc', { node: payload.node, conditionsremoved: payload.newCons, lastChange: payload.timestamp, newHist: payload.hist })
@@ -469,7 +470,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtDependenciesAsync' })
         }).catch(e => {
             let msg = 'removeExtDependenciesAsync: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
@@ -535,7 +536,7 @@ const actions = {
 
 
 
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtConditionsAsync' })
         }).catch(e => {
             let msg = 'removeExtConditionsAsync: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console

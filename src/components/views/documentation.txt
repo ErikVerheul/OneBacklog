@@ -30,7 +30,7 @@ Database--------------------------------------------------- node
 "state"(Integer)------------------------------------------- data.state
 "tssize"(Integer)
 "spsize"(Integer)
-"color"(hex)----------------------------------------------- reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
+"color"(hex)----------------------------------------------- data.reqAreaItemColor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
 "spikepersonhours"(Integer)
 "reqarea"(string)------------------------------------------ data.reqarea
 "dependencies": []----------------------------------------- dependencies
@@ -166,7 +166,6 @@ level: path.length,
 productId: doc.productId,
 parentId: doc.parentId,
 _id: doc._id,
-shortId: doc._id.slice(-5)
 children: [],
 
 title: doc.title,
@@ -191,7 +190,7 @@ data: {
 ....team: doc.team, // the team membership of the user who updated the state the last time
 ....taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self
 ....subtype: doc.subtype,
-....reqAreaItemcolor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
+....reqAreaItemColor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
 ....lastPositionChange: doc.lastPositionChange,
 ....lastStateChange: doc.lastStateChange,
 ....lastContentChange: doc.lastContentChange,
@@ -276,11 +275,13 @@ distibuted	mailed	listed	event                       	file
 Y            Y	     Y    acceptanceEvent	              	update.js
 Y            Y	     Y    addCommentEvent	              	update.js
 Y			 Y	     Y    addSprintIdsEvent					planningboard.js
+Y			 N	     N    boardReloadEvent					planningboard.js
+Y            N	     N    changeReqAreaColorEvent          	update.js
 N            Y	     Y    cloneEvent	                  	clone.js
 Y            Y	     Y    commentToHistoryEvent	        	update.js
 Y            Y	     Y    conditionRemovedEvent	        	update.js
 Y            N	     Y    createEvent 	                	common.context.js 2X
-N            N	     Y  	  								superpo.vue
+N            N	     Y  	  								utils.js
 N			 N	     Y    createRootEvent					intdb.js
 Y            N	     Y    createTaskEvent 	                planningboard.js
 Y            Y	     Y    dependencyRemovedEvent 	      	update.js
@@ -295,7 +296,7 @@ Y            Y	     Y    removeAttachmentEvent	        	attachments.js
 N            Y	     Y    removedFromParentEvent	      	remove.js
 Y            N       Y    removedWithDescendantsEvent       remove.js
 Y 			 Y 	     Y    removeSprintIdsEvent				update.js
-Y            N	     N    updateTaskOrderEvent	        	planningboard.js
+N			 N	     Y    resetHistoryEvent					utils.js
 Y            Y	     Y    setConditionEvent	          		update.js
 Y            Y	     Y    setDependencyEvent	        	update.js
 Y            Y	     Y    setHrsEvent	                  	update.js
@@ -307,11 +308,10 @@ N			 N	     Y    setTeamEventDescendant			update.js
 Y            Y	     Y    setTeamOwnerEvent	            	update.js
 Y            Y	     Y    setTitleEvent	                	update.js, planningboard.js
 N			 N	     Y    subscribeEvent					update.js
-Y			 N	     N    boardReloadEvent					planningboard.js
 Y            N       Y    taskRemovedEvent					planningboard.js
 Y            Y	     Y    uploadAttachmentEvent	        	attachments.js
+Y            N	     N    updateTaskOrderEvent	        	planningboard.js
 Y            N	     Y    uploadTaskOwnerEvent	        	planningboard.js
-N			 N	     Y    resetHistoryEvent					utils.js
 
 KNOWN ERRORS:
 

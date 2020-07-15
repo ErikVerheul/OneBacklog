@@ -1,3 +1,4 @@
+import { mapGetters } from 'vuex'
 import { utilities } from '../mixins/utilities.js'
 
 const baseURL = 'https://onebacklog.net:6984/'
@@ -15,6 +16,10 @@ function convertToShortIds(ids) {
 }
 
 const computed = {
+  ...mapGetters([
+    'getNodeSelected'
+  ]),
+
   isUploadDone() {
     // force a re-render
     this.$forceUpdate()
@@ -61,7 +66,7 @@ const computed = {
       let histItem = this.$store.state.currentDoc.history[i]
       let allText = ""
       let keys = Object.keys(histItem)
-      if (keys[0] === "ignoreEvent" || keys[0] === "updateTaskOrderEvent") continue
+      if (keys[0] === "ignoreEvent" || keys[0] === "updateTaskOrderEvent" || keys[0] === "changeReqAreaColorEvent") continue
 
       for (let j = 0; j < keys.length; j++) {
         if (keys[j] === "acceptanceEvent") allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
@@ -136,7 +141,7 @@ const methods = {
     delete this.$store.state.currentDoc._attachments[attachment.title]
     // force a re-render
     this.$forceUpdate()
-    this.$store.dispatch('removeAttachmentAsync', attachment.title)
+    this.$store.dispatch('removeAttachmentAsync', { node: this.getNodeSelected, attachmentTitle: attachment.title})
   },
 
   prepHistoryText(key, value) {
@@ -285,7 +290,7 @@ const methods = {
   },
 
   mkRemovedWithDescendantsEvent(value) {
-    return `<h5>This item and ${value[1].length} descendants are removed.</h5>
+    return `<h5>This item and ${value[1].length - 1} descendants are removed.</h5>
       <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
   },
 

@@ -178,7 +178,6 @@ const methods = {
 			productId: newProduct.productId,
 			parentId: newProduct.parentId,
 			_id: newProduct._id,
-			shortId: newProduct._id.slice(-5),
 			dependencies: [],
 			conditionalFor: [],
 			title: newProduct.title,

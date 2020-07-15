@@ -672,7 +672,6 @@ const actions = {
 						// update the tree data
 						const newNode = {
 							_id: payload.taskId,
-							shortId: payload.taskId.slice(-5),
 							isLeaf: true,
 							title: payload.taskTitle,
 							dependencies: [],

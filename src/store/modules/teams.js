@@ -114,6 +114,7 @@ const actions = {
 				dbName,
 				docs: docsToRemove,
 				toDispatch,
+				caller: 'removeTeamsFromDb',
 				onSuccessCallback: () => {
 					rootState.areTeamsRemoved = true
 					rootState.backendMessages.push({
@@ -152,7 +153,7 @@ const actions = {
 			}
 			// write back and update tree model
 			dispatch('updateBulk', {
-				dbName, docs, onSuccessCallback: () => {
+				dbName, docs, caller: 'retireTeams', onSuccessCallback: () => {
 					window.slVueTree.traverseModels((nm) => {
 						if (nm.data.team && teamNamesToRetire.includes(nm.data.team)) {
 							nm.data.team = nm.data.team + '†'

@@ -92,7 +92,6 @@ const methods = {
         // prepare the new node for insertion
         const newNode = {
             _id: newId,
-            shortId: newId.slice(-5),
             title: 'COPY: ' + node.title,
             isLeaf: node.isLeaf,
             dependencies: [],
@@ -108,7 +107,7 @@ const methods = {
             data: {
                 state: STATE_NEW_OR_TODO,
                 reqarea: node.data.reqArea,
-                reqAreaItemcolor: node.data.reqAreaItemcolor,
+                reqAreaItemColor: node.data.reqAreaItemColor,
                 team: node.data.team,
                 subtype: node.data.subtype,
                 lastChange: 0
@@ -168,7 +167,6 @@ const methods = {
         const _id = this.createId()
         const newNode = {
             _id,
-            shortId: _id.slice(-5),
             dependencies: [],
             conditionalFor: [],
             children: [],

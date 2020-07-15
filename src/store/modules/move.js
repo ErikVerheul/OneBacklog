@@ -46,7 +46,7 @@ const actions = {
 				const node = f.node
 				if (node === null) continue
 				// set the sprintId and the <moved> badge with the lastPositionChange timestamp
-				// commit('updateNodesAndCurrentDoc', { sprintId: f.targetSprintId, lastPositionChange:  Date.now() })
+				commit('updateNodesAndCurrentDoc', { node, sprintId: f.targetSprintId, lastPositionChange: Date.now() })
 				// create item
 				const payloadItem = {
 					node,
@@ -79,7 +79,7 @@ const actions = {
 				const node = r.node
 				if (node === null) continue
 				// reset the sprintId and the <moved> badge
-				// commit('updateNodesAndCurrentDoc', { sprintId: r.targetSprintId, lastPositionChange: r.lastPositionChange })
+				commit('updateNodesAndCurrentDoc', { node, sprintId: r.targetSprintId, lastPositionChange: r.lastPositionChange })
 				// create item
 				const payloadItem = {
 					node,
@@ -310,7 +310,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'updateMovedDescendantsBulk', })
 		}).catch(e => {
 			let msg = 'updateMovedDescendantsBulk: Could not read decendants in bulk. Error = ' + e
 			// eslint-disable-next-line no-console

@@ -9,10 +9,10 @@ const DONE = 6
 const TASKLEVEL = 6
 
 function getLevelText(configData, level) {
-    if (level < 0 || level > TASKLEVEL) {
-        return 'Level not supported'
-    }
-    return configData.itemType[level]
+	if (level < 0 || level > TASKLEVEL) {
+		return 'Level not supported'
+	}
+	return configData.itemType[level]
 }
 
 const actions = {
@@ -23,10 +23,10 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const id = payload.node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			const oldDocArea = tmpDoc.reqarea
@@ -44,11 +44,11 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { reqarea: payload.reqarea, lastChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node: payload.node, reqarea: payload.reqarea, lastChange: payload.timestamp, newHist })
 				}
 			})
 		}).catch(error => {
-			let msg = 'updateReqArea: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'updateReqArea: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -75,7 +75,6 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
-			const error = []
 			const oldParentReqArea = payload.oldParentReqArea
 			const newReqArea = payload.reqarea
 			for (let r of results) {
@@ -107,20 +106,9 @@ const actions = {
 						docs.push(doc)
 					}
 				}
-				if (envelope.error) error.push(envelope.error)
-			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'updateReqAreaChildren: These documents cannot change requirement area: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', {
-				dbName: rootState.userData.currentDb, docs, onSuccessCallback: () => {
+				dbName: rootState.userData.currentDb, docs, caller: 'updateReqAreaChildren', onSuccessCallback: () => {
 					// set reqarea for the child nodes
 					const childNodes = payload.node.children
 					for (let c of childNodes) {
@@ -147,37 +135,48 @@ const actions = {
 		})
 	},
 
-	// ToDo: create undo
 	updateColorDb({
 		rootState,
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			// update the req area document
+			const prevColor = tmpDoc.color
 			tmpDoc.color = payload.newColor
 			const newHist = {
-				"ignoreEvent": ['updateColorDb'],
+				"changeReqAreaColorEvent": [prevColor, payload.newColor],
+				"by": rootState.userData.user,
 				"timestamp": Date.now(),
-				"distributeEvent": false
+				"sessionId": rootState.userData.sessionId,
+				"distributeEvent": true
 			}
 			tmpDoc.history.unshift(newHist)
-			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { reqAreaItemcolor: payload.newColor, lastChange: payload.timestamp, newHist })
-					payload.recreateColorMapper()
+					if (payload.createUndo) {
+						// create an entry for undoing the change in a last-in first-out sequence
+						const entry = {
+							node,
+							type: 'undoReqAreaColorChange',
+							prevColor
+						}
+						rootState.changeHistory.unshift(entry)
+					}  else commit('showLastEvent', { txt: `Change of requirement area color indication is undone`, severity: INFO })
+					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor, newHist })
+					commit('updateColorMapper', { id, newColor: payload.newColor })
 				}
 			})
 		}).catch(error => {
-			let msg = 'setColor: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'setColor: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -190,10 +189,11 @@ const actions = {
 		rootGetters,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			const wasFollower = rootGetters.isFollower
@@ -220,11 +220,11 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { followers: tmpFollowers, lastChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, followers: tmpFollowers, lastChange: payload.timestamp, newHist })
 				}
 			})
 		}).catch(error => {
-			let msg = 'changeSubsription: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'changeSubsription: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -260,7 +260,7 @@ const actions = {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
 					commit('showLastEvent', { txt: `The T-shirt size of this item is changed`, severity: INFO })
-					commit('updateNodesAndCurrentDoc', { tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -310,7 +310,7 @@ const actions = {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
 					commit('showLastEvent', { txt: `The maximum effort of this spike is changed`, severity: INFO })
-					commit('updateNodesAndCurrentDoc', { spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -360,7 +360,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -412,7 +412,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
 					// recalculate and (re)set the inconsistency state of the parent item
 					const parentNode = window.slVueTree.getParentNode(node)
 					if (parentNode && parentNode.data.state === DONE) {
@@ -562,7 +562,7 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: ERROR })
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'setTeamDescendantsBulk' })
 		}).catch(e => {
 			let msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
@@ -600,7 +600,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -649,7 +649,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
+					commit('updateNodesAndCurrentDoc', { node, subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -702,7 +702,8 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { lastContentChange: payload.timestamp, newHist })
+					// no need to update in the currentDoc, the changed version is already in view or will be updated if the item is selected
+					commit('updateNodesAndCurrentDoc', { node, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -755,7 +756,8 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { lastContentChange: payload.timestamp, newHist })
+					// no need to update in the currentDoc, the changed version is already in view or will be updated if the item is selected
+					commit('updateNodesAndCurrentDoc', { node, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -782,10 +784,11 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id
+			url: rootState.userData.currentDb + '/' + id
 		}).then((res) => {
 			let tmpDoc = res.data
 			const newComment = {
@@ -802,11 +805,11 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { newComment, lastCommentAddition: payload.timestamp })
+					commit('updateNodesAndCurrentDoc', { node, newComment, lastCommentAddition: payload.timestamp })
 				}
 			})
 		}).catch(error => {
-			let msg = 'addComment: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'addComment: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -819,10 +822,11 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const _id = rootState.currentDoc._id
+		const node = payload.node
+		const id = node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id
+			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			let tmpDoc = res.data
 			const newCommentToHistory = window.btoa(payload.comment)
@@ -840,11 +844,11 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { lastCommentToHistory: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: payload.timestamp, newHist })
 				}
 			})
 		}).catch(error => {
-			let msg = 'addHistoryComment: Could not read document with _id ' + _id + ', ' + error
+			let msg = 'addHistoryComment: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -892,6 +896,8 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		// eslint-disable-next-line no-console
+		if (rootState.debug && payload.caller) console.log('updateBulk is called by ' + payload.caller)
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_docs',

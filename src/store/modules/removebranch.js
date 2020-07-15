@@ -65,7 +65,7 @@ const actions = {
 
             dispatch('getChildrenToRemove', { node: payload.node, id: doc._id, showUndoneMsg: payload.showUndoneMsg })
         }
-        dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results })
+        dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, caller: 'processItemsToRemove' })
     },
 
     getChildrenToRemove({
@@ -149,7 +149,7 @@ const actions = {
                 }
             }
             const toDispatch = { removeExternalDeps: payload }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalConds' })
         }).catch(e => {
             let msg = 'removeExternalConds: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
@@ -188,7 +188,7 @@ const actions = {
                 }
             }
             const toDispatch = { addRemoveHist: { node: payload.node, showUndoneMsg: payload.showUndoneMsg } }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
         }).catch(e => {
             let msg = 'removeExternalDeps: Could not read batch of documents: ' + e
             // eslint-disable-next-line no-console
@@ -362,7 +362,7 @@ const actions = {
                 doc.history.unshift(newHist)
                 updatedDocs.push(doc)
             }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs })
+            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, caller: 'removeReqAreaAssignments' })
         }).catch(error => {
             let msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ',' + error
             // eslint-disable-next-line no-console
