@@ -40,6 +40,7 @@ const actions = {
         rootState,
         dispatch
     }, payload) {
+        const toDispatch = {}
         for (let doc of payload.results) {
             docsRemovedIds.push(doc._id)
             if (doc.dependencies && doc.dependencies.length > 0) {
@@ -62,16 +63,17 @@ const actions = {
                 "distributeEvent": false
             }
             doc.history.unshift(newHist)
-
-            dispatch('getChildrenToRemove', { node: payload.node, id: doc._id, showUndoneMsg: payload.showUndoneMsg })
+            // multiple instances can be dispatched
+            toDispatch.getChildrenToRemove = { node: payload.node, id: doc._id, showUndoneMsg: payload.showUndoneMsg }
         }
-        dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, caller: 'processItemsToRemove' })
+        dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
     },
 
     getChildrenToRemove({
         rootState,
         dispatch
     }, payload) {
+        console.log('getChildrenToRemove is called, getChildrenRunning = ' + getChildrenRunning)
         getChildrenRunning++
         globalAxios({
             method: 'GET',
@@ -126,36 +128,38 @@ const actions = {
         for (let d of Object.keys(removedDeps)) {
             docsToGet.push({ "id": d })
         }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet }
-        }).then(res => {
-            const results = res.data.results
-            const docs = []
-            for (let r of results) {
-                const doc = r.docs[0].ok
-                // removedDeps[d] = { dependentOn: doc._id, level: doc.Level }
-                if (doc) {
-                    if (doc.level < removedDeps[doc._id].level) {
-                        const newConditionalFor = []
-                        for (let c of doc.conditionalFor) {
-                            if (c !== removedDeps[doc._id].dependentOn) newConditionalFor.push(c)
+        if (docsToGet.length > 0) {
+            globalAxios({
+                method: 'POST',
+                url: rootState.userData.currentDb + '/_bulk_get',
+                data: { "docs": docsToGet }
+            }).then(res => {
+                const results = res.data.results
+                const docs = []
+                for (let r of results) {
+                    const doc = r.docs[0].ok
+                    // removedDeps[d] = { dependentOn: doc._id, level: doc.Level }
+                    if (doc) {
+                        if (doc.level < removedDeps[doc._id].level) {
+                            const newConditionalFor = []
+                            for (let c of doc.conditionalFor) {
+                                if (c !== removedDeps[doc._id].dependentOn) newConditionalFor.push(c)
+                            }
+                            doc.conditionalFor = newConditionalFor
+                            extCondsRemovedCount++
                         }
-                        doc.conditionalFor = newConditionalFor
-                        extCondsRemovedCount++
+                        docs.push(doc)
                     }
-                    docs.push(doc)
                 }
-            }
-            const toDispatch = { removeExternalDeps: payload }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalConds' })
-        }).catch(e => {
-            let msg = 'removeExternalConds: Could not read batch of documents: ' + e
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
+                const toDispatch = { removeExternalDeps: payload }
+                dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalConds' })
+            }).catch(e => {
+                let msg = 'removeExternalConds: Could not read batch of documents: ' + e
+                // eslint-disable-next-line no-console
+                if (rootState.debug) console.log(msg)
+                dispatch('doLog', { event: msg, level: ERROR })
+            })
+        } else dispatch('removeExternalDeps', payload)
     },
 
     removeExternalDeps({
@@ -166,35 +170,37 @@ const actions = {
         for (let c of Object.keys(removedConds)) {
             docsToGet.push({ "id": c })
         }
-        globalAxios({
-            method: 'POST',
-            url: rootState.userData.currentDb + '/_bulk_get',
-            data: { "docs": docsToGet }
-        }).then(res => {
-            const results = res.data.results
-            const docs = []
-            for (let r of results) {
-                const doc = r.docs[0].ok
-                if (doc) {
-                    if (doc.level < removedConds[doc._id].level) {
-                        const newDependencies = []
-                        for (let d of doc.dependencies) {
-                            if (d !== removedConds[doc._id].conditionalFor) newDependencies.push(d)
+        if (docsToGet.length > 0) {
+            globalAxios({
+                method: 'POST',
+                url: rootState.userData.currentDb + '/_bulk_get',
+                data: { "docs": docsToGet }
+            }).then(res => {
+                const results = res.data.results
+                const docs = []
+                for (let r of results) {
+                    const doc = r.docs[0].ok
+                    if (doc) {
+                        if (doc.level < removedConds[doc._id].level) {
+                            const newDependencies = []
+                            for (let d of doc.dependencies) {
+                                if (d !== removedConds[doc._id].conditionalFor) newDependencies.push(d)
+                            }
+                            doc.dependencies = newDependencies
+                            extDepsRemovedCount++
                         }
-                        doc.dependencies = newDependencies
-                        extDepsRemovedCount++
+                        docs.push(doc)
                     }
-                    docs.push(doc)
                 }
-            }
-            const toDispatch = { addRemoveHist: { node: payload.node, showUndoneMsg: payload.showUndoneMsg } }
-            dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
-        }).catch(e => {
-            let msg = 'removeExternalDeps: Could not read batch of documents: ' + e
-            // eslint-disable-next-line no-console
-            if (rootState.debug) console.log(msg)
-            dispatch('doLog', { event: msg, level: ERROR })
-        })
+                const toDispatch = { addRemoveHist: { node: payload.node, showUndoneMsg: payload.showUndoneMsg } }
+                dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
+            }).catch(e => {
+                let msg = 'removeExternalDeps: Could not read batch of documents: ' + e
+                // eslint-disable-next-line no-console
+                if (rootState.debug) console.log(msg)
+                dispatch('doLog', { event: msg, level: ERROR })
+            })
+        } else dispatch('addRemoveHist', { node: payload.node, showUndoneMsg: payload.showUndoneMsg })
     },
 
     /* Add history to the removed item it self */

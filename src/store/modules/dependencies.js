@@ -195,7 +195,6 @@ const actions = {
             // add hist to payload
             payload.hist = newHist
 
-            const prevLastChange = tmpDoc.lastChange || 0
             tmpDoc.lastChange = payload.timestamp
 
             const toDispatch = { alsoRemoveConditions: payload }
@@ -225,7 +224,6 @@ const actions = {
         }).then(res => {
             const results = res.data.results
             const docs = []
-            const error = []
             for (let r of results) {
                 const doc = r.docs[0].ok
                 if (doc) {
@@ -238,8 +236,6 @@ const actions = {
                         }
                     }
                     doc.conditionalFor = newConditions
-                    // ToDo
-                    const prevLastChange = doc.lastChange || 0
                     doc.lastChange = payload.timestamp
                     const newHist = {
                         "conditionRemovedEvent": [[payload.node._id], payload.node.title],
@@ -253,18 +249,6 @@ const actions = {
                         commit('showLastEvent', { txt: `The dependencies are removed`, severity: INFO })
                     } else commit('showLastEvent', { txt: `The dependency is removed`, severity: INFO })
                 }
-                if (r.docs[0].error) error.push(r.docs[0].error)
-            }
-            if (error.length > 0) {
-                commit('showLastEvent', { txt: `Dependency removal failed`, severity: ERROR })
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'alsoRemoveConditions: These documents cannot be updated: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', {
                 dbName: rootState.userData.currentDb, docs, caller: 'alsoRemoveConditions',
@@ -318,7 +302,6 @@ const actions = {
             // add hist to payload
             payload.hist = newHist
 
-            const prevLastChange = tmpDoc.lastChange || 0
             tmpDoc.lastChange = payload.timestamp
 
             const toDispatch = { alsoRemoveDependenciesAsync: payload }

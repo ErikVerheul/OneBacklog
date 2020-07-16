@@ -916,6 +916,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			if (updateConflict > 0 || otherError > 0) {
+				console.log('updateBulk: res.data = ' + JSON.stringify(res.data, null, 2))
 				dispatch('doLog', { event: msg, level: WARNING })
 				// execute passed function if provided
 				if (payload.onFailureCallback !== undefined) {

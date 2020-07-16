@@ -847,17 +847,18 @@ const methods = {
 
 	/* When nodes are deleted orphan dependencies can be created. This method removes them. */
 	correctDependencies(productId, nodeIds) {
+		console.log('correctDependencies is executed')
 		const removedIntDependencies = []
 		const removedIntConditions = []
 		const removedExtDependencies = []
 		const removedExtConditions = []
 		this.traverseModels((nm) => {
-			const newDependencies = []
-			if (nm.dependencies && nm._id) {
+			if (nm.dependencies && nm.dependencies.length > 0) {
+				const newDependencies = []
 				if (nodeIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
 					for (let d of nm.dependencies) {
-						// dependency references within the nodes survive
+						// dependency references within the deleted nodes survive
 						if (nodeIds.includes(d)) {
 							newDependencies.push(d)
 						} else removedIntDependencies.push({ id: nm._id, dependentOn: d })
@@ -872,14 +873,15 @@ const methods = {
 					}
 				}
 				nm.dependencies = newDependencies
+				console.log('correctDependencies: nm.dependencies = ' + nm.dependencies + ', node.title = ' + nm.title)
 			}
 
-			const newConditionalFor = []
-			if (nm.conditionalFor && nm._id) {
+			if (nm.conditionalFor && nm.conditionalFor.length > 0) {
+				const newConditionalFor = []
 				if (nodeIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
 					for (let c of nm.conditionalFor) {
-						// dependency references within the nodes survive
+						// dependency references within the deleted nodes survive
 						if (nodeIds.includes(c)) {
 							newConditionalFor.push(c)
 						} else removedIntConditions.push({ id: nm._id, conditionalFor: c })
@@ -894,6 +896,7 @@ const methods = {
 					}
 				}
 				nm.conditionalFor = newConditionalFor
+				console.log('correctDependencies: nm.conditionalFor = ' + nm.conditionalFor + ', node.title = ' + nm.title)
 			}
 		}, this.getProductModels(productId))
 		return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }

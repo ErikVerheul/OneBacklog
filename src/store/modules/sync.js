@@ -349,13 +349,19 @@ const actions = {
 							if (lastHistObj.setConditionEvent[2]) {
 								// undo single addition
 								commit('updateNodesAndCurrentDoc', { node, removeLastConditionalFor: null, lastChange: doc.lastChange })
-							} else commit('updateNodesAndCurrentDoc', { node, addConditionalFor: doc.conditionalFor.slice(-1), lastChange: doc.lastChange })
+							} else {
+								const dependentOnNodeId = lastHistObj.setConditionEvent[0]
+								commit('updateNodesAndCurrentDoc', { node, addConditionalFor: dependentOnNodeId, lastChange: doc.lastChange })
+							}
 							break
 						case 'setDependencyEvent':
 							if (lastHistObj.setDependencyEvent[2]) {
 								// undo single addition
 								commit('updateNodesAndCurrentDoc', { node, removeLastDependencyOn: null, lastChange: doc.lastChange })
-							} else commit('updateNodesAndCurrentDoc', { node, addDependencyOn: doc.dependencies.slice(-1), lastChange: doc.lastChange })
+							} else {
+								const conditionalForNodeId = lastHistObj.setDependencyEvent[0]
+								commit('updateNodesAndCurrentDoc', { node, addDependencyOn: conditionalForNodeId, lastChange: doc.lastChange })
+							}
 							break
 						case 'setHrsEvent':
 							commit('updateNodesAndCurrentDoc', { node, spikepersonhours: doc.spikepersonhours, lastChange: doc.lastChange })

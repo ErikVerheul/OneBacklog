@@ -359,10 +359,10 @@ export default new Vuex.Store({
 								// not stored in the node
 								break
 							case 'addConditionalFor':
-								if (node.conditionalFor) { node.conditionalFor.push(payload.addConditionalFor) } else node.conditionalFor = payload.addConditionalFor
+								if (node.conditionalFor) { node.conditionalFor.push(payload.addConditionalFor) } else node.conditionalFor = [payload.addConditionalFor]
 								break
 							case 'addDependencyOn':
-								if (node.dependencies) { node.dependencies.push(payload.addDependencyOn) } else node.dependencies = payload.addDependencyOn
+								if (node.dependencies) { node.dependencies.push(payload.addDependencyOn) } else node.dependencies = [payload.addDependencyOn]
 								break
 							case 'conditionsremoved':
 								node.conditionalFor = payload.conditionsremoved
@@ -449,10 +449,18 @@ export default new Vuex.Store({
 								node.productId = payload.productId
 								break
 							case 'removeLastConditionalFor':
-								node.conditionalFor = node.conditionalFor.slice(0, -1)
+								{	// remove last element; create new array for reactivity
+									const newconditionalFor = []
+									for (let i = 0; i < node.conditionalFor.length - 1; i++) newconditionalFor.push(node.conditionalFor[i])
+									node.conditionalFor = newconditionalFor
+								}
 								break
 							case 'removeLastDependencyOn':
-								node.dependencies = node.dependencies.slice(0, -1)
+								{	// remove last element; create new array for reactivity
+									const newDependencies = []
+									for (let i = 0; i < node.dependencies.length - 1; i++) newDependencies.push(node.dependencies[i])
+									node.dependencies = newDependencies
+								}
 								break
 							case 'reqarea':
 								node.data.reqarea = payload.reqarea

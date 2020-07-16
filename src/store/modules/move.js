@@ -208,7 +208,6 @@ const actions = {
 					}
 					for (let it of items) {
 						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
-						// ToDo: the user can hit the undo button before these processes finish!
 						dispatch('getMovedChildrenIds', { updates, id: it.id })
 					}
 				}
