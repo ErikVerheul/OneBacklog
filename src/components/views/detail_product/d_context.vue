@@ -11,7 +11,7 @@
         <p>Click on a red button to remove the dependency:</p>
         <div v-for="(dependency) in dependenciesObjects" :key="dependency._id">
           <span>
-            {{ dependency.title }}
+            {{ dependency.title }} (shortId: {{ dependency._id.slice(-5) }})
             <b-button
               class="space3px"
               variant="danger"
@@ -25,7 +25,7 @@
         <p>Click on a red button to remove the condition for:</p>
         <div v-for="(condition) in conditionsObjects" :key="condition._id">
           <span>
-            {{ condition.title }}
+            {{ condition.title }} (shortId: {{ condition._id.slice(-5) }})
             <b-button
               class="space3px"
               variant="danger"
