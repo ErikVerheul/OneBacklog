@@ -27,7 +27,7 @@
         (Use the Details view to remove conditions on the PBI level)</p>
         <div v-for="(condition) in conditionsObjects" :key="condition._id">
           <span>
-            {{ condition.title }}
+            {{ condition.title }} (shortId: {{ condition._id.slice(-5) }})
             <b-button
               class="space3px"
               variant="danger"
