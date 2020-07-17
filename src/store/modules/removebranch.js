@@ -157,8 +157,8 @@ const actions = {
                             }
                             doc.conditionalFor = newConditionalFor
                             extCondsRemovedCount++
+                            docs.push(doc)
                         }
-                        docs.push(doc)
                     }
                 }
                 const toDispatch = [{ removeExternalDeps: payload }]
@@ -198,8 +198,8 @@ const actions = {
                             }
                             doc.dependencies = newDependencies
                             extDepsRemovedCount++
+                            docs.push(doc)
                         }
-                        docs.push(doc)
                     }
                 }
                 const toDispatch = [{ addRemoveHist: { node: payload.node, showUndoneMsg: payload.showUndoneMsg } }]
