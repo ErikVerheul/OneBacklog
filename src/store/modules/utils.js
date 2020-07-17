@@ -297,7 +297,7 @@ const actions = {
 			let updatedDoc = res.data
 			updatedDoc["defaultSprintCalendar"] = payload.newSprintCalendar
 			dispatch('updateDoc', {
-				dbName: payload.dbName, updatedDoc, onSuccessCallback: () => {
+				dbName: payload.dbName, updatedDoc, caller: 'saveDbDefaultSprintCalendar', onSuccessCallback: () => {
 					rootState.defaultSprintCalendar = payload.newSprintCalendar
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveDbDefaultSprintCalendar: calendar is saved' })
 					rootState.isDefaultSprintCalendarSaved = true

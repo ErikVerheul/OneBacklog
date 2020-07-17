@@ -7,12 +7,14 @@ const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
-var docsRemovedIds = []
-var removedDeps = {}
-var removedConds = {}
-var extDepsRemovedCount = 0
-var extCondsRemovedCount = 0
-var removedSprintIds = []
+var docsRemovedIds
+var removedDeps
+var removedConds
+var extDepsRemovedCount
+var extCondsRemovedCount
+var removedSprintIds
+var getChildrenDispatched
+var getChildrenReady
 
 function composeRangeString(id) {
     return `startkey="${id}"&endkey="${id}"`
@@ -34,23 +36,23 @@ function getLevelText(configData, level) {
     return configData.itemType[level]
 }
 
-var getChildrenRunning = 0
 const actions = {
     processItemsToRemove({
         rootState,
         dispatch
     }, payload) {
-        const toDispatch = {}
+        const toDispatch = []
+        const removedParentLevel = payload.node.level
         for (let doc of payload.results) {
             docsRemovedIds.push(doc._id)
             if (doc.dependencies && doc.dependencies.length > 0) {
                 for (let d of doc.dependencies) {
-                    removedDeps[d] = { dependentOn: doc._id, level: doc.level }
+                    removedDeps[d] = { dependentOn: doc._id, level: doc.level, removedParentLevel }
                 }
             }
             if (doc.conditionalFor && doc.conditionalFor.length > 0) {
                 for (let c of doc.conditionalFor) {
-                    removedConds[c] = { conditionalFor: doc._id, level: doc.Level }
+                    removedConds[c] = { conditionalFor: doc._id, level: doc.level, removedParentLevel }
                 }
             }
             if (doc.sprintId) removedSprintIds.push(doc.sprintId)
@@ -64,34 +66,36 @@ const actions = {
             }
             doc.history.unshift(newHist)
             // multiple instances can be dispatched
-            toDispatch.getChildrenToRemove = { node: payload.node, id: doc._id, showUndoneMsg: payload.showUndoneMsg }
+            getChildrenDispatched++
+            toDispatch.push({ getChildren: { node: payload.node, id: doc._id, showUndoneMsg: payload.showUndoneMsg } })
         }
         dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
     },
 
-    getChildrenToRemove({
+    getChildren({
         rootState,
         dispatch
     }, payload) {
-        console.log('getChildrenToRemove is called, getChildrenRunning = ' + getChildrenRunning)
-        getChildrenRunning++
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.id) + '&include_docs=true'
         }).then(res => {
-            getChildrenRunning--
+            getChildrenReady++
             const results = res.data.rows
+            // console.log('getChildren: results.length = ' + results.length + ', getChildrenDispatched = ' + getChildrenDispatched + ', getChildrenReady = ' + getChildrenReady + ', diff = ' + (getChildrenDispatched - getChildrenReady))
             if (results.length > 0) {
                 // process next level
                 dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), showUndoneMsg: payload.showUndoneMsg })
             } else {
-                if (getChildrenRunning === 0) {
-                    // db iteration ready
+                // db iteration ready?
+                if (getChildrenDispatched - getChildrenReady === 0) {
+                    // eslint-disable-next-line no-console
+                    console.log('getChildren: dispatching removeExternalConds')
                     dispatch('removeExternalConds', payload)
                 }
             }
         }).catch(error => {
-            let msg = 'removeBranch.getChildrenToRemove: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
+            let msg = 'removeBranch.getChildren: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -102,9 +106,16 @@ const actions = {
         rootState,
         dispatch
     }, payload) {
-        const id = payload.node._id
-        getChildrenRunning = 0
         docsRemovedIds = []
+        removedDeps = {}
+        removedConds = {}
+        extDepsRemovedCount = 0
+        extCondsRemovedCount = 0
+        removedSprintIds = []
+        getChildrenDispatched = 0
+        getChildrenReady = 0
+
+        const id = payload.node._id
         // get the document
         globalAxios({
             method: 'GET',
@@ -138,9 +149,8 @@ const actions = {
                 const docs = []
                 for (let r of results) {
                     const doc = r.docs[0].ok
-                    // removedDeps[d] = { dependentOn: doc._id, level: doc.Level }
                     if (doc) {
-                        if (doc.level < removedDeps[doc._id].level) {
+                        if (doc.level <= removedDeps[doc._id].removedParentLevel && doc.level < removedDeps[doc._id].level) {
                             const newConditionalFor = []
                             for (let c of doc.conditionalFor) {
                                 if (c !== removedDeps[doc._id].dependentOn) newConditionalFor.push(c)
@@ -151,7 +161,7 @@ const actions = {
                         docs.push(doc)
                     }
                 }
-                const toDispatch = { removeExternalDeps: payload }
+                const toDispatch = [{ removeExternalDeps: payload }]
                 dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalConds' })
             }).catch(e => {
                 let msg = 'removeExternalConds: Could not read batch of documents: ' + e
@@ -181,7 +191,7 @@ const actions = {
                 for (let r of results) {
                     const doc = r.docs[0].ok
                     if (doc) {
-                        if (doc.level < removedConds[doc._id].level) {
+                        if (doc.level <= removedConds[doc._id].removedParentLevel && doc.level < removedConds[doc._id].level) {
                             const newDependencies = []
                             for (let d of doc.dependencies) {
                                 if (d !== removedConds[doc._id].conditionalFor) newDependencies.push(d)
@@ -192,7 +202,7 @@ const actions = {
                         docs.push(doc)
                     }
                 }
-                const toDispatch = { addRemoveHist: { node: payload.node, showUndoneMsg: payload.showUndoneMsg } }
+                const toDispatch = [{ addRemoveHist: { node: payload.node, showUndoneMsg: payload.showUndoneMsg } }]
                 dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
             }).catch(e => {
                 let msg = 'removeExternalDeps: Could not read batch of documents: ' + e
@@ -230,12 +240,12 @@ const actions = {
             }
             doc.history.unshift(newHist)
 
-            const toDispatch = { 'addRemoveHist2': payload }
+            const toDispatch = [{ 'addRemoveHist2': payload }]
             if (payload.node.productId === AREA_PRODUCTID) {
                 // remove reqarea assignments
-                toDispatch.removeReqAreaAssignments = id
+                toDispatch.push({ removeReqAreaAssignments: id })
             }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch })
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, caller: 'addRemoveHist' })
         }).catch(error => {
             let msg = `addRemoveHist: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
             // eslint-disable-next-line no-console
@@ -273,7 +283,7 @@ const actions = {
             doc.history.unshift(newHist)
 
             dispatch('updateDoc', {
-                dbName: rootState.userData.currentDb, updatedDoc: doc, onSuccessCallback: () => {
+                dbName: rootState.userData.currentDb, updatedDoc: doc, caller: 'addRemoveHist2', onSuccessCallback: () => {
                     // FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
                     const itemsRemovedFromReqArea = []
                     if (payload.node.productId === AREA_PRODUCTID) {

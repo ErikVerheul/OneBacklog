@@ -41,6 +41,7 @@ const TASKLEVEL = 6
 const INFO = 0
 const WARNING = 1
 const AREA_PRODUCTID = 'requirement-areas'
+// keep track of removed products during this session
 var removedProducts = []
 
 // returns a new array so that it is reactive

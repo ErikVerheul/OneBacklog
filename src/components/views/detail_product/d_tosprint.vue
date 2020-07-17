@@ -13,6 +13,7 @@
 import { utilities } from '../../mixins/utilities.js'
 const PBILEVEL = 5
 const TASKLEVEL = 6
+// is initiated on component creation
 var recentSprints
 
 function shortStartDate(sprint) {

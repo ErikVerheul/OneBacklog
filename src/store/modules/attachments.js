@@ -87,7 +87,7 @@ const actions = {
                 tmpDoc.lastAttachmentAddition = payload.timestamp
 
                 dispatch('updateDoc', {
-                    dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+                    dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'uploadAttachmentAsync',
                     onSuccessCallback: () => {
                         rootState.uploadDone = true
                         commit('updateNodesAndCurrentDoc', { node: payload.node, _attachments: tmpDoc._attachments, lastAttachmentAddition: tmpDoc.lastAttachmentAddition, newHist })
@@ -131,7 +131,7 @@ const actions = {
                 // curentDoc is allready updated
                 tmpDoc._attachments = rootState.currentDoc._attachments
                 dispatch('updateDoc', {
-                    dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+                    dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'removeAttachmentAsync',
                     onSuccessCallback: () => {
                         commit('updateNodesAndCurrentDoc', { node: payload.node, lastAttachmentAddition: 0, lastAttachmentRemoval: tmpDoc.lastAttachmentRemoval, newHist })
                     }

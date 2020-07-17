@@ -6,6 +6,7 @@ const PBILEVEL = 5
 const TASKLEVEL = 6
 const MIN_ID = ""
 const MAX_ID = "999999999999zzzzz"
+// keep track of busy loading during this session
 var loadRequests = 0
 var busyLoading = false
 
@@ -253,11 +254,11 @@ const actions = {
 				}
 			}
 
-			const toDispatch = {
-				loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam },
+			const toDispatch = [
+				{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } },
 				// also trigger the reload of other sessions with this board open
-				triggerBoardReload: { parentId: 'messenger', sprintId: rootState.loadedSprintId }
-			}
+				{ triggerBoardReload: { parentId: 'messenger', sprintId: rootState.loadedSprintId } }
+			]
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 		}).catch(e => {
 			let msg = 'importInSprint: Could not read batch of documents: ' + e
@@ -340,9 +341,7 @@ const actions = {
 					}
 				}
 			}
-			const toDispatch = {
-				syncOtherPlanningBoards: { storyId: payload.storyId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds }
-			}
+			const toDispatch = [{ syncOtherPlanningBoards: { storyId: payload.storyId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds } }]
 
 			// must set history
 			for (let c of newChildren) {
@@ -419,7 +418,7 @@ const actions = {
 			}
 			tmpDoc.history.unshift(newHist)
 
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'syncOtherPlanningBoards' })
 		}).catch(error => {
 			let msg = 'setColor: Could not read document with _id ' + payload.storyId + ', ' + error
 			// eslint-disable-next-line no-console
@@ -448,7 +447,7 @@ const actions = {
 			// replace the history
 			tmpDoc.history = [newHist]
 
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc })
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'triggerBoardReload' })
 		}).catch(error => {
 			let msg = 'triggerBoardReload: Could not read document with _id ' + payload.parentId + ', ' + error
 			// eslint-disable-next-line no-console
@@ -494,7 +493,7 @@ const actions = {
 					docs.push(doc)
 				}
 			}
-			const toDispatch = { triggerBoardReload: payload }
+			const toDispatch = [{ triggerBoardReload: payload }]
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb, docs, toDispatch,
 				onSuccessCallback: () => {
@@ -562,7 +561,7 @@ const actions = {
 				}
 			}
 
-			const toDispatch = { triggerBoardReload: payload }
+			const toDispatch = [{ triggerBoardReload: payload }]
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb, docs, toDispatch,
 				onSuccessCallback: () => {
@@ -666,7 +665,7 @@ const actions = {
 				"delmark": false
 			}
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: newDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: newDoc, caller: 'boardAddTask',
 				onSuccessCallback: () => {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree data
@@ -745,7 +744,7 @@ const actions = {
 			doc.history.unshift(newHist)
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: doc,
+				dbName: rootState.userData.currentDb, updatedDoc: doc, caller: 'boardUpdateTaskTitle',
 				onSuccessCallback: () => {
 					// update the board
 					for (let s of rootState.stories) {
@@ -800,7 +799,7 @@ const actions = {
 			doc.history.unshift(newHist)
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: doc,
+				dbName: rootState.userData.currentDb, updatedDoc: doc, caller: 'boardUpdateTaskOwner',
 				onSuccessCallback: () => {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree model

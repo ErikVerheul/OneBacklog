@@ -78,7 +78,7 @@ const actions = {
                 if (rootState.debug) console.log(msg)
                 dispatch('doLog', { event: msg, level: ERROR })
             }
-            const toDispatch = { 'restoreParent': entry }
+            const toDispatch = [{ 'restoreParent': entry }]
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendents' })
         }).catch(e => {
             let msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + e
@@ -111,9 +111,9 @@ const actions = {
             updatedDoc.history.unshift(newHist)
 
             updatedDoc.delmark = false
-            const toDispatch = { 'updateGrandParentHist': entry }
+            const toDispatch = [{ 'updateGrandParentHist': entry }]
             dispatch('updateDoc', {
-                dbName: rootState.userData.currentDb, updatedDoc, toDispatch,
+                dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'restoreParent',
                 onSuccessCallback: () => {
                     // FOR PRODUCTS OVERVIEW ONLY: when undoing the removal of a requirement area, items must be reassigned to this area
                     if (entry.removedNode.productId === AREA_PRODUCTID) {
@@ -208,12 +208,12 @@ const actions = {
                 commit('showLastEvent', { txt: `The document representing the item to restore under was removed. The removal is made undone.`, severity: WARNING })
                 grandParentDoc.delmark = false
             }
-            const toDispatch = { 'restoreExtDepsAndConds': entry }
+            const toDispatch = [{ 'restoreExtDepsAndConds': entry }]
             if (entry.removedNode.productId === AREA_PRODUCTID) {
                 // restore the removed references to the requirement area
-                toDispatch.restoreReqarea = entry
+                toDispatch.push({ 'restoreReqarea': entry })
             }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch })
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch, caller: 'updateGrandParentHist' })
         }).catch(error => {
             let msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
             // eslint-disable-next-line no-console
@@ -243,7 +243,6 @@ const actions = {
             url: rootState.userData.currentDb + '/_bulk_get',
             data: { "docs": docsToGet }
         }).then(res => {
-            // console.log('restoreExtDepsAndConds: res = ' + JSON.stringify(res, null, 2))
             const results = res.data.results
             const docs = []
             const errors = []

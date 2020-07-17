@@ -2,6 +2,14 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 const ERROR = 2
 const INFO = 0
+// remove duplicates
+function dedup(arr) {
+    const dedupped = []
+    for (let el of arr) {
+        if (!dedupped.includes(el)) dedupped.push(el)
+    }
+    return dedupped
+}
 
 const actions = {
     /* Set one dependency with one corresponding condition */
@@ -27,9 +35,15 @@ const actions = {
             const prevLastChange = tmpDoc.lastChange || 0
             tmpDoc.lastChange = payload.timestamp
             payload.dependentOnPrevLastChange = prevLastChange
-            if (tmpDoc.dependencies) { tmpDoc.dependencies.push(payload.conditionalForNode._id) } else tmpDoc.dependencies = [payload.conditionalForNode._id]
-            const toDispatch = { alsoSetCondition: payload }
-            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch })
+
+            if (tmpDoc.dependencies) {
+                const deps = dedup(tmpDoc.dependencies)
+                deps.push(payload.conditionalForNode._id)
+                tmpDoc.dependencies = deps
+            } else tmpDoc.dependencies = [payload.conditionalForNode._id]
+
+            const toDispatch = [{ alsoSetCondition: payload }]
+            dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'setDepAndCond' })
         }).catch(error => {
             commit('showLastEvent', { txt: `Failed to se the dependency`, severity: ERROR })
             let msg = 'setDepAndCond: Could not read document with _id ' + id + ', ' + error
@@ -63,9 +77,14 @@ const actions = {
             const prevLastChange = tmpDoc.lastChange || 0
             tmpDoc.lastChange = payload.timestamp
 
-            if (tmpDoc.conditionalFor) { tmpDoc.conditionalFor.push(payload.dependentOnNode._id) } else tmpDoc.conditionalFor = [payload.dependentOnNode._id]
+            if (tmpDoc.conditionalFor) {
+                const conds = dedup(tmpDoc.conditionalFor)
+                conds.push(payload.dependentOnNode._id)
+                tmpDoc.conditionalFor = conds
+            } else tmpDoc.conditionalFor = [payload.dependentOnNode._id]
+
             dispatch('updateDoc', {
-                dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+                dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'alsoSetCondition',
                 onSuccessCallback: () => {
                     // no hist update for the dependentOnNode as the user selected the conditionalForNode at this time
                     commit('updateNodesAndCurrentDoc', { node: payload.dependentOnNode, addDependencyOn: payload.conditionalForNode._id, lastChange: timestamp })
@@ -120,8 +139,8 @@ const actions = {
 
             // add hist to payload
             payload.hist = newHist
-            const toDispatch = { alsoUndoSetConditionAsync: payload }
-            dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch })
+            const toDispatch = [{ alsoUndoSetConditionAsync: payload }]
+            dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'undoSetDependencyAsync' })
         }).catch(error => {
             commit('showLastEvent', { txt: `Dependency set undo failed`, severity: ERROR })
             let msg = 'undoSetDependencyAsync: Could not read document with _id ' + id + ', ' + error
@@ -156,7 +175,7 @@ const actions = {
             tmpDoc.lastChange = payload.conditionalForprevLastChange
 
             dispatch('updateDoc', {
-                dbName, updatedDoc: tmpDoc, onSuccessCallback: () => {
+                dbName, updatedDoc: tmpDoc, caller: 'alsoUndoSetConditionAsync', onSuccessCallback: () => {
                     commit('updateNodesAndCurrentDoc', { node: payload.dependentOnNode, removeLastDependencyOn: null, lastChange: payload.dependentOnPrevLastChange, newHist: payload.hist })
                     commit('updateNodesAndCurrentDoc', { node: payload.conditionalForNode, removeLastConditionalFor: null, lastChange: payload.conditionalForprevLastChange, newHist })
                     commit('showLastEvent', { txt: `Dependency set is undone`, severity: INFO })
@@ -197,8 +216,8 @@ const actions = {
 
             tmpDoc.lastChange = payload.timestamp
 
-            const toDispatch = { alsoRemoveConditions: payload }
-            dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch })
+            const toDispatch = [{ alsoRemoveConditions: payload }]
+            dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'removeDependenciesAsync' })
         }).catch(error => {
             let msg = 'removeDependenciesAsync: Could not read document with _id ' + id + ', ' + error
             // eslint-disable-next-line no-console
@@ -304,8 +323,8 @@ const actions = {
 
             tmpDoc.lastChange = payload.timestamp
 
-            const toDispatch = { alsoRemoveDependenciesAsync: payload }
-            dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch })
+            const toDispatch = [{ alsoRemoveDependenciesAsync: payload }]
+            dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'removeConditionsAsync' })
         }).catch(error => {
             let msg = 'removeConditionsAsync: Could not read document with _id ' + id + ', ' + error
             // eslint-disable-next-line no-console

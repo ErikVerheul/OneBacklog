@@ -5,6 +5,7 @@ const ERROR = 2
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const TASKLEVEL = 6
+// these vars are initiated when the product is loaded
 var newProductId
 var orgProductTitle
 var newProductTitle

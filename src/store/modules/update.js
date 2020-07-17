@@ -40,9 +40,9 @@ const actions = {
 			tmpDoc.lastChange = payload.timestamp
 			// add to payload
 			payload.oldParentReqArea = oldDocArea
-			const toDispatch = { 'updateReqAreaChildren': payload }
+			const toDispatch = [{ 'updateReqAreaChildren': payload }]
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'updateReqArea',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node: payload.node, reqarea: payload.reqarea, lastChange: payload.timestamp, newHist })
 				}
@@ -160,7 +160,7 @@ const actions = {
 			tmpDoc.history.unshift(newHist)
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'updateColorDb',
 				onSuccessCallback: () => {
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -170,7 +170,7 @@ const actions = {
 							prevColor
 						}
 						rootState.changeHistory.unshift(entry)
-					}  else commit('showLastEvent', { txt: `Change of requirement area color indication is undone`, severity: INFO })
+					} else commit('showLastEvent', { txt: `Change of requirement area color indication is undone`, severity: INFO })
 					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor, newHist })
 					commit('updateColorMapper', { id, newColor: payload.newColor })
 				}
@@ -218,7 +218,7 @@ const actions = {
 			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'changeSubsription',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, followers: tmpFollowers, lastChange: payload.timestamp, newHist })
 				}
@@ -257,7 +257,7 @@ const actions = {
 
 			tmpDoc.tssize = payload.newSizeIdx
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'setTsSize',
 				onSuccessCallback: () => {
 					commit('showLastEvent', { txt: `The T-shirt size of this item is changed`, severity: INFO })
 					commit('updateNodesAndCurrentDoc', { node, tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
@@ -307,7 +307,7 @@ const actions = {
 
 			tmpDoc.spikepersonhours = payload.newHrs
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'setPersonHours',
 				onSuccessCallback: () => {
 					commit('showLastEvent', { txt: `The maximum effort of this spike is changed`, severity: INFO })
 					commit('updateNodesAndCurrentDoc', { node, spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
@@ -358,7 +358,7 @@ const actions = {
 			const prevLastChange = tmpDoc.lastChange || 0
 			tmpDoc.lastChange = payload.timestamp
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'setStoryPoints',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
@@ -410,7 +410,7 @@ const actions = {
 			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'setState',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
 					// recalculate and (re)set the inconsistency state of the parent item
@@ -476,12 +476,12 @@ const actions = {
 				tmpDoc.lastChange = payload.timestamp
 
 				tmpDoc.team = payload.newTeam
-				const toDispatch = descendantsInfo.count > 0 ? {
-					'setTeamDescendantsBulk': { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: descendantsInfo.descendants }
-				} : undefined
+				const toDispatch = descendantsInfo.count > 0 ? [
+					{ 'setTeamDescendantsBulk': { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: descendantsInfo.descendants } }
+				] : undefined
 
 				dispatch('updateDoc', {
-					dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch,
+					dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'assignToMyTeam',
 					onSuccessCallback: () => {
 						// update the tree
 						for (let d of descendantsInfo.descendants) {
@@ -598,7 +598,7 @@ const actions = {
 
 			tmpDoc.title = payload.newTitle
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'setDocTitle',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
@@ -647,7 +647,7 @@ const actions = {
 			const oldSubType = tmpDoc.subtype
 			tmpDoc.subtype = payload.newSubType
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'setSubType',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
 					if (payload.createUndo) {
@@ -700,7 +700,7 @@ const actions = {
 
 			tmpDoc.description = newEncodedDescription
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'saveDescription',
 				onSuccessCallback: () => {
 					// no need to update in the currentDoc, the changed version is already in view or will be updated if the item is selected
 					commit('updateNodesAndCurrentDoc', { node, lastContentChange: payload.timestamp, newHist })
@@ -754,7 +754,7 @@ const actions = {
 
 			tmpDoc.acceptanceCriteria = newEncodedAcceptance
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'saveAcceptance',
 				onSuccessCallback: () => {
 					// no need to update in the currentDoc, the changed version is already in view or will be updated if the item is selected
 					commit('updateNodesAndCurrentDoc', { node, lastContentChange: payload.timestamp, newHist })
@@ -803,7 +803,7 @@ const actions = {
 			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'addComment',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, newComment, lastCommentAddition: payload.timestamp })
 				}
@@ -842,7 +842,7 @@ const actions = {
 			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc,
+				dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'addHistoryComment',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: payload.timestamp, newHist })
 				}
@@ -872,18 +872,19 @@ const actions = {
 		}).then(() => {
 			// execute passed function if provided
 			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
-			// additional dispatches
 			if (payload.toDispatch) {
-				for (let name of Object.keys(payload.toDispatch)) {
+				// additional dispatches
+				for (let td of payload.toDispatch) {
+					const name = Object.keys(td)[0]
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('updateDoc: dispatching ' + name)
-					dispatch(name, payload.toDispatch[name])
+					if (rootState.debug) console.log('updateBulk: dispatching ' + name)
+					dispatch(name, td[name])
 				}
 			}
 		}).catch(error => {
 			// execute passed function if provided
 			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
-			const msg = 'updateDoc: Could not write document with url ' + payload.dbName + '/' + id + ', ' + error
+			const msg = `updateDoc: (called by ${payload.caller}) Could not write document with url ${payload.dbName}/${id}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -896,8 +897,6 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		// eslint-disable-next-line no-console
-		if (rootState.debug && payload.caller) console.log('updateBulk is called by ' + payload.caller)
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_docs',
@@ -916,7 +915,6 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			if (updateConflict > 0 || otherError > 0) {
-				console.log('updateBulk: res.data = ' + JSON.stringify(res.data, null, 2))
 				dispatch('doLog', { event: msg, level: WARNING })
 				// execute passed function if provided
 				if (payload.onFailureCallback !== undefined) {
@@ -925,18 +923,19 @@ const actions = {
 			} else {
 				// execute passed function if provided
 				if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
-				// additional dispatches
 				if (payload.toDispatch) {
-					for (let name of Object.keys(payload.toDispatch)) {
+					// additional dispatches
+					for (let td of payload.toDispatch) {
+						const name = Object.keys(td)[0]
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log('updateBulk: dispatching ' + name)
-						dispatch(name, payload.toDispatch[name])
+						dispatch(name, td[name])
 					}
 				}
 			}
 		}).catch(error => {
 			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
-			let msg = 'updateBulk: Could not update batch of documents: ' + error
+			let msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents, ${error}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
@@ -1007,7 +1006,7 @@ const actions = {
 			}
 			updatedDoc.lastChange = Date.now()
 			updatedDoc.history.unshift(parentHist)
-			const toDispatch = {
+			const toDispatch = [{
 				'updateDoc': {
 					dbName: rootState.userData.currentDb, updatedDoc: payload.newDoc, onSuccessCallback: () => {
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -1021,8 +1020,8 @@ const actions = {
 						commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: INFO })
 					}
 				}
-			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch })
+			}]
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'createDocWithParentHist' })
 		}).catch(error => {
 			let msg = 'createDocWithParentHist: Could not read parent document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console

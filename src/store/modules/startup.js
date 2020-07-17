@@ -353,8 +353,8 @@ const actions = {
         // replace the defaultSprintCalendar or other team calendar with this team calendar
         rootState.sprintCalendar = extTeamCalendar
         // update the team with the extended team calendar and continue loading the tree model
-        const toDispatch = { getRoot: null }
-        dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch })
+        const toDispatch = [{ getRoot: null }]
+        dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, caller: 'extendTeamCalendar' })
     },
 
     /* Load the root of the backlog items into the current document */

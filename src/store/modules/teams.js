@@ -16,7 +16,7 @@ const actions = {
 			let tmpUserData = res.data
 			const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
 			tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
-			const toDispatch = { 'updateTeamsInDb': { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } }
+			const toDispatch = [{ 'updateTeamsInDb': { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } }]
 			dispatch('updateUser', { data: tmpUserData, toDispatch })
 		}).catch(error => {
 			let msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + ',' + error
@@ -62,6 +62,7 @@ const actions = {
 				dispatch('updateDoc', {
 					dbName,
 					updatedDoc: newDoc,
+					caller: 'addTeamToDb',
 					onSuccessCallback: () => {
 						rootState.isTeamCreated = true
 						rootState.allTeams[teamName] = { id: payload.id, members: [] }
@@ -109,7 +110,7 @@ const actions = {
 					docsToRemove.push(doc)
 				}
 			}
-			const toDispatch = { 'retireTeams': { dbName, teamNamesToRetire: teamNamesToRemove } }
+			const toDispatch = [{ 'retireTeams': { dbName, teamNamesToRetire: teamNamesToRemove } }]
 			dispatch('updateBulk', {
 				dbName,
 				docs: docsToRemove,
@@ -222,7 +223,7 @@ const actions = {
 					}
 					newTeamDoc.history.unshift(joinHist)
 
-					const toDispatch = {
+					const toDispatch = [{
 						'updateDoc': {
 							dbName,
 							updatedDoc: newTeamDoc,
@@ -250,8 +251,8 @@ const actions = {
 								dispatch('doLog', { event: msg, level: INFO })
 							},
 						}
-					}
-					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc, toDispatch })
+					}]
+					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc, toDispatch, caller: 'updateTeamsInDb' })
 				} else {
 					if (!oldTeamDoc) commit('showLastEvent', { txt: `Team '${payload.oldTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: WARNING })
 					if (!newTeamDoc) commit('showLastEvent', { txt: `Team '${payload.newTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: WARNING })

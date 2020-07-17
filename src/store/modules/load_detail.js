@@ -7,9 +7,9 @@ const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
-var parentNodes = {}
-var orphansFound = []
-var levelErrorsFound = []
+var parentNodes
+var orphansFound
+var levelErrorsFound
 
 const state = {
     docsCount: 0,
@@ -183,6 +183,9 @@ const actions = {
         commit,
         dispatch
     }) {
+        parentNodes = {}
+        orphansFound = []
+        levelErrorsFound = []
         const _id = rootState.currentDefaultProductId
         globalAxios({
             method: 'GET',

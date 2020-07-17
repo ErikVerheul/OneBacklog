@@ -7,7 +7,6 @@ const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
-var violationsWereFound = false
 
 function created() {
   this.onholdState = 1
@@ -112,7 +111,8 @@ function data() {
     fileInfo: null,
     newHistory: "",
     filterForCommentPrep: "",
-    filterForHistoryPrep: ""
+    filterForHistoryPrep: "",
+    violationsWereFound: false
   }
 }
 
@@ -199,16 +199,16 @@ const methods = {
   dependencyViolationsFound() {
     const violations = window.slVueTree.findDependencyViolations()
     if (violations.length > 0) {
-      violationsWereFound = true
+      this.violationsWereFound = true
       this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', WARNING)
       for (let v of violations) {
         window.slVueTree.showDependencyViolations(v)
       }
     } else {
-      if (violationsWereFound) this.clearLastEvent()
-      violationsWereFound = false
+      if (this.violationsWereFound) this.clearLastEvent()
+      this.violationsWereFound = false
     }
-    return violationsWereFound
+    return this.violationsWereFound
   },
 
   stopFiltering() {

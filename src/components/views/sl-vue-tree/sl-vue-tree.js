@@ -847,7 +847,15 @@ const methods = {
 
 	/* When nodes are deleted orphan dependencies can be created. This method removes them. */
 	correctDependencies(productId, nodeIds) {
-		console.log('correctDependencies is executed')
+		// remove duplicates
+		function dedup(arr) {
+			const dedupped = []
+			for (let el of arr) {
+				if (!dedupped.includes(el)) dedupped.push(el)
+			}
+			return dedupped
+		}
+
 		const removedIntDependencies = []
 		const removedIntConditions = []
 		const removedExtDependencies = []
@@ -857,7 +865,7 @@ const methods = {
 				const newDependencies = []
 				if (nodeIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
-					for (let d of nm.dependencies) {
+					for (let d of dedup(nm.dependencies)) {
 						// dependency references within the deleted nodes survive
 						if (nodeIds.includes(d)) {
 							newDependencies.push(d)
@@ -865,22 +873,23 @@ const methods = {
 					}
 				} else {
 					// nm is an outsider
-					for (let d of nm.dependencies) {
+					for (let d of dedup(nm.dependencies)) {
 						// outsider references not referencing any of the nodes survive
 						if (!nodeIds.includes(d)) {
 							newDependencies.push(d)
-						} else removedExtDependencies.push({ id: nm._id, dependentOn: d })
+						} else {
+							removedExtDependencies.push({ id: nm._id, dependentOn: d })
+						}
 					}
 				}
 				nm.dependencies = newDependencies
-				console.log('correctDependencies: nm.dependencies = ' + nm.dependencies + ', node.title = ' + nm.title)
 			}
 
 			if (nm.conditionalFor && nm.conditionalFor.length > 0) {
 				const newConditionalFor = []
 				if (nodeIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
-					for (let c of nm.conditionalFor) {
+					for (let c of dedup(nm.conditionalFor)) {
 						// dependency references within the deleted nodes survive
 						if (nodeIds.includes(c)) {
 							newConditionalFor.push(c)
@@ -888,15 +897,16 @@ const methods = {
 					}
 				} else {
 					// nm is an outsider
-					for (let c of nm.conditionalFor) {
+					for (let c of dedup(nm.conditionalFor)) {
 						// outsider references not referencing any of the nodes survive
 						if (!nodeIds.includes(c)) {
 							newConditionalFor.push(c)
-						} else removedExtConditions.push({ id: nm._id, conditionalFor: c })
+						} else {
+							removedExtConditions.push({ id: nm._id, conditionalFor: c })
+						}
 					}
 				}
 				nm.conditionalFor = newConditionalFor
-				console.log('correctDependencies: nm.conditionalFor = ' + nm.conditionalFor + ', node.title = ' + nm.title)
 			}
 		}, this.getProductModels(productId))
 		return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }

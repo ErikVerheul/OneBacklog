@@ -359,10 +359,14 @@ export default new Vuex.Store({
 								// not stored in the node
 								break
 							case 'addConditionalFor':
-								if (node.conditionalFor) { node.conditionalFor.push(payload.addConditionalFor) } else node.conditionalFor = [payload.addConditionalFor]
+								if (node.conditionalFor) {
+									if (!node.conditionalFor.includes(payload.addConditionalFor)) node.conditionalFor.push(payload.addConditionalFor)
+								} else node.conditionalFor = [payload.addConditionalFor]
 								break
 							case 'addDependencyOn':
-								if (node.dependencies) { node.dependencies.push(payload.addDependencyOn) } else node.dependencies = [payload.addDependencyOn]
+								if (node.dependencies) {
+									if (!node.dependencies.includes(payload.addDependencyOn))node.dependencies.push(payload.addDependencyOn)
+								} else node.dependencies = [payload.addDependencyOn]
 								break
 							case 'conditionsremoved':
 								node.conditionalFor = payload.conditionsremoved
@@ -530,10 +534,14 @@ export default new Vuex.Store({
 									state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
 									break
 								case 'addConditionalFor':
-									if (state.currentDoc.conditionalFor) { state.currentDoc.conditionalFor.push(payload.addConditionalFor) } else state.currentDoc.conditionalFor = payload.addConditionalFor
+									if (state.currentDoc.conditionalFor) {
+										if (!state.currentDoc.conditionalFor.includes(payload.addConditionalFor)) state.currentDoc.conditionalFor.push(payload.addConditionalFor)
+									} else state.currentDoc.conditionalFor = [payload.addConditionalFor]
 									break
 								case 'addDependencyOn':
-									if (state.currentDoc.dependencies) { state.currentDoc.dependencies.push(payload.addDependencyOn) } else state.currentDoc.dependencies = payload.addDependencyOn
+									if (state.currentDoc.dependencies) {
+										if (!state.currentDoc.dependencies.includes(payload.addDependencyOn))state.currentDoc.dependencies.push(payload.addDependencyOn)
+									} else state.currentDoc.dependencies = [payload.addDependencyOn]
 									break
 								case 'conditionsremoved':
 									state.currentDoc.conditionalFor = payload.conditionsremoved
@@ -926,8 +934,8 @@ export default new Vuex.Store({
 			state
 		}, authData) {
 			function create_UUID() {
-				var dt = Date.now()
-				var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+				let dt = Date.now()
+				let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
 					let r = (dt + Math.random() * 16) % 16 | 0
 					dt = Math.floor(dt / 16)
 					return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16)

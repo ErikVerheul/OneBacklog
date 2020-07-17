@@ -5,7 +5,8 @@ import { eventBus } from '../../../main'
 
 const WARNING = 1
 const PBILEVEL = 5
-var movedNode = null
+// is initiated in method moveItemToOtherProduct
+var movedNode
 
 function created() {
   this.PBITOSPRINT = 11

@@ -5,9 +5,9 @@ const INFO = 0
 const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 const AREA_PRODUCTID = 'requirement-areas'
-var parentNodes = {}
-var orphansFound = []
-var levelErrorsFound = []
+var parentNodes
+var orphansFound
+var levelErrorsFound
 
 const state = {
     docsCount: 0,
@@ -23,6 +23,9 @@ const actions = {
         state,
         commit
     }) {
+        parentNodes = {}
+        orphansFound = []
+        levelErrorsFound = []
         globalAxios({
             method: 'GET',
             url: rootState.userData.currentDb + '/_design/design1/_view/overview'

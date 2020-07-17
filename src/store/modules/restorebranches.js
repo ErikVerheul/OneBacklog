@@ -7,7 +7,9 @@ const PRODUCTLEVEL = 2
 const FEATURELEVEL = 4
 var fromHistory
 var histArray
-var newDefaultId
+var newDefaultProductId
+var startRestore
+var getChildrenRunning
 
 function composeRangeString(id) {
     return `startkey="${id}"&endkey="${id}"`
@@ -49,8 +51,6 @@ function convertToResults(docs) {
     return results
 }
 
-var startRestore = true
-var getChildrenRunning = 0
 const actions = {
     processItems({
         rootState,
@@ -184,7 +184,7 @@ const actions = {
                     }
                 } else {
                     // select the product node in the tree
-                    if (_id === newDefaultId) window.slVueTree.selectNodeById(newDefaultId)
+                    if (_id === newDefaultProductId) window.slVueTree.selectNodeById(newDefaultProductId)
                 }
                 dispatch('getChildren', { _id, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
             } else {
@@ -255,7 +255,7 @@ const actions = {
         rootState,
         dispatch
     }, payload) {
-        newDefaultId = payload.newDefaultId
+        newDefaultProductId = payload.newDefaultProductId
         const docsToGet = []
         for (let id of payload.missingIds) {
             docsToGet.push({ "id": id })
