@@ -2,13 +2,16 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 const ERROR = 2
 const INFO = 0
-// remove duplicates
+
+// remove duplicates; return an empty array if arr is not defined or null
 function dedup(arr) {
-    const dedupped = []
-    for (let el of arr) {
-        if (!dedupped.includes(el)) dedupped.push(el)
-    }
-    return dedupped
+    if (arr) {
+        const dedupped = []
+        for (let el of arr) {
+            if (!dedupped.includes(el)) dedupped.push(el)
+        }
+        return dedupped
+    } else return []
 }
 
 const actions = {

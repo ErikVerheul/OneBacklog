@@ -376,7 +376,7 @@ const methods = {
 		// sort the nodes on priority (highest first)
 		this.draggableNodes.sort((h, l) => l.data.priority - h.data.priority)
 
-		this.emitDrop( this.draggableNodes, this.cursorPosition)
+		this.emitDrop(this.draggableNodes, this.cursorPosition)
 		this.stopDrag()
 	},
 
@@ -847,13 +847,15 @@ const methods = {
 
 	/* When nodes are deleted orphan dependencies can be created. This method removes them. */
 	correctDependencies(productId, nodeIds) {
-		// remove duplicates
+		// remove duplicates; return an empty array if arr is not defined or null
 		function dedup(arr) {
-			const dedupped = []
-			for (let el of arr) {
-				if (!dedupped.includes(el)) dedupped.push(el)
-			}
-			return dedupped
+			if (arr) {
+				const dedupped = []
+				for (let el of arr) {
+					if (!dedupped.includes(el)) dedupped.push(el)
+				}
+				return dedupped
+			} else return []
 		}
 
 		const removedIntDependencies = []
