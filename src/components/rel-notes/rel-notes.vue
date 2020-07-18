@@ -6,6 +6,27 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.0.0 - 18 July 2020 Feature complete release</h3>
+          <p>New features:</p>
+          <ul>
+            <li>On-hold column added to the planning board</li>
+            <li>Some missing udo's implemented</li>
+            <li>Automatic sprint calendar extension when no more sprints available</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix bug when deleting items from the Products overview (no more orphans left)</li>
+            <li>Fix bug when deleting/(undoing this delete) of items with dependencies to items not deleted</li>
+            <li>Repaint the planning board after a deletion, of items in another user's session, is completed successfully</li>
+          </ul>
+          <p>Design changes:</p>
+          <ul>
+            <li>Generic overhaul of access rights</li>
+            <li>'Removed' is not a status anymore. Use On-hold instead, or delete the item</li>
+            <li>Always update the database first before repainting the tree view or the planning board,<br/>
+             with the exception of tree view drag &amp; drop where immediate response is paramount</li>
+          </ul>
+          <hr />
           <h3>v.0.9.9 - 12 June 2020 Feature update and bug fixes</h3>
           <p>New features:</p>
           <ul>

@@ -1,6 +1,27 @@
 # OneBacklog
 
-> A Vue.js web application. Licenced under GPL-3.0-or-later See LICENCE.txt
+A Vue.js web application. Licenced under GPL-3.0-or-later See LICENCE.txt
+
+***********************************************************************************
+With version 1.0.0 the app is feature complete with the basics:
+- security and authorization
+- tree view of the backlog
+- drag & drop backlog prioritization
+- build in editor for the item description and the acceptance criteria
+- assignment of requirement areas
+- dependencies between items
+- a state consistency check
+- team assignment to items
+- a generic and team calendars for the sprints
+- a sprint planning board
+- comments, history and attachments
+- two way sycnchronization between backlog and planning board
+- synchronization between user sessions, both for the tree view and the planning board
+- a set of admin functions for backup/restore, user maintenance etc.
+- automatic initiation of the first and possibly more databases
+
+PLEASE RAISE AN ISSUE WHEN YOU FIND A DEFECT OR WANT TO ADD A GREAT FEATURE!
+***********************************************************************************
 
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
 
@@ -107,7 +128,7 @@ Developers can create new pbi's for their product(s) but not change priorities i
 Viewers can only read the information of the products assigned to them.
 
 <b>Non functional requirements:</b>
-Up to 100 simultaneous users, smooth tree view response up to 200 visible nodes. The database can handle an unlimited number of items. Updates by other users are available within 1 second with a ADSL Internet connection. Notification of network connection loss and automatic recovery.
+The number of simultaneous users viewing changes, made by a reasonable (not tested yet) number of users, is unlimited. The browser limits a smooth tree view response to approximately 200 visible nodes. The database can handle an unlimited number of items. Updates by other users are available within 1 second with a ADSL Internet connection. Notification of network connection loss and automatic recovery.
 
 ## Implementation
 
