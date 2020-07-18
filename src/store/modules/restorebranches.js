@@ -11,12 +11,15 @@ var newDefaultProductId
 var startRestore
 var getChildrenRunning
 
-// remove duplicates; return an empty array if arr is not defined or null
+/* Remove duplicates; return an empty array if arr is not defined or null */
 function dedup(arr) {
+    function containsObject(obj, list) {
+        return list.some(el => el === obj)
+    }
     if (arr) {
         const dedupped = []
         for (let el of arr) {
-            if (!dedupped.includes(el)) dedupped.push(el)
+            if (!containsObject(el, dedupped)) dedupped.push(el)
         }
         return dedupped
     } else return []
@@ -181,19 +184,7 @@ const actions = {
                     placement: locationInfo.newInd === 0 ? 'inside' : 'after'
                 }, [newNode], false)
 
-                if (fromHistory) {
-                    // restore external dependencies
-                    const dependencies = dedup(histArray[2])
-                    for (let d of dependencies) {
-                        const node = window.slVueTree.getNodeById(d.id)
-                        if (node !== null) node.dependencies.push(d.dependentOn)
-                    }
-                    const conditionalFor = dedup(histArray[4])
-                    for (let c of conditionalFor) {
-                        const node = window.slVueTree.getNodeById(c.id)
-                        if (node !== null) node.conditionalFor.push(c.conditionalFor)
-                    }
-                } else {
+                if (!fromHistory) {
                     // select the product node in the tree
                     if (_id === newDefaultProductId) window.slVueTree.selectNodeById(newDefaultProductId)
                 }
@@ -225,6 +216,21 @@ const actions = {
             } else startRestore = false
 
             if (!startRestore && getChildrenRunning === 0) {
+                // nodes are restored
+                if (fromHistory) {
+                    // restore external dependencies
+                    const dependencies = dedup(histArray[2])
+                    for (let d of dependencies) {
+                        const node = window.slVueTree.getNodeById(d.id)
+                        if (node !== null) node.dependencies.push(d.dependentOn)
+                    }
+                    // restore external conditions
+                    const conditionalFor = dedup(histArray[4])
+                    for (let c of conditionalFor) {
+                        const node = window.slVueTree.getNodeById(c.id)
+                        if (node !== null) node.conditionalFor.push(c.conditionalFor)
+                    }
+                }
                 // execute passed function if provided
                 if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
                 // additional dispatches

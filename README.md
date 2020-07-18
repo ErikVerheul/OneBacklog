@@ -1,6 +1,6 @@
 # OneBacklog
 
-> A Vue.js application. Licenced under GPL-3.0-or-later See LICENCE.txt
+> A Vue.js web application. Licenced under GPL-3.0-or-later See LICENCE.txt
 
 ![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
 
@@ -11,11 +11,14 @@ As Product Owner (PO) I need one integrated tool to manage the product backlog o
 - I can map my portfolio in one tool
 - My area product owner (APO) manages the cross product requirement area backlog so that multiple teams get aligned to deliver the highest value first
 - Dependencies within products are made visible so that the team and myself can act upon it
-- IN PROGRESS (hight priority now because of the Corona virus): Scrum teams can use the tool to do their refinements and run their sprints
+- Scrum teams can use the tool to do their refinements and run their sprints
 - Only PO's are authorized to change priorities
 - The tool runs in a browser and is accessible only by authorized users
 - Full security is in place
 - The tool must be intuitive and self explaining, advanced features should not decrease usability for basic usage
+
+And, now that most teams have to work from home due to the Corona virus:
+- The tool offers immediate replication of changes made to the tree product backlog item structure and the planning board.
 
 <p>Larger organizations have multiple PO's and several requirement Areas PO's (APOs). The APOs and the PO together form a team, the Product Owner Team. This team makes product-wide prioritization decisions, but the PO always has the final decision. Also, scope and schedule decisions stay with the PO, he decides when to release what. See https://less.works/less/less-huge/area-product-owner</p>
 
@@ -69,7 +72,7 @@ When a defect is found after a Pbi is set to done a defect Pbi is created with a
 - the team that refines a pbi becomes the owner of that pbi
 - pbi's are estimated by that team
 
-[IN PROGRESS]: <b>Sprint backlog and planning board:</b><br />
+<b>Sprint backlog and planning board:</b><br />
 The use of the electronic planning board is optional and only advised for use when team members are (need to be) remote
 - a sprint is dedicated to the increment of one product only; The tool should enforce this
 - the team selects the pbi's to work on
@@ -94,18 +97,17 @@ The use of the electronic planning board is optional and only advised for use wh
 - <b>removed</b> (when created by mistake, eg. a duplicate)
 
 <b>Dependencies:</b><br />
-Dependencies can be set and maintained. When item B is dependent on A item A is conditional for item B. Item A and must have a higher priority than item B; The tool should enforce this. Circular dependencies are not allowed; The tool should enforce this also.
+Dependencies can be set and maintained. When item B is dependent on A item A is conditional for item B. Item A and must have a higher priority than item B; The tool warns the user when violated. Circular dependencies are not allowed; The tool should enforce this.
 
 <b>Automatic sync with other user's updates</b><br />
-When more users work on the backlog of the same product the client presentation is updated automatically (no screen refresh needed) of changes made by other users.
-
+When more users work on the backlog of the same product the client presentation is updated automatically (no screen refresh needed) of changes made by other users. The same is true when team members share the planning board to discuss progress or plan for the next sprint.
 <b>Role based authorization:</b><br />
 The server admin has the privileges as set by CouchDB. The product admins have all privileges for their product(s) like user assignment. Product owners have the rights to change priorities for their products. A superPO has admin rights for all products and can create new products.
 Developers can create new pbi's for their product(s) but not change priorities in the backlog.
 Viewers can only read the information of the products assigned to them.
 
 <b>Non functional requirements:</b>
-Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Updates by other users should be available within 1 second. Notification of network connection loss and automatic recovery.
+Up to 100 simultaneous users, smooth tree view response up to 200 visible nodes. The database can handle an unlimited number of items. Updates by other users are available within 1 second with a ADSL Internet connection. Notification of network connection loss and automatic recovery.
 
 ## Implementation
 
@@ -120,8 +122,8 @@ Up to 100 simultaneous users, smooth tree view response up to 5000 nodes. Update
 <div>
     For performance reasons the size of the browser DOM is kept small. That's why there are two main views:
     <ul>
-        <li>The 'Product detail' view of all products assigned to the user up to the PBI (TO DO: task) level. Only one product can be expanded. The user can select a subset of products to be shown and a default product to expand on load. The PO can update and move items within that product and set dependencies.</li>
-        <li>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items. The PO can set dependencies on items residing in different products, an undesirable situation, that can possibly be undone by moving items from one product to the other.</li>
+        <li>The 'Product detail' view of all products assigned to the user up to the task level. Only one product can be expanded. The user can select a subset of products to be shown and a default product to expand on load. The PO can update and move items within that product and set dependencies.</li>
+        <li>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items. The PO can set dependencies between items in the same product and on items residing in different products. The latter is an undesirable situation, that can be undone by moving items from one product to the other.</li>
     </ul>
 </div>
 

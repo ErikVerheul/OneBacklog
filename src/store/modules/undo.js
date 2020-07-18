@@ -315,7 +315,7 @@ const actions = {
                 if (doc) {
                     doc.reqarea = entry.removedNode._id
                     const newHist = {
-                        "ignoreEvent": ['restoreExtDepsAndConds'],
+                        "ignoreEvent": ['restoreReqarea'],
                         "timestamp": Date.now(),
                         "distributeEvent": false
                     }

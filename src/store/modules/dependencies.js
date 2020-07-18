@@ -3,12 +3,15 @@ import globalAxios from 'axios'
 const ERROR = 2
 const INFO = 0
 
-// remove duplicates; return an empty array if arr is not defined or null
+/* Remove duplicates; return an empty array if arr is not defined or null */
 function dedup(arr) {
+    function containsObject(obj, list) {
+        return list.some(el => el === obj)
+    }
     if (arr) {
         const dedupped = []
         for (let el of arr) {
-            if (!dedupped.includes(el)) dedupped.push(el)
+            if (!containsObject(el, dedupped)) dedupped.push(el)
         }
         return dedupped
     } else return []

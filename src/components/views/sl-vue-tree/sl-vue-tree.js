@@ -846,13 +846,16 @@ const methods = {
 	},
 
 	/* When nodes are deleted orphan dependencies can be created. This method removes them. */
-	correctDependencies(productId, nodeIds) {
-		// remove duplicates; return an empty array if arr is not defined or null
+	correctDependencies(productId, removedItemIds) {
+		/* Remove duplicates; return an empty array if arr is not defined or null */
 		function dedup(arr) {
+			function containsObject(obj, list) {
+				return list.some(el => el === obj)
+			}
 			if (arr) {
 				const dedupped = []
 				for (let el of arr) {
-					if (!dedupped.includes(el)) dedupped.push(el)
+					if (!containsObject(el, dedupped)) dedupped.push(el)
 				}
 				return dedupped
 			} else return []
@@ -865,11 +868,11 @@ const methods = {
 		this.traverseModels((nm) => {
 			if (nm.dependencies && nm.dependencies.length > 0) {
 				const newDependencies = []
-				if (nodeIds.includes(nm._id)) {
+				if (removedItemIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
 					for (let d of dedup(nm.dependencies)) {
 						// dependency references within the deleted nodes survive
-						if (nodeIds.includes(d)) {
+						if (removedItemIds.includes(d)) {
 							newDependencies.push(d)
 						} else removedIntDependencies.push({ id: nm._id, dependentOn: d })
 					}
@@ -877,7 +880,7 @@ const methods = {
 					// nm is an outsider
 					for (let d of dedup(nm.dependencies)) {
 						// outsider references not referencing any of the nodes survive
-						if (!nodeIds.includes(d)) {
+						if (!removedItemIds.includes(d)) {
 							newDependencies.push(d)
 						} else {
 							removedExtDependencies.push({ id: nm._id, dependentOn: d })
@@ -889,11 +892,11 @@ const methods = {
 
 			if (nm.conditionalFor && nm.conditionalFor.length > 0) {
 				const newConditionalFor = []
-				if (nodeIds.includes(nm._id)) {
+				if (removedItemIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
 					for (let c of dedup(nm.conditionalFor)) {
 						// dependency references within the deleted nodes survive
-						if (nodeIds.includes(c)) {
+						if (removedItemIds.includes(c)) {
 							newConditionalFor.push(c)
 						} else removedIntConditions.push({ id: nm._id, conditionalFor: c })
 					}
@@ -901,7 +904,7 @@ const methods = {
 					// nm is an outsider
 					for (let c of dedup(nm.conditionalFor)) {
 						// outsider references not referencing any of the nodes survive
-						if (!nodeIds.includes(c)) {
+						if (!removedItemIds.includes(c)) {
 							newConditionalFor.push(c)
 						} else {
 							removedExtConditions.push({ id: nm._id, conditionalFor: c })
