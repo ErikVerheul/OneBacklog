@@ -1,4 +1,4 @@
-import { utilities } from '../../mixins/utilities.js'
+import { utilities } from '../../mixins/generic.js'
 import CommonFilters from '../common_filters.js'
 
 const INFO = 0

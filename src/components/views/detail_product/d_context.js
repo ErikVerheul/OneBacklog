@@ -1,4 +1,4 @@
-import { utilities } from '../../mixins/utilities.js'
+import { utilities } from '../../mixins/generic.js'
 import { mapGetters } from 'vuex'
 import CommonContext from '../common_context.js'
 import { eventBus } from '../../../main'

@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { utilities, authorization } from '../../mixins/utilities.js'
+import { utilities, authorization } from '../../mixins/generic.js'
 import { mapGetters } from 'vuex'
 const TASKLEVEL = 6
 

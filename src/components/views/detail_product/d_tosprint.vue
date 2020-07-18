@@ -10,7 +10,7 @@
 
 
 <script>
-import { utilities } from '../../mixins/utilities.js'
+import { utilities } from '../../mixins/generic.js'
 const PBILEVEL = 5
 const TASKLEVEL = 6
 // is initiated on component creation

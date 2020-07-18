@@ -1,6 +1,6 @@
 import AppHeader from '../header/header.vue'
 import router from '../../router'
-import { utilities } from '../mixins/utilities.js'
+import { utilities } from '../mixins/generic.js'
 
 const PRODUCTLEVEL = 2
 const INPROGRESS = 4

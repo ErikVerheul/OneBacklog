@@ -3,7 +3,7 @@
  */
 import { mapGetters } from 'vuex'
 import { eventBus } from "../../../main"
-import { utilities } from '../../mixins/utilities.js'
+import { utilities } from '../../mixins/generic.js'
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
 const FILTERBUTTONTEXT = 'Filter in tree view'

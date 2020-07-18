@@ -1,7 +1,7 @@
 import Licence from "./licence.vue"
 import router from '../../router'
 import { mapGetters } from 'vuex'
-import { utilities } from '../mixins/utilities.js'
+import { utilities } from '../mixins/generic.js'
 
 const INFO = 0
 const MINPASSWORDLENGTH = 8

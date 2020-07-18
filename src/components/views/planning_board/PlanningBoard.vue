@@ -95,7 +95,7 @@ import { mapState } from 'vuex'
 import { mapGetters } from 'vuex'
 import AppHeader from '../../header/header.vue'
 import StoryLane from './StoryLane'
-import { utilities, authorization } from '../../mixins/utilities.js'
+import { utilities, authorization } from '../../mixins/generic.js'
 
 export default {
   mixins: [utilities, authorization],

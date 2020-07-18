@@ -1,5 +1,5 @@
 import { mapGetters } from 'vuex'
-import { utilities } from '../mixins/utilities.js'
+import { utilities } from '../mixins/generic.js'
 
 const baseURL = 'https://onebacklog.net:6984/'
 
