@@ -11,6 +11,17 @@ var parentNodes
 var orphansFound
 var levelErrorsFound
 
+// remove duplicates; return an empty array if arr is not defined or null
+function dedup(arr) {
+    if (arr) {
+        const dedupped = []
+        for (let el of arr) {
+            if (!dedupped.includes(el)) dedupped.push(el)
+        }
+        return dedupped
+    } else return []
+}
+
 const state = {
     docsCount: 0,
     insertedCount: 0,
@@ -40,8 +51,8 @@ const mutations = {
             const title = item.value[3]
             const team = item.value[4]
             const subtype = item.value[5]
-            const dependencies = item.value[6] || []
-            const conditionalFor = item.value[7] || []
+            const dependencies = dedup(item.value[6])
+            const conditionalFor = dedup(item.value[7])
             // for future use:
             // const lastHistoryEntry = item.value[8]
             // const lastCommentEntry = item.value[9]

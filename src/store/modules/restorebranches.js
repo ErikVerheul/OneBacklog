@@ -11,6 +11,17 @@ var newDefaultProductId
 var startRestore
 var getChildrenRunning
 
+// remove duplicates; return an empty array if arr is not defined or null
+function dedup(arr) {
+    if (arr) {
+        const dedupped = []
+        for (let el of arr) {
+            if (!dedupped.includes(el)) dedupped.push(el)
+        }
+        return dedupped
+    } else return []
+}
+
 function composeRangeString(id) {
     return `startkey="${id}"&endkey="${id}"`
 }
@@ -108,8 +119,8 @@ const actions = {
             const title = item.value[5]
             const team = item.value[6]
             const subtype = item.value[7]
-            const dependencies = item.value[8] || []
-            const conditionalFor = item.value[9] || []
+            const dependencies = dedup(item.value[8])
+            const conditionalFor = dedup(item.value[9])
             // for future use:
             // const lastHistoryEntry = item.value[10]
             // const lastCommentEntry = item.value[11]
@@ -172,12 +183,12 @@ const actions = {
 
                 if (fromHistory) {
                     // restore external dependencies
-                    const dependencies = histArray[2] || []
+                    const dependencies = dedup(histArray[2])
                     for (let d of dependencies) {
                         const node = window.slVueTree.getNodeById(d.id)
                         if (node !== null) node.dependencies.push(d.dependentOn)
                     }
-                    const conditionalFor = histArray[4] || []
+                    const conditionalFor = dedup(histArray[4])
                     for (let c of conditionalFor) {
                         const node = window.slVueTree.getNodeById(c.id)
                         if (node !== null) node.conditionalFor.push(c.conditionalFor)
