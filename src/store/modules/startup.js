@@ -163,7 +163,7 @@ const actions = {
                     if (position !== -1) newUserData.myDatabases[rootState.userData.currentDb].subscriptions.splice(position, 1)
                 }
                 // update user data loaded in getOtherUserData
-                dispatch('updateUser', { data: newUserData })
+                dispatch('updateUser', [{ data: newUserData }])
                 const msg = `User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
                 // eslint-disable-next-line no-console
                 if (rootState.debug) console.log(msg)

@@ -188,7 +188,7 @@ const actions = {
                     // select the product node in the tree
                     if (_id === newDefaultProductId) window.slVueTree.selectNodeById(newDefaultProductId)
                 }
-                dispatch('getChildren', { _id, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
+                dispatch('getChildren', { _id, toDispatch: [payload.toDispatch], onSuccessCallback: payload.onSuccessCallback })
             } else {
                 commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
                 let msg = 'Sync.processItems: a remote restore of the tree view failed. Cannot find the parent of ' + parentId
@@ -234,12 +234,11 @@ const actions = {
                 // execute passed function if provided
                 if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
                 // additional dispatches
-                if (payload.toDispatch) {
-                    for (let name of Object.keys(payload.toDispatch)) {
-                        // eslint-disable-next-line no-console
-                        if (rootState.debug) console.log('restoreBranch(es).getChildren: dispatching ' + name)
-                        dispatch(name, payload.toDispatch[name])
-                    }
+                for (let td of payload.toDispatch) {
+                    const name = Object.keys(td)[0]
+                    // eslint-disable-next-line no-console
+                    if (rootState.debug) console.log('restoreBranch(es).getChildren: dispatching ' + name)
+                    dispatch(name, td[name])
                 }
             }
         }).catch(error => {

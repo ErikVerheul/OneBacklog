@@ -336,12 +336,11 @@ const actions = {
 			// execute passed callback if provided
 			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
 			// additional dispatches
-			if (payload.toDispatch) {
-				for (let name of Object.keys(payload.toDispatch)) {
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('updateUser: dispatching ' + name)
-					dispatch(name, payload.toDispatch[name])
-				}
+			for (let td of payload.toDispatch) {
+				const name = Object.keys(td)[0]
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('updateUser: dispatching ' + name)
+				dispatch(name, td[name])
 			}
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + payload.data.name + "' is updated successfully" })
 		}).catch(error => {
