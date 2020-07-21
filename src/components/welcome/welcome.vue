@@ -9,8 +9,8 @@
       </div>
       <div class="col-lg-12 col-sm-12 text-center">
         <h3>Welcome to the OneBacklog single page web application</h3>
-        <p>This application is intended for Product Owners who own one ore more products as well as for developers and viewers.<br>
-           Your role determines what you can do. The application is in beta. Run this application on a desktop computer or tablet.</p>
+        <p>This application is an aid to define, share and execute the realization of multiple products in a organization, large or small.<br>
+           Your role determines what you can do. Run this application on a desktop computer or tablet with a pointing device.</p>
 				<p>Signin with <b>demoUser</b> and password <b>demoUser</b>.</p>
       </div>
     </div>

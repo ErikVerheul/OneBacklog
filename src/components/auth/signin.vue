@@ -30,7 +30,7 @@
         </div>
         <div v-if="this.$store.state.demo" class="text-center">
           <p>
-            This is a demo / test version of the application in beta stage.
+            This is a demo instance of the application. Your changes can be overridden by others or by a database restore.
             <br />Please leave your findings in this applications register or raise an issue at
             <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github</a>
           </p>

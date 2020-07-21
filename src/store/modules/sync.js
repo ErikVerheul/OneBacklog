@@ -752,12 +752,12 @@ const actions = {
 		}, 1000)
 	},
 
-	/* Listen for document changes and process in parallel */
+	/* Listen for document changes.  The timeout, if no changes are available is 6 seconds (default) */
 	listenForChanges({
 		rootState,
 		dispatch
 	}) {
-		// stop listening if offline. watchdog will start it automatically when online again
+		// stop listening if offline. Watchdog will start it automatically when online again
 		if (rootState.stopListenForChanges || !rootState.online) return
 
 		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true&since=now'
