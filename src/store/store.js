@@ -157,7 +157,9 @@ export default new Vuex.Store({
 		loadedSprintId: null,
 		sprintCalendar: [],
 		stories: [],
-		warningText: ''
+		warningText: '',
+		// sync
+		lastReceivedChangeSeq: undefined
 	},
 
 	getters: {

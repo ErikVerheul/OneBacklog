@@ -294,7 +294,7 @@ const actions = {
 								let toDispatch = undefined
 								if (updateBoard && doc.level !== TASKLEVEL) {
 									// postpone the board update until the document is restored
-									toDispatch = { 'loadPlanningBoard': { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }
+									toDispatch = [{ 'loadPlanningBoard': { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }]
 								}
 								dispatch('restoreBranch', {
 									doc, toDispatch, onSuccessCallback: () => {
@@ -752,7 +752,7 @@ const actions = {
 		}, 1000)
 	},
 
-	/* Listen for document changes.  The timeout, if no changes are available is 6 seconds (default) */
+	/* Listen for document changes. The timeout, if no changes are available is 60 seconds (default maximum) */
 	listenForChanges({
 		rootState,
 		dispatch
@@ -760,13 +760,18 @@ const actions = {
 		// stop listening if offline. Watchdog will start it automatically when online again
 		if (rootState.stopListenForChanges || !rootState.online) return
 
-		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true&since=now'
+		// if defined continue to request for the next changes
+		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true&since='
+		rootState.lastReceivedChangeSeq ? url += rootState.lastReceivedChangeSeq : url += 'now'
+
 		rootState.listenForChangesRunning = true
 		globalAxios({
 			method: 'GET',
 			url
 		}).then(res => {
-			// to avoid missing changes immediately check for additional changes
+			// continue requesting changes from last_seq (not including)
+			rootState.lastReceivedChangeSeq = res.data.last_seq
+
 			dispatch('listenForChanges')
 			let data = res.data
 			for (let r of data.results) {
