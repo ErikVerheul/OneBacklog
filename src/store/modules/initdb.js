@@ -309,7 +309,7 @@ const actions = {
 					"teams": {
 						"map": `function(doc) {
 							if (doc.type ==='team' && !doc.delmark) emit(doc.teamName, doc.members);
-						  }`
+						}`
 					}
 				},
 				"language": "javascript"

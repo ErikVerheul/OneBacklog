@@ -65,7 +65,7 @@ function cleanHistory(doc) {
 export default new Vuex.Store({
 	state: {
 		// console log settings
-		debug: true,
+		debug: false,
 		isProductAssigned: false,
 		showWatchdogInfo: false,
 		// loading options

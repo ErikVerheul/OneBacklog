@@ -128,7 +128,7 @@
 						<h5>Filter in tree view</h5>
 						<b-img :src="require('./filters.png')" alt="Example filters modal" />
 						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on the product node.</p>
-						<h5>Find on Id</h5>
+						<h5>Find on short Id</h5>
 						<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
 						<ul>
 							<li>The item is found in the currently selected and opened product. The item will be selected and highlighted in the tree view.</li>

@@ -285,22 +285,10 @@ const actions = {
         }).then(res => {
             const results = res.data.results
             const docs = []
-            const error = []
             for (let r of results) {
                 const doc = r.docs[0].ok
                 // no need to add history here as the data is only used to update the tree model (no update of the database)
                 docs.push(doc)
-                if (r.docs[0].error) error.push(r.docs[0].error)
-            }
-            if (error.length > 0) {
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'addProducts: These products cannot be added: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('restorebranches', docs)
         }).catch(e => {

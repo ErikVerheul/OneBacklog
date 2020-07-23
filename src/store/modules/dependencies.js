@@ -356,7 +356,6 @@ const actions = {
         }).then(res => {
             const results = res.data.results
             const docs = []
-            const error = []
             for (let r of results) {
                 const doc = r.docs[0].ok
                 if (doc) {
@@ -384,18 +383,6 @@ const actions = {
                         commit('showLastEvent', { txt: `The conditions are removed`, severity: INFO })
                     } else commit('showLastEvent', { txt: `The condition is removed`, severity: INFO })
                 }
-                if (r.docs[0].error) error.push(r.docs[0].error)
-            }
-            if (error.length > 0) {
-                commit('showLastEvent', { txt: `Conditions removal failed`, severity: ERROR })
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'alsoRemoveDependenciesAsync: These documents cannot be updated: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', {
                 dbName: rootState.userData.currentDb, docs, caller: 'alsoRemoveDependenciesAsync',
@@ -437,7 +424,6 @@ const actions = {
         }
         const docsToGet = []
         const docs = []
-        const error = []
         for (let d of externalDependencies) {
             for (let dd of d.dependencies) {
                 docsToGet.push({ "id": dd })
@@ -466,17 +452,6 @@ const actions = {
                     doc.conditionalFor = newConditionalFor
                     docs.push(doc)
                 }
-                if (r.docs[0].error) error.push(r.docs[0].error)
-            }
-            if (error.length > 0) {
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'removeExtDependenciesAsync: These documents cannot be updated for their set dependencies: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtDependenciesAsync' })
         }).catch(e => {
@@ -500,7 +475,6 @@ const actions = {
         }
         const docsToGet = []
         const docs = []
-        const error = []
         for (let c of externalConditions) {
             for (let cc of c.conditions) {
                 docsToGet.push({ "id": cc })
@@ -529,21 +503,7 @@ const actions = {
                     doc.dependencies = newDependencies
                     docs.push(doc)
                 }
-                if (r.docs[0].error) error.push(r.docs[0].error)
             }
-            if (error.length > 0) {
-                let errorStr = ''
-                for (let e of error) {
-                    errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-                }
-                let msg = 'removeExtConditionsAsync: These documents cannot be updated for their set conditions: ' + errorStr
-                // eslint-disable-next-line no-console
-                if (rootState.debug) console.log(msg)
-                dispatch('doLog', { event: msg, level: ERROR })
-            }
-
-
-
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtConditionsAsync' })
         }).catch(e => {
             let msg = 'removeExtConditionsAsync: Could not read batch of documents: ' + e

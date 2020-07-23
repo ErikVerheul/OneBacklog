@@ -280,7 +280,6 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
-			const error = []
 			for (let r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
@@ -297,17 +296,6 @@ const actions = {
 					doc.history.unshift(newHist)
 					docs.push(doc)
 				}
-				if (envelope.error) error.push(envelope.error)
-			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'updateMovedDescendantsBulk: These descendants cannot be updated: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'updateMovedDescendantsBulk', })
 		}).catch(e => {

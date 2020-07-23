@@ -530,7 +530,6 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
-			const error = []
 			for (let r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
@@ -550,17 +549,6 @@ const actions = {
 						docs.push(doc)
 					}
 				}
-				if (envelope.error) error.push(envelope.error)
-			}
-			if (error.length > 0) {
-				let errorStr = ''
-				for (let e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
-				}
-				let msg = 'setTeamDescendantsBulk: These documents cannot change team: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'setTeamDescendantsBulk' })
 		}).catch(e => {
@@ -864,7 +852,7 @@ const actions = {
 	}, payload) {
 		const id = payload.updatedDoc._id
 		// eslint-disable-next-line no-console
-		console.log('updateDoc: updating document with _id = ' + id + ' in database ' + payload.dbName)
+		if (rootState.debug) console.log('updateDoc: updating document with _id = ' + id + ' in database ' + payload.dbName)
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/' + id,
@@ -960,10 +948,8 @@ const actions = {
 				// take the fist document found
 				const doc = rows[0].doc
 				if (rootState.userData.userAssignedProductIds.includes(doc.productId)) {
-					if (rows.length === 1) {
-						commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your view. Did you select the product?`, severity: WARNING })
-					} else {
-						commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed.`, severity: INFO })
+					if (rows.length > 1) {
+						commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: INFO })
 						let ids = ''
 						for (let i = 0; i < rows.length; i++) {
 							ids += rows[i].doc._id + ', '
@@ -974,15 +960,14 @@ const actions = {
 						dispatch('doLog', { event: msg, level: WARNING })
 					}
 					commit('updateNodesAndCurrentDoc', { newDoc: doc })
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('loadItemByShortId: document with _id ' + doc._id + ' is loaded.')
+					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your selected products`, severity: INFO })
 				} else {
-					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your assigned products.`, severity: WARNING })
+					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your assigned products`, severity: WARNING })
 				}
-			} else commit('showLastEvent', { txt: `The document with id ${shortId} is NOT found in the database.`, severity: WARNING })
+			} else commit('showLastEvent', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: WARNING })
+		}).catch( () => {
+			commit('showLastEvent', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: WARNING })
 		})
-			// eslint-disable-next-line no-console
-			.catch(error => console.log('loadItemByShortId: Could not read a batch of documents from database ' + rootState.userData.currentDb + ',' + error))
 	},
 
 	/* Add history to the parent and than save the document */

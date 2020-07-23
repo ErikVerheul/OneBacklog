@@ -85,6 +85,7 @@ export default {
 
   data() {
     return {
+      debugMode: this.$store.state.debug,
       showContextMenu: false,
       contextOptionSelected: undefined,
       newTaskTitle: '',
@@ -155,12 +156,12 @@ export default {
             this.$store.dispatch('boardUpdateTaskOwner', { taskId: this.item.id, newTaskOwner: this.selectedUser })
             break
           case this.ID_TO_CLIPBOARD:
-            navigator.clipboard.writeText(this.item.id.slice(-5)).then(function () {
+            navigator.clipboard.writeText(this.item.id.slice(-5)).then( () => {
               // eslint-disable-next-line no-console
-              console.log('TaskItem.procSelected: clipboard successfully set')
-            }, function () {
+              if (this.debug) console.log('TaskItem.procSelected: clipboard successfully set')
+            }, () => {
               // eslint-disable-next-line no-console
-              console.log('TaskItem.procSelected: clipboard write failed')
+              if (this.debug) console.log('TaskItem.procSelected: clipboard write failed')
             });
             break
         }

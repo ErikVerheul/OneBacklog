@@ -168,7 +168,7 @@ const actions = {
             // show the product clone in the tree view
             showProduct(docs, getters.leafLevel)
             // eslint-disable-next-line no-console
-            console.log('storeProduct: ' + res.data.length + ' documents are processed')
+            if (rootState.debug) console.log('storeProduct: ' + res.data.length + ' documents are processed')
         }).catch(error => {
             let msg = 'storeProduct: Could not update batch of documents: ' + error
             // eslint-disable-next-line no-console

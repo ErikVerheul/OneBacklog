@@ -117,7 +117,7 @@ const actions = {
 						dispatch('saveLog', { log, caller: 'watchdog' })
 					}).catch(error => {
 						// eslint-disable-next-line no-console
-						console.log('watchdog: Could not read the log, ' + error)
+						if (rootState.debug) console.log('watchdog: Could not read the log, ' + error)
 					})
 				}
 			}
@@ -193,13 +193,13 @@ const actions = {
 					if (rootState.debug) console.log('doLog: Pushed log entry to unsavedLogs:')
 					rootState.logState.unsavedLogs.push(newLog)
 					// eslint-disable-next-line no-console
-					console.log('doLog: Could not read the log. A retry is pending , ' + error)
+					if (rootState.debug) console.log('doLog: Could not read the log. A retry is pending , ' + error)
 				})
 			}
 		} else {
 			rootState.logState.unsavedLogs.push(newLog)
 			// eslint-disable-next-line no-console
-			console.log('doLog: Could not read the log. A retry is pending , the database name is undefined yet')
+			if (rootState.debug) console.log('doLog: Could not read the log. A retry is pending , the database name is undefined yet')
 		}
 	},
 

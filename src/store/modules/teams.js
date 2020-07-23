@@ -237,7 +237,7 @@ const actions = {
 									rootState.sprintCalendar = newTeamDoc.teamCalendar
 								} else {
 									// eslint-disable-next-line no-console
-									console.log('updateTeamsInDb: No team calendar found')
+									if (rootState.debug) console.log('updateTeamsInDb: No team calendar found')
 									if (rootGetters.teamCalendarInUse) {
 										// replace the team calendar with the default
 										rootState.sprintCalendar = rootState.configData.defaultSprintCalendar

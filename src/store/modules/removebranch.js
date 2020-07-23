@@ -87,10 +87,10 @@ const actions = {
                 // process next level
                 dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), showUndoneMsg: payload.showUndoneMsg })
             } else {
-                // db iteration ready?
                 if (getChildrenDispatched - getChildrenReady === 0) {
+                    // db iteration ready
                     // eslint-disable-next-line no-console
-                    console.log('getChildren: dispatching removeExternalConds')
+                    if (rootState.debug) console.log('getChildren: dispatching removeExternalConds')
                     dispatch('removeExternalConds', payload)
                 }
             }

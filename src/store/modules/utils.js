@@ -107,7 +107,7 @@ const actions = {
 		}
 		state.copyBusy = true
 		// eslint-disable-next-line no-console
-		console.log('Copy DB: from ' + payload.dbSourceName + ' to ' + payload.dbTargetName)
+		if (rootState.debug) console.log('Copy DB: from ' + payload.dbSourceName + ' to ' + payload.dbTargetName)
 		globalAxios({
 			method: 'POST',
 			url: "_replicate",
@@ -123,7 +123,7 @@ const actions = {
 			})
 		}).catch(error => {
 			// eslint-disable-next-line no-console
-			console.log(error)
+			if (rootState.debug) console.log(error)
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'copyDB: Failure, ' + payload.dbSourceName + ' is NOT copied to ' + payload.dbTargetName + ', ' + error })
 		})
 	},
@@ -330,7 +330,7 @@ const actions = {
 			dispatch('resetHistAndComm', { dbName: payload.dbName, docs: docsToUpdate, olderThan: payload.age })
 		}).catch(error => {
 			// eslint-disable-next-line no-console
-			console.log(error)
+			if (rootState.debug) console.log(error)
 			state.message = error.response.data
 			state.errorMessage = error.message
 		})
@@ -397,7 +397,7 @@ const actions = {
 				}
 				let msg = 'resetHistAndComm: These documents cannot be updated: ' + errorStr
 				// eslint-disable-next-line no-console
-				console.log(msg)
+				if (rootState.debug) console.log(msg)
 			}
 			dispatch('updateBulk', { dbName: payload.dbName, docs, caller: 'resetHistAndComm', onSuccessCallback: () => { rootState.isHistAndCommReset = true } })
 		}).catch(error => {

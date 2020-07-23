@@ -8,7 +8,7 @@
           <b-button class="m-1" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
           <div class="divider"/>
           <b-input-group>
-            <b-form-input id="findItemOnId" v-model="shortId" placeholder="Find on Id"></b-form-input>
+            <b-form-input id="findItemOnId" v-model="shortId" placeholder="Find on short Id"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetFindId" variant="seablue" type="reset">x</b-button>
             </b-input-group-append>
@@ -187,7 +187,7 @@
                 :value="$store.state.currentDoc.title"
                 @blur="updateTitle()"
               ></b-input>
-              <div v-if="!isReqAreaItem" class="d-table-cell tac">Id = {{ $store.state.currentDoc._id.slice(-5) }}</div>
+              <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ $store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
               </div>

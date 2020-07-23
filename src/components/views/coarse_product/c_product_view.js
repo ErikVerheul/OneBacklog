@@ -152,7 +152,7 @@ const methods = {
       this.$store.state.findIdOn = true
       window.slVueTree.collapseTree(ALLPRODUCTS)
 
-      this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
+      this.showLastEvent(`The item with full Id ${node._id} is found in product '${this.$store.state.currentProductTitle}'`, INFO)
       // expand the newly selected product up to the found item
       window.slVueTree.showAndSelectItem(node)
       // load the document if not already in memory

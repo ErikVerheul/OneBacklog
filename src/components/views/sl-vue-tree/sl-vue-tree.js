@@ -85,6 +85,7 @@ function assignNewPrios(nodes, predecessorNode, successorNode) {
 
 function data() {
 	return {
+		debugMode: this.$store.state.debug,
 		draggableNodes: [],
 		rootCursorPosition: null,
 		mouseIsDown: false,
@@ -749,7 +750,7 @@ const methods = {
 	/* Clear any outstanding filters and searches of the current product (default) or all products */
 	resetFilters(caller, allProducts = this.$store.state.currentView === 'coarseProduct') {
 		// eslint-disable-next-line no-console
-		console.log('resetFilters is called by ' + caller)
+		if (this.debugMode) console.log('resetFilters is called by ' + caller)
 		if (this.$store.state.filterOn) {
 			this.resetTree(allProducts)
 			allProducts ? this.showLastEvent(`Your filter is cleared`, INFO) :
@@ -767,7 +768,7 @@ const methods = {
 
 	resetFindOnId(caller, ALLPRODUCTS) {
 		// eslint-disable-next-line no-console
-		console.log('resetFindOnId is called by ' + caller)
+		if (this.debugMode) console.log('resetFindOnId is called by ' + caller)
 		this.resetTree(ALLPRODUCTS)
 		ALLPRODUCTS ? this.showLastEvent(`Your view is restored`, INFO) :
 			this.showLastEvent(`Your view on product '${this.$store.state.currentProductTitle}' is restored`, INFO)

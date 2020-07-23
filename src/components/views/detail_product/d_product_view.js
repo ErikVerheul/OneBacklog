@@ -171,9 +171,9 @@ const methods = {
 
   findItemOnId(shortId) {
     let node
-    window.slVueTree.traverseModels((nodeModel) => {
-      if (nodeModel._id.slice(-5) === shortId) {
-        node = nodeModel
+    window.slVueTree.traverseModels((nm) => {
+      if (nm._id.slice(-5) === shortId) {
+        node = nm
         return false
       }
     })
@@ -193,7 +193,7 @@ const methods = {
         window.slVueTree.collapseTree()
       }
 
-      this.showLastEvent(`The item is found in product '${this.$store.state.currentProductTitle}'`, INFO)
+      this.showLastEvent(`The item with full Id ${node._id} is found in product '${this.$store.state.currentProductTitle}'`, INFO)
       // expand the newly selected product up to the found item
       window.slVueTree.showAndSelectItem(node)
       // load the document if not already in memory
