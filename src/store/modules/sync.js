@@ -761,7 +761,7 @@ const actions = {
 		if (rootState.stopListenForChanges || !rootState.online) return
 
 		// if defined continue to request for the next changes
-		let url = rootState.userData.currentDb + '/_changes?feed=longpoll&include_docs=true&since='
+		let url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since='
 		rootState.lastReceivedChangeSeq ? url += rootState.lastReceivedChangeSeq : url += 'now'
 
 		rootState.listenForChangesRunning = true
@@ -776,8 +776,8 @@ const actions = {
 			let data = res.data
 			for (let r of data.results) {
 				let doc = r.doc
-				if (doc.type == "backlogItem" && (doc.history[0].sessionId !== rootState.userData.sessionId && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent))) {
-					// filter on distributed events in backlog items from other sessions (not the session that created the events)
+				if (doc.type == "backlogItem" && (doc.history[0].sessionId !== rootState.userData.sessionId)) {
+					// filter on distributed events in backlog items from other sessions (not the session that created the event)
 					dispatch('processDoc', doc)
 				}
 			}

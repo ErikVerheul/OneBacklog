@@ -332,7 +332,9 @@ const actions = {
 			data: {
 				"filters": {
 					/* Filter on changes with subscribed followers */
-					"email_filter": `function(doc, req) {\n return doc.type === 'backlogItem' && (doc.followers && doc.followers.length > 0) }`
+					"email_filter": `function(doc, req) { return doc.type === 'backlogItem' && (doc.followers && doc.followers.length > 0) }`,
+					/* Filter on changes to backlog items that changed with an event tagged for distribution */
+					"sync_filter": `function(doc, req) { return doc.type === 'backlogItem' && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent) }`
 				},
 				"language": "javascript"
 			}
