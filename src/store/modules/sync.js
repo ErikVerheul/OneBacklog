@@ -776,7 +776,8 @@ const actions = {
 			let data = res.data
 			for (let r of data.results) {
 				let doc = r.doc
-				if (doc.type == "backlogItem" && (doc.history[0].sessionId !== rootState.userData.sessionId)) {
+				// check doc.history[0].distributeEvent || doc.comments[0].distributeEvent for upwards compatibility to v.1.0.0 ( now in sync_filter )
+				if (doc.type == "backlogItem" && (doc.history[0].sessionId !== rootState.userData.sessionId) && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
 					// filter on distributed events in backlog items from other sessions (not the session that created the event)
 					dispatch('processDoc', doc)
 				}
