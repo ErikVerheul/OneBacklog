@@ -185,15 +185,13 @@ const methods = {
             this.$store.state.currentProductId = this.getNodeSelected.productId
             this.$store.state.currentProductTitle = this.getNodeSelected.title
           }
-          const title = this.itemTitleTrunc(60, this.getNodeSelected.title)
           let evt = ""
+          const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getNodeSelected.title)
           if (selNodes.length === 1) {
-            this.selectedNodesTitle = title
-            evt = `${this.getLevelText(this.getNodeSelected.level)} '${this.selectedNodesTitle}' is selected.`
-            if (this.getNodeSelected.data.reqarea) evt += ` The item is member of requirement area '${this.$store.state.reqAreaMapper[this.getNodeSelected.data.reqarea]}'`
+            evt = `${this.getLevelText(selNodes[0].level)} '${lastSelectedNodeTitle}' is selected.`
           } else {
-            this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-            evt = `${this.getLevelText(this.getNodeSelected.level)} ${this.selectedNodesTitle} are selected.`
+            const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
+            evt = `${this.getLevelText(selNodes[0].level)} ${multiNodesTitle} are selected.`
           }
           this.showLastEvent(evt, INFO)
         }

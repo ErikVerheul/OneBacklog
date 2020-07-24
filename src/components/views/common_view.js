@@ -92,7 +92,6 @@ function data() {
     shortId: '',
     newDescription: '',
     newAcceptance: '',
-    selectedNodesTitle: '',
     editorToolbar: [
       [{ header: [false, 1, 2, 3, 4, 5, 6] }],
       ['bold', 'italic', 'underline', 'strike'],

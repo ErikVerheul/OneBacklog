@@ -233,14 +233,13 @@ const methods = {
               window.slVueTree.expandTree()
             }
           }
-          const title = this.itemTitleTrunc(60, selNodes[0].title)
           let evt = ""
+          const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getNodeSelected.title)
           if (selNodes.length === 1) {
-            this.selectedNodesTitle = title
-            evt = `${this.getLevelText(selNodes[0].level)} '${this.selectedNodesTitle}' is selected.`
+            evt = `${this.getLevelText(selNodes[0].level)} '${lastSelectedNodeTitle}' is selected.`
           } else {
-            this.selectedNodesTitle = "'" + title + "' + " + (selNodes.length - 1) + ' other item(s)'
-            evt = `${this.getLevelText(selNodes[0].level)} ${this.selectedNodesTitle} are selected.`
+            const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
+            evt = `${this.getLevelText(selNodes[0].level)} ${multiNodesTitle} are selected.`
           }
           this.showLastEvent(evt, INFO)
         }
