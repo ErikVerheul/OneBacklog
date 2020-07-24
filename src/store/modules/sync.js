@@ -117,7 +117,7 @@ const actions = {
 
 		function reportOddTimestamp(event, docId) {
 			if (Date.now() - event.timestamp > 1000) {
-				let msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is older than 1 second.`
+				let msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 second`
 				commit('showLastEvent', { txt: msg, severity: WARNING })
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg + ` The document id is ${docId}.`)
@@ -760,30 +760,24 @@ const actions = {
 		// stop listening if offline. Watchdog will start it automatically when online again
 		if (rootState.stopListenForChanges || !rootState.online) return
 
-		// if defined continue to request for the next changes
-		let url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since='
-		rootState.lastReceivedChangeSeq ? url += rootState.lastReceivedChangeSeq : url += 'now'
-
+		const url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
 		rootState.listenForChangesRunning = true
 		globalAxios({
 			method: 'GET',
 			url
 		}).then(res => {
-			// continue requesting changes from last_seq (not including)
-			rootState.lastReceivedChangeSeq = res.data.last_seq
-
 			dispatch('listenForChanges')
-			let data = res.data
+			const data = res.data
 			for (let r of data.results) {
-				let doc = r.doc
+				const doc = r.doc
 				// check doc.history[0].distributeEvent || doc.comments[0].distributeEvent for upwards compatibility to v.1.0.0 ( now in sync_filter )
 				if (doc.type == "backlogItem" && (doc.history[0].sessionId !== rootState.userData.sessionId) && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
-					// filter on distributed events in backlog items from other sessions (not the session that created the event)
+					// process distributed events on backlog items from other sessions (not the session that created the event)
 					dispatch('processDoc', doc)
 				}
 			}
 		}).catch(error => {
-			let msg = 'Listening for changes made by other users failed with ' + error
+			const msg = 'Listening for changes made by other users failed with ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: WARNING })

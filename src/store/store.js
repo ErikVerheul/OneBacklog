@@ -157,9 +157,7 @@ export default new Vuex.Store({
 		loadedSprintId: null,
 		sprintCalendar: [],
 		stories: [],
-		warningText: '',
-		// sync
-		lastReceivedChangeSeq: undefined
+		warningText: ''
 	},
 
 	getters: {
@@ -720,25 +718,25 @@ export default new Vuex.Store({
 		},
 
 		resetData(state) {
+			state.changeHistory = []
+			state.configData = null
+			state.currentDoc = null
 			state.createDefaultCalendar = false
-			state.treeNodes = []
-			state.stories = []
-			state.loadedSprintId = null
-			state.loadedTreeDepth = undefined
-			state.stopListenForChanges = true
-			state.listenForChangesRunning = false
-			state.lastTreeView = undefined
 			state.currentDefaultProductId = null
 			state.currentProductId = null
 			state.currentProductTitle = ''
 			state.isProductAssigned = false
-			state.myProductOptions = []
-			state.userData = {}
-			state.changeHistory = []
-			state.showHeaderDropDowns = true
 			state.lastEvent = ''
-			state.configData = null
-			state.currentDoc = null
+			state.lastTreeView = undefined
+			state.listenForChangesRunning = false
+			state.loadedSprintId = null
+			state.loadedTreeDepth = undefined
+			state.myProductOptions = []
+			state.showHeaderDropDowns = true
+			state.stopListenForChanges = true
+			state.stories = []
+			state.treeNodes = []
+			state.userData = {}
 			state.warning = ''
 
 			clearInterval(state.runningCookieRefreshId)
