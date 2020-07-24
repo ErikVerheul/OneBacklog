@@ -590,6 +590,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: `The item title is changed`, severity: INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
