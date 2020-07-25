@@ -861,6 +861,7 @@ const actions = {
 		}).then(() => {
 			// execute passed function if provided
 			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+			// execute passed action if provided
 			if (payload.toDispatch) {
 				// additional dispatches
 				for (let td of payload.toDispatch) {
@@ -912,6 +913,7 @@ const actions = {
 			} else {
 				// execute passed function if provided
 				if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+				// execute passed action if provided
 				if (payload.toDispatch) {
 					// additional dispatches
 					for (let td of payload.toDispatch) {

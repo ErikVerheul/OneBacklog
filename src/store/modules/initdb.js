@@ -96,8 +96,7 @@ const actions = {
 					"event": "Log initialization",
 					"level": "INFO",
 					"by": rootState.userData.user,
-					"timestamp": Date.now(),
-					"timestampStr": new Date().toString()
+					"timestamp": Date.now()
 				},
 			]
 		}

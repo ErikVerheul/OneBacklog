@@ -760,13 +760,14 @@ const actions = {
 		// stop listening if offline. Watchdog will start it automatically when online again
 		if (rootState.stopListenForChanges || !rootState.online) return
 
-		const url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
 		rootState.listenForChangesRunning = true
+		const url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
 		globalAxios({
 			method: 'GET',
 			url
 		}).then(res => {
-			dispatch('listenForChanges')
+			// note that receiving a response can last up to 60 seconds (time-out)
+			if (rootState.online) dispatch('listenForChanges')
 			const data = res.data
 			for (let r of data.results) {
 				const doc = r.doc
@@ -777,11 +778,13 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			const msg = 'Listening for changes made by other users failed with ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: WARNING })
 			rootState.listenForChangesRunning = false
+			const msg = 'Listening for changes made by other users failed, ' + error
+			// eslint-disable-next-line no-console
+			if (rootState.debugConnectionAndLogging || rootState.debug) console.log(msg)
+			// do not try to save the log if a network error is detected, just queue the log
+			const skipSaving = error.message = 'Network error'
+			dispatch('doLog', { event: msg, level: WARNING, skipSaving })
 		})
 	}
 }

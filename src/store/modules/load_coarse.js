@@ -193,8 +193,7 @@ const actions = {
                         event: msg,
                         level: 'CRITICAL',
                         by: rootState.userData.user,
-                        timestamp: Date.now(),
-                        timestampStr: new Date().toString()
+                        timestamp: Date.now()
                     }
                     rootState.logState.unsavedLogs.push(newLog)
                 }
@@ -210,8 +209,7 @@ const actions = {
                         event: msg1 + ' ' + msg2,
                         level: 'CRITICAL',
                         by: rootState.userData.user,
-                        timestamp: Date.now(),
-                        timestampStr: new Date().toString()
+                        timestamp: Date.now()
                     }
                     rootState.logState.unsavedLogs.push(newLog)
                 }

@@ -66,8 +66,8 @@ export default new Vuex.Store({
 	state: {
 		// console log settings
 		debug: false,
+		debugConnectionAndLogging: false,
 		isProductAssigned: false,
-		showWatchdogInfo: false,
 		// loading options
 		autoCorrectUserProfile: true,
 		// creating a CouchDb instance
@@ -142,7 +142,7 @@ export default new Vuex.Store({
 		warning: '',
 		// app wide globals
 		configData: null,
-		cookieAutenticated: false,
+		cookieAuthenticated: false,
 		demo: true,
 		eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
@@ -365,7 +365,7 @@ export default new Vuex.Store({
 								break
 							case 'addDependencyOn':
 								if (node.dependencies) {
-									if (!node.dependencies.includes(payload.addDependencyOn))node.dependencies.push(payload.addDependencyOn)
+									if (!node.dependencies.includes(payload.addDependencyOn)) node.dependencies.push(payload.addDependencyOn)
 								} else node.dependencies = [payload.addDependencyOn]
 								break
 							case 'conditionsremoved':
@@ -540,7 +540,7 @@ export default new Vuex.Store({
 									break
 								case 'addDependencyOn':
 									if (state.currentDoc.dependencies) {
-										if (!state.currentDoc.dependencies.includes(payload.addDependencyOn))state.currentDoc.dependencies.push(payload.addDependencyOn)
+										if (!state.currentDoc.dependencies.includes(payload.addDependencyOn)) state.currentDoc.dependencies.push(payload.addDependencyOn)
 									} else state.currentDoc.dependencies = [payload.addDependencyOn]
 									break
 								case 'conditionsremoved':
@@ -740,6 +740,7 @@ export default new Vuex.Store({
 			state.warning = ''
 
 			clearInterval(state.runningCookieRefreshId)
+			state.cookieAuthenticated = false
 			clearInterval(state.logState.runningWatchdogId)
 		},
 
@@ -895,36 +896,60 @@ export default new Vuex.Store({
 	actions: {
 		/* Refresh the authentication cookie */
 		refreshCookie({
+			rootState,
 			dispatch,
 			state
-		}) {
-			globalAxios({
-				method: 'POST',
-				url: '/_session',
-				data: { name: state.userData.user, password: state.userData.password }
-			}).then(() => {
-				state.cookieAutenticated = true
-				// eslint-disable-next-line no-console
-				if (state.debug) console.log("refreshCookie: Authentication cookie refresh is running.")
-			}).catch(error => {
-				// stop the interval function and wait for the watchDog to start again
-				clearInterval(state.runningCookieRefreshId)
-				state.cookieAutenticated = false
-				let msg = 'refreshCookie: Refresh of the authentication cookie failed with ' + error
-				// eslint-disable-next-line no-console
-				if (state.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: CRITICAL })
-			})
+		}, payload) {
+			if (rootState.online) {
+				globalAxios({
+					method: 'POST',
+					url: '/_session',
+					data: { name: state.userData.user, password: state.userData.password }
+				}).then(() => {
+					state.cookieAuthenticated = true
+					// eslint-disable-next-line no-console
+					if (state.debugConnectionAndLogging) console.log('refreshCookie: Authentication cookie refresh is running')
+					// execute passed function if provided
+					if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+					// execute passed action if provided
+					if (payload.toDispatch) {
+						// additional dispatches
+						for (let td of payload.toDispatch) {
+							const name = Object.keys(td)[0]
+							// eslint-disable-next-line no-console
+							if (rootState.debugConnectionAndLogging) console.log('refreshCookie: dispatching ' + name)
+							dispatch(name, td[name])
+						}
+					}
+				}).catch(error => {
+					// execute passed function if provided
+					if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
+					// stop the interval function and wait for the watchDog to start again
+					clearInterval(state.runningCookieRefreshId)
+					state.cookieAuthenticated = false
+					state.stopListenForChanges = true
+					state.online = false
+					let msg = 'refreshCookie: Refresh of the authentication cookie failed with ' + error
+					// eslint-disable-next-line no-console
+					if (state.debugConnectionAndLogging) console.log(msg)
+					// do not try to save the log if a network error is detected, just queue the log
+					const skipSaving = error.message = 'Network error'
+					dispatch('doLog', { event: msg, level: CRITICAL, skipSaving })
+				})
+			}
 		},
 
 		/* Refresh the authentication cookie in a contineous loop starting after the timeout value */
 		refreshCookieLoop({
+			rootState,
 			state,
 			dispatch
 		}, payload) {
-			state.runningCookieRefreshId = setInterval(() => {
-				dispatch('refreshCookie')
-			}, payload.timeout * 1000)
+			if (rootState.online) {
+				state.runningCookieRefreshId = setInterval(() => {
+					dispatch('refreshCookie', {})
+				}, payload.timeout * 1000)
+			}
 		},
 
 		/* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refrehed within 10 minutes */
@@ -964,12 +989,9 @@ export default new Vuex.Store({
 					myFilterSettings: undefined,
 					sessionId: create_UUID()
 				}
-				state.cookieAutenticated = true
-				// refresh the session cookie after 9 minutes (CouchDB defaults at 10 min.)
-				dispatch('refreshCookieLoop', {
-					timeout: 540
-				})
-				dispatch('getDatabases')
+				// set the session cookie and refresh every 9 minutes (CouchDB defaults at 10 min.); on success also get the databases
+				const toDispatch = [{ 'refreshCookieLoop': { timeout: 540 } }, { 'getDatabases': null }]
+				dispatch('refreshCookie', { toDispatch })
 			})
 				// cannot log failure here as the database name is unknown yet
 				// eslint-disable-next-line no-console

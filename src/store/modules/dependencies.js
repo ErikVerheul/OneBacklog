@@ -294,8 +294,8 @@ const actions = {
                     }
                 }
             })
-        }).catch(e => {
-            let msg = 'alsoRemoveConditions: Could not read batch of documents: ' + e
+        }).catch(error => {
+            let msg = 'alsoRemoveConditions: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -403,8 +403,8 @@ const actions = {
                     }
                 }
             })
-        }).catch(e => {
-            let msg = 'alsoRemoveDependenciesAsync: Could not read batch of documents: ' + e
+        }).catch(error => {
+            let msg = 'alsoRemoveDependenciesAsync: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -454,8 +454,8 @@ const actions = {
                 }
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtDependenciesAsync' })
-        }).catch(e => {
-            let msg = 'removeExtDependenciesAsync: Could not read batch of documents: ' + e
+        }).catch(error => {
+            let msg = 'removeExtDependenciesAsync: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
@@ -505,8 +505,8 @@ const actions = {
                 }
             }
             dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtConditionsAsync' })
-        }).catch(e => {
-            let msg = 'removeExtConditionsAsync: Could not read batch of documents: ' + e
+        }).catch(error => {
+            let msg = 'removeExtConditionsAsync: Could not read batch of documents: ' + error
             // eslint-disable-next-line no-console
             if (rootState.debug) console.log(msg)
             dispatch('doLog', { event: msg, level: ERROR })
