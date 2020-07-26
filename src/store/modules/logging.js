@@ -19,37 +19,36 @@ const actions = {
 		rootState,
 		dispatch
 	}) {
-		function consoleLogStatus(logsToSaveCount) {
+		function consoleLogStatus() {
 			if (rootState.debugConnectionAndLogging) {
 				// eslint-disable-next-line no-console
 				console.log('watchdog:' +
 					'\nOnline = ' + rootState.online +
-					'\nlogsToSaveCount = ' + logsToSaveCount +
+					'\nlogsToSaveCount = ' + rootState.logState.unsavedLogs.length +
 					'\ncookieAuthenticated = ' + rootState.cookieAuthenticated +
 					'\nListenForChangesRunning = ' + rootState.listenForChangesRunning +
 					'\ntimestamp = ' + new Date().toString())
 			}
 		}
-		function restartLoops(logsToSaveCount) {
+		function restartLoops() {
 			// set the session cookie and refresh every 9 minutes (CouchDB defaults at 10 min.)
 			const toDispatch = [
 				{ 'refreshCookieLoop': { timeout: 540 } },
 				{ 'listenForChanges': null },
-				{ 'recoverLog': logsToSaveCount }
+				{ 'recoverLog': null }
 			]
-			dispatch('refreshCookie', { onSuccessCallback: () => consoleLogStatus(logsToSaveCount), onFailureCallback: () => consoleLogStatus(logsToSaveCount), toDispatch })
+			dispatch('refreshCookie', { onSuccessCallback: () => consoleLogStatus(), onFailureCallback: () => consoleLogStatus(), toDispatch })
 		}
 
 		rootState.logState.runningWatchdogId = setInterval(() => {
 			const wasOffline = !rootState.online
-			const logsToSaveCount = rootState.logState.unsavedLogs.length
 			globalAxios({
 				method: 'HEAD',
 			}).then(() => {
 				rootState.online = true
 				if (wasOffline) {
-					restartLoops(logsToSaveCount)
-				} else consoleLogStatus(logsToSaveCount)
+					restartLoops()
+				} else consoleLogStatus()
 			}).catch(error => {
 				rootState.online = false
 				// eslint-disable-next-line no-console
@@ -57,8 +56,8 @@ const actions = {
 				// if error status 401 is returned we are online again despite the error condition (no authentication)
 				if (error.message.includes('401')) {
 					rootState.online = true
-					restartLoops(logsToSaveCount)
-				} else consoleLogStatus(logsToSaveCount)
+					restartLoops()
+				} else consoleLogStatus()
 			})
 		}, WATCHDOGINTERVAL * 1000)
 	},
@@ -66,7 +65,7 @@ const actions = {
 	recoverLog({
 		rootState,
 		dispatch
-	}, logsToSaveCount) {
+	}) {
 		// catch up the logging
 		globalAxios({
 			method: 'GET',
@@ -75,14 +74,14 @@ const actions = {
 			const log = res.data
 			// save the stored logs
 			let msg
-			if (logsToSaveCount > 0) {
+			if (rootState.logState.unsavedLogs.length > 0) {
 				for (let l of rootState.logState.unsavedLogs) {
 					log.entries.unshift(l)
 				}
-				msg = `Watchdog rectified the offline status, found ${logsToSaveCount} unsaved log entries and saved them`
+				msg = `Watchdog rectified the network error, found ${rootState.logState.unsavedLogs.length} unsaved log entries and saved them`
 				rootState.logState.unsavedLogs = []
 			} else {
-				msg = `Watchdog rectified the offline status`
+				msg = `Watchdog rectified the network error`
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debugConnectionAndLogging) console.log(msg)

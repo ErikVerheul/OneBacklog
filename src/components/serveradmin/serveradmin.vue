@@ -3,7 +3,8 @@
     <app-header></app-header>
     <b-container fluid>
       <h2>Server admin view: {{ optionSelected }}</h2>
-      <b-button block @click="createBackup"> Create a database backup</b-button>
+      <b-button block @click="viewLog">View the log</b-button>
+      <b-button block @click="createBackup">Create a database backup</b-button>
       <b-button block @click="restoreBackup">Restore a database from backup</b-button>
       <b-button block @click="createNewDb">Create a new database</b-button>
       <b-button block @click="changeMyDb">Change my default database to any available database</b-button>
@@ -11,6 +12,29 @@
       <b-button block variant="warning" @click="remHistAndComm">Remove history and comments</b-button>
       <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
       <b-button block @click="fauxton">All FAUXTON tasks</b-button>
+
+      <div v-if="optionSelected === 'View the log'">
+        <h2>View the log</h2>
+        <b-form-group>
+          <h5>Select the database to view the log</h5>
+          <b-form-radio-group
+            v-model="$store.state.selectedDatabaseName"
+            :options="$store.state.databaseOptions"
+            stacked
+          ></b-form-radio-group>
+        </b-form-group>
+        <b-button class="m-1" @click="doViewLog">Show</b-button>
+        <b-button @click="cancel" variant="seablue">Return</b-button>
+        <b-modal v-model="showLogModal" size="lg" :title="logModalTitle()">
+          <div v-for="item in $store.state.logEntries" :key="item.timestamp">
+            Event: {{ item.event }} <br/>
+            Severity: {{ severity(item.level) }} <br/>
+            By: {{ item.by }} <br/>
+            Timestamp: {{ new Date(item.timestamp) }}
+            <hr>
+          </div>
+        </b-modal>
+      </div>
 
       <div v-if="optionSelected === 'Create a database backup'">
         <h2>Create a database backup</h2>
@@ -184,6 +208,7 @@ export default {
       newDbName: '',
       productName: '',
       removeAge: 365,
+      showLogModal: false,
       currentDbRestored: false
     }
   },
@@ -199,6 +224,46 @@ export default {
   },
 
   methods: {
+    logModalTitle() {
+      return 'Log of database ' + this.$store.state.selectedDatabaseName
+    },
+
+    severity(level) {
+      let severity = ''
+      switch (level) {
+        case -1:
+          severity = 'DEBUG'
+          break
+        case 0:
+          severity = 'INFO'
+          break
+        case 1:
+          severity = 'WARNING'
+          break
+        case 2:
+          severity = 'ERROR'
+          break
+        case 3:
+          severity = 'CRITICAL'
+      }
+      return severity
+    },
+
+    viewLog() {
+      this.optionSelected = 'View the log'
+      this.canCancel = true
+      this.localMessage = ''
+      this.showLogModal = false
+      this.$store.state.isLogLoaded = false
+      // get all non sytem & non backup databases
+      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+    },
+
+    doViewLog() {
+      this.$store.state.isLogLoaded = false
+      this.$store.dispatch('loadLog', { dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => this.showLogModal = true })
+    },
+
     createBackup() {
       this.optionSelected = 'Create a database backup'
       this.canCancel = true

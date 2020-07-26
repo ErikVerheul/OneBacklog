@@ -20,6 +20,27 @@ const state = {
 }
 
 const actions = {
+	loadLog({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: payload.dbName + '/log'
+		}).then(res => {
+			rootState.logEntries = res.data.entries
+			// execute passed function if provided
+			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+			rootState.isLogLoaded = true
+		}).catch(error => {
+			let msg = `loadLog: Could not load the log of database ${payload.dbName}, ${error}`
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
 	/* Get all database names */
 	getAllDatabases({
 		rootState,
