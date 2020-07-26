@@ -18,32 +18,34 @@ const computed = {
 
 const methods = {
   showContextMenu(node) {
-    if (this.$store.state.selectedNodes.length === 1) {
-      this.contextOptionSelected = undefined
-      this.listItemText = ''
-      this.showAssistance = false
-      this.disableOkButton = true
-      // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
-      const allowExtraLevel = node.level < this.taskLevel
-      if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', this.isPO || this.isAPO, allowExtraLevel)) {
-        const parentNode = window.slVueTree.getParentNode(node)
-        this.contextNodeSelected = node
-        this.contextParentTeam = parentNode.data.team
-        this.contextParentType = this.getLevelText(parentNode.level)
-        this.contextNodeTitle = node.title
-        this.contextNodeLevel = node.level
-        this.contextNodeType = this.getLevelText(node.level)
-        this.contextChildType = this.getLevelText(node.level + 1)
-        this.contextNodeTeam = node.data.team
-        this.hasDependencies = node.dependencies && node.dependencies.length > 0
-        this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
-        this.allowRemoval = true
-        if (this.$refs.c_contextMenuRef) {
-          // prevent error message on recompile
-          this.$refs.c_contextMenuRef.show()
-        }
-      } else this.allowRemoval = this.isReqAreaItem
-    } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
+    if (node._id === this.getNodeSelected._id) {
+      if (this.$store.state.selectedNodes.length === 1) {
+        this.contextOptionSelected = undefined
+        this.listItemText = ''
+        this.showAssistance = false
+        this.disableOkButton = true
+        // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
+        const allowExtraLevel = node.level < this.taskLevel
+        if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', this.isPO || this.isAPO, allowExtraLevel)) {
+          const parentNode = window.slVueTree.getParentNode(node)
+          this.contextNodeSelected = node
+          this.contextParentTeam = parentNode.data.team
+          this.contextParentType = this.getLevelText(parentNode.level)
+          this.contextNodeTitle = node.title
+          this.contextNodeLevel = node.level
+          this.contextNodeType = this.getLevelText(node.level)
+          this.contextChildType = this.getLevelText(node.level + 1)
+          this.contextNodeTeam = node.data.team
+          this.hasDependencies = node.dependencies && node.dependencies.length > 0
+          this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
+          this.allowRemoval = true
+          if (this.$refs.c_contextMenuRef) {
+            // prevent error message on recompile
+            this.$refs.c_contextMenuRef.show()
+          }
+        } else this.allowRemoval = this.isReqAreaItem
+      } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one`, WARNING)
+    } else this.showLastEvent(`Select first (left-click) before opening the context menu (right-click)`, WARNING)
   },
 
   showSelected(idx) {
@@ -85,9 +87,18 @@ const methods = {
         this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
         this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
         break
-
+      case this.REMOVEITEM:
+        this.assistanceText = this.$store.state.help.help.remove
+        if (this.hasDependencies) {
+          this.listItemText = "WARNING: this item has dependencies on other items. Remove the dependency/dependencies first."
+          this.disableOkButton = true
+        } else if (this.hasConditions) {
+          this.listItemText = "WARNING: this item is conditional for other items. Remove the condition(s) first"
+          this.disableOkButton = true
+        } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
+        break
       case this.REMOVEREQAREA:
-        this.assistanceText = 'No assistance available'
+        this.assistanceText = this.$store.state.help.help.remove
         this.listItemText = `Remove this requirement area`
         break
       case this.CHECKSTATES:
