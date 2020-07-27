@@ -6,6 +6,18 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.1.0 - 27 July 2020 Feature update and bug fixes</h3>
+          <p>New features:</p>
+          <ul>
+            <li>Log viewer for the server admin</li>
+            <li>When opening context menu select and load item automatically (no need to select first)</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Regression: Cannot change team</li>
+            <li>Console log messages showing (switched off now)</li>
+          </ul>
+          <hr />
           <h3>v.1.0.0 - 18 July 2020 Feature complete release</h3>
           <p>New features:</p>
           <ul>
