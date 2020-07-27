@@ -303,7 +303,7 @@
     <!-- set req area -->
     <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
       <template v-slot:modal-title>
-        {{ getNodeSelected.title }}
+        {{ getLastSelectedNode.title }}
       </template>
       <b-form-group label="Select the requirement area this item belongs to:">
         <b-form-radio-group

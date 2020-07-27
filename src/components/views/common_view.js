@@ -120,7 +120,7 @@ const computed = {
     'canCreateComments',
     'canUploadAttachments',
     'getpreviousNodeSelected',
-    'getNodeSelected',
+    'getLastSelectedNode',
     'getCurrentItemLevel',
     'getCurrentItemState',
     'getItemSprintName',
@@ -427,7 +427,7 @@ const methods = {
   },
 
   subscribeClicked() {
-    this.$store.dispatch('changeSubsription', { node: this.getNodeSelected, timestamp: Date.now() })
+    this.$store.dispatch('changeSubsription', { node: this.getLastSelectedNode, timestamp: Date.now() })
   },
 
   filterComments() {
@@ -436,7 +436,7 @@ const methods = {
 
   uploadAttachment() {
     this.$store.dispatch('uploadAttachmentAsync', {
-      node: this.getNodeSelected,
+      node: this.getLastSelectedNode,
       fileInfo: this.fileInfo,
       currentDocId: this.$store.state.currentDoc._id,
       timestamp: Date.now()
@@ -449,7 +449,7 @@ const methods = {
 
   insertComment() {
     this.$store.dispatch('addComment', {
-      node: this.getNodeSelected,
+      node: this.getLastSelectedNode,
       comment: this.newComment,
       timestamp: Date.now()
     })
@@ -457,14 +457,14 @@ const methods = {
 
   insertHist() {
     this.$store.dispatch('addHistoryComment', {
-      node: this.getNodeSelected,
+      node: this.getLastSelectedNode,
       comment: this.newHistory,
       timestamp: Date.now()
     })
   },
 
   /* Tree and database update methods */
-  updateDescription(node = this.getNodeSelected) {
+  updateDescription(node = this.getLastSelectedNode) {
     if (this.$store.state.currentDoc.description !== this.newDescription) {
       // skip update when not changed
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
@@ -478,7 +478,7 @@ const methods = {
     }
   },
 
-  updateAcceptance(node = this.getNodeSelected) {
+  updateAcceptance(node = this.getLastSelectedNode) {
     // skip update when not changed
     if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
@@ -494,7 +494,7 @@ const methods = {
 
   updateTsSize() {
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
-      const node = this.getNodeSelected
+      const node = this.getLastSelectedNode
       let size = document.getElementById("tShirtSizeId").value.toUpperCase()
       const sizeArray = this.$store.state.configData.tsSize
       if (sizeArray.includes(size)) {
@@ -520,7 +520,7 @@ const methods = {
   /* Only authorized users who are member of the owning team can change story points. */
   updateStoryPoints() {
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item')) {
-      const node = this.getNodeSelected
+      const node = this.getLastSelectedNode
       let el = document.getElementById("storyPointsId")
       if (isNaN(el.value) || el.value < 0) {
         el.value = '?'
@@ -540,7 +540,7 @@ const methods = {
 
   updatePersonHours() {
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
-      const node = this.getNodeSelected
+      const node = this.getLastSelectedNode
       let el = document.getElementById("personHoursId")
       if (isNaN(el.value) || el.value < 0) {
         el.value = '?'
@@ -567,7 +567,7 @@ const methods = {
   */
   onStateChange(newState) {
     function changeState(vm) {
-      const node = vm.getNodeSelected
+      const node = vm.getLastSelectedNode
       const descendants = window.slVueTree.getDescendantsInfo(node).descendants
       if (descendants.length > 0) {
         let highestState = vm.newState
@@ -588,12 +588,12 @@ const methods = {
         }
       }
 
-      vm.$store.dispatch('setState', { node, newState, position: vm.getNodeSelected.ind, timestamp: Date.now(), createUndo: true })
+      vm.$store.dispatch('setState', { node, newState, position: vm.getLastSelectedNode.ind, timestamp: Date.now(), createUndo: true })
     }
     if (newState !== this.$store.state.currentDoc.state) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
         changeState(this)
-        const parentNode = window.slVueTree.getParentNode(this.getNodeSelected)
+        const parentNode = window.slVueTree.getParentNode(this.getLastSelectedNode)
         if (parentNode._id != 'root') {
           if (parentNode.data.team !== this.myTeam) {
             this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
@@ -610,7 +610,7 @@ const methods = {
     if (oldTitle === newTitle) return
 
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
-      const node = this.getNodeSelected
+      const node = this.getLastSelectedNode
       // update current document in database
       this.$store.dispatch('setDocTitle', {
         node,

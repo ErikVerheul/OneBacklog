@@ -168,7 +168,7 @@ export default new Vuex.Store({
 			return state.previousSelectedNodes.slice(-1)[0]
 		},
 		/* Return the last selected node or undefined when no node is selected */
-		getNodeSelected(state) {
+		getLastSelectedNode(state) {
 			return state.selectedNodes.slice(-1)[0]
 		},
 		isAuthenticated(state) {

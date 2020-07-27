@@ -60,7 +60,7 @@ const watch = {
     // prevent looping
     if (val !== this.$store.state.currentDoc.subtype) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the pbi type')) {
-        const node = this.getNodeSelected
+        const node = this.getLastSelectedNode
         this.$store.dispatch('setSubType', {
           node,
           newSubType: val,
@@ -215,31 +215,31 @@ const methods = {
     this.updateAcceptance(this.getpreviousNodeSelected)
 
     // load the document if not already in memory
-    if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
+    if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id) {
       this.$store.dispatch('loadDoc', {
-        id: this.getNodeSelected._id, onSuccessCallback: () => {
+        id: this.getLastSelectedNode._id, onSuccessCallback: () => {
           // if the root node is selected do nothing
-          if (this.getNodeSelected._id !== 'root') {
+          if (this.getLastSelectedNode._id !== 'root') {
             // if the user clicked on a node of another product
-            if (this.$store.state.currentProductId !== this.getNodeSelected.productId) {
+            if (this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
               // clear any outstanding filters
               window.slVueTree.resetFilters('onNodesSelected')
               // collapse the previously selected product
               window.slVueTree.collapseTree()
               // update current productId and title
-              this.$store.state.currentProductId = this.getNodeSelected.productId
-              this.$store.state.currentProductTitle = this.getNodeSelected.title
+              this.$store.state.currentProductId = this.getLastSelectedNode.productId
+              this.$store.state.currentProductTitle = this.getLastSelectedNode.title
               // expand the newly selected product up to the feature level
               window.slVueTree.expandTree()
             }
           }
           let evt = ""
-          const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getNodeSelected.title)
+          const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
           if (selNodes.length === 1) {
-            evt = `${this.getLevelText(selNodes[0].level)} '${lastSelectedNodeTitle}' is selected.`
+            evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} '${lastSelectedNodeTitle}' is selected.`
           } else {
             const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
-            evt = `${this.getLevelText(selNodes[0].level)} ${multiNodesTitle} are selected.`
+            evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} ${multiNodesTitle} are selected.`
           }
           this.showLastEvent(evt, INFO)
         }

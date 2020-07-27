@@ -62,7 +62,7 @@ const computed = {
     ...mapGetters([
         'isPO',
         'isAPO',
-        'getNodeSelected',
+        'getLastSelectedNode',
         'myAssignedProductIds',
         'myTeam'
     ])

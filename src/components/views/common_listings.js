@@ -17,7 +17,7 @@ function convertToShortIds(ids) {
 
 const computed = {
   ...mapGetters([
-    'getNodeSelected'
+    'getLastSelectedNode'
   ]),
 
   isUploadDone() {
@@ -141,7 +141,7 @@ const methods = {
     delete this.$store.state.currentDoc._attachments[attachment.title]
     // force a re-render
     this.$forceUpdate()
-    this.$store.dispatch('removeAttachmentAsync', { node: this.getNodeSelected, attachmentTitle: attachment.title})
+    this.$store.dispatch('removeAttachmentAsync', { node: this.getLastSelectedNode, attachmentTitle: attachment.title})
   },
 
   prepHistoryText(key, value) {

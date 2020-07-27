@@ -174,24 +174,24 @@ const methods = {
     this.updateAcceptance(this.getpreviousNodeSelected)
 
     // load the document if not already in memory
-    if (this.getNodeSelected._id !== this.$store.state.currentDoc._id) {
+    if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id) {
       this.$store.dispatch('loadDoc', {
-        id: this.getNodeSelected._id, onSuccessCallback: () => {
+        id: this.getLastSelectedNode._id, onSuccessCallback: () => {
           // preset the req area color if available
-          this.selReqAreaColor = this.getNodeSelected.data.reqAreaItemColor
+          this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
           // if the user clicked on a node of another product (not root)
-          if (this.getNodeSelected._id !== 'root' && this.$store.state.currentProductId !== this.getNodeSelected.productId) {
+          if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
             // update current productId and title
-            this.$store.state.currentProductId = this.getNodeSelected.productId
-            this.$store.state.currentProductTitle = this.getNodeSelected.title
+            this.$store.state.currentProductId = this.getLastSelectedNode.productId
+            this.$store.state.currentProductTitle = this.getLastSelectedNode.title
           }
           let evt = ""
-          const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getNodeSelected.title)
+          const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
           if (selNodes.length === 1) {
-            evt = `${this.getLevelText(selNodes[0].level)} '${lastSelectedNodeTitle}' is selected.`
+            evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} '${lastSelectedNodeTitle}' is selected.`
           } else {
             const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
-            evt = `${this.getLevelText(selNodes[0].level)} ${multiNodesTitle} are selected.`
+            evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} ${multiNodesTitle} are selected.`
           }
           this.showLastEvent(evt, INFO)
         }
@@ -256,7 +256,7 @@ const methods = {
   },
 
   setUserColor(newColor) {
-    this.$store.dispatch('updateColorDb', { node: this.getNodeSelected, newColor, createUndo: true })
+    this.$store.dispatch('updateColorDb', { node: this.getLastSelectedNode, newColor, createUndo: true })
   },
 
   setReqArea(reqarea) {
@@ -280,7 +280,7 @@ const methods = {
   * If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse
   */
   doSetReqArea() {
-    this.$store.dispatch('updateReqArea', { node: this.getNodeSelected, reqarea: this.selReqAreaId, timestamp: Date.now() })
+    this.$store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqarea: this.selReqAreaId, timestamp: Date.now() })
   }
 }
 

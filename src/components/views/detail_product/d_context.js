@@ -3,6 +3,7 @@ import { mapGetters } from 'vuex'
 import CommonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
+const INFO = 0
 const WARNING = 1
 const PBILEVEL = 5
 // is initiated in method moveItemToOtherProduct
@@ -34,7 +35,7 @@ const computed = {
 
 const methods = {
   showContextMenu(node) {
-    if (node._id === this.getNodeSelected._id) {
+    if (node._id === this.getLastSelectedNode._id) {
       if (this.$store.state.selectedNodes.length === 1) {
         this.contextOptionSelected = undefined
         this.listItemText = ''
@@ -65,8 +66,9 @@ const methods = {
             // prevent error message on recompile
             this.$refs.d_contextMenuRef.show()
           }
+          this.showLastEvent(`${this.getLevelText(node.level, node.data.subtype)} '${node.title}' is selected`, INFO)
         } else this.allowRemoval = false
-      } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one.`, WARNING)
+      } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one`, WARNING)
     } else this.showLastEvent(`Select first (left-click) before opening the context menu (right-click)`, WARNING)
   },
 

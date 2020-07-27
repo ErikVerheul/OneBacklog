@@ -18,7 +18,7 @@ const computed = {
 
 const methods = {
   showContextMenu(node) {
-    if (node._id === this.getNodeSelected._id) {
+    if (node._id === this.getLastSelectedNode._id) {
       if (this.$store.state.selectedNodes.length === 1) {
         this.contextOptionSelected = undefined
         this.listItemText = ''
