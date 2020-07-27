@@ -35,41 +35,44 @@ const computed = {
 
 const methods = {
   showContextMenu(node) {
-    if (node._id === this.getLastSelectedNode._id) {
-      if (this.$store.state.selectedNodes.length === 1) {
-        this.contextOptionSelected = undefined
-        this.listItemText = ''
-        this.showAssistance = false
-        this.disableOkButton = true
-        // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
-        const allowExtraLevel = node.level < this.taskLevel
-        if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', this.isPO, allowExtraLevel)) {
-          const parentNode = window.slVueTree.getParentNode(node)
-          this.contextNodeSelected = node
-          this.contextParentTeam = parentNode.data.team
-          this.contextParentType = this.getLevelText(parentNode.level)
-          this.contextNodeTitle = node.title
-          this.contextNodeLevel = node.level
-          this.contextNodeType = this.getLevelText(node.level, node.data.subtype)
-          this.contextChildType = this.getLevelText(node.level + 1)
-          this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
-          this.contextNodeTeam = node.data.team
-          this.hasDependencies = node.dependencies && node.dependencies.length > 0
-          this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
-          this.allowRemoval = true
-          this.isInSprint = node.data.sprintId ? true : false
-          // can only assign pbi's to a sprint if not in a sprint already
-          this.canAssignPbiToSprint = node.level === this.pbiLevel && !node.data.sprintId
-          // can only assign tasks to a sprint if not in a sprint already
-          this.canAssignTaskToSprint = node.level === this.taskLevel && !node.data.sprintId
-          if (this.$refs.d_contextMenuRef) {
-            // prevent error message on recompile
-            this.$refs.d_contextMenuRef.show()
-          }
-          this.showLastEvent(`${this.getLevelText(node.level, node.data.subtype)} '${node.title}' is selected`, INFO)
-        } else this.allowRemoval = false
-      } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one`, WARNING)
-    } else this.showLastEvent(`Select first (left-click) before opening the context menu (right-click)`, WARNING)
+    if (this.$store.state.selectedNodes.length === 1) {
+      if (node._id !== this.getLastSelectedNode._id) {
+        // select and load the item
+        this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
+        window.slVueTree.emitSelect()
+      }
+      this.contextOptionSelected = undefined
+      this.listItemText = ''
+      this.showAssistance = false
+      this.disableOkButton = true
+      // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
+      const allowExtraLevel = node.level < this.taskLevel
+      if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', this.isPO, allowExtraLevel)) {
+        const parentNode = window.slVueTree.getParentNode(node)
+        this.contextNodeSelected = node
+        this.contextParentTeam = parentNode.data.team
+        this.contextParentType = this.getLevelText(parentNode.level)
+        this.contextNodeTitle = node.title
+        this.contextNodeLevel = node.level
+        this.contextNodeType = this.getLevelText(node.level, node.data.subtype)
+        this.contextChildType = this.getLevelText(node.level + 1)
+        this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
+        this.contextNodeTeam = node.data.team
+        this.hasDependencies = node.dependencies && node.dependencies.length > 0
+        this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
+        this.allowRemoval = true
+        this.isInSprint = node.data.sprintId ? true : false
+        // can only assign pbi's to a sprint if not in a sprint already
+        this.canAssignPbiToSprint = node.level === this.pbiLevel && !node.data.sprintId
+        // can only assign tasks to a sprint if not in a sprint already
+        this.canAssignTaskToSprint = node.level === this.taskLevel && !node.data.sprintId
+        if (this.$refs.d_contextMenuRef) {
+          // prevent error message on recompile
+          this.$refs.d_contextMenuRef.show()
+        }
+        this.showLastEvent(`${this.getLevelText(node.level, node.data.subtype)} '${node.title}' is selected`, INFO)
+      } else this.allowRemoval = false
+    } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one`, WARNING)
   },
 
   showSelected(idx) {

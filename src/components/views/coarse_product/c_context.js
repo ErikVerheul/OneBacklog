@@ -18,34 +18,37 @@ const computed = {
 
 const methods = {
   showContextMenu(node) {
-    if (node._id === this.getLastSelectedNode._id) {
-      if (this.$store.state.selectedNodes.length === 1) {
-        this.contextOptionSelected = undefined
-        this.listItemText = ''
-        this.showAssistance = false
-        this.disableOkButton = true
-        // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
-        const allowExtraLevel = node.level < this.taskLevel
-        if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', this.isPO || this.isAPO, allowExtraLevel)) {
-          const parentNode = window.slVueTree.getParentNode(node)
-          this.contextNodeSelected = node
-          this.contextParentTeam = parentNode.data.team
-          this.contextParentType = this.getLevelText(parentNode.level)
-          this.contextNodeTitle = node.title
-          this.contextNodeLevel = node.level
-          this.contextNodeType = this.getLevelText(node.level)
-          this.contextChildType = this.getLevelText(node.level + 1)
-          this.contextNodeTeam = node.data.team
-          this.hasDependencies = node.dependencies && node.dependencies.length > 0
-          this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
-          this.allowRemoval = true
-          if (this.$refs.c_contextMenuRef) {
-            // prevent error message on recompile
-            this.$refs.c_contextMenuRef.show()
-          }
-        } else this.allowRemoval = this.isReqAreaItem
-      } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one`, WARNING)
-    } else this.showLastEvent(`Select first (left-click) before opening the context menu (right-click)`, WARNING)
+    if (this.$store.state.selectedNodes.length === 1) {
+      if (node._id !== this.getLastSelectedNode._id) {
+        // select and load the item
+        this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
+        window.slVueTree.emitSelect()
+      }
+      this.contextOptionSelected = undefined
+      this.listItemText = ''
+      this.showAssistance = false
+      this.disableOkButton = true
+      // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
+      const allowExtraLevel = node.level < this.taskLevel
+      if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', this.isPO || this.isAPO, allowExtraLevel)) {
+        const parentNode = window.slVueTree.getParentNode(node)
+        this.contextNodeSelected = node
+        this.contextParentTeam = parentNode.data.team
+        this.contextParentType = this.getLevelText(parentNode.level)
+        this.contextNodeTitle = node.title
+        this.contextNodeLevel = node.level
+        this.contextNodeType = this.getLevelText(node.level)
+        this.contextChildType = this.getLevelText(node.level + 1)
+        this.contextNodeTeam = node.data.team
+        this.hasDependencies = node.dependencies && node.dependencies.length > 0
+        this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
+        this.allowRemoval = true
+        if (this.$refs.c_contextMenuRef) {
+          // prevent error message on recompile
+          this.$refs.c_contextMenuRef.show()
+        }
+      } else this.allowRemoval = this.isReqAreaItem
+    } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one`, WARNING)
   },
 
   showSelected(idx) {
