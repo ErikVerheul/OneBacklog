@@ -238,7 +238,7 @@ const methods = {
 								}
 							}
 						} else if (selNode.ind < lastSelectedNode.ind) {
-							for (let i = siblings.length - 1; i > 0; i--) {
+							for (let i = siblings.length - 1; i >= 0; i--) {
 								if (siblings[i].ind < lastSelectedNode.ind && siblings[i].ind >= selNode.ind) {
 									this.$store.commit('addSelectedNode', siblings[i])
 								}
