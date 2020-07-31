@@ -931,7 +931,7 @@ export default new Vuex.Store({
 					state.cookieAuthenticated = false
 					state.stopListenForChanges = true
 					state.online = false
-					let msg = 'refreshCookie: Refresh of the authentication cookie failed with ' + error
+					let msg = 'Refresh of the authentication cookie failed with ' + error
 					// eslint-disable-next-line no-console
 					if (state.debugConnectionAndLogging) console.log(msg)
 					// do not try to save the log if a network error is detected, just queue the log
