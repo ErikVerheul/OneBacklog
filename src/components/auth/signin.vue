@@ -9,11 +9,11 @@
           <form @submit.prevent="onSubmit">
             <div class="input">
               <label for="name">Name</label>
-              <input type="text" id="name" v-model="name" />
+              <input type="text" id="name" autocomplete="username" v-model="name" />
             </div>
             <div class="input">
               <label for="password">Password</label>
-              <input type="password" id="password" v-model="password" />
+              <input type="password" autocomplete="current-password" id="password" v-model="password" />
             </div>
             <div class="submit">
               <button type="submit">Submit</button>
