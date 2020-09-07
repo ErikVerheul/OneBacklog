@@ -183,8 +183,7 @@ A demo of the current stable version is online. Try https://onebacklog.net, sign
 # install CouchDB locally
 Install the CouchDb version 3.0.0 or higher (the same-site attribute is supported starting with this version) locally and create a server admin account.
 The app uses a secure https connection using port 6984 with cooky authentication to connect to the database.
-See https://gist.github.com/cecilemuller/9492b848eb8fe46d462abeb26656c4f8 for how to create a HTTPS certificate for localhost domains
-Copy the certificate and the private key to <couchdb install directory>couchdb/etc/cert
+See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains
 Edit the local.ini file in <couchdb install directory>couchdb/etc/:
 [couchdb]
 users_db_security_editable = true
@@ -195,16 +194,19 @@ enable_cors = true
 [ssl]
 enable = true
 port = 6984 ; the default
-cert_file = <couchdb install directory>/couchdb/etc/cert/localhost.crt
-key_file = <couchdb install directory>/couchdb/etc/cert/localhost.key
+cert_file = <ssl install directory>/localhost.crt
+key_file = <ssl install directory>/localhost.key
 same_site = none ; a must have when you connect to a couchdb instance on another domain than the domain where the app is hosted (localhost when developing)
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
 # install CouchDB in the cloud
 Obtain a www ssl certificate (e.g. from LetsEncrypt)
+Place the <your-domain>.crt and <your-domain>.key files is a <ssl install directory> at the server
 Edit the local.ini file as described for the local installation.
 Renew the certificate when due.
+
+When starting the app the first time use the server admin credentials you created to install CouchDb.
 
 # install the Vue-CLI
 see https://cli.vuejs.org/
