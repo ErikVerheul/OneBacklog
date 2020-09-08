@@ -191,12 +191,13 @@ users_db_security_editable = true
 admin_only_all_dbs = false
 [httpd]
 enable_cors = true
+[couch_httpd_auth]
+same_site = none ; a must have when you connect with Chrome to a couchdb instance on another domain than the domain where the app is hosted (localhost when developing)
 [ssl]
 enable = true
 port = 6984 ; the default
 cert_file = <ssl install directory>/localhost.crt
 key_file = <ssl install directory>/localhost.key
-same_site = none ; a must have when you connect to a couchdb instance on another domain than the domain where the app is hosted (localhost when developing)
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
