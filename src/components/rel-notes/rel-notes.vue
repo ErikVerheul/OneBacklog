@@ -6,6 +6,24 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.2.0 - 9 September 2020 Feature update, security fix and doc updates</h3>
+          <p>New features:</p>
+          <ul>
+            <li>Support for CouchDb version 3.x</li>
+            <li>Development now possible using https as in production</li>
+            <li>Support for Chrome during developement thanks to the CouchDb 3.x sameSite support</li>
+            <li>Maintenance page added</li>
+          </ul>
+          <p>Security fixes:</p>
+          <ul>
+            <li>Dependency security fix</li>
+          </ul>
+          <p>Documentation<p>
+          <ul>
+            <li>'How to create a HTTPS certificate for localhost domains' doc added as html page</li>
+            <li>README.md file updated with instructions on how to configure CouchDb 3.x</li>
+          </ul>
+          <hr />
           <h3>v.1.1.0 - 27 July 2020 Feature update and bug fixes</h3>
           <p>New features:</p>
           <ul>
