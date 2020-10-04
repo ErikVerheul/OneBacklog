@@ -70,23 +70,6 @@
         <p>Check your certificate with this command <code>openssl x509 -noout -text -in localhost.crt | grep DNS:</code><br/>
         The output must be <code>DNS:localhost, DNS:dev.local</code>.<p>
         <p><b>Note: Restart couchDb and your browser after creating a new certificate.</b></p>
-
-        <h2>Changes to your setting for the Webpack webserver</h2>
-        <p>Vue thinks the local IP address is global, causing several issues. To fix this change your vue-config-js file:</a></p>
-        <code>
-            const fs = require('fs');<br/>
-            module.exports = {<br/>
-            devServer: {<br/>
-            ...<br>
-            host: 'localhost',<br/>
-            port: 8080,<br/>
-            https: true,<br/>
-            key: fs.readFileSync('&lt;  ssh directory &gt/localhost.key'),<br/>
-            cert: fs.readFileSync('&lt;  ssh directory &gt/localhost.crt'),<br/>
-            ca: fs.readFileSync('&lt;  ssh directory &gt/RootCA.pem')<br/>
-            }<br/>
-            }
-        </code>
         <hr/>
         <p>Questions? You can always <a href="mailto:tech@verheulconsultants.nl">contact us</a> by mail.</p>
         <p>&mdash; The OneBacklog team &mdash;</p>
