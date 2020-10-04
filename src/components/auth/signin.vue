@@ -6,7 +6,7 @@
       </div>
       <div class="col-lg-12 col-sm-12" id="signin">
         <div class="signin-form">
-          <form @submit.prevent="onSubmit">
+          <b-form @submit.prevent="onSubmit">
             <div class="input">
               <label for="name">Name</label>
               <input type="text" id="name" autocomplete="username" v-model="name" />
@@ -18,7 +18,7 @@
             <div class="submit">
               <button type="submit">Submit</button>
             </div>
-          </form>
+          </b-form>
         </div>
         <div
           v-if="!this.$store.state.demo"
