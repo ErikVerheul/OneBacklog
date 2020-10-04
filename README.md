@@ -228,7 +228,9 @@ VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when
 ```
 
 cd to the directory of this app and use your favorate editor to create a file named .env.production.local and enter:
+``` bash
 VUE_APP_API_URL=https://<your remote host>:6984
+```
 
 ### serve with hot reload for development at localhost:8080
 ``` bash
