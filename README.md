@@ -203,8 +203,10 @@ When starting the app the first time use the server admin credentials you create
 
 ### install CouchDB in the cloud
 Obtain a www ssl certificate (e.g. from LetsEncrypt)
-Place the <your-domain>.crt and <your-domain>.key files is a <ssl install directory> at the server
-Edit the local.ini file as described for the local installation.
+``` bash
+Place the <your-domain>.crt and <your-domain>.key files in a <ssl install directory> at the server.
+```
+Edit the local.ini file as described for the local installation.</br>
 Renew the certificate when due.
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
@@ -220,8 +222,10 @@ npm install
 
 ### create two files with environment settings for development and production
 cd to the directory of this app and use your favorate editor to create a file named .env.development.local and enter:
+``` bash
 VUE_APP_SSL_PATH=<ssl install directory>
 VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
+```
 
 cd to the directory of this app and use your favorate editor to create a file named .env.production.local and enter:
 VUE_APP_API_URL=https://<your remote host>:6984
