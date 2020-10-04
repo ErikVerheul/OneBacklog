@@ -247,7 +247,7 @@
                 <b-col v-else sm="12">
                   <center>
                     <h4>Selected start date of the first sprint is {{ startDateStr }}</h4>
-                    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+                    <b-form @submit.prevent="onSubmit" @reset="onReset" v-if="show">
                       <b-form-group
                         id="input-group-1"
                         label="Enter the daytime hour (UTC) the sprint starts and ends:"
