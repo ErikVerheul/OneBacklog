@@ -179,12 +179,12 @@ A demo of the current stable version is online. Try https://onebacklog.net, sign
 
 ## Build Setup
 
-``` bash
-# install CouchDB locally
 Install the CouchDb version 3.0.0 or higher (the same-site attribute is supported starting with this version) locally and create a server admin account.
 The app uses a secure https connection using port 6984 with cooky authentication to connect to the database.
 See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains
 Edit the local.ini file in <couchdb install directory>couchdb/etc/:
+``` bash
+# install CouchDB locally
 [couchdb]
 users_db_security_editable = true
 [chttpd]
@@ -198,6 +198,7 @@ enable = true
 port = 6984 ; the default
 cert_file = <ssl install directory>/localhost.crt
 key_file = <ssl install directory>/localhost.key
+```
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
@@ -214,24 +215,30 @@ see https://cli.vuejs.org/
 
 # install dependencies
 cd to the directory of this app
+``` bash
 npm install
+```
+
+# create two files with environment settings for development and production
+cd to the directory of this app and use your favorate editor to create a file named .env.development.local and enter:
+VUE_APP_SSL_PATH=<ssl install directory>
+VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
+
+cd to the directory of this app and use your favorate editor to create a file named .env.production.local and enter:
+VUE_APP_API_URL=https://<your remote host>:6984
 
 # serve with hot reload for development at localhost:8080
+``` bash
 npm run serve
+```
 
 # build for production with minification
+``` bash
 npm run build
+```
 
 # build for production and view the bundle analyzer report
 npm run build --report
-
-# run all tests
-npm run test
-```
-# Lints and fixes files
-```
-npm run lint
-```
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
