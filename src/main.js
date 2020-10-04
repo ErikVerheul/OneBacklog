@@ -6,10 +6,10 @@ import router from './router'
 import store from './store/store'
 
 import './fa.config'
-
-axios.defaults.baseURL = 'https://onebacklog.net:6984'
+// eslint-disable-next-line no-console
+console.log('process.env.VUE_APP_API_URL = ' + process.env.VUE_APP_API_URL)
+axios.defaults.baseURL = process.env.VUE_APP_API_URL
 axios.defaults.withCredentials = true
-//axios.defaults.headers.get['Accepts'] = 'application/json'
 
 const reqInterceptor = axios.interceptors.request.use(config => {
   return config
