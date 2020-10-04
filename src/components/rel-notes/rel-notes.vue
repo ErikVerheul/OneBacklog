@@ -6,6 +6,22 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.2.1 - 5 Oktober 2020 Feature update, security fix and doc updates</h3>
+          <p>New features:</p>
+          <ul>
+            <li>Scripts added to update the app version in production</li>
+            <li>Introduction of environment variables for the CouchDb location in development and production </li>
+            <li>Introduction of environment variables for the certificate files for development using https </li>
+          </ul>
+          <p>Security fixes:</p>
+          <ul>
+            <li>Dependency security fix</li>
+          </ul>
+          <p>Documentation<p>
+          <ul>
+            <li>Updated for the changes</li>
+          </ul>
+          <hr />
           <h3>v.1.2.0 - 9 September 2020 Feature update, security fix and doc updates</h3>
           <p>New features:</p>
           <ul>
