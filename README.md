@@ -171,17 +171,16 @@ Then, the calendar items (iterations) are stored as type 'calendar' in the datab
 - It conveys a façade of improvement or agile adoption, when nothing meaningful has changed; ‘agile’ tools have nothing to do with being agile
 - They often impose inflexible terminology and workflows to the teams, taking away process ownership and restricting improvement
 - The backlog is often hidden for most people as access requires an expensive account
-- These tools enable complexifying rather than simplifying
+- These tools enable complexifying rather than simplifying</br>
 Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the real role the product owner has.
 
 ## Demo
-A demo of the current stable version is online. Try https://onebacklog.net, signin as demo user and give me your feedback by registering your most wanted features and found defects in the application itself. See the <b>release nodes</b> by clicking on the version number in the header of the app.
+A demo of the current stable version is online. Try https://onebacklog.net, signin as demo user and give me your feedback by registering your most wanted features and found defects. See the <b>release nodes</b> by clicking on the version number in the header of the app.
 
 ## Build Setup
 
 Install the CouchDb version 3.0.0 or higher (the same-site attribute is supported starting with this version) locally and create a server admin account.
-The app uses a secure https connection using port 6984 with cooky authentication to connect to the database.
-See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains
+The app uses a secure https connection using port 6984 with cooky authentication to connect to the database. See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains.</br>
 Edit the local.ini file in <couchdb install directory>couchdb/etc/:
 ``` bash
 # install CouchDB locally
@@ -202,7 +201,7 @@ key_file = <ssl install directory>/localhost.key
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
-# install CouchDB in the cloud
+### install CouchDB in the cloud
 Obtain a www ssl certificate (e.g. from LetsEncrypt)
 Place the <your-domain>.crt and <your-domain>.key files is a <ssl install directory> at the server
 Edit the local.ini file as described for the local installation.
@@ -210,16 +209,16 @@ Renew the certificate when due.
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
-# install the Vue-CLI
+### install the Vue-CLI
 see https://cli.vuejs.org/
 
-# install dependencies
+### install dependencies
 cd to the directory of this app
 ``` bash
 npm install
 ```
 
-# create two files with environment settings for development and production
+### create two files with environment settings for development and production
 cd to the directory of this app and use your favorate editor to create a file named .env.development.local and enter:
 VUE_APP_SSL_PATH=<ssl install directory>
 VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
@@ -227,19 +226,21 @@ VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when
 cd to the directory of this app and use your favorate editor to create a file named .env.production.local and enter:
 VUE_APP_API_URL=https://<your remote host>:6984
 
-# serve with hot reload for development at localhost:8080
+### serve with hot reload for development at localhost:8080
 ``` bash
 npm run serve
 ```
 
-# build for production with minification
+### build for production with minification
 ``` bash
 npm run build
 ```
 
-# build for production and view the bundle analyzer report
+### build for production and view the bundle analyzer report
+``` bash
 npm run build --report
+```
 
-### Customize configuration
+## Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
