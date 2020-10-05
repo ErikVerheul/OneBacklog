@@ -191,7 +191,6 @@
 import AppHeader from '../header/header.vue'
 import router from '../../router'
 
-const baseURL = 'https://onebacklog.net:6984/'
 const BACKUPSONLY = 1
 const ALLBUTSYSTEM = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
@@ -390,7 +389,7 @@ export default {
     },
 
     doFauxton() {
-      window.open(baseURL + '_utils/#/documentation', '_blank')
+      window.open(process.env.VUE_APP_API_URL + '/_utils/#/documentation', '_blank')
       this.fauxtonStarted = true
     },
 

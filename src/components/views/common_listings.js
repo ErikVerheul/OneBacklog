@@ -1,8 +1,6 @@
 import { mapGetters } from 'vuex'
 import { utilities } from '../mixins/generic.js'
 
-const baseURL = 'https://onebacklog.net:6984/'
-
 function convertToShortIds(ids) {
   if (!ids || ids.length === 0) return 'none'
 
@@ -133,7 +131,7 @@ const methods = {
 
   showAttachment(attachment) {
     const _id = this.$store.state.currentDoc._id
-    const url = baseURL + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
+    const url = process.env.VUE_APP_API_URL + '/' + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
     window.open(url)
   },
 
