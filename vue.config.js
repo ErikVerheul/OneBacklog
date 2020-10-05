@@ -3,8 +3,7 @@ const fs = require('fs');
 console.log('process.env.VUE_APP_SSL_PATH = ' + process.env.VUE_APP_SSL_PATH)
 module.exports = {
   lintOnSave: false,
-//  publicPath: '/',
-
+  publicPath: process.env.NODE_ENV === 'production' ? '/var/www/html' : '/',
   devServer: {
     host: 'localhost',
     port: 8080,
