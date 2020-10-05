@@ -19,6 +19,6 @@ Then open a bash shell on your dev machine (eg. GIT bash) and type:
 
 4. ssh to the server
 5. sudo ./installOneBacklog.sh to install the new version.
-6. Ctrl-F5 the OneBacklog.net page in your browser to check if the versioen number has changed.
+6. Ctrl-F5 the OneBacklog.net page in your browser to check if the version number has changed.
 
 Note: cd ../pm2 to open the directory with the nodejs app

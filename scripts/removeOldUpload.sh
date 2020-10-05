@@ -3,7 +3,7 @@ WEB_DIR=/var/www/html
 echo "delete previous upload"
 rm index.html
 echo "place maintenance.html"
-cp maintenance.html WEB_DIR/index.html
+cp maintenance.html $WEB_DIR/index.html
 rm favicon.ico
 rm -r css
 rm -r img
