@@ -181,9 +181,28 @@ A demo of the current stable version is online. Try https://onebacklog.net, sign
 
 Install the CouchDb version 3.0.0 or higher (the same-site attribute is supported starting with this version) locally and create a server admin account.
 The app uses a secure https connection using port 6984 with cooky authentication to connect to the database. See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains.</br>
-Edit the local.ini file in <couchdb install directory>couchdb/etc/:
+Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:
 ``` bash
-# install CouchDB locally
+#; install CouchDB locally
+[couchdb]
+users_db_security_editable = true
+[chttpd]
+admin_only_all_dbs = false
+[ssl]
+enable = true
+port = 6984 ; the default
+cert_file = < local ssl install directory >/localhost.crt
+key_file = < local ssl install directory >/localhost.key
+#; no cacert_file needed
+```
+
+When starting the app the first time use the server admin credentials you created to install CouchDb.
+
+### install CouchDB in the cloud
+Obtain a www ssl certificate (e.g. from LetsEncrypt)
+Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:</br>
+``` bash
+#; install CouchDB remotely
 [couchdb]
 users_db_security_editable = true
 [chttpd]
@@ -195,21 +214,23 @@ same_site = none ; a must have when you connect with Chrome to a couchdb instanc
 [ssl]
 enable = true
 port = 6984 ; the default
-cert_file = <ssl install directory>/localhost.crt
-key_file = <ssl install directory>/localhost.key
+cert_file = /opt/couchdb/letsencript/live/< your domain name >/cert.pem
+key_file = /opt/couchdb/letsencript/live/< your domain name >/privkey.pem
+cacert_file = /opt/couchdb/letsencript/live/< your domain name >/fullchain.pem
 ```
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
-### install CouchDB in the cloud
-Obtain a www ssl certificate (e.g. from LetsEncrypt)
+Let's encript renews your certificate every 3 months. Couchdb cannot access the renewed certificates directly.
+Create your ssl install directory /opt/couchdb/letsencript
+Add a script to copy these certificates automatically on renewal in the folder /etc/letsencrypt/renewal-hooks/post that Let's encrypt create for you:
 ``` bash
-Place the <your-domain>.crt and <your-domain>.key files in a <ssl install directory> at the server.
+# Name this script copyCertsForCouchdb.sh or any other name
+# Make this file executable with sudo chmod +x < this file name >
+#!/bin/bash
+cp -rfL /etc/letsencrypt/live/ /opt/couchdb/letsencrypt
+chown -R couchdb:couchdb /opt/couchdb/letsencrypt/
 ```
-Edit the local.ini file as described for the local installation.</br>
-Renew the certificate when due.
-
-When starting the app the first time use the server admin credentials you created to install CouchDb.
 
 ### install the Vue-CLI
 see https://cli.vuejs.org/
@@ -223,13 +244,14 @@ npm install
 ### create two files with environment settings for development and production
 cd to the directory of this app and use your favorate editor to create a file named .env.development.local and enter:
 ``` bash
-VUE_APP_SSL_PATH=<ssl install directory>
+VUE_APP_SSL_PATH=< local ssl install directory >
 VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
 ```
 
 cd to the directory of this app and use your favorate editor to create a file named .env.production.local and enter:
 ``` bash
-VUE_APP_API_URL=https://<your remote host>:6984
+VUE_APP_SSL_PATH=</opt/couchdb/letsencript/live/< your domain name >
+VUE_APP_API_URL=https://< your domain name >:6984
 ```
 
 ### serve with hot reload for development at localhost:8080
