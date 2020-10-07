@@ -179,10 +179,10 @@ A demo of the current stable version is online. Try https://onebacklog.net, sign
 
 ## Build Setup
 
-Install the CouchDb version 3.0.0 or higher (the same-site attribute is supported starting with this version) locally and create a server admin account.
 The app uses a secure https connection using port 6984 with cooky authentication to connect to the database. See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains.</br>
 
 ### install CouchDB locally
+Install the CouchDb version 3.0.0 or higher locally and create a server admin account.
 Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:
 ```
 [couchdb]
@@ -200,6 +200,7 @@ key_file = < local ssl install directory >/localhost.key
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
 ### install CouchDB in the cloud
+Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
 Obtain a www ssl certificate (e.g. from LetsEncrypt)</br>
 Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:</br>
 ```
