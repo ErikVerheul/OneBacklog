@@ -184,23 +184,21 @@ The app uses a secure https connection using port 6984 with cooky authentication
 
 ### install CouchDB locally
 Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:
-``` bash
-[couchdb]
-users_db_security_editable = true
-[chttpd]
-admin_only_all_dbs = false
-[ssl]
-enable = true
-port = 6984 ; the default
-cert_file = < local ssl install directory >/localhost.crt
-key_file = < local ssl install directory >/localhost.key
-#; no cacert_file needed
-```
+    [couchdb]
+    users_db_security_editable = true
+    [chttpd]
+    admin_only_all_dbs = false
+    [ssl]
+    enable = true
+    port = 6984 ; the default
+    cert_file = < local ssl install directory >/localhost.crt
+    key_file = < local ssl install directory >/localhost.key
+    ; no cacert_file needed
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
 ### install CouchDB in the cloud
-Obtain a www ssl certificate (e.g. from LetsEncrypt)
+Obtain a www ssl certificate (e.g. from LetsEncrypt)</br>
 Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:</br>
 ``` bash
 [couchdb]
