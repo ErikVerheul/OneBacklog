@@ -105,6 +105,10 @@ const routes = [
 				next('/signin')
 			}
 		}
+	},
+	{
+		path: '*',
+		component: SigninPage
 	}
 ]
 
