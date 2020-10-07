@@ -184,23 +184,25 @@ The app uses a secure https connection using port 6984 with cooky authentication
 
 ### install CouchDB locally
 Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:
-    [couchdb]
-    users_db_security_editable = true
-    [chttpd]
-    admin_only_all_dbs = false
-    [ssl]
-    enable = true
-    port = 6984 ; the default
-    cert_file = < local ssl install directory >/localhost.crt
-    key_file = < local ssl install directory >/localhost.key
-    ; no cacert_file needed
+```
+[couchdb]
+users_db_security_editable = true
+[chttpd]
+admin_only_all_dbs = false
+[ssl]
+enable = true
+port = 6984 ; the default
+cert_file = < local ssl install directory >/localhost.crt
+key_file = < local ssl install directory >/localhost.key
+; no cacert_file needed
+```
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
 ### install CouchDB in the cloud
 Obtain a www ssl certificate (e.g. from LetsEncrypt)</br>
 Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:</br>
-``` bash
+```
 [couchdb]
 users_db_security_editable = true
 [chttpd]
@@ -218,7 +220,7 @@ cacert_file = /opt/couchdb/letsencript/live/< your domain name >/fullchain.pem
 ```
 As this is a single page application we need to redirect to index.html if the url doesn’t match any assets uploaded to the server that we want to load.
 When using Apache2 as your web server add these lines to the /etc/apache2/sites-available/000-default-le-ssl.conf file:
-``` bash
+```
 <IfModule mod_ssl.c>
 <VirtualHost *:443>       
     ServerName onebacklog.net
@@ -256,14 +258,14 @@ npm install
 ```
 
 ### create two files with environment settings for development and production
-cd to the directory of this app and use your favorate editor to create a file named .env.development.local and enter:
-``` bash
+cd to the root directory of this app and use your favorate editor to create a file named .env.development.local and enter:
+```
 VUE_APP_SSL_PATH=< local ssl install directory >
 VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
 ```
 
-cd to the directory of this app and use your favorate editor to create a file named .env.production.local and enter:
-``` bash
+cd to the root directory of this app and use your favorate editor to create a file named .env.production.local and enter:
+```
 VUE_APP_API_URL=https://< your domain name >:6984
 ```
 
