@@ -8,7 +8,6 @@
   </b-modal>
 </template>
 
-
 <script>
 import { utilities } from '../../mixins/generic.js'
 const PBILEVEL = 5
@@ -16,13 +15,13 @@ const TASKLEVEL = 6
 // is initiated on component creation
 var recentSprints
 
-function shortStartDate(sprint) {
+function shortStartDate (sprint) {
   const date = new Date(sprint.startTimestamp)
   const shortDateStr = date.toUTCString()
   return shortDateStr
 }
 
-function shortEndDate(sprint) {
+function shortEndDate (sprint) {
   const date = new Date(sprint.startTimestamp + sprint.sprintLength)
   const shortDateStr = date.toUTCString()
   return shortDateStr
@@ -31,11 +30,11 @@ function shortEndDate(sprint) {
 export default {
   mixins: [utilities],
 
-  created() {
+  created () {
     recentSprints = this.getCurrentAndNextSprint()
   },
 
-  mounted() {
+  mounted () {
     window.assignToSprintRef = this.$refs.assignToSprintRef
     const currentSprintTxt = `Current sprint: '${recentSprints.currentSprint.name}' started ${shortStartDate(recentSprints.currentSprint)} and ending ${shortEndDate(recentSprints.currentSprint)}`
     const nextSprintTxt = `Next sprint: '${recentSprints.nextSprint.name}' starting ${shortStartDate(recentSprints.nextSprint)} and ending ${shortEndDate(recentSprints.nextSprint)}`
@@ -45,7 +44,7 @@ export default {
     ]
   },
 
-  data() {
+  data () {
     return {
       contextNodeTitle: this.$store.state.currentDoc.title,
       sprintOptions: [],
@@ -58,8 +57,8 @@ export default {
     * From the 'Product details' view context menu a PBI or a task can be selected to be assigned to the current or next sprint
     * Only items that are not in a sprint already can be assigned to a sprint.
     */
-    addItemToSprint() {
-      function getSprintName(id) {
+    addItemToSprint () {
+      function getSprintName (id) {
         if (id === recentSprints.currentSprint.id) {
           return recentSprints.currentSprint.name
         } else return recentSprints.nextSprint.name
@@ -76,7 +75,7 @@ export default {
       if (itemLevel === PBILEVEL) {
         const itemIds = [currentDoc._id]
         const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
-        for (let d of descendants) {
+        for (const d of descendants) {
           if (!d.data.sprintId) itemIds.push(d._id)
         }
         this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName, createUndo: true })
@@ -90,7 +89,7 @@ export default {
           this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName, createUndo: true })
         }
       }
-    },
+    }
   }
 }
 </script>

@@ -4,7 +4,7 @@ import { mapGetters } from 'vuex'
 
 const WARNING = 1
 
-function created() {
+function created () {
   eventBus.$on('contextMenu', (node) => {
     this.showContextMenu(node)
   })
@@ -13,11 +13,11 @@ function created() {
 const computed = {
   ...mapGetters([
     'isReqAreaItem'
-  ]),
+  ])
 }
 
 const methods = {
-  showContextMenu(node) {
+  showContextMenu (node) {
     if (this.$store.state.selectedNodes.length === 1) {
       if (node._id !== this.getLastSelectedNode._id) {
         // select and load the item
@@ -48,22 +48,22 @@ const methods = {
           this.$refs.c_contextMenuRef.show()
         }
       } else this.allowRemoval = this.isReqAreaItem
-    } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one`, WARNING)
+    } else this.showLastEvent('Cannot apply context menu on multiple items. Choose one', WARNING)
   },
 
-  showSelected(idx) {
-    function checkNode(vm, selNode) {
+  showSelected (idx) {
+    function checkNode (vm, selNode) {
       if (selNode._id === vm.dependentOnNode._id) {
-        vm.contextWarning = "WARNING: Item cannot be dependent on it self"
+        vm.contextWarning = 'WARNING: Item cannot be dependent on it self'
         return false
       }
       const nodeWithDependencies = vm.dependentOnNode
       if (nodeWithDependencies.dependencies.includes(selNode._id)) {
-        vm.contextWarning = "WARNING: Cannot add the same dependency twice"
+        vm.contextWarning = 'WARNING: Cannot add the same dependency twice'
         return false
       }
       if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
-        vm.contextWarning = "WARNING: Cannot create a dependency on an item with lower priority"
+        vm.contextWarning = 'WARNING: Cannot create a dependency on an item with lower priority'
         return false
       }
       return true
@@ -93,20 +93,20 @@ const methods = {
       case this.REMOVEITEM:
         this.assistanceText = this.$store.state.help.help.remove
         if (this.hasDependencies) {
-          this.listItemText = "WARNING: this item has dependencies on other items. Remove the dependency/dependencies first."
+          this.listItemText = 'WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
           this.disableOkButton = true
         } else if (this.hasConditions) {
-          this.listItemText = "WARNING: this item is conditional for other items. Remove the condition(s) first"
+          this.listItemText = 'WARNING: this item is conditional for other items. Remove the condition(s) first'
           this.disableOkButton = true
         } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
         break
       case this.REMOVEREQAREA:
         this.assistanceText = this.$store.state.help.help.remove
-        this.listItemText = `Remove this requirement area`
+        this.listItemText = 'Remove this requirement area'
         break
       case this.CHECKSTATES:
         this.assistanceText = this.$store.state.help.help.consistencyCheck
-        this.listItemText = `Start the check. See in the tree if any red badges appear`
+        this.listItemText = 'Start the check. See in the tree if any red badges appear'
         break
       case this.SETDEPENDENCY:
         this.assistanceText = this.$store.state.help.help.setDependency
@@ -135,7 +135,7 @@ const methods = {
     }
   },
 
-  procSelected() {
+  procSelected () {
     this.showAssistance = false
     switch (this.contextOptionSelected) {
       case this.CLONEPRODUCT:

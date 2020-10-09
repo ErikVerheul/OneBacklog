@@ -6,7 +6,7 @@ const PRODUCTLEVEL = 2
 const AREA_PRODUCTID = 'requirement-areas'
 const methods = {
   /* Apply the AND logic to the included filters */
-  onApplyMyFilters() {
+  onApplyMyFilters () {
     // reset the other selections first
     window.slVueTree.resetFilters('onApplyMyFilters')
     // return if no filter is selected
@@ -15,7 +15,7 @@ const methods = {
     let count = 0
     const unselectedNodes = []
     // create a callback for the filtering
-    let cb = (nm) => {
+    const cb = (nm) => {
       // skip req area definitions
       if (nm.productId === AREA_PRODUCTID) return
 
@@ -52,7 +52,7 @@ const methods = {
     window.slVueTree.traverseModels(cb)
 
     // hide unselected nodes with no selected descendants
-    for (let n of unselectedNodes) {
+    for (const n of unselectedNodes) {
       n.doShow = window.slVueTree.hasHighlightedDescendants(n)
     }
     let s

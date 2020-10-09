@@ -70,7 +70,7 @@ import StoryColumn from './StoryColumn'
 export default {
   name: 'StoryLane',
   props: ['idx'],
-  created() {
+  created () {
     this.ON_HOLD = 1
     this.TODO = 2
     this.INPROGRESS = 4

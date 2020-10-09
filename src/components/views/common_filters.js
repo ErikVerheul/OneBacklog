@@ -1,7 +1,7 @@
 const INFO = 0
 const PRODUCTLEVEL = 2
 
-function data() {
+function data () {
   return {
     filterOnReqAreas: false,
     selectedReqAreas: [],
@@ -20,7 +20,7 @@ function data() {
   }
 }
 
-function mounted() {
+function mounted () {
   // init the filter settings
   const myFilterSettings = this.$store.state.userData.myFilterSettings
   if (myFilterSettings) {
@@ -41,12 +41,12 @@ function mounted() {
   window.myFilters = this.$refs.myFiltersRef
   // set the available team options
   this.teamOptions = []
-  for (let team of Object.keys(this.$store.state.allTeams)) {
+  for (const team of Object.keys(this.$store.state.allTeams)) {
     this.teamOptions.push(team)
   }
   // remove non existing teams
-  let clearedSelectedTeams = []
-  for (let team of this.selectedTeams) {
+  const clearedSelectedTeams = []
+  for (const team of this.selectedTeams) {
     if (this.teamOptions.includes(team)) {
       clearedSelectedTeams.push(team)
     }
@@ -55,14 +55,14 @@ function mounted() {
   // set the available state options
   let i = 0
   this.stateOptions = []
-  for (let state of this.$store.state.configData.itemState) {
+  for (const state of this.$store.state.configData.itemState) {
     this.stateOptions.push({ text: state, value: i })
     i++
   }
 }
 
 const methods = {
-  onSaveFilters() {
+  onSaveFilters () {
     const myFilterSettings = {
       filterOnReqAreas: this.filterOnReqAreas,
       selectedReqAreas: this.selectedReqAreas,
@@ -81,22 +81,22 @@ const methods = {
     this.showLastEvent('Saving the filter settings', INFO)
   },
 
-  doFilterOnReqAreas(nm) {
+  doFilterOnReqAreas (nm) {
     if (nm.level < PRODUCTLEVEL) return false
     return !(this.selectedReqAreas.includes(nm.data.reqarea))
   },
 
-  doFilterOnTeams(nm) {
+  doFilterOnTeams (nm) {
     if (nm.level <= PRODUCTLEVEL) return false
     return !(this.selectedTeams.includes(nm.data.team))
   },
 
-  doFilterOnState(nm) {
+  doFilterOnState (nm) {
     if (nm.level <= PRODUCTLEVEL) return false
     return !(this.selectedStates.includes(nm.data.state))
   },
 
-  doFilterOnTime(nm) {
+  doFilterOnTime (nm) {
     if (nm.level <= PRODUCTLEVEL) return false
 
     if (this.selectedTime === '0') {

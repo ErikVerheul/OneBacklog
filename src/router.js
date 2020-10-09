@@ -19,100 +19,99 @@ import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
 import AdminPage from './components/admin/admin.vue'
 import ServerAdminPage from './components/serveradmin/serveradmin.vue'
 
-
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
 
 const routes = [
-	{
-		path: '/',
-		component: WelcomePage
-	},
-	{
-		path: '/rel-notes',
-		component: RelNotesPage
-	},
-	{
-		path: '/userguide',
-		component: UserGuidePage
-	},
-	{
-		path: '/signin',
-		component: SigninPage
-	},
-	{
-		path: '/init',
-		component: InitPage,
-		beforeEnter(to, from, next) {
-			if (store.state.userData.user) {
-				next()
-			} else {
-				next('/signin')
-			}
-		}
-	},
-	{
-		path: '/detailProduct',
-		component: ProductPage,
-		beforeEnter(to, from, next) {
-			if (store.state.userData.user) {
-				if (store.state.isProductAssigned) next()
-			} else {
-				next('/signin')
-			}
-		}
-	},
-	{
-		path: '/coarseProduct',
-		component: ReqsAreaPage,
-		beforeEnter(to, from, next) {
-			if (store.state.userData.user) {
-				next()
-			} else {
-				next('/signin')
-			}
-		}
-	},
-	{
-		path: '/board',
-		component: PlanningBoard,
-		beforeEnter(to, from, next) {
-			if (store.state.userData.user) {
-				next()
-			} else {
-				next('/signin')
-			}
-		}
-	},
-	{
-		path: '/admin',
-		component: AdminPage,
-		beforeEnter(to, from, next) {
-			if (store.state.userData.user) {
-				next()
-			} else {
-				next('/signin')
-			}
-		}
-	},
-	{
-		path: '/serveradmin',
-		component: ServerAdminPage,
-		beforeEnter(to, from, next) {
-			if (store.state.userData.user) {
-				next()
-			} else {
-				next('/signin')
-			}
-		}
-	},
-	{
-		path: '*',
-		component: SigninPage
-	}
+  {
+    path: '/',
+    component: WelcomePage
+  },
+  {
+    path: '/rel-notes',
+    component: RelNotesPage
+  },
+  {
+    path: '/userguide',
+    component: UserGuidePage
+  },
+  {
+    path: '/signin',
+    component: SigninPage
+  },
+  {
+    path: '/init',
+    component: InitPage,
+    beforeEnter (to, from, next) {
+      if (store.state.userData.user) {
+        next()
+      } else {
+        next('/signin')
+      }
+    }
+  },
+  {
+    path: '/detailProduct',
+    component: ProductPage,
+    beforeEnter (to, from, next) {
+      if (store.state.userData.user) {
+        if (store.state.isProductAssigned) next()
+      } else {
+        next('/signin')
+      }
+    }
+  },
+  {
+    path: '/coarseProduct',
+    component: ReqsAreaPage,
+    beforeEnter (to, from, next) {
+      if (store.state.userData.user) {
+        next()
+      } else {
+        next('/signin')
+      }
+    }
+  },
+  {
+    path: '/board',
+    component: PlanningBoard,
+    beforeEnter (to, from, next) {
+      if (store.state.userData.user) {
+        next()
+      } else {
+        next('/signin')
+      }
+    }
+  },
+  {
+    path: '/admin',
+    component: AdminPage,
+    beforeEnter (to, from, next) {
+      if (store.state.userData.user) {
+        next()
+      } else {
+        next('/signin')
+      }
+    }
+  },
+  {
+    path: '/serveradmin',
+    component: ServerAdminPage,
+    beforeEnter (to, from, next) {
+      if (store.state.userData.user) {
+        next()
+      } else {
+        next('/signin')
+      }
+    }
+  },
+  {
+    path: '*',
+    component: SigninPage
+  }
 ]
 
 export default new VueRouter({
-	mode: 'history',
-	routes
+  mode: 'history',
+  routes
 })

@@ -29,9 +29,9 @@ export default {
   name: 'StoryItem',
   props: ['story'],
   methods: {
-    getShortId(id) {
+    getShortId (id) {
       return id.slice(-5)
-    },
+    }
   }
 }
 </script>

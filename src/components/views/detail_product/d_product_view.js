@@ -15,7 +15,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'detailProduct'
 var returning = false
 
-function beforeCreate() {
+function beforeCreate () {
   this.$store.state.currentView = thisView
   this.$store.state.stopListenForChanges = false
   if (thisView !== this.$store.state.lastTreeView) {
@@ -34,29 +34,29 @@ function beforeCreate() {
   } else returning = true
 }
 
-function created() {
+function created () {
   // must reset the event listener to prevent duplication
   eventBus.$off('contextMenu')
   this.sprints = this.getCurrentAndNextSprint()
 }
 
-function mounted() {
+function mounted () {
   // expose instance to the global namespace
   window.slVueTree = this.$refs.slVueTree
   if (returning) {
     // window.slVueTree.getSelectedNodes()
-    this.showLastEvent(`Returning to the Product details`, INFO)
+    this.showLastEvent('Returning to the Product details', INFO)
   }
 }
 
-function data() {
+function data () {
   return {
     sprints: []
   }
 }
 
 const watch = {
-  'selectedPbiType': function (val) {
+  selectedPbiType: function (val) {
     // prevent looping
     if (val !== this.$store.state.currentDoc.subtype) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the pbi type')) {
@@ -71,7 +71,7 @@ const watch = {
     }
   },
 
-  'doAddition': function (val) {
+  doAddition: function (val) {
     if (val === true) {
       this.doAddition = false
       if (this.$store.state.selectedForView === 'attachments') {
@@ -79,7 +79,7 @@ const watch = {
           this.fileInfo = null
           this.$refs.uploadRef.show()
         } else {
-          this.showLastEvent("Sorry, your assigned role(s) disallow you to upload attachments", WARNING)
+          this.showLastEvent('Sorry, your assigned role(s) disallow you to upload attachments', WARNING)
         }
       } else {
         if (this.canCreateComments) {
@@ -92,13 +92,13 @@ const watch = {
             this.$refs.historyEditorRef.show()
           }
         } else {
-          this.showLastEvent("Sorry, your assigned role(s) disallow you to create comments", WARNING)
+          this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', WARNING)
         }
       }
     }
   },
 
-  'startFiltering': function (val) {
+  startFiltering: function (val) {
     if (val === true) {
       this.startFiltering = false
       if (this.$store.state.selectedForView === 'comments') {
@@ -114,7 +114,7 @@ const watch = {
 }
 
 const methods = {
-  getItemInfo() {
+  getItemInfo () {
     let txt = ''
     if (this.getCurrentItemLevel !== this.productLevel) {
       if (this.getCurrentItemLevel < this.taskLevel) {
@@ -130,7 +130,7 @@ const methods = {
   },
 
   /* Return true if in the current or next sprint */
-  inSprint(node) {
+  inSprint (node) {
     const sprintId = node.data.sprintId
     if (!sprintId) {
       // item not in any sprint
@@ -150,7 +150,7 @@ const methods = {
     return false
   },
 
-  getSprintText(node) {
+  getSprintText (node) {
     const sprintId = node.data.sprintId
     if (sprintId === this.sprints.currentSprint.id) {
       return 'current'
@@ -160,16 +160,16 @@ const methods = {
     }
   },
 
-  onTreeIsLoaded() {
+  onTreeIsLoaded () {
     window.slVueTree.setDescendentsReqArea()
     this.dependencyViolationsFound()
   },
 
-  showReqAreaTitle(node) {
+  showReqAreaTitle (node) {
     if (node.data.reqarea) this.showLastEvent(`This item belongs to requirement area '${this.$store.state.reqAreaMapper[node.data.reqarea]}'`, INFO)
   },
 
-  findItemOnId(shortId) {
+  findItemOnId (shortId) {
     let node
     window.slVueTree.traverseModels((nm) => {
       if (nm._id.slice(-5) === shortId) {
@@ -208,7 +208,7 @@ const methods = {
   },
 
   /* event handling */
-  onNodesSelected() {
+  onNodesSelected () {
     const selNodes = this.$store.state.selectedNodes
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription(this.getpreviousNodeSelected)
@@ -217,7 +217,8 @@ const methods = {
     // load the document if not already in memory
     if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id) {
       this.$store.dispatch('loadDoc', {
-        id: this.getLastSelectedNode._id, onSuccessCallback: () => {
+        id: this.getLastSelectedNode._id,
+        onSuccessCallback: () => {
           // if the root node is selected do nothing
           if (this.getLastSelectedNode._id !== 'root') {
             // if the user clicked on a node of another product
@@ -233,7 +234,7 @@ const methods = {
               window.slVueTree.expandTree()
             }
           }
-          let evt = ""
+          let evt = ''
           const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
           if (selNodes.length === 1) {
             evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} '${lastSelectedNodeTitle}' is selected.`
@@ -248,7 +249,7 @@ const methods = {
   },
 
   /* Use this event to check if the drag is allowed. If not, issue a warning */
-  beforeNodeDropped(draggingNodes, position, cancel) {
+  beforeNodeDropped (draggingNodes, position, cancel) {
     /*
      * 1. Disallow drop on node were the user has no write authority and below a parent owned by another team
      * 2. Disallow drop when moving over more than 1 level.
@@ -258,15 +259,14 @@ const methods = {
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
     if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
-
-      let checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
+      const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck2 = levelChange > 1
         const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.taskLevel
         const dropInd = position.nodeModel.ind
         let sourceMinInd = Number.MAX_SAFE_INTEGER
         let sourceMaxind = 0
-        for (let d of draggingNodes) {
+        for (const d of draggingNodes) {
           if (d.ind < sourceMinInd) sourceMinInd = d.ind
           if (d.ind > sourceMaxind) sourceMaxind = d.ind
         }
@@ -283,14 +283,13 @@ const methods = {
       if (position.placement === 'inside') targetLevel++
       if (checkDropNotAllowed(draggingNodes[0], sourceLevel, targetLevel)) {
         cancel(true)
-        return
       }
     } else cancel(true)
   },
 
-  getPbiOptions() {
+  getPbiOptions () {
     this.selectedPbiType = this.$store.state.currentDoc.subtype
-    let options = [
+    const options = [
       { text: 'User story', value: 0 },
       { text: 'Spike', value: 1 },
       { text: 'Defect', value: 2 }

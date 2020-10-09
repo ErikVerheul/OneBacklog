@@ -16,7 +16,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'coarseProduct'
 var returning = false
 
-function beforeCreate() {
+function beforeCreate () {
   this.$store.state.currentView = thisView
   if (thisView !== this.$store.state.lastTreeView) {
     this.$store.state.treeNodes = []
@@ -34,21 +34,21 @@ function beforeCreate() {
   } else returning = true
 }
 
-function created() {
+function created () {
   // must reset the event listener to prevent duplicated
   eventBus.$off('contextMenu')
 }
 
-function mounted() {
+function mounted () {
   // expose instance to the global namespace
   window.slVueTree = this.$refs.slVueTree
   if (returning) {
     // window.slVueTree.getSelectedNodes()
-    this.showLastEvent(`Returning to the Products overview`, INFO)
+    this.showLastEvent('Returning to the Products overview', INFO)
   }
 }
 
-function data() {
+function data () {
   return {
     colorOptions: [
       { color: 'red', hexCode: '#FF0000' },
@@ -78,13 +78,13 @@ const computed = {
   * $          -> match end
   * i          -> ignore case
   */
-  colorState() {
+  colorState () {
     return /^#[0-9A-F]{6}$/i.test(this.userReqAreaItemcolor)
   }
 }
 
 const watch = {
-  'doAddition': function (val) {
+  doAddition: function (val) {
     if (val === true) {
       this.doAddition = false
       if (this.$store.state.selectedForView === 'attachments') {
@@ -92,7 +92,7 @@ const watch = {
           this.fileInfo = null
           this.$refs.uploadRef.show()
         } else {
-          this.showLastEvent("Sorry, your assigned role(s) disallow you to upload attachments", WARNING)
+          this.showLastEvent('Sorry, your assigned role(s) disallow you to upload attachments', WARNING)
         }
       } else {
         if (this.canCreateComments) {
@@ -105,13 +105,13 @@ const watch = {
             this.$refs.historyEditorRef.show()
           }
         } else {
-          this.showLastEvent("Sorry, your assigned role(s) disallow you to create comments", WARNING)
+          this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', WARNING)
         }
       }
     }
   },
 
-  'startFiltering': function (val) {
+  startFiltering: function (val) {
     if (val === true) {
       this.startFiltering = false
       if (this.$store.state.selectedForView === 'comments') {
@@ -127,7 +127,7 @@ const watch = {
 }
 
 const methods = {
-  getItemInfo() {
+  getItemInfo () {
     let txt = ''
     if (this.getCurrentItemLevel !== this.productLevel) {
       txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
@@ -135,12 +135,12 @@ const methods = {
     return txt
   },
 
-  onTreeIsLoaded() {
+  onTreeIsLoaded () {
     this.dependencyViolationsFound()
     this.$store.commit('createColorMapper')
   },
 
-  findItemOnId(shortId) {
+  findItemOnId (shortId) {
     let node
     window.slVueTree.traverseModels((nm) => {
       if (nm._id.slice(-5) === shortId) {
@@ -167,7 +167,7 @@ const methods = {
   },
 
   /* event handling */
-  onNodesSelected() {
+  onNodesSelected () {
     const selNodes = this.$store.state.selectedNodes
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription(this.getpreviousNodeSelected)
@@ -176,7 +176,8 @@ const methods = {
     // load the document if not already in memory
     if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id) {
       this.$store.dispatch('loadDoc', {
-        id: this.getLastSelectedNode._id, onSuccessCallback: () => {
+        id: this.getLastSelectedNode._id,
+        onSuccessCallback: () => {
           // preset the req area color if available
           this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
           // if the user clicked on a node of another product (not root)
@@ -185,7 +186,7 @@ const methods = {
             this.$store.state.currentProductId = this.getLastSelectedNode.productId
             this.$store.state.currentProductTitle = this.getLastSelectedNode.title
           }
-          let evt = ""
+          let evt = ''
           const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
           if (selNodes.length === 1) {
             evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} '${lastSelectedNodeTitle}' is selected.`
@@ -200,7 +201,7 @@ const methods = {
   },
 
   /* Use this event to check if the drag is allowed. If not, issue a warning */
-  beforeNodeDropped(draggingNodes, position, cancel) {
+  beforeNodeDropped (draggingNodes, position, cancel) {
     /*
      * 1. Disallow drop on node were the user has no write authority and below a parent owned by another team
      * 2. Disallow drop when moving over more than 1 level
@@ -213,7 +214,7 @@ const methods = {
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
     if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position', this.isAPO)) {
-      let checkDropNotAllowed = (node) => {
+      const checkDropNotAllowed = (node) => {
         const sourceProductId = draggingNodes[0].productId
         const targetProductId = position.nodeModel.productId
         const sourceLevel = draggingNodes[0].level
@@ -226,7 +227,7 @@ const methods = {
         const dropInd = position.nodeModel.ind
         let sourceMinInd = Number.MAX_SAFE_INTEGER
         let sourceMaxind = 0
-        for (let d of draggingNodes) {
+        for (const d of draggingNodes) {
           if (d.ind < sourceMinInd) sourceMinInd = d.ind
           if (d.ind > sourceMaxind) sourceMaxind = d.ind
         }
@@ -241,12 +242,11 @@ const methods = {
 
       if (checkDropNotAllowed(draggingNodes[0])) {
         cancel(true)
-        return
       }
     } else cancel(true)
   },
 
-  updateColor(value) {
+  updateColor (value) {
     if (value === 'user choice') {
       this.selReqAreaColor = '#567cd6'
       this.colorSelectShow = true
@@ -255,23 +255,23 @@ const methods = {
     }
   },
 
-  setUserColor(newColor) {
+  setUserColor (newColor) {
     this.$store.dispatch('updateColorDb', { node: this.getLastSelectedNode, newColor, createUndo: true })
   },
 
-  setReqArea(reqarea) {
+  setReqArea (reqarea) {
     if (this.isAPO) {
       this.selReqAreaId = reqarea
       // set the req area options
       const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
       if (currReqAreaNodes) {
         this.$store.state.reqAreaOptions = []
-        for (let nm of currReqAreaNodes) {
+        for (const nm of currReqAreaNodes) {
           this.$store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
         }
         if (this.selReqAreaId !== null) this.$store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
         this.setReqAreaShow = true
-      } else this.showLastEvent("Sorry, your assigned role(s) disallow you to assing requirement areas", WARNING)
+      } else this.showLastEvent('Sorry, your assigned role(s) disallow you to assing requirement areas', WARNING)
     }
   },
 
@@ -279,7 +279,7 @@ const methods = {
   * Update the req area of the item (null for no req area set)
   * If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse
   */
-  doSetReqArea() {
+  doSetReqArea () {
     this.$store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqarea: this.selReqAreaId, timestamp: Date.now() })
   }
 }

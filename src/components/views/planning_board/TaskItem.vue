@@ -76,14 +76,14 @@ export default {
   name: 'TaskItem',
   props: ['productId', 'storyId', 'storyTitle', 'state', 'columnName', 'item'],
 
-  created() {
+  created () {
     this.ADD_TASK = 0
     this.CHANGE_TITLE = 1
     this.CHANGE_OWNER = 2
     this.ID_TO_CLIPBOARD = 3
   },
 
-  data() {
+  data () {
     return {
       debugMode: this.$store.state.debug,
       showContextMenu: false,
@@ -98,17 +98,17 @@ export default {
   },
 
   computed: {
-		...mapGetters([
-			'myProductRoles'
-		]),
-	},
+    ...mapGetters([
+      'myProductRoles'
+    ])
+  },
 
   methods: {
-    getShortId(id) {
+    getShortId (id) {
       return id.slice(-5)
     },
 
-    prepSelected(idx) {
+    prepSelected (idx) {
       this.contextOptionSelected = idx
       this.newTaskTitle = ''
       this.contextWarning = undefined
@@ -125,7 +125,7 @@ export default {
         case this.CHANGE_OWNER:
           // populate the userOptions array
           this.userOptions = []
-          for (let userName of this.$store.state.allTeams[this.$store.state.userData.myTeam].members) {
+          for (const userName of this.$store.state.allTeams[this.$store.state.userData.myTeam].members) {
             this.userOptions.push(userName)
           }
           this.assistanceText = undefined
@@ -142,7 +142,7 @@ export default {
       }
     },
 
-    procSelected() {
+    procSelected () {
       if (this.haveWritePermission(TASKLEVEL, this.productId)) {
         this.showAssistance = false
         switch (this.contextOptionSelected) {
@@ -156,13 +156,13 @@ export default {
             this.$store.dispatch('boardUpdateTaskOwner', { taskId: this.item.id, newTaskOwner: this.selectedUser })
             break
           case this.ID_TO_CLIPBOARD:
-            navigator.clipboard.writeText(this.item.id.slice(-5)).then( () => {
+            navigator.clipboard.writeText(this.item.id.slice(-5)).then(() => {
               // eslint-disable-next-line no-console
               if (this.debug) console.log('TaskItem.procSelected: clipboard successfully set')
             }, () => {
               // eslint-disable-next-line no-console
               if (this.debug) console.log('TaskItem.procSelected: clipboard write failed')
-            });
+            })
             break
         }
       } else {
@@ -171,11 +171,11 @@ export default {
     },
 
     /* Creates fetchedUserData and have the prod.roles set in products */
-    fetchUser() {
+    fetchUser () {
       this.$store.dispatch('getUser', this.selectedUser)
     },
 
-    doCancel() {
+    doCancel () {
       this.contextOptionSelected = undefined
       this.newTaskTitle = ''
       this.contextWarning = undefined
@@ -184,9 +184,9 @@ export default {
       this.changedTaskTitle = this.item.title
     },
 
-    getClass(name) {
+    getClass (name) {
       switch (name) {
-        case "[On hold]":
+        case '[On hold]':
         case 'Todo':
         case 'In progress':
         case 'Test / review':
@@ -217,4 +217,3 @@ export default {
   background: #9bc777;
 }
 </style>
-

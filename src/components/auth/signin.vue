@@ -51,17 +51,17 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       name: '',
       password: ''
     }
   },
   methods: {
-    onSubmit() {
+    onSubmit () {
       const formData = {
         name: this.name,
-        password: this.password,
+        password: this.password
       }
       this.$store.dispatch('signin', formData)
     }

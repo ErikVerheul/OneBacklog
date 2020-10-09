@@ -1,10 +1,10 @@
 const state = {
-    test: 'test',
-    help: {
-        insert: [
-            `skip this level`,
-            `database level help`,
-            `product level help`,
+  test: 'test',
+  help: {
+    insert: [
+      'skip this level',
+      'database level help',
+      'product level help',
 
             `<h4>Epic level help</h4>
             <p>You are about to insert an epic. You can compare an epic with a project. It is a major endeavor which can take months to accomplish.<br/>
@@ -56,8 +56,8 @@ const state = {
             <p>When a PBI is a user story, and has value in its own right, consider to create a feature.<br/>
             Realizing a PBI should be a team effort. Avoid creating PBI's which should be on the task level.
             </p>`
-        ],
-        move: `<h4>Move help</h4>
+    ],
+    move: `<h4>Move help</h4>
         <p>You are about to move an item with its descendants to another product.<br/>
         The item will be removed from its source and inserted in the other product.<br/>
         After the transfer the teams of the target product should review all transferred items in one or more refinement meetings and:
@@ -67,7 +67,7 @@ const state = {
             <li>Have the teams estimate the items again</li>
         </ul>`,
 
-        remove: `<h4>Remove help</h4>
+    remove: `<h4>Remove help</h4>
         <p>
         You are about to remove an item with its descendants from the product.<br/>
         The item will be marked for deletion and will not be available for the users. However with a direct search on id users can still retrieve them.<br/>
@@ -78,7 +78,7 @@ const state = {
         Over time the server admin will delele the marked removals from the database. Direct access via the item id will not work anymore.
         </p>`,
 
-        team: `<h4>Team change help</h4>
+    team: `<h4>Team change help</h4>
         <p>
         You are about to assign a backlog item to your current team.<br/>
         </p>
@@ -90,7 +90,7 @@ const state = {
         <p>Note that when an authorized user changes the state of a backlog item from 'New' to 'Ready', the item is assigned automatically to the team of that user.
         </p>`,
 
-        consistencyCheck: `<h4>Consistency check help</h4>
+    consistencyCheck: `<h4>Consistency check help</h4>
         <p>
         You are about to start a consistency check on the state of your backlog items.<br/>
         </p>
@@ -104,7 +104,7 @@ const state = {
         <p>This check does not change the state of your items. It is up to you to do that manually.
         </p>`,
 
-        productClone: `<h4>Product clone help</h4>
+    productClone: `<h4>Product clone help</h4>
         <p>
         You are about to clone a product.<br/>
         </p>
@@ -116,7 +116,7 @@ const state = {
         <p>Note that you will be the only user with access to the clone. An admin has to assign other users with this product to allow them to see and/or contribute to the new product.
         </p>`,
 
-        itemClone: `<h4>Item copy help</h4>
+    itemClone: `<h4>Item copy help</h4>
         <p>
         You are about to copy a product backlog item.<br/>
         </p>
@@ -124,7 +124,7 @@ const state = {
         <p>This feature makes a shallow copy of a product backlog item and places it above the copied item. Not copied are the descendants, history, comments, attachments and dependencies. The state of the copied item is set to 'new'. The title is prepended with 'COPY:'
         </p>`,
 
-        setDependency: `<h4>Item dependency help</h4>
+    setDependency: `<h4>Item dependency help</h4>
         <p>
         You are about to set a dependency between two backlog items.<br/>
         </p>
@@ -134,9 +134,9 @@ const state = {
         <hr>
         <p>The condition must have higher priority than the item that depends on it. When moving items in the tree this rule can be breached. If so, you will be warned immediately. Undo your last action or remove the dependency if no longer valid.
         </p>`
-    }
+  }
 }
 
 export default {
-    state
+  state
 }

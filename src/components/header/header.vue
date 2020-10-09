@@ -175,7 +175,6 @@
 
     </template>
 
-
     </b-modal>
   </div>
 </template>

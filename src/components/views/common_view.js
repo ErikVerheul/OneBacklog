@@ -8,7 +8,7 @@ const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 
-function created() {
+function created () {
   this.onholdState = 1
   this.newState = 2
   this.readyState = 3
@@ -27,12 +27,12 @@ function created() {
   this.areaProductId = 'requirement-areas'
 }
 
-function mounted() {
-  function isEmpty(str) {
-    return !str.replace(/\s+/, '').length;
+function mounted () {
+  function isEmpty (str) {
+    return !str.replace(/\s+/, '').length
   }
 
-  function shortIdCheck() {
+  function shortIdCheck () {
     const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
     if (this.shortId.length !== SHORTKEYLENGTH) return false
 
@@ -42,9 +42,9 @@ function mounted() {
     return true
   }
 
-  let el = document.getElementById("findItemOnId")
+  const el = document.getElementById('findItemOnId')
   // fire the search on short id on pressing enter in the select-on-Id input field (instead of submitting the form)
-  el.addEventListener("keypress", (event) => {
+  el.addEventListener('keypress', (event) => {
     if (event.keyCode === 13) {
       event.preventDefault()
       // check for valid input and convert to lowercase
@@ -54,29 +54,29 @@ function mounted() {
       }
     }
   })
-  el.addEventListener("input", () => {
+  el.addEventListener('input', () => {
     if (isEmpty(el.value)) {
       window.slVueTree.resetFindOnId('findItemOnId')
     }
   })
 
-  let el2 = document.getElementById("searchInput")
+  const el2 = document.getElementById('searchInput')
   // fire the search button on pressing enter in the search input field (instead of submitting the form)
-  el2.addEventListener("keypress", (event) => {
+  el2.addEventListener('keypress', (event) => {
     if (event.keyCode === 13) {
       event.preventDefault()
       this.searchInTitles()
     }
   })
-  el2.addEventListener("input", () => {
+  el2.addEventListener('input', () => {
     if (isEmpty(el2.value)) {
       window.slVueTree.resetFilters('searchInput')
     }
   })
 
-  let el3 = document.getElementById("titleField")
+  const el3 = document.getElementById('titleField')
   // update the item title on pressing enter
-  el3.addEventListener("keypress", (event) => {
+  el3.addEventListener('keypress', (event) => {
     if (event.keyCode === 13) {
       event.preventDefault()
       this.updateTitle()
@@ -84,7 +84,7 @@ function mounted() {
   })
 }
 
-function data() {
+function data () {
   return {
     userStorySubtype: 0,
     spikeSubtype: 1,
@@ -95,8 +95,8 @@ function data() {
     editorToolbar: [
       [{ header: [false, 1, 2, 3, 4, 5, 6] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ indent: '-1' }, { indent: '+1' }], // outdent/indent
       ['link', 'image', 'code-block']
     ],
     // set to an invalid value; must be updated before use
@@ -106,11 +106,11 @@ function data() {
     startFiltering: false,
     isCommentsFilterActive: false,
     isHistoryFilterActive: false,
-    newComment: "",
+    newComment: '',
     fileInfo: null,
-    newHistory: "",
-    filterForCommentPrep: "",
-    filterForHistoryPrep: "",
+    newHistory: '',
+    filterForCommentPrep: '',
+    filterForHistoryPrep: '',
     violationsWereFound: false
   }
 }
@@ -132,75 +132,74 @@ const computed = {
     'teamCalendarInUse'
   ]),
 
-  welcomeMessage() {
+  welcomeMessage () {
     const msg_1 = `Welcome '${this.$store.state.userData.user}'.`
     let msg_2
     if (this.myTeam === 'not assigned yet') {
       msg_2 = ' You are not a team member.'
     } else msg_2 = ` You are member of team '${this.myTeam}'.`
     let msg_3
-    if (this.myAssignedProductIds.length === 1)
-      msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}. You have 1 product.`
-    else
+    if (this.myAssignedProductIds.length === 1) { msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}. You have 1 product.` } else {
       msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}'.` +
         ` You selected ${this.$store.state.userData.myProductSubscriptions.length} from ${this.myAssignedProductIds.length} products.`
+    }
     return msg_1 + msg_2 + msg_3
   },
 
-  squareText() {
+  squareText () {
     if (this.$store.state.online) {
-      this.showLastEvent("You are online again", INFO)
+      this.showLastEvent('You are online again', INFO)
       return 'sync'
     } else {
-      this.showLastEvent("You are offline. Restore the connection or wait to continue", WARNING)
+      this.showLastEvent('You are offline. Restore the connection or wait to continue', WARNING)
       return 'offline'
     }
   },
 
-  squareColor() {
+  squareColor () {
     return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
   },
 
-  subsribeTitle() {
+  subsribeTitle () {
     if (this.isFollower) {
-      return "Unsubscribe to change notices"
-    } else return "Subscribe to change notices"
+      return 'Unsubscribe to change notices'
+    } else return 'Subscribe to change notices'
   },
 
-  invalidFileName() {
+  invalidFileName () {
     return this.fileInfo === null || this.fileInfo.name === ''
   },
 
-  uploadToLarge() {
+  uploadToLarge () {
     return this.fileInfo !== null && this.fileInfo.size > MAXUPLOADSIZE
   },
 
   description: {
-    get() {
+    get () {
       return this.$store.state.currentDoc.description
     },
-    set(newDescription) {
+    set (newDescription) {
       this.newDescription = newDescription
     }
   },
 
   acceptanceCriteria: {
-    get() {
+    get () {
       return this.$store.state.currentDoc.acceptanceCriteria
     },
-    set(newAcceptanceCriteria) {
+    set (newAcceptanceCriteria) {
       this.newAcceptance = newAcceptanceCriteria
     }
   }
 }
 
 const methods = {
-  dependencyViolationsFound() {
+  dependencyViolationsFound () {
     const violations = window.slVueTree.findDependencyViolations()
     if (violations.length > 0) {
       this.violationsWereFound = true
       this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', WARNING)
-      for (let v of violations) {
+      for (const v of violations) {
         window.slVueTree.showDependencyViolations(v)
       }
     } else {
@@ -210,7 +209,7 @@ const methods = {
     return this.violationsWereFound
   },
 
-  stopFiltering() {
+  stopFiltering () {
     if (this.$store.state.selectedForView === 'comments') {
       this.filterForCommentPrep = ''
       this.filterComments()
@@ -223,17 +222,17 @@ const methods = {
     }
   },
 
-  resetFindId() {
+  resetFindId () {
     this.shortId = ''
     window.slVueTree.resetFindOnId('resetFindId')
   },
 
-  resetSearchTitles() {
+  resetSearchTitles () {
     this.$store.state.keyword = ''
     window.slVueTree.resetFilters('resetSearchTitles')
   },
 
-  patchTitle(node) {
+  patchTitle (node) {
     let patch = ''
     if (node.dependencies && node.dependencies.length > 0) patch = '▲ '
     if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▼ '
@@ -242,35 +241,35 @@ const methods = {
   },
 
   /* Return true if the state of the node has changed in the last hour */
-  hasNodeMoved(node) {
+  hasNodeMoved (node) {
     return node.data.lastPositionChange ? Date.now() - node.data.lastPositionChange < HOURINMILIS : false
   },
 
-  hasNewState(node) {
+  hasNewState (node) {
     return node.data.lastStateChange ? Date.now() - node.data.lastStateChange < HOURINMILIS : false
   },
 
-  hasContentChanged(node) {
+  hasContentChanged (node) {
     return node.data.lastContentChange ? Date.now() - node.data.lastContentChange < HOURINMILIS : false
   },
 
-  hasNewComment(node) {
+  hasNewComment (node) {
     return node.data.lastCommentAddition ? Date.now() - node.data.lastCommentAddition < HOURINMILIS : false
   },
 
-  isAttachmentAdded(node) {
+  isAttachmentAdded (node) {
     return node.data.lastAttachmentAddition ? Date.now() - node.data.lastAttachmentAddition < HOURINMILIS : false
   },
 
-  hasCommentToHistory(node) {
+  hasCommentToHistory (node) {
     return node.data.lastCommentToHistory ? Date.now() - node.data.lastCommentToHistory < HOURINMILIS : false
   },
 
-  hasOtherUpdate(node) {
+  hasOtherUpdate (node) {
     return node.data.lastChange ? Date.now() - node.data.lastChange < HOURINMILIS : false
   },
 
-  onSetMyFilters() {
+  onSetMyFilters () {
     if (this.$store.state.filterOn) {
       window.slVueTree.resetFilters('onSetMyFilters')
       window.slVueTree.resetFindOnId('onSetMyFilters')
@@ -278,14 +277,14 @@ const methods = {
       // update the available req area options
       const currReqAreaIds = window.slVueTree.getCurrentReqAreaIds()
       this.$store.state.reqAreaOptions = []
-      for (let id of currReqAreaIds) {
+      for (const id of currReqAreaIds) {
         this.$store.state.reqAreaOptions.push({ id, title: this.$store.state.reqAreaMapper[id] })
       }
       window.myFilters.show()
     }
   },
 
-  searchInTitles() {
+  searchInTitles () {
     // cannot search on empty string
     if (this.$store.state.keyword === '') return
 
@@ -323,11 +322,11 @@ const methods = {
 	* Restore the nodes in their previous (source) position.
 	* Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
 	*/
-  moveBack(sourceParentId, targetParentId, reverseMoveMap) {
+  moveBack (sourceParentId, targetParentId, reverseMoveMap) {
     const parentNode = window.slVueTree.getNodeById(targetParentId)
     if (parentNode === null) return false
 
-    for (let r of reverseMoveMap) {
+    for (const r of reverseMoveMap) {
       const node = r.node
       if (!node) return false
 
@@ -359,7 +358,7 @@ const methods = {
     return true
   },
 
-  onUndoEvent() {
+  onUndoEvent () {
     const entry = this.$store.state.changeHistory.shift()
     switch (entry.type) {
       case 'undoAcceptanceChange':
@@ -400,7 +399,7 @@ const methods = {
         break
       case 'undoRemove':
         this.showLastEvent('Busy undoing remove...', INFO)
-        this.$store.dispatch("restoreItemAndDescendents", entry)
+        this.$store.dispatch('restoreItemAndDescendents', entry)
         break
       case 'undoRemoveSprintIds':
         this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName })
@@ -426,15 +425,15 @@ const methods = {
     }
   },
 
-  subscribeClicked() {
+  subscribeClicked () {
     this.$store.dispatch('changeSubsription', { node: this.getLastSelectedNode, timestamp: Date.now() })
   },
 
-  filterComments() {
+  filterComments () {
     this.$store.state.filterForComment = this.filterForCommentPrep
   },
 
-  uploadAttachment() {
+  uploadAttachment () {
     this.$store.dispatch('uploadAttachmentAsync', {
       node: this.getLastSelectedNode,
       fileInfo: this.fileInfo,
@@ -443,11 +442,11 @@ const methods = {
     })
   },
 
-  filterHistory() {
+  filterHistory () {
     this.$store.state.filterForHistory = this.filterForHistoryPrep
   },
 
-  insertComment() {
+  insertComment () {
     this.$store.dispatch('addComment', {
       node: this.getLastSelectedNode,
       comment: this.newComment,
@@ -455,7 +454,7 @@ const methods = {
     })
   },
 
-  insertHist() {
+  insertHist () {
     this.$store.dispatch('addHistoryComment', {
       node: this.getLastSelectedNode,
       comment: this.newHistory,
@@ -464,7 +463,7 @@ const methods = {
   },
 
   /* Tree and database update methods */
-  updateDescription(node = this.getLastSelectedNode) {
+  updateDescription (node = this.getLastSelectedNode) {
     if (this.$store.state.currentDoc.description !== this.newDescription) {
       // skip update when not changed
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
@@ -478,7 +477,7 @@ const methods = {
     }
   },
 
-  updateAcceptance(node = this.getLastSelectedNode) {
+  updateAcceptance (node = this.getLastSelectedNode) {
     // skip update when not changed
     if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
       if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
@@ -492,10 +491,10 @@ const methods = {
     }
   },
 
-  updateTsSize() {
+  updateTsSize () {
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
       const node = this.getLastSelectedNode
-      let size = document.getElementById("tShirtSizeId").value.toUpperCase()
+      const size = document.getElementById('tShirtSizeId').value.toUpperCase()
       const sizeArray = this.$store.state.configData.tsSize
       if (sizeArray.includes(size)) {
         const newSizeIdx = sizeArray.indexOf(size)
@@ -512,16 +511,16 @@ const methods = {
         for (let i = 0; i < sizeArray.length - 1; i++) {
           sizes += sizeArray[i] + ', '
         }
-        alert(size + " is not a known T-shirt size. Valid values are: " + sizes + ' and ' + sizeArray[sizeArray.length - 1])
+        alert(size + ' is not a known T-shirt size. Valid values are: ' + sizes + ' and ' + sizeArray[sizeArray.length - 1])
       }
     }
   },
 
   /* Only authorized users who are member of the owning team can change story points. */
-  updateStoryPoints() {
+  updateStoryPoints () {
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item')) {
       const node = this.getLastSelectedNode
-      let el = document.getElementById("storyPointsId")
+      const el = document.getElementById('storyPointsId')
       if (isNaN(el.value) || el.value < 0) {
         el.value = '?'
         return
@@ -538,10 +537,10 @@ const methods = {
     }
   },
 
-  updatePersonHours() {
+  updatePersonHours () {
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
       const node = this.getLastSelectedNode
-      let el = document.getElementById("personHoursId")
+      const el = document.getElementById('personHoursId')
       if (isNaN(el.value) || el.value < 0) {
         el.value = '?'
         return
@@ -565,14 +564,14 @@ const methods = {
   * - higher than the state of any of its descendants
   *  ToDo: when setting the state to on-hold also set the state of all descendants to on-hold
   */
-  onStateChange(newState) {
-    function changeState(vm) {
+  onStateChange (newState) {
+    function changeState (vm) {
       const node = vm.getLastSelectedNode
       const descendants = window.slVueTree.getDescendantsInfo(node).descendants
       if (descendants.length > 0) {
         let highestState = vm.newState
         let allDone = true
-        for (let d of descendants) {
+        for (const d of descendants) {
           if (d.data.state > highestState) highestState = d.data.state
           if (d.data.state < vm.doneState) allDone = false
         }
@@ -580,8 +579,8 @@ const methods = {
           // node has a higher state than any of its descendants or set to done while one of its descendants is not done
           vm.$store.commit('updateNodesAndCurrentDoc', { node, inconsistentState: true })
           if (newState === vm.doneState && !allDone) {
-            vm.showLastEvent("You are assigning an inconsistant state to this item. Not all descendants are done.", WARNING)
-          } else vm.showLastEvent(`You are assigning an inconsistant state to this item. None of the item's descendants reached this state.`, WARNING)
+            vm.showLastEvent('You are assigning an inconsistant state to this item. Not all descendants are done.', WARNING)
+          } else vm.showLastEvent('You are assigning an inconsistant state to this item. None of the item\'s descendants reached this state.', WARNING)
         } else {
           vm.$store.commit('updateNodesAndCurrentDoc', { node, inconsistentState: false })
           vm.clearLastEvent()
@@ -596,7 +595,7 @@ const methods = {
         const parentNode = window.slVueTree.getParentNode(this.getLastSelectedNode)
         if (parentNode._id != 'root') {
           if (parentNode.data.team !== this.myTeam) {
-            this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ") and your team (" +
+            this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ') and your team (' +
               this.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
           }
         }
@@ -604,9 +603,9 @@ const methods = {
     }
   },
 
-  updateTitle() {
+  updateTitle () {
     const oldTitle = this.$store.state.currentDoc.title
-    const newTitle = document.getElementById("titleField").value
+    const newTitle = document.getElementById('titleField').value
     if (oldTitle === newTitle) return
 
     if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
@@ -622,7 +621,7 @@ const methods = {
   },
 
   /* Move the nodes and save the status 'as is' before the move and pdate the database when one or more nodes are dropped on another location */
-  nodeDropped(nodes, cursorPosition) {
+  nodeDropped (nodes, cursorPosition) {
     const moveDataContainer = this.moveNodes(nodes, cursorPosition)
     const clickedLevel = moveDataContainer.sourceLevel
     const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
@@ -631,7 +630,7 @@ const methods = {
     if (!this.dependencyViolationsFound()) {
       // show the event message if no dependency message is displayed
       const title = this.itemTitleTrunc(60, nodes[0].title)
-      let evt = ""
+      let evt = ''
       if (nodes.length === 1) {
         evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
       } else evt = `${this.getLevelText(clickedLevel)} '${title}' and ${nodes.length - 1} other item(s) are dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
@@ -640,8 +639,8 @@ const methods = {
     }
   },
 
-  getViewOptions() {
-    let options = [
+  getViewOptions () {
+    const options = [
       { text: 'Comments', value: 'comments' },
       { text: 'Attachments', value: 'attachments' },
       { text: 'History', value: 'history' }

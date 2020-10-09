@@ -196,7 +196,7 @@ const ALLBUTSYSTEM = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
 
 export default {
-  data() {
+  data () {
     return {
       optionSelected: 'Select a task',
       canCancel: true,
@@ -212,22 +212,22 @@ export default {
     }
   },
 
-  mounted() {
+  mounted () {
     this.$store.state.backendMessages = []
   },
 
   computed: {
-    dbToReplace() {
+    dbToReplace () {
       return this.$store.state.selectedDatabaseName.slice(0, this.$store.state.selectedDatabaseName.indexOf('-backup-'))
     }
   },
 
   methods: {
-    logModalTitle() {
+    logModalTitle () {
       return 'Log of database ' + this.$store.state.selectedDatabaseName
     },
 
-    severity(level) {
+    severity (level) {
       let severity = ''
       switch (level) {
         case -1:
@@ -248,7 +248,7 @@ export default {
       return severity
     },
 
-    viewLog() {
+    viewLog () {
       this.optionSelected = 'View the log'
       this.canCancel = true
       this.localMessage = ''
@@ -258,12 +258,12 @@ export default {
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
 
-    doViewLog() {
+    doViewLog () {
       this.$store.state.isLogLoaded = false
       this.$store.dispatch('loadLog', { dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => this.showLogModal = true })
     },
 
-    createBackup() {
+    createBackup () {
       this.optionSelected = 'Create a database backup'
       this.canCancel = true
       this.localMessage = ''
@@ -271,8 +271,8 @@ export default {
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
 
-    doCreateBackup() {
-      function createBackupName(dbName) {
+    doCreateBackup () {
+      function createBackupName (dbName) {
         const now = new Date()
         const yyyy = now.getFullYear().toString()
         let mm = (now.getMonth() + 1).toString()
@@ -294,7 +294,7 @@ export default {
       this.$store.dispatch('copyDB', payload)
     },
 
-    restoreBackup() {
+    restoreBackup () {
       this.optionSelected = 'Restore a database from backup'
       this.newDbName = ''
       this.canCancel = true
@@ -302,7 +302,7 @@ export default {
       this.$store.dispatch('getAllDatabases', BACKUPSONLY)
     },
 
-    doRestoreBackup() {
+    doRestoreBackup () {
       this.canCancel = false
       const payload = {
         dbSourceName: this.$store.state.selectedDatabaseName,
@@ -314,7 +314,7 @@ export default {
       if (this.dbToReplace === this.$store.state.userData.currentDb) this.currentDbRestored = true
     },
 
-    createNewDb() {
+    createNewDb () {
       this.optionSelected = 'Create a new database'
       this.canCancel = true
       this.localMessage = ''
@@ -322,7 +322,7 @@ export default {
       this.$store.state.isDatabaseCreated = false
     },
 
-    doCreateDatabase() {
+    doCreateDatabase () {
       const payload = {
         dbName: this.newDbName,
         email: this.$store.state.userData.email,
@@ -331,7 +331,7 @@ export default {
       this.$store.dispatch('createDatabase', payload)
     },
 
-    changeMyDb() {
+    changeMyDb () {
       this.optionSelected = 'Change my default database to any available database'
       this.localMessage = ''
       this.$store.state.isCurrentDbChanged = false
@@ -339,11 +339,11 @@ export default {
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
 
-    doChangeMyDb() {
+    doChangeMyDb () {
       this.$store.dispatch('changeCurrentDb', this.$store.state.selectedDatabaseName)
     },
 
-    purgeDb() {
+    purgeDb () {
       this.optionSelected = 'Purge removed documents and compact the database'
       this.localMessage = ''
       this.$store.state.isPurgeReady = false
@@ -351,11 +351,11 @@ export default {
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
 
-    doPurgeDb() {
+    doPurgeDb () {
       this.$store.dispatch('collectRemoved', this.$store.state.selectedDatabaseName)
     },
 
-    remHistAndComm() {
+    remHistAndComm () {
       this.asyncFired = false
       this.optionSelected = 'Remove history and comments'
       this.localMessage = ''
@@ -364,12 +364,12 @@ export default {
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
     },
 
-    doRemHistAndComm() {
+    doRemHistAndComm () {
       this.asyncFired = true
       this.$store.dispatch('remHistAndCommAsync', { dbName: this.$store.state.selectedDatabaseName, age: this.removeAge })
     },
 
-    deleteDb() {
+    deleteDb () {
       this.optionSelected = 'Delete a database'
       this.localMessage = ''
       this.$store.state.selectedDatabaseName = ''
@@ -377,29 +377,29 @@ export default {
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEM)
     },
 
-    doDeleteDb() {
+    doDeleteDb () {
       if (this.$store.state.userData.currentDb !== this.$store.state.selectedDatabaseName) {
         this.$store.dispatch('deleteDb', this.$store.state.selectedDatabaseName)
       } else this.localMessage = 'Cannot delete your current database'
     },
 
-    fauxton() {
+    fauxton () {
       this.fauxtonStarted = false
       this.optionSelected = 'All FAUXTON tasks'
     },
 
-    doFauxton() {
+    doFauxton () {
       window.open(process.env.VUE_APP_API_URL + '/_utils/#/documentation', '_blank')
       this.fauxtonStarted = true
     },
 
-    cancel() {
+    cancel () {
       this.localMessage = ''
       this.$store.state.backendMessages = []
       this.optionSelected = 'Select a task'
     },
 
-    signIn() {
+    signIn () {
       this.$store.commit('resetData', null, { root: true })
       router.replace('/')
     }

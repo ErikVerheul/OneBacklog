@@ -9,7 +9,7 @@ const PBILEVEL = 5
 // is initiated in method moveItemToOtherProduct
 var movedNode
 
-function created() {
+function created () {
   this.PBITOSPRINT = 11
   this.FROMSPRINT = 12
   this.TASKTOSPRINT = 13
@@ -19,7 +19,7 @@ function created() {
   })
 }
 
-function data() {
+function data () {
   return {
     isInSprint: false,
     canAssignPbiToSprint: false,
@@ -30,11 +30,11 @@ function data() {
 const computed = {
   ...mapGetters([
     'myTeam'
-  ]),
+  ])
 }
 
 const methods = {
-  showContextMenu(node) {
+  showContextMenu (node) {
     if (this.$store.state.selectedNodes.length === 1) {
       if (node._id !== this.getLastSelectedNode._id) {
         // select and load the item
@@ -61,7 +61,7 @@ const methods = {
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
         this.allowRemoval = true
-        this.isInSprint = node.data.sprintId ? true : false
+        this.isInSprint = !!node.data.sprintId
         // can only assign pbi's to a sprint if not in a sprint already
         this.canAssignPbiToSprint = node.level === this.pbiLevel && !node.data.sprintId
         // can only assign tasks to a sprint if not in a sprint already
@@ -72,22 +72,22 @@ const methods = {
         }
         this.showLastEvent(`${this.getLevelText(node.level, node.data.subtype)} '${node.title}' is selected`, INFO)
       } else this.allowRemoval = false
-    } else this.showLastEvent(`Cannot apply context menu on multiple items. Choose one`, WARNING)
+    } else this.showLastEvent('Cannot apply context menu on multiple items. Choose one', WARNING)
   },
 
-  showSelected(idx) {
-    function checkNode(vm, selNode) {
+  showSelected (idx) {
+    function checkNode (vm, selNode) {
       if (selNode._id === vm.dependentOnNode._id) {
-        vm.contextWarning = "WARNING: Item cannot be dependent on it self"
+        vm.contextWarning = 'WARNING: Item cannot be dependent on it self'
         return false
       }
       const nodeWithDependencies = vm.dependentOnNode
       if (nodeWithDependencies.dependencies.includes(selNode._id)) {
-        vm.contextWarning = "WARNING: Cannot add the same dependency twice"
+        vm.contextWarning = 'WARNING: Cannot add the same dependency twice'
         return false
       }
       if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
-        vm.contextWarning = "WARNING: Cannot create a dependency on an item with lower priority"
+        vm.contextWarning = 'WARNING: Cannot create a dependency on an item with lower priority'
         return false
       }
       return true
@@ -123,24 +123,24 @@ const methods = {
       case this.REMOVEITEM:
         this.assistanceText = this.$store.state.help.help.remove
         if (this.hasDependencies) {
-          this.listItemText = "WARNING: this item has dependencies on other items. Remove the dependency/dependencies first."
+          this.listItemText = 'WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
           this.disableOkButton = true
         } else if (this.hasConditions) {
-          this.listItemText = "WARNING: this item is conditional for other items. Remove the condition(s) first"
+          this.listItemText = 'WARNING: this item is conditional for other items. Remove the condition(s) first'
           this.disableOkButton = true
         } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
         break
       case this.ASIGNTOMYTEAM:
         this.assistanceText = this.$store.state.help.help.team
         if (this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.myTeam) {
-          this.contextWarning = "WARNING: The team of parent " + this.contextParentType + " (" + this.contextParentTeam +
-            ") and your team (" + this.myTeam + ") do not match. Read the assistance text."
+          this.contextWarning = 'WARNING: The team of parent ' + this.contextParentType + ' (' + this.contextParentTeam +
+            ') and your team (' + this.myTeam + ') do not match. Read the assistance text.'
         } else this.contextWarning = undefined
         this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'`
         break
       case this.CHECKSTATES:
         this.assistanceText = this.$store.state.help.help.consistencyCheck
-        this.listItemText = `Start the check. See in the tree if any red badges appear`
+        this.listItemText = 'Start the check. See in the tree if any red badges appear'
         break
       case this.SETDEPENDENCY:
         this.assistanceText = this.$store.state.help.help.setDependency
@@ -169,7 +169,7 @@ const methods = {
     }
   },
 
-  procSelected() {
+  procSelected () {
     this.showAssistance = false
     switch (this.contextOptionSelected) {
       case this.CLONEPRODUCT:
@@ -217,7 +217,7 @@ const methods = {
     }
   },
 
-  doAssignToMyTeam() {
+  doAssignToMyTeam () {
     if (this.contextNodeSelected.level > this.productLevel) {
       // can assign team from epic level and down (higher level numbers)
       const node = this.contextNodeSelected
@@ -226,7 +226,7 @@ const methods = {
     }
   },
 
-  moveItemToOtherProduct() {
+  moveItemToOtherProduct () {
     if (this.$store.state.moveOngoing) {
       const targetPosition = window.slVueTree.lastSelectCursorPosition
       // only allow to drop the node inside a new parent 1 level higher (lower value) than the source node
@@ -248,12 +248,12 @@ const methods = {
     }
   },
 
-  doAddPbiToSprint() {
+  doAddPbiToSprint () {
     window.assignToSprintRef.show()
   },
 
   /* Assign the task to the sprint of its PBI; or if the PBI has no sprint assigned ask the user to select. */
-  doAddTaskToSprint() {
+  doAddTaskToSprint () {
     const taskNode = this.contextNodeSelected
     const pbiNode = window.slVueTree.getParentNode(taskNode)
     const pbiSprintId = pbiNode.data.sprintId
@@ -266,18 +266,18 @@ const methods = {
     }
   },
 
-  getSprintName(id) {
+  getSprintName (id) {
     if (id === this.sprints.currentSprint.id) {
       return this.sprints.currentSprint.name
     } else return this.sprints.nextSprint.name
   },
 
-  doRemoveFromSprint() {
+  doRemoveFromSprint () {
     const node = this.contextNodeSelected
     const sprintId = node.data.sprintId
-    let itemIds = [node._id]
+    const itemIds = [node._id]
     if (node.level === PBILEVEL) {
-      for (let d of window.slVueTree.getDescendantsInfo(node).descendants) {
+      for (const d of window.slVueTree.getDescendantsInfo(node).descendants) {
         // only remove the sprintId of descendants with the same sprintId as the parent
         if (d.data.sprintId === sprintId) itemIds.push(d._id)
       }

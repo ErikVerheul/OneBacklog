@@ -91,8 +91,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
+
 import AppHeader from '../../header/header.vue'
 import StoryLane from './StoryLane'
 import { utilities, authorization } from '../../mixins/generic.js'
@@ -100,18 +100,18 @@ import { utilities, authorization } from '../../mixins/generic.js'
 export default {
   mixins: [utilities, authorization],
 
-  beforeCreate() {
+  beforeCreate () {
     this.$store.state.currentView = 'planningBoard'
   },
 
-  created() {
+  created () {
     this.MOVE_TASKS = 0
     this.NO_NOT_YET = 1
     this.NO_STOP_ASKING = 2
 
     if (this.$store.state.loadedSprintId) {
       // load the last loaded sprint again
-      for (let s of this.$store.state.sprintCalendar) {
+      for (const s of this.$store.state.sprintCalendar) {
         if (s.id === this.$store.state.loadedSprintId) {
           this.selectedSprint = s
           break
@@ -121,7 +121,7 @@ export default {
     if (!this.selectedSprint) {
       // load the current sprint
       const now = Date.now()
-      let currentSprint = undefined
+      let currentSprint
       for (let i = 0; i < this.$store.state.sprintCalendar.length; i++) {
         const s = this.$store.state.sprintCalendar[i]
         if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
@@ -136,10 +136,10 @@ export default {
       if (mutation.type === 'updateTeam') {
         this.$store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: state.userData.myTeam })
       }
-    });
+    })
   },
 
-  mounted() {
+  mounted () {
     // create the sprint selection options, recent first + next sprint on top
     const now = Date.now()
     let getNextSprint = true
@@ -164,11 +164,11 @@ export default {
     }
   },
 
-  beforeDestroy() {
-    this.unsubscribe();
+  beforeDestroy () {
+    this.unsubscribe()
   },
 
-  data() {
+  data () {
     return {
       contextOptionSelected: undefined,
       showAssistance: false,
@@ -176,7 +176,7 @@ export default {
       selectedSprint: null,
       currentSprintLoaded: false,
       currentSprintId: undefined,
-      options: [],
+      options: []
     }
   },
 
@@ -196,50 +196,50 @@ export default {
     ]),
     ...mapState(['userData']),
 
-    showWarning() {
+    showWarning () {
       return this.$store.state.warningText !== ''
     },
 
-    unfinishedWork() {
+    unfinishedWork () {
       return this.$store.state.planningboard.taskIdsToImport.length > 0
     },
 
-    getStartDateString() {
+    getStartDateString () {
       if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp).toString().substring(0, 33)
       return ''
     },
 
-    getEndDateString() {
+    getEndDateString () {
       if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp + this.selectedSprint.sprintLength).toString().substring(0, 33)
       return ''
     },
 
-    squareText() {
+    squareText () {
       if (this.$store.state.online) {
         return 'sync'
       } else return 'offline'
     },
 
-    squareColor() {
+    squareColor () {
       return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
     }
   },
 
   methods: {
-    clearWarning() {
+    clearWarning () {
       this.$store.state.warningText = ''
     },
 
-    askForImport() {
+    askForImport () {
       if (!this.userData.doNotAskForImport) return true
       return !this.userData.doNotAskForImport.includes(this.currentSprintId)
     },
 
-    showInfo() {
+    showInfo () {
       return `Found ${this.$store.state.planningboard.taskIdsToImport.length} unfinished tasks in ${this.$store.state.planningboard.parentIdsToImport.length} stories to import`
     },
 
-    prepSelected(idx) {
+    prepSelected (idx) {
       this.showAssistance = false
       this.contextOptionSelected = idx
       switch (this.contextOptionSelected) {
@@ -255,7 +255,7 @@ export default {
       }
     },
 
-    procSelected() {
+    procSelected () {
       this.showAssistance = false
       switch (this.contextOptionSelected) {
         case this.MOVE_TASKS:
@@ -306,4 +306,3 @@ export default {
   margin-bottom: 4px;
 }
 </style>
-

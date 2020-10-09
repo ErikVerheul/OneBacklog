@@ -53,10 +53,10 @@ export default {
     draggable: Draggable
   },
 
-  data() {
+  data () {
     return {
       showModal: false,
-      taskTitle: '',
+      taskTitle: ''
     }
   },
 
@@ -65,10 +65,10 @@ export default {
       'myProductRoles'
     ]),
     draggables: {
-      get() {
+      get () {
         return this.tasks
       },
-      set(tasks) {
+      set (tasks) {
         if (this.haveWritePermission(TASKLEVEL, this.productId)) {
           this.$store.dispatch('updateTasks', {
             tasks,
@@ -81,11 +81,11 @@ export default {
   },
 
   methods: {
-    procSelected() {
+    procSelected () {
       this.$store.dispatch('boardAddTask', { storyId: this.storyId, state: this.state, taskId: this.createId(), taskTitle: this.taskTitle })
     },
 
-    doCancel() {
+    doCancel () {
       this.taskTitle = ''
     }
   }

@@ -54,7 +54,7 @@ import router from '../../router'
 import AppHeader from '../header/header.vue'
 
 export default {
-  data() {
+  data () {
     return {
       dbName: '',
       email: ''
@@ -62,19 +62,19 @@ export default {
   },
 
   computed: {
-    state() {
+    state () {
       const mask = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       return mask.test(this.email)
     },
 
-    invalidEmail() {
+    invalidEmail () {
       return 'Please enter a valid e-mail address'
     }
 
   },
 
   methods: {
-    doCreateDatabase() {
+    doCreateDatabase () {
       const payload = {
         dbName: this.dbName,
         email: this.email,
@@ -83,11 +83,11 @@ export default {
       this.$store.dispatch('createDatabase', payload)
     },
 
-    cancel() {
+    cancel () {
       this.signIn()
     },
 
-    signIn() {
+    signIn () {
       this.$store.state.isDatabaseInitiated = false
       this.$store.state.backendMessages = []
       this.$store.commit('resetData', null, { root: true })

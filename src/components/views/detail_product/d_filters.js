@@ -5,7 +5,7 @@ const INFO = 0
 const PRODUCTLEVEL = 2
 const methods = {
   /* Apply the AND logic to the included filters */
-  onApplyMyFilters() {
+  onApplyMyFilters () {
     // reset the other selections first
     window.slVueTree.resetFilters('onApplyMyFilters')
     if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
@@ -14,7 +14,7 @@ const methods = {
     let count = 0
     const unselectedNodes = []
     // create a callback for the filtering
-    let cb = (nm) => {
+    const cb = (nm) => {
       if (onlyFilterOnDepth) {
         nm.isExpanded = nm.level < this.selectedTreeDepth
         if (nm.level === this.selectedTreeDepth) return
@@ -56,7 +56,7 @@ const methods = {
 
     if (!onlyFilterOnDepth) {
       // hide unselected nodes with no selected descendants
-      for (let n of unselectedNodes) {
+      for (const n of unselectedNodes) {
         n.doShow = window.slVueTree.hasHighlightedDescendants(n)
       }
       let s
