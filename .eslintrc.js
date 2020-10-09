@@ -10,9 +10,6 @@ module.exports = {
   parserOptions: {
     parser: 'babel-eslint'
   },
-	"eslint.workingDirectories": [
-    "./frontend"
-	],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
