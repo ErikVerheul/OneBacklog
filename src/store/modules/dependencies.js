@@ -376,7 +376,7 @@ const actions = {
           }
           // update the dependencies
           doc.dependencies = newDependencies
-          const prevLastChange = doc.lastChange || 0
+          // const prevLastChange = doc.lastChange || 0 --> ToDo: track last change?
           doc.lastChange = payload.timestamp
           const newHist = {
             dependencyRemovedEvent: [[payload.node._id], payload.node.title],

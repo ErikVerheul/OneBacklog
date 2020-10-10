@@ -272,7 +272,7 @@ const methods = {
     const initialDraggingState = this.isDragging
     const isDraggingLocal =
 			this.isDragging || (
-			  this.mouseIsDown &&
+				this.mouseIsDown &&
 				(this.lastMousePos.y !== event.clientY)
 			)
 
