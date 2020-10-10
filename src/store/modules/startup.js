@@ -18,10 +18,10 @@ const actions = {
 	* 1. getDatabases
 	* 2. getOtherUserData
 	* 3. getAllProducts and call updateUser if databases or products are missing
-    * 4. getConfig
-    * 5. getAllTeams and load the team calendar if present
-    * 6. if the team calendar is present and ran out of sprints, extend this calender with new sprints and save the team document
-    * 7. getRoot and route to products view
+	* 4. getConfig
+	* 5. getAllTeams and load the team calendar if present
+	* 6. if the team calendar is present and ran out of sprints, extend this calender with new sprints and save the team document
+	* 7. getRoot and route to products view
 	*/
 
   /* Get all non-backup or system database names */

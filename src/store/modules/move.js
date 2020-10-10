@@ -9,12 +9,12 @@ function composeRangeString (id) {
 
 const actions = {
   /*
-    * Note: the tree model is updated before the database is. To update the database the new priority must be calculated first while inserting the node.
-    * Order of execution:
-    * 1. update the moved nodes with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
-    * 2. if moving to another product or level, call getMovedChildrenIds
-    * 2.1 update the productId (not parentId) and level of the descendants in updateMovedDescendantsBulk. History is ignored
-    */
+	* Note: the tree model is updated before the database is. To update the database the new priority must be calculated first while inserting the node.
+	* Order of execution:
+	* 1. update the moved nodes with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
+	* 2. if moving to another product or level, call getMovedChildrenIds
+	* 2.1 update the productId (not parentId) and level of the descendants in updateMovedDescendantsBulk. History is ignored
+	*/
   updateMovedItemsBulk ({
     rootState,
     commit,
@@ -185,7 +185,7 @@ const actions = {
       for (const result of res.data) {
         if (result.ok) updateOk++
         if (result.error === 'conflict') updateConflict++
-        if (result.error && result.error != 'conflict') otherError++
+        if (result.error && result.error !== 'conflict') otherError++
       }
       // eslint-disable-next-line no-console
       const msg = 'saveMovedItems: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'

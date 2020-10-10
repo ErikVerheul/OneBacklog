@@ -4,7 +4,7 @@ import globalAxios from 'axios'
 const ERROR = 2
 
 const actions = {
-  /*
+	/*
 	 * When updating the database, first load the document with the actual revision number and changes by other users.
 	 * Then apply the update to the field and write the updated document back to the database.
 	 */
@@ -26,7 +26,7 @@ const actions = {
     function createTitle (attachments) {
       function createNew (name) {
         if (existingTitles.includes(name)) {
-          // name exists
+					// name exists
           const dotPos = name.lastIndexOf('.')
           if (dotPos !== -1) {
             const body = name.slice(0, dotPos)

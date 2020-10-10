@@ -1,34 +1,34 @@
 /*
 * Events processed in sync:
-* 'acceptanceEvent':				see process other events for tree views
-* 'addCommentEvent':				see switch (commentsEvent)
-* 'addSprintIdsEvent':				see process other events for tree views
-* 'boardReloadEvent':				see histEvent === 'boardReloadEvent'
+* 'acceptanceEvent':						see process other events for tree views
+* 'addCommentEvent':						see switch (commentsEvent)
+* 'addSprintIdsEvent':					see process other events for tree views
+* 'boardReloadEvent':						see histEvent === 'boardReloadEvent'
 * 'changeReqAreaColorEvent':		see updateTree && doc.productId === AREA_PRODUCTID
 * 'commentToHistoryEvent':			see process other events for tree views
 * 'conditionRemovedEvent':			see process other events for tree views
-* 'createEvent':					see process other events for tree views	+	see if (updateBoard)
-* 'createTaskEvent':				see process other events for tree views	+	see if (updateBoard)
+* 'createEvent':								see process other events for tree views	+	see if (updateBoard)
+* 'createTaskEvent':						see process other events for tree views	+	see if (updateBoard)
 * 'dependencyRemovedEvent':			see process other events for tree views
-* 'descriptionEvent':				see process other events for tree views
-* 'docRestoredEvent':				see process other events for tree views	+	see if (updateBoard)
-* 'nodeMovedEvent':					see process other events for tree views	+	see if (updateBoard)
+* 'descriptionEvent':						see process other events for tree views
+* 'docRestoredEvent':						see process other events for tree views	+	see if (updateBoard)
+* 'nodeMovedEvent':							see process other events for tree views	+	see if (updateBoard)
 * 'removeAttachmentEvent':			see process other events for tree views
 * 'removedWithDescendantsEvent':	see process other events for tree views +	see if (updateBoard)
-* 'removeSprintIdsEvent':			see process other events for tree views
-* 'setConditionEvent':				see process other events for tree views
-* 'setDependencyEvent':				see process other events for tree views
-* 'setHrsEvent':					see process other events for tree views
-* 'setPointsEvent':					see process other events for tree views	+	see if (updateBoard)
-* 'setSizeEvent':					see process other events for tree views
-* 'setStateEvent':					see process other events for tree views	+	see if (updateBoard)
-* 'setSubTypeEvent':				see process other events for tree views	+	see if (updateBoard)
-* 'setTeamOwnerEvent':				see process other events for tree views	+	see if (updateBoard)
-* 'setTitleEvent':					see process other events for tree views	+	see if (updateBoard)
-* 'taskRemovedEvent':															see if (updateBoard)
+* 'removeSprintIdsEvent':				see process other events for tree views
+* 'setConditionEvent':					see process other events for tree views
+* 'setDependencyEvent':					see process other events for tree views
+* 'setHrsEvent':								see process other events for tree views
+* 'setPointsEvent':							see process other events for tree views	+	see if (updateBoard)
+* 'setSizeEvent':								see process other events for tree views
+* 'setStateEvent':							see process other events for tree views	+	see if (updateBoard)
+* 'setSubTypeEvent':						see process other events for tree views	+	see if (updateBoard)
+* 'setTeamOwnerEvent':					see process other events for tree views	+	see if (updateBoard)
+* 'setTitleEvent':							see process other events for tree views	+	see if (updateBoard)
+* 'taskRemovedEvent':						see if (updateBoard)
 * 'uploadAttachmentEvent':			see process other events for tree views +	see if (updateBoard)
-* 'updateTaskOrderEvent':														see if (updateBoard)
-* 'uploadTaskOwnerEvent':														see if (updateBoard)
+* 'updateTaskOrderEvent':				see if (updateBoard)
+* 'uploadTaskOwnerEvent':				see if (updateBoard)
 */
 
 import globalAxios from 'axios'
@@ -81,7 +81,7 @@ const actions = {
 		 * - the previous node (can be the parent)
 		 * - the path of the location in the tree
 		 * - the index in the array of siblings the node should have based on its priority
-		 */
+		*/
     function getLocationInfo (newPrio, parentNode) {
       let newPath = []
       if (parentNode.children && parentNode.children.length > 0) {
@@ -146,7 +146,7 @@ const actions = {
       const parentNode = window.slVueTree.getNodeById(doc.parentId)
       if (parentNode === null) {
         const msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
-					doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
+          doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: WARNING })
@@ -226,8 +226,8 @@ const actions = {
             placement: 'after'
           }, [node], false)
         }
-        if (item[13] == 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
-        if (item[13] == 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: item[14] })
+        if (item[13] === 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
+        if (item[13] === 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: item[14] })
       }
     }
 

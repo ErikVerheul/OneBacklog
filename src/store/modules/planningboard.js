@@ -186,8 +186,8 @@ const actions = {
         const productId = r.key[2]
         if (isAnyPreviousSprint(sprintId)) {
           if (rootState.userData.userAssignedProductIds.includes(productId) &&
-						(rootState.userData.myProductsRoles[productId].includes('PO') ||
-							rootState.userData.myProductsRoles[productId].includes('developer'))) {
+            (rootState.userData.myProductsRoles[productId].includes('PO') ||
+              rootState.userData.myProductsRoles[productId].includes('developer'))) {
             const parentId = r.key[3]
             if (!state.parentIdsToImport.includes(parentId)) state.parentIdsToImport.push(parentId)
             const id = r.value
@@ -460,9 +460,9 @@ const actions = {
   },
 
   /*
-	* From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint ||
-	* for undo: see undoRemoveSprintIds
-	*/
+  * From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint ||
+  * for undo: see undoRemoveSprintIds
+  */
   addSprintIds ({
     rootState,
     commit,
