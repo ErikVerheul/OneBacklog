@@ -746,8 +746,8 @@ const actions = {
   doBlinck ({
     rootState
   }, doc) {
-    // eslint-disable-next-line no-console
     if (rootState.debug) {
+			// eslint-disable-next-line no-console
       console.log('listenForChanges: document with _id ' + doc._id + ' is processed, current view = ' + rootState.currentView + ' priority = ' + doc.priority +
 			' lastHistType = ' + Object.keys(doc.history[0])[0] + ' history timestamp = ' + String(new Date(doc.history[0].timestamp)).substring(0, 24) +
 			' comments timestamp = ' + String(new Date(doc.comments[0].timestamp)).substring(0, 24) + ' title = ' + doc.title)
