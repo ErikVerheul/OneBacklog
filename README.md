@@ -183,7 +183,7 @@ The app uses a secure https connection using port 6984 with cooky authentication
 
 ### install CouchDB locally
 Install the CouchDb version 3.0.0 or higher locally and create a server admin account.
-Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:
+Edit the local.ini file in `< couchdb install directory >/couchdb/etc/`:
 ```
 [couchdb]
 users_db_security_editable = true
@@ -202,7 +202,7 @@ When starting the app the first time use the server admin credentials you create
 ### install CouchDB in the cloud
 Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
 Obtain a www ssl certificate (e.g. from LetsEncrypt)</br>
-Edit the `local.ini` file in &lt; couchdb install directory &gt;/couchdb/etc/:</br>
+Edit the `local.ini` file in `< couchdb install directory >/couchdb/etc/`:</br>
 ```
 [couchdb]
 users_db_security_editable = true
@@ -277,7 +277,7 @@ VUE_APP_API_URL=https://< your domain name >:6984
 npm run serve
 ```
 
-# Lints and fixes files
+### Lints and fixes files
 ``` bash
 npm run lint
 ```
