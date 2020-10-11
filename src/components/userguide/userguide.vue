@@ -29,7 +29,7 @@
 				<div id="pv">
 					<h4>Product details view</h4>
 					<p>The Product details view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
-					<b-img :src="require('./example-screen.png')" alt="Example screen" />
+					<b-img :src="getImgUrl('img/example-screen.png')" alt="Example screen" />
 					<p>The large black area below the event bar shows all the products assigned and selected by the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
 					<p>You can have multiple products. Each of them consists of:
 						<ul>
@@ -54,7 +54,7 @@
 						<li>'admin': Can create and assign users to products.</li>
 					</ul>
 					<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
-					<b-img :src="require('./context-menu.png')" alt="Example context menu" />
+					<b-img :src="getImgUrl('img/context-menu.png')" alt="Example context menu" />
 					<p>Select the action to execute and press OK.</p>
 					<p>If the item is a product an extra opion is displayed to make a clone this product. This feature is used when you have templates for reuse. Using a clone of a template can speed up the creation of simular products. Note that the history and any attachments are not copied.</p>
 					<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. You can make a shallow copy of any backlog item which will appear above the selected item. When you selected a product item you can make a full clone with a copy of all descendants. See the 'Need assistance?' text.</p>
@@ -75,7 +75,7 @@
 					<h4>Filter comments</h4>
 					<p>Enter a key word and you will only see comments including this key word.</p>
 					<h4>The Comments, Attachments, History radio buttons</h4>
-					<b-img :src="require('./attachments.png')" alt="Example attachment menu" />
+					<b-img :src="getImgUrl('img/attachments.png')" alt="Example attachment menu" />
 					<p>When adding multiple versions of an attachment with the same name the file name will be extended with _1, _2 etc. Click on an attachment button to let your browser display the attachment in a new tab.</p>
 					<p>When you select Attachments or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 					<p>Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different units:</p>
@@ -111,13 +111,13 @@
 						When after dragging items in tree one or more dependencies are violated you receive an error message.
 					</p>
 					<p>Badges:</p>
-					<b-img :src="require('./badges.png')" alt="Example badges" />
+					<b-img :src="getImgUrl('img/badges.png')" alt="Example badges" />
 					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its blue color.</p>
 				</div>
 				<div id="rv">
 					<h4>Products overview</h4>
 					<p>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can create and asign requirement areas to items. The PO can drag&#38;drop items between his products and set dependencies between items in different products (not recommanded).</p>
-					<b-img :src="require('./products-overview.png')" alt="Products overview" />
+					<b-img :src="getImgUrl('img/products-overview.png')" alt="Products overview" />
 					<p>This view shows all products in the database up to the feature level. The requirement area are color coded choosen by the APO.</p>
 				</div>
 				<div id="tv-features">
@@ -126,7 +126,7 @@
 						<h5>The Undo button</h5>
 						<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
 						<h5>Filter in tree view</h5>
-						<b-img :src="require('./filters.png')" alt="Example filters modal" />
+						<b-img :src="getImgUrl('img/filters.png')" alt="Example filters modal" />
 						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. Note that this function works on the currently selected product. To see changes on another product select it first by clicking on the product node.</p>
 						<h5>Find on short Id</h5>
 						<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
@@ -153,14 +153,14 @@
 				<div id="pb">
 					<h4>Sprint planning board</h4>
 					<div class="indent20">
-						<b-img :src="require('./planning-board.png')" alt="Example planning board" />
+						<b-img :src="getImgUrl('img/planning-board.png')" alt="Example planning board" />
 						<p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
 						<p>When you right click on a task the context menu is opened:</p>
-						<b-img :src="require('./task-context.png')" alt="Task context menu" />
+						<b-img :src="getImgUrl('img/task-context.png')" alt="Example context menu" />
 						<p>Note: Removing a task does not delete the task. In the Product details view you can change the state back to &apos;In progress&apos; or any other state.</p>
 						<p>Left click on a &apos;Click to create a task here&apos; button to create a task in a column without task.</p>
 						<h5>Unfinished tasks</h5>
-						<b-img :src="require('./unfinished-tasks.png')" alt="Unfinished tasks" />
+						<b-img :src="getImgUrl('img/unfinished-tasks.png')" alt="Unfinished tasks" />
 						<p>If your team has any tasks not DONE is a previous sprint this modal will pop up when a PO or developer opens the planning board. Select &apos;No, do not ask again&apos; to stop showing this message during this sprint. In the next sprint it will show up again.</p>
 						<h5>Sprint ending, start of next sprint</h5>
 						<p>When the end date and time of a sprint is due, the next sprint starts automatically. When the current sprint is about to end use the Product details view to:</p>
@@ -177,13 +177,13 @@
 					<li>
 						<h5>Admin</h5>
 						<p>The admin creates and maintains user permissions here. Team names can be added and listed.</p>
-						<b-img :src="require('./admin-menu.png')" alt="Admin menu" />
+						<b-img :src="getImgUrl('img/admin-menu.png')" alt="Admin menu" />
 					</li>
 					<li>
 						<h5>Server admin</h5>
 						<p>The server admin creates backups and restores databases from a backup here. New databases can be created and deleted. A CouchDB FAUXTON session can be started in a separate tab of the browser.</p>
 						<p>During operation a server admin can use the Server admin view which offers a menu of common tasks:</p>
-						<b-img :src="require('./server-admin-menu.png')" alt="Server admin menu" />
+						<b-img :src="getImgUrl('img/server-admin-menu.png')" alt="Server admin menu" />
 					</li>
 				</ul>
 				</div>
@@ -227,7 +227,13 @@ import AppHeader from '../header/header.vue'
 export default {
   components: {
     'app-header': AppHeader
-  }
+	},
+
+	methods: {
+		getImgUrl(img) {
+			return process.env.VUE_APP_SITE_URL + '/' + img
+		}
+	}
 }
 </script>
 
