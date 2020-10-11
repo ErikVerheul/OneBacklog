@@ -202,7 +202,7 @@ When starting the app the first time use the server admin credentials you create
 ### install CouchDB in the cloud
 Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
 Obtain a www ssl certificate (e.g. from LetsEncrypt)</br>
-Edit the local.ini file in &lt; couchdb install directory &gt;/couchdb/etc/:</br>
+Edit the `local.ini` file in &lt; couchdb install directory &gt;/couchdb/etc/:</br>
 ```
 [couchdb]
 users_db_security_editable = true
@@ -220,7 +220,7 @@ key_file = /opt/couchdb/letsencript/live/< your domain name >/privkey.pem
 cacert_file = /opt/couchdb/letsencript/live/< your domain name >/fullchain.pem
 ```
 As this is a single page application we need to redirect to index.html if the url doesn’t match any assets uploaded to the server that we want to load.
-When using Apache2 as your web server add these lines to the /etc/apache2/sites-available/000-default-le-ssl.conf file:
+When using Apache2 as your web server add these lines to the `/etc/apache2/sites-available/000-default-le-ssl.conf` file:
 ```
 <IfModule mod_ssl.c>
 <VirtualHost *:443>       
@@ -240,7 +240,7 @@ When starting the app the first time use the server admin credentials you create
 
 Let's encript renews your certificate every 3 months. Couchdb cannot access the renewed certificates directly.</br>
 Create your ssl install directory /opt/couchdb/letsencript and 
-add a script to copy these certificates automatically on renewal in the folder /etc/letsencrypt/renewal-hooks/post that Let's encrypt created for you:
+add a script to copy these certificates automatically on renewal in the folder `/etc/letsencrypt/renewal-hooks/post` that Let's encrypt created for you:
 ``` bash
 # Name this script copyCertsForCouchdb.sh or any other name
 # Make this file executable with sudo chmod +x < this file name >
@@ -259,20 +259,27 @@ npm install
 ```
 
 ### create two files with environment settings for development and production
-cd to the root directory of this app and use your favorate editor to create a file named .env.development.local and enter:
+cd to the root directory of this app and use your favorate editor to create a file named `.env.development.local` and enter:
 ```
 VUE_APP_SSL_PATH=< local ssl install directory >
+VUE_APP_SITE_URL=https://localhost:8080 # or https://<your remote host> when the CouchDb instance is hosted in the cloud
 VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
 ```
 
-cd to the root directory of this app and use your favorate editor to create a file named .env.production.local and enter:
+cd to the root directory of this app and use your favorate editor to create a file named `.env.production.local` and enter:
 ```
+VUE_APP_SITE_URL=https://< your domain name >
 VUE_APP_API_URL=https://< your domain name >:6984
 ```
 
 ### serve with hot reload for development at localhost:8080
 ``` bash
 npm run serve
+```
+
+# Lints and fixes files
+``` bash
+npm run lint
 ```
 
 ### build for production with minification
