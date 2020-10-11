@@ -132,7 +132,7 @@ The number of simultaneous users viewing changes, made by a reasonable (not test
 
 ## Implementation
 
-![img](https://github.com/ErikVerheul/OneBacklog/blob/master/img/example-screen.png)
+![img](https://github.com/ErikVerheul/OneBacklog/blob/master/public/img/example-screen.png)
 
 - A short key of 5 characters alphamumeric are available for the users for direct lookup and reference in communications.
 - The history of priority and attribute changes of products, epics, features, pbi's are stored and easily accessible. 
@@ -149,7 +149,7 @@ The number of simultaneous users viewing changes, made by a reasonable (not test
 </div>
 
 <b>Sprint Backlog</b><br /><br />
-![img](https://github.com/ErikVerheul/OneBacklog/blob/master/img/planning-board.png)
+![img](https://github.com/ErikVerheul/OneBacklog/blob/master/public/img/planning-board.png)
 <p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
 <p>From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:</p>
 <ul>
