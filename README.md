@@ -183,7 +183,7 @@ The app uses a secure https connection using port 6984 with cooky authentication
 
 ## install CouchDB
 Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
-Edit the 10-admins.ini file in `< couchdb install directory >/couchdb/etc/local.d`:
+Edit the 10-admins.ini file in `< couchdb install directory >/couchdb/etc/local.d`:</br>
 Note: if this file does not exist than make these changes to the local.ini file.
 ```
 [httpd]
