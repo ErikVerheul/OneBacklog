@@ -29,7 +29,7 @@
 				<div id="pv">
 					<h4>Product details view</h4>
 					<p>The Product details view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
-					<b-img :src="getImgUrl('img/example-screen.png')" alt="Example screen" />
+					<b-img :src="getImgUrl('img/example-screen.png')" alt="Product details example screen" />
 					<p>The large black area below the event bar shows all the products assigned and selected by the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
 					<p>You can have multiple products. Each of them consists of:
 						<ul>
@@ -117,7 +117,7 @@
 				<div id="rv">
 					<h4>Products overview</h4>
 					<p>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can create and asign requirement areas to items. The PO can drag&#38;drop items between his products and set dependencies between items in different products (not recommanded).</p>
-					<b-img :src="getImgUrl('img/products-overview.png')" alt="Products overview" />
+					<b-img :src="getImgUrl('img/products-overview.png')" alt="Example roducts overview" />
 					<p>This view shows all products in the database up to the feature level. The requirement area are color coded choosen by the APO.</p>
 				</div>
 				<div id="tv-features">
@@ -160,7 +160,7 @@
 						<p>Note: Removing a task does not delete the task. In the Product details view you can change the state back to &apos;In progress&apos; or any other state.</p>
 						<p>Left click on a &apos;Click to create a task here&apos; button to create a task in a column without task.</p>
 						<h5>Unfinished tasks</h5>
-						<b-img :src="getImgUrl('img/unfinished-tasks.png')" alt="Unfinished tasks" />
+						<b-img :src="getImgUrl('img/unfinished-tasks.png')" alt="Example unfinished tasks" />
 						<p>If your team has any tasks not DONE is a previous sprint this modal will pop up when a PO or developer opens the planning board. Select &apos;No, do not ask again&apos; to stop showing this message during this sprint. In the next sprint it will show up again.</p>
 						<h5>Sprint ending, start of next sprint</h5>
 						<p>When the end date and time of a sprint is due, the next sprint starts automatically. When the current sprint is about to end use the Product details view to:</p>
@@ -177,13 +177,13 @@
 					<li>
 						<h5>Admin</h5>
 						<p>The admin creates and maintains user permissions here. Team names can be added and listed.</p>
-						<b-img :src="getImgUrl('img/admin-menu.png')" alt="Admin menu" />
+						<b-img :src="getImgUrl('img/admin-menu.png')" alt="The admin menu" />
 					</li>
 					<li>
 						<h5>Server admin</h5>
 						<p>The server admin creates backups and restores databases from a backup here. New databases can be created and deleted. A CouchDB FAUXTON session can be started in a separate tab of the browser.</p>
 						<p>During operation a server admin can use the Server admin view which offers a menu of common tasks:</p>
-						<b-img :src="getImgUrl('img/server-admin-menu.png')" alt="Server admin menu" />
+						<b-img :src="getImgUrl('img/server-admin-menu.png')" alt="The server admin menu" />
 					</li>
 				</ul>
 				</div>
