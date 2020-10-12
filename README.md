@@ -181,8 +181,19 @@ A demo of the current stable version is online. Try https://onebacklog.net, sign
 
 The app uses a secure https connection using port 6984 with cooky authentication to connect to the database. See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains.</br>
 
+## install CouchDB
+Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
+Edit the 10-admins.ini file in `< couchdb install directory >/couchdb/etc/local.d`:
+Note: if this file does not exist than make these changes to the local.ini file.
+```
+[httpd]
+enable cors = true
+
+[cors]
+origins = *
+credentials = true
+```
 ### install CouchDB locally
-Install the CouchDb version 3.0.0 or higher locally and create a server admin account.
 Edit the local.ini file in `< couchdb install directory >/couchdb/etc/`:
 ```
 [couchdb]
@@ -200,7 +211,6 @@ key_file = < local ssl install directory >/localhost.key
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
 ### install CouchDB in the cloud
-Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
 Obtain a www ssl certificate (e.g. from LetsEncrypt)</br>
 Edit the `local.ini` file in `< couchdb install directory >/couchdb/etc/`:</br>
 ```
@@ -208,8 +218,6 @@ Edit the `local.ini` file in `< couchdb install directory >/couchdb/etc/`:</br>
 users_db_security_editable = true
 [chttpd]
 admin_only_all_dbs = false
-[httpd]
-enable_cors = true
 [couch_httpd_auth]
 same_site = none ; a must have when you connect with Chrome to a couchdb instance on another domain than the domain where the app is hosted (localhost when developing)
 [ssl]
