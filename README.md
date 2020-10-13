@@ -248,7 +248,7 @@ To sent e-mails when users subscribe to receive change notices on bacloklog item
 The application `node.js/app.js` is intended to run in node.js and placed on the home directory of the account named `pm2`. The installOneBacklog.sh script does that by default.</br>
 See the [pm2 docs](https://pm2.io/docs/runtime/reference/ecosystem-file/) to enable the service to restart automatically on (re)boor and error conditions.</br>
 The application uses an subscription on [mailgun](https://www.mailgun.com/).
-The .env file for the application looks like this:</br>
+The .env file for the application looks like this:
 ```
 COUCH_USER= < _admin user name >
 COUCH_PW= < _admin password >
@@ -279,7 +279,7 @@ npm install
 ```
 
 ### create two files with environment settings for development and production
-// Note: these files are not under version control
+Note: these files are not under version control</br>
 cd to the root directory of this app and use your favorate editor to create a file named `.env.development.local` and enter:
 ```
 VUE_APP_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization

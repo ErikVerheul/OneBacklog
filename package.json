@@ -1,6 +1,6 @@
 {
-  "name": "onebl",
-  "version": "1.2.1",
+  "name": "onebacklog",
+  "version": "1.2.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
