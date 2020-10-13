@@ -2,7 +2,8 @@
 
 A Vue.js web application. Licenced under GPL-3.0-or-later See LICENCE.txt
 
-***********************************************************************************
+![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
+
 With version 1.0.0 the app is feature complete with the basics:
 - security and authorization
 - tree view of the backlog
@@ -22,8 +23,6 @@ With version 1.0.0 the app is feature complete with the basics:
 
 PLEASE RAISE AN ISSUE WHEN YOU FIND A DEFECT OR WANT TO ADD A GREAT FEATURE!
 ***********************************************************************************
-
-![img](https://github.com/ErikVerheul/OneBacklog/blob/master/src/assets/logo.png)
 
 <b>The product vision:</b>
 <p>In my practise I have noticed a disconnect between my client's development portfolio, often a collection of projects, and the backlogs of the scrum teams. The discussion about priorities is largely political with little involvement of the product owners until the project starts. This tool aims to be an aid to the product owner(s) and allows all participants in product development to have a complete, well structured, view of the purpose and progress of the product development. The tool is inspired by Large-Scale Scrum (LeSS) and favors the concept of product development rather than project execution.</p>
