@@ -145,7 +145,7 @@ export default new Vuex.Store({
     // app wide globals
     configData: null,
     cookieAuthenticated: false,
-    demo: true,
+    demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
     eventSyncColor: '#004466',
     eventBgColor: '#408FAE',
     listenForChangesRunning: false,

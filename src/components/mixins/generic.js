@@ -34,7 +34,7 @@ const authorization = {
 		* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
 		* Note that level 0 is not used and the root of the tree starts with level 1.
 		* Note that admins and guests have no write permissions.
-		* See documentation.txt for the role definitions.
+		* See README.md for the role definitions.
 		*/
     haveWritePermission (level, productId = this.$store.state.currentProductId) {
       const levels = []
