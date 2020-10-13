@@ -257,9 +257,7 @@ API_KEY=< the API key you received from mailgun >
 ```
 IMPORTANT: add this file to your .gitignore file as these credentials should never get exposed to the Internet!
 
-## Finally
-When starting the app the first time use the server admin credentials you created to install CouchDb.
-
+## automatic certificate renewal
 Let's encript renews your certificate every 3 months. Couchdb cannot access the renewed certificates directly.</br>
 Create your ssl install directory /opt/couchdb/letsencript and 
 add a script to copy these certificates automatically on renewal in the folder `/etc/letsencrypt/renewal-hooks/post` that Let's encrypt created for you:
@@ -297,12 +295,15 @@ VUE_APP_SITE_URL=https://< your domain name >
 VUE_APP_API_URL=https://< your domain name >:6984
 ```
 
+## Finally
+When starting the app the first time use the server admin credentials you created to install CouchDb.
+
 ### serve with hot reload for development at localhost:8080
 ``` bash
 npm run serve
 ```
 
-### Lints and fixes files
+### lints and fixes files
 ``` bash
 npm run lint
 ```
