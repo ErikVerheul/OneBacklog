@@ -244,6 +244,21 @@ When using Apache2 as your web server add these lines to the `/etc/apache2/sites
 </IfModule>
 ```
 
+## install the e-mail server
+To sent e-mails when users subscribe to receive change notices on bacloklog items you need to install or use an existing e-mail service.</br>
+The application `node.js/app.js` is intended to run in node.js and placed on the home directory of the account named `pm2`. The installOneBacklog.sh script does that by default.</br>
+See the [pm2 docs](https://pm2.io/docs/runtime/reference/ecosystem-file/) to enable the service to restart automatically on (re)boor and error conditions.</br>
+The application uses an subscription on [mailgun](https://www.mailgun.com/).
+The .env file for the application looks like this:</br>
+```
+COUCH_USER= < _admin user name >
+COUCH_PW= < _admin password >
+DOMAIN= mg.< your domain name >
+API_KEY=< the API key you received from mailgun >
+```
+IMPORTANT: add this file to your .gitignore file as these credentials should never get exposed to the Internet!
+
+## Finally
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
 Let's encript renews your certificate every 3 months. Couchdb cannot access the renewed certificates directly.</br>
