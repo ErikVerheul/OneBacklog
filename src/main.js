@@ -9,6 +9,10 @@ import './fa.config'
 // eslint-disable-next-line no-console
 console.log('process.env.VUE_APP_IS_DEMO = ' + process.env.VUE_APP_IS_DEMO)
 // eslint-disable-next-line no-console
+console.log('process.env.VUE_APP_DEBUG = ' + process.env.VUE_APP_DEBUG)
+// eslint-disable-next-line no-console
+console.log('process.env.VUE_APP_DEBUG_CONNECTION = ' + process.env.VUE_APP_DEBUG_CONNECTION)
+// eslint-disable-next-line no-console
 console.log('process.env.NODE_ENV = ' + process.env.NODE_ENV)
 // eslint-disable-next-line no-console
 console.log('process.env.VUE_APP_SITE_URL = ' + process.env.VUE_APP_SITE_URL)
