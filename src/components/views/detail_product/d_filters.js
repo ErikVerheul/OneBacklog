@@ -15,13 +15,13 @@ const methods = {
     const unselectedNodes = []
     // create a callback for the filtering
     const cb = (nm) => {
+      // save node display state
+      nm.savedDoShow = nm.doShow
+      nm.savedIsExpanded = nm.isExpanded
       if (onlyFilterOnDepth) {
         nm.isExpanded = nm.level < this.selectedTreeDepth
         if (nm.level === this.selectedTreeDepth) return
       } else {
-        // save node display state
-        nm.savedDoShow = nm.doShow
-        nm.savedIsExpanded = nm.isExpanded
         // select nodeModels NOT to show; the node is shown if not excluded by any filter
         let isExcluded = false
         if (this.filterOnReqAreas) {
