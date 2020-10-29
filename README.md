@@ -21,6 +21,9 @@ With version 1.0.0 the app is feature complete with the basics:
 - a set of admin functions for backup/restore, user maintenance etc.
 - automatic initiation of the first and possibly more databases
 
+### Demo
+A demo of the current stable version is online. Try https://onebacklog.net, signin as demo user and give me your feedback by registering your most wanted features and found defects. See the <b>release nodes</b> by clicking on the version number in the header of the app.
+
 PLEASE RAISE AN ISSUE WHEN YOU FIND A DEFECT OR WANT TO ADD A GREAT FEATURE!
 ***********************************************************************************
 
@@ -173,11 +176,7 @@ Then, the calendar items (iterations) are stored as type 'calendar' in the datab
 - These tools enable complexifying rather than simplifying</br>
 Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the real role the product owner has.
 
-## Demo
-A demo of the current stable version is online. Try https://onebacklog.net, signin as demo user and give me your feedback by registering your most wanted features and found defects. See the <b>release nodes</b> by clicking on the version number in the header of the app.
-
 ## Build Setup
-
 The app uses a secure https connection using port 6984 with cooky authentication to connect to the database. See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains.</br>
 
 ## install CouchDB
