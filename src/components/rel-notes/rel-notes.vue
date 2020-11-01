@@ -15,7 +15,7 @@
           <ul>
 						<li>Both native ES2015 and legacy code is shipped to production</li>
 						<li>Debug options included in environment settings</li>
-						<li>Developenent and production environment files now under source control</li>
+						<li>Development and production environment files now under source control</li>
             <li>Updated the installation instructions</li>
           </ul>
           <hr />
