@@ -6,6 +6,19 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.2.3 - 1 November 2020 Bug fix, native ES2015 code and doc updates</h3>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>'Not returning original view after clearing depth only filter' fixed</li>
+          </ul>
+          <p>Install and documentation<p>
+          <ul>
+						<li>Both native ES2015 and legacy code is shipped to production</li>
+						<li>Debug options included in environment settings</li>
+						<li>Developenent and production environment files now under source control</li>
+            <li>Updated the installation instructions</li>
+          </ul>
+          <hr />
           <h3>v.1.2.2 - 13 Oktober 2020 Security fix and doc updates</h3>
           <p>Security fixes:</p>
           <ul>
