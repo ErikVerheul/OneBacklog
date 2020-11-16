@@ -66,7 +66,7 @@ function convertToResults (docs) {
 }
 
 const actions = {
-  processItems ({
+  restoreItems ({
     rootState,
     getters,
     dispatch,
@@ -191,7 +191,7 @@ const actions = {
         dispatch('getChildrenToRestore', { _id, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
       } else {
         commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
-        const msg = 'Sync.processItems: a remote restore of the tree view failed. Cannot find the parent of ' + parentId
+        const msg = 'restoreItems: a remote restore of the tree view failed. Cannot find the parent of ' + parentId
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: ERROR })
@@ -212,7 +212,7 @@ const actions = {
       const results = res.data.rows
       if (results.length > 0) {
         // process next level
-        dispatch('processItems', { results, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
+        dispatch('restoreItems', { results, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
       } else startRestore = false
 
       if (!startRestore && getChildrenRunning === 0) {
@@ -259,14 +259,14 @@ const actions = {
     startRestore = true
     histArray = payload.doc.history[0].docRestoredEvent
     getChildrenRunning = 0
-    dispatch('processItems', { results: convertToResults([payload.doc]), toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
+    dispatch('restoreItems', { results: convertToResults([payload.doc]), toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
   },
 
   restorebranches ({
     dispatch
   }, docs) {
     fromHistory = false
-    dispatch('processItems', { results: convertToResults(docs) })
+    dispatch('restoreItems', { results: convertToResults(docs) })
   },
 
   /* addProducts uses restoreBranches to load a product as a branch */
