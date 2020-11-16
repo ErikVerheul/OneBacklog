@@ -188,7 +188,7 @@ const actions = {
           // select the product node in the tree
           if (_id === newDefaultProductId) window.slVueTree.selectNodeById(newDefaultProductId)
         }
-        dispatch('getChildren', { _id, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
+        dispatch('getChildrenToRestore', { _id, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
       } else {
         commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: WARNING })
         const msg = 'Sync.processItems: a remote restore of the tree view failed. Cannot find the parent of ' + parentId
@@ -199,7 +199,7 @@ const actions = {
     }
   },
 
-  getChildren ({
+  getChildrenToRestore ({
     rootState,
     dispatch
   }, payload) {
@@ -239,13 +239,13 @@ const actions = {
           for (const td of payload.toDispatch) {
             const name = Object.keys(td)[0]
             // eslint-disable-next-line no-console
-            if (rootState.debug) console.log('restoreBranch(es).getChildren: dispatching ' + name)
+            if (rootState.debug) console.log('restoreBranch(es).getChildrenToRestore: dispatching ' + name)
             dispatch(name, td[name])
           }
         }
       }
     }).catch(error => {
-      const msg = 'restorebranches.getChildren: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
+      const msg = 'restorebranches.getChildrenToRestore: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

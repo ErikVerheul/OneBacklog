@@ -67,12 +67,12 @@ const actions = {
       doc.history.unshift(newHist)
       // multiple instances can be dispatched
       getChildrenDispatched++
-      toDispatch.push({ getChildren: { node: payload.node, id: doc._id, showUndoneMsg: payload.showUndoneMsg } })
+      toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, showUndoneMsg: payload.showUndoneMsg } })
     }
     dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
   },
 
-  getChildren ({
+  getChildrenToRemove ({
     rootState,
     dispatch
   }, payload) {
@@ -90,12 +90,12 @@ const actions = {
         if (getChildrenDispatched - getChildrenReady === 0) {
           // db iteration ready
           // eslint-disable-next-line no-console
-          if (rootState.debug) console.log('getChildren: dispatching removeExternalConds')
+          if (rootState.debug) console.log('getChildrenToRemove: dispatching removeExternalConds')
           dispatch('removeExternalConds', payload)
         }
       }
     }).catch(error => {
-      const msg = 'removeBranch.getChildren: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
+      const msg = 'removeBranch.getChildrenToRemove: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
