@@ -154,6 +154,7 @@ const actions = {
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: ERROR })
+        // ToDo: make this an alert with the only option to restart the application
         commit('showLastEvent', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: WARNING })
       } else {
         dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move })
@@ -192,8 +193,10 @@ const actions = {
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       if (updateConflict > 0 || otherError > 0) {
-        commit('showLastEvent', { txt: 'The move failed due to update conflicts or errors. Try again after sign-out or contact your administrator', severity: WARNING })
+        // note that logging may fail if the connection is lost
         dispatch('doLog', { event: msg, level: WARNING })
+        // ToDo: make this an alert with the only option to restart the application
+        commit('showLastEvent', { txt: 'The move failed due to update conflicts or errors. Try again after sign-out or contact your administrator', severity: WARNING })
       } else {
         // no conflicts, no other errors
         for (const it of items) {
