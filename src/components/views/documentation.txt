@@ -209,12 +209,12 @@ In the CONFIG document the PBI subtypes are defined
 
 In the CONFIG document the item states are defined
 As per release 1.0
-itemState				taskState
+itemState					taskState
 1   "On hold"			"On hold"
-2   "New"				"ToDo"
+2   "New"					"ToDo"
 3   "Ready"				"ToDo"
-4   "In progress"		"In progress"
-5	"In progress"		"Ready for test/review"
+4   "In progress"	"In progress"
+5		"In progress"	"Ready for test/review"
 6   "Done"				"Done"
 
 Items can move to tasks and back
