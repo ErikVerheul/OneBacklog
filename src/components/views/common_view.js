@@ -620,7 +620,7 @@ const methods = {
     }
   },
 
-  /* Move the nodes and save the status 'as is' before the move and pdate the database when one or more nodes are dropped on another location */
+  /* Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location */
   nodeDropped (nodes, cursorPosition) {
     const moveDataContainer = this.moveNodes(nodes, cursorPosition)
     const clickedLevel = moveDataContainer.sourceLevel

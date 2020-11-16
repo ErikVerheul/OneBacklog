@@ -204,7 +204,7 @@ const utilities = {
       this.$store.state.eventBgColor = eventBgColor
     },
 
-    /// ////////////////////////////////////// sprints ////////////////////////////////////////
+    ////////////////////////////////////////// sprints ////////////////////////////////////////
     // ToDo: make this a computed prop so that it comes into effect immediately when the current sprint ends
     getCurrentAndNextSprint () {
       const now = Date.now()
@@ -229,7 +229,7 @@ const utilities = {
       return null
     },
 
-    /// //////////////////////////////////// move items //////////////////////////////////////
+    //////////////////////////////////////// move items //////////////////////////////////////
 
     /* Move the nodes (must have the same parent) to the position designated by cursorPosition */
     moveNodes (nodes, cursorPosition) {
@@ -284,7 +284,7 @@ const utilities = {
           targetSprintId
         })
       }
-      // create an mapping to move the items back to their original position on undo; also restore the sprintId and the date/time the item was moved
+      // create a mapping to move the items back to their original position on undo; also restore the sprintId and the date/time the item was moved
       const reverseMoveMap = []
       for (let i = 0; i < nodes.length; i++) {
         // ------------ set source and target sprint ids ---------------
