@@ -432,7 +432,7 @@ const actions = {
     })
   },
 
-  /// ///////////// utility not integrated in user interface //////////////////
+  ///////////////// utility not integrated in user interface //////////////////
   removeFromFilter ({
     rootState,
     dispatch
