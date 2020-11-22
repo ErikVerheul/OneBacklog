@@ -213,7 +213,7 @@ const methods = {
      * Area PO's need not to be member of the item's team
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
-    if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position', this.isAPO)) {
+		if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position', this.isPO || this.isAPO)) {
       const checkDropNotAllowed = (node) => {
         const sourceProductId = draggingNodes[0].productId
         const targetProductId = position.nodeModel.productId
