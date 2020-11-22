@@ -82,7 +82,7 @@ const actions = {
     }).then(res => {
       getChildrenReady++
       const results = res.data.rows
-      // console.log('getChildren: results.length = ' + results.length + ', getChildrenDispatched = ' + getChildrenDispatched + ', getChildrenReady = ' + getChildrenReady + ', diff = ' + (getChildrenDispatched - getChildrenReady))
+      // console.log('getChildrenToRemove: results.length = ' + results.length + ', getChildrenDispatched = ' + getChildrenDispatched + ', getChildrenReady = ' + getChildrenReady + ', diff = ' + (getChildrenDispatched - getChildrenReady))
       if (results.length > 0) {
         // process next level
         dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), showUndoneMsg: payload.showUndoneMsg })
