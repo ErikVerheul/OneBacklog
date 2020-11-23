@@ -701,7 +701,7 @@ const actions = {
       // encode to base64
       const newEncodedDescription = window.btoa(payload.newDescription)
       const newHist = {
-        descriptionEvent: [res.data.description, newEncodedDescription],
+				descriptionEvent: [tmpDoc.description, newEncodedDescription],
         by: rootState.userData.user,
         timestamp: Date.now(),
         sessionId: rootState.userData.sessionId,
@@ -718,8 +718,7 @@ const actions = {
         updatedDoc: tmpDoc,
         caller: 'saveDescription',
         onSuccessCallback: () => {
-          // no need to update in the currentDoc, the changed version is already in view or will be updated if the item is selected
-          commit('updateNodesAndCurrentDoc', { node, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
           if (payload.createUndo) {
             // create an entry for undoing the change in a last-in first-out sequence
             const entry = {
@@ -757,7 +756,7 @@ const actions = {
       // encode to base64
       const newEncodedAcceptance = window.btoa(payload.newAcceptance)
       const newHist = {
-        acceptanceEvent: [res.data.acceptanceCriteria, newEncodedAcceptance],
+				acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance],
         by: rootState.userData.user,
         timestamp: Date.now(),
         sessionId: rootState.userData.sessionId,
@@ -774,8 +773,7 @@ const actions = {
         updatedDoc: tmpDoc,
         caller: 'saveAcceptance',
         onSuccessCallback: () => {
-          // no need to update in the currentDoc, the changed version is already in view or will be updated if the item is selected
-          commit('updateNodesAndCurrentDoc', { node, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
           if (payload.createUndo) {
             // create an entry for undoing the change in a last-in first-out sequence
             const entry = {
