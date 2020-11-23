@@ -412,7 +412,7 @@ const methods = {
         this.$store.dispatch('undoSetDependencyAsync', entry)
         break
       case 'undoStateChange':
-				this.$store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, showUndoneMsg: true, createUndo: false })
+				this.$store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, createUndo: false })
         break
       case 'undoStoryPointsChange':
 				this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange, createUndo: false })

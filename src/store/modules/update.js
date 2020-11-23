@@ -455,8 +455,7 @@ const actions = {
               prevLastChange
             }
             rootState.changeHistory.unshift(entry)
-          }
-          if (payload.showUndoneMsg) commit('showLastEvent', { txt: 'Change of item state is undone', severity: INFO })
+          } else commit('showLastEvent', { txt: 'Change of item state is undone', severity: INFO })
         }
       })
     }).catch(error => {
