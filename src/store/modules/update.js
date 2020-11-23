@@ -170,6 +170,8 @@ const actions = {
         updatedDoc: tmpDoc,
         caller: 'updateColorDb',
         onSuccessCallback: () => {
+					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor, newHist })
+					commit('updateColorMapper', { id, newColor: payload.newColor })
           if (payload.createUndo) {
             // create an entry for undoing the change in a last-in first-out sequence
             const entry = {
@@ -179,8 +181,6 @@ const actions = {
             }
             rootState.changeHistory.unshift(entry)
           } else commit('showLastEvent', { txt: 'Change of requirement area color indication is undone', severity: INFO })
-          commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor, newHist })
-          commit('updateColorMapper', { id, newColor: payload.newColor })
         }
       })
     }).catch(error => {
