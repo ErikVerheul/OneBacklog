@@ -454,7 +454,8 @@ const actions = {
               prevLastStateChange,
               prevLastChange
             }
-            rootState.changeHistory.unshift(entry)
+						rootState.changeHistory.unshift(entry)
+						commit('showLastEvent', { txt: 'Item state has changed', severity: INFO })
           } else commit('showLastEvent', { txt: 'Change of item state is undone', severity: INFO })
         }
       })
