@@ -533,7 +533,7 @@ export default new Vuex.Store({
                   state.currentDoc._rev = payload._rev
                   break
                 case 'acceptanceCriteria':
-                  state.currentDoc.acceptanceCriteria = window.atob(payload.acceptanceCriteria)
+                  state.currentDoc.acceptanceCriteria = payload.acceptanceCriteria
                   break
                 case 'addConditionalFor':
                   if (state.currentDoc.conditionalFor) {
@@ -555,7 +555,7 @@ export default new Vuex.Store({
                   state.currentDoc.delmark = payload.delmark
                   break
                 case 'description':
-                  state.currentDoc.description = window.atob(payload.description)
+                  state.currentDoc.description = payload.description
                   break
                 case 'followers':
                   state.currentDoc.followers = payload.followers
