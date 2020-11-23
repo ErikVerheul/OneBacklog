@@ -67,7 +67,7 @@ const actions = {
       doc.history.unshift(newHist)
       // multiple instances can be dispatched
       getChildrenDispatched++
-      toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, showUndoneMsg: payload.showUndoneMsg } })
+			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, createUndo: payload.createUndo } })
     }
     dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
   },
@@ -85,7 +85,7 @@ const actions = {
       // console.log('getChildrenToRemove: results.length = ' + results.length + ', getChildrenDispatched = ' + getChildrenDispatched + ', getChildrenReady = ' + getChildrenReady + ', diff = ' + (getChildrenDispatched - getChildrenReady))
       if (results.length > 0) {
         // process next level
-        dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), showUndoneMsg: payload.showUndoneMsg })
+				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), createUndo: payload.createUndo })
       } else {
         if (getChildrenDispatched - getChildrenReady === 0) {
           // db iteration ready
@@ -122,7 +122,7 @@ const actions = {
       url: rootState.userData.currentDb + '/' + id
     }).then(res => {
       const doc = res.data
-      dispatch('processItemsToRemove', { node: payload.node, results: [doc], showUndoneMsg: payload.showUndoneMsg })
+			dispatch('processItemsToRemove', { node: payload.node, results: [doc], createUndo: payload.createUndo })
     }).catch(error => {
       const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
       // eslint-disable-next-line no-console
@@ -202,7 +202,7 @@ const actions = {
             }
           }
         }
-        const toDispatch = [{ addRemoveHist: { node: payload.node, showUndoneMsg: payload.showUndoneMsg } }]
+				const toDispatch = [{ addRemoveHist: { node: payload.node, createUndo: payload.createUndo } }]
         dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
       }).catch(e => {
         const msg = 'removeExternalDeps: Could not read batch of documents: ' + e
@@ -210,7 +210,7 @@ const actions = {
         if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: ERROR })
       })
-    } else dispatch('addRemoveHist', { node: payload.node, showUndoneMsg: payload.showUndoneMsg })
+		} else dispatch('addRemoveHist', { node: payload.node, createUndo: payload.createUndo })
   },
 
   /* Add history to the removed item it self */
@@ -328,27 +328,28 @@ const actions = {
               rootState.myProductOptions.splice(removeIdx, 1)
             }
           }
-          // create an entry for undoing the remove in a last-in first-out sequence
-          const entry = {
-            type: 'undoRemove',
-            removedNode: payload.node,
-            isProductRemoved: payload.node.level === PRODUCTLEVEL,
-            docsRemovedIds,
-            removedIntDependencies: removed.removedIntDependencies,
-            removedIntConditions: removed.removedIntConditions,
-            removedExtDependencies: removed.removedExtDependencies,
-            removedExtConditions: removed.removedExtConditions,
-            sprintIds: removedSprintIds,
-            itemsRemovedFromReqArea
-          }
-          if (entry.isProductRemoved) {
-            entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
-          }
-          rootState.changeHistory.unshift(entry)
-          if (payload.showUndoneMsg) {
-            commit('showLastEvent', { txt: 'Item creation is undone', severity: INFO })
+
+					if (payload.createUndo) {
+						// create an entry for undoing the remove in a last-in first-out sequence
+						const entry = {
+							type: 'undoRemove',
+							removedNode: payload.node,
+							isProductRemoved: payload.node.level === PRODUCTLEVEL,
+							docsRemovedIds,
+							removedIntDependencies: removed.removedIntDependencies,
+							removedIntConditions: removed.removedIntConditions,
+							removedExtDependencies: removed.removedExtDependencies,
+							removedExtConditions: removed.removedExtConditions,
+							sprintIds: removedSprintIds,
+							itemsRemovedFromReqArea
+						}
+						if (entry.isProductRemoved) {
+							entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
+						}
+						rootState.changeHistory.unshift(entry)
+						commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.node.level)} and ${docsRemovedIds.length - 1} descendants are removed`, severity: INFO })
           } else {
-            commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.node.level)} and ${docsRemovedIds.length - 1} descendants are removed`, severity: INFO })
+						commit('showLastEvent', { txt: 'Item creation is undone', severity: INFO })
           }
         }
       })
