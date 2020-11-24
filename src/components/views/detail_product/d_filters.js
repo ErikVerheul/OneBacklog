@@ -51,7 +51,11 @@ const methods = {
       }
     }
     // execute the callback for the current product
-    window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
+		window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
+
+		this.$store.state.filterText = 'Clear filter'
+		this.$store.state.filterOn = true
+    // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
 
     if (!onlyFilterOnDepth) {
       // hide unselected nodes with no selected descendants
@@ -59,13 +63,11 @@ const methods = {
         n.doShow = window.slVueTree.hasHighlightedDescendants(n)
       }
       let s
-      count === 1 ? s = 'title matches' : s = 'titles match'
+			count === 1 ? s = 'title matches' : s = 'titles match'
       this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
-    } else this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, INFO)
-
-    this.$store.state.filterText = 'Clear filter'
-    this.$store.state.filterOn = true
-    // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
+    } else {
+			this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, INFO)
+		}
   }
 }
 

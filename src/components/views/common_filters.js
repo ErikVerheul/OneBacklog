@@ -1,3 +1,5 @@
+import { utilities } from '../mixins/generic.js'
+
 const INFO = 0
 const PRODUCTLEVEL = 2
 
@@ -114,6 +116,7 @@ const methods = {
 }
 
 export default {
+	mixins: [utilities],
   data,
   mounted,
   methods

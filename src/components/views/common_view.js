@@ -449,7 +449,7 @@ const methods = {
   updateDescription (node = this.getLastSelectedNode) {
     if (this.$store.state.currentDoc.description !== this.newDescription) {
       // skip update when not changed
-      if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item', this.isPO)) {
+			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
         this.$store.dispatch('saveDescription', {
           node,
           newDescription: this.newDescription,
@@ -463,7 +463,7 @@ const methods = {
   updateAcceptance (node = this.getLastSelectedNode) {
     // skip update when not changed
     if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
-			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item', this.isPO)) {
+			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
         this.$store.dispatch('saveAcceptance', {
           node,
           newAcceptance: this.newAcceptance,
@@ -475,7 +475,7 @@ const methods = {
   },
 
   updateTsSize () {
-		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item', this.isPO)) {
+		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
       const node = this.getLastSelectedNode
       const size = document.getElementById('tShirtSizeId').value.toUpperCase()
       const sizeArray = this.$store.state.configData.tsSize
@@ -501,7 +501,7 @@ const methods = {
 
   /* Only authorized users who are member of the owning team can change story points. */
   updateStoryPoints () {
-		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item', this.isPO)) {
+		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item')) {
       const node = this.getLastSelectedNode
       const el = document.getElementById('storyPointsId')
       if (isNaN(el.value) || el.value < 0) {
@@ -521,7 +521,7 @@ const methods = {
   },
 
   updatePersonHours () {
-		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item', this.isPO)) {
+		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
       const node = this.getLastSelectedNode
       const el = document.getElementById('personHoursId')
       if (isNaN(el.value) || el.value < 0) {
@@ -573,7 +573,7 @@ const methods = {
       vm.$store.dispatch('setState', { node, newState, position: vm.getLastSelectedNode.ind, timestamp: Date.now(), createUndo: true })
     }
     if (newState !== this.$store.state.currentDoc.state) {
-			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item', this.isPO)) {
+			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
         changeState(this)
         const parentNode = window.slVueTree.getParentNode(this.getLastSelectedNode)
         if (parentNode._id != 'root') {
@@ -591,7 +591,7 @@ const methods = {
     const newTitle = document.getElementById('titleField').value
     if (oldTitle === newTitle) return
 
-		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item', this.isPO)) {
+		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
       const node = this.getLastSelectedNode
       // update current document in database
       this.$store.dispatch('setDocTitle', {
