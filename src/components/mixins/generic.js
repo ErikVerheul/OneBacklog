@@ -114,6 +114,7 @@ const authorization = {
 const utilities = {
 	computed: {
 		...mapGetters([
+			'getCurrentItemLevel',
 			'getLastSelectedNode',
 			'leafLevel',
 			'myTeam',
