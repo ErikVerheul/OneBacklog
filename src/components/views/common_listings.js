@@ -1,4 +1,3 @@
-import { mapGetters } from 'vuex'
 import { utilities } from '../mixins/generic.js'
 
 function convertToShortIds (ids) {
@@ -14,10 +13,6 @@ function convertToShortIds (ids) {
 }
 
 const computed = {
-  ...mapGetters([
-    'getLastSelectedNode'
-  ]),
-
   isUploadDone () {
     // force a re-render
     this.$forceUpdate()

@@ -1,5 +1,4 @@
-import { mapGetters } from 'vuex'
-import { authorization, utilities } from '../mixins/generic.js'
+import { utilities } from '../mixins/generic.js'
 
 const INFO = 0
 const WARNING = 1
@@ -56,16 +55,6 @@ function data () {
     dependenciesObjects: [],
     conditionsObjects: []
   }
-}
-
-const computed = {
-  ...mapGetters([
-    'isPO',
-    'isAPO',
-    'getLastSelectedNode',
-    'myAssignedProductIds',
-    'myTeam'
-  ])
 }
 
 const methods = {
@@ -399,9 +388,8 @@ const methods = {
 }
 
 export default {
-  mixins: [authorization, utilities],
+  mixins: [utilities],
   created,
   data,
-  computed,
   methods
 }

@@ -37,15 +37,14 @@
 </template>
 
 <script>
-import { utilities, authorization } from '../../mixins/generic.js'
+import { authorization } from '../../mixins/generic.js'
 import Draggable from 'vuedraggable'
 import TaskItem from './TaskItem'
-import { mapGetters } from 'vuex'
 
 const TASKLEVEL = 6
 
 export default {
-  mixins: [utilities, authorization],
+  mixins: [authorization],
   name: 'TaskColumn',
   props: ['productId', 'storyId', 'storyTitle', 'tasks', 'title', 'state', 'idx'],
   components: {
@@ -61,9 +60,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'myProductRoles'
-    ]),
     draggables: {
       get () {
         return this.tasks

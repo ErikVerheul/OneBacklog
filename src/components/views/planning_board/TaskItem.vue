@@ -67,12 +67,11 @@
 </template>
 
 <script>
-import { utilities, authorization } from '../../mixins/generic.js'
-import { mapGetters } from 'vuex'
+import { authorization } from '../../mixins/generic.js'
 const TASKLEVEL = 6
 
 export default {
-  mixins: [utilities, authorization],
+  mixins: [authorization],
   name: 'TaskItem',
   props: ['productId', 'storyId', 'storyTitle', 'state', 'columnName', 'item'],
 
@@ -95,12 +94,6 @@ export default {
       changedTaskTitle: this.item.title,
       theClass: 'b-card task-column-item'
     }
-  },
-
-  computed: {
-    ...mapGetters([
-      'myProductRoles'
-    ])
   },
 
   methods: {

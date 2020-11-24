@@ -1,7 +1,6 @@
 /*
  * This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
  */
-import { mapGetters } from 'vuex'
 import { eventBus } from '../../../main'
 import { utilities } from '../../mixins/generic.js'
 const DATABASELEVEL = 1
@@ -122,10 +121,6 @@ const watch = {
 }
 
 const computed = {
-  ...mapGetters([
-    'leafLevel'
-  ]),
-
   cursorPosition () {
     if (this.isRoot) return this.rootCursorPosition
     return this.getParentComponent().cursorPosition

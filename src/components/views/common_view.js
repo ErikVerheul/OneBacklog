@@ -1,4 +1,3 @@
-import { mapGetters } from 'vuex'
 import { authorization, utilities } from '../mixins/generic.js'
 
 const INFO = 0
@@ -116,23 +115,6 @@ function data () {
 }
 
 const computed = {
-  ...mapGetters([
-    'canCreateComments',
-    'canUploadAttachments',
-    'getpreviousNodeSelected',
-    'getLastSelectedNode',
-    'getCurrentItemLevel',
-    'getCurrentItemState',
-    'getItemSprintName',
-    'getCurrentItemTsSize',
-		'isAPO',
-		'isPO',
-    'isFollower',
-    'myAssignedProductIds',
-    'myTeam',
-    'teamCalendarInUse'
-  ]),
-
   welcomeMessage () {
     const msg_1 = `Welcome '${this.$store.state.userData.user}'.`
     let msg_2

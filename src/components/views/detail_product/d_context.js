@@ -1,5 +1,4 @@
 import { utilities } from '../../mixins/generic.js'
-import { mapGetters } from 'vuex'
 import CommonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
@@ -25,12 +24,6 @@ function data () {
     canAssignPbiToSprint: false,
     canAssignTaskToSprint: false
   }
-}
-
-const computed = {
-  ...mapGetters([
-    'myTeam'
-  ])
 }
 
 const methods = {
@@ -291,6 +284,5 @@ export default {
   extends: CommonContext,
   created,
   data,
-  computed,
   methods
 }

@@ -1,7 +1,6 @@
 import Licence from './licence.vue'
 import router from '../../router'
-import { mapGetters } from 'vuex'
-import { utilities } from '../mixins/generic.js'
+import { authorization } from '../mixins/generic.js'
 
 const INFO = 0
 const MINPASSWORDLENGTH = 8
@@ -27,19 +26,6 @@ function data () {
     teamOptions: [],
     newDefaultProductId: this.$store.state.currentDefaultProductId
   }
-}
-
-const computed = {
-  ...mapGetters([
-    'isAuthenticated',
-    'isServerAdmin',
-    'isAPO',
-    'isAdmin',
-    'isPO',
-    'myAssignedProductIds',
-    'myTeam',
-    'teamCalendarInUse'
-  ])
 }
 
 const methods = {
@@ -188,10 +174,9 @@ const methods = {
 }
 
 export default {
-  mixins: [utilities],
+	mixins: [authorization],
   created,
   data,
-  computed,
   methods,
   components: {
     appLicence: Licence

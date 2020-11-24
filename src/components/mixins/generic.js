@@ -19,12 +19,13 @@ const AREA_PRODUCTID = 'requirement-areas'
 const authorization = {
   computed: {
     ...mapGetters([
-      'myTeam',
-      'myProductRoles',
-      'isServerAdmin',
       'isAdmin',
-      'isAPO',
-      'myAssignedProductIds'
+			'isAPO',
+			'isAuthenticated',
+			'isPO',
+			'isServerAdmin',
+			'myAssignedProductIds',
+			'myProductRoles'
     ])
   },
 
@@ -111,6 +112,15 @@ const authorization = {
 }
 
 const utilities = {
+	computed: {
+		...mapGetters([
+			'getLastSelectedNode',
+			'leafLevel',
+			'myTeam',
+			'teamCalendarInUse'
+		])
+	},
+
   methods: {
     clearLastEvent () {
       this.$store.state.lastEvent = 'Event message is cleared.'

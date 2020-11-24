@@ -1,4 +1,3 @@
-import { utilities } from '../../mixins/generic.js'
 import CommonFilters from '../common_filters.js'
 
 const INFO = 0
@@ -66,7 +65,6 @@ const methods = {
 }
 
 export default {
-  mixins: [utilities],
   extends: CommonFilters,
   methods
 }

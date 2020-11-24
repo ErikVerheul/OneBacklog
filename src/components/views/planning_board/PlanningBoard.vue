@@ -95,11 +95,8 @@ import { mapState, mapGetters } from 'vuex'
 
 import AppHeader from '../../header/header.vue'
 import StoryLane from './StoryLane'
-import { utilities, authorization } from '../../mixins/generic.js'
 
 export default {
-  mixins: [utilities, authorization],
-
   beforeCreate () {
     this.$store.state.currentView = 'planningBoard'
   },
