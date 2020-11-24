@@ -6,6 +6,18 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.2.4 - 24 November 2020 New feature and bug fixes</h3>
+					<p>New feature:</p>
+          <ul>
+            <li>A PO and APO must have full access to all items of his products no matter what team he/she has joined</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>'Duplicate emails' regression, fixed</li>
+						<li>'Filter on period of days fails' regression, fixed</li>
+						<li>'Undo removal creates an undo' regression, fixed</li>
+						<li>'Description duplication' regression, fixed</li>
+          </ul>
 					<h3>v.1.2.3 - 1 November 2020 Bug fix, native ES2015 code and doc updates</h3>
           <p>Bug fixes:</p>
           <ul>
