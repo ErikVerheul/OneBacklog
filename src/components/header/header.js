@@ -1,6 +1,6 @@
 import Licence from './licence.vue'
 import router from '../../router'
-import { authorization } from '../mixins/generic.js'
+import { authorization, utilities } from '../mixins/generic.js'
 
 const INFO = 0
 const MINPASSWORDLENGTH = 8
@@ -174,7 +174,7 @@ const methods = {
 }
 
 export default {
-	mixins: [authorization],
+	mixins: [authorization, utilities],
   created,
   data,
   methods,
