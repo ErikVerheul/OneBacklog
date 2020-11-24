@@ -54,7 +54,7 @@
                   <b-form-radio v-model="selectedTime" value="1440">Changes last 24 hours</b-form-radio>
                   <b-form-radio v-model="selectedTime" value="0">A period in days</b-form-radio>
                 </b-form-group>
-                <div v-if="selectedTime === 'requirement-areas'">
+                <div v-if="selectedTime === '0'">
                   <b-col sm="3">
                     <label>From (inclusive):</label>
                   </b-col>
