@@ -23,6 +23,7 @@ const authorization = {
 			'isAPO',
 			'isAuthenticated',
 			'isPO',
+			'isReqAreaItem',
 			'isServerAdmin',
 			'myAssignedProductIds',
 			'myProductRoles'
@@ -89,11 +90,10 @@ const authorization = {
       return levels[level]
     },
 
-    haveAccessInTree (level, itemTeam, forAction, skipTestOnTeam = false, allowExtraLevel = false) {
-      const noTeamAssigned = itemTeam === 'not yet assigned' || itemTeam === undefined || itemTeam === null
-      const canAccessOnTeam = skipTestOnTeam || itemTeam === this.myTeam || noTeamAssigned
-      const canAccessOnLevel = this.haveWritePermission(level, this.$store.state.currentProductId) ||
-				allowExtraLevel && this.haveWritePermission(level + 1, this.$store.state.currentProductId)
+		haveAccessInTree(level, itemTeam, forAction, allowExtraLevel = false) {
+			const skipTestOnTeam = this.isPO || this.isAPO
+      const canAccessOnTeam = skipTestOnTeam || itemTeam === this.myTeam
+      const canAccessOnLevel = this.haveWritePermission(level, this.$store.state.currentProductId) ||	allowExtraLevel && this.haveWritePermission(level + 1, this.$store.state.currentProductId)
 
       if (canAccessOnTeam && canAccessOnLevel) return true
 
