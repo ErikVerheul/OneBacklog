@@ -1015,7 +1015,7 @@ const actions = {
       method: 'GET',
       url: rootState.userData.currentDb + '/' + _id
     }).then(res => {
-      const updatedDoc = res.data
+      const parentDoc = res.data
       // create a history event for the parent to trigger an email message to followers
       const parentHist = {
         newChildEvent: [payload.newNode.level, payload.newNode.ind + 1],
@@ -1023,8 +1023,8 @@ const actions = {
         timestamp: Date.now(),
         distributeEvent: false
       }
-      updatedDoc.lastChange = Date.now()
-      updatedDoc.history.unshift(parentHist)
+      parentDoc.lastChange = Date.now()
+      parentDoc.history.unshift(parentHist)
       const toDispatch = [{
         updateDoc: {
           dbName: rootState.userData.currentDb,
@@ -1041,8 +1041,8 @@ const actions = {
             commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: INFO })
           }
         }
-      }]
-      dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'createDocWithParentHist' })
+			}]
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: parentDoc, toDispatch, caller: 'createDocWithParentHist' })
     }).catch(error => {
       const msg = 'createDocWithParentHist: Could not read parent document with id ' + _id + ', ' + error
       // eslint-disable-next-line no-console
