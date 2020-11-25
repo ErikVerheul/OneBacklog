@@ -115,6 +115,7 @@ const utilities = {
 	computed: {
 		...mapGetters([
 			'getCurrentItemLevel',
+			'getpreviousNodeSelected',
 			'getLastSelectedNode',
 			'leafLevel',
 			'myTeam',
