@@ -272,46 +272,46 @@ Thee events and their usage:
 
 distibuted	mailed	listed	event                       	file
 ----------------------------------------------------------------
-Y            Y	     Y    acceptanceEvent	              	update.js
-Y            Y	     Y    addCommentEvent	              	update.js
-Y			 Y	     Y    addSprintIdsEvent					planningboard.js
-Y			 N	     N    boardReloadEvent					planningboard.js
-Y            N	     N    changeReqAreaColorEvent          	update.js
-N            Y	     Y    cloneEvent	                  	clone.js
-Y            Y	     Y    commentToHistoryEvent	        	update.js
-Y            Y	     Y    conditionRemovedEvent	        	update.js
-Y            N	     Y    createEvent 	                	common.context.js 2X
-N            N	     Y  	  								utils.js
-N			 N	     Y    createRootEvent					intdb.js
-Y            N	     Y    createTaskEvent 	                planningboard.js
-Y            Y	     Y    dependencyRemovedEvent 	      	update.js
-Y            Y	     Y    descriptionEvent	            	update.js
-Y            Y	     Y    docRestoredEvent 	            	undo.js
-N            N	     Y    grandParentDocRestoredEvent	  	undo.js
-N            N       Y    importToSprintEvent               planningboard.js
-N			 Y	     Y    newChildEvent						load.js
-Y            Y	     Y    nodeMovedEvent	            	move.js
-N            N	     N    nodesMovedParentEvent	 	        move.js					ToDo: use this event for history reporting?
-Y            Y	     Y    removeAttachmentEvent	        	attachments.js
-N            Y	     Y    removedFromParentEvent	      	remove.js
-Y            N       Y    removedWithDescendantsEvent       remove.js
-Y 			 Y 	     Y    removeSprintIdsEvent				update.js
-N			 N	     Y    resetHistoryEvent					utils.js
-Y            Y	     Y    setConditionEvent	          		update.js
-Y            Y	     Y    setDependencyEvent	        	update.js
-Y            Y	     Y    setHrsEvent	                  	update.js
-Y            Y	     Y    setPointsEvent	              	update.js
-Y            Y	     Y    setSizeEvent	                	update.js
-Y            Y	     Y    setStateEvent	                	update.js
-Y            Y	     Y    setSubTypeEvent	              	update.js
-N			 N	     Y    setTeamEventDescendant			update.js
-Y            Y	     Y    setTeamOwnerEvent	            	update.js
-Y            Y	     Y    setTitleEvent	                	update.js, planningboard.js
-N			 N	     Y    subscribeEvent					update.js
-Y            N       Y    taskRemovedEvent					planningboard.js
-Y            Y	     Y    uploadAttachmentEvent	        	attachments.js
-Y            N	     N    updateTaskOrderEvent	        	planningboard.js
-Y            N	     Y    uploadTaskOwnerEvent	        	planningboard.js
+Y            	Y	     Y    acceptanceEvent	              	update.js
+Y            	Y	     Y    addCommentEvent	              	update.js
+Y			 				Y	     Y    addSprintIdsEvent								planningboard.js
+Y			 				N	     N    boardReloadEvent								planningboard.js
+Y            	N	     N    changeReqAreaColorEvent         update.js
+N             Y	     Y    cloneEvent	                  	clone.js
+Y             Y	     Y    commentToHistoryEvent	        	update.js
+Y             Y	     Y    conditionRemovedEvent	        	update.js
+Y             N	     Y    createEvent 	                	common.context.js 2X
+N             N	     Y  	  															utils.js
+N			 				N	     Y    createRootEvent									intdb.js
+Y             N	     Y    createTaskEvent 	              planningboard.js
+Y             Y	     Y    dependencyRemovedEvent 	      	update.js
+Y             Y	     Y    descriptionEvent	            	update.js
+Y             Y	     Y    docRestoredEvent 	            	undo.js
+N             N	     Y    grandParentDocRestoredEvent	  	undo.js
+N             N      Y    importToSprintEvent             planningboard.js
+N			 				Y	     Y    newChildEvent										load.js
+Y             Y	     Y    nodeMovedEvent	            		move.js
+N             N	     N    nodesMovedParentEvent	 	        move.js								ToDo: use this event for history reporting?
+Y             Y	     Y    removeAttachmentEvent	        	attachments.js
+N             Y	     Y    removedFromParentEvent	      	remove.js
+Y             N      Y    removedWithDescendantsEvent     remove.js
+Y 			 			Y 	   Y    removeSprintIdsEvent						update.js
+N			 				N	     Y    resetHistoryEvent								utils.js
+Y             Y	     Y    setConditionEvent	          		update.js
+Y             Y	     Y    setDependencyEvent	        		update.js
+Y             Y	     Y    setHrsEvent	                  	update.js
+Y             Y	     Y    setPointsEvent	              	update.js
+Y             Y	     Y    setSizeEvent	                	update.js
+Y             Y	     Y    setStateEvent	                	update.js
+Y             Y	     Y    setSubTypeEvent	              	update.js
+N			 				N	     Y    setTeamEventDescendant					update.js
+Y             Y	     Y    setTeamOwnerEvent	            	update.js
+Y             Y	     Y    setTitleEvent	                	update.js, planningboard.js
+N			 				N	     Y    subscribeEvent									update.js
+Y             N      Y    taskRemovedEvent								planningboard.js
+Y             Y	     Y    uploadAttachmentEvent	        	attachments.js
+Y             N	     N    updateTaskOrderEvent	        	planningboard.js
+Y             N	     Y    uploadTaskOwnerEvent	        	planningboard.js
 
 KNOWN ERRORS:
 
