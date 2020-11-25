@@ -28,11 +28,9 @@ function data () {
 const methods = {
   showContextMenu (node) {
     if (this.$store.state.selectedNodes.length === 1) {
-      if (node._id !== this.getLastSelectedNode._id) {
-        // select and load the item
-        this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
-        window.slVueTree.emitSelect()
-      }
+			// select and load the item
+			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
+			window.slVueTree.emitSelect()
       this.contextOptionSelected = undefined
       this.listItemText = ''
       this.showAssistance = false
