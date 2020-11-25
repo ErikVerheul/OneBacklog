@@ -42,7 +42,7 @@ const AREA_PRODUCTID = 'requirement-areas'
 
 Vue.use(Vuex)
 
-/* If the node is selectable, save the currently selected nodes, unselect all previous selected nodes and select the node */
+/* If the node is selectable, store the currently selected nodes, unselect all previous selected nodes and select the node */
 function renewSelection (state, node) {
   if (node.isSelectable) {
     state.previousSelectedNodes = state.selectedNodes || [node]
