@@ -6,7 +6,7 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
-					<h3>v.1.2.4 - 24 November 2020 New feature and bug fixes</h3>
+					<h3>v.1.2.4 - 26 November 2020 New feature and bug fixes</h3>
 					<p>New feature:</p>
           <ul>
             <li>A PO and APO must have full access to all items of his products no matter what team he/she has joined</li>
