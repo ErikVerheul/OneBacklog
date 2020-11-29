@@ -6,6 +6,13 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.2.5 - 29 November 2020 Bug fixes</h3>
+          <p>Bug fixes:</p>
+          <ul>
+						<li>'Fix missing import' regression, fixed</li>
+						<li>Add all getters to mixins except the getters for the planning board</li>
+						<li>Use kebab case for these custom events</li>
+          </ul>
 					<h3>v.1.2.4 - 26 November 2020 New feature and bug fixes</h3>
 					<p>New feature:</p>
           <ul>
