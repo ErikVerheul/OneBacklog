@@ -13,7 +13,6 @@ function created () {
 function data () {
   return {
     appVersion: 'OneBackLog v.1.2.5',
-    changeTeamCalendarModel: false,
     disableOkButton: false,
     oldPassword: '',
     newPassword1: '',
@@ -49,14 +48,6 @@ const methods = {
 
   selectProducts () {
     this.$refs.selectProductsRef.show()
-  },
-
-  changeTeamCalendar () {
-    this.changeTeamCalendarModel = true
-  },
-
-  doChangeTeamCalendar () {
-    // ToDo: implementation
   },
 
   changePassword () {

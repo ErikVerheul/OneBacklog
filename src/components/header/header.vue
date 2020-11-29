@@ -37,7 +37,6 @@
                 @click="selectProducts"
               >Select products</b-dropdown-item>
             </template>
-            <b-dropdown-item v-if="isPO" @click="changeTeamCalendar">Change team calendar</b-dropdown-item>
             <b-dropdown-item v-if="isAuthenticated" @click="changePassword">Change password</b-dropdown-item>
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
             <b-dropdown-item v-if="isAuthenticated" @click="onSignout">Sign Out</b-dropdown-item>
@@ -155,26 +154,6 @@
           </b-row>
         </template>
       </b-container>
-    </b-modal>
-
-    <b-modal
-      size="lg"
-      v-model="changeTeamCalendarModel"
-      :ok-disabled="disableOkButton"
-      @ok="doChangeTeamCalendar"
-      title="Create or change team calendar"
-    >
-    <template v-if="!teamCalendarInUse">
-      <p>Your current team '{{ myTeam }}' is using the default calendar maintained by your admin. You can create a calendar for this team based on the default calendar.
-        When created, this team cannot return to the default. You have to maintain this calendar.</p>
-      <b-button variant="seablue">Create team calendar</b-button>
-
-    </template>
-    <template v-else>
-      <p>Your current team '{{ myTeam }}' has its own calendar for its sprint planning.</p>
-
-    </template>
-
     </b-modal>
   </div>
 </template>
