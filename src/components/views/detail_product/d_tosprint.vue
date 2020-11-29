@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import { utilities } from '../../mixins/generic.js'
 const PBILEVEL = 5
 const TASKLEVEL = 6
 // is initiated on component creation
@@ -27,6 +28,7 @@ function shortEndDate (sprint) {
 }
 
 export default {
+	mixins: [utilities],
   created () {
     recentSprints = this.getCurrentAndNextSprint()
   },
