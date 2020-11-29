@@ -67,11 +67,11 @@
 </template>
 
 <script>
-import { authorization } from '../../mixins/generic.js'
+import { authorization, utilities } from '../../mixins/generic.js'
 const TASKLEVEL = 6
 
 export default {
-  mixins: [authorization],
+  mixins: [authorization, utilities],
   name: 'TaskItem',
   props: ['productId', 'storyId', 'storyTitle', 'state', 'columnName', 'item'],
 

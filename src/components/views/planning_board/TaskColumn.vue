@@ -37,14 +37,14 @@
 </template>
 
 <script>
-import { authorization } from '../../mixins/generic.js'
+import { authorization, utilities } from '../../mixins/generic.js'
 import Draggable from 'vuedraggable'
 import TaskItem from './TaskItem'
 
 const TASKLEVEL = 6
 
 export default {
-  mixins: [authorization],
+  mixins: [authorization, utilities],
   name: 'TaskColumn',
   props: ['productId', 'storyId', 'storyTitle', 'tasks', 'title', 'state', 'idx'],
   components: {
