@@ -9,7 +9,8 @@
 					<h3>v.1.2.5 - 29 November 2020 Bug fixes</h3>
           <p>Bug fixes:</p>
           <ul>
-						<li>'Fix missing import' regression, fixed</li>
+						<li>'Missing mixin' regression, fixed</li>
+						<li>'Missing import' regression, fixed</li>
 						<li>Add all getters to mixins except the getters for the planning board</li>
 						<li>Use kebab case for these custom events</li>
           </ul>
