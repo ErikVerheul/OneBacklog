@@ -12,7 +12,7 @@ function created () {
   this.FROMSPRINT = 12
   this.TASKTOSPRINT = 13
   this.sprints = this.getCurrentAndNextSprint()
-  eventBus.$on('contextMenu', (node) => {
+  eventBus.$on('context-menu', (node) => {
     this.showContextMenu(node)
   })
 }

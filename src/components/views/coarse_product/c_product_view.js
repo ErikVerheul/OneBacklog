@@ -36,7 +36,7 @@ function beforeCreate () {
 
 function created () {
   // must reset the event listener to prevent duplicated
-  eventBus.$off('contextMenu')
+  eventBus.$off('context-menu')
 }
 
 function mounted () {

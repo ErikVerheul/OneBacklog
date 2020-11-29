@@ -181,7 +181,7 @@ const methods = {
   },
 
   emitSelect () {
-    this.getRootComponent().$emit('nodesAreSelected')
+    this.getRootComponent().$emit('nodes-are-selected')
   },
 
   emitBeforeDrop (draggingNodes, position, cancel) {
@@ -198,7 +198,7 @@ const methods = {
 
   // trigger the context component via the eventbus unless on root
   emitNodeContextmenu (node) {
-    if (!this.isRoot) eventBus.$emit('contextMenu', node)
+    if (!this.isRoot) eventBus.$emit('context-menu', node)
   },
 
   /* Returns true if the path starts with the subPath */

@@ -4,7 +4,7 @@ import { eventBus } from '../../../main'
 const WARNING = 1
 
 function created () {
-  eventBus.$on('contextMenu', (node) => {
+  eventBus.$on('context-menu', (node) => {
     this.showContextMenu(node)
   })
 }

@@ -36,7 +36,7 @@ function beforeCreate () {
 
 function created () {
   // must reset the event listener to prevent duplication
-  eventBus.$off('contextMenu')
+  eventBus.$off('context-menu')
   this.sprints = this.getCurrentAndNextSprint()
 }
 
