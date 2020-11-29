@@ -198,7 +198,7 @@ const actions = {
             // check if the teamcalendar needs to be extended
             const lastTeamSprint = newTeamDoc.teamCalendar.slice(-1)[0]
             if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
-              commit('showLastEvent', { txt: `Team '${newTeamDoc.teamName}' ran out of sprints. You cannot join this team until your PO creates new sprints`, severity: WARNING })
+              commit('showLastEvent', { txt: `Team '${newTeamDoc.teamName}' ran out of sprints. You cannot join this team until your Admin creates new sprints`, severity: WARNING })
               return
             }
           }
