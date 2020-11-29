@@ -161,7 +161,7 @@
 						<p>Left click on a &apos;Click to create a task here&apos; button to create a task in a column without task.</p>
 						<h5>Unfinished tasks</h5>
 						<b-img :src="getImgUrl('img/unfinished-tasks.png')" alt="Example unfinished tasks" />
-						<p>If your team has any tasks not DONE is a previous sprint this modal will pop up when a PO or developer opens the planning board. Select &apos;No, do not ask again&apos; to stop showing this message during this sprint. In the next sprint it will show up again.</p>
+						<p>If your team has any tasks not DONE in a previous sprint this modal will pop up when a PO or developer opens the planning board. Select &apos;No, do not ask again&apos; to stop showing this message during this sprint. In the next sprint it will show up again.</p>
 						<h5>Sprint ending, start of next sprint</h5>
 						<p>When the end date and time of a sprint is due, the next sprint starts automatically. When the current sprint is about to end use the Product details view to:</p>
 						<ul>

@@ -747,7 +747,7 @@ export default new Vuex.Store({
       clearInterval(state.logState.runningWatchdogId)
     },
 
-    /// ///////////////// planning board //////////////////////////
+    ///////////////////// planning board //////////////////////////
 
     /* Show the items in the order as they appear in the tree view */
     createSprint (state, payload) {
