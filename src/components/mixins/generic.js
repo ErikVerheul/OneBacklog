@@ -19,9 +19,13 @@ const AREA_PRODUCTID = 'requirement-areas'
 const authorization = {
   computed: {
     ...mapGetters([
+			'canCreateComments',
+			'canUploadAttachments',
       'isAdmin',
 			'isAPO',
 			'isAuthenticated',
+			'isDeveloper',
+			'isGuest',
 			'isPO',
 			'isReqAreaItem',
 			'isServerAdmin',
@@ -115,8 +119,12 @@ const utilities = {
 	computed: {
 		...mapGetters([
 			'getCurrentItemLevel',
+			'getCurrentItemState',
+			'getCurrentItemTsSize',
+			'getItemSprintName',
 			'getpreviousNodeSelected',
 			'getLastSelectedNode',
+			'isFollower',
 			'leafLevel',
 			'myTeam',
 			'teamCalendarInUse'

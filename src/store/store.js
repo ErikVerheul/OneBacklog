@@ -215,7 +215,7 @@ export default new Vuex.Store({
     myTeam (state) {
       return state.userData.myTeam
     },
-    /// ///////////////////// generic (not product specific) roles ////////////////////////
+    ///////////////////////// generic (not product specific) roles ////////////////////////
     isServerAdmin (state, getters) {
       return getters.isAuthenticated && state.userData.sessionRoles.includes('_admin')
     },
@@ -225,8 +225,8 @@ export default new Vuex.Store({
     isAPO (state, getters) {
       return getters.isAuthenticated && state.userData.sessionRoles.includes('APO')
     },
-    /// //////////////////////////// product specific roles ///////////////////////////////
-    /// /  available after the the user data are read and the currentProductId is set   ///
+    //////////////////////////////// product specific roles ///////////////////////////////
+    ////   available after the the user data are read and the currentProductId is set   ///
     isPO (state, getters) {
       if (getters.isAuthenticated && state.currentProductId) {
         const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
@@ -265,7 +265,8 @@ export default new Vuex.Store({
 						myCurrentProductRoles.includes('developer'))
       } else return false
     },
-    /// //////////////////////////// planning board getters //////////////////////////////
+		//////////////////////////////// planning board getters //////////////////////////////
+		////                     not available in mixins (generic.js)                      ///
     getStoryPoints (state) {
       let sum = 0
       for (const s of state.stories) {
@@ -284,7 +285,7 @@ export default new Vuex.Store({
       return sum
     },
 
-    /// //////////////////////////////////// calendar ////////////////////////////////////
+    //////////////////////////////////////// calendar ////////////////////////////////////
     teamCalendarInUse (state) {
       if (state.configData) {
         return state.sprintCalendar !== state.configData.defaultSprintCalendar
