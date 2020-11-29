@@ -291,7 +291,6 @@ N             N	     Y    grandParentDocRestoredEvent	  	undo.js
 N             N      Y    importToSprintEvent             planningboard.js
 N			 				Y	     Y    newChildEvent										load.js
 Y             Y	     Y    nodeMovedEvent	            		move.js
-N             N	     N    nodesMovedParentEvent	 	        move.js								ToDo: use this event for history reporting?
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js
 N             Y	     Y    removedFromParentEvent	      	remove.js
 Y             N      Y    removedWithDescendantsEvent     remove.js
