@@ -162,9 +162,9 @@ const actions = {
         text: newProductTitle
       })
       // add all my session roles the to new productId in myProductsRoles
-      rootState.userData.myProductsRoles[newProductId] = rootState.userData.sessionRoles
+      rootState.userData.myProductsRoles[newProductId] = rootState.userData.roles
       // save in the database
-      dispatch('addProductToUser', { dbName: rootState.userData.currentDb, productId: newProductId, userRoles: ['*'] })
+			dispatch('addProductToUser', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, productId: newProductId, userRoles: ['*'] })
       // show the product clone in the tree view
       showProduct(docs, getters.leafLevel)
       // eslint-disable-next-line no-console

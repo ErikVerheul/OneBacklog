@@ -79,7 +79,8 @@ Feature ................ 4 ................... 4
 PBI ... ................ 5 ................... 5
 Task .. ................ 6 ................... 6
 
-These are the roles known by this application despite settings in the _users database otherwise.
+The '_admin' role is set on database creation to the creator. Initinally the '_admin' also has the role 'admin'.
+The 'admin', and 'APO' roles are the roles set in the 'roles' field of the user in the _users database by the 'admin' at user creation or maintenance.
 Write access is dependant on role and level. Write access includes deletion.
 All roles have read access to their assigned databases and the assigned products in that database.
 These roles are set during loading by haveWritePermission(...).
@@ -91,27 +92,27 @@ These roles are set during loading by haveWritePermission(...).
 		writeAccessLevel: 1,
 	},
 	"admin": {
-		description: "Can create and remove users and teams. Can assign products to teams. The user administration is a permission on the _users database
+		description: "Can create and remove users and teams. Can assign products to teams. The role 'admin' is a permission on the _users and document databases,"
 		products: "n/a",
 		writeAccessLevel: 2,
 	},
 	"APO": {
-		description: "Can access the requirement areas with write access to these items and can prioritise features (level 4)",
+		description: "Can access the requirement areas with write access and can prioritise features (level 4). The role 'APO' is a permission on the document database","
 		products: "assigned",
 		writeAccessLevel: 2
 	},
 	"PO": {
-		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels.",
+		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels. This role is set by the 'admin' at the product level.",
 		products: "assigned",
 		writeAccessLevel: 2,3,4,5
 	},
 	"developer": {
-		description: "Can create and maintain pbi's and features for the assigned products.",
+		description: "Can create and maintain pbi's and features for the assigned products. This role is set by the 'admin' at the product level.",
 		products: "assigned",
 		writeAccessLevel: 4,5,6
 	},
 	"guest": {
-		description: "Can only view the items of the assigned products. Has no access to the requirement areas view.",
+		description: "Can only view the items of the assigned products. Has no access to the requirement areas view. This role is set by the 'admin' at the product level.",
 		products: "assigned",
 		writeAccessLevel: null,
 	}
@@ -238,15 +239,16 @@ state.userData = {
     email: undefined,
     myTeam: undefined,
     password: authData.password,
-    myDatabases: [],
+    myAssignedDatabases: [],
     currentDb: undefined,
-    sessionRoles: res.data.roles, // when loading the session
+    roles: res.data.roles, // when loading the session
     myProductSubscriptions: [],
     userAssignedProductIds: [],
     myProductsRoles: {},
     myProductViewFilterSettings: {},
     myFilterSettings: undefined,
-    sessionId: create_UUID()
+    sessionId: create_UUID(),
+		doNotAskForImport // is true do not ask for importing unfinished tasks in the current sprint
 }
 
 The entry for undoing the remove in a last-in first-out sequence

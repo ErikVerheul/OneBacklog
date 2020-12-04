@@ -27,7 +27,7 @@
             </template>
             <b-dropdown-item v-if="!isAuthenticated">No options here when not signed in</b-dropdown-item>
             <b-dropdown-item
-              v-if="isAuthenticated && $store.state.currentView !== 'planningBoard' && $store.state.userData.myDatabases.length > 1"
+              v-if="isAuthenticated && $store.state.currentView !== 'planningBoard' && $store.state.userData.myAssignedDatabases.length > 1"
               @click="changeDatabase"
             >Change database</b-dropdown-item>
             <template v-if="isAuthenticated">
@@ -37,7 +37,7 @@
                 @click="selectProducts"
               >Select products</b-dropdown-item>
             </template>
-            <b-dropdown-item v-if="isAuthenticated" @click="changePassword">Change password</b-dropdown-item>
+            <b-dropdown-item v-if="isAuthenticated" @click="changeMyPassword">Change password</b-dropdown-item>
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
             <b-dropdown-item v-if="isAuthenticated" @click="onSignout">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
@@ -103,7 +103,7 @@
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" ref="changePwRef" @ok="doChangePw" title="Change your password">
+    <b-modal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password">
       <b-container align-v="true">
         <template
           v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'"

@@ -262,7 +262,7 @@ export default {
           // do nothing
           break
         case this.NO_STOP_ASKING:
-          this.$store.dispatch('registerNoSprintImport', this.currentSprintId)
+          this.$store.dispatch('registerMyNoSprintImport', this.currentSprintId)
           break
       }
     }

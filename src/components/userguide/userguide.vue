@@ -40,19 +40,20 @@
 						</ul>
 					</p>
 
-					<p>The authorization is set per product and based on the following roles:
+					<p>The authorization is set per database and product based on the following roles:<br/>
+						Three roles are set per database:
 					<ul>
-						<li>'PO': Can create and maintain product, epics, features and pbi's for the assigned products. Can change priorities at all levels.</li>
-						<li>'APO': The APO maintains the requirement areas backlog.</li>
-						<li>'developer': Can create and maintain pbi's and features for the assigned products.</li>
+						<li>'_admin': Is the database administrator. Is set the OneBacklog instance is created. Can setup and delete databases.  Can create comments and upload attachments. See the CouchDB documentation.</li>
+						<li>'admin': Can create, maintain and assign users to products. Can create comments and upload attachments.</li>
+						<li>'APO': The APO maintains the requirement areas backlog. Can create comments and upload attachments.</li>
+					</ul>
+					Three roles are set per product (a product lives in a database):
+					<ul>
+						<li>'PO': Can create and maintain product, epics, features and pbi's for the assigned products. Can change priorities at all levels. Can create comments and upload attachments.</li>
+						<li>'developer': Can create and maintain pbi's and features for the assigned products. Can create comments and upload attachments.</li>
 						<li>'guest': Can only view the items of the assigned products.</li>
 					</ul>
-					Users can have multiple roles. Users can only access the products that are assigned to them.
-					Two roles are setup globally when the OneBacklog instance is setup:
-					<ul>
-						<li>'_admin': Is the database administrator. Can setup and delete databases. See the CouchDB documentation.</li>
-						<li>'admin': Can create and assign users to products.</li>
-					</ul>
+					Users can have multiple roles. Users can only access the products that are assigned to them by the 'admin'.
 					<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
 					<b-img :src="getImgUrl('img/context-menu.png')" alt="Example context menu" />
 					<p>Select the action to execute and press OK.</p>

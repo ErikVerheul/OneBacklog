@@ -105,7 +105,7 @@ const actions = {
       const msg = `createProduct: Product '${product.title}' is created`
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       // add the product to this user's subscriptions and productsRoles
-      dispatch('addProductToUser', { dbName: payload.dbName, productId: _id, userRoles: payload.userRoles })
+			dispatch('addProductToUser', { dbName: payload.dbName, selectedUser: rootState.userData.user, productId: _id, userRoles: payload.userRoles })
     }).catch(error => {
       const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -240,11 +240,13 @@ const actions = {
       url: dbName
     }).then(() => {
       if (rootState.databaseOptions.includes(dbName)) {
-        rootState.databaseOptions = removeFromArray(rootState.databaseOptions, dbName)
+				rootState.databaseOptions = removeFromArray(rootState.databaseOptions, dbName)
+				rootState.userData.myDatabases = removeFromArray(rootState.userData.myDatabases, dbName)
       }
-      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' has been deleted' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' has been deleted' })
+			rootState.isDbDeleted = true
     }).catch(error => {
-      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' coud not be deleted,' + error })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' coud not be deleted, ' + error })
     })
   },
 

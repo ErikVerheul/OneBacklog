@@ -163,8 +163,8 @@
             stacked
           ></b-form-radio-group>
         </b-form-group>
-        <b-button variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
-        <b-button class="m-1" @click="cancel" variant="seablue">Return</b-button>
+        <b-button v-if="!$store.state.isDbDeleted" variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
+        <b-button v-if="!$store.state.isDbDeleted" class="m-1" @click="cancel" variant="seablue">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'All FAUXTON tasks'">
@@ -372,7 +372,8 @@ export default {
     deleteDb () {
       this.optionSelected = 'Delete a database'
       this.localMessage = ''
-      this.$store.state.selectedDatabaseName = ''
+			this.$store.state.selectedDatabaseName = ''
+			this.$store.state.isDbDeleted = false
       // get all non sytem databases
       this.$store.dispatch('getAllDatabases', ALLBUTSYSTEM)
     },

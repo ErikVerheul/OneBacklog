@@ -298,9 +298,6 @@ VUE_APP_API_URL=https://< your domain name >:6984  // MUST CHANGE
 
 ## Finally
 When starting the app the first time use the server admin credentials you created to install CouchDb.
-To allow your admins to access the central _users database click 'All FAUXTON tasks' in the serveradmin view. Click on the databases icon and select the _users database.
-Then select permissions. (the url is now https://<domain name>:6984/_utils/#/database/_users/permissions)
-Under Admins/Roles on the top right type 'admin' without quotes. Then click Add Role.
 
 ### serve with hot reload for development at localhost:8080
 ``` bash

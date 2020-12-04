@@ -6,7 +6,8 @@
       <b-button block @click="createProduct">Create a product</b-button>
       <b-button block @click="removeProduct">Remove a product</b-button>
       <b-button block @click="createUser">Create a user</b-button>
-      <b-button block @click="maintainUsers">Maintain users</b-button>
+      <b-button block @click="maintainUsers">Maintain user permissions</b-button>
+			<b-button block @click="addDbToUser">Assign another database to a user</b-button>
       <b-button block @click="createTeam">Create a team</b-button>
       <b-button block @click="removeTeams">Remove teams without members</b-button>
       <b-button block @click="createOrUpdateCalendar">Create / Maintain default sprint calendar</b-button>
@@ -75,13 +76,18 @@
               </div>
               <div v-else>
                 <b-col sm="12">
-                  <h5 v-if="$store.state.useracc.userIsAdmin">This user is an 'admin':</h5>
-                  <h5 v-else>This user is not an 'admin':</h5>
-                  <p>The admin role is a generic role with access to all user profiles and all product definitions in all databases</p>
+                  <h5 v-if="$store.state.useracc.userIsAdmin || $store.state.useracc.userIsAPO">This user is an 'admin' and/or an 'APO':</h5>
+                  <h5 v-else>This user is not an 'admin' and/or 'APO':</h5>
+                  <p>The admin role is a generic role with access to all user profiles and all product definitions in this database<br/>
+									The APO role manages requirement areas and can prioritize features</p>
                   <b-form-group>
                     <b-form-checkbox
                       v-model="$store.state.useracc.userIsAdmin"
-                    >Add or remove this role
+                    >Add or remove the 'admin' role
+                    </b-form-checkbox>
+										<b-form-checkbox
+                      v-model="$store.state.useracc.userIsAPO"
+                    >Add or remove the 'APO' role
                     </b-form-checkbox>
                   </b-form-group>
                 </b-col>
@@ -112,6 +118,58 @@
             </b-row>
           </div>
         </div>
+
+        <div v-else-if="optionSelected === 'Assign another database to a user'">
+					<div v-if="!$store.state.isUserFound">
+            <h4>{{ optionSelected }}</h4>
+            <b-row class="my-1">
+              <b-col sm="12">
+                Start typing an username or select from the list:
+              </b-col>
+              <b-col sm="3">
+                <b-form-group>
+                  <b-form-select
+                    v-model="selectedUser"
+                    :options="this.$store.state.userOptions"
+                  ></b-form-select>
+                </b-form-group>
+              </b-col>
+            </b-row>
+            <b-button v-if="selectedUser && !$store.state.isUserFound" class="m-1" @click="doFetchUser">Fetch this user's access rights</b-button>
+            <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
+          </div>
+					<div v-else>
+						<b-form-group>
+							<h5>Select the database to add to this user '{{ selectedUser }}'</h5>
+							<b-form-radio-group
+								v-model="$store.state.selectedDatabaseName"
+								:options="$store.state.databaseOptions"
+								stacked
+							></b-form-radio-group>
+						</b-form-group>
+						<b-button class="m-1" @click="doAfterDbIsSelected()">Continue</b-button>
+						<b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
+					</div>
+
+					<div v-if="$store.state.areProductsFound">
+						<h5>Select the products in database '{{ $store.state.selectedDatabaseName }}' to assign to user '{{ selectedUser  }}':</h5>
+						<div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
+							{{ prod.value }}
+              <b-form-group>
+                <b-form-checkbox-group
+                  v-model="prod.roles"
+                  :options="roleOptions"
+                ></b-form-checkbox-group>
+              </b-form-group>
+						</div>
+						<p>If you changed your own account, sign-in again to see the effect</p>
+						<b-button v-if="$store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doAssignDbToUser">Update this user</b-button>
+						<b-button v-if="!$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
+						<b-button v-if="$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="seablue">Return</b-button>
+					</div>
+
+				</div>
+
         <div v-else-if="!dbIsSelected">
           <b-form-group>
             <h5>Select the database</h5>
@@ -161,6 +219,11 @@
                   v-model="$store.state.useracc.userIsAdmin"
                 >Tick to add this role
                 </b-form-checkbox>
+								<h5>Make this user an 'APO'?</h5>
+                <b-form-checkbox
+                  v-model="$store.state.useracc.userIsAPO"
+                >Tick to add this role
+                </b-form-checkbox>
                 <hr>
                 <h5>Assign (additional) roles to each product in database '{{ $store.state.selectedDatabaseName }}'</h5>
                 <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
@@ -192,7 +255,7 @@
 
           <div v-if="optionSelected === 'Remove a product'">
             <h2>Remove a product from the current database '{{ $store.state.userData.currentDb }}'</h2>
-            <p>As super Po you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
+            <p>As PO you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
             <p>When doing so be aware of:</p>
             <ul>
               <li>Online users will see the product and all descendants disappear.</li>
@@ -203,7 +266,7 @@
             <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
           </div>
 
-          <div v-if="optionSelected === 'Create a team'">
+					<div v-if="optionSelected === 'Create a team'">
             <h4>Create a team for users with products in database '{{ $store.state.selectedDatabaseName }}'</h4>
             <p>When created any user of that database can choose to become a member of the team</p>
             <b-form-input v-model="teamName" placeholder="Enter the team name"></b-form-input>

@@ -45,6 +45,12 @@
           <p>{{ item.msg }}</p>
         </div>
       </div>
+			<div v-if="$store.state.backendMessages.length > 0">
+        <hr>
+        <div v-for="item in $store.state.backendMessages" :key="item.seqKey">
+          <p>{{ item.msg }}</p>
+        </div>
+      </div>
     </b-container>
   </div>
 </template>
@@ -54,6 +60,10 @@ import router from '../../router'
 import AppHeader from '../header/header.vue'
 
 export default {
+	mounted () {
+    this.$store.state.backendMessages = []
+	},
+
   data () {
     return {
       dbName: '',
@@ -79,7 +89,8 @@ export default {
         dbName: this.dbName,
         email: this.email,
         createUser: true
-      }
+			}
+			this.$store.dispatch('initUserDb')
       this.$store.dispatch('createDatabase', payload)
     },
 

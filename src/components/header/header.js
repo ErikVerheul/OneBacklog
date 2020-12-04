@@ -32,7 +32,7 @@ const methods = {
     this.myDatabase = this.$store.state.userData.currentDb
     this.$refs.changeDatabaseRef.show()
     this.databaseOptions = []
-    for (const db of this.$store.state.userData.myDatabases) {
+		for (const db of this.$store.state.userData.myAssignedDatabases) {
       this.databaseOptions.push(db)
     }
   },
@@ -50,7 +50,7 @@ const methods = {
     this.$refs.selectProductsRef.show()
   },
 
-  changePassword () {
+  changeMyPassword () {
     if (this.isServerAdmin) { alert("As a 'server admin' you cannot change your password here. Use Fauxton instead") } else this.$refs.changePwRef.show()
   },
 
@@ -140,10 +140,10 @@ const methods = {
       this.showLastEvent(`${this.$store.state.userData.myProductSubscriptions.length} products are loaded`, INFO)
       this.$store.dispatch('addProducts', { missingIds, newDefaultId })
     }
-    this.$store.dispatch('updateSubscriptions', productIds)
+    this.$store.dispatch('updateMySubscriptions', productIds)
   },
 
-  doChangePw () {
+  doChangeMyPassWord () {
     if (this.oldPassword !== this.$store.state.userData.password) {
       alert('Your current password is incorrect. Please try again.')
       return
@@ -156,7 +156,7 @@ const methods = {
       alert('Your new password must be 8 characters or longer. Please try again.')
       return
     }
-    this.$store.dispatch('changePassword', this.newPassword1)
+		this.$store.dispatch('changeMyPasswordAction', this.newPassword1)
   },
 
   onSignout () {

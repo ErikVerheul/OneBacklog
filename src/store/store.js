@@ -123,7 +123,8 @@ export default new Vuex.Store({
     defaultSprintCalendar: [],
     fetchedTeams: [],
     isCurrentDbChanged: false,
-    isDatabaseCreated: false,
+		isDatabaseCreated: false,
+		isDbDeleted: false,
     isHistAndCommReset: false,
     isLogLoaded: false,
     isProductCreated: false,
@@ -209,21 +210,21 @@ export default new Vuex.Store({
     },
     myProductRoles (state, getters) {
       if (getters.isAuthenticated) {
-        return state.userData.myProductsRoles[state.currentProductId]
+				return state.userData.roles
       } else return []
     },
     myTeam (state) {
       return state.userData.myTeam
     },
-    ///////////////////////// generic (not product specific) roles ////////////////////////
+    /////////////////// generic (not product nor database specific) roles /////////////////
     isServerAdmin (state, getters) {
-      return getters.isAuthenticated && state.userData.sessionRoles.includes('_admin')
+      return getters.isAuthenticated && state.userData.roles.includes('_admin')
     },
     isAdmin (state, getters) {
-      return getters.isAuthenticated && state.userData.sessionRoles.includes('admin')
+      return getters.isAuthenticated && state.userData.roles.includes('admin')
     },
     isAPO (state, getters) {
-      return getters.isAuthenticated && state.userData.sessionRoles.includes('APO')
+      return getters.isAuthenticated && state.userData.roles.includes('APO')
     },
     //////////////////////////////// product specific roles ///////////////////////////////
     ////   available after the the user data are read and the currentProductId is set   ///
@@ -249,9 +250,8 @@ export default new Vuex.Store({
       if (getters.isAuthenticated && state.currentProductId) {
         const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
         return myCurrentProductRoles &&
-					(getters.isServerAdmin || getters.isAdmin ||
+					(getters.isServerAdmin || getters.isAdmin || getters.isAPO ||
 						myCurrentProductRoles.includes('PO') ||
-						myCurrentProductRoles.includes('APO') ||
 						myCurrentProductRoles.includes('developer'))
       } else return false
     },
@@ -259,9 +259,8 @@ export default new Vuex.Store({
       if (getters.isAuthenticated && state.currentProductId) {
         const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
         return myCurrentProductRoles &&
-					(getters.isServerAdmin || getters.isAdmin ||
+					(getters.isServerAdmin || getters.isAdmin || getters.isAPO ||
 						myCurrentProductRoles.includes('PO') ||
-						myCurrentProductRoles.includes('APO') ||
 						myCurrentProductRoles.includes('developer'))
       } else return false
     },
@@ -983,9 +982,9 @@ export default new Vuex.Store({
           email: undefined,
           myTeam: undefined,
           password: authData.password,
-          myDatabases: [],
+          myAssignedDatabases: [],
           currentDb: undefined,
-          sessionRoles: res.data.roles,
+          roles: res.data.roles,
           myProductSubscriptions: [],
           userAssignedProductIds: [],
           myProductsRoles: {},

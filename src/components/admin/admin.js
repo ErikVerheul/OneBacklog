@@ -44,7 +44,6 @@ function data () {
     teamName: '',
     roleOptions: [
       { text: 'PO', value: 'PO' },
-      { text: 'APO', value: 'APO' },
       { text: 'developer', value: 'developer' },
       { text: 'guest', value: 'guest' }
     ],
@@ -120,6 +119,9 @@ const methods = {
 
   doAfterDbIsSelected () {
     switch (this.optionSelected) {
+			case 'Assign another database to a user':
+				this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, createNewUser: true })
+				break
       case 'Create a user':
         this.callGetDbProducts(true)
         break
@@ -306,7 +308,7 @@ const methods = {
 
   /* Get all product titles of the selected database in $store.state.useracc.dbProducts */
   callGetDbProducts (createNewUser) {
-    this.$store.dispatch('getDbProducts', { dbName: this.$store.state.selectedDatabaseName, createNewUser })
+    this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, createNewUser })
   },
 
   createUser () {
@@ -317,14 +319,16 @@ const methods = {
     this.credentialsReady = false
     this.$store.state.backendMessages = []
     this.localMessage = ''
-    this.$store.state.useracc.userIsAdmin = false
+		this.$store.state.useracc.userIsAdmin = false
+		this.$store.state.useracc.userAPO = false
     this.$store.state.isUserCreated = false
   },
 
   doCreateUser () {
     // calculate the association of all assigned roles
     this.allRoles = []
-    if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
+		if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
+		if (this.$store.state.useracc.userIsAPO) this.allRoles.push('APO')
     for (const prod of this.$store.state.useracc.dbProducts) {
       for (const role of prod.roles) {
         if (!this.allRoles.includes(role)) this.allRoles.push(role)
@@ -381,10 +385,10 @@ const methods = {
   },
 
   doUpdateUser () {
-    const newUserData = this.$store.state.useracc.fetchedUserData
-    const newProductsRoles = this.$store.state.useracc.fetchedUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles
+		const newUserData = this.$store.state.useracc.fetchedUserData
+		const newProductsRoles = newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles
     // update the productsRoles and subscriptions
-    const newSubscriptions = []
+		const newSubscriptions = []
     for (const prod of this.$store.state.useracc.dbProducts) {
       if (prod.roles.length > 0) {
         newProductsRoles[prod.id] = prod.roles
@@ -398,7 +402,8 @@ const methods = {
 
     // calculate the association of all assigned roles
     this.allRoles = []
-    if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
+		if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
+		if (this.$store.state.useracc.userIsAPO) this.allRoles.push('APO')
     for (const database of Object.keys(newUserData.myDatabases)) {
       for (const productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {
         for (const role of newUserData.myDatabases[database].productsRoles[productId]) {
@@ -406,9 +411,13 @@ const methods = {
         }
       }
     }
-    newUserData.roles = this.allRoles
-    this.$store.dispatch('updateUser', { data: newUserData, updateMyProfile: newUserData.name === this.$store.state.userData.user })
-  },
+		newUserData.roles = this.allRoles
+    this.$store.dispatch('updateUser', { data: newUserData })
+	},
+
+	doAssignDbToUser () {
+		this.$store.dispatch('addDbToUserAction', { dbName: this.$store.state.selectedDatabaseName, selectedUser: this.selectedUser })
+	},
 
   createOrUpdateCalendar () {
     this.optionSelected = 'Sprint calendar'
@@ -448,7 +457,20 @@ const methods = {
     this.$store.state.backendMessages = []
     this.workflowStatusMsg = 'created'
     this.$store.dispatch('saveDbDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: defaultSprintCalendar })
-  },
+	},
+
+	addDbToUser () {
+		this.optionSelected = 'Assign another database to a user'
+		this.selectedUser = undefined
+		this.dbIsSelected = false
+		this.localMessage = ''
+		this.$store.state.backendMessages = []
+		this.$store.state.isUserFound = false
+		this.$store.state.areDatabasesFound = false
+		this.$store.state.areProductsFound = false
+		this.$store.state.isUserUpdated = false
+		this.$store.dispatch('getAllUsers')
+	},
 
   createTeam () {
     this.optionSelected = 'Create a team'
