@@ -241,6 +241,7 @@ const actions = {
     }).then(() => {
       if (rootState.databaseOptions.includes(dbName)) {
 				rootState.databaseOptions = removeFromArray(rootState.databaseOptions, dbName)
+				// also delete from my personal list if present
 				rootState.userData.myDatabases = removeFromArray(rootState.userData.myDatabases, dbName)
       }
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' has been deleted' })
