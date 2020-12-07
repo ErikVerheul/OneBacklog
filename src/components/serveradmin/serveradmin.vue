@@ -264,7 +264,8 @@ export default {
     },
 
     createBackup () {
-      this.optionSelected = 'Create a database backup'
+			this.optionSelected = 'Create a database backup'
+			this.$store.state.utils.copyBusy = false
       this.canCancel = true
       this.localMessage = ''
       // get all non sytem & non backup databases
