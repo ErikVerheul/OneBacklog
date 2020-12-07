@@ -135,7 +135,6 @@ const actions = {
       url: '_replicate',
       data: copyData
     }).then(() => {
-			console.log('copyDB: call succeeded')
       state.copyBusy = false
       if (!rootState.databaseOptions.includes(payload.dbTargetName)) {
         rootState.databaseOptions.push(payload.dbTargetName)
