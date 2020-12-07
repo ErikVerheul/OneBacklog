@@ -25,7 +25,6 @@ const actions = {
 			state.fetchedUserData = res.data
 			state.userIsAdmin = !!state.fetchedUserData.roles.includes('admin')
 			state.userIsAPO = !!state.fetchedUserData.roles.includes('APO')
-			rootState.userDatabaseOptions = Object.keys(state.fetchedUserData.myAssignedDatabases)
 			// preset with the current database of the user
 			rootState.selectedDatabaseName = state.fetchedUserData.currentDb
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Successfully fetched user ' + selectedUser })
@@ -110,7 +109,7 @@ const actions = {
 				} else prod.roles = ['guest']
 			}
 		}).catch(error => {
-			const msg = 'getProductsRoles: Could not find products in database ' + payload.dbName + ',' + error
+			const msg = 'getProductsRoles: Could not find products in database ' + payload.dbName + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -147,7 +146,7 @@ const actions = {
 			tmpUserData.password = newPassword
 			dispatch('updateUser', { data: tmpUserData })
 		}).catch(error => {
-			const msg = 'changeMyPasswordAction: Could not change password for user ' + rootState.userData.user + ',' + error
+			const msg = 'changeMyPasswordAction: Could not change password for user ' + rootState.userData.user + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: ERROR })
 		})
@@ -163,7 +162,7 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + payload.selectedUser
 		}).then(res => {
 			const tmpUserData = res.data
-			if (Object.keys(tmpUserData.myAssignedDatabases).includes(payload.dbName)) {
+			if (Object.keys(rootState.myAssignedDatabases).includes(payload.dbName)) {
 				rootState.backendMessages.push({
 					seqKey: rootState.seqKey++,
 					msg: `addDbToUserAction: The database ${payload.dbName} is allready assigned to user '${payload.selectedUser}' with roles ${tmpUserData.roles}`
@@ -296,7 +295,7 @@ const actions = {
 			}
 			dispatch('changeDbInMyProfile', { dbName, productIds: availableProductIds })
 		}).catch(error => {
-			const msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + ',' + error
+			const msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -379,28 +378,24 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		if (payload.data.name === rootState.userData.user) {
-			// the profile of the current user will be updated; update the in memory copy instantly
-			rootState.userData.email = payload.data.email
-			rootState.userData.myTeam = payload.data.myDatabases[payload.data.currentDb].myTeam
-			rootState.userData.password = payload.data.password
-			rootState.userData.myAssignedDatabases = payload.data.myAssignedDatabases
-			rootState.userData.currentDb = payload.data.currentDb
-			rootState.userData.roles = payload.data.roles
-			rootState.userData.myProductSubscriptions = payload.data.myProductSubscriptions
-			rootState.userData.userAssignedProductIds = payload.data.userAssignedProductIds
-			rootState.userData.myProductsRoles = payload.data.myDatabases[payload.data.currentDb].productsRoles
-			rootState.userData.myProductViewFilterSettings = payload.data.myProductViewFilterSettings
-			rootState.userData.myFilterSettings = payload.data.myDatabases[payload.data.currentDb].filterSettings
-			rootState.userData.doNotAskForImport = payload.data.doNotAskForImport
-			rootState.userData.sessionId = payload.data.sessionId
-		}
 		rootState.isUserUpdated = false
 		globalAxios({
 			method: 'PUT',
 			url: '/_users/org.couchdb.user:' + payload.data.name,
 			data: payload.data
 		}).then(() => {
+			if (payload.data.name === rootState.userData.user) {
+				// the in memory copy of the user profile of the current user is updated
+				rootState.userData.email = payload.data.email
+				rootState.userData.myTeam = payload.data.myDatabases[payload.data.currentDb].myTeam
+				rootState.userData.currentDb = payload.data.currentDb
+				rootState.userData.roles = payload.data.roles
+				rootState.userData.myDatabases = payload.data.myDatabases
+				rootState.userData.myProductViewFilterSettings = payload.data.myProductViewFilterSettings
+				rootState.userData.myFilterSettings = payload.data.myDatabases[payload.data.currentDb].filterSettings
+				rootState.userData.doNotAskForImport = payload.data.doNotAskForImport
+				rootState.userData.sessionId = payload.data.sessionId
+			}
 			rootState.isUserUpdated = true
 			// execute passed callback if provided
 			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()

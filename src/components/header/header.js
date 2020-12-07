@@ -17,7 +17,7 @@ function data () {
     oldPassword: '',
     newPassword1: '',
     newPassword2: '',
-    selectedProducts: this.$store.state.userData.myProductSubscriptions,
+		selectedProducts: [],
     defaultProductOptions: [],
     selectedTeam: '',
     myDatabase: '',
@@ -32,7 +32,7 @@ const methods = {
     this.myDatabase = this.$store.state.userData.currentDb
     this.$refs.changeDatabaseRef.show()
     this.databaseOptions = []
-		for (const db of this.$store.state.userData.myAssignedDatabases) {
+		for (const db of this.$store.state.myAssignedDatabases) {
       this.databaseOptions.push(db)
     }
   },
@@ -68,7 +68,7 @@ const methods = {
 
   /* Return if nothing is selected; set default product if 1 is selected; call selectDefaultProductRef if > 1 is selected */
   doSelectProducts () {
-    if (this.selectedProducts.length === 0) {
+    if (this.getMyProductSubscriptions.length === 0) {
       return
     }
 
@@ -110,19 +110,19 @@ const methods = {
     }
     // remove products from the tree view
     let removedCount = 0
-    for (const productId of this.$store.state.userData.myProductSubscriptions) {
+		for (const productId of this.getMyProductSubscriptions) {
       if (!productIds.includes(productId)) {
         window.slVueTree.removeProduct(productId)
         removedCount++
       }
       this.showLastEvent(`${removedCount} products are removed from this view`, INFO)
     }
-    // update myProductSubscriptions and add product(s) if missing
-    this.$store.state.userData.myProductSubscriptions = []
+    // update my product subscriptions and add product(s) if missing
+		this.$store.commit('updateMyProductSubscriptions', productIds)
     const missingIds = []
     for (const productId of productIds) {
-      if (this.myAssignedProductIds.includes(productId)) {
-        this.$store.state.userData.myProductSubscriptions.push(productId)
+			if (this.getMyAssignedProductIds.includes(productId)) {
+				this.getMyProductSubscriptions.push(productId)
         if (window.slVueTree.getNodeById(productId) === null) {
           missingIds.push(productId)
         }
@@ -137,7 +137,7 @@ const methods = {
       }
     }
     if (missingIds.length > 0) {
-      this.showLastEvent(`${this.$store.state.userData.myProductSubscriptions.length} products are loaded`, INFO)
+			this.showLastEvent(`${this.getMyProductSubscriptions.length} products are loaded`, INFO)
       this.$store.dispatch('addProducts', { missingIds, newDefaultId })
     }
     this.$store.dispatch('updateMySubscriptions', productIds)

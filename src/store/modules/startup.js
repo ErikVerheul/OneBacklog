@@ -24,7 +24,7 @@ const actions = {
 	* 7. getRoot and route to products view
 	*/
 
-	/* Get all non-backup or system database names */
+	/* Get all non-backup and non system database names */
 	getDatabases({
 		rootState,
 		dispatch
@@ -69,13 +69,12 @@ const actions = {
 				return
 			}
 			// correct the profile for removed databases and renew the list of assigned databases
-			allUserData.myAssignedDatabases = []
+			rootState.myAssignedDatabases = []
 			for (const db of Object.keys(allUserData.myDatabases)) {
 				if (!foundDbNames.includes(db)) {
 					delete allUserData.myDatabases[db]
-				} else allUserData.myAssignedDatabases.push(db)
+				} else rootState.myAssignedDatabases.push(db)
 			}
-			allUserData.myProductsRoles = allUserData.myDatabases[allUserData.currentDb].productsRoles
 
 			// start the watchdog
 			dispatch('watchdog')
@@ -84,7 +83,7 @@ const actions = {
 			if (rootState.debug) console.log(msg)
 			// now that the database is known, the log file is available
 			dispatch('doLog', { event: msg, level: INFO })
-			dispatch('getAllProducts', { dbName: allUserData.currentDb, allUserData })
+			dispatch('getAllProducts', { allUserData })
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
 				// the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
@@ -107,40 +106,25 @@ const actions = {
 	/* Get all products of the current database and correct the data from the user profile with the actual available products */
 	getAllProducts({
 		rootState,
-		dispatch
+		dispatch,
 	}, payload) {
+		const dbName = payload.allUserData.currentDb
 		globalAxios({
 			method: 'GET',
-			url: payload.dbName + '/_design/design1/_view/products'
+			url: dbName + '/_design/design1/_view/products'
 		}).then(res => {
 			const newUserData = payload.allUserData
 			const currentProductsEnvelope = res.data.rows
-			const availableProductIds = []
 			const currentDbSettings = payload.allUserData.myDatabases[payload.allUserData.currentDb]
-			// correct the data from the user profile with the actual available products
+			const productsRoles = currentDbSettings.productsRoles
+			// store the available product id's
 			for (const product of currentProductsEnvelope) {
 				const id = product.id
-				availableProductIds.push(id)
-				// can only have productsRoles of products that are available
-				if (Object.keys(currentDbSettings.productsRoles).includes(id)) {
-					newUserData.myProductsRoles[id] = currentDbSettings.productsRoles[id]
-				}
+				rootState.availableProductIds.push(id)
 			}
-			let screenedSubscriptions = []
-			for (const p of currentDbSettings.subscriptions) {
-				if (availableProductIds.includes(p)) {
-					screenedSubscriptions.push(p)
-				}
-			}
-			if (screenedSubscriptions.length === 0) {
-				// if no default is set, assign the first defined product from the productsRoles
-				screenedSubscriptions = [Object.keys(currentDbSettings.productsRoles)[0]]
-			}
-			newUserData.myProductSubscriptions = screenedSubscriptions
-
 			// set the users product options to select from
 			for (const product of currentProductsEnvelope) {
-				if (Object.keys(currentDbSettings.productsRoles).includes(product.id)) {
+				if (Object.keys(productsRoles).includes(product.id)) {
 					rootState.myProductOptions.push({
 						value: product.id,
 						text: product.value
@@ -149,26 +133,27 @@ const actions = {
 			}
 			// update the user profile for missing products
 			const missingProductsRolesIds = []
-			for (const id of Object.keys(currentDbSettings.productsRoles)) {
-				if (!availableProductIds.includes(id)) {
+			for (const id of Object.keys(productsRoles)) {
+				if (!rootState.availableProductIds.includes(id)) {
 					missingProductsRolesIds.push(id)
 				}
 			}
 			if (rootState.autoCorrectUserProfile && missingProductsRolesIds.length > 0) {
 				for (const id of missingProductsRolesIds) {
-					delete newUserData.myDatabases[newUserData.currentDb].productsRoles[id]
+					delete productsRoles[id]
 					const position = newUserData.myDatabases[newUserData.currentDb].subscriptions.indexOf(id)
 					if (position !== -1) newUserData.myDatabases[newUserData.currentDb].subscriptions.splice(position, 1)
 				}
 			}
-			if (newUserData.myProductsRoles && Object.keys(newUserData.myProductsRoles).length > 0) {
+			if (Object.keys(productsRoles).length > 0) {
 				rootState.isProductAssigned = true
-				newUserData.userAssignedProductIds = Object.keys(newUserData.myProductsRoles)
-				// the first (index 0) product in myProductSubscriptions is by definition the default product
-				rootState.currentDefaultProductId = newUserData.myProductSubscriptions[0]
+				// the first (index 0) product in the current db settings is by definition the default product
+				rootState.currentDefaultProductId = Object.keys(currentDbSettings.productsRoles)[0]
 			}
-			// update user data loaded in getOtherUserData
-			dispatch('updateUser', { data: newUserData })
+			// update user data loaded in getOtherUserData and STORE THE USER DATA in $store.state.userData
+			// postpone the warning message for 'no product found' until the configuration is loaded
+			const toDispatch = [{ getConfig: null }]
+			dispatch('updateUser', { data: newUserData, toDispatch, caller: 'getAllProducts' })
 
 			if (missingProductsRolesIds.length > 0) {
 				const msg = `User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
@@ -176,10 +161,8 @@ const actions = {
 				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: INFO })
 			}
-			// postpone the warning message for 'no product found' until the configuration is loaded
-			dispatch('getConfig')
 		}).catch(error => {
-			const msg = 'getAllProducts: Could not find products in database ' + rootState.userData.currentDb + ' ,' + error
+			const msg = 'getAllProducts: Could not find products in database ' + dbName + ' ,' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })

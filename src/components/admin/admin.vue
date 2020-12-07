@@ -47,20 +47,20 @@
                 {{ $store.state.useracc.fetchedUserData.email }}
               </b-col>
               <div v-if="!isUserDbSelected">
-                <div v-if="$store.state.userDatabaseOptions.length === 1 && $store.state.databaseOptions.includes($store.state.userDatabaseOptions[0])">
+                <div v-if="$store.state.myAssignedDatabases.length === 1 && $store.state.databaseOptions.includes($store.state.myAssignedDatabases[0])">
                   <b-col sm="12">
-                    <p>The user has access to one datatabase: '{{ $store.state.userDatabaseOptions[0] }}'</p>
-                    <b-button @click="doSelectUserDb($store.state.userDatabaseOptions[0])">Select this database</b-button>
+                    <p>The user has access to one datatabase: '{{ $store.state.myAssignedDatabases[0] }}'</p>
+                    <b-button @click="doSelectUserDb($store.state.myAssignedDatabases[0])">Select this database</b-button>
                     <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
                   </b-col>
                 </div>
                 <div v-else>
                   <b-col sm="12">
                     <b-form-group>
-                      <h5>The user has access to multiple datatabases: {{ $store.state.userDatabaseOptions }}, select one</h5>
+                      <h5>The user has access to multiple datatabases: {{ $store.state.myAssignedDatabases }}, select one</h5>
                       <b-form-radio-group
                         v-model="$store.state.selectedDatabaseName"
-                        :options="$store.state.userDatabaseOptions"
+                        :options="$store.state.myAssignedDatabases"
                         stacked
                       ></b-form-radio-group>
                     </b-form-group>
