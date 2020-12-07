@@ -14,14 +14,6 @@ function composeRangeString (id) {
   return `startkey=["${id}",${PRODUCTLEVEL},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${TASKLEVEL},${Number.MAX_SAFE_INTEGER}]`
 }
 
-// returns a new array so that it is reactive
-function addToArray (arr, item) {
-  const newArr = []
-  for (const el of arr) newArr.push(el)
-  newArr.push(item)
-  return newArr
-}
-
 function showProduct (docs, leafLevel) {
   const parentNodes = { root: window.slVueTree.getNodeById('root') }
   for (const doc of docs) {
@@ -136,7 +128,7 @@ const actions = {
       // save the new product in the database
       dispatch('storeProduct', docs)
     }).catch(error => {
-      const msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ',' + error
+      const msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -144,7 +136,8 @@ const actions = {
   },
 
   storeProduct ({
-    rootState,
+		rootState,
+		rootGetters,
     getters,
     dispatch
   }, docs) {
@@ -153,16 +146,13 @@ const actions = {
       url: rootState.userData.currentDb + '/_bulk_docs',
       data: { docs: docs }
     }).then(res => {
-      // add the productId to my myProductSubscriptions
-      rootState.userData.myProductSubscriptions.push(newProductId)
-      // add the productId to my userAssignedProductIds and selection options
-      rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, newProductId)
+      // add the productId to my product subscriptions
+			rootGetters.getMyProductSubscriptions.push(newProductId)
+      // add the productId to my selection options
       rootState.myProductOptions.push({
         value: newProductId,
         text: newProductTitle
       })
-      // add all my session roles the to new productId in myProductsRoles
-      rootState.userData.myProductsRoles[newProductId] = rootState.userData.roles
       // save in the database
 			dispatch('addProductToUser', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, productId: newProductId, userRoles: ['*'] })
       // show the product clone in the tree view

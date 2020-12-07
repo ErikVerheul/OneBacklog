@@ -5,14 +5,6 @@ const WARNING = 1
 const ERROR = 2
 const AREA_PRODUCTID = 'requirement-areas'
 
-// returns a new array so that it is reactive
-function addToArray (arr, item) {
-  const newArr = []
-  for (const el of arr) newArr.push(el)
-  newArr.push(item)
-  return newArr
-}
-
 const actions = {
   /*
     * ToDo: create undo's if any of these steps fail
@@ -92,7 +84,7 @@ const actions = {
 
   /* The parent is the removed node and parent of the removed children. The grandParent is the parent of the removed node and was not removed. */
   restoreParent ({
-    rootState,
+		rootState,
     commit,
     dispatch
   }, entry) {
@@ -129,14 +121,8 @@ const actions = {
             })
           }
           if (entry.isProductRemoved) {
-            // re-enter the product to the users product roles, subscriptions, product ids and product selection array
-            rootState.userData.myProductsRoles[_id] = entry.removedProductRoles
-            rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, _id)
-            rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, _id)
-            rootState.myProductOptions.push({
-              value: _id,
-              text: entry.removedNode.title
-            })
+						// re-enter the product to the users product roles, subscriptions, product ids and product selection array
+						commit('addToMyProducts', { newRoles: entry.removedProductRoles, productId: _id, productTitle: entry.removedNode.title })
           }
           const path = entry.removedNode.path
           const prevNode = window.slVueTree.getPreviousNode(path)
@@ -220,7 +206,7 @@ const actions = {
       }
       dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch, caller: 'updateGrandParentHist' })
     }).catch(error => {
-      const msg = 'unDoRemove: Could not read document with _id ' + _id + ',' + error
+      const msg = 'unDoRemove: Could not read document with _id ' + _id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

@@ -84,12 +84,13 @@ const actions = {
   },
 
   createProduct ({
-    rootState,
+		rootState,
+		rootGetters,
     dispatch
   }, payload) {
     const _id = payload.newProduct._id
     const product = payload.newProduct
-    const position = Object.keys(rootState.userData.myProductsRoles).length + 1
+		const position = Object.keys(rootGetters.getMyProductsRoles).length + 1
     // do not distribute this event; other users have no access rights yet
     product.history = [{
       createEvent: [PRODUCTLEVEL, rootState.userData.currentDb, position],
@@ -134,14 +135,13 @@ const actions = {
       url: '_replicate',
       data: copyData
     }).then(() => {
+			console.log('copyDB: call succeeded')
       state.copyBusy = false
       if (!rootState.databaseOptions.includes(payload.dbTargetName)) {
         rootState.databaseOptions.push(payload.dbTargetName)
       }
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'copyDB: Success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName })
-      dispatch('setDatabasePermissions', {
-        dbName: payload.dbTargetName
-      })
+      dispatch('setDatabasePermissions', { dbName: payload.dbTargetName })
     }).catch(error => {
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(error)
@@ -186,7 +186,7 @@ const actions = {
       dispatch('purgeDb', { dbName, data, idx: 0, number: removed.length })
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Purge started, ' + removed.length + ' documents will be deleted. Please wait ...' })
     }).catch(error => {
-      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Could not find any removed documents in database ' + dbName + ',' + error })
+      rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Could not find any removed documents in database ' + dbName + ', ' + error })
     })
   },
 

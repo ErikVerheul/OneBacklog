@@ -33,7 +33,8 @@ const state = {
 const actions = {
   /* Load all items from all products */
   loadOverview ({
-    rootState,
+		rootState,
+		rootGetters,
     state,
     commit
   }) {
@@ -110,7 +111,7 @@ const actions = {
         }
 
         // skip products not assigned to the user
-        if (productId !== AREA_PRODUCTID && !rootState.userData.userAssignedProductIds.includes(productId)) continue
+				if (productId !== AREA_PRODUCTID && !rootGetters.getMyAssignedProductIds.includes(productId)) continue
 
         state.docsCount++
         // expand the default product up to the feature level
@@ -219,7 +220,7 @@ const actions = {
       parentNodes = {}
     })
     // eslint-disable-next-line no-console
-      .catch(error => console.log('loadOverview: Could not read from database ' + rootState.userData.currentDb + ',' + error))
+      .catch(error => console.log('loadOverview: Could not read from database ' + rootState.userData.currentDb + ', ' + error))
   }
 
 }

@@ -390,7 +390,7 @@ const actions = {
         }
       })
     }).catch(error => {
-      const msg = 'setStoryPoints: Could not read document with _id ' + id + ',' + error
+      const msg = 'setStoryPoints: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -460,7 +460,7 @@ const actions = {
         }
       })
     }).catch(error => {
-      const msg = 'setState: Could not read document with id ' + id + ',' + error
+      const msg = 'setState: Could not read document with id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -528,7 +528,7 @@ const actions = {
         })
       }
     }).catch(error => {
-      const msg = 'assignToMyTeam: Could not read document with _id ' + id + ',' + error
+      const msg = 'assignToMyTeam: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -966,7 +966,8 @@ const actions = {
 
   /* Load a backlog item by short id */
   loadItemByShortId ({
-    rootState,
+		rootState,
+		rootGetters,
     dispatch,
     commit
   }, shortId) {
@@ -981,7 +982,7 @@ const actions = {
         if (rootState.debug) console.log('loadItemByShortId: ' + rows.length + ' documents are found')
         // take the fist document found
         const doc = rows[0].doc
-        if (rootState.userData.userAssignedProductIds.includes(doc.productId)) {
+				if (rootGetters.getMyAssignedProductIds.includes(doc.productId)) {
           if (rows.length > 1) {
             commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: INFO })
             let ids = ''

@@ -41,7 +41,8 @@ const mutations = {
 	 * The root and the top level product nodes are not draggable.
 	 */
   processProduct (state, payload) {
-    const rootState = payload.rootState
+		const rootState = payload.rootState
+		const rootGetters = payload.rootGetters
     for (const item of payload.batch) {
       const _id = item.id
       const productId = item.key[0]
@@ -114,10 +115,10 @@ const mutations = {
         continue
       }
       // skip the items of the products the user is not authorized to
-      if (!rootState.userData.userAssignedProductIds.includes(productId)) continue
+			if (!rootGetters.getMyAssignedProductIds.includes(productId)) continue
 
       // skip the items of the products the user is not subscribed to
-      if (!rootState.userData.myProductSubscriptions.includes(productId)) continue
+			if (!rootGetters.getMyProductSubscriptions.includes(productId)) continue
 
       state.docsCount++
 
@@ -224,7 +225,8 @@ const actions = {
 
   /* Load the current product first */
   loadAssignedAndSubscribed ({
-    rootState,
+		rootState,
+		rootGetters,
     state,
     commit,
     dispatch
@@ -236,7 +238,7 @@ const actions = {
       rootState.lastTreeView = 'detailProduct'
       rootState.loadedTreeDepth = TASKLEVEL
       rootState.loadedSprintId = null
-      commit('processProduct', { rootState, batch: res.data.rows })
+      commit('processProduct', { rootState, rootGetters,batch: res.data.rows })
       commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
       // log any detected orphans, if present
       if (state.orphansCount > 0) {
@@ -281,7 +283,7 @@ const actions = {
       if (rootState.debug) console.log(res.data.rows.length + ' documents are loaded')
     })
     // eslint-disable-next-line no-console
-      .catch(error => console.log('loadAssignedAndSubscribed: Could not read a product from database ' + rootState.userData.currentDb + ',' + error))
+      .catch(error => console.log('loadAssignedAndSubscribed: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error))
   }
 }
 
