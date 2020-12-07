@@ -19,7 +19,7 @@ const actions = {
       const toDispatch = [{ updateTeamsInDb: { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } }]
       dispatch('updateUser', { data: tmpUserData, toDispatch })
     }).catch(error => {
-      const msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + ',' + error
+      const msg = 'changeTeam: Could not change team for user ' + rootState.userData.user + ', ' + error
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
       dispatch('doLog', { event: msg, level: ERROR })
     })
@@ -166,7 +166,7 @@ const actions = {
         }
       })
     }).catch(error => {
-      const msg = 'retireTeams: Could not read the items from database ' + dbName + ',' + error
+      const msg = 'retireTeams: Could not read the items from database ' + dbName + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

@@ -258,7 +258,7 @@ const actions = {
         dispatch('processDescendents', { updates: payload.updates, results })
       }
     }).catch(error => {
-      const msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
+      const msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })

@@ -326,7 +326,7 @@ const methods = {
       // when removing a product
       if (selectedNode.level === this.productLevel) {
         // cannot remove the last assigned product or product in the tree
-        if (this.myAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
+				if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
           this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', WARNING)
           return
         }

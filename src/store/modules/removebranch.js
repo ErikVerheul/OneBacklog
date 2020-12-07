@@ -20,15 +20,6 @@ function composeRangeString (id) {
   return `startkey="${id}"&endkey="${id}"`
 }
 
-// returns a new array
-function removeFromArray (arr, item) {
-  const newArr = []
-  for (const el of arr) {
-    if (el !== item) newArr.push(el)
-  }
-  return newArr
-}
-
 function getLevelText (configData, level) {
   if (level < 0 || level > TASKLEVEL) {
     return 'Level not supported'
@@ -95,7 +86,7 @@ const actions = {
         }
       }
     }).catch(error => {
-      const msg = 'removeBranch.getChildrenToRemove: Could not read the items from database ' + rootState.userData.currentDb + ',' + error
+      const msg = 'removeBranch.getChildrenToRemove: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
@@ -215,7 +206,8 @@ const actions = {
 
   /* Add history to the removed item it self */
   addRemoveHist ({
-    rootState,
+		rootState,
+		rootGetters,
     dispatch
   }, payload) {
     const id = payload.node._id
@@ -240,6 +232,8 @@ const actions = {
       }
       doc.history.unshift(newHist)
 
+			// must pass rootGetters via the payload
+			payload.rootGetters = rootGetters
       const toDispatch = [{ addRemoveHist2: payload }]
       if (payload.node.productId === AREA_PRODUCTID) {
         // remove reqarea assignments
@@ -256,10 +250,12 @@ const actions = {
 
   /* Add history to the parent of the removed item */
   addRemoveHist2 ({
-    rootState,
+		rootState,
+		getters,
     dispatch,
     commit
   }, payload) {
+		const rootGetters = payload.rootGetters
     const id = payload.node.parentId
     // get the document
     globalAxios({
@@ -319,14 +315,9 @@ const actions = {
           window.slVueTree.remove([payload.node])
 
           if (payload.node.level === PRODUCTLEVEL) {
-            // remove the product from the users product roles, subscriptions and product selection array
-            delete rootState.userData.myProductsRoles[id]
-            if (rootState.userData.myProductSubscriptions.includes(id)) {
-              rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, id)
-              rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, id)
-              const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(id)
-              rootState.myProductOptions.splice(removeIdx, 1)
-            }
+						// remove the product from the users product roles, subscriptions and product selection array
+						// the user profile will be updated at the next sign-in
+						commit('removeFromMyProducts', { getters, productId: id })
           }
 
 					if (payload.createUndo) {
@@ -344,7 +335,7 @@ const actions = {
 							itemsRemovedFromReqArea
 						}
 						if (entry.isProductRemoved) {
-							entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
+							entry.removedProductRoles = rootGetters.getMyProductsRoles[payload.node._id]
 						}
 						rootState.changeHistory.unshift(entry)
 						commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.node.level)} and ${docsRemovedIds.length - 1} descendants are removed`, severity: INFO })
@@ -384,7 +375,7 @@ const actions = {
       }
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, caller: 'removeReqAreaAssignments' })
     }).catch(error => {
-      const msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ',' + error
+      const msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
