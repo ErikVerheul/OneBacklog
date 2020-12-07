@@ -232,42 +232,40 @@ The default team is "not assigned yet". A user can be member of one team only at
 
 
 The store holds an object with the data of the current user. This object is initialised with the _session data.
-// email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myProductViewFilterSettings are updated when otherUserData and config are read
-// the first (index 0) product in myProductSubscriptions is by definition the default product
+// email, myTeam, currentDb, myDatabases and myProductViewFilterSettings are updated when otherUserData and config are read
 state.userData = {
     user: res.data.name, // when loading the session
     email: undefined,
     myTeam: undefined,
     password: authData.password,
-    myAssignedDatabases: [],
     currentDb: undefined,
     roles: res.data.roles, // when loading the session
-    myProductSubscriptions: [],
-    userAssignedProductIds: [],
-    myProductsRoles: {},
+    myDatabases: {},
     myProductViewFilterSettings: {},
     myFilterSettings: undefined,
     sessionId: create_UUID(),
-		doNotAskForImport // is true do not ask for importing unfinished tasks in the current sprint
+		doNotAskForImport // if true do not ask for importing unfinished tasks in the current sprint
 }
 
 The entry for undoing the remove in a last-in first-out sequence
 The removed node is the parent of the removed children.
 Example:
   const entry = {
-	type: 'undoRemove',
-	removedNode: payload.node,
-	isProductRemoved: payload.node.level === PRODUCTLEVEL,
-	docsRemovedIds,
-	removedIntDependencies: removed.removedIntDependencies,
-	removedIntConditions: removed.removedIntConditions,
-	removedExtDependencies: removed.removedExtDependencies,
-	removedExtConditions: removed.removedExtConditions,
-	sprintIds: removedSprintIds,
-	itemsRemovedFromReqArea
-}
-if (entry.isProductRemoved) {
-	entry.removedProductRoles = rootState.userData.myProductsRoles[payload.node._id]
+		type: 'undoRemove',
+		removedNode: payload.node,
+		isProductRemoved: payload.node.level === PRODUCTLEVEL,
+		docsRemovedIds,
+		removedIntDependencies: removed.removedIntDependencies,
+		removedIntConditions: removed.removedIntConditions,
+		removedExtDependencies: removed.removedExtDependencies,
+		removedExtConditions: removed.removedExtConditions,
+		sprintIds: removedSprintIds,
+		itemsRemovedFromReqArea
+	}
+	if (entry.isProductRemoved) {
+		entry.removedProductRoles = rootGetters.getMyProductsRoles[payload.node._id]
+	}
+	...
 }
 
 Thee events and their usage:      
