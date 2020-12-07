@@ -53,9 +53,9 @@
         <h5>Select another database. Your current database is '{{ $store.state.userData.currentDb }}'</h5>
         <b-form-group>
           <b-form-radio-group
-            v-model="myDatabase"
-            :options="databaseOptions"
-            name="databaseOptions"
+            v-model="headerMyDatabase"
+            :options="headerDatabaseOptions"
+            name="headerDatabaseOptions"
           ></b-form-radio-group>
         </b-form-group>
         <p>After you have changed the database you will be signed-out. Sign-in again to connect to the selected database</p>

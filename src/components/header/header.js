@@ -20,8 +20,8 @@ function data () {
 		selectedProducts: [],
     defaultProductOptions: [],
     selectedTeam: '',
-    myDatabase: '',
-    databaseOptions: [],
+    headerMyDatabase: '',
+    headerDatabaseOptions: [],
     teamOptions: [],
     newDefaultProductId: this.$store.state.currentDefaultProductId
   }
@@ -29,11 +29,11 @@ function data () {
 
 const methods = {
   changeDatabase () {
-    this.myDatabase = this.$store.state.userData.currentDb
+    this.headerMyDatabase = this.$store.state.userData.currentDb
     this.$refs.changeDatabaseRef.show()
-    this.databaseOptions = []
+    this.headerDatabaseOptions = []
 		for (const db of this.$store.state.myAssignedDatabases) {
-      this.databaseOptions.push(db)
+      this.headerDatabaseOptions.push(db)
     }
   },
 
@@ -56,8 +56,8 @@ const methods = {
 
   doChangeDatabase () {
     window.slVueTree.resetFilters('doChangeDatabase')
-    if (this.myDatabase !== this.$store.state.userData.currentDb) {
-      this.$store.dispatch('changeCurrentDb', this.myDatabase)
+    if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
+      this.$store.dispatch('changeCurrentDb', this.headerMyDatabase)
       router.replace('/')
     }
   },
