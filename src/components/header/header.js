@@ -30,20 +30,20 @@ function data () {
 const methods = {
   changeDatabase () {
     this.headerMyDatabase = this.$store.state.userData.currentDb
-    this.$refs.changeDatabaseRef.show()
     this.headerDatabaseOptions = []
 		for (const db of this.$store.state.myAssignedDatabases) {
       this.headerDatabaseOptions.push(db)
-    }
+		}
+		this.$refs.changeDatabaseRef.show()
   },
 
   changeTeam () {
     this.selectedTeam = this.myTeam
-    this.$refs.changeTeamRef.show()
     this.teamOptions = []
     for (const team of Object.keys(this.$store.state.allTeams)) {
       this.teamOptions.push(team)
-    }
+		}
+		this.$refs.changeTeamRef.show()
   },
 
   selectProducts () {
