@@ -79,10 +79,12 @@ export default new Vuex.Store({
       savedLogs: [],
       unsavedLogs: []
     },
-    // startup
+		// startup
+		availableProductIds: [],
     currentDefaultProductId: null,
     currentProductId: null,
-    currentProductTitle: '',
+		currentProductTitle: '',
+		iAmSerAdmin: false,
     stopListenForChanges: false,
     // tree loading
     loadedTreeDepth: undefined,
@@ -103,7 +105,8 @@ export default new Vuex.Store({
     filterOn: false,
     findIdOn: false,
     keyword: '',
-    moveOngoing: false,
+		moveOngoing: false,
+		myAssignedDatabases: undefined,
     lastEvent: '',
     lastTreeView: undefined,
     searchOn: false,
@@ -119,7 +122,6 @@ export default new Vuex.Store({
     areTeamsRemoved: false,
     backendMessages: [],
     databaseOptions: undefined,
-    userDatabaseOptions: undefined,
     defaultSprintCalendar: [],
     fetchedTeams: [],
     isCurrentDbChanged: false,
@@ -165,7 +167,7 @@ export default new Vuex.Store({
 
   getters: {
     /* Return the previous selected node or the currently selected node if no previous node was selected */
-    getpreviousNodeSelected (state) {
+    getPreviousNodeSelected (state) {
       return state.previousSelectedNodes.slice(-1)[0]
     },
     /* Return the last selected node or undefined when no node is selected */
@@ -199,15 +201,44 @@ export default new Vuex.Store({
           if (s.id === state.currentDoc.sprintId) return s.name
         }
       }
-    },
+		},
+		getMyProductsRoles (state) {
+			if (state.userData.currentDb) {
+				return state.userData.myDatabases[state.userData.currentDb].productsRoles
+			}
+			return {}
+		},
+
+		getMyAssignedProductIds(state) {
+			if (state.userData.myDatabases) {
+				const productsRoles = state.userData.myDatabases[state.userData.currentDb].productsRoles
+				return Object.keys(productsRoles)
+			}
+		},
+
+		getMyProductSubscriptions(state) {
+			if (state.userData.myDatabases && state.availableProductIds.length > 0) {
+				const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
+				let screenedSubscriptions = []
+				for (const p of currentDbSettings.subscriptions) {
+					if (state.availableProductIds.includes(p)) {
+						screenedSubscriptions.push(p)
+					}
+				}
+				if (screenedSubscriptions.length === 0) {
+					// if no default is set, assign the first defined product from the productsRoles
+					screenedSubscriptions = [Object.keys(currentDbSettings.productsRoles)[0]]
+				}
+				return screenedSubscriptions
+			} else return []
+		},
+
     leafLevel (state) {
       if (state.currentView === 'detailProduct') return TASKLEVEL
       if (state.currentView === 'coarseProduct') return FEATURELEVEL
       return PBILEVEL
     },
-    myAssignedProductIds (state) {
-      return state.userData.userAssignedProductIds
-    },
+
     myProductRoles (state, getters) {
       if (getters.isAuthenticated) {
 				return state.userData.roles
@@ -218,7 +249,7 @@ export default new Vuex.Store({
     },
     /////////////////// generic (not product nor database specific) roles /////////////////
     isServerAdmin (state, getters) {
-      return getters.isAuthenticated && state.userData.roles.includes('_admin')
+			return getters.isAuthenticated && state.iAmSerAdmin
     },
     isAdmin (state, getters) {
       return getters.isAuthenticated && state.userData.roles.includes('admin')
@@ -230,25 +261,25 @@ export default new Vuex.Store({
     ////   available after the the user data are read and the currentProductId is set   ///
     isPO (state, getters) {
       if (getters.isAuthenticated && state.currentProductId) {
-        const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
         return myCurrentProductRoles && myCurrentProductRoles.includes('PO')
       } else return false
     },
     isDeveloper (state, getters) {
       if (getters.isAuthenticated && state.currentProductId) {
-        const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
         return myCurrentProductRoles && myCurrentProductRoles.includes('developer')
       } else return false
     },
     isGuest (state, getters) {
       if (getters.isAuthenticated && state.currentProductId) {
-        const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
         return myCurrentProductRoles && myCurrentProductRoles.includes.includes('guest')
       } else return false
     },
     canCreateComments (state, getters) {
       if (getters.isAuthenticated && state.currentProductId) {
-        const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
         return myCurrentProductRoles &&
 					(getters.isServerAdmin || getters.isAdmin || getters.isAPO ||
 						myCurrentProductRoles.includes('PO') ||
@@ -257,7 +288,7 @@ export default new Vuex.Store({
     },
     canUploadAttachments (state, getters) {
       if (getters.isAuthenticated && state.currentProductId) {
-        const myCurrentProductRoles = state.userData.myProductsRoles[state.currentProductId]
+				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
         return myCurrentProductRoles &&
 					(getters.isServerAdmin || getters.isAdmin || getters.isAPO ||
 						myCurrentProductRoles.includes('PO') ||
@@ -293,6 +324,50 @@ export default new Vuex.Store({
   },
 
   mutations: {
+		addToMyProducts (state, payload) {
+			// returns a new array so that it is reactive
+			function addToArray(arr, item) {
+				const newArr = []
+				for (const el of arr) newArr.push(el)
+				newArr.push(item)
+				return newArr
+			}
+
+			state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.newRoles]
+			state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
+			state.myProductOptions.push({
+				value: payload.productId,
+				text: payload.productTitle
+			})
+		},
+
+		/*
+		* Remove the product from the users product roles, subscriptions and product selection array
+		* The user profile will be updated at the next sign-in
+		*/
+		removeFromMyProducts(state, payload) {
+			const rootGetters = payload.rootGetters
+			// returns a new array so that it is reactive
+			function removeFromArray(arr, item) {
+				const newArr = []
+				for (const el of arr) {
+					if (el !== item) newArr.push(el)
+				}
+				return newArr
+			}
+
+			delete state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId]
+			if (rootGetters.getMyProductSubscriptions.includes(payload.productId)) {
+				state.userData.myDatabases[state.userData.currentDb].subscriptions = removeFromArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
+				const removeIdx = state.myProductOptions.map(item => item.value).indexOf(payload.productId)
+				state.myProductOptions.splice(removeIdx, 1)
+			}
+		},
+
+		updateMyProductSubscriptions(state, productIds) {
+			state.userData.myDatabases[state.userData.currentDb].subscriptions = productIds
+		},
+
     /* Create or re-create the color mapper from the defined req areas (only available in Products overview) */
     createColorMapper (state) {
       const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
@@ -720,13 +795,15 @@ export default new Vuex.Store({
     },
 
     resetData (state) {
+			state.availableProductIds = []
       state.changeHistory = []
       state.configData = null
       state.currentDoc = null
       state.createDefaultCalendar = false
       state.currentDefaultProductId = null
       state.currentProductId = null
-      state.currentProductTitle = ''
+			state.currentProductTitle = ''
+			state.iAmSerAdmin = false
       state.isProductAssigned = false
       state.lastEvent = ''
       state.lastTreeView = undefined
@@ -949,7 +1026,7 @@ export default new Vuex.Store({
     }, payload) {
       if (rootState.online) {
         state.runningCookieRefreshId = setInterval(() => {
-          dispatch('refreshCookie', {})
+          dispatch('refreshCookie')
         }, payload.timeout * 1000)
       }
     },
@@ -975,22 +1052,20 @@ export default new Vuex.Store({
         url: '/_session',
         data: authData
       }).then(res => {
-        commit('resetData')
-        // email, myTeam, currentDb, myProductSubscriptions, userAssignedProductIds, myProductsRoles and myFilterSettings are updated when otherUserData and config are read
+				commit('resetData')
+				state.iAmSerAdmin = res.data.roles.includes('_admin')
+        // email, myTeam, currentDb, myDatabases and myFilterSettings are updated when otherUserData and config are read
         state.userData = {
           user: res.data.name,
           email: undefined,
           myTeam: undefined,
           password: authData.password,
-          myAssignedDatabases: [],
           currentDb: undefined,
           roles: res.data.roles,
-          myProductSubscriptions: [],
-          userAssignedProductIds: [],
-          myProductsRoles: {},
+					myDatabases: {},
           myFilterSettings: undefined,
           sessionId: create_UUID()
-        }
+				}
         // set the session cookie and refresh every 9 minutes (CouchDB defaults at 10 min.); on success also get the databases
         const toDispatch = [{ refreshCookieLoop: { timeout: 540 } }, { getDatabases: null }]
         dispatch('refreshCookie', { toDispatch })
