@@ -44,23 +44,6 @@ const AREA_PRODUCTID = 'requirement-areas'
 // keep track of removed products during this session
 var removedProducts = []
 
-// returns a new array so that it is reactive
-function addToArray (arr, item) {
-  const newArr = []
-  for (const el of arr) newArr.push(el)
-  newArr.push(item)
-  return newArr
-}
-
-// returns a new array so that it is reactive
-function removeFromArray (arr, item) {
-  const newArr = []
-  for (const el of arr) {
-    if (el !== item) newArr.push(el)
-  }
-  return newArr
-}
-
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
 * - Select from the changes in documents of type 'backlogItem' the items with a history or comments array and a first entry tagged for distribution (exluding config, log and possibly others)
@@ -71,7 +54,8 @@ function removeFromArray (arr, item) {
 
 const actions = {
   processDoc ({
-    rootState,
+		rootState,
+		rootGetters,
     getters,
     commit,
     dispatch
@@ -301,14 +285,8 @@ const actions = {
                   toDispatch,
                   onSuccessCallback: () => {
                     if (doc.level === PRODUCTLEVEL) {
-                      // re-enter the product to the users product roles, subscriptions, product ids and product selection array
-                      rootState.userData.myProductsRoles[doc._id] = lastHistObj.docRestoredEvent[5]
-                      rootState.userData.myProductSubscriptions = addToArray(rootState.userData.myProductSubscriptions, doc._id)
-                      rootState.userData.userAssignedProductIds = addToArray(rootState.userData.userAssignedProductIds, doc._id)
-                      rootState.myProductOptions.push({
-                        value: doc._id,
-                        text: doc.title
-                      })
+											// re-enter the product to the users product roles, subscriptions, product ids and product selection array
+											commit('addToMyProducts', { newRoles: lastHistObj.docRestoredEvent[5], productId: doc._id, productTitle: doc.title })
                     }
                     if (lastHistObj.by === rootState.userData.user) {
                       commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
@@ -329,15 +307,10 @@ const actions = {
                 window.slVueTree.correctDependencies(node.productId, lastHistObj.removedWithDescendantsEvent[1])
                 if (node.level === PRODUCTLEVEL) {
                   // save some data of the removed product for restore at undo.
-                  removedProducts.unshift({ id: node._id, productRoles: rootState.userData.myProductsRoles[node._id] })
-                  // remove the product from the users product roles, subscriptions and product selection array
-                  delete rootState.userData.myProductsRoles[node._id]
-                  if (rootState.userData.myProductSubscriptions.includes(node._id)) {
-                    rootState.userData.myProductSubscriptions = removeFromArray(rootState.userData.myProductSubscriptions, node._id)
-                    rootState.userData.userAssignedProductIds = removeFromArray(rootState.userData.userAssignedProductIds, node._id)
-                    const removeIdx = rootState.myProductOptions.map(item => item.value).indexOf(node._id)
-                    rootState.myProductOptions.splice(removeIdx, 1)
-                  }
+									removedProducts.unshift({ id: node._id, productRoles: rootGetters.getMyProductsRoles[node._id] })
+									// remove the product from the users product roles, subscriptions and product selection array
+									// the user profile will be updated at the next sign-in
+									commit('removeFromMyProducts', { rootGetters, productId: node._id })
                 }
                 window.slVueTree.remove([node])
                 if (lastHistObj.by === rootState.userData.user) {
@@ -734,7 +707,7 @@ const actions = {
         }
       } else {
         // not AREA_PRODUCTID, continue with updateTree and updateBoard
-        if (rootState.userData.myProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
+				if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
           // only process updates of items the user is authorised to including products that are restored from deletion by this user
           dispatch('doBlinck', doc)
           doProc(doc)

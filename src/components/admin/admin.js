@@ -8,14 +8,6 @@ const ALLBUTSYSTEMANDBACKUPS = 3
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
 
-// returns a new array so that it is reactive
-function addToArray (arr, item) {
-  const newArr = []
-  for (const el of arr) newArr.push(el)
-  newArr.push(item)
-  return newArr
-}
-
 function mounted () {
   this.$store.state.backendMessages = []
   this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
@@ -206,14 +198,8 @@ const methods = {
     }
     // add the product to the treemodel, the path etc. will be calculated
     window.slVueTree.insert(cursorPosition, [newNode], false)
-    // update the users product roles, subscriptions and product selection array
-    this.$store.state.userData.myProductsRoles[_id] = ['admin']
-    this.$store.state.userData.myProductSubscriptions = addToArray(this.$store.state.userData.myProductSubscriptions, _id)
-    this.$store.state.userData.userAssignedProductIds = addToArray(this.$store.state.userData.userAssignedProductIds, _id)
-    this.$store.state.myProductOptions.push({
-      value: _id,
-      text: newProduct.title
-    })
+		// update the users product roles, subscriptions and product selection array
+		this.$store.commit('addToMyProducts', { newRoles: ['admin'], productId: _id, productTitle: newProduct.title })
     // update the database and add the product to this user's subscriptions and productsRoles
     this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['admin'] })
   },
