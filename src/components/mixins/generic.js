@@ -29,7 +29,9 @@ const authorization = {
 			'isPO',
 			'isReqAreaItem',
 			'isServerAdmin',
-			'myAssignedProductIds',
+			'getMyProductsRoles',
+			'getMyProductSubscriptions',
+			'getMyAssignedProductIds',
 			'myProductRoles'
     ])
   },
@@ -47,10 +49,10 @@ const authorization = {
       for (let i = 0; i <= PBILEVEL; i++) {
         // initialize with false
         levels.push(false)
-      }
-      if (this.myAssignedProductIds.includes(productId)) {
+			}
+			if (this.getMyAssignedProductIds.includes(productId)) {
         // assing specific write permissions for the current product only if that product is assigned the this user
-        const myCurrentProductRoles = this.$store.state.userData.myProductsRoles[productId]
+				const myCurrentProductRoles = this.getMyProductsRoles[productId]
         // eslint-disable-next-line no-console
         if (this.$store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${myCurrentProductRoles}`)
         if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
@@ -98,7 +100,6 @@ const authorization = {
 			const skipTestOnTeam = this.isPO || this.isAPO
       const canAccessOnTeam = skipTestOnTeam || itemTeam === this.myTeam
       const canAccessOnLevel = this.haveWritePermission(level, this.$store.state.currentProductId) ||	allowExtraLevel && this.haveWritePermission(level + 1, this.$store.state.currentProductId)
-
       if (canAccessOnTeam && canAccessOnLevel) return true
 
       if (!canAccessOnTeam && !canAccessOnLevel) {
@@ -122,7 +123,7 @@ const utilities = {
 			'getCurrentItemState',
 			'getCurrentItemTsSize',
 			'getItemSprintName',
-			'getpreviousNodeSelected',
+			'getPreviousNodeSelected',
 			'getLastSelectedNode',
 			'isFollower',
 			'leafLevel',
