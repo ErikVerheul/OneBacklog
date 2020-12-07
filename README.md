@@ -177,8 +177,7 @@ Then, the calendar items (iterations) are stored as type 'calendar' in the datab
 Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the real role the product owner has.
 
 ## Build Setup
-The app uses a secure https connection to the hosting site and for the cooky authentication over port 6984 to connect to the database.</br>
-You can use the same certificate for both.<br/>
+The app uses a secure https connection to the hosting site and for the cooky authentication over port 6984 to connect to the database. You can use the same certificate for both.<br/>
 See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains.</br>
 
 ## install CouchDB
