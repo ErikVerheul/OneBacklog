@@ -330,7 +330,7 @@ const methods = {
       }
     }
 
-    const userData = {
+    const newUserData = {
       name: this.userName,
       password: this.password,
       type: 'user',
@@ -345,7 +345,7 @@ const methods = {
         }
       }
     }
-    this.$store.dispatch('createUserIfNotExistent', userData)
+    this.$store.dispatch('createUserIfNotExistent', newUserData)
   },
 
   maintainUsers () {
