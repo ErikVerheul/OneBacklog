@@ -52,13 +52,13 @@ The database and the web server have secure https access.
 The CouchDB build-in cookie authentication (RFC 2109) is used
 
 <b>Authorization :</b><br />
-By default the application uses two databases. The _users database owned by the admin role and a data database holding the products. More databases can be created but the _users database is shared. What a user can see or do is determined by the roles assigned to that user.<br />
+By default the application uses two databases. The _users database owned by the admin role and a database holding the products. More databases can be created but the _users database is shared. What a user can see or do is determined by the roles assigned to that user.<br />
 The roles are:
 - '_admin': Is the CouchDb administrator. Can setup and delete databases. See the CouchDB documentation. The scope is per CouchDb instance including all databases.
 
 The next two roles are set per database and include all products defined in this database:
-- 'admin': Can create products, teams and users. Can (un)assign roles to users and user access to products. Is not member of a team.
-- 'areaPO': The APOs create and maintain their requirement areas for the assigned products when team member. The scope is per database. Is not member of a team.
+- 'admin': Can create products, teams and users. Can (un)assign databases and roles to users and user access to products. Is not member of a team.
+- 'areaPO': The APOs create and maintain their requirement areas. Can change priorities at the epic and feature level. Is not member of a team.
 
 These three roles are set per product in a database:
 - 'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products. Can change priorities at these levels. Must be member of a team.
