@@ -87,7 +87,7 @@ const actions = {
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
 				// the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
-				if (rootState.online && rootState.userData.roles.includes('_admin')) {
+				if (rootState.online && rootState.iAmServerAdmin) {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
 					rootState.showHeaderDropDowns = false
@@ -115,7 +115,7 @@ const actions = {
 		}).then(res => {
 			const newUserData = payload.allUserData
 			const currentProductsEnvelope = res.data.rows
-			const currentDbSettings = payload.allUserData.myDatabases[payload.allUserData.currentDb]
+			const currentDbSettings = newUserData.myDatabases[newUserData.currentDb]
 			const productsRoles = currentDbSettings.productsRoles
 			// store the available product id's
 			for (const product of currentProductsEnvelope) {
@@ -150,6 +150,19 @@ const actions = {
 				// the first (index 0) product in the current db settings is by definition the default product
 				rootState.currentDefaultProductId = Object.keys(currentDbSettings.productsRoles)[0]
 			}
+			// calculate the association of all assigned roles
+			const allRoles = []
+			if (newUserData.roles.includes('_admin')) allRoles.push('_admin')
+			if (newUserData.roles.includes('admin')) allRoles.push('admin')
+			if (newUserData.roles.includes('APO')) allRoles.push('APO')
+			for (const database of Object.keys(newUserData.myDatabases)) {
+				for (const productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {
+					for (const role of newUserData.myDatabases[database].productsRoles[productId]) {
+						if (!allRoles.includes(role)) allRoles.push(role)
+					}
+				}
+			}
+			newUserData.roles = allRoles
 			// update user data loaded in getOtherUserData and STORE THE USER DATA in $store.state.userData
 			// postpone the warning message for 'no product found' until the configuration is loaded
 			const toDispatch = [{ getConfig: null }]
