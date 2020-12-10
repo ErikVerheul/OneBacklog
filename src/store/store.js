@@ -78,13 +78,18 @@ export default new Vuex.Store({
       runningWatchdogId: null,
       savedLogs: [],
       unsavedLogs: []
-    },
+		},
+
+		// signIn
+		sessionAuthData: undefined,
 		// startup
 		availableProductIds: [],
     currentDefaultProductId: null,
     currentProductId: null,
 		currentProductTitle: '',
-		iAmSerAdmin: false,
+		iAmAPO: false,
+		iAmAdmin: false,
+		iAmServerAdmin: false,
     stopListenForChanges: false,
     // tree loading
     loadedTreeDepth: undefined,
@@ -202,6 +207,15 @@ export default new Vuex.Store({
         }
       }
 		},
+
+		getMyGenericRoles (state) {
+			const genericRoles = []
+			if (state.iAmAdmin) genericRoles.push('admin')
+			if (state.iAmAPO) genericRoles.push('APO')
+			if (state.iAmServerAdmin) genericRoles.push('_admin')
+			return genericRoles
+		},
+
 		getMyProductsRoles (state) {
 			if (state.userData.currentDb) {
 				return state.userData.myDatabases[state.userData.currentDb].productsRoles
@@ -237,25 +251,20 @@ export default new Vuex.Store({
       if (state.currentView === 'detailProduct') return TASKLEVEL
       if (state.currentView === 'coarseProduct') return FEATURELEVEL
       return PBILEVEL
-    },
+		},
 
-    myProductRoles (state, getters) {
-      if (getters.isAuthenticated) {
-				return state.userData.roles
-      } else return []
-    },
     myTeam (state) {
       return state.userData.myTeam
     },
     /////////////////// generic (not product nor database specific) roles /////////////////
     isServerAdmin (state, getters) {
-			return getters.isAuthenticated && state.iAmSerAdmin
+			return getters.isAuthenticated && state.iAmServerAdmin
     },
     isAdmin (state, getters) {
-      return getters.isAuthenticated && state.userData.roles.includes('admin')
+      return getters.isAuthenticated && state.iAmAdmin
     },
     isAPO (state, getters) {
-      return getters.isAuthenticated && state.userData.roles.includes('APO')
+      return getters.isAuthenticated && state.iAmAPO
     },
     //////////////////////////////// product specific roles ///////////////////////////////
     ////   available after the the user data are read and the currentProductId is set   ///
@@ -341,12 +350,20 @@ export default new Vuex.Store({
 			})
 		},
 
+		addToMyProductOptions (state, payload) {
+			state.myProductOptions.push({
+				value: payload.productId,
+				text: payload.productTitle
+			})
+		},
+
 		/*
 		* Remove the product from the users product roles, subscriptions and product selection array
 		* The user profile will be updated at the next sign-in
 		*/
 		removeFromMyProducts(state, payload) {
-			const rootGetters = payload.rootGetters
+			// workaround to access getter
+			const getters = payload.getters
 			// returns a new array so that it is reactive
 			function removeFromArray(arr, item) {
 				const newArr = []
@@ -357,7 +374,7 @@ export default new Vuex.Store({
 			}
 
 			delete state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId]
-			if (rootGetters.getMyProductSubscriptions.includes(payload.productId)) {
+			if (getters.getMyProductSubscriptions.includes(payload.productId)) {
 				state.userData.myDatabases[state.userData.currentDb].subscriptions = removeFromArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
 				const removeIdx = state.myProductOptions.map(item => item.value).indexOf(payload.productId)
 				state.myProductOptions.splice(removeIdx, 1)
@@ -803,20 +820,22 @@ export default new Vuex.Store({
       state.currentDefaultProductId = null
       state.currentProductId = null
 			state.currentProductTitle = ''
-			state.iAmSerAdmin = false
+			state.iAmAPO = false
+			state.iAmAdmin = false
+			state.iAmServerAdmin = false
       state.isProductAssigned = false
       state.lastEvent = ''
       state.lastTreeView = undefined
       state.listenForChangesRunning = false
       state.loadedSprintId = null
       state.loadedTreeDepth = undefined
-      state.myProductOptions = []
+			state.myProductOptions = []
+			state.sessionAuthData = {}
       state.showHeaderDropDowns = true
       state.stopListenForChanges = true
       state.stories = []
       state.treeNodes = []
       state.userData = {}
-      state.warning = ''
 
       clearInterval(state.runningCookieRefreshId)
       state.cookieAuthenticated = false
@@ -983,7 +1002,7 @@ export default new Vuex.Store({
         globalAxios({
           method: 'POST',
           url: '/_session',
-          data: { name: state.userData.user, password: state.userData.password }
+					data: state.sessionAuthData
         }).then(() => {
           state.cookieAuthenticated = true
           // eslint-disable-next-line no-console
@@ -1053,7 +1072,10 @@ export default new Vuex.Store({
         data: authData
       }).then(res => {
 				commit('resetData')
-				state.iAmSerAdmin = res.data.roles.includes('_admin')
+				state.sessionAuthData = authData
+				state.iAmAdmin = res.data.roles.includes('admin')
+				state.iAmAPO = res.data.roles.includes('APO')
+				state.iAmServerAdmin = res.data.roles.includes('_admin')
         // email, myTeam, currentDb, myDatabases and myFilterSettings are updated when otherUserData and config are read
         state.userData = {
           user: res.data.name,
@@ -1061,7 +1083,6 @@ export default new Vuex.Store({
           myTeam: undefined,
           password: authData.password,
           currentDb: undefined,
-          roles: res.data.roles,
 					myDatabases: {},
           myFilterSettings: undefined,
           sessionId: create_UUID()
