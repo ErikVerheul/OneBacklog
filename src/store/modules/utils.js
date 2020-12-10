@@ -90,7 +90,7 @@ const actions = {
   }, payload) {
     const _id = payload.newProduct._id
     const product = payload.newProduct
-		const position = Object.keys(rootGetters.getMyProductsRoles).length + 1
+		const position = rootGetters.getMyProductsCount + 1
     // do not distribute this event; other users have no access rights yet
     product.history = [{
       createEvent: [PRODUCTLEVEL, rootState.userData.currentDb, position],
@@ -105,7 +105,7 @@ const actions = {
     }).then(() => {
       const msg = `createProduct: Product '${product.title}' is created`
       rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-      // add the product to this user's subscriptions and productsRoles
+      // add the product to my subscriptions and productsRoles
 			dispatch('addProductToUser', { dbName: payload.dbName, selectedUser: rootState.userData.user, productId: _id, userRoles: payload.userRoles })
     }).catch(error => {
       const msg = `createProduct: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
