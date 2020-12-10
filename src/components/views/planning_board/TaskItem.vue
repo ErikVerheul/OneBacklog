@@ -159,7 +159,7 @@ export default {
             break
         }
       } else {
-        this.$store.state.warningText = `Sorry, your assigned role(s) [${this.myProductRoles}] for this product disallow you to execute this action`
+        this.$store.state.warningText = `Sorry, your assigned role(s) [${this.MyProductsRoles[this.productId].concat(this.myGenericRoles)}] for this product disallow you to execute this action`
       }
     },
 

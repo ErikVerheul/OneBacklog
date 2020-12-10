@@ -29,10 +29,10 @@ const authorization = {
 			'isPO',
 			'isReqAreaItem',
 			'isServerAdmin',
+			'getMyGenericRoles',
 			'getMyProductsRoles',
 			'getMyProductSubscriptions',
-			'getMyAssignedProductIds',
-			'myProductRoles'
+			'getMyAssignedProductIds'
     ])
   },
 
@@ -45,6 +45,7 @@ const authorization = {
 		* See README.md for the role definitions.
 		*/
     haveWritePermission (level, productId = this.$store.state.currentProductId) {
+			console.log('haveWritePermission is called')
       const levels = []
       for (let i = 0; i <= PBILEVEL; i++) {
         // initialize with false
@@ -52,7 +53,8 @@ const authorization = {
 			}
 			if (this.getMyAssignedProductIds.includes(productId)) {
         // assing specific write permissions for the current product only if that product is assigned the this user
-				const myCurrentProductRoles = this.getMyProductsRoles[productId]
+				const myCurrentProductRoles = this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)
+				console.log('haveWritePermission: myCurrentProductRoles = ' + myCurrentProductRoles)
         // eslint-disable-next-line no-console
         if (this.$store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${myCurrentProductRoles}`)
         if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
@@ -103,13 +105,13 @@ const authorization = {
       if (canAccessOnTeam && canAccessOnLevel) return true
 
       if (!canAccessOnTeam && !canAccessOnLevel) {
-        this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] and team membership disallow you to ${forAction}`, WARNING)
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.MyProductsRoles[this.$store.state.currentProductId].concat(this.myGenericRoles)}] and team membership disallow you to ${forAction}`, WARNING)
       }
       if (!canAccessOnTeam && canAccessOnLevel) {
         this.showLastEvent(`You must be member of team '${itemTeam}' to ${forAction}`, WARNING)
       }
       if (canAccessOnTeam && !canAccessOnLevel) {
-        this.showLastEvent(`Sorry, your assigned role(s) [${this.myProductRoles}] disallow you to ${forAction}`, WARNING)
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.MyProductsRoles[this.$store.state.currentProductId].concat(this.myGenericRoles)}] disallow you to ${forAction}`, WARNING)
       }
       return false
     }
