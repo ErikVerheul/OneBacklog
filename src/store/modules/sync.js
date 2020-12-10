@@ -310,7 +310,7 @@ const actions = {
 									removedProducts.unshift({ id: node._id, productRoles: rootGetters.getMyProductsRoles[node._id] })
 									// remove the product from the users product roles, subscriptions and product selection array
 									// the user profile will be updated at the next sign-in
-									commit('removeFromMyProducts', { rootGetters, productId: node._id })
+									commit('removeFromMyProducts', {getters, productId: node._id })
                 }
                 window.slVueTree.remove([node])
                 if (lastHistObj.by === rootState.userData.user) {
