@@ -144,7 +144,8 @@ const actions = {
 		}).then(res => {
 			const tmpUserData = res.data
 			tmpUserData.password = newPassword
-			dispatch('updateUser', { data: tmpUserData })
+			const toDispatch = [{ signout: null }]
+			dispatch('updateUser', { data: tmpUserData, toDispatch })
 		}).catch(error => {
 			const msg = 'changeMyPasswordAction: Could not change password for user ' + rootState.userData.user + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -169,12 +170,6 @@ const actions = {
 				})
 				return
 			}
-			// add new roles to the user's profile, if any
-			for (const prod of state.dbProducts) {
-				for (const role of prod.roles) {
-					if (!tmpUserData.roles.includes(role)) tmpUserData.roles.push(role)
-				}
-			}
 			// add the new db to the user's profile
 			const productsRoles = {}
 			const subscriptions = []
@@ -191,8 +186,22 @@ const actions = {
 			}
 			tmpUserData.myDatabases[payload.dbName] = newDb
 
+			// recalculate the association of all assigned roles
+			const allRoles = []
+			if (tmpUserData.roles.includes('admin')) allRoles.push('admin')
+			if (tmpUserData.roles.includes('APO')) allRoles.push('APO')
+			for (const database of Object.keys(tmpUserData.myDatabases)) {
+				for (const productId of Object.keys(tmpUserData.myDatabases[database].productsRoles)) {
+					for (const role of tmpUserData.myDatabases[database].productsRoles[productId]) {
+						if (!allRoles.includes(role)) allRoles.push(role)
+					}
+				}
+			}
+			tmpUserData.roles = allRoles
+
 			if (rootState.userData.user === payload.selectedUser) {
-				// update current profile
+				// admin is adding a database to its own profile
+				rootState.myAssignedDatabases.push(payload.dbName)
 			}
 
 			dispatch('updateUser', { data: tmpUserData })
@@ -201,7 +210,87 @@ const actions = {
 				msg: `addDbToUserAction: The database ${payload.dbName} is added to the profile of user '${payload.selectedUser}'`
 			})
 		}).catch(error => {
-			const msg = `addDbToUserAction: Could not subscribed database ${payload.dbName} to user '${payload.selectedUser}', ${error}`
+			const msg = `addDbToUserAction: Could not subscribe database ${payload.dbName} to user '${payload.selectedUser}', ${error}`
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	removeDbFromUserAction({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + payload.selectedUser
+		}).then(res => {
+			const tmpUserData = res.data
+			if (!rootState.myAssignedDatabases.includes(payload.dbName)) {
+				rootState.backendMessages.push({
+					seqKey: rootState.seqKey++,
+					msg: `removeDbFromUserAction: The database ${payload.dbName} is not assigned to user '${payload.selectedUser}'`
+				})
+				return
+			}
+
+			if (payload.selectedUser === rootState.userData.user && payload.dbName == rootState.userData.currentDb) {
+				// user cannot unassign his/her current database
+				rootState.backendMessages.push({
+					seqKey: rootState.seqKey++,
+					msg: `removeDbFromUserAction: '${payload.selectedUser}', you cannot unassign your current database. Select another database and try again.`
+				})
+				return
+			}
+
+			if (tmpUserData.currentDb === payload.dbName) {
+				// the user's current database is to be removed
+				const allDatabases = Object.keys(tmpUserData.myDatabases)
+				// select another database
+				for (const db of allDatabases) {
+					if (db !== payload.dbName) {
+						tmpUserData.currentDb = db
+						break
+					}
+					rootState.backendMessages.push({
+						seqKey: rootState.seqKey++,
+						msg: `removeDbFromUserAction: The database ${tmpUserData.currentDb} is set to the current database of user '${payload.selectedUser}'`
+					})
+				}
+			}
+			// remove the db from the user's profile
+			delete tmpUserData.myDatabases[payload.dbName]
+
+			// recalculate the association of all assigned roles
+			const allRoles = []
+			if (tmpUserData.roles.includes('admin')) allRoles.push('admin')
+			if (tmpUserData.roles.includes('APO')) allRoles.push('APO')
+			for (const database of Object.keys(tmpUserData.myDatabases)) {
+				for (const productId of Object.keys(tmpUserData.myDatabases[database].productsRoles)) {
+					for (const role of tmpUserData.myDatabases[database].productsRoles[productId]) {
+						if (!allRoles.includes(role)) allRoles.push(role)
+					}
+				}
+			}
+			tmpUserData.roles = allRoles
+
+			if (rootState.userData.user === payload.selectedUser) {
+				// admin is removing a database from its own profile
+				const newAssignedDatabases = []
+				for (const db of rootState.myAssignedDatabases) {
+					if (db !== payload.dbName) newAssignedDatabases.push(db)
+				}
+				rootState.myAssignedDatabases = newAssignedDatabases
+			}
+
+			dispatch('updateUser', { data: tmpUserData })
+			rootState.backendMessages.push({
+				seqKey: rootState.seqKey++,
+				msg: `removeDbFromUserAction: The database ${payload.dbName} is removed from the profile of user '${payload.selectedUser}'`
+			})
+		}).catch(error => {
+			const msg = `removeDbFromUserAction: Could not remove database ${payload.dbName} from user '${payload.selectedUser}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -213,11 +302,11 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		// copy all roles except 'admin' and 'APO' which are roles on the database level
+		// copy all roles except 'admin', 'APO' and '_admin' which are generic roles
 		function copyRoles(roles) {
 			const copiedRoles = []
 			for (const r of roles) {
-				if (r !== 'admin' && r !== 'APO') copiedRoles.push(r)
+				if (r !== 'admin' && r !== 'APO' && r !== '_admin') copiedRoles.push(r)
 			}
 			return copiedRoles
 		}
@@ -230,13 +319,17 @@ const actions = {
 			rootState.isProductCreated = true
 			const tmpUserData = res.data
 			if (Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
+				// the database exists; subscribe the selected user to the product
 				tmpUserData.myDatabases[payload.dbName].subscriptions.push(payload.productId)
 				if (payload.userRoles[0] === '*') {
-					// add all user roles to the new product
+					// add all current roles of the selected user to the new product
 					tmpUserData.myDatabases[payload.dbName].productsRoles[payload.productId] = copyRoles(tmpUserData.roles)
-				} else tmpUserData.myDatabases[payload.dbName].productsRoles[payload.productId] = payload.userRoles
+				} else {
+					// add set roles to the product
+					tmpUserData.myDatabases[payload.dbName].productsRoles[payload.productId] = payload.userRoles
+				}
 			} else {
-				// new database, add all user roles to the new product
+				// new database, add all current user roles to the new product
 				const newDb = {
 					myteam: 'not assigned yet',
 					subscriptions: [payload.productId],
@@ -374,6 +467,7 @@ const actions = {
 		})
 	},
 
+	/* Update the user profile in CouchDb. If the profile of the current user is updated, the in-memory profile is updated also */
 	updateUser({
 		rootState,
 		dispatch
