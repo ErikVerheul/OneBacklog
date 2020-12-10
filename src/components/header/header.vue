@@ -26,16 +26,11 @@
               <em>User</em>
             </template>
             <b-dropdown-item v-if="!isAuthenticated">No options here when not signed in</b-dropdown-item>
-            <b-dropdown-item
-              v-if="isAuthenticated && $store.state.currentView !== 'planningBoard' && $store.state.myAssignedDatabases.length > 1"
-              @click="changeDatabase"
-            >Change database</b-dropdown-item>
+            <b-dropdown-item v-if="isAuthenticated && $store.state.currentView !== 'planningBoard' && $store.state.myAssignedDatabases.length > 1" @click="changeDatabase">Change database
+            </b-dropdown-item>
             <template v-if="isAuthenticated">
               <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>
-              <b-dropdown-item
-                v-if="$store.state.currentView === 'detailProduct' && getMyAssignedProductIds.length > 1"
-                @click="selectProducts"
-              >Select products</b-dropdown-item>
+              <b-dropdown-item v-if="$store.state.currentView === 'detailProduct' && getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</b-dropdown-item>
             </template>
             <b-dropdown-item v-if="isAuthenticated" @click="changeMyPassword">Change password</b-dropdown-item>
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
@@ -52,11 +47,7 @@
       <b-container align-v="true">
         <h5>Select another database. Your current database is '{{ $store.state.userData.currentDb }}'</h5>
         <b-form-group>
-          <b-form-radio-group
-            v-model="headerMyDatabase"
-            :options="headerDatabaseOptions"
-            name="headerDatabaseOptions"
-          ></b-form-radio-group>
+          <b-form-radio-group v-model="headerMyDatabase" :options="headerDatabaseOptions" name="headerDatabaseOptions"></b-form-radio-group>
         </b-form-group>
         <p>After you have changed the database you will be signed-out. Sign-in again to connect to the selected database</p>
       </b-container>
@@ -71,86 +62,42 @@
       </b-container>
     </b-modal>
 
-    <b-modal
-      size="lg"
-      ref="selectProductsRef"
-      @ok="doSelectProducts"
-      title="Select one or more (hold shift or Ctrl) products to be loaded at sign-in"
-    >
+    <b-modal size="lg" ref="selectProductsRef" @ok="doSelectProducts" title="Select one or more (hold shift or Ctrl) products to be loaded at sign-in">
       <b-container align-v="true">
-        <b-form-select
-          size="sm"
-          v-model="selectedProducts"
-          :options="$store.state.myProductOptions"
-          multiple
-          :select-size="$store.state.myProductOptions.length"
-        ></b-form-select>
+        <b-form-select size="sm" v-model="selectedProducts" :options="$store.state.myProductOptions" multiple :select-size="$store.state.myProductOptions.length"></b-form-select>
       </b-container>
     </b-modal>
 
-    <b-modal
-      size="lg"
-      ref="selectDefaultProductRef"
-      @ok="updateProductsSubscriptions"
-      title="Select the default product you are working on"
-    >
+    <b-modal size="lg" ref="selectDefaultProductRef" @ok="updateProductsSubscriptions" title="Select the default product you are working on">
       <b-container align-v="true">
-        <b-form-select
-          v-model="newDefaultProductId"
-          :options="defaultProductOptions"
-          :select-size="defaultProductOptions.length"
-        ></b-form-select>
+        <b-form-select v-model="newDefaultProductId" :options="defaultProductOptions" :select-size="defaultProductOptions.length"></b-form-select>
       </b-container>
     </b-modal>
 
     <b-modal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password">
       <b-container align-v="true">
-        <template
-          v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'"
-        >
+        <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'">
           <h2>Demo users cannot change the password</h2>
         </template>
         <template v-if="isAuthenticated && isServerAdmin">
           <h2>Demo users cannot change the password</h2>
         </template>
-        <template
-          v-if="isAuthenticated && $store.state.demo && $store.state.userData.user !== 'demoUser'"
-        >
+        <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user !== 'demoUser'">
           <b-row class="my-1">
             <b-card bg-variant="light">
-              <b-form-group
-                label-cols-lg="5"
-                label="The new password must have 8 or more characters"
-                label-size="lg"
-                label-class="font-weight-bold pt-0"
-                class="mb-0"
-              >
-                <b-form-group
-                  label-cols-sm="5"
-                  label="Current password:"
-                  label-align-sm="right"
-                  label-for="currentPW"
-                >
+              <b-form-group label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg" label-class="font-weight-bold pt-0" class="mb-0">
+                <b-form-group label-cols-sm="5" label="Current password:" label-align-sm="right" label-for="currentPW">
                   <b-form-input v-model="oldPassword" id="currentPW" type="password"></b-form-input>
                 </b-form-group>
-                <b-form-group
-                  label-cols-sm="5"
-                  label="New password:"
-                  label-align-sm="right"
-                  label-for="newPW1"
-                >
+                <b-form-group label-cols-sm="5" label="New password:" label-align-sm="right" label-for="newPW1">
                   <b-form-input v-model="newPassword1" id="newPW1" type="password"></b-form-input>
                 </b-form-group>
-                <b-form-group
-                  label-cols-sm="5"
-                  label="Retype new password:"
-                  label-align-sm="right"
-                  label-for="newPW2"
-                >
+                <b-form-group label-cols-sm="5" label="Retype new password:" label-align-sm="right" label-for="newPW2">
                   <b-form-input v-model="newPassword2" id="newPW2" type="password"></b-form-input>
                 </b-form-group>
               </b-form-group>
             </b-card>
+            You will be forced to sign-in again
           </b-row>
         </template>
       </b-container>
