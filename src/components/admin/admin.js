@@ -215,7 +215,7 @@ const methods = {
 		return canAssign
 	},
 
-	getUserDbOptionsToUnassign () {
+	getUserAssignedDatabases () {
 		return Object.keys(this.$store.state.useracc.fetchedUserData.myDatabases)
 	},
 

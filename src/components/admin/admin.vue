@@ -34,6 +34,7 @@
             <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
           </div>
           <div v-else>
+						<h4 v-if="userIsMe()">{{ selectedUser }}: You are about to change your own user profile.</h4>
             <b-row class="my-1">
               <b-col sm="2">
                 Users name:
@@ -48,20 +49,20 @@
                 {{ $store.state.useracc.fetchedUserData.email }}
               </b-col>
               <div v-if="!isUserDbSelected">
-                <div v-if="$store.state.myAssignedDatabases.length === 1 && $store.state.databaseOptions.includes($store.state.myAssignedDatabases[0])">
+                <div v-if="getUserAssignedDatabases().length === 1 && $store.state.databaseOptions.includes(getUserAssignedDatabases()[0])">
                   <b-col sm="12">
-                    <p>The user has access to one datatabase: '{{ $store.state.myAssignedDatabases[0] }}'</p>
-                    <b-button @click="doSelectUserDb($store.state.myAssignedDatabases[0])">Select this database</b-button>
+                    <p>The user has access to one datatabase: '{{ getUserAssignedDatabases()[0] }}'</p>
+                    <b-button @click="doSelectUserDb(getUserAssignedDatabases()[0])">Select this database</b-button>
                     <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
                   </b-col>
                 </div>
                 <div v-else>
                   <b-col sm="12">
                     <b-form-group>
-                      <h5>The user has access to multiple datatabases: {{ $store.state.myAssignedDatabases }}, select one</h5>
+                      <h5>The user has access to multiple datatabases: {{ getUserAssignedDatabases() }}, select one</h5>
                       <b-form-radio-group
                         v-model="$store.state.selectedDatabaseName"
-                        :options="$store.state.myAssignedDatabases"
+                        :options="getUserAssignedDatabases()"
                         stacked
                       ></b-form-radio-group>
                     </b-form-group>
@@ -191,19 +192,19 @@
           </div>
 					<div v-else>
 						<h4 v-if="userIsMe()">{{ selectedUser }}: You are about to change your own user profile.</h4>
-						<template v-if="getUserDbOptionsToUnassign().length > 1">
+						<template v-if="getUserAssignedDatabases().length > 1">
 							<b-form-group>
 								<h5>Select the database to remove from user '{{ selectedUser }}'</h5>
 								<b-form-radio-group
 									v-model="$store.state.selectedDatabaseName"
-									:options="getUserDbOptionsToUnassign()"
+									:options="getUserAssignedDatabases()"
 									stacked
 								></b-form-radio-group>
 							</b-form-group>
 							<b-button class="m-1" @click="doAfterDbIsSelected()">Unassign the selected database</b-button>
 						</template>
 						<template v-else>
-							Cannot remove the only database {{ getUserDbOptionsToUnassign() }} user '{{ selectedUser }}' is assigned to.
+							Cannot remove the only database {{ getUserAssignedDatabases() }} user '{{ selectedUser }}' is assigned to.
 						</template>
 						<b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
 					</div>
