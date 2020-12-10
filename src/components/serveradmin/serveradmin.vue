@@ -176,7 +176,6 @@
       </div>
 
       <p>{{ localMessage }}</p>
-      <p class="colorRed">{{ $store.state.warning }}
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
         <div v-for="item in $store.state.backendMessages" :key="item.seqKey">

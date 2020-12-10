@@ -39,7 +39,6 @@ function data () {
       { text: 'developer', value: 'developer' },
       { text: 'guest', value: 'guest' }
     ],
-    allRoles: [],
     localMessage: '',
     selectedUser: undefined,
     isDatabaseSelected: false,
@@ -111,7 +110,7 @@ const methods = {
 
   doAfterDbIsSelected () {
     switch (this.optionSelected) {
-			case 'Assign another database to a user':
+			case 'Assign a database to a user':
 				this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, createNewUser: true })
 				break
       case 'Create a user':
@@ -120,7 +119,10 @@ const methods = {
       case 'List teams':
         this.$store.dispatch('getAllUsers')
         this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
-        break
+				break
+			case 'Remove a database from a user':
+				this.$store.dispatch('removeDbFromUserAction', { dbName: this.$store.state.selectedDatabaseName, selectedUser: this.selectedUser })
+			break
       case 'Remove teams without members':
         this.teamNamesToRemove = []
         this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
@@ -198,11 +200,24 @@ const methods = {
     }
     // add the product to the treemodel, the path etc. will be calculated
     window.slVueTree.insert(cursorPosition, [newNode], false)
-		// update the users product roles, subscriptions and product selection array
-		this.$store.commit('addToMyProducts', { newRoles: ['admin'], productId: _id, productTitle: newProduct.title })
-    // update the database and add the product to this user's subscriptions and productsRoles
+		// add the new product to my slection options
+		this.$store.commit('addToMyProductOptions', { productId: _id, productTitle: newProduct.title })
+    // update the database and add the product to this admin's subscriptions and productsRoles
     this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['admin'] })
-  },
+	},
+
+	getUserDbOptionsToAssign () {
+		const assignedDbs = Object.keys(this.$store.state.useracc.fetchedUserData.myDatabases)
+		const canAssign = []
+		for (const db of this.$store.state.databaseOptions) {
+			if (!assignedDbs.includes(db)) canAssign.push(db)
+		}
+		return canAssign
+	},
+
+	getUserDbOptionsToUnassign () {
+		return Object.keys(this.$store.state.useracc.fetchedUserData.myDatabases)
+	},
 
   getSprint () {
     return this.$store.state.defaultSprintCalendar[parseInt(this.changedNumberStr)]
@@ -312,12 +327,12 @@ const methods = {
 
   doCreateUser () {
     // calculate the association of all assigned roles
-    this.allRoles = []
-		if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
-		if (this.$store.state.useracc.userIsAPO) this.allRoles.push('APO')
+    const allRoles = []
+		if (this.$store.state.useracc.userIsAdmin) allRoles.push('admin')
+		if (this.$store.state.useracc.userIsAPO) allRoles.push('APO')
     for (const prod of this.$store.state.useracc.dbProducts) {
       for (const role of prod.roles) {
-        if (!this.allRoles.includes(role)) this.allRoles.push(role)
+        if (!allRoles.includes(role)) allRoles.push(role)
       }
     }
     // generate the productsRoles and subscriptions properties
@@ -334,7 +349,7 @@ const methods = {
       name: this.userName,
       password: this.password,
       type: 'user',
-      roles: this.allRoles,
+      roles: allRoles,
       email: this.userEmail,
       currentDb: this.$store.state.selectedDatabaseName,
       myDatabases: {
@@ -387,17 +402,17 @@ const methods = {
     newUserData.myDatabases[this.$store.state.selectedDatabaseName].subscriptions = newSubscriptions
 
     // calculate the association of all assigned roles
-    this.allRoles = []
-		if (this.$store.state.useracc.userIsAdmin) this.allRoles.push('admin')
-		if (this.$store.state.useracc.userIsAPO) this.allRoles.push('APO')
+    const allRoles = []
+		if (this.$store.state.useracc.userIsAdmin) allRoles.push('admin')
+		if (this.$store.state.useracc.userIsAPO) allRoles.push('APO')
     for (const database of Object.keys(newUserData.myDatabases)) {
       for (const productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {
         for (const role of newUserData.myDatabases[database].productsRoles[productId]) {
-          if (!this.allRoles.includes(role)) this.allRoles.push(role)
+          if (!allRoles.includes(role)) allRoles.push(role)
         }
       }
     }
-		newUserData.roles = this.allRoles
+		newUserData.roles = allRoles
     this.$store.dispatch('updateUser', { data: newUserData })
 	},
 
@@ -446,7 +461,7 @@ const methods = {
 	},
 
 	addDbToUser () {
-		this.optionSelected = 'Assign another database to a user'
+		this.optionSelected = 'Assign a database to a user'
 		this.selectedUser = undefined
 		this.dbIsSelected = false
 		this.localMessage = ''
@@ -454,6 +469,18 @@ const methods = {
 		this.$store.state.isUserFound = false
 		this.$store.state.areDatabasesFound = false
 		this.$store.state.areProductsFound = false
+		this.$store.state.isUserUpdated = false
+		this.$store.dispatch('getAllUsers')
+	},
+
+	removeDbFromUser () {
+		this.optionSelected = 'Remove a database from a user'
+		this.selectedUser = undefined
+		this.dbIsSelected = false
+		this.localMessage = ''
+		this.$store.state.backendMessages = []
+		this.$store.state.isUserFound = false
+		this.$store.state.areDatabasesFound = false
 		this.$store.state.isUserUpdated = false
 		this.$store.dispatch('getAllUsers')
 	},
@@ -494,7 +521,11 @@ const methods = {
 
   doGetTeamsOfDb () {
     this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
-  },
+	},
+
+	userIsMe () {
+		return this.selectedUser === this.$store.state.userData.user
+	},
 
   cancel () {
     this.optionSelected = 'Select a task'
