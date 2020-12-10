@@ -207,7 +207,7 @@ const actions = {
   /* Add history to the removed item it self */
   addRemoveHist ({
 		rootState,
-		rootGetters,
+		getters,
     dispatch
   }, payload) {
     const id = payload.node._id
@@ -233,7 +233,7 @@ const actions = {
       doc.history.unshift(newHist)
 
 			// must pass rootGetters via the payload
-			payload.rootGetters = rootGetters
+			payload.getters = getters
       const toDispatch = [{ addRemoveHist2: payload }]
       if (payload.node.productId === AREA_PRODUCTID) {
         // remove reqarea assignments
@@ -255,7 +255,6 @@ const actions = {
     dispatch,
     commit
   }, payload) {
-		const rootGetters = payload.rootGetters
     const id = payload.node.parentId
     // get the document
     globalAxios({
@@ -317,7 +316,7 @@ const actions = {
           if (payload.node.level === PRODUCTLEVEL) {
 						// remove the product from the users product roles, subscriptions and product selection array
 						// the user profile will be updated at the next sign-in
-						commit('removeFromMyProducts', { getters, productId: id })
+						commit('removeFromMyProducts', { getters, productId: payload.node._id })
           }
 
 					if (payload.createUndo) {
@@ -335,7 +334,7 @@ const actions = {
 							itemsRemovedFromReqArea
 						}
 						if (entry.isProductRemoved) {
-							entry.removedProductRoles = rootGetters.getMyProductsRoles[payload.node._id]
+							entry.removedProductRoles = payload.getters.getMyProductsRoles[payload.node._id]
 						}
 						rootState.changeHistory.unshift(entry)
 						commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.node.level)} and ${docsRemovedIds.length - 1} descendants are removed`, severity: INFO })
