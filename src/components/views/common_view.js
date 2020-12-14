@@ -122,7 +122,7 @@ const computed = {
       msg_2 = ' You are not a team member.'
     } else msg_2 = ` You are member of team '${this.myTeam}'.`
     let msg_3
-		if (this.getMyAssignedProductIds.length === 1) { msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}. You have 1 product.` } else {
+		if (this.getMyAssignedProductIds.length === 1) { msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}'. You have 1 product.` } else {
       msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}'.` +
 				` You selected ${this.getMyProductSubscriptions.length} from ${this.getMyAssignedProductIds.length} products.`
     }
