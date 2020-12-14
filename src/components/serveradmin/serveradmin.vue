@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div>
     <app-header></app-header>
     <b-container fluid>
