@@ -525,6 +525,7 @@ const actions = {
 		dispatch
 	}, dbName) {
 		const _id = createId()
+		const title = 'First product'
 		// create a new document and store it
 		const doc = {
 			_id: _id,
@@ -535,7 +536,7 @@ const actions = {
 			level: PRODUCTLEVEL,
 			state: 2,
 			reqarea: null,
-			title: 'First product',
+			title,
 			followers: [],
 			description: window.btoa(''),
 			acceptanceCriteria: window.btoa('<p>Please do not neglect</p>'),
@@ -559,7 +560,11 @@ const actions = {
 			url: dbName + '/' + _id,
 			data: doc
 		}).then(() => {
-			dispatch('addProductToUser', { dbName, selectedUser: rootState.userData.user, productId: _id, userRoles: ['*'] })
+			const newProductOption = {
+				value: _id,
+				text: title
+			}
+			dispatch('addProductToUser', { dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: ['*'] })
 			dispatch('createMessenger', dbName)
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Success, product with _id ' + _id + ' is created' })
 		}).catch(error => {
