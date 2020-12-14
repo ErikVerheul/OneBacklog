@@ -336,6 +336,19 @@ export default new Vuex.Store({
   },
 
   mutations: {
+		/* Store my user data in memory */
+		setMyUserData (state, payload) {
+			state.userData.myTeam = payload.data.myDatabases[payload.data.currentDb].myTeam
+			state.userData.currentDb = payload.data.currentDb
+			state.userData.email = payload.data.email
+			state.userData.roles = payload.data.roles
+			state.userData.myDatabases = payload.data.myDatabases
+			state.userData.myProductViewFilterSettings = payload.data.myProductViewFilterSettings
+			state.userData.myFilterSettings = payload.data.myDatabases[payload.data.currentDb].filterSettings
+			state.userData.doNotAskForImport = payload.data.doNotAskForImport
+			state.userData.sessionId = payload.data.sessionId
+		},
+
 		/*
 		*  Mutation to re-enter all the current users product roles, and update the user's subscriptions and product selection array with the removed product
 		*  Steps:

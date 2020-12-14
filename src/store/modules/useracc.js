@@ -457,6 +457,7 @@ const actions = {
 	/* Update the user profile in CouchDb. If the profile of the current user is updated, the in-memory profile is updated also */
 	updateUser({
 		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		rootState.isUserUpdated = false
@@ -467,15 +468,7 @@ const actions = {
 		}).then(() => {
 			if (payload.data.name === rootState.userData.user && (!rootState.userData.currentDb || (rootState.userData.currentDb === payload.data.currentDb))) {
 				// the user is updating its own profile and loaded its current database (admin is not updating another user); note that rootState.userData.currentDb is undefined at sign-in
-				rootState.userData.email = payload.data.email
-				rootState.userData.myTeam = payload.data.myDatabases[payload.data.currentDb].myTeam
-				rootState.userData.currentDb = payload.data.currentDb
-				rootState.userData.roles = payload.data.roles
-				rootState.userData.myDatabases = payload.data.myDatabases
-				rootState.userData.myProductViewFilterSettings = payload.data.myProductViewFilterSettings
-				rootState.userData.myFilterSettings = payload.data.myDatabases[payload.data.currentDb].filterSettings
-				rootState.userData.doNotAskForImport = payload.data.doNotAskForImport
-				rootState.userData.sessionId = payload.data.sessionId
+				commit('setMyUserData', payload)
 
 				if (payload.newProductOption) {
 					// the user gets a new product to select
