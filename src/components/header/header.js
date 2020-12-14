@@ -47,6 +47,7 @@ const methods = {
   },
 
   selectProducts () {
+		this.selectedProducts = this.$store.state.myProductOptions.map((o) => o.value)
     this.$refs.selectProductsRef.show()
   },
 
