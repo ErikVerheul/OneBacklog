@@ -41,11 +41,10 @@ const authorization = {
 		* Returns true if the user has write access to the product at the given level. If no productId is specified the current productId is used.
 		* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
 		* Note that level 0 is not used and the root of the tree starts with level 1.
-		* Note that admins and guests have no write permissions.
+		* Note that guests have no write permissions.
 		* See README.md for the role definitions.
 		*/
     haveWritePermission (level, productId = this.$store.state.currentProductId) {
-			console.log('haveWritePermission is called')
       const levels = []
       for (let i = 0; i <= PBILEVEL; i++) {
         // initialize with false
@@ -54,7 +53,6 @@ const authorization = {
 			if (this.getMyAssignedProductIds.includes(productId)) {
         // assing specific write permissions for the current product only if that product is assigned the this user
 				const myCurrentProductRoles = this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)
-				console.log('haveWritePermission: myCurrentProductRoles = ' + myCurrentProductRoles)
         // eslint-disable-next-line no-console
         if (this.$store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${myCurrentProductRoles}`)
         if (!myCurrentProductRoles || myCurrentProductRoles.length === 0) {
@@ -99,7 +97,7 @@ const authorization = {
     },
 
 		haveAccessInTree(level, itemTeam, forAction, allowExtraLevel = false) {
-			const skipTestOnTeam = this.isPO || this.isAPO
+			const skipTestOnTeam = this.isAdmin || this.isAPO
       const canAccessOnTeam = skipTestOnTeam || itemTeam === this.myTeam
       const canAccessOnLevel = this.haveWritePermission(level, this.$store.state.currentProductId) ||	allowExtraLevel && this.haveWritePermission(level + 1, this.$store.state.currentProductId)
       if (canAccessOnTeam && canAccessOnLevel) return true
