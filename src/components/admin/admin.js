@@ -26,6 +26,7 @@ function mounted () {
 
 function data () {
   return {
+		getUserFirst: false,
     dbIsSelected: false,
     optionSelected: 'Select a task',
     productTitle: '',
@@ -110,17 +111,17 @@ const methods = {
 
   doAfterDbIsSelected () {
     switch (this.optionSelected) {
-			case 'Assign a database to a user':
+			case 'Assign products to a user':
 				this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, createNewUser: true })
 				break
-      case 'Create a user':
+			case 'Create a user and assign product(s)':
         this.callGetDbProducts(true)
         break
       case 'List teams':
         this.$store.dispatch('getAllUsers')
         this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
 				break
-			case 'Remove a database from a user':
+			case 'Unassign products from a user':
 				this.$store.dispatch('removeDbFromUserAction', { dbName: this.$store.state.selectedDatabaseName, selectedUser: this.selectedUser })
 			break
       case 'Remove teams without members':
@@ -132,21 +133,34 @@ const methods = {
   },
 
   createProduct () {
-    this.optionSelected = 'Create a product'
+		this.optionSelected = 'Create a product'
+		this.getUserFirst = false
     this.productTitle = ''
     this.$store.state.isProductCreated = false
     this.dbIsSelected = false
     this.$store.state.backendMessages = []
-  },
+	},
+
+	assignProduct() {
+		this.optionSelected = 'Assign a product'
+		this.productTitle = ''
+		this.$store.state.isProductAssigned = false
+		this.dbIsSelected = false
+		this.$store.state.backendMessages = []
+	},
+
+	unAssignProduct() {
+		this.optionSelected = 'Unassign a product'
+		this.productTitle = ''
+		this.$store.state.isProductUnassigned= false
+		this.dbIsSelected = false
+		this.$store.state.backendMessages = []
+	},
 
   doCreateProduct () {
     const _id = this.createId()
-    const myCurrentProductNodes = window.slVueTree.getProducts()
-    // get the last product node
-    const lastProductNode = myCurrentProductNodes.slice(-1)[0]
     // use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
     const priority = -Date.now()
-
     // create a new document
     const newProduct = {
       _id,
@@ -168,42 +182,9 @@ const methods = {
         distributeEvent: false
       }],
       delmark: false
-    }
-    // create a new node
-    const newNode = {
-      productId: newProduct.productId,
-      parentId: newProduct.parentId,
-      _id: newProduct._id,
-      dependencies: [],
-      conditionalFor: [],
-      title: newProduct.title,
-      isLeaf: false,
-      children: [],
-      isSelected: false,
-      isExpanded: true,
-      savedIsExpanded: true,
-      isSelectable: true,
-      isDraggable: newProduct.level > PRODUCTLEVEL,
-      doShow: true,
-      savedDoShow: true,
-      data: {
-        state: newProduct.state,
-        subtype: 0,
-        priority,
-        team: newProduct.team,
-        lastChange: Date.now()
-      }
-    }
-    const cursorPosition = {
-      nodeModel: lastProductNode,
-      placement: 'after'
-    }
-    // add the product to the treemodel, the path etc. will be calculated
-    window.slVueTree.insert(cursorPosition, [newNode], false)
-		// add the new product to my slection options
-		this.$store.commit('addToMyProductOptions', { productId: _id, productTitle: newProduct.title })
-    // update the database and add the product to this admin's subscriptions and productsRoles
-    this.$store.dispatch('createProduct', { dbName: this.$store.state.userData.currentDb, newProduct, userRoles: ['admin'] })
+		}
+    // update the database and add the product to this admin's subscriptions and productsRoles if this database is the admin's current database
+		this.$store.dispatch('createProductAction', { dbName: this.$store.state.selectedDatabaseName, newProduct, priority })
 	},
 
 	getUserDbOptionsToAssign () {
@@ -283,7 +264,8 @@ const methods = {
   },
 
   removeProduct () {
-    this.optionSelected = 'Remove a product'
+		this.optionSelected = 'Remove a product'
+		this.getUserFirst = false
     this.dbIsSelected = false
   },
 
@@ -313,7 +295,8 @@ const methods = {
   },
 
   createUser () {
-    this.optionSelected = 'Create a user'
+		this.optionSelected = 'Create a user and assign product(s)'
+		this.getUserFirst = false
     this.userName = undefined
     this.password = undefined
     this.userEmail = undefined
@@ -321,20 +304,16 @@ const methods = {
     this.$store.state.backendMessages = []
     this.localMessage = ''
 		this.$store.state.useracc.userIsAdmin = false
-		this.$store.state.useracc.userAPO = false
+		this.$store.state.useracc.userIsAPO = false
     this.$store.state.isUserCreated = false
-  },
+	},
 
   doCreateUser () {
-    // calculate the association of all assigned roles
-    const allRoles = []
+    // calculate the association of the assigned generic roles
+		const allRoles = []
 		if (this.$store.state.useracc.userIsAdmin) allRoles.push('admin')
 		if (this.$store.state.useracc.userIsAPO) allRoles.push('APO')
-    for (const prod of this.$store.state.useracc.dbProducts) {
-      for (const role of prod.roles) {
-        if (!allRoles.includes(role)) allRoles.push(role)
-      }
-    }
+
     // generate the productsRoles and subscriptions properties
     const productsRoles = {}
     const subscriptions = []
@@ -361,10 +340,26 @@ const methods = {
       }
     }
     this.$store.dispatch('createUserIfNotExistent', newUserData)
-  },
+	},
+
+	removeUser() {
+		this.optionSelected = 'Remove a user'
+		this.getUserFirst = true
+		this.$store.state.isUserFound = false
+		this.userName = undefined
+		this.$store.state.backendMessages = []
+		this.localMessage = ''
+		this.$store.state.isUserDeleted = false
+		this.$store.dispatch('getAllUsers')
+	},
+
+	doRemoveUser () {
+		this.$store.dispatch('removeUserIfExistent', this.selectedUser)
+	},
 
   maintainUsers () {
-    this.optionSelected = 'Maintain users'
+		this.optionSelected = 'Maintain user permissions to products'
+		this.getUserFirst = true
     this.isUserDbSelected = false
     this.localMessage = ''
     this.$store.state.backendMessages = []
@@ -401,17 +396,10 @@ const methods = {
     newUserData.myDatabases[this.$store.state.selectedDatabaseName].productsRoles = newProductsRoles
     newUserData.myDatabases[this.$store.state.selectedDatabaseName].subscriptions = newSubscriptions
 
-    // calculate the association of all assigned roles
-    const allRoles = []
+    // calculate the association of the assigned generic roles
+		const allRoles = []
 		if (this.$store.state.useracc.userIsAdmin) allRoles.push('admin')
 		if (this.$store.state.useracc.userIsAPO) allRoles.push('APO')
-    for (const database of Object.keys(newUserData.myDatabases)) {
-      for (const productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {
-        for (const role of newUserData.myDatabases[database].productsRoles[productId]) {
-          if (!allRoles.includes(role)) allRoles.push(role)
-        }
-      }
-    }
 		newUserData.roles = allRoles
     this.$store.dispatch('updateUser', { data: newUserData })
 	},
@@ -421,7 +409,8 @@ const methods = {
 	},
 
   createOrUpdateCalendar () {
-    this.optionSelected = 'Sprint calendar'
+		this.optionSelected = 'Create / Maintain the default sprint calendar'
+		this.getUserFirst = false
     this.checkForExistingCalendar = true
     this.$store.state.isSprintCalendarFound = false
     this.$store.state.isDefaultSprintCalendarSaved = false
@@ -461,7 +450,8 @@ const methods = {
 	},
 
 	addDbToUser () {
-		this.optionSelected = 'Assign a database to a user'
+		this.optionSelected = 'Assign products to a user'
+		this.getUserFirst = true
 		this.selectedUser = undefined
 		this.dbIsSelected = false
 		this.localMessage = ''
@@ -474,7 +464,8 @@ const methods = {
 	},
 
 	removeDbFromUser () {
-		this.optionSelected = 'Remove a database from a user'
+		this.optionSelected = 'Unassign products from a user'
+		this.getUserFirst = true
 		this.selectedUser = undefined
 		this.dbIsSelected = false
 		this.localMessage = ''
@@ -486,7 +477,8 @@ const methods = {
 	},
 
   createTeam () {
-    this.optionSelected = 'Create a team'
+		this.optionSelected = 'Create a team'
+		this.getUserFirst = false
     this.dbIsSelected = false
     this.teamName = ''
     this.$store.state.isTeamCreated = false
@@ -497,7 +489,8 @@ const methods = {
   },
 
   removeTeams () {
-    this.optionSelected = 'Remove teams without members'
+		this.optionSelected = 'Remove teams without members'
+		this.getUserFirst = false
     this.dbIsSelected = false
     this.$store.state.areTeamsRemoved = false
   },
@@ -512,7 +505,8 @@ const methods = {
   },
 
   listTeams () {
-    this.optionSelected = 'List teams'
+		this.optionSelected = 'List teams'
+		this.getUserFirst = false
     this.dbIsSelected = false
     this.$store.state.backendMessages = []
     this.$store.state.fetchedTeams = []
