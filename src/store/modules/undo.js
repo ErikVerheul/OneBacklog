@@ -121,7 +121,7 @@ const actions = {
             })
           }
           if (entry.isProductRemoved) {
-						// re-enter the product to the users product roles, subscriptions, product ids and product selection array
+						// re-enter all the current users product roles, and update the user's subscriptions and product selection array with the removed product
 						commit('addToMyProducts', { newRoles: entry.removedProductRoles, productId: _id, productTitle: entry.removedNode.title })
           }
           const path = entry.removedNode.path
