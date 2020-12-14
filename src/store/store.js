@@ -367,10 +367,16 @@ export default new Vuex.Store({
 
 			state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.newRoles]
 			state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
-			state.myProductOptions.push({
+			// create a new array so that it is reactive
+			const newArr = []
+			for (const el of state.myProductOptions) {
+				newArr.push(el)
+			}
+			newArr.push({
 				value: payload.productId,
 				text: payload.productTitle
 			})
+			state.myProductOptions = newArr
 		},
 
 		/*
