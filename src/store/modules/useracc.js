@@ -282,14 +282,6 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		// copy all roles except 'admin', 'APO' and '_admin' which are generic roles
-		function copyRoles(roles) {
-			const copiedRoles = []
-			for (const r of roles) {
-				if (r !== 'admin' && r !== 'APO' && r !== '_admin') copiedRoles.push(r)
-			}
-			return copiedRoles
-		}
 		globalAxios({
 			method: 'GET',
 			url: '/_users/org.couchdb.user:' + payload.selectedUser
@@ -306,7 +298,7 @@ const actions = {
 				tmpUserData.myDatabases[payload.dbName].subscriptions.push(productId)
 				if (payload.userRoles[0] === '*') {
 					// add all current roles of the selected user to the new product
-					rolesSet = copyRoles(tmpUserData.roles)
+					rolesSet = tmpUserData.roles
 				} else {
 					// or set passed roles to the product
 					rolesSet = payload.userRoles
@@ -314,7 +306,7 @@ const actions = {
 				tmpUserData.myDatabases[payload.dbName].productsRoles[productId] = rolesSet
 			} else {
 				// new database, add all current user roles to the new product
-				rolesSet = copyRoles(tmpUserData.roles)
+				rolesSet = tmpUserData.roles
 				const newDb = {
 					myteam: 'not assigned yet',
 					subscriptions: [productId],
