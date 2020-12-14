@@ -78,7 +78,7 @@ const actions = {
 
 			// start the watchdog
 			dispatch('watchdog')
-			const msg = "getOtherUserData: '" + allUserData.name + "' has logged in"
+			const msg = `getOtherUserData: '${allUserData.name}' has signed-in in database '${allUserData.currentDb}'`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			// now that the database is known, the log file is available
@@ -150,19 +150,6 @@ const actions = {
 				// the first (index 0) product in the current db settings is by definition the default product
 				rootState.currentDefaultProductId = Object.keys(currentDbSettings.productsRoles)[0]
 			}
-			// calculate the association of all assigned roles
-			const allRoles = []
-			if (newUserData.roles.includes('_admin')) allRoles.push('_admin')
-			if (newUserData.roles.includes('admin')) allRoles.push('admin')
-			if (newUserData.roles.includes('APO')) allRoles.push('APO')
-			for (const database of Object.keys(newUserData.myDatabases)) {
-				for (const productId of Object.keys(newUserData.myDatabases[database].productsRoles)) {
-					for (const role of newUserData.myDatabases[database].productsRoles[productId]) {
-						if (!allRoles.includes(role)) allRoles.push(role)
-					}
-				}
-			}
-			newUserData.roles = allRoles
 			// update user data loaded in getOtherUserData and STORE THE USER DATA in $store.state.userData
 			// postpone the warning message for 'no product found' until the configuration is loaded
 			const toDispatch = [{ getConfig: null }]

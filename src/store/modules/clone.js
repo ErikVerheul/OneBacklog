@@ -137,7 +137,6 @@ const actions = {
 
   storeProduct ({
 		rootState,
-		rootGetters,
     getters,
     dispatch
   }, docs) {
@@ -146,15 +145,12 @@ const actions = {
       url: rootState.userData.currentDb + '/_bulk_docs',
       data: { docs: docs }
     }).then(res => {
-      // add the productId to my product subscriptions
-			rootGetters.getMyProductSubscriptions.push(newProductId)
-      // add the productId to my selection options
-      rootState.myProductOptions.push({
+      const newProductOption = {
         value: newProductId,
         text: newProductTitle
-      })
+      }
       // save in the database
-			dispatch('addProductToUser', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, productId: newProductId, userRoles: ['*'] })
+		dispatch('addProductToUser', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles: ['*'] })
       // show the product clone in the tree view
       showProduct(docs, getters.leafLevel)
       // eslint-disable-next-line no-console
