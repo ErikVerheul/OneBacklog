@@ -133,13 +133,16 @@ export default new Vuex.Store({
 		isDatabaseCreated: false,
 		isDbDeleted: false,
     isHistAndCommReset: false,
-    isLogLoaded: false,
-    isProductCreated: false,
+		isLogLoaded: false,
+		isProductAssigned: false,
+		isProductCreated: false,
+		isProductUnassigned: false,
     isPurgeReady: false,
     isSprintCalendarFound: false,
     isDefaultSprintCalendarSaved: false,
     isTeamCreated: false,
-    isUserCreated: false,
+		isUserCreated: false,
+		isUserDeleted: false,
     isUserFound: false,
     isUserUpdated: false,
     logEntries: [],
@@ -155,7 +158,6 @@ export default new Vuex.Store({
     demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
     eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
-		isProductAssigned: false,
     listenForChangesRunning: false,
     myProductOptions: [],
     online: true,
@@ -216,6 +218,7 @@ export default new Vuex.Store({
 			return genericRoles
 		},
 
+		/* Return all my products with my assigned roles in my current database */
 		getMyProductsRoles (state) {
 			if (state.userData.currentDb) {
 				return state.userData.myDatabases[state.userData.currentDb].productsRoles
@@ -333,6 +336,13 @@ export default new Vuex.Store({
   },
 
   mutations: {
+		/*
+		*  Mutation to re-enter all the current users product roles, and update the user's subscriptions and product selection array with the removed product
+		*  Steps:
+		*  - Replace my product roles for all my products in my current database
+		*  - Add the productId to my subscriptions in my current database
+		*	 - Add the productId and title to my product options
+		*/
 		addToMyProducts (state, payload) {
 			// returns a new array so that it is reactive
 			function addToArray(arr, item) {
@@ -344,13 +354,6 @@ export default new Vuex.Store({
 
 			state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.newRoles]
 			state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
-			state.myProductOptions.push({
-				value: payload.productId,
-				text: payload.productTitle
-			})
-		},
-
-		addToMyProductOptions (state, payload) {
 			state.myProductOptions.push({
 				value: payload.productId,
 				text: payload.productTitle
@@ -376,8 +379,12 @@ export default new Vuex.Store({
 			delete state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId]
 			if (getters.getMyProductSubscriptions.includes(payload.productId)) {
 				state.userData.myDatabases[state.userData.currentDb].subscriptions = removeFromArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
-				const removeIdx = state.myProductOptions.map(item => item.value).indexOf(payload.productId)
-				state.myProductOptions.splice(removeIdx, 1)
+				// create a new array so that it is reactive
+				const newArr = []
+				for (const el of state.myProductOptions) {
+					if (el.value !== payload.productId) newArr.push(el)
+				}
+				state.myProductOptions = newArr
 			}
 		},
 
