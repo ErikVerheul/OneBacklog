@@ -71,7 +71,7 @@ export default {
             state: this.state,
             idx: this.idx
           })
-        } else this.$store.state.warningText = `Sorry, your assigned role(s) [${this.MyProductsRoles[this.productId].concat(this.myGenericRoles)}] for this product disallow you to execute this action`
+        } else this.$store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
       }
     }
   },
