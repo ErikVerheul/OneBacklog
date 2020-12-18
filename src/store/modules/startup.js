@@ -162,7 +162,7 @@ const actions = {
 				dispatch('doLog', { event: msg, level: INFO })
 			}
 		}).catch(error => {
-			const msg = 'getAllProducts: Could not find products in database ' + dbName + ' ,' + error
+			const msg = 'getAllProducts: Could not find products in database ' + dbName + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
