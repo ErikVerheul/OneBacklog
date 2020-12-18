@@ -41,6 +41,22 @@ const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
 
 Vue.use(Vuex)
+/* Add item to array if not allready present. Returns a new array so that it is reactive */
+function addToArray(arr, item) {
+	const newArr = []
+	for (const el of arr) newArr.push(el)
+	if (!newArr.includes(item)) newArr.push(item)
+	return newArr
+}
+
+/* Remove item from array if present. Returns a new array so that it is reactive */
+function removeFromArray(arr, item) {
+	const newArr = []
+	for (const el of arr) {
+		if (el !== item) newArr.push(el)
+	}
+	return newArr
+}
 
 /* If the node is selectable, store the currently selected nodes, unselect all previous selected nodes and select the node */
 function renewSelection (state, node) {
@@ -136,10 +152,10 @@ export default new Vuex.Store({
 		isLogLoaded: false,
 		isProductAssigned: false,
 		isProductCreated: false,
-		isProductUnassigned: false,
     isPurgeReady: false,
     isSprintCalendarFound: false,
-    isDefaultSprintCalendarSaved: false,
+		isDefaultSprintCalendarSaved: false,
+		isRestoreReady: false,
     isTeamCreated: false,
 		isUserCreated: false,
 		isUserDeleted: false,
@@ -357,14 +373,6 @@ export default new Vuex.Store({
 		*	 - Add the productId and title to my product options
 		*/
 		addToMyProducts (state, payload) {
-			// returns a new array so that it is reactive
-			function addToArray(arr, item) {
-				const newArr = []
-				for (const el of arr) newArr.push(el)
-				newArr.push(item)
-				return newArr
-			}
-
 			state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.newRoles]
 			state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
 			// create a new array so that it is reactive
@@ -386,15 +394,6 @@ export default new Vuex.Store({
 		removeFromMyProducts(state, payload) {
 			// workaround to access getter
 			const getters = payload.getters
-			// returns a new array so that it is reactive
-			function removeFromArray(arr, item) {
-				const newArr = []
-				for (const el of arr) {
-					if (el !== item) newArr.push(el)
-				}
-				return newArr
-			}
-
 			delete state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId]
 			if (getters.getMyProductSubscriptions.includes(payload.productId)) {
 				state.userData.myDatabases[state.userData.currentDb].subscriptions = removeFromArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
@@ -1108,7 +1107,8 @@ export default new Vuex.Store({
           email: undefined,
           myTeam: undefined,
           password: authData.password,
-          currentDb: undefined,
+					currentDb: undefined,
+					roles: res.data.roles,
 					myDatabases: {},
           myFilterSettings: undefined,
           sessionId: create_UUID()

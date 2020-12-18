@@ -2,15 +2,15 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 const ERROR = 2
 
-// returns a new array so that it is reactive
+/* Add item to array if not allready present. Returns a new array so that it is reactive */
 function addToArray(arr, item) {
 	const newArr = []
 	for (const el of arr) newArr.push(el)
-	newArr.push(item)
+	if (!newArr.includes(item)) newArr.push(item)
 	return newArr
 }
 
-// returns a new array so that it is reactive
+/* Remove item from array if present. Returns a new array so that it is reactive */
 function removeFromArray(arr, item) {
 	const newArr = []
 	for (const el of arr) {
@@ -46,7 +46,7 @@ const actions = {
 			state.userIsAPO = !!state.fetchedUserData.roles.includes('APO')
 			// preset with the current database of the user
 			rootState.selectedDatabaseName = state.fetchedUserData.currentDb
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Successfully fetched user ' + selectedUser })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Successfully fetched user '${selectedUser}'` })
 			rootState.isUserFound = true
 		}).catch(error => {
 			const msg = 'getUser: Could not find user "' + selectedUser + '". ' + error
@@ -101,8 +101,9 @@ const actions = {
 
 	/*
 	* Get all products of the set database and
-	* if createNewUser === true -> initiate the 'guest' role for all products in the database assigned to this user
+	* if createNewUser === true -> initiate an empty roles array for all products in the database assigned to this user
 	* if createNewUser === false -> get the assigned roles to all the products in the database assigned to this user
+	* Mark each found product as assigned = true as the user is allready assigned to this product and as false otherwise
 	*/
 	getProductsRoles({
 		rootState,
@@ -117,15 +118,30 @@ const actions = {
 			rootState.areProductsFound = true
 			state.dbProducts = res.data.rows
 			// add a roles array to each product
-			for (const prod of state.dbProducts) {
-				if (!payload.createNewUser) {
-					const userProductsRoles = state.fetchedUserData.myDatabases[payload.dbName].productsRoles
-					const userProductIds = Object.keys(userProductsRoles)
-					// extend each product with the currently assigned users roles, guest is the default
-					if (userProductIds.includes(prod.id)) {
-						prod.roles = userProductsRoles.length === 0 ? ['guest'] : userProductsRoles[prod.id]
-					} else prod.roles = []
-				} else prod.roles = ['guest']
+			const myDatabases = state.fetchedUserData.myDatabases
+			if (myDatabases[payload.dbName]) {
+				// the database is subscribed to the user
+				for (const product of state.dbProducts) {
+					if (payload.createNewUser) {
+						product.roles = []
+					} else {
+						// get the assigned roles to this product; if not found assing an empty array
+						const roles = myDatabases[payload.dbName].productsRoles[product.id]
+						if (roles) {
+							product.roles = roles
+						} else {
+							product.roles = []
+						}
+					}
+				}
+			} else {
+				rootState.backendMessages.push({
+					seqKey: rootState.seqKey++,
+					msg: `assignProductsToUserAction: The database '${payload.dbName}' is not subscribed to this user`
+				})
+				for (const product of state.dbProducts) {
+					product.roles = []
+				}
 			}
 		}).catch(error => {
 			const msg = 'getProductsRoles: Could not find products in database ' + payload.dbName + ', ' + error
@@ -172,7 +188,7 @@ const actions = {
 		})
 	},
 
-	addDbToUserAction({
+	assignProductsToUserAction({
 		rootState,
 		state,
 		dispatch
@@ -183,94 +199,35 @@ const actions = {
 		}).then(res => {
 			const tmpUserData = res.data
 			const addedDb = payload.dbName
-			if (Object.keys(rootState.myAssignedDatabases).includes(addedDb)) {
+			if (!rootState.myAssignedDatabases.includes(addedDb)) {
 				rootState.backendMessages.push({
 					seqKey: rootState.seqKey++,
-					msg: `addDbToUserAction: The database ${addedDb} is allready assigned to user '${payload.selectedUser}' with roles ${tmpUserData.roles}`
+					msg: `assignProductsToUserAction: The database ${addedDb} will be assigned to user '${payload.selectedUser}'`
 				})
-				return
-			}
-			// add the new db to the user's profile
-			const productsRoles = {}
-			const subscriptions = []
-			for (const prod of state.dbProducts) {
-				if (prod.roles.length > 0) {
-					productsRoles[prod.id] = prod.roles
-					subscriptions.push(prod.id)
+				// add the new db to the user's profile
+				const productsRoles = {}
+				const subscriptions = []
+				for (const prod of state.dbProducts) {
+					if (prod.roles.length > 0) {
+						productsRoles[prod.id] = prod.roles
+						subscriptions.push(prod.id)
+					}
 				}
+				const newDb = {
+					myteam: 'not assigned yet',
+					subscriptions,
+					productsRoles
+				}
+				tmpUserData.myDatabases[addedDb] = newDb
 			}
-			const newDb = {
-				myteam: 'not assigned yet',
-				subscriptions,
-				productsRoles
-			}
-			tmpUserData.myDatabases[addedDb] = newDb
 
 			dispatch('updateUser', { data: tmpUserData, addedDb })
 			rootState.backendMessages.push({
 				seqKey: rootState.seqKey++,
-				msg: `addDbToUserAction: The database ${addedDb} is added to the profile of user '${payload.selectedUser}'`
+				msg: `assignProductsToUserAction: The database ${addedDb} is added to the profile of user '${payload.selectedUser}'`
 			})
 		}).catch(error => {
-			const msg = `addDbToUserAction: Could not subscribe database ${payload.dbName} to user '${payload.selectedUser}', ${error}`
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	removeDbFromUserAction({
-		rootState,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: '/_users/org.couchdb.user:' + payload.selectedUser
-		}).then(res => {
-			const tmpUserData = res.data
-			if (!rootState.myAssignedDatabases.includes(payload.dbName)) {
-				rootState.backendMessages.push({
-					seqKey: rootState.seqKey++,
-					msg: `removeDbFromUserAction: The database ${payload.dbName} is not assigned to user '${payload.selectedUser}'`
-				})
-				return
-			}
-
-			if (payload.selectedUser === rootState.userData.user && payload.dbName == rootState.userData.currentDb) {
-				// user cannot unassign his/her current database
-				rootState.backendMessages.push({
-					seqKey: rootState.seqKey++,
-					msg: `removeDbFromUserAction: '${payload.selectedUser}', you cannot unassign your current database. Select another database and try again.`
-				})
-				return
-			}
-
-			if (tmpUserData.currentDb === payload.dbName) {
-				// the user's current database is to be removed
-				const allDatabases = Object.keys(tmpUserData.myDatabases)
-				// select another database
-				for (const db of allDatabases) {
-					if (db !== payload.dbName) {
-						tmpUserData.currentDb = db
-						break
-					}
-					rootState.backendMessages.push({
-						seqKey: rootState.seqKey++,
-						msg: `removeDbFromUserAction: The database ${tmpUserData.currentDb} is set to the current database of user '${payload.selectedUser}'`
-					})
-				}
-			}
-			// remove the db from the user's profile
-			delete tmpUserData.myDatabases[payload.dbName]
-
-			dispatch('updateUser', { data: tmpUserData, removedDb: payload.dbName })
-			rootState.backendMessages.push({
-				seqKey: rootState.seqKey++,
-				msg: `removeDbFromUserAction: The database ${payload.dbName} is removed from the profile of user '${payload.selectedUser}'`
-			})
-		}).catch(error => {
-			const msg = `removeDbFromUserAction: Could not remove database ${payload.dbName} from user '${payload.selectedUser}', ${error}`
+			const msg = `assignProductsToUserAction: Could not subscribe database ${payload.dbName} to user '${payload.selectedUser}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -453,12 +410,28 @@ const actions = {
 		dispatch
 	}, payload) {
 		rootState.isUserUpdated = false
+		let userData = payload.data
+		// calculate the association of all assigned roles
+		const allRoles = []
+		if (userData.roles.includes('_admin')) allRoles.push('_admin')
+		if (userData.roles.includes('APO')) allRoles.push('APO')
+		if (userData.roles.includes('admin')) allRoles.push('admin')
+		for (const db in userData.myDatabases) {
+			for (const prodId in userData.myDatabases[db].productsRoles) {
+				for (const role of userData.myDatabases[db].productsRoles[prodId]) {
+					if (!allRoles.includes(role)) allRoles.push(role)
+				}
+			}
+		}
+		// eslint-disable-next-line no-console
+		if (rootState.debug) console.log('updateUser: Users roles are: ' + allRoles)
+		userData.roles = allRoles
 		globalAxios({
 			method: 'PUT',
-			url: '/_users/org.couchdb.user:' + payload.data.name,
-			data: payload.data
+			url: '/_users/org.couchdb.user:' + userData.name,
+			data: userData
 		}).then(() => {
-			if (payload.data.name === rootState.userData.user && (!rootState.userData.currentDb || (rootState.userData.currentDb === payload.data.currentDb))) {
+			if (userData.name === rootState.userData.user && (!rootState.userData.currentDb || (rootState.userData.currentDb === userData.currentDb))) {
 				// the user is updating its own profile and loaded its current database (admin is not updating another user); note that rootState.userData.currentDb is undefined at sign-in
 				commit('setMyUserData', payload)
 
@@ -490,11 +463,11 @@ const actions = {
 					dispatch(name, td[name])
 				}
 			}
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + payload.data.name + "' is updated successfully" })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + userData.name + "' is updated successfully" })
 		}).catch(error => {
 			// execute passed callback if provided
 			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
-			const msg = "updateUser: Could not update the profile of user '" + payload.data.name + "', " + error
+			const msg = "updateUser: Could not update the profile of user '" + userData.name + "', " + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -540,8 +513,9 @@ const actions = {
 			method: 'GET',
 			url: '/_users/org.couchdb.user:' + userName
 		}).then(res => {
-			const _rev = res.data._rev
-			dispatch('deleteUser', { userName, _rev })
+			let data = res.data
+			data.delmark = true
+			dispatch('removeUserAction', data)
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
 				const msg = 'removeUserIfExistent: Cannot remove user "' + userName + '" that does not exists'
@@ -556,23 +530,25 @@ const actions = {
 		})
 	},
 
-	deleteUser({
+	/* Mark the user as removed */
+	removeUserAction({
 		rootState,
 		dispatch
-	}, payload) {
-		rootState.backendMessages = []
+	}, data) {
+		const userName = data.name
 		globalAxios({
-			method: 'DELETE',
-			url: '/_users/org.couchdb.user:' + payload.userName + '?rev=' + payload._rev
+			method: 'PUT',
+			url: '/_users/org.couchdb.user:' + userName,
+			data: data
 		}).then(() => {
 			rootState.isUserDeleted = true
-			const msg = `deleteUser: User '${payload.userName} is removed`
+			const msg = `removeUserAction: User '${userName} is removed`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
 		}).catch(error => {
-			const msg = 'deleteUser: While removing user "' + payload.userName + '" an error occurred, ' + error
+			const msg = 'removeUserAction: While removing user "' + userName + '" an error occurred, ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)

@@ -3,16 +3,13 @@
     <app-header></app-header>
     <b-container fluid>
       <h2>Admin view: {{ optionSelected }}</h2>
-      <h4>Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked to select one</h4>
+      <p>Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked to select one</p>
       <b-button block @click="createUser">Create a user and assign product(s)</b-button>
-      <b-button block @click="removeUser">Remove a user</b-button>
+      <b-button block @click="maintainUsers">Maintain user permissions to products </b-button>
+      <b-button block @click="removeUser" variant="warning">Remove a user</b-button>
       <br />
       <b-button block @click="createProduct">Create a product</b-button>
-      <b-button block @click="removeProduct">Remove a product with all descendant items from a database</b-button>
-      <br />
-      <b-button block @click="addDbToUser">Assign products to a user</b-button>
-      <b-button block @click="removeDbFromUser">Unassign products from a user</b-button>
-      <b-button block @click="maintainUsers">Maintain user permissions to products </b-button>
+      <b-button block @click="removeProduct" variant="warning">Remove a product with all descendant items from a database</b-button>
       <br />
       <b-button block @click="createTeam">Create a team</b-button>
       <b-button block @click="removeTeams">Remove teams without members</b-button>
@@ -37,7 +34,7 @@
             <h4>Select an existing user to '{{ optionSelected }}'</h4>
             <b-row class="my-1">
               <b-col sm="12">
-                Start typing an username or select from the list:
+                <p>Start typing a username or select from the list:</p>
               </b-col>
               <b-col sm="3">
                 <b-form-group>
@@ -52,7 +49,7 @@
           <div v-if="optionSelected === 'Remove a user'">
             <div v-if="$store.state.isUserFound && !$store.state.isUserDeleted">
               <hr>
-              <b-button class="m-1" @click="doRemoveUser">Remove this user</b-button>
+              <b-button class="m-1 btn btn-danger" @click="doRemoveUser">Remove user '{{ selectedUser }}'</b-button>
               <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
             </div>
             <template v-if="$store.state.isUserFound && $store.state.isUserDeleted">
@@ -65,40 +62,35 @@
               <h4 v-if="userIsMe()">{{ selectedUser }}: You are about to change your own user profile.</h4>
               <b-row class="my-1">
                 <b-col sm="2">
-                  Users name:
+                  User's name:
                 </b-col>
                 <b-col sm="10">
                   {{ $store.state.useracc.fetchedUserData.name }}
                 </b-col>
                 <b-col sm="2">
-                  Users e-mail address:
+                  User's e-mail address:
                 </b-col>
                 <b-col sm="10">
                   {{ $store.state.useracc.fetchedUserData.email }}
                 </b-col>
+                <template v-if="isUserDbSelected">
+                  <b-col sm="2">
+                    Selected database:
+                  </b-col>
+                  <b-col sm="10">
+                    {{ $store.state.selectedDatabaseName }}
+                  </b-col>
+                </template>
                 <div v-if="!isUserDbSelected">
-                  <div v-if="getUserAssignedDatabases().length === 1 && $store.state.databaseOptions.includes(getUserAssignedDatabases()[0])">
-                    <b-col sm="12">
-                      <p>The user has access to one datatabase: '{{ getUserAssignedDatabases()[0] }}'</p>
-                      <b-button @click="doSelectUserDb(getUserAssignedDatabases()[0])">Select this database</b-button>
-                      <b-button class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
-                    </b-col>
-                  </div>
-                  <div v-else>
-                    <b-col sm="12">
-                      <b-form-group>
-                        <h5>The user has access to multiple datatabases: {{ getUserAssignedDatabases() }}, select one</h5>
-                        <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="getUserAssignedDatabases()" stacked></b-form-radio-group>
-                      </b-form-group>
-                      <template v-if="$store.state.databaseOptions.includes($store.state.selectedDatabaseName)">
-                        <b-button class="m-1" @click="isUserDbSelected = true">Continue</b-button>
-                      </template>
-                      <template v-else>
-                        <h4 class="colorRed">ERROR: The selected database does not exist (anymore)</h4>
-                      </template>
-                      <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
-                    </b-col>
-                  </div>
+                  <b-col sm="12">
+                    <b-form-group>
+                      <h5>Select a datatabase holding the products</h5>
+                      <p>The databases {{ getUserAssignedDatabases() }} are assigned to this user. Selecting another will assign that database, if user roles are committed</p>
+                      <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
+                    </b-form-group>
+                    <b-button class="m-1" @click="isUserDbSelected = true">Continue</b-button>
+                    <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
+                  </b-col>
                 </div>
                 <div v-else>
                   <b-col sm="12">
@@ -127,8 +119,9 @@
                           <b-form-checkbox-group v-model="prod.roles" :options="roleOptions"></b-form-checkbox-group>
                         </b-form-group>
                       </div>
-                      <p>If you changed your own account, sign-in again to see the effect</p>
-                      <b-button v-if="$store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doUpdateUser">Update this user</b-button>
+                      <hr>
+											<p v-if="lastProductToBeRemoved">You cannot remove the last role of the last assigned product in the only database of this user. Consider the option to remove this user</p>
+                      <b-button v-if="!lastProductToBeRemoved && $store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doUpdateUser">Update this user</b-button>
                       <b-button v-if="!$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
                       <b-button v-if="$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="seablue">Return</b-button>
                     </div>
@@ -137,53 +130,14 @@
               </b-row>
             </div>
           </div>
-          <div v-else-if="optionSelected === 'Assign products to a user'">
-            <div v-if="$store.state.isUserFound && !dbIsSelected">
-              <h4 v-if="userIsMe()">{{ selectedUser }}: You are about to change your own user profile.</h4>
-              <b-form-group>
-                <h5>Select the database to add to this user '{{ selectedUser }}'</h5>
-                <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="getUserDbOptionsToAssign()" stacked></b-form-radio-group>
-              </b-form-group>
-              <hr>
-              <b-button class="m-1" @click="doAfterDbIsSelected()">Continue</b-button>
-              <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
-            </div>
-
-            <div v-if="$store.state.areProductsFound">
-              <h5>Select the products in database '{{ $store.state.selectedDatabaseName }}' to assign to user '{{ selectedUser  }}':</h5>
-              <div v-for="prod of $store.state.useracc.dbProducts" :key="prod.id">
-                {{ prod.value }}
-                <b-form-group>
-                  <b-form-checkbox-group v-model="prod.roles" :options="roleOptions"></b-form-checkbox-group>
-                </b-form-group>
-              </div>
-              <b-button v-if="$store.state.areProductsFound && !$store.state.isUserUpdated" class="m-1" @click="doAssignDbToUser">Update this user</b-button>
-              <b-button v-if="!$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
-              <b-button v-if="$store.state.isUserUpdated" class="m-1" @click="cancel()" variant="seablue">Return</b-button>
-            </div>
-          </div>
-          <div v-else-if="optionSelected === 'Unassign products from a user'">
-            <div v-if="$store.state.isUserFound">
-              <h4 v-if="userIsMe()">{{ selectedUser }}: You are about to change your own user profile.</h4>
-              <template v-if="getUserAssignedDatabases().length > 1">
-                <b-form-group>
-                  <h5>Select the database to remove from user '{{ selectedUser }}'</h5>
-                  <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="getUserAssignedDatabases()" stacked></b-form-radio-group>
-                </b-form-group>
-                <b-button class="m-1" @click="doAfterDbIsSelected()">Unassign the selected database</b-button>
-              </template>
-              <template v-else>
-                Cannot remove the only database {{ getUserAssignedDatabases() }} user '{{ selectedUser }}' is assigned to.
-              </template>
-              <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
-            </div>
-          </div>
         </template>
         <template v-else>
           <div v-if="!dbIsSelected">
             <b-form-group>
               <h5>Select a database to '{{ optionSelected }}'</h5>
-							<p v-if="optionSelected === 'Create a product'">Note: The product will be assigned to your profile only. Use 'Assign products to a user' as a next step to assign the product to other users.</p>
+              <p v-if="optionSelected === 'Create a product'">Note: The product will be assigned to your profile only. Use 'Maintain user permission to other users' as a next step to assign the
+                product to other
+                users.</p>
               <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
             </b-form-group>
             <hr>
@@ -252,16 +206,16 @@
             </div>
 
             <div v-if="optionSelected === 'Create a product'">
-							$store.state.isProductCreated = {{ $store.state.isProductCreated }}
+              $store.state.isProductCreated = {{ $store.state.isProductCreated }}
               <template v-if="!$store.state.isProductCreated">
                 <h2>Create a new product in the database '{{ $store.state.selectedDatabaseName }}' by entering its title:</h2>
                 <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
-								<hr>
+                <hr>
                 <b-button v-if="productTitle !== ''" class="m-1" @click="doCreateProduct">Create product</b-button>
                 <b-button class="m-1" @click="cancel()" variant="seablue">Cancel</b-button>
               </template>
               <template v-else>
-                <h4>Note: The product is assigned to you. Use the 'Assign products to a user' option to assign the new product to other users.</h4>
+                <h4>Note: The product is assigned to you. Use the 'Maintain user permission to other users' option to assign the new product to other users.</h4>
                 <hr>
                 <b-button class="m-1" @click="cancel()" variant="seablue">Return</b-button>
               </template>
