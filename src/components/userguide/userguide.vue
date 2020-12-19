@@ -173,7 +173,7 @@
 					</div>
 				</div>
 				<div id="sv">
-				<h4>Admins will see one or more of these view options:</h4>
+				<h4>Admins see these options:</h4>
 				<ul>
 					<li>
 						<h5>Admin</h5>
@@ -182,8 +182,7 @@
 					</li>
 					<li>
 						<h5>Server admin</h5>
-						<p>The server admin creates backups and restores databases from a backup here. New databases can be created and deleted. A CouchDB FAUXTON session can be started in a separate tab of the browser.</p>
-						<p>During operation a server admin can use the Server admin view which offers a menu of common tasks:</p>
+						<p>During operation a server admin can use the Server admin view which offers a menu of common tasks.</p>
 						<b-img :src="getImgUrl('img/server-admin-menu.png')" alt="The server admin menu" />
 					</li>
 				</ul>
