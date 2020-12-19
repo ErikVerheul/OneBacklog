@@ -30,11 +30,11 @@ const actions = {
 	initUserDb({
 		rootState
 	}) {
-		// allow the admin role to access the _users database (needed once, the _users db is shared over all databases in a Couchdb instance)
+		// allow the admin roles to access the _users database (the _users db is shared over all databases in a Couchdb instance)
 		const dbPermissions = {
 			admins: {
 				names: [],
-				roles: ['admin']
+				roles: ['admin', '_admin']
 			},
 			members: {
 				names: [],
@@ -61,9 +61,13 @@ const actions = {
 					"list-all": {
 						map: `function(doc) {
 							var myTeam = doc.myDatabases[doc.currentDb].myTeam
-  						emit(doc._id, [doc.currentDb, myTeam]);
+							if (!doc.delmark) emit(doc._id, [doc.currentDb, myTeam]);
 						}`
-					}
+					},
+					/* Filter on removed items of any type, then emit the product _rev of the removed documents. */
+					"removed": {
+						map: 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1);}'
+					},
 				},
 				language: 'javascript'
 			}
@@ -116,14 +120,28 @@ const actions = {
 		rootState
 	}, payload) {
 		// set the persmissions on the database holding the documents
-		const dbPermissions = {
-			admins: {
-				names: [rootState.userData.user],
-				roles: ['admin']
-			},
-			members: {
-				names: [],
-				roles: ['PO', 'APO', 'developer', 'guest']
+		let dbPermissions
+		if (payload.dbName === 'system-users') {
+			dbPermissions = {
+				admins: {
+					names: [],
+					roles: ['admin', '_admin']
+				},
+				members: {
+					names: [],
+					roles: []
+				}
+			}
+		} else {
+			dbPermissions = {
+				admins: {
+					names: [rootState.userData.user],
+					roles: ['admin']
+				},
+				members: {
+					names: [],
+					roles: ['PO', 'APO', 'developer', 'guest']
+				}
 			}
 		}
 		globalAxios({
@@ -132,6 +150,10 @@ const actions = {
 			data: dbPermissions
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set' })
+			if (payload.reportRestoreSuccess) {
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Success, the database restore is ready' })
+				rootState.isRestoreReady = true
+			}
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Failure, could not set permissions on database ' + payload.dbName + ', ' + error })
 		})
@@ -332,9 +354,9 @@ const actions = {
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level === productLevel && doc._id !== "requirement-areas") emit(doc._id, doc.title);
 						}`
 					},
-					/* Filter on document type 'backlogItem', then emit the product _rev of the removed documents. */
+					/* Filter on removed items of any type, then emit the product _rev of the removed documents. */
 					removed: {
-						map: 'function (doc) {if (doc.type == "backlogItem" && doc.delmark || doc._deleted) emit(doc._rev, 1);}'
+						map: 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1);}'
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
 					shortIdFilter: {

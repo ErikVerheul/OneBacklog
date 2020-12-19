@@ -5,6 +5,7 @@ const ERROR = 2
 const BACKUPSONLY = 1
 const ALLBUTSYSTEM = 2
 const ALLBUTSYSTEMANDBACKUPS = 3
+const ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS = 4
 const PRODUCTLEVEL = 2
 
 function removeFromArray(arr, item) {
@@ -66,6 +67,16 @@ const actions = {
 					}
 					break
 				case ALLBUTSYSTEMANDBACKUPS:
+					for (const dbName of res.data) {
+						if (!dbName.startsWith('_') && !dbName.includes('backup')) rootState.databaseOptions.push(dbName)
+					}
+					// preset with the current database or else the first entry
+					if (rootState.databaseOptions.includes(rootState.userData.currentDb)) {
+						rootState.selectedDatabaseName = rootState.userData.currentDb
+					} else rootState.selectedDatabaseName = rootState.databaseOptions[0]
+					break
+				case ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS:
+					rootState.databaseOptions = ['_users']
 					for (const dbName of res.data) {
 						if (!dbName.startsWith('_') && !dbName.includes('backup')) rootState.databaseOptions.push(dbName)
 					}
@@ -162,7 +173,6 @@ const actions = {
 		state,
 		dispatch
 	}, payload) {
-		rootState.backendMessages = []
 		const copyData = {
 			create_target: true,
 			source: payload.dbSourceName,
@@ -177,11 +187,10 @@ const actions = {
 			data: copyData
 		}).then(() => {
 			state.copyBusy = false
-			if (!rootState.databaseOptions.includes(payload.dbTargetName)) {
+			if (!payload.reportRestoreSuccess && !rootState.databaseOptions.includes(payload.dbTargetName)) {
 				rootState.databaseOptions.push(payload.dbTargetName)
 			}
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'copyDB: Success, ' + payload.dbSourceName + ' is copied to ' + payload.dbTargetName })
-			dispatch('setDatabasePermissions', { dbName: payload.dbTargetName })
+			dispatch('setDatabasePermissions', { dbName: payload.dbTargetName, reportRestoreSuccess: payload.reportRestoreSuccess })
 		}).catch(error => {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(error)
@@ -194,11 +203,13 @@ const actions = {
 		dispatch
 	}, payload) {
 		rootState.backendMessages = []
+		rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Database '${payload.dbTargetName}' will be replaced by '${payload.dbSourceName}', Please wait ...` })
 		globalAxios({
 			method: 'DELETE',
 			url: payload.dbTargetName
 		}).then(() => {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + payload.dbTargetName + ' has been deleted' })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('replaceDB: ' + payload.dbTargetName + ' is deleted')
 			dispatch('copyDB', payload)
 		}).catch(error => {
 			if (error.response.status === 404) {
@@ -212,9 +223,10 @@ const actions = {
 		rootState,
 		dispatch
 	}, dbName) {
+		const url = (dbName === '_users') ? '_users/_design/Users/_view/removed' : dbName + '/_design/design1/_view/removed'
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/_design/design1/_view/removed'
+			url
 		}).then(res => {
 			const removed = res.data.rows
 			const data = []
@@ -223,7 +235,7 @@ const actions = {
 			}
 			rootState.isPurgeReady = false
 			rootState.backendMessages = []
-			dispatch('purgeDb', { dbName, data, idx: 0, number: removed.length })
+			dispatch('purgeDb', { dbName, data, batch: {}, processed: 0 })
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Purge started, ' + removed.length + ' documents will be deleted. Please wait ...' })
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Could not find any removed documents in database ' + dbName + ', ' + error })
@@ -234,21 +246,30 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		if (payload.idx >= payload.number) {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: payload.number + ' removed documents in database ' + payload.dbName + ' have been purged, start compacting' })
+		if (payload.processed >= payload.data.length) {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `All removed documents in database '${payload.dbName}' have been purged, start compacting` })
 			dispatch('compactDb', payload)
 			return
 		}
+
+		// split the data in packages of 100
+		payload.batch = {}
+		let counter = 0
+		for (let i = payload.processed; (i < payload.processed + 100) && (i < payload.data.length); i++) {
+			payload.batch = Object.assign(payload.batch, payload.data[i])
+			counter++
+		}
+		payload.processed += counter
+
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_purge',
-			data: payload.data[payload.idx]
-		}).then(() => {
-			// recurse as there is nu bulk purge available
-			payload.idx++
+			data: payload.batch
+		}).then((res) => {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `${Object.keys(res.data.purged).length} removed documents in database '${payload.dbName}' have been purged` })
 			dispatch('purgeDb', payload)
 		}).catch(error => {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Purge of documents in database ' + payload.dbName + ' failed at index ' + payload.idx + ', ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Purge of documents in database '${payload.dbName}' failed, ${error}` })
 		})
 	},
 
@@ -265,9 +286,9 @@ const actions = {
 			data: {}
 		}).then(() => {
 			rootState.isPurgeReady = true
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Compacting the database ' + payload.dbName + ' succeeded' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Compacting the database '${payload.dbName} succeeded` })
 		}).catch(error => {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Compacting the database ' + payload.dbName + ' failed, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Compacting the database '${payload.dbName}' failed, ${error}` })
 		})
 	},
 
@@ -286,10 +307,10 @@ const actions = {
 				// also delete from my personal list
 				delete rootState.userData.myDatabases[dbName]
 			}
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' has been deleted' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Database '${dbName}' has been deleted` })
 			rootState.isDbDeleted = true
 		}).catch(error => {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Database ' + dbName + ' could not be deleted, ' + error })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Database '${dbName}' could not be deleted, ${error}` })
 		})
 	},
 
@@ -315,7 +336,7 @@ const actions = {
 					rootState.teamsToRemoveOptions.push(teamName)
 				}
 			}
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchTeamMembers: success, ' + rootState.fetchedTeams.length + ' team names are read' })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamMembers: success, '${rootState.fetchedTeams.length}' team names are read` })
 			rootState.areTeamsFound = true
 		}).catch(error => {
 			const msg = `fetchTeamMembers: Could not read the documents from database '${dbName}', ${error}`
@@ -339,11 +360,11 @@ const actions = {
 		}).then(res => {
 			if (res.data.defaultSprintCalendar) {
 				rootState.defaultSprintCalendar = res.data.defaultSprintCalendar
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getDbDefaultSprintCalendar: success, ' + res.data.defaultSprintCalendar.length + ' sprint periods are read' })
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `getDbDefaultSprintCalendar: success, ${res.data.defaultSprintCalendar.length} sprint periods are read` })
 				rootState.isSprintCalendarFound = true
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getDbDefaultSprintCalendar: no calendar is found' })
 		}).catch(error => {
-			const msg = 'getDbDefaultSprintCalendar: Could not read config document of database ' + dbName + ', ' + error
+			const msg = `getDbDefaultSprintCalendar: Could not read config document of database '${dbName}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
