@@ -6,6 +6,13 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.3 - 19 December 2020 General overhaul of the admin tools</h3>
+          <p>General overhaul of the admin tools:</p>
+          <ul>
+						<li>Product assignment and unassignment combined in maintain users</li>
+						<li>Immediate update of assigned databases and products when admin changes his/her own account</li>
+						<li>Purge now deletes removed items in batches to circumvent the CouchDb 100 updates limit</li>
+          </ul>
 					<h3>v.1.2.5 - 29 November 2020 Bug fixes</h3>
           <p>Bug fixes:</p>
           <ul>
