@@ -12,7 +12,7 @@ Then open a bash shell (eg. GIT bash) and type:
 1. ssh to the server
 2. sudo ./removeOldUpload.sh in your server target directory. The home page is replaced by the maintenance page.
 
-3. From the developer machine run scripts/uploadNewVersion.sh to upload the new version to your target directory at the server.
+3. At the developer machine, cd to the onebacklog development root directory and run scripts/uploadNewVersion.sh to upload the new version to your target directory at the server.
 
 4. ssh to the server
 5. sudo ./installOneBacklog.sh to install the new version.
