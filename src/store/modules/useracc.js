@@ -21,7 +21,6 @@ function removeFromArray(arr, item) {
 
 const state = {
 	fetchedUserData: null,
-	userIsServerAdmin: false,
 	userIsAdmin: false,
 	userIsAPO: false,
 	dbProducts: [],
@@ -41,7 +40,6 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + selectedUser
 		}).then(res => {
 			state.fetchedUserData = res.data
-			state.userIsServerAdmin = !!state.fetchedUserData.roles.includes('_admin')
 			state.userIsAdmin = !!state.fetchedUserData.roles.includes('admin')
 			state.userIsAPO = !!state.fetchedUserData.roles.includes('APO')
 			// preset with the current database of the user
@@ -413,7 +411,6 @@ const actions = {
 		let userData = payload.data
 		// calculate the association of all assigned roles
 		const allRoles = []
-		if (userData.roles.includes('_admin')) allRoles.push('_admin')
 		if (userData.roles.includes('APO')) allRoles.push('APO')
 		if (userData.roles.includes('admin')) allRoles.push('admin')
 		for (const db in userData.myDatabases) {
