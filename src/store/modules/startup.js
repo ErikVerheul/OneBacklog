@@ -62,6 +62,9 @@ const actions = {
 			if (!foundDbNames.includes(allUserData.currentDb)) {
 				alert('getOtherUserData: FATAL ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
 				return
+			} else {
+				// must set currentDb early in the process
+				rootState.userData.currentDb = allUserData.currentDb
 			}
 			// check if the user has productsroles defined for the default database
 			if (!Object.keys(allUserData.myDatabases).includes(allUserData.currentDb)) {
