@@ -65,11 +65,11 @@ const actions = {
 		if (rootState.online) {
 			state.runningCookieRefreshId = setInterval(() => {
 				dispatch('refreshCookie')
-			}, rootState.cookyRefreshInterval * 1000)
+			}, rootState.cookieRefreshInterval * 1000)
 		}
 	},
 
-	/* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refrehed within 10 minutes */
+	/* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refreshed within 10 minutes */
 	signin({
 		rootState,
 		state,
