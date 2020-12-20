@@ -25,7 +25,7 @@ const actions = {
         console.log('watchdog:' +
 					'\nOnline = ' + rootState.online +
 					'\nlogsToSaveCount = ' + rootState.logState.unsavedLogs.length +
-					'\ncookieAuthenticated = ' + rootState.cookieAuthenticated +
+					'\ncookieAuthenticated = ' + rootState.authentication.cookieAuthenticated +
 					'\nListenForChangesRunning = ' + rootState.listenForChangesRunning +
 					'\ntimestamp = ' + new Date().toString())
       }

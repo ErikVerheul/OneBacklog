@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import globalAxios from 'axios'
-import router from '../router'
+import authentication from './modules/authentication'
 import dependencies from './modules/dependencies'
 import logging from './modules/logging'
 import startup from './modules/startup'
@@ -96,8 +95,6 @@ export default new Vuex.Store({
       unsavedLogs: []
 		},
 
-		// signIn
-		sessionAuthData: undefined,
 		// startup
 		availableProductIds: [],
     currentDefaultProductId: null,
@@ -170,14 +167,12 @@ export default new Vuex.Store({
     warning: '',
     // app wide globals
     configData: null,
-    cookieAuthenticated: false,
     demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
     eventSyncColor: '#004466',
 		eventBgColor: '#408FAE',
     listenForChangesRunning: false,
     myProductOptions: [],
     online: true,
-    runningCookieRefreshId: null,
     showHeaderDropDowns: true,
     userData: {},
     // planning board
@@ -855,15 +850,15 @@ export default new Vuex.Store({
       state.loadedSprintId = null
       state.loadedTreeDepth = undefined
 			state.myProductOptions = []
-			state.sessionAuthData = {}
+			state.authentication.sessionAuthData = {}
       state.showHeaderDropDowns = true
       state.stopListenForChanges = true
       state.stories = []
       state.treeNodes = []
       state.userData = {}
 
-      clearInterval(state.runningCookieRefreshId)
-      state.cookieAuthenticated = false
+      clearInterval(state.authentication.runningCookieRefreshId)
+      state.authentication.cookieAuthenticated = false
       clearInterval(state.logState.runningWatchdogId)
     },
 
@@ -1016,119 +1011,8 @@ export default new Vuex.Store({
     }
   },
 
-  actions: {
-    /* Refresh the authentication cookie */
-    refreshCookie ({
-      rootState,
-      dispatch,
-      state
-    }, payload) {
-      if (rootState.online) {
-        globalAxios({
-          method: 'POST',
-          url: '/_session',
-					data: state.sessionAuthData
-        }).then(() => {
-          state.cookieAuthenticated = true
-          // eslint-disable-next-line no-console
-          if (state.debugConnectionAndLogging) console.log('refreshCookie: Authentication cookie refresh is running')
-          // execute passed function if provided
-          if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
-          // execute passed action if provided
-          if (payload.toDispatch) {
-            // additional dispatches
-            for (const td of payload.toDispatch) {
-              const name = Object.keys(td)[0]
-              // eslint-disable-next-line no-console
-              if (rootState.debugConnectionAndLogging) console.log('refreshCookie: dispatching ' + name)
-              dispatch(name, td[name])
-            }
-          }
-        }).catch(error => {
-          // execute passed function if provided
-          if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
-          // stop the interval function and wait for the watchDog to start again
-          clearInterval(state.runningCookieRefreshId)
-          state.cookieAuthenticated = false
-          state.stopListenForChanges = true
-          state.online = false
-          const msg = 'Refresh of the authentication cookie failed with ' + error
-          // eslint-disable-next-line no-console
-          if (state.debugConnectionAndLogging) console.log(msg)
-          // do not try to save the log if a network error is detected, just queue the log
-          const skipSaving = error.message = 'Network error'
-          dispatch('doLog', { event: msg, level: CRITICAL, skipSaving })
-        })
-      }
-    },
-
-    /* Refresh the authentication cookie in a contineous loop starting after the timeout value */
-    refreshCookieLoop ({
-      rootState,
-      state,
-      dispatch
-    }, payload) {
-      if (rootState.online) {
-        state.runningCookieRefreshId = setInterval(() => {
-          dispatch('refreshCookie')
-        }, payload.timeout * 1000)
-      }
-    },
-
-    /* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refrehed within 10 minutes */
-    signin ({
-      dispatch,
-      commit,
-      state
-    }, authData) {
-      function create_UUID () {
-        let dt = Date.now()
-        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-          const r = (dt + Math.random() * 16) % 16 | 0
-          dt = Math.floor(dt / 16)
-          return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16)
-        })
-        return uuid
-      }
-
-      globalAxios({
-        method: 'POST',
-        url: '/_session',
-        data: authData
-      }).then(res => {
-				commit('resetData')
-				state.sessionAuthData = authData
-				state.iAmAdmin = res.data.roles.includes('admin')
-				state.iAmAPO = res.data.roles.includes('APO')
-				state.iAmServerAdmin = res.data.roles.includes('_admin')
-        // email, myTeam, currentDb, myDatabases and myFilterSettings are updated when otherUserData and config are read
-        state.userData = {
-          user: res.data.name,
-          email: undefined,
-          myTeam: undefined,
-          password: authData.password,
-					currentDb: undefined,
-					roles: res.data.roles,
-					myDatabases: {},
-          myFilterSettings: undefined,
-          sessionId: create_UUID()
-				}
-        // set the session cookie and refresh every 9 minutes (CouchDB defaults at 10 min.); on success also get the databases
-        const toDispatch = [{ refreshCookieLoop: { timeout: 540 } }, { getDatabases: null }]
-        dispatch('refreshCookie', { toDispatch })
-      })
-      // cannot log failure here as the database name is unknown yet
-      // eslint-disable-next-line no-console
-        .catch(error => console.log('Sign in failed with ' + error))
-    },
-
-    signout ({ commit }) {
-      commit('resetData')
-      router.replace('/')
-    }
-  },
-
   modules: {
+		authentication,
     dependencies,
     startup,
     initdb,

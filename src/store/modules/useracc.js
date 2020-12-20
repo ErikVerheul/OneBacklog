@@ -431,8 +431,8 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + userData.name,
 			data: userData
 		}).then(() => {
-			if (userData.name === rootState.userData.user && (!rootState.userData.currentDb || (rootState.userData.currentDb === userData.currentDb))) {
-				// the user is updating its own profile and loaded its current database (admin is not updating another user); note that rootState.userData.currentDb is undefined at sign-in
+			if (userData.name === rootState.userData.user && rootState.userData.currentDb === userData.currentDb) {
+				// the user is updating its own profile and loaded its current database (admin is not updating another user)
 				commit('setMyUserData', payload)
 
 				if (payload.newProductOption) {
