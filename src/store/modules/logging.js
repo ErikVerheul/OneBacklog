@@ -31,9 +31,8 @@ const actions = {
       }
     }
     function restartLoops () {
-      // set the session cookie and refresh every 9 minutes (CouchDB defaults at 10 min.)
       const toDispatch = [
-        { refreshCookieLoop: { timeout: 540 } },
+        { refreshCookieLoop: null },
         { listenForChanges: null },
         { recoverLog: null }
       ]

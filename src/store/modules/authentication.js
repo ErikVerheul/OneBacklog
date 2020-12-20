@@ -61,11 +61,11 @@ const actions = {
 		rootState,
 		state,
 		dispatch
-	}, payload) {
+	}) {
 		if (rootState.online) {
 			state.runningCookieRefreshId = setInterval(() => {
 				dispatch('refreshCookie')
-			}, payload.timeout * 1000)
+			}, rootState.cookyRefreshInterval * 1000)
 		}
 	},
 
@@ -108,8 +108,11 @@ const actions = {
 				myFilterSettings: undefined,
 				sessionId: create_UUID()
 			}
-			// set the session cookie and refresh every 9 minutes (CouchDB defaults at 10 min.); on success also get the databases
-			const toDispatch = [{ refreshCookieLoop: { timeout: 540 } }, { getDatabases: null }]
+			// set the session cookie and get all non-backup and non system database names
+			const toDispatch = [
+				{ refreshCookieLoop: null },
+				{ getDatabases: null }
+			]
 			dispatch('refreshCookie', { toDispatch })
 		})
 			// cannot log failure here as the database name is unknown yet

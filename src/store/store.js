@@ -95,6 +95,8 @@ export default new Vuex.Store({
       unsavedLogs: []
 		},
 
+		// authentication, refresh every 9 minutes (CouchDB defaults at 10 min.)
+		cookyRefreshInterval: 540,
 		// startup
 		availableProductIds: [],
     currentDefaultProductId: null,
