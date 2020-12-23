@@ -15,7 +15,7 @@ const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'detailProduct'
 var returning = false
 
-function beforeCreate () {
+function beforeCreate() {
   this.$store.state.currentView = thisView
   this.$store.state.stopListenForChanges = false
   if (thisView !== this.$store.state.lastTreeView) {
@@ -34,13 +34,13 @@ function beforeCreate () {
   } else returning = true
 }
 
-function created () {
+function created() {
   // must reset the event listener to prevent duplication
   eventBus.$off('context-menu')
   this.sprints = this.getCurrentAndNextSprint()
 }
 
-function mounted () {
+function mounted() {
   // expose instance to the global namespace
   window.slVueTree = this.$refs.slVueTree
   if (returning) {
@@ -49,7 +49,7 @@ function mounted () {
   }
 }
 
-function data () {
+function data() {
   return {
     sprints: []
   }
@@ -59,7 +59,7 @@ const watch = {
   selectedPbiType: function (val) {
     // prevent looping
     if (val !== this.$store.state.currentDoc.subtype) {
-			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the pbi type')) {
+      if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the pbi type')) {
         const node = this.getLastSelectedNode
         this.$store.dispatch('setSubType', {
           node,
@@ -114,7 +114,7 @@ const watch = {
 }
 
 const methods = {
-  getItemInfo () {
+  getItemInfo() {
     let txt = ''
     if (this.getCurrentItemLevel !== this.productLevel) {
       if (this.getCurrentItemLevel < this.taskLevel) {
@@ -130,7 +130,7 @@ const methods = {
   },
 
   /* Return true if in the current or next sprint */
-  inSprint (node) {
+  inSprint(node) {
     const sprintId = node.data.sprintId
     if (!sprintId) {
       // item not in any sprint
@@ -150,7 +150,7 @@ const methods = {
     return false
   },
 
-  getSprintText (node) {
+  getSprintText(node) {
     const sprintId = node.data.sprintId
     if (sprintId === this.sprints.currentSprint.id) {
       return 'current'
@@ -160,16 +160,16 @@ const methods = {
     }
   },
 
-  onTreeIsLoaded () {
+  onTreeIsLoaded() {
     window.slVueTree.setDescendentsReqArea()
     this.dependencyViolationsFound()
   },
 
-  showReqAreaTitle (node) {
+  showReqAreaTitle(node) {
     if (node.data.reqarea) this.showLastEvent(`This item belongs to requirement area '${this.$store.state.reqAreaMapper[node.data.reqarea]}'`, INFO)
   },
 
-  findItemOnId (shortId) {
+  findItemOnId(shortId) {
     let node
     window.slVueTree.traverseModels((nm) => {
       if (nm._id.slice(-5) === shortId) {
@@ -208,48 +208,37 @@ const methods = {
   },
 
   /* event handling */
-  onNodesSelected () {
+  onNodesSelected() {
     const selNodes = this.$store.state.selectedNodes
     // update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
     this.updateDescription(this.getPreviousNodeSelected)
     this.updateAcceptance(this.getPreviousNodeSelected)
 
-    // load the document if not already in memory
-    if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id) {
-      this.$store.dispatch('loadDoc', {
-        id: this.getLastSelectedNode._id,
-        onSuccessCallback: () => {
-          // if the root node is selected do nothing
-          if (this.getLastSelectedNode._id !== 'root') {
-            // if the user clicked on a node of another product
-            if (this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
-              // clear any outstanding filters
-              window.slVueTree.resetFilters('onNodesSelected')
-              // collapse the previously selected product
-              window.slVueTree.collapseTree()
-              // update current productId and title
-              this.$store.state.currentProductId = this.getLastSelectedNode.productId
-              this.$store.state.currentProductTitle = this.getLastSelectedNode.title
-              // expand the newly selected product up to the feature level
-              window.slVueTree.expandTree()
-            }
+    // load the selected document
+    this.$store.dispatch('loadDoc', {
+      id: this.getLastSelectedNode._id,
+      onSuccessCallback: () => {
+        if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id || this.getLastSelectedNode._id !== 'root') {
+          // if the same node is clicked again or the root node is selected, do nothing
+          if (this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
+            // if the user clicked on a node of another product clear any outstanding filters
+            window.slVueTree.resetFilters('onNodesSelected')
+            // collapse the previously selected product
+            window.slVueTree.collapseTree()
+            // update current productId and title
+            this.$store.state.currentProductId = this.getLastSelectedNode.productId
+            this.$store.state.currentProductTitle = this.getLastSelectedNode.title
+            // expand the newly selected product up to the feature level
+            window.slVueTree.expandTree()
           }
-          let evt = ''
-          const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
-          if (selNodes.length === 1) {
-            evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} '${lastSelectedNodeTitle}' is selected.`
-          } else {
-            const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
-            evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} ${multiNodesTitle} are selected.`
-          }
-          this.showLastEvent(evt, INFO)
-        }
-      })
-    }
+				}
+				this.showSelectionEvent(selNodes)
+      }
+    })
   },
 
   /* Use this event to check if the drag is allowed. If not, issue a warning */
-  beforeNodeDropped (draggingNodes, position, cancel) {
+  beforeNodeDropped(draggingNodes, position, cancel) {
     /*
      * 1. Disallow drop on node were the user has no write authority and below a parent owned by another team
      * 2. Disallow drop when moving over more than 1 level.
@@ -258,7 +247,7 @@ const methods = {
      * precondition: the selected nodes have all the same parent (same level)
      */
     const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
-		if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
+    if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
       const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
         const levelChange = Math.abs(targetLevel - sourceLevel)
         const failedCheck2 = levelChange > 1
@@ -287,7 +276,7 @@ const methods = {
     } else cancel(true)
   },
 
-  getPbiOptions () {
+  getPbiOptions() {
     this.selectedPbiType = this.$store.state.currentDoc.subtype
     const options = [
       { text: 'User story', value: 0 },
@@ -314,7 +303,7 @@ export default {
   extends: CommonView,
   beforeCreate,
   created,
-	mounted,
+  mounted,
   data,
   watch,
   methods,

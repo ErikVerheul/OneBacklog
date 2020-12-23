@@ -5,172 +5,176 @@ import { authorization, utilities } from '../mixins/generic.js'
 const INFO = 0
 const MINPASSWORDLENGTH = 8
 
-function created () {
-  // add tag when DEMO version
-  if (this.$store.state.demo) this.appVersion = this.appVersion + ' DEMO'
+function created() {
+	// add tag when DEMO version
+	if (this.$store.state.demo) this.appVersion = this.appVersion + ' DEMO'
 }
 
-function data () {
-  return {
-    appVersion: 'OneBackLog v.1.3',
-    disableOkButton: false,
-    oldPassword: '',
-    newPassword1: '',
-    newPassword2: '',
+function data() {
+	return {
+		appVersion: 'OneBackLog v.1.3',
+		disableOkButton: false,
+		oldPassword: '',
+		newPassword1: '',
+		newPassword2: '',
 		selectedProducts: [],
-    defaultProductOptions: [],
-    selectedTeam: '',
-    headerMyDatabase: '',
-    headerDatabaseOptions: [],
-    teamOptions: [],
-    newDefaultProductId: this.$store.state.currentDefaultProductId
-  }
+		defaultProductOptions: [],
+		selectedTeam: '',
+		headerMyDatabase: '',
+		headerDatabaseOptions: [],
+		teamOptions: [],
+		newDefaultProductId: this.$store.state.currentDefaultProductId
+	}
 }
 
 const methods = {
-  changeDatabase () {
-    this.headerMyDatabase = this.$store.state.userData.currentDb
-    this.headerDatabaseOptions = []
+	changeDatabase() {
+		this.headerMyDatabase = this.$store.state.userData.currentDb
+		this.headerDatabaseOptions = []
 		for (const db of this.$store.state.myAssignedDatabases) {
-      this.headerDatabaseOptions.push(db)
+			this.headerDatabaseOptions.push(db)
 		}
 		this.$refs.changeDatabaseRef.show()
-  },
+	},
 
-  changeTeam () {
-    this.selectedTeam = this.myTeam
-    this.teamOptions = []
-    for (const team of Object.keys(this.$store.state.allTeams)) {
-      this.teamOptions.push(team)
+	changeTeam() {
+		this.selectedTeam = this.myTeam
+		this.teamOptions = []
+		for (const team of Object.keys(this.$store.state.allTeams)) {
+			this.teamOptions.push(team)
 		}
 		this.$refs.changeTeamRef.show()
-  },
+	},
 
-  selectProducts () {
+	selectProducts() {
 		this.selectedProducts = this.$store.state.myProductOptions.map((o) => o.value)
-    this.$refs.selectProductsRef.show()
-  },
+		this.$refs.selectProductsRef.show()
+	},
 
-  changeMyPassword () {
-    if (this.isServerAdmin) { alert("As a 'server admin' you cannot change your password here. Use Fauxton instead") } else this.$refs.changePwRef.show()
-  },
+	changeMyPassword() {
+		if (this.isServerAdmin) { alert("As a 'server admin' you cannot change your password here. Use Fauxton instead") } else this.$refs.changePwRef.show()
+	},
 
-  doChangeDatabase () {
-    window.slVueTree.resetFilters('doChangeDatabase')
-    if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
-      this.$store.dispatch('changeCurrentDb', this.headerMyDatabase)
-      router.replace('/')
-    }
-  },
+	doChangeDatabase() {
+		window.slVueTree.resetFilters('doChangeDatabase')
+		if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
+			this.$store.dispatch('changeCurrentDb', this.headerMyDatabase)
+			router.replace('/')
+		}
+	},
 
-  doChangeTeam () {
-    this.$store.dispatch('changeTeam', this.selectedTeam)
-  },
+	doChangeTeam() {
+		this.$store.dispatch('changeTeam', this.selectedTeam)
+	},
 
-  /* Return if nothing is selected; set default product if 1 is selected; call selectDefaultProductRef if > 1 is selected */
-  doSelectProducts () {
-    if (this.getMyProductSubscriptions.length === 0) {
-      return
-    }
+	/* Return if nothing is selected; set default product if 1 is selected; call selectDefaultProductRef if > 1 is selected */
+	doSelectProducts() {
+		if (this.getMyProductSubscriptions.length === 0) {
+			return
+		}
 
-    this.defaultProductOptions = []
-    if (this.selectedProducts.length === 1) {
-      this.updateProductsView([this.selectedProducts[0]], this.selectedProducts[0])
-    } else {
-      for (const o of this.$store.state.myProductOptions) {
-        if (this.selectedProducts.includes(o.value)) {
-          this.defaultProductOptions.push(o)
-        }
-      }
-      this.$refs.selectDefaultProductRef.show()
-    }
-  },
+		this.defaultProductOptions = []
+		if (this.selectedProducts.length === 1) {
+			this.updateProductsView([this.selectedProducts[0]], this.selectedProducts[0])
+		} else {
+			for (const o of this.$store.state.myProductOptions) {
+				if (this.selectedProducts.includes(o.value)) {
+					this.defaultProductOptions.push(o)
+				}
+			}
+			this.$refs.selectDefaultProductRef.show()
+		}
+	},
 
-  /* Update the subscriptions array of this user */
-  updateProductsSubscriptions () {
-    // the first (index 0) product is by definition the default product
-    const myNewProductSubscriptions = [this.newDefaultProductId]
-    const otherSubscriptions = []
-    for (const p of this.selectedProducts) {
-      if (p !== this.newDefaultProductId) {
-        otherSubscriptions.push(p)
-      }
-    }
-    this.updateProductsView(myNewProductSubscriptions.concat(otherSubscriptions), this.newDefaultProductId)
-  },
+	/* Update the subscriptions array of this user */
+	updateProductsSubscriptions() {
+		// the first (index 0) product is by definition the default product
+		const myNewProductSubscriptions = [this.newDefaultProductId]
+		const otherSubscriptions = []
+		for (const p of this.selectedProducts) {
+			if (p !== this.newDefaultProductId) {
+				otherSubscriptions.push(p)
+			}
+		}
+		this.updateProductsView(myNewProductSubscriptions.concat(otherSubscriptions), this.newDefaultProductId)
+	},
 
-  updateProductsView (productIds, newDefaultId) {
-    const defaultProductChanged = this.$store.state.currentProductId !== newDefaultId
-    if (defaultProductChanged) {
-      // collapse the previously selected product
-      window.slVueTree.collapseTree()
-      // update globals to new default
-      this.$store.state.currentProductId = newDefaultId
-      this.$store.state.currentDefaultProductId = newDefaultId
-      this.$store.dispatch('loadDoc', { id: newDefaultId })
-    }
-    // remove products from the tree view
-    let removedCount = 0
+	updateProductsView(productIds, newDefaultProductId) {
+		const defaultProductChanged = this.$store.state.currentProductId !== newDefaultProductId
+		if (defaultProductChanged) {
+			// collapse the previously selected product
+			window.slVueTree.collapseTree()
+			// update globals to new default
+			this.$store.state.currentProductId = newDefaultProductId
+			this.$store.state.currentDefaultProductId = newDefaultProductId
+			this.$store.dispatch('loadDoc', {
+				id: newDefaultProductId, onSuccessCallback: () => {
+					this.showSelectionEvent([window.slVueTree.getNodeById(newDefaultProductId)])
+				}
+			})
+		}
+		// remove products from the tree view
+		let removedCount = 0
 		for (const productId of this.getMyProductSubscriptions) {
-      if (!productIds.includes(productId)) {
-        window.slVueTree.removeProduct(productId)
-        removedCount++
-      }
-      this.showLastEvent(`${removedCount} products are removed from this view`, INFO)
-    }
-    // update my product subscriptions and add product(s) if missing
+			if (!productIds.includes(productId)) {
+				window.slVueTree.removeProduct(productId)
+				removedCount++
+			}
+			this.showLastEvent(`${removedCount} products are removed from this view`, INFO)
+		}
+		// update my product subscriptions and add product(s) if missing
 		this.$store.commit('updateMyProductSubscriptions', productIds)
-    const missingIds = []
-    for (const productId of productIds) {
+		const missingIds = []
+		for (const productId of productIds) {
 			if (this.getMyAssignedProductIds.includes(productId)) {
 				this.getMyProductSubscriptions.push(productId)
-        if (window.slVueTree.getNodeById(productId) === null) {
-          missingIds.push(productId)
-        }
-      }
-    }
-    if (!missingIds.includes(newDefaultId)) {
-      if (defaultProductChanged) {
-        // select the new default product
-        window.slVueTree.selectNodeById(newDefaultId)
-        // expand the newly selected product up to the feature level
-        window.slVueTree.expandTree()
-      }
-    }
-    if (missingIds.length > 0) {
+				if (window.slVueTree.getNodeById(productId) === null) {
+					missingIds.push(productId)
+				}
+			}
+		}
+		if (!missingIds.includes(newDefaultProductId)) {
+			if (defaultProductChanged) {
+				// select the new default product
+				window.slVueTree.selectNodeById(newDefaultProductId)
+				// expand the newly selected product up to the feature level
+				window.slVueTree.expandTree()
+			}
+		}
+		if (missingIds.length > 0) {
 			this.showLastEvent(`${this.getMyProductSubscriptions.length} products are loaded`, INFO)
-      this.$store.dispatch('addProducts', { missingIds, newDefaultId })
-    }
-    this.$store.dispatch('updateMySubscriptions', productIds)
-  },
+			this.$store.dispatch('addProducts', { missingIds, newDefaultProductId })
+		}
+		this.$store.dispatch('updateMySubscriptions', productIds)
+	},
 
-  doChangeMyPassWord () {
-    if (this.oldPassword !== this.$store.state.userData.password) {
-      alert('Your current password is incorrect. Please try again.')
-      return
-    }
-    if (this.newPassword1 !== this.newPassword2) {
-      alert('You entered two different new passwords. Please try again.')
-      return
-    }
-    if (this.newPassword1.length < MINPASSWORDLENGTH) {
-      alert('Your new password must be 8 characters or longer. Please try again.')
-      return
-    }
+	doChangeMyPassWord() {
+		if (this.oldPassword !== this.$store.state.userData.password) {
+			alert('Your current password is incorrect. Please try again.')
+			return
+		}
+		if (this.newPassword1 !== this.newPassword2) {
+			alert('You entered two different new passwords. Please try again.')
+			return
+		}
+		if (this.newPassword1.length < MINPASSWORDLENGTH) {
+			alert('Your new password must be 8 characters or longer. Please try again.')
+			return
+		}
 		this.$store.dispatch('changeMyPasswordAction', this.newPassword1)
-  },
+	},
 
-  onSignout () {
-    this.$store.dispatch('signout')
-  }
+	onSignout() {
+		this.$store.dispatch('signout')
+	}
 }
 
 export default {
 	mixins: [authorization, utilities],
-  created,
-  data,
-  methods,
-  components: {
-    appLicence: Licence
-  }
+	created,
+	data,
+	methods,
+	components: {
+		appLicence: Licence
+	}
 }

@@ -186,15 +186,7 @@ const methods = {
             this.$store.state.currentProductId = this.getLastSelectedNode.productId
             this.$store.state.currentProductTitle = this.getLastSelectedNode.title
           }
-          let evt = ''
-          const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
-          if (selNodes.length === 1) {
-            evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} '${lastSelectedNodeTitle}' is selected.`
-          } else {
-            const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
-            evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} ${multiNodesTitle} are selected.`
-          }
-          this.showLastEvent(evt, INFO)
+					this.showSelectionEvent(selNodes)
         }
       })
     }
