@@ -75,7 +75,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'initUserDb: Success, the view on the _users database is created' })
 		}).catch(error => {
 			if (error.response && error.response.status === 409) {
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'initUserDb: Success, the view on the _users database allready exits' })
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'initUserDb: Success, the view on the _users database already exits' })
 			} else
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'initUserDb: Failure, cannot create the view on the _users database, ' + error })
 		})

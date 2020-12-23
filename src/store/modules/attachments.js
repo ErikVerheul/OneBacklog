@@ -130,7 +130,7 @@ const actions = {
         tmpDoc.history.unshift(newHist)
         tmpDoc.lastAttachmentRemoval = Date.now()
 
-        // curentDoc is allready updated
+        // curentDoc is already updated
         tmpDoc._attachments = rootState.currentDoc._attachments
         dispatch('updateDoc', {
           dbName: rootState.userData.currentDb,
