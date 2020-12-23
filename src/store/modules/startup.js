@@ -120,19 +120,18 @@ const actions = {
 			const currentProductsEnvelope = res.data.rows
 			const currentDbSettings = newUserData.myDatabases[newUserData.currentDb]
 			const productsRoles = currentDbSettings.productsRoles
+			// remove APO and admin roles from product roles in 'old' profiles and sort other roles to ascending priveliges
+			for (const [key, roles] of Object.entries(productsRoles)) {
+				const newRoles = []
+				if (roles.includes('guest')) newRoles.push('guest')
+				if (roles.includes('developer')) newRoles.push('developer')
+				if (roles.includes('PO')) newRoles.push('PO')
+				productsRoles[key] = newRoles
+			}
 			// store the available product id's
 			for (const product of currentProductsEnvelope) {
 				const id = product.id
 				rootState.availableProductIds.push(id)
-			}
-			// set the users product options to select from
-			for (const product of currentProductsEnvelope) {
-				if (Object.keys(productsRoles).includes(product.id)) {
-					rootState.myProductOptions.push({
-						value: product.id,
-						text: product.value
-					})
-				}
 			}
 			// update the user profile for missing products
 			const missingProductsRolesIds = []
@@ -156,7 +155,19 @@ const actions = {
 			// update user data loaded in getOtherUserData and STORE THE USER DATA in $store.state.userData
 			// postpone the warning message for 'no product found' until the configuration is loaded
 			const toDispatch = [{ getConfig: null }]
-			dispatch('updateUser', { data: newUserData, toDispatch, caller: 'getAllProducts' })
+			dispatch('updateUser', { data: newUserData, toDispatch,
+				onSuccessCallback: () => {
+					// set the users product options to select from
+					for (const product of currentProductsEnvelope) {
+						if (Object.keys(productsRoles).includes(product.id)) {
+							rootState.myProductOptions.push({
+								value: product.id,
+								text: product.value
+							})
+						}
+					}
+				},
+				caller: 'getAllProducts' })
 
 			if (missingProductsRolesIds.length > 0) {
 				const msg = `User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
