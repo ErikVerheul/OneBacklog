@@ -15,9 +15,11 @@
             <b-dropdown-item to="../../detailProduct">Product details</b-dropdown-item>
             <b-dropdown-item to="../../coarseProduct">Products overview</b-dropdown-item>
             <b-dropdown-item to="../../board">Planning board</b-dropdown-item>
-            <b-dropdown-divider v-if="isAdmin || isServerAdmin"></b-dropdown-divider>
+            <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
+						<b-dropdown-item v-else disabled>[You are not Admin]</b-dropdown-item>
             <b-dropdown-item v-if="isServerAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
+						<b-dropdown-item v-else disabled>[You are not Server admin]</b-dropdown-item>
           </b-nav-item-dropdown>
 
           <b-nav-item-dropdown right>
