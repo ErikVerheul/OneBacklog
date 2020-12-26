@@ -43,14 +43,14 @@
 					<p>The authorization is set per database and product based on the following roles:<br/>
 						Three roles are set per database:
 					<ul>
-						<li>'_admin': Is the database administrator. Is set the OneBacklog instance is created. Can setup and delete databases.  Can create comments and upload attachments. See the CouchDB documentation.</li>
-						<li>'admin': Can create, maintain and assign users to products. Can create comments and upload attachments.</li>
-						<li>'APO': The APO maintains the requirement areas backlog. Can create comments and upload attachments.</li>
+						<li>'_admin': Is the database administrator. Is set the OneBacklog instance is created. Can setup and delete databases.  Can create comments and see and upload attachments. See the CouchDB documentation.</li>
+						<li>'admin': Can create, maintain and assign users to products. Can create comments and see and upload attachments.</li>
+						<li>'APO': The APO maintains the requirement areas backlog. Can create comments and see and upload attachments.</li>
 					</ul>
 					Three roles are set per product (a product lives in a database):
 					<ul>
-						<li>'PO': Can create and maintain product, epics, features and pbi's for the assigned products. Can change priorities at all levels. Can create comments and upload attachments.</li>
-						<li>'developer': Can create and maintain pbi's and features for the assigned products. Can create comments and upload attachments.</li>
+						<li>'PO': Can create and maintain product, epics, features and pbi's for the assigned products. Can change priorities at all levels. Can create comments and see and upload attachments.</li>
+						<li>'developer': Can create and maintain pbi's and features for the assigned products. Can create comments and see and upload attachments.</li>
 						<li>'guest': Can only view the items of the assigned products.</li>
 					</ul>
 					Users can have multiple roles. Users can only access the products that are assigned to them by the 'admin'.
@@ -68,7 +68,7 @@
 					<h4>Subscribe to change notices</h4>
 					<p>When you click on this button all changes to this item will be emailed to you provided you are signed in as a registered user and your provided email address is correct. This will not work for users of generic accounts like demoUser or guest.</p>
 					<h4>The description input field</h4>
-					<p>As the title should be short and concise, this is the place to describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. Upload attachments to add documentation.</p>
+					<p>As the title should be short and concise, this is the place to describe the product/epic/feature or user story|defect|spike. Use, if possible, the format 'I as &lt;my role&gt; want &lt;whatever it is&gt; so that &lt;the why&gt;'. Use the features this WYSIWYG component offers you. see and upload attachments to add documentation.</p>
 					<h4>The acceptance criteria input field</h4>
 					<p>A backlog item can only be reported as 'DONE' when all acceptance criteria are met. To be able to estimate the effort the team must know the acceptance criteria up front. They are as important as the description.</p>
 					<h4>Add comments</h4>
@@ -207,7 +207,7 @@
 					<li>createReqAreasParent: Success, the parent document is created</li>
 					<li>createDefaultTeam: Success, default team with _id 15939385179343ke4w is created</li>
 					<li>createFirstProduct: Success, product with _id 1593938517978ogbd5 is created</li>
-					<li>addProductToUser: The product with Id 1593938517978ogbd5 is added to your profile with roles admin</li>
+					<li>assignProductToUser: The product with Id 1593938517978ogbd5 is added to your profile with roles admin</li>
 					<li>createMessenger: Success, messenger document is created</li>
 					<li>updateUser: The profile of user 'couchdbadmin' is updated successfully</li>
 				</ul>
