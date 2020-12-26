@@ -126,7 +126,7 @@ const actions = {
 				}
 			}
 			// save the new product in the database
-			dispatch('storeProduct', docs)
+			dispatch('storeProduct', { docs, clonedProductId: productId })
 		}).catch(error => {
 			const msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
@@ -139,20 +139,22 @@ const actions = {
 		rootState,
 		getters,
 		dispatch
-	}, docs) {
+	}, payload) {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_docs',
-			data: { docs: docs }
+			data: { docs: payload.docs }
 		}).then(res => {
 			const newProductOption = {
 				value: newProductId,
 				text: newProductTitle
 			}
-			// save in the database
-			dispatch('addProductToUser', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles: ['*'] })
+			// copy the assigned roles
+			const userRoles = rootState.userData.myDatabases[rootState.userData.currentDb].productsRoles[payload.clonedProductId]
+			// update the current user's profile with the cloned product;
+			dispatch('assignProductToUser', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles })
 			// show the product clone in the tree view
-			showProduct(docs, getters.leafLevel)
+			showProduct(payload.docs, getters.leafLevel)
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('storeProduct: ' + res.data.length + ' documents are processed')
 		}).catch(error => {
