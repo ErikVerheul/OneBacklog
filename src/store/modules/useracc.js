@@ -1,8 +1,9 @@
 import globalAxios from 'axios'
+import router from '../../router'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 const ERROR = 2
 
-/* Add item to array if not allready present. Returns a new array so that it is reactive */
+/* Add item to array if not already present. Returns a new array so that it is reactive */
 function addToArray(arr, item) {
 	const newArr = []
 	for (const el of arr) newArr.push(el)
@@ -28,30 +29,38 @@ const state = {
 }
 
 const actions = {
+	/*
+	* Load the user's profile in state.fetchedUserData
+	* Set the user's generic roles in state.userIsAdmin and state.userIsAPO
+	* Preset the the selected database to the user's current database in rootState.selectedDatabaseName
+	*/
 	getUser({
 		rootState,
 		state,
 		dispatch
-	}, selectedUser) {
+	}, payload) {
 		rootState.backendMessages = []
 		rootState.isUserFound = false
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + selectedUser
+			url: '/_users/org.couchdb.user:' + payload.userName
 		}).then(res => {
 			state.fetchedUserData = res.data
 			state.userIsAdmin = !!state.fetchedUserData.roles.includes('admin')
 			state.userIsAPO = !!state.fetchedUserData.roles.includes('APO')
+			rootState.isUserRemoved = !!res.data.delmark
 			// preset with the current database of the user
 			rootState.selectedDatabaseName = state.fetchedUserData.currentDb
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Successfully fetched user '${selectedUser}'` })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Successfully fetched ${rootState.isUserRemoved ? 'removed' : ''} user '${payload.userName}'` })
 			rootState.isUserFound = true
 		}).catch(error => {
-			const msg = 'getUser: Could not find user "' + selectedUser + '". ' + error
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			if (!payload.justCheck) {
+				const msg = `getUser: Could not find user '${payload.userName}', ${error}`
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: ERROR })
+			}
 		})
 	},
 
@@ -89,7 +98,7 @@ const actions = {
 				rootState.userOptions.push(u.name)
 			}
 		}).catch(error => {
-			const msg = 'getAllUsers: Could not read the _users database: ' + error
+			const msg = `getAllUsers: Could not read the _users database, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -98,10 +107,8 @@ const actions = {
 	},
 
 	/*
-	* Get all products of the set database and
-	* if createNewUser === true -> initiate an empty roles array for all products in the database assigned to this user
-	* if createNewUser === false -> get the assigned roles to all the products in the database assigned to this user
-	* Mark each found product as assigned = true as the user is allready assigned to this product and as false otherwise
+	* Get all products of the set database and get the assigned roles to the products assigned to this user or
+	* (if not found) create an empty roles array for all (other) products in the database
 	*/
 	getProductsRoles({
 		rootState,
@@ -115,30 +122,22 @@ const actions = {
 		}).then(res => {
 			rootState.areProductsFound = true
 			state.dbProducts = res.data.rows
-			// add a roles array to each product
-			const myDatabases = state.fetchedUserData.myDatabases
-			if (myDatabases[payload.dbName]) {
-				// the database is subscribed to the user
+			// add empty roles array to each product
+			for (const product of state.dbProducts) {
+				product.roles = []
+			}
+			const userExists = !!state.fetchedUserData
+			if (userExists) {
+				// populate the roles array of each product
+				const myDatabases = state.fetchedUserData.myDatabases
 				for (const product of state.dbProducts) {
-					if (payload.createNewUser) {
-						product.roles = []
-					} else {
-						// get the assigned roles to this product; if not found assing an empty array
+					// get the assigned roles to this product
+					if (myDatabases[payload.dbName]) {
 						const roles = myDatabases[payload.dbName].productsRoles[product.id]
 						if (roles) {
 							product.roles = roles
-						} else {
-							product.roles = []
 						}
 					}
-				}
-			} else {
-				rootState.backendMessages.push({
-					seqKey: rootState.seqKey++,
-					msg: `assignProductsToUserAction: The database '${payload.dbName}' is not subscribed to this user`
-				})
-				for (const product of state.dbProducts) {
-					product.roles = []
 				}
 			}
 		}).catch(error => {
@@ -220,6 +219,7 @@ const actions = {
 			}
 
 			dispatch('updateUser', { data: tmpUserData, addedDb })
+			// ToDo: move to onSuccessCallback
 			rootState.backendMessages.push({
 				seqKey: rootState.seqKey++,
 				msg: `assignProductsToUserAction: The database ${addedDb} is added to the profile of user '${payload.selectedUser}'`
@@ -233,7 +233,7 @@ const actions = {
 		})
 	},
 
-	addProductToUser({
+	assignProductToUser({
 		rootState,
 		dispatch
 	}, payload) {
@@ -241,27 +241,18 @@ const actions = {
 			method: 'GET',
 			url: '/_users/org.couchdb.user:' + payload.selectedUser
 		}).then(res => {
-			rootState.isDatabaseInitiated = true
-			rootState.isDatabaseCreated = true
-			rootState.isProductCreated = true
 			const tmpUserData = res.data
 			let addedDb = undefined
 			let productId = payload.newProductOption.value
 			let rolesSet = []
 			if (Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
-				// the database exists; subscribe the selected user to the product
-				tmpUserData.myDatabases[payload.dbName].subscriptions.push(productId)
-				if (payload.userRoles[0] === '*') {
-					// add all current roles of the selected user to the new product
-					rolesSet = tmpUserData.roles
-				} else {
-					// or set passed roles to the product
-					rolesSet = payload.userRoles
-				}
+				// if the database is assigned to the user, assign the passed roles to the product
+				rolesSet = payload.userRoles
+				// update the user's profile
 				tmpUserData.myDatabases[payload.dbName].productsRoles[productId] = rolesSet
+				tmpUserData.myDatabases[payload.dbName].subscriptions.push(productId)
 			} else {
-				// new database, add all current user roles to the new product
-				rolesSet = tmpUserData.roles
+				// new database for this user; leave rolesSet empty
 				const newDb = {
 					myteam: 'not assigned yet',
 					subscriptions: [productId],
@@ -272,14 +263,22 @@ const actions = {
 				tmpUserData.myDatabases[payload.dbName] = newDb
 				addedDb = payload.dbName
 			}
-
-			dispatch('updateUser', { data: tmpUserData, addedDb, newProductOption: payload.newProductOption })
-			rootState.backendMessages.push({
-				seqKey: rootState.seqKey++,
-				msg: 'addProductToUser: The product with Id ' + productId + ' is added to your profile with roles ' + rolesSet
+			dispatch('updateUser', {
+				data: tmpUserData, addedDb, newProductOption: payload.newProductOption, onSuccessCallback: () => {
+					// set result for 'Create a product' admin process (admin.js)
+					rootState.isProductCreated = true
+					// set result for database initiation process (initdb)
+					rootState.isDatabaseInitiated = true
+					const msg = (rolesSet.length === 0) ? `assignProductToUser: The product with Id ${productId} is added to your profile with no roles set` :
+						`assignProductToUser: The product with Id ${productId} is added to your profile with roles [${rolesSet}]`
+					rootState.backendMessages.push({
+						seqKey: rootState.seqKey++,
+						msg
+					})
+				}
 			})
 		}).catch(error => {
-			const msg = 'addProductToUser: Could not update subscribed products for user ' + payload.selectedUser + ', ' + error
+			const msg = 'assignProductToUser: Could not update subscribed products for user ' + payload.selectedUser + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -309,10 +308,10 @@ const actions = {
 	changeCurrentDb({
 		rootState,
 		dispatch
-	}, dbName) {
+	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/_design/design1/_view/products'
+			url: payload.dbName + '/_design/design1/_view/products'
 		}).then(res => {
 			const currentProductsEnvelope = res.data.rows
 			const availableProductIds = []
@@ -320,7 +319,7 @@ const actions = {
 				const id = product.id
 				availableProductIds.push(id)
 			}
-			dispatch('changeDbInMyProfile', { dbName, productIds: availableProductIds })
+			dispatch('changeDbInMyProfile', { dbName: payload.dbName, autoSignOut: payload.autoSignOut, productIds: availableProductIds })
 		}).catch(error => {
 			const msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -331,12 +330,12 @@ const actions = {
 	},
 
 	/*
-	* Change the current database assigned to the current user
-	* If the user is not subscribed to this database, make the user 'guest' for all products in that database or
-	* If the database is newly created and has no products, register the database without products
+	* Change the current database assigned to the current user if the database is assigned to the user.
+	* If the database is not assigned to the user and the user is 'Admin', add the database to the Admin's profile and assign all products in that database.
 	*/
 	changeDbInMyProfile({
 		rootState,
+		rootGetters,
 		dispatch
 	}, payload) {
 		rootState.isCurrentDbChanged = false
@@ -346,22 +345,25 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			const tmpUserData = res.data
-			const newDbEntry = {
-				myTeam: 'not assigned yet',
-				subscriptions: [],
-				productsRoles: {}
-			}
 			tmpUserData.currentDb = payload.dbName
 			if (!Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
-				// the user is not subscribed to this database
-				if (payload.productIds.length > 0) {
-					// make the user 'guest' of all existing products
+				// the database is not assigned to the user
+				if (rootGetters.isAdmin) {
+					// subscribe all products
+					const newDbEntry = {
+						myTeam: 'not assigned yet',
+						subscriptions: [],
+						productsRoles: {}
+					}
 					for (const id of payload.productIds) {
 						newDbEntry.subscriptions.push(id)
-						newDbEntry.productsRoles[id] = ['guest']
+						newDbEntry.productsRoles[id] = []
 					}
+					tmpUserData.myDatabases[payload.dbName] = newDbEntry
+				} else {
+					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `You must be 'Admin' to assign a database to your self` })
+					return
 				}
-				tmpUserData.myDatabases[payload.dbName] = newDbEntry
 			}
 			dispatch('updateUser', {
 				data: tmpUserData,
@@ -369,6 +371,7 @@ const actions = {
 					rootState.isCurrentDbChanged = true
 					const msg = "changeDbInMyProfile: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+					if (payload.autoSignOut) router.replace('/')
 				}
 			}).catch(error => {
 				const msg = 'changeDbInMyProfile: Could not update the default database for user ' + rootState.userData.user + ', ' + error
@@ -448,7 +451,6 @@ const actions = {
 				}
 			}
 
-			rootState.isUserUpdated = true
 			// execute passed callback if provided
 			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
 			if (payload.toDispatch) {
@@ -460,6 +462,7 @@ const actions = {
 					dispatch(name, td[name])
 				}
 			}
+			rootState.isUserUpdated = true
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + userData.name + "' is updated successfully" })
 		}).catch(error => {
 			// execute passed callback if provided
