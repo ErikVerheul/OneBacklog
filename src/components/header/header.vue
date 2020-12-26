@@ -15,11 +15,9 @@
             <b-dropdown-item to="../../detailProduct">Product details</b-dropdown-item>
             <b-dropdown-item to="../../coarseProduct">Products overview</b-dropdown-item>
             <b-dropdown-item to="../../board">Planning board</b-dropdown-item>
-            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-divider v-if="isAdmin || isServerAdmin"></b-dropdown-divider>
             <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
-						<b-dropdown-item v-else disabled>[You are not Admin]</b-dropdown-item>
             <b-dropdown-item v-if="isServerAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
-						<b-dropdown-item v-else disabled>[You are not Server admin]</b-dropdown-item>
           </b-nav-item-dropdown>
 
           <b-nav-item-dropdown right>
@@ -34,8 +32,9 @@
               <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>
               <b-dropdown-item v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</b-dropdown-item>
               <b-dropdown-item @click="changeMyPassword">Change password</b-dropdown-item>
+              <b-dropdown-item @click="showMyRoles">My authorizations</b-dropdown-item>
             </template>
-						<b-dropdown-item v-else>No options here when not authenticated</b-dropdown-item>
+            <b-dropdown-item v-else>No options here when not authenticated</b-dropdown-item>
 
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
             <b-dropdown-item @click="onSignout">Sign Out</b-dropdown-item>
@@ -106,6 +105,38 @@
         </template>
       </b-container>
     </b-modal>
+
+    <b-modal size="lg" ref="showMyRolesRef" title="My authorizations">
+      <b-container align-v="true">
+        <h3>Generic roles :</h3>
+        <p>By default the application uses two databases. The _users database owned by the admin role and a database holding the products. More databases can be created but the _users database is
+          shared.<br/>
+          What a user can see or do is determined by the roles assigned to that user.</p>
+        <ul>
+          <li>'_admin': Is the CouchDb administrator. Can setup and delete databases. See the CouchDB documentation. The scope is per CouchDb instance including all databases.</li>
+        </ul>
+				<h5 v-if="isServerAdmin" class="have-role">You are CouchDb administrator</h5>
+				<h5 v-else class="not-have-role">No, you are not a CouchDb administrator</h5>
+        Two roles are set per database and include all products defined in that database:
+        <ul>
+          <li>'admin': Can create products, teams and users. Can (un)assign databases and roles to users and user access to products. Is not member of a team.</li>
+          <li>'areaPO': The APOs create and maintain their requirement areas. Can change priorities at the epic and feature level. Is not member of a team.</li>
+        </ul>
+				<h5 v-if="isAdmin" class="have-role">You are Admin</h5>
+				<h5 v-else class="not-have-role">No, you are not Admin</h5>
+				<h5 v-if="isAPO" class="have-role">You are Area Product Owner</h5>
+				<h5 v-else class="not-have-role">No, you are not Area Product Owner</h5>
+				<h3>Product specific roles :</h3>
+       Three roles are set per product in a database:
+        <ul>
+          <li>'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products. Can change priorities at these levels. Must be member of a team.</li>
+          <li>'developer': Can create and maintain pbi's and features for the assigned products when team member. Must be member of a team.</li>
+          <li>'guest': Can only view the items of the assigned products. Has no access to attachments. Cannot join a team.</li>
+        </ul>
+				<h5>Click on a product level item in the tree view to see in the message bar what your assigned roles are for that product.</h5>
+        <p>Users can have multiple roles. Users can only see/access the products that are assigned to them by the admin.</p>
+      </b-container>
+    </b-modal>
   </div>
 </template>
 
@@ -114,37 +145,22 @@
 <style scoped>
 @import "../../css/onebacklog.css";
 
-.input-field {
-  margin: 10px;
-}
-
 .logo {
   width: 62px;
   margin-right: 10px;
-}
-
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  display: flex;
-  flex-flow: row;
-  align-items: center;
 }
 
 li {
   margin: 0 16px;
 }
 
-li a {
-  text-decoration: none;
-  color: #408fae;
+.have-role {
+	color: green;
+	margin-bottom: 1em;
 }
 
-li a:hover,
-li a:active,
-li a.router-link-active {
-  color: #004466;
+.not-have-role {
+	color: red;
+	margin-bottom: 1em;
 }
 </style>

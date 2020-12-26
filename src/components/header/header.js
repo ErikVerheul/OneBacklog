@@ -54,6 +54,10 @@ const methods = {
 		if (this.isServerAdmin) { alert("As a 'server admin' you cannot change your password here. Use Fauxton instead") } else this.$refs.changePwRef.show()
 	},
 
+	showMyRoles() {
+		this.$refs.showMyRolesRef.show()
+	},
+
 	doChangeDatabase() {
 		window.slVueTree.resetFilters('doChangeDatabase')
 		if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
