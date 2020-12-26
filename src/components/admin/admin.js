@@ -8,7 +8,7 @@ const ALLBUTSYSTEMANDBACKUPS = 3
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
 
-/* Add item to array if not allready present. Returns a new array so that it is reactive */
+/* Add item to array if not already present. Returns a new array so that it is reactive */
 function addToArray(arr, item) {
 	const newArr = []
 	for (const el of arr) newArr.push(el)
@@ -74,7 +74,8 @@ function data() {
 		currentSprintNr: undefined,
 		isUserDbSelected: false,
 		teamNamesToRemove: [],
-		lastProductToBeRemoved: false
+		canRemoveLastProduct: true,
+		canRemoveDatabase: true
 	}
 }
 
@@ -130,7 +131,7 @@ const methods = {
 	doAfterDbIsSelected() {
 		switch (this.optionSelected) {
 			case 'Create a user and assign product(s)':
-				this.callGetDbProducts(true)
+				this.callGetDbProducts()
 				break
 			case 'List teams':
 				this.$store.dispatch('getAllUsers')
@@ -179,7 +180,7 @@ const methods = {
 			}],
 			delmark: false
 		}
-		// update the database and add the product to this admin's subscriptions and productsRoles if this database is the admin's current database
+		// update the database and add the product to this admin's subscriptions and productsRoles
 		this.$store.dispatch('createProductAction', { dbName: this.$store.state.selectedDatabaseName, newProduct, priority })
 	},
 
@@ -273,12 +274,15 @@ const methods = {
 	checkCredentials() {
 		if (this.userName && this.password && this.userEmail && this.validEmail(this.userEmail)) {
 			this.credentialsReady = true
+			// check if this user name already exists
+			const justCheck = true
+			this.doFetchUser(this.userName, justCheck)
 		}
 	},
 
 	/* Get all product titles of the selected database in $store.state.useracc.dbProducts */
-	callGetDbProducts(createNewUser) {
-		this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, createNewUser })
+	callGetDbProducts() {
+		this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName })
 	},
 
 	createUser() {
@@ -292,10 +296,12 @@ const methods = {
 		this.localMessage = ''
 		this.$store.state.useracc.userIsAdmin = false
 		this.$store.state.useracc.userIsAPO = false
+		this.$store.state.isUserRemoved = false
 		this.$store.state.isUserCreated = false
 	},
 
 	doCreateUser() {
+		const userIsAdminOrAPO = this.$store.state.useracc.userIsAdmin || this.$store.state.useracc.userIsAPO
 		// calculate the association of the assigned generic roles
 		const allRoles = []
 		if (this.$store.state.useracc.userIsAdmin) allRoles.push('admin')
@@ -304,16 +310,22 @@ const methods = {
 		// generate the productsRoles and subscriptions properties and add the non generic roles
 		const productsRoles = {}
 		const subscriptions = []
+		let rolesAreAssigned = false
 		for (const prod of this.$store.state.useracc.dbProducts) {
 			if (prod.roles.length > 0) {
 				productsRoles[prod.id] = prod.roles
+				rolesAreAssigned = true
 				// add all products to the user's descriptions
 				subscriptions.push(prod.id)
 				// add the non generic roles
-				for (const role of prod.Roles) {
+				for (const role of prod.roles) {
 					if (!allRoles.includes(role)) allRoles.push(role)
 				}
 			}
+		}
+		if (!userIsAdminOrAPO && !rolesAreAssigned) {
+			// must assign at least one role
+			return
 		}
 
 		const newUserData = {
@@ -331,7 +343,11 @@ const methods = {
 				}
 			}
 		}
-		this.$store.dispatch('createUserIfNotExistent', newUserData)
+		if (this.$store.state.isUserRemoved) {
+			newUserData._rev = this.$store.state.useracc.fetchedUserData._rev
+			// replace existing removed user
+			this.$store.dispatch('updateUser', { data: newUserData, onSuccessCallback: () => this.$store.state.isUserCreated = true })
+		} else this.$store.dispatch('createUserIfNotExistent', newUserData)
 	},
 
 	removeUser() {
@@ -353,7 +369,8 @@ const methods = {
 		this.optionSelected = 'Maintain user permissions to products'
 		this.getUserFirst = true
 		this.isUserDbSelected = false
-		this.lastProductToBeRemoved = false
+		this.canRemoveLastProduct = true
+		this.canRemoveDatabase = true,
 		this.localMessage = ''
 		this.$store.state.backendMessages = []
 		this.$store.state.isUserFound = false
@@ -363,9 +380,9 @@ const methods = {
 		this.$store.dispatch('getAllUsers')
 	},
 
-	/* Creates fetchedUserData and have the prod.roles set in products */
-	doFetchUser() {
-		this.$store.dispatch('getUser', this.selectedUser)
+	/* Creates fetchedUserData and have the prod.roles set in dbProducts */
+	doFetchUser(userName, justCheck) {
+		this.$store.dispatch('getUser', { userName, justCheck })
 	},
 
 	doSelectUserDb(dbName) {
@@ -373,7 +390,12 @@ const methods = {
 		this.isUserDbSelected = true
 	},
 
-	/* Update the generic and product roles, including the product subscriptions */
+	/*
+	* Update the generic and product roles in the user's profile, including the product subscriptions.
+	* Check if the profile holds at least one database with at least one product.
+	* The currentDb must be present in myDatabases.
+	* Any subscription to a product must refer to an existing product.
+	*/
 	doUpdateUser() {
 		const dbName = this.$store.state.selectedDatabaseName
 		const newUserData = this.$store.state.useracc.fetchedUserData
@@ -386,25 +408,24 @@ const methods = {
 			newUserData.roles = addToArray(newUserData.roles, 'APO')
 		} else newUserData.roles = removeFromArray(newUserData.roles, 'APO')
 
-		// update the productsroles for this database
+		// update the products roles for this database
 		let newProductsRoles = {}
 		if (newUserData.myDatabases[dbName]) {
-			// the database is allready assigned to this user
-			newProductsRoles = {}
+			// the database is already assigned to this user
 			for (const prod of this.$store.state.useracc.dbProducts) {
 				if (userIsAdminOrAPO) {
-					// admin and APO users have access to all products
+					// users with admin and APO roles have access to all products
 					newProductsRoles[prod.id] = prod.roles
 				} else {
 					if (prod.roles.length > 0) {
 						newProductsRoles[prod.id] = prod.roles
 					} else {
-						// other users with no roles assigned have no access
+						// users without admin or APO roles and no roles assigned to a product have no access to that product
 						delete newProductsRoles[prod.id]
 					}
 				}
 			}
-			// check if the last product of the last database is to be removed od a non admin and APO user
+			// check if the last product of the last database is to be removed from a non admin or APO user
 			if (!userIsAdminOrAPO && Object.keys(newUserData.myDatabases).length === 1) {
 				const productNames = Object.keys(newProductsRoles)
 				let rolesCount = 0
@@ -412,7 +433,8 @@ const methods = {
 					rolesCount += newProductsRoles[pn].length
 				}
 				if (rolesCount === 0) {
-					this.lastProductToBeRemoved = true
+					// cannot remove last product from user profile
+					this.canRemoveLastProduct = false
 					return
 				}
 			}
@@ -424,43 +446,54 @@ const methods = {
 			}
 			for (const prod of this.$store.state.useracc.dbProducts) {
 				if (userIsAdminOrAPO || prod.roles.length > 0) {
-					// admin and APO users have access to all products, other users with no roles assigned have no access
+					// admin and APO users have access to a products without any assigned role, other users have no access when no roles are assigned to a product
 					newProductsRoles[prod.id] = prod.roles
-					// add products to the user's subscriptions
+					// add product to the user's subscriptions
 					newUserData.myDatabases[dbName].subscriptions.push(prod.id)
 				}
 			}
 		}
 
 		// remove the database entry from the user's profile if no roles are assigned for non admin or APO users
+		let removeDb = true
 		if (!userIsAdminOrAPO) {
 			const productIds = Object.keys(newProductsRoles)
-			let removeDb = true
 			for (let prod of productIds) {
 				if (newProductsRoles[prod] && newProductsRoles[prod].length > 0) removeDb = false
 			}
 			if (removeDb) {
-				// delete the database entry in the profile (includes the subscriptions)
-				delete newUserData.myDatabases[dbName]
-				if (dbName === newUserData.currentDb) {
-					// must change current database
-					const databases = Object.keys(newUserData.myDatabases)
-					// pick the first
-					newUserData.currentDb = databases[0]
-				}
-			} else {
-				// remove obsolete subscriptions
-				const newSubscriptions = []
-				for (let s of newUserData.myDatabases[dbName].subscriptions) {
-					if (newProductsRoles[s]) {
-						newSubscriptions.push(s)
+				if (Object.keys(newUserData.myDatabases).length > 1) {
+					// delete the database entry in the profile (includes all subscriptions)
+					delete newUserData.myDatabases[dbName]
+					if (dbName === newUserData.currentDb) {
+						// must change current database
+						const databases = Object.keys(newUserData.myDatabases)
+						// pick the first
+						newUserData.currentDb = databases[0]
 					}
+				} else {
+					// cannot remove last database fron user profile
+					this.canRemoveDatabase = false
+					return
 				}
-				newUserData.myDatabases[dbName].subscriptions = newSubscriptions
 			}
-			newUserData.myDatabases[dbName].productsRoles = newProductsRoles
+		} else {
+			// admin and APO roles have access to all databases
+			removeDb = false
 		}
 
+		// update the subscriptions and productsRoles if the database is not removed from the user's profile
+		if (!removeDb) {
+			// remove obsolete subscriptions
+			const newSubscriptions = []
+			for (let s of newUserData.myDatabases[dbName].subscriptions) {
+				if (newProductsRoles[s]) {
+					newSubscriptions.push(s)
+				}
+			}
+			newUserData.myDatabases[dbName].subscriptions = newSubscriptions
+			newUserData.myDatabases[dbName].productsRoles = newProductsRoles
+		}
 		this.$store.dispatch('updateUser', { data: newUserData })
 	},
 
