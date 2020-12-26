@@ -117,19 +117,15 @@ function data() {
 
 const computed = {
 	welcomeMessage() {
-		const quotedUserName = `'${this.$store.state.userData.user}'`
-		const msg_1 = `Welcome ${this.isServerAdmin ? '[server admin] ' + quotedUserName : quotedUserName}.`
 		let msg_2
 		if (this.myTeam === 'not assigned yet') {	msg_2 = ' You are not a team member.' }
 		else msg_2 = ` You are member of team '${this.myTeam}'.`
-
-		const msg_3 = ` Your current database is set to '${this.$store.state.userData.currentDb}'.`
 
 		let msg_4
 		if (this.getMyAssignedProductIds.length === 1) { msg_4 = ` You have 1 product.` }
 		else msg_4 = ` You selected ${this.getMyProductSubscriptions.length} from ${this.getMyAssignedProductIds.length} products.`
 
-		return msg_1 + msg_2 + msg_3 + msg_4
+		return `Welcome '${this.$store.state.userData.user}'.` + msg_2 + ` Your current database is set to '${this.$store.state.userData.currentDb}'.` + msg_4
 	},
 
 	squareText() {
@@ -649,7 +645,7 @@ const methods = {
 	getViewOptions() {
 		const options = [
 			{ text: 'Comments', value: 'comments' },
-			{ text: 'Attachments', value: 'attachments' },
+			{ text: 'Attachments', value: 'attachments', disabled: !this.canSeeAndUploadAttachments },
 			{ text: 'History', value: 'history' }
 		]
 		return options
