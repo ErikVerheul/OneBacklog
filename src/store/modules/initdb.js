@@ -23,7 +23,7 @@ const actions = {
 	* 6. createRootDoc & createReqAreasParent
 	* 7. createDefaultTeam
 	* 8. createFirstProduct
-	* 9. addProductToUser in useracc.js and set isDatabaseInitiated to true when successful
+	* 9. assignProductToUser in useracc.js and set isDatabaseInitiated to true when successful
 	* 10. createMessenger
 	*/
 
@@ -586,7 +586,8 @@ const actions = {
 				value: _id,
 				text: title
 			}
-			dispatch('addProductToUser', { dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: ['*'] })
+			// add the new product to the current user's profile without assigning roles
+			dispatch('assignProductToUser', { dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: [] })
 			dispatch('createMessenger', dbName)
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Success, product with _id ' + _id + ' is created' })
 		}).catch(error => {

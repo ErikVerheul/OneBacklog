@@ -153,12 +153,12 @@ const actions = {
 				// add the product to the treemodel, the path etc. will be calculated
 				window.slVueTree.insert(cursorPosition, [newNode], false)
 			}
+			// add the product to my subscriptions and productsRoles with no roles assigned
 			const newProductOption = {
 				value: _id,
 				text: payload.newProduct.title
 			}
-			// add the product to my subscriptions and productsRoles
-			dispatch('addProductToUser', { dbName: payload.dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: ['guest'] })
+			dispatch('assignProductToUser', { dbName: payload.dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: [] })
 		}).catch(error => {
 			const msg = `createProductAction: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -236,6 +236,7 @@ const actions = {
 			rootState.isPurgeReady = false
 			rootState.backendMessages = []
 			dispatch('purgeDb', { dbName, data, batch: {}, processed: 0 })
+			// ToDo: move to onSuccessCallback
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Purge started, ' + removed.length + ' documents will be deleted. Please wait ...' })
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Could not find any removed documents in database ' + dbName + ', ' + error })
