@@ -46,7 +46,7 @@ const methods = {
 	},
 
 	selectProducts() {
-		this.selectedProducts = this.$store.state.myProductOptions.map((o) => o.value)
+		this.selectedProducts = this.getMyProductSubscriptions
 		this.$refs.selectProductsRef.show()
 	},
 
