@@ -165,7 +165,8 @@ export default {
 
     /* Creates fetchedUserData and have the prod.roles set in products */
     fetchUser () {
-      this.$store.dispatch('getUser', this.selectedUser)
+			const justCheck = false
+      this.$store.dispatch('getUser', { userName: this.selectedUser, justCheck })
     },
 
     doCancel () {
