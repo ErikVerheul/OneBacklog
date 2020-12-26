@@ -40,7 +40,7 @@ const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
 
 Vue.use(Vuex)
-/* Add item to array if not allready present. Returns a new array so that it is reactive */
+/* Add item to array if not already present. Returns a new array so that it is reactive */
 function addToArray(arr, item) {
 	const newArr = []
 	for (const el of arr) newArr.push(el)
@@ -158,7 +158,8 @@ export default new Vuex.Store({
     isTeamCreated: false,
 		isUserCreated: false,
 		isUserDeleted: false,
-    isUserFound: false,
+		isUserFound: false,
+		isUserRemoved: false,
     isUserUpdated: false,
     logEntries: [],
     selectedDatabaseName: '',
@@ -227,8 +228,15 @@ export default new Vuex.Store({
 			const genericRoles = []
 			if (state.iAmAdmin) genericRoles.push('admin')
 			if (state.iAmAPO) genericRoles.push('APO')
-			if (state.iAmServerAdmin) genericRoles.push('_admin')
 			return genericRoles
+		},
+
+		// return the number of products in the currrent database
+		getMyProductsCount (state) {
+			if (state.userData.myDatabases) {
+				const productsRoles = state.userData.myDatabases[state.userData.currentDb].productsRoles
+				return Object.keys(productsRoles).length
+			}
 		},
 
 		/* Return all my products with my assigned roles in my current database */
@@ -311,11 +319,11 @@ export default new Vuex.Store({
 						myCurrentProductRoles.includes('developer'))
       } else return false
     },
-    canUploadAttachments (state, getters) {
+    canSeeAndUploadAttachments (state, getters) {
       if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
         return myCurrentProductRoles &&
-					(getters.isServerAdmin || getters.isAdmin || getters.isAPO ||
+					(getters.isAdmin || getters.isAPO ||
 						myCurrentProductRoles.includes('PO') ||
 						myCurrentProductRoles.includes('developer'))
       } else return false
