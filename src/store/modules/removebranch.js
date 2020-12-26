@@ -309,7 +309,8 @@ const actions = {
           }
           commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
           // load the new selected item
-          dispatch('loadDoc', { id: nowSelectedNode._id })
+					dispatch('loadDoc', { id: nowSelectedNode._id })
+					// ToDo: move to onSuccessCallback ?
           // remove the node and its children
           window.slVueTree.remove([payload.node])
 
