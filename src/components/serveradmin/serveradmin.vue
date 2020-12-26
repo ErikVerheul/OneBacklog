@@ -93,7 +93,7 @@
         <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
 				<b-button v-else class="m-1" @click="cancel" variant="seablue">Return</b-button>
         <div v-if="$store.state.isPurgeReady">
-          <h4>Succes! The purge is ready</h4>
+          <h4>Success! The purge is ready</h4>
         </div>
       </div>
 
@@ -108,7 +108,7 @@
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
 				<b-button v-else class="m-1" @click="cancel" variant="seablue">Return</b-button>
         <div v-if="$store.state.isCurrentDbChanged">
-          <h4>Succes! Sign-out and -in to see the product view of the {{ $store.state.selectedDatabaseName }} database</h4>
+          <h4>Success! Click 'Exit' to sign-out. Sign-in to see the product details view of the '{{ $store.state.selectedDatabaseName }} 'database</h4>
           <div>
             <b-button class="m-1" @click="signIn()">Exit</b-button>
           </div>
@@ -137,7 +137,7 @@
         <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
 				<b-button v-else class="m-1" @click="cancel" variant="seablue">Return</b-button>
         <div v-if="$store.state.isHistAndCommReset">
-          <h4>Succes! History and comments are removed</h4>
+          <h4>Success! History and comments are removed</h4>
         </div>
         <div v-else>
           <h4 v-if="asyncFired">Please wait ... Failure? See the log</h4>
@@ -327,7 +327,8 @@ export default {
     },
 
     doChangeMyDb() {
-      this.$store.dispatch('changeCurrentDb', this.$store.state.selectedDatabaseName)
+			const autoSignOut = false
+      this.$store.dispatch('changeCurrentDb', { dbName: this.$store.state.selectedDatabaseName, autoSignOut })
     },
 
     purgeDb() {
