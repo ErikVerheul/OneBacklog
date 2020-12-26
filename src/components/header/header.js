@@ -1,5 +1,4 @@
 import Licence from './licence.vue'
-import router from '../../router'
 import { authorization, utilities } from '../mixins/generic.js'
 
 const INFO = 0
@@ -58,8 +57,8 @@ const methods = {
 	doChangeDatabase() {
 		window.slVueTree.resetFilters('doChangeDatabase')
 		if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
-			this.$store.dispatch('changeCurrentDb', this.headerMyDatabase)
-			router.replace('/')
+			const autoSignOut = true
+			this.$store.dispatch('changeCurrentDb', { dbName: this.headerMyDatabase, autoSignOut })
 		}
 	},
 

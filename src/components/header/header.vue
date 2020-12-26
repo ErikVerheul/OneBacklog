@@ -25,16 +25,18 @@
             <template slot="button-content">
               <em>User</em>
             </template>
-            <b-dropdown-item v-if="!isAuthenticated">No options here when not signed in</b-dropdown-item>
-            <b-dropdown-item v-if="isAuthenticated && $store.state.currentView !== 'planningBoard' && $store.state.myAssignedDatabases.length > 1" @click="changeDatabase">Change database
-            </b-dropdown-item>
+
             <template v-if="isAuthenticated">
+              <b-dropdown-item v-if="$store.state.currentView !== 'planningBoard' && $store.state.myAssignedDatabases.length > 1" @click="changeDatabase">Change database
+              </b-dropdown-item>
               <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>
-              <b-dropdown-item v-if="$store.state.currentView === 'detailProduct' && getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</b-dropdown-item>
+              <b-dropdown-item v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</b-dropdown-item>
+              <b-dropdown-item @click="changeMyPassword">Change password</b-dropdown-item>
             </template>
-            <b-dropdown-item v-if="isAuthenticated" @click="changeMyPassword">Change password</b-dropdown-item>
+						<b-dropdown-item v-else>No options here when not authenticated</b-dropdown-item>
+
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
-            <b-dropdown-item v-if="isAuthenticated" @click="onSignout">Sign Out</b-dropdown-item>
+            <b-dropdown-item @click="onSignout">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
