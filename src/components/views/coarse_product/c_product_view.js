@@ -181,7 +181,9 @@ const methods = {
 						this.$store.state.currentProductId = this.getLastSelectedNode.productId
 						this.$store.state.currentProductTitle = this.getLastSelectedNode.title
 					}
-					this.showSelectionEvent(selNodes)
+					if (this.getLastSelectedNode._id !== 'requirement-areas') {
+						this.showSelectionEvent(selNodes)
+					} else this.showLastEvent('Create / maintain Requirement Areas here', INFO)
 				}
 			})
 		}
