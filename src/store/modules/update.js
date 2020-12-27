@@ -278,9 +278,9 @@ const actions = {
 				updatedDoc: tmpDoc,
 				caller: 'setTsSize',
 				onSuccessCallback: () => {
-					commit('showLastEvent', { txt: 'The T-shirt size of this item is changed', severity: INFO })
 					commit('updateNodesAndCurrentDoc', { node, tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: 'The T-shirt size of this item is changed', severity: INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -330,9 +330,9 @@ const actions = {
 				updatedDoc: tmpDoc,
 				caller: 'setPersonHours',
 				onSuccessCallback: () => {
-					commit('showLastEvent', { txt: 'The maximum effort of this spike is changed', severity: INFO })
 					commit('updateNodesAndCurrentDoc', { node, spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: 'The maximum effort of this spike is changed', severity: INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -385,6 +385,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: 'The story points assigned to this item have changed', severity: INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -553,11 +554,10 @@ const actions = {
 						}
 						commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam, lastChange: payload.timestamp, newHist })
 
-						if (descendantsInfo.count === 0) {
-							commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: INFO })
-						} else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`, severity: INFO })
-
 						if (payload.createUndo) {
+							if (descendantsInfo.count === 0) {
+								commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: INFO })
+							} else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`, severity: INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
 							const entry = {
 								type: 'undoChangeTeam',
@@ -708,6 +708,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: 'The item type is changed', severity: INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoSelectedPbiType',
@@ -761,8 +762,8 @@ const actions = {
 				updatedDoc: tmpDoc,
 				caller: 'saveDescription',
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
+						commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -818,6 +819,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: 'The item acceptance criteria have changed', severity: INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -1026,19 +1028,22 @@ const actions = {
 				// take the fist document found
 				const doc = rows[0].doc
 				if (rootGetters.getMyAssignedProductIds.includes(doc.productId)) {
-					if (rows.length > 1) {
-						commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: INFO })
-						let ids = ''
-						for (let i = 0; i < rows.length; i++) {
-							ids += rows[i].doc._id + ', '
+					if (rootGetters.getMyProductSubscriptions.includes(doc.productId)) {
+						if (rows.length > 1) {
+							commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: INFO })
+							let ids = ''
+							for (let i = 0; i < rows.length; i++) {
+								ids += rows[i].doc._id + ', '
+							}
+							const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
+							// eslint-disable-next-line no-console
+							if (rootState.debug) console.log(msg)
+							dispatch('doLog', { event: msg, level: WARNING })
 						}
-						const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log(msg)
-						dispatch('doLog', { event: msg, level: WARNING })
+						commit('updateNodesAndCurrentDoc', { newDoc: doc })
+					} else {
+						commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your selected products. Select all products and try again`, severity: INFO })
 					}
-					commit('updateNodesAndCurrentDoc', { newDoc: doc })
-					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your selected products`, severity: INFO })
 				} else {
 					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your assigned products`, severity: WARNING })
 				}
