@@ -286,6 +286,7 @@ const actions = {
 		})
 	},
 
+	/* Update my profile with my product subscriptions. The first entry in the array is my default product. */
 	updateMySubscriptions({
 		rootState,
 		dispatch
