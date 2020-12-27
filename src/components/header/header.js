@@ -1,7 +1,6 @@
 import Licence from './licence.vue'
 import { authorization, utilities } from '../mixins/generic.js'
 
-const INFO = 0
 const MINPASSWORDLENGTH = 8
 
 function created() {
@@ -103,52 +102,48 @@ const methods = {
 	},
 
 	updateProductsView(productIds, newDefaultProductId) {
-		const defaultProductChanged = this.$store.state.currentProductId !== newDefaultProductId
-		if (defaultProductChanged) {
-			// collapse the previously selected product
-			window.slVueTree.collapseTree()
-			// update globals to new default
-			this.$store.state.currentProductId = newDefaultProductId
-			this.$store.state.currentDefaultProductId = newDefaultProductId
-			this.$store.dispatch('loadDoc', {
-				id: newDefaultProductId, onSuccessCallback: () => {
-					this.showSelectionEvent([window.slVueTree.getNodeById(newDefaultProductId)])
+		// the default product changed
+		this.$store.dispatch('loadDoc', {
+			id: newDefaultProductId, onSuccessCallback: () => {
+				if (this.$store.state.currentProductId !== newDefaultProductId) {
+					// collapse the previously selected product
+					window.slVueTree.collapseTree()
+					// update globals to new default
+					this.$store.state.currentProductId = newDefaultProductId
+					this.$store.state.currentDefaultProductId = newDefaultProductId
+					// select new default product node
+					window.slVueTree.selectNodeById(newDefaultProductId)
+					// expand the newly selected product up to the feature level
+					window.slVueTree.expandTree()
 				}
-			})
-		}
-		// remove products from the tree view
-		let removedCount = 0
-		for (const productId of this.getMyProductSubscriptions) {
-			if (!productIds.includes(productId)) {
-				window.slVueTree.removeProduct(productId)
-				removedCount++
-			}
-			this.showLastEvent(`${removedCount} products are removed from this view`, INFO)
-		}
-		// update my product subscriptions and add product(s) if missing
-		this.$store.commit('updateMyProductSubscriptions', productIds)
-		const missingIds = []
-		for (const productId of productIds) {
-			if (this.getMyAssignedProductIds.includes(productId)) {
-				this.getMyProductSubscriptions.push(productId)
-				if (window.slVueTree.getNodeById(productId) === null) {
-					missingIds.push(productId)
+				// remove unselected products from the tree view
+				for (const productId of this.getMyProductSubscriptions) {
+					if (!productIds.includes(productId)) {
+						window.slVueTree.removeProduct(productId)
+					}
 				}
+				// update my product subscriptions and add product(s) if missing
+				this.$store.commit('updateMyProductSubscriptions', productIds)
+				const missingIds = []
+				for (const productId of productIds) {
+					if (this.getMyProductSubscriptions.includes(productId)) {
+						if (window.slVueTree.getNodeById(productId) === null) {
+							missingIds.push(productId)
+						}
+					}
+				}
+				if (missingIds.length > 0) {
+					this.$store.dispatch('loadProducts', { missingIds, newDefaultProductId })
+				}
+				// update the user's profile; place the default productId on top in the array
+				const myProductIds = [newDefaultProductId]
+				for (let id of productIds) {
+					if (!myProductIds.includes(id)) myProductIds.push(id)
+				}
+				this.$store.dispatch('updateMySubscriptions', myProductIds)
+				this.showSelectionEvent([window.slVueTree.getNodeById(newDefaultProductId)])
 			}
-		}
-		if (!missingIds.includes(newDefaultProductId)) {
-			if (defaultProductChanged) {
-				// select the new default product
-				window.slVueTree.selectNodeById(newDefaultProductId)
-				// expand the newly selected product up to the feature level
-				window.slVueTree.expandTree()
-			}
-		}
-		if (missingIds.length > 0) {
-			this.showLastEvent(`${this.getMyProductSubscriptions.length} products are loaded`, INFO)
-			this.$store.dispatch('addProducts', { missingIds, newDefaultProductId })
-		}
-		this.$store.dispatch('updateMySubscriptions', productIds)
+		})
 	},
 
 	doChangeMyPassWord() {

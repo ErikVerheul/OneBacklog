@@ -160,10 +160,6 @@ const methods = {
 		this.dependencyViolationsFound()
 	},
 
-	showReqAreaTitle(node) {
-		if (node.data.reqarea) this.showLastEvent(`This item belongs to requirement area '${this.$store.state.reqAreaMapper[node.data.reqarea]}'`, INFO)
-	},
-
 	findItemOnId(shortId) {
 		let node
 		window.slVueTree.traverseModels((nm) => {
