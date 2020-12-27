@@ -269,8 +269,8 @@ const actions = {
     dispatch('restoreItems', { results: convertToResults(docs) })
   },
 
-  /* addProducts uses restoreBranches to load a product as a branch */
-  addProducts ({
+  /* loadProducts uses restoreBranches to load a product as a branch */
+  loadProducts ({
     rootState,
     dispatch
   }, payload) {
@@ -293,13 +293,12 @@ const actions = {
       }
       dispatch('restorebranches', docs)
     }).catch(e => {
-      const msg = 'addProducts: Could not add products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + e
+      const msg = 'loadProducts: Could not load products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + e
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
     })
   }
-
 }
 
 export default {
