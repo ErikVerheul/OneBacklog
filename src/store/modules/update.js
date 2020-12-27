@@ -7,12 +7,19 @@ const ERROR = 2
 const ON_HOLD = 1
 const DONE = 6
 const TASKLEVEL = 6
+const NEW_STATE = 2
+const DONE_STATE = 6
 
 function getLevelText (configData, level) {
   if (level < 0 || level > TASKLEVEL) {
     return 'Level not supported'
   }
   return configData.itemType[level]
+}
+function concatMsg (oldMsg, newMsg) {
+	if (newMsg === undefined) return oldMsg
+	if (oldMsg === undefined || oldMsg.length === 0) return newMsg
+	return oldMsg + ' ' + newMsg
 }
 
 const actions = {
@@ -399,7 +406,8 @@ const actions = {
 
   /* When called from the planning board the tree is aldo updated with the new state */
   setState ({
-    rootState,
+		rootState,
+		rootGetters,
     commit,
     dispatch
   }, payload) {
@@ -430,9 +438,37 @@ const actions = {
         updatedDoc: tmpDoc,
         caller: 'setState',
         onSuccessCallback: () => {
-          commit('updateNodesAndCurrentDoc', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
+					let infoMsg = undefined
+					let warnMsg = undefined
+					const descendants = window.slVueTree.getDescendantsInfo(node).descendants
+					// check on inconsistent state
+					if (descendants.length > 0) {
+						let highestState = NEW_STATE
+						let allDone = true
+						for (const d of descendants) {
+							if (d.data.state > highestState) highestState = d.data.state
+							if (d.data.state < DONE_STATE) allDone = false
+						}
+						if (payload.newState > highestState || payload.newState === DONE_STATE && !allDone) {
+							// node has a higher state than any of its descendants or set to done while one of its descendants is not done
+							commit('updateNodesAndCurrentDoc', { node, inconsistentState: true })
+							if (payload.newState === DONE_STATE && !allDone) {
+								warnMsg = 'You are assigning an inconsistant state to this item. Not all descendants are done.'
+							} else warnMsg = 'You are assigning an inconsistant state to this item. None of the item\'s descendants reached this state.'
+						} else {
+							commit('updateNodesAndCurrentDoc', { node, inconsistentState: false })
+						}
+					}
+					// check on team
+					const parentNode = window.slVueTree.getParentNode(node)
+					if (parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin) {
+						if (parentNode.data.team !== rootGetters.myTeam) {
+							warnMsg = concatMsg(warnMsg, `The team of parent '${parentNode.title}' (${parentNode.data.team}) and your team (${rootGetters.myTeam}) do not match.
+							Consider to assign team '${parentNode.data.team}' to this item`)
+						}
+					}
           // recalculate and (re)set the inconsistency state of the parent item
-          const parentNode = window.slVueTree.getParentNode(node)
           if (parentNode && parentNode.data.state === DONE) {
             const descendants = window.slVueTree.getDescendantsInfo(parentNode).descendants
             let hasInconsistentState = false
@@ -455,8 +491,14 @@ const actions = {
               prevLastChange
             }
 						rootState.changeHistory.unshift(entry)
-						commit('showLastEvent', { txt: 'Item state has changed', severity: INFO })
-          } else commit('showLastEvent', { txt: 'Change of item state is undone', severity: INFO })
+						infoMsg = 'Item state has changed'
+					} else infoMsg = 'Change of item state is undone'
+					// show warnings or infos
+					if (warnMsg) {
+						commit('showLastEvent', { txt: warnMsg, severity: WARNING })
+					} else {
+						if (infoMsg) commit('showLastEvent', { txt: infoMsg, severity: INFO })
+					}
         }
       })
     }).catch(error => {
@@ -468,7 +510,8 @@ const actions = {
   },
 
   assignToMyTeam ({
-    rootState,
+		rootState,
+		rootGetters,
     commit,
     dispatch
   }, payload) {
@@ -511,8 +554,8 @@ const actions = {
             commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam, lastChange: payload.timestamp, newHist })
 
             if (descendantsInfo.count === 0) {
-              commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootState.userData.myTeam}'.`, severity: INFO })
-            } else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootState.userData.myTeam}'.`, severity: INFO })
+							commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: INFO })
+						} else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`, severity: INFO })
 
             if (payload.createUndo) {
               // create an entry for undoing the change in a last-in first-out sequence

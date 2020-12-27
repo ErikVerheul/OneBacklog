@@ -547,40 +547,16 @@ const methods = {
 	*  ToDo: when setting the state to on-hold also set the state of all descendants to on-hold
 	*/
 	onStateChange(newState) {
-		function changeState(vm) {
-			const node = vm.getLastSelectedNode
-			const descendants = window.slVueTree.getDescendantsInfo(node).descendants
-			if (descendants.length > 0) {
-				let highestState = vm.newState
-				let allDone = true
-				for (const d of descendants) {
-					if (d.data.state > highestState) highestState = d.data.state
-					if (d.data.state < vm.doneState) allDone = false
-				}
-				if (newState > highestState || newState === vm.doneState && !allDone) {
-					// node has a higher state than any of its descendants or set to done while one of its descendants is not done
-					vm.$store.commit('updateNodesAndCurrentDoc', { node, inconsistentState: true })
-					if (newState === vm.doneState && !allDone) {
-						vm.showLastEvent('You are assigning an inconsistant state to this item. Not all descendants are done.', WARNING)
-					} else vm.showLastEvent('You are assigning an inconsistant state to this item. None of the item\'s descendants reached this state.', WARNING)
-				} else {
-					vm.$store.commit('updateNodesAndCurrentDoc', { node, inconsistentState: false })
-					vm.clearLastEvent()
-				}
-			}
-
-			vm.$store.dispatch('setState', { node, newState, position: vm.getLastSelectedNode.ind, timestamp: Date.now(), createUndo: true })
-		}
 		if (newState !== this.$store.state.currentDoc.state) {
 			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
-				changeState(this)
-				const parentNode = window.slVueTree.getParentNode(this.getLastSelectedNode)
-				if (parentNode._id != 'root') {
-					if (parentNode.data.team !== this.myTeam) {
-						this.showLastEvent("The team of parent '" + parentNode.title + "' (" + parentNode.data.team + ') and your team (' +
-							this.myTeam + ") do not match. Consider to assign team '" + parentNode.data.team + "' to this item", WARNING)
-					}
-				}
+				const node = this.getLastSelectedNode
+				this.$store.dispatch('setState', {
+					node,
+					newState,
+					position: node.ind,
+					timestamp: Date.now(),
+					createUndo: true
+				})
 			}
 		}
 	},
