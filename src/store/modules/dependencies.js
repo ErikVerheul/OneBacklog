@@ -51,7 +51,7 @@ const actions = {
       const toDispatch = [{ alsoSetCondition: payload }]
       dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'setDepAndCond' })
     }).catch(error => {
-      commit('showLastEvent', { txt: 'Failed to se the dependency', severity: ERROR })
+      commit('showLastEvent', { txt: 'Failed to set the dependency', severity: ERROR })
       const msg = 'setDepAndCond: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
