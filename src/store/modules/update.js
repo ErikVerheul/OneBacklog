@@ -405,7 +405,15 @@ const actions = {
 		})
 	},
 
-	/* When called from the planning board the tree is aldo updated with the new state */
+	/*
+	* Change the state of an item.
+	*	Warn for an inconsistent state:
+	* - the node's new state cannot be higher than one of its descendants
+	* - the node's state cannot be done if any of its descendants is not done
+	* note: the new state will be set irrespective of the warning
+	* note: the node's state can be set higher than any of its ancestors without warning
+	* When called from the planning board the tree is aldo updated with the new state
+	*/
 	setState({
 		rootState,
 		rootGetters,
@@ -443,7 +451,7 @@ const actions = {
 					let infoMsg = undefined
 					let warnMsg = undefined
 					const descendants = window.slVueTree.getDescendantsInfo(node).descendants
-					// check on inconsistent state
+					// check on inconsistent state when the node has descendants
 					if (descendants.length > 0) {
 						let highestState = NEW_STATE
 						let allDone = true
