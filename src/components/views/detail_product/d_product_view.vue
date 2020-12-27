@@ -180,7 +180,7 @@
             </template>
 
             <template v-if="$store.state.colorMapper && node.level > productLevel && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
-              <p @click="showReqAreaTitle(node)" class="rectangle" v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
+              <p class="rectangle" v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
             </template>
           </sl-vue-tree>
         </div>
