@@ -117,7 +117,7 @@ function data() {
 const computed = {
 	welcomeMessage() {
 		let msg_2
-		if (this.myTeam === 'not assigned yet') {	msg_2 = ' You are not a team member.' }
+		if (this.myTeam === 'not assigned yet') { msg_2 = ' You are not a team member.' }
 		else msg_2 = ` You are member of team '${this.myTeam}'.`
 
 		let msg_4
