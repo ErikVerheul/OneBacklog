@@ -192,10 +192,6 @@ const methods = {
     this.getRootComponent().$emit('drop', draggingNodes, position)
   },
 
-  emitToggle (toggledNode, event) {
-    this.getRootComponent().$emit('toggle', toggledNode, event)
-  },
-
   // trigger the context component via the eventbus unless on root
   emitNodeContextmenu (node) {
     if (!this.isRoot) eventBus.$emit('context-menu', node)
@@ -395,8 +391,6 @@ const methods = {
     if (!this.allowToggleBranch) return
     node.isExpanded = !node.isExpanded
     if (node.isExpanded) this.unhideDescendants(node)
-    this.showLastEvent(`Node '${node.title}' is ${node.isExpanded ? 'expanded' : 'collapsed'}`, INFO)
-    this.emitToggle(node, event)
     event.stopPropagation()
   },
 
@@ -526,7 +520,7 @@ const methods = {
     return this.getNodeSiblings(path.slice(1), nodes[path[0]].children || [])
   },
 
-  // return the node of the selected productId / current productId or the full tree if the product is not found
+  // returns an array with the node of the selected productId / current productId or the full tree if the product is not found
   getProductModels (productId = this.$store.state.currentProductId) {
     const productModels = this.currentValue[0].children
     for (const p of productModels) {
@@ -687,7 +681,7 @@ const methods = {
     })
   },
 
-  /* Collapse the branch below the current product and hide the nodes */
+  /* Collapse the branch below the current product or all products if allProducts === true, and hide the nodes */
   collapseTree (allProducts) {
     const currentProduct = allProducts ? undefined : this.getProductModels()
     this.traverseModels((nm) => {
@@ -704,8 +698,10 @@ const methods = {
   },
 
   /* Show the current selected product */
-  expandTree (allProducts) {
-    const currentProduct = allProducts ? undefined : this.getProductModels()
+	expandTree(allProducts) {
+		const currentProduct = allProducts ? undefined : this.getProductModels()
+		// must expand the product root to show its descendants
+		currentProduct[0].isExpanded = true
     this.traverseModels((nm) => {
       if (nm.level > PRODUCTLEVEL && nm.level < FEATURELEVEL) {
         nm.isExpanded = true
