@@ -221,6 +221,29 @@ const utilities = {
 			this.$store.state.eventBgColor = eventBgColor
 		},
 
+		showSelectionEvent(selNodes) {
+			function printRoles(roles) {
+				if (roles.length === 0) return 'roles for this product are not set by your administrator'
+				if (roles.length === 1) return `role for this product is ${roles[0]}.`
+				if (roles.length === 2) return `roles for this product are ${roles[0]} and ${roles[1]}.`
+				if (roles.length === 3) return `roles for this product are ${roles[0]}, ${roles[1]} and ${roles[2]}.`
+				return `Product roles cannot have more than 3 values!`
+			}
+			// update the event message bar
+			let evt = ''
+			const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
+			const itemType = this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)
+			if (selNodes.length === 1) {
+				evt = `${itemType} '${lastSelectedNodeTitle}' is selected.`
+				if (this.getLastSelectedNode.level === PRODUCTLEVEL) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
+				if (this.getLastSelectedNode.data.reqarea) evt += ` This ${itemType} belongs to requirement area '${this.$store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
+			} else {
+				const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
+				evt = `${itemType} ${multiNodesTitle} are selected.`
+			}
+			this.showLastEvent(evt, INFO)
+		},
+
 		////////////////////////////////////////// sprints ////////////////////////////////////////
 		// ToDo: make this a computed prop so that it comes into effect immediately when the current sprint ends
 		getCurrentAndNextSprint() {

@@ -5,7 +5,6 @@ const WARNING = 1
 const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
-const PRODUCTLEVEL = 2
 const SHORTKEYLENGTH = 5
 
 function created() {
@@ -176,26 +175,6 @@ const computed = {
 }
 
 const methods = {
-	showSelectionEvent(selNodes) {
-		function printRoles(roles) {
-			if (roles.length === 0) return 'roles for this product are not set by your administrator'
-			if (roles.length === 1) return `role for this product is ${roles[0]}`
-			if (roles.length === 2) return `roles for this product are ${roles[0]} and ${roles[1]}`
-			if (roles.length === 3) return `roles for this product are ${roles[0]}, ${roles[1]} and ${roles[2]}`
-			return `product roles cannot have more than 3 values!`
-		}
-		// update the event message bar
-		let evt = ''
-		const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
-		if (selNodes.length === 1) {
-			evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} '${lastSelectedNodeTitle}' is selected.`
-			if (this.getLastSelectedNode.level === PRODUCTLEVEL) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
-		} else {
-			const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
-			evt = `${this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)} ${multiNodesTitle} are selected.`
-		}
-		this.showLastEvent(evt, INFO)
-	},
 
 	dependencyViolationsFound() {
 		const violations = window.slVueTree.findDependencyViolations()
