@@ -50,7 +50,4 @@ export default {
   background: #8b8cc7;
 }
 
-.colorYellow {
-  color: #ffff00;
-}
 </style>
