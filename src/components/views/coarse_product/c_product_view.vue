@@ -71,7 +71,7 @@
           <b-col cols="2">
             <h3 align="right">
               State:
-              <b-dropdown id="dropdownMenuButton" right class="m-2 .btn.btn-secondary.dropdown-toggle">
+              <b-dropdown right class="m-2 .btn.btn-secondary.dropdown-toggle">
                 <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
                 <b-dropdown-item @click="onStateChange(newState)">{{ getItemStateText(newState) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(readyState)">{{ getItemStateText(readyState) }}</b-dropdown-item>
@@ -363,7 +363,6 @@
 
 <style lang="scss" scoped>
 @import "../../../css/sl-vue-tree-dark.css";
-@import "../../../css/onebacklog.css";
 
 // horizontal panes
 .horizontal-panes {
@@ -477,13 +476,6 @@
   height: 100%;
 }
 
-.sl-vue-tree.sl-vue-tree-root {
-  flex-grow: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: 100%;
-}
-
 //my stuff
 .square {
   float: right;
@@ -495,22 +487,6 @@
   width: 71px;
   height: 25px;
  }
-
-.colorBlue {
-  color: #0099ff;
-}
-
-.colorGreen {
-  color: #00ffcc;
-}
-
-.colorOrange {
-  color: #ff9900;
-}
-
-.colorYellow {
-  color: #ffff00;
-}
 
 input[type="number"] {
   -moz-appearance: numberfield;
