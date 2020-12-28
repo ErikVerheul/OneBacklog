@@ -12,6 +12,10 @@
 .sl-vue-tree.sl-vue-tree-root {
     background-color: rgb(9, 22, 29);
     color: rgba(255, 255, 255, 0.5);
+    flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
 }
 
 .sl-vue-tree-selected > .sl-vue-tree-node-item {
