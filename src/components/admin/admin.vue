@@ -407,7 +407,6 @@
 <script src="./admin.js"></script>
 
 <style scoped>
-@import "../../css/onebacklog.css";
 
 h4,
 h5 {

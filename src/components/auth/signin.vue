@@ -71,7 +71,6 @@ export default {
 </script>
 
 <style scoped>
-@import "../../css/onebacklog.css";
 
 .signin-form {
   width: 400px;

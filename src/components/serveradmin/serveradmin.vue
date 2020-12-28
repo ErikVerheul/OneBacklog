@@ -401,7 +401,6 @@ export default {
 </script>
 
 <style scoped>
-@import "../../css/onebacklog.css";
 
 h4 {
   margin-top: 20px;

@@ -204,7 +204,6 @@
 <script src="./d_context.js"></script>
 
 <style scoped>
-@import "../../../css/onebacklog.css";
 
 .border {
   padding: 10px;

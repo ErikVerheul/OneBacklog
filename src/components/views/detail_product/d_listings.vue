@@ -32,7 +32,6 @@
 <script src="./d_listings.js"></script>
 
 <style scoped>
-@import "../../../css/onebacklog.css";
 
 .space3px {
   margin: 3px;

@@ -143,7 +143,6 @@
 <script src="./header.js"></script>
 
 <style scoped>
-@import "../../css/onebacklog.css";
 
 .logo {
   width: 62px;

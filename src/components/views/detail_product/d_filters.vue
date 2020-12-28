@@ -114,7 +114,6 @@
 </template>
 
 <style scoped>
-@import "../../../css/onebacklog.css";
 
 .indent20 {
   padding-left: 20px;
