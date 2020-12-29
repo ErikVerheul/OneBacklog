@@ -84,10 +84,6 @@ export default {
   margin: 10px auto;
 }
 
-.text-center {
-  text-align: center;
-}
-
 .big-margin {
   margin-bottom: 6em;
 }
