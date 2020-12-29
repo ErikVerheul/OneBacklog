@@ -5,6 +5,7 @@ const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
 const WATCHDOGINTERVAL = 30
 const INFO = 0
+const WARNING = 1
 
 const actions = {
   /*
@@ -16,7 +17,8 @@ const actions = {
 	 * - saves the stored log entries if available
 	 */
   watchdog ({
-    rootState,
+		rootState,
+		commit,
     dispatch
   }) {
     function consoleLogStatus () {
@@ -44,17 +46,20 @@ const actions = {
       globalAxios({
         method: 'HEAD'
       }).then(() => {
-        rootState.online = true
+				rootState.online = true
+				commit('showLastEvent', { txt: 'You are online again', severity: INFO})
         if (wasOffline) {
           restartLoops()
         } else consoleLogStatus()
       }).catch(error => {
-        rootState.online = false
+				rootState.online = false
+				commit('showLastEvent', { txt: 'You are offline. Restore the connection or wait to continue', severity: WARNING })
         // eslint-disable-next-line no-console
         if (rootState.debugConnectionAndLogging) console.log(`watchdog: no connection @ ${new Date()}, ${error}`)
         // if error status 401 is returned we are online again despite the error condition (no authentication)
         if (error.message.includes('401')) {
-          rootState.online = true
+					rootState.online = true
+					commit('showLastEvent', { txt: 'You are online again', severity: INFO })
           restartLoops()
         } else consoleLogStatus()
       })

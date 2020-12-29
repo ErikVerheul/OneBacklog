@@ -14,6 +14,7 @@ const actions = {
 	/* Refresh the authentication cookie */
 	refreshCookie({
 		rootState,
+		commit,
 		dispatch,
 		state
 	}, payload) {
@@ -46,6 +47,7 @@ const actions = {
 				state.cookieAuthenticated = false
 				rootState.stopListenForChanges = true
 				rootState.online = false
+				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: CRITICAL })
 				const msg = 'Refresh of the authentication cookie failed with ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debugConnectionAndLogging) console.log(msg)
