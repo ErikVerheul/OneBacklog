@@ -74,7 +74,7 @@
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
         <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
-        <div class="last-event" v-bind:style="{'background-color': $store.state.eventBgColor}">{{ this.$store.state.lastEvent }}</div>
+        <div @click="showMoreMessages()" class="last-event" v-bind:style="{'background-color': getLastEventColor}">&#8595; {{ getLastEventTxt }}</div>
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
@@ -109,17 +109,11 @@
               </span>
               {{ patchTitle(node) }}
               <b-badge v-if="node.data.inconsistentState" variant="danger">{{ getNodeStateText(node) + '?' }}</b-badge>
-
               <b-badge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</b-badge>
-
               <b-badge v-else variant="light">{{ getNodeStateText(node) }}</b-badge>
-
               <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
-
               <b-badge v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)" variant="info">See history</b-badge>
-
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
-
               <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
               <b-badge v-if="inSprint(node)" variant="info">In {{ getSprintText(node) }} sprint</b-badge>
             </template>

@@ -1,11 +1,6 @@
 import { mapGetters } from 'vuex'
-
-const DEBUG = -1
 const INFO = 0
 const WARNING = 1
-const ERROR = 2
-const CRITICAL = 3
-const DEFAULTCOLOR = '#408FAE'
 
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
@@ -121,6 +116,8 @@ const utilities = {
 			'getItemSprintName',
 			'getPreviousNodeSelected',
 			'getLastSelectedNode',
+			'getLastEventColor',
+			'getLastEventTxt',
 			'isFollower',
 			'leafLevel',
 			'myTeam',
@@ -129,11 +126,6 @@ const utilities = {
 	},
 
 	methods: {
-		clearLastEvent() {
-			this.$store.state.lastEvent = 'Event message is cleared.'
-			this.$store.state.eventBgColor = DEFAULTCOLOR
-		},
-
 		/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 		createId() {
 			const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
@@ -200,25 +192,7 @@ const utilities = {
 		},
 
 		showLastEvent(txt, severity) {
-			let eventBgColor = DEFAULTCOLOR
-			switch (severity) {
-				case DEBUG:
-					eventBgColor = 'yellow'
-					break
-				case INFO:
-					eventBgColor = DEFAULTCOLOR
-					break
-				case WARNING:
-					eventBgColor = 'orange'
-					break
-				case ERROR:
-					eventBgColor = 'red'
-					break
-				case CRITICAL:
-					eventBgColor = '#ff5c33'
-			}
-			this.$store.state.lastEvent = txt
-			this.$store.state.eventBgColor = eventBgColor
+			this.$store.commit('addToEventList', { txt, severity })
 		},
 
 		showSelectionEvent(selNodes) {

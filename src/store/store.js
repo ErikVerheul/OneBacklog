@@ -39,6 +39,19 @@ const PBILEVEL = 5
 const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
 
+const MAX_EVENTLIST_SIZE = 100
+
+function createEvent(payload) {
+	const now = new Date()
+	const newEvent = {
+		eventKey: payload.eventKey,
+		time: `${now.toLocaleTimeString()}.${now.getMilliseconds()}`,
+		txt: payload.txt,
+		severity: payload.severity,
+	}
+	return newEvent
+}
+
 Vue.use(Vuex)
 /* Add item to array if not already present. Returns a new array so that it is reactive */
 function addToArray(arr, item) {
@@ -119,6 +132,8 @@ export default new Vuex.Store({
 		// detail & coarse tree views
 		currentDoc: null,
 		changeHistory: [],
+		eventKey: 0,
+		eventList: [],
 		filterForComment: '',
 		filterForHistory: '',
 		filterText: 'Filter in tree view',
@@ -127,7 +142,6 @@ export default new Vuex.Store({
 		keyword: '',
 		moveOngoing: false,
 		myAssignedDatabases: undefined,
-		lastEvent: '',
 		lastTreeView: undefined,
 		searchOn: false,
 		selectedForView: 'comments',
@@ -172,7 +186,6 @@ export default new Vuex.Store({
 		configData: null,
 		demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
 		eventSyncColor: '#004466',
-		eventBgColor: '#408FAE',
 		listenForChangesRunning: false,
 		myProductOptions: [],
 		online: true,
@@ -187,41 +200,65 @@ export default new Vuex.Store({
 	},
 
 	getters: {
-		/* Return the previous selected node or the currently selected node if no previous node was selected */
-		getPreviousNodeSelected(state) {
-			return state.previousSelectedNodes.slice(-1)[0]
-		},
-		/* Return the last selected node or undefined when no node is selected */
-		getLastSelectedNode(state) {
-			return state.selectedNodes.slice(-1)[0]
-		},
 		isAuthenticated(state) {
 			return state.userData.user !== undefined
 		},
+
 		isFollower(state) {
 			if (!state.currentDoc.followers) return false
 
 			const emails = state.currentDoc.followers.map(e => e.email)
 			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
+
 		isReqAreaItem(state) {
 			return state.currentDoc._id === AREA_PRODUCTID || state.currentDoc.productId === AREA_PRODUCTID
 		},
+
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
 		},
+
 		getCurrentItemLevel(state) {
 			if (state.currentDoc) return state.currentDoc.level
 		},
+
 		getCurrentItemState(state) {
 			if (state.currentDoc) return state.currentDoc.state
 		},
+
 		getItemSprintName(state) {
 			if (state.currentDoc.sprintId && state.sprintCalendar) {
 				for (const s of state.sprintCalendar) {
 					if (s.id === state.currentDoc.sprintId) return s.name
 				}
 			}
+		},
+
+		getLastEventTxt(state) {
+			if (state.eventList[0]) return state.eventList[0].txt
+		},
+
+		getLastEventColor(state) {
+			if (state.eventList[0]) {
+				switch (state.eventList[0].severity) {
+					case DEBUG:
+						return 'yellow'
+					case INFO:
+						return '#408FAE'
+					case WARNING:
+						return 'orange'
+					case ERROR:
+						return 'red'
+					case CRITICAL:
+						return '#ff5c33'
+				}
+			}
+		},
+
+		/* Return the last selected node or undefined when no node is selected */
+		getLastSelectedNode(state) {
+			return state.selectedNodes.slice(-1)[0]
 		},
 
 		getMyGenericRoles(state) {
@@ -272,6 +309,11 @@ export default new Vuex.Store({
 				}
 				return screenedSubscriptions
 			} else return []
+		},
+
+		/* Return the previous selected node or the currently selected node if no previous node was selected */
+		getPreviousNodeSelected(state) {
+			return state.previousSelectedNodes.slice(-1)[0]
 		},
 
 		leafLevel(state) {
@@ -360,6 +402,13 @@ export default new Vuex.Store({
 	},
 
 	mutations: {
+		addToEventList(state, payload) {
+			state.eventKey++
+			const newEvent = createEvent({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
+			state.eventList.unshift(newEvent)
+			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
+		},
+
 		/* Store my user data in memory */
 		setMyUserData(state, payload) {
 			state.userData.myTeam = payload.data.myDatabases[payload.data.currentDb].myTeam
@@ -825,23 +874,10 @@ export default new Vuex.Store({
 
 		/* A copy of the showLastEvent mixin which can not be used in modules */
 		showLastEvent(state, payload) {
-			switch (payload.severity) {
-				case DEBUG:
-					state.eventBgColor = 'yellow'
-					break
-				case INFO:
-					state.eventBgColor = '#408FAE'
-					break
-				case WARNING:
-					state.eventBgColor = 'orange'
-					break
-				case ERROR:
-					state.eventBgColor = 'red'
-					break
-				case CRITICAL:
-					state.eventBgColor = '#ff5c33'
-			}
-			state.lastEvent = payload.txt
+			state.eventKey++
+			const newEvent = createEvent({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
+			state.eventList.unshift(newEvent)
+			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
 		},
 
 		resetData(state) {
@@ -857,7 +893,8 @@ export default new Vuex.Store({
 			state.iAmAdmin = false
 			state.iAmServerAdmin = false
 			state.isProductAssigned = false
-			state.lastEvent = ''
+			state.eventKey = 0
+			state.eventList = []
 			state.lastTreeView = undefined
 			state.listenForChangesRunning = false
 			state.loadedSprintId = null

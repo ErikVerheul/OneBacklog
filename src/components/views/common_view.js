@@ -109,8 +109,7 @@ function data() {
 		fileInfo: null,
 		newHistory: '',
 		filterForCommentPrep: '',
-		filterForHistoryPrep: '',
-		violationsWereFound: false
+		filterForHistoryPrep: ''
 	}
 }
 
@@ -177,18 +176,18 @@ const computed = {
 const methods = {
 
 	dependencyViolationsFound() {
+		let violationsWereFound = false
 		const violations = window.slVueTree.findDependencyViolations()
 		if (violations.length > 0) {
-			this.violationsWereFound = true
+			violationsWereFound = true
 			this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', WARNING)
 			for (const v of violations) {
 				window.slVueTree.showDependencyViolations(v)
 			}
 		} else {
-			if (this.violationsWereFound) this.clearLastEvent()
-			this.violationsWereFound = false
+			violationsWereFound = false
 		}
-		return this.violationsWereFound
+		return violationsWereFound
 	},
 
 	stopFiltering() {
@@ -604,6 +603,10 @@ const methods = {
 			{ text: 'History', value: 'history' }
 		]
 		return options
+	},
+
+	showMoreMessages() {
+		console.log('showMoreMessages()')
 	}
 }
 
