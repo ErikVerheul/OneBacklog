@@ -18,9 +18,6 @@
 </template>
 
 <style scoped>
-	.text-center {
-		text-align: center;
-	}
   .cta {
     width: 300px;
     margin: auto;

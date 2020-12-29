@@ -42,12 +42,40 @@ const AREA_PRODUCTID = 'requirement-areas'
 const MAX_EVENTLIST_SIZE = 100
 
 function createEvent(payload) {
+	function pad(num, size) {
+		var s = "000" + num
+		return s.substr(s.length - size)
+	}
 	const now = new Date()
+	let color = '#408FAE'
+	let severityStr = 'INFO'
+	switch (payload.severity) {
+		case DEBUG:
+			severityStr = 'DEBUG'
+			color = 'yellow'
+			break
+		case INFO:
+			severityStr = 'INFO'
+			color = '#408FAE'
+			break
+		case WARNING:
+			severityStr = 'WARNING'
+			color = 'orange'
+			break
+		case ERROR:
+			severityStr = 'ERROR'
+			color = 'red'
+			break
+		case CRITICAL:
+			severityStr = 'CRITICAL'
+			color = '#ff5c33'
+	}
 	const newEvent = {
 		eventKey: payload.eventKey,
-		time: `${now.toLocaleTimeString()}.${now.getMilliseconds()}`,
+		time: `${now.toLocaleTimeString()}.${pad(now.getMilliseconds(), 3)}`,
 		txt: payload.txt,
-		severity: payload.severity,
+		severity: severityStr,
+		color
 	}
 	return newEvent
 }
@@ -241,18 +269,7 @@ export default new Vuex.Store({
 
 		getLastEventColor(state) {
 			if (state.eventList[0]) {
-				switch (state.eventList[0].severity) {
-					case DEBUG:
-						return 'yellow'
-					case INFO:
-						return '#408FAE'
-					case WARNING:
-						return 'orange'
-					case ERROR:
-						return 'red'
-					case CRITICAL:
-						return '#ff5c33'
-				}
+				return state.eventList[0].color
 			}
 		},
 

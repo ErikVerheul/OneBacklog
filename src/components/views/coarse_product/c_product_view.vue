@@ -237,6 +237,15 @@
     <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
       <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
+
+		<b-modal size="lg" ref="historyEventRef" title="Event history">
+			<div v-if="$store.state.eventList.length > 0">
+        <div v-for="item in $store.state.eventList" :key="item.eventKey">
+          <p class="event-list" v-bind:style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
+        </div>
+      </div>
+		</b-modal>
+
   </div>
 </template>
 
@@ -335,6 +344,12 @@
 
 .tal {
   text-align: left;
+}
+
+.event-list {
+  color: white;
+  padding: 10px;
+  border-radius: 2px;
 }
 
 //tree stuff
