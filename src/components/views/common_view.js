@@ -127,11 +127,7 @@ const computed = {
 	},
 
 	squareText() {
-		if (this.$store.state.online) {
-			this.showLastEvent('You are online again', INFO)
-			return 'sync'
-		} else {
-			this.showLastEvent('You are offline. Restore the connection or wait to continue', WARNING)
+		if (this.$store.state.online) {	return 'sync' } else {
 			return 'offline'
 		}
 	},
@@ -174,7 +170,6 @@ const computed = {
 }
 
 const methods = {
-
 	dependencyViolationsFound() {
 		let violationsWereFound = false
 		const violations = window.slVueTree.findDependencyViolations()
@@ -606,7 +601,7 @@ const methods = {
 	},
 
 	showMoreMessages() {
-		console.log('showMoreMessages()')
+		this.$refs.historyEventRef.show()
 	}
 }
 
