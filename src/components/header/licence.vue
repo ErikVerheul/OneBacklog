@@ -1,5 +1,5 @@
 <template v-slot:licence>
-	<b-modal id="licence-modal" size="xl" ok-only title='GPL 3.0 licence' ok-variant="seablue">
+	<b-modal id="licence-modal" size="xl" ok-only title='GPL 3.0 licence'>
 		<h3 style="text-align: center;">GNU GENERAL PUBLIC LICENSE</h3>
 		<p style="text-align: center;">Version 3, 29 June 2007</p>
 

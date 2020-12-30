@@ -10,14 +10,14 @@
           <b-input-group>
             <b-form-input id="findItemOnId" v-model="shortId" placeholder="Find on short Id"></b-form-input>
             <b-input-group-append>
-              <b-button @click="resetFindId" variant="seablue" type="reset">x</b-button>
+              <b-button @click="resetFindId" variant="primary" type="reset">x</b-button>
             </b-input-group-append>
           </b-input-group>
           <div class="divider" />
           <b-input-group>
             <b-form-input id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></b-form-input>
             <b-input-group-append>
-              <b-button @click="resetSearchTitles" variant="seablue" type="reset">x</b-button>
+              <b-button @click="resetSearchTitles" variant="primary" type="reset">x</b-button>
             </b-input-group-append>
           </b-input-group>
         </b-nav-form>
@@ -131,7 +131,7 @@
               <b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="$store.state.currentDoc.title" @blur="updateTitle()"></b-input>
               <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ $store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
-                <b-button variant="seablue" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
+                <b-button variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
               </div>
             </div>
           </div>
@@ -173,7 +173,7 @@
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <b-button variant="seablue" :pressed.sync="doAddition">Add {{ $store.state.selectedForView }}</b-button>
+                <b-button variant="primary" :pressed.sync="doAddition">Add {{ $store.state.selectedForView }}</b-button>
               </div>
               <div class="d-table-cell tac">
                 <b-form-group label="Select to see">
@@ -181,9 +181,9 @@
                 </b-form-group>
               </div>
               <div class="d-table-cell tar">
-                <b-button v-if="$store.state.selectedForView === 'comments' && !isCommentsFilterActive || $store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="seablue"
+                <b-button v-if="$store.state.selectedForView === 'comments' && !isCommentsFilterActive || $store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
                   :pressed.sync="startFiltering">Filter {{ $store.state.selectedForView }}</b-button>
-                <b-button v-else variant="seablue" @click="stopFiltering">Clear {{ $store.state.selectedForView }} filter</b-button>
+                <b-button v-else variant="primary" @click="stopFiltering">Clear {{ $store.state.selectedForView }} filter</b-button>
               </div>
             </div>
           </div>
@@ -197,12 +197,12 @@
     <!-- Context modal -->
     <CcontextMenu></CcontextMenu>
     <!-- color select -->
-    <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color" ok-variant="seablue">
+    <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color">
       <h4>Enter a color in hex format eg. #567cd6</h4>
       <b-form-input v-model="userReqAreaItemcolor" :state="colorState"></b-form-input>
     </b-modal>
     <!-- set req area -->
-    <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea" ok-variant="seablue">
+    <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
       <template v-slot:modal-title>
         {{ getLastSelectedNode.title }}
       </template>
@@ -212,33 +212,33 @@
     </b-modal>
     <!-- filter modals -->
     <filters></filters>
-    <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment" ok-variant="seablue">
+    <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
       <b-form-group>
         <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
       </b-form-group>
     </b-modal>
 
-    <b-modal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event" ok-variant="seablue">
+    <b-modal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event">
       <b-form-group>
         <vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
       </b-form-group>
     </b-modal>
 
-    <b-modal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments" ok-variant="seablue">
+    <b-modal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments">
       <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment" ok-variant="seablue">
+    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
       <b-form-file v-model="fileInfo" :state="Boolean(fileInfo)" placeholder="Choose a file..."></b-form-file>
       <div v-if="fileInfo !== null" class="mt-3">File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
       <div v-if="uploadToLarge" class="mt-3 colorRed">Cannot upload files this size</div>
     </b-modal>
 
-    <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history" ok-variant="seablue">
+    <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
       <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-		<b-modal size="lg" ref="historyEventRef" title="Event history" ok-only ok-variant="seablue">
+		<b-modal size="lg" ref="historyEventRef" title="Event history" ok-only>
 			<div v-if="$store.state.eventList.length > 0">
         <div v-for="item in $store.state.eventList" :key="item.eventKey">
           <p class="event-list" v-bind:style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>

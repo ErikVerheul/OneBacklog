@@ -45,7 +45,6 @@
             <template v-if="isReqAreaTopLevel">
               <b-list-group-item
                 button
-								ok-variant="seablue"
                 :active="contextOptionSelected === INSERTINSIDE"
                 variant="dark"
                 @click="showSelected(INSERTINSIDE)"
