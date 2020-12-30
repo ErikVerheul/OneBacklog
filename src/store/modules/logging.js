@@ -33,6 +33,7 @@ const actions = {
       }
     }
     function restartLoops () {
+			commit('showLastEvent', { txt: 'You are online again', severity: INFO })
       const toDispatch = [
         { refreshCookieLoop: null },
         { listenForChanges: null },
@@ -41,13 +42,13 @@ const actions = {
       dispatch('refreshCookie', { onSuccessCallback: () => consoleLogStatus(), onFailureCallback: () => consoleLogStatus(), toDispatch })
     }
 
+		// test the connection every WATCHDOGINTERVAL seconds
     rootState.logState.runningWatchdogId = setInterval(() => {
       const wasOffline = !rootState.online
       globalAxios({
         method: 'HEAD'
       }).then(() => {
 				rootState.online = true
-				commit('showLastEvent', { txt: 'You are online again', severity: INFO})
         if (wasOffline) {
           restartLoops()
         } else consoleLogStatus()
@@ -59,7 +60,6 @@ const actions = {
         // if error status 401 is returned we are online again despite the error condition (no authentication)
         if (error.message.includes('401')) {
 					rootState.online = true
-					commit('showLastEvent', { txt: 'You are online again', severity: INFO })
           restartLoops()
         } else consoleLogStatus()
       })
