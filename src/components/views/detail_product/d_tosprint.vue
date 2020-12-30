@@ -1,5 +1,5 @@
 <template>
-  <b-modal size="xl" ref="assignToSprintRef" @ok="addItemToSprint" :title="contextNodeTitle">
+  <b-modal size="xl" ref="assignToSprintRef" @ok="addItemToSprint" :title="contextNodeTitle" ok-variant="seablue">
     <div>
       <b-form-group label="Assing this item to a sprint">
         <b-form-radio-group v-model="selectedSprintId" :options="sprintOptions" stacked></b-form-radio-group>

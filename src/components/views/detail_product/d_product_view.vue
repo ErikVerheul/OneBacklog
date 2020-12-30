@@ -213,33 +213,33 @@
     <!-- Context modal -->
     <DcontextMenu></DcontextMenu>
 
-    <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
+    <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment" ok-variant="seablue">
       <b-form-group>
         <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
       </b-form-group>
     </b-modal>
 
-    <b-modal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event">
+    <b-modal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event" ok-variant="seablue">
       <b-form-group>
         <vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
       </b-form-group>
     </b-modal>
 
-    <b-modal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments">
+    <b-modal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments" ok-variant="seablue">
       <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
+    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment" ok-variant="seablue">
       <b-form-file v-model="fileInfo" :state="Boolean(fileInfo)" placeholder="Choose a file..."></b-form-file>
       <div v-if="fileInfo !== null" class="mt-3">File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
       <div v-if="uploadToLarge" class="mt-3 colorRed">Cannot upload files this size</div>
     </b-modal>
 
-    <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
+    <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history" ok-variant="seablue">
       <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-		<b-modal size="lg" ref="historyEventRef" title="Event history">
+		<b-modal size="lg" ref="historyEventRef" title="Event history" ok-only ok-variant="seablue">
 			<div v-if="$store.state.eventList.length > 0">
         <div v-for="item in $store.state.eventList" :key="item.eventKey">
           <p class="event-list" v-bind:style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>

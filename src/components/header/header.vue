@@ -46,7 +46,7 @@
       <slot name="licence"></slot>
     </appLicence>
 
-    <b-modal size="lg" ref="changeDatabaseRef" @ok="doChangeDatabase" title="Change your database">
+    <b-modal size="lg" ref="changeDatabaseRef" @ok="doChangeDatabase" title="Change your database" ok-variant="seablue">
       <b-container align-v="true">
         <h5>Select another database. Your current database is '{{ $store.state.userData.currentDb }}'</h5>
         <b-form-group>
@@ -56,7 +56,7 @@
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" ref="changeTeamRef" @ok="doChangeTeam" title="Change your team">
+    <b-modal size="lg" ref="changeTeamRef" @ok="doChangeTeam" title="Change your team" ok-variant="seablue">
       <b-container align-v="true">
         <h5>Select your new team. Your current team is '{{ myTeam }}'</h5>
         <b-form-group>
@@ -65,19 +65,19 @@
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" ref="selectProductsRef" @ok="doSelectProducts" title="Select one or more (hold shift or Ctrl) products to be loaded at sign-in">
+    <b-modal size="lg" ref="selectProductsRef" @ok="doSelectProducts" title="Select one or more (hold shift or Ctrl) products to be loaded at sign-in" ok-variant="seablue">
       <b-container align-v="true">
         <b-form-select size="sm" v-model="selectedProducts" :options="$store.state.myProductOptions" multiple :select-size="$store.state.myProductOptions.length"></b-form-select>
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" ref="selectDefaultProductRef" @ok="updateProductsSubscriptions" title="Select the default product you are working on">
+    <b-modal size="lg" ref="selectDefaultProductRef" @ok="updateProductsSubscriptions" title="Select the default product you are working on" ok-variant="seablue">
       <b-container align-v="true">
         <b-form-select v-model="newDefaultProductId" :options="defaultProductOptions" :select-size="defaultProductOptions.length"></b-form-select>
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password">
+    <b-modal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password" ok-variant="seablue">
       <b-container align-v="true">
         <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'">
           <h2>Demo users cannot change the password</h2>
@@ -106,7 +106,7 @@
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" ref="showMyRolesRef" title="My authorizations">
+    <b-modal size="lg" ref="showMyRolesRef" title="My authorizations" ok-variant="seablue">
       <b-container align-v="true">
         <h3>Generic roles :</h3>
         <p>By default the application uses two databases. The _users database owned by the admin role and a database holding the products. More databases can be created but the _users database is

@@ -79,7 +79,7 @@
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" ref="otherPeriodRef" @ok="filterSince(0)" title="Enter a period">
+    <b-modal size="lg" ref="otherPeriodRef" @ok="filterSince(0)" title="Enter a period" ok-variant="seablue">
       <b-container align-v="true">
         <b-container fluid>
           <b-row class="my-1">

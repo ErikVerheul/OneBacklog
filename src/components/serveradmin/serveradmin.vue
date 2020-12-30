@@ -23,7 +23,7 @@
         <b-button v-if="!showLogModal" class="m-1" @click="doViewLog">Show</b-button>
         <b-button v-if="!showLogModal" class="m-1" @click="cancel" variant="seablue">Cancel</b-button>
         <b-button v-else class="m-1" @click="cancel" variant="seablue">Return</b-button>
-        <b-modal v-model="showLogModal" size="lg" :title="logModalTitle()">
+        <b-modal v-model="showLogModal" size="lg" :title="logModalTitle()" ok-variant="seablue">
           <div v-for="item in $store.state.logEntries" :key="item.timestamp">
             Event: {{ item.event }} <br />
             Severity: {{ severity(item.level) }} <br />

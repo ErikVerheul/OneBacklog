@@ -295,10 +295,10 @@
                 </b-list-group>
                 <b-button class="m-1" @click="cancel()" variant="seablue">Return</b-button>
               </div>
-              <b-modal @ok="extendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton" title="Extend the number of sprints">
+              <b-modal @ok="extendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton" title="Extend the number of sprints" ok-variant="seablue">
                 <b-form-input v-model="extendNumberStr" type="number" placeholder="Enter the number of extensions"></b-form-input>
               </b-modal>
-              <b-modal @ok="changeSprintInCalendar" id="modal-change" :ok-disabled="changeDisableOkButton" title="Change a sprint" size="lg">
+              <b-modal @ok="changeSprintInCalendar" id="modal-change" :ok-disabled="changeDisableOkButton" title="Change a sprint" size="lg" ok-variant="seablue">
                 <b-container fluid>
                   <b-row class="mb-1">
                     <b-col cols="3">
