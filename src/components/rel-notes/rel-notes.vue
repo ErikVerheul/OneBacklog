@@ -6,6 +6,17 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.4 - 31 December 2020 Feature update and bug fixes</h3>
+          <p>Feature update:</p>
+          <ul>
+						<li>Show event history when clicking on event message bar</li>
+          </ul>
+					<p>Bug fixes:</p>
+          <ul>
+						<li>No access when APO adds/removes requirement areas, fixed </li>
+						<li>Copy the assigned roles when cloning a product, fixed</li>
+						<li>Must expand the product root to show its descendants, fixed</li>
+          </ul>
 					<h3>v.1.3 - 19 December 2020 General overhaul of the admin tools</h3>
           <p>General overhaul of the admin tools:</p>
           <ul>
