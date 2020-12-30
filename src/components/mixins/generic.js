@@ -87,9 +87,18 @@ const authorization = {
 		},
 
 		haveAccessInTree(level, itemTeam, forAction, allowExtraLevel = false) {
+			if (this.isReqAreaItem) {
+				// requirement areas settings are only accessable for APO's
+				if (this.isAPO) {
+					return true
+				} else {
+					this.showLastEvent(`Sorry, you must be an APO (requirement Areas Product Owner) to make changes here`, WARNING)
+					return false
+				}
+			}
 			const productId = this.$store.state.currentProductId
 			const skipTestOnTeam = this.isAdmin || this.isAPO
-			const canAccessOnTeam = skipTestOnTeam || itemTeam === this.myTeam
+			const canAccessOnTeam = skipTestOnTeam || itemTeam && itemTeam === this.myTeam
 			const canAccessOnLevel = this.haveWritePermission(level, productId) || allowExtraLevel && this.haveWritePermission(level + 1, productId)
 
 			if (canAccessOnTeam && canAccessOnLevel) return true

@@ -42,9 +42,10 @@
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
           <template v-if="isReqAreaItem">
-            <template v-if="contextNodeLevel === productLevel">
+            <template v-if="isReqAreaTopLevel">
               <b-list-group-item
                 button
+								ok-variant="seablue"
                 :active="contextOptionSelected === INSERTINSIDE"
                 variant="dark"
                 @click="showSelected(INSERTINSIDE)"
