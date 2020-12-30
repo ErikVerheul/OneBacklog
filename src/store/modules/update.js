@@ -180,6 +180,7 @@ const actions = {
 					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor, newHist })
 					commit('updateColorMapper', { id, newColor: payload.newColor })
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: 'The requirement area color indication is changed', severity: INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -219,8 +220,10 @@ const actions = {
 						tmpFollowers.splice(i, 1)
 					}
 				}
+				commit('showLastEvent', { txt: `Sending change notices for this item is stopped`, severity: INFO })
 			} else {
 				tmpFollowers.push({ email: rootState.userData.email })
+				commit('showLastEvent', { txt: `Change notices for this item will be send to your e-mail address ${rootState.userData.email}`, severity: INFO })
 			}
 			const newHist = {
 				subscribeEvent: [wasFollower],
@@ -771,6 +774,7 @@ const actions = {
 				caller: 'saveDescription',
 				onSuccessCallback: () => {
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: 'The item description type is changed', severity: INFO })
 						commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -827,6 +831,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: 'The item acceptance criteria are changed', severity: INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -835,7 +840,7 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item acceptance criteria type is undone', severity: INFO })
+					} else commit('showLastEvent', { txt: 'Change of item acceptance criteria is undone', severity: INFO })
 				}
 			})
 		}).catch(error => {
@@ -846,7 +851,7 @@ const actions = {
 		})
 	},
 
-	// ToDo: create indo?
+	// ToDo: create undo?
 	addComment({
 		rootState,
 		commit,
