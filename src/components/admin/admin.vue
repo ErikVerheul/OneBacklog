@@ -291,14 +291,14 @@
                 <h5>The calendar is {{ workflowStatusMsg }}, modify calendar</h5>
                 <b-list-group>
                   <b-list-group-item button v-b-modal.modal-extend>Extend the current calendar</b-list-group-item>
-                  <b-list-group-item button v-b-modal.modal-change>Change a sprint and all its successors </b-list-group-item>
+                  <b-list-group-item button v-b-modal.modal-change>Change a sprint length and of all its successors </b-list-group-item>
                 </b-list-group>
                 <b-button class="m-1" @click="cancel()" variant="primary">Return</b-button>
               </div>
               <b-modal @ok="extendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton" title="Extend the number of sprints">
                 <b-form-input v-model="extendNumberStr" type="number" placeholder="Enter the number of extensions"></b-form-input>
               </b-modal>
-              <b-modal @ok="changeSprintInCalendar" id="modal-change" :ok-disabled="changeDisableOkButton" title="Change a sprint" size="lg">
+              <b-modal @ok="changeSprintInCalendar" id="modal-change" :ok-disabled="changeDisableOkButton" title="Change a sprint duration" size="lg">
                 <b-container fluid>
                   <b-row class="mb-1">
                     <b-col cols="3">
@@ -308,6 +308,7 @@
                       <b-form-input v-model="changedNumberStr" type="number" placeholder="Enter the sprint number"></b-form-input>
                     </b-col>
                   </b-row>
+									{{ acceptSprintNrMsg }}
                   <div v-if="acceptSprintnr">
                     <b-row class="mb-1">
                       <b-col cols="3">
@@ -344,7 +345,7 @@
                         Hours shift
                       </b-col>
                       <b-col cols="9">
-                        <b-form-input v-model="changedHourStr" type="number" placeholder="Shift the hour of day (-12,+12)"></b-form-input>
+                        <b-form-input v-model="changedHourStr" type="number" placeholder="Shift the sprint ending time (-12,+12) hours"></b-form-input>
                       </b-col>
                     </b-row>
                   </div>

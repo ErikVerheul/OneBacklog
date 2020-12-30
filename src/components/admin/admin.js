@@ -43,6 +43,7 @@ function mounted() {
 
 function data() {
 	return {
+		acceptSprintNrMsg: '',
 		getUserFirst: false,
 		dbIsSelected: false,
 		optionSelected: 'Select a task',
@@ -85,18 +86,24 @@ const computed = {
 	},
 
 	acceptSprintnr() {
-		return !isNaN(this.changedNumberStr) && parseInt(this.changedNumberStr) >= this.currentSprintNr && Number.isInteger(parseFloat(this.changedNumberStr)) &&
-			parseInt(this.changedNumberStr) < this.$store.state.defaultSprintCalendar.length
+		if (isNaN(this.changedNumberStr) || !Number.isInteger(parseFloat(this.changedNumberStr))) return false
+		const changeNr = parseInt(this.changedNumberStr)
+		const lastDefinedNr = this.$store.state.defaultSprintCalendar.length - 1
+		const accepted = changeNr >= this.currentSprintNr && changeNr <= lastDefinedNr
+		this.acceptSprintNrMsg = accepted ? `` : `Select a sprint number >= the current sprint ${this.currentSprintNr} and smaller than the last defined sprint ${lastDefinedNr}`
+		return accepted
 	},
 
 	acceptNewSprintLength() {
-		return !isNaN(this.changedDurationStr) && parseInt(this.changedDurationStr) > 0 && Number.isInteger(parseFloat(this.changedDurationStr)) &&
-			parseInt(this.changedDurationStr) <= 28
+		if (isNaN(this.changedDurationStr) || !Number.isInteger(parseFloat(this.changedDurationStr))) return false
+		const sprintDuration = parseInt(this.changedDurationStr)
+		return sprintDuration > 0 && sprintDuration <= 28
 	},
 
 	acceptHourChange() {
-		return !isNaN(this.changedHourStr) && parseInt(this.changedHourStr) >= -12 && Number.isInteger(parseFloat(this.changedHourStr)) &&
-			parseInt(this.changedHourStr) <= 12
+		if (isNaN(this.changedHourStr) || !Number.isInteger(parseFloat(this.changedHourStr))) return false
+		const changeHour = parseInt(this.changedHourStr)
+		return changeHour >= -12 && changeHour <= 12
 	},
 
 	acceptNewEndDate() {
