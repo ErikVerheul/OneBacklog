@@ -23,6 +23,7 @@ const authorization = {
 			'isGuest',
 			'isPO',
 			'isReqAreaItem',
+			'isReqAreaTopLevel',
 			'isServerAdmin',
 			'getMyProductsCount',
 			'getMyGenericRoles',

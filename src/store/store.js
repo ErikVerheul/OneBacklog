@@ -239,6 +239,10 @@ export default new Vuex.Store({
 			if (state.currentDoc) return emails.includes(state.userData.email)
 		},
 
+		isReqAreaTopLevel(state) {
+			return state.currentDoc._id === AREA_PRODUCTID
+		},
+
 		isReqAreaItem(state) {
 			return state.currentDoc._id === AREA_PRODUCTID || state.currentDoc.productId === AREA_PRODUCTID
 		},

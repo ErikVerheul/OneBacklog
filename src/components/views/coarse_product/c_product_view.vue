@@ -139,9 +139,9 @@
             <div class="d-table w-100">
               <p v-if="!isReqAreaItem" class="title is-6">{{ getItemInfo() }}</p>
               <!-- do not use parenthesis with @change: see https://stackoverflow.com/questions/53106723/bootstrap-vue-select-sending-old-value -->
-              <span v-else>
+              <span v-else-if="!isReqAreaTopLevel">
                 <b-form-group>
-                  Choose a display color for this requirement area:
+                  Select a display color for this requirement area:
                   <b-form-radio-group v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="colorOptions" plain />
                 </b-form-group>
               </span>
