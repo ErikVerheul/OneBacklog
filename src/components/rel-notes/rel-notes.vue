@@ -13,7 +13,6 @@
           </ul>
 					<p>Bug fixes:</p>
           <ul>
-						<li>No access when APO adds/removes requirement areas, fixed </li>
 						<li>Copy the assigned roles when cloning a product, fixed</li>
 						<li>Must expand the product root to show its descendants, fixed</li>
           </ul>
