@@ -6,6 +6,11 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.4.1- 31 December 2020 bug fix</h3>
+					<p>Bug fix:</p>
+          <ul>
+						<li>Regression: Synchronization not working, fixed</li>
+          </ul>
 					<h3>v.1.4 - 31 December 2020 Feature update and bug fixes</h3>
           <p>Feature update:</p>
           <ul>
