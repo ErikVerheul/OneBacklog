@@ -99,7 +99,7 @@ const actions = {
           entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds, entry.itemsRemovedFromReqArea],
         by: rootState.userData.user,
         timestamp: Date.now(),
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: true
       }
       updatedDoc.history.unshift(newHist)

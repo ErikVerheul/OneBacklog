@@ -167,7 +167,7 @@ const actions = {
 				changeReqAreaColorEvent: [prevColor, payload.newColor],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -268,7 +268,7 @@ const actions = {
 				setSizeEvent: [oldTsSize, payload.newSizeIdx],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -320,7 +320,7 @@ const actions = {
 				setHrsEvent: [oldPersonHours, payload.newHrs],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -373,7 +373,7 @@ const actions = {
 				setPointsEvent: [oldPoints, payload.newPoints],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -435,7 +435,7 @@ const actions = {
 				setStateEvent: [oldState, payload.newState, payload.newTeam, payload.position],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -541,7 +541,7 @@ const actions = {
 					setTeamOwnerEvent: [oldTeam, payload.newTeam, descendantsInfo.count],
 					by: rootState.userData.user,
 					timestamp: Date.now(),
-					sessionId: rootState.userData.sessionId,
+					sessionId: rootState.mySessionId,
 					distributeEvent: true
 				}
 				tmpDoc.history.unshift(newHist)
@@ -615,7 +615,7 @@ const actions = {
 							setTeamEventDescendant: [oldTeam, payload.newTeam, payload.parentTitle],
 							by: rootState.userData.user,
 							timestamp: Date.now(),
-							sessionId: rootState.userData.sessionId,
+							sessionId: rootState.mySessionId,
 							distributeEvent: false
 						}
 						doc.history.unshift(newHist)
@@ -651,7 +651,7 @@ const actions = {
 				setTitleEvent: [oldTitle, payload.newTitle],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -703,7 +703,7 @@ const actions = {
 				setSubTypeEvent: [rootState.currentDoc.subtype, payload.newSubType],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -759,7 +759,7 @@ const actions = {
 				descriptionEvent: [tmpDoc.description, newEncodedDescription],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -815,7 +815,7 @@ const actions = {
 				acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -868,7 +868,7 @@ const actions = {
 				addCommentEvent: window.btoa(payload.comment),
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.comments.unshift(newComment)
@@ -909,7 +909,7 @@ const actions = {
 				commentToHistoryEvent: [newCommentToHistory],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)

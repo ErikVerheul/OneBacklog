@@ -227,7 +227,7 @@ const actions = {
         ],
         by: rootState.userData.user,
         timestamp: Date.now(),
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: true
       }
       doc.history.unshift(newHist)
@@ -272,7 +272,7 @@ const actions = {
         ],
         by: rootState.userData.user,
         timestamp: Date.now(),
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: false
       }
       doc.history.unshift(newHist)

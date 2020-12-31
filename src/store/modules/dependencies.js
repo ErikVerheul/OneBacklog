@@ -34,7 +34,7 @@ const actions = {
         setDependencyEvent: [payload.conditionalForNode._id, payload.conditionalForNode.title],
         by: rootState.userData.user,
         timestamp: Date.now(),
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: true
       }
       tmpDoc.history.unshift(newHist)
@@ -76,7 +76,7 @@ const actions = {
         setConditionEvent: [payload.dependentOnNode._id, payload.dependentOnNode.title],
         by: rootState.userData.user,
         timestamp: timestamp,
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: true
       }
       tmpDoc.history.unshift(newHist)
@@ -139,7 +139,7 @@ const actions = {
         setDependencyEvent: [id, payload.conditionalForNode.title, undo],
         by: rootState.userData.user,
         timestamp: Date.now(),
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: true
       }
       tmpDoc.history.unshift(newHist)
@@ -176,7 +176,7 @@ const actions = {
         setConditionEvent: [id, payload.dependentOnNode.title, undo],
         by: rootState.userData.user,
         timestamp: Date.now(),
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: true
       }
       tmpDoc.history.unshift(newHist)
@@ -218,7 +218,7 @@ const actions = {
         dependencyRemovedEvent: [payload.removedIds],
         by: rootState.userData.user,
         timestamp: Date.now(),
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: true
       }
       tmpDoc.history.unshift(newHist)
@@ -269,7 +269,7 @@ const actions = {
           doc.lastChange = payload.timestamp
           const newHist = {
             conditionRemovedEvent: [[payload.node._id], payload.node.title],
-            sessionId: rootState.userData.sessionId,
+            sessionId: rootState.mySessionId,
             timestamp: Date.now(),
             distributeEvent: true
           }
@@ -327,7 +327,7 @@ const actions = {
         conditionRemovedEvent: [payload.removedIds],
         by: rootState.userData.user,
         timestamp: Date.now(),
-        sessionId: rootState.userData.sessionId,
+        sessionId: rootState.mySessionId,
         distributeEvent: true
       }
       tmpDoc.history.unshift(newHist)
@@ -380,7 +380,7 @@ const actions = {
           doc.lastChange = payload.timestamp
           const newHist = {
             dependencyRemovedEvent: [[payload.node._id], payload.node.title],
-            sessionId: rootState.userData.sessionId,
+            sessionId: rootState.mySessionId,
             timestamp: Date.now(),
             distributeEvent: true
           }

@@ -138,6 +138,7 @@ export default new Vuex.Store({
 
 		// authentication, refresh every 9 minutes (CouchDB defaults at 10 min.)
 		cookieRefreshInterval: 540,
+		mySessionId: null,
 		// startup
 		availableProductIds: [],
 		currentDefaultProductId: null,
@@ -440,7 +441,6 @@ export default new Vuex.Store({
 			state.userData.myProductViewFilterSettings = payload.data.myProductViewFilterSettings
 			state.userData.myFilterSettings = payload.data.myDatabases[payload.data.currentDb].filterSettings
 			state.userData.doNotAskForImport = payload.data.doNotAskForImport
-			state.userData.sessionId = payload.data.sessionId
 		},
 
 		/*
@@ -903,6 +903,7 @@ export default new Vuex.Store({
 
 		resetData(state) {
 			state.availableProductIds = []
+			state.authentication.sessionAuthData = {}
 			state.changeHistory = []
 			state.configData = null
 			state.currentDoc = null
@@ -921,7 +922,7 @@ export default new Vuex.Store({
 			state.loadedSprintId = null
 			state.loadedTreeDepth = undefined
 			state.myProductOptions = []
-			state.authentication.sessionAuthData = {}
+			state.mySessionId = null
 			state.showHeaderDropDowns = true
 			state.stopListenForChanges = true
 			state.stories = []

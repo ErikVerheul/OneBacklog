@@ -128,7 +128,7 @@ const actions = {
               item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange],
             by: rootState.userData.user,
             timestamp: Date.now(),
-            sessionId: rootState.userData.sessionId,
+            sessionId: rootState.mySessionId,
             distributeEvent: true
           }
 

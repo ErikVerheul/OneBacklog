@@ -248,7 +248,7 @@ const actions = {
 						importToSprintEvent: [doc.level, doc.subtype, oldSprintName, newSprintName],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
-						sessionId: rootState.userData.sessionId,
+						sessionId: rootState.mySessionId,
 						distributeEvent: false
 					}
 					doc.history.unshift(newHist)
@@ -417,7 +417,7 @@ const actions = {
 				updateTaskOrderEvent: { sprintId: rootState.loadedSprintId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds },
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -445,7 +445,7 @@ const actions = {
 				boardReloadEvent: [payload.sprintId, rootState.userData.myTeam],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			// replace the history
@@ -490,7 +490,7 @@ const actions = {
 						addSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, reAssigned, payload.sprintId],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
-						sessionId: rootState.userData.sessionId,
+						sessionId: rootState.mySessionId,
 						distributeEvent: false
 					}
 					doc.history.unshift(newHist)
@@ -558,7 +558,7 @@ const actions = {
 						removeSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
-						sessionId: rootState.userData.sessionId,
+						sessionId: rootState.mySessionId,
 						distributeEvent: false
 					}
 					doc.lastChange = Date.now()
@@ -667,7 +667,7 @@ const actions = {
 					createTaskEvent: [storyDoc.title],
 					by: rootState.userData.user,
 					timestamp: Date.now(),
-					sessionId: rootState.userData.sessionId,
+					sessionId: rootState.mySessionId,
 					distributeEvent: true
 				}],
 				delmark: false
@@ -748,7 +748,7 @@ const actions = {
 				setTitleEvent: [oldTitle, doc.title],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			doc.history.unshift(newHist)
@@ -805,7 +805,7 @@ const actions = {
 				updateTaskOwnerEvent: [oldTaskOwner, doc.taskOwner],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.userData.sessionId,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			doc.history.unshift(newHist)

@@ -243,7 +243,6 @@ state.userData = {
     myDatabases: {},
     myProductViewFilterSettings: {},
     myFilterSettings: undefined,
-    sessionId: create_UUID(),
 		doNotAskForImport // if true do not ask for importing unfinished tasks in the current sprint
 }
 

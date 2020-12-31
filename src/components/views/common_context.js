@@ -136,7 +136,7 @@ const methods = {
         createEvent: [newNode.level, window.slVueTree.getParentNode(newNode).title, newNode.ind + 1],
         by: this.$store.state.userData.user,
         timestamp: Date.now(),
-        sessionId: this.$store.state.userData.sessionId,
+        sessionId: this.$store.state.mySessionId,
         distributeEvent: true
       }],
       delmark: false
@@ -249,7 +249,7 @@ const methods = {
           createEvent: [insertLevel, window.slVueTree.getParentNode(newNode).title, newNode.ind + 1],
           by: this.$store.state.userData.user,
           timestamp: Date.now(),
-          sessionId: this.$store.state.userData.sessionId,
+          sessionId: this.$store.state.mySessionId,
           distributeEvent: true
         }],
         delmark: false

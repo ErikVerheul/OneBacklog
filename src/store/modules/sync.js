@@ -618,7 +618,7 @@ const actions = {
     const lastHistObj = doc.history[0]
     // get data from last history addition
     const lastHistoryTimestamp = lastHistObj.timestamp
-    const histEvent = Object.keys(lastHistObj)[0]
+		const histEvent = Object.keys(lastHistObj)[0]
     const updateTree = histEvent !== 'ignoreEvent' && doc.level <= rootState.loadedTreeDepth
     // update the tree only for documents available in the currently loaded tree model
     const updateBoard = histEvent !== 'ignoreEvent' && rootState.currentView === 'planningBoard' &&
@@ -747,12 +747,12 @@ const actions = {
     }).then(res => {
       // note that receiving a response can last up to 60 seconds (time-out)
       if (rootState.online) dispatch('listenForChanges')
-      const data = res.data
+			const data = res.data
+			// console.log('listenForChanges: data = ' + JSON.stringify(data, null, 2))
       for (const r of data.results) {
         const doc = r.doc
-        // check doc.history[0].distributeEvent || doc.comments[0].distributeEvent for upwards compatibility to v.1.0.0 ( now in sync_filter )
-        if (doc.type == 'backlogItem' && (doc.history[0].sessionId !== rootState.userData.sessionId) && (doc.history[0].distributeEvent || doc.comments[0].distributeEvent)) {
-          // process distributed events on backlog items from other sessions (not the session that created the event)
+        if (doc.type == 'backlogItem' && (doc.history[0].sessionId !== rootState.mySessionId)) {
+					// process distributed events on backlog items from other sessions (not the session that created the event)
           dispatch('processDoc', doc)
         }
       }

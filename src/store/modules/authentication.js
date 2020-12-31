@@ -28,7 +28,7 @@ const actions = {
 				// eslint-disable-next-line no-console
 				if (rootState.debugConnectionAndLogging) console.log('refreshCookie: Authentication cookie refresh is running')
 				// execute passed function if provided
-				if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed action if provided
 				if (payload.toDispatch) {
 					// additional dispatches
@@ -41,7 +41,7 @@ const actions = {
 				}
 			}).catch(error => {
 				// execute passed function if provided
-				if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
+				if (payload.onFailureCallback) payload.onFailureCallback()
 				// stop the interval function and wait for the watchDog to start again
 				clearInterval(state.runningCookieRefreshId)
 				state.cookieAuthenticated = false
@@ -94,6 +94,7 @@ const actions = {
 			data: authData
 		}).then(res => {
 			commit('resetData')
+			rootState.mySessionId = create_UUID()
 			state.sessionAuthData = authData
 			rootState.iAmAdmin = res.data.roles.includes('admin')
 			rootState.iAmAPO = res.data.roles.includes('APO')
@@ -107,8 +108,7 @@ const actions = {
 				currentDb: undefined,
 				roles: res.data.roles,
 				myDatabases: {},
-				myFilterSettings: undefined,
-				sessionId: create_UUID()
+				myFilterSettings: undefined
 			}
 			// set the session cookie and get all non-backup and non system database names
 			const toDispatch = [

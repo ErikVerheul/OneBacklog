@@ -80,7 +80,7 @@ const actions = {
           uploadAttachmentEvent: [title, payload.fileInfo.size, payload.fileInfo.type],
           by: rootState.userData.user,
           timestamp: Date.now(),
-          sessionId: rootState.userData.sessionId,
+          sessionId: rootState.mySessionId,
           distributeEvent: true
         }
         tmpDoc.history.unshift(newHist)
@@ -124,7 +124,7 @@ const actions = {
           removeAttachmentEvent: [payload.attachmentTitle],
           by: rootState.userData.user,
           timestamp: Date.now(),
-          sessionId: rootState.userData.sessionId,
+          sessionId: rootState.mySessionId,
           distributeEvent: true
         }
         tmpDoc.history.unshift(newHist)
