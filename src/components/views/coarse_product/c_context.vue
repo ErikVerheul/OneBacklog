@@ -8,7 +8,7 @@
   >
     <template v-if="contextOptionSelected === SHOWDEPENDENCIES || contextOptionSelected === SHOWCONDITIONS">
       <template v-if="contextOptionSelected === SHOWDEPENDENCIES">
-        <p>Click on a red button to remove the dependency:<br/>
+        <p>Click on a red button to remove the dependency on:<br/>
         (Use the Details view to remove dependencies on the PBI level)</p>
         <div v-for="(dependency) in dependenciesObjects" :key="dependency._id">
           <span>
