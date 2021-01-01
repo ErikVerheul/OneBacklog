@@ -43,8 +43,8 @@ function mounted() {
 
 	const el = document.getElementById('findItemOnId')
 	// fire the search on short id on pressing enter in the select-on-Id input field (instead of submitting the form)
-	el.addEventListener('keypress', (event) => {
-		if (event.keyCode === 13) {
+	el.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter') {
 			event.preventDefault()
 			// check for valid input and convert to lowercase
 			if (shortIdCheck) {
@@ -61,8 +61,8 @@ function mounted() {
 
 	const el2 = document.getElementById('searchInput')
 	// fire the search button on pressing enter in the search input field (instead of submitting the form)
-	el2.addEventListener('keypress', (event) => {
-		if (event.keyCode === 13) {
+	el2.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter') {
 			event.preventDefault()
 			this.searchInTitles()
 		}
@@ -75,8 +75,8 @@ function mounted() {
 
 	const el3 = document.getElementById('titleField')
 	// update the item title on pressing enter
-	el3.addEventListener('keypress', (event) => {
-		if (event.keyCode === 13) {
+	el3.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter') {
 			event.preventDefault()
 			this.updateTitle()
 		}
