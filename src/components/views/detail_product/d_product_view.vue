@@ -73,8 +73,9 @@
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
-        <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
-        <div @click="showMoreMessages()" class="last-event" v-bind:style="{'background-color': getLastEventColor}">&#8595; {{ getLastEventTxt }}</div>
+        <div class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</div>
+        <b-button block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" v-bind:style="{'background-color': getLastEventColor}">
+          {{ getLastEventTxt }} </b-button>
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
@@ -239,13 +240,13 @@
       <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-		<b-modal size="lg" ref="historyEventRef" title="Event history" ok-only>
-			<div v-if="$store.state.eventList.length > 0">
+    <b-modal size="lg" ref="historyEventRef" title="Event history" ok-only>
+      <div v-if="$store.state.eventList.length > 0">
         <div v-for="item in $store.state.eventList" :key="item.eventKey">
           <p class="event-list" v-bind:style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
         </div>
       </div>
-		</b-modal>
+    </b-modal>
 
   </div>
 </template>
@@ -355,8 +356,9 @@
 
 //tree stuff
 .last-event {
+  text-align: left;
   color: white;
-  padding: 10px;
+  padding: 9px;
   border-radius: 2px;
 }
 
@@ -381,7 +383,8 @@
 
 //my stuff
 .square {
-  float: right;
+  position: absolute;
+  right: 3px;
   padding: 5px;
   margin: 5px;
 }
