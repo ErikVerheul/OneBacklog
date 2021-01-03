@@ -130,6 +130,34 @@
               </span>
             </template>
 
+            <template v-if="node.markedViolations" slot="dependency-violation" slot-scope="{ node }">
+							<div v-if="rowLength(node.markedViolations) === 1">
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+              </div>
+              <div v-else-if="rowLength(node.markedViolations) === 2">
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+              </div>
+							<div v-else-if="rowLength(node.markedViolations) === 3">
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
+              </div>
+							<div v-else-if="rowLength(node.markedViolations) === 4">
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[3] }}</span>
+              </div>
+							<div v-else>
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[3] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[4] }}</span>
+              </div>
+            </template>
+
             <template v-if="$store.state.colorMapper && node.level > productLevel && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
               <p class="rectangle" v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
             </template>
@@ -392,6 +420,11 @@
 .rectangle {
   width: 25px;
   height: 25px;
+}
+
+.violation-column {
+  display: inline-block;
+  width: 40px;
 }
 
 input[type="number"] {

@@ -27,6 +27,10 @@
     color: rgb(76, 177, 118);
 }
 
+.sl-vue-tree-warnlighted>.sl-vue-tree-node-item {
+    color: red;
+}
+
 .sl-vue-tree-node-item:hover,
 .sl-vue-tree-node-item.sl-vue-tree-cursor-hover {
     color: rgb(237, 238, 190);
@@ -55,6 +59,12 @@
     display: inline-block;
     text-align: left;
     width: 20px;
+}
+
+.sl-vue-tree-dependency-violation {
+    display: inline-block;
+    position: absolute;
+    right: 50px;
 }
 
 .sl-vue-tree-sidebar {

@@ -108,6 +108,34 @@
               </span>
             </template>
 
+						<template v-if="node.markedViolations" slot="dependency-violation" slot-scope="{ node }">
+							<div v-if="rowLength(node.markedViolations) === 1">
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+              </div>
+              <div v-else-if="rowLength(node.markedViolations) === 2">
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+              </div>
+							<div v-else-if="rowLength(node.markedViolations) === 3">
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
+              </div>
+							<div v-else-if="rowLength(node.markedViolations) === 4">
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[3] }}</span>
+              </div>
+							<div v-else>
+                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[3] }}</span>
+								<span class="violation-column">{{ createRow(node.markedViolations)[4] }}</span>
+              </div>
+            </template>
+
             <template slot="sidebar" slot-scope="{ node }">
               <template v-if="node.productId === areaProductId">
                 <p v-if="node._id !== areaProductId" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemColor}"></p>
@@ -384,6 +412,12 @@
 .rectangle {
   width: 71px;
   height: 25px;
+}
+
+.violation-column {
+	text-indent: -60%;
+  display: inline-block;
+  width: 40px;
 }
 
 input[type="number"] {

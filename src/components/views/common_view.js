@@ -176,9 +176,7 @@ const methods = {
 		if (violations.length > 0) {
 			violationsWereFound = true
 			this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', WARNING)
-			for (const v of violations) {
-				window.slVueTree.showDependencyViolations(v)
-			}
+			window.slVueTree.showDependencyViolations(violations)
 		} else {
 			violationsWereFound = false
 		}
@@ -212,8 +210,27 @@ const methods = {
 		let patch = ''
 		if (node.dependencies && node.dependencies.length > 0) patch = '▲ '
 		if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▼ '
-		if (node.markViolation) patch = patch + '↑ '
 		return patch + node.title
+	},
+
+	rowLength(violation) {
+		let l = 0
+		for (let v of violation) {
+			if (v > l) l = v
+		}
+		return l + 1
+	},
+
+	createRow(violation) {
+		violation.sort()
+		const row = []
+		for (let i = 0; i < this.rowLength(violation); i++) {
+			if (violation.includes(i)) {
+				row.push(' △.' + (i + 1))
+			} else row.push('')
+		}
+		row.reverse()
+		return row
 	},
 
 	/* Return true if the state of the node has changed in the last hour */
@@ -580,7 +597,7 @@ const methods = {
 		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
 
 		if (!this.dependencyViolationsFound()) {
-			// show the event message if no dependency message is displayed
+			// show the event message if no dependency warning message is displayed
 			const title = this.itemTitleTrunc(60, nodes[0].title)
 			let evt = ''
 			if (nodes.length === 1) {
