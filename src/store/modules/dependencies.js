@@ -297,7 +297,9 @@ const actions = {
               if (condId !== payload.node._id) conIdArray.push(id)
             }
             // no need to pass history as the currenly selected node is the node wth the conditions
-            commit('updateNodesAndCurrentDoc', { node: depOnNode, conditionsremoved: conIdArray, lastChange: payload.timestamp })
+						commit('updateNodesAndCurrentDoc', { node: depOnNode, conditionsremoved: conIdArray, lastChange: payload.timestamp })
+						// check for resolved dependency violations
+						window.slVueTree.checkDepencyViolations()
           }
         }
       })
@@ -407,8 +409,10 @@ const actions = {
             for (const depId of condForNode.dependencies) {
               if (depId !== payload.node._id) depIdArray.push(id)
             }
-            // no need to pass history as the currenly selcted node is the node wth the dependencies
-            commit('updateNodesAndCurrentDoc', { node: condForNode, dependenciesRemoved: depIdArray, lastChange: payload.timestamp })
+            // no need to pass history as the currenly selcted node is the node with the dependencies
+						commit('updateNodesAndCurrentDoc', { node: condForNode, dependenciesRemoved: depIdArray, lastChange: payload.timestamp })
+						// check for resolved dependency violations
+						window.slVueTree.checkDepencyViolations()
           }
         }
       })
