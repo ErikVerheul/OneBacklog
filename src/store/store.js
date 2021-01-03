@@ -625,9 +625,6 @@ export default new Vuex.Store({
 							case 'level':
 								node.level = payload.level
 								break
-							case 'markViolation':
-								node.markViolation = payload.markViolation
-								break
 							case 'newComment':
 								// not stored in the node
 								break
@@ -806,9 +803,6 @@ export default new Vuex.Store({
 									break
 								case 'level':
 									state.currentDoc.level = payload.level
-									break
-								case 'markViolation':
-									// not a database field
 									break
 								case 'newComment':
 									state.currentDoc.comments.unshift(payload.newComment)
