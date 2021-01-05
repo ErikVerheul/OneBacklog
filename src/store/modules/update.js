@@ -454,7 +454,7 @@ const actions = {
 					let infoMsg = undefined
 					let warnMsg = undefined
 					const descendants = window.slVueTree.getDescendantsInfo(node).descendants
-					// check on inconsistent state when the node has descendants
+					// check on inconsistent state when the node has descendants (duplicate of code in doCheckStates())
 					if (descendants.length > 0) {
 						let highestState = NEW_STATE
 						let allDone = true
