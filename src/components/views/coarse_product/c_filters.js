@@ -41,7 +41,7 @@ const methods = {
         doHighLight = !isExcluded
       }
       if (!isExcluded) {
-        window.slVueTree.showPath(nm.path, (nm.path.length > PRODUCTLEVEL) && doHighLight)
+				window.slVueTree.showPathToNode(nm, { doHighLight_1: (nm.path.length > PRODUCTLEVEL) && doHighLight })
         if (nm.level > PRODUCTLEVEL) count++
       } else {
         unselectedNodes.push(nm)
@@ -52,7 +52,7 @@ const methods = {
 
     // hide unselected nodes with no selected descendants
     for (const n of unselectedNodes) {
-      n.doShow = window.slVueTree.hasHighlightedDescendants(n)
+      n.doShow = window.slVueTree.checkForFilteredDescendants(n)
     }
     let s
     count === 1 ? s = 'title matches' : s = 'titles match'

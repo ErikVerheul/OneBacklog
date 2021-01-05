@@ -38,11 +38,11 @@ const methods = {
         if (!isExcluded) {
           if (this.filterTreeDepth) {
             if (nm.level <= this.selectedTreeDepth) {
-              window.slVueTree.showPath(nm.path, nm.path.length > PRODUCTLEVEL)
+							window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.path.length > PRODUCTLEVEL })
               if (nm.level > PRODUCTLEVEL) count++
             } else return
           } else {
-            window.slVueTree.showPath(nm.path, nm.path.length > PRODUCTLEVEL)
+						window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.path.length > PRODUCTLEVEL })
             if (nm.level > PRODUCTLEVEL) count++
           }
         } else {
@@ -60,7 +60,7 @@ const methods = {
     if (!onlyFilterOnDepth) {
       // hide unselected nodes with no selected descendants
       for (const n of unselectedNodes) {
-        n.doShow = window.slVueTree.hasHighlightedDescendants(n)
+        n.doShow = window.slVueTree.checkForFilteredDescendants(n)
       }
       let s
 			count === 1 ? s = 'title matches' : s = 'titles match'
