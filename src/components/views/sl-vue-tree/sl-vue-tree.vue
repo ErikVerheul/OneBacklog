@@ -1,9 +1,10 @@
 <!-- This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree -->
 <template>
   <div class="sl-vue-tree" :class="{'sl-vue-tree-root': isRoot }" @mousemove="onMousemoveHandler">
-    <div v-for="(node, nodeInd) in filteredNodes"
-      :class="{'sl-vue-tree-selected': node.isSelected, 'sl-vue-tree-highlighted': !node.isSelected && node.isHighlighted, 'sl-vue-tree-warnlighted': node.isWarnlighted}"
-      :key="node.pathStr">
+    <div v-for="(node, nodeInd) in filteredNodes" :class="{'sl-vue-tree-selected': node.isSelected,
+			'sl-vue-tree-highlighted-1': !node.isSelected && node.isHighlighted_1,
+			'sl-vue-tree-highlighted-2': !node.isSelected && node.isHighlighted_2,
+			'sl-vue-tree-warnlighted': !node.isSelected && node.isWarnLighted}" :key="node.pathStr">
       <div class="sl-vue-tree-cursor" :style="{
             visibility:
             cursorPosition &&
