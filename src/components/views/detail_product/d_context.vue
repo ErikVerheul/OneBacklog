@@ -8,32 +8,24 @@
   >
     <template v-if="contextOptionSelected === SHOWDEPENDENCIES || contextOptionSelected === SHOWCONDITIONS">
       <template v-if="contextOptionSelected === SHOWDEPENDENCIES">
-        <p>Click on a red button to remove the dependency on:</p>
-        <div v-for="(dependency) in dependenciesObjects" :key="dependency._id">
-          <span>
-            {{ dependency.title }} (shortId: {{ dependency._id.slice(-5) }})
-            <b-button
-              class="space3px"
-              variant="danger"
-              size="sm"
-              @click="removeDependency(dependency._id)"
-            >X</b-button>
-          </span>
-        </div>
+        <p>Select the dependencies to remove:</p>
+				<b-form-checkbox-group
+					v-model="selectedDependencyIds"
+					stacked
+					:options="dependenciesObjects"
+					value-field="_id"
+					text-field="title">
+				</b-form-checkbox-group>
       </template>
       <template v-if="contextOptionSelected === SHOWCONDITIONS">
-        <p>Click on a red button to remove the condition for:</p>
-        <div v-for="(condition) in conditionsObjects" :key="condition._id">
-          <span>
-            {{ condition.title }} (shortId: {{ condition._id.slice(-5) }})
-            <b-button
-              class="space3px"
-              variant="danger"
-              size="sm"
-              @click="removeCondition(condition._id)"
-            >X</b-button>
-          </span>
-        </div>
+        <p>Select the conditions to remove:</p>
+				<b-form-checkbox-group
+					v-model="selectedConditionIds"
+					stacked
+					:options="conditionsObjects"
+					value-field="_id"
+					text-field="title">
+				</b-form-checkbox-group>
       </template>
     </template>
     <template v-else>
@@ -215,8 +207,5 @@
   margin: 10px;
   padding: 10px;
   color: rgb(255, 115, 0);
-}
-.space3px {
-  margin: 3px;
 }
 </style>

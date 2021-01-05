@@ -697,7 +697,7 @@ const methods = {
 		// this.showVisibility('collapseTree')
 	},
 
-	/* Show the current selected product */
+	/* Show the current selected product up to and including the feature level */
 	expandTree(allProducts) {
 		const currentProduct = allProducts ? undefined : this.getProductModels()
 		// must expand the product root to show its descendants
@@ -733,13 +733,14 @@ const methods = {
 		// this.showVisibility('showAndSelectItem')
 	},
 
+	/* Traverse the tree to reset to the state before filtering */
 	resetTree(allProducts) {
 		const currentProduct = allProducts ? undefined : this.getProductModels()
 		this.traverseModels((nm) => {
 			// skip requirement areas dummy product
 			if (nm._id === AREA_PRODUCTID) return
-
-			nm.isHighlighted = false
+			// filters only set isHighlighted_1
+			nm.isHighlighted_1 = false
 			nm.doShow = nm.savedDoShow
 			nm.isExpanded = nm.savedIsExpanded
 		}, currentProduct)
@@ -764,22 +765,13 @@ const methods = {
 		}
 	},
 
-	resetFindOnId(caller, ALLPRODUCTS) {
+	resetFindOnId(caller, allProducts) {
 		// eslint-disable-next-line no-console
 		if (this.debugMode) console.log('resetFindOnId is called by ' + caller)
-		this.resetTree(ALLPRODUCTS)
-		ALLPRODUCTS ? this.showLastEvent('Your view is restored', INFO)
+		this.resetTree(allProducts)
+		allProducts ? this.showLastEvent('Your view is restored', INFO)
 			: this.showLastEvent(`Your view on product '${this.$store.state.currentProductTitle}' is restored`, INFO)
 		this.$store.state.findIdOn = false
-	},
-
-	/* Show the path from productlevel to and including the node */
-	showPathToNode(node) {
-		for (let i = PRODUCTLEVEL; i < node.path.length; i++) {
-			const nm = this.getNodeModel(node.path.slice(0, i))
-			nm.doShow = true
-			nm.isExpanded = true
-		}
 	},
 
 	getParentNode(node) {
@@ -791,25 +783,49 @@ const methods = {
 		}
 	},
 
-	/* Show the path from productlevel to the node and highlight or warnLight the node */
-	showPath(path, doHighLight, doWarnLight = false) {
-		const maxDepth = path.length
+	/* Show the path from productlevel up to the node and highlight or warnLight the node */
+	showPathToNode(node, highLight) {
+		const maxDepth = node.path.length
 		for (let i = PRODUCTLEVEL; i <= maxDepth; i++) {
-			const nm = this.getNodeModel(path.slice(0, i))
+			const nm = this.getNodeModel(node.path.slice(0, i))
+			nm.savedDoShow = nm.doShow
+			nm.doShow = true
 			if (i < maxDepth) {
 				nm.savedIsExpanded = nm.isExpanded
 				nm.isExpanded = true
 			} else {
-				nm.isHighlighted = doHighLight
-				nm.isWarnlighted = doWarnLight
+				nm.isHighlighted_1 = !!highLight.doHighLight_1
+				nm.isHighlighted_2 = !!highLight.doHighLight_2
+				nm.isWarnLighted = !!highLight.doWarn
+				// force a re-render if any highlight is set
+				if (Object.keys(highLight).length > 0) this.$forceUpdate()
 			}
 		}
 	},
 
-	hasHighlightedDescendants(node) {
+	/* Undo the changes set by showPathToNode(...) */
+	undoShowPath(node, undoHighLight) {
+		const maxDepth = node.path.length
+		for (let i = PRODUCTLEVEL; i <= maxDepth; i++) {
+			const nm = this.getNodeModel(node.path.slice(0, i))
+			nm.doShow = nm.savedDoShow
+			if (i < maxDepth) {
+				nm.isExpanded = nm.savedIsExpanded
+			} else {
+				if (undoHighLight.undoHighlighted_1) delete nm.isHighlighted_1
+				if (undoHighLight.undoHighlighted_2) delete nm.isHighlighted_2
+				if (undoHighLight.undoWarn) delete nm.isWarnLighted
+				// force a re-render if any highlight is deleted
+				if (Object.keys(undoHighLight).length > 0) this.$forceUpdate()
+			}
+		}
+	},
+
+	/* Check for descendants selected by a filter */
+	checkForFilteredDescendants(node) {
 		let result = false
 		this.traverseModels((nm) => {
-			if (nm.isHighlighted) {
+			if (nm.isHighlighted_1) {
 				result = true
 				return false
 			}
@@ -823,7 +839,7 @@ const methods = {
 		this.traverseModels((nm) => {
 			// remove any left dependency markers
 			if (nm.markedViolations) nm.markedViolations = []
-			if (nm.isWarnlighted) nm.isWarnlighted = false
+			if (nm.isWarnLighted) nm.isWarnLighted = false
 			if (nm.dependencies && nm.dependencies.length > 0) {
 				for (const depId of nm.dependencies) {
 					const cond = this.getNodeById(depId)
@@ -841,8 +857,8 @@ const methods = {
 		for (let column = 0; column < violations.length; column++) {
 			const v = violations[column]
 			const currentProduct = allProducts ? undefined : this.getProductModels()
-			this.showPath(v.condNode.path, false, true)
-			this.showPath(v.depNode.path, false, true)
+			this.showPathToNode(v.condNode, { doWarn: true })
+			this.showPathToNode(v.depNode, { doWarn: true })
 			this.traverseModels((nm) => {
 				if ((this.comparePaths(v.depNode.path, nm.path) !== 1) && (this.comparePaths(nm.path, v.condNode.path) !== 1)) {
 					nm.savedDoShow = nm.doShow

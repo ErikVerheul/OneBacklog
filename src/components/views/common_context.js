@@ -54,7 +54,9 @@ function data() {
 		hasConditions: false,
 		allowRemoval: false,
 		dependenciesObjects: [],
-		conditionsObjects: []
+		conditionsObjects: [],
+		selectedDependencyIds: [],
+		selectedConditionIds: []
 	}
 }
 
@@ -305,8 +307,7 @@ const methods = {
 		for (const depId of this.contextNodeSelected.dependencies) {
 			const item = window.slVueTree.getNodeById(depId)
 			if (item) {
-				const highLightDependency = true
-				window.slVueTree.showPathToNode(item, highLightDependency)
+				window.slVueTree.showPathToNode(item, { doHighLight_2: true })
 				this.dependenciesObjects.push({ _id: depId, title: item.title })
 			}
 		}
@@ -317,17 +318,16 @@ const methods = {
 		for (const conId of this.contextNodeSelected.conditionalFor) {
 			const item = window.slVueTree.getNodeById(conId)
 			if (item) {
-				const highLightCondition = true
-				window.slVueTree.showPathToNode(item, highLightCondition)
+				window.slVueTree.showPathToNode(item, { doHighLight_2: true })
 				this.conditionsObjects.push({ _id: conId, title: item.title })
 			}
 		}
 	},
 
 	/*
-		* In the database both the selected node and all its descendants will be tagged with a delmark
-		* The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
-		*/
+	* In the database both the selected node and all its descendants will be tagged with a delmark
+	* The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
+	*/
 	doRemove() {
 		const selectedNode = this.contextNodeSelected
 		if (this.haveAccessInTree(selectedNode.level, selectedNode.data.team, 'remove this item')) {
@@ -344,54 +344,48 @@ const methods = {
 		}
 	},
 
-	/* Remove the dependency from the modal view only, not yet in the database and tree model. */
-	removeDependency(id) {
-		const objArray = []
-		for (const depObj of this.dependenciesObjects) {
-			if (id !== depObj._id) objArray.push(depObj)
+	/* Undo the tree expansion and highlighting */
+	resetTree(objects) {
+		for (const o of objects) {
+			const node = window.slVueTree.getNodeById(o._id)
+			if (node) window.slVueTree.undoShowPath(node, { undoHighlighted_2: true })
 		}
-		this.dependenciesObjects = objArray
-	},
-
-	/* Remove the condition from the modal view only, not yet in the database and tree model. */
-	removeCondition(id) {
-		const objArray = []
-		for (const conObj of this.conditionsObjects) {
-			if (id !== conObj._id) objArray.push(conObj)
-		}
-		this.conditionsObjects = objArray
 	},
 
 	/* Update the dependencies and the corresponding conditions in the tree model and the database. */
 	doRemoveDependencies() {
-		const depIdArray = []
-		for (const depObj of this.dependenciesObjects) {
-			depIdArray.push(depObj._id)
+		this.resetTree(this.dependenciesObjects)
+		if (this.selectedDependencyIds.length > 0) {
+			const newDeps = []
+			for (const id of this.contextNodeSelected.dependencies) {
+				if (!this.selectedDependencyIds.includes(id)) newDeps.push(id)
+			}
+			this.$store.dispatch('removeDependenciesAsync', { node: this.contextNodeSelected, newDeps, removedIds: this.selectedDependencyIds, timestamp: Date.now() })
 		}
-		const removedIds = []
-		for (const id of this.contextNodeSelected.dependencies) {
-			if (!depIdArray.includes(id)) removedIds.push(id)
-		}
-		this.$store.dispatch('removeDependenciesAsync', { node: this.contextNodeSelected, newDeps: depIdArray, removedIds, timestamp: Date.now() })
 	},
 
 	/* Update the conditions and the corresponding dependencies in the tree model and the database. */
 	doRemoveConditions() {
-		const conIdArray = []
-		for (const conObj of this.conditionsObjects) {
-			conIdArray.push(conObj._id)
+		this.resetTree(this.conditionsObjects)
+		if (this.selectedConditionIds.length > 0) {
+			const newCons = []
+			for (const id of this.conditionsObjects) {
+				if (!this.selectedConditionIds.includes(id)) newCons.push(id)
+			}
+			this.$store.dispatch('removeConditionsAsync', { node: this.contextNodeSelected, newCons, removedIds: this.selectedConditionIds, timestamp: Date.now() })
 		}
-		const removedIds = []
-		for (const id of this.contextNodeSelected.conditionalFor) {
-			if (!conIdArray.includes(id)) removedIds.push(id)
-		}
-		this.$store.dispatch('removeConditionsAsync', { node: this.contextNodeSelected, newCons: conIdArray, removedIds, timestamp: Date.now() })
 	},
 
 	doCancel() {
 		this.showAssistance = false
 		this.$store.state.moveOngoing = false
 		this.$store.state.selectNodeOngoing = false
+		if (this.contextOptionSelected === this.SHOWDEPENDENCIES) {
+			this.resetTree(this.dependenciesObjects)
+		}
+		if (this.contextOptionSelected === this.SHOWCONDITIONS) {
+			this.resetTree(this.conditionsObjects)
+		}
 	}
 }
 

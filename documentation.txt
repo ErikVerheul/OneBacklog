@@ -178,16 +178,20 @@ isExpanded: true || false, // initially the tree is expanded up to the feature l
 savedIsExpanded: isExpanded, // to restore the original view after applying a filter
 doShow: true, // false if filtered out
 savedDoShow: doShow, // to restore the original view after applying a filter
-markedViolations: [] // temporary use, not stored, not synced
 dependencies: doc.dependencies, // array with ids
 conditionalFor: doc.conditionalFor, // array with ids
+
+markedViolations: [] // temporary use, not stored, not synced
+isHighlighted_1:  boolean // temporary use, not stored, not synced
+isHighlighted_2:  boolean // temporary use, not stored, not synced
+isWarnLighted: boolean // temporary use, not stored, not synced
 
 data: {
 ....priority: doc.priority,
 ....state: doc.state,
 ....reqarea: doc.reqarea, // or null or not present
 ....sprintId: doc.sprintId, // the sprint this item is (was) in; or null or not present
-....inconsistentState: false // calculated on consistency check
+....inconsistentState: false // calculated on consistency check, temporary use, not stored, not synced
 ....team: doc.team, // the team membership of the user who updated the state the last time
 ....taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self
 ....subtype: doc.subtype,
