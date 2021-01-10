@@ -27,9 +27,6 @@ function beforeCreate() {
 		this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
 		// reset filters and searches
 		this.$store.state.filterText = FILTERBUTTONTEXT
-		this.$store.state.filterOn = false
-		this.$store.state.searchOn = false
-		this.$store.state.findIdOn = false
 		this.$store.dispatch('loadProductDetails')
 	} else returning = true
 }
@@ -160,44 +157,6 @@ const methods = {
 		this.dependencyViolationsFound()
 	},
 
-	findItemOnId(shortId) {
-		let node
-		window.slVueTree.traverseModels((nm) => {
-			if (nm._id.slice(-5) === shortId) {
-				node = nm
-				return false
-			}
-		})
-		if (node) {
-			this.$store.state.findIdOn = true
-			// if the user clicked on a node of another product
-			if (this.$store.state.currentProductId !== node.productId) {
-				// clear any outstanding filters
-				window.slVueTree.resetFilters('findItemOnId')
-				// collapse the previously selected product
-				window.slVueTree.collapseTree()
-				// update current productId and title
-				this.$store.state.currentProductId = node.productId
-				this.$store.state.currentProductTitle = window.slVueTree.getProductTitle(node.productId)
-			} else {
-				// node on current product; collapse the currently selected product
-				window.slVueTree.collapseTree()
-			}
-
-			this.showLastEvent(`The item with full Id ${node._id} is found in product '${this.$store.state.currentProductTitle}'`, INFO)
-			// expand the newly selected product up to the found item
-			window.slVueTree.showAndSelectItem(node)
-			// load the document if not already in memory
-			if (node._id !== this.$store.state.currentDoc._id) {
-				// select the node after loading the document
-				this.$store.dispatch('loadDoc', { id: node._id, onSuccessCallback: () => { this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node }) } })
-			}
-		} else {
-			// the node is not found in the current product selection; try to find it in the database
-			this.$store.dispatch('loadItemByShortId', shortId)
-		}
-	},
-
 	/* event handling */
 	onNodesSelected() {
 		const selNodes = this.$store.state.selectedNodes
@@ -209,19 +168,12 @@ const methods = {
 		this.$store.dispatch('loadDoc', {
 			id: this.getLastSelectedNode._id,
 			onSuccessCallback: () => {
-				if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id || this.getLastSelectedNode._id !== 'root') {
-					// if the same node is clicked again or the root node is selected, do nothing
-					if (this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
-						// if the user clicked on a node of another product clear any outstanding filters
-						window.slVueTree.resetFilters('onNodesSelected')
-						// collapse the previously selected product
-						window.slVueTree.collapseTree()
-						// update current productId and title
-						this.$store.state.currentProductId = this.getLastSelectedNode.productId
-						this.$store.state.currentProductTitle = this.getLastSelectedNode.title
-						// expand the newly selected product up to the feature level
-						window.slVueTree.expandTree()
-					}
+				// if the user clicked on a node of another product (not root)
+				if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
+					// another product is selected; collapse the currently selected product and switch to the new product
+					this.$store.commit('switchCurrentProduct', { productId: this.getLastSelectedNode.productId, collapseCurrentProduct: true })
+					// expand the newly selected product up to the feature level
+					window.slVueTree.expandTreeUptoFeatureLevel()
 				}
 				this.showSelectionEvent(selNodes)
 			}

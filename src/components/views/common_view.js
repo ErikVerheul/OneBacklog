@@ -6,6 +6,7 @@ const ERROR = 2
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
+const FULLKEYLENGTH = 17
 
 function created() {
 	this.onholdState = 1
@@ -27,35 +28,28 @@ function created() {
 }
 
 function mounted() {
-	function isEmpty(str) {
-		return !str.replace(/\s+/, '').length
-	}
-
-	function shortIdCheck() {
+	function idCheck(vm) {
 		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-		if (this.shortId.length !== SHORTKEYLENGTH) return false
+		if (vm.itemId.length !== SHORTKEYLENGTH && vm.itemId.length !== FULLKEYLENGTH) {
+			vm.showLastEvent('Wrong Id length. The length must be 5 for a short Id, or 17 for a full Id', WARNING)
+			return false
+		}
 
-		for (let i = 0; i < this.shortId.length; i++) {
-			if (!alphanum.includes(this.shortId.substring(i, i + 1).toLowerCase())) return false
+		for (let i = 0; i < vm.itemId.length; i++) {
+			if (!alphanum.includes(vm.itemId.substring(i, i + 1).toLowerCase())) return false
 		}
 		return true
 	}
 
 	const el = document.getElementById('findItemOnId')
-	// fire the search on short id on pressing enter in the select-on-Id input field (instead of submitting the form)
+	// fire the search on id on pressing enter in the select-on-Id input field (instead of submitting the form)
 	el.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter') {
 			event.preventDefault()
 			// check for valid input and convert to lowercase
-			if (shortIdCheck) {
-				window.slVueTree.resetFilters('findItemOnId')
-				this.findItemOnId(this.shortId.toLowerCase())
+			if (idCheck(this)) {
+				this.findItemOnId(this.itemId.toLowerCase())
 			}
-		}
-	})
-	el.addEventListener('input', () => {
-		if (isEmpty(el.value)) {
-			window.slVueTree.resetFindOnId('findItemOnId')
 		}
 	})
 
@@ -65,11 +59,6 @@ function mounted() {
 		if (event.key === 'Enter') {
 			event.preventDefault()
 			this.searchInTitles()
-		}
-	})
-	el2.addEventListener('input', () => {
-		if (isEmpty(el2.value)) {
-			window.slVueTree.resetFilters('searchInput')
 		}
 	})
 
@@ -88,7 +77,7 @@ function data() {
 		userStorySubtype: 0,
 		spikeSubtype: 1,
 		defectSubtype: 2,
-		shortId: '',
+		itemId: '',
 		newDescription: '',
 		newAcceptance: '',
 		editorToolbar: [
@@ -127,7 +116,7 @@ const computed = {
 	},
 
 	squareText() {
-		if (this.$store.state.online) {	return 'sync' } else {
+		if (this.$store.state.online) { return 'sync' } else {
 			return 'offline'
 		}
 	},
@@ -166,6 +155,11 @@ const computed = {
 		set(newAcceptanceCriteria) {
 			this.newAcceptance = newAcceptanceCriteria
 		}
+	},
+
+	// return true if the root node is selected or false if another or no node is selected
+	isRootSelected() {
+		return !!this.getLastSelectedNode && this.getLastSelectedNode._id === 'root'
 	}
 }
 
@@ -197,13 +191,11 @@ const methods = {
 	},
 
 	resetFindId() {
-		this.shortId = ''
-		window.slVueTree.resetFindOnId('resetFindId')
+		this.$store.dispatch('resetFilters', { caller: 'resetFindId', allProducts: true })
 	},
 
 	resetSearchTitles() {
-		this.$store.state.keyword = ''
-		window.slVueTree.resetFilters('resetSearchTitles')
+		this.$store.dispatch('resetFilters', { caller: 'resetSearchTitles' })
 	},
 
 	patchTitle(node) {
@@ -263,17 +255,65 @@ const methods = {
 	},
 
 	onSetMyFilters() {
-		if (this.$store.state.filterOn) {
-			window.slVueTree.resetFilters('onSetMyFilters')
-			window.slVueTree.resetFindOnId('onSetMyFilters')
+		if (this.$store.state.resetSearch && this.$store.state.resetSearch.searchType === 'onSetMyFilters') {
+			// if this filter was on, reset it
+			this.$store.dispatch('resetFilters', { caller: 'onSetMyFilters' })
 		} else {
+			// reset all other filters
+			this.$store.dispatch('resetFilters', { caller: 'onSetMyFilters' })
+			// create reset object
+			this.$store.state.resetSearch = {
+				searchType: 'onSetMyFilters',
+				highLight: 'highlighted_1'
+			}
 			// update the available req area options
 			const currReqAreaIds = window.slVueTree.getCurrentReqAreaIds()
 			this.$store.state.reqAreaOptions = []
 			for (const id of currReqAreaIds) {
 				this.$store.state.reqAreaOptions.push({ id, title: this.$store.state.reqAreaMapper[id] })
 			}
+			// open the modal to set the filters
 			window.myFilters.show()
+		}
+	},
+
+	/* Find, load and select an item with a given short or full Id. Scan the full tree */
+	findItemOnId(id) {
+		const isShortId = id.length === SHORTKEYLENGTH
+		let node
+		window.slVueTree.traverseModels((nm) => {
+			if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
+				// short id or full id did match
+				node = nm
+				return false
+			}
+		})
+		if (node) {
+			// create reset object
+			this.$store.state.resetSearch = {
+				searchType: 'findItemOnId',
+				view: 'detailProduct',
+				currentSelectedNode: this.getLastSelectedNode,
+				nodes: [node],
+				highLight: 'noHighLight'
+			}
+			if (this.$store.state.currentView === 'detailProduct' && node.productId !== this.$store.state.currentProductId) {
+				// the node is found but not in the current product; collapse the currently selected product and switch to the new product
+				this.$store.commit('switchCurrentProduct', { productId: node.productId, collapseCurrentProduct: true })
+			}
+
+			// expand the newly selected product up to the found item
+			window.slVueTree.showPathToNode(node, { noHighLight: true })
+			this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, INFO)
+			// load and select the document if not already current
+			if (node._id !== this.$store.state.currentDoc._id) {
+				// select the node after loading the document
+				this.$store.dispatch('loadDoc', { id: node._id, onSuccessCallback: () => { this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node }) } })
+			}
+		} else {
+			// the node is not found in the current product selection; try to find it in the database using the short id
+			const lookUpId = isShortId ? id : id.slice(-5)
+			this.$store.dispatch('loadItemByShortId', lookUpId)
 		}
 	},
 
@@ -281,33 +321,52 @@ const methods = {
 		// cannot search on empty string
 		if (this.$store.state.keyword === '') return
 
-		// reset the other selections first
-		window.slVueTree.resetFilters('searchInTitles')
-		window.slVueTree.resetFindOnId('searchInTitles')
-		let count = 0
-		window.slVueTree.traverseModels((nodeModel) => {
-			if (nodeModel.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
-				window.slVueTree.showPathToNode(nodeModel)
-				// mark if selected
-				nodeModel.isHighlighted = true
-				count++
+		// reset any active selections first
+		this.$store.dispatch('resetFilters', { caller: 'searchInTitles' })
+
+		// create reset object
+		this.$store.state.resetSearch = {
+			searchType: 'searchInTitles',
+			view: 'detailProduct',
+			currentSelectedNode: this.getLastSelectedNode,
+			nodes: [],
+			highLight: 'highlighted_1'
+		}
+
+		const nodesFound = []
+		const nodesToScan = this.getLastSelectedNode.children || []
+		window.slVueTree.traverseModels((nm) => {
+			if (nm.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
+				window.slVueTree.showPathToNode(nm, { doHighLight_1: true })
+				nodesFound.push(nm)
 			} else {
-				nodeModel.savedIsExpanded = nodeModel.isExpanded
-				nodeModel.isExpanded = false
-				nodeModel.savedDoShow = nodeModel.doShow
-				// do not block expansion of the found nodes
-				const parentNode = window.slVueTree.getParentNode(nodeModel)
-				if (!parentNode.isHighlighted) {
-					nodeModel.savedDoShow = nodeModel.doShow
-					nodeModel.doShow = false
-				}
+				// collapse nodes with no findings in their subtree
+				nm.savedIsExpanded = nm.isExpanded
+				nm.isExpanded = false
 			}
-		}, window.slVueTree.getProductModels())
-		// show event
-		let s
-		count === 1 ? s = 'title matches' : s = 'titles match'
-		this.showLastEvent(`${count} item ${s} your search in product '${this.$store.state.currentProductTitle}'`, INFO)
-		this.$store.state.searchOn = true
+		}, nodesToScan)
+
+		this.$store.state.resetSearch.nodes = nodesFound
+		const itemType = this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)
+		const itemTitle = this.getLastSelectedNode.title
+		switch (nodesFound.length) {
+			case 0:
+				this.showLastEvent(`No item titles match your search in ${itemType} '${itemTitle}'`, INFO)
+				break
+			case 1:
+				this.showLastEvent(`One item title matches your search in ${itemType} '${itemTitle}'. This item is selected`, INFO)
+				break
+			default:
+				this.showLastEvent(`${nodesFound.length} item titles match your search in ${itemType} '${itemTitle}'. The first match is selected`, INFO)
+		}
+
+		if (nodesFound.length > 0) {
+			// load and select the document found if not already current
+			if (nodesFound[0]._id !== this.$store.state.currentDoc._id) {
+				// select the node after loading the document
+				this.$store.dispatch('loadDoc', { id: nodesFound[0]._id, onSuccessCallback: () => { this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] }) } })
+			}
+		}
 		// window.slVueTree.showVisibility('searchInTitles', FEATURELEVEL)
 	},
 

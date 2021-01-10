@@ -58,7 +58,7 @@ const methods = {
 	},
 
 	doChangeDatabase() {
-		window.slVueTree.resetFilters('doChangeDatabase')
+		this.$store.dispatch('resetFilters', { caller: 'doChangeDatabase' })
 		if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
 			const autoSignOut = true
 			this.$store.dispatch('changeCurrentDb', { dbName: this.headerMyDatabase, autoSignOut })
@@ -106,15 +106,12 @@ const methods = {
 		this.$store.dispatch('loadDoc', {
 			id: newDefaultProductId, onSuccessCallback: () => {
 				if (this.$store.state.currentProductId !== newDefaultProductId) {
-					// collapse the previously selected product
-					window.slVueTree.collapseTree()
-					// update globals to new default
-					this.$store.state.currentProductId = newDefaultProductId
-					this.$store.state.currentDefaultProductId = newDefaultProductId
+					// another product is selected; collapse the currently selected product and switch to the new product
+					this.$store.commit('switchCurrentProduct', { productId: newDefaultProductId, collapseCurrentProduct: true })
 					// select new default product node
 					window.slVueTree.selectNodeById(newDefaultProductId)
 					// expand the newly selected product up to the feature level
-					window.slVueTree.expandTree()
+					window.slVueTree.expandTreeUptoFeatureLevel()
 				}
 				// remove unselected products from the tree view
 				for (const productId of this.getMyProductSubscriptions) {

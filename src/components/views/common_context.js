@@ -279,12 +279,10 @@ const methods = {
 				}
 				if (nm.data.state > highestState || nm.data.state === this.doneState && !allDone) {
 					// node has a higher state than any of its descendants or set to done while one of its descendants is not done
-					if (!nm.data.inconsistentState) nm.data.lastChange = Date.now()
 					nm.data.inconsistentState = true
 					window.slVueTree.showPathToNode(nm)
 					count++
 				} else {
-					if (nm.data.inconsistentState) nm.data.lastChange = Date.now()
 					nm.data.inconsistentState = false
 				}
 			}
@@ -345,16 +343,16 @@ const methods = {
 	},
 
 	/* Undo the tree expansion and highlighting */
-	resetTree(objects) {
+	undoShowDependencies(objects) {
 		for (const o of objects) {
 			const node = window.slVueTree.getNodeById(o._id)
-			if (node) window.slVueTree.undoShowPath(node, { undoHighlighted_2: true })
+			if (node) window.slVueTree.undoShowPath(node, { highlighted_2: true })
 		}
 	},
 
 	/* Update the dependencies and the corresponding conditions in the tree model and the database. */
 	doRemoveDependencies() {
-		this.resetTree(this.dependenciesObjects)
+		this.undoShowDependencies(this.dependenciesObjects)
 		if (this.selectedDependencyIds.length > 0) {
 			const newDeps = []
 			for (const id of this.contextNodeSelected.dependencies) {
@@ -366,11 +364,11 @@ const methods = {
 
 	/* Update the conditions and the corresponding dependencies in the tree model and the database. */
 	doRemoveConditions() {
-		this.resetTree(this.conditionsObjects)
+		this.undoShowDependencies(this.conditionsObjects)
 		if (this.selectedConditionIds.length > 0) {
 			const newCons = []
-			for (const id of this.conditionsObjects) {
-				if (!this.selectedConditionIds.includes(id)) newCons.push(id)
+			for (const obj of this.conditionsObjects) {
+				if (!this.selectedConditionIds.includes(obj._id)) newCons.push(obj)
 			}
 			this.$store.dispatch('removeConditionsAsync', { node: this.contextNodeSelected, newCons, removedIds: this.selectedConditionIds, timestamp: Date.now() })
 		}
@@ -381,10 +379,10 @@ const methods = {
 		this.$store.state.moveOngoing = false
 		this.$store.state.selectNodeOngoing = false
 		if (this.contextOptionSelected === this.SHOWDEPENDENCIES) {
-			this.resetTree(this.dependenciesObjects)
+			this.undoShowDependencies(this.dependenciesObjects)
 		}
 		if (this.contextOptionSelected === this.SHOWCONDITIONS) {
-			this.resetTree(this.conditionsObjects)
+			this.undoShowDependencies(this.conditionsObjects)
 		}
 	}
 }

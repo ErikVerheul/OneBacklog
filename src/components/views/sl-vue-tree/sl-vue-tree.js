@@ -5,8 +5,6 @@ import { eventBus } from '../../../main'
 import { utilities } from '../../mixins/generic.js'
 const DATABASELEVEL = 1
 const PRODUCTLEVEL = 2
-const FILTERBUTTONTEXT = 'Filter in tree view'
-const INFO = 0
 const WARNING = 1
 const FEATURELEVEL = 4
 const AREA_PRODUCTID = 'requirement-areas'
@@ -390,6 +388,7 @@ const methods = {
 	onToggleHandler(event, node) {
 		if (!this.allowToggleBranch) return
 		node.isExpanded = !node.isExpanded
+		node.savedIsExpanded = node.isExpanded
 		if (node.isExpanded) this.unhideDescendants(node)
 		event.stopPropagation()
 	},
@@ -520,15 +519,15 @@ const methods = {
 		return this.getNodeSiblings(path.slice(1), nodes[path[0]].children || [])
 	},
 
-	// returns an array with the node of the selected productId / current productId or the full tree if the product is not found
-	getProductModels(productId = this.$store.state.currentProductId) {
+	/* Returns an array with the node of the selected productId (default = current productId) or an empty array if the product is not found */
+	getProductModel(productId = this.$store.state.currentProductId) {
 		const productModels = this.currentValue[0].children
 		for (const p of productModels) {
 			if (p.productId === productId) {
 				return [p]
 			}
 		}
-		return this.currentValue
+		return []
 	},
 
 	removeProduct(productId) {
@@ -550,7 +549,7 @@ const methods = {
 	},
 
 	/*
-	* Traverse the node models breadth first
+	* Traverse the node models or the full tree (default), breadth first
 	* Stop when the call back returns false
 	*/
 	traverseModels(cb, nodeModels = this.currentValue) {
@@ -569,6 +568,7 @@ const methods = {
 		traverse(cb, nodeModels)
 	},
 
+	/* Scan the full tree to find a node with the passed id and stop scanning at the first match */
 	getNodeById(id) {
 		let resultNode = null
 		this.traverseModels((nm) => {
@@ -615,7 +615,7 @@ const methods = {
 			if (nm.data.reqarea) {
 				if (!idsWithReqArea.includes(nm.data.reqarea)) idsWithReqArea.push(nm.data.reqarea)
 			}
-		}, this.getProductModels())
+		}, this.getProductModel())
 		return idsWithReqArea
 	},
 
@@ -681,97 +681,27 @@ const methods = {
 		})
 	},
 
-	/* Collapse the branch below the current product or all products if allProducts === true, and hide the nodes */
-	collapseTree(allProducts) {
-		const currentProduct = allProducts ? undefined : this.getProductModels()
+	/*
+	* Show the current selected product up to and including the feature level.
+	* Collapse items on the feature level and higher (Pbi and task level)
+	*/
+	expandTreeUptoFeatureLevel() {
+		const nodesToScan = this.getProductModel()
 		this.traverseModels((nm) => {
-			if (nm.level === PRODUCTLEVEL) {
-				// skip requirement areas dummy product
-				if (nm._id === AREA_PRODUCTID) return
+			if (nm.level >= PRODUCTLEVEL && nm.level < FEATURELEVEL) {
+				nm.isExpanded = true
+				nm.doShow = true
+			} else
+			if (nm.level === FEATURELEVEL) {
 				nm.isExpanded = false
-			}
-			if (nm.level > PRODUCTLEVEL) {
+				nm.doShow = true
+			} else
+			if (nm.level > FEATURELEVEL) {
+				nm.isExpanded = false
 				nm.doShow = false
 			}
-		}, currentProduct)
-		// this.showVisibility('collapseTree')
-	},
-
-	/* Show the current selected product up to and including the feature level */
-	expandTree(allProducts) {
-		const currentProduct = allProducts ? undefined : this.getProductModels()
-		// must expand the product root to show its descendants
-		currentProduct[0].isExpanded = true
-		this.traverseModels((nm) => {
-			if (nm.level > PRODUCTLEVEL && nm.level < FEATURELEVEL) {
-				nm.isExpanded = true
-			}
-			if (nm.level <= FEATURELEVEL) {
-				nm.doShow = true
-			}
-		}, currentProduct)
-		// this.showVisibility('expandTree')
-	},
-
-	showAndSelectItem(node) {
-		this.traverseModels((nm) => {
-			// unselect any previous selections
-			nm.isSelected = false
-			// if on the node path
-			if (this.isInPath(nm.path, node.path)) {
-				nm.savedIsExpanded = true
-				nm.isExpanded = true
-				nm.savedDoShow = true
-				nm.doShow = true
-			}
-			// select the item
-			if (nm.shortId === node._id.slice(-5)) {
-				this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nm })
-				return false
-			}
-		})
-		// this.showVisibility('showAndSelectItem')
-	},
-
-	/* Traverse the tree to reset to the state before filtering */
-	resetTree(allProducts) {
-		const currentProduct = allProducts ? undefined : this.getProductModels()
-		this.traverseModels((nm) => {
-			// skip requirement areas dummy product
-			if (nm._id === AREA_PRODUCTID) return
-			// filters only set isHighlighted_1
-			nm.isHighlighted_1 = false
-			nm.doShow = nm.savedDoShow
-			nm.isExpanded = nm.savedIsExpanded
-		}, currentProduct)
-	},
-
-	/* Clear any outstanding filters and searches of the current product (default) or all products */
-	resetFilters(caller, allProducts = this.$store.state.currentView === 'coarseProduct') {
-		// eslint-disable-next-line no-console
-		if (this.debugMode) console.log('resetFilters is called by ' + caller)
-		if (this.$store.state.filterOn) {
-			this.resetTree(allProducts)
-			allProducts ? this.showLastEvent('Your filter is cleared', INFO)
-				: this.showLastEvent(`Your filter in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
-			this.$store.state.filterText = FILTERBUTTONTEXT
-			this.$store.state.filterOn = false
-		}
-		if (this.$store.state.searchOn) {
-			this.resetTree(allProducts)
-			allProducts ? this.showLastEvent('Your search is cleared', INFO)
-				: this.showLastEvent(`Your search in product '${this.$store.state.currentProductTitle}' is cleared`, INFO)
-			this.$store.state.searchOn = false
-		}
-	},
-
-	resetFindOnId(caller, allProducts) {
-		// eslint-disable-next-line no-console
-		if (this.debugMode) console.log('resetFindOnId is called by ' + caller)
-		this.resetTree(allProducts)
-		allProducts ? this.showLastEvent('Your view is restored', INFO)
-			: this.showLastEvent(`Your view on product '${this.$store.state.currentProductTitle}' is restored`, INFO)
-		this.$store.state.findIdOn = false
+		}, nodesToScan)
+		// this.showVisibility('expandTreeUptoFeatureLevel')
 	},
 
 	getParentNode(node) {
@@ -783,22 +713,27 @@ const methods = {
 		}
 	},
 
-	/* Show the path from productlevel up to the node and highlight or warnLight the node */
+	/*
+	* Show the path from productlevel up to the node and highlight or warnLight the node
+	* Save the isExpanded and doShow state to enable undo later
+	*/
 	showPathToNode(node, highLight) {
 		const maxDepth = node.path.length
 		for (let i = PRODUCTLEVEL; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
-			nm.savedDoShow = nm.doShow
-			nm.doShow = true
 			if (i < maxDepth) {
-				nm.savedIsExpanded = nm.isExpanded
 				nm.isExpanded = true
+				nm.doShow = true
 			} else {
-				nm.isHighlighted_1 = !!highLight.doHighLight_1
-				nm.isHighlighted_2 = !!highLight.doHighLight_2
-				nm.isWarnLighted = !!highLight.doWarn
-				// force a re-render if any highlight is set
-				if (Object.keys(highLight).length > 0) this.$forceUpdate()
+				nm.isExpanded = false
+				nm.doShow = true
+				if (highLight && Object.keys(highLight).length > 0) {
+					nm.isHighlighted_1 = !!highLight.doHighLight_1
+					nm.isHighlighted_2 = !!highLight.doHighLight_2
+					nm.isWarnLighted = !!highLight.doWarn
+					// force a re-render if any highlight is set
+					this.$forceUpdate()
+				}
 			}
 		}
 	},
@@ -808,15 +743,14 @@ const methods = {
 		const maxDepth = node.path.length
 		for (let i = PRODUCTLEVEL; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
+			nm.isExpanded = nm.savedIsExpanded
 			nm.doShow = nm.savedDoShow
-			if (i < maxDepth) {
-				nm.isExpanded = nm.savedIsExpanded
-			} else {
-				if (undoHighLight.undoHighlighted_1) delete nm.isHighlighted_1
-				if (undoHighLight.undoHighlighted_2) delete nm.isHighlighted_2
-				if (undoHighLight.undoWarn) delete nm.isWarnLighted
+			if (i === maxDepth && Object.keys(undoHighLight).length > 0) {
+				if (undoHighLight.highlighted_1) delete nm.isHighlighted_1
+				if (undoHighLight.highlighted_2) delete nm.isHighlighted_2
+				if (undoHighLight.doWarn) delete nm.isWarnLighted
 				// force a re-render if any highlight is deleted
-				if (Object.keys(undoHighLight).length > 0) this.$forceUpdate()
+				this.$forceUpdate()
 			}
 		}
 	},
@@ -834,12 +768,14 @@ const methods = {
 	},
 
 	findDependencyViolations(allProducts) {
-		const currentProduct = allProducts ? undefined : this.getProductModels()
+		const nodesToScan = allProducts ? undefined : this.getProductModel()
 		const violations = []
 		this.traverseModels((nm) => {
 			// remove any left dependency markers
-			if (nm.markedViolations) nm.markedViolations = []
-			if (nm.isWarnLighted) nm.isWarnLighted = false
+			if (nm.markedViolations) delete nm.markedViolations
+			// remove any left dependency warning highlights
+			if (nm.isWarnLighted) delete nm.isWarnLighted
+			// find violations
 			if (nm.dependencies && nm.dependencies.length > 0) {
 				for (const depId of nm.dependencies) {
 					const cond = this.getNodeById(depId)
@@ -848,7 +784,7 @@ const methods = {
 					}
 				}
 			}
-		}, currentProduct)
+		}, nodesToScan)
 		return violations
 	},
 
@@ -856,7 +792,7 @@ const methods = {
 	showDependencyViolations(violations, allProducts) {
 		for (let column = 0; column < violations.length; column++) {
 			const v = violations[column]
-			const currentProduct = allProducts ? undefined : this.getProductModels()
+			const nodesToScan = allProducts ? undefined : this.getProductModel()
 			this.showPathToNode(v.condNode, { doWarn: true })
 			this.showPathToNode(v.depNode, { doWarn: true })
 			this.traverseModels((nm) => {
@@ -867,7 +803,7 @@ const methods = {
 						nm.markedViolations.push(column)
 					} else nm.markedViolations = [column]
 				}
-			}, currentProduct)
+			}, nodesToScan)
 		}
 	},
 
@@ -945,7 +881,7 @@ const methods = {
 				}
 				nm.conditionalFor = newConditionalFor
 			}
-		}, this.getProductModels(productId))
+		}, this.getProductModel(productId))
 		return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 	},
 

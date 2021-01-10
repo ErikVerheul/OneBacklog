@@ -5,8 +5,8 @@ const PRODUCTLEVEL = 2
 const methods = {
   /* Apply the AND logic to the included filters */
   onApplyMyFilters () {
-    // reset the other selections first
-    window.slVueTree.resetFilters('onApplyMyFilters')
+    // reset any active selections first
+		// this.$store.dispatch('resetFilters', { caller: 'onApplyMyFilters' })
     if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
     const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
@@ -33,16 +33,16 @@ const methods = {
           isExcluded = this.doFilterOnState(nm)
         }
         if (!isExcluded && this.filterOnTime) {
-          isExcluded = this.doFilterOnTime(nm)
+					isExcluded = this.doFilterOnTime(nm)
         }
         if (!isExcluded) {
           if (this.filterTreeDepth) {
             if (nm.level <= this.selectedTreeDepth) {
-							window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.path.length > PRODUCTLEVEL })
+							window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > PRODUCTLEVEL })
               if (nm.level > PRODUCTLEVEL) count++
             } else return
           } else {
-						window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.path.length > PRODUCTLEVEL })
+						window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > PRODUCTLEVEL })
             if (nm.level > PRODUCTLEVEL) count++
           }
         } else {
@@ -51,10 +51,9 @@ const methods = {
       }
     }
     // execute the callback for the current product
-		window.slVueTree.traverseModels(cb, window.slVueTree.getProductModels())
+		window.slVueTree.traverseModels(cb, window.slVueTree.getProductModel())
 
 		this.$store.state.filterText = 'Clear filter'
-		this.$store.state.filterOn = true
     // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
 
     if (!onlyFilterOnDepth) {

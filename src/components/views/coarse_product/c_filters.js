@@ -6,8 +6,8 @@ const AREA_PRODUCTID = 'requirement-areas'
 const methods = {
   /* Apply the AND logic to the included filters */
   onApplyMyFilters () {
-    // reset the other selections first
-    window.slVueTree.resetFilters('onApplyMyFilters')
+    // reset any active selections first
+		// this.$store.dispatch('resetFilters', { caller: 'onApplyMyFilters' })
     // return if no filter is selected
     if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
@@ -20,28 +20,23 @@ const methods = {
 
       // save node display state
       nm.savedDoShow = nm.doShow
-      nm.savedIsExpanded = nm.isExpanded
+			nm.savedIsExpanded = nm.isExpanded
       // select nodeModels NOT to show; the node is shown if not excluded by any filter
       let isExcluded = false
-      let doHighLight = false
       if (!isExcluded && this.filterOnReqAreas) {
         isExcluded = this.doFilterOnReqAreas(nm)
-        doHighLight = !isExcluded
       }
       if (!isExcluded && this.filterOnTeams) {
         isExcluded = this.doFilterOnTeams(nm)
-        doHighLight = !isExcluded
       }
       if (!isExcluded && this.filterOnState) {
         isExcluded = this.doFilterOnState(nm)
-        doHighLight = !isExcluded
       }
       if (!isExcluded && this.filterOnTime) {
         isExcluded = this.doFilterOnTime(nm)
-        doHighLight = !isExcluded
       }
       if (!isExcluded) {
-				window.slVueTree.showPathToNode(nm, { doHighLight_1: (nm.path.length > PRODUCTLEVEL) && doHighLight })
+				window.slVueTree.showPathToNode(nm, { doHighLight_1: (nm.level > PRODUCTLEVEL) })
         if (nm.level > PRODUCTLEVEL) count++
       } else {
         unselectedNodes.push(nm)
@@ -59,7 +54,6 @@ const methods = {
     this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
 
     this.$store.state.filterText = 'Clear filter'
-    this.$store.state.filterOn = true
     // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
   }
 }

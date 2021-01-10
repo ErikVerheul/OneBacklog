@@ -135,7 +135,7 @@ const methods = {
 			case this.SETDEPENDENCY:
 				this.assistanceText = this.$store.state.help.help.setDependency
 				if (!this.$store.state.selectNodeOngoing) {
-					this.listItemText = 'Click OK to choose a node this item depends on'
+					this.listItemText = 'Click OK and right-click a node this item depends on'
 				} else {
 					if (checkNode(this, this.contextNodeSelected)) {
 						this.listItemText = 'Click OK to set this condition'

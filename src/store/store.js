@@ -39,6 +39,7 @@ const PBILEVEL = 5
 const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
 
+const FILTERBUTTONTEXT = 'Filter in tree view'
 const MAX_EVENTLIST_SIZE = 100
 
 function createEvent(payload) {
@@ -166,7 +167,6 @@ export default new Vuex.Store({
 		filterForComment: '',
 		filterForHistory: '',
 		filterText: 'Filter in tree view',
-		filterOn: false,
 		findIdOn: false,
 		keyword: '',
 		moveOngoing: false,
@@ -175,6 +175,7 @@ export default new Vuex.Store({
 		searchOn: false,
 		selectedForView: 'comments',
 		previousSelectedNodes: undefined,
+		resetSearch: {},
 		selectedNodes: [],
 		selectNodeOngoing: false,
 		uploadDone: true,
@@ -313,7 +314,7 @@ export default new Vuex.Store({
 			}
 		},
 
-		getMyProductSubscriptions(state) {
+		getMyProductSubscriptions(state, getters) {
 			if (state.userData.myDatabases && state.availableProductIds.length > 0) {
 				const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
 				let screenedSubscriptions = []
@@ -324,7 +325,7 @@ export default new Vuex.Store({
 				}
 				if (screenedSubscriptions.length === 0) {
 					// if no default is set, assign the first defined product from the productsRoles if present
-					const myAssignedProductIds = this.getMyAssignedProductIds()
+					const myAssignedProductIds = getters.getMyAssignedProductIds()
 					if (myAssignedProductIds.length > 0) {
 						screenedSubscriptions = myAssignedProductIds[0]
 					}
@@ -421,6 +422,73 @@ export default new Vuex.Store({
 				return state.sprintCalendar !== state.configData.defaultSprintCalendar
 			} else return false
 		}
+	},
+
+	actions: {
+		/* Clear any outstanding filters and searches of the current product (default) or all products */
+		resetFilters({ state, commit, dispatch }, payload) {
+			if (state.debug) {
+				// eslint-disable-next-line no-console
+				console.log(`resetFilters is called by ${payload.caller}, allProducts = ${payload.allProducts}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
+			}
+
+			if (state.resetSearch.searchType === 'onSetMyFilters') {
+				const nodesToScan = window.slVueTree.getProductModel()
+				// traverse the tree to reset to the state before filtering
+				window.slVueTree.traverseModels((nm) => {
+					// skip requirement areas dummy product items
+					if (nm._id === AREA_PRODUCTID) return
+
+					// filters do only set isHighlighted_1
+					nm.isHighlighted_1 = false
+					nm.doShow = nm.savedDoShow
+					nm.isExpanded = nm.savedIsExpanded
+				}, nodesToScan)
+
+				commit('addToEventList', { txt: `Your filter in product '${state.currentProductTitle}' is cleared`, severity: INFO })
+				state.filterText = FILTERBUTTONTEXT
+				state.resetSearch = {}
+			}
+
+			if (state.resetSearch.searchType === 'findItemOnId') {
+				const node = state.resetSearch.nodes[0]
+				const prevSelectedNode = state.resetSearch.currentSelectedNode
+				if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
+					// the node was found in another product; collapse the currently selected product and switch to the other product
+					commit('switchCurrentProduct', { productId: prevSelectedNode.productId, collapseCurrentProduct: true })
+					// expand the product
+					window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
+				} else {
+					window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
+				}
+				// select the node after loading the document
+				dispatch('loadDoc', {
+					id: prevSelectedNode._id, onSuccessCallback: () => {
+						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+						commit('addToEventList', { txt: 'The search for an item on Id is closed', severity: INFO })
+					}
+				})
+				state.resetSearch = {}
+			}
+
+			if (state.resetSearch.searchType === 'searchInTitles') {
+				for (const node of state.resetSearch.nodes) {
+					window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
+				}
+				const prevSelectedNode = state.resetSearch.currentSelectedNode
+				dispatch('loadDoc', {
+					id: prevSelectedNode._id, onSuccessCallback: () => {
+						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+						window.slVueTree.showPathToNode(prevSelectedNode)
+						// expand the product
+						window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
+						state.keyword = ''
+						commit('addToEventList', { txt: `The search for item titles in '${prevSelectedNode.title}' is closed`, severity: INFO })
+					}
+				})
+				state.resetSearch = {}
+			}
+		},
 	},
 
 	mutations: {
@@ -893,6 +961,15 @@ export default new Vuex.Store({
 			const newEvent = createEvent({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
 			state.eventList.unshift(newEvent)
 			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
+		},
+
+		switchCurrentProduct(state, payload) {
+			if (payload.collapseCurrentProduct) {
+				// Collapse the branch below the current product
+				window.slVueTree.getProductModel()[0].isExpanded = false
+			}
+			state.currentProductId = payload.productId
+			state.currentProductTitle = window.slVueTree.getProductTitle(payload.productId)
 		},
 
 		resetData(state) {

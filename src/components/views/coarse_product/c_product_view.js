@@ -11,7 +11,6 @@ import { mapGetters } from 'vuex'
 
 const INFO = 0
 const WARNING = 1
-const ALLPRODUCTS = true
 const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'coarseProduct'
 var returning = false
@@ -27,9 +26,6 @@ function beforeCreate() {
 		this.$store.state.loadoverview.orphansFound = { userData: null, orphans: [] }
 		// reset filters and searches
 		this.$store.state.filterText = FILTERBUTTONTEXT
-		this.$store.state.filterOn = false
-		this.$store.state.searchOn = false
-		this.$store.state.findIdOn = false
 		this.$store.dispatch('loadOverview')
 	} else returning = true
 }
@@ -135,32 +131,6 @@ const methods = {
 		this.$store.commit('createColorMapper')
 	},
 
-	findItemOnId(shortId) {
-		let node
-		window.slVueTree.traverseModels((nm) => {
-			if (nm._id.slice(-5) === shortId) {
-				node = nm
-				return false
-			}
-		})
-		if (node) {
-			this.$store.state.findIdOn = true
-			window.slVueTree.collapseTree(ALLPRODUCTS)
-
-			this.showLastEvent(`The item with full Id ${node._id} is found in product '${this.$store.state.currentProductTitle}'`, INFO)
-			// expand the newly selected product up to the found item
-			window.slVueTree.showAndSelectItem(node)
-			// load the document if not already in memory
-			if (node._id !== this.$store.state.currentDoc._id) {
-				// select the node after loading the document
-				this.$store.dispatch('loadDoc', { id: node._id, onSuccessCallback: () => { this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node }) } })
-			}
-		} else {
-			// the node is not found in the current product selection; try to find it in the database
-			this.$store.dispatch('loadItemByShortId', shortId)
-		}
-	},
-
 	/* event handling */
 	onNodesSelected() {
 		const selNodes = this.$store.state.selectedNodes
@@ -178,8 +148,7 @@ const methods = {
 					// if the user clicked on a node of another product (not root)
 					if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
 						// update current productId and title
-						this.$store.state.currentProductId = this.getLastSelectedNode.productId
-						this.$store.state.currentProductTitle = this.getLastSelectedNode.title
+						this.$store.commit('switchCurrentProduct', { productId: this.getLastSelectedNode.productId })
 					}
 					if (this.getLastSelectedNode._id !== 'requirement-areas') {
 						this.showSelectionEvent(selNodes)
