@@ -49,12 +49,10 @@ function showProduct(docs, leafLevel) {
 				isLeaf: level === leafLevel,
 				children: [],
 				isExpanded,
-				savedIsExpanded: isExpanded,
 				isSelectable: true,
 				isDraggable,
 				isSelected: false,
 				doShow,
-				savedDoShow: doShow,
 				data: {
 					priority: doc.priority,
 					state: doc.state,

@@ -155,11 +155,9 @@ const actions = {
         children: [],
         isSelected: false,
         isExpanded: true,
-        savedIsExpanded: true,
         isSelectable: true,
         isDraggable: doc.level > PRODUCTLEVEL,
         doShow: true,
-        savedDoShow: true,
         data: {
           state: doc.state,
           sprintId: doc.sprintId,

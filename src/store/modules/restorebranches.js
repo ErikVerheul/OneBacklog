@@ -157,11 +157,9 @@ const actions = {
           children: [],
           isSelected: false,
           isExpanded,
-          savedIsExpanded: isExpanded,
           isSelectable: true,
           isDraggable: level > PRODUCTLEVEL,
           doShow: true,
-          savedDoShow: true,
           data: {
             lastAttachmentAddition,
             lastChange,

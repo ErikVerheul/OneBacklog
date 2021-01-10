@@ -388,7 +388,6 @@ const methods = {
 	onToggleHandler(event, node) {
 		if (!this.allowToggleBranch) return
 		node.isExpanded = !node.isExpanded
-		node.savedIsExpanded = node.isExpanded
 		if (node.isExpanded) this.unhideDescendants(node)
 		event.stopPropagation()
 	},

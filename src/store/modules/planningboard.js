@@ -687,12 +687,10 @@ const actions = {
 							conditionalFor: [],
 							children: [],
 							isExpanded: false,
-							savedIsExpanded: false,
 							isDraggable: true,
 							isSelectable: true,
 							isSelected: false,
 							doShow: true,
-							savedDoShow: true,
 							data: {
 								state: payload.state,
 								subtype: 0,

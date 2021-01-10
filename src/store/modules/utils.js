@@ -133,11 +133,9 @@ const actions = {
 					children: [],
 					isSelected: false,
 					isExpanded: true,
-					savedIsExpanded: true,
 					isSelectable: true,
 					isDraggable: payload.newProduct.level > PRODUCTLEVEL,
 					doShow: true,
-					savedDoShow: true,
 					data: {
 						state: payload.newProduct.state,
 						subtype: 0,

@@ -15,10 +15,10 @@ Database--------------------------------------------------- node
 ----------------------------------------------------------- isSelected: true only if isSelectable || false
 ----------------------------------------------------------- isDraggable: true || false, // depending on the user roles
 ----------------------------------------------------------- isExpanded: true || false, // initially the tree is expanded up to the feature level
------------------------------------------------------------ savedIsExpanded: isExpanded, // to restore the original view after applying a filter
------------------------------------------------------------ doShow: true, // false if filtered out
------------------------------------------------------------ savedDoShow: doShow, // to restore the original view after applying a filter
------------------------------------------------------------ markedViolations: false // temporary use, not stored, not synced
+----------------------------------------------------------- savedIsExpanded: isExpanded, // to restore the view after applying a filter, temporary use
+----------------------------------------------------------- doShow: true, // false if filtered out, temporary use
+----------------------------------------------------------- savedDoShow: doShow, // to restore the the view after applying a filter
+----------------------------------------------------------- markedViolations: [column ids] // temporary use
 "productId"(string)---------------------------------------- productId
 "parentId"(string)----------------------------------------- parentId
 "_id"(string)---------------------------------------------- _id
