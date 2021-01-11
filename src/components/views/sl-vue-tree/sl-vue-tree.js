@@ -720,6 +720,8 @@ const methods = {
 		const maxDepth = node.path.length
 		for (let i = PRODUCTLEVEL; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
+			nm.savedIsExpanded = nm.isExpanded
+			nm.savedDoShow = nm.doShow
 			if (i < maxDepth) {
 				nm.isExpanded = true
 				nm.doShow = true
@@ -765,6 +767,8 @@ const methods = {
 		}, [node])
 		return result
 	},
+
+	//////////////////// dependencies /////////////////////////////////
 
 	findDependencyViolations(allProducts) {
 		const nodesToScan = allProducts ? undefined : this.getProductModel()
