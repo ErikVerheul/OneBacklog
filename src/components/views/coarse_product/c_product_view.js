@@ -39,7 +39,6 @@ function mounted() {
 	// expose instance to the global namespace
 	window.slVueTree = this.$refs.slVueTree
 	if (returning) {
-		// window.slVueTree.getSelectedNodes()
 		this.showLastEvent('Returning to the Products overview', INFO)
 	}
 }
