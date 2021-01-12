@@ -339,9 +339,17 @@ export default new Vuex.Store({
 			return state.previousSelectedNodes.slice(-1)[0]
 		},
 
-		leafLevel(state) {
-			if (state.currentView === 'detailProduct') return TASKLEVEL
-			if (state.currentView === 'coarseProduct') return FEATURELEVEL
+		isDetailsViewSelected(state) {
+			return state.currentView === 'detailProduct'
+		},
+
+		isOverviewSelected(state) {
+			return state.currentView === 'coarseProduct'
+		},
+
+		leafLevel(state, getters) {
+			if (getters.isDetailsViewSelected) return TASKLEVEL
+			if (getters.isOverviewSelected) return FEATURELEVEL
 			return PBILEVEL
 		},
 

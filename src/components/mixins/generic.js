@@ -128,7 +128,9 @@ const utilities = {
 			'getLastSelectedNode',
 			'getLastEventColor',
 			'getLastEventTxt',
+			'isDetailsViewSelected',
 			'isFollower',
+			'isOverviewSelected',
 			'leafLevel',
 			'myTeam',
 			'teamCalendarInUse'

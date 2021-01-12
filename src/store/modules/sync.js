@@ -668,7 +668,7 @@ const actions = {
             break
         }
 
-        if (rootState.currentView === 'coarseProduct') {
+				if (rootGetters.isOverviewSelected) {
           const node = window.slVueTree.getNodeById(doc._id)
           switch (histEvent) {
             case 'changeReqAreaColorEvent':

@@ -349,8 +349,8 @@ const methods = {
 				this.stopDrag()
 				return
 			}
-			// prevent drag to other product when not in reqarea view
-			if (this.$store.state.currentView != 'coarseProduct' && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
+			// prevent drag to other product when not in Products overview
+			if (!this.isOverviewSelected && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
 				this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', WARNING)
 				this.stopDrag()
 				return
@@ -685,7 +685,6 @@ const methods = {
 	* Collapse items on the feature level and higher (Pbi and task level)
 	*/
 	expandTreeUptoFeatureLevel() {
-		const nodesToScan = this.getProductModel()
 		this.traverseModels((nm) => {
 			if (nm.level >= PRODUCTLEVEL && nm.level < FEATURELEVEL) {
 				nm.isExpanded = true
@@ -699,7 +698,7 @@ const methods = {
 				nm.isExpanded = false
 				nm.doShow = false
 			}
-		}, nodesToScan)
+		}, this.getProductModel())
 		// this.showVisibility('expandTreeUptoFeatureLevel')
 	},
 

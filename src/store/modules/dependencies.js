@@ -239,7 +239,8 @@ const actions = {
 
   /* Remove one or more conditions; called by removeDependenciesAsync only, */
   alsoRemoveConditions ({
-    rootState,
+		rootState,
+		rootGetters,
     commit,
     dispatch
   }, payload) {
@@ -299,7 +300,7 @@ const actions = {
             // no need to pass history as the currenly selected node is the node wth the conditions
 						commit('updateNodesAndCurrentDoc', { node: depOnNode, conditionsremoved: conIdArray, lastChange: payload.timestamp })
 						// check for resolved dependency violations
-						window.slVueTree.checkDepencyViolations()
+						window.slVueTree.checkDepencyViolations(rootGetters.isOverviewSelected)
           }
         }
       })
@@ -350,7 +351,8 @@ const actions = {
 
   /* Remove the dependencies; called by removeConditionsAsync only. */
   alsoRemoveDependenciesAsync ({
-    rootState,
+		rootState,
+		rootGetters,
     commit,
     dispatch
   }, payload) {
@@ -412,7 +414,7 @@ const actions = {
             // no need to pass history as the currenly selcted node is the node with the dependencies
 						commit('updateNodesAndCurrentDoc', { node: condForNode, dependenciesRemoved: depIdArray, lastChange: payload.timestamp })
 						// check for resolved dependency violations
-						window.slVueTree.checkDepencyViolations()
+						window.slVueTree.checkDepencyViolations(rootGetters.isOverviewSelected)
           }
         }
       })

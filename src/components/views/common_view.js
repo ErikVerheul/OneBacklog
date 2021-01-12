@@ -164,13 +164,17 @@ const computed = {
 }
 
 const methods = {
+	/*
+	* Find and show dependency violations in the current product (details view) or all products (coarse view).
+	* Return true if 1 or more violations are found, false otherwise.
+	*/
 	dependencyViolationsFound() {
 		let violationsWereFound = false
-		const violations = window.slVueTree.findDependencyViolations()
+		const violations = window.slVueTree.findDependencyViolations(this.isOverviewSelected)
 		if (violations.length > 0) {
 			violationsWereFound = true
 			this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', WARNING)
-			window.slVueTree.showDependencyViolations(violations)
+			window.slVueTree.showDependencyViolations(violations, this.isOverviewSelected)
 		} else {
 			violationsWereFound = false
 		}
