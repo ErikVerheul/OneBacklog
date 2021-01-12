@@ -45,7 +45,7 @@ const methods = {
 	},
 
 	selectProducts() {
-		this.selectedProducts = this.getMyProductSubscriptions
+		this.selectedProducts = this.getMyAssignedProductIds
 		this.$refs.selectProductsRef.show()
 	},
 
