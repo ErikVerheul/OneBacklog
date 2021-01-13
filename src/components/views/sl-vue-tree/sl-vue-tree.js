@@ -38,7 +38,7 @@ const props = {
 * Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId
 * Pass an insertInd as the lowest index of any insert to gain performance.
 */
-function updatePaths(parentPath, siblings, leafLevel, insertInd = 0, parentId = undefined, productId = undefined) {
+function updatePaths(parentPath, siblings, leafLevel, insertInd = 0, parentId, productId) {
 	for (let i = insertInd; i < siblings.length; i++) {
 		const sibling = siblings[i]
 		const newPath = parentPath.concat(i)
@@ -631,10 +631,7 @@ const methods = {
 			predecessorNode = null
 			destSiblings.unshift(...nodes)
 			successorNode = destSiblings[nodes.length] || null
-			if (destNodeModel.path.length === 1) {
-				// inserting a product
-				updatePaths(destNodeModel.path, destSiblings, this.leafLevel)
-			} else updatePaths(destNodeModel.path, destSiblings, this.leafLevel, 0, parentId, productId)
+			updatePaths(destNodeModel.path, destSiblings, this.leafLevel, 0, parentId, productId)
 		} else {
 			// insert before or after the cursor position
 			const destSiblings = this.getNodeSiblings(destNodeModel.path)
@@ -644,10 +641,7 @@ const methods = {
 			predecessorNode = destSiblings[insertInd - 1] || null
 			destSiblings.splice(insertInd, 0, ...nodes)
 			successorNode = destSiblings[insertInd + nodes.length] || null
-			if (parentPath.length === 1) {
-				// inserting a product
-				updatePaths(parentPath, destSiblings, this.leafLevel, insertInd)
-			} else updatePaths(parentPath, destSiblings, this.leafLevel, insertInd, parentId, productId)
+			updatePaths(parentPath, destSiblings, this.leafLevel, insertInd, parentId, productId)
 		}
 		if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 	},
