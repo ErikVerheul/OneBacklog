@@ -325,7 +325,7 @@ export default new Vuex.Store({
 				}
 				if (screenedSubscriptions.length === 0) {
 					// if no default is set, assign the first defined product from the productsRoles if present
-					const myAssignedProductIds = getters.getMyAssignedProductIds()
+					const myAssignedProductIds = getters.getMyAssignedProductIds
 					if (myAssignedProductIds.length > 0) {
 						screenedSubscriptions = myAssignedProductIds[0]
 					}
