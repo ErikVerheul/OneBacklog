@@ -108,8 +108,11 @@ const actions = {
           continue
         }
 
-        // skip products not assigned to the user
+				// skip the items of the products the user is not authorized to
 				if (productId !== AREA_PRODUCTID && !rootGetters.getMyAssignedProductIds.includes(productId)) continue
+
+				// skip the items of the products the user is not subscribed to
+				if (productId !== AREA_PRODUCTID && !rootGetters.getMyProductSubscriptions.includes(productId)) continue
 
         state.docsCount++
         // expand the default product up to the feature level
