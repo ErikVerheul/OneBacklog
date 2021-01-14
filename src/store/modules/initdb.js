@@ -120,28 +120,14 @@ const actions = {
 		rootState
 	}, payload) {
 		// set the persmissions on the database holding the documents
-		let dbPermissions
-		if (payload.dbName === 'system-users') {
-			dbPermissions = {
-				admins: {
-					names: [],
-					roles: ['admin', '_admin']
-				},
-				members: {
-					names: [],
-					roles: []
-				}
-			}
-		} else {
-			dbPermissions = {
-				admins: {
-					names: [rootState.userData.user],
-					roles: ['admin']
-				},
-				members: {
-					names: [],
-					roles: ['PO', 'APO', 'developer', 'guest']
-				}
+		const dbPermissions = {
+			admins: {
+				names: [rootState.userData.user],
+				roles: ['admin']
+			},
+			members: {
+				names: [],
+				roles: ['PO', 'APO', 'developer', 'guest']
 			}
 		}
 		globalAxios({
