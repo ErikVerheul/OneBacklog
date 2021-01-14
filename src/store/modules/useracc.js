@@ -211,7 +211,7 @@ const actions = {
 					}
 				}
 				const newDb = {
-					myteam: 'not assigned yet',
+					myTeam: 'not assigned yet',
 					subscriptions,
 					productsRoles
 				}
@@ -254,7 +254,7 @@ const actions = {
 			} else {
 				// new database for this user; leave rolesSet empty
 				const newDb = {
-					myteam: 'not assigned yet',
+					myTeam: 'not assigned yet',
 					subscriptions: [productId],
 					productsRoles: {
 						[productId]: rolesSet
@@ -432,7 +432,7 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + userData.name,
 			data: userData
 		}).then(() => {
-			if (userData.name === rootState.userData.user && rootState.userData.currentDb === userData.currentDb) {
+			if (userData.name === rootState.userData.user && userData.currentDb === rootState.userData.currentDb) {
 				// the user is updating its own profile and loaded its current database (admin is not updating another user)
 				commit('setMyUserData', payload)
 

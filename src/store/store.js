@@ -291,7 +291,7 @@ export default new Vuex.Store({
 			return genericRoles
 		},
 
-		// return the number of products in the currrent database
+		/* Return the number of products in the currrent database */
 		getMyProductsCount(state) {
 			if (state.userData.myDatabases) {
 				const productsRoles = state.userData.myDatabases[state.userData.currentDb].productsRoles
@@ -354,8 +354,11 @@ export default new Vuex.Store({
 		},
 
 		myTeam(state) {
-			return state.userData.myTeam
+			if (state.userData.myDatabases) {
+				return state.userData.myTeam
+			}
 		},
+
 		/////////////////// generic (not product nor database specific) roles /////////////////
 		isServerAdmin(state, getters) {
 			return getters.isAuthenticated && state.iAmServerAdmin
