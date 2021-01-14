@@ -122,7 +122,7 @@ const actions = {
 		// set the persmissions on the database holding the documents
 		const dbPermissions = {
 			admins: {
-				names: [rootState.userData.user],
+				names: [],
 				roles: ['admin']
 			},
 			members: {
