@@ -45,6 +45,17 @@ And, now that most teams have to work from home due to the Corona virus:
 
 <p>Larger organizations have multiple PO's and several requirement Areas PO's (APOs). The APOs and the PO together form a team, the Product Owner Team. This team makes product-wide prioritization decisions, but the PO always has the final decision. Also, scope and schedule decisions stay with the PO, he decides when to release what. See https://less.works/less/less-huge/area-product-owner</p>
 
+<b>Design basics:</b><br />
+<p>The application runs in a browser that connects to a CouchDb nosql instance with one user database and one or more document databases. Each document database holds one or more products, a default sprint calendar and a members document for each team. A team can have its own team sprint calendar.</p>
+
+A product consists of:
+- <b>epics</b> which consists of
+- <b>features</b> which consists of
+- <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
+- <b>tasks</b>
+
+<p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
+
 <b>Security:</b><br />
 The database and the web server have secure https access.
 
@@ -52,27 +63,30 @@ The database and the web server have secure https access.
 The CouchDB build-in cookie authentication (RFC 2109) is used
 
 <b>Authorization :</b><br />
-By default the application uses two databases. The _users database owned by the admin role and a database holding the products. More databases can be created but the _users database is shared. What a user can see or do is determined by the roles assigned to that user.<br />
+Team membership plays a role in the authorization.<br />
+Teams
+- Teams are created by the admin or assistAdmin
+- Initially a user is member of the team 'not assigned yet'
+- A user can join or leave a team at will
+- A user can be a member of one team only
+
+By default the application uses two databases. The _users database owned by the admin/assistAdmin roles and a database holding the products. More databases can be created but the _users database is shared. What a user can see or do is determined by the roles assigned to that user.<br />
 The roles are:
 - '_admin': Is the CouchDb administrator. Can setup and delete databases. See the CouchDB documentation. The scope is per CouchDb instance including all databases.
 
-The next two roles are set per database and include all products defined in this database:
-- 'admin': Can create products, teams and users. Can (un)assign databases and roles to users and user access to products. Is not member of a team.
-- 'areaPO': The APOs create and maintain their requirement areas. Can change priorities at the epic and feature level. Is not member of a team.
+The next two roles are set for all databases in a CouchDb instance and include all products defined in these databases:
+- 'admin': The overall admin can create products, teams and maintain users and calendars. Can (un)assign databases and products to users. Can (un)assign global 'admin' and 'APO' roles to users. Can (un)assign user roles per product. Need not be a member of a team.
+- 'APO': The Area Product Owners create and maintain the requirement areas. Can change priorities at the epic and feature level. Need not be a member of a team.
+
+The next role is limited to the databases and products assigned to this user by the overall admin:
+- 'assistAdmin': Can create teams and users. Can (un)assign databases and products to users. Can (un)assign user roles per product. Cannot (un)assign global roles or create products or remove users. Need not be a member of a team.
 
 These three roles are set per product in a database:
 - 'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products. Can change priorities at these levels. Must be member of a team.
 - 'developer': Can create and maintain pbi's and features for the assigned products when team member. Must be member of a team.
-- 'guest': Can only view the items of the assigned products. Has no access to attachments. Cannot join a team.<br /><br />
-Users can have multiple roles. Users can only see/access the products that are assigned to them by the admin.
-
-<b>Design basics:</b><br />
-a product consists of:
-- <b>epics</b> which consists of
-- <b>features</b> which consists of
-- <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
-- <b>tasks</b>
-<p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
+- 'guest': Can only view the items of the assigned products. Has no access to attachments. Cannot join a team.
+<p>Users can have multiple roles. Users can only see/access the products that are assigned to them by the admin/assistAdmin.<br />
+When a PO or developer creates an item, that item is assigned to the team of that user. Subsequent changes to these items can ony be applied by members of that team.</p>
 
 <b>Other design choices:</b><br />
 The scope is the selected product. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of an item and used for prioritization.<br />
