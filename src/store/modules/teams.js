@@ -89,7 +89,41 @@ const actions = {
       if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: ERROR })
     })
-  },
+	},
+
+
+	fetchTeamMembers({
+		rootState,
+		dispatch
+	}, dbName) {
+		rootState.areTeamsFound = false
+		rootState.teamsToRemoveOptions = []
+		rootState.backendMessages = []
+		rootState.fetchedTeams = []
+		globalAxios({
+			method: 'GET',
+			url: dbName + '/_design/design1/_view/teams'
+		}).then(res => {
+			const rows = res.data.rows
+			for (const r of rows) {
+				const teamId = r.id
+				const teamName = r.key
+				const members = r.value
+				rootState.fetchedTeams.push({ teamId, teamName, members })
+				if (members.length === 0) {
+					rootState.teamsToRemoveOptions.push(teamName)
+				}
+			}
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamMembers: success, ${rootState.fetchedTeams.length} team names are read, ${rootState.teamsToRemoveOptions.length} team(s) have no members` })
+			rootState.areTeamsFound = true
+		}).catch(error => {
+			const msg = `fetchTeamMembers: Could not read the documents from database '${dbName}', ${error}`
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
 
   removeTeamsFromDb ({
     rootState,

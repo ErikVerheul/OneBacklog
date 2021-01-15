@@ -313,94 +313,6 @@ const actions = {
 		})
 	},
 
-	fetchTeamMembers({
-		rootState,
-		dispatch
-	}, dbName) {
-		rootState.areTeamsFound = false
-		rootState.teamsToRemoveOptions = []
-		rootState.backendMessages = []
-		rootState.fetchedTeams = []
-		globalAxios({
-			method: 'GET',
-			url: dbName + '/_design/design1/_view/teams'
-		}).then(res => {
-			const rows = res.data.rows
-			for (const r of rows) {
-				const teamId = r.id
-				const teamName = r.key
-				const members = r.value
-				rootState.fetchedTeams.push({ teamId, teamName, members })
-				if (members.length === 0) {
-					rootState.teamsToRemoveOptions.push(teamName)
-				}
-			}
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamMembers: success, ${rootState.fetchedTeams.length} team names are read, ${rootState.teamsToRemoveOptions.length} team(s) have no members` })
-			rootState.areTeamsFound = true
-		}).catch(error => {
-			const msg = `fetchTeamMembers: Could not read the documents from database '${dbName}', ${error}`
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Get the default sprint calendar of a specific database (for admin use only) */
-	getDbDefaultSprintCalendar({
-		rootState,
-		dispatch
-	}, dbName) {
-		rootState.isSprintCalendarFound = false
-		rootState.backendMessages = []
-		globalAxios({
-			method: 'GET',
-			url: dbName + '/config'
-		}).then(res => {
-			if (res.data.defaultSprintCalendar) {
-				rootState.defaultSprintCalendar = res.data.defaultSprintCalendar
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `getDbDefaultSprintCalendar: success, ${res.data.defaultSprintCalendar.length} sprint periods are read` })
-				rootState.isSprintCalendarFound = true
-			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getDbDefaultSprintCalendar: no calendar is found' })
-		}).catch(error => {
-			const msg = `getDbDefaultSprintCalendar: Could not read config document of database '${dbName}', ${error}`
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	/* Save the default sprint calendar of a specific database (for admin use only) */
-	saveDbDefaultSprintCalendar({
-		rootState,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: payload.dbName + '/config'
-		}).then(res => {
-			const updatedDoc = res.data
-			updatedDoc.defaultSprintCalendar = payload.newSprintCalendar
-			dispatch('updateDoc', {
-				dbName: payload.dbName,
-				updatedDoc,
-				caller: 'saveDbDefaultSprintCalendar',
-				onSuccessCallback: () => {
-					rootState.defaultSprintCalendar = payload.newSprintCalendar
-					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveDbDefaultSprintCalendar: calendar is saved' })
-					rootState.isDefaultSprintCalendarSaved = true
-				}
-			})
-		}).catch(error => {
-			const msg = 'saveDbDefaultSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
 	remHistAndCommAsync({
 		rootState,
 		state,
@@ -491,31 +403,6 @@ const actions = {
 			dispatch('updateBulk', { dbName: payload.dbName, docs, caller: 'resetHistAndComm', onSuccessCallback: () => { rootState.isHistAndCommReset = true } })
 		}).catch(error => {
 			const msg = 'resetHistAndComm: Could not read batch of documents: ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
-		})
-	},
-
-	///////////////// utility not integrated in user interface //////////////////
-	removeFromFilter({
-		rootState,
-		dispatch
-	}) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/to-delete?include_docs=true'
-		}).then(res => {
-			const items = res.data.rows
-			const docs = []
-			for (const it of items) {
-				const doc = it.doc
-				doc.delmark = true
-				docs.push(doc)
-			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeFromFilter' })
-		}).catch(error => {
-			const msg = `removeFromFilter: Could not read the teams in database '${rootState.userData.currentDb}', ${error}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: ERROR })
