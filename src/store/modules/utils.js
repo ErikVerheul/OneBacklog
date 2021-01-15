@@ -331,11 +331,11 @@ const actions = {
 				const teamName = r.key
 				const members = r.value
 				rootState.fetchedTeams.push({ teamId, teamName, members })
-				if (!members || members.length === 0) {
+				if (members.length === 0) {
 					rootState.teamsToRemoveOptions.push(teamName)
 				}
 			}
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamMembers: success, '${rootState.fetchedTeams.length}' team names are read` })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamMembers: success, ${rootState.fetchedTeams.length} team names are read, ${rootState.teamsToRemoveOptions.length} team(s) have no members` })
 			rootState.areTeamsFound = true
 		}).catch(error => {
 			const msg = `fetchTeamMembers: Could not read the documents from database '${dbName}', ${error}`
