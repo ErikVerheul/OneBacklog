@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import authentication from './modules/authentication'
+import calendars from './modules/calendars'
 import dependencies from './modules/dependencies'
 import logging from './modules/logging'
 import startup from './modules/startup'
@@ -1167,6 +1168,7 @@ export default new Vuex.Store({
 
 	modules: {
 		authentication,
+		calendars,
 		dependencies,
 		startup,
 		initdb,
