@@ -131,7 +131,7 @@ const methods = {
 	},
 
 	/* event handling */
-	onNodesSelected() {
+	onNodesSelected(fromContextMenu) {
 		const selNodes = this.$store.state.selectedNodes
 		// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
 		this.updateDescription(this.getPreviousNodeSelected)
@@ -150,7 +150,7 @@ const methods = {
 						this.$store.commit('switchCurrentProduct', { productId: this.getLastSelectedNode.productId })
 					}
 					if (this.getLastSelectedNode._id !== 'requirement-areas') {
-						this.showSelectionEvent(selNodes)
+						if (!fromContextMenu) this.showSelectionEvent(selNodes)
 					} else this.showLastEvent('Create / maintain Requirement Areas here', INFO)
 				}
 			})

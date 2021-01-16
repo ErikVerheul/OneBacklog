@@ -178,8 +178,8 @@ const methods = {
 		this.getRootComponent().$emit('loaded')
 	},
 
-	emitSelect() {
-		this.getRootComponent().$emit('nodes-are-selected')
+	emitSelect(fromContextMenu) {
+		this.getRootComponent().$emit('nodes-are-selected', fromContextMenu)
 	},
 
 	emitBeforeDrop(draggingNodes, position, cancel) {
@@ -240,7 +240,8 @@ const methods = {
 				this.$store.commit('renewSelectedNodes', selNode)
 			}
 			// access the selected nodes using the store: $store.state.selectedNodes
-			this.emitSelect()
+			const fromContextMenu = false
+			this.emitSelect(fromContextMenu)
 		}
 	},
 

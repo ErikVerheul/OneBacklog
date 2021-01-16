@@ -157,7 +157,7 @@ const methods = {
 	},
 
 	/* event handling */
-	onNodesSelected() {
+	onNodesSelected(fromContextMenu) {
 		const selNodes = this.$store.state.selectedNodes
 		// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
 		this.updateDescription(this.getPreviousNodeSelected)
@@ -174,7 +174,7 @@ const methods = {
 					// expand the newly selected product up to the feature level
 					window.slVueTree.expandTreeUptoFeatureLevel()
 				}
-				this.showSelectionEvent(selNodes)
+				if (!fromContextMenu) this.showSelectionEvent(selNodes)
 			}
 		})
 	},
