@@ -57,6 +57,14 @@
               >Remove this requirement area</b-list-group-item>
             </template>
           </template>
+					<template v-if="(isPO || isDeveloper) && contextNodeLevel > epicLevel && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
+            <b-list-group-item
+              button
+              :active="contextOptionSelected === ASIGNTOMYTEAM"
+              variant="dark"
+              @click="showSelected(ASIGNTOMYTEAM)"
+            >Assign this {{ contextNodeType }} to my team</b-list-group-item>
+          </template>
           <template v-else>
             <b-list-group-item
               v-if="contextNodeLevel !== productLevel"

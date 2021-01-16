@@ -31,7 +31,7 @@
     <template v-else>
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
-          <template v-if="!isPO && !isAPO && contextNodeLevel > productLevel && contextNodeTeam !== myTeam">
+          <template v-if="(isPO || isDeveloper) && contextNodeLevel > epicLevel && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
             <b-list-group-item
               v-if="contextNodeLevel > pbiLevel"
               button
@@ -39,13 +39,12 @@
               variant="dark"
               @click="showSelected(ASIGNTOMYTEAM)"
             >Assign this {{ contextNodeType }} to my team</b-list-group-item>
-
             <b-list-group-item v-else
               button
               :active="contextOptionSelected === ASIGNTOMYTEAM"
               variant="dark"
               @click="showSelected(ASIGNTOMYTEAM)"
-            >Assign this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants to my team</b-list-group-item>
+            >Assign this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants to my team</b-list-group-item>
           </template>
           <template v-else>
             <b-list-group-item
@@ -155,8 +154,7 @@
               :active="contextOptionSelected === REMOVEITEM"
               variant="danger"
               @click="showSelected(REMOVEITEM)"
-            >Delete this {{ contextNodeType }} and its {{ contextNodeDescendantsCount }} descendants</b-list-group-item>
-
+            >Delete this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants</b-list-group-item>
           </template>
         </template>
 

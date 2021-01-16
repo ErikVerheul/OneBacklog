@@ -14,14 +14,15 @@ const methods = {
     if (this.$store.state.selectedNodes.length === 1) {
 			// select and load the item
 			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
-      window.slVueTree.emitSelect()
+			const fromContextMenu = true
+			window.slVueTree.emitSelect(fromContextMenu)
       this.contextOptionSelected = undefined
       this.listItemText = ''
       this.showAssistance = false
       this.disableOkButton = true
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
       const allowExtraLevel = node.level < this.taskLevel
-      if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', allowExtraLevel)) {
+      if (this.haveAccessInTree(node.level, '*', 'open the context menu', allowExtraLevel)) {
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
         this.contextParentTeam = parentNode.data.team
@@ -29,7 +30,8 @@ const methods = {
         this.contextNodeTitle = node.title
         this.contextNodeLevel = node.level
         this.contextNodeType = this.getLevelText(node.level)
-        this.contextChildType = this.getLevelText(node.level + 1)
+				this.contextChildType = this.getLevelText(node.level + 1)
+				this.contextNodeDescendants = window.slVueTree.getDescendantsInfo(node)
         this.contextNodeTeam = node.data.team
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
@@ -93,8 +95,13 @@ const methods = {
         } else if (this.hasConditions) {
           this.listItemText = 'WARNING: this item is conditional for other items. Remove the condition(s) first'
           this.disableOkButton = true
-        } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
-        break
+        } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants`
+				break
+			case this.ASIGNTOMYTEAM:
+				this.assistanceText = this.$store.state.help.help.team
+				this.contextWarning = `Descendants of this ${this.contextNodeType} might be assigned to another team. To be save use the 'Product details' view to assign your team to this ${this.contextNodeType}`
+				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'`
+				break
       case this.REMOVEREQAREA:
         this.assistanceText = this.$store.state.help.help.remove
         this.listItemText = 'Remove this requirement area'

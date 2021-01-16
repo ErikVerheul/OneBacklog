@@ -47,7 +47,7 @@ function data() {
 		listItemText: '',
 		assistanceText: 'No assistance available',
 		showAssistance: false,
-		contextNodeDescendantsCount: 0,
+		contextNodeDescendants: null,
 		moveSourceProductId: '',
 		nodeWithDependenciesId: undefined,
 		hasDependencies: false,
@@ -61,6 +61,13 @@ function data() {
 }
 
 const methods = {
+	areDescendantsAssignedToOtherTeam(descendants) {
+		for (const d of descendants) {
+			if (d.data.team !== 'not assigned yet' && d.data.team !== this.myTeam) return true
+		}
+		return false
+	},
+
 	doCloneProduct(node) {
 		this.$store.dispatch('cloneProduct', node)
 	},

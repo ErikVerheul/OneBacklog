@@ -1,7 +1,6 @@
 import CommonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
-const INFO = 0
 const WARNING = 1
 const PBILEVEL = 5
 // is initiated in method moveItemToOtherProduct
@@ -30,14 +29,16 @@ const methods = {
 		if (this.$store.state.selectedNodes.length === 1) {
 			// select and load the item
 			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
-			window.slVueTree.emitSelect()
+			const fromContextMenu = true
+			window.slVueTree.emitSelect(fromContextMenu)
 			this.contextOptionSelected = undefined
 			this.listItemText = ''
 			this.showAssistance = false
 			this.disableOkButton = true
+			this.contextWarning = undefined
 			// for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
 			const allowExtraLevel = node.level < this.taskLevel
-			if (this.haveAccessInTree(node.level, node.data.team, 'open the context menu', allowExtraLevel)) {
+			if (this.haveAccessInTree(node.level, '*', 'open the context menu', allowExtraLevel)) {
 				const parentNode = window.slVueTree.getParentNode(node)
 				this.contextNodeSelected = node
 				this.contextParentTeam = parentNode.data.team
@@ -46,7 +47,7 @@ const methods = {
 				this.contextNodeLevel = node.level
 				this.contextNodeType = this.getLevelText(node.level, node.data.subtype)
 				this.contextChildType = this.getLevelText(node.level + 1)
-				this.contextNodeDescendantsCount = window.slVueTree.getDescendantsInfo(node).count
+				this.contextNodeDescendants = window.slVueTree.getDescendantsInfo(node)
 				this.contextNodeTeam = node.data.team
 				this.hasDependencies = node.dependencies && node.dependencies.length > 0
 				this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
@@ -60,7 +61,6 @@ const methods = {
 					// prevent error message on recompile
 					this.$refs.d_contextMenuRef.show()
 				}
-				this.showLastEvent(`${this.getLevelText(node.level, node.data.subtype)} '${node.title}' is selected`, INFO)
 			} else this.allowRemoval = false
 		} else this.showLastEvent('Cannot apply context menu on multiple items. Choose one', WARNING)
 	},
@@ -118,14 +118,16 @@ const methods = {
 				} else if (this.hasConditions) {
 					this.listItemText = 'WARNING: this item is conditional for other items. Remove the condition(s) first'
 					this.disableOkButton = true
-				} else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendantsCount} descendants`
+				} else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants`
 				break
 			case this.ASIGNTOMYTEAM:
 				this.assistanceText = this.$store.state.help.help.team
-				if (this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.myTeam) {
-					this.contextWarning = 'WARNING: The team of parent ' + this.contextParentType + ' (' + this.contextParentTeam +
-						') and your team (' + this.myTeam + ') do not match. Read the assistance text.'
-				} else this.contextWarning = undefined
+				if (this.areDescendantsAssignedToOtherTeam(this.contextNodeDescendants.descendants)) {
+					this.contextWarning = `Descendants of this ${this.contextNodeType} are assigned to another team.
+					Click OK to assign all these items to your team or Cancel and join team '${this.contextNodeTeam}' to open the context menu.`
+				} else if (this.contextParentTeam !== 'not asigned yet' && this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.myTeam) {
+					this.contextWarning = `WARNING: The team of parent ${this.contextParentType} (${this.contextParentTeam}) and your team (${this.myTeam}) do not match. Read the assistance text.`
+				}
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'`
 				break
 			case this.CHECKSTATES:

@@ -97,7 +97,7 @@ const authorization = {
 				}
 			}
 			const productId = this.$store.state.currentProductId
-			const skipTestOnTeam = this.isAdmin || this.isAPO
+			const skipTestOnTeam = itemTeam === '*' || this.isAdmin || this.isAPO || level <= EPICLEVEL
 			const canAccessOnTeam = skipTestOnTeam || itemTeam && itemTeam === this.myTeam
 			const canAccessOnLevel = this.haveWritePermission(level, productId) || allowExtraLevel && this.haveWritePermission(level + 1, productId)
 
