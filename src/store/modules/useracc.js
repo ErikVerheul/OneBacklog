@@ -23,6 +23,7 @@ function removeFromArray(arr, item) {
 const state = {
 	fetchedUserData: null,
 	userIsAdmin: false,
+	userIsAssistAdmin: false,
 	userIsAPO: false,
 	dbProducts: [],
 	allUsers: []
@@ -47,6 +48,7 @@ const actions = {
 		}).then(res => {
 			state.fetchedUserData = res.data
 			state.userIsAdmin = !!state.fetchedUserData.roles.includes('admin')
+			state.userIsAssistAdmin = !!state.fetchedUserData.roles.includes('assistAdmin')
 			state.userIsAPO = !!state.fetchedUserData.roles.includes('APO')
 			rootState.isUserRemoved = !!res.data.delmark
 			// preset with the current database of the user
@@ -416,6 +418,7 @@ const actions = {
 		// calculate the association of all assigned roles
 		const allRoles = []
 		if (userData.roles.includes('APO')) allRoles.push('APO')
+		if (userData.roles.includes('assistAdmin')) allRoles.push('assistAdmin')
 		if (userData.roles.includes('admin')) allRoles.push('admin')
 		for (const db in userData.myDatabases) {
 			for (const prodId in userData.myDatabases[db].productsRoles) {

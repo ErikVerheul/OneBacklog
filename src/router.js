@@ -16,6 +16,7 @@ import ReqsAreaPage from './components/views/coarse_product/c_product_view.vue'
 
 import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
 
+import AssistAdminPage from './components/assistadmin/assistadmin.vue'
 import AdminPage from './components/admin/admin.vue'
 import ServerAdminPage from './components/serveradmin/serveradmin.vue'
 
@@ -93,7 +94,18 @@ const routes = [
         next('/signin')
       }
     }
-  },
+	},
+	{
+		path: '/assistAdmin',
+		component: AssistAdminPage,
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		}
+	},
   {
     path: '/serveradmin',
     component: ServerAdminPage,

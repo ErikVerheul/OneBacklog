@@ -16,6 +16,7 @@ const authorization = {
 		...mapGetters([
 			'canCreateComments',
 			'canSeeAndUploadAttachments',
+			'isAssistAdmin',
 			'isAdmin',
 			'isAPO',
 			'isAuthenticated',

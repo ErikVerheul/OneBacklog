@@ -148,6 +148,7 @@ export default new Vuex.Store({
 		currentProductTitle: '',
 		iAmAPO: false,
 		iAmAdmin: false,
+		iAmAssistAdmin: false,
 		iAmServerAdmin: false,
 		stopListenForChanges: false,
 		// tree loading
@@ -287,6 +288,7 @@ export default new Vuex.Store({
 
 		getMyGenericRoles(state) {
 			const genericRoles = []
+			if (state.iAmAssistAdmin && !state.iAmAdmin) genericRoles.push('assistAdmin')
 			if (state.iAmAdmin) genericRoles.push('admin')
 			if (state.iAmAPO) genericRoles.push('APO')
 			return genericRoles
@@ -370,6 +372,12 @@ export default new Vuex.Store({
 		isAPO(state, getters) {
 			return getters.isAuthenticated && state.iAmAPO
 		},
+
+		////// generic (but limited to the user's assigned databases and products) role ///////
+		isAssistAdmin(state, getters) {
+			return getters.isAuthenticated && state.iAmAssistAdmin && !state.iAmAdmin
+		},
+
 		//////////////////////////////// product specific roles ///////////////////////////////
 		////   available after the the user data are read and the currentProductId is set   ///
 		isPO(state, getters) {
@@ -394,7 +402,7 @@ export default new Vuex.Store({
 			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
 				return myCurrentProductRoles &&
-					(getters.isServerAdmin || getters.isAdmin || getters.isAPO ||
+					(getters.isServerAdmin || getters.isAssistAdmin || getters.isAdmin || getters.isAPO ||
 						myCurrentProductRoles.includes('PO') ||
 						myCurrentProductRoles.includes('developer'))
 			} else return false
@@ -403,7 +411,7 @@ export default new Vuex.Store({
 			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
 				return myCurrentProductRoles &&
-					(getters.isAdmin || getters.isAPO ||
+					(getters.isAssistAdmin || getters.isAdmin || getters.isAPO ||
 						myCurrentProductRoles.includes('PO') ||
 						myCurrentProductRoles.includes('developer'))
 			} else return false
@@ -989,6 +997,7 @@ export default new Vuex.Store({
 			state.currentProductTitle = ''
 			state.iAmAPO = false
 			state.iAmAdmin = false
+			state.iAmAssistAdmin = false
 			state.iAmServerAdmin = false
 			state.isProductAssigned = false
 			state.eventKey = 0

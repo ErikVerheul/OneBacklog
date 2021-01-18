@@ -2,14 +2,10 @@
   <div>
     <app-header></app-header>
     <b-container>
-      <h2>Admin view: {{ optionSelected }}</h2>
+      <h2>Assistance Admin view: {{ optionSelected }}</h2>
       <p>Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked to select one</p>
       <b-button block @click="createUser">Create a user and assign product(s)</b-button>
       <b-button block @click="maintainUsers">Maintain user permissions to products </b-button>
-      <b-button block @click="removeUser" variant="warning">Remove a user</b-button>
-      <br />
-      <b-button block @click="createProduct">Create a product</b-button>
-      <b-button block @click="removeProduct" variant="warning">Remove a product with all descendant items from a database</b-button>
       <br />
       <b-button block @click="createTeam">Create a team</b-button>
       <b-button block @click="removeTeams">Remove teams without members</b-button>
@@ -18,19 +14,7 @@
       <b-button block @click="createOrUpdateDefaultCalendar">Create / Maintain the default sprint calendar</b-button>
       <b-button block @click="createOrUpdateTeamCalendar">Create / Maintain a team sprint calendar</b-button>
       <template v-if="optionSelected != 'Select a task'">
-        <div v-if="optionSelected === 'Remove a product'">
-          <h2>Remove a product from the current database '{{ $store.state.userData.currentDb }}'</h2>
-          <p>As PO you can remove products in the products view. To do so right click on a product node and select 'Remove this product and ... descendants'</p>
-          <p>When doing so be aware of:</p>
-          <ul>
-            <li>Online users will see the product and all descendants disappear.</li>
-            <li>Users who sign-in after the removal will miss the product.</li>
-            <li>When undoing the removal the users who signed-in between the removal and undo, will have no access to the product. An admin must register the product for them.</li>
-          </ul>
-          <b-button class="m-1" @click="showProductView()" variant="primary">Switch to product view</b-button>
-          <b-button class="m-1" @click="cancel()">Cancel</b-button>
-        </div>
-        <template v-else-if="getUserFirst">
+        <template v-if="getUserFirst">
           <template v-if="!$store.state.isUserFound">
             <h4>Select an existing user to '{{ optionSelected }}'</h4>
             <b-row class="my-1">
@@ -47,17 +31,6 @@
             <b-button v-if="selectedUser && !$store.state.isUserFound" class="m-1" @click="doFetchUser(selectedUser, false)" variant="primary">Continue</b-button>
             <b-button v-if="!$store.state.isUserFound" class="m-1" @click="cancel">Cancel</b-button>
           </template>
-          <div v-if="optionSelected === 'Remove a user'">
-            <div v-if="$store.state.isUserFound && !$store.state.isUserDeleted">
-              <hr>
-              <b-button class="m-1 btn btn-danger" @click="doRemoveUser" variant="primary">Remove user '{{ selectedUser }}'</b-button>
-              <b-button class="m-1" @click="cancel">Cancel</b-button>
-            </div>
-            <template v-if="$store.state.isUserFound && $store.state.isUserDeleted">
-              <hr>
-              <b-button class="m-1" @click="cancel" variant="primary">Return</b-button>
-            </template>
-          </div>
           <div v-else-if="optionSelected === 'Maintain user permissions to products'">
             <div v-if="$store.state.isUserFound">
               <h4 v-if="userIsMe()">{{ selectedUser }}: You are about to change your own user profile.</h4>
@@ -94,19 +67,8 @@
                   </b-col>
                 </div>
                 <div v-else>
-                  <b-col sm="12">
-                    <h5>(Un)Assign the user's generic roles first</h5>
-                    <p>The admin role is a generic role with access to all user profiles and all product definitions in this database<br />
-                      The APO role manages requirement areas and can prioritize features</p>
-                    <b-form-group>
-                      <b-form-checkbox v-model="$store.state.useracc.userIsAdmin">Add or remove the 'admin' role</b-form-checkbox>
-                      <b-form-checkbox v-model="$store.state.useracc.userIsAPO">Add or remove the 'APO' role</b-form-checkbox>
-                    </b-form-group><p>The assistant admin role is a generic role with access to the databases and products assigned to this user in any role by the 'admin'</p>
-										<b-form-checkbox v-model="$store.state.useracc.userIsAssistAdmin">Add or remove the 'assistAdmin' role</b-form-checkbox>
-                  </b-col>
-
                   <b-col v-if="!$store.state.areProductsFound" sm="12">
-                    <b-button class="m-3" @click="callGetDbProducts()" variant="primary">Continue detail role assignment</b-button>
+                    <b-button class="m-1" @click="callGetDbProducts()" variant="primary">Continue</b-button>
                     <b-button class="m-1" @click="cancel()">Cancel</b-button>
                   </b-col>
                   <b-col sm="12">
@@ -136,8 +98,6 @@
           <div v-if="!dbIsSelected">
             <b-form-group>
               <h5>Select a database to '{{ optionSelected }}'</h5>
-              <p v-if="optionSelected === 'Create a product'">Note: The product will be assigned to your profile only. Use 'Maintain user permissions to products' as a next step to assign the
-                product to other users.</p>
               <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
             </b-form-group>
             <hr>
@@ -205,21 +165,6 @@
               <div v-if="$store.state.isUserCreated">
                 <b-button class="m-1" @click="cancel()" variant="primary">Return</b-button>
               </div>
-            </template>
-
-            <template v-else-if="optionSelected === 'Create a product'">
-              <template v-if="!$store.state.isProductCreated">
-                <h2>Create a new product in the database '{{ $store.state.selectedDatabaseName }}' by entering its title</h2>
-                <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
-                <hr>
-                <b-button v-if="productTitle !== ''" class="m-1" @click="doCreateProduct" variant="primary">Create product</b-button>
-                <b-button class="m-1" @click="cancel()">Cancel</b-button>
-              </template>
-              <template v-else>
-                <h4>Note: The product is assigned to you. Use the 'Maintain user permission to other users' option to assign the new product to other users.</h4>
-                <hr>
-                <b-button class="m-1" @click="cancel()" variant="primary">Return</b-button>
-              </template>
             </template>
 
             <template v-else-if="optionSelected === 'Create a team'">
@@ -431,7 +376,7 @@
   </div>
 </template>
 
-<script src="./admin.js"></script>
+<script src="./assistadmin.js"></script>
 
 <style scoped>
 h4,

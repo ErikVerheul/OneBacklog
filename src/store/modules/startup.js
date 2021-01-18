@@ -211,7 +211,7 @@ const actions = {
 					const lastSprint = rootState.configData.defaultSprintCalendar.slice(-1)[0]
 					if (lastSprint.startTimestamp - lastSprint.sprintLength < Date.now()) {
 						// sprint calendar ran out of sprints
-						if (rootGetters.isAdmin) {
+						if (rootGetters.isAdmin || rootGetters.isAssistAdmin) {
 							alert('Error: The default sprint calendar ran out of sprints. You will be redirected to the Admin view where you can extend the calendar.')
 							commit('mustCreateDefaultCalendar')
 							router.replace('/admin')
@@ -227,7 +227,7 @@ const actions = {
 					}
 				} else {
 					// missing calendar
-					if (rootGetters.isAdmin) {
+					if (rootGetters.isAdmin || rootGetters.isAssistAdmin) {
 						alert('Error: No default sprint calendar is set. You will be redirected to the Admin view where you can create one.')
 						commit('mustCreateDefaultCalendar')
 						router.replace('/admin')

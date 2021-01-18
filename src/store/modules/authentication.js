@@ -96,6 +96,7 @@ const actions = {
 			commit('resetData')
 			rootState.mySessionId = create_UUID()
 			state.sessionAuthData = authData
+			rootState.iAmAssistAdmin = res.data.roles.includes('assistAdmin')
 			rootState.iAmAdmin = res.data.roles.includes('admin')
 			rootState.iAmAPO = res.data.roles.includes('APO')
 			rootState.iAmServerAdmin = res.data.roles.includes('_admin')

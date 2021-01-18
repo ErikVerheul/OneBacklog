@@ -34,7 +34,7 @@ const actions = {
 		const dbPermissions = {
 			admins: {
 				names: [],
-				roles: ['admin', '_admin']
+				roles: ['assistAdmin', 'admin', '_admin']
 			},
 			members: {
 				names: [],
@@ -127,7 +127,7 @@ const actions = {
 			},
 			members: {
 				names: [],
-				roles: ['PO', 'APO', 'developer', 'guest']
+				roles: ['assistAdmin', 'PO', 'APO', 'developer', 'guest']
 			}
 		}
 		globalAxios({
