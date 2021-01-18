@@ -132,8 +132,7 @@ const utilities = {
 			'isFollower',
 			'isOverviewSelected',
 			'leafLevel',
-			'myTeam',
-			'teamCalendarInUse'
+			'myTeam'
 		])
 	},
 

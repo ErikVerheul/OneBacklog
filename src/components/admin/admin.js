@@ -28,17 +28,6 @@ function removeFromArray(arr, item) {
 function mounted() {
 	this.$store.state.backendMessages = []
 	this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
-	// get the current sprint number if the calendar is available
-	if (this.$store.state.defaultSprintCalendar) {
-		const now = Date.now()
-		for (let i = 0; i < this.$store.state.defaultSprintCalendar.length; i++) {
-			const s = this.$store.state.defaultSprintCalendar[i]
-			if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
-				this.currentSprintNr = i
-				break
-			}
-		}
-	}
 }
 
 function data() {
@@ -74,7 +63,11 @@ function data() {
 		changedHourStr: '',
 		currentSprintNr: undefined,
 		isUserDbSelected: false,
+		selectedTeamId: null,
+		selectedTeamName: undefined,
 		teamNamesToRemove: [],
+		teamsToRemoveOptions: [],
+		teamOptions: [],
 		canRemoveLastProduct: true,
 		canRemoveDatabase: true
 	}
@@ -88,7 +81,7 @@ const computed = {
 	acceptSprintnr() {
 		if (isNaN(this.changedNumberStr) || !Number.isInteger(parseFloat(this.changedNumberStr))) return false
 		const changeNr = parseInt(this.changedNumberStr)
-		const lastDefinedNr = this.$store.state.defaultSprintCalendar.length - 1
+		const lastDefinedNr = this.$store.state.currentCalendar.length - 1
 		const accepted = changeNr >= this.currentSprintNr && changeNr <= lastDefinedNr
 		this.acceptSprintNrMsg = accepted ? `` : `Select a sprint number >= the current sprint ${this.currentSprintNr} and smaller than the last defined sprint ${lastDefinedNr}`
 		return accepted
@@ -118,7 +111,7 @@ const computed = {
 const methods = {
 	onSubmit(evt) {
 		evt.preventDefault()
-		this.doCreateCalendar()
+		this.doCreateDefaultCalendar()
 	},
 
 	onReset(evt) {
@@ -140,13 +133,37 @@ const methods = {
 			case 'Create a user and assign product(s)':
 				this.callGetDbProducts()
 				break
+			case 'Create / Maintain the default sprint calendar':
+				this.$store.state.isDefaultCalendarFound = false
+				this.$store.state.isTeamCalendarFound = false
+				break
+			case 'Create / Maintain a team sprint calendar':
+				this.teamOptions = []
+				this.selectedTeamName = undefined
+				this.$store.state.isDefaultCalendarFound = false
+				this.$store.state.isTeamCalendarFound = false
+				this.$store.dispatch('fetchTeams', {
+					dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
+						for (const t of this.$store.state.fetchedTeams) {
+							this.teamOptions.push(t.teamName)
+						}
+					}
+				})
+				break
 			case 'List teams':
-				this.$store.dispatch('getAllUsers')
-				this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
+				this.$store.dispatch('fetchTeams', { dbName: this.$store.state.selectedDatabaseName })
 				break
 			case 'Remove teams without members':
 				this.teamNamesToRemove = []
-				this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
+				this.$store.dispatch('fetchTeams', {
+					dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
+						for (const t of this.$store.state.fetchedTeams) {
+							if (t.members.length === 0) {
+								this.teamsToRemoveOptions.push(t.teamName)
+							}
+						}
+					}
+				})
 				break
 		}
 		this.dbIsSelected = true
@@ -196,7 +213,7 @@ const methods = {
 	},
 
 	getSprint() {
-		return this.$store.state.defaultSprintCalendar[parseInt(this.changedNumberStr)]
+		return this.$store.state.currentCalendar[parseInt(this.changedNumberStr)]
 	},
 
 	getStartDate() {
@@ -217,10 +234,10 @@ const methods = {
 	},
 
 	changeSprintInCalendar() {
-		const currentCalendar = this.$store.state.defaultSprintCalendar
+		const currentCalendar = this.$store.state.currentCalendar
 		const calendarLength = currentCalendar.length
 		const unChangedCalendar = currentCalendar.slice(0, parseInt(this.changedNumberStr))
-		const changedSprint = this.$store.state.defaultSprintCalendar[parseInt(this.changedNumberStr)]
+		const changedSprint = currentCalendar[parseInt(this.changedNumberStr)]
 		const sprintLengthChange = this.changedDurationStr * DAY_MILIS - changedSprint.sprintLength + this.changedHourStr * HOUR_MILIS
 		changedSprint.sprintLength += sprintLengthChange
 		const newSprintCalendar = unChangedCalendar.concat(changedSprint)
@@ -231,11 +248,16 @@ const methods = {
 			newSprintCalendar.push(sprint)
 			prevSprintEnd = sprint.startTimestamp + sprint.sprintLength
 		}
-		this.$store.dispatch('saveDbDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
+		if (this.$store.state.isDefaultCalendarFound) this.$store.dispatch('saveDefaultSprintCalendar', {
+			dbName: this.$store.state.selectedDatabaseName, newSprintCalendar
+		})
+		if (this.$store.state.isTeamCalendarFound) this.$store.dispatch('updateTeamCalendarAction', {
+			dbName: this.$store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName, newSprintCalendar
+		})
 	},
 
 	extendCalendar() {
-		const currentCalendar = this.$store.state.defaultSprintCalendar
+		const currentCalendar = this.$store.state.currentCalendar
 		const lastSprint = currentCalendar.slice(-1)[0]
 		const sprintLengthMillis = lastSprint.sprintLength
 		const numberOfSprints = parseInt(this.extendNumberStr)
@@ -255,7 +277,12 @@ const methods = {
 			j++
 		}
 		const newSprintCalendar = currentCalendar.concat(extendSprintCalendar)
-		this.$store.dispatch('saveDbDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar })
+		if (this.$store.state.isDefaultCalendarFound) this.$store.dispatch('saveDefaultSprintCalendar', {
+			dbName: this.$store.state.selectedDatabaseName, newSprintCalendar
+		})
+		if (this.$store.state.isTeamCalendarFound) this.$store.dispatch('updateTeamCalendarAction', {
+			dbName: this.$store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName, newSprintCalendar
+		})
 	},
 
 	removeProduct() {
@@ -378,7 +405,7 @@ const methods = {
 		this.isUserDbSelected = false
 		this.canRemoveLastProduct = true
 		this.canRemoveDatabase = true,
-		this.localMessage = ''
+			this.localMessage = ''
 		this.$store.state.backendMessages = []
 		this.$store.state.isUserFound = false
 		this.$store.state.areDatabasesFound = false
@@ -508,12 +535,12 @@ const methods = {
 		this.$store.dispatch('assignProductsToUserAction', { dbName: this.$store.state.selectedDatabaseName, selectedUser: this.selectedUser })
 	},
 
-	createOrUpdateCalendar() {
+	createOrUpdateDefaultCalendar() {
 		this.optionSelected = 'Create / Maintain the default sprint calendar'
 		this.getUserFirst = false
 		this.checkForExistingCalendar = true
-		this.$store.state.isSprintCalendarFound = false
-		this.$store.state.isDefaultSprintCalendarSaved = false
+		this.$store.state.isDefaultCalendarFound = false
+		this.$store.state.isCalendarSaved = false
 		this.dbIsSelected = false
 		this.creatingCalendar = false
 		this.$store.state.backendMessages = []
@@ -522,7 +549,21 @@ const methods = {
 		this.extendNumberStr = undefined
 	},
 
-	doCreateCalendar() {
+	createOrUpdateTeamCalendar() {
+		this.optionSelected = 'Create / Maintain a team sprint calendar'
+		this.getUserFirst = false
+		this.checkForExistingCalendar = true
+		this.$store.state.isTeamCalendarFound = false
+		this.$store.state.isCalendarSaved = false
+		this.dbIsSelected = false
+		this.creatingCalendar = false
+		this.$store.state.backendMessages = []
+		this.startDateStr = undefined
+		this.workflowStatusMsg = 'found'
+		this.extendNumberStr = undefined
+	},
+
+	doCreateDefaultCalendar() {
 		const startDate = new Date(this.startDateStr)
 		startDate.setUTCHours(parseInt(this.sprintStartTimeStr))
 		if (startDate > Date.now()) {
@@ -533,7 +574,7 @@ const methods = {
 		const sprintLengthMillis = parseInt(this.sprintLengthStr) * DAY_MILIS
 		const numberOfSprints = parseInt(this.numberOfSprintsStr)
 
-		const defaultSprintCalendar = []
+		const calendar = []
 		for (let i = 0; i < numberOfSprints; i++) {
 			const sprintId = this.createId()
 			const obj = {
@@ -542,11 +583,11 @@ const methods = {
 				startTimestamp: startDate.valueOf() + i * sprintLengthMillis,
 				sprintLength: sprintLengthMillis
 			}
-			defaultSprintCalendar.push(obj)
+			calendar.push(obj)
 		}
 		this.$store.state.backendMessages = []
 		this.workflowStatusMsg = 'created'
-		this.$store.dispatch('saveDbDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: defaultSprintCalendar })
+		this.$store.dispatch('saveDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: calendar })
 	},
 
 	createTeam() {
@@ -572,9 +613,55 @@ const methods = {
 		this.$store.dispatch('removeTeamsFromDb', { dbName: this.$store.state.selectedDatabaseName, teamNamesToRemove })
 	},
 
-	doLoadSprintCalendar() {
-		this.checkForExistingCalendar = false
-		this.$store.dispatch('getDbDefaultSprintCalendar', this.$store.state.selectedDatabaseName)
+	doLoadDefaultCalendar() {
+		this.$store.dispatch('fetchDefaultSprintCalendar', {
+			dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
+				this.checkForExistingCalendar = false
+				// get the current sprint number if the calendar is available
+				const now = Date.now()
+				for (let i = 0; i < this.$store.state.currentCalendar.length; i++) {
+					const s = this.$store.state.currentCalendar[i]
+					if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
+						this.currentSprintNr = i
+						break
+					}
+				}
+			}
+		})
+	},
+
+	doLoadTeamCalendar() {
+		this.$store.dispatch('fetchTeams', {
+			dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
+				this.checkForExistingCalendar = false
+				for (const t of this.$store.state.fetchedTeams) {
+					if (t.teamName === this.selectedTeamName) {
+						// save the teamId for use in createTeamCalendarAction and updateTeamCalendarAction
+						this.selectedTeamId = t.teamId
+						this.$store.dispatch('fetchTeamCalendar', {
+							dbName: this.$store.state.selectedDatabaseName, teamId: t.teamId, onSuccessCallback: () => {
+								// get the current sprint number if the calendar is available
+								const now = Date.now()
+								for (let i = 0; i < this.$store.state.currentCalendar.length; i++) {
+									const s = this.$store.state.currentCalendar[i]
+									if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
+										this.currentSprintNr = i
+										break
+									}
+								}
+							}
+						})
+						break
+					}
+					this.loacalMessage = `Team ${this.selectedTeamName} not found`
+				}
+			}
+		})
+	},
+
+	doCreateTeamCalendar() {
+		this.$store.state.isCalendarSaved = false
+		this.$store.dispatch('createTeamCalendarAction', { dbName: this.$store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName })
 	},
 
 	listTeams() {
@@ -587,7 +674,7 @@ const methods = {
 	},
 
 	doGetTeamsOfDb() {
-		this.$store.dispatch('fetchTeamMembers', this.$store.state.selectedDatabaseName)
+		this.$store.dispatch('fetchTeams', this.$store.state.selectedDatabaseName)
 	},
 
 	userIsMe() {

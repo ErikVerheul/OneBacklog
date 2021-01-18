@@ -5,23 +5,25 @@ const ERROR = 2
 
 const actions = {
 	/* Get the default sprint calendar of a specific database (for admin use only) */
-	getDbDefaultSprintCalendar({
+	fetchDefaultSprintCalendar({
 		rootState,
 		dispatch
-	}, dbName) {
-		rootState.isSprintCalendarFound = false
+	}, payload) {
+		rootState.isDefaultCalendarFound = false
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/config'
+			url: payload.dbName + '/config'
 		}).then(res => {
 			if (res.data.defaultSprintCalendar) {
-				rootState.defaultSprintCalendar = res.data.defaultSprintCalendar
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `getDbDefaultSprintCalendar: success, ${res.data.defaultSprintCalendar.length} sprint periods are read` })
-				rootState.isSprintCalendarFound = true
-			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'getDbDefaultSprintCalendar: no calendar is found' })
+				rootState.currentCalendar = res.data.defaultSprintCalendar
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchDefaultSprintCalendar: success, ${res.data.defaultSprintCalendar.length} sprint periods are read` })
+				rootState.isDefaultCalendarFound = true
+				// execute passed function if provided
+				if (payload.onSuccessCallback) payload.onSuccessCallback()
+			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchDefaultSprintCalendar: no calendar is found' })
 		}).catch(error => {
-			const msg = `getDbDefaultSprintCalendar: Could not read config document of database '${dbName}', ${error}`
+			const msg = `fetchDefaultSprintCalendar: Could not read config document of database '${payload.dbName}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -29,8 +31,8 @@ const actions = {
 		})
 	},
 
-	/* Save the default sprint calendar of a specific database (for admin use only) */
-	saveDbDefaultSprintCalendar({
+	/* Save or update the default sprint calendar of a specific database */
+	saveDefaultSprintCalendar({
 		rootState,
 		dispatch
 	}, payload) {
@@ -43,15 +45,42 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: payload.dbName,
 				updatedDoc,
-				caller: 'saveDbDefaultSprintCalendar',
+				caller: 'saveDefaultSprintCalendar',
 				onSuccessCallback: () => {
-					rootState.defaultSprintCalendar = payload.newSprintCalendar
-					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'saveDbDefaultSprintCalendar: calendar is saved' })
-					rootState.isDefaultSprintCalendarSaved = true
+					rootState.currentCalendar = payload.newSprintCalendar
+					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `saveDefaultSprintCalendar: success, calendar with ${payload.newSprintCalendar.length} sprint periods is saved` })
+					rootState.isCalendarSaved = true
 				}
 			})
 		}).catch(error => {
-			const msg = 'saveDbDefaultSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
+			const msg = 'saveDefaultSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: ERROR })
+		})
+	},
+
+	/* Get the team sprint calendar of a specific team in a specific database */
+	fetchTeamCalendar({
+		rootState,
+		dispatch
+	}, payload) {
+		rootState.isTeamCalendarFound = false
+		rootState.backendMessages = []
+		globalAxios({
+			method: 'GET',
+			url: payload.dbName + '/' + payload.teamId
+		}).then(res => {
+			if (res.data.teamCalendar) {
+				rootState.currentCalendar = res.data.teamCalendar
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamCalendar: success, ${res.data.teamCalendar.length} sprint periods are read` })
+				rootState.isTeamCalendarFound = true
+				// execute passed function if provided
+				if (payload.onSuccessCallback) payload.onSuccessCallback()
+			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchTeamCalendar: no calendar is found' })
+		}).catch(error => {
+			const msg = `fetchTeamCalendar: Could not read team document with id ${payload.teamId} in database '${payload.dbName}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)

@@ -186,8 +186,8 @@ export default new Vuex.Store({
 		areTeamsFound: false,
 		areTeamsRemoved: false,
 		backendMessages: [],
+		currentCalendar: [],
 		databaseOptions: undefined,
-		defaultSprintCalendar: [],
 		fetchedTeams: [],
 		isCurrentDbChanged: false,
 		isDatabaseCreated: false,
@@ -197,8 +197,9 @@ export default new Vuex.Store({
 		isProductAssigned: false,
 		isProductCreated: false,
 		isPurgeReady: false,
-		isSprintCalendarFound: false,
-		isDefaultSprintCalendarSaved: false,
+		isDefaultCalendarFound: false,
+		isTeamCalendarFound: false,
+		isCalendarSaved: false,
 		isRestoreReady: false,
 		isTeamCreated: false,
 		isUserCreated: false,
@@ -210,7 +211,6 @@ export default new Vuex.Store({
 		selectedDatabaseName: '',
 		seqKey: 0,
 		teamsToRemoveIds: [],
-		teamsToRemoveOptions: [],
 		userOptions: [],
 		warning: '',
 		// app wide globals
@@ -426,13 +426,6 @@ export default new Vuex.Store({
 					s.tasks[DONE].length > 0) sum += s.size
 			}
 			return sum
-		},
-
-		//////////////////////////////////////// calendar ////////////////////////////////////
-		teamCalendarInUse(state) {
-			if (state.configData) {
-				return state.sprintCalendar !== state.configData.defaultSprintCalendar
-			} else return false
 		}
 	},
 

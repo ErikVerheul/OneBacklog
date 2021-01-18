@@ -155,7 +155,8 @@ const actions = {
 			// update user data loaded in getOtherUserData and STORE THE USER DATA in $store.state.userData
 			// postpone the warning message for 'no product found' until the configuration is loaded
 			const toDispatch = [{ getConfig: null }]
-			dispatch('updateUser', { data: newUserData, toDispatch,
+			dispatch('updateUser', {
+				data: newUserData, toDispatch,
 				onSuccessCallback: () => {
 					// set the users product options to select from
 					for (const product of currentProductsEnvelope) {
@@ -167,7 +168,8 @@ const actions = {
 						}
 					}
 				},
-				caller: 'getAllProducts' })
+				caller: 'getAllProducts'
+			})
 
 			if (missingProductsRolesIds.length > 0) {
 				const msg = `User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
@@ -281,7 +283,6 @@ const actions = {
 	*/
 	loadTeamCalendar({
 		rootState,
-		rootGetters,
 		dispatch
 	}, id) {
 		globalAxios({
@@ -303,11 +304,8 @@ const actions = {
 				}
 			} else {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('loadTeamCalendar: No team calendar found in team document; id = ' + id)
-				if (rootGetters.teamCalendarInUse) {
-					// replace the team calendar with the default
-					rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
-				}
+				if (rootState.debug) console.log(`loadTeamCalendar: No team calendar found in team documen with id ${id}, use the default sprint calendar`)
+				rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
 				dispatch('getRoot')
 			}
 		}).catch(error => {
@@ -348,11 +346,12 @@ const actions = {
 		}
 
 		doc.teamCalendar = extTeamCalendar
-		// replace the defaultSprintCalendar or other team calendar with this team calendar
-		rootState.sprintCalendar = extTeamCalendar
 		// update the team with the extended team calendar and continue loading the tree model
 		const toDispatch = [{ getRoot: null }]
-		dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, caller: 'extendTeamCalendar' })
+		dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, onSuccessCallback: () => {
+			// replace the defaultSprintCalendar or other team calendar with this team calendar
+			rootState.sprintCalendar = extTeamCalendar
+		}, caller: 'extendTeamCalendar' })
 	},
 
 	/* Load the root of the backlog items into the current document */
