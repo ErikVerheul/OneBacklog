@@ -948,7 +948,7 @@ const actions = {
 			data: payload.updatedDoc
 		}).then(() => {
 			// execute passed function if provided
-			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			// execute passed action if provided
 			if (payload.toDispatch) {
 				// additional dispatches
@@ -961,7 +961,7 @@ const actions = {
 			}
 		}).catch(error => {
 			// execute passed function if provided
-			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
+			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = `updateDoc: (called by ${payload.caller}) Could not write document with url ${payload.dbName}/${id}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
@@ -995,12 +995,12 @@ const actions = {
 			if (updateConflict > 0 || otherError > 0) {
 				dispatch('doLog', { event: msg, level: WARNING })
 				// execute passed function if provided
-				if (payload.onFailureCallback !== undefined) {
+				if (payload.onFailureCallback) {
 					payload.onFailureCallback()
 				} else commit('showLastEvent', { txt: 'The update failed due to conflicts or errors. Try again after sign-out or contact your administrator', severity: WARNING })
 			} else {
 				// execute passed function if provided
-				if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed action if provided
 				if (payload.toDispatch) {
 					// additional dispatches
@@ -1013,7 +1013,7 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
+			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents, ${error}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
@@ -1124,12 +1124,12 @@ const actions = {
 		}).then(res => {
 			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 			// execute passed function if provided
-			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('loadDoc: document with id ' + payload.id + ' is loaded.')
 		}).catch(error => {
 			// execute passed function if provided
-			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
+			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = 'loadDoc: Could not read document with _id ' + payload.id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)

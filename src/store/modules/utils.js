@@ -31,7 +31,7 @@ const actions = {
 		}).then(res => {
 			rootState.logEntries = res.data.entries
 			// execute passed function if provided
-			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			rootState.isLogLoaded = true
 		}).catch(error => {
 			const msg = `loadLog: Could not load the log of database ${payload.dbName}, ${error}`

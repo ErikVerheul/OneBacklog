@@ -453,7 +453,7 @@ const actions = {
 			}
 
 			// execute passed callback if provided
-			if (payload.onSuccessCallback !== undefined) payload.onSuccessCallback()
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			if (payload.toDispatch) {
 				// additional dispatches
 				for (const td of payload.toDispatch) {
@@ -467,7 +467,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + userData.name + "' is updated successfully" })
 		}).catch(error => {
 			// execute passed callback if provided
-			if (payload.onFailureCallback !== undefined) payload.onFailureCallback()
+			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = "updateUser: Could not update the profile of user '" + userData.name + "', " + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
