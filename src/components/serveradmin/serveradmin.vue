@@ -1,7 +1,7 @@
 <template>
   <div>
     <app-header></app-header>
-    <b-container fluid>
+    <b-container>
       <h2>Server admin view: {{ optionSelected }}</h2>
       <b-button block @click="viewLog">View the log</b-button>
       <b-button block @click="createBackup">Create a database backup</b-button>
