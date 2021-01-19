@@ -2,7 +2,7 @@ import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
-import CommonView from '../common_view.js'
+import commonView from '../common_view.js'
 import DcontextMenu from './d_context.vue'
 import Filters from './d_filters.vue'
 import Listings from './d_listings.vue'
@@ -242,7 +242,7 @@ const components = {
 }
 
 export default {
-	extends: CommonView,
+	extends: commonView,
 	beforeCreate,
 	created,
 	mounted,

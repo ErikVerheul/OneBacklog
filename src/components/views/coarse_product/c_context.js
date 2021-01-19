@@ -1,4 +1,4 @@
-import CommonContext from '../common_context.js'
+import commonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
 const WARNING = 1
@@ -173,7 +173,7 @@ const methods = {
 }
 
 export default {
-  extends: CommonContext,
+  extends: commonContext,
   created,
   methods
 }

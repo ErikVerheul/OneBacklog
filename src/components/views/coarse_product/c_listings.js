@@ -1,5 +1,5 @@
-import CommonListings from '../common_listings.js'
+import commonListings from '../common_listings.js'
 
 export default {
-  extends: CommonListings
+  extends: commonListings
 }

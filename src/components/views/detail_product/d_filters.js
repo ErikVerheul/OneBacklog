@@ -1,4 +1,4 @@
-import CommonFilters from '../common_filters.js'
+import commonFilters from '../common_filters.js'
 
 const INFO = 0
 const PRODUCTLEVEL = 2
@@ -71,6 +71,6 @@ const methods = {
 }
 
 export default {
-  extends: CommonFilters,
+  extends: commonFilters,
   methods
 }
