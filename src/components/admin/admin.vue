@@ -86,7 +86,7 @@
                   <b-col sm="12">
                     <b-form-group>
                       <h5>Select a datatabase holding the products</h5>
-                      <p>The databases {{ getUserAssignedDatabases() }} are assigned to this user. Assigning roles to products in another database will also assing that database.</p>
+                      <p>The databases {{ getUserAssignedDatabases() }} are assigned to this user. Assigning roles to products in another database will also assign that database.</p>
                       <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
                     </b-form-group>
                     <b-button class="m-1" @click="isUserDbSelected = true" variant="primary">Continue</b-button>
@@ -106,7 +106,7 @@
                   </b-col>
 
                   <b-col v-if="!$store.state.areProductsFound" sm="12">
-                    <b-button class="m-3" @click="callGetDbProducts()" variant="primary">Continue detail role assignment</b-button>
+                    <b-button class="m-3" @click="callGetDbProducts(false)" variant="primary">Continue detail role assignment</b-button>
                     <b-button class="m-1" @click="cancel()">Cancel</b-button>
                   </b-col>
                   <b-col sm="12">

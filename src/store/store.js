@@ -310,6 +310,20 @@ export default new Vuex.Store({
 			return {}
 		},
 
+		/* Return the productIds of all products assigned to me in all my assigned databases */
+		getAllMyAssignedProductIds(state) {
+			const allIds = []
+			if (state.userData.myDatabases) {
+				for (const db of Object.values(state.userData.myDatabases)) {
+					const productsRoles = db.productsRoles
+					for (const k of Object.keys(productsRoles)) {
+						if (!allIds.includes(k)) allIds.push(k)
+					}
+				}
+			}
+			return allIds
+		},
+
 		getMyAssignedProductIds(state) {
 			if (state.userData.myDatabases) {
 				const productsRoles = state.userData.myDatabases[state.userData.currentDb].productsRoles

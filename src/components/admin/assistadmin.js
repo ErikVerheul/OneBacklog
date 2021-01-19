@@ -2,8 +2,6 @@ import AppHeader from '../header/header.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
 
-const PRODUCTLEVEL = 2
-const INPROGRESS = 4
 const ALLBUTSYSTEMANDBACKUPS = 3
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
@@ -284,9 +282,9 @@ const methods = {
 		}
 	},
 
-	/* Get all product titles of the selected database in $store.state.useracc.dbProducts */
-	callGetDbProducts() {
-		this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName })
+	/* Get all my assigned product titles of the selected database in $store.state.useracc.dbProducts */
+	callGetDbProducts(onlyMyProducts) {
+		this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, onlyMyProducts })
 	},
 
 	createUser() {

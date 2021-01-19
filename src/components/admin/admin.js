@@ -314,9 +314,9 @@ const methods = {
 		}
 	},
 
-	/* Get all product titles of the selected database in $store.state.useracc.dbProducts */
-	callGetDbProducts() {
-		this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName })
+	/* Get all my assigned product titles of the selected database in $store.state.useracc.dbProducts */
+	callGetDbProducts(onlyMyProducts) {
+		this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, onlyMyProducts })
 	},
 
 	createUser() {
@@ -435,6 +435,9 @@ const methods = {
 		const newUserData = this.$store.state.useracc.fetchedUserData
 		const userIsAdminOrAPO = this.$store.state.useracc.userIsAdmin || this.$store.state.useracc.userIsAPO
 		// update the generic roles
+		if (this.$store.state.useracc.userIsAssistAdmin) {
+			newUserData.roles = addToArray(newUserData.roles, 'assistAdmin')
+		} else newUserData.roles = removeFromArray(newUserData.roles, 'assistAdmin')
 		if (this.$store.state.useracc.userIsAdmin) {
 			newUserData.roles = addToArray(newUserData.roles, 'admin')
 		} else newUserData.roles = removeFromArray(newUserData.roles, 'admin')

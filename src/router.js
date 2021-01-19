@@ -16,7 +16,7 @@ import ReqsAreaPage from './components/views/coarse_product/c_product_view.vue'
 
 import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
 
-import AssistAdminPage from './components/assistadmin/assistadmin.vue'
+import AssistAdminPage from './components/admin/assistadmin.vue'
 import AdminPage from './components/admin/admin.vue'
 import ServerAdminPage from './components/serveradmin/serveradmin.vue'
 

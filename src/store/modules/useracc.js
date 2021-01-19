@@ -111,9 +111,11 @@ const actions = {
 	/*
 	* Get all products of the set database and get the assigned roles to the products assigned to this user or
 	* (if not found) create an empty roles array for all (other) products in the database
+	* if payload.onlyMyProducts select the products that are assigned to the current user (assistAdmin)
 	*/
 	getProductsRoles({
 		rootState,
+		rootGetters,
 		state,
 		dispatch
 	}, payload) {
@@ -123,7 +125,9 @@ const actions = {
 			url: payload.dbName + '/_design/design1/_view/products'
 		}).then(res => {
 			rootState.areProductsFound = true
-			state.dbProducts = res.data.rows
+			if (payload.onlyMyProducts) {
+				state.dbProducts = res.data.rows.map(row => {	if (rootGetters.getAllMyAssignedProductIds.includes(row.id)) return row	})
+			} else state.dbProducts = res.data.rows
 			// add empty roles array to each product
 			for (const product of state.dbProducts) {
 				product.roles = []
