@@ -1,7 +1,6 @@
+import { sev } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-const WARNING = 1
-const ERROR = 2
 
 function composeRangeString (id) {
   return `startkey="${id}"&endkey="${id}"`
@@ -153,9 +152,9 @@ const actions = {
         const msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: ERROR })
+        dispatch('doLog', { event: msg, level: sev.ERROR })
         // ToDo: make this an alert with the only option to restart the application
-        commit('showLastEvent', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: WARNING })
+        commit('showLastEvent', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: sev.WARNING })
       } else {
         dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move })
       }
@@ -163,7 +162,7 @@ const actions = {
       const msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -194,9 +193,9 @@ const actions = {
       if (rootState.debug) console.log(msg)
       if (updateConflict > 0 || otherError > 0) {
         // note that logging may fail if the connection is lost
-        dispatch('doLog', { event: msg, level: WARNING })
+        dispatch('doLog', { event: msg, level: sev.WARNING })
         // ToDo: make this an alert with the only option to restart the application
-        commit('showLastEvent', { txt: 'The move failed due to update conflicts or errors. Try again after sign-out or contact your administrator', severity: WARNING })
+        commit('showLastEvent', { txt: 'The move failed due to update conflicts or errors. Try again after sign-out or contact your administrator', severity: sev.WARNING })
       } else {
         // no conflicts, no other errors
         for (const it of items) {
@@ -228,7 +227,7 @@ const actions = {
       const msg = 'saveMovedItems: Could not save the moved documents: ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -261,7 +260,7 @@ const actions = {
       const msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -305,7 +304,7 @@ const actions = {
       const msg = 'updateMovedDescendantsBulk: Could not read decendants in bulk. Error = ' + e
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   }
 }

@@ -1,6 +1,5 @@
+import { state, level } from '../../constants.js'
 import common_admin from './common_admin'
-const PRODUCTLEVEL = 2
-const INPROGRESS = 4
 
 const methods = {
 	doCreateProduct() {
@@ -14,8 +13,8 @@ const methods = {
 			productId: _id,
 			parentId: 'root',
 			team: 'not assigned yet',
-			level: PRODUCTLEVEL,
-			state: INPROGRESS,
+			level: level.PRODUCT,
+			state: state.INPROGRESS,
 			reqarea: null,
 			title: this.productTitle,
 			followers: [],

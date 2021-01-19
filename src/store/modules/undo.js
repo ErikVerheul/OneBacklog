@@ -1,8 +1,7 @@
+import { sev } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-const INFO = 0
-const WARNING = 1
-const ERROR = 2
+
 const AREA_PRODUCTID = 'requirement-areas'
 
 const actions = {
@@ -62,7 +61,7 @@ const actions = {
         if (r.docs[0].error) errors.push(r.docs[0].error)
       }
       if (errors.length > 0) {
-        commit('showLastEvent', { txt: 'Undo failed', severity: ERROR })
+        commit('showLastEvent', { txt: 'Undo failed', severity: sev.ERROR })
         const errorStr = ''
         for (const e of errors) {
           errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
@@ -70,7 +69,7 @@ const actions = {
         const msg = 'restoreItemAndDescendents: These documents cannot be UNmarked for removal: ' + errorStr
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: ERROR })
+        dispatch('doLog', { event: msg, level: sev.ERROR })
       }
       const toDispatch = [{ restoreParent: entry }]
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendents' })
@@ -78,7 +77,7 @@ const actions = {
       const msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + e
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -162,7 +161,7 @@ const actions = {
             const node = window.slVueTree.getNodeById(c.id)
             if (node !== null) node.conditionalFor.push(c.conditionalFor)
           }
-          commit('showLastEvent', { txt: 'Item(s) remove is undone', severity: INFO })
+          commit('showLastEvent', { txt: 'Item(s) remove is undone', severity: sev.INFO })
           commit('updateNodesAndCurrentDoc', { newDoc: updatedDoc })
         }
       })
@@ -170,7 +169,7 @@ const actions = {
       const msg = 'restoreParent: Could not read document with _id ' + _id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -196,7 +195,7 @@ const actions = {
 
       // unmark for removal in case it was removed
       if (grandParentDoc.delmark) {
-        commit('showLastEvent', { txt: 'The document representing the item to restore under was removed. The removal is made undone.', severity: WARNING })
+        commit('showLastEvent', { txt: 'The document representing the item to restore under was removed. The removal is made undone.', severity: sev.WARNING })
         grandParentDoc.delmark = false
       }
       const toDispatch = [{ restoreExtDepsAndConds: entry }]
@@ -209,7 +208,7 @@ const actions = {
       const msg = 'unDoRemove: Could not read document with _id ' + _id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -272,14 +271,14 @@ const actions = {
         const msg = 'restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored: ' + errorStr
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: ERROR })
+        dispatch('doLog', { event: msg, level: sev.ERROR })
       }
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreExtDepsAndConds' })
     }).catch(e => {
       const msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + e
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -322,7 +321,7 @@ const actions = {
       const msg = 'restoreReqarea: Could not read batch of documents: ' + e
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   }
 }

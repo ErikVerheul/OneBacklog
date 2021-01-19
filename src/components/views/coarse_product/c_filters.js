@@ -1,7 +1,6 @@
+import { sev, level } from '../../../constants.js'
 import commonFilters from '../common_filters.js'
 
-const INFO = 0
-const PRODUCTLEVEL = 2
 const AREA_PRODUCTID = 'requirement-areas'
 const methods = {
   /* Apply the AND logic to the included filters */
@@ -36,8 +35,8 @@ const methods = {
         isExcluded = this.doFilterOnTime(nm)
       }
       if (!isExcluded) {
-				window.slVueTree.showPathToNode(nm, { doHighLight_1: (nm.level > PRODUCTLEVEL) })
-        if (nm.level > PRODUCTLEVEL) count++
+				window.slVueTree.showPathToNode(nm, { doHighLight_1: (nm.level > level.PRODUCT) })
+        if (nm.level > level.PRODUCT) count++
       } else {
         unselectedNodes.push(nm)
       }
@@ -51,10 +50,10 @@ const methods = {
     }
     let s
     count === 1 ? s = 'title matches' : s = 'titles match'
-    this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
+    this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, sev.INFO)
 
     this.$store.state.filterText = 'Clear filter'
-    // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
+    // window.slVueTree.showVisibility('onApplyMyFilters2', level.FEATURE)
   }
 }
 

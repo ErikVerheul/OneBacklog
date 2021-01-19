@@ -1,3 +1,4 @@
+import { sev } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -9,8 +10,6 @@ import Listings from './d_listings.vue'
 import ToSprint from './d_tosprint.vue'
 import { eventBus } from '../../../main'
 
-const INFO = 0
-const WARNING = 1
 const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'detailProduct'
 var returning = false
@@ -41,7 +40,7 @@ function mounted() {
 	// expose instance to the global namespace
 	window.slVueTree = this.$refs.slVueTree
 	if (returning) {
-		this.showLastEvent('Returning to the Product details', INFO)
+		this.showLastEvent('Returning to the Product details', sev.INFO)
 	}
 }
 
@@ -79,7 +78,7 @@ const watch = {
 					this.newComment = ''
 					this.$refs.commentsEditorRef.show()
 				} else {
-					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', WARNING)
+					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', sev.WARNING)
 				}
 			}
 			if (this.$store.state.selectedForView === 'history') {
@@ -202,9 +201,9 @@ const methods = {
 					if (d.ind > sourceMaxind) sourceMaxind = d.ind
 				}
 				const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
-				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', WARNING)
-				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', WARNING)
+				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', sev.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', sev.WARNING)
+				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', sev.WARNING)
 				return failedCheck2 || failedCheck3 || failedCheck4
 			}
 

@@ -1,11 +1,7 @@
+import { sev, level } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
-const INFO = 0
-const ERROR = 2
-const PRODUCTLEVEL = 2
-const FEATURELEVEL = 4
-const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
 var parentNodes
 var orphansFound
@@ -121,10 +117,10 @@ const mutations = {
 			state.docsCount++
 
 			// expand the default product up to the feature level
-			const isExpanded = productId === rootState.currentDefaultProductId ? level < FEATURELEVEL : level < PRODUCTLEVEL
-			const isDraggable = level > PRODUCTLEVEL
+			const isExpanded = productId === rootState.currentDefaultProductId ? level < level.FEATURE : level < level.PRODUCT
+			const isDraggable = level > level.PRODUCT
 			// show the product level nodes and all nodes of the current default product
-			const doShow = level <= PRODUCTLEVEL || productId === rootState.currentDefaultProductId
+			const doShow = level <= level.PRODUCT || productId === rootState.currentDefaultProductId
 			if (parentNodes[parentId] !== undefined) {
 				const parentNode = parentNodes[parentId]
 				const ind = parentNode.children.length
@@ -146,7 +142,7 @@ const mutations = {
 					dependencies,
 					conditionalFor,
 					title,
-					isLeaf: level === TASKLEVEL,
+					isLeaf: level === level.TASK,
 					children: [],
 					isExpanded,
 					isSelectable: true,
@@ -215,7 +211,7 @@ const actions = {
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -232,10 +228,10 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/details'
 		}).then(res => {
 			rootState.lastTreeView = 'detailProduct'
-			rootState.loadedTreeDepth = TASKLEVEL
+			rootState.loadedTreeDepth = level.TASK
 			rootState.loadedSprintId = null
 			commit('processProduct', { rootState, rootGetters, batch: res.data.rows })
-			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: INFO })
+			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: sev.INFO })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {
@@ -244,7 +240,7 @@ const actions = {
 					console.log('processProduct: ' + msg)
 					const newLog = {
 						event: msg,
-						level: 'CRITICAL',
+						level: 'sev.CRITICAL',
 						by: rootState.userData.user,
 						timestamp: Date.now()
 					}
@@ -260,7 +256,7 @@ const actions = {
 					console.log('processProduct: ' + msg1 + '\n' + msg2)
 					const newLog = {
 						event: msg1 + ' ' + msg2,
-						level: 'CRITICAL',
+						level: 'sev.CRITICAL',
 						by: rootState.userData.user,
 						timestamp: Date.now()
 					}

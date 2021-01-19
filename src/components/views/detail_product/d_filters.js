@@ -1,7 +1,6 @@
+import { sev, level } from '../../../constants.js'
 import commonFilters from '../common_filters.js'
 
-const INFO = 0
-const PRODUCTLEVEL = 2
 const methods = {
   /* Apply the AND logic to the included filters */
   onApplyMyFilters () {
@@ -38,12 +37,12 @@ const methods = {
         if (!isExcluded) {
           if (this.filterTreeDepth) {
             if (nm.level <= this.selectedTreeDepth) {
-							window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > PRODUCTLEVEL })
-              if (nm.level > PRODUCTLEVEL) count++
+							window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > level.PRODUCT })
+              if (nm.level > level.PRODUCT) count++
             } else return
           } else {
-						window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > PRODUCTLEVEL })
-            if (nm.level > PRODUCTLEVEL) count++
+						window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > level.PRODUCT })
+            if (nm.level > level.PRODUCT) count++
           }
         } else {
           unselectedNodes.push(nm)
@@ -54,7 +53,7 @@ const methods = {
 		window.slVueTree.traverseModels(cb, window.slVueTree.getProductModel())
 
 		this.$store.state.filterText = 'Clear filter'
-    // window.slVueTree.showVisibility('onApplyMyFilters2', FEATURELEVEL)
+    // window.slVueTree.showVisibility('onApplyMyFilters2', level.FEATURE)
 
     if (!onlyFilterOnDepth) {
       // hide unselected nodes with no selected descendants
@@ -63,9 +62,9 @@ const methods = {
       }
       let s
 			count === 1 ? s = 'title matches' : s = 'titles match'
-      this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, INFO)
+      this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, sev.INFO)
     } else {
-			this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, INFO)
+			this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, sev.INFO)
 		}
   }
 }

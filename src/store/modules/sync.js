@@ -31,15 +31,10 @@
 * 'uploadTaskOwnerEvent':				see if (updateBoard)
 */
 
+import { sev, level } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
-const PRODUCTLEVEL = 2
-const FEATURELEVEL = 4
-const PBILEVEL = 5
-const TASKLEVEL = 6
-const INFO = 0
-const WARNING = 1
 const AREA_PRODUCTID = 'requirement-areas'
 // keep track of removed products during this session
 var removedProducts = []
@@ -102,18 +97,18 @@ const actions = {
     function reportOddTimestamp (event, docId) {
       if (Date.now() - event.timestamp > 1000) {
         const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 second`
-        commit('showLastEvent', { txt: msg, severity: WARNING })
+        commit('showLastEvent', { txt: msg, severity: sev.WARNING })
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg + ` The document id is ${docId}.`)
-        dispatch('doLog', { event: msg, level: WARNING })
+        dispatch('doLog', { event: msg, level: sev.WARNING })
       }
     }
 
     function getLevelText (level, subtype = 0) {
-      if (level < 0 || level > TASKLEVEL) {
+      if (level < 0 || level > level.TASK) {
         return 'Level not supported'
       }
-      if (level === PBILEVEL) {
+      if (level === level.PBI) {
         return getSubType(subtype)
       }
       return rootState.configData.itemType[level]
@@ -133,7 +128,7 @@ const actions = {
           doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: WARNING })
+        dispatch('doLog', { event: msg, level: sev.WARNING })
         return
       }
       // create the node
@@ -156,7 +151,7 @@ const actions = {
         isSelected: false,
         isExpanded: true,
         isSelectable: true,
-        isDraggable: doc.level > PRODUCTLEVEL,
+        isDraggable: doc.level > level.PRODUCT,
         doShow: true,
         data: {
           state: doc.state,
@@ -189,7 +184,7 @@ const actions = {
         return
       }
       const node = window.slVueTree.getNodeById(doc._id)
-      if (node.level === PBILEVEL || node.level === TASKLEVEL) commit('updateNodesAndCurrentDoc', { node, sprintId: item[12] })
+      if (node.level === level.PBI || node.level === level.TASK) commit('updateNodesAndCurrentDoc', { node, sprintId: item[12] })
       const locationInfo = getLocationInfo(item[10], parentNode)
       if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
         // move the node to the new position w/r to its siblings; first remove the node, then insert
@@ -241,8 +236,8 @@ const actions = {
           }
           // check for exception
           if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent' && histEvent !== 'createTaskEvent') {
-            commit('showLastEvent', { txt: `Another user changed item ${doc._id} which is missing in your view`, severity: WARNING })
-            dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: WARNING })
+            commit('showLastEvent', { txt: `Another user changed item ${doc._id} which is missing in your view`, severity: sev.WARNING })
+            dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: sev.WARNING })
             return
           }
           reportOddTimestamp(doc.history[0], doc._id)
@@ -272,9 +267,9 @@ const actions = {
               break
             case 'docRestoredEvent':
               {
-                commit('showLastEvent', { txt: `Busy restoring ${getLevelText(doc.level, doc.subtype)} as initiated in another session...`, severity: INFO })
+                commit('showLastEvent', { txt: `Busy restoring ${getLevelText(doc.level, doc.subtype)} as initiated in another session...`, severity: sev.INFO })
                 let toDispatch
-                if (updateBoard && doc.level !== TASKLEVEL) {
+                if (updateBoard && doc.level !== level.TASK) {
                   // postpone the board update until the document is restored
                   toDispatch = [{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }]
                 }
@@ -282,13 +277,13 @@ const actions = {
                   doc,
                   toDispatch,
                   onSuccessCallback: () => {
-                    if (doc.level === PRODUCTLEVEL) {
+                    if (doc.level === level.PRODUCT) {
 											// re-enter all the current users product roles, and update the user's subscriptions and product selection array with the removed product
 											commit('addToMyProducts', { newRoles: lastHistObj.docRestoredEvent[5], productId: doc._id, productTitle: doc.title })
                     }
                     if (lastHistObj.by === rootState.userData.user) {
-                      commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
-                    } else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
+                      commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: sev.INFO })
+                    } else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: sev.INFO })
                   }
                 })
               }
@@ -303,7 +298,7 @@ const actions = {
               if (node && doc.delmark) {
                 // remove any dependency references to/from outside the removed items
                 window.slVueTree.correctDependencies(node.productId, lastHistObj.removedWithDescendantsEvent[1])
-                if (node.level === PRODUCTLEVEL) {
+                if (node.level === level.PRODUCT) {
                   // save some data of the removed product for restore at undo.
 									removedProducts.unshift({ id: node._id, productRoles: rootGetters.getMyProductsRoles[node._id] })
 									// remove the product from the users product roles, subscriptions and product selection array
@@ -312,8 +307,8 @@ const actions = {
                 }
                 window.slVueTree.remove([node])
                 if (lastHistObj.by === rootState.userData.user) {
-                  commit('showLastEvent', { txt: `You removed a ${getLevelText(doc.level, doc.subtype)} in another session`, severity: INFO })
-                } else commit('showLastEvent', { txt: `Another user removed a ${getLevelText(doc.level, doc.subtype)}`, severity: INFO })
+                  commit('showLastEvent', { txt: `You removed a ${getLevelText(doc.level, doc.subtype)} in another session`, severity: sev.INFO })
+                } else commit('showLastEvent', { txt: `Another user removed a ${getLevelText(doc.level, doc.subtype)}`, severity: sev.INFO })
               }
               break
             case 'removeSprintIdsEvent':
@@ -411,10 +406,10 @@ const actions = {
             case 'createEvent':
             case 'createTaskEvent':
               if (doc.sprintId === rootState.loadedSprintId) {
-                if (doc.level === TASKLEVEL) {
+                if (doc.level === level.TASK) {
                   // a new task is created on another user's product details view or board
                   commit('addTaskToBoard', doc)
-                } else if (doc.level === PBILEVEL) {
+                } else if (doc.level === level.PBI) {
                   // a user story is created
                   dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
                 }
@@ -425,7 +420,7 @@ const actions = {
                 const involvedSprintIds = [doc.sprintId].concat(lastHistObj.docRestoredEvent[6])
                 if (involvedSprintIds.includes(rootState.loadedSprintId)) {
                   // one or more of the removed items or their descendants assigned to the loaded sprint are restored
-                  if (doc.level === TASKLEVEL) {
+                  if (doc.level === level.TASK) {
                     // a task removal is undone from a user story currently on the planning board
                     commit('addTaskToBoard', doc)
                   }
@@ -446,7 +441,7 @@ const actions = {
                   const targetParentId = item[8]
                   const newlyCalculatedPriority = item[10]
 
-                  if (sourceLevel === TASKLEVEL && targetLevel === TASKLEVEL && sourceParentId === targetParentId) {
+                  if (sourceLevel === level.TASK && targetLevel === level.TASK && sourceParentId === targetParentId) {
                     // move position of items within the same user story
                     let tasks
                     for (const s of rootState.stories) {
@@ -480,7 +475,7 @@ const actions = {
                 const involvedSprintIds = [doc.sprintId].concat(lastHistObj.removedWithDescendantsEvent[4])
                 if (involvedSprintIds.includes(rootState.loadedSprintId)) {
                   // the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
-                  if (doc.level === TASKLEVEL) {
+                  if (doc.level === level.TASK) {
                     // a task is removed from a user story currently displayed on the planning board
                     for (const s of rootState.stories) {
                       if (s.storyId === doc.parentId) {
@@ -500,7 +495,7 @@ const actions = {
               }
               break
             case 'setPointsEvent':
-              if (doc.sprintId === rootState.loadedSprintId && doc.level === PBILEVEL) {
+              if (doc.sprintId === rootState.loadedSprintId && doc.level === level.PBI) {
                 for (const s of rootState.stories) {
                   if (s.storyId === doc._id) {
                     s.size = doc.spsize
@@ -510,7 +505,7 @@ const actions = {
               }
               break
             case 'setStateEvent':
-              if (doc.sprintId === rootState.loadedSprintId && doc.level === TASKLEVEL) {
+              if (doc.sprintId === rootState.loadedSprintId && doc.level === level.TASK) {
                 const prevState = lastHistObj.setStateEvent[0]
                 const newTaskPosition = lastHistObj.setStateEvent[3]
                 for (const s of rootState.stories) {
@@ -536,7 +531,7 @@ const actions = {
               }
               break
             case 'setSubTypeEvent':
-              if (doc.sprintId === rootState.loadedSprintId && doc.level === PBILEVEL) {
+              if (doc.sprintId === rootState.loadedSprintId && doc.level === level.PBI) {
                 for (const s of rootState.stories) {
                   if (s.storyId === doc._id) {
                     s.subType = doc.subtype
@@ -552,7 +547,7 @@ const actions = {
             case 'setTitleEvent':
               if (doc.sprintId === rootState.loadedSprintId) {
                 switch (doc.level) {
-                  case FEATURELEVEL:
+                  case level.FEATURE:
                     for (const s of rootState.stories) {
                       if (s.featureId === doc._id) {
                         s.featureName = doc.title
@@ -560,7 +555,7 @@ const actions = {
                       }
                     }
                     break
-                  case PBILEVEL:
+                  case level.PBI:
                     for (const s of rootState.stories) {
                       if (s.storyId === doc._id) {
                         s.title = doc.title
@@ -568,7 +563,7 @@ const actions = {
                       }
                     }
                     break
-                  case TASKLEVEL:
+                  case level.TASK:
                     for (const s of rootState.stories) {
                       if (s.storyId === doc.parentId) {
                         const tasks = s.tasks
@@ -609,7 +604,7 @@ const actions = {
         const msg = 'Listening for changes made by other users failed while processing document with id ' + doc._id + ', ' + error
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: WARNING })
+        dispatch('doLog', { event: msg, level: sev.WARNING })
       }
     }
 
@@ -682,8 +677,8 @@ const actions = {
                 doc,
                 onSuccessCallback: () => {
                   if (lastHistObj.by === rootState.userData.user) {
-                    commit('showLastEvent', { txt: 'You restored a removed requirement area in another session', severity: INFO })
-                  } else commit('showLastEvent', { txt: 'Another user restored a removed requirement area', severity: INFO })
+                    commit('showLastEvent', { txt: 'You restored a removed requirement area in another session', severity: sev.INFO })
+                  } else commit('showLastEvent', { txt: 'Another user restored a removed requirement area', severity: sev.INFO })
                 }
               })
               break
@@ -694,8 +689,8 @@ const actions = {
               if (node) {
                 window.slVueTree.remove([node])
                 if (lastHistObj.by === rootState.userData.user) {
-                  commit('showLastEvent', { txt: 'You removed a requirement area in another session', severity: INFO })
-                } else commit('showLastEvent', { txt: 'Another user removed a requirement area', severity: INFO })
+                  commit('showLastEvent', { txt: 'You removed a requirement area in another session', severity: sev.INFO })
+                } else commit('showLastEvent', { txt: 'Another user removed a requirement area', severity: sev.INFO })
               }
               break
             case 'setTitleEvent':
@@ -761,7 +756,7 @@ const actions = {
       if (rootState.debugConnectionAndLogging || rootState.debug) console.log(msg)
       // do not try to save the log if a network error is detected, just queue the log
       const skipSaving = error.message = 'Network error'
-      dispatch('doLog', { event: msg, level: WARNING, skipSaving })
+      dispatch('doLog', { event: msg, level: sev.WARNING, skipSaving })
     })
   }
 }

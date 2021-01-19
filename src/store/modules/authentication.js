@@ -1,8 +1,7 @@
+import { sev } from '../../constants.js'
 import globalAxios from 'axios'
 import router from '../../router'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
-const CRITICAL = 3
 
 const state = {
 	sessionAuthData: undefined,
@@ -47,13 +46,13 @@ const actions = {
 				state.cookieAuthenticated = false
 				rootState.stopListenForChanges = true
 				rootState.online = false
-				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: CRITICAL })
+				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: sev.CRITICAL })
 				const msg = 'Refresh of the authentication cookie failed with ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debugConnectionAndLogging) console.log(msg)
 				// do not try to save the log if a network error is detected, just queue the log
 				const skipSaving = error.message = 'Network error'
-				dispatch('doLog', { event: msg, level: CRITICAL, skipSaving })
+				dispatch('doLog', { event: msg, level: sev.CRITICAL, skipSaving })
 			})
 		}
 	},

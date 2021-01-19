@@ -1,7 +1,6 @@
+import { sev } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
-const ERROR = 2
 
 const actions = {
 	/* Get the default sprint calendar of a specific database (for admin use only) */
@@ -27,7 +26,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -57,7 +56,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -84,7 +83,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 }

@@ -1,3 +1,4 @@
+import { sev, level } from '../constants.js'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import authentication from './modules/authentication'
@@ -22,22 +23,6 @@ import loadproducts from './modules/load_detail'
 import loadoverview from './modules/load_coarse'
 import planningboard from './modules/planningboard'
 
-const DEBUG = -1
-const INFO = 0
-const WARNING = 1
-const ERROR = 2
-const CRITICAL = 3
-
-const ON_HOLD = 1
-const TODO = 2
-const READY = 3
-const INPROGRESS = 4
-const TESTREVIEW = 5
-const DONE = 6
-
-const FEATURELEVEL = 4
-const PBILEVEL = 5
-const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
 
 const FILTERBUTTONTEXT = 'Filter in tree view'
@@ -52,24 +37,24 @@ function createEvent(payload) {
 	let color = '#408FAE'
 	let severityStr = 'INFO'
 	switch (payload.severity) {
-		case DEBUG:
+		case sev.DEBUG:
 			severityStr = 'DEBUG'
 			color = 'yellow'
 			break
-		case INFO:
+		case sev.INFO:
 			severityStr = 'INFO'
 			color = '#408FAE'
 			break
-		case WARNING:
-			severityStr = 'WARNING'
+		case sev.WARNING:
+			severityStr = 'sev.WARNING'
 			color = 'orange'
 			break
-		case ERROR:
-			severityStr = 'ERROR'
+		case sev.ERROR:
+			severityStr = 'sev.ERROR'
 			color = 'red'
 			break
-		case CRITICAL:
-			severityStr = 'CRITICAL'
+		case sev.CRITICAL:
+			severityStr = 'sev.CRITICAL'
 			color = '#ff5c33'
 	}
 	const newEvent = {
@@ -365,9 +350,9 @@ export default new Vuex.Store({
 		},
 
 		leafLevel(state, getters) {
-			if (getters.isDetailsViewSelected) return TASKLEVEL
-			if (getters.isOverviewSelected) return FEATURELEVEL
-			return PBILEVEL
+			if (getters.isDetailsViewSelected) return level.TASK
+			if (getters.isOverviewSelected) return level.FEATURE
+			return level.PBI
 		},
 
 		myTeam(state) {
@@ -442,10 +427,10 @@ export default new Vuex.Store({
 		getStoryPointsDone(state) {
 			let sum = 0
 			for (const s of state.stories) {
-				if (s.tasks[TODO].length === 0 &&
-					s.tasks[INPROGRESS].length === 0 &&
-					s.tasks[TESTREVIEW].length === 0 &&
-					s.tasks[DONE].length > 0) sum += s.size
+				if (s.tasks[state.TODO].length === 0 &&
+					s.tasks[state.INPROGRESS].length === 0 &&
+					s.tasks[state.TESTREVIEW].length === 0 &&
+					s.tasks[state.DONE].length > 0) sum += s.size
 			}
 			return sum
 		}
@@ -472,7 +457,7 @@ export default new Vuex.Store({
 					nm.isExpanded = nm.savedIsExpanded
 				}, nodesToScan)
 
-				commit('addToEventList', { txt: `Your filter in product '${state.currentProductTitle}' is cleared`, severity: INFO })
+				commit('addToEventList', { txt: `Your filter in product '${state.currentProductTitle}' is cleared`, severity: sev.INFO })
 				state.filterText = FILTERBUTTONTEXT
 				state.resetSearch = {}
 			}
@@ -492,7 +477,7 @@ export default new Vuex.Store({
 				dispatch('loadDoc', {
 					id: prevSelectedNode._id, onSuccessCallback: () => {
 						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-						commit('addToEventList', { txt: 'The search for an item on Id is closed', severity: INFO })
+						commit('addToEventList', { txt: 'The search for an item on Id is closed', severity: sev.INFO })
 					}
 				})
 				state.resetSearch = {}
@@ -510,7 +495,7 @@ export default new Vuex.Store({
 						// expand the product
 						window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
 						state.keyword = ''
-						commit('addToEventList', { txt: `The search for item titles in '${prevSelectedNode.title}' is closed`, severity: INFO })
+						commit('addToEventList', { txt: `The search for item titles in '${prevSelectedNode.title}' is closed`, severity: sev.INFO })
 					}
 				})
 				state.resetSearch = {}
@@ -1088,11 +1073,11 @@ export default new Vuex.Store({
 							size: storySize,
 							subType,
 							tasks: {
-								[ON_HOLD]: [],
-								[TODO]: [],
-								[INPROGRESS]: [],
-								[TESTREVIEW]: [],
-								[DONE]: []
+								[state.ON_HOLD]: [],
+								[state.TODO]: [],
+								[state.INPROGRESS]: [],
+								[state.TESTREVIEW]: [],
+								[state.DONE]: []
 							}
 						}
 
@@ -1100,41 +1085,41 @@ export default new Vuex.Store({
 							if (t.key[3] === storyId) {
 								const taskState = t.value[2]
 								switch (taskState) {
-									case ON_HOLD:
-										newStory.tasks[ON_HOLD].push({
+									case state.ON_HOLD:
+										newStory.tasks[state.ON_HOLD].push({
 											id: t.id,
 											title: t.value[0],
 											taskOwner: t.value[4],
 											priority: -t.key[5]
 										})
 										break
-									case TODO:
-									case READY:
-										newStory.tasks[TODO].push({
+									case state.TODO:
+									case state.READY:
+										newStory.tasks[state.TODO].push({
 											id: t.id,
 											title: t.value[0],
 											taskOwner: t.value[4],
 											priority: -t.key[5]
 										})
 										break
-									case INPROGRESS:
-										newStory.tasks[INPROGRESS].push({
+									case state.INPROGRESS:
+										newStory.tasks[state.INPROGRESS].push({
 											id: t.id,
 											title: t.value[0],
 											taskOwner: t.value[4],
 											priority: -t.key[5]
 										})
 										break
-									case TESTREVIEW:
-										newStory.tasks[TESTREVIEW].push({
+									case state.TESTREVIEW:
+										newStory.tasks[state.TESTREVIEW].push({
 											id: t.id,
 											title: t.value[0],
 											taskOwner: t.value[4],
 											priority: -t.key[5]
 										})
 										break
-									case DONE:
-										newStory.tasks[DONE].push({
+									case state.DONE:
+										newStory.tasks[state.DONE].push({
 											id: t.id,
 											title: t.value[0],
 											taskOwner: t.value[4],

@@ -1,8 +1,7 @@
+import { level } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
-const DATABASELEVEL = 1
-const PRODUCTLEVEL = 2
 const AREA_PRODUCTID = 'requirement-areas'
 
 function createId() {
@@ -416,7 +415,7 @@ const actions = {
 		const doc = {
 			_id: 'root',
 			type: 'backlogItem',
-			level: DATABASELEVEL,
+			level: level.DATABASE,
 			state: 2,
 			title: 'The root of all products in this database',
 			team: 'server admins',
@@ -541,7 +540,7 @@ const actions = {
 			productId: _id,
 			parentId: 'root',
 			team: 'not assigned yet',
-			level: PRODUCTLEVEL,
+			level: level.PRODUCT,
 			state: 2,
 			reqarea: null,
 			title,
@@ -556,7 +555,7 @@ const actions = {
 			}],
 			// do not distribute this event; other users have no access rights yet
 			history: [{
-				createEvent: [PRODUCTLEVEL, 'root', 1],
+				createEvent: [level.PRODUCT, 'root', 1],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false

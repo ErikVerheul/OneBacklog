@@ -1,7 +1,6 @@
 import globalAxios from 'axios'
 import router from '../../router'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-const ERROR = 2
 
 /* Add item to array if not already present. Returns a new array so that it is reactive */
 function addToArray(arr, item) {
@@ -61,7 +60,7 @@ const actions = {
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
+				dispatch('doLog', { event: msg, level: sev.ERROR })
 			}
 		})
 	},
@@ -104,7 +103,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -151,7 +150,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -168,7 +167,7 @@ const actions = {
 			dispatch('updateUser', { data: tmpUserData })
 		}).catch(error => {
 			const msg = 'saveMyFilterSettings: User ' + rootState.userData.user + ' cannot save the product filter settings. Error = ' + error
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -187,7 +186,7 @@ const actions = {
 		}).catch(error => {
 			const msg = 'changeMyPasswordAction: Could not change password for user ' + rootState.userData.user + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -235,7 +234,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -288,7 +287,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -308,7 +307,7 @@ const actions = {
 			const msg = 'updateMySubscriptions: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -332,7 +331,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -383,7 +382,7 @@ const actions = {
 			}).catch(error => {
 				const msg = 'changeDbInMyProfile: Could not update the default database for user ' + rootState.userData.user + ', ' + error
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-				dispatch('doLog', { event: msg, level: ERROR })
+				dispatch('doLog', { event: msg, level: sev.ERROR })
 			})
 		})
 	},
@@ -407,7 +406,7 @@ const actions = {
 			const msg = 'registerMyNoSprintImport: Could not update do not ask for import for user ' + rootState.userData.user + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -479,7 +478,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -497,7 +496,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
 				dispatch('createUserAction', userData)
@@ -506,7 +505,7 @@ const actions = {
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
+				dispatch('doLog', { event: msg, level: sev.ERROR })
 			}
 		})
 	},
@@ -533,7 +532,7 @@ const actions = {
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
+				dispatch('doLog', { event: msg, level: sev.ERROR })
 			}
 		})
 	},
@@ -554,13 +553,13 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		}).catch(error => {
 			const msg = 'removeUserAction: While removing user "' + userName + '" an error occurred, ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -584,7 +583,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	}
 

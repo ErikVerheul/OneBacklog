@@ -1,17 +1,14 @@
+import { sev, level } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
-const ERROR = 2
-const PRODUCTLEVEL = 2
-const FEATURELEVEL = 4
-const TASKLEVEL = 6
 // these vars are initiated when the product is loaded
 var newProductId
 var orgProductTitle
 var newProductTitle
 
 function composeRangeString(id) {
-	return `startkey=["${id}",${PRODUCTLEVEL},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${TASKLEVEL},${Number.MAX_SAFE_INTEGER}]`
+	return `startkey=["${id}",${level.PRODUCT},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${level.TASK},${Number.MAX_SAFE_INTEGER}]`
 }
 
 function showProduct(docs, leafLevel) {
@@ -20,9 +17,9 @@ function showProduct(docs, leafLevel) {
 		const parentId = doc.parentId
 		if (parentNodes[parentId] !== undefined) {
 			const level = doc.level
-			const isDraggable = level > PRODUCTLEVEL
-			const isExpanded = doc.level < FEATURELEVEL
-			const doShow = doc.level <= PRODUCTLEVEL
+			const isDraggable = level > level.PRODUCT
+			const isExpanded = doc.level < level.FEATURE
+			const doShow = doc.level <= level.PRODUCT
 			const parentNode = parentNodes[parentId]
 			// position as last child
 			const ind = parentNode.children.length
@@ -129,7 +126,7 @@ const actions = {
 			const msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -159,7 +156,7 @@ const actions = {
 			const msg = 'storeProduct: Could not update batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	}
 }

@@ -1,8 +1,6 @@
+import { sev } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-const INFO = 0
-const WARNING = 1
-const ERROR = 2
 
 const actions = {
 	changeTeam({
@@ -21,7 +19,7 @@ const actions = {
 		}).catch(error => {
 			const msg = `changeTeam: Could not change team for user ${rootState.userData.user}. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -50,7 +48,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -79,7 +77,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -145,7 +143,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -177,7 +175,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -218,7 +216,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -259,7 +257,7 @@ const actions = {
 			const msg = `retireTeams: Could not read the items from database ${dbName}. ${error}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -287,7 +285,7 @@ const actions = {
 						// check if the teamcalendar needs to be extended
 						const lastTeamSprint = newTeamDoc.teamCalendar.slice(-1)[0]
 						if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
-							commit('showLastEvent', { txt: `Team '${newTeamDoc.teamName}' ran out of sprints. You cannot join this team until your Admin creates new sprints`, severity: WARNING })
+							commit('showLastEvent', { txt: `Team '${newTeamDoc.teamName}' ran out of sprints. You cannot join this team until your Admin creates new sprints`, severity: sev.WARNING })
 							return
 						}
 					}
@@ -338,21 +336,21 @@ const actions = {
 								const msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + payload.newTeam
 								// eslint-disable-next-line no-console
 								if (rootState.debug) console.log(msg)
-								dispatch('doLog', { event: msg, level: INFO })
+								dispatch('doLog', { event: msg, level: sev.INFO })
 							}
 						}
 					}]
 					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc, toDispatch, caller: 'updateTeamsInDb' })
 				} else {
-					if (!oldTeamDoc) commit('showLastEvent', { txt: `Team '${payload.oldTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: WARNING })
-					if (!newTeamDoc) commit('showLastEvent', { txt: `Team '${payload.newTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: WARNING })
+					if (!oldTeamDoc) commit('showLastEvent', { txt: `Team '${payload.oldTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: sev.WARNING })
+					if (!newTeamDoc) commit('showLastEvent', { txt: `Team '${payload.newTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: sev.WARNING })
 				}
 			}).catch(error => {
 				const msg = `updateTeamInDb: Could not read the teams in database '${dbName}'. ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
+				dispatch('doLog', { event: msg, level: sev.ERROR })
 			})
 		}
 	}

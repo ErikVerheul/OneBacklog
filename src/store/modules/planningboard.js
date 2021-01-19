@@ -1,9 +1,7 @@
+import { sev, level } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-const INFO = 0
-const ERROR = 2
-const PBILEVEL = 5
-const TASKLEVEL = 6
+
 const MIN_ID = ''
 const MAX_ID = '999999999999zzzzz'
 // keep track of busy loading during this session
@@ -11,7 +9,7 @@ var loadRequests = 0
 var busyLoading = false
 
 function composeRangeString1(id, team) {
-	return `startkey=["${id}","${team}","${MIN_ID}","${MIN_ID}",${PBILEVEL},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}","${MAX_ID}",${TASKLEVEL},${Number.MAX_SAFE_INTEGER}]`
+	return `startkey=["${id}","${team}","${MIN_ID}","${MIN_ID}",${level.PBI},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}","${MAX_ID}",${level.TASK},${Number.MAX_SAFE_INTEGER}]`
 }
 function composeRangeString2(team) {
 	return `startkey=["${team}","${MIN_ID}","${MIN_ID}","${MIN_ID}",${Number.MIN_SAFE_INTEGER}]&endkey=["${team}","${MAX_ID}","${MAX_ID}","${MAX_ID}",${Number.MAX_SAFE_INTEGER}]`
@@ -61,7 +59,7 @@ const actions = {
 				const missingPbiIds = []
 				for (const r of results) {
 					const level = r.key[4]
-					if (level === PBILEVEL) {
+					if (level === level.PBI) {
 						const pbiId = r.id
 						if (!foundPbiIds.includes(pbiId)) foundPbiIds.push(pbiId)
 						const featureId = r.key[3]
@@ -75,7 +73,7 @@ const actions = {
 							state.pbiResults.push(r)
 						}
 					}
-					if (level === TASKLEVEL) {
+					if (level === level.TASK) {
 						taskResults.push(r)
 						const pbiId = r.key[3]
 						if (!foundPbiIds.includes(pbiId)) {
@@ -103,7 +101,7 @@ const actions = {
 				const msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: ERROR })
+				dispatch('doLog', { event: msg, level: sev.ERROR })
 			})
 		} loadRequests++
 	},
@@ -150,7 +148,7 @@ const actions = {
 			const msg = 'loadMissingPbis: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -204,7 +202,7 @@ const actions = {
 			const msg = 'loadUnfinished: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -266,7 +264,7 @@ const actions = {
 			const msg = 'importInSprint: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -398,7 +396,7 @@ const actions = {
 			const msg = 'updateMovedTasks: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -427,7 +425,7 @@ const actions = {
 			const msg = 'setColor: Could not read document with _id ' + payload.storyId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -456,7 +454,7 @@ const actions = {
 			const msg = 'triggerBoardReload: Could not read document with _id ' + payload.parentId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -521,14 +519,14 @@ const actions = {
 							sprintName: payload.sprintName
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Item(s) from sprint removal is undone', severity: INFO })
+					} else commit('showLastEvent', { txt: 'Item(s) from sprint removal is undone', severity: sev.INFO })
 				}
 			})
 		}).catch(e => {
 			const msg = 'addSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -589,14 +587,14 @@ const actions = {
 						sprintName: payload.sprintName
 					}
 					rootState.changeHistory.unshift(entry)
-					commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: INFO })
+					commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: sev.INFO })
 				}
 			})
 		}).catch(e => {
 			const msg = 'removeSprintIds: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -644,7 +642,7 @@ const actions = {
 				sprintId: rootState.loadedSprintId,
 				team: rootState.userData.myTeam,
 				taskOwner: rootState.userData.user,
-				level: TASKLEVEL,
+				level: level.TASK,
 				subtype: 0,
 				state: payload.state,
 				tssize: 3,
@@ -727,7 +725,7 @@ const actions = {
 			const msg = 'boardAddTask: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -783,7 +781,7 @@ const actions = {
 			const msg = 'boardUpdateTaskTitle: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	},
 
@@ -826,7 +824,7 @@ const actions = {
 			const msg = 'boardUpdateTaskOwner: Could not read document with id ' + payload.taskId + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: ERROR })
+			dispatch('doLog', { event: msg, level: sev.ERROR })
 		})
 	}
 }

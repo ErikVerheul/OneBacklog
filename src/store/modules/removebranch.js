@@ -1,11 +1,7 @@
+import { sev, level } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
-const INFO = 0
-const ERROR = 2
-const DATABASELEVEL = 1
-const PRODUCTLEVEL = 2
-const TASKLEVEL = 6
 const AREA_PRODUCTID = 'requirement-areas'
 var docsRemovedIds
 var removedDeps
@@ -21,7 +17,7 @@ function composeRangeString (id) {
 }
 
 function getLevelText (configData, level) {
-  if (level < 0 || level > TASKLEVEL) {
+  if (level < 0 || level > level.TASK) {
     return 'Level not supported'
   }
   return configData.itemType[level]
@@ -89,7 +85,7 @@ const actions = {
       const msg = 'removeBranch.getChildrenToRemove: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -118,7 +114,7 @@ const actions = {
       const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -158,7 +154,7 @@ const actions = {
         const msg = 'removeExternalConds: Could not read batch of documents: ' + e
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: ERROR })
+        dispatch('doLog', { event: msg, level: sev.ERROR })
       })
     } else dispatch('removeExternalDeps', payload)
   },
@@ -199,7 +195,7 @@ const actions = {
         const msg = 'removeExternalDeps: Could not read batch of documents: ' + e
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: ERROR })
+        dispatch('doLog', { event: msg, level: sev.ERROR })
       })
 		} else dispatch('addRemoveHist', { node: payload.node, createUndo: payload.createUndo })
   },
@@ -244,7 +240,7 @@ const actions = {
       const msg = `addRemoveHist: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -298,7 +294,7 @@ const actions = {
           // before removal select the predecessor of the removed node (sibling or parent)
           const prevNode = window.slVueTree.getPreviousNode(payload.node.path)
           let nowSelectedNode = prevNode
-          if (prevNode.level === DATABASELEVEL) {
+          if (prevNode.level === level.DATABASE) {
             // if a product is to be removed and the previous node is root, select the next product
             const nextProduct = window.slVueTree.getNextSibling(payload.node.path)
             if (nextProduct === null) {
@@ -314,7 +310,7 @@ const actions = {
           // remove the node and its children
           window.slVueTree.remove([payload.node])
 
-          if (payload.node.level === PRODUCTLEVEL) {
+          if (payload.node.level === level.PRODUCT) {
 						// remove the product from the users product roles, subscriptions and product selection array
 						// the user profile will be updated at the next sign-in
 						commit('removeFromMyProducts', { getters, productId: payload.node._id })
@@ -325,7 +321,7 @@ const actions = {
 						const entry = {
 							type: 'undoRemove',
 							removedNode: payload.node,
-							isProductRemoved: payload.node.level === PRODUCTLEVEL,
+							isProductRemoved: payload.node.level === level.PRODUCT,
 							docsRemovedIds,
 							removedIntDependencies: removed.removedIntDependencies,
 							removedIntConditions: removed.removedIntConditions,
@@ -338,9 +334,9 @@ const actions = {
 							entry.removedProductRoles = payload.getters.getMyProductsRoles[payload.node._id]
 						}
 						rootState.changeHistory.unshift(entry)
-						commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.node.level)} and ${docsRemovedIds.length - 1} descendants are removed`, severity: INFO })
+						commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.node.level)} and ${docsRemovedIds.length - 1} descendants are removed`, severity: sev.INFO })
           } else {
-						commit('showLastEvent', { txt: 'Item creation is undone', severity: INFO })
+						commit('showLastEvent', { txt: 'Item creation is undone', severity: sev.INFO })
           }
         }
       })
@@ -348,7 +344,7 @@ const actions = {
       const msg = `addRemoveHist: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   },
 
@@ -378,7 +374,7 @@ const actions = {
       const msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: ERROR })
+      dispatch('doLog', { event: msg, level: sev.ERROR })
     })
   }
 }
