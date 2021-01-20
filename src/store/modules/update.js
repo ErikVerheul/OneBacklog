@@ -1,9 +1,9 @@
-import { sev, state } from '../../constants.js'
+import { SEV, STATE } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
 function getLevelText(configData, level) {
-	if (level < 0 || level > level.TASK) {
+	if (level < 0 || level > LEVEL.TASK) {
 		return 'Level not supported'
 	}
 	return configData.itemType[level]
@@ -53,7 +53,7 @@ const actions = {
 			const msg = 'updateReqArea: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -136,7 +136,7 @@ const actions = {
 			const msg = 'updateReqAreaChildren: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -172,7 +172,7 @@ const actions = {
 					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor, newHist })
 					commit('updateColorMapper', { id, newColor: payload.newColor })
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The requirement area color indication is changed', severity: sev.INFO })
+						commit('showLastEvent', { txt: 'The requirement area color indication is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -180,14 +180,14 @@ const actions = {
 							prevColor
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of requirement area color indication is undone', severity: sev.INFO })
+					} else commit('showLastEvent', { txt: 'Change of requirement area color indication is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			const msg = 'setColor: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -212,10 +212,10 @@ const actions = {
 						tmpFollowers.splice(i, 1)
 					}
 				}
-				commit('showLastEvent', { txt: `Sending change notices for this item is stopped`, severity: sev.INFO })
+				commit('showLastEvent', { txt: `Sending change notices for this item is stopped`, severity: SEV.INFO })
 			} else {
 				tmpFollowers.push({ email: rootState.userData.email })
-				commit('showLastEvent', { txt: `Change notices for this item will be send to your e-mail address ${rootState.userData.email}`, severity: sev.INFO })
+				commit('showLastEvent', { txt: `Change notices for this item will be send to your e-mail address ${rootState.userData.email}`, severity: SEV.INFO })
 			}
 			const newHist = {
 				subscribeEvent: [wasFollower],
@@ -239,7 +239,7 @@ const actions = {
 			const msg = 'changeSubsription: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -275,7 +275,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The T-shirt size of this item is changed', severity: sev.INFO })
+						commit('showLastEvent', { txt: 'The T-shirt size of this item is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -284,14 +284,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item T-shirt size is undone', severity: sev.INFO })
+					} else commit('showLastEvent', { txt: 'Change of item T-shirt size is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			const msg = 'setTsSize: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -327,7 +327,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The maximum effort of this spike is changed', severity: sev.INFO })
+						commit('showLastEvent', { txt: 'The maximum effort of this spike is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -336,14 +336,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of spike person hours is undone', severity: sev.INFO })
+					} else commit('showLastEvent', { txt: 'Change of spike person hours is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			const msg = 'setPersonHours: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -380,7 +380,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The story points assigned to this item have changed', severity: sev.INFO })
+						commit('showLastEvent', { txt: 'The story points assigned to this item have changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -389,14 +389,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item story points is undone', severity: sev.INFO })
+					} else commit('showLastEvent', { txt: 'Change of item story points is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			const msg = 'setStoryPoints: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -448,18 +448,18 @@ const actions = {
 					const descendants = window.slVueTree.getDescendantsInfo(node).descendants
 					// check on inconsistent state when the node has descendants (duplicate of code in doCheckStates())
 					if (descendants.length > 0) {
-						let highestState = state.NEW
+						let highestState = STATE.NEW
 						let allDone = true
 						for (const d of descendants) {
 							if (d.data.state > highestState) highestState = d.data.state
-							if (d.data.state < state.DONE) allDone = false
+							if (d.data.state < STATE.DONE) allDone = false
 						}
-						if (payload.newState > highestState || payload.newState === state.DONE && !allDone) {
+						if (payload.newState > highestState || payload.newState === STATE.DONE && !allDone) {
 							// node has a higher state than any of its descendants or set to done while one of its descendants is not done
 							commit('updateNodesAndCurrentDoc', { node, inconsistentState: true })
-							if (payload.newState === state.DONE && !allDone) {
+							if (payload.newState === STATE.DONE && !allDone) {
 								warnMsg = 'You are assigning an inconsistant state to this item. Not all descendants are done.'
-							} else warnMsg = 'You are assigning an inconsistant state to this item. None of the item\'s descendants reached this state.'
+							} else warnMsg = 'You are assigning an inconsistant state to this item. None of the item\'s descendants reached this STATE.'
 						} else {
 							commit('updateNodesAndCurrentDoc', { node, inconsistentState: false })
 						}
@@ -473,12 +473,12 @@ const actions = {
 						}
 					}
 					// recalculate and (re)set the inconsistency state of the parent item
-					if (parentNode && parentNode.data.state === state.DONE) {
+					if (parentNode && parentNode.data.state === STATE.DONE) {
 						const descendants = window.slVueTree.getDescendantsInfo(parentNode).descendants
 						let hasInconsistentState = false
 						for (const d of descendants) {
-							if (d.data.state === state.ON_HOLD) continue
-							if (d.data.state !== state.DONE) {
+							if (d.data.state === STATE.ON_HOLD) continue
+							if (d.data.state !== STATE.DONE) {
 								hasInconsistentState = true
 								break
 							}
@@ -499,9 +499,9 @@ const actions = {
 					} else infoMsg = 'Change of item state is undone'
 					// show warnings or infos
 					if (warnMsg) {
-						commit('showLastEvent', { txt: warnMsg, severity: sev.WARNING })
+						commit('showLastEvent', { txt: warnMsg, severity: SEV.WARNING })
 					} else {
-						if (infoMsg) commit('showLastEvent', { txt: infoMsg, severity: sev.INFO })
+						if (infoMsg) commit('showLastEvent', { txt: infoMsg, severity: SEV.INFO })
 					}
 				}
 			})
@@ -509,7 +509,7 @@ const actions = {
 			const msg = 'setState: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -559,8 +559,8 @@ const actions = {
 
 						if (payload.createUndo) {
 							if (descendantsInfo.count === 0) {
-								commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: sev.INFO })
-							} else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`, severity: sev.INFO })
+								commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
+							} else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
 							const entry = {
 								type: 'undoChangeTeam',
@@ -569,7 +569,7 @@ const actions = {
 								prevLastChange
 							}
 							rootState.changeHistory.unshift(entry)
-						} else commit('showLastEvent', { txt: 'Change of owning team is undone', severity: sev.INFO })
+						} else commit('showLastEvent', { txt: 'Change of owning team is undone', severity: SEV.INFO })
 					}
 				})
 			}
@@ -577,7 +577,7 @@ const actions = {
 			const msg = 'assignToMyTeam: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -622,7 +622,7 @@ const actions = {
 			const msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + e
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -659,7 +659,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The item title is changed', severity: sev.INFO })
+						commit('showLastEvent', { txt: 'The item title is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -668,14 +668,14 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item title is undone', severity: sev.INFO })
+					} else commit('showLastEvent', { txt: 'Change of item title is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			const msg = 'setDocTitle: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -711,7 +711,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The item type is changed', severity: sev.INFO })
+						commit('showLastEvent', { txt: 'The item type is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoSelectedPbiType',
@@ -720,14 +720,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item type is undone', severity: sev.INFO })
+					} else commit('showLastEvent', { txt: 'Change of item type is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			const msg = 'setSubType: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -766,7 +766,7 @@ const actions = {
 				caller: 'saveDescription',
 				onSuccessCallback: () => {
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The item description type is changed', severity: sev.INFO })
+						commit('showLastEvent', { txt: 'The item description type is changed', severity: SEV.INFO })
 						commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -776,14 +776,14 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item description type is undone', severity: sev.INFO })
+					} else commit('showLastEvent', { txt: 'Change of item description type is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			const msg = 'saveDescription: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -823,7 +823,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The item acceptance criteria are changed', severity: sev.INFO })
+						commit('showLastEvent', { txt: 'The item acceptance criteria are changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -832,14 +832,14 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item acceptance criteria is undone', severity: sev.INFO })
+					} else commit('showLastEvent', { txt: 'Change of item acceptance criteria is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			const msg = 'saveAcceptance: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -879,7 +879,7 @@ const actions = {
 			const msg = 'addComment: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -920,7 +920,7 @@ const actions = {
 			const msg = 'addHistoryComment: Could not read document with _id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -958,7 +958,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -985,11 +985,11 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			if (updateConflict > 0 || otherError > 0) {
-				dispatch('doLog', { event: msg, level: sev.WARNING })
+				dispatch('doLog', { event: msg, level: SEV.WARNING })
 				// execute passed function if provided
 				if (payload.onFailureCallback) {
 					payload.onFailureCallback()
-				} else commit('showLastEvent', { txt: 'The update failed due to conflicts or errors. Try again after sign-out or contact your administrator', severity: sev.WARNING })
+				} else commit('showLastEvent', { txt: 'The update failed due to conflicts or errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
 			} else {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
@@ -1009,7 +1009,7 @@ const actions = {
 			const msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents, ${error}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -1034,7 +1034,7 @@ const actions = {
 				if (rootGetters.getMyAssignedProductIds.includes(doc.productId)) {
 					if (rootGetters.getMyProductSubscriptions.includes(doc.productId)) {
 						if (rows.length > 1) {
-							commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: sev.INFO })
+							commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: SEV.INFO })
 							let ids = ''
 							for (let i = 0; i < rows.length; i++) {
 								ids += rows[i].doc._id + ', '
@@ -1042,18 +1042,18 @@ const actions = {
 							const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
 							// eslint-disable-next-line no-console
 							if (rootState.debug) console.log(msg)
-							dispatch('doLog', { event: msg, level: sev.WARNING })
+							dispatch('doLog', { event: msg, level: SEV.WARNING })
 						}
 						commit('updateNodesAndCurrentDoc', { newDoc: doc })
 					} else {
-						commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your selected products. Select all products and try again`, severity: sev.INFO })
+						commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your selected products. Select all products and try again`, severity: SEV.INFO })
 					}
 				} else {
-					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your assigned products`, severity: sev.WARNING })
+					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your assigned products`, severity: SEV.WARNING })
 				}
-			} else commit('showLastEvent', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: sev.WARNING })
+			} else commit('showLastEvent', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
 		}).catch(() => {
-			commit('showLastEvent', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: sev.WARNING })
+			commit('showLastEvent', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
 		})
 	},
 
@@ -1091,7 +1091,7 @@ const actions = {
 						rootState.changeHistory.unshift(entry)
 						// select and show the new node
 						commit('updateNodesAndCurrentDoc', { newNode: payload.newNode, newDoc: payload.newDoc })
-						commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: sev.INFO })
+						commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 					}
 				}
 			}]
@@ -1100,7 +1100,7 @@ const actions = {
 			const msg = 'createDocWithParentHist: Could not read parent document with id ' + _id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -1125,7 +1125,7 @@ const actions = {
 			const msg = 'loadDoc: Could not read document with _id ' + payload.id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
 }

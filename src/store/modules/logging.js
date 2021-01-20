@@ -1,4 +1,4 @@
-import { sev } from '../../constants.js'
+import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -32,7 +32,7 @@ const actions = {
       }
     }
     function restartLoops () {
-			commit('showLastEvent', { txt: 'You are online again', severity: sev.INFO })
+			commit('showLastEvent', { txt: 'You are online again', severity: SEV.INFO })
       const toDispatch = [
         { refreshCookieLoop: null },
         { listenForChanges: null },
@@ -53,7 +53,7 @@ const actions = {
         } else consoleLogStatus()
       }).catch(error => {
 				rootState.online = false
-				commit('showLastEvent', { txt: 'You are offline. Restore the connection or wait to continue', severity: sev.WARNING })
+				commit('showLastEvent', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
         // eslint-disable-next-line no-console
         if (rootState.debugConnectionAndLogging) console.log(`watchdog: no connection @ ${new Date()}, ${error}`)
         // if error status 401 is returned we are online again despite the error condition (no authentication)
@@ -90,7 +90,7 @@ const actions = {
       if (rootState.debugConnectionAndLogging) console.log(msg)
       const newLog = {
         event: msg,
-        level: sev.INFO,
+        level: SEV.INFO,
         by: rootState.userData.user,
         timestamp: Date.now()
       }

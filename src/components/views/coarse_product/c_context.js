@@ -1,4 +1,4 @@
-import { sev } from '../../../constants.js'
+import { SEV } from '../../../constants.js'
 import commonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
@@ -40,26 +40,26 @@ const methods = {
           this.$refs.c_contextMenuRef.show()
         }
       } else this.allowRemoval = this.isReqAreaItem
-    } else this.showLastEvent('Cannot apply context menu on multiple items. Choose one', sev.WARNING)
+    } else this.showLastEvent('Cannot apply context menu on multiple items. Choose one', SEV.WARNING)
   },
 
   showSelected (idx) {
     function checkNode (vm, selNode) {
       if (selNode._id === vm.dependentOnNode._id) {
-        vm.contextWarning = 'sev.WARNING: Item cannot be dependent on it self'
+        vm.contextWarning = 'SEV.WARNING: Item cannot be dependent on it self'
         return false
 			}
 			if (selNode.productId !== vm.dependentOnNode.productId) {
-				vm.contextWarning = 'sev.WARNING: Cannot create a dependency between items in different products'
+				vm.contextWarning = 'SEV.WARNING: Cannot create a dependency between items in different products'
 				return false
 			}
       const nodeWithDependencies = vm.dependentOnNode
       if (nodeWithDependencies.dependencies.includes(selNode._id)) {
-        vm.contextWarning = 'sev.WARNING: Cannot add the same dependency twice'
+        vm.contextWarning = 'SEV.WARNING: Cannot add the same dependency twice'
         return false
       }
       if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
-        vm.contextWarning = 'sev.WARNING: Cannot create a dependency on an item with lower priority'
+        vm.contextWarning = 'SEV.WARNING: Cannot create a dependency on an item with lower priority'
         return false
       }
       return true
@@ -89,10 +89,10 @@ const methods = {
       case this.REMOVEITEM:
         this.assistanceText = this.$store.state.help.help.remove
         if (this.hasDependencies) {
-          this.listItemText = 'sev.WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
+          this.listItemText = 'SEV.WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
           this.disableOkButton = true
         } else if (this.hasConditions) {
-          this.listItemText = 'sev.WARNING: this item is conditional for other items. Remove the condition(s) first'
+          this.listItemText = 'SEV.WARNING: this item is conditional for other items. Remove the condition(s) first'
           this.disableOkButton = true
         } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants`
 				break

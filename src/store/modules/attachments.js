@@ -1,4 +1,4 @@
-import { sev } from '../../constants.js'
+import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -100,7 +100,7 @@ const actions = {
         const msg = 'uploadAttachmentAsync: Could not read document with _id ' + _id + ', ' + error
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: sev.ERROR })
+        dispatch('doLog', { event: msg, level: SEV.ERROR })
       })
     }
   },
@@ -144,7 +144,7 @@ const actions = {
       const msg = 'removeAttachmentAsync: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   }
 

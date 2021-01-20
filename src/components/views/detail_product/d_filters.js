@@ -1,4 +1,4 @@
-import { sev, level } from '../../../constants.js'
+import { SEV, LEVEL } from '../../../constants.js'
 import commonFilters from '../common_filters.js'
 
 const methods = {
@@ -37,12 +37,12 @@ const methods = {
         if (!isExcluded) {
           if (this.filterTreeDepth) {
             if (nm.level <= this.selectedTreeDepth) {
-							window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > level.PRODUCT })
-              if (nm.level > level.PRODUCT) count++
+							window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
+              if (nm.level > LEVEL.PRODUCT) count++
             } else return
           } else {
-						window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > level.PRODUCT })
-            if (nm.level > level.PRODUCT) count++
+						window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
+            if (nm.level > LEVEL.PRODUCT) count++
           }
         } else {
           unselectedNodes.push(nm)
@@ -53,7 +53,7 @@ const methods = {
 		window.slVueTree.traverseModels(cb, window.slVueTree.getProductModel())
 
 		this.$store.state.filterText = 'Clear filter'
-    // window.slVueTree.showVisibility('onApplyMyFilters2', level.FEATURE)
+    // window.slVueTree.showVisibility('onApplyMyFilters2', LEVEL.FEATURE)
 
     if (!onlyFilterOnDepth) {
       // hide unselected nodes with no selected descendants
@@ -62,9 +62,9 @@ const methods = {
       }
       let s
 			count === 1 ? s = 'title matches' : s = 'titles match'
-      this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, sev.INFO)
+      this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
     } else {
-			this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, sev.INFO)
+			this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 		}
   }
 }

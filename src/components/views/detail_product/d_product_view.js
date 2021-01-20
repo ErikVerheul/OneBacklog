@@ -1,4 +1,4 @@
-import { sev } from '../../../constants.js'
+import { SEV } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -40,7 +40,7 @@ function mounted() {
 	// expose instance to the global namespace
 	window.slVueTree = this.$refs.slVueTree
 	if (returning) {
-		this.showLastEvent('Returning to the Product details', sev.INFO)
+		this.showLastEvent('Returning to the Product details', SEV.INFO)
 	}
 }
 
@@ -78,7 +78,7 @@ const watch = {
 					this.newComment = ''
 					this.$refs.commentsEditorRef.show()
 				} else {
-					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', sev.WARNING)
+					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
 				}
 			}
 			if (this.$store.state.selectedForView === 'history') {
@@ -201,9 +201,9 @@ const methods = {
 					if (d.ind > sourceMaxind) sourceMaxind = d.ind
 				}
 				const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
-				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', sev.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', sev.WARNING)
-				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', sev.WARNING)
+				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', SEV.WARNING)
+				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)
 				return failedCheck2 || failedCheck3 || failedCheck4
 			}
 

@@ -1,4 +1,4 @@
-import { sev, level } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -37,7 +37,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -89,7 +89,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -103,7 +103,7 @@ const actions = {
 		const position = rootGetters.getMyProductsCount + 1
 		// do not distribute this event; other users have no access rights yet
 		product.history = [{
-			createEvent: [level.PRODUCT, payload.dbName, position],
+			createEvent: [LEVEL.PRODUCT, payload.dbName, position],
 			by: rootState.userData.user,
 			timestamp: Date.now(),
 			distributeEvent: false
@@ -133,7 +133,7 @@ const actions = {
 					isSelected: false,
 					isExpanded: true,
 					isSelectable: true,
-					isDraggable: payload.newProduct.level > level.PRODUCT,
+					isDraggable: payload.newProduct.level > LEVEL.PRODUCT,
 					doShow: true,
 					data: {
 						state: payload.newProduct.state,
@@ -161,7 +161,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -404,7 +404,7 @@ const actions = {
 			const msg = 'resetHistAndComm: Could not read batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
 }

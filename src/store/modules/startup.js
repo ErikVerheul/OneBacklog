@@ -1,4 +1,4 @@
-import { sev } from '../../constants.js'
+import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -42,7 +42,7 @@ const actions = {
 			const msg = 'getDatabases: Could not load the database names. Error = ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -58,7 +58,7 @@ const actions = {
 			const allUserData = res.data
 			// check if the default user database exists
 			if (!foundDbNames.includes(allUserData.currentDb)) {
-				alert('getOtherUserData: FATAL sev.ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
+				alert('getOtherUserData: FATAL SEV.ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
 				return
 			} else {
 				// must set currentDb early in the process
@@ -66,7 +66,7 @@ const actions = {
 			}
 			// check if the user has productsroles defined for the default database
 			if (!Object.keys(allUserData.myDatabases).includes(allUserData.currentDb)) {
-				alert('getOtherUserData: FATAL sev.ERROR - no roles defined for default user database ' + allUserData.currentDb)
+				alert('getOtherUserData: FATAL SEV.ERROR - no roles defined for default user database ' + allUserData.currentDb)
 				return
 			}
 			// correct the profile for removed databases and renew the list of assigned databases
@@ -83,7 +83,7 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			// now that the database is known, the log file is available
-			dispatch('doLog', { event: msg, level: sev.INFO })
+			dispatch('doLog', { event: msg, level: SEV.INFO })
 			dispatch('getAllProducts', { allUserData })
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
@@ -100,7 +100,7 @@ const actions = {
 			const msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -173,13 +173,13 @@ const actions = {
 				const msg = `User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(msg)
-				dispatch('doLog', { event: msg, level: sev.INFO })
+				dispatch('doLog', { event: msg, level: SEV.INFO })
 			}
 		}).catch(error => {
 			const msg = 'getAllProducts: Could not find products in database ' + dbName + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -240,7 +240,7 @@ const actions = {
 			const msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -271,7 +271,7 @@ const actions = {
 			const msg = `getAllTeams: Could not read the teams in database '${rootState.userData.currentDb}', ${error}`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -310,7 +310,7 @@ const actions = {
 			const msg = 'loadTeamCalendar: Could not read document with id ' + id + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -340,7 +340,7 @@ const actions = {
 			const msg = `The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.INFO })
+			dispatch('doLog', { event: msg, level: SEV.INFO })
 		}
 
 		doc.teamCalendar = extTeamCalendar
@@ -374,7 +374,7 @@ const actions = {
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
 

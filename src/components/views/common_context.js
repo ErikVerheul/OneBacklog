@@ -1,4 +1,4 @@
-import { sev, level } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import { authorization, utilities } from '../mixins/generic.js'
 
 const STATE_NEW_OR_TODO = 2
@@ -196,7 +196,7 @@ const methods = {
 		let team = this.myTeam
 		let sprintId
 		let taskOwner
-		if (insertLevel === level.TASK) {
+		if (insertLevel === LEVEL.TASK) {
 			// when inserting a task, copy the team name from the parent PBI or sibling task
 			team = this.contextNodeSelected.data.team
 			// and set the task owner
@@ -288,7 +288,7 @@ const methods = {
 				}
 			}
 		}, [this.contextNodeSelected])
-		this.showLastEvent(`${count} inconsistent state settings are found`, sev.INFO)
+		this.showLastEvent(`${count} inconsistent state settings are found`, SEV.INFO)
 	},
 
 	doSetDependency() {
@@ -334,7 +334,7 @@ const methods = {
 			if (selectedNode.level === this.productLevel) {
 				// cannot remove the last assigned product or product in the tree
 				if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
-					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', sev.WARNING)
+					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
 					return
 				}
 			}

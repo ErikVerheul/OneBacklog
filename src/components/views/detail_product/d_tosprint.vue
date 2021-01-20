@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { level } from '../../../constants.js'
+import { LEVEL } from '../../../constants.js'
 import { utilities } from '../../mixins/generic.js'
 
 // is initiated on component creation
@@ -71,7 +71,7 @@ export default {
       const sprintName = getSprintName(sprintId)
 
       // when a PBI is selected, that PBI and it descendent tasks that have no sprint assigned yet, are assigned to the sprint
-      if (itemLevel === level.PBI) {
+      if (itemLevel === LEVEL.PBI) {
         const itemIds = [currentDoc._id]
         const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
         for (const d of descendants) {
@@ -80,7 +80,7 @@ export default {
         this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName, createUndo: true })
       }
 
-      if (itemLevel === level.TASK) {
+      if (itemLevel === LEVEL.TASK) {
         // when a task is selected, the task's PBI and the task are assigned to the sprint
         const pbiNode = window.slVueTree.getNodeById(currentDoc.parentId)
         if (!pbiNode.data.sprintId) {

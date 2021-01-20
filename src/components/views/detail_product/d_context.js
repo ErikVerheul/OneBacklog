@@ -1,4 +1,4 @@
-import { sev, level } from '../../../constants.js'
+import { SEV, LEVEL } from '../../../constants.js'
 import commonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
@@ -61,22 +61,22 @@ const methods = {
 					this.$refs.d_contextMenuRef.show()
 				}
 			} else this.allowRemoval = false
-		} else this.showLastEvent('Cannot apply context menu on multiple items. Choose one', sev.WARNING)
+		} else this.showLastEvent('Cannot apply context menu on multiple items. Choose one', SEV.WARNING)
 	},
 
 	showSelected(idx) {
 		function checkNode(vm, selNode) {
 			if (selNode._id === vm.dependentOnNode._id) {
-				vm.contextWarning = 'sev.WARNING: Item cannot be dependent on it self'
+				vm.contextWarning = 'SEV.WARNING: Item cannot be dependent on it self'
 				return false
 			}
 			const nodeWithDependencies = vm.dependentOnNode
 			if (nodeWithDependencies.dependencies.includes(selNode._id)) {
-				vm.contextWarning = 'sev.WARNING: Cannot add the same dependency twice'
+				vm.contextWarning = 'SEV.WARNING: Cannot add the same dependency twice'
 				return false
 			}
 			if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
-				vm.contextWarning = 'sev.WARNING: Cannot create a dependency on an item with lower priority'
+				vm.contextWarning = 'SEV.WARNING: Cannot create a dependency on an item with lower priority'
 				return false
 			}
 			return true
@@ -112,10 +112,10 @@ const methods = {
 			case this.REMOVEITEM:
 				this.assistanceText = this.$store.state.help.help.remove
 				if (this.hasDependencies) {
-					this.listItemText = 'sev.WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
+					this.listItemText = 'SEV.WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
 					this.disableOkButton = true
 				} else if (this.hasConditions) {
-					this.listItemText = 'sev.WARNING: this item is conditional for other items. Remove the condition(s) first'
+					this.listItemText = 'SEV.WARNING: this item is conditional for other items. Remove the condition(s) first'
 					this.disableOkButton = true
 				} else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants`
 				break
@@ -125,7 +125,7 @@ const methods = {
 					this.contextWarning = `Descendants of this ${this.contextNodeType} are assigned to another team.
 					Click OK to assign all these items to your team or Cancel and join team '${this.contextNodeTeam}' to open the context menu.`
 				} else if (this.contextParentTeam !== 'not asigned yet' && this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.myTeam) {
-					this.contextWarning = `sev.WARNING: The team of parent ${this.contextParentType} (${this.contextParentTeam}) and your team (${this.myTeam}) do not match. Read the assistance text.`
+					this.contextWarning = `SEV.WARNING: The team of parent ${this.contextParentType} (${this.contextParentTeam}) and your team (${this.myTeam}) do not match. Read the assistance text.`
 				}
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'`
 				break
@@ -223,7 +223,7 @@ const methods = {
 			const targetPosition = window.slVueTree.lastSelectCursorPosition
 			// only allow to drop the node inside a new parent 1 level higher (lower value) than the source node
 			if (targetPosition.nodeModel.level !== movedNode.level - 1) {
-				this.showLastEvent('You can only drop inside a ' + this.getLevelText(movedNode.level - 1), sev.WARNING)
+				this.showLastEvent('You can only drop inside a ' + this.getLevelText(movedNode.level - 1), SEV.WARNING)
 				return
 			}
 
@@ -268,7 +268,7 @@ const methods = {
 		const node = this.contextNodeSelected
 		const sprintId = node.data.sprintId
 		const itemIds = [node._id]
-		if (node.level === level.PBI) {
+		if (node.level === LEVEL.PBI) {
 			for (const d of window.slVueTree.getDescendantsInfo(node).descendants) {
 				// only remove the sprintId of descendants with the same sprintId as the parent
 				if (d.data.sprintId === sprintId) itemIds.push(d._id)

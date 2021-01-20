@@ -1,4 +1,4 @@
-import { sev } from '../../constants.js'
+import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -50,11 +50,11 @@ const actions = {
       const toDispatch = [{ alsoSetCondition: payload }]
       dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'setDepAndCond' })
     }).catch(error => {
-      commit('showLastEvent', { txt: 'Failed to set the dependency', severity: sev.ERROR })
+      commit('showLastEvent', { txt: 'Failed to set the dependency', severity: SEV.ERROR })
       const msg = 'setDepAndCond: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -107,16 +107,16 @@ const actions = {
           }
           rootState.changeHistory.unshift(entry)
           rootState.selectNodeOngoing = false
-          commit('showLastEvent', { txt: 'The dependency is set', severity: sev.INFO })
+          commit('showLastEvent', { txt: 'The dependency is set', severity: SEV.INFO })
         }
       })
     }).catch(error => {
       rootState.selectNodeOngoing = false
-      commit('showLastEvent', { txt: 'Failed to se the dependency', severity: sev.ERROR })
+      commit('showLastEvent', { txt: 'Failed to se the dependency', severity: SEV.ERROR })
       const msg = 'alsoSetCondition: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -149,11 +149,11 @@ const actions = {
       const toDispatch = [{ alsoUndoSetConditionAsync: payload }]
       dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'undoSetDependencyAsync' })
     }).catch(error => {
-      commit('showLastEvent', { txt: 'Dependency set undo failed', severity: sev.ERROR })
+      commit('showLastEvent', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
       const msg = 'undoSetDependencyAsync: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -188,15 +188,15 @@ const actions = {
         onSuccessCallback: () => {
           commit('updateNodesAndCurrentDoc', { node: payload.dependentOnNode, removeLastDependencyOn: null, lastChange: payload.dependentOnPrevLastChange, newHist: payload.hist })
           commit('updateNodesAndCurrentDoc', { node: payload.conditionalForNode, removeLastConditionalFor: null, lastChange: payload.conditionalForprevLastChange, newHist })
-          commit('showLastEvent', { txt: 'Dependency set is undone', severity: sev.INFO })
+          commit('showLastEvent', { txt: 'Dependency set is undone', severity: SEV.INFO })
         }
       })
     }).catch(error => {
-      commit('showLastEvent', { txt: 'Dependency set undo failed', severity: sev.ERROR })
+      commit('showLastEvent', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
       const msg = 'alsoUndoSetConditionAsync: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -232,7 +232,7 @@ const actions = {
       const msg = 'removeDependenciesAsync: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -276,8 +276,8 @@ const actions = {
           doc.history.unshift(newHist)
           docs.push(doc)
           if (payload.removedIds > 1) {
-            commit('showLastEvent', { txt: 'The dependencies are removed', severity: sev.INFO })
-          } else commit('showLastEvent', { txt: 'The dependency is removed', severity: sev.INFO })
+            commit('showLastEvent', { txt: 'The dependencies are removed', severity: SEV.INFO })
+          } else commit('showLastEvent', { txt: 'The dependency is removed', severity: SEV.INFO })
         }
       }
       dispatch('updateBulk', {
@@ -307,7 +307,7 @@ const actions = {
       const msg = 'alsoRemoveConditions: Could not read batch of documents: ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -344,7 +344,7 @@ const actions = {
       const msg = 'removeConditionsAsync: Could not read document with _id ' + id + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -390,8 +390,8 @@ const actions = {
           doc.history.unshift(newHist)
           docs.push(doc)
           if (payload.removedIds > 1) {
-            commit('showLastEvent', { txt: 'The conditions are removed', severity: sev.INFO })
-          } else commit('showLastEvent', { txt: 'The condition is removed', severity: sev.INFO })
+            commit('showLastEvent', { txt: 'The conditions are removed', severity: SEV.INFO })
+          } else commit('showLastEvent', { txt: 'The condition is removed', severity: SEV.INFO })
         }
       }
       dispatch('updateBulk', {
@@ -421,7 +421,7 @@ const actions = {
       const msg = 'alsoRemoveDependenciesAsync: Could not read batch of documents: ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -472,7 +472,7 @@ const actions = {
       const msg = 'removeExtDependenciesAsync: Could not read batch of documents: ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -523,7 +523,7 @@ const actions = {
       const msg = 'removeExtConditionsAsync: Could not read batch of documents: ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   }
 }

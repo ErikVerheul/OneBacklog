@@ -1,4 +1,4 @@
-import { sev, level } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -138,7 +138,7 @@ const actions = {
       if (parentNode) {
         // create the node
         const locationInfo = getLocationInfo(priority, parentNode)
-        const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < itemLevel.FEATURE : itemLevel < itemLevel.PRODUCT
+				const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
         const newNode = {
           path: locationInfo.newPath,
           pathStr: JSON.stringify(locationInfo.newPath),
@@ -155,7 +155,7 @@ const actions = {
           isSelected: false,
           isExpanded,
           isSelectable: true,
-          isDraggable: itemLevel > level.PRODUCT,
+          isDraggable: itemLevel > LEVEL.PRODUCT,
           doShow: true,
           data: {
             lastAttachmentAddition,
@@ -185,11 +185,11 @@ const actions = {
         }
         dispatch('getChildrenToRestore', { _id, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
       } else {
-        commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: sev.WARNING })
+        commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: SEV.WARNING })
         const msg = 'restoreItems: a remote restore of the tree view failed. Cannot find the parent of ' + parentId
         // eslint-disable-next-line no-console
         if (rootState.debug) console.log(msg)
-        dispatch('doLog', { event: msg, level: sev.ERROR })
+        dispatch('doLog', { event: msg, level: SEV.ERROR })
       }
     }
   },
@@ -243,7 +243,7 @@ const actions = {
       const msg = 'restorebranches.getChildrenToRestore: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
 
@@ -291,7 +291,7 @@ const actions = {
       const msg = 'loadProducts: Could not load products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + e
       // eslint-disable-next-line no-console
       if (rootState.debug) console.log(msg)
-      dispatch('doLog', { event: msg, level: sev.ERROR })
+      dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   }
 }

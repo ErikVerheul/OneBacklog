@@ -1,4 +1,4 @@
-import { sev, level } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -117,10 +117,10 @@ const mutations = {
 			state.docsCount++
 
 			// expand the default product up to the feature level
-			const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < level.FEATURE : itemLevel < level.PRODUCT
-			const isDraggable = itemLevel > level.PRODUCT
+			const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
+			const isDraggable = itemLevel > LEVEL.PRODUCT
 			// show the product level nodes and all nodes of the current default product
-			const doShow = itemLevel <= level.PRODUCT || productId === rootState.currentDefaultProductId
+			const doShow = itemLevel <= LEVEL.PRODUCT || productId === rootState.currentDefaultProductId
 			if (parentNodes[parentId] !== undefined) {
 				const parentNode = parentNodes[parentId]
 				const ind = parentNode.children.length
@@ -142,7 +142,7 @@ const mutations = {
 					dependencies,
 					conditionalFor,
 					title,
-					isLeaf: itemLevel === level.TASK,
+					isLeaf: itemLevel === LEVEL.TASK,
 					children: [],
 					isExpanded,
 					isSelectable: true,
@@ -211,7 +211,7 @@ const actions = {
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -228,10 +228,10 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/details'
 		}).then(res => {
 			rootState.lastTreeView = 'detailProduct'
-			rootState.loadedTreeDepth = level.TASK
+			rootState.loadedTreeDepth = LEVEL.TASK
 			rootState.loadedSprintId = null
 			commit('processProduct', { rootState, rootGetters, batch: res.data.rows })
-			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: sev.INFO })
+			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {
@@ -240,7 +240,7 @@ const actions = {
 					console.log('processProduct: ' + msg)
 					const newLog = {
 						event: msg,
-						level: 'sev.CRITICAL',
+						level: 'SEV.CRITICAL',
 						by: rootState.userData.user,
 						timestamp: Date.now()
 					}
@@ -256,7 +256,7 @@ const actions = {
 					console.log('processProduct: ' + msg1 + '\n' + msg2)
 					const newLog = {
 						event: msg1 + ' ' + msg2,
-						level: 'sev.CRITICAL',
+						level: 'SEV.CRITICAL',
 						by: rootState.userData.user,
 						timestamp: Date.now()
 					}

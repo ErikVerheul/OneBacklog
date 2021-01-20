@@ -1,4 +1,4 @@
-import { sev, level } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -44,7 +44,7 @@ const actions = {
       url: rootState.userData.currentDb + '/_design/design1/_view/overview'
     }).then(res => {
       rootState.lastTreeView = 'coarseProduct'
-      rootState.loadedTreeDepth = level.FEATURE
+      rootState.loadedTreeDepth = LEVEL.FEATURE
       rootState.loadedSprintId = null
       const batch = res.data.rows
       for (const item of batch) {
@@ -114,9 +114,9 @@ const actions = {
 
         state.docsCount++
         // expand the default product up to the feature level
-        const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < level.FEATURE : itemLevel < level.PRODUCT
+        const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
         // products cannot be dragged
-        const isDraggable = itemLevel > level.PRODUCT
+        const isDraggable = itemLevel > LEVEL.PRODUCT
         // show all nodes
         const doShow = true
         if (parentNodes[parentId] !== undefined) {
@@ -141,7 +141,7 @@ const actions = {
             dependencies,
             conditionalFor,
             title,
-            isLeaf: itemLevel === level.FEATURE,
+            isLeaf: itemLevel === LEVEL.FEATURE,
             children: [],
             isExpanded,
             isSelectable: true,
@@ -180,7 +180,7 @@ const actions = {
         }
       }
 
-      commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: sev.INFO })
+      commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
       // log any detected orphans, if present
       if (state.orphansCount > 0) {
         for (const o of orphansFound) {
@@ -189,7 +189,7 @@ const actions = {
           console.log('processProduct: ' + msg)
           const newLog = {
             event: msg,
-            level: 'sev.CRITICAL',
+            level: 'SEV.CRITICAL',
             by: rootState.userData.user,
             timestamp: Date.now()
           }
@@ -205,7 +205,7 @@ const actions = {
           console.log('processProduct: ' + msg1 + '\n' + msg2)
           const newLog = {
             event: msg1 + ' ' + msg2,
-            level: 'sev.CRITICAL',
+            level: 'SEV.CRITICAL',
             by: rootState.userData.user,
             timestamp: Date.now()
           }

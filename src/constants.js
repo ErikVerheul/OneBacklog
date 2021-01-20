@@ -1,5 +1,5 @@
 // Log severities
-const sev = Object.freeze({
+const SEV = Object.freeze({
 	DEBUG: -1,
 	INFO: 0,
 	WARNING: 1,
@@ -8,7 +8,7 @@ const sev = Object.freeze({
 })
 
 // Item states
-const state = Object.freeze({
+const STATE = Object.freeze({
 	ON_HOLD: 1,
 	NEW: 2,
 	TODO: 2,
@@ -19,7 +19,7 @@ const state = Object.freeze({
 })
 
 // Tree view levels
-const level = Object.freeze({
+const LEVEL = Object.freeze({
 	DATABASE: 1,
 	PRODUCT: 2,
 	EPIC: 3,
@@ -29,7 +29,7 @@ const level = Object.freeze({
 })
 
 export {
-	sev,
-	state,
-	level
+	SEV,
+	STATE,
+	LEVEL
 }

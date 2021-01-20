@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { level } from '../../../constants.js'
+import { LEVEL } from '../../../constants.js'
 import { authorization, utilities } from '../../mixins/generic.js'
 
 export default {
@@ -136,7 +136,7 @@ export default {
     },
 
     procSelected () {
-      if (this.haveWritePermission(level.TASK, this.productId)) {
+      if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
         this.showAssistance = false
         switch (this.contextOptionSelected) {
           case this.ADD_TASK:

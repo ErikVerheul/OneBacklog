@@ -1,4 +1,4 @@
-import { sev } from '../../../constants.js'
+import { SEV } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -38,7 +38,7 @@ function mounted() {
 	// expose instance to the global namespace
 	window.slVueTree = this.$refs.slVueTree
 	if (returning) {
-		this.showLastEvent('Returning to the Products overview', sev.INFO)
+		this.showLastEvent('Returning to the Products overview', SEV.INFO)
 	}
 }
 
@@ -90,7 +90,7 @@ const watch = {
 					this.newComment = ''
 					this.$refs.commentsEditorRef.show()
 				} else {
-					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', sev.WARNING)
+					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
 				}
 			}
 			if (this.$store.state.selectedForView === 'history') {
@@ -150,7 +150,7 @@ const methods = {
 					}
 					if (this.getLastSelectedNode._id !== 'requirement-areas') {
 						if (!fromContextMenu) this.showSelectionEvent(selNodes)
-					} else this.showLastEvent('Create / maintain Requirement Areas here', sev.INFO)
+					} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 				}
 			})
 		}
@@ -190,9 +190,9 @@ const methods = {
 				const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
 				const failedCheck5 = node.parentId === this.areaProductId && (position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside')
 				const failedCheck6 = targetProductId === this.areaProductId && sourceProductId !== this.areaProductId
-				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', sev.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', sev.WARNING)
-				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', sev.WARNING)
+				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', SEV.WARNING)
+				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)
 				return failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5 || failedCheck6
 			}
 
@@ -227,7 +227,7 @@ const methods = {
 				}
 				if (this.selReqAreaId !== null) this.$store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
 				this.setReqAreaShow = true
-			} else this.showLastEvent('Sorry, your assigned role(s) disallow you to assing requirement areas', sev.WARNING)
+			} else this.showLastEvent('Sorry, your assigned role(s) disallow you to assing requirement areas', SEV.WARNING)
 		}
 	},
 

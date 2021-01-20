@@ -1,4 +1,4 @@
-import { sev, level } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -8,7 +8,7 @@ var orgProductTitle
 var newProductTitle
 
 function composeRangeString(id) {
-	return `startkey=["${id}",${level.PRODUCT},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${level.TASK},${Number.MAX_SAFE_INTEGER}]`
+	return `startkey=["${id}",${LEVEL.PRODUCT},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${LEVEL.TASK},${Number.MAX_SAFE_INTEGER}]`
 }
 
 function showProduct(docs, leafLevel) {
@@ -17,9 +17,9 @@ function showProduct(docs, leafLevel) {
 		const parentId = doc.parentId
 		if (parentNodes[parentId] !== undefined) {
 			const itemLevel = doc.level
-			const isDraggable = itemLevel > level.PRODUCT
-			const isExpanded = itemLevel < level.FEATURE
-			const doShow = itemLevel <= level.PRODUCT
+			const isDraggable = itemLevel > LEVEL.PRODUCT
+			const isExpanded = itemLevel < LEVEL.FEATURE
+			const doShow = itemLevel <= LEVEL.PRODUCT
 			const parentNode = parentNodes[parentId]
 			// position as last child
 			const ind = parentNode.children.length
@@ -126,7 +126,7 @@ const actions = {
 			const msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
@@ -156,7 +156,7 @@ const actions = {
 			const msg = 'storeProduct: Could not update batch of documents: ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: sev.ERROR })
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
 }

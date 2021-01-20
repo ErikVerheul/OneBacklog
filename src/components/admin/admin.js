@@ -1,4 +1,4 @@
-import { state, level } from '../../constants.js'
+import { STATE, LEVEL } from '../../constants.js'
 import common_admin from './common_admin'
 
 const methods = {
@@ -13,8 +13,8 @@ const methods = {
 			productId: _id,
 			parentId: 'root',
 			team: 'not assigned yet',
-			level: level.PRODUCT,
-			state: state.INPROGRESS,
+			level: LEVEL.PRODUCT,
+			state: STATE.INPROGRESS,
 			reqarea: null,
 			title: this.productTitle,
 			followers: [],

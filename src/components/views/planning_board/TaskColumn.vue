@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { level } from '../../../constants.js'
+import { LEVEL } from '../../../constants.js'
 import { authorization, utilities } from '../../mixins/generic.js'
 import Draggable from 'vuedraggable'
 import TaskItem from './TaskItem'
@@ -64,7 +64,7 @@ export default {
         return this.tasks
       },
       set (tasks) {
-        if (this.haveWritePermission(level.TASK, this.productId)) {
+        if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
           this.$store.dispatch('updateTasks', {
             tasks,
             state: this.state,

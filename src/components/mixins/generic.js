@@ -1,4 +1,4 @@
-import { sev, level } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import { mapGetters } from 'vuex'
 
 const AREA_PRODUCTID = 'requirement-areas'
@@ -36,46 +36,46 @@ const authorization = {
 		*/
 		haveWritePermission(level, productId = this.$store.state.currentProductId) {
 			const levels = []
-			for (let i = 0; i <= level.TASK; i++) {
+			for (let i = 0; i <= LEVEL.TASK; i++) {
 				// initialize with false
 				levels.push(false)
 			}
 			// assign write permissions to any product even if that product is not assigned to this user
 			if (this.isServerAdmin) {
-				levels[level.DATABASE] = true
+				levels[LEVEL.DATABASE] = true
 			}
 			// assign write permissions to any product even if that product is not assigned to this user
 			if (this.isAPO) {
-				levels[level.PRODUCT] = true
+				levels[LEVEL.PRODUCT] = true
 				// the APO has access to the requirements areas overview dummy product
 				if (productId === AREA_PRODUCTID) {
-					levels[level.EPIC] = true
+					levels[LEVEL.EPIC] = true
 				}
 			}
 			// assign write permissions to any product even if that product is not assigned to this user
 			if (this.isAdmin) {
-				levels[level.PRODUCT] = true
+				levels[LEVEL.PRODUCT] = true
 			}
 
 			if (this.getMyAssignedProductIds.includes(productId)) {
 				// assing write permissions for the product only if that product is assigned to this user
 				if (this.getMyProductsRoles[productId].includes('PO')) {
-					levels[level.PRODUCT] = true
-					levels[level.EPIC] = true
-					levels[level.FEATURE] = true
-					levels[level.PBI] = true
+					levels[LEVEL.PRODUCT] = true
+					levels[LEVEL.EPIC] = true
+					levels[LEVEL.FEATURE] = true
+					levels[LEVEL.PBI] = true
 				}
 
 				if (this.getMyProductsRoles[productId].includes('developer')) {
-					levels[level.FEATURE] = true
-					levels[level.PBI] = true
-					levels[level.TASK] = true
+					levels[LEVEL.FEATURE] = true
+					levels[LEVEL.PBI] = true
+					levels[LEVEL.TASK] = true
 				}
 			}
 			// eslint-disable-next-line no-console
 			if (this.$store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
 			// eslint-disable-next-line no-console
-			if (this.$store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, level.DATABASE, level.PRODUCT, level.EPIC, level.FEATURE, level.PBI, level.TASK]: ${levels}`)
+			if (this.$store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, LEVEL.DATABASE, LEVEL.PRODUCT, LEVEL.EPIC, LEVEL.FEATURE, LEVEL.PBI, LEVEL.TASK]: ${levels}`)
 			return levels[level]
 		},
 
@@ -85,25 +85,25 @@ const authorization = {
 				if (this.isAPO) {
 					return true
 				} else {
-					this.showLastEvent(`Sorry, you must be an APO (requirement Areas Product Owner) to make changes here`, sev.WARNING)
+					this.showLastEvent(`Sorry, you must be an APO (requirement Areas Product Owner) to make changes here`, SEV.WARNING)
 					return false
 				}
 			}
 			const productId = this.$store.state.currentProductId
-			const skipTestOnTeam = itemTeam === '*' || this.isAdmin || this.isAPO || level <= level.EPIC
+			const skipTestOnTeam = itemTeam === '*' || this.isAdmin || this.isAPO || level <= LEVEL.EPIC
 			const canAccessOnTeam = skipTestOnTeam || itemTeam && itemTeam === this.myTeam
 			const canAccessOnLevel = this.haveWritePermission(level, productId) || allowExtraLevel && this.haveWritePermission(level + 1, productId)
 
 			if (canAccessOnTeam && canAccessOnLevel) return true
 
 			if (!canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] and team membership disallow you to ${forAction}`, sev.WARNING)
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] and team membership disallow you to ${forAction}`, SEV.WARNING)
 			}
 			if (!canAccessOnTeam && canAccessOnLevel) {
-				this.showLastEvent(`You must be member of team '${itemTeam}' to ${forAction}`, sev.WARNING)
+				this.showLastEvent(`You must be member of team '${itemTeam}' to ${forAction}`, SEV.WARNING)
 			}
 			if (canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] disallow you to ${forAction}`, sev.WARNING)
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] disallow you to ${forAction}`, SEV.WARNING)
 			}
 			return false
 		}
@@ -145,10 +145,10 @@ const utilities = {
 
 		/* mappings from config document */
 		getLevelText(level, subtype = 0) {
-			if (level < 0 || level > level.TASK) {
+			if (level < 0 || level > LEVEL.TASK) {
 				return 'Level not supported'
 			}
-			if (level === level.PBI) {
+			if (level === LEVEL.PBI) {
 				return this.getSubType(subtype)
 			}
 			return this.$store.state.configData.itemType[level]
@@ -156,7 +156,7 @@ const utilities = {
 
 		getNodeStateText(node) {
 			const idx = node.data.state
-			if (node.level < level.TASK) {
+			if (node.level < LEVEL.TASK) {
 				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
 					return 'Error: unknown state'
 				}
@@ -213,13 +213,13 @@ const utilities = {
 			const itemType = this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)
 			if (selNodes.length === 1) {
 				evt = `${itemType} '${lastSelectedNodeTitle}' is selected.`
-				if (this.getLastSelectedNode.level === level.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
+				if (this.getLastSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
 				if (this.getLastSelectedNode.data.reqarea) evt += ` This ${itemType} belongs to requirement area '${this.$store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
 			} else {
 				const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
 				evt = `${itemType} ${multiNodesTitle} are selected.`
 			}
-			this.showLastEvent(evt, sev.INFO)
+			this.showLastEvent(evt, SEV.INFO)
 		},
 
 		////////////////////////////////////////// sprints ////////////////////////////////////////
@@ -285,7 +285,7 @@ const utilities = {
 				// ------------ set source and target sprint ids ---------------
 				const sourceSprintId = nodes[i].data.sprintId
 				let targetSprintId
-				if (targetLevel === level.PBI || targetLevel === level.TASK) {
+				if (targetLevel === LEVEL.PBI || targetLevel === LEVEL.TASK) {
 					// node is moved from any level to pbi or task level
 					if (targetParent.data.sprintId) {
 						targetSprintId = targetParent.data.sprintId
@@ -308,7 +308,7 @@ const utilities = {
 				// ------------ set source and target sprint ids ---------------
 				const targetSprintId = nodes[i].data.sprintId
 				let sourceSprintId
-				if (targetLevel === level.PBI || targetLevel === level.TASK) {
+				if (targetLevel === LEVEL.PBI || targetLevel === LEVEL.TASK) {
 					// node is moved from any level to pbi or task level
 					if (targetParent.data.sprintId) {
 						sourceSprintId = targetParent.data.sprintId
