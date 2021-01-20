@@ -1,7 +1,16 @@
-import { SEV, LEVEL } from '../../constants.js'
+import { SEV, STATE, LEVEL } from '../../constants.js'
 import { mapGetters } from 'vuex'
 
 const AREA_PRODUCTID = 'requirement-areas'
+
+const constants = {
+	/* Make the constants available in the context of this to all imports of this file */
+	created() {
+		this.SEV = SEV
+		this.STATE = STATE
+		this.LEVEL = LEVEL
+	},
+}
 
 const authorization = {
 	computed: {
@@ -354,6 +363,7 @@ const utilities = {
 }
 
 export {
+	constants,
 	authorization,
 	utilities
 }
