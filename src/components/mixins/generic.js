@@ -285,7 +285,7 @@ const utilities = {
 				// ------------ set source and target sprint ids ---------------
 				const sourceSprintId = nodes[i].data.sprintId
 				let targetSprintId
-				if (targetLevel === this.pbiLevel || targetLevel === this.taskLevel) {
+				if (targetLevel === level.PBI || targetLevel === level.TASK) {
 					// node is moved from any level to pbi or task level
 					if (targetParent.data.sprintId) {
 						targetSprintId = targetParent.data.sprintId
@@ -308,7 +308,7 @@ const utilities = {
 				// ------------ set source and target sprint ids ---------------
 				const targetSprintId = nodes[i].data.sprintId
 				let sourceSprintId
-				if (targetLevel === this.pbiLevel || targetLevel === this.taskLevel) {
+				if (targetLevel === level.PBI || targetLevel === level.TASK) {
 					// node is moved from any level to pbi or task level
 					if (targetParent.data.sprintId) {
 						sourceSprintId = targetParent.data.sprintId
