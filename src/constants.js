@@ -12,7 +12,7 @@ const STATE = Object.freeze({
 	ON_HOLD: 1,
 	NEW: 2,
 	TODO: 2,
-	STATE_NEW_OR_TODO: 2,
+	NEW_OR_TODO: 2,
 	READY: 3,
 	INPROGRESS: 4,
 	TESTREVIEW: 5,

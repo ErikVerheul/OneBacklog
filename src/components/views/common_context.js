@@ -97,7 +97,7 @@ const methods = {
 			isSelected: true,
 			doShow: true,
 			data: {
-				state: this.MISC.STATE_NEW_OR_TODO,
+				state: this.MISC.NEW_OR_TODO,
 				reqarea: node.data.reqArea,
 				reqAreaItemColor: node.data.reqAreaItemColor,
 				team: node.data.team,
@@ -117,7 +117,7 @@ const methods = {
 			team: currentDoc.team,
 			level: newNode.level,
 			subtype: currentDoc.subtype,
-			state: this.MISC.STATE_NEW_OR_TODO,
+			state: this.MISC.NEW_OR_TODO,
 			tssize: currentDoc.tssize,
 			spsize: currentDoc.spsize,
 			spikepersonhours: currentDoc.spikepersonhours,
@@ -168,7 +168,7 @@ const methods = {
 			isSelected: true,
 			doShow: true,
 			data: {
-				state: this.MISC.STATE_NEW_OR_TODO,
+				state: this.MISC.NEW_OR_TODO,
 				subtype: 0,
 				lastChange: now
 			}
@@ -228,7 +228,7 @@ const methods = {
 				taskOwner: newNode.data.taskOwner,
 				level: insertLevel,
 				subtype: 0,
-				state: this.MISC.STATE_NEW_OR_TODO,
+				state: this.MISC.NEW_OR_TODO,
 				tssize: 3,
 				spsize: 0,
 				spikepersonhours: 0,
