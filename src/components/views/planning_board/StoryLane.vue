@@ -8,7 +8,7 @@
         <task-column
           :state="ON_HOLD"
           title="[On hold]"
-          :tasks="$store.state.stories[idx].tasks[ON_HOLD]"
+          :tasks="$store.state.stories[idx].tasks[STATE.ON_HOLD]"
           :idx="idx"
           :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
@@ -19,7 +19,7 @@
         <task-column
           :state="TODO"
           title="Todo"
-          :tasks="$store.state.stories[idx].tasks[TODO]"
+          :tasks="$store.state.stories[idx].tasks[STATE.TODO]"
           :idx="idx"
           :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
@@ -30,7 +30,7 @@
         <task-column
           :state="INPROGRESS"
           title="In progress"
-          :tasks="$store.state.stories[idx].tasks[INPROGRESS]"
+          :tasks="$store.state.stories[idx].tasks[STATE.INPROGRESS]"
           :idx="idx"
           :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
@@ -41,7 +41,7 @@
         <task-column
           :state="TESTREVIEW"
           title="Test / review"
-          :tasks="$store.state.stories[idx].tasks[TESTREVIEW]"
+          :tasks="$store.state.stories[idx].tasks[STATE.TESTREVIEW]"
           :idx="idx"
           :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
@@ -52,7 +52,7 @@
         <task-column
           :state="DONE"
           title="Done"
-          :tasks="$store.state.stories[idx].tasks[DONE]"
+          :tasks="$store.state.stories[idx].tasks[STATE.DONE]"
           :idx="idx"
           :productId="$store.state.stories[idx].productId"
           :storyId="$store.state.stories[idx].storyId"
@@ -64,23 +64,22 @@
 </template>
 
 <script>
+import { STATE } from '../../../constants.js'
 import TaskColumn from './TaskColumn'
 import StoryColumn from './StoryColumn'
 
+
 export default {
+	data () {
+    return {
+			STATE
+		}
+	},
   name: 'StoryLane',
   props: ['idx'],
-  created () {
-    this.ON_HOLD = 1
-    this.TODO = 2
-    this.INPROGRESS = 4
-    this.TESTREVIEW = 5
-    this.DONE = 6
-  },
   components: {
     'task-column': TaskColumn,
     'story-column': StoryColumn
   }
-
 }
 </script>
