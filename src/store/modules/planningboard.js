@@ -58,8 +58,8 @@ const actions = {
 				const taskResults = []
 				const missingPbiIds = []
 				for (const r of results) {
-					const level = r.key[4]
-					if (level === level.PBI) {
+					const itemLevel = r.key[4]
+					if (itemLevel === level.PBI) {
 						const pbiId = r.id
 						if (!foundPbiIds.includes(pbiId)) foundPbiIds.push(pbiId)
 						const featureId = r.key[3]
@@ -73,7 +73,7 @@ const actions = {
 							state.pbiResults.push(r)
 						}
 					}
-					if (level === level.TASK) {
+					if (itemLevel === itemLevel.TASK) {
 						taskResults.push(r)
 						const pbiId = r.key[3]
 						if (!foundPbiIds.includes(pbiId)) {

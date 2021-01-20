@@ -42,7 +42,7 @@ const mutations = {
 		for (const item of payload.batch) {
 			const _id = item.id
 			const productId = item.key[0]
-			const level = item.key[1]
+			const itemLevel = item.key[1]
 			// negate the priority
 			const priority = -item.key[2]
 			const parentId = item.value[1]
@@ -67,13 +67,13 @@ const mutations = {
 			const lastStateChange = item.value[18] || 0
 
 			// initialize with the root document
-			if (level === 1) {
+			if (itemLevel === 1) {
 				rootState.treeNodes = [
 					{
 						path: [0],
 						pathStr: '[0]',
 						ind: 0,
-						level,
+						level: itemLevel,
 						productId: null,
 						parentId: null,
 						_id,
@@ -102,7 +102,7 @@ const mutations = {
 			}
 			// create req areas to title mapper and req areas to color mapper
 			if (productId === AREA_PRODUCTID) {
-				if (level === 3) {
+				if (itemLevel === 3) {
 					rootState.reqAreaMapper[_id] = title
 					rootState.colorMapper[_id] = { reqAreaItemColor }
 				}
@@ -117,32 +117,32 @@ const mutations = {
 			state.docsCount++
 
 			// expand the default product up to the feature level
-			const isExpanded = productId === rootState.currentDefaultProductId ? level < level.FEATURE : level < level.PRODUCT
-			const isDraggable = level > level.PRODUCT
+			const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < level.FEATURE : itemLevel < level.PRODUCT
+			const isDraggable = itemLevel > level.PRODUCT
 			// show the product level nodes and all nodes of the current default product
-			const doShow = level <= level.PRODUCT || productId === rootState.currentDefaultProductId
+			const doShow = itemLevel <= level.PRODUCT || productId === rootState.currentDefaultProductId
 			if (parentNodes[parentId] !== undefined) {
 				const parentNode = parentNodes[parentId]
 				const ind = parentNode.children.length
 				const parentPath = parentNode.path
 				const path = parentPath.concat(ind)
 				// check for level error
-				if (level !== path.length) {
+				if (itemLevel !== path.length) {
 					state.levelErrorCount++
-					levelErrorsFound.push({ id: _id, parentId, productId, dbLevel: level, pathLength: path.length })
+					levelErrorsFound.push({ id: _id, parentId, productId, dbLevel: itemLevel, pathLength: path.length })
 				}
 				const newNode = {
 					path,
 					pathStr: JSON.stringify(path),
 					ind,
-					level,
+					level: itemLevel,
 					productId,
 					parentId,
 					_id,
 					dependencies,
 					conditionalFor,
 					title,
-					isLeaf: level === level.TASK,
+					isLeaf: itemLevel === level.TASK,
 					children: [],
 					isExpanded,
 					isSelectable: true,

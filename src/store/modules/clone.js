@@ -16,10 +16,10 @@ function showProduct(docs, leafLevel) {
 	for (const doc of docs) {
 		const parentId = doc.parentId
 		if (parentNodes[parentId] !== undefined) {
-			const level = doc.level
-			const isDraggable = level > level.PRODUCT
-			const isExpanded = doc.level < level.FEATURE
-			const doShow = doc.level <= level.PRODUCT
+			const itemLevel = doc.level
+			const isDraggable = itemLevel > level.PRODUCT
+			const isExpanded = itemLevel < level.FEATURE
+			const doShow = itemLevel <= level.PRODUCT
 			const parentNode = parentNodes[parentId]
 			// position as last child
 			const ind = parentNode.children.length
@@ -35,7 +35,7 @@ function showProduct(docs, leafLevel) {
 				path,
 				pathStr: JSON.stringify(path),
 				ind,
-				level: level,
+				level: itemLevel,
 				productId: doc.productId,
 				parentId,
 				sprintId: doc.sprintId,
@@ -43,7 +43,7 @@ function showProduct(docs, leafLevel) {
 				dependencies: doc.dependencies || [],
 				conditionalFor: doc.conditionalFor || [],
 				title: doc.title,
-				isLeaf: level === leafLevel,
+				isLeaf: itemLevel === leafLevel,
 				children: [],
 				isExpanded,
 				isSelectable: true,

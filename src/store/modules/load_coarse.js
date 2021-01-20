@@ -51,7 +51,7 @@ const actions = {
         const _id = item.id
         // the productId of the 'requirement-areas' top dummy product document is null to have it ordened below root in the details view
         const productId = item.key[0] || AREA_PRODUCTID
-        const level = item.key[1]
+        const itemLevel = item.key[1]
         const priority = -item.key[2]
         const parentId = item.value[1]
         const reqarea = item.value[0] || null
@@ -71,7 +71,7 @@ const actions = {
         const lastPositionChange = item.value[17] || 0
         const lastStateChange = item.value[18] || 0
 
-        if (level === 1) {
+        if (itemLevel === 1) {
           state.docsCount++
           // initialize with the root document
           rootState.treeNodes = [
@@ -79,7 +79,7 @@ const actions = {
               path: [0],
               pathStr: '[0]',
               ind: 0,
-              level,
+              level: itemLevel,
               productId,
               parentId: null,
               _id,
@@ -114,9 +114,9 @@ const actions = {
 
         state.docsCount++
         // expand the default product up to the feature level
-        const isExpanded = productId === rootState.currentDefaultProductId ? level < level.FEATURE : level < level.PRODUCT
+        const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < level.FEATURE : itemLevel < level.PRODUCT
         // products cannot be dragged
-        const isDraggable = level > level.PRODUCT
+        const isDraggable = itemLevel > level.PRODUCT
         // show all nodes
         const doShow = true
         if (parentNodes[parentId] !== undefined) {
@@ -126,22 +126,22 @@ const actions = {
           const path = parentPath.concat(ind)
 
           // check for level error
-          if (level !== path.length) {
+          if (itemLevel !== path.length) {
             state.levelErrorCount++
-            levelErrorsFound.push({ id: _id, parentId, productId, dbLevel: level, pathLength: path.length })
+            levelErrorsFound.push({ id: _id, parentId, productId, dbLevel: itemLevel, pathLength: path.length })
           }
           const newNode = {
             path,
             pathStr: JSON.stringify(path),
             ind,
-            level,
+            level: itemLevel,
             productId,
             parentId,
             _id,
             dependencies,
             conditionalFor,
             title,
-            isLeaf: level === level.FEATURE,
+            isLeaf: itemLevel === level.FEATURE,
             children: [],
             isExpanded,
             isSelectable: true,
@@ -176,7 +176,7 @@ const actions = {
           parentNodes[_id] = newNode
         } else {
           state.orphansCount++
-          orphansFound.push({ id: _id, parentId, productId: level })
+          orphansFound.push({ id: _id, parentId, productId: itemLevel })
         }
       }
 

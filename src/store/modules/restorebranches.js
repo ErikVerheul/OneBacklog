@@ -1,4 +1,4 @@
-import { sev } from '../../constants.js'
+import { sev, level } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
@@ -114,7 +114,7 @@ const actions = {
       const reqarea = item.value[0] || null
       const productId = item.value[1]
       const priority = item.value[2]
-      const level = item.value[3]
+      const itemLevel = item.value[3]
       const itemState = item.value[4]
       const title = item.value[5]
       const team = item.value[6]
@@ -138,24 +138,24 @@ const actions = {
       if (parentNode) {
         // create the node
         const locationInfo = getLocationInfo(priority, parentNode)
-        const isExpanded = productId === rootState.currentDefaultProductId ? level < level.FEATURE : level < level.PRODUCT
+        const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < itemLevel.FEATURE : itemLevel < itemLevel.PRODUCT
         const newNode = {
           path: locationInfo.newPath,
           pathStr: JSON.stringify(locationInfo.newPath),
           ind: locationInfo.newInd,
-          level,
+          level: itemLevel,
           productId,
           parentId,
           _id,
           dependencies,
           conditionalFor,
           title,
-          isLeaf: level === getters.leafLevel,
+          isLeaf: itemLevel === getters.leafLevel,
           children: [],
           isSelected: false,
           isExpanded,
           isSelectable: true,
-          isDraggable: level > level.PRODUCT,
+          isDraggable: itemLevel > level.PRODUCT,
           doShow: true,
           data: {
             lastAttachmentAddition,
