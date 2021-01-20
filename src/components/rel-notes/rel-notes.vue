@@ -6,6 +6,27 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.5 - 20 January 2021 Feature update, sucurity and bug fixes</h3>
+          <p>New features:</p>
+          <ul>
+            <li>New role 'assistant admin' implemented</li>
+            <li>Team calendar maintenance implemented</li>
+          </ul>
+          <p>User stories done:</p>
+          <ul>
+            <li>Do not show a node selection event when selecting the context menu to prevent overwriting a warning message from the context menu</li>
+            <li>Show dependencies/conditions in the tree view when context menu item "Show/remove dependencies/conditions ..." is selected</li>
+            <li>Show dependency violations in a special sidebar (and remove indicator from the item title)</li>
+          </ul>
+					<p>Security</p>
+					<ul>
+						<li>Upgrade Axios for fixed vulnerability</li>
+					</ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix for setting options of teams without members</li>
+          </ul>
+          <hr />
 					<h3>v.1.4.1- 31 December 2020 bug fix</h3>
 					<p>Bug fix:</p>
           <ul>
