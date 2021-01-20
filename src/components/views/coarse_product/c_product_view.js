@@ -118,7 +118,7 @@ const watch = {
 const methods = {
 	getItemInfo() {
 		let txt = ''
-		if (this.getCurrentItemLevel !== this.productLevel) {
+		if (this.getCurrentItemLevel !== this.LEVEL.PRODUCT) {
 			txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
 		}
 		return txt
@@ -179,7 +179,7 @@ const methods = {
 				if (position.placement === 'inside') targetLevel++
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.pbiLevel
+				const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.LEVEL.PBI
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0
@@ -191,7 +191,7 @@ const methods = {
 				const failedCheck5 = node.parentId === this.areaProductId && (position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside')
 				const failedCheck6 = targetProductId === this.areaProductId && sourceProductId !== this.areaProductId
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', SEV.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than LEVEL.PBI level', SEV.WARNING)
 				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)
 				return failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5 || failedCheck6
 			}
@@ -233,7 +233,7 @@ const methods = {
 
 	/*
 	* Update the req area of the item (null for no req area set)
-	* If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse
+	* If the item is an LEVEL.EPIC also assign this req area to the children which have no req area assigned yet / when removing do the reverse
 	*/
 	doSetReqArea() {
 		this.$store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqarea: this.selReqAreaId, timestamp: Date.now() })

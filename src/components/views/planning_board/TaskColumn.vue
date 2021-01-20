@@ -37,13 +37,12 @@
 </template>
 
 <script>
-import { LEVEL } from '../../../constants.js'
-import { authorization, utilities } from '../../mixins/generic.js'
+import { constants, authorization, utilities } from '../../mixins/generic.js'
 import Draggable from 'vuedraggable'
 import TaskItem from './TaskItem'
 
 export default {
-  mixins: [authorization, utilities],
+  mixins: [constants, authorization, utilities],
   name: 'TaskColumn',
   props: ['productId', 'storyId', 'storyTitle', 'tasks', 'title', 'state', 'idx'],
   components: {
@@ -64,7 +63,7 @@ export default {
         return this.tasks
       },
       set (tasks) {
-        if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
+        if (this.haveWritePermission(this.LEVEL.TASK, this.productId)) {
           this.$store.dispatch('updateTasks', {
             tasks,
             state: this.state,

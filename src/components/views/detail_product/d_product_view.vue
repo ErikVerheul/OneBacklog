@@ -27,15 +27,15 @@
       <b-container>
         <b-row>
           <b-col cols="5">
-            <h3 v-if="getCurrentItemLevel <= epicLevel">
+            <h3 v-if="getCurrentItemLevel <= LEVEL.EPIC">
               {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
               <input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
             </h3>
-            <h3 v-if="getCurrentItemLevel === featureLevel || (getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype !== spikeSubtype)">
+            <h3 v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && $store.state.currentDoc.subtype !== spikeSubtype)">
               Story points:
               <input type="text" size="3" maxlength="3" id="storyPointsId" :value="$store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
             </h3>
-            <h3 v-if="getCurrentItemLevel === pbiLevel && $store.state.currentDoc.subtype === spikeSubtype">
+            <h3 v-if="getCurrentItemLevel === LEVEL.PBI && $store.state.currentDoc.subtype === spikeSubtype">
               Person hours:
               <input type="text" size="3" maxlength="3" id="personHoursId" :value="$store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
             </h3>
@@ -46,23 +46,23 @@
           <b-col cols="2">
             <h3 align="right">
               State:
-              <b-dropdown v-if="$store.state.currentDoc.level < taskLevel" right class="m-2 .btn.btn-secondary.dropdown-toggle">
+              <b-dropdown v-if="$store.state.currentDoc.level < LEVEL.TASK" right class="m-2 .btn.btn-secondary.dropdown-toggle">
                 <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
-                <b-dropdown-item @click="onStateChange(newState)">{{ getItemStateText(newState) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(readyState)">{{ getItemStateText(readyState) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(inProgressState)">{{ getItemStateText(inProgressState) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(doneState)">{{ getItemStateText(doneState) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.DONE)">{{ getItemStateText(STATE.DONE) }}</b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="onStateChange(onholdState)">{{ getItemStateText(onholdState) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</b-dropdown-item>
               </b-dropdown>
               <b-dropdown v-else right class="m-2 .btn.btn-secondary.dropdown-toggle">
                 <template slot="button-content">{{ getTaskStateText($store.state.currentDoc.state) }}</template>
-                <b-dropdown-item @click="onStateChange(todoState)">{{ getTaskStateText(todoState) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(inProgressState)">{{ getTaskStateText(inProgressState) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(ReadyForTestReview)">{{ getTaskStateText(ReadyForTestReview) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(doneState)">{{ getTaskStateText(doneState) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.TODO)">{{ getTaskStateText(STATE.TODO) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.INPROGRESS)">{{ getTaskStateText(STATE.INPROGRESS) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.TESTREVIEW)">{{ getTaskStateText(STATE.TESTREVIEW) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.DONE)">{{ getTaskStateText(STATE.DONE) }}</b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="onStateChange(onholdState)">{{ getTaskStateText(onholdState) }}</b-dropdown-item>
+                <b-dropdown-item @click="onStateChange(STATE.ON_HOLD)">{{ getTaskStateText(STATE.ON_HOLD) }}</b-dropdown-item>
               </b-dropdown>
             </h3>
           </b-col>
@@ -83,25 +83,25 @@
             @loaded="onTreeIsLoaded">
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
-                <i class="colorSeaBlue" v-if="node.level == databaseLevel">
+                <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorBlue" v-if="node.level == productLevel">
+                <i class="colorBlue" v-if="node.level == LEVEL.PRODUCT">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorGreen" v-if="node.level == epicLevel">
+                <i class="colorGreen" v-if="node.level == LEVEL.EPIC">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorOrange" v-if="node.level == featureLevel">
+                <i class="colorOrange" v-if="node.level == LEVEL.FEATURE">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorYellow" v-if="node.level == pbiLevel && node.data.subtype == userStorySubtype">
+                <i class="colorYellow" v-if="node.level == LEVEL.PBI && node.data.subtype == userStorySubtype">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i v-if="node.level == pbiLevel && node.data.subtype == spikeSubtype">
+                <i v-if="node.level == LEVEL.PBI && node.data.subtype == spikeSubtype">
                   <font-awesome-icon icon="hourglass-start" />
                 </i>
-                <i class="colorRed" v-if="node.level == pbiLevel && node.data.subtype == defectSubtype">
+                <i class="colorRed" v-if="node.level == LEVEL.PBI && node.data.subtype == defectSubtype">
                   <font-awesome-icon icon="bug" />
                 </i>
                 <i class="colorWhite" v-if="node.isLeaf">
@@ -158,7 +158,7 @@
               </div>
             </template>
 
-            <template v-if="$store.state.colorMapper && node.level > productLevel && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
+            <template v-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
               <p class="rectangle" v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
             </template>
           </sl-vue-tree>
@@ -181,7 +181,7 @@
           <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div class="d-table w-100">
               <p class="title is-6"> {{ getItemInfo() }}</p>
-              <div v-if="getCurrentItemLevel==this.pbiLevel" class="d-table-cell tar">
+              <div v-if="getCurrentItemLevel==this.LEVEL.PBI" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
                 </b-form-group>
