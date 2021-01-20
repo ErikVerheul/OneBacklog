@@ -4,7 +4,7 @@
 * 'addCommentEvent':						see switch (commentsEvent)
 * 'addSprintIdsEvent':					see process other events for tree views
 * 'boardReloadEvent':						see histEvent === 'boardReloadEvent'
-* 'changeReqAreaColorEvent':		see updateTree && doc.productId === AREA_PRODUCTID
+* 'changeReqAreaColorEvent':		see updateTree && doc.productId === MISC.AREA_PRODUCTID
 * 'commentToHistoryEvent':			see process other events for tree views
 * 'conditionRemovedEvent':			see process other events for tree views
 * 'createEvent':								see process other events for tree views	+	see if (updateBoard)
@@ -31,11 +31,10 @@
 * 'uploadTaskOwnerEvent':				see if (updateBoard)
 */
 
-import { SEV, LEVEL } from '../../constants.js'
+import { SEV, LEVEL, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
-const AREA_PRODUCTID = 'requirement-areas'
 // keep track of removed products during this session
 var removedProducts = []
 
@@ -630,7 +629,7 @@ const actions = {
         dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
       }
     } else {
-      if (updateTree && doc.productId === AREA_PRODUCTID) {
+      if (updateTree && doc.productId === MISC.AREA_PRODUCTID) {
         // special case: requirement areas changes
         dispatch('doBlinck', doc)
         switch (histEvent) {
@@ -699,7 +698,7 @@ const actions = {
           }
         }
       } else {
-        // not AREA_PRODUCTID, continue with updateTree and updateBoard
+        // not MISC.AREA_PRODUCTID, continue with updateTree and updateBoard
 				if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
           // only process updates of items the user is authorised to including products that are restored from deletion by this user
           dispatch('doBlinck', doc)

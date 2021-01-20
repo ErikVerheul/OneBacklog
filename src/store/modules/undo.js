@@ -1,8 +1,6 @@
-import { SEV } from '../../constants.js'
+import { SEV, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
-const AREA_PRODUCTID = 'requirement-areas'
 
 const actions = {
   /*
@@ -112,7 +110,7 @@ const actions = {
         caller: 'restoreParent',
         onSuccessCallback: () => {
           // FOR PRODUCTS OVERVIEW ONLY: when undoing the removal of a requirement area, items must be reassigned to this area
-          if (entry.removedNode.productId === AREA_PRODUCTID) {
+          if (entry.removedNode.productId === MISC.AREA_PRODUCTID) {
             window.slVueTree.traverseModels((nm) => {
               if (entry.itemsRemovedFromReqArea.includes(nm._id)) {
                 nm.data.reqarea = entry.removedNode._id
@@ -199,7 +197,7 @@ const actions = {
         grandParentDoc.delmark = false
       }
       const toDispatch = [{ restoreExtDepsAndConds: entry }]
-      if (entry.removedNode.productId === AREA_PRODUCTID) {
+      if (entry.removedNode.productId === MISC.AREA_PRODUCTID) {
         // restore the removed references to the requirement area
         toDispatch.push({ restoreReqarea: entry })
       }

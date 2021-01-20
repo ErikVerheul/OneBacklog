@@ -176,13 +176,12 @@
 </template>
 
 <script>
+import { MISC } from '../../constants.js'
 import AppHeader from '../header/header.vue'
 import router from '../../router'
 
 const BACKUPSONLY = 1
 const ALLBUTSYSTEM = 2
-const ALLBUTSYSTEMANDBACKUPS = 3
-const ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS = 4
 
 export default {
   data() {
@@ -243,7 +242,7 @@ export default {
       this.showLogModal = false
       this.$store.state.isLogLoaded = false
       // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+      this.$store.dispatch('getAllDatabases', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
     doViewLog() {
@@ -257,7 +256,7 @@ export default {
       this.canCancel = true
       this.localMessage = ''
       // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+      this.$store.dispatch('getAllDatabases', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
     doCreateBackup () {
@@ -323,7 +322,7 @@ export default {
       this.localMessage = ''
       this.$store.state.isCurrentDbChanged = false
       // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+      this.$store.dispatch('getAllDatabases', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
     doChangeMyDb() {
@@ -336,7 +335,7 @@ export default {
       this.localMessage = ''
       this.$store.state.isPurgeReady = false
       // get all non sytem but the _users database & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS)
+      this.$store.dispatch('getAllDatabases', MISC.ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS)
     },
 
     doPurgeDb() {
@@ -349,7 +348,7 @@ export default {
       this.localMessage = ''
       this.$store.state.isHistAndCommReset = false
       // get all non sytem & non backup databases
-      this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+      this.$store.dispatch('getAllDatabases', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
     doRemHistAndComm() {

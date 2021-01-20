@@ -1,4 +1,4 @@
-import { SEV, LEVEL, STATE } from '../constants.js'
+import { SEV, LEVEL, STATE, MISC } from '../constants.js'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import authentication from './modules/authentication'
@@ -22,8 +22,6 @@ import restorebranches from './modules/restorebranches'
 import loadproducts from './modules/load_detail'
 import loadoverview from './modules/load_coarse'
 import planningboard from './modules/planningboard'
-
-const AREA_PRODUCTID = 'requirement-areas'
 
 const FILTERBUTTONTEXT = 'Filter in tree view'
 const MAX_EVENTLIST_SIZE = 100
@@ -229,11 +227,11 @@ export default new Vuex.Store({
 		},
 
 		isReqAreaTopLevel(state) {
-			return state.currentDoc._id === AREA_PRODUCTID
+			return state.currentDoc._id === MISC.AREA_PRODUCTID
 		},
 
 		isReqAreaItem(state) {
-			return state.currentDoc._id === AREA_PRODUCTID || state.currentDoc.productId === AREA_PRODUCTID
+			return state.currentDoc._id === MISC.AREA_PRODUCTID || state.currentDoc.productId === MISC.AREA_PRODUCTID
 		},
 
 		getCurrentItemTsSize(state) {
@@ -449,7 +447,7 @@ export default new Vuex.Store({
 				// traverse the tree to reset to the state before filtering
 				window.slVueTree.traverseModels((nm) => {
 					// skip requirement areas dummy product items
-					if (nm._id === AREA_PRODUCTID) return
+					if (nm._id === MISC.AREA_PRODUCTID) return
 
 					// filters do only set isHighlighted_1
 					nm.isHighlighted_1 = false

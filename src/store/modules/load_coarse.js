@@ -1,8 +1,7 @@
-import { SEV, LEVEL } from '../../constants.js'
+import { SEV, LEVEL, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
-const AREA_PRODUCTID = 'requirement-areas'
 var parentNodes
 var orphansFound
 var levelErrorsFound
@@ -50,7 +49,7 @@ const actions = {
       for (const item of batch) {
         const _id = item.id
         // the productId of the 'requirement-areas' top dummy product document is null to have it ordened below root in the details view
-        const productId = item.key[0] || AREA_PRODUCTID
+        const productId = item.key[0] || MISC.AREA_PRODUCTID
         const itemLevel = item.key[1]
         const priority = -item.key[2]
         const parentId = item.value[1]
@@ -107,10 +106,10 @@ const actions = {
         }
 
 				// skip the items of the products the user is not authorized to
-				if (productId !== AREA_PRODUCTID && !rootGetters.getMyAssignedProductIds.includes(productId)) continue
+				if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyAssignedProductIds.includes(productId)) continue
 
 				// skip the items of the products the user is not subscribed to
-				if (productId !== AREA_PRODUCTID && !rootGetters.getMyProductSubscriptions.includes(productId)) continue
+				if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyProductSubscriptions.includes(productId)) continue
 
         state.docsCount++
         // expand the default product up to the feature level

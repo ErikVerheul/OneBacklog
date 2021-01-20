@@ -1,11 +1,6 @@
-import { SEV, LEVEL } from '../../constants.js'
+import { SEV, LEVEL, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
-const BACKUPSONLY = 1
-const ALLBUTSYSTEM = 2
-const ALLBUTSYSTEMANDBACKUPS = 3
-const ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS = 4
 
 function removeFromArray(arr, item) {
 	const newArr = []
@@ -55,17 +50,17 @@ const actions = {
 			rootState.areDatabasesFound = true
 			rootState.databaseOptions = []
 			switch (selected) {
-				case BACKUPSONLY:
+				case MISC.BACKUPSONLY:
 					for (const dbName of res.data) {
 						if (dbName.includes('-backup-')) rootState.databaseOptions.push(dbName)
 					}
 					break
-				case ALLBUTSYSTEM:
+				case MISC.ALLBUTSYSTEM:
 					for (const dbName of res.data) {
 						if (!dbName.startsWith('_')) rootState.databaseOptions.push(dbName)
 					}
 					break
-				case ALLBUTSYSTEMANDBACKUPS:
+				case MISC.ALLBUTSYSTEMANDBACKUPS:
 					for (const dbName of res.data) {
 						if (!dbName.startsWith('_') && !dbName.includes('backup')) rootState.databaseOptions.push(dbName)
 					}
@@ -74,7 +69,7 @@ const actions = {
 						rootState.selectedDatabaseName = rootState.userData.currentDb
 					} else rootState.selectedDatabaseName = rootState.databaseOptions[0]
 					break
-				case ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS:
+				case MISC.ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS:
 					rootState.databaseOptions = ['_users']
 					for (const dbName of res.data) {
 						if (!dbName.startsWith('_') && !dbName.includes('backup')) rootState.databaseOptions.push(dbName)

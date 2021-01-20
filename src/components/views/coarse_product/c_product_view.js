@@ -1,4 +1,4 @@
-import { SEV } from '../../../constants.js'
+import { SEV, MISC } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -148,7 +148,7 @@ const methods = {
 						// update current productId and title
 						this.$store.commit('switchCurrentProduct', { productId: this.getLastSelectedNode.productId })
 					}
-					if (this.getLastSelectedNode._id !== 'requirement-areas') {
+					if (this.getLastSelectedNode._id !== MISC.AREA_PRODUCTID) {
 						if (!fromContextMenu) this.showSelectionEvent(selNodes)
 					} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 				}
@@ -188,8 +188,8 @@ const methods = {
 					if (d.ind > sourceMaxind) sourceMaxind = d.ind
 				}
 				const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
-				const failedCheck5 = node.parentId === this.areaProductId && (position.nodeModel.parentId !== this.areaProductId || position.placement === 'inside')
-				const failedCheck6 = targetProductId === this.areaProductId && sourceProductId !== this.areaProductId
+				const failedCheck5 = node.parentId === MISC.AREA_PRODUCTID && (position.nodeModel.parentId !== MISC.AREA_PRODUCTID || position.placement === 'inside')
+				const failedCheck6 = targetProductId === MISC.AREA_PRODUCTID && sourceProductId !== MISC.AREA_PRODUCTID
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
 				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than LEVEL.PBI level', SEV.WARNING)
 				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)

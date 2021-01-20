@@ -12,6 +12,7 @@ const STATE = Object.freeze({
 	ON_HOLD: 1,
 	NEW: 2,
 	TODO: 2,
+	STATE_NEW_OR_TODO: 2,
 	READY: 3,
 	INPROGRESS: 4,
 	TESTREVIEW: 5,
@@ -28,8 +29,18 @@ const LEVEL = Object.freeze({
 	TASK: 6,
 })
 
+// Miscellaneous constants
+const MISC = Object.freeze({
+	AREA_PRODUCTID: 'requirement-areas',
+	BACKUPSONLY: 1,
+	ALLBUTSYSTEM: 2,
+	ALLBUTSYSTEMANDBACKUPS: 3,
+	ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS: 4,
+})
+
 export {
 	SEV,
 	STATE,
-	LEVEL
+	LEVEL,
+	MISC
 }

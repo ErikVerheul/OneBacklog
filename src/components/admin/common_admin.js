@@ -2,7 +2,6 @@ import AppHeader from '../header/header.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
 
-const ALLBUTSYSTEMANDBACKUPS = 3
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
 
@@ -25,7 +24,7 @@ function removeFromArray(arr, item) {
 
 function mounted() {
 	this.$store.state.backendMessages = []
-	this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
+	this.$store.dispatch('getAllDatabases', this.MISC.ALLBUTSYSTEMANDBACKUPS)
 }
 
 function data() {

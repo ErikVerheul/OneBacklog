@@ -4,8 +4,6 @@
 import { eventBus } from '../../../main'
 import { constants, utilities } from '../../mixins/generic.js'
 
-const AREA_PRODUCTID = 'requirement-areas'
-
 const props = {
 	value: {
 		type: Array,
@@ -598,7 +596,7 @@ const methods = {
 	getReqAreaNodes() {
 		const productModels = this.currentValue[0].children
 		for (const p of productModels) {
-			if (p._id === AREA_PRODUCTID) {
+			if (p._id === this.MISC.AREA_PRODUCTID) {
 				return p.children
 			}
 		}

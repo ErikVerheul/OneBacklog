@@ -1,8 +1,5 @@
 import { constants, authorization, utilities } from '../mixins/generic.js'
 
-const STATE_NEW_OR_TODO = 2
-const AREA_PRODUCTID = 'requirement-areas'
-
 function created() {
 	this.onholdState = 1
 	this.newState = 2
@@ -100,7 +97,7 @@ const methods = {
 			isSelected: true,
 			doShow: true,
 			data: {
-				state: STATE_NEW_OR_TODO,
+				state: this.MISC.STATE_NEW_OR_TODO,
 				reqarea: node.data.reqArea,
 				reqAreaItemColor: node.data.reqAreaItemColor,
 				team: node.data.team,
@@ -120,7 +117,7 @@ const methods = {
 			team: currentDoc.team,
 			level: newNode.level,
 			subtype: currentDoc.subtype,
-			state: STATE_NEW_OR_TODO,
+			state: this.MISC.STATE_NEW_OR_TODO,
 			tssize: currentDoc.tssize,
 			spsize: currentDoc.spsize,
 			spikepersonhours: currentDoc.spikepersonhours,
@@ -171,7 +168,7 @@ const methods = {
 			isSelected: true,
 			doShow: true,
 			data: {
-				state: STATE_NEW_OR_TODO,
+				state: this.MISC.STATE_NEW_OR_TODO,
 				subtype: 0,
 				lastChange: now
 			}
@@ -206,7 +203,7 @@ const methods = {
 			newNode.data.sprintId = sprintId
 		}
 		newNode.data.team = team
-		newNode.title = newNode.parentId === AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(insertLevel)
+		newNode.title = newNode.parentId === this.MISC.AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(insertLevel)
 
 		if (this.haveAccessInTree(insertLevel, team, 'create new items of this type')) {
 			if (newNodeLocation.placement === 'inside') {
@@ -231,7 +228,7 @@ const methods = {
 				taskOwner: newNode.data.taskOwner,
 				level: insertLevel,
 				subtype: 0,
-				state: STATE_NEW_OR_TODO,
+				state: this.MISC.STATE_NEW_OR_TODO,
 				tssize: 3,
 				spsize: 0,
 				spikepersonhours: 0,

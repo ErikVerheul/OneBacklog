@@ -1,8 +1,6 @@
-import { LEVEL } from '../../constants.js'
+import { LEVEL, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
-
-const AREA_PRODUCTID = 'requirement-areas'
 
 function createId() {
 	// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
@@ -487,7 +485,7 @@ const actions = {
 	}, payload) {
 		// create parent document
 		const doc = {
-			_id: 'requirement-areas',
+			_id: MISC.AREA_PRODUCTID,
 			type: 'backlogItem',
 			parentId: 'root',
 			team: 'n/a',
@@ -518,7 +516,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'PUT',
-			url: payload.dbName + '/' + AREA_PRODUCTID,
+			url: payload.dbName + '/' + MISC.AREA_PRODUCTID,
 			data: doc
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createReqAreasParent: Success, the parent document is created' })
