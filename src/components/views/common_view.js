@@ -29,7 +29,7 @@ function mounted() {
 	function idCheck(vm) {
 		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
 		if (vm.itemId.length !== SHORTKEYLENGTH && vm.itemId.length !== FULLKEYLENGTH) {
-			vm.showLastEvent('Wrong Id length. The length must be 5 for a short Id, or 17 for a full Id', sev.sev.WARNING)
+			vm.showLastEvent('Wrong Id length. The length must be 5 for a short Id, or 17 for a full Id', sev.WARNING)
 			return false
 		}
 
