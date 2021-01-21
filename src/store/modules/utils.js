@@ -36,8 +36,8 @@ const actions = {
 		})
 	},
 
-	/* Get all database names */
-	getAllDatabases({
+	/* Populate the database option with all database names of the selected type */
+	getDatabaseOptions({
 		rootState,
 		dispatch
 	}, selected) {
@@ -80,7 +80,7 @@ const actions = {
 					} else rootState.selectedDatabaseName = rootState.databaseOptions[0]
 			}
 		}).catch(error => {
-			const msg = 'getAllDatabases: Could not load all database names. Error = ' + error
+			const msg = 'getDatabaseOptions: Could not load all database names. Error = ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
