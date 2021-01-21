@@ -69,7 +69,6 @@ const actions = {
         const lastContentChange = item.value[16] || 0
         const lastPositionChange = item.value[17] || 0
         const lastStateChange = item.value[18] || 0
-
         if (itemLevel === 1) {
           state.docsCount++
           // initialize with the root document
@@ -86,7 +85,6 @@ const actions = {
               conditionalFor,
               title,
               isLeaf: false,
-              children: [],
               isExpanded: true,
               isSelectable: true,
               isDraggable: false,
@@ -97,11 +95,13 @@ const actions = {
                 team,
                 priority,
                 lastChange: 0
-              }
+							},
+							children: [],
             }
           ]
           parentNodes.root = rootState.treeNodes[0]
-          state.insertedCount++
+					state.insertedCount++
+					console.log('path = ' + rootState.treeNodes[0].path + ' title = ' + title + ' itemLevel = ' + itemLevel + ' isExpanded = ' + rootState.treeNodes[0].isExpanded)
           continue
         }
 
@@ -141,7 +141,6 @@ const actions = {
             conditionalFor,
             title,
             isLeaf: itemLevel === LEVEL.FEATURE,
-            children: [],
             isExpanded,
             isSelectable: true,
             isDraggable,
@@ -162,8 +161,11 @@ const actions = {
               state: itemState,
               subtype,
               team
-            }
-          }
+						},
+						children: [],
+					}
+
+					console.log('path = ' + path + ' title = ' + title + ' itemLevel = ' + itemLevel + ' isExpanded = ' + isExpanded)
 
           state.insertedCount++
 
@@ -175,10 +177,10 @@ const actions = {
           parentNodes[_id] = newNode
         } else {
           state.orphansCount++
-          orphansFound.push({ id: _id, parentId, productId: itemLevel })
+          orphansFound.push({ id: _id, parentId, productId })
         }
       }
-
+			// console.log('rootState.treeNodes = ' + JSON.stringify(rootState.treeNodes, null, 2))
       commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
       // log any detected orphans, if present
       if (state.orphansCount > 0) {
