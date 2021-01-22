@@ -335,8 +335,10 @@ export default new Vuex.Store({
 		},
 
 		/* Return the previous selected node or the currently selected node if no previous node was selected */
-		getPreviousNodeSelected(state) {
-			return state.previousSelectedNodes.slice(-1)[0]
+		getPreviousNodeSelected(state, getters) {
+			if (state.previousSelectedNodes) {
+				return state.previousSelectedNodes.slice(-1)[0]
+			} else return getters.getLastSelectedNode
 		},
 
 		isDetailsViewSelected(state) {
@@ -392,7 +394,7 @@ export default new Vuex.Store({
 		isGuest(state, getters) {
 			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
-				return myCurrentProductRoles && myCurrentProductRoles.includes.includes('guest')
+				return myCurrentProductRoles && myCurrentProductRoles.includes('guest')
 			} else return false
 		},
 		canCreateComments(state, getters) {
