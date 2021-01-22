@@ -56,17 +56,23 @@ const actions = {
 			url: '_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			const allUserData = res.data
+			if (res.data.delmark) {
+				alert(`getOtherUserData: FATAL ERROR - your account '${rootState.userData.user}' has been removed. Contact your adminstrator.`)
+				return
+			}
 			// check if the default user database exists
 			if (!foundDbNames.includes(allUserData.currentDb)) {
-				alert('getOtherUserData: FATAL SEV.ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
+				alert('getOtherUserData: FATAL ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
 				return
 			} else {
 				// must set currentDb early in the process
 				rootState.userData.currentDb = allUserData.currentDb
+				// preset with the current database of the user
+				rootState.selectedDatabaseName = allUserData.currentDb
 			}
 			// check if the user has productsroles defined for the default database
 			if (!Object.keys(allUserData.myDatabases).includes(allUserData.currentDb)) {
-				alert('getOtherUserData: FATAL SEV.ERROR - no roles defined for default user database ' + allUserData.currentDb)
+				alert('getOtherUserData: FATAL ERROR - no roles defined for default user database ' + allUserData.currentDb)
 				return
 			}
 			// correct the profile for removed databases and renew the list of assigned databases
