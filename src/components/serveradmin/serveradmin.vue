@@ -36,7 +36,7 @@
 
       <div v-if="optionSelected === 'Create a database backup'">
         <h2>Create a database backup</h2>
-				<p>For real disaster protection consider to use a backup strategy as provided by your hosting partner. See https://docs.couchdb.org/en/latest/maintenance/backups.html</p>
+        <p>For real disaster protection consider to use a backup strategy as provided by your hosting partner. See https://docs.couchdb.org/en/latest/maintenance/backups.html</p>
         <b-form-group>
           <h5>Select the database to backup</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
@@ -44,7 +44,7 @@
         <hr>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doCreateBackup" variant="primary">Start backup</b-button>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</b-button>
-				<b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'Restore a database from backup'">
@@ -57,7 +57,7 @@
         <hr>
         <b-button v-if="$store.state.selectedDatabaseName !== 'not selected yet' && !$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup" variant="primary">Start restore</b-button>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</b-button>
-				<b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
 
       </div>
 
@@ -78,7 +78,7 @@
           <p>Database {{ newDbName }} will be created</p>
           <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="doCreateDatabase" variant="primary">Start creation</b-button>
           <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="cancel">Cancel</b-button>
-					<b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+          <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         </div>
       </div>
 
@@ -88,10 +88,10 @@
           <h5>Select the database you want removed documents to be purged</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
-				<hr>
+        <hr>
         <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="doPurgeDb" variant="primary">Purge removed documents and compact the database</b-button>
         <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="cancel">Cancel</b-button>
-				<b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         <div v-if="$store.state.isPurgeReady">
           <h4>Success! The purge is ready</h4>
         </div>
@@ -103,10 +103,10 @@
           <h5>Select the database you want to connect to</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
-				<hr>
+        <hr>
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb" variant="primary">Change my database</b-button>
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel">Cancel</b-button>
-				<b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         <div v-if="$store.state.isCurrentDbChanged">
           <h4>Success! Click 'Exit' to sign-out. Sign-in to see the product details view of the '{{ $store.state.selectedDatabaseName }} 'database</h4>
           <div>
@@ -132,10 +132,10 @@
             days ago or more (enter 0 to remove all)
           </b-col>
         </b-row>
-				<hr>
+        <hr>
         <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm" variant="primary">Remove history and comments</b-button>
         <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="cancel">Cancel</b-button>
-				<b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         <div v-if="$store.state.isHistAndCommReset">
           <h4>Success! History and comments are removed</h4>
         </div>
@@ -150,16 +150,16 @@
           <h5>Select the database you want to delete</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
-				<hr>
-        <b-button v-if="!$store.state.isDbDeleted" variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
+        <hr>
+        <b-button v-if="$store.state.selectedDatabaseName && !$store.state.isDbDeleted" variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
         <b-button v-if="!$store.state.isDbDeleted" class="m-1" @click="cancel">Cancel</b-button>
-				<b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'All FAUXTON tasks'">
         <h2>All FAUXTON tasks</h2>
         <h4>As server admin you have all other feautures available in FAUXTON, read the documentation</h4>
-				<hr>
+        <hr>
         <b-button class="m-1" @click="doFauxton" variant="primary">Start FAUXTON</b-button>
         <b-button class="m-1" @click="cancel">Cancel</b-button>
         <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
@@ -253,11 +253,11 @@ export default {
       this.canCancel = true
       this.localMessage = ''
       // get all non sytem & non backup databases
-      this.$store.dispatch('getDatabaseOptions',  MISC.ALLBUTSYSTEMANDBACKUPS)
+      this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
-    doCreateBackup () {
-      function createBackupName (dbName) {
+    doCreateBackup() {
+      function createBackupName(dbName) {
         const now = new Date()
         const yyyy = now.getFullYear().toString()
         let mm = (now.getMonth() + 1).toString()
@@ -285,7 +285,7 @@ export default {
       this.$store.state.selectedDatabaseName = 'not selected yet'
       this.newDbName = ''
       this.localMessage = ''
-      this.$store.dispatch('getDatabaseOptions',  MISC.BACKUPSONLY)
+      this.$store.dispatch('getDatabaseOptions', MISC.BACKUPSONLY)
     },
 
     doRestoreBackup() {
@@ -319,11 +319,11 @@ export default {
       this.localMessage = ''
       this.$store.state.isCurrentDbChanged = false
       // get all non sytem & non backup databases
-      this.$store.dispatch('getDatabaseOptions',  MISC.ALLBUTSYSTEMANDBACKUPS)
+      this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
     doChangeMyDb() {
-			const autoSignOut = false
+      const autoSignOut = false
       this.$store.dispatch('changeCurrentDb', { dbName: this.$store.state.selectedDatabaseName, autoSignOut })
     },
 
@@ -332,7 +332,7 @@ export default {
       this.localMessage = ''
       this.$store.state.isPurgeReady = false
       // get all non sytem but the _users database & non backup databases
-      this.$store.dispatch('getDatabaseOptions',  MISC.ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS)
+      this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS)
     },
 
     doPurgeDb() {
@@ -345,7 +345,7 @@ export default {
       this.localMessage = ''
       this.$store.state.isHistAndCommReset = false
       // get all non sytem & non backup databases
-      this.$store.dispatch('getDatabaseOptions',  MISC.ALLBUTSYSTEMANDBACKUPS)
+      this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
     doRemHistAndComm() {
@@ -359,7 +359,7 @@ export default {
       this.$store.state.selectedDatabaseName = ''
       this.$store.state.isDbDeleted = false
       // get all non sytem databases
-      this.$store.dispatch('getDatabaseOptions',  MISC.ALLBUTSYSTEM)
+      this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEM)
     },
 
     doDeleteDb() {
@@ -397,7 +397,6 @@ export default {
 </script>
 
 <style scoped>
-
 h4 {
   margin-top: 20px;
 }
