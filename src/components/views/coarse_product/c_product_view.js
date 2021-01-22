@@ -8,7 +8,6 @@ import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
 import { eventBus } from '../../../main'
-import { mapGetters } from 'vuex'
 
 const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'coarseProduct'
