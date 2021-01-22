@@ -2,7 +2,6 @@ import AppHeader from '../header/header.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
 
-const ALLBUTSYSTEMANDBACKUPS = 3
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
 
@@ -21,11 +20,6 @@ function removeFromArray(arr, item) {
 		if (el !== item) newArr.push(el)
 	}
 	return newArr
-}
-
-function mounted() {
-	this.$store.state.backendMessages = []
-	this.$store.dispatch('getAllDatabases', ALLBUTSYSTEMANDBACKUPS)
 }
 
 function data() {
@@ -107,6 +101,58 @@ const computed = {
 }
 
 const methods = {
+	createOrUpdateDefaultCalendar() {
+		this.optionSelected = 'Create / Maintain the default sprint calendar'
+		this.getUserFirst = false
+		this.checkForExistingCalendar = true
+		this.$store.state.isDefaultCalendarFound = false
+		this.$store.state.isCalendarSaved = false
+		this.dbIsSelected = false
+		this.creatingCalendar = false
+		this.$store.state.backendMessages = []
+		this.startDateStr = undefined
+		this.workflowStatusMsg = 'found'
+		this.extendNumberStr = undefined
+	},
+
+	createOrUpdateTeamCalendar() {
+		this.optionSelected = 'Create / Maintain a team sprint calendar'
+		this.getUserFirst = false
+		this.checkForExistingCalendar = true
+		this.$store.state.isTeamCalendarFound = false
+		this.$store.state.isCalendarSaved = false
+		this.dbIsSelected = false
+		this.creatingCalendar = false
+		this.$store.state.backendMessages = []
+		this.startDateStr = undefined
+		this.workflowStatusMsg = 'found'
+		this.extendNumberStr = undefined
+	},
+
+	createTeam() {
+		this.optionSelected = 'Create a team'
+		this.getUserFirst = false
+		this.dbIsSelected = false
+		this.teamName = ''
+		this.$store.state.isTeamCreated = false
+	},
+
+	listTeams() {
+		this.optionSelected = 'List teams'
+		this.getUserFirst = false
+		this.dbIsSelected = false
+		this.$store.state.backendMessages = []
+		this.$store.state.fetchedTeams = []
+		this.$store.state.areTeamsFound = false
+	},
+
+	removeTeams() {
+		this.optionSelected = 'Remove teams without members'
+		this.getUserFirst = false
+		this.dbIsSelected = false
+		this.$store.state.areTeamsRemoved = false
+	},
+
 	onSubmit(evt) {
 		evt.preventDefault()
 		this.doCreateDefaultCalendar()
@@ -165,15 +211,6 @@ const methods = {
 				break
 		}
 		this.dbIsSelected = true
-	},
-
-	createProduct() {
-		this.optionSelected = 'Create a product'
-		this.getUserFirst = false
-		this.productTitle = ''
-		this.$store.state.isProductCreated = false
-		this.dbIsSelected = false
-		this.$store.state.backendMessages = []
 	},
 
 	getUserAssignedDatabases() {
@@ -253,12 +290,6 @@ const methods = {
 		})
 	},
 
-	removeProduct() {
-		this.optionSelected = 'Remove a product'
-		this.getUserFirst = false
-		this.dbIsSelected = false
-	},
-
 	showProductView() {
 		router.push('/detailProduct')
 	},
@@ -282,24 +313,12 @@ const methods = {
 		}
 	},
 
-	/* Get all my assigned product titles of the selected database in $store.state.useracc.dbProducts */
+	/*
+	* Get all my assigned product ids, titles and assigned roles of the selected database in $store.state.useracc.dbProducts
+	* If onlyMyProducts is true, only select the the products assigned to me (assistAdmin)
+	*/
 	callGetDbProducts(onlyMyProducts) {
 		this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, onlyMyProducts })
-	},
-
-	createUser() {
-		this.optionSelected = 'Create a user and assign product(s)'
-		this.getUserFirst = false
-		this.userName = undefined
-		this.password = undefined
-		this.userEmail = undefined
-		this.credentialsReady = false
-		this.$store.state.backendMessages = []
-		this.localMessage = ''
-		this.$store.state.useracc.userIsAdmin = false
-		this.$store.state.useracc.userIsAPO = false
-		this.$store.state.isUserRemoved = false
-		this.$store.state.isUserCreated = false
 	},
 
 	doCreateUser() {
@@ -350,32 +369,6 @@ const methods = {
 			// replace existing removed user
 			this.$store.dispatch('updateUser', { data: newUserData, onSuccessCallback: () => this.$store.state.isUserCreated = true })
 		} else this.$store.dispatch('createUserIfNotExistent', newUserData)
-	},
-
-	removeUser() {
-		this.optionSelected = 'Remove a user'
-		this.getUserFirst = true
-		this.$store.state.isUserFound = false
-		this.userName = undefined
-		this.$store.state.backendMessages = []
-		this.localMessage = ''
-		this.$store.state.isUserDeleted = false
-		this.$store.dispatch('getAllUsers')
-	},
-
-	maintainUsers() {
-		this.optionSelected = 'Maintain user permissions to products'
-		this.getUserFirst = true
-		this.isUserDbSelected = false
-		this.canRemoveLastProduct = true
-		this.canRemoveDatabase = true,
-			this.localMessage = ''
-		this.$store.state.backendMessages = []
-		this.$store.state.isUserFound = false
-		this.$store.state.areDatabasesFound = false
-		this.$store.state.areProductsFound = false
-		this.$store.state.isUserUpdated = false
-		this.$store.dispatch('getAllUsers')
 	},
 
 	/* Creates fetchedUserData and have the prod.roles set in dbProducts */
@@ -502,34 +495,6 @@ const methods = {
 		this.$store.dispatch('assignProductsToUserAction', { dbName: this.$store.state.selectedDatabaseName, selectedUser: this.selectedUser })
 	},
 
-	createOrUpdateDefaultCalendar() {
-		this.optionSelected = 'Create / Maintain the default sprint calendar'
-		this.getUserFirst = false
-		this.checkForExistingCalendar = true
-		this.$store.state.isDefaultCalendarFound = false
-		this.$store.state.isCalendarSaved = false
-		this.dbIsSelected = false
-		this.creatingCalendar = false
-		this.$store.state.backendMessages = []
-		this.startDateStr = undefined
-		this.workflowStatusMsg = 'found'
-		this.extendNumberStr = undefined
-	},
-
-	createOrUpdateTeamCalendar() {
-		this.optionSelected = 'Create / Maintain a team sprint calendar'
-		this.getUserFirst = false
-		this.checkForExistingCalendar = true
-		this.$store.state.isTeamCalendarFound = false
-		this.$store.state.isCalendarSaved = false
-		this.dbIsSelected = false
-		this.creatingCalendar = false
-		this.$store.state.backendMessages = []
-		this.startDateStr = undefined
-		this.workflowStatusMsg = 'found'
-		this.extendNumberStr = undefined
-	},
-
 	doCreateDefaultCalendar() {
 		const startDate = new Date(this.startDateStr)
 		startDate.setUTCHours(parseInt(this.sprintStartTimeStr))
@@ -557,23 +522,8 @@ const methods = {
 		this.$store.dispatch('saveDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: calendar })
 	},
 
-	createTeam() {
-		this.optionSelected = 'Create a team'
-		this.getUserFirst = false
-		this.dbIsSelected = false
-		this.teamName = ''
-		this.$store.state.isTeamCreated = false
-	},
-
 	doCreateTeam() {
 		this.$store.dispatch('addTeamToDb', { id: this.createId(), dbName: this.$store.state.selectedDatabaseName, teamName: this.teamName })
-	},
-
-	removeTeams() {
-		this.optionSelected = 'Remove teams without members'
-		this.getUserFirst = false
-		this.dbIsSelected = false
-		this.$store.state.areTeamsRemoved = false
 	},
 
 	doRemoveTeams(teamNamesToRemove) {
@@ -631,15 +581,6 @@ const methods = {
 		this.$store.dispatch('createTeamCalendarAction', { dbName: this.$store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName })
 	},
 
-	listTeams() {
-		this.optionSelected = 'List teams'
-		this.getUserFirst = false
-		this.dbIsSelected = false
-		this.$store.state.backendMessages = []
-		this.$store.state.fetchedTeams = []
-		this.$store.state.areTeamsFound = false
-	},
-
 	doGetTeamsOfDb() {
 		this.$store.dispatch('fetchTeams', this.$store.state.selectedDatabaseName)
 	},
@@ -668,7 +609,6 @@ export default {
 	mixins: [utilities],
 	computed,
 	data,
-	mounted,
 	methods,
 	components
 }

@@ -1,7 +1,65 @@
-import { STATE, LEVEL } from '../../constants.js'
+import { STATE, LEVEL, MISC } from '../../constants.js'
 import common_admin from './common_admin'
 
 const methods = {
+/* For all options the available databases are fetched once at mount */
+	createUser() {
+		this.optionSelected = 'Create a user and assign product(s)'
+		this.getUserFirst = false
+		this.userName = undefined
+		this.password = undefined
+		this.userEmail = undefined
+		this.credentialsReady = false
+		this.$store.state.backendMessages = []
+		this.localMessage = ''
+		this.$store.state.useracc.userIsAdmin = false
+		this.$store.state.useracc.userIsAPO = false
+		this.$store.state.isUserRemoved = false
+		this.$store.state.isUserCreated = false
+	},
+
+	maintainUsers() {
+		this.optionSelected = 'Maintain user permissions to products'
+		this.getUserFirst = true
+		this.isUserDbSelected = false
+		this.canRemoveLastProduct = true
+		this.canRemoveDatabase = true,
+		this.localMessage = ''
+		this.$store.state.backendMessages = []
+		this.$store.state.isUserFound = false
+		this.$store.state.areDatabasesFound = false
+		this.$store.state.areProductsFound = false
+		this.$store.state.isUserUpdated = false
+		// get the users to select from
+		this.$store.dispatch('getAllUsers')
+	},
+
+	removeUser() {
+		this.optionSelected = 'Remove a user'
+		this.getUserFirst = true
+		this.$store.state.isUserFound = false
+		this.userName = undefined
+		this.$store.state.backendMessages = []
+		this.localMessage = ''
+		this.$store.state.isUserDeleted = false
+		this.$store.dispatch('getAllUsers')
+	},
+
+	createProduct() {
+		this.optionSelected = 'Create a product'
+		this.getUserFirst = false
+		this.productTitle = ''
+		this.$store.state.isProductCreated = false
+		this.dbIsSelected = false
+		this.$store.state.backendMessages = []
+	},
+
+	removeProduct() {
+		this.optionSelected = 'Remove a product'
+		this.getUserFirst = false
+		this.dbIsSelected = false
+	},
+
 	doCreateProduct() {
 		const _id = this.createId()
 		// use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
@@ -39,5 +97,9 @@ const methods = {
 
 export default {
 	extends: common_admin,
-	methods
+	methods,
+	mounted() {
+		// get all non sytem & non backup databases
+		this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
+	}
 }

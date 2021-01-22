@@ -30,7 +30,11 @@ const LEVEL = Object.freeze({
 
 // Miscellaneous constants
 const MISC = Object.freeze({
-	AREA_PRODUCTID: 'requirement-areas'
+	AREA_PRODUCTID: 'requirement-areas',
+	BACKUPSONLY: 1,
+	ALLBUTSYSTEM: 2,
+	ALLBUTSYSTEMANDBACKUPS: 3,
+	ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS: 4
 })
 
 export {
