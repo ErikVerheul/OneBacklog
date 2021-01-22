@@ -41,7 +41,7 @@
             </h3>
           </b-col>
           <b-col cols="5">
-            <h3>{{ $store.state.currentProductTitle }} [Products overview]</h3>
+            <h3>{{ $store.state.currentProductTitle }} [Overview]</h3>
           </b-col>
           <b-col cols="2">
             <h3 align="right">
