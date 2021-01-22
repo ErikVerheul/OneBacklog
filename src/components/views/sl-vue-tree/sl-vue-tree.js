@@ -123,16 +123,19 @@ const computed = {
 		if (this.isRoot) {
 			const retNodes = this.getNodes(this.currentValue)
 			// console.log('filteredNodes1: returning ' + retNodes.length + ' nodes')
+			console.log('filteredNodes1: returning ' + retNodes.map(n => n.title))
 			return retNodes
 		}
+		console.log('filteredNodes: this.parentInd = ' + this.parentInd)
 		const retNodes = this.getParentComponent().filteredNodes[this.parentInd].children.filter(node => {
 			return node.doShow
 		})
 		// console.log('filteredNodes2: returning ' + retNodes.length + ' nodes')
+		console.log('filteredNodes2: returning ' + retNodes.map(n => n.title))
 		return retNodes
 	},
 
-	/**
+	/*
 	 * gaps is used for nodes indentation
 	 * nodeLevel starts with 0; item level with 1
 	 * @returns {number[]}
