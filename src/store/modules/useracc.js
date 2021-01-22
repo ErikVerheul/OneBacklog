@@ -33,7 +33,8 @@ const actions = {
 	/*
 	* Load the user's profile in state.fetchedUserData
 	* Set the user's generic roles in state.userIsAdmin and state.userIsAPO
-	* Preset the the selected database to the user's current database in rootState.selectedDatabaseName
+	* Preset the selected database to the user's current database
+	* If justCheck === true return with rootState.isUserFound = false and no error message
 	*/
 	getUser({
 		rootState,
@@ -51,7 +52,7 @@ const actions = {
 			state.userIsAssistAdmin = !!state.fetchedUserData.roles.includes('assistAdmin')
 			state.userIsAPO = !!state.fetchedUserData.roles.includes('APO')
 			rootState.isUserRemoved = !!res.data.delmark
-			// preset with the current database of the user
+			// preset with the current database of this user
 			rootState.selectedDatabaseName = state.fetchedUserData.currentDb
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Successfully fetched ${rootState.isUserRemoved ? 'removed' : ''} user '${payload.userName}'` })
 			rootState.isUserFound = true
