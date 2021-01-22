@@ -394,7 +394,7 @@ export default new Vuex.Store({
 		isGuest(state, getters) {
 			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
-				return myCurrentProductRoles && myCurrentProductRoles.includes.includes('guest')
+				return myCurrentProductRoles && myCurrentProductRoles.includes('guest')
 			} else return false
 		},
 		canCreateComments(state, getters) {
