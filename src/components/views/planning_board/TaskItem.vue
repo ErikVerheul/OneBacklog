@@ -163,12 +163,6 @@ export default {
       }
     },
 
-    /* Creates fetchedUserData and have the prod.roles set in products */
-    fetchUser () {
-			const justCheck = false
-      this.$store.dispatch('getUser', { userName: this.selectedUser, justCheck })
-    },
-
     doCancel () {
       this.contextOptionSelected = undefined
       this.newTaskTitle = ''
