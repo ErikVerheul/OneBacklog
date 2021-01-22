@@ -1,4 +1,3 @@
-import { SEV, MISC } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -8,7 +7,6 @@ import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
 import { eventBus } from '../../../main'
-import { mapGetters } from 'vuex'
 
 const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'coarseProduct'
@@ -38,7 +36,7 @@ function mounted() {
 	// expose instance to the global namespace
 	window.slVueTree = this.$refs.slVueTree
 	if (returning) {
-		this.showLastEvent('Returning to the Products overview', SEV.INFO)
+		this.showLastEvent('Returning to the Products overview', this.SEV.INFO)
 	}
 }
 
@@ -60,10 +58,6 @@ function data() {
 }
 
 const computed = {
-	...mapGetters([
-		'isReqAreaItem'
-	]),
-
 	/*
 	* Check for a valid color hex code:
 	* #          -> a hash
@@ -90,7 +84,7 @@ const watch = {
 					this.newComment = ''
 					this.$refs.commentsEditorRef.show()
 				} else {
-					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
+					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', this.SEV.WARNING)
 				}
 			}
 			if (this.$store.state.selectedForView === 'history') {
@@ -125,6 +119,7 @@ const methods = {
 	},
 
 	onTreeIsLoaded() {
+		console.log('c_product_view: onTreeIsLoaded')
 		this.dependencyViolationsFound()
 		this.$store.commit('createColorMapper')
 	},
@@ -148,9 +143,9 @@ const methods = {
 						// update current productId and title
 						this.$store.commit('switchCurrentProduct', { productId: this.getLastSelectedNode.productId })
 					}
-					if (this.getLastSelectedNode._id !== MISC.AREA_PRODUCTID) {
+					if (this.getLastSelectedNode._id !== this.MISC.AREA_PRODUCTID) {
 						if (!fromContextMenu) this.showSelectionEvent(selNodes)
-					} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
+					} else this.showLastEvent('Create / maintain Requirement Areas here', this.SEV.INFO)
 				}
 			})
 		}
@@ -188,11 +183,11 @@ const methods = {
 					if (d.ind > sourceMaxind) sourceMaxind = d.ind
 				}
 				const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
-				const failedCheck5 = node.parentId === MISC.AREA_PRODUCTID && (position.nodeModel.parentId !== MISC.AREA_PRODUCTID || position.placement === 'inside')
-				const failedCheck6 = targetProductId === MISC.AREA_PRODUCTID && sourceProductId !== MISC.AREA_PRODUCTID
-				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than LEVEL.PBI level', SEV.WARNING)
-				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)
+				const failedCheck5 = node.parentId === this.MISCAREA_PRODUCTID && (position.nodeModel.parentId !== this.MISCAREA_PRODUCTID || position.placement === 'inside')
+				const failedCheck6 = targetProductId === this.MISCAREA_PRODUCTID && sourceProductId !== this.MISCAREA_PRODUCTID
+				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', this.SEV.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', this.SEV.WARNING)
+				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', this.SEV.WARNING)
 				return failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5 || failedCheck6
 			}
 
@@ -227,13 +222,13 @@ const methods = {
 				}
 				if (this.selReqAreaId !== null) this.$store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
 				this.setReqAreaShow = true
-			} else this.showLastEvent('Sorry, your assigned role(s) disallow you to assing requirement areas', SEV.WARNING)
+			} else this.showLastEvent('Sorry, your assigned role(s) disallow you to assing requirement areas', this.SEV.WARNING)
 		}
 	},
 
 	/*
 	* Update the req area of the item (null for no req area set)
-	* If the item is an LEVEL.EPIC also assign this req area to the children which have no req area assigned yet / when removing do the reverse
+	* If the item is an EPIC also assign this req area to the children which have no req area assigned yet / when removing do the reverse
 	*/
 	doSetReqArea() {
 		this.$store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqarea: this.selReqAreaId, timestamp: Date.now() })
