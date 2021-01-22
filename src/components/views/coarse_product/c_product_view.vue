@@ -137,8 +137,8 @@
             </template>
 
             <template slot="sidebar" slot-scope="{ node }">
-              <template v-if="node.productId === areaProductId">
-                <p v-if="node._id !== areaProductId" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemColor}"></p>
+              <template v-if="node.productId === MISC.AREA_PRODUCTID">
+                <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemColor}"></p>
               </template>
               <p v-else-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT">
                 <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"

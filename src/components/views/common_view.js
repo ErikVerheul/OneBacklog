@@ -6,10 +6,6 @@ const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
 
-function created() {
-	this.areaProductId = 'requirement-areas'
-}
-
 function mounted() {
 	function idCheck(vm) {
 		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
@@ -670,7 +666,6 @@ const methods = {
 
 export default {
 	mixins: [constants, authorization, utilities],
-	created,
 	mounted,
 	data,
 	computed,

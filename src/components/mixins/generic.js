@@ -7,6 +7,7 @@ const constants = {
 		this.SEV = SEV
 		this.STATE = STATE
 		this.LEVEL = LEVEL
+		this.MISC = MISC
 	},
 }
 
