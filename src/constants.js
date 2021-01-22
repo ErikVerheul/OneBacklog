@@ -28,8 +28,14 @@ const LEVEL = Object.freeze({
 	TASK: 6,
 })
 
+// Miscellaneous constants
+const MISC = Object.freeze({
+	AREA_PRODUCTID: 'requirement-areas'
+})
+
 export {
 	SEV,
 	STATE,
-	LEVEL
+	LEVEL,
+	MISC
 }

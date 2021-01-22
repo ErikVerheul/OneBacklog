@@ -1,8 +1,7 @@
-import { SEV, LEVEL } from '../../constants.js'
+import { SEV, LEVEL, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 
-const AREA_PRODUCTID = 'requirement-areas'
 var docsRemovedIds
 var removedDeps
 var removedConds
@@ -231,7 +230,7 @@ const actions = {
 			// must pass rootGetters via the payload
 			payload.getters = getters
       const toDispatch = [{ addRemoveHist2: payload }]
-      if (payload.node.productId === AREA_PRODUCTID) {
+      if (payload.node.productId === MISC.AREA_PRODUCTID) {
         // remove reqarea assignments
         toDispatch.push({ removeReqAreaAssignments: id })
       }
@@ -280,7 +279,7 @@ const actions = {
         onSuccessCallback: () => {
           // FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
           const itemsRemovedFromReqArea = []
-          if (payload.node.productId === AREA_PRODUCTID) {
+          if (payload.node.productId === MISC.AREA_PRODUCTID) {
             window.slVueTree.traverseModels((nm) => {
               if (nm.data.reqarea === payload.node._id) {
                 delete nm.data.reqarea

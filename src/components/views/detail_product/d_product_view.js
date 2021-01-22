@@ -1,3 +1,4 @@
+import { SEV, LEVEL } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -39,7 +40,7 @@ function mounted() {
 	// expose instance to the global namespace
 	window.slVueTree = this.$refs.slVueTree
 	if (returning) {
-		this.showLastEvent('Returning to the Product details', this.SEV.INFO)
+		this.showLastEvent('Returning to the Product details', SEV.INFO)
 	}
 }
 
@@ -77,7 +78,7 @@ const watch = {
 					this.newComment = ''
 					this.$refs.commentsEditorRef.show()
 				} else {
-					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', this.SEV.WARNING)
+					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
 				}
 			}
 			if (this.$store.state.selectedForView === 'history') {
@@ -105,8 +106,8 @@ const watch = {
 const methods = {
 	getItemInfo() {
 		let txt = ''
-		if (this.getCurrentItemLevel !== this.LEVEL.PRODUCT) {
-			if (this.getCurrentItemLevel < this.LEVEL.TASK) {
+		if (this.getCurrentItemLevel !== LEVEL.PRODUCT) {
+			if (this.getCurrentItemLevel < LEVEL.TASK) {
 				txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
 			} else {
 				txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${this.$store.state.currentDoc.taskOwner}' of team '${this.$store.state.currentDoc.team}'`
@@ -191,7 +192,7 @@ const methods = {
 			const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.LEVEL.TASK
+				const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > LEVEL.TASK
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0
@@ -200,9 +201,9 @@ const methods = {
 					if (d.ind > sourceMaxind) sourceMaxind = d.ind
 				}
 				const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
-				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', this.SEV.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than LEVEL.PBI level', this.SEV.WARNING)
-				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', this.SEV.WARNING)
+				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than LEVEL.PBI level', SEV.WARNING)
+				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)
 				return failedCheck2 || failedCheck3 || failedCheck4
 			}
 

@@ -1,4 +1,4 @@
-import { SEV } from '../../../constants.js'
+import { SEV, LEVEL } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -118,7 +118,7 @@ const watch = {
 const methods = {
 	getItemInfo() {
 		let txt = ''
-		if (this.getCurrentItemLevel !== this.LEVEL.PRODUCT) {
+		if (this.getCurrentItemLevel !== LEVEL.PRODUCT) {
 			txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
 		}
 		return txt
@@ -179,7 +179,7 @@ const methods = {
 				if (position.placement === 'inside') targetLevel++
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > this.LEVEL.PBI
+				const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > LEVEL.PBI
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0

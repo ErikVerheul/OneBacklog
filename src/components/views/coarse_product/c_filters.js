@@ -1,7 +1,6 @@
-import { SEV, LEVEL } from '../../../constants.js'
+import { SEV, LEVEL, MISC } from '../../../constants.js'
 import commonFilters from '../common_filters.js'
 
-const AREA_PRODUCTID = 'requirement-areas'
 const methods = {
   /* Apply the AND logic to the included filters */
   onApplyMyFilters () {
@@ -15,7 +14,7 @@ const methods = {
     // create a callback for the filtering
     const cb = (nm) => {
       // skip req area definitions
-      if (nm.productId === AREA_PRODUCTID) return
+      if (nm.productId === MISC.AREA_PRODUCTID) return
 
       // save node display state
       nm.savedDoShow = nm.doShow

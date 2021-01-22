@@ -1,10 +1,9 @@
 /*
  * This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
  */
+import { SEV, LEVEL, MISC } from '../../../constants.js'
 import { eventBus } from '../../../main'
-import { constants, utilities } from '../../mixins/generic.js'
-
-const AREA_PRODUCTID = 'requirement-areas'
+import { utilities } from '../../mixins/generic.js'
 
 const props = {
 	value: {
@@ -209,7 +208,7 @@ const methods = {
 			this.preventDrag = false
 			const lastSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
 			// ctrl-select or shift-select mode is allowed only if nodes have the same parent and are above productlevel (epics, features and higher)
-			if (selNode.level > this.LEVEL.PRODUCT && this.allowMultiselect && selNode.parentId === lastSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
+			if (selNode.level > LEVEL.PRODUCT && this.allowMultiselect && selNode.parentId === lastSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
 				if (event.ctrlKey) {
 					// multi selection
 					this.$store.commit('addSelectedNode', selNode)
@@ -328,9 +327,9 @@ const methods = {
 		}
 
 		// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-		if (this.draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === this.LEVEL.DATABASE || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
-			if (this.$store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', this.SEV.WARNING)
-			if (this.$store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', this.SEV.WARNING)
+		if (this.draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
+			if (this.$store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', SEV.WARNING)
+			if (this.$store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
 			this.stopDrag()
 			return
 		}
@@ -343,13 +342,13 @@ const methods = {
 				return
 			}
 			if (this.isInPath(dn.path, this.cursorPosition.nodeModel.path)) {
-				this.showLastEvent('Cannot drop a node inside itself or its descendants', this.SEV.WARNING)
+				this.showLastEvent('Cannot drop a node inside itself or its descendants', SEV.WARNING)
 				this.stopDrag()
 				return
 			}
 			// prevent drag to other product when not in Products overview
 			if (!this.isOverviewSelected && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
-				this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', this.SEV.WARNING)
+				this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', SEV.WARNING)
 				this.stopDrag()
 				return
 			}
@@ -598,7 +597,7 @@ const methods = {
 	getReqAreaNodes() {
 		const productModels = this.currentValue[0].children
 		for (const p of productModels) {
-			if (p._id === AREA_PRODUCTID) {
+			if (p._id === MISC.AREA_PRODUCTID) {
 				return p.children
 			}
 		}
@@ -678,15 +677,15 @@ const methods = {
 	*/
 	expandTreeUptoFeatureLevel() {
 		this.traverseModels((nm) => {
-			if (nm.level >= this.LEVEL.PRODUCT && nm.level < this.LEVEL.FEATURE) {
+			if (nm.level >= LEVEL.PRODUCT && nm.level < LEVEL.FEATURE) {
 				nm.isExpanded = true
 				nm.doShow = true
 			} else
-			if (nm.level === this.LEVEL.FEATURE) {
+			if (nm.level === LEVEL.FEATURE) {
 				nm.isExpanded = false
 				nm.doShow = true
 			} else
-			if (nm.level > this.LEVEL.FEATURE) {
+			if (nm.level > LEVEL.FEATURE) {
 				nm.isExpanded = false
 				nm.doShow = false
 			}
@@ -695,7 +694,7 @@ const methods = {
 	},
 
 	getParentNode(node) {
-		for (let i = this.LEVEL.DATABASE; i < node.path.length; i++) {
+		for (let i = LEVEL.DATABASE; i < node.path.length; i++) {
 			const path = node.path.slice(0, i)
 			if (path.length === node.path.length - 1) {
 				return this.getNodeModel(path)
@@ -709,7 +708,7 @@ const methods = {
 	*/
 	showPathToNode(node, highLight) {
 		const maxDepth = node.path.length
-		for (let i = this.LEVEL.PRODUCT; i <= maxDepth; i++) {
+		for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
 			nm.savedIsExpanded = nm.isExpanded
 			nm.savedDoShow = nm.doShow
@@ -733,7 +732,7 @@ const methods = {
 	/* Undo the changes set by showPathToNode(...) */
 	undoShowPath(node, undoHighLight) {
 		const maxDepth = node.path.length
-		for (let i = this.LEVEL.PRODUCT; i <= maxDepth; i++) {
+		for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
 			nm.isExpanded = nm.savedIsExpanded
 			nm.doShow = nm.savedDoShow
@@ -883,10 +882,10 @@ const methods = {
 	setDescendentsReqArea() {
 		let reqArea = null
 		this.traverseModels((nm) => {
-			if (nm.level < this.LEVEL.FEATURE) {
+			if (nm.level < LEVEL.FEATURE) {
 				return
 			}
-			if (nm.level === this.LEVEL.FEATURE) {
+			if (nm.level === LEVEL.FEATURE) {
 				reqArea = nm.data.reqarea || null
 				return
 			}
@@ -898,7 +897,7 @@ const methods = {
 export default {
 	name: 'sl-vue-tree',
 	props,
-	mixins: [constants, utilities],
+	mixins: [utilities],
 	data,
 	mounted,
 	beforeDestroy,

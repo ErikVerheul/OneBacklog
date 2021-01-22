@@ -181,7 +181,7 @@
           <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div class="d-table w-100">
               <p class="title is-6"> {{ getItemInfo() }}</p>
-              <div v-if="getCurrentItemLevel==this.LEVEL.PBI" class="d-table-cell tar">
+              <div v-if="getCurrentItemLevel==LEVEL.PBI" class="d-table-cell tar">
                 <b-form-group>
                   <b-form-radio-group v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
                 </b-form-group>

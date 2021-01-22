@@ -1,10 +1,8 @@
-import { SEV, STATE, LEVEL } from '../../constants.js'
+import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
 import { mapGetters } from 'vuex'
 
-const AREA_PRODUCTID = 'requirement-areas'
-
 const constants = {
-	/* Make the constants available in the context of this to all imports of this file */
+	/* Make the constants available in the context of 'this' to all imports of this file */
 	created() {
 		this.SEV = SEV
 		this.STATE = STATE
@@ -57,7 +55,7 @@ const authorization = {
 			if (this.isAPO) {
 				levels[LEVEL.PRODUCT] = true
 				// the APO has access to the requirements areas overview dummy product
-				if (productId === AREA_PRODUCTID) {
+				if (productId === MISC.AREA_PRODUCTID) {
 					levels[LEVEL.EPIC] = true
 				}
 			}

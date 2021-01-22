@@ -67,10 +67,11 @@
 </template>
 
 <script>
-import { constants, authorization, utilities } from '../../mixins/generic.js'
+import { LEVEL } from '../../../constants.js'
+import { authorization, utilities } from '../../mixins/generic.js'
 
 export default {
-  mixins: [constants, authorization, utilities],
+  mixins: [authorization, utilities],
   name: 'TaskItem',
   props: ['productId', 'storyId', 'storyTitle', 'state', 'columnName', 'item'],
 
@@ -135,7 +136,7 @@ export default {
     },
 
     procSelected () {
-      if (this.haveWritePermission(this.LEVEL.TASK, this.productId)) {
+      if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
         this.showAssistance = false
         switch (this.contextOptionSelected) {
           case this.ADD_TASK:

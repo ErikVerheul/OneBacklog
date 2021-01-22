@@ -1,3 +1,4 @@
+import { SEV } from '../../constants.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
 
 const HOURINMILIS = 3600000
@@ -13,7 +14,7 @@ function mounted() {
 	function idCheck(vm) {
 		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
 		if (vm.itemId.length !== SHORTKEYLENGTH && vm.itemId.length !== FULLKEYLENGTH) {
-			vm.showLastEvent('Wrong Id length. The length must be 5 for a short Id, or 17 for a full Id', this.SEV.WARNING)
+			vm.showLastEvent('Wrong Id length. The length must be 5 for a short Id, or 17 for a full Id', SEV.WARNING)
 			return false
 		}
 
@@ -155,7 +156,7 @@ const methods = {
 		const violations = window.slVueTree.findDependencyViolations(this.isOverviewSelected)
 		if (violations.length > 0) {
 			violationsWereFound = true
-			this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', this.SEV.WARNING)
+			this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', SEV.WARNING)
 			window.slVueTree.showDependencyViolations(violations, this.isOverviewSelected)
 		} else {
 			violationsWereFound = false
@@ -290,7 +291,7 @@ const methods = {
 
 			// expand the newly selected product up to the found item
 			window.slVueTree.showPathToNode(node, { noHighLight: true })
-			this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, this.SEV.INFO)
+			this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 			// load and select the document if not already current
 			if (node._id !== this.$store.state.currentDoc._id) {
 				// select the node after loading the document
@@ -337,13 +338,13 @@ const methods = {
 		const itemTitle = this.getLastSelectedNode.title
 		switch (nodesFound.length) {
 			case 0:
-				this.showLastEvent(`No item titles match your search in ${itemType} '${itemTitle}'`, this.SEV.INFO)
+				this.showLastEvent(`No item titles match your search in ${itemType} '${itemTitle}'`, SEV.INFO)
 				break
 			case 1:
-				this.showLastEvent(`One item title matches your search in ${itemType} '${itemTitle}'. This item is selected`, this.SEV.INFO)
+				this.showLastEvent(`One item title matches your search in ${itemType} '${itemTitle}'. This item is selected`, SEV.INFO)
 				break
 			default:
-				this.showLastEvent(`${nodesFound.length} item titles match your search in ${itemType} '${itemTitle}'. The first match is selected`, this.SEV.INFO)
+				this.showLastEvent(`${nodesFound.length} item titles match your search in ${itemType} '${itemTitle}'. The first match is selected`, SEV.INFO)
 		}
 
 		if (nodesFound.length > 0) {
@@ -422,8 +423,8 @@ const methods = {
 					if (this.moveBack(sourceParentId, targetParentId, reverseMoveMap)) {
 						// update the nodes in the database
 						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, undoMove: true })
-						if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', this.SEV.INFO)
-					} else this.showLastEvent('Undo failed. Sign out and -in again to recover.', this.SEV.ERROR)
+						if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', SEV.INFO)
+					} else this.showLastEvent('Undo failed. Sign out and -in again to recover.', SEV.ERROR)
 				}
 				break
 			case 'undoNewNode':
@@ -436,7 +437,7 @@ const methods = {
 				this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange, createUndo: false })
 				break
 			case 'undoRemove':
-				this.showLastEvent('Busy undoing remove...', this.SEV.INFO)
+				this.showLastEvent('Busy undoing remove...', SEV.INFO)
 				this.$store.dispatch('restoreItemAndDescendents', entry)
 				break
 			case 'undoRemoveSprintIds':
@@ -649,7 +650,7 @@ const methods = {
 				evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
 			} else evt = `${this.getLevelText(clickedLevel)} '${title}' and ${nodes.length - 1} other item(s) are dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
 			if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
-			this.showLastEvent(evt, this.SEV.INFO)
+			this.showLastEvent(evt, SEV.INFO)
 		}
 	},
 

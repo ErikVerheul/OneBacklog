@@ -1,4 +1,5 @@
-import { constants, utilities } from '../mixins/generic.js'
+import { SEV, LEVEL } from '../../constants.js'
+import { utilities } from '../mixins/generic.js'
 
 function data () {
   return {
@@ -77,26 +78,26 @@ const methods = {
       selectedTime: this.selectedTime
     }
     this.$store.dispatch('saveMyFilterSettings', myFilterSettings)
-    this.showLastEvent('Saving the filter settings', this.SEV.INFO)
+    this.showLastEvent('Saving the filter settings', SEV.INFO)
   },
 
   doFilterOnReqAreas (nm) {
-    if (nm.level < this.LEVEL.PRODUCT) return false
+    if (nm.level < LEVEL.PRODUCT) return false
     return !(this.selectedReqAreas.includes(nm.data.reqarea))
   },
 
   doFilterOnTeams (nm) {
-    if (nm.level <= this.LEVEL.PRODUCT) return false
+    if (nm.level <= LEVEL.PRODUCT) return false
     return !(this.selectedTeams.includes(nm.data.team))
   },
 
   doFilterOnState (nm) {
-    if (nm.level <= this.LEVEL.PRODUCT) return false
+    if (nm.level <= LEVEL.PRODUCT) return false
     return !(this.selectedStates.includes(nm.data.state))
   },
 
   doFilterOnTime (nm) {
-    if (nm.level <= this.LEVEL.PRODUCT) return false
+    if (nm.level <= LEVEL.PRODUCT) return false
 
     if (this.selectedTime === '0') {
       if (this.fromDate && this.toDate) {
@@ -113,7 +114,7 @@ const methods = {
 }
 
 export default {
-	mixins: [constants, utilities],
+	mixins: [utilities],
   data,
   mounted,
   methods
