@@ -1,6 +1,10 @@
 import { STATE, LEVEL, MISC } from '../../constants.js'
 import common_admin from './common_admin'
 
+function mounted() {
+	this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
+}
+
 const methods = {
 /* For all options the available databases are fetched once at mount */
 	createUser() {
@@ -97,9 +101,6 @@ const methods = {
 
 export default {
 	extends: common_admin,
-	methods,
-	mounted() {
-		// get all non sytem & non backup databases
-		this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
-	}
+	mounted,
+	methods
 }
