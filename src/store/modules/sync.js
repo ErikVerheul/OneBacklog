@@ -698,7 +698,7 @@ const actions = {
           }
         }
       } else {
-        // not MISC.AREA_PRODUCTID, continue with updateTree and updateBoard
+        // not AREA_PRODUCTID, continue with updateTree and updateBoard
 				if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
           // only process updates of items the user is authorised to including products that are restored from deletion by this user
           dispatch('doBlinck', doc)

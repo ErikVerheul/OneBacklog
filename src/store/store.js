@@ -44,15 +44,15 @@ function createEvent(payload) {
 			color = '#408FAE'
 			break
 		case SEV.WARNING:
-			severityStr = 'SEV.WARNING'
+			severityStr = 'WARNING'
 			color = 'orange'
 			break
 		case SEV.ERROR:
-			severityStr = 'SEV.ERROR'
+			severityStr = 'ERROR'
 			color = 'red'
 			break
 		case SEV.CRITICAL:
-			severityStr = 'SEV.CRITICAL'
+			severityStr = 'CRITICAL'
 			color = '#ff5c33'
 	}
 	const newEvent = {

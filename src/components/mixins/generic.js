@@ -2,7 +2,7 @@ import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
 import { mapGetters } from 'vuex'
 
 const constants = {
-	/* Make the constants available in the context of 'this' to all imports of this file */
+	/* Make the constants available in the context of 'this' */
 	created() {
 		this.SEV = SEV
 		this.STATE = STATE
@@ -83,7 +83,7 @@ const authorization = {
 			// eslint-disable-next-line no-console
 			if (this.$store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
 			// eslint-disable-next-line no-console
-			if (this.$store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, LEVEL.DATABASE, LEVEL.PRODUCT, LEVEL.EPIC, LEVEL.FEATURE, LEVEL.PBI, LEVEL.TASK]: ${levels}`)
+			if (this.$store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, PBI, TASK]: ${levels}`)
 			return levels[level]
 		},
 

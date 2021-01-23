@@ -221,13 +221,13 @@ export default {
           severity = 'INFO'
           break
         case 1:
-          severity = 'SEV.WARNING'
+          severity = 'WARNING'
           break
         case 2:
-          severity = 'SEV.ERROR'
+          severity = 'ERROR'
           break
         case 3:
-          severity = 'SEV.CRITICAL'
+          severity = 'CRITICAL'
       }
       return severity
     },
