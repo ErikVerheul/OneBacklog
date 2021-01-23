@@ -77,7 +77,7 @@ const methods = {
 
 		this.defaultProductOptions = []
 		if (this.selectedProducts.length === 1) {
-			this.updateProductsView([this.selectedProducts[0]], this.selectedProducts[0])
+			this.updateProductsView([this.selectedProducts[0]])
 		} else {
 			for (const o of this.$store.state.myProductOptions) {
 				if (this.selectedProducts.includes(o.value)) {
@@ -98,18 +98,20 @@ const methods = {
 				otherSubscriptions.push(p)
 			}
 		}
-		this.updateProductsView(myNewProductSubscriptions.concat(otherSubscriptions), this.newDefaultProductId)
+		this.updateProductsView(myNewProductSubscriptions.concat(otherSubscriptions))
 	},
 
-	updateProductsView(productIds, newDefaultProductId) {
-		// the default product changed
+	/* The default product changed, update currentProductId, load and show in the tree view and update the user's profile */
+	updateProductsView(productIds) {
+		// the first (index 0) product is by definition the default product
+		const defaultProductId = productIds[0]
 		this.$store.dispatch('loadDoc', {
-			id: newDefaultProductId, onSuccessCallback: () => {
-				if (this.$store.state.currentProductId !== newDefaultProductId) {
+			id: defaultProductId, onSuccessCallback: () => {
+				if (this.$store.state.currentProductId !== defaultProductId) {
 					// another product is selected; collapse the currently selected product and switch to the new product
-					this.$store.commit('switchCurrentProduct', { productId: newDefaultProductId, collapseCurrentProduct: true })
+					this.$store.commit('switchCurrentProduct', { productId: defaultProductId, collapseCurrentProduct: true })
 					// select new default product node
-					window.slVueTree.selectNodeById(newDefaultProductId)
+					window.slVueTree.selectNodeById(defaultProductId)
 					// expand the newly selected product up to the feature level
 					window.slVueTree.expandTreeUptoFeatureLevel()
 				}
@@ -130,15 +132,15 @@ const methods = {
 					}
 				}
 				if (missingIds.length > 0) {
-					this.$store.dispatch('loadProducts', { missingIds, newDefaultProductId })
+					this.$store.dispatch('loadProducts', { missingIds, newDefaultProductId: defaultProductId })
 				}
 				// update the user's profile; place the default productId on top in the array
-				const myProductIds = [newDefaultProductId]
+				const myProductIds = [defaultProductId]
 				for (let id of productIds) {
 					if (!myProductIds.includes(id)) myProductIds.push(id)
 				}
 				this.$store.dispatch('updateMySubscriptions', myProductIds)
-				this.showSelectionEvent([window.slVueTree.getNodeById(newDefaultProductId)])
+				this.showSelectionEvent([window.slVueTree.getNodeById(defaultProductId)])
 			}
 		})
 	},

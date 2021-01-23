@@ -977,8 +977,8 @@ export default new Vuex.Store({
 
 		switchCurrentProduct(state, payload) {
 			if (payload.collapseCurrentProduct) {
-				// Collapse the branch below the current product
-				window.slVueTree.getProductModel()[0].isExpanded = false
+				// if the current product is not removed, collapse the branch below the current product
+				if (window.slVueTree.getProductModel()[0]) window.slVueTree.getProductModel()[0].isExpanded = false
 			}
 			state.currentProductId = payload.productId
 			state.currentProductTitle = window.slVueTree.getProductTitle(payload.productId)
