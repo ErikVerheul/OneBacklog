@@ -66,7 +66,7 @@
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" ref="selectProductsRef" @ok="doSelectProducts" title="Select one or more (hold shift or Ctrl) products to be loaded at sign-in">
+    <b-modal size="lg" ref="selectProductsRef" @ok="doSelectProducts" title="Select one or more (hold shift or Ctrl) products to be loaded">
       <b-container align-v="true">
         <b-form-select size="sm" v-model="selectedProducts" :options="$store.state.myProductOptions" multiple :select-size="$store.state.myProductOptions.length"></b-form-select>
       </b-container>

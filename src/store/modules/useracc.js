@@ -345,6 +345,35 @@ const actions = {
 		})
 	},
 
+	updateMyAvailableProductOpions({
+		rootState,
+		dispatch
+	}, dbName) {
+		globalAxios({
+			method: 'GET',
+			url: dbName + '/_design/design1/_view/products'
+		}).then(res => {
+			const currentProductsEnvelope = res.data.rows
+			const productsRoles = rootState.userData.myDatabases[dbName].productsRoles
+			// set the users product options to select from
+			rootState.myProductOptions = []
+			for (const product of currentProductsEnvelope) {
+				if (Object.keys(productsRoles).includes(product.id)) {
+					rootState.myProductOptions.push({
+						value: product.id,
+						text: product.value
+					})
+				}
+			}
+		}).catch(error => {
+			const msg = `updateMyAvailableProductOpions: Could not update product options for user '${rootState.userData.user}' and database ${dbName}, ${error}`
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log(msg)
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
 	/* Update the user profile in CouchDb. If the profile of the current user is updated, the in-memory profile is updated also */
 	updateUser({
 		rootState,
@@ -376,6 +405,8 @@ const actions = {
 			if (userData.name === rootState.userData.user && userData.currentDb === rootState.userData.currentDb) {
 				// the user is updating its own profile and loaded its current database (admin is not updating another user)
 				commit('setMyUserData', payload.data)
+				// update the available product options
+				dispatch('updateMyAvailableProductOpions', userData.currentDb)
 			}
 			// execute passed callback if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
