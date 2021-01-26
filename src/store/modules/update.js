@@ -1,6 +1,6 @@
 import { SEV, STATE, LEVEL } from '../../constants.js'
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be procecessed again)
 
 function getLevelText(configData, level) {
 	if (level < 0 || level > LEVEL.TASK) {
@@ -941,13 +941,13 @@ const actions = {
 		}).then(() => {
 			// execute passed function if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
-			// execute passed action if provided
+			// execute passed actions if provided
 			if (payload.toDispatch) {
 				// additional dispatches
 				for (const td of payload.toDispatch) {
 					const name = Object.keys(td)[0]
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('updateBulk: dispatching ' + name)
+					if (rootState.debug) console.log('updateDoc: dispatching ' + name)
 					dispatch(name, td[name])
 				}
 			}
@@ -993,7 +993,7 @@ const actions = {
 			} else {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
-				// execute passed action if provided
+				// execute passed actions if provided
 				if (payload.toDispatch) {
 					// additional dispatches
 					for (const td of payload.toDispatch) {

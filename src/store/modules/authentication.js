@@ -1,7 +1,7 @@
 import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
 import router from '../../router'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be procecessed again)
 
 const state = {
 	sessionAuthData: undefined,
@@ -28,7 +28,7 @@ const actions = {
 				if (rootState.debugConnectionAndLogging) console.log('refreshCookie: Authentication cookie refresh is running')
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
-				// execute passed action if provided
+				// execute passed actions if provided
 				if (payload.toDispatch) {
 					// additional dispatches
 					for (const td of payload.toDispatch) {

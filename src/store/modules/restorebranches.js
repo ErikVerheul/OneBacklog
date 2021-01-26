@@ -1,6 +1,6 @@
 import { SEV, LEVEL } from '../../constants.js'
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be procecessed again)
 
 var fromHistory
 var histArray
@@ -228,7 +228,7 @@ const actions = {
 				}
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
-				// execute passed action if provided
+				// execute passed actions if provided
 				if (payload.toDispatch) {
 					// additional dispatches
 					for (const td of payload.toDispatch) {

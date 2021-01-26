@@ -1,5 +1,5 @@
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be procecessed again)
 import { SEV, LEVEL, STATE, MISC } from '../constants.js'
 import Vue from 'vue'
 import Vuex from 'vuex'

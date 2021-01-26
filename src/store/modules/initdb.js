@@ -1,6 +1,6 @@
 import { LEVEL, MISC } from '../../constants.js'
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be procecessed again)
 
 function createId() {
 	// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
