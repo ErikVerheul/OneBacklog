@@ -1,7 +1,7 @@
 import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
 import router from '../../router'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be procecessed again)
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
 /* Add item to array if not already present. Returns a new array so that it is reactive */
 function addToArray(arr, item) {

@@ -1,6 +1,6 @@
 import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
-// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be procecessed again)
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
 function composeRangeString (id) {
   return `startkey="${id}"&endkey="${id}"`
