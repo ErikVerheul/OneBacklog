@@ -117,10 +117,10 @@ const mutations = {
 			state.docsCount++
 
 			// expand the default product up to the feature level
-			const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
+			const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
 			const isDraggable = itemLevel > LEVEL.PRODUCT
 			// show the product level nodes and all nodes of the current default product
-			const doShow = itemLevel <= LEVEL.PRODUCT || productId === rootState.currentDefaultProductId
+			const doShow = itemLevel <= LEVEL.PRODUCT || productId === rootGetters.getCurrentDefaultProductId
 			if (parentNodes[parentId] !== undefined) {
 				const parentNode = parentNodes[parentId]
 				const ind = parentNode.children.length
@@ -147,7 +147,7 @@ const mutations = {
 					isExpanded,
 					isSelectable: true,
 					isDraggable,
-					isSelected: _id === rootState.currentDefaultProductId,
+					isSelected: _id === rootGetters.getCurrentDefaultProductId,
 					doShow,
 					data: {
 						lastAttachmentAddition,
@@ -169,7 +169,7 @@ const mutations = {
 
 				state.insertedCount++
 
-				if (_id === rootState.currentDefaultProductId) {
+				if (_id === rootGetters.getCurrentDefaultProductId) {
 					rootState.selectedNodes = [newNode]
 				}
 
@@ -187,13 +187,14 @@ const actions = {
 	/* Load current default user product and start loading the tree */
 	loadProductDetails({
 		rootState,
+		rootGetters,
 		commit,
 		dispatch
 	}) {
 		parentNodes = {}
 		orphansFound = []
 		levelErrorsFound = []
-		const _id = rootState.currentDefaultProductId
+		const _id = rootGetters.getCurrentDefaultProductId
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id

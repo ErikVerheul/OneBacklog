@@ -113,7 +113,7 @@ const actions = {
 
         state.docsCount++
         // expand the default product up to the feature level
-        const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
+				const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
         // products cannot be dragged
         const isDraggable = itemLevel > LEVEL.PRODUCT
         // show all nodes
@@ -145,7 +145,7 @@ const actions = {
             isExpanded,
             isSelectable: true,
             isDraggable,
-            isSelected: _id === rootState.currentDefaultProductId,
+						isSelected: _id === rootGetters.getCurrentDefaultProductId,
             doShow,
             data: {
               lastAttachmentAddition,
@@ -167,7 +167,7 @@ const actions = {
 
           state.insertedCount++
 
-          if (_id === rootState.currentDefaultProductId) {
+					if (_id === rootGetters.getCurrentDefaultProductId) {
             rootState.selectedNodes = [newNode]
           }
 
