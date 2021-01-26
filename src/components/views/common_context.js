@@ -63,10 +63,12 @@ const methods = {
 		return false
 	},
 
+	/* Clone a product INCLUDING its descendants */
 	doCloneProduct(node) {
 		this.$store.dispatch('cloneProduct', node)
 	},
 
+	/* Clone an item EXCLUDING its descendants */
 	doCloneItem(node) {
 		const newId = this.createId()
 		let newNodeLocation
@@ -329,8 +331,8 @@ const methods = {
 		if (this.haveAccessInTree(selectedNode.level, selectedNode.data.team, 'remove this item')) {
 			// when removing a product
 			if (selectedNode.level === this.productLevel) {
-				// cannot remove the last assigned product or product in the tree
 				if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
+					// cannot remove the last assigned product or product in the tree
 					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
 					return
 				}
