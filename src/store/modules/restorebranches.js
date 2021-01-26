@@ -4,7 +4,7 @@ import globalAxios from 'axios'
 
 var fromHistory
 var histArray
-var newDefaultProductId
+var productIdToSelect
 var startRestore
 var getChildrenRunning
 
@@ -64,8 +64,8 @@ function convertToResults (docs) {
 
 const actions = {
   restoreItems ({
-    rootState,
-    getters,
+		rootState,
+		rootGetters,
     dispatch,
     commit
   }, payload) {
@@ -138,7 +138,7 @@ const actions = {
       if (parentNode) {
         // create the node
         const locationInfo = getLocationInfo(priority, parentNode)
-				const isExpanded = productId === rootState.currentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
+				const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
         const newNode = {
           path: locationInfo.newPath,
           pathStr: JSON.stringify(locationInfo.newPath),
@@ -150,7 +150,7 @@ const actions = {
           dependencies,
           conditionalFor,
           title,
-          isLeaf: itemLevel === getters.leafLevel,
+          isLeaf: itemLevel === rootGetters.leafLevel,
           children: [],
           isSelected: false,
           isExpanded,
@@ -181,7 +181,7 @@ const actions = {
 
         if (!fromHistory) {
           // select the product node in the tree
-          if (_id === newDefaultProductId) window.slVueTree.selectNodeById(newDefaultProductId)
+          if (_id === productIdToSelect) window.slVueTree.selectNodeById(productIdToSelect)
         }
         dispatch('getChildrenToRestore', { _id, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
       } else {
@@ -264,12 +264,12 @@ const actions = {
     dispatch('restoreItems', { results: convertToResults(docs) })
   },
 
-  /* loadProducts uses restoreBranches to load a product as a branch */
+  /* LoadProducts uses restoreBranches to load a product as a branch */
   loadProducts ({
     rootState,
     dispatch
   }, payload) {
-    newDefaultProductId = payload.newDefaultProductId
+    productIdToSelect = payload.productIdToSelect
     const docsToGet = []
     for (const id of payload.missingIds) {
       docsToGet.push({ id: id })
