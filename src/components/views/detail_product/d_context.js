@@ -89,11 +89,11 @@ const methods = {
 		switch (this.contextOptionSelected) {
 			case this.CLONEPRODUCT:
 				this.assistanceText = this.$store.state.help.help.productClone
-				this.listItemText = 'Make a clone of this product'
+				this.listItemText = 'Make a clone of this product including its descendant items.'
 				break
 			case this.CLONEITEM:
 				this.assistanceText = this.$store.state.help.help.itemClone
-				this.listItemText = 'Make a clone of this item'
+				this.listItemText = 'Make a clone of this item. No descendant items are copied.'
 				break
 			case this.INSERTBELOW:
 				this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
