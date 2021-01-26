@@ -1,3 +1,5 @@
+import globalAxios from 'axios'
+// IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be procecessed again)
 import { SEV, LEVEL, STATE, MISC } from '../constants.js'
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -66,7 +68,7 @@ function createEvent(payload) {
 }
 
 Vue.use(Vuex)
-/* Add item to array if not already present. Returns a new array so that it is reactive */
+/* Add item (not an object) to array if not already present. Returns a new array so that it is reactive */
 function addToArray(arr, item) {
 	const newArr = []
 	for (const el of arr) newArr.push(el)
@@ -74,7 +76,7 @@ function addToArray(arr, item) {
 	return newArr
 }
 
-/* Remove item from array if present. Returns a new array so that it is reactive */
+/* Remove item (not an object) from array if present. Returns a new array so that it is reactive */
 function removeFromArray(arr, item) {
 	const newArr = []
 	for (const el of arr) {
@@ -126,13 +128,13 @@ export default new Vuex.Store({
 		mySessionId: null,
 		// startup
 		availableProductIds: [],
-		currentDefaultProductId: null,
 		currentProductId: null,
 		currentProductTitle: '',
 		iAmAPO: false,
 		iAmAdmin: false,
 		iAmAssistAdmin: false,
 		iAmServerAdmin: false,
+		myAssignedDatabases: undefined,
 		stopListenForChanges: false,
 		// tree loading
 		loadedTreeDepth: undefined,
@@ -155,7 +157,6 @@ export default new Vuex.Store({
 		findIdOn: false,
 		keyword: '',
 		moveOngoing: false,
-		myAssignedDatabases: undefined,
 		lastTreeView: undefined,
 		searchOn: false,
 		selectedForView: 'comments',
@@ -234,6 +235,16 @@ export default new Vuex.Store({
 			return state.currentDoc._id === MISC.AREA_PRODUCTID || state.currentDoc.productId === MISC.AREA_PRODUCTID
 		},
 
+		getCurrentDefaultProductId(state) {
+			if (state.userData.myDatabases) {
+				const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
+				if (currentDbSettings && Object.keys(currentDbSettings.productsRoles).length > 0) {
+					// the first (index 0) product in the current db subscriptions is by definition the default product
+					return currentDbSettings.subscriptions[0]
+				}
+			}
+		},
+
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
 		},
@@ -293,7 +304,7 @@ export default new Vuex.Store({
 			return {}
 		},
 
-		/* Return the productIds of all products assigned to me in all my assigned databases */
+		/* Return the productIds of the products assigned to me in all my assigned databases */
 		getAllMyAssignedProductIds(state) {
 			const allIds = []
 			if (state.userData.myDatabases) {
@@ -307,6 +318,7 @@ export default new Vuex.Store({
 			return allIds
 		},
 
+		/* Return the productIds of the products assigned to me in my current database */
 		getMyAssignedProductIds(state) {
 			if (state.userData.myDatabases) {
 				const productsRoles = state.userData.myDatabases[state.userData.currentDb].productsRoles
@@ -438,69 +450,166 @@ export default new Vuex.Store({
 
 	actions: {
 		/* Clear any outstanding filters and searches of the current product (default) or all products */
-		resetFilters({ state, commit, dispatch }, payload) {
-			if (state.debug) {
-				// eslint-disable-next-line no-console
-				console.log(`resetFilters is called by ${payload.caller}, allProducts = ${payload.allProducts}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
-			}
-
-			if (state.resetSearch.searchType === 'onSetMyFilters') {
-				const nodesToScan = window.slVueTree.getProductModel()
-				// traverse the tree to reset to the state before filtering
-				window.slVueTree.traverseModels((nm) => {
-					// skip requirement areas dummy product items
-					if (nm._id === MISC.AREA_PRODUCTID) return
-
-					// filters do only set isHighlighted_1
-					nm.isHighlighted_1 = false
-					nm.doShow = nm.savedDoShow
-					nm.isExpanded = nm.savedIsExpanded
-				}, nodesToScan)
-
-				commit('addToEventList', { txt: `Your filter in product '${state.currentProductTitle}' is cleared`, severity: SEV.INFO })
-				state.filterText = FILTERBUTTONTEXT
-				state.resetSearch = {}
-			}
-
-			if (state.resetSearch.searchType === 'findItemOnId') {
-				const node = state.resetSearch.nodes[0]
-				const prevSelectedNode = state.resetSearch.currentSelectedNode
-				if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
-					// the node was found in another product; collapse the currently selected product and switch to the other product
-					commit('switchCurrentProduct', { productId: prevSelectedNode.productId, collapseCurrentProduct: true })
-					// expand the product
-					window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
-				} else {
-					window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
+		resetFilters({ state, getters, commit, dispatch }, payload) {
+			if (state.resetSearch.searchType) {
+				if (state.debug) {
+					// eslint-disable-next-line no-console
+					console.log(`resetFilters is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
 				}
-				// select the node after loading the document
-				dispatch('loadDoc', {
-					id: prevSelectedNode._id, onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-						commit('addToEventList', { txt: 'The search for an item on Id is closed', severity: SEV.INFO })
-					}
-				})
-				state.resetSearch = {}
-			}
 
-			if (state.resetSearch.searchType === 'searchInTitles') {
-				for (const node of state.resetSearch.nodes) {
-					window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
+				if (state.resetSearch.searchType === 'onSetMyFilters') {
+					const nodesToScan = getters.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
+					// traverse the tree to reset to the state before filtering
+					window.slVueTree.traverseModels((nm) => {
+						if (nm.level <= LEVEL.PRODUCT) return
+						// skip requirement areas dummy product items
+						if (nm._id === MISC.AREA_PRODUCTID) return
+
+						// filters do only set isHighlighted_1
+						nm.isHighlighted_1 = false
+						nm.doShow = nm.savedDoShow
+						nm.isExpanded = nm.savedIsExpanded
+					}, nodesToScan)
+
+					commit('addToEventList', { txt: `Your filter in product '${state.currentProductTitle}' is cleared`, severity: SEV.INFO })
+					state.filterText = FILTERBUTTONTEXT
 				}
-				const prevSelectedNode = state.resetSearch.currentSelectedNode
-				dispatch('loadDoc', {
-					id: prevSelectedNode._id, onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-						window.slVueTree.showPathToNode(prevSelectedNode)
+
+				if (state.resetSearch.searchType === 'findItemOnId') {
+					const node = state.resetSearch.nodes[0]
+					const prevSelectedNode = state.resetSearch.currentSelectedNode
+					if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
+						// the node was found in another product; collapse the currently selected product and switch to the other product
+						commit('switchCurrentProduct', { productId: prevSelectedNode.productId, collapseCurrentProduct: true })
 						// expand the product
 						window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
-						state.keyword = ''
-						commit('addToEventList', { txt: `The search for item titles in '${prevSelectedNode.title}' is closed`, severity: SEV.INFO })
+					} else {
+						window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
 					}
-				})
+					// select the node after loading the document
+					dispatch('loadDoc', {
+						id: prevSelectedNode._id, onSuccessCallback: () => {
+							commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+							commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
+						}
+					})
+				}
+
+				if (state.resetSearch.searchType === 'searchInTitles') {
+					for (const node of state.resetSearch.nodes) {
+						window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
+					}
+					const prevSelectedNode = state.resetSearch.currentSelectedNode
+					dispatch('loadDoc', {
+						id: prevSelectedNode._id, onSuccessCallback: () => {
+							commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+							window.slVueTree.showPathToNode(prevSelectedNode)
+							// expand the product
+							window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
+							state.keyword = ''
+							commit('addToEventList', { txt: `The search for item titles in '${prevSelectedNode.title}' is cleared`, severity: SEV.INFO })
+						}
+					})
+				}
 				state.resetSearch = {}
+			} else {
+				if (state.debug) {
+					// eslint-disable-next-line no-console
+					console.log(`resetFilters is called by ${payload.caller} but no reset history is avalable`)
+				}
 			}
+			// execute new filter if requested
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
 		},
+
+		/* Add the product to my profile and update my available products and my product options	*/
+		addToMyProducts({ state, dispatch }, payload) {
+			globalAxios({
+				method: 'GET',
+				url: '/_users/org.couchdb.user:' + state.userData.user
+			}).then(res => {
+				const updateProducts = () => {
+					if (!state.availableProductIds.includes(payload.productId)) {
+						// add the id to my available products
+						state.availableProductIds = addToArray(state.availableProductIds, payload.productId)
+					}
+					// add an object to my product options
+					state.myProductOptions = addToArray(state.myProductOptions, {
+						value: payload.productId,
+						text: payload.productTitle
+					})
+				}
+
+				// prevent updating the user's profile twice
+				if (payload.isSameUserInDifferentSession) {
+					state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId] = payload.newRoles
+					state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
+					updateProducts()
+				} else {
+					const tmpUserData = res.data
+					tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId] = payload.newRoles
+					tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = addToArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
+					dispatch('updateUser', { data: tmpUserData, onSuccessCallback: updateProducts })
+				}
+			}).catch(error => {
+				const msg = 'removeFromMyProducts: User ' + state.userData.user + ' cannot save its updated profile. Error = ' + error
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+		},
+
+		/* Remove the product from my profile and update my available products and my product options	*/
+		removeFromMyProducts({ state, getters, dispatch }, payload) {
+			globalAxios({
+				method: 'GET',
+				url: '/_users/org.couchdb.user:' + state.userData.user
+			}).then(res => {
+				const updateProducts = () => {
+					if (state.availableProductIds.includes(payload.productId)) {
+						// delete the id from my available products
+						state.availableProductIds = removeFromArray(state.availableProductIds, payload.productId)
+					}
+					const newOptions = []
+					for (const o of state.myProductOptions) {
+						// delete the removed option object
+						if (o.value !== payload.productId) newOptions.push(o)
+					}
+					state.myProductOptions = newOptions
+				}
+
+				// prevent updating the user's profile twice
+				if (payload.isSameUserInDifferentSession) {
+					// delete product from my profile
+					delete state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId]
+					updateProducts()
+				} else {
+					const tmpUserData = res.data
+					// delete product from my profile
+					delete tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId]
+					if (getters.getMyProductSubscriptions.includes(payload.productId)) {
+						// delete the id from my subscriptions
+						tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = removeFromArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
+					}
+					dispatch('updateUser', { data: tmpUserData, onSuccessCallback: updateProducts })
+				}
+			}).catch(error => {
+				const msg = 'removeFromMyProducts: User ' + state.userData.user + ' cannot save its updated profile. Error = ' + error
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+		},
+
+		updateMyProductSubscriptions({ state, dispatch }, payload) {
+			globalAxios({
+				method: 'GET',
+				url: '/_users/org.couchdb.user:' + state.userData.user
+			}).then(res => {
+				const tmpUserData = res.data
+				tmpUserData.myDatabases[state.userData.currentDb].subscriptions = payload.productIds
+				dispatch('updateUser', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
+			}).catch(error => {
+				const msg = 'updateMyProductSubscriptions: User ' + state.userData.user + ' cannot save its updated profile. Error = ' + error
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+		}
 	},
 
 	mutations: {
@@ -513,59 +622,14 @@ export default new Vuex.Store({
 
 		/* Store my user data in memory */
 		setMyUserData(state, payload) {
-			state.userData.myTeam = payload.data.myDatabases[payload.data.currentDb].myTeam
-			state.userData.currentDb = payload.data.currentDb
-			state.userData.email = payload.data.email
-			state.userData.roles = payload.data.roles
-			state.userData.myDatabases = payload.data.myDatabases
-			state.userData.myProductViewFilterSettings = payload.data.myProductViewFilterSettings
-			state.userData.myFilterSettings = payload.data.myDatabases[payload.data.currentDb].filterSettings
-			state.userData.doNotAskForImport = payload.data.doNotAskForImport
-		},
-
-		/*
-		*  Mutation to re-enter all the current users product roles, and update the user's subscriptions and product selection array with the removed product
-		*  Steps:
-		*  - Replace my product roles for all my products in my current database
-		*  - Add the productId to my subscriptions in my current database
-		*	 - Add the productId and title to my product options
-		*/
-		addToMyProducts(state, payload) {
-			state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.newRoles]
-			state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
-			// create a new array so that it is reactive
-			const newArr = []
-			for (const el of state.myProductOptions) {
-				newArr.push(el)
-			}
-			newArr.push({
-				value: payload.productId,
-				text: payload.productTitle
-			})
-			state.myProductOptions = newArr
-		},
-
-		/*
-		* Remove the product from the users product roles, subscriptions and product selection array
-		* The user profile will be updated at the next sign-in
-		*/
-		removeFromMyProducts(state, payload) {
-			// workaround to access getter
-			const getters = payload.getters
-			delete state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId]
-			if (getters.getMyProductSubscriptions.includes(payload.productId)) {
-				state.userData.myDatabases[state.userData.currentDb].subscriptions = removeFromArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
-				// create a new array so that it is reactive
-				const newArr = []
-				for (const el of state.myProductOptions) {
-					if (el.value !== payload.productId) newArr.push(el)
-				}
-				state.myProductOptions = newArr
-			}
-		},
-
-		updateMyProductSubscriptions(state, productIds) {
-			state.userData.myDatabases[state.userData.currentDb].subscriptions = productIds
+			state.userData.myTeam = payload.myDatabases[payload.currentDb].myTeam
+			state.userData.currentDb = payload.currentDb
+			state.userData.email = payload.email
+			state.userData.roles = payload.roles
+			state.userData.myDatabases = payload.myDatabases
+			state.userData.myProductViewFilterSettings = payload.myProductViewFilterSettings
+			state.userData.myFilterSettings = payload.myDatabases[payload.currentDb].filterSettings
+			state.userData.doNotAskForImport = payload.doNotAskForImport
 		},
 
 		/* Create or re-create the color mapper from the defined req areas (only available in Products overview) */
@@ -991,7 +1055,6 @@ export default new Vuex.Store({
 			state.configData = null
 			state.currentDoc = null
 			state.createDefaultCalendar = false
-			state.currentDefaultProductId = null
 			state.currentProductId = null
 			state.currentProductTitle = ''
 			state.iAmAPO = false
@@ -1007,6 +1070,7 @@ export default new Vuex.Store({
 			state.loadedTreeDepth = undefined
 			state.myProductOptions = []
 			state.mySessionId = null
+			state.resetSearch = {}
 			state.showHeaderDropDowns = true
 			state.stopListenForChanges = true
 			state.stories = []
