@@ -50,7 +50,6 @@ const actions = {
   processDoc ({
 		rootState,
 		rootGetters,
-    getters,
     commit,
     dispatch
   }, doc) {
@@ -145,7 +144,7 @@ const actions = {
         dependencies: doc.dependencies || [],
         conditionalFor: doc.conditionalFor || [],
         title: doc.title,
-        isLeaf: !((locationInfo.newPath.length < getters.leafLevel)),
+        isLeaf: !((locationInfo.newPath.length < rootGetters.leafLevel)),
         children: [],
         isSelected: false,
         isExpanded: true,
@@ -207,7 +206,7 @@ const actions = {
       }
     }
 
-    async function doProc (doc) {
+		async function doProc(doc, isSameUserInDifferentSession) {
       try {
         if (updateTree) {
           // eslint-disable-next-line no-console
@@ -277,12 +276,12 @@ const actions = {
                   toDispatch,
                   onSuccessCallback: () => {
                     if (doc.level === LEVEL.PRODUCT) {
-											// re-enter all the current users product roles, and update the user's subscriptions and product selection array with the removed product
-											commit('addToMyProducts', { newRoles: lastHistObj.docRestoredEvent[5], productId: doc._id, productTitle: doc.title })
+											// re-enter all the current users product roles, and update the user's subscriptions and product selection arrays with the removed product
+											dispatch('addToMyProducts', { newRoles: lastHistObj.docRestoredEvent[5], productId: doc._id, productTitle: doc.title, isSameUserInDifferentSession })
                     }
                     if (lastHistObj.by === rootState.userData.user) {
-                      commit('showLastEvent', { txt: `You restored a removed ${getLevelText(doc.level, doc.subtype)} in another session`, severity: SEV.INFO })
-                    } else commit('showLastEvent', { txt: `Another user restored a removed ${getLevelText(doc.level, doc.subtype)}`, severity: SEV.INFO })
+											commit('showLastEvent', { txt: `You restored the removed ${getLevelText(doc.level, doc.subtype)} '${doc.title}' in another session`, severity: SEV.INFO })
+										} else commit('showLastEvent', { txt: `Another user restored the removed ${getLevelText(doc.level, doc.subtype)} '${doc.title}'`, severity: SEV.INFO })
                   }
                 })
               }
@@ -300,14 +299,13 @@ const actions = {
                 if (node.level === LEVEL.PRODUCT) {
                   // save some data of the removed product for restore at undo.
 									removedProducts.unshift({ id: node._id, productRoles: rootGetters.getMyProductsRoles[node._id] })
-									// remove the product from the users product roles, subscriptions and product selection array
-									// the user profile will be updated at the next sign-in
-									commit('removeFromMyProducts', {getters, productId: node._id })
+									// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
+									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession })
                 }
                 window.slVueTree.remove([node])
                 if (lastHistObj.by === rootState.userData.user) {
-                  commit('showLastEvent', { txt: `You removed a ${getLevelText(doc.level, doc.subtype)} in another session`, severity: SEV.INFO })
-                } else commit('showLastEvent', { txt: `Another user removed a ${getLevelText(doc.level, doc.subtype)}`, severity: SEV.INFO })
+									commit('showLastEvent', { txt: `You removed the ${getLevelText(doc.level, doc.subtype)} '${doc.title}' in another session`, severity: SEV.INFO })
+                } else commit('showLastEvent', { txt: `Another user removed the ${getLevelText(doc.level, doc.subtype)} '${doc.title}'`, severity: SEV.INFO })
               }
               break
             case 'removeSprintIdsEvent':
@@ -610,16 +608,21 @@ const actions = {
     const lastHistObj = doc.history[0]
     // get data from last history addition
     const lastHistoryTimestamp = lastHistObj.timestamp
+    const lastHistoryOwner = lastHistObj.by
 		const histEvent = Object.keys(lastHistObj)[0]
-    const updateTree = histEvent !== 'ignoreEvent' && doc.level <= rootState.loadedTreeDepth
+		const updateTree = histEvent !== 'ignoreEvent' && doc.level <= rootState.loadedTreeDepth
+    const isSameUserInDifferentSession = updateTree && (lastHistoryOwner === rootState.userData.user)
     // update the tree only for documents available in the currently loaded tree model
     const updateBoard = histEvent !== 'ignoreEvent' && rootState.currentView === 'planningBoard' &&
 			(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent' || histEvent === 'triggerBoardReload')
-    // update the board only if loaded and the item represented by the document is assigned to my team. Exceptions for events:
-    // - setTeamOwnerEvent: also update the board if an item changes team (the doc is assigned to another team or no team)
-    // - triggerBoardReload: also trigger a reload from the feature level (the doc is the feature parent and has no team ownership)
 
-    // boardReloadEvent: this event is passed via the 'messenger' dummy backlogitem, the team name is in the message not in the doc
+		/*
+    * Update the board only if loaded and the item represented by the document is assigned to my team. Exceptions for events:
+    * - setTeamOwnerEvent: also update the board if an item changes team (the doc is assigned to another team or no team)
+		* - triggerBoardReload: also trigger a reload from the feature level (the doc is the feature parent and has no team ownership)
+		*/
+
+    /* boardReloadEvent: This event is passed via the 'messenger' dummy backlogitem, the team name is in the message not in the doc */
     if (histEvent === 'boardReloadEvent') {
       // always process this event
       const sprintId = lastHistObj.boardReloadEvent[0]
@@ -661,7 +664,7 @@ const actions = {
             }
             break
         }
-
+				// special case: requirement areas changes- continued
 				if (rootGetters.isOverviewSelected) {
           const node = window.slVueTree.getNodeById(doc._id)
           switch (histEvent) {
@@ -700,9 +703,9 @@ const actions = {
       } else {
         // not AREA_PRODUCTID, continue with updateTree and updateBoard
 				if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
-          // only process updates of items the user is authorised to including products that are restored from deletion by this user
+          // only process updates of items the user is authorised to, including products that are restored from deletion by this user
           dispatch('doBlinck', doc)
-          doProc(doc)
+					doProc(doc, isSameUserInDifferentSession)
         }
       }
     }

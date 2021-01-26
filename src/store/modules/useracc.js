@@ -11,15 +11,6 @@ function addToArray(arr, item) {
 	return newArr
 }
 
-/* Remove item from array if present. Returns a new array so that it is reactive */
-function removeFromArray(arr, item) {
-	const newArr = []
-	for (const el of arr) {
-		if (el !== item) newArr.push(el)
-	}
-	return newArr
-}
-
 const state = {
 	fetchedUserData: null,
 	userIsAdmin: false,
@@ -67,7 +58,10 @@ const actions = {
 		})
 	},
 
-	/* Only admins have the access rights to this call */
+	/*
+	* Get all user names.
+	* Only admins/assistAdmins have the access rights to this call
+	*/
 	getAllUsers({
 		rootState,
 		state,
@@ -128,7 +122,7 @@ const actions = {
 		}).then(res => {
 			rootState.areProductsFound = true
 			if (payload.onlyMyProducts) {
-				state.dbProducts = res.data.rows.map(row => {	if (rootGetters.getAllMyAssignedProductIds.includes(row.id)) return row	})
+				state.dbProducts = res.data.rows.map(row => { if (rootGetters.getAllMyAssignedProductIds.includes(row.id)) return row })
 			} else state.dbProducts = res.data.rows
 			// add empty roles array to each product
 			for (const product of state.dbProducts) {
@@ -193,54 +187,6 @@ const actions = {
 		})
 	},
 
-	assignProductsToUserAction({
-		rootState,
-		state,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: '/_users/org.couchdb.user:' + payload.selectedUser
-		}).then(res => {
-			const tmpUserData = res.data
-			const addedDb = payload.dbName
-			if (!rootState.myAssignedDatabases.includes(addedDb)) {
-				rootState.backendMessages.push({
-					seqKey: rootState.seqKey++,
-					msg: `assignProductsToUserAction: The database ${addedDb} will be assigned to user '${payload.selectedUser}'`
-				})
-				// add the new db to the user's profile
-				const productsRoles = {}
-				const subscriptions = []
-				for (const prod of state.dbProducts) {
-					if (prod.roles.length > 0) {
-						productsRoles[prod.id] = prod.roles
-						subscriptions.push(prod.id)
-					}
-				}
-				const newDb = {
-					myTeam: 'not assigned yet',
-					subscriptions,
-					productsRoles
-				}
-				tmpUserData.myDatabases[addedDb] = newDb
-			}
-
-			dispatch('updateUser', { data: tmpUserData, addedDb })
-			// ToDo: move to onSuccessCallback
-			rootState.backendMessages.push({
-				seqKey: rootState.seqKey++,
-				msg: `assignProductsToUserAction: The database ${addedDb} is added to the profile of user '${payload.selectedUser}'`
-			})
-		}).catch(error => {
-			const msg = `assignProductsToUserAction: Could not subscribe database ${payload.dbName} to user '${payload.selectedUser}', ${error}`
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
 	assignProductToUser({
 		rootState,
 		dispatch
@@ -272,7 +218,13 @@ const actions = {
 				addedDb = payload.dbName
 			}
 			dispatch('updateUser', {
-				data: tmpUserData, addedDb, newProductOption: payload.newProductOption, onSuccessCallback: () => {
+				data: tmpUserData, onSuccessCallback: () => {
+					if (tmpUserData.name === rootState.userData.user && tmpUserData.currentDb === rootState.userData.currentDb) {
+						// the user is updating its own profile and loaded its current database (admin is not updating another user)
+						if (addedDb) rootState.myAssignedDatabases = addToArray(rootState.myAssignedDatabases, addedDb)
+						// the user gets a new product to select
+						rootState.myProductOptions.push(payload.newProductOption)
+					}
 					// set result for 'Create a product' admin process (admin.js)
 					rootState.isProductCreated = true
 					// set result for database initiation process (initdb)
@@ -288,26 +240,6 @@ const actions = {
 		}).catch(error => {
 			const msg = 'assignProductToUser: Could not update subscribed products for user ' + payload.selectedUser + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	/* Update my profile with my product subscriptions. The first entry in the array is my default product. */
-	updateMySubscriptions({
-		rootState,
-		dispatch
-	}, newSubscriptions) {
-		globalAxios({
-			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user
-		}).then(res => {
-			const tmpUserData = res.data
-			tmpUserData.myDatabases[rootState.userData.currentDb].subscriptions = newSubscriptions
-			dispatch('updateUser', { data: tmpUserData })
-		}).catch(error => {
-			const msg = 'updateMySubscriptions: Could not update subscribed products for user ' + rootState.userData.user + ', ' + error
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -443,24 +375,8 @@ const actions = {
 		}).then(() => {
 			if (userData.name === rootState.userData.user && userData.currentDb === rootState.userData.currentDb) {
 				// the user is updating its own profile and loaded its current database (admin is not updating another user)
-				commit('setMyUserData', payload)
-
-				if (payload.newProductOption) {
-					// the user gets a new product to select
-					rootState.myProductOptions.push(payload.newProductOption)
-				}
-
-				if (payload.removedDb) {
-					// the user cannot select this database anymore
-					rootState.myAssignedDatabases = removeFromArray(rootState.myAssignedDatabases, payload.removedDb)
-				}
-
-				if (payload.addedDb) {
-					// the user gets a new database to select
-					rootState.myAssignedDatabases = addToArray(rootState.myAssignedDatabases, payload.addedDb)
-				}
+				commit('setMyUserData', payload.data)
 			}
-
 			// execute passed callback if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			if (payload.toDispatch) {

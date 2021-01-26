@@ -118,8 +118,8 @@ const actions = {
             })
           }
           if (entry.isProductRemoved) {
-						// re-enter all the current users product roles, and update the user's subscriptions and product selection array with the removed product
-						commit('addToMyProducts', { newRoles: entry.removedProductRoles, productId: _id, productTitle: entry.removedNode.title })
+						// re-enter the users roles for this product and update the user's subscriptions and product selection arrays with the re-entered product
+						dispatch('addToMyProducts', { newRoles: entry.removedProductRoles, productId: _id, productTitle: entry.removedNode.title })
           }
           const path = entry.removedNode.path
           const prevNode = window.slVueTree.getPreviousNode(path)
