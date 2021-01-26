@@ -20,10 +20,6 @@ function beforeCreate() {
 	if (thisView !== this.$store.state.lastTreeView) {
 		this.$store.state.treeNodes = []
 		this.$store.state.changeHistory = []
-		this.$store.state.loadproducts.docsCount = 0
-		this.$store.state.loadproducts.insertedCount = 0
-		this.$store.state.loadproducts.orphansCount = 0
-		this.$store.state.loadproducts.orphansFound = { userData: null, orphans: [] }
 		// reset filters and searches
 		this.$store.state.filterText = FILTERBUTTONTEXT
 		this.$store.dispatch('loadProductDetails')
@@ -170,7 +166,7 @@ const methods = {
 				if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
 					// another product is selected; collapse the currently selected product and switch to the new product
 					this.$store.commit('switchCurrentProduct', { productId: this.getLastSelectedNode.productId, collapseCurrentProduct: true })
-					// expand the newly selected product up to the LEVEL.FEATURE level
+					// expand the newly selected product up to the feature level
 					window.slVueTree.expandTreeUptoFeatureLevel()
 				}
 				if (!fromContextMenu) this.showSelectionEvent(selNodes)

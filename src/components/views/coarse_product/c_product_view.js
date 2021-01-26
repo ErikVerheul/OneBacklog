@@ -18,10 +18,6 @@ function beforeCreate() {
 	if (thisView !== this.$store.state.lastTreeView) {
 		this.$store.state.treeNodes = []
 		this.$store.state.changeHistory = []
-		this.$store.state.loadoverview.docsCount = 0
-		this.$store.state.loadoverview.insertedCount = 0
-		this.$store.state.loadoverview.orphansCount = 0
-		this.$store.state.loadoverview.orphansFound = { userData: null, orphans: [] }
 		// reset filters and searches
 		this.$store.state.filterText = FILTERBUTTONTEXT
 		this.$store.dispatch('loadOverview')
