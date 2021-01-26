@@ -488,11 +488,14 @@ const methods = {
 			newUserData.myDatabases[dbName].subscriptions = newSubscriptions
 			newUserData.myDatabases[dbName].productsRoles = newProductsRoles
 		}
-		this.$store.dispatch('updateUser', { data: newUserData })
-	},
-
-	doAssignProductsToUser() {
-		this.$store.dispatch('assignProductsToUserAction', { dbName: this.$store.state.selectedDatabaseName, selectedUser: this.selectedUser })
+		this.$store.dispatch('updateUser', {
+			data: newUserData, onSuccessCallback: () => {
+				if (removeDb) {
+					// the user cannot select this database anymore
+					this.$store.state.myAssignedDatabases = removeFromArray(this.$store.state.myAssignedDatabases, dbName)
+				}
+			}
+		})
 	},
 
 	doCreateDefaultCalendar() {
