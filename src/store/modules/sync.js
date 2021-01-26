@@ -35,9 +35,6 @@ import { SEV, LEVEL, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
-// keep track of removed products during this session
-var removedProducts = []
-
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
 * - Select from the changes in documents of type 'backlogItem' the items with a history or comments array and a first entry tagged for distribution (exluding config, log and possibly others)
@@ -297,8 +294,6 @@ const actions = {
                 // remove any dependency references to/from outside the removed items
                 window.slVueTree.correctDependencies(node.productId, lastHistObj.removedWithDescendantsEvent[1])
                 if (node.level === LEVEL.PRODUCT) {
-                  // save some data of the removed product for restore at undo.
-									removedProducts.unshift({ id: node._id, productRoles: rootGetters.getMyProductsRoles[node._id] })
 									// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
 									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession })
                 }
@@ -702,8 +697,8 @@ const actions = {
         }
       } else {
         // not AREA_PRODUCTID, continue with updateTree and updateBoard
-				if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || removedProducts.map(item => item.id).indexOf(doc._id) !== -1) {
-          // only process updates of items the user is authorised to, including products that are restored from deletion by this user
+				if (rootGetters.getMyProductSubscriptions.includes(doc.productId)) {
+          // only process updates of items the user is authorised to
           dispatch('doBlinck', doc)
 					doProc(doc, isSameUserInDifferentSession)
         }
