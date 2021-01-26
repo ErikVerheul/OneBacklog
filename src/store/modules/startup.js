@@ -153,8 +153,6 @@ const actions = {
 			}
 			if (Object.keys(productsRoles).length > 0) {
 				rootState.isProductAssigned = true
-				// the first (index 0) product in the current db subscriptions is by definition the default product
-				rootState.currentDefaultProductId = currentDbSettings.subscriptions[0]
 			}
 			// update user data loaded in getOtherUserData and STORE THE USER DATA in $store.state.userData
 			// postpone the warning message for 'no product found' until the configuration is loaded
