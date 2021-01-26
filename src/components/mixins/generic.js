@@ -124,6 +124,7 @@ const utilities = {
 			'getCurrentItemLevel',
 			'getCurrentItemState',
 			'getCurrentItemTsSize',
+			'getCurrentDefaultProductId',
 			'getItemSprintName',
 			'getPreviousNodeSelected',
 			'getLastSelectedNode',
