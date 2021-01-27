@@ -154,6 +154,13 @@ const actions = {
 			if (Object.keys(productsRoles).length > 0) {
 				rootState.isProductAssigned = true
 			}
+			// the user must have at least one product subscription
+			if (currentDbSettings.subscriptions.length === 0) {
+				if (Object.keys(productsRoles).length > 0) {
+					// subscribe the first assigned product
+					currentDbSettings.subscriptions = [Object.keys(productsRoles)[0]]
+				}
+			}
 			// update user data loaded in getOtherUserData and STORE THE USER DATA in $store.state.userData
 			// postpone the warning message for 'no product found' until the configuration is loaded
 			const toDispatch = [{ getConfig: null }]
