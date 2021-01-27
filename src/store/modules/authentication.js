@@ -48,8 +48,6 @@ const actions = {
 				rootState.online = false
 				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: SEV.CRITICAL })
 				const msg = 'Refresh of the authentication cookie failed with ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debugConnectionAndLogging) console.log(msg)
 				// do not try to save the log if a network error is detected, just queue the log
 				const skipSaving = error.message = 'Network error'
 				dispatch('doLog', { event: msg, level: SEV.CRITICAL, skipSaving })

@@ -210,8 +210,6 @@ const actions = {
 			if (error.response && error.response.status === 404) {
 				msg += ', is your default product deleted?'
 			}
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

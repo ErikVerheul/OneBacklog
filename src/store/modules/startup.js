@@ -37,11 +37,9 @@ const actions = {
 			}
 			dispatch('getOtherUserData', foundDbNames)
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('getDatabases: Database names are loaded: ' + foundDbNames)
+			if (rootState.debug) console.log('getDatabases: The database names are loaded: ' + foundDbNames)
 		}).catch(error => {
 			const msg = 'getDatabases: Could not load the database names. Error = ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -57,12 +55,12 @@ const actions = {
 		}).then(res => {
 			const allUserData = res.data
 			if (res.data.delmark) {
-				alert(`getOtherUserData: FATAL ERROR - your account '${rootState.userData.user}' has been removed. Contact your adminstrator.`)
+				alert(`FATAL ERROR - your account '${rootState.userData.user}' has been removed. Contact your adminstrator.`)
 				return
 			}
 			// check if the default user database exists
 			if (!foundDbNames.includes(allUserData.currentDb)) {
-				alert('getOtherUserData: FATAL ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
+				alert('FATAL ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
 				return
 			} else {
 				// must set currentDb early in the process
@@ -72,7 +70,7 @@ const actions = {
 			}
 			// check if the user has productsroles defined for the default database
 			if (!Object.keys(allUserData.myDatabases).includes(allUserData.currentDb)) {
-				alert('getOtherUserData: FATAL ERROR - no roles defined for default user database ' + allUserData.currentDb)
+				alert('FATAL ERROR - no roles defined for default user database ' + allUserData.currentDb)
 				return
 			}
 			// correct the profile for removed databases and renew the list of assigned databases
@@ -86,8 +84,6 @@ const actions = {
 			// start the watchdog
 			dispatch('watchdog')
 			const msg = `getOtherUserData: '${allUserData.name}' has signed-in in database '${allUserData.currentDb}'`
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			// now that the database is known, the log file is available
 			dispatch('doLog', { event: msg, level: SEV.INFO })
 			dispatch('getAllProducts', { allUserData })
@@ -96,7 +92,7 @@ const actions = {
 				// the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
 				if (rootState.online && rootState.iAmServerAdmin) {
 					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('Server admin logged in but has no profile in users database. Start init')
+					if (rootState.debug) console.log('getOtherUserData: Server admin logged in but has no profile in users database. Start init')
 					rootState.showHeaderDropDowns = false
 					rootState.backendMessages = []
 					router.push('/init')
@@ -104,8 +100,6 @@ const actions = {
 				}
 			}
 			const msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -181,15 +175,11 @@ const actions = {
 			})
 
 			if (missingProductsRolesIds.length > 0) {
-				const msg = `User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
+				const msg = `getAllProducts: User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
 				dispatch('doLog', { event: msg, level: SEV.INFO })
 			}
 		}).catch(error => {
 			const msg = 'getAllProducts: Could not find products in database ' + dbName + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -207,7 +197,7 @@ const actions = {
 		}).then(res => {
 			rootState.configData = res.data
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('The configuration is loaded')
+			if (rootState.debug) console.log('getConfig: The configuration is loaded')
 			if (!rootState.isProductAssigned) {
 				if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
 					if (rootGetters.isAdmin) { router.replace('/admin') } else {
@@ -249,8 +239,6 @@ const actions = {
 			}
 		}).catch(error => {
 			const msg = 'getConfig: Config doc missing in database ' + rootState.userData.currentDb + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -280,8 +268,6 @@ const actions = {
 			}
 		}).catch(error => {
 			const msg = `getAllTeams: Could not read the teams in database '${rootState.userData.currentDb}', ${error}`
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -301,7 +287,7 @@ const actions = {
 			const doc = res.data
 			if (doc.teamCalendar && doc.teamCalendar.length > 0) {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('loadTeamCalendar: Team document with calendar is loaded; id = ' + id)
+				if (rootState.debug) console.log('loadTeamCalendar: A team document with calendar is loaded; id = ' + id)
 				// check if the team calendar needs to be extended
 				const lastTeamSprint = doc.teamCalendar.slice(-1)[0]
 				if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
@@ -313,14 +299,12 @@ const actions = {
 				}
 			} else {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(`loadTeamCalendar: No team calendar found in team documen with id ${id}, use the default sprint calendar`)
+				if (rootState.debug) console.log(`loadTeamCalendar: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
 				rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
 				dispatch('getRoot')
 			}
 		}).catch(error => {
 			const msg = 'loadTeamCalendar: Could not read document with id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -348,9 +332,7 @@ const actions = {
 			}
 			newSprintCount++
 			extTeamCalendar.push(newSprint)
-			const msg = `The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+			const msg = `extendTeamCalendar: The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
 			dispatch('doLog', { event: msg, level: SEV.INFO })
 		}
 
@@ -375,7 +357,7 @@ const actions = {
 		}).then(res => {
 			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('The root document is read')
+			if (rootState.debug) console.log('getRoot: The root document is read')
 			// open the products view by default
 			router.push('/detailProduct')
 		}).catch(error => {
@@ -383,8 +365,6 @@ const actions = {
 			if (error.response && error.response.status === 404) {
 				msg += ' , is your default database ' + rootState.userData.currentDb + ' deleted?'
 			}
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

@@ -51,8 +51,6 @@ const actions = {
 			if (!payload.justCheck) {
 				const msg = `getUser: Could not find user '${payload.userName}', ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
 		})
@@ -97,8 +95,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `getAllUsers: Could not read the _users database, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -145,8 +141,6 @@ const actions = {
 		}).catch(error => {
 			const msg = 'getProductsRoles: Could not find products in database ' + payload.dbName + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -240,8 +234,6 @@ const actions = {
 		}).catch(error => {
 			const msg = 'assignProductToUser: Could not update subscribed products for user ' + payload.selectedUser + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -264,8 +256,6 @@ const actions = {
 		}).catch(error => {
 			const msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -339,8 +329,6 @@ const actions = {
 			dispatch('updateUser', { data: tmpUserData })
 		}).catch(error => {
 			const msg = 'registerMyNoSprintImport: Could not update do not ask for import for user ' + rootState.userData.user + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -368,8 +356,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `updateMyAvailableProductOpions: Could not update product options for user '${rootState.userData.user}' and database ${dbName}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -426,8 +412,6 @@ const actions = {
 			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = "updateUser: Could not update the profile of user '" + userData.name + "', " + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -444,8 +428,6 @@ const actions = {
 		}).then(() => {
 			const msg = 'createUserIfNotExistent: Cannot create user "' + userData.name + '" that already exists'
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
@@ -453,8 +435,6 @@ const actions = {
 			} else {
 				const msg = 'createUserIfNotExistent: While checking if user "' + userData.name + '" exists an error occurred, ' + error
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
 		})
@@ -480,8 +460,6 @@ const actions = {
 			} else {
 				const msg = 'removeUserIfExistent: While removing user "' + userName + '" an error occurred, ' + error
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
 		})
@@ -501,14 +479,10 @@ const actions = {
 			rootState.isUserDeleted = true
 			const msg = `removeUserAction: User '${userName} is removed`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		}).catch(error => {
 			const msg = 'removeUserAction: While removing user "' + userName + '" an error occurred, ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -531,8 +505,6 @@ const actions = {
 		}).catch(error => {
 			const msg = 'createUserAction: Could not create user "' + userData.name + '", ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

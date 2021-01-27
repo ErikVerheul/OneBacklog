@@ -124,8 +124,6 @@ const actions = {
 			dispatch('storeProduct', { docs, clonedProductId: productId })
 		}).catch(error => {
 			const msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -154,8 +152,6 @@ const actions = {
 			if (rootState.debug) console.log('storeProduct: ' + res.data.length + ' documents are processed')
 		}).catch(error => {
 			const msg = 'storeProduct: Could not update batch of documents: ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

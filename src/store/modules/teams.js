@@ -46,8 +46,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `createTeamCalendarAction: Could not read the team with id ${payload.teamId} in database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -75,8 +73,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `'updateTeamCalendarAction: Could not read the team with id ${payload.teamId} in database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -141,8 +137,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `'ddTeamToDb: Could not read the teams in database '${dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -173,8 +167,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `fetchTeams: Could not read the documents from database '${payload.dbName}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -214,8 +206,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `'removeTeamsFromDb: Could not read the teams in database '${dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -255,8 +245,6 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = `retireTeams: Could not read the items from database ${dbName}. ${error}`
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -334,8 +322,6 @@ const actions = {
 								// update the user data, the planningBoard.vue listens to this change and will repaint if in view
 								commit('updateTeam', payload.newTeam)
 								const msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + payload.newTeam
-								// eslint-disable-next-line no-console
-								if (rootState.debug) console.log(msg)
 								dispatch('doLog', { event: msg, level: SEV.INFO })
 							}
 						}
@@ -348,8 +334,6 @@ const actions = {
 			}).catch(error => {
 				const msg = `updateTeamInDb: Could not read the teams in database '${dbName}'. ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		}

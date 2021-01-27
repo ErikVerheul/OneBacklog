@@ -99,8 +99,6 @@ const actions = {
 				})
 			}).catch(error => {
 				const msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		} loadRequests++
@@ -146,8 +144,6 @@ const actions = {
 			payload.onSuccessCallBack()
 		}).catch(error => {
 			const msg = 'loadMissingPbis: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -200,8 +196,6 @@ const actions = {
 			if (cannotImportCount > 0) rootState.warningText = `You cannot import all unfinished tasks as ${cannotImportCount} product(s) are not assigned to you`
 		}).catch(error => {
 			const msg = 'loadUnfinished: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -262,8 +256,6 @@ const actions = {
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 		}).catch(e => {
 			const msg = 'importInSprint: Could not read batch of documents: ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -394,8 +386,6 @@ const actions = {
 			})
 		}).catch(e => {
 			const msg = 'updateMovedTasks: Could not read batch of documents: ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -423,8 +413,6 @@ const actions = {
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'syncOtherPlanningBoards' })
 		}).catch(error => {
 			const msg = 'setColor: Could not read document with _id ' + payload.storyId + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -452,8 +440,6 @@ const actions = {
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'triggerBoardReload' })
 		}).catch(error => {
 			const msg = 'triggerBoardReload: Could not read document with _id ' + payload.parentId + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -524,8 +510,6 @@ const actions = {
 			})
 		}).catch(e => {
 			const msg = 'addSprintIds: Could not read batch of documents: ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -592,8 +576,6 @@ const actions = {
 			})
 		}).catch(e => {
 			const msg = 'removeSprintIds: Could not read batch of documents: ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -723,8 +705,6 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'boardAddTask: Could not read document with id ' + payload.taskId + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -779,8 +759,6 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'boardUpdateTaskTitle: Could not read document with id ' + payload.taskId + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -822,8 +800,6 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'boardUpdateTaskOwner: Could not read document with id ' + payload.taskId + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

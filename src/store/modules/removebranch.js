@@ -92,8 +92,6 @@ const actions = {
 			}
 		}).catch(error => {
 			const msg = 'removeBranch.getChildrenToRemove: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -122,8 +120,6 @@ const actions = {
 			dispatch('processItemsToRemove', { node: payload.node, results: [doc], createUndo: payload.createUndo })
 		}).catch(error => {
 			const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -162,8 +158,6 @@ const actions = {
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalConds' })
 			}).catch(e => {
 				const msg = 'removeExternalConds: Could not read batch of documents: ' + e
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		} else dispatch('removeExternalDeps', payload)
@@ -203,8 +197,6 @@ const actions = {
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
 			}).catch(e => {
 				const msg = 'removeExternalDeps: Could not read batch of documents: ' + e
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		} else dispatch('addRemoveHist', { node: payload.node, createUndo: payload.createUndo })
@@ -245,8 +237,6 @@ const actions = {
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, caller: 'addRemoveHist' })
 		}).catch(error => {
 			const msg = `addRemoveHist: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -350,8 +340,6 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = `addRemoveHist: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -380,8 +368,6 @@ const actions = {
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, caller: 'removeReqAreaAssignments' })
 		}).catch(error => {
 			const msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

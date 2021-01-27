@@ -187,8 +187,6 @@ const actions = {
 			} else {
 				commit('showLastEvent', { txt: 'Cannot restore a removed item. Sign out and -in to see the change.', severity: SEV.WARNING })
 				const msg = 'restoreItems: a remote restore of the tree view failed. Cannot find the parent of ' + parentId
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
 		}
@@ -241,8 +239,6 @@ const actions = {
 			}
 		}).catch(error => {
 			const msg = 'restorebranches.getChildrenToRestore: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -289,8 +285,6 @@ const actions = {
 			dispatch('restorebranches', docs)
 		}).catch(e => {
 			const msg = 'loadProducts: Could not load products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

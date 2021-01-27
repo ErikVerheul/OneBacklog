@@ -65,16 +65,12 @@ const actions = {
           errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
         }
         const msg = 'restoreItemAndDescendents: These documents cannot be UNmarked for removal: ' + errorStr
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: SEV.ERROR })
       }
       const toDispatch = [{ restoreParent: entry }]
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendents' })
     }).catch(e => {
       const msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + e
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -165,8 +161,6 @@ const actions = {
       })
     }).catch(error => {
       const msg = 'restoreParent: Could not read document with _id ' + _id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -204,8 +198,6 @@ const actions = {
       dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch, caller: 'updateGrandParentHist' })
     }).catch(error => {
       const msg = 'unDoRemove: Could not read document with _id ' + _id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -267,15 +259,11 @@ const actions = {
           errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
         }
         const msg = 'restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored: ' + errorStr
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: SEV.ERROR })
       }
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreExtDepsAndConds' })
     }).catch(e => {
       const msg = 'restoreExtDepsAndConds: Could not read batch of documents: ' + e
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -317,8 +305,6 @@ const actions = {
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'restoreReqarea' })
     }).catch(e => {
       const msg = 'restoreReqarea: Could not read batch of documents: ' + e
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   }

@@ -98,8 +98,6 @@ const actions = {
       }).catch(error => {
         rootState.uploadDone = true
         const msg = 'uploadAttachmentAsync: Could not read document with _id ' + _id + ', ' + error
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: SEV.ERROR })
       })
     }
@@ -142,8 +140,6 @@ const actions = {
       }
     }).catch(error => {
       const msg = 'removeAttachmentAsync: Could not read document with _id ' + id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   }

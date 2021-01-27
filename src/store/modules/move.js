@@ -150,8 +150,6 @@ const actions = {
           errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
         }
         const msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: SEV.ERROR })
         // ToDo: make this an alert with the only option to restart the application
         commit('showLastEvent', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
@@ -160,8 +158,6 @@ const actions = {
       }
     }).catch(e => {
       const msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -189,8 +185,6 @@ const actions = {
       }
       // eslint-disable-next-line no-console
       const msg = 'saveMovedItems: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       if (updateConflict > 0 || otherError > 0) {
         // note that logging may fail if the connection is lost
         dispatch('doLog', { event: msg, level: SEV.WARNING })
@@ -225,8 +219,6 @@ const actions = {
       }
     }).catch(error => {
       const msg = 'saveMovedItems: Could not save the moved documents: ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -258,8 +250,6 @@ const actions = {
       }
     }).catch(error => {
       const msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -302,8 +292,6 @@ const actions = {
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'updateMovedDescendantsBulk' })
     }).catch(e => {
       const msg = 'updateMovedDescendantsBulk: Could not read decendants in bulk. Error = ' + e
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   }

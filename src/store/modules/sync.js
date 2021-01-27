@@ -93,9 +93,7 @@ const actions = {
       if (Date.now() - event.timestamp > 1000) {
         const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 second`
         commit('showLastEvent', { txt: msg, severity: SEV.WARNING })
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(msg + ` The document id is ${docId}.`)
-        dispatch('doLog', { event: msg, level: SEV.WARNING })
+				dispatch('doLog', { event: msg + ` The document id is ${docId}.`, level: SEV.WARNING })
       }
     }
 
@@ -121,8 +119,6 @@ const actions = {
       if (parentNode === null) {
         const msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
           doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: SEV.WARNING })
         return
       }
@@ -594,8 +590,6 @@ const actions = {
         }
       } catch (error) {
         const msg = 'Listening for changes made by other users failed while processing document with id ' + doc._id + ', ' + error
-        // eslint-disable-next-line no-console
-        if (rootState.debug) console.log(msg)
         dispatch('doLog', { event: msg, level: SEV.WARNING })
       }
     }
@@ -749,8 +743,6 @@ const actions = {
     }).catch(error => {
       rootState.listenForChangesRunning = false
       const msg = 'Listening for changes made by other users failed, ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debugConnectionAndLogging || rootState.debug) console.log(msg)
       // do not try to save the log if a network error is detected, just queue the log
       const skipSaving = error.message = 'Network error'
       dispatch('doLog', { event: msg, level: SEV.WARNING, skipSaving })

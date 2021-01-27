@@ -24,8 +24,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `fetchDefaultSprintCalendar: Could not read config document of database '${payload.dbName}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -54,8 +52,6 @@ const actions = {
 		}).catch(error => {
 			const msg = 'saveDefaultSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -81,8 +77,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `fetchTeamCalendar: Could not read team document with id ${payload.teamId} in database '${payload.dbName}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

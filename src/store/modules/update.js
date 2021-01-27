@@ -51,8 +51,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'updateReqArea: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -134,8 +133,7 @@ const actions = {
 			})
 		}).catch(e => {
 			const msg = 'updateReqAreaChildren: Could not read batch of documents: ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -185,8 +183,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'setColor: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -237,8 +234,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'changeSubsription: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -289,8 +285,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'setTsSize: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -341,8 +336,6 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'setPersonHours: Could not read document with id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -394,8 +387,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'setStoryPoints: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -507,8 +499,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'setState: Could not read document with id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -575,8 +566,7 @@ const actions = {
 			}
 		}).catch(error => {
 			const msg = 'assignToMyTeam: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -620,8 +610,7 @@ const actions = {
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'setTeamDescendantsBulk' })
 		}).catch(e => {
 			const msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + e
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -673,8 +662,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'setDocTitle: Could not read document with id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -725,8 +713,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'setSubType: Could not read document with id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -781,8 +768,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'saveDescription: Could not read document with id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -837,8 +823,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'saveAcceptance: Could not read document with id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -877,8 +862,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'addComment: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -918,8 +902,7 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'addHistoryComment: Could not read document with _id ' + id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -956,8 +939,7 @@ const actions = {
 			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = `updateDoc: (called by ${payload.caller}) Could not write document with url ${payload.dbName}/${id}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -982,8 +964,7 @@ const actions = {
 			}
 			// eslint-disable-next-line no-console
 			const msg = 'updateBulk: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			if (updateConflict > 0 || otherError > 0) {
 				dispatch('doLog', { event: msg, level: SEV.WARNING })
 				// execute passed function if provided
@@ -1007,8 +988,7 @@ const actions = {
 		}).catch(error => {
 			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents, ${error}`
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -1040,8 +1020,6 @@ const actions = {
 								ids += rows[i].doc._id + ', '
 							}
 							const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
-							// eslint-disable-next-line no-console
-							if (rootState.debug) console.log(msg)
 							dispatch('doLog', { event: msg, level: SEV.WARNING })
 						}
 						commit('updateNodesAndCurrentDoc', { newDoc: doc })
@@ -1098,8 +1076,7 @@ const actions = {
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: parentDoc, toDispatch, caller: 'createDocWithParentHist' })
 		}).catch(error => {
 			const msg = 'createDocWithParentHist: Could not read parent document with id ' + _id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -1123,8 +1100,7 @@ const actions = {
 			// execute passed function if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = 'loadDoc: Could not read document with _id ' + payload.id + ', ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
+
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

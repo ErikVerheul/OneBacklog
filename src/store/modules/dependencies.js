@@ -52,8 +52,6 @@ const actions = {
     }).catch(error => {
       commit('showLastEvent', { txt: 'Failed to set the dependency', severity: SEV.ERROR })
       const msg = 'setDepAndCond: Could not read document with _id ' + id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -114,8 +112,6 @@ const actions = {
       rootState.selectNodeOngoing = false
       commit('showLastEvent', { txt: 'Failed to se the dependency', severity: SEV.ERROR })
       const msg = 'alsoSetCondition: Could not read document with _id ' + id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -151,8 +147,6 @@ const actions = {
     }).catch(error => {
       commit('showLastEvent', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
       const msg = 'undoSetDependencyAsync: Could not read document with _id ' + id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -194,8 +188,6 @@ const actions = {
     }).catch(error => {
       commit('showLastEvent', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
       const msg = 'alsoUndoSetConditionAsync: Could not read document with _id ' + id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -230,8 +222,6 @@ const actions = {
       dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'removeDependenciesAsync' })
     }).catch(error => {
       const msg = 'removeDependenciesAsync: Could not read document with _id ' + id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -305,8 +295,6 @@ const actions = {
       })
     }).catch(error => {
       const msg = 'alsoRemoveConditions: Could not read batch of documents: ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -342,8 +330,6 @@ const actions = {
       dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'removeConditionsAsync' })
     }).catch(error => {
       const msg = 'removeConditionsAsync: Could not read document with _id ' + id + ', ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -419,8 +405,6 @@ const actions = {
       })
     }).catch(error => {
       const msg = 'alsoRemoveDependenciesAsync: Could not read batch of documents: ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -470,8 +454,6 @@ const actions = {
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtDependenciesAsync' })
     }).catch(error => {
       const msg = 'removeExtDependenciesAsync: Could not read batch of documents: ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },
@@ -521,8 +503,6 @@ const actions = {
       dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtConditionsAsync' })
     }).catch(error => {
       const msg = 'removeExtConditionsAsync: Could not read batch of documents: ' + error
-      // eslint-disable-next-line no-console
-      if (rootState.debug) console.log(msg)
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   }

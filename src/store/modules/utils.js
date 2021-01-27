@@ -30,8 +30,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `loadLog: Could not load the log of database ${payload.dbName}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -82,8 +80,6 @@ const actions = {
 		}).catch(error => {
 			const msg = 'getDatabaseOptions: Could not load all database names. Error = ' + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -154,8 +150,6 @@ const actions = {
 		}).catch(error => {
 			const msg = `createProductAction: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -391,14 +385,11 @@ const actions = {
 					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
 				}
 				const msg = 'resetHistAndComm: These documents cannot be updated: ' + errorStr
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(msg)
+				dispatch('doLog', { event: msg, level: SEV.WARNING })
 			}
 			dispatch('updateBulk', { dbName: payload.dbName, docs, caller: 'resetHistAndComm', onSuccessCallback: () => { rootState.isHistAndCommReset = true } })
 		}).catch(error => {
 			const msg = 'resetHistAndComm: Could not read batch of documents: ' + error
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(msg)
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
