@@ -64,7 +64,6 @@ function convertToResults(docs) {
 
 const actions = {
 	restoreItems({
-		rootState,
 		rootGetters,
 		dispatch,
 		commit
