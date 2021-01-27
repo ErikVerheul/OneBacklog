@@ -110,8 +110,6 @@ export default new Vuex.Store({
 		// console log settings
 		debug: process.env.VUE_APP_DEBUG === 'true' || false,
 		debugConnectionAndLogging: process.env.VUE_APP_DEBUG_CONNECTION === 'true' || false,
-		// loading options
-		autoCorrectUserProfile: true,
 		// creating a CouchDb instance
 		createDefaultCalendar: false,
 		isDatabaseInitiated: false,

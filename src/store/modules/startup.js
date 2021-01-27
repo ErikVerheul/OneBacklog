@@ -144,7 +144,7 @@ const actions = {
 					missingProductsRolesIds.push(id)
 				}
 			}
-			if (rootState.autoCorrectUserProfile && missingProductsRolesIds.length > 0) {
+			if (missingProductsRolesIds.length > 0) {
 				for (const id of missingProductsRolesIds) {
 					delete productsRoles[id]
 					const position = newUserData.myDatabases[newUserData.currentDb].subscriptions.indexOf(id)
