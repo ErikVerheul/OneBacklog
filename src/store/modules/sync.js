@@ -594,26 +594,24 @@ const actions = {
       }
     }
 
-    const lastHistObj = doc.history[0]
+		const lastHistObj = doc.history[0]
     // get data from last history addition
     const lastHistoryTimestamp = lastHistObj.timestamp
     const lastHistoryOwner = lastHistObj.by
 		const histEvent = Object.keys(lastHistObj)[0]
+		/* Update the tree only for documents available in the currently loaded tree model */
 		const updateTree = histEvent !== 'ignoreEvent' && doc.level <= rootState.loadedTreeDepth
-    const isSameUserInDifferentSession = updateTree && (lastHistoryOwner === rootState.userData.user)
-    // update the tree only for documents available in the currently loaded tree model
-    const updateBoard = histEvent !== 'ignoreEvent' && rootState.currentView === 'planningBoard' &&
-			(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent' || histEvent === 'triggerBoardReload')
-
+		const isSameUserInDifferentSession = updateTree && (lastHistoryOwner === rootState.userData.user)
 		/*
     * Update the board only if loaded and the item represented by the document is assigned to my team. Exceptions for events:
     * - setTeamOwnerEvent: also update the board if an item changes team (the doc is assigned to another team or no team)
 		* - triggerBoardReload: also trigger a reload from the feature level (the doc is the feature parent and has no team ownership)
 		*/
+		const updateBoard = histEvent !== 'ignoreEvent' && rootState.currentView === 'planningBoard' &&
+			(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent' || histEvent === 'triggerBoardReload')
 
-    /* boardReloadEvent: This event is passed via the 'messenger' dummy backlogitem, the team name is in the message not in the doc */
     if (histEvent === 'boardReloadEvent') {
-      // always process this event
+      // boardReloadEvent: This event is passed via the 'messenger' dummy backlogitem, the team name is in the message not in the doc; always process this event
       const sprintId = lastHistObj.boardReloadEvent[0]
       const team = lastHistObj.boardReloadEvent[1]
       if (sprintId === rootState.loadedSprintId && team === rootState.userData.myTeam) {
@@ -690,8 +688,8 @@ const actions = {
           }
         }
       } else {
-        // not AREA_PRODUCTID, continue with updateTree and updateBoard
-				if (rootGetters.getMyProductSubscriptions.includes(doc.productId)) {
+        // not AREA_PRODUCTID, continue with updateTree and updateBoard; allow removed products to be restored
+				if ((histEvent === 'docRestoredEvent' && doc.level === LEVEL.PRODUCT) || rootGetters.getMyProductSubscriptions.includes(doc.productId)) {
           // only process updates of items the user is authorised to
           dispatch('doBlinck', doc)
 					doProc(doc, isSameUserInDifferentSession)
@@ -716,38 +714,42 @@ const actions = {
   },
 
   /* Listen for document changes. The timeout, if no changes are available is 60 seconds (default maximum) */
-  listenForChanges ({
-    rootState,
-    dispatch
-  }) {
-    // stop listening if offline. Watchdog will start it automatically when online again
-    if (rootState.stopListenForChanges || !rootState.online) return
+	listenForChanges({
+		rootState,
+		dispatch
+	}) {
+		// stop listening if offline. Watchdog will start it automatically when online again
+		if (rootState.stopListenForChanges || !rootState.online) return
 
-    rootState.listenForChangesRunning = true
-    const url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
-    globalAxios({
-      method: 'GET',
-      url
-    }).then(res => {
-      // note that receiving a response can last up to 60 seconds (time-out)
-      if (rootState.online) dispatch('listenForChanges')
+		rootState.listenForChangesRunning = true
+		const url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
+		globalAxios({
+			method: 'GET',
+			url
+		}).then(res => {
+			// note that receiving a response can last up to 60 seconds (time-out)
+			if (rootState.online) dispatch('listenForChanges')
 			const data = res.data
-			// console.log('listenForChanges: data = ' + JSON.stringify(data, null, 2))
-      for (const r of data.results) {
-        const doc = r.doc
-        if (doc.type == 'backlogItem' && (doc.history[0].sessionId !== rootState.mySessionId)) {
-					// process distributed events on backlog items from other sessions (not the session that created the event)
-          dispatch('processDoc', doc)
-        }
-      }
-    }).catch(error => {
-      rootState.listenForChangesRunning = false
-      const msg = 'Listening for changes made by other users failed, ' + error
-      // do not try to save the log if a network error is detected, just queue the log
-      const skipSaving = error.message = 'Network error'
-      dispatch('doLog', { event: msg, level: SEV.WARNING, skipSaving })
-    })
-  }
+
+			if (data.results.length > 0) {
+				// only process events with included documents
+				for (const r of data.results) {
+					const doc = r.doc
+					// console.log('listenForChanges: doc = ' + JSON.stringify(doc, null, 2))
+					if (doc.type == 'backlogItem' && (doc.history[0].sessionId !== rootState.mySessionId)) {
+						// process distributed events on backlog items from other sessions (not the session that created the event)
+						dispatch('processDoc', doc)
+					}
+				}
+			}
+		}).catch(error => {
+			rootState.listenForChangesRunning = false
+			const msg = 'Listening for changes made by other users failed, ' + error
+			// do not try to save the log if a network error is detected, just queue the log
+			const skipSaving = error.message = 'Network error'
+			dispatch('doLog', { event: msg, level: SEV.WARNING, skipSaving })
+		})
+	}
 }
 
 export default {
