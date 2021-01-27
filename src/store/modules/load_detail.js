@@ -241,7 +241,7 @@ const actions = {
 					console.log('processProduct: ' + msg)
 					const newLog = {
 						event: msg,
-						level: 'CRITICAL',
+						level: SEV.CRITICAL,
 						by: rootState.userData.user,
 						timestamp: Date.now()
 					}
@@ -257,7 +257,7 @@ const actions = {
 					console.log('processProduct: ' + msg1 + '\n' + msg2)
 					const newLog = {
 						event: msg1 + ' ' + msg2,
-						level: 'CRITICAL',
+						level: SEV.CRITICAL,
 						by: rootState.userData.user,
 						timestamp: Date.now()
 					}
