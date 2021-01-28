@@ -183,7 +183,6 @@ const actions = {
         if (result.error === 'conflict') updateConflict++
         if (result.error && result.error !== 'conflict') otherError++
       }
-      // eslint-disable-next-line no-console
       const msg = 'saveMovedItems: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
       if (updateConflict > 0 || otherError > 0) {
         // note that logging may fail if the connection is lost

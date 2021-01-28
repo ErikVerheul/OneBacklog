@@ -114,10 +114,11 @@ const actions = {
 				{ getDatabases: null }
 			]
 			dispatch('refreshCookie', { toDispatch })
-		})
+		}).catch(error => {
 			// cannot log failure here as the database name is unknown yet
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('Sign in failed with ' + error))
+			if (rootState.debug) console.log('Sign in failed with ' + error)
+		})
 	},
 
 	signout({ commit }) {

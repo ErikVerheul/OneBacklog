@@ -168,7 +168,7 @@ const actions = {
     }).catch(error => {
       rootState.logState.unsavedLogs = rootState.logState.savedLogs
       // eslint-disable-next-line no-console
-      console.log('saveLog: Could not save the log. A retry is pending, ' + error)
+			if (rootState.debugConnectionAndLogging) console.log('saveLog: Could not save the log. A retry is pending, ' + error)
     })
   }
 }

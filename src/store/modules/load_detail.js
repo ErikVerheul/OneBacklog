@@ -235,8 +235,6 @@ const actions = {
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {
 					const msg = `Orphan found with Id = ${o.id}, parentId = ${o.parentId} and productId = ${o.productId}`
-					// eslint-disable-next-line no-console
-					console.log('processProduct: ' + msg)
 					const newLog = {
 						event: msg,
 						level: SEV.CRITICAL,
@@ -251,8 +249,6 @@ const actions = {
 				for (const l of levelErrorsFound) {
 					const msg1 = `Level error found with Id = ${l.id}, parentId = ${l.parentId} and productId = ${l.productId}.`
 					const msg2 = `The level read in the document is ${l.dbLevel}. According to the read parent the level should be ${l.pathLength}.`
-					// eslint-disable-next-line no-console
-					console.log('processProduct: ' + msg1 + '\n' + msg2)
 					const newLog = {
 						event: msg1 + ' ' + msg2,
 						level: SEV.CRITICAL,
@@ -272,9 +268,10 @@ const actions = {
 			parentNodes = {}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(res.data.rows.length + ' documents are loaded')
-		})
+		}).catch(error => {
 			// eslint-disable-next-line no-console
-			.catch(error => console.log('loadAssignedAndSubscribed: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error))
+			if (rootState.debug) console.log(`loadAssignedAndSubscribed: Could not read a product from database ${rootState.userData.currentDb}, ${error}`)
+		})
 	}
 }
 
