@@ -359,6 +359,10 @@ export default new Vuex.Store({
 			return state.currentView === 'coarseProduct'
 		},
 
+		isPlanningBoardSelected(state) {
+			return state.currentView === 'planningBoard'
+		},
+
 		leafLevel(state, getters) {
 			if (getters.isDetailsViewSelected) return LEVEL.TASK
 			if (getters.isOverviewSelected) return LEVEL.FEATURE

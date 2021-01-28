@@ -278,7 +278,7 @@ const methods = {
 							nodes: [node],
 							highLight: 'noHighLight'
 						}
-						if (this.$store.state.currentView === 'detailProduct' && node.productId !== this.$store.state.currentProductId) {
+						if (this.isDetailsViewSelected && node.productId !== this.$store.state.currentProductId) {
 							// the node is found but not in the current product; collapse the currently selected product and switch to the new product
 							this.$store.commit('switchCurrentProduct', { productId: node.productId, collapseCurrentProduct: true })
 						}

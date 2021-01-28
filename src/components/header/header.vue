@@ -28,7 +28,7 @@
             </template>
 
             <template v-if="isAuthenticated">
-              <b-dropdown-item v-if="$store.state.currentView !== 'planningBoard' && $store.state.myAssignedDatabases.length > 1" @click="changeDatabase">Change database
+              <b-dropdown-item v-if="!isPlanningBoardSelected && $store.state.myAssignedDatabases.length > 1" @click="changeDatabase">Change database
               </b-dropdown-item>
               <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>
               <b-dropdown-item v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</b-dropdown-item>

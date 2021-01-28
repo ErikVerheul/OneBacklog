@@ -607,7 +607,7 @@ const actions = {
     * - setTeamOwnerEvent: also update the board if an item changes team (the doc is assigned to another team or no team)
 		* - triggerBoardReload: also trigger a reload from the feature level (the doc is the feature parent and has no team ownership)
 		*/
-		const updateBoard = histEvent !== 'ignoreEvent' && rootState.currentView === 'planningBoard' &&
+		const updateBoard = histEvent !== 'ignoreEvent' && rootGetters.isPlanningBoardSelected &&
 			(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent' || histEvent === 'triggerBoardReload')
 
     if (histEvent === 'boardReloadEvent') {
