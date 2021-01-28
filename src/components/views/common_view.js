@@ -142,6 +142,44 @@ const computed = {
 	}
 }
 
+const watch = {
+	doAddition: function (val) {
+		if (val === true) {
+			this.doAddition = false
+			if (this.$store.state.selectedForView === 'attachments') {
+				this.fileInfo = null
+				this.$refs.uploadRef.show()
+			}
+			if (this.$store.state.selectedForView === 'comments') {
+				if (this.canCreateComments) {
+					this.newComment = ''
+					this.$refs.commentsEditorRef.show()
+				} else {
+					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
+				}
+			}
+			if (this.$store.state.selectedForView === 'history') {
+				this.newHistory = ''
+				this.$refs.historyEditorRef.show()
+			}
+		}
+	},
+
+	startFiltering: function (val) {
+		if (val === true) {
+			this.startFiltering = false
+			if (this.$store.state.selectedForView === 'comments') {
+				this.$refs.commentsFilterRef.show()
+				this.isCommentsFilterActive = true
+			}
+			if (this.$store.state.selectedForView === 'history') {
+				this.$refs.historyFilterRef.show()
+				this.isHistoryFilterActive = true
+			}
+		}
+	}
+}
+
 const methods = {
 	/*
 	* Find and show dependency violations in the current product (details view) or all products (coarse view).
@@ -661,5 +699,6 @@ export default {
 	mounted,
 	data,
 	computed,
+	watch,
 	methods
 }
