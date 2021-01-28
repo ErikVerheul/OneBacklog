@@ -741,9 +741,9 @@ const actions = {
 				updatedDoc: tmpDoc,
 				caller: 'saveDescription',
 				onSuccessCallback: () => {
+					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
-						commit('showLastEvent', { txt: 'The item description type is changed', severity: SEV.INFO })
-						commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
+						commit('showLastEvent', { txt: 'The item description is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -752,7 +752,7 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item description type is undone', severity: SEV.INFO })
+					} else commit('showLastEvent', { txt: 'Change of the item description is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
@@ -806,7 +806,7 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item acceptance criteria is undone', severity: SEV.INFO })
+					} else commit('showLastEvent', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
