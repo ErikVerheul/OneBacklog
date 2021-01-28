@@ -1,12 +1,7 @@
 import { LEVEL, MISC } from '../../constants.js'
+import createId from '../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
-
-function createId() {
-	// A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-	const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
-	return Date.now().toString().concat(ext)
-}
 
 const actions = {
 	/*

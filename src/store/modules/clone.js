@@ -1,4 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
+import createId from '../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
@@ -94,9 +95,7 @@ const actions = {
 			for (let i = 0; i < docs.length; i++) {
 				// compute a new id, remember old id
 				const oldId = docs[i]._id
-				// a copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value
-				const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
-				const newId = Date.now().toString().concat(ext)
+				const newId = createId()
 				// the first document is the product
 				if (i === 0) {
 					newProductId = newId
