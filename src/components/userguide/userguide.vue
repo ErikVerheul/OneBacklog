@@ -128,7 +128,7 @@
 						<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
 						<h5>Filter in tree view</h5>
 						<b-img :src="getImgUrl('img/filters.png')" alt="Example filters modal" />
-						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. You can alse use the full, 17 positions long, id</p>
+						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. You can alse use the full, 18+ positions long, id</p>
 						<h5>Select on (short) Id</h5>
 						<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
 						<ul>

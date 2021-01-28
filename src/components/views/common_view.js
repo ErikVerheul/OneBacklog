@@ -4,13 +4,13 @@ import { constants, authorization, utilities } from '../mixins/generic.js'
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
-const FULLKEYLENGTH = 17
+const FULLKEYLENGTH = 18
 
 function mounted() {
 	function idCheck(vm) {
 		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-		if (vm.itemId.length !== SHORTKEYLENGTH && vm.itemId.length !== FULLKEYLENGTH) {
-			vm.showLastEvent('Wrong Id length. The length must be 5 for a short Id, or 17 for a full Id', SEV.WARNING)
+		if (vm.itemId.length !== SHORTKEYLENGTH && vm.itemId.length >= FULLKEYLENGTH) {
+			vm.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
 			return false
 		}
 
