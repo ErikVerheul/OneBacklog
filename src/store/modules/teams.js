@@ -212,7 +212,6 @@ const actions = {
 
 	/* Add deceased † symbol to the team names of retired teams in the database and tree model */
 	retireTeams({
-		rootState,
 		dispatch
 	}, payload) {
 		const dbName = payload.dbName
