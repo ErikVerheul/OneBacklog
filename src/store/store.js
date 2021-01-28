@@ -554,7 +554,7 @@ export default new Vuex.Store({
 					dispatch('updateUser', { data: tmpUserData, onSuccessCallback: updateProducts })
 				}
 			}).catch(error => {
-				const msg = 'removeFromMyProducts: User ' + state.userData.user + ' cannot save its updated profile. Error = ' + error
+				const msg = `addToMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		},
@@ -594,7 +594,7 @@ export default new Vuex.Store({
 					dispatch('updateUser', { data: tmpUserData, onSuccessCallback: updateProducts })
 				}
 			}).catch(error => {
-				const msg = 'removeFromMyProducts: User ' + state.userData.user + ' cannot save its updated profile. Error = ' + error
+				const msg = `removeFromMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		},
@@ -608,7 +608,7 @@ export default new Vuex.Store({
 				tmpUserData.myDatabases[state.userData.currentDb].subscriptions = payload.productIds
 				dispatch('updateUser', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
 			}).catch(error => {
-				const msg = 'updateMyProductSubscriptions: User ' + state.userData.user + ' cannot save its updated profile. Error = ' + error
+				const msg = `updateMyProductSubscriptions: User ${state.userData.user} cannot save its updated profile. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		}
