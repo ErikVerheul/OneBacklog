@@ -1,15 +1,8 @@
 import { SEV } from '../../constants.js'
+import { addToArray } from '../../common_functions.js'
 import globalAxios from 'axios'
 import router from '../../router'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
-
-/* Add item to array if not already present. Returns a new array so that it is reactive */
-function addToArray(arr, item) {
-	const newArr = []
-	for (const el of arr) newArr.push(el)
-	if (!newArr.includes(item)) newArr.push(item)
-	return newArr
-}
 
 const state = {
 	fetchedUserData: null,

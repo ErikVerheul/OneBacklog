@@ -23,4 +23,21 @@ export function dedup(arr) {
 	} else return []
 }
 
-export default { createId, dedup }
+/* Add item (not an object) to array if not already present. Returns a new array so that it is reactive */
+export function addToArray(arr, item) {
+	const newArr = []
+	for (const el of arr) newArr.push(el)
+	if (!newArr.includes(item)) newArr.push(item)
+	return newArr
+}
+
+/* Remove item (not an object) from array if present. Returns a new array so that it is reactive */
+export function removeFromArray(arr, item) {
+	const newArr = []
+	for (const el of arr) {
+		if (el !== item) newArr.push(el)
+	}
+	return newArr
+}
+
+export default { createId, dedup, addToArray, removeFromArray }

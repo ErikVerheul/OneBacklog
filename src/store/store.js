@@ -1,4 +1,5 @@
 import globalAxios from 'axios'
+import { addToArray, removeFromArray } from '../common_functions.js'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 import { SEV, LEVEL, STATE, MISC } from '../constants.js'
 import Vue from 'vue'
@@ -68,22 +69,6 @@ function createEvent(payload) {
 }
 
 Vue.use(Vuex)
-/* Add item (not an object) to array if not already present. Returns a new array so that it is reactive */
-function addToArray(arr, item) {
-	const newArr = []
-	for (const el of arr) newArr.push(el)
-	if (!newArr.includes(item)) newArr.push(item)
-	return newArr
-}
-
-/* Remove item (not an object) from array if present. Returns a new array so that it is reactive */
-function removeFromArray(arr, item) {
-	const newArr = []
-	for (const el of arr) {
-		if (el !== item) newArr.push(el)
-	}
-	return newArr
-}
 
 /* If the node is selectable, store the currently selected nodes, unselect all previous selected nodes and select the node */
 function renewSelection(state, node) {

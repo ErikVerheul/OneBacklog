@@ -1,14 +1,7 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
+import {  removeFromArray } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
-
-function removeFromArray(arr, item) {
-	const newArr = []
-	for (const el of arr) {
-		if (el !== item) newArr.push(el)
-	}
-	return newArr
-}
 
 const state = {
 	copyBusy: false

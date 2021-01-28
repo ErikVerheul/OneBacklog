@@ -1,26 +1,10 @@
+import { addToArray, removeFromArray } from '../../common_functions.js'
 import AppHeader from '../header/header.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
 
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
-
-/* Add item to array if not already present. Returns a new array so that it is reactive */
-function addToArray(arr, item) {
-	const newArr = []
-	for (const el of arr) newArr.push(el)
-	if (!newArr.includes(item)) newArr.push(item)
-	return newArr
-}
-
-/* Remove item from array if present. Returns a new array so that it is reactive */
-function removeFromArray(arr, item) {
-	const newArr = []
-	for (const el of arr) {
-		if (el !== item) newArr.push(el)
-	}
-	return newArr
-}
 
 function data() {
 	return {
