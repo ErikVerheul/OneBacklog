@@ -808,20 +808,6 @@ const methods = {
 
 	/* When nodes are deleted orphan dependencies can be created. This method removes them. */
 	correctDependencies(productId, removedItemIds) {
-		/* Remove duplicates; return an empty array if arr is not defined or null */
-		function dedup(arr) {
-			function containsObject(obj, list) {
-				return list.some(el => el === obj)
-			}
-			if (arr) {
-				const dedupped = []
-				for (const el of arr) {
-					if (!containsObject(el, dedupped)) dedupped.push(el)
-				}
-				return dedupped
-			} else return []
-		}
-
 		const removedIntDependencies = []
 		const removedIntConditions = []
 		const removedExtDependencies = []
@@ -831,7 +817,7 @@ const methods = {
 				const newDependencies = []
 				if (removedItemIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
-					for (const d of dedup(nm.dependencies)) {
+					for (const d of this.dedup(nm.dependencies)) {
 						// dependency references within the deleted nodes survive
 						if (removedItemIds.includes(d)) {
 							newDependencies.push(d)
@@ -839,7 +825,7 @@ const methods = {
 					}
 				} else {
 					// nm is an outsider
-					for (const d of dedup(nm.dependencies)) {
+					for (const d of this.dedup(nm.dependencies)) {
 						// outsider references not referencing any of the nodes survive
 						if (!removedItemIds.includes(d)) {
 							newDependencies.push(d)
@@ -855,7 +841,7 @@ const methods = {
 				const newConditionalFor = []
 				if (removedItemIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
-					for (const c of dedup(nm.conditionalFor)) {
+					for (const c of this.dedup(nm.conditionalFor)) {
 						// dependency references within the deleted nodes survive
 						if (removedItemIds.includes(c)) {
 							newConditionalFor.push(c)
@@ -863,7 +849,7 @@ const methods = {
 					}
 				} else {
 					// nm is an outsider
-					for (const c of dedup(nm.conditionalFor)) {
+					for (const c of this.dedup(nm.conditionalFor)) {
 						// outsider references not referencing any of the nodes survive
 						if (!removedItemIds.includes(c)) {
 							newConditionalFor.push(c)

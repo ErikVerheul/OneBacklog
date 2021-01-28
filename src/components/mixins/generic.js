@@ -146,6 +146,20 @@ const utilities = {
 			return Date.now().toString().concat(ext)
 		},
 
+		/* Remove duplicates; return an empty array if arr is not defined or null */
+		dedup(arr) {
+			function containsObject(obj, list) {
+				return list.some(el => el === obj)
+			}
+			if (arr) {
+				const dedupped = []
+				for (const el of arr) {
+					if (!containsObject(el, dedupped)) dedupped.push(el)
+				}
+				return dedupped
+			} else return []
+		},
+
 		getItemStateText(idx) {
 			if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
 				return 'Error: unknown state'

@@ -1,20 +1,7 @@
 import { SEV } from '../../constants.js'
+import dedup from '../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
-
-/* Remove duplicates; return an empty array if arr is not defined or null */
-function dedup (arr) {
-  function containsObject (obj, list) {
-    return list.some(el => el === obj)
-  }
-  if (arr) {
-    const dedupped = []
-    for (const el of arr) {
-      if (!containsObject(el, dedupped)) dedupped.push(el)
-    }
-    return dedupped
-  } else return []
-}
 
 const actions = {
   /* Set one dependency with one corresponding condition */
