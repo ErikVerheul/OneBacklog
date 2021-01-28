@@ -32,6 +32,7 @@
 */
 
 import { SEV, LEVEL, MISC } from '../../constants.js'
+import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
@@ -50,45 +51,6 @@ const actions = {
     commit,
     dispatch
   }, doc) {
-    /*
-		 * When the parentNode exists this function returns an object with:
-		 * - the previous node (can be the parent)
-		 * - the path of the location in the tree
-		 * - the index in the array of siblings the node should have based on its priority
-		*/
-    function getLocationInfo (newPrio, parentNode) {
-      let newPath = []
-      if (parentNode.children && parentNode.children.length > 0) {
-        const siblings = parentNode.children
-        let i = 0
-        while (i < siblings.length && siblings[i].data.priority > newPrio) i++
-        let prevNode = null
-        if (i === 0) {
-          prevNode = parentNode
-          newPath = parentNode.path.slice()
-          newPath.push(0)
-        } else {
-          prevNode = siblings[i - 1]
-          newPath = prevNode.path.slice(0, -1)
-          newPath.push(i)
-        }
-        return {
-          prevNode,
-          newPath,
-          newInd: i
-        }
-      } else {
-        parentNode.children = []
-        newPath = parentNode.path.slice()
-        newPath.push(0)
-        return {
-          prevNode: parentNode,
-          newPath,
-          newInd: 0
-        }
-      }
-    }
-
     function reportOddTimestamp (event, docId) {
       if (Date.now() - event.timestamp > 1000) {
         const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 second`
