@@ -51,7 +51,9 @@ const actions = {
 					removedConds[c] = { conditionalFor: doc._id, level: doc.level, removedParentLevel }
 				}
 			}
-			if (doc.sprintId) removedSprintIds.push(doc.sprintId)
+			if (doc.sprintId) {
+				if (!removedSprintIds.includes(doc.sprintId)) removedSprintIds.push(doc.sprintId)
+			}
 			// mark for removal
 			doc.delmark = true
 
