@@ -3,13 +3,13 @@
 * Note: Use import * as <any name> from '../common_functions.js' to get all named exports in one object
 */
 
-/* A copy of createId() in the component mixins: Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
+/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 export function createId() {
 	const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
 	return Date.now().toString().concat(ext)
 }
 
-/* A copy of dedup() in the component mixins: Remove duplicates; return an empty array if arr is not defined or null */
+/* Remove duplicates; return an empty array if arr is not defined or null */
 export function dedup(arr) {
 	function containsObject(obj, list) {
 		return list.some(el => el === obj)

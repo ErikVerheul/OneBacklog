@@ -1,4 +1,5 @@
 import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
+import * as common_functions from '../../common_functions.js'
 import { mapGetters } from 'vuex'
 
 const constants = {
@@ -142,22 +143,12 @@ const utilities = {
 	methods: {
 		/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 		createId() {
-			const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
-			return Date.now().toString().concat(ext)
+			common_functions.createId()
 		},
 
 		/* Remove duplicates; return an empty array if arr is not defined or null */
 		dedup(arr) {
-			function containsObject(obj, list) {
-				return list.some(el => el === obj)
-			}
-			if (arr) {
-				const dedupped = []
-				for (const el of arr) {
-					if (!containsObject(el, dedupped)) dedupped.push(el)
-				}
-				return dedupped
-			} else return []
+			common_functions.dedup(arr)
 		},
 
 		getItemStateText(idx) {
