@@ -269,9 +269,11 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			const tmpUserData = res.data
-			tmpUserData.currentDb = payload.dbName
-			if (!Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
-				// the database is not assigned to the user
+			if (Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
+				// the database is assigned to the current user
+				tmpUserData.currentDb = payload.dbName
+			} else {
+				// the database is not assigned to the current user
 				if (rootGetters.isAdmin) {
 					// subscribe all products
 					const newDbEntry = {
@@ -284,6 +286,7 @@ const actions = {
 						newDbEntry.productsRoles[id] = []
 					}
 					tmpUserData.myDatabases[payload.dbName] = newDbEntry
+					tmpUserData.currentDb = payload.dbName
 				} else {
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `You must be 'Admin' to assign a database to your self` })
 					return
@@ -295,6 +298,7 @@ const actions = {
 					rootState.isCurrentDbChanged = true
 					const msg = "changeDbInMyProfile: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+					dispatch('doLog', { event: msg, level: SEV.INFO })
 					if (payload.autoSignOut) router.replace('/')
 				}
 			}).catch(error => {
