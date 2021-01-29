@@ -175,12 +175,15 @@ const actions = {
 	loadProductDetails({
 		rootState,
 		rootGetters,
+		state,
 		commit,
 		dispatch
 	}) {
 		parentNodes = {}
 		orphansFound = []
 		levelErrorsFound = []
+		state.orphansCount = 0
+		state.levelErrorCount = 0
 		const _id = rootGetters.getCurrentDefaultProductId
 		globalAxios({
 			method: 'GET',
