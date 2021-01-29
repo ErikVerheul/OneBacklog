@@ -143,12 +143,12 @@ const utilities = {
 	methods: {
 		/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 		createId() {
-			common_functions.createId()
+			return common_functions.createId()
 		},
 
 		/* Remove duplicates; return an empty array if arr is not defined or null */
 		dedup(arr) {
-			common_functions.dedup(arr)
+			return common_functions.dedup(arr)
 		},
 
 		getItemStateText(idx) {
