@@ -246,20 +246,35 @@ const actions = {
             case 'removeAttachmentEvent':
               commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: doc.lastAttachmentAddition })
               break
-            case 'removedWithDescendantsEvent':
-              if (node && doc.delmark) {
-                // remove any dependency references to/from outside the removed items
-                window.slVueTree.correctDependencies(node.productId, lastHistObj.removedWithDescendantsEvent[1])
-                if (node.level === LEVEL.PRODUCT) {
+						case 'removedWithDescendantsEvent':
+							if (node && doc.delmark) {
+								// remove any dependency references to/from outside the removed items
+								window.slVueTree.correctDependencies(node.productId, lastHistObj.removedWithDescendantsEvent[1])
+								if (node.isSelected|| window.slVueTree.descendantNodeIsSelected(node)) {
+									// before removal select the predecessor of the removed node (sibling or parent)
+									const prevNode = window.slVueTree.getPreviousNode(node.path)
+									let nowSelectedNode = prevNode
+									if (prevNode.level === LEVEL.DATABASE) {
+										// if a product is to be removed and the previous node is root, select the next product
+										const nextProduct = window.slVueTree.getNextSibling(node.path)
+										if (nextProduct === null) {
+											// there is no next product; cannot remove the last product; note that this action is already blocked with a warming
+											return
+										}
+										nowSelectedNode = nextProduct
+									}
+									commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
+								}
+								if (node.level === LEVEL.PRODUCT) {
 									// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
 									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession })
-                }
-                window.slVueTree.remove([node])
-                if (lastHistObj.by === rootState.userData.user) {
+								}
+								window.slVueTree.remove([node])
+								if (lastHistObj.by === rootState.userData.user) {
 									commit('showLastEvent', { txt: `You removed the ${getLevelText(doc.level, doc.subtype)} '${doc.title}' in another session`, severity: SEV.INFO })
-                } else commit('showLastEvent', { txt: `Another user removed the ${getLevelText(doc.level, doc.subtype)} '${doc.title}'`, severity: SEV.INFO })
-              }
-              break
+								} else commit('showLastEvent', { txt: `Another user removed the ${getLevelText(doc.level, doc.subtype)} '${doc.title}'`, severity: SEV.INFO })
+							}
+							break
             case 'removeSprintIdsEvent':
               commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
               break

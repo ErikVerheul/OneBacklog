@@ -576,6 +576,14 @@ const methods = {
 		return resultNode
 	},
 
+	descendantNodeIsSelected(node) {
+		for (const nm of node.children) {
+			if (nm.isSelected) return true
+			this.descendantNodeIsSelected(nm)
+		}
+		return false
+	},
+
 	getNextSibling(path) {
 		const nextPath = path.slice(0, -1).concat(path.slice(-1)[0] + 1)
 		return this.getNodeModel(nextPath)
