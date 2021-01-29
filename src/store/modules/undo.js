@@ -4,7 +4,8 @@ import globalAxios from 'axios'
 
 const actions = {
   /*
-    * ToDo: create undo's if any of these steps fail
+		* ToDo: create undo's if any of these steps fail
+		* Undo removal of a branche
     * Order of execution:
     * 1. restore descendants (no history attached)
     * 2. parent of the descendants and update the tree
