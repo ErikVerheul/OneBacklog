@@ -79,8 +79,7 @@ const actions = {
     function createNode (doc) {
       const parentNode = window.slVueTree.getNodeById(doc.parentId)
       if (parentNode === null) {
-        const msg = 'listenForChanges: no parent node available yet - doc.productId = ' +
-          doc.productId + ' doc.parentId = ' + doc.parentId + ' doc._id = ' + doc._id + ' title = ' + doc.title
+        const msg = `listenForChanges: no parent node available yet - doc.productId = ${doc.productId}, doc.parentId = ${doc.parentId}, doc._id = ${doc._id}, title = '${doc.title}'`
         dispatch('doLog', { event: msg, level: SEV.WARNING })
         return
       }

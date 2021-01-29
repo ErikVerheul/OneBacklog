@@ -505,7 +505,6 @@ export default new Vuex.Store({
 					console.log(`resetFilters is called by ${payload.caller} but no reset history is avalable`)
 				}
 			}
-			// execute new filter if requested
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 		},
 
