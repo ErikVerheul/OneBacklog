@@ -712,7 +712,7 @@ const actions = {
 			if (data.results.length > 0) {
 				// only process events with included documents
 				for (const r of data.results) {
-          // skip consecutively changes with the same sequence number (Couchdb bug?)
+          // skip consecutive changes with the same sequence number (Couchdb bug?)
           if (r.seq === lastSeq) break
 
           lastSeq = r.seq
