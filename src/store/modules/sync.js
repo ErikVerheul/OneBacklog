@@ -34,6 +34,7 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
 import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
+var lastSeq = undefined
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
 /*
@@ -250,6 +251,7 @@ const actions = {
 							if (node && doc.delmark) {
 								// remove any dependency references to/from outside the removed items
 								window.slVueTree.correctDependencies(node.productId, lastHistObj.removedWithDescendantsEvent[1])
+								let signOut = false
 								if (node.isSelected|| window.slVueTree.descendantNodeIsSelected(node)) {
 									// before removal select the predecessor of the removed node (sibling or parent)
 									const prevNode = window.slVueTree.getPreviousNode(node.path)
@@ -258,8 +260,9 @@ const actions = {
 										// if a product is to be removed and the previous node is root, select the next product
 										const nextProduct = window.slVueTree.getNextSibling(node.path)
 										if (nextProduct === null) {
-											// there is no next product; cannot remove the last product; note that this action is already blocked with a warming
-											return
+											// there is no next product
+											alert('WARNING - the only product you are viewing is removed by another user! You will be signed out. Contact your administrator.')
+											signOut = true
 										}
 										nowSelectedNode = nextProduct
 									}
@@ -267,7 +270,7 @@ const actions = {
 								}
 								if (node.level === LEVEL.PRODUCT) {
 									// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
-									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession })
+									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, signOut })
 								}
 								window.slVueTree.remove([node])
 								if (lastHistObj.by === rootState.userData.user) {
@@ -706,10 +709,13 @@ const actions = {
 			// note that receiving a response can last up to 60 seconds (time-out)
 			if (rootState.online) dispatch('listenForChanges')
 			const data = res.data
-
 			if (data.results.length > 0) {
 				// only process events with included documents
 				for (const r of data.results) {
+          // skip consecutively changes with the same sequence number (Couchdb bug?)
+          if (r.seq === lastSeq) break
+
+          lastSeq = r.seq
 					const doc = r.doc
 					// console.log('listenForChanges: doc = ' + JSON.stringify(doc, null, 2))
 					if (doc.type == 'backlogItem' && (doc.history[0].sessionId !== rootState.mySessionId)) {
@@ -717,7 +723,7 @@ const actions = {
 						dispatch('processDoc', doc)
 					}
 				}
-			}
+      }
 		}).catch(error => {
 			rootState.listenForChangesRunning = false
 			const msg = 'Listening for changes made by other users failed, ' + error
