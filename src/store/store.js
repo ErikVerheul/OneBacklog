@@ -1,4 +1,5 @@
 import globalAxios from 'axios'
+import router from '../router'
 import { addToArray, removeFromArray } from '../common_functions.js'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 import { SEV, LEVEL, STATE, MISC } from '../constants.js'
@@ -560,6 +561,7 @@ export default new Vuex.Store({
 						if (o.value !== payload.productId) newOptions.push(o)
 					}
 					state.myProductOptions = newOptions
+					if (payload.signOut) router.replace('/')
 				}
 
 				// prevent updating the user's profile twice
