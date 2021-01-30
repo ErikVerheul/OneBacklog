@@ -6,7 +6,7 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
-					<h3>v.1.5 - 22 January 2021 Feature update, sucurity and bug fixes</h3>
+					<h3>v.1.5 - 30 January 2021 Feature update, sucurity and bug fixes</h3>
           <p>New features:</p>
           <ul>
             <li>New role 'assistant admin' implemented</li>
