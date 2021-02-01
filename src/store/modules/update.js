@@ -423,6 +423,8 @@ const actions = {
 			const prevLastChange = tmpDoc.lastChange
 			tmpDoc.lastChange = payload.timestamp
 
+			// ToDo: if newState === onHold create a toDispatch to put all decendants also on hold
+
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: tmpDoc,
@@ -492,7 +494,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'setState: Could not read document with id ' + id + ', ' + error
+			const msg = `setState: Could not read document with id ${id}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

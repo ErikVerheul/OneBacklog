@@ -238,7 +238,6 @@ const utilities = {
 		},
 
 		////////////////////////////////////////// sprints ////////////////////////////////////////
-		// ToDo: make this a computed prop so that it comes into effect immediately when the current sprint ends
 		getCurrentAndNextSprint() {
 			const now = Date.now()
 			let currentSprint

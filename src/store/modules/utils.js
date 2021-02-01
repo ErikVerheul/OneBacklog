@@ -215,7 +215,6 @@ const actions = {
 			rootState.isPurgeReady = false
 			rootState.backendMessages = []
 			dispatch('purgeDb', { dbName, data, batch: {}, processed: 0 })
-			// ToDo: move to onSuccessCallback
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Purge started, ' + removed.length + ' documents will be deleted. Please wait ...' })
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Could not find any removed documents in database ' + dbName + ', ' + error })

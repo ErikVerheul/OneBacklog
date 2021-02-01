@@ -136,7 +136,7 @@ From the 'Product details' view context menu features, PBI's and tasks can be se
 Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.
 
 SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
-The calendar is stored in each database CONFIG file. The <ToDo: to be determined> can create a team calendar from the default calendar and change that calendar at will.
+The calendar is stored in each database CONFIG file. The admin/assistAdmin can create a team calendar from the default calendar and change that calendar at will.
 A team calendar will be removed by an admin if the team is removed. 
 
 defaultSprintCalendar = [
@@ -179,7 +179,7 @@ savedIsExpanded: isExpanded, // to restore the original view after applying a fi
 doShow: true, // false if filtered out
 savedDoShow: doShow, // to restore the original view after applying a filter
 dependencies: doc.dependencies, // array with ids
-conditionalFor: doc.conditionalFor, // array with objects { _id, title } ToDo: is the title used?
+conditionalFor: doc.conditionalFor, // array with ids
 
 markedViolations: [] // temporary use, not stored, not synced
 isHighlighted_1:  boolean // temporary use, not stored, not synced
