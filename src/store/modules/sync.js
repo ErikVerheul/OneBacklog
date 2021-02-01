@@ -161,7 +161,7 @@ const actions = {
       }
     }
 
-		async function doProc(doc, isSameUserInDifferentSession) {
+		function doProc(doc, isSameUserInDifferentSession) {
       try {
         if (updateTree) {
           // eslint-disable-next-line no-console
@@ -568,7 +568,7 @@ const actions = {
           }
         }
       } catch (error) {
-        const msg = 'Listening for changes made by other users failed while processing document with id ' + doc._id + ', ' + error
+        const msg = `Listening for changes made by other users failed while processing document with id ${doc._id}, ${error}`
         dispatch('doLog', { event: msg, level: SEV.WARNING })
       }
     }
