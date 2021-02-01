@@ -139,6 +139,7 @@ export default new Vuex.Store({
 		filterForHistory: '',
 		filterText: 'Filter in tree view',
 		findIdOn: false,
+		itemId: '',
 		keyword: '',
 		moveOngoing: false,
 		lastTreeView: undefined,
@@ -440,10 +441,8 @@ export default new Vuex.Store({
 		/* Clear any outstanding filters and searches of the current product (default) or all products */
 		resetFilters({ state, getters, commit, dispatch }, payload) {
 			if (state.resetSearch.searchType) {
-				if (state.debug) {
-					// eslint-disable-next-line no-console
-					console.log(`resetFilters is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
-				}
+				// eslint-disable-next-line no-console
+				if (state.debug) console.log(`resetFilters is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
 
 				if (state.resetSearch.searchType === 'onSetMyFilters') {
 					const nodesToScan = getters.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
@@ -477,6 +476,7 @@ export default new Vuex.Store({
 					// select the node after loading the document
 					dispatch('loadDoc', {
 						id: prevSelectedNode._id, onSuccessCallback: () => {
+							state.itemId = ''
 							commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 							commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
 						}
@@ -501,10 +501,8 @@ export default new Vuex.Store({
 				}
 				state.resetSearch = {}
 			} else {
-				if (state.debug) {
-					// eslint-disable-next-line no-console
-					console.log(`resetFilters is called by ${payload.caller} but no reset history is avalable`)
-				}
+				// eslint-disable-next-line no-console
+				if (state.debug) console.log(`resetFilters is called by ${payload.caller} but no reset history is avalable`)
 			}
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 		},
@@ -545,7 +543,7 @@ export default new Vuex.Store({
 		},
 
 		/* Remove the product from my profile and update my available products and my product options	*/
-		removeFromMyProducts({ state, getters, dispatch }, payload) {
+		removeFromMyProducts({ state, getters, dispatch, commit }, payload) {
 			globalAxios({
 				method: 'GET',
 				url: '/_users/org.couchdb.user:' + state.userData.user
@@ -561,7 +559,10 @@ export default new Vuex.Store({
 						if (o.value !== payload.productId) newOptions.push(o)
 					}
 					state.myProductOptions = newOptions
-					if (payload.signOut) router.replace('/')
+					if (payload.signOut) {
+						commit('endSession')
+						router.replace('/')
+					}
 				}
 
 				// prevent updating the user's profile twice
@@ -1036,6 +1037,7 @@ export default new Vuex.Store({
 			state.currentProductTitle = window.slVueTree.getProductTitle(payload.productId)
 		},
 
+		/* Reset this data on sign-in */
 		resetData(state) {
 			state.availableProductIds = []
 			state.authentication.sessionAuthData = {}
@@ -1064,7 +1066,9 @@ export default new Vuex.Store({
 			state.stories = []
 			state.treeNodes = []
 			state.userData = {}
+		},
 
+		endSession(state) {
 			clearInterval(state.authentication.runningCookieRefreshId)
 			state.authentication.cookieAuthenticated = false
 			clearInterval(state.logState.runningWatchdogId)

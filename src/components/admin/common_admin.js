@@ -600,7 +600,7 @@ const methods = {
 	},
 
 	signIn() {
-		this.$store.commit('resetData', null, { root: true })
+		this.$store.commit('endSession')
 		router.replace('/')
 	}
 }

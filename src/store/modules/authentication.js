@@ -84,13 +84,13 @@ const actions = {
 			})
 			return uuid
 		}
-
+		// reset the data from the current session
+		if (rootState.mySessionId) commit('resetData')
 		globalAxios({
 			method: 'POST',
 			url: '/_session',
 			data: authData
 		}).then(res => {
-			commit('resetData')
 			rootState.mySessionId = create_UUID()
 			state.sessionAuthData = authData
 			rootState.iAmAssistAdmin = res.data.roles.includes('assistAdmin')
@@ -121,8 +121,8 @@ const actions = {
 		})
 	},
 
-	signout({ commit }) {
-		commit('resetData')
+	signout({commit}) {
+		commit('endSession')
 		router.replace('/')
 	}
 }

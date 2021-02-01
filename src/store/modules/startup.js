@@ -197,7 +197,7 @@ const actions = {
 				if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
 					if (rootGetters.isAdmin) { router.replace('/admin') } else {
 						alert('Error: No default product is set. Consult your administrator. The application will exit.')
-						commit('resetData', null, { root: true })
+						commit('endSession')
 						router.replace('/')
 					}
 			} else {
@@ -211,7 +211,7 @@ const actions = {
 							router.replace('/admin')
 						} else {
 							alert('Error: The default sprint calendar ran out of sprints. Consult your administrator. The application will exit.')
-							commit('resetData', null, { root: true })
+							commit('endSession')
 							router.replace('/')
 						}
 					} else {
@@ -227,7 +227,7 @@ const actions = {
 						router.replace('/admin')
 					} else {
 						alert('Error: No default sprint calendar is set. Consult your administrator. The application will exit.')
-						commit('resetData', null, { root: true })
+						commit('endSession')
 						router.replace('/')
 					}
 				}

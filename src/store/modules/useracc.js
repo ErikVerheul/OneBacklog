@@ -132,7 +132,7 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			const msg = 'getProductsRoles: Could not find products in database ' + payload.dbName + ', ' + error
+			const msg = `getProductsRoles: Could not find products in database ${payload.dbName}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -150,7 +150,7 @@ const actions = {
 			tmpUserData.myDatabases[rootState.userData.currentDb].filterSettings = newFilterSettings
 			dispatch('updateUser', { data: tmpUserData })
 		}).catch(error => {
-			const msg = 'saveMyFilterSettings: User ' + rootState.userData.user + ' cannot save the product filter settings. Error = ' + error
+			const msg = `saveMyFilterSettings: User '${rootState.userData.user}' cannot save the product filter settings, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -168,7 +168,7 @@ const actions = {
 			const toDispatch = [{ signout: null }]
 			dispatch('updateUser', { data: tmpUserData, toDispatch })
 		}).catch(error => {
-			const msg = 'changeMyPasswordAction: Could not change password for user ' + rootState.userData.user + ', ' + error
+			const msg = `changeMyPasswordAction: Could not change password for user '${rootState.userData.user}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -225,7 +225,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'assignProductToUser: Could not update subscribed products for user ' + payload.selectedUser + ', ' + error
+			const msg = `assignProductToUser: Could not update subscribed products for user '${payload.selectedUser}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -247,7 +247,7 @@ const actions = {
 			}
 			dispatch('changeDbInMyProfile', { dbName: payload.dbName, autoSignOut: payload.autoSignOut, productIds: availableProductIds })
 		}).catch(error => {
-			const msg = 'changeCurrentDb: Could not find products in database ' + rootState.userData.currentDb + ', ' + error
+			const msg = `changeCurrentDb: Could not find products in database ${rootState.userData.currentDb}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -260,7 +260,8 @@ const actions = {
 	changeDbInMyProfile({
 		rootState,
 		rootGetters,
-		dispatch
+		dispatch,
+		commit
 	}, payload) {
 		rootState.isCurrentDbChanged = false
 		rootState.backendMessages = []
@@ -296,13 +297,16 @@ const actions = {
 				data: tmpUserData,
 				onSuccessCallback: () => {
 					rootState.isCurrentDbChanged = true
-					const msg = "changeDbInMyProfile: The default database of user '" + rootState.userData.user + "' is changed to " + payload.dbName
+					const msg = `changeDbInMyProfile: The default database of user '${rootState.userData.user}' is changed to ${payload.dbName}`
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 					dispatch('doLog', { event: msg, level: SEV.INFO })
-					if (payload.autoSignOut) router.replace('/')
+					if (payload.autoSignOut) {
+						commit('endSession')
+						router.replace('/')
+					}
 				}
 			}).catch(error => {
-				const msg = 'changeDbInMyProfile: Could not update the default database for user ' + rootState.userData.user + ', ' + error
+				const msg = `changeDbInMyProfile: Could not update the default database for user '${rootState.userData.user}', ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
@@ -325,7 +329,7 @@ const actions = {
 			rootState.userData.doNotAskForImport = tmpUserData.doNotAskForImport
 			dispatch('updateUser', { data: tmpUserData })
 		}).catch(error => {
-			const msg = 'registerMyNoSprintImport: Could not update do not ask for import for user ' + rootState.userData.user + ', ' + error
+			const msg = `registerMyNoSprintImport: Could not update do not ask for import for user '${rootState.userData.user}', ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -378,7 +382,7 @@ const actions = {
 			}
 		}
 		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('updateUser: Users roles are: ' + allRoles)
+		if (rootState.debug) console.log(`updateUser: Users roles are: ${allRoles}`)
 		userData.roles = allRoles
 		globalAxios({
 			method: 'PUT',
@@ -403,11 +407,11 @@ const actions = {
 				}
 			}
 			rootState.isUserUpdated = true
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: "updateUser: The profile of user '" + userData.name + "' is updated successfully" })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `updateUser: The profile of user '${userData.name}' is updated successfully` })
 		}).catch(error => {
 			// execute passed callback if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
-			const msg = "updateUser: Could not update the profile of user '" + userData.name + "', " + error
+			const msg = `updateUser: Could not update the profile of user '${userData.name}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -423,14 +427,14 @@ const actions = {
 			method: 'GET',
 			url: '/_users/org.couchdb.user:' + userData.name
 		}).then(() => {
-			const msg = 'createUserIfNotExistent: Cannot create user "' + userData.name + '" that already exists'
+			const msg = `createUserIfNotExistent: Cannot create user '${userData.name}' that already exists'`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
 				dispatch('createUserAction', userData)
 			} else {
-				const msg = 'createUserIfNotExistent: While checking if user "' + userData.name + '" exists an error occurred, ' + error
+				const msg = `createUserIfNotExistent: While checking if user '${userData.name}' exists an error occurred, ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
@@ -452,10 +456,10 @@ const actions = {
 			dispatch('removeUserAction', data)
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
-				const msg = 'removeUserIfExistent: Cannot remove user "' + userName + '" that does not exists'
+				const msg = `removeUserIfExistent: Cannot remove user '${userName}' that does not exists`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			} else {
-				const msg = 'removeUserIfExistent: While removing user "' + userName + '" an error occurred, ' + error
+				const msg = `removeUserIfExistent: While removing user '${userName}' an error occurred, ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
@@ -478,7 +482,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		}).catch(error => {
-			const msg = 'removeUserAction: While removing user "' + userName + '" an error occurred, ' + error
+			const msg = `removeUserAction:  While removing user '${ userName }' an error occurred, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -495,17 +499,16 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + userData.name,
 			data: userData
 		}).then(() => {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createUser: Successfully created user ' + userData.name })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `createUser: Successfully created user '${userData.name}'` })
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('createUserAction: user "' + userData.name + '" is created')
+			if (rootState.debug) console.log(`createUserAction: user '${userData.name}' is created'`)
 			rootState.isUserCreated = true
 		}).catch(error => {
-			const msg = 'createUserAction: Could not create user "' + userData.name + '", ' + error
+			const msg = `createUserAction: Could not create user '${userData.name}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
-
 }
 
 export default {
