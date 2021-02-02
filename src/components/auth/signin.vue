@@ -118,7 +118,7 @@ export default {
 
 .submit button:hover,
 .submit button:active {
-  background-color: #521751;
+  background-color:  #408fae;
   color: white;
 }
 
