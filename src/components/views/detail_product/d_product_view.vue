@@ -8,7 +8,7 @@
           <b-button class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
           <div class="divider" />
           <b-input-group>
-            <b-form-input id="findItemOnId" v-model="itemId" placeholder="Select on (short) Id"></b-form-input>
+            <b-form-input id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetFindId" variant="primary" type="reset">x</b-button>
             </b-input-group-append>
