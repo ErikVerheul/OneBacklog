@@ -35,7 +35,7 @@ const methods = {
 						isExcluded = this.doFilterOnTime(nm)
 					}
 					if (!isExcluded) {
-						window.slVueTree.showPathToNode(nm, { doHighLight_1: (nm.level > LEVEL.PRODUCT) })
+						window.slVueTree.showPathToNode(nm, { doHighLight_1: (nm.level > LEVEL.PRODUCT) }, false)
 						if (nm.level > LEVEL.PRODUCT) count++
 					} else {
 						unselectedNodes.push(nm)
@@ -48,13 +48,11 @@ const methods = {
 				for (const n of unselectedNodes) {
 					n.doShow = window.slVueTree.checkForFilteredDescendants(n)
 				}
-				let s
-				count === 1 ? s = 'title matches' : s = 'titles match'
-				this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
+				this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 
 				this.$store.state.filterText = 'Clear filter'
 				// create reset object
-				this.$store.state.resetSearch = {
+				this.$store.state.resetFilter = {
 					searchType: 'onSetMyFilters',
 					highLight: 'highlighted_1'
 				}

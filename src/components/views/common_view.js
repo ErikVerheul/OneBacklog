@@ -1,21 +1,21 @@
-import { SEV } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
 
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
-const FULLKEYLENGTH = 18
+const FULLKEYLENGTH = 17
 
 function mounted() {
 	function idCheck(vm) {
 		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-		if (vm.itemId.length !== SHORTKEYLENGTH && vm.itemId.length >= FULLKEYLENGTH) {
+		if (vm.$store.state.itemId.length !== SHORTKEYLENGTH && vm.$store.state.itemId.length < FULLKEYLENGTH) {
 			vm.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
 			return false
 		}
 
-		for (let i = 0; i < vm.itemId.length; i++) {
-			if (!alphanum.includes(vm.itemId.substring(i, i + 1).toLowerCase())) return false
+		for (let i = 0; i < vm.$store.state.itemId.length; i++) {
+			if (!alphanum.includes(vm.$store.state.itemId.substring(i, i + 1).toLowerCase())) return false
 		}
 		return true
 	}
@@ -27,7 +27,7 @@ function mounted() {
 			event.preventDefault()
 			// check for valid input and convert to lowercase
 			if (idCheck(this)) {
-				this.findItemOnId(this.itemId.toLowerCase())
+				this.findItemOnId(this.$store.state.itemId.toLowerCase())
 			}
 		}
 	})
@@ -56,7 +56,6 @@ function data() {
 		userStorySubtype: 0,
 		spikeSubtype: 1,
 		defectSubtype: 2,
-		itemId: '',
 		newDescription: '',
 		newAcceptance: '',
 		editorToolbar: [
@@ -212,11 +211,11 @@ const methods = {
 	},
 
 	resetFindId() {
-		this.$store.dispatch('resetFilters', { caller: 'resetFindId' })
+		this.$store.dispatch('resetFindOnId', { caller: 'resetFindId' })
 	},
 
 	resetSearchTitles() {
-		this.$store.dispatch('resetFilters', { caller: 'resetSearchTitles' })
+		this.$store.dispatch('resetSearchInTitles', { caller: 'resetSearchTitles' })
 	},
 
 	patchTitle(node) {
@@ -276,9 +275,9 @@ const methods = {
 	},
 
 	onSetMyFilters() {
-		if (this.$store.state.resetSearch && this.$store.state.resetSearch.searchType === 'onSetMyFilters') {
+		if (this.$store.state.resetFilter.searchType === 'onSetMyFilters') {
 			// if this filter was on, reset it
-			this.$store.dispatch('resetFilters', { caller: 'onSetMyFilters', onSuccessCallback: undefined })
+			this.$store.dispatch('resetMyFilters', { caller: 'onSetMyFilters', onSuccessCallback: undefined })
 		} else {
 			// update the available req area options
 			const currReqAreaIds = window.slVueTree.getCurrentReqAreaIds()
@@ -339,25 +338,27 @@ const methods = {
 		if (this.$store.state.keyword === '') return
 
 		// reset any active selections first
-		this.$store.dispatch('resetFilters', {
+		this.$store.dispatch('resetSearchInTitles', {
 			caller: 'searchInTitles', onSuccessCallback: () => {
 				const nodesFound = []
 				window.slVueTree.traverseModels((nm) => {
+					// save node display state
+					nm.savedDoShow = nm.doShow
+					nm.savedIsExpanded = nm.isExpanded
 					if (nm.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
-						window.slVueTree.showPathToNode(nm, { doHighLight_1: true })
+						window.slVueTree.showPathToNode(nm, { doHighLight_1: true }, false)
 						nodesFound.push(nm)
 					} else {
 						// collapse nodes with no findings in their subtree
-						nm.savedIsExpanded = nm.isExpanded
-						nm.isExpanded = false
+						if (nm.level > LEVEL.PRODUCT) nm.isExpanded = false
 					}
-				}, this.getLastSelectedNode.children || [])
+				})
 
 				const itemType = this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)
 				const itemTitle = this.getLastSelectedNode.title
 
 				if (nodesFound.length > 0) {
-					// select the node after loading the document
+					// load and select the first node found
 					this.$store.dispatch('loadDoc', {
 						id: nodesFound[0]._id, onSuccessCallback: () => {
 							this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
@@ -627,7 +628,6 @@ const methods = {
 	* Issue a warning when the user assigns a state to a parent:
 	* - to DONE when not all descendants are done
 	* - higher than the state of any of its descendants
-	*  ToDo: when setting the state to on-hold also set the state of all descendants to on-hold
 	*/
 	onStateChange(newState) {
 		if (newState !== this.$store.state.currentDoc.state) {

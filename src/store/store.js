@@ -146,6 +146,7 @@ export default new Vuex.Store({
 		searchOn: false,
 		selectedForView: 'comments',
 		previousSelectedNodes: undefined,
+		resetFilter: {},
 		resetSearch: {},
 		selectedNodes: [],
 		selectNodeOngoing: false,
@@ -438,73 +439,97 @@ export default new Vuex.Store({
 	},
 
 	actions: {
-		/* Clear any outstanding filters and searches of the current product (default) or all products */
-		resetFilters({ state, getters, commit, dispatch }, payload) {
-			if (state.resetSearch.searchType) {
-				// eslint-disable-next-line no-console
-				if (state.debug) console.log(`resetFilters is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
+		resetMyFilters({ state, getters, commit }, payload) {
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log(`resetMyFilters is called by ${payload.caller}, state.resetFilter.searchType = ${state.resetFilter.searchType}`)
+			if (state.resetFilter.searchType === 'onSetMyFilters') {
+				const nodesToScan = getters.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
+				// traverse the tree to reset to the state before filtering
+				window.slVueTree.traverseModels((nm) => {
+					if (nm.level <= LEVEL.PRODUCT) return
+					// skip requirement areas dummy product items
+					if (nm._id === MISC.AREA_PRODUCTID) return
 
-				if (state.resetSearch.searchType === 'onSetMyFilters') {
-					const nodesToScan = getters.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
-					// traverse the tree to reset to the state before filtering
-					window.slVueTree.traverseModels((nm) => {
-						if (nm.level <= LEVEL.PRODUCT) return
-						// skip requirement areas dummy product items
-						if (nm._id === MISC.AREA_PRODUCTID) return
+					// filters do only set isHighlighted_1
+					delete nm.isHighlighted_1
+					nm.doShow = nm.savedDoShow
+					nm.isExpanded = nm.savedIsExpanded
+				}, nodesToScan)
 
-						// filters do only set isHighlighted_1
-						nm.isHighlighted_1 = false
-						nm.doShow = nm.savedDoShow
-						nm.isExpanded = nm.savedIsExpanded
-					}, nodesToScan)
-
-					commit('addToEventList', { txt: `Your filter in product '${state.currentProductTitle}' is cleared`, severity: SEV.INFO })
-					state.filterText = FILTERBUTTONTEXT
-				}
-
-				if (state.resetSearch.searchType === 'findItemOnId') {
-					const node = state.resetSearch.nodes[0]
-					const prevSelectedNode = state.resetSearch.currentSelectedNode
-					if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
-						// the node was found in another product; collapse the currently selected product and switch to the other product
-						commit('switchCurrentProduct', { productId: prevSelectedNode.productId, collapseCurrentProduct: true })
-						// expand the product
-						window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
-					} else {
-						window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
-					}
-					// select the node after loading the document
-					dispatch('loadDoc', {
-						id: prevSelectedNode._id, onSuccessCallback: () => {
-							state.itemId = ''
-							commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-							commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
-						}
-					})
-				}
-
-				if (state.resetSearch.searchType === 'searchInTitles') {
-					for (const node of state.resetSearch.nodes) {
-						window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
-					}
-					const prevSelectedNode = state.resetSearch.currentSelectedNode
-					dispatch('loadDoc', {
-						id: prevSelectedNode._id, onSuccessCallback: () => {
-							commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-							window.slVueTree.showPathToNode(prevSelectedNode)
-							// expand the product
-							window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
-							state.keyword = ''
-							commit('addToEventList', { txt: `The search for item titles in '${prevSelectedNode.title}' is cleared`, severity: SEV.INFO })
-						}
-					})
-				}
-				state.resetSearch = {}
-			} else {
-				// eslint-disable-next-line no-console
-				if (state.debug) console.log(`resetFilters is called by ${payload.caller} but no reset history is avalable`)
+				state.filterText = FILTERBUTTONTEXT
+				state.resetFilter = {}
+				commit('addToEventList', { txt: `Your filter on product '${state.currentProductTitle}' is cleared`, severity: SEV.INFO })
 			}
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
+		},
+
+		resetFindOnId({ state, dispatch, commit }, payload) {
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
+			if (state.resetSearch.searchType === 'findItemOnId') {
+				const node = state.resetSearch.nodes[0]
+				const prevSelectedNode = state.resetSearch.currentSelectedNode
+				if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
+					// the node was found in another product; collapse the currently selected product and switch to the other product
+					commit('switchCurrentProduct', { productId: prevSelectedNode.productId, collapseCurrentProduct: true })
+					// expand the product
+					window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
+				} else {
+					window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
+				}
+				// select the node after loading the document
+				dispatch('loadDoc', {
+					id: prevSelectedNode._id, onSuccessCallback: () => {
+						state.itemId = ''
+						state.resetSearch = {}
+						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+						commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
+					}
+				})
+			}
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
+		},
+
+		resetSearchInTitles({ state, dispatch, commit }, payload) {
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
+			if (state.resetSearch.searchType === 'searchInTitles') {
+				for (const node of state.resetSearch.nodes) {
+					window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
+				}
+				const prevSelectedNode = state.resetSearch.currentSelectedNode
+				dispatch('loadDoc', {
+					id: prevSelectedNode._id, onSuccessCallback: () => {
+						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+						window.slVueTree.showPathToNode(prevSelectedNode)
+						// expand the product
+						window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
+						state.keyword = ''
+						state.resetSearch = {}
+						commit('addToEventList', { txt: `The search for item titles in '${prevSelectedNode.title}' is cleared`, severity: SEV.INFO })
+					}
+				})
+			}
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
+		},
+
+		/* Clear any outstanding filters and searches of the current product (default) or all products and execute the callback (if provided) */
+		resetFilters({ state, dispatch }, payload) {
+			if (state.resetFilter.searchType || state.resetSearch.searchType) {
+				if (state.resetFilter.searchType === 'onSetMyFilters') {
+					dispatch('resetMyFilters', payload)
+				}
+				if (state.resetSearch.searchType === 'findItemOnId') {
+					dispatch('resetFindOnId', payload)
+				}
+				if (state.resetSearch.searchType === 'searchInTitles') {
+					dispatch('resetSearchInTitles', payload)
+				}
+			} else {
+				// eslint-disable-next-line no-console
+				if (state.debug) console.log(`resetFilters is called by ${payload.caller} but no reset history is avalable; a callback is executed = ${payload.onSuccessCallback !== undefined}`)
+				if (payload.onSuccessCallback) payload.onSuccessCallback()
+			}
 		},
 
 		/* Add the product to my profile and update my available products and my product options	*/

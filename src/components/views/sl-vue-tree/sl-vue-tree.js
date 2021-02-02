@@ -689,14 +689,14 @@ const methods = {
 				nm.isExpanded = true
 				nm.doShow = true
 			} else
-			if (nm.level === LEVEL.FEATURE) {
-				nm.isExpanded = false
-				nm.doShow = true
-			} else
-			if (nm.level > LEVEL.FEATURE) {
-				nm.isExpanded = false
-				nm.doShow = false
-			}
+				if (nm.level === LEVEL.FEATURE) {
+					nm.isExpanded = false
+					nm.doShow = true
+				} else
+					if (nm.level > LEVEL.FEATURE) {
+						nm.isExpanded = false
+						nm.doShow = false
+					}
 		}, this.getProductModel())
 		// this.showVisibility('expandTreeUptoFeatureLevel')
 	},
@@ -714,12 +714,14 @@ const methods = {
 	* Show the path from productlevel up to the node and highlight or warnLight the node
 	* Save the isExpanded and doShow state to enable undo later
 	*/
-	showPathToNode(node, highLight) {
+	showPathToNode(node, highLight, saveOldState = true) {
 		const maxDepth = node.path.length
 		for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
-			nm.savedIsExpanded = nm.isExpanded
-			nm.savedDoShow = nm.doShow
+			if (saveOldState) {
+				nm.savedIsExpanded = nm.isExpanded
+				nm.savedDoShow = nm.doShow
+			}
 			if (i < maxDepth) {
 				nm.isExpanded = true
 				nm.doShow = true

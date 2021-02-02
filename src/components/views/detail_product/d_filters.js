@@ -1,4 +1,5 @@
 import { SEV, LEVEL } from '../../../constants.js'
+import { utilities } from '../../mixins/generic.js'
 import commonFilters from '../common_filters.js'
 
 const methods = {
@@ -19,6 +20,7 @@ const methods = {
 					nm.savedIsExpanded = nm.isExpanded
 					if (onlyFilterOnDepth) {
 						nm.isExpanded = nm.level < this.selectedTreeDepth
+						nm.doShow = nm.level <= this.selectedTreeDepth
 						if (nm.level === this.selectedTreeDepth) return
 					} else {
 						// select nodeModels NOT to show; the node is shown if not excluded by any filter
@@ -38,11 +40,11 @@ const methods = {
 						if (!isExcluded) {
 							if (this.filterTreeDepth) {
 								if (nm.level <= this.selectedTreeDepth) {
-									window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
+									window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT }, false)
 									if (nm.level > LEVEL.PRODUCT) count++
 								} else return
 							} else {
-								window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
+								window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT }, false)
 								if (nm.level > LEVEL.PRODUCT) count++
 							}
 						} else {
@@ -60,14 +62,12 @@ const methods = {
 					for (const n of unselectedNodes) {
 						n.doShow = window.slVueTree.checkForFilteredDescendants(n)
 					}
-					let s
-					count === 1 ? s = 'title matches' : s = 'titles match'
-					this.showLastEvent(`${count} item ${s} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
+					this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 				} else {
-					this.showLastEvent(`The tree is displayed up to the selected level in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
+					this.showLastEvent(`The tree is displayed up to the ${this.getLevelText(this.selectedTreeDepth)} level in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 				}
 				// create reset object
-				this.$store.state.resetSearch = {
+				this.$store.state.resetFilter = {
 					searchType: 'onSetMyFilters',
 					highLight: 'highlighted_1'
 				}
@@ -77,6 +77,7 @@ const methods = {
 }
 
 export default {
+	mixins: [utilities],
 	extends: commonFilters,
 	methods
 }
