@@ -579,7 +579,7 @@ const methods = {
 	descendantNodeIsSelected(node) {
 		for (const nm of node.children) {
 			if (nm.isSelected) return true
-			this.descendantNodeIsSelected(nm)
+			if (this.descendantNodeIsSelected(nm)) return true
 		}
 		return false
 	},
