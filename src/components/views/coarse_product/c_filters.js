@@ -8,7 +8,7 @@ const methods = {
 		if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
 		// reset any active selections first
-		this.$store.dispatch('resetFilters', {
+		this.$store.dispatch('resetFilterAndSearches', {
 			caller: 'onApplyMyFilters', onSuccessCallback: () => {
 				let count = 0
 				const unselectedNodes = []

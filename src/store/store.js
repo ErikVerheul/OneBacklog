@@ -446,7 +446,7 @@ export default new Vuex.Store({
 				const nodesToScan = getters.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
 				// traverse the tree to reset to the state before filtering
 				window.slVueTree.traverseModels((nm) => {
-					if (nm.level <= LEVEL.PRODUCT) return
+					if (nm.level < LEVEL.PRODUCT) return
 					// skip requirement areas dummy product items
 					if (nm._id === MISC.AREA_PRODUCTID) return
 
@@ -514,7 +514,7 @@ export default new Vuex.Store({
 		},
 
 		/* Clear any outstanding filters and searches of the current product (default) or all products and execute the callback (if provided) */
-		resetFilters({ state, dispatch }, payload) {
+		resetFilterAndSearches({ state, dispatch }, payload) {
 			if (state.resetFilter.searchType || state.resetSearch.searchType) {
 				if (state.resetFilter.searchType === 'onSetMyFilters') {
 					dispatch('resetMyFilters', payload)
@@ -527,7 +527,7 @@ export default new Vuex.Store({
 				}
 			} else {
 				// eslint-disable-next-line no-console
-				if (state.debug) console.log(`resetFilters is called by ${payload.caller} but no reset history is avalable; a callback is executed = ${payload.onSuccessCallback !== undefined}`)
+				if (state.debug) console.log(`resetFilterAndSearches is called by ${payload.caller} but no reset history is avalable; a callback is executed = ${payload.onSuccessCallback !== undefined}`)
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			}
 		},

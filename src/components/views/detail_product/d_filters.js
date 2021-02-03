@@ -8,7 +8,7 @@ const methods = {
 		if (!this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
 		// reset any active selections first
-		this.$store.dispatch('resetFilters', {
+		this.$store.dispatch('resetFilterAndSearches', {
 			caller: 'onApplyMyFilters', onSuccessCallback: () => {
 				const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
 				let count = 0

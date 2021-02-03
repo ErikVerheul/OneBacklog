@@ -59,7 +59,7 @@ const methods = {
 	},
 
 	doChangeDatabase() {
-		this.$store.dispatch('resetFilters', {
+		this.$store.dispatch('resetFilterAndSearches', {
 			caller: 'doChangeDatabase', onSuccessCallback: () => {
 				if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
 					const autoSignOut = true

@@ -252,7 +252,7 @@ const actions = {
 								// remove any dependency references to/from outside the removed items
 								window.slVueTree.correctDependencies(node.productId, lastHistObj.removedWithDescendantsEvent[1])
 								let signOut = false
-								if (node.isSelected|| window.slVueTree.descendantNodeIsSelected(node)) {
+								if (node.isSelected || window.slVueTree.descendantNodeIsSelected(node)) {
 									// before removal select the predecessor of the removed node (sibling or parent)
 									const prevNode = window.slVueTree.getPreviousNode(node.path)
 									let nowSelectedNode = prevNode
