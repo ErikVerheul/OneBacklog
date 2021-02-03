@@ -1,5 +1,4 @@
 import { SEV, LEVEL } from '../../../constants.js'
-import { utilities } from '../../mixins/generic.js'
 import commonFilters from '../common_filters.js'
 
 const methods = {
@@ -77,7 +76,6 @@ const methods = {
 }
 
 export default {
-	mixins: [utilities],
 	extends: commonFilters,
 	methods
 }
