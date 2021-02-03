@@ -352,7 +352,7 @@ const methods = {
 						// collapse nodes with no findings in their subtree
 						if (nm.level > LEVEL.PRODUCT) nm.isExpanded = false
 					}
-				})
+				}, window.slVueTree.getProductModel())
 
 				const itemType = this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)
 				const itemTitle = this.getLastSelectedNode.title
