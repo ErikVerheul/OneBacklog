@@ -119,11 +119,9 @@ const methods = {
 					productIds, onSuccessCallback: () => {
 						if (this.$store.state.currentProductId !== this.newDefaultProductId) {
 							// another product is selected; collapse the currently selected product and switch to the new product
-							this.$store.commit('switchCurrentProduct', { productId: this.newDefaultProductId, collapseCurrentProduct: true })
+							this.$store.commit('switchCurrentProduct', this.newDefaultProductId)
 							// select new default product node
 							window.slVueTree.selectNodeById(this.newDefaultProductId)
-							// expand the newly selected product up to the feature level
-							window.slVueTree.expandTreeUptoFeatureLevel()
 						}
 						// remove unselected products from the tree view
 						for (const id of myOldSubscriptions) {
