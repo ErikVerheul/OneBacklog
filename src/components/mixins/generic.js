@@ -126,6 +126,7 @@ const utilities = {
 			'getCurrentItemState',
 			'getCurrentItemTsSize',
 			'getCurrentDefaultProductId',
+			'getFilterButtonText',
 			'getItemSprintName',
 			'getPreviousNodeSelected',
 			'getLastSelectedNode',
@@ -141,6 +142,23 @@ const utilities = {
 	},
 
 	methods: {
+		/////////////////////////////// common functions made available in the VUE this context //////////////////////////////
+		expandNode(node) {
+			common_functions.expandNode(node)
+		},
+
+		collapseNode(node) {
+			common_functions.collapseNode(node)
+		},
+
+		showNode(node) {
+			common_functions.showNode(node)
+		},
+
+		hideNode(node) {
+			common_functions.hideNode(node)
+		},
+
 		/* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 		createId() {
 			return common_functions.createId()
@@ -150,6 +168,7 @@ const utilities = {
 		dedup(arr) {
 			return common_functions.dedup(arr)
 		},
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		getItemStateText(idx) {
 			if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {

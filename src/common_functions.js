@@ -3,6 +3,50 @@
 * Note: Use import * as <any name> from '../common_functions.js' to get all named exports in one object
 */
 
+//////////////// expand, collapse, show and hide nodes as a side effect of these 4 functions ////////////
+export function showNode(node) {
+	if (node) {
+		node.savedDoShow = node.doShow
+		node.doShow = true
+	}
+}
+
+export function hideNode(node) {
+	if (node) {
+		node.savedDoShow = node.doShow
+		node.doShow = false
+	}
+}
+
+export function expandNode(node) {
+	function unhideDescendants(node) {
+		for (const nm of node.children) {
+			if (!nm.doShow) showNode(nm)
+			unhideDescendants(nm)
+		}
+	}
+	if (node) {
+		node.savedIsExpanded = node.isExpanded
+		node.isExpanded = true
+		unhideDescendants(node)
+	}
+}
+
+export function collapseNode(node) {
+	function hideDescendants(node) {
+		for (const nm of node.children) {
+			if (nm.doShow) hideNode(nm)
+			hideDescendants(nm)
+		}
+	}
+	if (node) {
+		node.savedIsExpanded = node.isExpanded
+		node.isExpanded = false
+		hideDescendants(node)
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 /* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 export function createId() {
 	const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
@@ -79,4 +123,4 @@ export function getLocationInfo(newPrio, parentNode) {
 	}
 }
 
-export default { addToArray, createId, dedup, getLocationInfo, removeFromArray }
+export default { expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, removeFromArray }
