@@ -70,10 +70,12 @@ const mutations = {
 						isLeaf: false,
 						children: [],
 						isExpanded: true,
+						savedIsExpanded: true,
 						isSelectable: true,
 						isDraggable: false,
 						isSelected: false,
 						doShow: true,
+						savedDoShow: true,
 						data: {
 							state: itemState,
 							team,
@@ -132,10 +134,12 @@ const mutations = {
 					isLeaf: itemLevel === LEVEL.TASK,
 					children: [],
 					isExpanded,
+					savedIsExpanded: isExpanded,
 					isSelectable: true,
 					isDraggable,
 					isSelected: _id === rootGetters.getCurrentDefaultProductId,
 					doShow,
+					savedDoShow: doShow,
 					data: {
 						lastAttachmentAddition,
 						lastChange,
@@ -182,6 +186,8 @@ const actions = {
 		parentNodes = {}
 		orphansFound = []
 		levelErrorsFound = []
+		state.docsCount = 0
+		state.insertedCount = 0
 		state.orphansCount = 0
 		state.levelErrorCount = 0
 		const _id = rootGetters.getCurrentDefaultProductId
@@ -220,7 +226,7 @@ const actions = {
 			rootState.loadedTreeDepth = LEVEL.TASK
 			rootState.loadedSprintId = null
 			commit('processProduct', { rootState, rootGetters, batch: res.data.rows })
-			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
+			commit('showLastEvent', { txt: `${state.docsCount} documents are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {

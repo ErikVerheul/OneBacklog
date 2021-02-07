@@ -25,6 +25,8 @@ const actions = {
 		parentNodes = {}
 		orphansFound = []
 		levelErrorsFound = []
+		state.docsCount = 0
+		state.insertedCount = 0
 		state.orphansCount = 0
 		state.levelErrorCount = 0
 		globalAxios({
@@ -77,10 +79,12 @@ const actions = {
 							isLeaf: false,
 							children: [],
 							isExpanded: true,
+							savedIsExpanded: isExpanded,
 							isSelectable: true,
 							isDraggable: false,
 							isSelected: false,
 							doShow: true,
+							savedDoShow: doShow,
 							data: {
 								state: itemState,
 								team,
@@ -132,10 +136,12 @@ const actions = {
 						isLeaf: itemLevel === LEVEL.FEATURE,
 						children: [],
 						isExpanded,
+						savedIsExpanded: isExpanded,
 						isSelectable: true,
 						isDraggable,
 						isSelected: _id === rootGetters.getCurrentDefaultProductId,
 						doShow,
+						savedDoShow: doShow,
 						data: {
 							lastAttachmentAddition,
 							lastChange,
@@ -168,7 +174,7 @@ const actions = {
 				}
 			}
 
-			commit('showLastEvent', { txt: `${state.docsCount} docs are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
+			commit('showLastEvent', { txt: `${state.docsCount} documents are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {
