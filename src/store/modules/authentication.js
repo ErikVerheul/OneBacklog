@@ -29,15 +29,7 @@ const actions = {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
-				if (payload.toDispatch) {
-					// additional dispatches
-					for (const td of payload.toDispatch) {
-						const name = Object.keys(td)[0]
-						// eslint-disable-next-line no-console
-						if (rootState.debugConnectionAndLogging) console.log('refreshCookie: dispatching ' + name)
-						dispatch(name, td[name])
-					}
-				}
+				dispatch('additionalActions', payload)
 			}).catch(error => {
 				// execute passed function if provided
 				if (payload.onFailureCallback) payload.onFailureCallback()

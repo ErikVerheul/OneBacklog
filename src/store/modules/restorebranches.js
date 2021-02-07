@@ -101,9 +101,11 @@ const actions = {
 					children: [],
 					isSelected: false,
 					isExpanded,
+					savedIsExpanded: isExpanded,
 					isSelectable: true,
 					isDraggable: itemLevel > LEVEL.PRODUCT,
 					doShow: true,
+					savedDoShow: true,
 					data: {
 						lastAttachmentAddition,
 						lastChange,
@@ -125,7 +127,6 @@ const actions = {
 					nodeModel: locationInfo.prevNode,
 					placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 				}, [newNode], false)
-
 				if (!fromHistory) {
 					// select the product node in the tree
 					if (_id === productIdToSelect) window.slVueTree.selectNodeById(productIdToSelect)
@@ -150,6 +151,7 @@ const actions = {
 		}).then(res => {
 			getChildrenRunning--
 			const results = res.data.rows
+			// console.log('getChildrenToRestore: results.map((item) => item.value[5] = ' + results.map((item) => item.value[5]))
 			if (results.length > 0) {
 				// process next level
 				dispatch('restoreItems', { results, toDispatch: payload.toDispatch, onSuccessCallback: payload.onSuccessCallback })
@@ -174,15 +176,7 @@ const actions = {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
-				if (payload.toDispatch) {
-					// additional dispatches
-					for (const td of payload.toDispatch) {
-						const name = Object.keys(td)[0]
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('restoreBranch(es).getChildrenToRestore: dispatching ' + name)
-						dispatch(name, td[name])
-					}
-				}
+				dispatch('additionalActions', payload)
 			}
 		}).catch(error => {
 			const msg = 'restorebranches.getChildrenToRestore: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
