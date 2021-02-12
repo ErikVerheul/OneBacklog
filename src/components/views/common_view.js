@@ -180,23 +180,6 @@ const watch = {
 }
 
 const methods = {
-	/*
-	* Find and show dependency violations in the current product (details view) or all products (coarse view).
-	* Return true if 1 or more violations are found, false otherwise.
-	*/
-	dependencyViolationsFound() {
-		let violationsWereFound = false
-		const violations = window.slVueTree.findDependencyViolations(this.isOverviewSelected)
-		if (violations.length > 0) {
-			violationsWereFound = true
-			this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', SEV.WARNING)
-			window.slVueTree.showDependencyViolations(violations, this.isOverviewSelected)
-		} else {
-			violationsWereFound = false
-		}
-		return violationsWereFound
-	},
-
 	stopFiltering() {
 		if (this.$store.state.selectedForView === 'comments') {
 			this.filterForCommentPrep = ''
@@ -275,9 +258,9 @@ const methods = {
 	},
 
 	onSetMyFilters() {
-		if (this.$store.state.resetFilter.searchType === 'onSetMyFilters') {
-			// if this filter was on, reset it
-			this.$store.dispatch('resetMyFilters', { caller: 'onSetMyFilters', onSuccessCallback: undefined })
+		if (this.$store.state.filterTreeIsSet) {
+			// if this filter was on, reset it after resetting any set search
+			this.$store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters' })
 		} else {
 			// update the available req area options
 			const currReqAreaIds = window.slVueTree.getCurrentReqAreaIds()
@@ -292,94 +275,101 @@ const methods = {
 
 	/* Find, load and select an item with a given short or full Id. Scan the full tree */
 	findItemOnId(id) {
-		const isShortId = id.length === SHORTKEYLENGTH
-		let node
-		window.slVueTree.traverseModels((nm) => {
-			if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
-				// short id or full id did match
-				node = nm
-				return false
-			}
-		})
-		if (node) {
-			// load and select the document if not already current
-			if (node._id !== this.$store.state.currentDoc._id) {
-				// select the node after loading the document
-				this.$store.dispatch('loadDoc', {
-					id: node._id, onSuccessCallback: () => {
-						// create reset object
-						this.$store.state.resetSearch = {
-							searchType: 'findItemOnId',
-							view: 'detailProduct',
-							currentSelectedNode: this.getLastSelectedNode,
-							nodes: [node],
-							highLight: 'noHighLight'
-						}
-						if (this.isDetailsViewSelected && node.productId !== this.$store.state.currentProductId) {
-							// the node is found but not in the current product; collapse the currently selected product and switch to the new product
-							this.$store.commit('switchCurrentProduct', { productId: node.productId, collapseCurrentProduct: true })
-						}
-						// expand the newly selected product up to the found item
-						window.slVueTree.showPathToNode(node, { noHighLight: true })
-						this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
-						this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
+		// reset any active search first
+		this.$store.dispatch('resetAnySearches', {
+			caller: 'findItemOnId', onSuccessCallback: () => {
+				const isShortId = id.length === SHORTKEYLENGTH
+				let node
+				window.slVueTree.traverseModels((nm) => {
+					if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
+						// short id or full id did match
+						node = nm
+						return false
 					}
 				})
+				if (node) {
+					// load and select the document if not already current
+					if (node._id !== this.$store.state.currentDoc._id) {
+						// select the node after loading the document
+						this.$store.dispatch('loadDoc', {
+							id: node._id, onSuccessCallback: () => {
+								// create reset object
+								this.$store.state.resetSearch = {
+									searchType: 'findItemOnId',
+									view: 'detailProduct',
+									currentSelectedNode: this.getLastSelectedNode,
+									node,
+									highLight: 'noHighLight'
+								}
+								if (this.isDetailsViewSelected && node.productId !== this.$store.state.currentProductId) {
+									// the node is found but not in the current product; collapse the currently selected product and switch to the new product
+									this.$store.commit('switchCurrentProduct', node.productId)
+								}
+								// expand the product up to the found item
+								window.slVueTree.showPathToNode(node, { noHighLight: true }, 'search')
+								this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
+								this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
+							}
+						})
+					}
+				} else {
+					// the node is not found in the current product selection; try to find it in the database using the short id
+					const lookUpId = isShortId ? id : id.slice(-5)
+					this.$store.dispatch('loadItemByShortId', lookUpId)
+				}
 			}
-		} else {
-			// the node is not found in the current product selection; try to find it in the database using the short id
-			const lookUpId = isShortId ? id : id.slice(-5)
-			this.$store.dispatch('loadItemByShortId', lookUpId)
-		}
+		})
 	},
 
 	searchInTitles() {
 		// cannot search on empty string
 		if (this.$store.state.keyword === '') return
 
-		// reset any active selections first
-		this.$store.dispatch('resetSearchInTitles', {
+		// reset any active search first
+		this.$store.dispatch('resetAnySearches', {
 			caller: 'searchInTitles', onSuccessCallback: () => {
 				const nodesFound = []
+				const nodesCollapsed = []
+				const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
 				window.slVueTree.traverseModels((nm) => {
 					// save node display state
-					nm.savedDoShow = nm.doShow
-					nm.savedIsExpanded = nm.isExpanded
+					nm.tmp.savedIsExpandedInSearch = nm.isExpanded
 					if (nm.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
-						window.slVueTree.showPathToNode(nm, { doHighLight_1: true }, false)
+						// expand the product up to the found item and highlight it
+						window.slVueTree.showPathToNode(nm, { doHighLight_1: true }, 'search')
 						nodesFound.push(nm)
 					} else {
 						// collapse nodes with no findings in their subtree
-						if (nm.level > LEVEL.PRODUCT) nm.isExpanded = false
+						if (nm.level > LEVEL.PRODUCT) {
+							if (nm.isExpanded) {
+								this.collapseNode(nm)
+								nodesCollapsed.push(nm)
+							}
+						}
 					}
-				}, window.slVueTree.getProductModel())
+				}, nodesToScan)
 
-				const itemType = this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)
-				const itemTitle = this.getLastSelectedNode.title
+				// create reset object
+				this.$store.state.resetSearch = {
+					searchType: 'searchInTitles',
+					nodesFound,
+					nodesCollapsed,
+					view: 'detailProduct',
+					currentSelectedNode: this.getLastSelectedNode
+				}
 
+				const productStr = this.isOverviewSelected ? 'all products' : ` product '${this.$store.state.currentProductTitle}'`
 				if (nodesFound.length > 0) {
 					// load and select the first node found
 					this.$store.dispatch('loadDoc', {
 						id: nodesFound[0]._id, onSuccessCallback: () => {
 							this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
-
-							// create reset object
-							this.$store.state.resetSearch = {
-								searchType: 'searchInTitles',
-								view: 'detailProduct',
-								currentSelectedNode: this.getLastSelectedNode,
-								nodes: nodesFound,
-								highLight: 'highlighted_1'
-							}
-
 							if (nodesFound.length === 1) {
-								this.showLastEvent(`One item title matches your search in ${itemType} '${itemTitle}'. This item is selected`, SEV.INFO)
-							} else
-								this.showLastEvent(`${nodesFound.length} item titles match your search in ${itemType} '${itemTitle}'. The first match is selected`, SEV.INFO)
+								this.showLastEvent(`One item title matches your search in ${productStr}. This item is selected`, SEV.INFO)
+							} else this.showLastEvent(`${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`, SEV.INFO)
 						}
 					})
-				} else this.showLastEvent(`No item titles match your search in ${itemType} '${itemTitle}'`, SEV.INFO)
-				// window.slVueTree.showVisibility('searchInTitles', LEVEL.FEATURE)
+				} else this.showLastEvent(`No item titles match your search in ${productStr}`, SEV.INFO)
 			}
 		})
 	},
@@ -450,7 +440,7 @@ const methods = {
 					if (this.moveBack(sourceParentId, targetParentId, reverseMoveMap)) {
 						// update the nodes in the database
 						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, undoMove: true })
-						if (!this.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', SEV.INFO)
+						if (!window.slVueTree.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', SEV.INFO)
 					} else this.showLastEvent('Undo failed. Sign out and -in again to recover.', SEV.ERROR)
 				}
 				break
@@ -668,7 +658,7 @@ const methods = {
 		const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
 		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
 
-		if (!this.dependencyViolationsFound()) {
+		if (!window.slVueTree.dependencyViolationsFound()) {
 			// show the event message if no dependency warning message is displayed
 			const title = this.itemTitleTrunc(60, nodes[0].title)
 			let evt = ''

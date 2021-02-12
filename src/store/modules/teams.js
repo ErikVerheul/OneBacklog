@@ -318,7 +318,7 @@ const actions = {
 									if (rootState.debug) console.log('updateTeamsInDb: No team calendar found, use the default sprint calendar')
 									rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
 								}
-								// update the user data, the planningBoard.vue listens to this change and will repaint if in view
+								// update the user data, the planningBoard.vue listens to this change and will re-render if in view
 								commit('updateTeam', payload.newTeam)
 								const msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + payload.newTeam
 								dispatch('doLog', { event: msg, level: SEV.INFO })

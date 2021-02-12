@@ -70,18 +70,17 @@ const mutations = {
 						isLeaf: false,
 						children: [],
 						isExpanded: true,
-						savedIsExpanded: true,
 						isSelectable: true,
 						isDraggable: false,
 						isSelected: false,
 						doShow: true,
-						savedDoShow: true,
 						data: {
 							state: itemState,
 							team,
 							priority,
 							lastChange: 0
-						}
+						},
+						tmp: {}
 					}
 				]
 				parentNodes.root = rootState.treeNodes[0]
@@ -107,9 +106,9 @@ const mutations = {
 
 			// expand the default product up to the feature level
 			const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
+			const doShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= LEVEL.FEATURE : itemLevel <= LEVEL.PRODUCT
+
 			const isDraggable = itemLevel > LEVEL.PRODUCT
-			// show the product level nodes and all nodes of the current default product
-			const doShow = itemLevel <= LEVEL.PRODUCT || productId === rootGetters.getCurrentDefaultProductId
 			if (parentNodes[parentId] !== undefined) {
 				const parentNode = parentNodes[parentId]
 				const ind = parentNode.children.length
@@ -134,12 +133,10 @@ const mutations = {
 					isLeaf: itemLevel === LEVEL.TASK,
 					children: [],
 					isExpanded,
-					savedIsExpanded: isExpanded,
 					isSelectable: true,
 					isDraggable,
 					isSelected: _id === rootGetters.getCurrentDefaultProductId,
 					doShow,
-					savedDoShow: doShow,
 					data: {
 						lastAttachmentAddition,
 						lastChange,
@@ -155,7 +152,8 @@ const mutations = {
 						state: itemState,
 						subtype,
 						team
-					}
+					},
+					tmp: {}
 				}
 
 				state.insertedCount++
@@ -171,6 +169,8 @@ const mutations = {
 				orphansFound.push({ id: _id, parentId, productId })
 			}
 		}
+		window.slVueTree.setDescendentsReqArea()
+		window.slVueTree.dependencyViolationsFound()
 	}
 }
 

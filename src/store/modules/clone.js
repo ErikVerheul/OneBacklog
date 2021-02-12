@@ -59,7 +59,8 @@ function showProduct(docs, leafLevel) {
 					team: doc.team,
 					subtype: doc.subtype,
 					lastChange
-				}
+				},
+				tmp: {}
 			}
 			parentNode.children.push(newNode)
 			parentNodes[doc._id] = newNode

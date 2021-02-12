@@ -471,7 +471,7 @@ const actions = {
 								break
 							}
 						}
-						parentNode.data.inconsistentState = hasInconsistentState
+						parentNode.tmp.inconsistentState = hasInconsistentState
 					}
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence

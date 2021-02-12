@@ -213,7 +213,7 @@ const actions = {
     })
   },
 
-  /* Remove one or more conditions; called by removeDependenciesAsync only, */
+  /* Remove one or more conditions; called by removeDependenciesAsync only */
   alsoRemoveConditions ({
 		rootState,
 		rootGetters,
@@ -321,7 +321,7 @@ const actions = {
     })
   },
 
-  /* Remove the dependencies; called by removeConditionsAsync only. */
+  /* Remove the dependencies; called by removeConditionsAsync only */
   alsoRemoveDependenciesAsync ({
 		rootState,
 		rootGetters,

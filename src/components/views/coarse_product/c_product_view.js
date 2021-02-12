@@ -9,7 +9,6 @@ import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
 import { eventBus } from '../../../main'
 
-const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'coarseProduct'
 var returning = false
 
@@ -19,7 +18,9 @@ function beforeCreate() {
 		this.$store.state.treeNodes = []
 		this.$store.state.changeHistory = []
 		// reset filters and searches
-		this.$store.state.filterText = FILTERBUTTONTEXT
+		this.$store.state.filterTreeIsSet = false
+		this.$store.state.resetSearch = {}
+
 		this.$store.dispatch('loadOverview')
 	} else returning = true
 }
@@ -77,11 +78,6 @@ const methods = {
 		return txt
 	},
 
-	onTreeIsLoaded() {
-		this.dependencyViolationsFound()
-		this.$store.commit('createColorMapper')
-	},
-
 	/* event handling */
 	onNodesSelected(fromContextMenu) {
 		const selNodes = this.$store.state.selectedNodes
@@ -99,7 +95,7 @@ const methods = {
 					// if the user clicked on a node of another product (not root)
 					if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
 						// update current productId and title
-						this.$store.commit('switchCurrentProduct', { productId: this.getLastSelectedNode.productId })
+						this.$store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
 					}
 					if (this.getLastSelectedNode._id !== 'requirement-areas') {
 						if (!fromContextMenu) this.showSelectionEvent(selNodes)

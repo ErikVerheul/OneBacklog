@@ -125,7 +125,8 @@ const actions = {
 						priority: payload.priority,
 						team: payload.newProduct.team,
 						lastChange: Date.now()
-					}
+					},
+					tmp: {}
 				}
 				const cursorPosition = {
 					nodeModel: lastProductNode,

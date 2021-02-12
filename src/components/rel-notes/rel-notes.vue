@@ -149,13 +149,13 @@
           <ul>
             <li>Fix bug when deleting items from the Products overview (no more orphans left)</li>
             <li>Fix bug when deleting/(undoing this delete) of items with dependencies to items not deleted</li>
-            <li>Repaint the planning board after a deletion, of items in another user's session, is completed successfully</li>
+            <li>re-render the planning board after a deletion, of items in another user's session, is completed successfully</li>
           </ul>
           <p>Design changes:</p>
           <ul>
             <li>Generic overhaul of access rights</li>
             <li>'Removed' is not a status anymore. Use On-hold instead, or delete the item</li>
-            <li>Always update the database first before repainting the tree view or the planning board,<br/>
+            <li>Always update the database first before re-rendering the tree view or the planning board,<br/>
              with the exception of tree view drag &amp; drop where immediate response is paramount</li>
           </ul>
           <hr />
@@ -172,7 +172,7 @@
           </ul>
           <p>Design changes:</p>
           <ul>
-            <li>Introduction of a document with the sole purpose to sync a planning board repaint [NOT downwards compatible]</li>
+            <li>Introduction of a document with the sole purpose to sync a planning board re-render [NOT downwards compatible]</li>
             <li>Descendants of moved nodes are synced individually (not via the parent)</li>
           </ul>
           <hr />

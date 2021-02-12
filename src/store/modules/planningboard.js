@@ -1,4 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
+import { expandNode } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
@@ -494,7 +495,7 @@ const actions = {
 					}
 					// show child nodes
 					const parentNode = window.slVueTree.getNodeById(payload.parentId)
-					if (parentNode) parentNode.isExpanded = true
+					if (parentNode) expandNode(parentNode)
 					if (payload.createUndo) {
 						// create an entry for undoing the add-to-sprint for use with removeSprintIds action
 						const entry = {
@@ -561,7 +562,7 @@ const actions = {
 						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, newHist: d.history[0] })
 					}
 					// show children nodes
-					window.slVueTree.getNodeById(payload.parentId).isExpanded = true
+					expandNode(window.slVueTree.getNodeById(payload.parentId))
 					// create an entry for undoing the remove-from-sprint in a last-in first-out sequence
 					const entry = {
 						type: 'undoRemoveSprintIds',
@@ -678,7 +679,8 @@ const actions = {
 								team: rootState.userData.myTeam,
 								taskOwner: rootState.userData.user,
 								lastChange: Date.now()
-							}
+							},
+							tmp: {}
 						}
 						// position the new node as the first child of story
 						const cursorPosition = {

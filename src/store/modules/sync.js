@@ -119,7 +119,8 @@ const actions = {
           lastAttachmentAddition: 0,
           lastCommentToHistory: 0,
           lastChange: lastHistoryTimestamp
-        }
+				},
+				tmp: {}
       }
       window.slVueTree.insert({
         nodeModel: locationInfo.prevNode,

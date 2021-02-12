@@ -101,11 +101,9 @@ const actions = {
 					children: [],
 					isSelected: false,
 					isExpanded,
-					savedIsExpanded: isExpanded,
 					isSelectable: true,
 					isDraggable: itemLevel > LEVEL.PRODUCT,
 					doShow: true,
-					savedDoShow: true,
 					data: {
 						lastAttachmentAddition,
 						lastChange,
@@ -121,7 +119,8 @@ const actions = {
 						state: itemState,
 						subtype,
 						team
-					}
+					},
+					tmp: {}
 				}
 				window.slVueTree.insert({
 					nodeModel: locationInfo.prevNode,

@@ -15,10 +15,7 @@ Database--------------------------------------------------- node
 ----------------------------------------------------------- isSelected: true only if isSelectable || false
 ----------------------------------------------------------- isDraggable: true || false, // depending on the user roles
 ----------------------------------------------------------- isExpanded: true || false, // initially the tree is expanded up to the feature level
------------------------------------------------------------ savedIsExpanded: isExpanded, // to restore the view after applying a filter, temporary use
 ----------------------------------------------------------- doShow: true, // false if filtered out, temporary use
------------------------------------------------------------ savedDoShow: doShow, // to restore the the view after applying a filter
------------------------------------------------------------ markedViolations: [column ids] // temporary use
 "productId"(string)---------------------------------------- productId
 "parentId"(string)----------------------------------------- parentId
 "_id"(string)---------------------------------------------- _id
@@ -45,7 +42,7 @@ Database--------------------------------------------------- node
 "history": []
 "delmark"(boolean)
 "_attachments": {}
------------------------------------------------------------ data.inconsistentState: false // calculated on consistency check
+----------------------------------------------------------- tmp.inconsistentState: false // calculated on consistency check
 "lastPositionChange"--------------------------------------- data.lastPositionChange,
 "lastStateChange"------------------------------------------ data.lastStateChange,
 "lastContentChange"---------------------------------------- data.lastContentChange, // last change of title, description or acceptance criteria
@@ -160,49 +157,52 @@ The tree nodes
 The nodes in the tree have these data elements and values:
 
 path, // the access path in the tree model
-pathStr: JSON.stringify(path),
+pathStr: JSON.stringify(path), // covenience string for rendering
 ind, // the index in the children array
-level: path.length,
+level: path.length, // convenience integer for rendering
 
 productId: doc.productId,
 parentId: doc.parentId,
 _id: doc._id,
-children: [],
+children: [], // an array of nodes which also can have children
 
-title: doc.title,
-isLeaf: (level == leafLevel) ? true : false,
-isSelectable: true,
+title: doc.title, // unencoded string
+isLeaf: (level == leafLevel) ? true : false, // leafLevel is task level in details view, feature level in overview
+isSelectable: true || false // default is true
 isSelected: true only if isSelectable || false
 isDraggable: true || false, // depending on the user roles
-isExpanded: true || false, // initially the tree is expanded up to the feature level
-savedIsExpanded: isExpanded, // to restore the original view after applying a filter
-doShow: true, // false if filtered out
-savedDoShow: doShow, // to restore the original view after applying a filter
+isExpanded: true || false, // initially the tree of the default product is expanded up to the feature level
+doShow: true, // false if filtered out for rendering
 dependencies: doc.dependencies, // array with ids
 conditionalFor: doc.conditionalFor, // array with ids
-
-markedViolations: [] // temporary use, not stored, not synced
-isHighlighted_1:  boolean // temporary use, not stored, not synced
-isHighlighted_2:  boolean // temporary use, not stored, not synced
-isWarnLighted: boolean // temporary use, not stored, not synced
-
 data: {
-....priority: doc.priority,
-....state: doc.state,
-....reqarea: doc.reqarea, // or null or not present
-....sprintId: doc.sprintId, // the sprint this item is (was) in; or null or not present
-....inconsistentState: false // calculated on consistency check, temporary use, not stored, not synced
-....team: doc.team, // the team membership of the user who updated the state the last time
-....taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self
-....subtype: doc.subtype,
-....reqAreaItemColor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
-....lastPositionChange: doc.lastPositionChange,
-....lastStateChange: doc.lastStateChange,
-....lastContentChange: doc.lastContentChange,
-....lastCommentAddition: doc.lastCommentAddition,
-....lastAttachmentAddition: doc.lastAttachmentAddition,
-....lastCommentToHistory: doc.lastCommentToHistory,
-....lastChange: Date.now(), // calculated on load, updated on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
+	priority: doc.priority,
+	state: doc.state,
+	reqarea: doc.reqarea, // or null or not present
+	sprintId: doc.sprintId, // the sprint this item is (was) in; or null or not present
+	team: doc.team, // the team membership of the user who updated the state the last time
+	taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self
+	subtype: doc.subtype,
+	reqAreaItemColor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
+	lastPositionChange: doc.lastPositionChange,
+	lastStateChange: doc.lastStateChange,
+	lastContentChange: doc.lastContentChange,
+	lastCommentAddition: doc.lastCommentAddition,
+	lastAttachmentAddition: doc.lastAttachmentAddition,
+	lastCommentToHistory: doc.lastCommentToHistory,
+	lastChange: Date.now(), // calculated on load, updated on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
+}
+// temporary use, not stored, not synced
+tmp: {
+	inconsistentState: false // calculated on consistency check
+	isHighlighted_1: boolean // light blue
+	isHighlighted_2: boolean // light green
+	isWarnLighted: boolean // red
+	markedViolations: [] // column number to place this dependency violation in
+	savedIsExpandedInDependency: isExpanded === false // to restore the original view after finding dependency violations
+	savedIsExpandedInFilter: isExpanded, // to restore the original view after applying a filter
+	savedIsExpandedInSearch: isExpanded, // to restore the original view after applying a search for id or string in titles
+	savedDoShowInFilter: doShow // to restore the original view after applying a filter
 }
 
 In the CONFIG document the PBI subtypes are defined

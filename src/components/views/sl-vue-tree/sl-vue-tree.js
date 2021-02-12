@@ -6,10 +6,6 @@ import { eventBus } from '../../../main'
 import { utilities } from '../../mixins/generic.js'
 
 const props = {
-	value: {
-		type: Array,
-		default: () => []
-	},
 	edgeSize: {
 		type: Number,
 		default: 6
@@ -30,51 +26,6 @@ const props = {
 		default: true
 	}
 }
-/*
-* Update the descendants of the source (removal) or destination (insert) node with new position data and (if defined) new parentId and productId
-* Pass an insertInd as the lowest index of any insert to gain performance.
-*/
-function updatePaths(parentPath, siblings, leafLevel, insertInd = 0, parentId, productId) {
-	for (let i = insertInd; i < siblings.length; i++) {
-		const sibling = siblings[i]
-		const newPath = parentPath.concat(i)
-		if (parentId) sibling.parentId = parentId
-		if (productId) sibling.productId = productId
-		// if moving to another product show the inserted nodes in the new product
-		if (productId) sibling.doShow = true
-		sibling.path = newPath
-		sibling.pathStr = JSON.stringify(newPath)
-		sibling.ind = i
-		sibling.level = newPath.length
-		sibling.isLeaf = !((sibling.level < leafLevel))
-		if (sibling.children && sibling.children.length > 0) {
-			updatePaths(sibling.path, sibling.children, leafLevel, 0, sibling._id, productId)
-		}
-	}
-}
-
-/*
-* Recalculate the priorities of the created(inserted, one node at the time) or moved nodes(can be one or more).
-* Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
-*/
-function assignNewPrios(nodes, predecessorNode, successorNode) {
-	let predecessorPrio
-	let successorPrio
-	if (predecessorNode !== null) {
-		predecessorPrio = predecessorNode.data.priority
-	} else predecessorPrio = Number.MAX_SAFE_INTEGER
-
-	if (successorNode !== null) {
-		successorPrio = successorNode.data.priority
-	} else successorPrio = Number.MIN_SAFE_INTEGER
-
-	const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-	for (let i = 0; i < nodes.length; i++) {
-		// update the tree; timestamp is recorded in the history in the database
-		nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-		nodes[i].data.lastChange = Date.now()
-	}
-}
 
 function data() {
 	return {
@@ -88,7 +39,6 @@ function data() {
 			y: 0
 		},
 		preventDrag: false,
-		currentValue: this.value,
 		lastSelectCursorPosition: null
 	}
 }
@@ -107,13 +57,6 @@ function beforeDestroy() {
 	document.removeEventListener('mouseup', this.onDocumentMouseupHandler)
 }
 
-const watch = {
-	value(newValue) {
-		this.currentValue = newValue
-		this.emitNodesAreLoaded()
-	}
-}
-
 const computed = {
 	cursorPosition() {
 		if (this.isRoot) return this.rootCursorPosition
@@ -122,7 +65,7 @@ const computed = {
 
 	filteredNodes() {
 		if (this.isRoot) {
-			const retNodes = this.getNodes(this.currentValue)
+			const retNodes = this.getNodes(this.$store.state.treeNodes)
 			// console.log('filteredNodes1: returning ' + retNodes.length + ' nodes')
 			return retNodes
 		}
@@ -164,14 +107,10 @@ const methods = {
 		return nodeModels.map((nm) => nm)
 	},
 
-	getNodeModel(path, tree = this.currentValue) {
+	getNodeModel(path, tree = this.$store.state.treeNodes) {
 		const ind = path[0]
 		if (path.length === 1) return tree[ind] || null
 		return this.getNodeModel(path.slice(1), tree[ind].children)
-	},
-
-	emitNodesAreLoaded() {
-		this.getRootComponent().$emit('loaded')
 	},
 
 	emitSelect(fromContextMenu) {
@@ -375,17 +314,12 @@ const methods = {
 		this.stopDrag()
 	},
 
-	/* When filters did hide nodes undo this when the user expands a node */
-	unhideDescendants(node) {
-		this.traverseModels((nm) => {
-			nm.doShow = true
-		}, [node])
-	},
-
 	onToggleHandler(event, node) {
 		if (!this.allowToggleBranch) return
-		node.isExpanded = !node.isExpanded
-		if (node.isExpanded) this.unhideDescendants(node)
+		if (node.isExpanded) {
+			this.collapseNode(node)
+		} else this.expandNode(node)
+
 		event.stopPropagation()
 	},
 
@@ -461,8 +395,8 @@ const methods = {
 	},
 
 	getProductTitle(productId) {
-		if (this.currentValue[0].children) {
-			const products = this.currentValue[0].children
+		if (this.$store.state.treeNodes[0].children) {
+			const products = this.$store.state.treeNodes[0].children
 			for (let i = 0; i < products.length; i++) {
 				if (products[i].productId === productId) {
 					return products[i].title
@@ -510,14 +444,14 @@ const methods = {
 		return this.getParentComponent().getRootComponent()
 	},
 
-	getNodeSiblings(path, nodes = this.currentValue) {
+	getNodeSiblings(path, nodes = this.$store.state.treeNodes) {
 		if (path.length === 1) return nodes
 		return this.getNodeSiblings(path.slice(1), nodes[path[0]].children || [])
 	},
 
-	/* Returns an array with the node of the selected productId (default = current productId) or an empty array if the product is not found */
+	/* Return an array with the node of the selected productId (default = current productId) or an empty array if the product is not found */
 	getProductModel(productId = this.$store.state.currentProductId) {
-		const productModels = this.currentValue[0].children
+		const productModels = this.getRootNode().children
 		for (const p of productModels) {
 			if (p.productId === productId) {
 				return [p]
@@ -526,29 +460,21 @@ const methods = {
 		return []
 	},
 
-	removeProduct(productId) {
-		const newChildren = []
-		for (const p of this.currentValue[0].children) {
-			if (p._id !== productId) newChildren.push(p)
-		}
-		this.currentValue[0].children = newChildren
-		// recalculate the paths in the tree
-		updatePaths([0], newChildren, this.leafLevel)
-	},
-
+	/* Return the root node */
 	getRootNode() {
-		return this.currentValue[0]
+		return this.$store.state.treeNodes[0]
 	},
 
+	/* Return all product nodes in an array */
 	getProducts() {
-		return this.currentValue[0].children
+		return this.$store.state.treeNodes[0].children
 	},
 
 	/*
 	* Traverse the node models or the full tree (default), breadth first
 	* Stop when the call back returns false
 	*/
-	traverseModels(cb, nodeModels = this.currentValue) {
+	traverseModels(cb, nodeModels = this.$store.state.treeNodes) {
 		let shouldStop = false
 		function traverse(cb, nodeModels) {
 			if (shouldStop) return
@@ -603,7 +529,7 @@ const methods = {
 
 	/* Area nodes are per definition children of product with id AREA_PRODUCTID. Return these nodes or null if none found */
 	getReqAreaNodes() {
-		const productModels = this.currentValue[0].children
+		const productModels = this.$store.state.treeNodes[0].children
 		for (const p of productModels) {
 			if (p._id === MISC.AREA_PRODUCTID) {
 				return p.children
@@ -623,8 +549,51 @@ const methods = {
 		return idsWithReqArea
 	},
 
+	/*
+	* Update the descendants of the source (removal) or destination (insert) node with new position data and (if passed) new parentId and productId
+	* Pass an insertInd as the lowest index of any insert to gain performance.
+	*/
+	updatePaths(parentPath, siblings, insertInd = 0, parentId, productId) {
+		for (let i = insertInd; i < siblings.length; i++) {
+			const sibling = siblings[i]
+			const newPath = parentPath.concat(i)
+			if (parentId) sibling.parentId = parentId
+			if (productId) sibling.productId = productId
+			// if moving to another product in the context menu of the Products detail view, show the inserted nodes in the new product
+			if (productId && this.isDetailsViewSelected) this.showNode(sibling)
+			sibling.path = newPath
+			sibling.pathStr = JSON.stringify(newPath)
+			sibling.ind = i
+			sibling.level = newPath.length
+			sibling.isLeaf = !((sibling.level < this.leafLevel))
+			if (sibling.children && sibling.children.length > 0) {
+				this.updatePaths(sibling.path, sibling.children, 0, sibling._id, productId)
+			}
+		}
+	},
+
 	/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. */
 	insert(cursorPosition, nodes, calculatePrios = true) {
+		/* Recalculate the priorities of the inserted nodes. Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).*/
+		function assignNewPrios(nodes, predecessorNode, successorNode) {
+			let predecessorPrio
+			let successorPrio
+			if (predecessorNode !== null) {
+				predecessorPrio = predecessorNode.data.priority
+			} else predecessorPrio = Number.MAX_SAFE_INTEGER
+
+			if (successorNode !== null) {
+				successorPrio = successorNode.data.priority
+			} else successorPrio = Number.MIN_SAFE_INTEGER
+
+			const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+			for (let i = 0; i < nodes.length; i++) {
+				// update the tree; timestamp is recorded in the history in the database
+				nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+				nodes[i].data.lastChange = Date.now()
+			}
+		}
+
 		const destNodeModel = cursorPosition.nodeModel
 		const productId = destNodeModel.productId
 		let predecessorNode
@@ -636,7 +605,7 @@ const methods = {
 			predecessorNode = null
 			destSiblings.unshift(...nodes)
 			successorNode = destSiblings[nodes.length] || null
-			updatePaths(destNodeModel.path, destSiblings, this.leafLevel, 0, parentId, productId)
+			this.updatePaths(destNodeModel.path, destSiblings, 0, parentId, productId)
 		} else {
 			// insert before or after the cursor position
 			const destSiblings = this.getNodeSiblings(destNodeModel.path)
@@ -646,7 +615,7 @@ const methods = {
 			predecessorNode = destSiblings[insertInd - 1] || null
 			destSiblings.splice(insertInd, 0, ...nodes)
 			successorNode = destSiblings[insertInd + nodes.length] || null
-			updatePaths(parentPath, destSiblings, this.leafLevel, insertInd, parentId, productId)
+			this.updatePaths(parentPath, destSiblings, insertInd, parentId, productId)
 		}
 		if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
 	},
@@ -660,45 +629,32 @@ const methods = {
 				const removeInd = node.ind
 				const parentPath = node.path.slice(0, -1)
 				siblings.splice(removeInd, 1)
-				updatePaths(parentPath, siblings, this.leafLevel, removeInd)
+				this.updatePaths(parentPath, siblings, removeInd)
 				success = true
 			}
 		}
 		return success
 	},
 
-	/* test code */
-	showVisibility(caller, toLevel = 3) {
-		this.traverseModels((nm) => {
-			// collapse to the product level
-			if (nm.level <= toLevel) {
-				// eslint-disable-next-line no-console
-				console.log('showVisibility: path = ' + nm.path + ' level = ' + nm.level + ' isExpanded = ' + nm.isExpanded +
-					' savedIsExpanded = ' + nm.savedIsExpanded + ' doShow = ' + nm.doShow + ' title = ' + nm.title + ' caller = ' + caller)
-			}
-		})
+	removeProduct(productId) {
+		const newChildren = []
+		for (const p of this.$store.state.treeNodes[0].children) {
+			if (p._id !== productId) newChildren.push(p)
+		}
+		this.$store.state.treeNodes[0].children = newChildren
+		// recalculate the paths in the tree
+		this.updatePaths([0], newChildren)
 	},
 
-	/*
-	* Show the current selected product up to and including the feature level.
-	* Collapse items on the feature level and higher (Pbi and task level)
-	*/
-	expandTreeUptoFeatureLevel() {
+	/* test code */
+	showVisibility(caller, toLevel = 3) {
+		const nodesToScan = this.isOverviewSelected ? undefined : this.getProductModel()
 		this.traverseModels((nm) => {
-			if (nm.level >= LEVEL.PRODUCT && nm.level < LEVEL.FEATURE) {
-				nm.isExpanded = true
-				nm.doShow = true
-			} else
-				if (nm.level === LEVEL.FEATURE) {
-					nm.isExpanded = false
-					nm.doShow = true
-				} else
-					if (nm.level > LEVEL.FEATURE) {
-						nm.isExpanded = false
-						nm.doShow = false
-					}
-		}, this.getProductModel())
-		// this.showVisibility('expandTreeUptoFeatureLevel')
+			if (nm.level <= toLevel) {
+				// eslint-disable-next-line no-console
+				console.log(`${caller}: level = ${nm.level}, isExpanded = ${nm.isExpanded}, doShow = ${nm.doShow}, title = ${nm.title}`)
+			}
+		}, nodesToScan)
 	},
 
 	getParentNode(node) {
@@ -711,48 +667,52 @@ const methods = {
 	},
 
 	/*
-	* Show the path from productlevel up to the node and highlight or warnLight the node
-	* Save the isExpanded and doShow state to enable undo later
+	* Show the path from productlevel up to the node and highlight or warnLight the node; if type is set prepare for undo
 	*/
-	showPathToNode(node, highLight, saveOldState = true) {
+	showPathToNode(node, highLights, type) {
 		const maxDepth = node.path.length
 		for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
-			if (saveOldState) {
-				nm.savedIsExpanded = nm.isExpanded
-				nm.savedDoShow = nm.doShow
-			}
 			if (i < maxDepth) {
-				nm.isExpanded = true
-				nm.doShow = true
+				if (!nm.isExpanded) {
+					if (type === 'search') nm.tmp.savedIsExpandedInSearch = false
+					if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = false
+					this.expandNode(nm)
+				}
 			} else {
-				nm.isExpanded = false
-				nm.doShow = true
-				if (highLight && Object.keys(highLight).length > 0) {
-					nm.isHighlighted_1 = !!highLight.doHighLight_1
-					nm.isHighlighted_2 = !!highLight.doHighLight_2
-					nm.isWarnLighted = !!highLight.doWarn
-					// force a re-render if any highlight is set
-					this.$forceUpdate()
+				if (nm.isExpanded) {
+					if (type === 'search') nm.tmp.savedIsExpandedInSearch = true
+					if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = true
+					this.collapseNode(nm)
+				}
+				if (highLights && Object.keys(highLights).length > 0) {
+					nm.tmp.isHighlighted_1 = !!highLights.doHighLight_1
+					nm.tmp.isHighlighted_2 = !!highLights.doHighLight_2
+					nm.tmp.isWarnLighted = !!highLights.doWarn
 				}
 			}
 		}
 	},
 
-	/* Undo the changes set by showPathToNode(...) */
-	undoShowPath(node, undoHighLight) {
+	/* Undo the changes set by showPathToNode(...) including the removal of one highlight */
+	undoShowPath(node, type, undoHighLight) {
 		const maxDepth = node.path.length
 		for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
-			nm.isExpanded = nm.savedIsExpanded
-			nm.doShow = nm.savedDoShow
-			if (i === maxDepth && Object.keys(undoHighLight).length > 0) {
-				if (undoHighLight.highlighted_1) delete nm.isHighlighted_1
-				if (undoHighLight.highlighted_2) delete nm.isHighlighted_2
-				if (undoHighLight.doWarn) delete nm.isWarnLighted
-				// force a re-render if any highlight is deleted
-				this.$forceUpdate()
+			if (nm.isExpanded) {
+				if (type === 'search' && nm.tmp.savedIsExpandedInSearch === false) this.collapseNode(nm)
+				if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === false) this.collapseNode(nm)
 			}
+			if (i === maxDepth) {
+				if (!nm.isExpanded) {
+					if (type === 'search' && nm.tmp.savedIsExpandedInSearch === true) this.expandNode(nm)
+					if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === true) this.expandNode(nm)
+				}
+				delete nm.tmp[undoHighLight]
+			}
+			// delete if set or not
+			delete nm.tmp.savedIsExpandedInSearch
+			delete nm.tmp.savedIsExpandedInDependency
 		}
 	},
 
@@ -760,7 +720,7 @@ const methods = {
 	checkForFilteredDescendants(node) {
 		let result = false
 		this.traverseModels((nm) => {
-			if (nm.isHighlighted_1) {
+			if (nm.tmp.isHighlighted_1) {
 				result = true
 				return false
 			}
@@ -775,9 +735,9 @@ const methods = {
 		const violations = []
 		this.traverseModels((nm) => {
 			// remove any left dependency markers
-			if (nm.markedViolations) delete nm.markedViolations
+			if (nm.tmp.markedViolations) delete nm.tmp.markedViolations
 			// remove any left dependency warning highlights
-			if (nm.isWarnLighted) delete nm.isWarnLighted
+			if (nm.tmp.isWarnLighted) delete nm.tmp.isWarnLighted
 			// find violations
 			if (nm.dependencies && nm.dependencies.length > 0) {
 				for (const depId of nm.dependencies) {
@@ -791,20 +751,48 @@ const methods = {
 		return violations
 	},
 
+	/*
+	* Find and show dependency violations in the current product (details view) or all products (coarse view).
+	* Undo the tree expansion from a previous scan on violations if no violations are faund.
+	* Return true if violations are found, false otherwise.
+	*/
+	dependencyViolationsFound() {
+		let violationsWereFound = false
+		const violations = this.findDependencyViolations(this.isOverviewSelected)
+		if (violations.length > 0) {
+			violationsWereFound = true
+			this.showLastEvent('This product has priority inconsistencies. Undo the change or remove the dependency.', SEV.WARNING)
+			this.showDependencyViolations(violations, this.isOverviewSelected)
+		} else {
+			// reset the tree view
+			const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
+			// traverse the tree to reset to the tree view state
+			window.slVueTree.traverseModels((nm) => {
+				if (nm.level < LEVEL.PRODUCT) return
+				// skip requirement areas dummy product items
+				if (nm._id === MISC.AREA_PRODUCTID) return
+
+				if (nm.tmp.savedIsExpandedInDependency === false) this.collapseNode(nm)
+				if (nm.tmp.savedIsExpandedInDependency === true) this.expandNode(nm)
+				// delete if set or not
+				delete nm.tmp.savedIsExpandedInDependency
+			}, nodesToScan)
+		}
+		return violationsWereFound
+	},
+
 	/* Show the path from condNode to depNode including both nodes */
 	showDependencyViolations(violations, allProducts) {
+		const nodesToScan = allProducts ? undefined : this.getProductModel()
 		for (let column = 0; column < violations.length; column++) {
 			const v = violations[column]
-			const nodesToScan = allProducts ? undefined : this.getProductModel()
-			this.showPathToNode(v.condNode, { doWarn: true })
-			this.showPathToNode(v.depNode, { doWarn: true })
+			this.showPathToNode(v.condNode, { doWarn: true }, 'dependency')
+			this.showPathToNode(v.depNode, { doWarn: true }, 'dependency')
 			this.traverseModels((nm) => {
 				if ((this.comparePaths(v.depNode.path, nm.path) !== 1) && (this.comparePaths(nm.path, v.condNode.path) !== 1)) {
-					nm.savedDoShow = nm.doShow
-					nm.doShow = true
-					if (nm.markedViolations) {
-						nm.markedViolations.push(column)
-					} else nm.markedViolations = [column]
+					if (nm.tmp.markedViolations) {
+						nm.tmp.markedViolations.push(column)
+					} else nm.tmp.markedViolations = [column]
 				}
 			}, nodesToScan)
 		}
@@ -897,7 +885,6 @@ export default {
 	data,
 	mounted,
 	beforeDestroy,
-	watch,
 	computed,
 	methods
 }

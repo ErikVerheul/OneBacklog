@@ -6,14 +6,12 @@
 //////////////// expand, collapse, show and hide nodes as a side effect of these 4 functions ////////////
 export function showNode(node) {
 	if (node) {
-		node.savedDoShow = node.doShow
 		node.doShow = true
 	}
 }
 
 export function hideNode(node) {
 	if (node) {
-		node.savedDoShow = node.doShow
 		node.doShow = false
 	}
 }
@@ -21,12 +19,11 @@ export function hideNode(node) {
 export function expandNode(node) {
 	function unhideDescendants(node) {
 		for (const nm of node.children) {
-			if (!nm.doShow) showNode(nm)
+			showNode(nm)
 			unhideDescendants(nm)
 		}
 	}
 	if (node) {
-		node.savedIsExpanded = node.isExpanded
 		node.isExpanded = true
 		unhideDescendants(node)
 	}
@@ -35,12 +32,11 @@ export function expandNode(node) {
 export function collapseNode(node) {
 	function hideDescendants(node) {
 		for (const nm of node.children) {
-			if (nm.doShow) hideNode(nm)
+			hideNode(nm)
 			hideDescendants(nm)
 		}
 	}
 	if (node) {
-		node.savedIsExpanded = node.isExpanded
 		node.isExpanded = false
 		hideDescendants(node)
 	}

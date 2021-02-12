@@ -79,18 +79,17 @@ const actions = {
 							isLeaf: false,
 							children: [],
 							isExpanded: true,
-							savedIsExpanded: isExpanded,
 							isSelectable: true,
 							isDraggable: false,
 							isSelected: false,
 							doShow: true,
-							savedDoShow: doShow,
 							data: {
 								state: itemState,
 								team,
 								priority,
 								lastChange: 0
-							}
+							},
+							tmp: {}
 						}
 					]
 					parentNodes.root = rootState.treeNodes[0]
@@ -107,10 +106,9 @@ const actions = {
 				state.docsCount++
 				// expand the default product up to the feature level
 				const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
+				const doShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= LEVEL.FEATURE : itemLevel <= LEVEL.PRODUCT
 				// products cannot be dragged
 				const isDraggable = itemLevel > LEVEL.PRODUCT
-				// show all nodes
-				const doShow = true
 				if (parentNodes[parentId] !== undefined) {
 					const parentNode = parentNodes[parentId]
 					const ind = parentNode.children.length
@@ -136,12 +134,10 @@ const actions = {
 						isLeaf: itemLevel === LEVEL.FEATURE,
 						children: [],
 						isExpanded,
-						savedIsExpanded: isExpanded,
 						isSelectable: true,
 						isDraggable,
 						isSelected: _id === rootGetters.getCurrentDefaultProductId,
 						doShow,
-						savedDoShow: doShow,
 						data: {
 							lastAttachmentAddition,
 							lastChange,
@@ -157,7 +153,8 @@ const actions = {
 							state: itemState,
 							subtype,
 							team
-						}
+						},
+						tmp: {}
 					}
 
 					state.insertedCount++
@@ -173,7 +170,8 @@ const actions = {
 					orphansFound.push({ id: _id, parentId, productId })
 				}
 			}
-
+			window.slVueTree.dependencyViolationsFound()
+			this.$store.commit('createColorMapper')
 			commit('showLastEvent', { txt: `${state.docsCount} documents are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {

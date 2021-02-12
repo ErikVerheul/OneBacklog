@@ -5,7 +5,7 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-form>
           <b-button class="m-1" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
-          <b-button class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ $store.state.filterText }}</b-button>
+          <b-button class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
           <div class="divider" />
           <b-input-group>
             <b-form-input id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
@@ -64,14 +64,13 @@
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
-        <div class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</div>
-        <b-button block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" v-bind:style="{'background-color': getLastEventColor}">
+        <div class="square" :style="{'background-color': squareColor}">{{ squareText }}</div>
+        <b-button block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" :style="{'background-color': getLastEventColor}">
           {{ getLastEventTxt }} </b-button>
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
-          <sl-vue-tree :value="$store.state.treeNodes" ref="slVueTree" :allow-multiselect="true" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped"
-            @loaded="onTreeIsLoaded">
+          <sl-vue-tree :value="$store.state.treeNodes" ref="slVueTree" :allow-multiselect="true" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
@@ -88,7 +87,7 @@
                 </i>
               </span>
               {{ patchTitle(node) }}
-              <b-badge v-if="node.data.inconsistentState" variant="danger">{{ getNodeStateText(node) + '?' }}</b-badge>
+              <b-badge v-if="node.tmp.inconsistentState" variant="danger">{{ getNodeStateText(node) + '?' }}</b-badge>
               <b-badge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</b-badge>
               <b-badge v-else variant="light">{{ getNodeStateText(node) }}</b-badge>
               <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
@@ -108,41 +107,41 @@
               </span>
             </template>
 
-						<template v-if="node.markedViolations" slot="dependency-violation" slot-scope="{ node }">
-							<div v-if="rowLength(node.markedViolations) === 1">
-                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
+						<template v-if="node.tmp.markedViolations" slot="dependency-violation" slot-scope="{ node }">
+							<div v-if="rowLength(node.tmp.markedViolations) === 1">
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
               </div>
-              <div v-else-if="rowLength(node.markedViolations) === 2">
-                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
+              <div v-else-if="rowLength(node.tmp.markedViolations) === 2">
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
               </div>
-							<div v-else-if="rowLength(node.markedViolations) === 3">
-                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
+							<div v-else-if="rowLength(node.tmp.markedViolations) === 3">
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
               </div>
-							<div v-else-if="rowLength(node.markedViolations) === 4">
-                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
-								<span class="violation-column">{{ createRow(node.markedViolations)[3] }}</span>
+							<div v-else-if="rowLength(node.tmp.markedViolations) === 4">
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
               </div>
 							<div v-else>
-                <span class="violation-column">{{ createRow(node.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.markedViolations)[2] }}</span>
-								<span class="violation-column">{{ createRow(node.markedViolations)[3] }}</span>
-								<span class="violation-column">{{ createRow(node.markedViolations)[4] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
               </div>
             </template>
 
             <template slot="sidebar" slot-scope="{ node }">
               <template v-if="node.productId === MISC.AREA_PRODUCTID">
-                <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" v-bind:style="{'background-color': node.data.reqAreaItemColor}"></p>
+                <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{'background-color': node.data.reqAreaItemColor}"></p>
               </template>
               <p v-else-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT">
                 <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
-                  v-bind:style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node.data.reqarea)" squared size="sm">Change
+                  :style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node.data.reqarea)" squared size="sm">Change
                 </b-button>
                 <b-button v-else @click="setReqArea(null)" squared variant="seablueLight" size="sm">Set</b-button>
               </p>
@@ -270,7 +269,7 @@
 		<b-modal size="lg" ref="historyEventRef" title="Event history" ok-only>
 			<div v-if="$store.state.eventList.length > 0">
         <div v-for="item in $store.state.eventList" :key="item.eventKey">
-          <p class="event-list" v-bind:style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
+          <p class="event-list" :style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
         </div>
       </div>
 		</b-modal>

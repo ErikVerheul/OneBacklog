@@ -1,6 +1,6 @@
 import globalAxios from 'axios'
 import router from '../router'
-import { addToArray, removeFromArray } from '../common_functions.js'
+import { expandNode, collapseNode, addToArray, removeFromArray } from '../common_functions.js'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 import { SEV, LEVEL, STATE, MISC } from '../constants.js'
 import Vue from 'vue'
@@ -27,7 +27,6 @@ import loadproducts from './modules/load_detail'
 import loadoverview from './modules/load_coarse'
 import planningboard from './modules/planningboard'
 
-const FILTERBUTTONTEXT = 'Filter in tree view'
 const MAX_EVENTLIST_SIZE = 100
 
 function createEvent(payload) {
@@ -137,8 +136,7 @@ export default new Vuex.Store({
 		eventList: [],
 		filterForComment: '',
 		filterForHistory: '',
-		filterText: 'Filter in tree view',
-		findIdOn: false,
+		filterTreeIsSet: false,
 		itemId: '',
 		keyword: '',
 		moveOngoing: false,
@@ -146,7 +144,6 @@ export default new Vuex.Store({
 		searchOn: false,
 		selectedForView: 'comments',
 		previousSelectedNodes: undefined,
-		resetFilter: {},
 		resetSearch: {},
 		selectedNodes: [],
 		selectNodeOngoing: false,
@@ -241,6 +238,20 @@ export default new Vuex.Store({
 
 		getCurrentItemState(state) {
 			if (state.currentDoc) return state.currentDoc.state
+		},
+
+		getFilterButtonText(state) {
+			let txt = 'Filter in tree view'
+			if (state.filterTreeIsSet) {
+				txt = 'Clear filter'
+				if (state.resetSearch.searchType === 'findItemOnId') {
+					txt += ' and Id selection'
+				}
+				if (state.resetSearch.searchType === 'searchInTitles') {
+					txt += ' and title search'
+				}
+			}
+			return txt
 		},
 
 		getItemSprintName(state) {
@@ -439,86 +450,83 @@ export default new Vuex.Store({
 	},
 
 	actions: {
-		resetMyFilters({ state, getters, commit }, payload) {
-			// eslint-disable-next-line no-console
-			if (state.debug) console.log(`resetMyFilters is called by ${payload.caller}, state.resetFilter.searchType = ${state.resetFilter.searchType}`)
-			if (state.resetFilter.searchType === 'onSetMyFilters') {
-				const nodesToScan = getters.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
-				// traverse the tree to reset to the state before filtering
-				window.slVueTree.traverseModels((nm) => {
-					if (nm.level < LEVEL.PRODUCT) return
-					// skip requirement areas dummy product items
-					if (nm._id === MISC.AREA_PRODUCTID) return
-
-					// filters do only set isHighlighted_1
-					delete nm.isHighlighted_1
-					nm.doShow = nm.savedDoShow
-					nm.isExpanded = nm.savedIsExpanded
-				}, nodesToScan)
-
-				state.filterText = FILTERBUTTONTEXT
-				state.resetFilter = {}
-				commit('addToEventList', { txt: `Your filter on product '${state.currentProductTitle}' is cleared`, severity: SEV.INFO })
+		/* Launch additional actions if provided in the payload */
+		additionalActions({ state, dispatch }, payload) {
+			if (payload.toDispatch) {
+				for (const td of payload.toDispatch) {
+					const name = Object.keys(td)[0]
+					// eslint-disable-next-line no-console
+					if (state.debug) console.log('additionalActions: dispatching ' + name)
+					dispatch(name, td[name])
+				}
 			}
+		},
+
+		resetTreeFilter({ state, commit }, payload) {
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log(`resetTreeFilter is called by ${payload.caller}`)
+			commit('restoreTreeView', { undoHighLight: 'isHighlighted_1' })
+			state.filterTreeIsSet = false
+			commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
+			// do NOT execute passed actions if provided
 		},
 
 		resetFindOnId({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
-			if (state.resetSearch.searchType === 'findItemOnId') {
-				const node = state.resetSearch.nodes[0]
-				const prevSelectedNode = state.resetSearch.currentSelectedNode
-				if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
-					// the node was found in another product; collapse the currently selected product and switch to the other product
-					commit('switchCurrentProduct', { productId: prevSelectedNode.productId, collapseCurrentProduct: true })
-					// expand the product
-					window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
-				} else {
-					window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
-				}
-				// select the node after loading the document
-				dispatch('loadDoc', {
-					id: prevSelectedNode._id, onSuccessCallback: () => {
-						state.itemId = ''
-						state.resetSearch = {}
-						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-						commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
-					}
-				})
+			const node = state.resetSearch.node
+			const prevSelectedNode = state.resetSearch.currentSelectedNode
+			if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
+				// the node was found in another product
+				commit('switchCurrentProduct', prevSelectedNode.productId)
+			} else {
+				window.slVueTree.undoShowPath(node, 'search', 'isHighlighted_1')
 			}
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
+			// select the node after loading the document
+			dispatch('loadDoc', {
+				id: prevSelectedNode._id, onSuccessCallback: () => {
+					state.itemId = ''
+					state.resetSearch = {}
+					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
+				}
+			})
+			if (payload.caller === 'findItemOnId' || payload.caller === 'searchInTitles' || payload.caller === 'onSetMyFilters') {
+				if (payload.onSuccessCallback) payload.onSuccessCallback()
+				// execute passed actions if provided
+				dispatch('additionalActions', payload)
+			}
 		},
 
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
-			// eslint-disable-next-line no-console
-			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
-			if (state.resetSearch.searchType === 'searchInTitles') {
-				for (const node of state.resetSearch.nodes) {
-					window.slVueTree.undoShowPath(node, { [state.resetSearch.highLight]: true })
-				}
-				const prevSelectedNode = state.resetSearch.currentSelectedNode
-				dispatch('loadDoc', {
-					id: prevSelectedNode._id, onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-						window.slVueTree.showPathToNode(prevSelectedNode)
-						// expand the product
-						window.slVueTree.getNodeById(prevSelectedNode.productId).isExpanded = true
-						state.keyword = ''
-						state.resetSearch = {}
-						commit('addToEventList', { txt: `The search for item titles in '${prevSelectedNode.title}' is cleared`, severity: SEV.INFO })
-					}
-				})
+			const prevSelectedNode = state.resetSearch.currentSelectedNode
+			for (const n of state.resetSearch.nodesFound) {
+				window.slVueTree.undoShowPath(n, 'search', 'isHighlighted_1')
 			}
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
+			for (const n of state.resetSearch.nodesCollapsed) {
+				expandNode(n)
+			}
+			// select the node after loading the document
+			dispatch('loadDoc', {
+				id: prevSelectedNode._id, onSuccessCallback: () => {
+					state.keyword = ''
+					state.resetSearch = {}
+					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
+				}
+			})
+			if (payload.caller === 'findItemOnId' || payload.caller === 'searchInTitles' || payload.caller === 'onSetMyFilters') {
+				if (payload.onSuccessCallback) payload.onSuccessCallback()
+				// execute passed actions if provided
+				dispatch('additionalActions', payload)
+			}
 		},
 
-		/* Clear any outstanding filters and searches of the current product (default) or all products and execute the callback (if provided) */
-		resetFilterAndSearches({ state, dispatch }, payload) {
-			if (state.resetFilter.searchType || state.resetSearch.searchType) {
-				if (state.resetFilter.searchType === 'onSetMyFilters') {
-					dispatch('resetMyFilters', payload)
-				}
+		/* Clear any outstanding searches and execute the callback and/or actions if provided */
+		resetAnySearches({ state, dispatch }, payload) {
+			if (state.resetSearch.searchType) {
+				// only one search can/will be reset
 				if (state.resetSearch.searchType === 'findItemOnId') {
 					dispatch('resetFindOnId', payload)
 				}
@@ -526,10 +534,20 @@ export default new Vuex.Store({
 					dispatch('resetSearchInTitles', payload)
 				}
 			} else {
-				// eslint-disable-next-line no-console
-				if (state.debug) console.log(`resetFilterAndSearches is called by ${payload.caller} but no reset history is avalable; a callback is executed = ${payload.onSuccessCallback !== undefined}`)
+				// no searches were set; execute the callbacks
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
+				// execute passed actions if provided
+				dispatch('additionalActions', payload)
 			}
+		},
+
+		/* Clear any outstanding filters and searches and execute the callback and/or actions if provided */
+		resetFilterAndSearches({ state, dispatch }, payload) {
+			if (state.filterTreeIsSet) {
+				// create an action to reset the tree filter after the searches are reset
+				payload.toDispatch = [{ 'resetTreeFilter': payload }]
+			}
+			dispatch('resetAnySearches', payload)
 		},
 
 		/* Add the product to my profile and update my available products and my product options	*/
@@ -684,6 +702,24 @@ export default new Vuex.Store({
 			renewSelection(state, newNode)
 		},
 
+		/* Traverse the tree to reset to the state before filtering or search */
+		restoreTreeView(state, payload) {
+			const nodesToScan = state.currentView === 'coarseProduct' ? undefined : window.slVueTree.getProductModel()
+			// traverse the tree to reset to the state before filtering
+			window.slVueTree.traverseModels((nm) => {
+				if (nm.level < LEVEL.PRODUCT) return
+				// skip requirement areas dummy product items
+				if (nm._id === MISC.AREA_PRODUCTID) return
+
+				delete nm.tmp[payload.undoHighLight]
+				// reset the view state
+				nm.isExpanded = nm.tmp.savedIsExpandedInFilter
+				delete nm.tmp.savedIsExpandedInFilter
+				nm.doShow = nm.tmp.savedDoShowInFilter
+				delete nm.tmp.savedDoShowInFilter
+			}, nodesToScan)
+		},
+
 		updateNodesAndCurrentDoc(state, payload) {
 			if (payload.newNode) {
 				renewSelection(state, payload.newNode)
@@ -739,10 +775,12 @@ export default new Vuex.Store({
 								// not stored in the node
 								break
 							case 'inconsistentState':
-								node.data.inconsistentState = payload.inconsistentState
+								node.tmp.inconsistentState = payload.inconsistentState
 								break
 							case 'isExpanded':
-								node.isExpanded = payload.isExpanded
+								if (payload.isExpanded) {
+									expandNode(node)
+								} else collapseNode(node)
 								break
 							case 'isSelected':
 								node.isSelected = payload.isSelected
@@ -1053,13 +1091,20 @@ export default new Vuex.Store({
 			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
 		},
 
-		switchCurrentProduct(state, payload) {
-			if (payload.collapseCurrentProduct) {
-				// if the current product is not removed and the product has descendants, collapse the branch below the current product
-				if (window.slVueTree.getProductModel().length > 0 && window.slVueTree.getProductModel()[0]) window.slVueTree.getProductModel()[0].isExpanded = false
+		switchCurrentProduct(state, newProductId) {
+			const currentProductNode = window.slVueTree.getNodeById(state.currentProductId)
+			const newCurrentProductNode = window.slVueTree.getNodeById(newProductId)
+			if (currentProductNode !== null && newCurrentProductNode !== null) {
+				// if the current product is not removed and the newly selected product exists
+				if (state.currentView !== 'coarseProduct') {
+					// collapse the current and expand the newly selected product branch
+					collapseNode(currentProductNode)
+					expandNode(newCurrentProductNode)
+				}
+				// update current product id and title
+				state.currentProductId = newProductId
+				state.currentProductTitle = newCurrentProductNode.title
 			}
-			state.currentProductId = payload.productId
-			state.currentProductTitle = window.slVueTree.getProductTitle(payload.productId)
 		},
 
 		/* Reset this data on sign-in */
@@ -1072,7 +1117,8 @@ export default new Vuex.Store({
 			state.createDefaultCalendar = false
 			state.currentProductId = null
 			state.currentProductTitle = ''
-			state.iAmAPO = false
+			state.filterTreeIsSet = false,
+				state.iAmAPO = false
 			state.iAmAdmin = false
 			state.iAmAssistAdmin = false
 			state.iAmServerAdmin = false

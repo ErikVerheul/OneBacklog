@@ -10,7 +10,6 @@ import Listings from './d_listings.vue'
 import ToSprint from './d_tosprint.vue'
 import { eventBus } from '../../../main'
 
-const FILTERBUTTONTEXT = 'Filter in tree view'
 const thisView = 'detailProduct'
 var returning = false
 
@@ -21,7 +20,9 @@ function beforeCreate() {
 		this.$store.state.treeNodes = []
 		this.$store.state.changeHistory = []
 		// reset filters and searches
-		this.$store.state.filterText = FILTERBUTTONTEXT
+		this.$store.state.filterTreeIsSet = false
+		this.$store.state.resetSearch = {}
+
 		this.$store.dispatch('loadProductDetails')
 	} else returning = true
 }
@@ -110,11 +111,6 @@ const methods = {
 		}
 	},
 
-	onTreeIsLoaded() {
-		window.slVueTree.setDescendentsReqArea()
-		this.dependencyViolationsFound()
-	},
-
 	/* event handling */
 	onNodesSelected(fromContextMenu) {
 		const selNodes = this.$store.state.selectedNodes
@@ -128,10 +124,13 @@ const methods = {
 			onSuccessCallback: () => {
 				// if the user clicked on a node of another product (not root)
 				if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
-					// another product is selected; collapse the currently selected product and switch to the new product
-					this.$store.commit('switchCurrentProduct', { productId: this.getLastSelectedNode.productId, collapseCurrentProduct: true })
-					// expand the newly selected product up to the feature level
-					window.slVueTree.expandTreeUptoFeatureLevel()
+					// another product is selected; reset the tree filter and Id selection or title search
+					this.$store.dispatch('resetFilterAndSearches', {
+						caller: 'onNodesSelected', onSuccessCallback: () => {
+							// collapse the currently selected product and switch and expand to the newly selected product
+							this.$store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
+						}
+					})
 				}
 				if (!fromContextMenu) this.showSelectionEvent(selNodes)
 			}

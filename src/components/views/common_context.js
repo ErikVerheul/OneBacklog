@@ -106,7 +106,8 @@ const methods = {
 				team: node.data.team,
 				subtype: node.data.subtype,
 				lastChange: 0
-			}
+			},
+			tmp: {}
 		}
 		// must insert the new node in the tree first to get the productId, parentId, pririty and set the location parameters
 		window.slVueTree.insert(newNodeLocation, [newNode])
@@ -174,7 +175,8 @@ const methods = {
 				state: STATE.NEW_OR_TODO,
 				subtype: 0,
 				lastChange: now
-			}
+			},
+			tmp: {}
 		}
 		let insertLevel = this.contextNodeSelected.level
 		if (this.contextOptionSelected === this.INSERTBELOW) {
@@ -212,7 +214,7 @@ const methods = {
 			if (newNodeLocation.placement === 'inside') {
 				// unselect the node that was clicked before the insert and expand it to show the inserted node
 				this.contextNodeSelected.isSelected = false
-				this.contextNodeSelected.isExpanded = true
+				this.expandNode(this.contextNodeSelected)
 			} else {
 				// unselect the node that was clicked before the insert
 				this.contextNodeSelected.isSelected = false
@@ -279,11 +281,11 @@ const methods = {
 				}
 				if (nm.data.state > highestState || nm.data.state === this.doneState && !allDone) {
 					// node has a higher state than any of its descendants or set to done while one of its descendants is not done
-					nm.data.inconsistentState = true
+					nm.tmp.inconsistentState = true
 					window.slVueTree.showPathToNode(nm)
 					count++
 				} else {
-					nm.data.inconsistentState = false
+					nm.tmp.inconsistentState = false
 				}
 			}
 		}, [this.contextNodeSelected])
@@ -305,7 +307,7 @@ const methods = {
 		for (const depId of this.contextNodeSelected.dependencies) {
 			const item = window.slVueTree.getNodeById(depId)
 			if (item) {
-				window.slVueTree.showPathToNode(item, { doHighLight_2: true })
+				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
 				this.dependenciesObjects.push({ _id: depId, title: item.title })
 			}
 		}
@@ -316,7 +318,7 @@ const methods = {
 		for (const conId of this.contextNodeSelected.conditionalFor) {
 			const item = window.slVueTree.getNodeById(conId)
 			if (item) {
-				window.slVueTree.showPathToNode(item, { doHighLight_2: true })
+				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
 				this.conditionsObjects.push({ _id: conId, title: item.title })
 			}
 		}
@@ -343,10 +345,10 @@ const methods = {
 	},
 
 	/* Undo the tree expansion and highlighting */
-	undoShowDependencies(objects) {
-		for (const o of objects) {
+	undoShowDependencies(dependenciesObjects) {
+		for (const o of dependenciesObjects) {
 			const node = window.slVueTree.getNodeById(o._id)
-			if (node) window.slVueTree.undoShowPath(node, { highlighted_2: true })
+			if (node) window.slVueTree.undoShowPath(node, 'dependency', 'isHighlighted_2')
 		}
 	},
 
