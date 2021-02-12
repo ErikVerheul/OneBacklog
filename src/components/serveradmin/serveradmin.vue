@@ -53,11 +53,12 @@
           <h5>Select the database to restore</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
-        <p v-if="$store.state.selectedDatabaseName !== 'not selected yet'">Database '{{ dbToReplace }}' will be replaced by the selected backup</p>
+        <p v-if="$store.state.selectedDatabaseName !== 'not selected yet'">Database '{{ dbToReplace }}' will be replaced by the selected backup. Online users of this database must sign-out and in again, to continue.</p>
+				<p class="colorRed" v-if="$store.state.selectedDatabaseName.startsWith(dbToReplace)">You are replacing your current database. When the restore is ready sign-out and in again, to continue.</p>
         <hr>
         <b-button v-if="$store.state.selectedDatabaseName !== 'not selected yet' && !$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup" variant="primary">Start restore</b-button>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</b-button>
-        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <h5 v-else>Buzy copying. Please wait...</h5>
 
       </div>
 
