@@ -6,7 +6,18 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
-					<h3>v.1.5 - 30 January 2021 Feature update, sucurity and bug fixes</h3>
+          <h3>v.1.6 - 12 February 2021 Feature update, revised documentation and bug fix</h3>
+          <p>New features:</p>
+          <ul>
+            <li>Allow nested searches when a filter is set</li>
+						<li>Revised documentation in documentation.txt</li>
+          </ul>
+          <p>Bug fix:</p>
+          <ul>
+            <li>Fix document count at load when loading again without resetting the browser</li>
+          </ul>
+          <hr />
+          <h3>v.1.5 - 30 January 2021 Feature update, sucurity and bug fixes</h3>
           <p>New features:</p>
           <ul>
             <li>New role 'assistant admin' implemented</li>
@@ -18,67 +29,68 @@
             <li>Show dependencies/conditions in the tree view when context menu item "Show/remove dependencies/conditions ..." is selected</li>
             <li>Show dependency violations in a special sidebar (and remove indicator from the item title)</li>
           </ul>
-					<p>Security</p>
-					<ul>
-						<li>Upgrade Axios for fixed vulnerability</li>
-					</ul>
+          <p>Security</p>
+          <ul>
+            <li>Upgrade Axios for fixed vulnerability</li>
+          </ul>
           <p>Bug fixes:</p>
           <ul>
             <li>Fix for setting options of teams without members</li>
           </ul>
           <hr />
-					<h3>v.1.4.1- 31 December 2020 bug fix</h3>
-					<p>Bug fix:</p>
+          <h3>v.1.4.1- 31 December 2020 bug fix</h3>
+          <p>Bug fix:</p>
           <ul>
-						<li>Regression: Synchronization not working, fixed</li>
+            <li>Regression: Synchronization not working, fixed</li>
           </ul>
-					<h3>v.1.4 - 31 December 2020 Feature update and bug fixes</h3>
+          <h3>v.1.4 - 31 December 2020 Feature update and bug fixes</h3>
           <p>Feature update:</p>
           <ul>
-						<li>Show event history when clicking on event message bar</li>
+            <li>Show event history when clicking on event message bar</li>
           </ul>
-					<p>Bug fixes:</p>
-          <ul>
-						<li>Copy the assigned roles when cloning a product, fixed</li>
-						<li>Must expand the product root to show its descendants, fixed</li>
-          </ul>
-					<h3>v.1.3 - 19 December 2020 General overhaul of the admin tools</h3>
-          <p>General overhaul of the admin tools:</p>
-          <ul>
-						<li>Product assignment and unassignment combined in maintain users</li>
-						<li>Immediate update of assigned databases and products when admin changes his/her own account</li>
-						<li>Purge now deletes removed items in batches to circumvent the CouchDb 100 updates limit</li>
-          </ul>
-					<h3>v.1.2.5 - 29 November 2020 Bug fixes</h3>
           <p>Bug fixes:</p>
           <ul>
-						<li>'Missing mixin' regression, fixed</li>
-						<li>'Missing import' regression, fixed</li>
-						<li>Add all getters to mixins except the getters for the planning board</li>
-						<li>Use kebab case for these custom events</li>
+            <li>Copy the assigned roles when cloning a product, fixed</li>
+            <li>Must expand the product root to show its descendants, fixed</li>
           </ul>
-					<h3>v.1.2.4 - 26 November 2020 New feature and bug fixes</h3>
-					<p>New feature:</p>
+          <h3>v.1.3 - 19 December 2020 General overhaul of the admin tools</h3>
+          <p>General overhaul of the admin tools:</p>
+          <ul>
+            <li>Product assignment and unassignment combined in maintain users</li>
+            <li>Immediate update of assigned databases and products when admin changes his/her own account</li>
+            <li>Purge now deletes removed items in batches to circumvent the CouchDb 100 updates limit</li>
+          </ul>
+          <h3>v.1.2.5 - 29 November 2020 Bug fixes</h3>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>'Missing mixin' regression, fixed</li>
+            <li>'Missing import' regression, fixed</li>
+            <li>Add all getters to mixins except the getters for the planning board</li>
+            <li>Use kebab case for these custom events</li>
+          </ul>
+          <h3>v.1.2.4 - 26 November 2020 New feature and bug fixes</h3>
+          <p>New feature:</p>
           <ul>
             <li>A PO and APO must have full access to all items of his products no matter what team he/she has joined</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
             <li>'Duplicate emails' regression, fixed</li>
-						<li>'Filter on period of days fails' regression, fixed</li>
-						<li>'Undo removal creates an undo' regression, fixed</li>
-						<li>'Description duplication' regression, fixed</li>
+            <li>'Filter on period of days fails' regression, fixed</li>
+            <li>'Undo removal creates an undo' regression, fixed</li>
+            <li>'Description duplication' regression, fixed</li>
           </ul>
-					<h3>v.1.2.3 - 1 November 2020 Bug fix, native ES2015 code and doc updates</h3>
+          <h3>v.1.2.3 - 1 November 2020 Bug fix, native ES2015 code and doc updates</h3>
           <p>Bug fixes:</p>
           <ul>
             <li>'Not returning original view after clearing depth only filter' fixed</li>
           </ul>
-          <p>Install and documentation<p>
+          <p>Install and documentation
+          <p>
           <ul>
-						<li>Both native ES2015 and legacy code is shipped to production</li>
-						<li>Debug options included in environment settings</li>
-						<li>Development and production environment files now under source control</li>
+            <li>Both native ES2015 and legacy code is shipped to production</li>
+            <li>Debug options included in environment settings</li>
+            <li>Development and production environment files now under source control</li>
             <li>Updated the installation instructions</li>
           </ul>
           <hr />
@@ -87,12 +99,13 @@
           <ul>
             <li>Dependency security fix</li>
           </ul>
-          <p>Documentation<p>
+          <p>Documentation
+          <p>
           <ul>
             <li>Updated the installation instructions</li>
           </ul>
           <hr />
-					<h3>v.1.2.1 - 5 Oktober 2020 Feature update, security fix and doc updates</h3>
+          <h3>v.1.2.1 - 5 Oktober 2020 Feature update, security fix and doc updates</h3>
           <p>New features:</p>
           <ul>
             <li>Scripts added to update the app version in production</li>
@@ -103,7 +116,8 @@
           <ul>
             <li>Dependency security fix</li>
           </ul>
-          <p>Documentation<p>
+          <p>Documentation
+          <p>
           <ul>
             <li>Updated for the changes</li>
           </ul>
@@ -120,7 +134,8 @@
           <ul>
             <li>Dependency security fix</li>
           </ul>
-          <p>Documentation<p>
+          <p>Documentation
+          <p>
           <ul>
             <li>'How to create a HTTPS certificate for localhost domains' doc added as html page</li>
             <li>README.md file updated with instructions on how to configure CouchDb 3.x</li>
@@ -155,8 +170,8 @@
           <ul>
             <li>Generic overhaul of access rights</li>
             <li>'Removed' is not a status anymore. Use On-hold instead, or delete the item</li>
-            <li>Always update the database first before re-rendering the tree view or the planning board,<br/>
-             with the exception of tree view drag &amp; drop where immediate response is paramount</li>
+            <li>Always update the database first before re-rendering the tree view or the planning board,<br />
+              with the exception of tree view drag &amp; drop where immediate response is paramount</li>
           </ul>
           <hr />
           <h3>v.0.9.9 - 12 June 2020 Feature update and bug fixes</h3>
@@ -302,8 +317,10 @@
           </ul>
           <p>Design changes:</p>
           <ul>
-            <li>When switching between products and requirement areas view, current tree nodes are disposed and loaded new from the database. In the products view only the selected products are loaded up to the PBI level. In the requirement area view all products are loaded up to the feature level.</li>
-            <li>When loading the tree nodes only the needed document fields are transferred as values in the GET call. Eg. the description and acceptance criteria are not transferred. Also only the recent history is retrieved.</li>
+            <li>When switching between products and requirement areas view, current tree nodes are disposed and loaded new from the database. In the products view only the selected products are loaded
+              up to the PBI level. In the requirement area view all products are loaded up to the feature level.</li>
+            <li>When loading the tree nodes only the needed document fields are transferred as values in the GET call. Eg. the description and acceptance criteria are not transferred. Also only the
+              recent history is retrieved.</li>
           </ul>
           <p>By not transferring the full documents at load time loading is faster and memory usage limited. When the user selects an item the full ducument is loaded.</p>
           <hr />
@@ -384,14 +401,17 @@
           <hr />
           <h3>v.0.8.1 - 17 December 2019 Feature update</h3>
           <ul>
-            <li>Changes to the item size, state, title, description, acceptance criteria, added item, moved items and deleted items can be undone in a last change first sequence. A move to another product cannot be undone automatically.</li>
-            <li>The input fields for 'Find on id' and 'Search in titles' now have a tiny button to clear the field and reset the find/search. The buttons for 'Filter comments' and 'Filter History' now change to 'Clear filter comments' and 'Clear filter history' when the filter is executed. Use these buttons to clear the filter.</li>
+            <li>Changes to the item size, state, title, description, acceptance criteria, added item, moved items and deleted items can be undone in a last change first sequence. A move to another
+              product cannot be undone automatically.</li>
+            <li>The input fields for 'Find on id' and 'Search in titles' now have a tiny button to clear the field and reset the find/search. The buttons for 'Filter comments' and 'Filter History' now
+              change to 'Clear filter comments' and 'Clear filter history' when the filter is executed. Use these buttons to clear the filter.</li>
           </ul>
           <hr />
           <h3>v.0.8.0 - 5 December 2019 Major update</h3>
           <p>New features:</p>
           <ul>
-            <li>When changing the state of an item the new state is checked against its descendants. A warning is issued if that state is incompatible. Eg. you can only set a feature to done if all descendants are done.</li>
+            <li>When changing the state of an item the new state is checked against its descendants. A warning is issued if that state is incompatible. Eg. you can only set a feature to done if all
+              descendants are done.</li>
             <li>The dependency epic is implemented.</li>
           </ul>
           <hr />
@@ -407,7 +427,8 @@
           <h3>v.0.7.2 - 26 November 2019 Feature update</h3>
           <p>New features:</p>
           <ul>
-            <li>[USER REQUEST Id = 4i0jz] The product view now shows up to 3 extra badges indicating that an item has changed. This feature is most valuable when another user updates the backlog sumultaneous with you</li>
+            <li>[USER REQUEST Id = 4i0jz] The product view now shows up to 3 extra badges indicating that an item has changed. This feature is most valuable when another user updates the backlog
+              sumultaneous with you</li>
             <li>[Id = 781cc] Uploading and removal of attachments is implemented</li>
           </ul>
           <hr />
@@ -421,7 +442,8 @@
           </ul>
           <hr />
           <h3>v.0.7.0 - 23 October 2019 Major update</h3>
-          <h5>Note that this release is not backwards compatible with previous releases. The format of the user profile in the _users database now includes database information. An upgrade can be fixed using Fauxton.</h5>
+          <h5>Note that this release is not backwards compatible with previous releases. The format of the user profile in the _users database now includes database information. An upgrade can be
+            fixed using Fauxton.</h5>
           <p>New features:</p>
           <ul>
             <li>The 'superPO' role now applies to all products in all databases</li>

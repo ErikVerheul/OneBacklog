@@ -10,7 +10,7 @@ function created() {
 
 function data() {
 	return {
-		appVersion: 'OneBackLog v.1.5',
+		appVersion: 'OneBackLog v.1.6',
 		disableOkButton: false,
 		oldPassword: '',
 		newPassword1: '',
