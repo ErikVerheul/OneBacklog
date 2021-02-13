@@ -126,7 +126,7 @@ const methods = {
 				if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
 					// another product is selected; reset the tree filter and Id selection or title search
 					this.$store.dispatch('resetFilterAndSearches', {
-						caller: 'onNodesSelected', onSuccessCallback: () => {
+						caller: 'onNodesSelected', currentProductId: this.$store.state.currentProductId, onSuccessCallback: () => {
 							// collapse the currently selected product and switch and expand to the newly selected product
 							this.$store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
 						}

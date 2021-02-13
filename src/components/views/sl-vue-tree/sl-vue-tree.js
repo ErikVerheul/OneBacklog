@@ -768,7 +768,8 @@ const methods = {
 			const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
 			// traverse the tree to reset to the tree view state
 			window.slVueTree.traverseModels((nm) => {
-				if (nm.level < LEVEL.PRODUCT) return
+				// skip root level
+				if (nm.level === LEVEL.DATABASE) return
 				// skip requirement areas dummy product items
 				if (nm._id === MISC.AREA_PRODUCTID) return
 

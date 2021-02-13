@@ -259,7 +259,7 @@ const methods = {
 
 	onSetMyFilters() {
 		if (this.$store.state.filterTreeIsSet) {
-			// if this filter was on, reset it after resetting any set search
+			// if this filter was on, reset it after resetting any set search and reset the label of the button
 			this.$store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters' })
 		} else {
 			// update the available req area options

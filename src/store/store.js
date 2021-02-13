@@ -465,8 +465,7 @@ export default new Vuex.Store({
 		resetTreeFilter({ state, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetTreeFilter is called by ${payload.caller}`)
-			commit('restoreTreeView', { undoHighLight: 'isHighlighted_1' })
-			state.filterTreeIsSet = false
+			commit('restoreTreeView', { currentProductId: payload.currentProductId, undoHighLight: 'isHighlighted_1' })
 			commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			// do NOT execute passed actions if provided
@@ -704,19 +703,25 @@ export default new Vuex.Store({
 
 		/* Traverse the tree to reset to the state before filtering or search */
 		restoreTreeView(state, payload) {
-			const nodesToScan = state.currentView === 'coarseProduct' ? undefined : window.slVueTree.getProductModel()
+			let nodesToScan
+			if (payload.currentProductId) {
+				// must reset the previous selected product when switching products
+				nodesToScan = window.slVueTree.getProductModel(payload.currentProductId)
+			} else nodesToScan = state.currentView === 'coarseProduct' ? undefined : window.slVueTree.getProductModel()
+
 			// traverse the tree to reset to the state before filtering
 			window.slVueTree.traverseModels((nm) => {
-				if (nm.level < LEVEL.PRODUCT) return
 				// skip requirement areas dummy product items
 				if (nm._id === MISC.AREA_PRODUCTID) return
-
+				// skip product level and above (smaller level number)
+				if (nm.level <= LEVEL.PRODUCT) return
 				delete nm.tmp[payload.undoHighLight]
 				// reset the view state
 				nm.isExpanded = nm.tmp.savedIsExpandedInFilter
 				delete nm.tmp.savedIsExpandedInFilter
 				nm.doShow = nm.tmp.savedDoShowInFilter
 				delete nm.tmp.savedDoShowInFilter
+				state.filterTreeIsSet = false
 			}, nodesToScan)
 		},
 
@@ -1118,7 +1123,7 @@ export default new Vuex.Store({
 			state.currentProductId = null
 			state.currentProductTitle = ''
 			state.filterTreeIsSet = false,
-				state.iAmAPO = false
+			state.iAmAPO = false
 			state.iAmAdmin = false
 			state.iAmAssistAdmin = false
 			state.iAmServerAdmin = false
