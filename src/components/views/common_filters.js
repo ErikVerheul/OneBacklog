@@ -52,7 +52,7 @@ function mounted () {
     }
   }
   this.selectedTeams = clearedSelectedTeams
-  // set the available state options
+  // set the available state options; 0 is not in use
   let i = 0
   this.stateOptions = []
   for (const state of this.$store.state.configData.itemState) {
