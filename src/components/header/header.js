@@ -59,14 +59,10 @@ const methods = {
 	},
 
 	doChangeDatabase() {
-		this.$store.dispatch('resetFilterAndSearches', {
-			caller: 'doChangeDatabase', onSuccessCallback: () => {
-				if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
-					const autoSignOut = true
-					this.$store.dispatch('changeCurrentDb', { dbName: this.headerMyDatabase, autoSignOut })
-				}
-			}
-		})
+		if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
+			const autoSignOut = true
+			this.$store.dispatch('changeCurrentDb', { dbName: this.headerMyDatabase, autoSignOut })
+		}
 	},
 
 	doChangeTeam() {
