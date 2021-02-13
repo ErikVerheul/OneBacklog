@@ -56,7 +56,7 @@ function mounted () {
   let i = 0
   this.stateOptions = []
   for (const state of this.$store.state.configData.itemState) {
-    this.stateOptions.push({ text: state, value: i })
+    if (i > 0) this.stateOptions.push({ text: state, value: i })
     i++
   }
 }
