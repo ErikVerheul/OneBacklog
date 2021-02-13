@@ -2,6 +2,7 @@ import { SEV, LEVEL } from '../../constants.js'
 import { utilities } from '../mixins/generic.js'
 
 function data () {
+	// these values are used if no filter settings were saved
   return {
     filterOnReqAreas: false,
     selectedReqAreas: [],
@@ -9,7 +10,7 @@ function data () {
     teamOptions: [],
     selectedTeams: [],
     filterTreeDepth: false,
-    selectedTreeDepth: '3',
+		selectedTreeDepth: LEVEL.EPIC,
     filterOnState: false,
     stateOptions: [],
     selectedStates: [],
