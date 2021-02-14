@@ -123,9 +123,10 @@ const methods = {
 			id: this.getLastSelectedNode._id,
 			onSuccessCallback: () => {
 				// if the user clicked on a node of another product (not root)
-				if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
+				const currentProductId = this.$store.state.currentProductId
+				if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
 					// another product is selected; reset the tree filter and Id selection or title search on the current product
-					const productModels = window.slVueTree.getCurrentProductModel(this.$store.state.currentProductId)
+					const productModels = window.slVueTree.getProductModel(currentProductId)
 					this.$store.dispatch('resetFilterAndSearches', {
 						caller: 'onNodesSelected', productModels, onSuccessCallback: () => {
 							// collapse the currently selected product and switch and expand to the newly selected product
