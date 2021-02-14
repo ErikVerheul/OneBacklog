@@ -66,6 +66,11 @@ const computed = {
 	*/
 	colorState() {
 		return /^#[0-9A-F]{6}$/i.test(this.userReqAreaItemcolor)
+	},
+
+	// return true if a requirements area item is selected or false if another or no node is selected
+	isReqAreaItemSelected() {
+		return !!this.getLastSelectedNode && this.getLastSelectedNode._id === MISC.AREA_PRODUCTID || this.getLastSelectedNode.parentId === MISC.AREA_PRODUCTID
 	}
 }
 

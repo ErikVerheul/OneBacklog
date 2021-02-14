@@ -5,7 +5,7 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-form>
           <b-button class="m-1" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
-          <b-button class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
+          <b-button class="m-1" v-show="!isRootSelected && !isReqAreaItemSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
           <div class="divider" />
           <b-input-group>
             <b-form-input id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
@@ -14,7 +14,7 @@
             </b-input-group-append>
           </b-input-group>
           <div class="divider" />
-          <b-input-group v-show="!isRootSelected">
+          <b-input-group v-show="!isRootSelected && !isReqAreaItemSelected">
             <b-form-input id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetSearchTitles" variant="primary" type="reset">x</b-button>
