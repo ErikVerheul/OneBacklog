@@ -703,12 +703,6 @@ export default new Vuex.Store({
 
 		/* Traverse the tree to reset to the state before filtering or search */
 		restoreTreeView(state, payload) {
-			let nodesToScan
-			if (payload.currentProductId) {
-				// must reset the previous selected product when switching products
-				nodesToScan = window.slVueTree.getCurrentProductModel(payload.currentProductId)
-			} else nodesToScan = state.currentView === 'coarseProduct' ? undefined : window.slVueTree.getCurrentProductModel()
-
 			// traverse the tree to reset to the state before filtering
 			window.slVueTree.traverseModels((nm) => {
 				// skip requirement areas dummy product items
@@ -722,7 +716,7 @@ export default new Vuex.Store({
 				nm.doShow = nm.tmp.savedDoShowInFilter
 				delete nm.tmp.savedDoShowInFilter
 				state.filterTreeIsSet = false
-			}, nodesToScan)
+			}, payload.productModels)
 		},
 
 		updateNodesAndCurrentDoc(state, payload) {

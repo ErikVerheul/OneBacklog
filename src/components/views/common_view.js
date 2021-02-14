@@ -259,8 +259,9 @@ const methods = {
 
 	onSetMyFilters() {
 		if (this.$store.state.filterTreeIsSet) {
-			// if this filter was on, reset it after resetting any set search and reset the label of the button
-			this.$store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters' })
+			// if this filter was on, reset it after resetting any set search and reset the label of the button; pass the array of productmodels to apply the reset on
+			const productModels = this.isOverviewSelected ? undefined : window.slVueTree.getCurrentProductModel()
+			this.$store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters', productModels })
 		} else {
 			// update the available req area options
 			const currReqAreaIds = window.slVueTree.getCurrentReqAreaIds()
