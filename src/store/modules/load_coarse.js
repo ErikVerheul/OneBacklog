@@ -171,7 +171,7 @@ const actions = {
 				}
 			}
 			window.slVueTree.dependencyViolationsFound()
-			this.$store.commit('createColorMapper')
+			commit('createColorMapper')
 			commit('showLastEvent', { txt: `${state.docsCount} documents are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {
