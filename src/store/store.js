@@ -465,7 +465,7 @@ export default new Vuex.Store({
 		resetTreeFilter({ state, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetTreeFilter is called by ${payload.caller}`)
-			commit('restoreTreeView', { currentProductId: payload.currentProductId, undoHighLight: 'isHighlighted_1' })
+			commit('restoreTreeView', { productModels: payload.productModels, undoHighLight: 'isHighlighted_1' })
 			commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			// do NOT execute passed actions if provided
@@ -707,8 +707,13 @@ export default new Vuex.Store({
 			window.slVueTree.traverseModels((nm) => {
 				// skip requirement areas dummy product items
 				if (nm._id === MISC.AREA_PRODUCTID) return
-				// skip product level and above (smaller level number)
-				if (nm.level <= LEVEL.PRODUCT) return
+				if (state.currentView === 'detailProduct') {
+					// skip product level and above (smaller level number)
+					if (nm.level <= LEVEL.PRODUCT) return
+				} else {
+					// skip database level and above (smaller level number)
+					if (nm.level <= LEVEL.DATABASE) return
+				}
 				delete nm.tmp[payload.undoHighLight]
 				// reset the view state
 				nm.isExpanded = nm.tmp.savedIsExpandedInFilter
