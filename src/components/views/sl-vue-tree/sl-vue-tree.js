@@ -450,7 +450,7 @@ const methods = {
 	},
 
 	/* Return an array with the node of the selected productId (default = current productId) or an empty array if the product is not found */
-	getProductModel(productId = this.$store.state.currentProductId) {
+	getCurrentProductModel(productId = this.$store.state.currentProductId) {
 		const productModels = this.getRootNode().children
 		for (const p of productModels) {
 			if (p.productId === productId) {
@@ -545,7 +545,7 @@ const methods = {
 			if (nm.data.reqarea) {
 				if (!idsWithReqArea.includes(nm.data.reqarea)) idsWithReqArea.push(nm.data.reqarea)
 			}
-		}, this.getProductModel())
+		}, this.getCurrentProductModel())
 		return idsWithReqArea
 	},
 
@@ -648,7 +648,7 @@ const methods = {
 
 	/* test code */
 	showVisibility(caller, toLevel = 3) {
-		const nodesToScan = this.isOverviewSelected ? undefined : this.getProductModel()
+		const nodesToScan = this.isOverviewSelected ? undefined : this.getCurrentProductModel()
 		this.traverseModels((nm) => {
 			if (nm.level <= toLevel) {
 				// eslint-disable-next-line no-console
@@ -731,7 +731,7 @@ const methods = {
 	//////////////////// dependencies /////////////////////////////////
 
 	findDependencyViolations(allProducts) {
-		const nodesToScan = allProducts ? undefined : this.getProductModel()
+		const nodesToScan = allProducts ? undefined : this.getCurrentProductModel()
 		const violations = []
 		this.traverseModels((nm) => {
 			// remove any left dependency markers
@@ -765,7 +765,7 @@ const methods = {
 			this.showDependencyViolations(violations, this.isOverviewSelected)
 		} else {
 			// reset the tree view
-			const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
+			const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getCurrentProductModel()
 			// traverse the tree to reset to the tree view state
 			window.slVueTree.traverseModels((nm) => {
 				// skip root level
@@ -784,7 +784,7 @@ const methods = {
 
 	/* Show the path from condNode to depNode including both nodes */
 	showDependencyViolations(violations, allProducts) {
-		const nodesToScan = allProducts ? undefined : this.getProductModel()
+		const nodesToScan = allProducts ? undefined : this.getCurrentProductModel()
 		for (let column = 0; column < violations.length; column++) {
 			const v = violations[column]
 			this.showPathToNode(v.condNode, { doWarn: true }, 'dependency')
@@ -859,7 +859,7 @@ const methods = {
 				}
 				nm.conditionalFor = newConditionalFor
 			}
-		}, this.getProductModel(productId))
+		}, this.getCurrentProductModel(productId))
 		return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 	},
 

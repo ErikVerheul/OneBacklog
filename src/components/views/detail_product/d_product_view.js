@@ -124,7 +124,7 @@ const methods = {
 			onSuccessCallback: () => {
 				// if the user clicked on a node of another product (not root)
 				if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
-					// another product is selected; reset the tree filter and Id selection or title search
+					// another product is selected; reset the tree filter and Id selection or title search on the current product
 					this.$store.dispatch('resetFilterAndSearches', {
 						caller: 'onNodesSelected', currentProductId: this.$store.state.currentProductId, onSuccessCallback: () => {
 							// collapse the currently selected product and switch and expand to the newly selected product

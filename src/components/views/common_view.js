@@ -330,7 +330,7 @@ const methods = {
 			caller: 'searchInTitles', onSuccessCallback: () => {
 				const nodesFound = []
 				const nodesCollapsed = []
-				const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getProductModel()
+				const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getCurrentProductModel()
 				window.slVueTree.traverseModels((nm) => {
 					// save node display state
 					nm.tmp.savedIsExpandedInSearch = nm.isExpanded

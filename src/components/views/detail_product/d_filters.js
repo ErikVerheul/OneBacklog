@@ -12,7 +12,7 @@ const methods = {
 		window.slVueTree.traverseModels((nm) => {
 			nm.tmp.savedDoShowInFilter = nm.doShow
 			nm.tmp.savedIsExpandedInFilter = nm.isExpanded
-		}, window.slVueTree.getProductModel())
+		}, window.slVueTree.getCurrentProductModel())
 
 		const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
 		let count = 0
@@ -56,7 +56,7 @@ const methods = {
 			}
 		}
 		// execute the callback for the current product
-		window.slVueTree.traverseModels(cb, window.slVueTree.getProductModel())
+		window.slVueTree.traverseModels(cb, window.slVueTree.getCurrentProductModel())
 
 		if (!onlyFilterOnDepth) {
 			// hide unselected nodes with no selected descendants

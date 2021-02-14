@@ -706,8 +706,8 @@ export default new Vuex.Store({
 			let nodesToScan
 			if (payload.currentProductId) {
 				// must reset the previous selected product when switching products
-				nodesToScan = window.slVueTree.getProductModel(payload.currentProductId)
-			} else nodesToScan = state.currentView === 'coarseProduct' ? undefined : window.slVueTree.getProductModel()
+				nodesToScan = window.slVueTree.getCurrentProductModel(payload.currentProductId)
+			} else nodesToScan = state.currentView === 'coarseProduct' ? undefined : window.slVueTree.getCurrentProductModel()
 
 			// traverse the tree to reset to the state before filtering
 			window.slVueTree.traverseModels((nm) => {
