@@ -449,8 +449,8 @@ const methods = {
 		return this.getNodeSiblings(path.slice(1), nodes[path[0]].children || [])
 	},
 
-	/* Return an array with the node of the selected productId (default = current productId) or an empty array if the product is not found */
-	getCurrentProductModel(productId = this.$store.state.currentProductId) {
+	/* Return an array with the node of the passed productId or an empty array if the product is not found */
+	getProductModel(productId) {
 		const productModels = this.getRootNode().children
 		for (const p of productModels) {
 			if (p.productId === productId) {
@@ -458,6 +458,11 @@ const methods = {
 			}
 		}
 		return []
+	},
+
+	/* Return the current product node in an array */
+	getCurrentProductModel() {
+		return this.getProductModel(this.$store.state.currentProductId)
 	},
 
 	/* Return the root node */
@@ -859,7 +864,7 @@ const methods = {
 				}
 				nm.conditionalFor = newConditionalFor
 			}
-		}, this.getCurrentProductModel(productId))
+		}, this.getProductModel(productId))
 		return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 	},
 
