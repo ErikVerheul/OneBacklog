@@ -119,6 +119,8 @@ const methods = {
 		 * 4. Disallow the drop of multiple nodes within the range of the selected nodes.
 		 * 5. The requirement area nodes cannot be moved from their parent or inside each other (silent cancel)
 		 * 6. Cannot move regular items into the 'Requirement areas overview' dummy product (silent cancel)
+		 * 7. Cannot move nodes as one of them has dependencies on a PBI or task level
+		 * 8. Cannot move  nodes as one of them has conditions on a PBI or task level
 		 * precondition: the selected nodes have all the same parent (same level)
 		 * Area PO's need not to be member of the item's team
 		 */
