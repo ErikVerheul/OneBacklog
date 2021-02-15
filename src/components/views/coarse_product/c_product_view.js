@@ -122,6 +122,24 @@ const methods = {
 		 * precondition: the selected nodes have all the same parent (same level)
 		 * Area PO's need not to be member of the item's team
 		 */
+		function areAlldependenciesFound(nodes) {
+			for (const node of nodes) {
+				for (const depId of node.dependencies) {
+					const item = window.slVueTree.getNodeById(depId)
+					if (!item) return false
+				}
+			}
+			return true
+		}
+		function areAllConditionsFound(nodes) {
+			for (const node of nodes) {
+				for (const conId of node.conditionalFor) {
+					const item = window.slVueTree.getNodeById(conId)
+					if (!item) return false
+				}
+			}
+			return true
+		}
 		const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
 		if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node) => {
@@ -145,12 +163,22 @@ const methods = {
 				const failedCheck5 = node.parentId === MISC.AREA_PRODUCTID && (position.nodeModel.parentId !== MISC.AREA_PRODUCTID || position.placement === 'inside')
 				const failedCheck6 = targetProductId === MISC.AREA_PRODUCTID && sourceProductId !== MISC.AREA_PRODUCTID
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than LEVEL.PBI level', SEV.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', SEV.WARNING)
 				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)
 				return failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5 || failedCheck6
 			}
 
 			if (checkDropNotAllowed(draggingNodes[0])) {
+				cancel(true)
+			}
+
+			if (!areAlldependenciesFound(draggingNodes)) {
+				this.showLastEvent('Cannot move these nodes as one of them has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+				cancel(true)
+			}
+
+			if (!areAllConditionsFound(draggingNodes)) {
+				this.showLastEvent('Cannot move these nodes as one of them has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
 				cancel(true)
 			}
 		} else cancel(true)
