@@ -61,7 +61,7 @@
         <hr>
         <b-button v-if="$store.state.selectedDatabaseName !== 'not selected yet' && !$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup" variant="primary">Start restore</b-button>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</b-button>
-        <h5 v-else>Buzy copying. Please wait...</h5>
+        <h5 v-else>Busy copying. Please wait...</h5>
 
       </div>
 
