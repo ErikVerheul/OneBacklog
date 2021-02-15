@@ -17,7 +17,6 @@ function data() {
 
 const methods = {
   showContextMenu (node) {
-		console.log('showContextMenu is called')
     if (this.$store.state.selectedNodes.length === 1) {
 			// select and load the item
 			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
@@ -53,7 +52,6 @@ const methods = {
   },
 
   showSelected (idx) {
-		console.log('showSelected is called')
     function checkNode (vm, selNode) {
       if (selNode._id === vm.dependentOnNode._id) {
         vm.contextWarning = 'WARNING: Item cannot be dependent on it self'
@@ -189,6 +187,7 @@ const methods = {
 				this.dependenciesObjects.push({ _id: depId, title: item.title })
 			} else this.allDepenciesFound = false
 		}
+		this.disableOkButton = !this.allDepenciesFound
 	},
 
 	getConditions() {
@@ -201,6 +200,7 @@ const methods = {
 				this.conditionsObjects.push({ _id: conId, title: item.title })
 			} else this.allConditionsFound = false
 		}
+		this.disableOkButton = !this.allConditionsFound
 	}
 }
 
