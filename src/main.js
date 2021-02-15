@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import App from './App.vue'
+import OneBacklog from './OneBacklog.vue'
 import axios from 'axios'
 import router from './router'
 import store from './store/store'
@@ -37,8 +37,8 @@ export const eventBus = new Vue()
 import '@/css/onebacklog.scss'
 import '@/css/onebacklog.css'
 new Vue({
-	el: '#app',
+	el: '#onebacklog',
 	router,
 	store,
-	render: h => h(App)
+	render: h => h(OneBacklog)
 })
