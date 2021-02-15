@@ -8,8 +8,16 @@ function created () {
   })
 }
 
+function data() {
+	return {
+		allDepenciesFound: true,
+		allConditionsFound: true
+	}
+}
+
 const methods = {
   showContextMenu (node) {
+		console.log('showContextMenu is called')
     if (this.$store.state.selectedNodes.length === 1) {
 			// select and load the item
 			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
@@ -19,6 +27,7 @@ const methods = {
       this.listItemText = ''
       this.showAssistance = false
       this.disableOkButton = true
+			this.contextWarning = undefined
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
       const allowExtraLevel = node.level < this.taskLevel
       if (this.haveAccessInTree(node.level, '*', 'open the context menu', allowExtraLevel)) {
@@ -44,6 +53,7 @@ const methods = {
   },
 
   showSelected (idx) {
+		console.log('showSelected is called')
     function checkNode (vm, selNode) {
       if (selNode._id === vm.dependentOnNode._id) {
         vm.contextWarning = 'WARNING: Item cannot be dependent on it self'
@@ -67,7 +77,6 @@ const methods = {
 
     this.contextOptionSelected = idx
     this.listItemText = ''
-    this.contextWarning = undefined
     this.disableOkButton = false
     switch (this.contextOptionSelected) {
       case this.CLONEPRODUCT:
@@ -168,11 +177,36 @@ const methods = {
         this.doRemoveConditions()
         break
     }
-  }
+  },
+
+	getDependencies() {
+		this.dependenciesObjects = []
+		this.allDepenciesFound = true
+		for (const depId of this.contextNodeSelected.dependencies) {
+			const item = window.slVueTree.getNodeById(depId)
+			if (item) {
+				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.dependenciesObjects.push({ _id: depId, title: item.title })
+			} else this.allDepenciesFound = false
+		}
+	},
+
+	getConditions() {
+		this.conditionsObjects = []
+		this.allConditionsFound = true
+		for (const conId of this.contextNodeSelected.conditionalFor) {
+			const item = window.slVueTree.getNodeById(conId)
+			if (item) {
+				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.conditionsObjects.push({ _id: conId, title: item.title })
+			} else this.allConditionsFound = false
+		}
+	}
 }
 
 export default {
   extends: commonContext,
   created,
+	data,
   methods
 }

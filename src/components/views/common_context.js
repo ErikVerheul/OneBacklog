@@ -302,28 +302,6 @@ const methods = {
 		}
 	},
 
-	getDependencies() {
-		this.dependenciesObjects = []
-		for (const depId of this.contextNodeSelected.dependencies) {
-			const item = window.slVueTree.getNodeById(depId)
-			if (item) {
-				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
-				this.dependenciesObjects.push({ _id: depId, title: item.title })
-			}
-		}
-	},
-
-	getConditions() {
-		this.conditionsObjects = []
-		for (const conId of this.contextNodeSelected.conditionalFor) {
-			const item = window.slVueTree.getNodeById(conId)
-			if (item) {
-				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
-				this.conditionsObjects.push({ _id: conId, title: item.title })
-			}
-		}
-	},
-
 	/*
 	* In the database both the selected node and all its descendants will be tagged with a delmark
 	* The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.

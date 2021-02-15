@@ -16,6 +16,7 @@
 					value-field="_id"
 					text-field="title">
 				</b-form-checkbox-group>
+				<p class="colorRed" v-if="!allDepenciesFound">Not all dependencies are found in this view. Use the Product details view instead.</p>
       </template>
       <template v-if="contextOptionSelected === SHOWCONDITIONS">
         <p>Select the conditions to remove:</p>
@@ -26,6 +27,7 @@
 					value-field="_id"
 					text-field="title">
 				</b-form-checkbox-group>
+				<p class="colorRed" v-if="!allConditionsFound">Not all conditions are found in this view. Use the Product details view instead.</p>
       </template>
     </template>
     <template v-else>

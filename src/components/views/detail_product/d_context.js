@@ -240,6 +240,28 @@ const methods = {
 		}
 	},
 
+	getDependencies() {
+		this.dependenciesObjects = []
+		for (const depId of this.contextNodeSelected.dependencies) {
+			const item = window.slVueTree.getNodeById(depId)
+			if (item) {
+				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.dependenciesObjects.push({ _id: depId, title: item.title })
+			}
+		}
+	},
+
+	getConditions() {
+		this.conditionsObjects = []
+		for (const conId of this.contextNodeSelected.conditionalFor) {
+			const item = window.slVueTree.getNodeById(conId)
+			if (item) {
+				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.conditionsObjects.push({ _id: conId, title: item.title })
+			}
+		}
+	},
+
 	doAddPbiToSprint() {
 		window.assignToSprintRef.show()
 	},
