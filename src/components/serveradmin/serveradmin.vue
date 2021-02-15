@@ -53,8 +53,11 @@
           <h5>Select the database to restore</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
-        <p v-if="$store.state.selectedDatabaseName !== 'not selected yet'">Database '{{ dbToReplace }}' will be replaced by the selected backup. Online users of this database must sign-out and in again, to continue.</p>
-				<p class="colorRed" v-if="$store.state.selectedDatabaseName.startsWith(dbToReplace)">You are replacing your current database. When the restore is ready sign-out and in again, to continue.</p>
+        <template v-if="$store.state.selectedDatabaseName !== 'not selected yet'">
+          <p class="colorRed">Database '{{ dbToReplace }}' will be replaced by '{{ $store.state.selectedDatabaseName }}'. Make sure nu users of this database are on-line right now.</p>
+          <p class="colorRed" v-if="isCurrentDbSelected">You are replacing your current database. When the restore is ready sign-out and in again, to continue.
+          </p>
+        </template>
         <hr>
         <b-button v-if="$store.state.selectedDatabaseName !== 'not selected yet' && !$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup" variant="primary">Start restore</b-button>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</b-button>
@@ -204,6 +207,10 @@ export default {
   computed: {
     dbToReplace() {
       return this.$store.state.selectedDatabaseName.slice(0, this.$store.state.selectedDatabaseName.indexOf('-backup-'))
+    },
+
+    isCurrentDbSelected() {
+      return this.dbToReplace === this.$store.state.userData.currentDb
     }
   },
 
@@ -386,7 +393,7 @@ export default {
     },
 
     signIn() {
-			this.$store.commit('endSession')
+      this.$store.commit('endSession')
       router.replace('/')
     }
   },
