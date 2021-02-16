@@ -175,12 +175,16 @@ const methods = {
 			}
 
 			if (!areAlldependenciesFound(draggingNodes)) {
-				this.showLastEvent('Cannot move these nodes as one of them has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+				if (draggingNodes.length === 1) {
+					this.showLastEvent('Cannot move the item as it has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+				} else this.showLastEvent('Cannot move these items as one of them has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
 				cancel(true)
 			}
 
 			if (!areAllConditionsFound(draggingNodes)) {
-				this.showLastEvent('Cannot move these nodes as one of them has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+				if (draggingNodes.length === 1) {
+					this.showLastEvent('Cannot move the item as it has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+				} else this.showLastEvent('Cannot move these items as one of them has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
 				cancel(true)
 			}
 		} else cancel(true)
