@@ -17,7 +17,7 @@
             :storyId="storyId"
             :storyTitle="storyTitle"
             :productId="productId"
-            :state="state"
+            :taskState="taskState"
             :columnName="title"
             :item="item"
           ></taskitem>
@@ -45,7 +45,7 @@ import TaskItem from './TaskItem'
 export default {
   mixins: [authorization, utilities],
   name: 'TaskColumn',
-  props: ['productId', 'storyId', 'storyTitle', 'tasks', 'title', 'state', 'idx'],
+  props: ['productId', 'storyId', 'storyTitle', 'tasks', 'title', 'taskState', 'idx'],
   components: {
     taskitem: TaskItem,
     draggable: Draggable
@@ -67,7 +67,7 @@ export default {
         if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
           this.$store.dispatch('updateTasks', {
             tasks,
-            state: this.state,
+            taskState: this.taskState,
             idx: this.idx
           })
         } else this.$store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
@@ -77,7 +77,7 @@ export default {
 
   methods: {
     procSelected () {
-      this.$store.dispatch('boardAddTask', { storyId: this.storyId, state: this.state, taskId: this.createId(), taskTitle: this.taskTitle })
+      this.$store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: this.createId(), taskTitle: this.taskTitle })
     },
 
     doCancel () {

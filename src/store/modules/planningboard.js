@@ -255,8 +255,8 @@ const actions = {
 				{ triggerBoardReload: { parentId: 'messenger', sprintId: rootState.loadedSprintId } }
 			]
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
-		}).catch(e => {
-			const msg = 'importInSprint: Could not read batch of documents: ' + e
+		}).catch(error => {
+			const msg = 'importInSprint: Could not read batch of documents, ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -267,14 +267,14 @@ const actions = {
 	}, payload) {
 		const story = rootState.stories[payload.idx]
 		const beforeMoveIds = []
-		for (const t of story.tasks[payload.state]) {
+		for (const t of story.tasks[payload.taskState]) {
 			beforeMoveIds.push(t.id)
 		}
 		// update the tasks
-		story.tasks[payload.state] = payload.tasks
+		story.tasks[payload.taskState] = payload.tasks
 
 		const afterMoveIds = []
-		for (const t of story.tasks[payload.state]) {
+		for (const t of story.tasks[payload.taskState]) {
 			afterMoveIds.push(t.id)
 		}
 		// update the task state change in the database
@@ -291,7 +291,7 @@ const actions = {
 			}
 
 			const node = window.slVueTree.getNodeById(newTaskId)
-			if (node) dispatch('setState', { node, newState: payload.state, position: newTaskPosition, timestamp: Date.now() })
+			if (node) dispatch('setState', { node, newState: payload.taskState, position: newTaskPosition, timestamp: Date.now() })
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
 				// task changed position, task did not change state
@@ -385,8 +385,8 @@ const actions = {
 					}
 				}
 			})
-		}).catch(e => {
-			const msg = 'updateMovedTasks: Could not read batch of documents: ' + e
+		}).catch(error => {
+			const msg = 'updateMovedTasks: Could not read batch of documents, ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -509,8 +509,8 @@ const actions = {
 					} else commit('showLastEvent', { txt: 'Item(s) from sprint removal is undone', severity: SEV.INFO })
 				}
 			})
-		}).catch(e => {
-			const msg = 'addSprintIds: Could not read batch of documents: ' + e
+		}).catch(error => {
+			const msg = 'addSprintIds: Could not read batch of documents, ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -575,8 +575,8 @@ const actions = {
 					commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: SEV.INFO })
 				}
 			})
-		}).catch(e => {
-			const msg = 'removeSprintIds: Could not read batch of documents: ' + e
+		}).catch(error => {
+			const msg = 'removeSprintIds: Could not read batch of documents, ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -627,7 +627,7 @@ const actions = {
 				taskOwner: rootState.userData.user,
 				level: LEVEL.TASK,
 				subtype: 0,
-				state: payload.state,
+				state: payload.taskState,
 				tssize: 3,
 				spsize: 0,
 				spikepersonhours: 0,
@@ -673,7 +673,7 @@ const actions = {
 							isSelected: false,
 							doShow: true,
 							data: {
-								state: payload.state,
+								state: payload.taskState,
 								subtype: 0,
 								sprintId: rootState.loadedSprintId,
 								team: rootState.userData.myTeam,
@@ -693,7 +693,7 @@ const actions = {
 					// place the task on the planning board
 					for (const s of rootState.stories) {
 						if (s.storyId === storyDoc._id) {
-							const targetColumn = s.tasks[payload.state]
+							const targetColumn = s.tasks[payload.taskState]
 							targetColumn.unshift({
 								id: payload.taskId,
 								title: payload.taskTitle,
