@@ -6,6 +6,12 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.6.1 - 17 February 2021 Bug fix</h3>
+          <p>Bug fix:</p>
+          <ul>
+            <li>Moving task to other state not working: Regression fixed</li>
+          </ul>
+          <hr />
           <h3>v.1.6 - 12 February 2021 Feature update, revised documentation and bug fix</h3>
           <p>New features:</p>
           <ul>
