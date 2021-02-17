@@ -6,7 +6,7 @@
       </b-col>
       <b-col>
         <task-column
-          :state="ON_HOLD"
+          :state="STATE.ON_HOLD"
           title="[On hold]"
           :tasks="$store.state.stories[idx].tasks[STATE.ON_HOLD]"
           :idx="idx"
@@ -17,7 +17,7 @@
       </b-col>
       <b-col>
         <task-column
-          :state="TODO"
+          :state="STATE.TODO"
           title="Todo"
           :tasks="$store.state.stories[idx].tasks[STATE.TODO]"
           :idx="idx"
@@ -28,7 +28,7 @@
       </b-col>
       <b-col>
         <task-column
-          :state="INPROGRESS"
+          :state="STATE.INPROGRESS"
           title="In progress"
           :tasks="$store.state.stories[idx].tasks[STATE.INPROGRESS]"
           :idx="idx"
@@ -39,7 +39,7 @@
       </b-col>
       <b-col>
         <task-column
-          :state="TESTREVIEW"
+          :state="STATE.TESTREVIEW"
           title="Test / review"
           :tasks="$store.state.stories[idx].tasks[STATE.TESTREVIEW]"
           :idx="idx"
@@ -50,7 +50,7 @@
       </b-col>
       <b-col>
         <task-column
-          :state="DONE"
+          :state="STATE.DONE"
           title="Done"
           :tasks="$store.state.stories[idx].tasks[STATE.DONE]"
           :idx="idx"
