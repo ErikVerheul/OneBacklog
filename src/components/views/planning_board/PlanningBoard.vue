@@ -169,6 +169,7 @@ export default {
     return {
       contextOptionSelected: undefined,
       showAssistance: false,
+			// ToDo: assistanceText is never used, remove?
       assistanceText: '',
       selectedSprint: null,
       currentSprintLoaded: false,

@@ -1267,6 +1267,7 @@ export default new Vuex.Store({
 			}
 		},
 
+	/* Add the task to the planning board */
 		addTaskToBoard(state, doc) {
 			for (const s of state.stories) {
 				if (s.storyId === doc.parentId) {
@@ -1283,15 +1284,18 @@ export default new Vuex.Store({
 			}
 		},
 
+		/* Remove the task from the planning board */
 		removeTaskFromBoard(state, payload) {
 			for (const s of state.stories) {
-				if (s.storyId === payload.doc.parentId) {
-					const stateTasks = s.tasks[payload.prevState]
-					const newTasks = []
-					for (const t of stateTasks) {
-						if (t.id !== payload.doc._id) newTasks.push(t)
+				if (s.storyId === payload.storyId) {
+					const targetColumn = s.tasks[payload.taskState]
+					const newTargetColumn = []
+					for (const c of targetColumn) {
+						if (c.id !== payload.taskId) {
+							newTargetColumn.push(c)
+						}
 					}
-					s.tasks[payload.prevState] = newTasks
+					s.tasks[payload.taskState] = newTargetColumn
 					break
 				}
 			}

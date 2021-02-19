@@ -711,6 +711,92 @@ const actions = {
 		})
 	},
 
+	/* Register the history of the removal of a task in the parent story and trigger an event for synchronization */
+	addHistoryToStory({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.storyId
+		}).then(res => {
+			const storyDoc = res.data
+			const newHist = {
+				taskRemovedEvent: [payload.taskTitle, payload.teamName, payload.storyId, payload.taskId, payload.taskState],
+				by: rootState.userData.user,
+				timestamp: Date.now(),
+				sessionId: rootState.mySessionId,
+				distributeEvent: true
+			}
+			storyDoc.history.unshift(newHist)
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb,
+				updatedDoc: storyDoc,
+				caller: 'addHistoryToStory'
+			})
+		}).catch(error => {
+			const msg = 'addHistoryToStory: Could not read document with id ' + payload.storyId + ', ' + error
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/* Remove a task from the database and planning board. Also remove the node from the Details view if active. */
+	boardRemoveTask({
+		rootState,
+		dispatch
+	}, taskId) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + taskId
+		}).then(res => {
+			const taskDoc = res.data
+			const storyId = taskDoc.parentId
+			const taskState = taskDoc.state
+			const taskTitle = taskDoc.title
+			const teamName = taskDoc.team
+			taskDoc.delmark = true
+			// no use to add history to a removed document
+			const newHist = {
+				ignoreEvent: ['boardRemoveTask'],
+				timestamp: Date.now(),
+				distributeEvent: false
+			}
+			taskDoc.history.unshift(newHist)
+
+			const toDispatch = [{ addHistoryToStory: { storyId, taskId, taskState, taskTitle, teamName } }]
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb,
+				updatedDoc: taskDoc,
+				caller: 'boardRemoveTask',
+				toDispatch,
+				onSuccessCallback: () => {
+					if (rootState.lastTreeView === 'detailProduct') {
+						// remove the node from the tree view
+						const node = window.slVueTree.getNodeById(taskId)
+						if (node) window.slVueTree.remove([node])
+					}
+					// remove the task from the planning board
+					for (const s of rootState.stories) {
+						if (s.storyId === storyId) {
+							const targetColumn = s.tasks[taskState]
+							const newTargetColumn = []
+							for (const c of targetColumn) {
+								if (c.id !== taskId) {
+									newTargetColumn.push(c)
+								}
+							}
+							s.tasks[taskState] = newTargetColumn
+							break
+						}
+					}
+				}
+			})
+		}).catch(error => {
+			const msg = 'boardRemoveTask: Could not read document with id ' + taskId + ', ' + error
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
 	boardUpdateTaskTitle({
 		rootState,
 		dispatch

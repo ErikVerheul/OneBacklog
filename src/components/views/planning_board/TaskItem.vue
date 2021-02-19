@@ -6,39 +6,14 @@
       <br />
       {{ item.taskOwner }}
     </div>
-    <b-modal
-      v-model="showContextMenu"
-      :ok-disabled="disableOkButton"
-      @ok="procSelected"
-      @cancel="doCancel"
-      title="Task menu"
-    >
+    <b-modal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="Task menu">
       <template>
         <b-list-group>
-          <b-list-group-item
-            button
-            :active="contextOptionSelected === ADD_TASK"
-            variant="dark"
-            @click="prepSelected(ADD_TASK)"
-          >Add a new task</b-list-group-item>
-          <b-list-group-item
-            button
-            :active="contextOptionSelected === CHANGE_TITLE"
-            variant="dark"
-            @click="prepSelected(CHANGE_TITLE)"
-          >Change task title</b-list-group-item>
-          <b-list-group-item
-            button
-            :active="contextOptionSelected === CHANGE_OWNER"
-            variant="dark"
-            @click="prepSelected(CHANGE_OWNER)"
-          >Change task owner</b-list-group-item>
-          <b-list-group-item
-            button
-            :active="contextOptionSelected === ID_TO_CLIPBOARD"
-            variant="dark"
-            @click="prepSelected(ID_TO_CLIPBOARD)"
-          >Copy short id to clipboard</b-list-group-item>
+          <b-list-group-item button :active="contextOptionSelected === ADD_TASK" variant="dark" @click="prepSelected(ADD_TASK)">Add a new task</b-list-group-item>
+          <b-list-group-item button :active="contextOptionSelected === CHANGE_TITLE" variant="dark" @click="prepSelected(CHANGE_TITLE)">Change task title</b-list-group-item>
+          <b-list-group-item button :active="contextOptionSelected === CHANGE_OWNER" variant="dark" @click="prepSelected(CHANGE_OWNER)">Change task owner</b-list-group-item>
+          <b-list-group-item button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard</b-list-group-item>
+          <b-list-group-item button :active="contextOptionSelected === REMOVE_TASK" variant="danger" @click="prepSelected(REMOVE_TASK)">Remove this task</b-list-group-item>
         </b-list-group>
 
         <div v-if="contextOptionSelected === ADD_TASK" class="title_block">
@@ -75,14 +50,15 @@ export default {
   name: 'TaskItem',
   props: ['productId', 'storyId', 'storyTitle', 'taskState', 'columnName', 'item'],
 
-  created () {
+  created() {
     this.ADD_TASK = 0
     this.CHANGE_TITLE = 1
     this.CHANGE_OWNER = 2
     this.ID_TO_CLIPBOARD = 3
+    this.REMOVE_TASK = 4
   },
 
-  data () {
+  data() {
     return {
       debugMode: this.$store.state.debug,
       showContextMenu: false,
@@ -97,11 +73,11 @@ export default {
   },
 
   methods: {
-    getShortId (id) {
+    getShortId(id) {
       return id.slice(-5)
     },
 
-    prepSelected (idx) {
+    prepSelected(idx) {
       this.contextOptionSelected = idx
       this.newTaskTitle = ''
       this.contextWarning = undefined
@@ -126,16 +102,15 @@ export default {
           this.selectedUser = this.$store.state.userData.user
           break
         case this.ID_TO_CLIPBOARD:
-          this.assistanceText = undefined
-          this.listItemText = 'Copy the short id of this task to the clipboard'
-          break
+				case this.REMOVE_TASK:
+					break
         default:
           this.assistanceText = 'No assistance available'
           this.listItemText = 'nothing selected as yet'
       }
     },
 
-    procSelected () {
+    procSelected() {
       if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
         this.showAssistance = false
         switch (this.contextOptionSelected) {
@@ -157,13 +132,16 @@ export default {
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard write failed')
             })
             break
+          case this.REMOVE_TASK:
+						this.$store.dispatch('boardRemoveTask', this.item.id)
+            break
         }
       } else {
         this.$store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
       }
     },
 
-    doCancel () {
+    doCancel() {
       this.contextOptionSelected = undefined
       this.newTaskTitle = ''
       this.contextWarning = undefined
@@ -172,7 +150,7 @@ export default {
       this.changedTaskTitle = this.item.title
     },
 
-    getClass (name) {
+    getClass(name) {
       switch (name) {
         case '[On hold]':
         case 'Todo':

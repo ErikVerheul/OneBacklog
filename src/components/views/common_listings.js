@@ -322,7 +322,7 @@ const methods = {
   },
 
   mkTaskRemovedEvent (value) {
-    return `<h5>This task is removed from story '${value[0]}'.</h5>`
+		return `<h5>Task '${value[0]}' is removed by team '${value[1]}'.</h5>`
   },
 
   mkUpdateTaskOwnerEvent (value) {
