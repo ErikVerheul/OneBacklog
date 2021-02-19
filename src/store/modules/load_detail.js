@@ -23,7 +23,7 @@ const mutations = {
 	 * Note that the database is of level 0, and requirement area documents of level 1 are excluded in the database view.
 	 * The root and the top level product nodes are not draggable.
 	 */
-	processProduct(state, payload) {
+	processProducts(state, payload) {
 		const rootState = payload.rootState
 		const rootGetters = payload.rootGetters
 		for (const item of payload.batch) {
@@ -101,6 +101,11 @@ const mutations = {
 
 			// skip the items of the products the user is not subscribed to
 			if (!rootGetters.getMyProductSubscriptions.includes(productId)) continue
+
+			// create a map with product titles
+			if (itemLevel === 2) {
+				rootState.productTitlesMap[_id] = title
+			}
 
 			state.docsCount++
 
@@ -225,7 +230,8 @@ const actions = {
 			rootState.lastTreeView = 'detailProduct'
 			rootState.loadedTreeDepth = LEVEL.TASK
 			rootState.loadedSprintId = null
-			commit('processProduct', { rootState, rootGetters, batch: res.data.rows })
+			rootState.productTitlesMap = {}
+			commit('processProducts', { rootState, rootGetters, batch: res.data.rows })
 			commit('showLastEvent', { txt: `${state.docsCount} documents are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity: SEV.INFO })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {

@@ -29,6 +29,7 @@ const actions = {
 		state.insertedCount = 0
 		state.orphansCount = 0
 		state.levelErrorCount = 0
+		rootState.productTitlesMap = {}
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/overview'
@@ -102,6 +103,11 @@ const actions = {
 
 				// skip the items of the products the user is not subscribed to
 				if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyProductSubscriptions.includes(productId)) continue
+
+				// create a map with product titles
+				if (itemLevel === 2) {
+					rootState.productTitlesMap[_id] = title
+				}
 
 				state.docsCount++
 				// expand the default product up to the feature level

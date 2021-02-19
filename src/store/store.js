@@ -120,8 +120,9 @@ export default new Vuex.Store({
 		myAssignedDatabases: undefined,
 		stopListenForChanges: false,
 		// tree loading
-		loadedTreeDepth: undefined,
 		allTeams: {},
+		loadedTreeDepth: undefined,
+		productTitlesMap: {},
 		treeNodes: [],
 		// detail tree view
 		reqAreaMapper: {},

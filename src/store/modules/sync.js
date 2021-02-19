@@ -70,6 +70,10 @@ const actions = {
 			return rootState.configData.itemType[level]
 		}
 
+		function getProductTitle(rootState, id) {
+			return rootState.productTitlesMap[id]
+		}
+
 		function getSubType(idx) {
 			if (idx < 0 || idx >= rootState.configData.subtype.length) {
 				return 'Error: unknown subtype'
@@ -337,8 +341,8 @@ const actions = {
 									}
 									window.slVueTree.remove([node])
 									if (lastHistObj.by === rootState.userData.user) {
-										commit('showLastEvent', { txt: `You removed task '${taskTitle}' in another session`, severity: SEV.INFO })
-									} else commit('showLastEvent', { txt: `Another member from team '${team}' removed task '${taskTitle}'`, severity: SEV.INFO })
+										commit('showLastEvent', { txt: `You removed task '${taskTitle}' from product '${getProductTitle(rootState, node.productId)}' in another session`, severity: SEV.INFO })
+									} else commit('showLastEvent', { txt: `Another member from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, node.productId)}'`, severity: SEV.INFO })
 								}
 							}
 							break
