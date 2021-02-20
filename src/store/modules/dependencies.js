@@ -253,6 +253,7 @@ const actions = {
 					doc.lastChange = payload.timestamp
 					const newHist = {
 						conditionRemovedEvent: [[payload.node._id], payload.node.title],
+						by: rootState.userData.user,
 						sessionId: rootState.mySessionId,
 						timestamp: Date.now(),
 						distributeEvent: true
@@ -363,6 +364,7 @@ const actions = {
 					doc.lastChange = payload.timestamp
 					const newHist = {
 						dependencyRemovedEvent: [[payload.node._id], payload.node.title],
+						by: rootState.userData.user,
 						sessionId: rootState.mySessionId,
 						timestamp: Date.now(),
 						distributeEvent: true
