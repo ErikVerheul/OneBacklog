@@ -57,8 +57,8 @@ const actions = {
 				// eslint-disable-next-line no-console
 				console.log(
 					`listenForChanges: document with _id ${doc._id} is processed, priority = ${doc.priority}, current view = ${rootState.currentView},
-				commentsEvent = ${commentsEvent}, distributeEvent = ${lastCommentsObj.distributeEvent}, lastCommentsTimestamp = ${String(new Date(lastCommentsTimestamp)).substring(0, 24)}, title = '${doc.title}',
-				histEvent = ${histEvent}, distributeEvent = ${lastHistObj.distributeEvent}, lastHistoryTimestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}, title = '${doc.title}',
+				commentsEvent = ${commentsEvent}, distributed = ${lastCommentsObj.distributeEvent}, timestamp = ${String(new Date(lastCommentsTimestamp)).substring(0, 24)}, process = ${processComment} title = '${doc.title}',
+				histEvent = ${histEvent}, distributed = ${lastHistObj.distributeEvent}, timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}, process = ${processHistory}, title = '${doc.title}',
 				updateTree = ${updateTree}, updateBoard = ${updateBoard},`)
 			}
 			rootState.eventSyncColor = '#e6f7ff'
@@ -75,17 +75,20 @@ const actions = {
 			}
 		}
 
-		function getLevelText(level, subtype = 0) {
-			if (level < 0 || level > LEVEL.TASK) {
+		function getLevelText(doc) {
+			if (doc.level < 0 || doc.level > LEVEL.TASK) {
 				return 'Level not supported'
 			}
-			if (level === LEVEL.PBI) {
-				return getSubType(subtype)
+			if (doc.level === LEVEL.PBI) {
+				return getSubType(doc.subtype)
 			}
-			return rootState.configData.itemType[level]
+			if (doc.level === LEVEL.EPIC && doc.parentId === MISC.AREA_PRODUCTID) {
+				return 'requirement area'
+			}
+			return rootState.configData.itemType[doc.level]
 		}
 
-		function getProductTitle(rootState, id) {
+		function getProductTitle(id) {
 			return rootState.productTitlesMap[id]
 		}
 
@@ -102,7 +105,7 @@ const actions = {
 					commit('showLastEvent', { txt: `You ${text} in another session`, severity })
 				} else commit('showLastEvent', { txt: `Another user ${text}`, severity })
 			} else {
-				const standardTxt = `${getLevelText(doc.level, doc.subtype)} '${doc.title}' in product '${getProductTitle(rootState, doc.productId)}'`
+				const standardTxt = `${getLevelText(doc)} '${doc.title}' in product '${getProductTitle(doc.productId)}'`
 				if (isSameUserInDifferentSession) {
 					commit('showLastEvent', { txt: `You ${text} ${standardTxt} in another session`, severity })
 				} else commit('showLastEvent', { txt: `Another user ${text} ${standardTxt}`, severity })
@@ -238,27 +241,27 @@ const actions = {
 							switch (histEvent) {
 								case 'changeReqAreaColorEvent':
 									commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
-									showSyncMessage(`changed requirement area color indication`, SEV.INFO)
+									showSyncMessage(`changed the color indication of`, SEV.INFO)
 									break
 								case 'createEvent':
 									if (node === null) {
 										createNode(doc)
-										showSyncMessage(`created requirement area`, SEV.INFO)
+										showSyncMessage(`created`, SEV.INFO)
 									}
 									break
 								case 'nodeMovedEvent':
 									moveNode(doc)
-									showSyncMessage(`moved requirement area`, SEV.INFO)
+									showSyncMessage(`moved`, SEV.INFO)
 									break
 								case 'removedWithDescendantsEvent':
 									if (node) {
 										window.slVueTree.remove([node])
-										showSyncMessage(`removed requirement area`, SEV.INFO)
+										showSyncMessage(`removed`, SEV.INFO)
 									}
 									break
 								case 'setTitleEvent':
 									commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
-									showSyncMessage(`changed the title of requirement area`, SEV.INFO)
+									showSyncMessage(`changed the title of`, SEV.INFO)
 									break
 								default:
 									// eslint-disable-next-line no-console
@@ -305,7 +308,7 @@ const actions = {
 									break
 								case 'docRestoredEvent':
 									{
-										commit('showLastEvent', { txt: `Busy restoring ${getLevelText(doc.level, doc.subtype)} as initiated in another session...`, severity: SEV.INFO })
+										commit('showLastEvent', { txt: `Busy restoring ${getLevelText(doc)} as initiated in another session...`, severity: SEV.INFO })
 										let toDispatch
 										if (updateBoard && doc.level !== LEVEL.TASK) {
 											// postpone the board update until the document is restored
@@ -751,7 +754,7 @@ const actions = {
 								}
 							})
 							window.slVueTree.setDescendentsReqArea()
-							showSyncMessage(`restored removed requirement area`, SEV.INFO, SPECIAL_TEXT)
+							showSyncMessage(`restored removed`, SEV.INFO)
 						}
 					})
 					break
@@ -767,7 +770,6 @@ const actions = {
 					}
 					break
 			}
-			doBlinck(doc)
 		}
 
 		// process the event if the user is subscribed for the event's product or to restore removed products or the item is requirement area item
