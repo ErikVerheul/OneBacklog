@@ -138,7 +138,7 @@
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
-              v-if="allowRemoval && !isReqAreaItem && contextNodeLevel >= productLevel"
+              v-if="allowRemoval && contextNodeLevel >= productLevel"
               button
               :active="contextOptionSelected === REMOVEITEM"
               variant="danger"
