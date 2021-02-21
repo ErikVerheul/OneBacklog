@@ -59,7 +59,7 @@
               >Remove this requirement area</b-list-group-item>
             </template>
           </template>
-					<template v-if="(isPO || isDeveloper) && contextNodeLevel > epicLevel && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
+					<template v-else-if="(isPO || isDeveloper) && contextNodeLevel > epicLevel && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
             <b-list-group-item
               button
               :active="contextOptionSelected === ASIGNTOMYTEAM"
@@ -138,7 +138,7 @@
             >Make a copy of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
-              v-if="allowRemoval && contextNodeLevel >= productLevel"
+              v-if="allowRemoval && !isReqAreaItem && contextNodeLevel >= productLevel"
               button
               :active="contextOptionSelected === REMOVEITEM"
               variant="danger"
