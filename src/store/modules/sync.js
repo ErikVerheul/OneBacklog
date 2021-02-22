@@ -35,6 +35,7 @@ import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
+const boardEvents = ['createEvent', 'createTaskEvent', 'docRestoredEvent', 'nodeMovedEvent', 'removedWithDescendantsEvent', 'setPointsEvent', 'setStateEvent', 'setSubTypeEvent', 'setTeamOwnerEvent', 'setTitleEvent', 'taskRemovedEvent', 'updateTaskOrderEvent']
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
 /*
@@ -228,11 +229,13 @@ const actions = {
 								// eslint-disable-next-line no-console
 								if (rootState.debug) console.log('sync.trees.comments: event not found, name = ' + commentsEvent)
 						}
-					} else {
+					}
+					if (processHistory) {
 						// if not a comment, process the last event from the document history array (in the tree and/or board)
 						reportOddTimestamp(lastHistObj, doc._id)
 						// show the history update
 						if (isCurrentDocument) rootState.currentDoc.history = doc.history
+
 						// process requirement area items
 						if (rootGetters.isOverviewSelected && isReqAreaItem) {
 							// eslint-disable-next-line no-console
@@ -265,7 +268,7 @@ const actions = {
 									break
 								default:
 									// eslint-disable-next-line no-console
-									if (rootState.debug) console.log('sync.trees.isReqAreaItem: event not found, name = ' + histEvent)
+									if (rootState.debug && !boardEvents.includes(histEvent)) console.log('sync.trees.isReqAreaItem: event not found, name = ' + histEvent)
 							}
 						} else {
 							// eslint-disable-next-line no-console
@@ -489,6 +492,7 @@ const actions = {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('sync:update the board with event ' + histEvent)
 					reportOddTimestamp(lastHistObj, doc._id)
+
 					// process events for the planning board
 					switch (histEvent) {
 						case 'createEvent':
@@ -704,11 +708,15 @@ const actions = {
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
 
-		// process the last event from the document comments array if more recent than then the last distributed event of the document history array
-		const processComment = lastCommentsObj.distributeEvent && (!lastHistObj.distributeEvent || (lastCommentsTimestamp > lastHistoryTimestamp))
-		const processHistory = !processComment
-		// 'ignoreEvent' should be tagged with distributeEvent === false and filtered by the sync_filter. Skip the event in case the tag is missing
-		if (processComment && commentsEvent === 'ignoreEvent' || processHistory && histEvent === 'ignoreEvent') return
+		// process the last comment event if not to be ignored and distributed and newer than the last history event
+		const processComment = commentsEvent !== 'ignoreEvent' && lastCommentsObj.distributeEvent && lastCommentsTimestamp > lastHistoryTimestamp
+		// process the last history event if not to be ignored and distributed and newer than the last comment event
+		const processHistory = histEvent !== 'ignoreEvent' && lastHistObj.distributeEvent && lastHistoryTimestamp > lastCommentsTimestamp
+		if (!processComment && !processHistory) {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('sync: nothing to process for commentsEvent = ' + commentsEvent + ' and histEvent = ' + histEvent + ', doc.title = ' + doc.title)
+			return
+		}
 
 		const logEvent = processComment ? commentsEvent : histEvent
 		// eslint-disable-next-line no-console
@@ -731,10 +739,10 @@ const actions = {
 		const isReqAreaItem = doc.productId === MISC.AREA_PRODUCTID
 		// update the tree only for documents available in the currently loaded tree model (eg. 'products overview' has no pbi and task items)
 		const updateTree = doc.level <= rootState.loadedTreeDepth
-		// update the board only if loaded AND loaded for my team OR setTeamOwnerEvent is received
+		// update the board only if selected as the current view AND loaded for my team OR setTeamOwnerEvent is received
 		const updateBoard = rootGetters.isPlanningBoardSelected && (doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent')
 
-		// (pre)process requirement area items which do not refence the node
+		// (pre)process requirement area items which do not reference the node
 		if (processHistory && isReqAreaItem) {
 			switch (histEvent) {
 				case 'changeReqAreaColorEvent':
@@ -769,10 +777,13 @@ const actions = {
 						})
 					}
 					break
+				default:
+					// eslint-disable-next-line no-console
+					if (rootState.debug && !boardEvents.includes(histEvent)) console.log('sync.trees.isReqAreaItem.preprocess: event not found, name = ' + histEvent)
 			}
 		}
 
-		// process the event if the user is subscribed for the event's product or to restore removed products or the item is requirement area item
+		// process the event if the user is subscribed for the event's product or to restore removed products or the item is a requirement area item
 		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || histEvent === 'docRestoredEvent' && doc.level === LEVEL.PRODUCT || isReqAreaItem) {
 			doProc(doc)
 		}
