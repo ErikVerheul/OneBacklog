@@ -795,7 +795,7 @@ const actions = {
 		dispatch
 	}) {
 		// stop listening if offline. Watchdog will start it automatically when online again
-		if (rootState.stopListenForChanges || !rootState.online) return
+		if (!rootState.online) return
 
 		rootState.listenForChangesRunning = true
 		const url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
@@ -804,7 +804,7 @@ const actions = {
 			url
 		}).then(res => {
 			// note that receiving a response can last up to 60 seconds (time-out)
-			if (rootState.online) dispatch('listenForChanges')
+			dispatch('listenForChanges')
 			const data = res.data
 			if (data.results.length > 0) {
 				// only process events with included documents

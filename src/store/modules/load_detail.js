@@ -261,7 +261,7 @@ const actions = {
 				}
 			}
 			// all products are read; do not start listenForChanges again after sign-out/in
-			if (!rootState.stopListenForChanges && !rootState.listenForChangesRunning) {
+			if (!rootState.listenForChangesRunning) {
 				dispatch('listenForChanges')
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('loadAssignedAndSubscribed: listenForChanges started')

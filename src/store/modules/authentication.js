@@ -36,7 +36,6 @@ const actions = {
 				// stop the interval function and wait for the watchDog to start again
 				clearInterval(state.runningCookieRefreshId)
 				state.cookieAuthenticated = false
-				rootState.stopListenForChanges = true
 				rootState.online = false
 				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: SEV.CRITICAL })
 				const msg = 'Refresh of the authentication cookie failed with ' + error

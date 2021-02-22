@@ -118,7 +118,6 @@ export default new Vuex.Store({
 		iAmAssistAdmin: false,
 		iAmServerAdmin: false,
 		myAssignedDatabases: undefined,
-		stopListenForChanges: false,
 		// tree loading
 		allTeams: {},
 		loadedTreeDepth: undefined,
@@ -1138,7 +1137,6 @@ export default new Vuex.Store({
 			state.mySessionId = null
 			state.resetSearch = {}
 			state.showHeaderDropDowns = true
-			state.stopListenForChanges = true
 			state.stories = []
 			state.treeNodes = []
 			state.userData = {}

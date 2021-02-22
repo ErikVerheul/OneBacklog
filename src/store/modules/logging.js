@@ -4,7 +4,7 @@ import globalAxios from 'axios'
 
 const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
-const WATCHDOGINTERVAL = 30
+const WATCHDOGINTERVAL = 5
 
 const actions = {
   /*
@@ -50,7 +50,13 @@ const actions = {
 				rootState.online = true
         if (wasOffline) {
           restartLoops()
-        } else consoleLogStatus()
+        } else {
+					consoleLogStatus()
+					// if returning from a computer sleep state, restart listenForChanges
+					if (!rootState.listenForChangesRunning) {
+						dispatch('listenForChanges')
+					}
+				}
       }).catch(error => {
 				rootState.online = false
 				commit('showLastEvent', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
