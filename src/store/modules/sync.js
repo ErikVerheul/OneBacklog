@@ -710,8 +710,8 @@ const actions = {
 
 		// process the last comment event if not to be ignored and distributed and newer than the last history event
 		const processComment = commentsEvent !== 'ignoreEvent' && lastCommentsObj.distributeEvent && lastCommentsTimestamp > lastHistoryTimestamp
-		// process the last history event if not to be ignored and distributed and newer than the last comment event
-		const processHistory = histEvent !== 'ignoreEvent' && lastHistObj.distributeEvent && lastHistoryTimestamp > lastCommentsTimestamp
+		// process the last history event if not to be ignored and distributed and newer or of the same date (giving precedence to the history event) as the last comment event
+		const processHistory = histEvent !== 'ignoreEvent' && lastHistObj.distributeEvent && lastHistoryTimestamp >= lastCommentsTimestamp
 		if (!processComment && !processHistory) {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('sync: nothing to process for commentsEvent = ' + commentsEvent + ' and histEvent = ' + histEvent + ', doc.title = ' + doc.title)
@@ -815,8 +815,13 @@ const actions = {
 					lastSeq = r.seq
 					const doc = r.doc
 					// console.log('listenForChanges: doc = ' + JSON.stringify(doc, null, 2))
-					if (doc.type == 'backlogItem' && (doc.history[0].sessionId !== rootState.mySessionId)) {
-						// process distributed events on backlog items from other sessions (not the session that created the event)
+					const isLastCommentNewer = doc.comments[0].timestamp > doc.history[0].timestamp
+					if (
+						// compare with the session id of the most recent distributed comments or history event
+						doc.comments[0].distributeEvent && isLastCommentNewer && doc.comments[0].sessionId !== rootState.mySessionId ||
+						doc.history[0].distributeEvent && !isLastCommentNewer && doc.history[0].sessionId !== rootState.mySessionId
+					) {
+						// process either a comments or a history event on backlog items received from other sessions (not the session that created the event)
 						dispatch('processDoc', doc)
 					}
 				}
