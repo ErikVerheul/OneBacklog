@@ -5,27 +5,29 @@ import { expandNode, collapseNode, addToArray, removeFromArray } from '../common
 import { SEV, LEVEL, STATE, MISC } from '../constants.js'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import attachments from './modules/attachments'
 import authentication from './modules/authentication'
 import calendars from './modules/calendars'
-import dependencies from './modules/dependencies'
-import logging from './modules/logging'
-import startup from './modules/startup'
-import initdb from './modules/initdb'
-import help from './modules/help'
 import clone from './modules/clone'
-import sync from './modules/sync'
-import useracc from './modules/useracc'
-import update from './modules/update'
-import teams from './modules/teams'
-import attachments from './modules/attachments'
+import dependencies from './modules/dependencies'
+import help from './modules/help'
+import initdb from './modules/initdb'
+import loadoverview from './modules/load_coarse'
+import loadproducts from './modules/load_detail'
+import logging from './modules/logging'
 import move from './modules/move'
-import undo from './modules/undo'
-import utils from './modules/utils'
+import planningboard from './modules/planningboard'
 import removebranch from './modules/removebranch'
 import restorebranches from './modules/restorebranches'
-import loadproducts from './modules/load_detail'
-import loadoverview from './modules/load_coarse'
-import planningboard from './modules/planningboard'
+import startup from './modules/startup'
+import sync from './modules/sync'
+import teams from './modules/teams'
+import traverstree from './modules/traverstree'
+import undo from './modules/undo'
+import update from './modules/update'
+import useracc from './modules/useracc'
+import utils from './modules/utils'
+
 
 const MAX_EVENTLIST_SIZE = 100
 
@@ -181,6 +183,8 @@ export default new Vuex.Store({
 		teamsToRemoveIds: [],
 		userOptions: [],
 		warning: '',
+		// traverseTree
+		descendantIds: [],
 		// app wide globals
 		configData: null,
 		demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
@@ -1266,7 +1270,7 @@ export default new Vuex.Store({
 			}
 		},
 
-	/* Add the task to the planning board */
+		/* Add the task to the planning board */
 		addTaskToBoard(state, doc) {
 			for (const s of state.stories) {
 				if (s.storyId === doc.parentId) {
@@ -1302,27 +1306,27 @@ export default new Vuex.Store({
 	},
 
 	modules: {
+		attachments,
 		authentication,
 		calendars,
-		dependencies,
-		startup,
-		initdb,
-		logging,
-		help,
 		clone,
-		sync,
-		useracc,
-		update,
-		teams,
-		attachments,
+		dependencies,
+		help,
+		initdb,
+		loadoverview,
+		loadproducts,
+		logging,
 		move,
-		undo,
-		utils,
+		planningboard,
 		removebranch,
 		restorebranches,
-		loadproducts,
-		loadoverview,
-		planningboard
+		startup,
+		sync,
+		teams,
+		traverstree,
+		undo,
+		update,
+		useracc,
+		utils
 	}
-
 })

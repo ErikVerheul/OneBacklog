@@ -221,7 +221,7 @@ const methods = {
 
 	/*
 	* Update the req area of the item (null for no req area set)
-	* If the item is an LEVEL.EPIC also assign this req area to the children which have no req area assigned yet / when removing do the reverse
+	* If the item is an epic also assign this req area to the child features if they have no req area assigned yet / when removing do the reverse
 	*/
 	doSetReqArea() {
 		this.$store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqarea: this.selReqAreaId, timestamp: Date.now() })
