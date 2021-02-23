@@ -174,7 +174,7 @@ const mutations = {
 				orphansFound.push({ id: _id, parentId, productId })
 			}
 		}
-		window.slVueTree.setDescendentsReqArea()
+		window.slVueTree.setDescendantsReqArea()
 		window.slVueTree.dependencyViolationsFound()
 	}
 }

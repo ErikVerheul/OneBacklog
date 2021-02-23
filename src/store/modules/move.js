@@ -222,16 +222,16 @@ const actions = {
     })
   },
 
-  processDescendents ({
+  processDescendants ({
     dispatch
   }, payload) {
-    const descendentIds = []
+    const descendantIds = []
     for (const r of payload.results) {
       const id = r.id
-      descendentIds.push(id)
+      descendantIds.push(id)
       dispatch('getMovedChildrenIds', { updates: payload.updates, id })
     }
-    dispatch('updateMovedDescendantsBulk', { updates: payload.updates, descendentIds })
+    dispatch('updateMovedDescendantsBulk', { updates: payload.updates, descendantIds })
   },
 
   getMovedChildrenIds ({
@@ -245,7 +245,7 @@ const actions = {
       const results = res.data.rows
       if (results.length > 0) {
         // process next level
-        dispatch('processDescendents', { updates: payload.updates, results })
+        dispatch('processDescendants', { updates: payload.updates, results })
       }
     }).catch(error => {
       const msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
@@ -260,7 +260,7 @@ const actions = {
     const updates = payload.updates
 
     const docsToGet = []
-    for (const id of payload.descendentIds) {
+    for (const id of payload.descendantIds) {
       docsToGet.push({ id: id })
     }
 

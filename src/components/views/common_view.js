@@ -456,7 +456,7 @@ const methods = {
 				break
 			case 'undoRemove':
 				this.showLastEvent('Busy undoing remove...', SEV.INFO)
-				this.$store.dispatch('restoreItemAndDescendents', entry)
+				this.$store.dispatch('restoreItemAndDescendants', entry)
 				break
 			case 'undoRemoveSprintIds':
 				this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName, createUndo: false })

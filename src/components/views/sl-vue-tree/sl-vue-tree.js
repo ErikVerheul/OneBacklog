@@ -869,7 +869,7 @@ const methods = {
 	},
 
 	/* If a feature belongs to a req area, set that area also to its descendants */
-	setDescendentsReqArea() {
+	setDescendantsReqArea() {
 		let reqArea = null
 		this.traverseModels((nm) => {
 			if (nm.level < LEVEL.FEATURE) {

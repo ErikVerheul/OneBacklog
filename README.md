@@ -174,8 +174,8 @@ The number of simultaneous users viewing changes, made by a reasonable (not test
 <p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
 <p>From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:</p>
 <ul>
-    <li>When a feature is selected all its descendents (PBI's and tasks) are assigned</li>
-    <li>When a PBI is selected, that PBI and it descendent tasks are assigned</li>
+    <li>When a feature is selected all its descendants (PBI's and tasks) are assigned</li>
+    <li>When a PBI is selected, that PBI and it descendant tasks are assigned</li>
     <li>individual tasks cannot be assigned to a sprint (but can on the planning board)</li>
  </ul>
 

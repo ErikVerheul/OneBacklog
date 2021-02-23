@@ -761,7 +761,7 @@ const actions = {
 									nm.data.reqarea = reqAreaId
 								}
 							})
-							window.slVueTree.setDescendentsReqArea()
+							window.slVueTree.setDescendantsReqArea()
 							showSyncMessage(`restored removed`, SEV.INFO)
 						}
 					})

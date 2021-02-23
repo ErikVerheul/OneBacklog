@@ -15,7 +15,7 @@ const actions = {
     */
 
   /* Unmark the removed item and its descendants for removal. Do not distribute this event */
-  restoreItemAndDescendents ({
+  restoreItemAndDescendants ({
     rootState,
     commit,
     dispatch
@@ -36,7 +36,7 @@ const actions = {
         const doc = r.docs[0].ok
         if (doc) {
           const newHist = {
-            ignoreEvent: ['restoreItemAndDescendents'],
+            ignoreEvent: ['restoreItemAndDescendants'],
             timestamp: Date.now(),
             distributeEvent: false
           }
@@ -65,13 +65,13 @@ const actions = {
         for (const e of errors) {
           errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
         }
-        const msg = 'restoreItemAndDescendents: These documents cannot be UNmarked for removal: ' + errorStr
+        const msg = 'restoreItemAndDescendants: These documents cannot be UNmarked for removal: ' + errorStr
         dispatch('doLog', { event: msg, level: SEV.ERROR })
       }
       const toDispatch = [{ restoreParent: entry }]
-      dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendents' })
+      dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreItemAndDescendants' })
     }).catch(e => {
-      const msg = 'restoreItemAndDescendents: Could not read batch of documents: ' + e
+      const msg = 'restoreItemAndDescendants: Could not read batch of documents: ' + e
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   },

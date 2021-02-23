@@ -70,7 +70,7 @@ export default {
       const sprintId = this.selectedSprintId
       const sprintName = getSprintName(sprintId)
 
-      // when a PBI is selected, that PBI and it descendent tasks that have no sprint assigned yet, are assigned to the sprint
+      // when a PBI is selected, that PBI and it descendant tasks that have no sprint assigned yet, are assigned to the sprint
       if (itemLevel === LEVEL.PBI) {
         const itemIds = [currentDoc._id]
         const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants

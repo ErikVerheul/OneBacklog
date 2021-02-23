@@ -58,7 +58,7 @@ const actions = {
 			doc.delmark = true
 
 			const newHist = {
-				ignoreEvent: ['removeDescendents'],
+				ignoreEvent: ['removeDescendants'],
 				timestamp: Date.now(),
 				distributeEvent: false
 			}
