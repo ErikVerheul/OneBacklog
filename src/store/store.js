@@ -22,7 +22,6 @@ import restorebranches from './modules/restorebranches'
 import startup from './modules/startup'
 import sync from './modules/sync'
 import teams from './modules/teams'
-import traverstree from './modules/traverstree'
 import undo from './modules/undo'
 import update from './modules/update'
 import useracc from './modules/useracc'
@@ -1323,7 +1322,6 @@ export default new Vuex.Store({
 		startup,
 		sync,
 		teams,
-		traverstree,
 		undo,
 		update,
 		useracc,
