@@ -219,7 +219,7 @@ const actions = {
 			const newHist = {
 				removedWithDescendantsEvent: [
 					id,
-					docsRemovedIds,
+					docsRemovedIds.length,
 					extDepsRemovedCount,
 					extCondsRemovedCount,
 					removedSprintIds
