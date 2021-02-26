@@ -407,8 +407,8 @@ const methods = {
 					placement: 'after'
 				}
 			}
-			window.slVueTree.remove([node])
-			window.slVueTree.insert(cursorPosition, [node])
+			window.slVueTree.removeNodes([node])
+			window.slVueTree.insertNodes(cursorPosition, [node])
 			// restore the sprintId
 			this.$store.commit('updateNodesAndCurrentDoc', { node, sprintId: r.sprintId })
 		}

@@ -6,42 +6,6 @@ function composeRangeString(delmark, id) {
 	return `startkey=["${delmark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
-function createDescendantNode(parentNode, leafLevel, doc) {
-	const ind = parentNode.children.length
-	const path = parentNode.path.concat(ind)
-	const newNode = {
-		path,
-		pathStr: JSON.stringify(path),
-		ind,
-		level: doc.level,
-		productId: doc.productId,
-		parentId: parentNode._id,
-		sprintId: doc.sprintId,
-		_id: doc._id,
-		dependencies: doc.dependencies || [],
-		conditionalFor: doc.conditionalFor || [],
-		title: doc.title,
-		isLeaf: doc.level === leafLevel,
-		children: [],
-		isExpanded: false,
-		isSelectable: true,
-		isDraggable: true,
-		isSelected: false,
-		doShow: true,
-		data: {
-			priority: doc.priority,
-			state: doc.state,
-			reqarea: doc.reqarea,
-			reqAreaItemColor: doc.color,
-			team: doc.team,
-			subtype: doc.subtype,
-			lastChange: doc.lastChange
-		},
-		tmp: {}
-	}
-	parentNode.children.push(newNode)
-}
-
 const actions = {
 	/*
 		* ToDo: create undo's if any of these steps fail
@@ -115,7 +79,7 @@ const actions = {
 						}
 					}
 					// do not recalculate priorities when inserting a product node
-					window.slVueTree.insert(cursorPosition, [entry.removedNode], entry.removedNode.parentId !== 'root')
+					window.slVueTree.insertNodes(cursorPosition, [entry.removedNode], entry.removedNode.parentId !== 'root')
 
 					// select the recovered node
 					commit('updateNodesAndCurrentDoc', { selectNode: entry.removedNode })
@@ -220,7 +184,7 @@ const actions = {
 				if (parentNode && parentNode.level < leafLevel) {
 					// restore the nodes as childs of the parent up to leafLevel
 					for (const doc of docs) {
-						createDescendantNode(parentNode, leafLevel, doc)
+						window.slVueTree.createDescendantNode(parentNode, leafLevel, doc)
 					}
 				}
 			}

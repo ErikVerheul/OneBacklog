@@ -133,7 +133,7 @@ const actions = {
 					placement: 'after'
 				}
 				// add the product to the treemodel, the path etc. will be calculated
-				window.slVueTree.insert(cursorPosition, [newNode], false)
+				window.slVueTree.insertNodes(cursorPosition, [newNode], false)
 			}
 			// add the product to my subscriptions and productsRoles with no roles assigned
 			const newProductOption = {

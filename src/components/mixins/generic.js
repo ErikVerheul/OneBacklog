@@ -364,8 +364,8 @@ const utilities = {
 				sortedIndMap = reverseMoveMap.sort((a, b) => b.targetInd - a.targetInd)
 			} else sortedIndMap = reverseMoveMap
 
-			window.slVueTree.remove(nodes)
-			window.slVueTree.insert(cursorPosition, nodes)
+			window.slVueTree.removeNodes(nodes)
+			window.slVueTree.insertNodes(cursorPosition, nodes)
 
 			return {
 				placement,

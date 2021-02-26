@@ -122,7 +122,7 @@ const actions = {
 					},
 					tmp: {}
 				}
-				window.slVueTree.insert({
+				window.slVueTree.insertNodes({
 					nodeModel: locationInfo.prevNode,
 					placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 				}, [newNode], false)

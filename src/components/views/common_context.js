@@ -110,7 +110,7 @@ const methods = {
 			tmp: {}
 		}
 		// must insert the new node in the tree first to get the productId, parentId, pririty and set the location parameters
-		window.slVueTree.insert(newNodeLocation, [newNode])
+		window.slVueTree.insertNodes(newNodeLocation, [newNode])
 		// create a new document and store it
 		const currentDoc = this.$store.state.currentDoc
 		const newDoc = {
@@ -219,7 +219,7 @@ const methods = {
 				this.contextNodeSelected.isSelected = false
 			}
 			// must insert the new node in the tree first to get the productId, parentId, priority and set the location parameters
-			window.slVueTree.insert(newNodeLocation, [newNode])
+			window.slVueTree.insertNodes(newNodeLocation, [newNode])
 
 			// create a new document and store it
 			const newDoc = {

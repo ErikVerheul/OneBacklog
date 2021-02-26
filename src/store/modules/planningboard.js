@@ -687,7 +687,7 @@ const actions = {
 							placement: 'inside'
 						}
 						// insert the new node in the tree and set the productId, parentId, the location parameters and priority
-						window.slVueTree.insert(cursorPosition, [newNode])
+						window.slVueTree.insertNodes(cursorPosition, [newNode])
 					}
 					// place the task on the planning board
 					for (const s of rootState.stories) {
@@ -772,7 +772,7 @@ const actions = {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// remove the node from the tree view
 						const node = window.slVueTree.getNodeById(taskId)
-						if (node) window.slVueTree.remove([node])
+						if (node) window.slVueTree.removeNodes([node])
 					}
 					// remove the task from the planning board
 					for (const s of rootState.stories) {

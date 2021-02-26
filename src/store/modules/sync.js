@@ -158,7 +158,7 @@ const actions = {
 				},
 				tmp: {}
 			}
-			window.slVueTree.insert({
+			window.slVueTree.insertNodes({
 				nodeModel: locationInfo.prevNode,
 				placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 			}, [node])
@@ -178,17 +178,17 @@ const actions = {
 			const locationInfo = getLocationInfo(item[10], parentNode)
 			if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 				// move the node to the new position w/r to its siblings; first remove the node, then insert
-				window.slVueTree.remove([node])
+				window.slVueTree.removeNodes([node])
 				node.data.priority = item[10]
 				// do not recalculate the priority during insert
 				if (locationInfo.newInd === 0) {
-					window.slVueTree.insert({
+					window.slVueTree.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'inside'
 					}, [node], false)
 				} else {
 					// insert after prevNode
-					window.slVueTree.insert({
+					window.slVueTree.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'after'
 					}, [node], false)
@@ -258,7 +258,7 @@ const actions = {
 									break
 								case 'removedWithDescendantsEvent':
 									if (node) {
-										window.slVueTree.remove([node])
+										window.slVueTree.removeNodes([node])
 										showSyncMessage(`removed`, SEV.INFO)
 									}
 									break
@@ -341,9 +341,9 @@ const actions = {
 								case 'removedWithDescendantsEvent':
 									if (node && doc.delmark) {
 										// remove any dependency references to/from outside the removed items
-										window.slVueTree.correctDependencies(doc.productId, lastHistObj.removedWithDescendantsEvent[1])
+										window.slVueTree.correctDependencies(node)
 										let signOut = false
-										if (node.isSelected || window.slVueTree.descendantNodeIsSelected(node)) {
+										if (node.isSelected || window.slVueTree.isDescendantNodeSelected(node)) {
 											// before removal select the predecessor of the removed node (sibling or parent)
 											const prevNode = window.slVueTree.getPreviousNode(node.path)
 											let nowSelectedNode = prevNode
@@ -363,7 +363,7 @@ const actions = {
 											// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
 											dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, signOut })
 										}
-										window.slVueTree.remove([node])
+										window.slVueTree.removeNodes([node])
 										showSyncMessage(`removed the`, SEV.INFO)
 									}
 									break
@@ -434,7 +434,7 @@ const actions = {
 												let nowSelectedNode = prevNode
 												commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
 											}
-											window.slVueTree.remove([node])
+											window.slVueTree.removeNodes([node])
 											showSyncMessage(`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`, SEV.INFO, SPECIAL_TEXT)
 										}
 									}
@@ -564,6 +564,7 @@ const actions = {
 							break
 						case 'removedWithDescendantsEvent':
 							{
+								console.log('Sync: updateBoard.removedWithDescendantsEvent: doc.delmark = ' + doc.delmark)
 								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.removedWithDescendantsEvent[4])
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
 									// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
