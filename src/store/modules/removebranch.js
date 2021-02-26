@@ -132,15 +132,15 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const d of Object.keys(removedDeps)) {
-			docsToGet.push({ id: d })
+			docIdsToGet.push({ id: d })
 		}
-		if (docsToGet.length > 0) {
+		if (docIdsToGet.length > 0) {
 			globalAxios({
 				method: 'POST',
 				url: rootState.userData.currentDb + '/_bulk_get',
-				data: { docs: docsToGet }
+				data: { docs: docIdsToGet }
 			}).then(res => {
 				const results = res.data.results
 				const docs = []
@@ -154,6 +154,12 @@ const actions = {
 							}
 							doc.conditionalFor = newConditionalFor
 							extCondsRemovedCount++
+							const newHist = {
+								ignoreEvent: ['removeExternalConds'],
+								timestamp: Date.now(),
+								distributeEvent: false
+							}
+							doc.history.unshift(newHist)
 							docs.push(doc)
 						}
 					}
@@ -170,15 +176,15 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const c of Object.keys(removedConds)) {
-			docsToGet.push({ id: c })
+			docIdsToGet.push({ id: c })
 		}
-		if (docsToGet.length > 0) {
+		if (docIdsToGet.length > 0) {
 			globalAxios({
 				method: 'POST',
 				url: rootState.userData.currentDb + '/_bulk_get',
-				data: { docs: docsToGet }
+				data: { docs: docIdsToGet }
 			}).then(res => {
 				const results = res.data.results
 				const docs = []
@@ -192,6 +198,12 @@ const actions = {
 							}
 							doc.dependencies = newDependencies
 							extDepsRemovedCount++
+							const newHist = {
+								ignoreEvent: ['removeExternalDeps'],
+								timestamp: Date.now(),
+								distributeEvent: false
+							}
+							doc.history.unshift(newHist)
 							docs.push(doc)
 						}
 					}
@@ -216,7 +228,7 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
-			const doc = res.data
+			const updatedDoc = res.data
 			const newHist = {
 				removedWithDescendantsEvent: [
 					id,
@@ -230,14 +242,14 @@ const actions = {
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
-			doc.history.unshift(newHist)
+			updatedDoc.history.unshift(newHist)
 
 			const toDispatch = [{ addRemoveHist2: payload }]
 			if (payload.node.productId === MISC.AREA_PRODUCTID) {
 				// remove reqarea assignments
 				toDispatch.push({ removeReqAreaAssignments: id })
 			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, caller: 'addRemoveHist' })
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'addRemoveHist' })
 		}).catch(error => {
 			const msg = `addRemoveHist: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -289,7 +301,7 @@ const actions = {
 					}
 
 					// remove any dependency references to/from outside the removed items; note: these cannot be undone
-					const removed = window.slVueTree.correctDependencies(payload.node.productId, docsRemovedIds)
+					const removed = window.slVueTree.correctDependencies(payload.node)
 					// before removal select the predecessor of the removed node (sibling or parent)
 					const prevNode = window.slVueTree.getPreviousNode(payload.node.path)
 					let nowSelectedNode = prevNode
@@ -308,8 +320,8 @@ const actions = {
 						id: nowSelectedNode._id, onSuccessCallback: () => {
 							const removedNode = payload.node
 							// remove the node and its children from the tree view
-							window.slVueTree.remove([removedNode])
-							// remove the children; on restore the chilren are recovered from the database
+							window.slVueTree.removeNodes([removedNode])
+							// remove the children; on restore the children are recovered from the database
 							removedNode.children = []
 							if (removedNode.level === LEVEL.PRODUCT) {
 								// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
