@@ -650,8 +650,7 @@ const actions = {
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true
-				}],
-				delmark: false
+				}]
 			}
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
@@ -754,7 +753,7 @@ const actions = {
 			const taskState = taskDoc.state
 			const taskTitle = taskDoc.title
 			const teamName = taskDoc.team
-			taskDoc.delmark = true
+			taskDoc.delmark = 'true'
 			// no use to add history to a removed document
 			const newHist = {
 				ignoreEvent: ['boardRemoveTask'],

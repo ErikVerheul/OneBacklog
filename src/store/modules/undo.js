@@ -2,8 +2,44 @@ import { SEV, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
-function composeRangeString(id) {
-	return `startkey="${id}"&endkey="${id}"`
+function composeRangeString(delmark, id) {
+	return `startkey=["${delmark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${id}",${Number.MAX_SAFE_INTEGER}]`
+}
+
+function createDescendantNode(parentNode, leafLevel, doc) {
+	const ind = parentNode.children.length
+	const path = parentNode.path.concat(ind)
+	const newNode = {
+		path,
+		pathStr: JSON.stringify(path),
+		ind,
+		level: doc.level,
+		productId: doc.productId,
+		parentId: parentNode._id,
+		sprintId: doc.sprintId,
+		_id: doc._id,
+		dependencies: doc.dependencies || [],
+		conditionalFor: doc.conditionalFor || [],
+		title: doc.title,
+		isLeaf: doc.level === leafLevel,
+		children: [],
+		isExpanded: false,
+		isSelectable: true,
+		isDraggable: true,
+		isSelected: false,
+		doShow: true,
+		data: {
+			priority: doc.priority,
+			state: doc.state,
+			reqarea: doc.reqarea,
+			reqAreaItemColor: doc.color,
+			team: doc.team,
+			subtype: doc.subtype,
+			lastChange: doc.lastChange
+		},
+		tmp: {}
+	}
+	parentNode.children.push(newNode)
 }
 
 const actions = {
@@ -11,81 +47,15 @@ const actions = {
 		* ToDo: create undo's if any of these steps fail
 		* Undo removal of a branche
 		* Order of execution:
-		* 1. restore the descendants
-		* 2. restore the parent of the descendants and update the tree
-		* 3. update the grandparent of the descendants (if removed then undo the removal)
-		* 4. restore the external dependencies & conditions
+		* 1. unremove the parent and update the tree
+		* 2. update the grandparent (if removed then undo the removal) and unremove the descendants in parallel
+		* 3. restore the external dependencies & conditions
+		* 4. if a req area item is restored, restore the removed references to the requirement area
 		* If any of these steps fail the next steps are not executed but not undone
 		*/
 
-	restoreIDescendants({
-		dispatch
-	}, payload) {
-		for (const r of payload.results) {
-			const id = r.id
-			dispatch('restoreItemAndDescendants', { entry: payload.entry, parentId: id })
-		}
-		// execute unremove for these results
-		dispatch('unremoveItemAndDescendants', { entry: payload.entry, results: payload.results })
-	},
-
-	/* Executes the passed action on all descendants of the parent */
-	restoreItemAndDescendants({
-		rootState,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(payload.parentId) + '&include_docs=true'
-		}).then(res => {
-			const results = res.data.rows
-			if (results.length > 0) {
-				// process next level
-				dispatch('restoreIDescendants', { entry: payload.entry, results })
-			}
-		}).catch(error => {
-			const msg = `restoreItemAndDescendants: Could not scan the descendants of document with id ${payload.parentId}, ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	/* Unmark the removed item and its descendants for removal. Do not distribute this event */
-	unremoveItemAndDescendants({
-		rootState,
-		dispatch
-	}, payload) {
-		const entry = payload.entry
-		const results = payload.results
-		const docs = results.map(r => r.doc)
-		for (const doc of docs) {
-			const newHist = {
-				ignoreEvent: ['unremoveItemAndDescendants'],
-				timestamp: Date.now(),
-				distributeEvent: false
-			}
-			doc.history.unshift(newHist)
-			// restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
-			if (doc.dependencies) {
-				for (const d of entry.removedIntDependencies) {
-					if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
-				}
-			}
-			// restore removed conditions if the array exists (when not the condition cannot be removed from this document)
-			if (doc.conditionalFor) {
-				for (const c of entry.removedIntConditions) {
-					if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
-				}
-			}
-			// unmark for removal
-			doc.delmark = false
-		}
-
-		const toDispatch = [{ restoreParent: entry }]
-		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'unremoveItemAndDescendants' })
-	},
-
 	/* The parent is the removed node and parent of the removed children. The grandParent is the parent of the removed node and was not removed. */
-	restoreParent({
+	restoreItemAndDescendants({
 		rootState,
 		commit,
 		dispatch
@@ -97,7 +67,7 @@ const actions = {
 		}).then(res => {
 			const updatedDoc = res.data
 			const newHist = {
-				docRestoredEvent: [entry.docsRemovedIds.length - 1, entry.removedIntDependencies, entry.removedExtDependencies,
+				docRestoredEvent: [entry.removedDescendantsCount, entry.removedIntDependencies, entry.removedExtDependencies,
 				entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds, entry.itemsRemovedFromReqArea],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
@@ -106,13 +76,15 @@ const actions = {
 			}
 			updatedDoc.history.unshift(newHist)
 
-			updatedDoc.delmark = false
-			const toDispatch = [{ updateGrandParentHist: entry }]
+			delete updatedDoc.delmark
+			const toDispatch = [
+				{ updateGrandParentHist: entry },
+			]
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc,
 				toDispatch,
-				caller: 'restoreParent',
+				caller: 'restoreItemAndDescendants',
 				onSuccessCallback: () => {
 					// FOR PRODUCTS OVERVIEW ONLY: when undoing the removal of a requirement area, items must be reassigned to this area
 					if (entry.removedNode.productId === MISC.AREA_PRODUCTID) {
@@ -144,6 +116,7 @@ const actions = {
 					}
 					// do not recalculate priorities when inserting a product node
 					window.slVueTree.insert(cursorPosition, [entry.removedNode], entry.removedNode.parentId !== 'root')
+
 					// select the recovered node
 					commit('updateNodesAndCurrentDoc', { selectNode: entry.removedNode })
 					rootState.currentProductId = entry.removedNode.productId
@@ -166,11 +139,91 @@ const actions = {
 					}
 					commit('showLastEvent', { txt: 'Item(s) remove is undone', severity: SEV.INFO })
 					commit('updateNodesAndCurrentDoc', { newDoc: updatedDoc })
+
+					dispatch('restoreDescendants', { entry, parentId: entry.removedNode._id })
 				}
 			})
 		}).catch(error => {
-			const msg = 'restoreParent: Could not read document with _id ' + _id + ', ' + error
+			const msg = 'restoreItemAndDescendants: Could not read document with _id ' + _id + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/* Executes the passed action on all descendants of the parent */
+	restoreDescendants({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(payload.entry.delmark, payload.parentId) + '&include_docs=true'
+		}).then(res => {
+			const results = res.data.rows
+			if (results.length > 0) {
+				// process next level
+				dispatch('loopResults', { entry: payload.entry, results })
+			}
+		}).catch(error => {
+			const msg = `restoreDescendants: Could not scan the descendants of document with id ${payload.parentId}, ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	loopResults({
+		dispatch
+	}, payload) {
+		for (const r of payload.results) {
+			const id = r.id
+			dispatch('restoreDescendants', { entry: payload.entry, parentId: id })
+		}
+		// execute unremove for these results
+		dispatch('unremoveDescendants', { entry: payload.entry, results: payload.results })
+	},
+
+	/* Unmark the removed item and its descendants for removal. Do not distribute this event */
+	unremoveDescendants({
+		rootState,
+		rootGetters,
+		dispatch
+	}, payload) {
+		const entry = payload.entry
+		const results = payload.results
+		const docs = results.map(r => r.doc)
+		for (const doc of docs) {
+			const newHist = {
+				ignoreEvent: ['unremoveDescendants'],
+				timestamp: Date.now(),
+				distributeEvent: false
+			}
+			doc.history.unshift(newHist)
+			// restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
+			if (doc.dependencies) {
+				for (const d of entry.removedIntDependencies) {
+					if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
+				}
+			}
+			// restore removed conditions if the array exists (when not the condition cannot be removed from this document)
+			if (doc.conditionalFor) {
+				for (const c of entry.removedIntConditions) {
+					if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
+				}
+			}
+			// unmark for removal
+			delete doc.delmark
+		}
+
+		dispatch('updateBulk', {
+			dbName: rootState.userData.currentDb, docs, caller: 'unremoveDescendants', onSuccessCallback: () => {
+				const leafLevel = rootGetters.leafLevel
+				// all nodes have the same parent
+				const parentNode = window.slVueTree.getNodeById(docs[0].parentId)
+				if (parentNode && parentNode.level < leafLevel) {
+					// restore the nodes as childs of the parent up to leafLevel
+					for (const doc of docs) {
+						createDescendantNode(parentNode, leafLevel, doc)
+					}
+				}
+			}
 		})
 	},
 
@@ -187,7 +240,7 @@ const actions = {
 		}).then(res => {
 			const grandParentDoc = res.data
 			const newHist = {
-				grandParentDocRestoredEvent: [entry.removedNode.level, entry.removedNode.title, entry.docsRemovedIds.length - 1, entry.removedNode.data.subtype],
+				grandParentDocRestoredEvent: [entry.removedNode.level, entry.removedNode.title, entry.removedDescendantsCount, entry.removedNode.data.subtype],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false
@@ -197,7 +250,7 @@ const actions = {
 			// unmark for removal in case it was removed
 			if (grandParentDoc.delmark) {
 				commit('showLastEvent', { txt: 'The document representing the item to restore under was removed. The removal is made undone.', severity: SEV.WARNING })
-				grandParentDoc.delmark = false
+				delete grandParentDoc.delmark
 			}
 			const toDispatch = [{ restoreExtDepsAndConds: entry }]
 			if (entry.removedNode.productId === MISC.AREA_PRODUCTID) {
@@ -257,7 +310,7 @@ const actions = {
 					}
 					doc.history.unshift(newHist)
 					// unmark for removal
-					doc.delmark = false
+					delete doc.delmark
 					docs.push(doc)
 				}
 				if (r.docs[0].error) errors.push(r.docs[0].error)

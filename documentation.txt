@@ -29,7 +29,7 @@ Database--------- backlogItem document -------------------- node
 "sprintId"(string)----------------------------------------- data.sprintId
 "comments": []--------------------------------------------- loaded on request
 "history": []---------------------------------------------- loaded on request
-"delmark"(boolean)----------------------------------------- only a database field for removed documents
+"delmark"(string)------------------------------------------ if present the document is marked for deletion; value 'true' or UID
 "lastPositionChange"--------------------------------------- data.lastPositionChange,
 "lastStateChange"------------------------------------------ data.lastStateChange,
 "lastContentChange"---------------------------------------- data.lastContentChange, // last change of title, description or acceptance criteria
@@ -244,15 +244,16 @@ The removed node is the parent of the removed children.
 Example:
   const entry = {
 		type: 'undoRemove',
-		removedNode: payload.node,
-		isProductRemoved: payload.node.level === PRODUCTLEVEL,
-		docsRemovedIds,
-		removedIntDependencies: removed.removedIntDependencies,
-		removedIntConditions: removed.removedIntConditions,
-		removedExtDependencies: removed.removedExtDependencies,
-		removedExtConditions: removed.removedExtConditions,
-		sprintIds: removedSprintIds,
-		itemsRemovedFromReqArea
+			delmark: payload.delmark,
+			isProductRemoved: payload.node.level === LEVEL.PRODUCT,
+			itemsRemovedFromReqArea,
+			removedDescendantsCount,
+			removedExtConditions: removed.removedExtConditions,
+			removedExtDependencies: removed.removedExtDependencies,
+			removedIntConditions: removed.removedIntConditions,
+			removedIntDependencies: removed.removedIntDependencies,
+			removedNode: payload.node,
+			sprintIds: removedSprintIds
 	}
 	if (entry.isProductRemoved) {
 		entry.removedProductRoles = rootGetters.getMyProductsRoles[payload.node._id]

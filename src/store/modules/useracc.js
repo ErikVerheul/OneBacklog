@@ -445,7 +445,7 @@ const actions = {
 			url: '/_users/org.couchdb.user:' + userName
 		}).then(res => {
 			let data = res.data
-			data.delmark = true
+			data.delmark = 'true'
 			dispatch('removeUserAction', data)
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {

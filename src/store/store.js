@@ -772,9 +772,6 @@ export default new Vuex.Store({
 							case 'dependenciesRemoved':
 								node.dependencies = payload.dependenciesRemoved
 								break
-							case 'delmark':
-								// not stored in the node
-								break
 							case 'description':
 								// not stored in the node
 								break
@@ -945,9 +942,6 @@ export default new Vuex.Store({
 									break
 								case 'dependenciesRemoved':
 									state.currentDoc.dependencies = payload.dependenciesRemoved
-									break
-								case 'delmark':
-									state.currentDoc.delmark = payload.delmark
 									break
 								case 'description':
 									state.currentDoc.description = payload.description

@@ -144,8 +144,7 @@ const methods = {
 				timestamp: Date.now(),
 				sessionId: this.$store.state.mySessionId,
 				distributeEvent: true
-			}],
-			delmark: false
+			}]
 		}
 		// update the database and select this document
 		this.$store.dispatch('createDocWithParentHist', { newNode, newDoc })
@@ -256,8 +255,7 @@ const methods = {
 					timestamp: Date.now(),
 					sessionId: this.$store.state.mySessionId,
 					distributeEvent: true
-				}],
-				delmark: false
+				}]
 			}
 			// update the parent history and than save the new document
 			this.$store.dispatch('createDocWithParentHist', { newNode, newDoc })

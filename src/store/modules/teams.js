@@ -107,8 +107,7 @@ const actions = {
 							by: rootState.userData.user,
 							timestamp: Date.now(),
 							distributeEvent: false
-						}],
-					delmark: false
+						}]
 				}
 				rootState.backendMessages = []
 				dispatch('updateDoc', {
@@ -186,7 +185,7 @@ const actions = {
 			for (const r of results) {
 				const doc = r.doc
 				if (teamNamesToRemove.includes(doc.teamName)) {
-					doc.delmark = true
+					doc.delmark = 'true'
 					docsToRemove.push(doc)
 				}
 			}

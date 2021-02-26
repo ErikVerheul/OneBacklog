@@ -87,8 +87,7 @@ const methods = {
 				ignoreEvent: 'comments initiated',
 				timestamp: Date.now(),
 				distributeEvent: false
-			}],
-			delmark: false
+			}]
 		}
 		// update the database and add the product to this admin's subscriptions and productsRoles
 		this.$store.dispatch('createProductAction', { dbName: this.$store.state.selectedDatabaseName, newProduct, priority })

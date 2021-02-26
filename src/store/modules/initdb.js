@@ -336,6 +336,12 @@ const actions = {
 					removed: {
 						map: 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1);}'
 					},
+					/* Filter on delmark and parentId to map removed documents to their parent in order of priority */
+					removedDocToParentMap: {
+						map: `function(doc) {
+							if (doc.type == "backlogItem" && doc.delmark && doc.parentId !== 'requirement-areas') emit([doc.delmark, doc.parentId, doc.priority * -1]);
+						}`
+					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
 					shortIdFilter: {
 						map: `function(doc) {
@@ -427,8 +433,7 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false
-			}],
-			delmark: false
+			}]
 		}
 		globalAxios({
 			method: 'PUT',
@@ -460,8 +465,7 @@ const actions = {
 					by: rootState.userData.user,
 					timestamp: Date.now(),
 					distributeEvent: false
-				}],
-			delmark: false
+				}]
 		}
 		globalAxios({
 			method: 'PUT',
@@ -506,8 +510,7 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false
-			}],
-			delmark: false
+			}]
 		}
 		globalAxios({
 			method: 'PUT',
@@ -552,8 +555,7 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false
-			}],
-			delmark: false
+			}]
 		}
 		globalAxios({
 			method: 'PUT',
@@ -594,8 +596,7 @@ const actions = {
 					ignoreEvent: ['messenger'],
 					distributeEvent: false
 				}
-			],
-			delmark: false
+			]
 		}
 		globalAxios({
 			method: 'PUT',

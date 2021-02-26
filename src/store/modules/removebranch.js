@@ -1,4 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
+import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
@@ -27,7 +28,7 @@ const actions = {
 * Order of execution:
 * 1. removeBranch
 * 2. processItemsToRemove, dispatches getChildrenToRemove for every document
-* 3. getChildrenToRemove, dispatches processItemsToRemove for every parent id and removeExternalConds when all parent ids are processed
+* 3. getChildrenToRemove, dispatches processItemsToRemove for every parent id and dispatches removeExternalConds when all parent ids are processed
 * 4. removeExternalConds, dispatches removeExternalDeps
 * 5. removeExternalDeps, dispatches addRemoveHist
 * 6. addRemoveHist, adds history to the removed items and dispatches addRemoveHist2. If a REQAREA item is removed then removeReqAreaAssignments is dispachted
@@ -55,7 +56,7 @@ const actions = {
 				if (!removedSprintIds.includes(doc.sprintId)) removedSprintIds.push(doc.sprintId)
 			}
 			// mark for removal
-			doc.delmark = true
+			doc.delmark = payload.delmark
 
 			const newHist = {
 				ignoreEvent: ['removeDescendants'],
@@ -65,7 +66,7 @@ const actions = {
 			doc.history.unshift(newHist)
 			// multiple instances can be dispatched
 			getChildrenDispatched++
-			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, createUndo: payload.createUndo } })
+			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, createUndo: payload.createUndo } })
 		}
 		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
 	},
@@ -83,7 +84,7 @@ const actions = {
 			// console.log('getChildrenToRemove: results.length = ' + results.length + ', getChildrenDispatched = ' + getChildrenDispatched + ', getChildrenReady = ' + getChildrenReady + ', diff = ' + (getChildrenDispatched - getChildrenReady))
 			if (results.length > 0) {
 				// process next level
-				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), createUndo: payload.createUndo })
+				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo })
 			} else {
 				if (getChildrenDispatched - getChildrenReady === 0) {
 					// db iteration ready
@@ -113,13 +114,14 @@ const actions = {
 		getChildrenReady = 0
 
 		const id = payload.node._id
+		const delmark = createId()
 		// get the document
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			const doc = res.data
-			dispatch('processItemsToRemove', { node: payload.node, results: [doc], createUndo: payload.createUndo })
+			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, createUndo: payload.createUndo })
 		}).catch(error => {
 			const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -156,8 +158,7 @@ const actions = {
 						}
 					}
 				}
-				const toDispatch = [{ removeExternalDeps: payload }]
-				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalConds' })
+				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch: [{ removeExternalDeps: payload }], caller: 'removeExternalConds' })
 			}).catch(e => {
 				const msg = 'removeExternalConds: Could not read batch of documents: ' + e
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -195,13 +196,13 @@ const actions = {
 						}
 					}
 				}
-				const toDispatch = [{ addRemoveHist: { node: payload.node, createUndo: payload.createUndo } }]
+				const toDispatch = [{ addRemoveHist: { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo } }]
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
 			}).catch(e => {
 				const msg = 'removeExternalDeps: Could not read batch of documents: ' + e
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
-		} else dispatch('addRemoveHist', { node: payload.node, createUndo: payload.createUndo })
+		} else dispatch('addRemoveHist', { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo })
 	},
 
 	/* Add history to the removed item it self */
@@ -267,7 +268,6 @@ const actions = {
 				],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				distributeEvent: false
 			}
 			doc.history.unshift(newHist)
@@ -306,33 +306,37 @@ const actions = {
 					// load the new selected item
 					dispatch('loadDoc', {
 						id: nowSelectedNode._id, onSuccessCallback: () => {
+							const removedNode = payload.node
 							// remove the node and its children from the tree view
-							window.slVueTree.remove([payload.node])
-
-							if (payload.node.level === LEVEL.PRODUCT) {
+							window.slVueTree.remove([removedNode])
+							// remove the children; on restore the chilren are recovered from the database
+							removedNode.children = []
+							if (removedNode.level === LEVEL.PRODUCT) {
 								// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
-								dispatch('removeFromMyProducts', { productId: payload.node._id })
+								dispatch('removeFromMyProducts', { productId: removedNode._id })
 							}
 
 							if (payload.createUndo) {
+								const removedDescendantsCount = docsRemovedIds.length - 1
 								// create an entry for undoing the remove in a last-in first-out sequence
 								const entry = {
 									type: 'undoRemove',
-									removedNode: payload.node,
-									isProductRemoved: payload.node.level === LEVEL.PRODUCT,
-									docsRemovedIds,
-									removedIntDependencies: removed.removedIntDependencies,
-									removedIntConditions: removed.removedIntConditions,
-									removedExtDependencies: removed.removedExtDependencies,
+									delmark: payload.delmark,
+									isProductRemoved: removedNode.level === LEVEL.PRODUCT,
+									itemsRemovedFromReqArea,
+									removedDescendantsCount,
 									removedExtConditions: removed.removedExtConditions,
-									sprintIds: removedSprintIds,
-									itemsRemovedFromReqArea
+									removedExtDependencies: removed.removedExtDependencies,
+									removedIntConditions: removed.removedIntConditions,
+									removedIntDependencies: removed.removedIntDependencies,
+									removedNode,
+									sprintIds: removedSprintIds
 								}
 								if (entry.isProductRemoved) {
-									entry.removedProductRoles = rootGetters.getMyProductsRoles[payload.node._id]
+									entry.removedProductRoles = rootGetters.getMyProductsRoles[removedNode._id]
 								}
 								rootState.changeHistory.unshift(entry)
-								commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.node.level)} and ${docsRemovedIds.length - 1} descendants are removed`, severity: SEV.INFO })
+								commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} and ${removedDescendantsCount} descendants are removed`, severity: SEV.INFO })
 							} else {
 								commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
 							}
