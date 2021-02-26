@@ -161,13 +161,13 @@ const methods = {
 				team: doc.team,
 				sprintId: doc.sprintId,
 				subtype: doc.subtype,
-				lastAttachmentAddition: doc.lastAttachmentAddition,
-				lastCommentAddition: doc.lastCommentAddition,
-				lastCommentToHistory: doc.lastCommentToHistory,
-				lastContentChange: doc.lastContentChange,
-				lastPositionChange: doc.lastPositionChange,
-				lastStateChange: doc.lastStateChange,
-				lastChange: doc.lastChange
+				lastAttachmentAddition: doc.lastAttachmentAddition || 0,
+				lastCommentAddition: doc.lastCommentAddition || 0,
+				lastCommentToHistory: doc.lastCommentToHistory || 0,
+				lastContentChange: doc.lastContentChange || 0,
+				lastPositionChange: doc.lastPositionChange || 0,
+				lastStateChange: doc.lastStateChange || 0,
+				lastChange: doc.lastChange || 0
 			},
 			tmp: {}
 		}
