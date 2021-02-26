@@ -159,7 +159,14 @@ const methods = {
 				reqarea: doc.reqarea,
 				reqAreaItemColor: doc.color,
 				team: doc.team,
+				sprintId: doc.sprintId,
 				subtype: doc.subtype,
+				lastAttachmentAddition: doc.lastAttachmentAddition,
+				lastCommentAddition: doc.lastCommentAddition,
+				lastCommentToHistory: doc.lastCommentToHistory,
+				lastContentChange: doc.lastContentChange,
+				lastPositionChange: doc.lastPositionChange,
+				lastStateChange: doc.lastStateChange,
 				lastChange: doc.lastChange
 			},
 			tmp: {}

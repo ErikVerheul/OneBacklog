@@ -93,6 +93,7 @@ const actions = {
 					level: itemLevel,
 					productId,
 					parentId,
+					sprintId,
 					_id,
 					dependencies,
 					conditionalFor,
