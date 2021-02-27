@@ -10,7 +10,7 @@ var startRestore
 var getChildrenRunning
 
 function composeRangeString(id) {
-	return `startkey="${id}"&endkey="${id}"`
+	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
 function convertToResults(docs) {
@@ -18,7 +18,7 @@ function convertToResults(docs) {
 	for (const d of docs) {
 		const res = {}
 		res.id = d._id
-		res.key = d.parentId
+		res.key = [d.parentId, d.priority]
 		res.value = []
 		res.value.push(d.reqarea)
 		res.value.push(d.productId)
@@ -57,7 +57,7 @@ const actions = {
 	}, payload) {
 		for (const item of payload.results) {
 			const _id = item.id
-			const parentId = item.key
+			const parentId = item.key[0]
 			const reqarea = item.value[0] || null
 			const productId = item.value[1]
 			const priority = item.value[2]
@@ -126,7 +126,7 @@ const actions = {
 				window.slVueTree.insertNodes({
 					nodeModel: locationInfo.prevNode,
 					placement: locationInfo.newInd === 0 ? 'inside' : 'after'
-				}, [newNode], false)
+				}, [newNode], { calculatePrios: false })
 				if (!fromHistory) {
 					// select the product node in the tree
 					if (_id === productIdToSelect) window.slVueTree.selectNodeById(productIdToSelect)
@@ -207,28 +207,64 @@ const actions = {
 		dispatch
 	}, payload) {
 		productIdToSelect = payload.productIdToSelect
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const id of payload.missingIds) {
-			docsToGet.push({ id: id })
+			docIdsToGet.push({ id: id })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet }
+			data: { docs: docIdsToGet }
 		}).then(res => {
 			const results = res.data.results
-			const docs = []
 			for (const r of results) {
 				const doc = r.docs[0].ok
 				// no need to add history here as the data is only used to update the tree model (no update of the database)
-				docs.push(doc)
+				const parentNode = window.slVueTree.getRootNode()
+				const locationInfo = getLocationInfo(doc.priority, parentNode)
+				const newNode = window.slVueTree.createNode(doc)
+				// insert the product node in the tree
+				window.slVueTree.insertNodes({
+					nodeModel: locationInfo.prevNode,
+					placement: locationInfo.newInd === 0 ? 'inside' : 'after'
+				}, [newNode], { skipUpdateProductId: true, calculatePrios: true })
+				// load the children of the nodes
+				dispatch('loadChildren', { parentNode: newNode })
 			}
-			dispatch('restorebranches', docs)
-		}).catch(e => {
-			const msg = 'loadProducts: Could not load products with ids ' + payload.missingIds + ' in database ' + rootState.userData.currentDb + '. Error = ' + e
+		}).catch(error => {
+			const msg = `loadProducts: Could not load products with ids ${payload.missingIds} in database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
-	}
+	},
+
+	loadChildren({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.parentNode._id) + '&include_docs=true'
+		}).then(res => {
+			const results = res.data.rows
+			if (results.length > 0) {
+				dispatch('processResults', { parentNode: payload.parentNode, results })
+			}
+		}).catch(error => {
+			const msg = `loadChildren: Could not scan the descendants of document with id ${payload.parentNode._id}, ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	processResults({
+		dispatch
+	}, payload) {
+		for (const r of payload.results) {
+			// add the child node
+			const newParentNode = window.slVueTree.insertDescendantNode(payload.parentNode, r.doc)
+			// scan next level
+			dispatch('loadChildren', { parentNode: newParentNode })
+		}
+	},
 }
 
 export default {
