@@ -131,22 +131,21 @@ const methods = {
 		return path2[path1.length] === undefined ? 0 : -1
 	},
 
-	createDescendantNode(parentNode, leafLevel, doc) {
-		const ind = parentNode.children.length
-		const path = parentNode.path.concat(ind)
+	/* Create a node from the document data; ind and path may be undefined if the node is inserted in the tree with the insertNode method which resolves these values */
+	createNode(doc, ind, path) {
 		const newNode = {
 			path,
 			pathStr: JSON.stringify(path),
 			ind,
 			level: doc.level,
 			productId: doc.productId,
-			parentId: parentNode._id,
+			parentId: doc.parentId,
 			sprintId: doc.sprintId,
 			_id: doc._id,
 			dependencies: doc.dependencies || [],
 			conditionalFor: doc.conditionalFor || [],
 			title: doc.title,
-			isLeaf: doc.level === leafLevel,
+			isLeaf: doc.level === this.leafLevel,
 			children: [],
 			isExpanded: false,
 			isSelectable: true,
@@ -171,7 +170,7 @@ const methods = {
 			},
 			tmp: {}
 		}
-		parentNode.children.push(newNode)
+		return newNode
 	},
 
 	emitBeforeDrop(draggingNodes, position, cancel) {
@@ -384,8 +383,17 @@ const methods = {
 		return this.$store.state.treeNodes[0]
 	},
 
-	/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. */
-	insertNodes(cursorPosition, nodes, calculatePrios = true) {
+	/* Add a node, derived from its document, as last child of the parentNode's children; return the created node */
+	insertDescendantNode(parentNode, doc) {
+		const ind = parentNode.children.length
+		const path = parentNode.path.concat(ind)
+		const newNode = this.createNode(doc, ind, path)
+		parentNode.children.push(newNode)
+		return newNode
+	},
+
+	/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. Use the options object to suppress productId updates and/or priority recalculation */
+	insertNodes(cursorPosition, nodes, options) {
 		/* Recalculate the priorities of the inserted nodes. Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).*/
 		function assignNewPrios(nodes, predecessorNode, successorNode) {
 			let predecessorPrio
@@ -407,7 +415,7 @@ const methods = {
 		}
 
 		const destNodeModel = cursorPosition.nodeModel
-		const productId = destNodeModel.productId
+		const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
 		let predecessorNode
 		let successorNode
 		if (cursorPosition.placement === 'inside') {
@@ -429,7 +437,11 @@ const methods = {
 			successorNode = destSiblings[insertInd + nodes.length] || null
 			this.updatePaths(parentPath, destSiblings, insertInd, parentId, productId)
 		}
-		if (calculatePrios) assignNewPrios(nodes, predecessorNode, successorNode)
+		// if not excluded in options do assign new priorities
+		if (!options || options.calculatePrios) {
+			console.log('insertNodes: assignNewPrios executed')
+			assignNewPrios(nodes, predecessorNode, successorNode)
+		}
 	},
 
 	isDescendantNodeSelected(node) {

@@ -13,7 +13,7 @@ var getChildrenDispatched
 var getChildrenReady
 
 function composeRangeString(id) {
-	return `startkey="${id}"&endkey="${id}"`
+	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
 function getLevelText(configData, level) {
@@ -75,6 +75,7 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		console.log('getChildrenToRemove: composeRangeString(payload.id) = ' + composeRangeString(payload.id))
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.id) + '&include_docs=true'

@@ -185,13 +185,13 @@ const actions = {
 					window.slVueTree.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'inside'
-					}, [node], false)
+					}, [node], { calculatePrios: false })
 				} else {
 					// insert after prevNode
 					window.slVueTree.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'after'
-					}, [node], false)
+					}, [node], { calculatePrios: false })
 				}
 				if (item[13] === 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
 				if (item[13] === 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: item[14] })
@@ -564,7 +564,6 @@ const actions = {
 							break
 						case 'removedWithDescendantsEvent':
 							{
-								console.log('Sync: updateBoard.removedWithDescendantsEvent: doc.delmark = ' + doc.delmark)
 								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.removedWithDescendantsEvent[4])
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
 									// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board

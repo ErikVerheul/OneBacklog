@@ -78,8 +78,8 @@ const actions = {
 							placement: 'after'
 						}
 					}
-					// do not recalculate priorities when inserting a product node
-					window.slVueTree.insertNodes(cursorPosition, [entry.removedNode], entry.removedNode.parentId !== 'root')
+					// do not recalculate priorities when inserting a product node. ToDo: check this
+					window.slVueTree.insertNodes(cursorPosition, [entry.removedNode], { calculatePrios: entry.removedNode.parentId !== 'root' })
 
 					// select the recovered node
 					commit('updateNodesAndCurrentDoc', { selectNode: entry.removedNode })
@@ -184,7 +184,7 @@ const actions = {
 				if (parentNode && parentNode.level < leafLevel) {
 					// restore the nodes as childs of the parent up to leafLevel
 					for (const doc of docs) {
-						window.slVueTree.createDescendantNode(parentNode, leafLevel, doc)
+						window.slVueTree.insertDescendantNode(parentNode, doc)
 					}
 				}
 			}
