@@ -300,14 +300,14 @@ const actions = {
 					docToParentMap: {
 						map: `function(doc) {
 							const databaseLevel = 1
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level > databaseLevel && doc.parentId !== 'requirement-areas') emit(doc.parentId, 1);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > databaseLevel && doc.parentId !== 'requirement-areas') emit([doc.parentId, doc.priority * -1]);
 						}`
 					},
 					/* Filter on parentIds to map documents to their parent and provide filtered values so that the whole document is not needed  */
 					docToParentMapValues: {
 						map: `function(doc) {
 							const databaseLevel = 1
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level > databaseLevel && doc.parentId !== 'requirement-areas') emit(doc.parentId,
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level > databaseLevel && doc.parentId !== 'requirement-areas') emit([doc.parentId, doc.priority * -1],
 								[doc.reqarea, doc.productId, doc.priority, doc.level, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
 						}`
