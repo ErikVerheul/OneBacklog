@@ -10,7 +10,7 @@ var extDepsRemovedCount
 var extCondsRemovedCount
 var removedSprintIds
 var getChildrenDispatched
-var getChildrenReady
+var loadTasksRunning
 
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
@@ -24,16 +24,45 @@ function getLevelText(configData, level) {
 }
 
 const actions = {
-/*
-* Order of execution:
-* 1. removeBranch
-* 2. processItemsToRemove, dispatches getChildrenToRemove for every document
-* 3. getChildrenToRemove, dispatches processItemsToRemove for every parent id and dispatches removeExternalConds when all parent ids are processed
-* 4. removeExternalConds, dispatches removeExternalDeps
-* 5. removeExternalDeps, dispatches addRemoveHist
-* 6. addRemoveHist, adds history to the removed items and dispatches addRemoveHist2. If a REQAREA item is removed then removeReqAreaAssignments is dispachted
-* 7. addRemoveHist2 adds history to the parent and updates the tree view and created undo data
-*/
+	/*
+	* Order of execution:
+	* 1. removeBranch
+	* 2. processItemsToRemove, dispatches getChildrenToRemove for every document
+	* 3. getChildrenToRemove, dispatches processItemsToRemove for every parent id and dispatches removeExternalConds when all parent ids are processed
+	* 4. removeExternalConds, dispatches removeExternalDeps
+	* 5. removeExternalDeps, dispatches addHistToRemovedDoc
+	* 6. addHistToRemovedDoc, adds history to the removed items and dispatches addHistToRemovedParent. If a REQAREA item is removed then removeReqAreaAssignments is dispachted
+	* 7. addHistToRemovedParent adds history to the parent and updates the tree view and created undo data
+	*/
+
+	removeBranch({
+		rootState,
+		dispatch
+	}, payload) {
+		docsRemovedIds = []
+		removedDeps = {}
+		removedConds = {}
+		extDepsRemovedCount = 0
+		extCondsRemovedCount = 0
+		removedSprintIds = []
+		getChildrenDispatched = 0
+		loadTasksRunning = 0
+
+		const id = payload.node._id
+		const delmark = createId()
+		// get the document
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + id
+		}).then(res => {
+			const doc = res.data
+			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, createUndo: payload.createUndo })
+		}).catch(error => {
+			const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
 	processItemsToRemove({
 		rootState,
 		dispatch
@@ -75,19 +104,17 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		console.log('getChildrenToRemove: composeRangeString(payload.id) = ' + composeRangeString(payload.id))
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.id) + '&include_docs=true'
 		}).then(res => {
-			getChildrenReady++
+			loadTasksRunning++
 			const results = res.data.rows
-			// console.log('getChildrenToRemove: results.length = ' + results.length + ', getChildrenDispatched = ' + getChildrenDispatched + ', getChildrenReady = ' + getChildrenReady + ', diff = ' + (getChildrenDispatched - getChildrenReady))
 			if (results.length > 0) {
 				// process next level
 				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo })
 			} else {
-				if (getChildrenDispatched - getChildrenReady === 0) {
+				if (getChildrenDispatched - loadTasksRunning === 0) {
 					// db iteration ready
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('getChildrenToRemove: dispatching removeExternalConds')
@@ -95,36 +122,7 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			const msg = 'removeBranch.getChildrenToRemove: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	/* The entry point for the remove actions */
-	removeBranch({
-		rootState,
-		dispatch
-	}, payload) {
-		docsRemovedIds = []
-		removedDeps = {}
-		removedConds = {}
-		extDepsRemovedCount = 0
-		extCondsRemovedCount = 0
-		removedSprintIds = []
-		getChildrenDispatched = 0
-		getChildrenReady = 0
-
-		const id = payload.node._id
-		const delmark = createId()
-		// get the document
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id
-		}).then(res => {
-			const doc = res.data
-			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, createUndo: payload.createUndo })
-		}).catch(error => {
-			const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
+			const msg = `removeBranch.getChildrenToRemove: Could not read the items from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -209,17 +207,17 @@ const actions = {
 						}
 					}
 				}
-				const toDispatch = [{ addRemoveHist: { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo } }]
+				const toDispatch = [{ addHistToRemovedDoc: { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo } }]
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
 			}).catch(e => {
 				const msg = 'removeExternalDeps: Could not read batch of documents: ' + e
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
-		} else dispatch('addRemoveHist', { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo })
+		} else dispatch('addHistToRemovedDoc', { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo })
 	},
 
 	/* Add history to the removed item it self */
-	addRemoveHist({
+	addHistToRemovedDoc({
 		rootState,
 		dispatch
 	}, payload) {
@@ -245,20 +243,20 @@ const actions = {
 			}
 			updatedDoc.history.unshift(newHist)
 
-			const toDispatch = [{ addRemoveHist2: payload }]
+			const toDispatch = [{ addHistToRemovedParent: payload }]
 			if (payload.node.productId === MISC.AREA_PRODUCTID) {
 				// remove reqarea assignments
 				toDispatch.push({ removeReqAreaAssignments: id })
 			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'addRemoveHist' })
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'addHistToRemovedDoc' })
 		}).catch(error => {
-			const msg = `addRemoveHist: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
+			const msg = `addHistToRemovedDoc: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
 	/* Add history to the parent of the removed item */
-	addRemoveHist2({
+	addHistToRemovedParent({
 		rootState,
 		rootGetters,
 		dispatch,
@@ -288,7 +286,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: doc,
-				caller: 'addRemoveHist2',
+				caller: 'addHistToRemovedParent',
 				onSuccessCallback: () => {
 					// FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
 					const itemsRemovedFromReqArea = []
@@ -358,7 +356,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = `addRemoveHist: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
+			const msg = `addHistToRemovedDoc: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

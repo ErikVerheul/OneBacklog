@@ -1,6 +1,6 @@
 /*
 * Common functions for use in Vuex
-* Note: Use import * as <any name> from '../common_functions.js' to get all named exports in one object
+* Usage: import * as <any name> from '../common_functions.js' to get all named exports in one object
 */
 
 //////////////// expand, collapse, show and hide nodes as a side effect of these 4 functions ////////////
