@@ -10,7 +10,7 @@ const state = {
 }
 
 const actions = {
-	/* Refresh the authentication cookie */
+	/* Refresh the authentication cookie; passed functions and actions are excuted when defined in the payload */
 	refreshCookie({
 		rootState,
 		commit,
@@ -54,7 +54,8 @@ const actions = {
 	}) {
 		if (rootState.online) {
 			state.runningCookieRefreshId = setInterval(() => {
-				dispatch('refreshCookie')
+				// dispatch with an empty payload
+				dispatch('refreshCookie', {})
 			}, rootState.cookieRefreshInterval * 1000)
 		}
 	},
