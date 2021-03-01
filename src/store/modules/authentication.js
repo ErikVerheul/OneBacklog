@@ -17,6 +17,8 @@ const actions = {
 		dispatch,
 		state
 	}, payload) {
+		// set to false until proofed to be true
+		state.cookieAuthenticated = false
 		if (rootState.online) {
 			globalAxios({
 				method: 'POST',
@@ -35,7 +37,6 @@ const actions = {
 				if (payload.onFailureCallback) payload.onFailureCallback()
 				// stop the interval function and wait for the watchDog to start again
 				clearInterval(state.runningCookieRefreshId)
-				state.cookieAuthenticated = false
 				rootState.online = false
 				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: SEV.CRITICAL })
 				const msg = 'Refresh of the authentication cookie failed with ' + error
@@ -83,6 +84,7 @@ const actions = {
 			url: '/_session',
 			data: authData
 		}).then(res => {
+			rootState.online = true
 			rootState.mySessionId = create_UUID()
 			state.sessionAuthData = authData
 			rootState.iAmAssistAdmin = res.data.roles.includes('assistAdmin')
