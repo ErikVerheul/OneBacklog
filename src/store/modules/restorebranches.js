@@ -37,7 +37,6 @@ const actions = {
 			const doc = res.data
 			const unremovedMark = doc.unremovedMark
 			if (unremovedMark) {
-				console.log('restoreBranch: unremovedMark = ' + unremovedMark)
 				// no need to add history here as the data is only used to update the tree model (no update of the database)
 				const parentNode = window.slVueTree.getNodeById(doc.parentId)
 				if (parentNode) {
@@ -49,7 +48,6 @@ const actions = {
 						nodeModel: locationInfo.prevNode,
 						placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 					}, [newNode], options)
-					console.log('restoreBranch: added to tree ' + doc.title)
 					// load the children of the node
 					dispatch('loadChildren', { unremovedMark, parentNode: newNode })
 					dispatch('additionalActions', payload)
@@ -131,7 +129,6 @@ const actions = {
 		}).then(res => {
 			loadTasksRunning--
 			const results = res.data.rows
-			console.log('loadChildren: results = ' + JSON.stringify(results, null, 2))
 			if (results.length > 0) {
 				dispatch('processResults', { parentNode: payload.parentNode, results })
 			} else startRestore = false
@@ -169,7 +166,6 @@ const actions = {
 		for (const r of payload.results) {
 			// add the child node
 			const newParentNode = window.slVueTree.insertDescendantNode(payload.parentNode, r.doc)
-			console.log('loadChildren: added to tree ' + r.doc.title)
 			// scan next level
 			dispatch('loadChildren', { parentNode: newParentNode })
 		}

@@ -439,7 +439,6 @@ const methods = {
 		}
 		// if not excluded in options do assign new priorities
 		if (!options || options.calculatePrios) {
-			console.log('insertNodes: assignNewPrios executed')
 			assignNewPrios(nodes, predecessorNode, successorNode)
 		}
 	},

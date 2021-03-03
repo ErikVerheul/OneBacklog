@@ -39,7 +39,6 @@ const actions = {
 			updatedDoc.history.unshift(newHist)
 			updatedDoc.unremovedMark = updatedDoc.delmark
 			delete updatedDoc.delmark
-			console.log('restoreItemAndDescendants: restored item ' + updatedDoc.title)
 			const toDispatch = [{ updateGrandParentHist: entry }]
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
@@ -172,7 +171,6 @@ const actions = {
 			// unmark for removal
 			doc.unremovedMark = doc.delmark
 			delete doc.delmark
-			console.log('unremoveDescendants: restored item ' + doc.title)
 		}
 
 		dispatch('updateBulk', {
@@ -218,7 +216,6 @@ const actions = {
 			if (grandParentDoc.delmark) {
 				commit('showLastEvent', { txt: 'The document representing the item to restore under was removed. The removal is made undone.', severity: SEV.WARNING })
 				delete grandParentDoc.delmark
-				console.log('updateGrandParentHist: restored item ' + grandParentDoc.title)
 			}
 			const toDispatch = [{ restoreExtDepsAndConds: entry }]
 			if (entry.removedNode.productId === MISC.AREA_PRODUCTID) {
