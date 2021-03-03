@@ -299,7 +299,7 @@ const actions = {
 					/* Filter on parentIds to map documents to their parent */
 					docToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem") emit([doc.parentId, doc.priority * -1]);
+							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.parentId, doc.priority * -1]);
 						}`
 					},
 					/* Filter up to and including the feature level */
@@ -329,7 +329,7 @@ const actions = {
 					/* Filter on delmark and parentId to map removed documents to their parent in order of priority */
 					removedDocToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && doc.delmark) emit([doc.parentId, doc.priority * -1]);
+							if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, doc.priority * -1]);
 						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
@@ -360,6 +360,12 @@ const actions = {
 							if (doc.type ==='team' && !doc.delmark) emit(doc.teamName, doc.members);
 						}`
 					}
+				},
+				/* Filter on unremovedMark and parentId to map unremoved documents to their parent in order of priority */
+				unremovedDocToParentMap: {
+					map: `function(doc) {
+							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId, doc.priority * -1]);
+						}`
 				},
 				language: 'javascript'
 			}

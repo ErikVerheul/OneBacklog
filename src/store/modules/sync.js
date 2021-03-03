@@ -310,25 +310,11 @@ const actions = {
 									showSyncMessage(`changed the description of`, SEV.INFO)
 									break
 								case 'docRestoredEvent':
-									{
-										commit('showLastEvent', { txt: `Busy restoring ${getLevelText(doc)} as initiated in another session...`, severity: SEV.INFO })
-										let toDispatch
-										if (updateBoard && doc.level !== LEVEL.TASK) {
-											// postpone the board update until the document is restored
-											toDispatch = [{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }]
-										}
-										dispatch('restoreBranch', {
-											doc,
-											toDispatch,
-											onSuccessCallback: () => {
-												if (doc.level === LEVEL.PRODUCT) {
-													// re-enter all the current users product roles, and update the user's subscriptions and product selection arrays with the removed product
-													dispatch('addToMyProducts', { newRoles: lastHistObj.docRestoredEvent[5], productId: doc._id, productTitle: doc.title, isSameUserInDifferentSession })
-												}
-												showSyncMessage(`restored the removed`, SEV.INFO)
-											}
-										})
-									}
+									dispatch('restoreBranch', {
+										histArray: lastHistObj.docRestoredEvent,
+										isSameUserInDifferentSession,
+										toDispatch: updateBoard ? [{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }] : undefined
+									})
 									break
 								case 'nodeMovedEvent':
 									moveNode(doc)
@@ -509,7 +495,7 @@ const actions = {
 							break
 						case 'docRestoredEvent':
 							{
-								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.docRestoredEvent[6])
+								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.docRestoredEvent[7])
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
 									// one or more of the removed items or their descendants assigned to the loaded sprint are restored
 									if (doc.level === LEVEL.TASK) {
@@ -751,19 +737,8 @@ const actions = {
 					break
 				case 'docRestoredEvent':
 					dispatch('restoreBranch', {
-						doc,
-						onSuccessCallback: () => {
-							// restore references to the requirement area
-							const reqAreaId = doc._id
-							const itemsRemovedFromReqArea = lastHistObj.docRestoredEvent[7]
-							window.slVueTree.traverseModels((nm) => {
-								if (itemsRemovedFromReqArea.includes(nm._id)) {
-									nm.data.reqarea = reqAreaId
-								}
-							})
-							window.slVueTree.setDescendantsReqArea()
-							showSyncMessage(`restored removed`, SEV.INFO)
-						}
+						histArray: lastHistObj.docRestoredEvent,
+						restoreReqArea: true
 					})
 					break
 				case 'removedWithDescendantsEvent':
@@ -794,8 +769,9 @@ const actions = {
 		rootState,
 		dispatch
 	}) {
-		// stop listening if offline. Watchdog will start it automatically when online again
-		if (!rootState.online) return
+		// stop listening if offline or not authenticated. Watchdog will start it again
+		// ToDo: after a computer sleep both are true and listenForChanges returns a 401
+		if (!rootState.online || !rootState.authentication.cookieAuthenticated) return
 
 		rootState.listenForChangesRunning = true
 		const url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
@@ -828,10 +804,8 @@ const actions = {
 			}
 		}).catch(error => {
 			rootState.listenForChangesRunning = false
-			const msg = 'Listening for changes made by other users failed, ' + error
-			// do not try to save the log if a network error is detected, just queue the log
-			const skipSaving = error.message = 'Network error'
-			dispatch('doLog', { event: msg, level: SEV.WARNING, skipSaving })
+			const msg = `'Listening for changes made by other users failed, ${error}`
+			dispatch('doLog', { event: msg, level: SEV.WARNING })
 		})
 	}
 }

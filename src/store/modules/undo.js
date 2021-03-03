@@ -2,8 +2,8 @@ import { SEV, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
-function composeRangeString(id) {
-	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
+function composeRangeString(delmark, id) {
+	return `startkey=["${delmark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
 const actions = {
@@ -31,19 +31,16 @@ const actions = {
 		}).then(res => {
 			const updatedDoc = res.data
 			const newHist = {
-				docRestoredEvent: [entry.removedDescendantsCount, entry.removedIntDependencies, entry.removedExtDependencies,
-				entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds, entry.itemsRemovedFromReqArea],
+				ignoreEvent: ['restoreItemAndDescendants'],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: false
 			}
 			updatedDoc.history.unshift(newHist)
-
+			updatedDoc.unremovedMark = updatedDoc.delmark
 			delete updatedDoc.delmark
-			const toDispatch = [
-				{ updateGrandParentHist: entry },
-			]
+			console.log('restoreItemAndDescendants: restored item ' + updatedDoc.title)
+			const toDispatch = [{ updateGrandParentHist: entry }]
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc,
@@ -120,7 +117,7 @@ const actions = {
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(payload.parentId) + '&include_docs=true'
+			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(payload.entry.delmark, payload.parentId) + '&include_docs=true'
 		}).then(res => {
 			const results = res.data.rows
 			if (results.length > 0) {
@@ -173,7 +170,9 @@ const actions = {
 				}
 			}
 			// unmark for removal
+			doc.unremovedMark = doc.delmark
 			delete doc.delmark
+			console.log('unremoveDescendants: restored item ' + doc.title)
 		}
 
 		dispatch('updateBulk', {
@@ -204,10 +203,14 @@ const actions = {
 		}).then(res => {
 			const grandParentDoc = res.data
 			const newHist = {
-				grandParentDocRestoredEvent: [entry.removedNode.level, entry.removedNode.title, entry.removedDescendantsCount, entry.removedNode.data.subtype],
+				docRestoredEvent: [entry.removedNode._id, entry.removedDescendantsCount, entry.removedIntDependencies, entry.removedExtDependencies,
+				entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds, entry.itemsRemovedFromReqArea,
+				entry.removedNode.level, entry.removedNode.data.subtype, entry.removedNode.title
+				],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
-				distributeEvent: false
+				sessionId: rootState.mySessionId,
+				distributeEvent: true
 			}
 			grandParentDoc.history.unshift(newHist)
 
@@ -215,6 +218,7 @@ const actions = {
 			if (grandParentDoc.delmark) {
 				commit('showLastEvent', { txt: 'The document representing the item to restore under was removed. The removal is made undone.', severity: SEV.WARNING })
 				delete grandParentDoc.delmark
+				console.log('updateGrandParentHist: restored item ' + grandParentDoc.title)
 			}
 			const toDispatch = [{ restoreExtDepsAndConds: entry }]
 			if (entry.removedNode.productId === MISC.AREA_PRODUCTID) {
@@ -223,7 +227,7 @@ const actions = {
 			}
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, toDispatch, caller: 'updateGrandParentHist' })
 		}).catch(error => {
-			const msg = 'unDoRemove: Could not read document with _id ' + _id + ', ' + error
+			const msg = 'updateGrandParentHist: Could not read document with _id ' + _id + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -273,8 +277,6 @@ const actions = {
 						distributeEvent: false
 					}
 					doc.history.unshift(newHist)
-					// unmark for removal
-					delete doc.delmark
 					docs.push(doc)
 				}
 				if (r.docs[0].error) errors.push(r.docs[0].error)

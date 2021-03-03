@@ -284,7 +284,7 @@ const methods = {
   },
 
   mkGrandParentDocRestoredEvent (value) {
-    return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are restored from removal.</h5>`
+    return `<h5>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h5>`
   },
 
   mkImportToSprintEvent (value) {

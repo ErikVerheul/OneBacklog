@@ -58,7 +58,7 @@ const actions = {
 	/*
 	* If the item is an epic also assign this req area to the children which have no req area assigned yet / when removing do the reverse.
 	* When the parent req area is changed the children change too.
-		*/
+	*/
 	updateReqAreaChildren({
 		rootState,
 		dispatch

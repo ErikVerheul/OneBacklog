@@ -8,34 +8,78 @@ var histArray
 var startRestore
 var loadTasksRunning
 
-function composeRangeString(id) {
+function composeRangeString1(unremovedMark, id) {
+	return `startkey=["${unremovedMark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${unremovedMark}","${id}",${Number.MAX_SAFE_INTEGER}]`
+}
+
+function composeRangeString2(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
 const actions = {
-	/* Restore one branch or product from the removed items */
+	/* Restore one branch or product into the tree view. This action is used by the synchronization to sync a remote removal undo. The items are already unremoved by the remote session */
 	restoreBranch({
+		rootState,
+		commit,
 		dispatch
 	}, payload) {
 		fromHistory = true
-		histArray = payload.doc.history[0].docRestoredEvent
+		histArray = payload.histArray
+		const removedDocId = histArray[0]
+		const newRoles = histArray[6]
 		startRestore = true
 		loadTasksRunning = 0
-		const doc = payload.doc
-		// no need to add history here as the data is only used to update the tree model (no update of the database)
-		const parentNode = window.slVueTree.getNodeById(doc.parentId)
-		if (parentNode) {
-			const locationInfo = getLocationInfo(doc.priority, parentNode)
-			const newNode = window.slVueTree.createNode(doc)
-			const options = doc.level === LEVEL.PRODUCT ? { skipUpdateProductId: true } : { skipUpdateProductId: false }
-			// insert the parent node in the tree
-			window.slVueTree.insertNodes({
-				nodeModel: locationInfo.prevNode,
-				placement: locationInfo.newInd === 0 ? 'inside' : 'after'
-			}, [newNode], options)
-			// load the children of the node
-			dispatch('loadChildren', { parentNode: newNode })
-		}
+		// get the removed document
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + removedDocId
+		}).then(res => {
+			const doc = res.data
+			const unremovedMark = doc.unremovedMark
+			if (unremovedMark) {
+				console.log('restoreBranch: unremovedMark = ' + unremovedMark)
+				// no need to add history here as the data is only used to update the tree model (no update of the database)
+				const parentNode = window.slVueTree.getNodeById(doc.parentId)
+				if (parentNode) {
+					const locationInfo = getLocationInfo(doc.priority, parentNode)
+					const newNode = window.slVueTree.createNode(doc)
+					const options = doc.level === LEVEL.PRODUCT ? { skipUpdateProductId: true } : { skipUpdateProductId: false }
+					// insert the parent node in the tree
+					window.slVueTree.insertNodes({
+						nodeModel: locationInfo.prevNode,
+						placement: locationInfo.newInd === 0 ? 'inside' : 'after'
+					}, [newNode], options)
+					console.log('restoreBranch: added to tree ' + doc.title)
+					// load the children of the node
+					dispatch('loadChildren', { unremovedMark, parentNode: newNode })
+					dispatch('additionalActions', payload)
+
+					if (payload.restoreReqArea) {
+						// restore references to the requirement area
+						const reqAreaId = doc._id
+						const itemsRemovedFromReqArea = histArray[8]
+						window.slVueTree.traverseModels((nm) => {
+							if (itemsRemovedFromReqArea.includes(nm._id)) {
+								nm.data.reqarea = reqAreaId
+							}
+						})
+						window.slVueTree.setDescendantsReqArea()
+					} else {
+						if (doc.level === LEVEL.PRODUCT) {
+							// re-enter all the current users product roles, and update the user's subscriptions and product selection arrays with the removed product
+							dispatch('addToMyProducts', { newRoles, productId: doc._id, productTitle: doc.title, isSameUserInDifferentSession: payload.isSameUserInDifferentSession })
+						}
+					}
+					commit('showLastEvent', { txt: `The items removed in another session are restored`, severity: SEV.INFO })
+				}
+			} else {
+				const msg = `restoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The unremovedMark is missing`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			}
+		}).catch(error => {
+			const msg = `restoreBranch: Could not load the removed document with id ${removedDocId} in database ${rootState.userData.currentDb}, ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
 	},
 
 	/* LoadProducts is a special case of restoreBranch. It can load multiple products */
@@ -79,12 +123,15 @@ const actions = {
 		dispatch
 	}, payload) {
 		loadTasksRunning++
+		const url = fromHistory ? `${rootState.userData.currentDb}/_design/design1/_view/unremovedDocToParentMap?${composeRangeString1(payload.unremovedMark, payload.parentNode._id)}&include_docs=true` :
+			`${rootState.userData.currentDb}/_design/design1/_view/docToParentMap?${composeRangeString2(payload.parentNode._id)}&include_docs=true`
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.parentNode._id) + '&include_docs=true'
+			url
 		}).then(res => {
 			loadTasksRunning--
 			const results = res.data.rows
+			console.log('loadChildren: results = ' + JSON.stringify(results, null, 2))
 			if (results.length > 0) {
 				dispatch('processResults', { parentNode: payload.parentNode, results })
 			} else startRestore = false
@@ -93,13 +140,13 @@ const actions = {
 				// nodes are restored
 				if (fromHistory) {
 					// restore external dependencies
-					const dependencies = dedup(histArray[2])
+					const dependencies = dedup(histArray[3])
 					for (const d of dependencies) {
 						const node = window.slVueTree.getNodeById(d.id)
 						if (node !== null) node.dependencies.push(d.dependentOn)
 					}
 					// restore external conditions
-					const conditionalFor = dedup(histArray[4])
+					const conditionalFor = dedup(histArray[5])
 					for (const c of conditionalFor) {
 						const node = window.slVueTree.getNodeById(c.id)
 						if (node !== null) node.conditionalFor.push(c.conditionalFor)
@@ -122,6 +169,7 @@ const actions = {
 		for (const r of payload.results) {
 			// add the child node
 			const newParentNode = window.slVueTree.insertDescendantNode(payload.parentNode, r.doc)
+			console.log('loadChildren: added to tree ' + r.doc.title)
 			// scan next level
 			dispatch('loadChildren', { parentNode: newParentNode })
 		}
