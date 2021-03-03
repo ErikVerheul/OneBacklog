@@ -7,8 +7,9 @@ var fromHistory
 var histArray
 var startRestore
 var loadTasksRunning
+var unremovedMark
 
-function composeRangeString1(unremovedMark, id) {
+function composeRangeString1(id) {
 	return `startkey=["${unremovedMark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${unremovedMark}","${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
@@ -35,7 +36,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + removedDocId
 		}).then(res => {
 			const doc = res.data
-			const unremovedMark = doc.unremovedMark
+			unremovedMark = doc.unremovedMark
 			if (unremovedMark) {
 				// no need to add history here as the data is only used to update the tree model (no update of the database)
 				const parentNode = window.slVueTree.getNodeById(doc.parentId)
@@ -49,7 +50,7 @@ const actions = {
 						placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 					}, [newNode], options)
 					// load the children of the node
-					dispatch('loadChildren', { unremovedMark, parentNode: newNode })
+					dispatch('loadChildren', { parentNode: newNode })
 					dispatch('additionalActions', payload)
 
 					if (payload.restoreReqArea) {
@@ -69,6 +70,9 @@ const actions = {
 						}
 					}
 					commit('showLastEvent', { txt: `The items removed in another session are restored`, severity: SEV.INFO })
+				} else {
+					const msg = `restoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The parent node is missing`
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				}
 			} else {
 				const msg = `restoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The unremovedMark is missing`
@@ -121,7 +125,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		loadTasksRunning++
-		const url = fromHistory ? `${rootState.userData.currentDb}/_design/design1/_view/unremovedDocToParentMap?${composeRangeString1(payload.unremovedMark, payload.parentNode._id)}&include_docs=true` :
+		const url = fromHistory ? `${rootState.userData.currentDb}/_design/design1/_view/unremovedDocToParentMap?${composeRangeString1(payload.parentNode._id)}&include_docs=true` :
 			`${rootState.userData.currentDb}/_design/design1/_view/docToParentMap?${composeRangeString2(payload.parentNode._id)}&include_docs=true`
 		globalAxios({
 			method: 'GET',
@@ -129,6 +133,7 @@ const actions = {
 		}).then(res => {
 			loadTasksRunning--
 			const results = res.data.rows
+			// console.log('loadChildren: results = ' + results.map(r => r.doc.title))
 			if (results.length > 0) {
 				dispatch('processResults', { parentNode: payload.parentNode, results })
 			} else startRestore = false

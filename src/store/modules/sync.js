@@ -165,17 +165,16 @@ const actions = {
 			// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
 		}
 
-		function moveNode(doc) {
-			const parentNode = window.slVueTree.getNodeById(doc.parentId)
-			if (parentNode === null) return
+		function moveNode(node, newParentId) {
+			const newParentNode = window.slVueTree.getNodeById(newParentId)
+			if (newParentNode === null) return
 			const item = lastHistObj.nodeMovedEvent
 			if (item[1] > rootState.loadedTreeDepth) {
 				// skip items that are not available in the tree
 				return
 			}
-			const node = window.slVueTree.getNodeById(doc._id)
 			if (node.level === LEVEL.PBI || node.level === LEVEL.TASK) commit('updateNodesAndCurrentDoc', { node, sprintId: item[12] })
-			const locationInfo = getLocationInfo(item[10], parentNode)
+			const locationInfo = getLocationInfo(item[10], newParentNode)
 			if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 				// move the node to the new position w/r to its siblings; first remove the node, then insert
 				window.slVueTree.removeNodes([node])
@@ -201,9 +200,9 @@ const actions = {
 		function doProc(doc) {
 			doBlinck(doc)
 			try {
+				const node = window.slVueTree.getNodeById(doc._id)
 				// note that both updateTree and updateBoard can be true
 				if (updateTree) {
-					const node = window.slVueTree.getNodeById(doc._id)
 					// check for exception 'node not found'
 					if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent' && histEvent !== 'createTaskEvent') {
 						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
@@ -233,16 +232,15 @@ const actions = {
 					if (processHistory) {
 						// if not a comment, process the last event from the document history array (in the tree and/or board)
 						reportOddTimestamp(lastHistObj, doc._id)
-						// show the history update
+						// show the history update in he currently visable document
 						if (isCurrentDocument) rootState.currentDoc.history = doc.history
-
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
 						// process requirement area items
 						if (rootGetters.isOverviewSelected && isReqAreaItem) {
-							// eslint-disable-next-line no-console
-							if (rootState.debug) console.log('sync:update the requiremnet areas with event ' + histEvent)
-							const node = window.slVueTree.getNodeById(doc._id)
 							switch (histEvent) {
 								case 'changeReqAreaColorEvent':
+									commit('updateColorMapper', { id: doc._id, newColor: doc.color })
 									commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
 									showSyncMessage(`changed the color indication of`, SEV.INFO)
 									break
@@ -253,11 +251,18 @@ const actions = {
 									}
 									break
 								case 'nodeMovedEvent':
-									moveNode(doc)
+									moveNode(node, doc.parentId)
 									showSyncMessage(`moved`, SEV.INFO)
 									break
 								case 'removedWithDescendantsEvent':
 									if (node) {
+										// remove references from the requirement area
+										const reqAreaId = lastHistObj.removedWithDescendantsEvent[0]
+										window.slVueTree.traverseModels((nm) => {
+											if (nm.data.reqarea === reqAreaId) {
+												delete nm.data.reqarea
+											}
+										})
 										window.slVueTree.removeNodes([node])
 										showSyncMessage(`removed`, SEV.INFO)
 									}
@@ -266,13 +271,17 @@ const actions = {
 									commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
 									showSyncMessage(`changed the title of`, SEV.INFO)
 									break
+								case 'docRestoredEvent':
+									dispatch('restoreBranch', {
+										histArray: lastHistObj.docRestoredEvent,
+										restoreReqArea: true
+									})
+									break
 								default:
 									// eslint-disable-next-line no-console
 									if (rootState.debug && !boardEvents.includes(histEvent)) console.log('sync.trees.isReqAreaItem: event not found, name = ' + histEvent)
 							}
 						} else {
-							// eslint-disable-next-line no-console
-							if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
 							// process events for non requirement area items
 							switch (histEvent) {
 								case 'acceptanceEvent':
@@ -317,7 +326,7 @@ const actions = {
 									})
 									break
 								case 'nodeMovedEvent':
-									moveNode(doc)
+									moveNode(node, doc.parentId)
 									showSyncMessage(`moved`, SEV.INFO)
 									break
 								case 'removeAttachmentEvent':
@@ -706,7 +715,7 @@ const actions = {
 
 		const logEvent = processComment ? commentsEvent : histEvent
 		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('sync:updateTree with event ' + logEvent)
+		if (rootState.debug) console.log('sync:received event ' + logEvent)
 
 		const isSameUserInDifferentSession = processComment ? lastCommentsObj.by === rootState.userData.user : lastHistObj.by === rootState.userData.user
 
@@ -727,39 +736,8 @@ const actions = {
 		const updateTree = doc.level <= rootState.loadedTreeDepth
 		// update the board only if selected as the current view AND loaded for my team OR setTeamOwnerEvent is received
 		const updateBoard = rootGetters.isPlanningBoardSelected && (doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent')
-
-		// (pre)process requirement area items which do not reference the node
-		if (processHistory && isReqAreaItem) {
-			switch (histEvent) {
-				case 'changeReqAreaColorEvent':
-					commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-					showSyncMessage(`changed the color indicator of`, SEV.INFO)
-					break
-				case 'docRestoredEvent':
-					dispatch('restoreBranch', {
-						histArray: lastHistObj.docRestoredEvent,
-						restoreReqArea: true
-					})
-					break
-				case 'removedWithDescendantsEvent':
-					{
-						// remove references from the requirement area
-						const reqAreaId = lastHistObj.removedWithDescendantsEvent[0]
-						window.slVueTree.traverseModels((nm) => {
-							if (nm.data.reqarea === reqAreaId) {
-								delete nm.data.reqarea
-							}
-						})
-					}
-					break
-				default:
-					// eslint-disable-next-line no-console
-					if (rootState.debug && !boardEvents.includes(histEvent)) console.log('sync.trees.isReqAreaItem.preprocess: event not found, name = ' + histEvent)
-			}
-		}
-
-		// process the event if the user is subscribed for the event's product or to restore removed products or the item is a requirement area item
-		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || histEvent === 'docRestoredEvent' && doc.level === LEVEL.PRODUCT || isReqAreaItem) {
+		// process the event if the user is subscribed for the event's product, or to restore removed products, or the item is a requirement area item
+		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || histEvent === 'docRestoredEvent' && doc.level === LEVEL.DATABASE || isReqAreaItem) {
 			doProc(doc)
 		}
 	},
