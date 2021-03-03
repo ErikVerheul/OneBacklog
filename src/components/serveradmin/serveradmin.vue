@@ -24,7 +24,7 @@
         <b-button v-if="!showLogModal" class="m-1" @click="cancel">Cancel</b-button>
         <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         <b-modal v-model="showLogModal" size="lg" :title="logModalTitle()">
-          <div v-for="item in $store.state.logEntries" :key="item.timestamp">
+          <div v-for="item in $store.state.logEntries" :key="createLogKey(item.timestamp, item.sessionSeq)">
             Event: {{ item.event }} <br />
             Severity: {{ severity(item.level) }} <br />
             By: {{ item.by }} <br />
@@ -218,6 +218,12 @@ export default {
     logModalTitle() {
       return 'Log of database ' + this.$store.state.selectedDatabaseName
     },
+
+		createLogKey(timestamp, sessionSeq) {
+			// Todo: over time sessionSeq will always be defined
+			if (sessionSeq) return timestamp + sessionSeq
+			return timestamp
+		},
 
     severity(level) {
       let severity = ''

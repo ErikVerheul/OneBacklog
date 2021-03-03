@@ -114,7 +114,9 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		rootState.logState.logSessionSeq++
 		const newLog = {
+			sessionSeq: rootState.logState.logSessionSeq,
 			event: payload.event,
 			level: payload.level,
 			by: rootState.userData.user,

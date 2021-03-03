@@ -101,6 +101,7 @@ export default new Vuex.Store({
 		isDatabaseInitiated: false,
 		// logging
 		logState: {
+			logSessionSeq: 0,
 			logSavePending: false,
 			runningWatchdogId: null,
 			savedLogs: [],

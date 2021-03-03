@@ -20,6 +20,7 @@ const actions = {
 		rootState,
 		rootGetters,
 		state,
+		dispatch,
 		commit
 	}) {
 		parentNodes = {}
@@ -183,13 +184,7 @@ const actions = {
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {
 					const msg = `Orphan found with Id = ${o.id}, parentId = ${o.parentId} and productId = ${o.productId}`
-					const newLog = {
-						event: msg,
-						level: SEV.CRITICAL,
-						by: rootState.userData.user,
-						timestamp: Date.now()
-					}
-					rootState.logState.unsavedLogs.push(newLog)
+					dispatch('doLog', { event: msg, level: SEV.CRITICAL })
 				}
 			}
 			// log any detected level errors, if present
@@ -197,13 +192,7 @@ const actions = {
 				for (const l of levelErrorsFound) {
 					const msg1 = `Level error found with Id = ${l.id}, parentId = ${l.parentId} and productId = ${l.productId}.`
 					const msg2 = `The level read in the document is ${l.dbLevel}. According to the read parent the level should be ${l.pathLength}.`
-					const newLog = {
-						event: msg1 + ' ' + msg2,
-						level: SEV.CRITICAL,
-						by: rootState.userData.user,
-						timestamp: Date.now()
-					}
-					rootState.logState.unsavedLogs.push(newLog)
+					dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
 				}
 			}
 			// eslint-disable-next-line no-console
@@ -214,7 +203,6 @@ const actions = {
 			if (rootState.debug) console.log(`loadOverview: Could not read from database ${rootState.userData.currentDb}, ${error}`)
 		})
 	}
-
 }
 
 export default {
