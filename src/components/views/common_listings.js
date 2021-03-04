@@ -296,7 +296,7 @@ const methods = {
   },
 
   mkDocRestoredEvent (value) {
-    return `<h5>This item and ${value[0]} descendants are restored from removal.</h5>`
+    return `<h5>This item and ${value[1]} descendants are restored from removal.</h5>`
   },
 
   mkSetConditionsEvent (value) {
