@@ -98,7 +98,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
         case "descriptionEvent":
             return mkHeader() + `<h3>The description changed from:</h3><p>${atob(value[0])}</p> to <p>${atob(value[1])}</p>` + mkFooter()
         case "docRestoredEvent":
-            return mkHeader() + `<h3>This item and ${value[0]} descendants are restored from removal.</h3>` + mkFooter()
+            return mkHeader() + `<h3>This item and ${value[1]} descendants are restored from removal.</h3>` + mkFooter()
         case "newChildEvent":
             return mkHeader() + `<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}.</h3>` + mkFooter()
         case "nodeMovedEvent":
