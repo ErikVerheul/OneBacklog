@@ -9,13 +9,14 @@ const FULLKEYLENGTH = 17
 function mounted() {
 	function idCheck(vm) {
 		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-		if (vm.$store.state.itemId.length !== SHORTKEYLENGTH && vm.$store.state.itemId.length < FULLKEYLENGTH) {
+		const trimmedItemId = vm.$store.state.itemId.trim()
+		if (trimmedItemId.length !== SHORTKEYLENGTH && trimmedItemId.length < FULLKEYLENGTH) {
 			vm.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
 			return false
 		}
 
-		for (let i = 0; i < vm.$store.state.itemId.length; i++) {
-			if (!alphanum.includes(vm.$store.state.itemId.substring(i, i + 1).toLowerCase())) return false
+		for (let i = 0; i < trimmedItemId.length; i++) {
+			if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) return false
 		}
 		return true
 	}
@@ -27,7 +28,7 @@ function mounted() {
 			event.preventDefault()
 			// check for valid input and convert to lowercase
 			if (idCheck(this)) {
-				this.findItemOnId(this.$store.state.itemId.toLowerCase())
+				this.findItemOnId(this.$store.state.itemId.toLowerCase().trim())
 			}
 		}
 	})
