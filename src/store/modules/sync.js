@@ -27,6 +27,7 @@
 * 'setTitleEvent':								see if (processHistory && isReqAreaItem) and process other events for tree views	+	see if (updateBoard)
 * 'taskRemovedEvent':							see process other events for tree views	+	see if (updateBoard)
 * 'uploadAttachmentEvent':				see process other events for tree views
+* 'updateReqAreaEvent':						see process other events for tree views
 * 'updateTaskOrderEvent':					see if (updateBoard)
 */
 
@@ -200,6 +201,13 @@ const actions = {
 		function doProc(doc) {
 			doBlinck(doc)
 			try {
+				// process events for the tree view that not have/need a mapping to a node
+				if (updateTree && histEvent === 'changeReqAreaColorEvent' && rootGetters.isDetailsViewSelected) {
+					commit('updateColorMapper', { id: doc._id, newColor: doc.color })
+					showSyncMessage(`changed the color indication of ${getLevelText(doc)} '${doc.title}'`, SEV.INFO, true)
+					return
+				}
+
 				const node = window.slVueTree.getNodeById(doc._id)
 				// note that both updateTree and updateBoard can be true
 				if (updateTree) {
@@ -242,7 +250,7 @@ const actions = {
 								case 'changeReqAreaColorEvent':
 									commit('updateColorMapper', { id: doc._id, newColor: doc.color })
 									commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
-									showSyncMessage(`changed the color indication of`, SEV.INFO)
+									showSyncMessage(`changed the color indication of ${getLevelText(doc)} '${doc.title}'`, SEV.INFO, true)
 									break
 								case 'createEvent':
 									if (node === null) {
@@ -437,6 +445,10 @@ const actions = {
 								case 'uploadAttachmentEvent':
 									commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastAttachmentAddition: doc.lastAttachmentAddition })
 									showSyncMessage(`uploaded an attachment to`, SEV.INFO)
+									break
+								case 'updateReqAreaEvent':
+									console.log('sync: process updateReqAreaEvent')
+
 									break
 								//////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
 								case 'updateTaskOrderEvent':
@@ -736,8 +748,8 @@ const actions = {
 		const updateTree = doc.level <= rootState.loadedTreeDepth
 		// update the board only if selected as the current view AND loaded for my team OR setTeamOwnerEvent is received
 		const updateBoard = rootGetters.isPlanningBoardSelected && (doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent')
-		// process the event if the user is subscribed for the event's product, or to restore removed products, or the item is a requirement area item
-		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || histEvent === 'docRestoredEvent' && doc.level === LEVEL.DATABASE || isReqAreaItem) {
+		// process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, or the item is a requirement area item while the overview is in view
+		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || histEvent === 'changeReqAreaColorEvent' || (histEvent === 'docRestoredEvent' && doc.level === LEVEL.DATABASE) || (rootGetters.isOverviewSelected && isReqAreaItem)) {
 			doProc(doc)
 		}
 	},
@@ -747,17 +759,15 @@ const actions = {
 		rootState,
 		dispatch
 	}) {
-		// stop listening if offline or not authenticated. Watchdog will start it again
-		// ToDo: after a computer sleep both are true and listenForChanges returns a 401
-		if (!rootState.online || !rootState.authentication.cookieAuthenticated) return
+		// stop listening if not online or authenticated. Watchdog will start it again
+		if (!rootState.onlnine || !rootState.authentication.cookieAuthenticated) return
 
-		rootState.listenForChangesRunning = true
-		const url = rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
 		globalAxios({
 			method: 'GET',
-			url
+			url: rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
 		}).then(res => {
-			// note that receiving a response can last up to 60 seconds (time-out)
+			rootState.listenForChangesRunning = true
+			// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
 			dispatch('listenForChanges')
 			const data = res.data
 			if (data.results.length > 0) {
@@ -782,8 +792,12 @@ const actions = {
 			}
 		}).catch(error => {
 			rootState.listenForChangesRunning = false
-			const msg = `'Listening for changes made by other users failed, ${error}`
-			dispatch('doLog', { event: msg, level: SEV.WARNING })
+			if (error.response.status === 401) rootState.authentication.cookieAuthenticated = false
+			if (error.message === 'Network error') rootState.onlnine = false
+			const msg = `Listening for changes made by other users failed. ${error}`
+			// do not try to save the log if an error is detected, just queue the log
+			const skipSaving = true
+			dispatch('doLog', { event: msg, level: SEV.WARNING, skipSaving })
 		})
 	}
 }

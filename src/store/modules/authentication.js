@@ -41,7 +41,7 @@ const actions = {
 				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: SEV.CRITICAL })
 				const msg = 'Refresh of the authentication cookie failed with ' + error
 				// do not try to save the log if a network error is detected, just queue the log
-				const skipSaving = error.message = 'Network error'
+				const skipSaving = error.message === 'Network error'
 				dispatch('doLog', { event: msg, level: SEV.CRITICAL, skipSaving })
 			})
 		}

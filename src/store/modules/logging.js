@@ -6,6 +6,9 @@ const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
 const WATCHDOGINTERVAL = 5
 
+const state = {
+	canRecoverLog: true
+}
 const actions = {
 	/*
 	 * Logging is not possible without network connection to the database.
@@ -41,7 +44,7 @@ const actions = {
 			dispatch('refreshCookie', { onSuccessCallback: () => consoleLogStatus(), onFailureCallback: () => consoleLogStatus(), toDispatch })
 		}
 
-		// test the connection every WATCHDOGINTERVAL seconds
+		// test the connection and authentication status every WATCHDOGINTERVAL seconds
 		rootState.logState.runningWatchdogId = setInterval(() => {
 			const wasOffline = !rootState.online
 			globalAxios({
@@ -63,7 +66,7 @@ const actions = {
 				// eslint-disable-next-line no-console
 				if (rootState.debugConnectionAndLogging) console.log(`watchdog: no connection @ ${new Date()}, ${error}`)
 				// if error status 401 is returned we are online again despite the error condition (no authentication)
-				if (error.message.includes('401')) {
+				if (error.response.status === 401) {
 					rootState.online = true
 					restartLoops()
 				} else consoleLogStatus()
@@ -75,6 +78,10 @@ const actions = {
 		rootState,
 		dispatch
 	}) {
+		// system cannot update before the current transaction is completed
+		if (!state.canRecoverLog) return
+
+		state.canRecoverLog = false
 		// catch up the logging
 		globalAxios({
 			method: 'GET',
@@ -94,7 +101,9 @@ const actions = {
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debugConnectionAndLogging) console.log(msg)
+			rootState.logState.logSessionSeq++
 			const newLog = {
+				sessionSeq: rootState.logState.logSessionSeq,
 				event: msg,
 				level: SEV.INFO,
 				by: rootState.userData.user,
@@ -102,7 +111,11 @@ const actions = {
 			}
 			log.entries.unshift(newLog)
 			log.entries = log.entries.slice(0, MAXLOGSIZE)
-			dispatch('saveLog', { log, caller: 'watchdog' })
+			dispatch('saveLog', {
+				log, caller: 'watchdog', onSuccessCallback: () => {
+					state.canRecoverLog = true
+				}
+			})
 		}).catch(error => {
 			// eslint-disable-next-line no-console
 			if (rootState.debugConnectionAndLogging) console.log(`recoverLog: Could not read the log. ${error}`)
@@ -124,6 +137,8 @@ const actions = {
 		}
 		// push the new log entry to the unsaved logs
 		rootState.logState.unsavedLogs.push(newLog)
+		if (payload.skipSaving) return
+
 		if (rootState.authentication.cookieAuthenticated) {
 			if (rootState.userData.currentDb) {
 				if (!rootState.logState.logSavePending) {
@@ -173,6 +188,8 @@ const actions = {
 			data: payload.log
 		}).then(() => {
 			rootState.logState.logSavePending = false
+			// execute passed function if provided
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			// eslint-disable-next-line no-console
 			if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is saved by ${payload.caller}`)
 		}).catch(error => {
@@ -184,5 +201,6 @@ const actions = {
 }
 
 export default {
+	state,
 	actions
 }
