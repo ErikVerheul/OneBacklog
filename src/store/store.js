@@ -23,6 +23,7 @@ import startup from './modules/startup'
 import sync from './modules/sync'
 import teams from './modules/teams'
 import undo from './modules/undo'
+import update_reqarea from './modules/update_reqarea'
 import update from './modules/update'
 import useracc from './modules/useracc'
 import utils from './modules/utils'
@@ -1318,6 +1319,7 @@ export default new Vuex.Store({
 		sync,
 		teams,
 		undo,
+		update_reqarea,
 		update,
 		useracc,
 		utils
