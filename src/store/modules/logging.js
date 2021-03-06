@@ -137,6 +137,8 @@ const actions = {
 		}
 		// push the new log entry to the unsaved logs
 		rootState.logState.unsavedLogs.push(newLog)
+		// eslint-disable-next-line no-console
+		if (rootState.debug) console.log(`logging => ${payload.event}`)
 		if (payload.skipSaving) return
 
 		if (rootState.authentication.cookieAuthenticated) {
