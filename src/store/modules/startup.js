@@ -1,5 +1,4 @@
 import { SEV } from '../../constants.js'
-import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
@@ -207,7 +206,6 @@ const actions = {
 					if (lastSprint.startTimestamp - lastSprint.sprintLength < Date.now()) {
 						// sprint calendar ran out of sprints; extend the calendar automatically
 						dispatch('extendDefaultSprintCalendar', {
-							lastSprint,
 							configData,
 							onSuccessCallback: () => {
 								// store the config data
@@ -275,81 +273,6 @@ const actions = {
 		})
 	},
 
-	/*
-	* Load the team calendar by _id and if present make it the current team's calendar.
-	* If the team calendar does not exist replace the current calendar with the default calendar.
-	*/
-	loadTeamCalendar({
-		rootState,
-		dispatch
-	}, id) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id
-		}).then(res => {
-			const doc = res.data
-			if (doc.teamCalendar && doc.teamCalendar.length > 0) {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('loadTeamCalendar: A team document with calendar is loaded; id = ' + id)
-				// check if the team calendar needs to be extended
-				const lastTeamSprint = doc.teamCalendar.slice(-1)[0]
-				if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
-					dispatch('extendTeamCalendar', doc)
-				} else {
-					// replace the defaultSprintCalendar or other team calendar with this team calendar
-					rootState.sprintCalendar = doc.teamCalendar
-					dispatch('getRoot')
-				}
-			} else {
-				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(`loadTeamCalendar: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
-				rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
-				dispatch('getRoot')
-			}
-		}).catch(error => {
-			const msg = 'loadTeamCalendar: Could not read document with id ' + id + ', ' + error
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	extendTeamCalendar({
-		rootState,
-		dispatch
-	}, doc) {
-		const extTeamCalendar = doc.teamCalendar.slice()
-		function createName(prevSprintName) {
-			if (prevSprintName.startsWith('sprint-')) {
-				const prevSprintNrStr = prevSprintName.substr(7)
-				const prevSprintNr = parseInt(prevSprintNrStr)
-				return 'sprint-' + (prevSprintNr + 1)
-			}
-		}
-		let newSprintCount = 0
-		while (extTeamCalendar.slice(-1)[0].startTimestamp - extTeamCalendar.slice(-1)[0].sprintLength < Date.now()) {
-			const prevSprint = extTeamCalendar.slice(-1)[0]
-			const newSprint = {
-				id: createId(),
-				name: createName(prevSprint.name),
-				startTimestamp: prevSprint.startTimestamp + prevSprint.sprintLength,
-				sprintLength: prevSprint.sprintLength
-			}
-			newSprintCount++
-			extTeamCalendar.push(newSprint)
-			const msg = `extendTeamCalendar: The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
-			dispatch('doLog', { event: msg, level: SEV.INFO })
-		}
-
-		doc.teamCalendar = extTeamCalendar
-		// update the team with the extended team calendar and continue loading the tree model
-		const toDispatch = [{ getRoot: null }]
-		dispatch('updateDoc', {
-			dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, onSuccessCallback: () => {
-				// replace the defaultSprintCalendar or other team calendar with this team calendar
-				rootState.sprintCalendar = extTeamCalendar
-			}, caller: 'extendTeamCalendar'
-		})
-	},
-
 	/* Load the root of the backlog items into the current document */
 	getRoot({
 		rootState,
@@ -373,7 +296,6 @@ const actions = {
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
-
 }
 
 export default {
