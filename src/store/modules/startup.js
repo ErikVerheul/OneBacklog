@@ -12,8 +12,9 @@ const actions = {
 	* 3. getAllProducts and call updateUser if databases or products are missing
 	* 4. getConfig, load the default sprint calendar and warn the user if it ran out of sprints
 	* 5. getAllTeams and load the team calendar if present, extend the team calendar automatically if ran out of sprints
-	* 6. if the team calendar is present and ran out of sprints, extend this calender with new sprints and save the team document
-	* 7. getRoot and route to products view
+	* 6. if the default sprint calendar is present and ran out of sprints, extend this calender with new sprints and save the config document
+	* 7. if the team calendar is present and ran out of sprints, extend this calender with new sprints and save the team document
+	* 8. getRoot and route to products view
 	*/
 
 	/* Get all non-backup and non system database names */
@@ -191,7 +192,7 @@ const actions = {
 		}).then(res => {
 			const configData = res.data
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('getConfig: The configuration is loaded')
+			if (rootState.debug) console.log('getConfig: The configuration document is loaded')
 			if (!rootState.isProductAssigned) {
 				if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
 					if (rootGetters.isAdmin) { router.replace('/admin') } else {
@@ -208,7 +209,7 @@ const actions = {
 						dispatch('extendDefaultSprintCalendar', {
 							configData,
 							onSuccessCallback: () => {
-								// store the config data
+								// save the config data in memory
 								rootState.configData = configData
 								// assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
 								rootState.sprintCalendar = configData.defaultSprintCalendar
@@ -216,7 +217,7 @@ const actions = {
 							}
 						})
 					} else {
-						// store the config data
+						// save the config data in memory
 						rootState.configData = configData
 						// assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
 						rootState.sprintCalendar = configData.defaultSprintCalendar
@@ -226,7 +227,7 @@ const actions = {
 					rootState.isDefaultCalendarFound = false
 					// missing calendar
 					if (rootGetters.isAdmin || rootGetters.isAssistAdmin) {
-						// store the config data
+						// save the config data in memory
 						rootState.configData = configData
 						rootState.createDefaultCalendar = true
 						alert('Error: No default sprint calendar is set. You will be redirected to the Admin view where you can create one.')
