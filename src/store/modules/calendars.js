@@ -1,8 +1,54 @@
 import { SEV } from '../../constants.js'
+import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
+/* Extend the default sprint calendar with two extra sprints with the same length as the last sprint */
 const actions = {
+	extendDefaultSprintCalendar({
+		rootState,
+		dispatch
+	}, payload) {
+		function createNextName(lastSprint) {
+			const baseName = 'sprint-'
+			const skipLength = baseName.length
+			const lastNumberStr = lastSprint.name.substring(skipLength)
+			const lastNumber = Number(lastNumberStr)
+			return baseName + (lastNumber + 1).toString()
+		}
+
+		const dbName = rootState.userData.currentDb
+		const newConfigData = payload.configData
+		const lastSprint = payload.lastSprint
+		const newSprint1 = {
+			id: createId(),
+			name: createNextName(lastSprint),
+			startTimestamp: lastSprint.startTimestamp + lastSprint.sprintLength,
+			sprintLength: lastSprint.sprintLength
+		}
+		newConfigData.defaultSprintCalendar.push(newSprint1)
+
+		const newSprint2 = {
+			id: createId(),
+			name: createNextName(newSprint1),
+			startTimestamp: newSprint1.startTimestamp + newSprint1.sprintLength,
+			sprintLength: newSprint1.sprintLength
+		}
+		newConfigData.defaultSprintCalendar.push(newSprint2)
+		globalAxios({
+			method: 'PUT',
+			url: dbName + '/config',
+			data: newConfigData
+		}).then(() => {
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
+			const msg = `extendDefaultSprintCalendar: Created two more sprints in the default sprint calendar`
+			dispatch('doLog', { event: msg, level: SEV.INFO })
+		}).catch(error => {
+			const msg = `extendDefaultSprintCalendar: Could not save the config document of database '${dbName}', ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
 	/* Get the default sprint calendar of a specific database (for admin use only) */
 	fetchDefaultSprintCalendar({
 		rootState,

@@ -791,13 +791,12 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			console.log('listenForChanges: error = ' + JSON.stringify(error, null, 2))
 			rootState.listenForChangesRunning = false
 			if (error.message === 'Request aborted') {
 				// the user typed F5 or Ctrl-F5
 				commit('endSession')
 			} else {
-				if (error.message === 'Request failed with status code 401') rootState.authentication.cookieAuthenticated = false
+				if (error.response && error.response.status === 401) rootState.authentication.cookieAuthenticated = false
 				if (error.message === 'Network error') rootState.online = false
 				const msg = `Listening for changes made by other users failed. ${error}`
 				// do not try to save the log if an error is detected, just queue the log

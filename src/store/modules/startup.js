@@ -1,5 +1,5 @@
 import { SEV } from '../../constants.js'
-import { createId }  from '../../common_functions.js'
+import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
@@ -190,7 +190,7 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/config'
 		}).then(res => {
-			rootState.configData = res.data
+			const configData = res.data
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('getConfig: The configuration is loaded')
 			if (!rootState.isProductAssigned) {
@@ -201,29 +201,37 @@ const actions = {
 						router.replace('/')
 					}
 			} else {
-				if (rootState.configData.defaultSprintCalendar) {
-					const lastSprint = rootState.configData.defaultSprintCalendar.slice(-1)[0]
+				if (configData.defaultSprintCalendar) {
+					rootState.isDefaultCalendarFound = true
+					const lastSprint = configData.defaultSprintCalendar.slice(-1)[0]
 					if (lastSprint.startTimestamp - lastSprint.sprintLength < Date.now()) {
-						// sprint calendar ran out of sprints
-						if (rootGetters.isAdmin || rootGetters.isAssistAdmin) {
-							alert('Error: The default sprint calendar ran out of sprints. You will be redirected to the Admin view where you can extend the calendar.')
-							commit('mustCreateDefaultCalendar')
-							router.replace('/admin')
-						} else {
-							alert('Error: The default sprint calendar ran out of sprints. Consult your administrator. The application will exit.')
-							commit('endSession')
-							router.replace('/')
-						}
+						// sprint calendar ran out of sprints; extend the calendar automatically
+						dispatch('extendDefaultSprintCalendar', {
+							lastSprint,
+							configData,
+							onSuccessCallback: () => {
+								// store the config data
+								rootState.configData = configData
+								// assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
+								rootState.sprintCalendar = configData.defaultSprintCalendar
+								dispatch('getAllTeams')
+							}
+						})
 					} else {
+						// store the config data
+						rootState.configData = configData
 						// assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
-						rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+						rootState.sprintCalendar = configData.defaultSprintCalendar
 						dispatch('getAllTeams')
 					}
 				} else {
+					rootState.isDefaultCalendarFound = false
 					// missing calendar
 					if (rootGetters.isAdmin || rootGetters.isAssistAdmin) {
+						// store the config data
+						rootState.configData = configData
+						rootState.createDefaultCalendar = true
 						alert('Error: No default sprint calendar is set. You will be redirected to the Admin view where you can create one.')
-						commit('mustCreateDefaultCalendar')
 						router.replace('/admin')
 					} else {
 						alert('Error: No default sprint calendar is set. Consult your administrator. The application will exit.')
@@ -334,10 +342,12 @@ const actions = {
 		doc.teamCalendar = extTeamCalendar
 		// update the team with the extended team calendar and continue loading the tree model
 		const toDispatch = [{ getRoot: null }]
-		dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, onSuccessCallback: () => {
-			// replace the defaultSprintCalendar or other team calendar with this team calendar
-			rootState.sprintCalendar = extTeamCalendar
-		}, caller: 'extendTeamCalendar' })
+		dispatch('updateDoc', {
+			dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, onSuccessCallback: () => {
+				// replace the defaultSprintCalendar or other team calendar with this team calendar
+				rootState.sprintCalendar = extTeamCalendar
+			}, caller: 'extendTeamCalendar'
+		})
 	},
 
 	/* Load the root of the backlog items into the current document */

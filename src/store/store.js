@@ -690,10 +690,6 @@ export default new Vuex.Store({
 			state.colorMapper = newColorMapper
 		},
 
-		mustCreateDefaultCalendar(state) {
-			state.createDefaultCalendar = true
-		},
-
 		addSelectedNode(state, newNode) {
 			if (newNode.isSelectable) {
 				state.previousSelectedNodes = state.selectedNodes || [newNode]
