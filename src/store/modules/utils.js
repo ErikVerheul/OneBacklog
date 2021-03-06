@@ -192,7 +192,7 @@ const actions = {
 			if (rootState.debug) console.log('replaceDB: ' + payload.dbTargetName + ' is deleted')
 			dispatch('copyDB', payload)
 		}).catch(error => {
-			if (error.response.status === 404) {
+			if (error.response && error.response.status === 404) {
 				// database does not exist
 				dispatch('copyDB', payload)
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'Deletion of database ' + payload.dbTargetName + ' gave unexpected error, ' + error + '. Operation aborted.' })

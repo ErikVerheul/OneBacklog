@@ -66,7 +66,7 @@ const actions = {
 				// eslint-disable-next-line no-console
 				if (rootState.debugConnectionAndLogging) console.log(`watchdog: no connection @ ${new Date()}, ${error}`)
 				// if error status 401 is returned we are online again despite the error condition (no authentication)
-				if (error.response.status === 401) {
+				if (error.response && error.response.status === 401) {
 					rootState.online = true
 					restartLoops()
 				} else consoleLogStatus()
