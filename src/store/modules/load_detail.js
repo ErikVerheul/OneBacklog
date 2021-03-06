@@ -252,7 +252,7 @@ const actions = {
 			if (!rootState.listenForChangesRunning) {
 				dispatch('listenForChanges')
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('loadAssignedAndSubscribed: listenForChanges started')
+				if (rootState.debug) console.log('loadAssignedAndSubscribed: listenForChanges is started')
 			}
 			// reset load parameters
 			parentNodes = {}

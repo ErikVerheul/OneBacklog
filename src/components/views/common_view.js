@@ -480,6 +480,9 @@ const methods = {
 			case 'undoTsSizeChange':
 				this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange, createUndo: false })
 				break
+			case 'undoUpdateReqArea':
+				this.$store.dispatch('updateReqArea', { node: entry.node, reqareaId: entry.oldAreaId, timestamp: entry.prevLastChange, createUndo: false })
+				break
 		}
 	},
 

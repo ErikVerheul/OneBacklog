@@ -3,7 +3,7 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
 const state = {
- canUpdateColor: true
+	canUpdateColor: true
 }
 
 const actions = {
@@ -67,8 +67,6 @@ const actions = {
 	* Update the req area of the item (null for no req area set)
 	* If the item is an epic also assign this req area to the child features if they have no req area assigned yet / when removing do the reverse
 	*/
-	// ToDo: create undo
-	// payload: { node: this.getLastSelectedNode, reqarea: this.selReqAreaId, timestamp: Date.now() }
 	updateReqArea({
 		rootState,
 		commit,
@@ -81,19 +79,20 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			const tmpDoc = res.data
-			const oldDocAreaId = tmpDoc.reqarea
+			const oldAreaId = tmpDoc.reqarea
 			tmpDoc.reqarea = payload.reqareaId
 			const newHist = {
-				updateReqAreaEvent: [id, payload.reqareaId, reqAreaTitle],
+				updateReqAreaEvent: [id, oldAreaId, payload.reqareaId, reqAreaTitle],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
+			const prevLastChange = tmpDoc.lastChange
 			tmpDoc.lastChange = payload.timestamp
 			// add to payload
-			payload.oldParentReqArea = oldDocAreaId
+			payload.oldParentReqArea = oldAreaId
 			const toDispatch = [{ updateReqAreaChildren: payload }]
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
@@ -101,6 +100,16 @@ const actions = {
 				toDispatch,
 				caller: 'updateReqArea',
 				onSuccessCallback: () => {
+					if (payload.createUndo) {
+						// create an entry for undoing the change in a last-in first-out sequence
+						const entry = {
+							type: 'undoUpdateReqArea',
+							node: payload.node,
+							oldAreaId,
+							prevLastChange
+						}
+						rootState.changeHistory.unshift(entry)
+					}
 					commit('updateNodesAndCurrentDoc', { node: payload.node, reqarea: payload.reqareaId, lastChange: payload.timestamp, newHist })
 				}
 			})
@@ -152,7 +161,6 @@ const actions = {
 						}
 					}
 					if (updated) {
-						console.log('updateReqAreaChildren: update doc ' + doc.title)
 						const newHist = {
 							ignoreEvent: ['updateReqAreaChildren'],
 							timestamp: Date.now(),
@@ -191,6 +199,38 @@ const actions = {
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
+
+	/* Update the tree with synced requirent area change assignment */
+	updateReqAreaInTree({
+		commit,
+	}, hist) {
+		const parentId = hist.updateReqAreaEvent[0]
+		const oldReqArea = hist.updateReqAreaEvent[1]
+		const newReqAreaId = hist.updateReqAreaEvent[2]
+		const timestamp = hist.timeStamp
+		const node = window.slVueTree.getNodeById(parentId)
+		if (node) {
+			commit('updateNodesAndCurrentDoc', { node, reqarea: newReqAreaId, lastChange: timestamp, newHist: hist })
+			commit('showLastEvent', { txt: `Another user assigned the requirement area '${hist.updateReqAreaEvent[3]}' to item '${node.title}'`, severity: SEV.INFO })
+			const descendants = window.slVueTree.getDescendantsInfo(node).descendants
+			for (const d of descendants) {
+				const currentReqArea = d.data.reqarea
+				if (newReqAreaId !== null) {
+					// set: set for items which have no req area set yet
+					if (!currentReqArea || currentReqArea === oldReqArea) {
+						d.data.reqarea = newReqAreaId
+						d.data.lastChange = timestamp
+					}
+				} else {
+					// remove: if reqarea was set and equal to old req area of the parent delete it
+					if (currentReqArea && currentReqArea === oldReqArea) {
+						delete d.data.reqarea
+						d.data.lastChange = timestamp
+					}
+				}
+			}
+		}
+	}
 }
 
 export default {

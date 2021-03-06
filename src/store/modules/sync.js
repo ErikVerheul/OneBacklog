@@ -447,8 +447,7 @@ const actions = {
 									showSyncMessage(`uploaded an attachment to`, SEV.INFO)
 									break
 								case 'updateReqAreaEvent':
-									console.log('sync: process updateReqAreaEvent')
-
+									dispatch('updateReqAreaInTree', lastHistObj)
 									break
 								//////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
 								case 'updateTaskOrderEvent':
@@ -757,16 +756,17 @@ const actions = {
 	/* Listen for document changes. The timeout, if no changes are available is 60 seconds (default maximum) */
 	listenForChanges({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}) {
 		// stop listening if not online or authenticated. Watchdog will start it again
-		if (!rootState.onlnine || !rootState.authentication.cookieAuthenticated) return
+		if (!rootState.online || !rootState.authentication.cookieAuthenticated) return
 
+		rootState.listenForChangesRunning = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
 		}).then(res => {
-			rootState.listenForChangesRunning = true
 			// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
 			dispatch('listenForChanges')
 			const data = res.data
@@ -791,13 +791,19 @@ const actions = {
 				}
 			}
 		}).catch(error => {
+			console.log('listenForChanges: error = ' + JSON.stringify(error, null, 2))
 			rootState.listenForChangesRunning = false
-			if (error.response.status === 401) rootState.authentication.cookieAuthenticated = false
-			if (error.message === 'Network error') rootState.onlnine = false
-			const msg = `Listening for changes made by other users failed. ${error}`
-			// do not try to save the log if an error is detected, just queue the log
-			const skipSaving = true
-			dispatch('doLog', { event: msg, level: SEV.WARNING, skipSaving })
+			if (error.message === 'Request aborted') {
+				// the user typed F5 or Ctrl-F5
+				commit('endSession')
+			} else {
+				if (error.message === 'Request failed with status code 401') rootState.authentication.cookieAuthenticated = false
+				if (error.message === 'Network error') rootState.online = false
+				const msg = `Listening for changes made by other users failed. ${error}`
+				// do not try to save the log if an error is detected, just queue the log
+				const skipSaving = true
+				dispatch('doLog', { event: msg, level: SEV.WARNING, skipSaving })
+			}
 		})
 	}
 }
