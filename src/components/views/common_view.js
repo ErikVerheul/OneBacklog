@@ -82,6 +82,51 @@ function data() {
 }
 
 const computed = {
+	undoTitle() {
+		const changes = this.$store.state.changeHistory
+		if (changes && changes.length > 0) {
+			const changeType = changes[0].type
+			switch (changeType) {
+				case 'undoAcceptanceChange':
+					return 'your change of the item acceptance criteria'
+				case 'undoAddSprintIds':
+					return 'your assignment to a sprint'
+				case 'undoChangeTeam':
+					return 'your change to another team'
+				case 'undoDescriptionChange':
+					return 'your change of the item description'
+				case 'undoMove':
+					return 'your change of priority (move of items)'
+				case 'undoNewNode':
+					return 'your creation of a new item'
+				case 'undoReqAreaColorChange':
+					return 'your change of the color indicator for a requirement area'
+				case 'undoPersonHoursChange':
+					return 'your assigned effort in person hours for the spike'
+				case 'undoRemove':
+					return 'your removal of the item or branche of items'
+				case 'undoRemoveSprintIds':
+					return 'your removal of this item from a sprint'
+				case 'undoSelectedPbiType':
+					return 'your change of PBI type (User story, Spike or Defect)'
+				case 'undoSetDependency':
+					return 'your assignment of a dependency'
+				case 'undoStateChange':
+					return 'your change of item state'
+				case 'undoStoryPointsChange':
+					return 'your change of assigned story points of the feature or story/defect'
+				case 'undoTitleChange':
+					return 'your change of the title'
+				case 'undoTsSizeChange':
+					return 'your change of the T-shirt size of the epic'
+				case 'undoUpdateReqArea':
+					return 'your assigment of a requirement area to the epic or feature'
+				default:
+					return 'no tooltip available for ' + changeType
+			}
+		}
+	},
+
 	welcomeMessage() {
 		let msg_2
 		if (this.myTeam === 'not assigned yet') { msg_2 = ' You are not a team member.' }
