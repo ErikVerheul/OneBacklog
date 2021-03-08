@@ -4,7 +4,10 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-nav-form>
-          <b-button class="m-1" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
+          <b-button class="m-1" id="tooltip-undo" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
+          <b-tooltip target="tooltip-undo" triggers="hover">
+            {{ undoTitle }}
+          </b-tooltip>
           <b-button class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
           <div class="divider" />
           <b-input-group>
@@ -130,30 +133,30 @@
             </template>
 
             <template v-if="node.tmp.markedViolations" slot="dependency-violation" slot-scope="{ node }">
-							<div v-if="rowLength(node.tmp.markedViolations) === 1">
+              <div v-if="rowLength(node.tmp.markedViolations) === 1">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
               </div>
               <div v-else-if="rowLength(node.tmp.markedViolations) === 2">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
               </div>
-							<div v-else-if="rowLength(node.tmp.markedViolations) === 3">
+              <div v-else-if="rowLength(node.tmp.markedViolations) === 3">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
               </div>
-							<div v-else-if="rowLength(node.tmp.markedViolations) === 4">
+              <div v-else-if="rowLength(node.tmp.markedViolations) === 4">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
               </div>
-							<div v-else>
+              <div v-else>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
               </div>
             </template>
 

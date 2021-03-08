@@ -4,7 +4,10 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-nav-form>
-          <b-button class="m-1" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
+          <b-button id="tooltip-undo" class="m-1" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
+          <b-tooltip target="tooltip-undo" triggers="hover">
+            {{ undoTitle }}
+          </b-tooltip>
           <b-button class="m-1" v-show="!isRootSelected && !isReqAreaItemSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
           <div class="divider" />
           <b-input-group>
@@ -107,31 +110,31 @@
               </span>
             </template>
 
-						<template v-if="node.tmp.markedViolations" slot="dependency-violation" slot-scope="{ node }">
-							<div v-if="rowLength(node.tmp.markedViolations) === 1">
+            <template v-if="node.tmp.markedViolations" slot="dependency-violation" slot-scope="{ node }">
+              <div v-if="rowLength(node.tmp.markedViolations) === 1">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
               </div>
               <div v-else-if="rowLength(node.tmp.markedViolations) === 2">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
               </div>
-							<div v-else-if="rowLength(node.tmp.markedViolations) === 3">
+              <div v-else-if="rowLength(node.tmp.markedViolations) === 3">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
               </div>
-							<div v-else-if="rowLength(node.tmp.markedViolations) === 4">
+              <div v-else-if="rowLength(node.tmp.markedViolations) === 4">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
               </div>
-							<div v-else>
+              <div v-else>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
-								<span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
               </div>
             </template>
 
@@ -266,13 +269,13 @@
       <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
     </b-modal>
 
-		<b-modal size="lg" ref="historyEventRef" title="Event history" ok-only>
-			<div v-if="$store.state.eventList.length > 0">
+    <b-modal size="lg" ref="historyEventRef" title="Event history" ok-only>
+      <div v-if="$store.state.eventList.length > 0">
         <div v-for="item in $store.state.eventList" :key="item.eventKey">
           <p class="event-list" :style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
         </div>
       </div>
-		</b-modal>
+    </b-modal>
 
   </div>
 </template>
@@ -414,7 +417,7 @@
 }
 
 .violation-column {
-	text-indent: -60%;
+  text-indent: -60%;
   display: inline-block;
   width: 40px;
 }
