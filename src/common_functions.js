@@ -71,6 +71,15 @@ export function addToArray(arr, item) {
 	return newArr
 }
 
+export function localTimeAndMilis() {
+	function pad(num, size) {
+		var s = "000" + num
+		return s.substr(s.length - size)
+	}
+	const now = new Date()
+	return `${now.toLocaleTimeString()}.${pad(now.getMilliseconds(), 3)}`
+}
+
 /* Remove item (not an object) from array if present. Returns a new array so that it is reactive */
 export function removeFromArray(arr, item) {
 	const newArr = []
@@ -119,4 +128,4 @@ export function getLocationInfo(newPrio, parentNode) {
 	}
 }
 
-export default { expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, removeFromArray }
+export default { expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, localTimeAndMilis, removeFromArray }
