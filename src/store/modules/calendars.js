@@ -181,8 +181,6 @@ const actions = {
 			newSprintCount++
 			extTeamCalendar.push(newSprint)
 		}
-		const msg = `extendTeamCalendar: The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
-		dispatch('doLog', { event: msg, level: SEV.INFO })
 
 		doc.teamCalendar = extTeamCalendar
 		// update the team with the extended team calendar and continue loading the tree model
@@ -191,6 +189,8 @@ const actions = {
 			dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, onSuccessCallback: () => {
 				// replace the defaultSprintCalendar or other team calendar with this team calendar
 				rootState.sprintCalendar = extTeamCalendar
+				const msg = `extendTeamCalendar: The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
+				dispatch('doLog', { event: msg, level: SEV.INFO })
 			}, caller: 'extendTeamCalendar'
 		})
 	}
