@@ -6,7 +6,28 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
-					<h3>v.1.6.1 - 17 February 2021 Bug fix</h3>
+          <h3>v.1.7 - 9 March 2021 Feature update, refactoring and bug fixes</h3>
+          <p>New features:</p>
+          <ul>
+						<li>Auto extend the default sprint calendar when ran out</li>
+						<li>'Remove this task' added in context menu of tasks in planning board</li>
+						<li>Trim the input when searching on item key</li>
+            <li>Add a tooltip to show what the next undo will do</li>
+            <li>Create undo for assigning a requirement area and have it synced to other users that are online</li>
+          </ul>
+          <p>Refactored</p>
+          <ul>
+            <li>Undo removes from the database to cope with changes initiated by other sessions via synchronization</li>
+						<li>Watchdog and logging refactored. Avoid error messages when returning from a computer sleep state</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix the state name to "Ready for test/review"</li>
+						<li>Use unique key when listing the log"</li>
+						<li>Unintended context menu choices removed</li>
+          </ul>
+          <hr />
+          <h3>v.1.6.1 - 17 February 2021 Bug fix</h3>
           <p>Bug fix:</p>
           <ul>
             <li>Moving task to other state not working: Regression fixed</li>
@@ -16,7 +37,7 @@
           <p>New features:</p>
           <ul>
             <li>Allow nested searches when a filter is set</li>
-						<li>Revised documentation in documentation.txt</li>
+            <li>Revised documentation in documentation.txt</li>
           </ul>
           <p>Bug fix:</p>
           <ul>
