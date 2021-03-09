@@ -1,4 +1,5 @@
 import { STATE, LEVEL, MISC } from '../../constants.js'
+import { createId } from '../../common_functions.js'
 import common_admin from './common_admin'
 
 function mounted() {
@@ -65,7 +66,7 @@ const methods = {
 	},
 
 	doCreateProduct() {
-		const _id = this.createId()
+		const _id = createId()
 		// use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
 		const priority = -Date.now()
 		// create a new document

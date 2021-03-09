@@ -38,6 +38,7 @@
 
 <script>
 import { LEVEL } from '../../../constants.js'
+import { createId } from '../../../common_functions.js'
 import { authorization, utilities } from '../../mixins/generic.js'
 import Draggable from 'vuedraggable'
 import TaskItem from './TaskItem'
@@ -77,7 +78,7 @@ export default {
 
   methods: {
     procSelected () {
-      this.$store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: this.createId(), taskTitle: this.taskTitle })
+      this.$store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.taskTitle })
     },
 
     doCancel () {

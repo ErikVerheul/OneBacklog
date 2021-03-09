@@ -1,4 +1,5 @@
 import { SEV, LEVEL } from '../../../constants.js'
+import { expandNode, hideNode } from '../../../common_functions.js'
 import { utilities } from '../../mixins/generic.js'
 import commonFilters from '../common_filters.js'
 
@@ -21,7 +22,7 @@ const methods = {
 		const cb = (nm) => {
 			if (onlyFilterOnDepth) {
 				if (nm.level < this.selectedTreeDepth) {
-					this.expandNode(nm)
+					expandNode(nm)
 				} else this.collapseNode(nm)
 
 				if (nm.level === this.selectedTreeDepth) return
@@ -61,7 +62,7 @@ const methods = {
 		if (!onlyFilterOnDepth) {
 			// hide unselected nodes with no selected descendants
 			for (const nm of unselectedNodes) {
-				if (!window.slVueTree.checkForFilteredDescendants(nm)) this.hideNode(nm)
+				if (!window.slVueTree.checkForFilteredDescendants(nm)) hideNode(nm)
 			}
 			this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 		} else {

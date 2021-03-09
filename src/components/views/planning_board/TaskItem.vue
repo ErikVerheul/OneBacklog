@@ -43,6 +43,7 @@
 
 <script>
 import { LEVEL } from '../../../constants.js'
+import { createId } from '../../../common_functions.js'
 import { authorization, utilities } from '../../mixins/generic.js'
 
 export default {
@@ -115,7 +116,7 @@ export default {
         this.showAssistance = false
         switch (this.contextOptionSelected) {
           case this.ADD_TASK:
-            this.$store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: this.createId(), taskTitle: this.newTaskTitle })
+            this.$store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.newTaskTitle })
             break
           case this.CHANGE_TITLE:
             this.$store.dispatch('boardUpdateTaskTitle', { taskId: this.item.id, newTaskTitle: this.changedTaskTitle })

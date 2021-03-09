@@ -1,4 +1,4 @@
-import { addToArray, removeFromArray } from '../../common_functions.js'
+import { addToArray, removeFromArray, createId } from '../../common_functions.js'
 import AppHeader from '../header/header.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
@@ -255,7 +255,7 @@ const methods = {
 		const extendSprintCalendar = []
 		let j = 0
 		for (let i = startIdx; i < startIdx + numberOfSprints; i++) {
-			const sprintId = this.createId()
+			const sprintId = createId()
 			const obj = {
 				id: sprintId,
 				name: 'sprint-' + i,
@@ -512,7 +512,7 @@ const methods = {
 
 		const calendar = []
 		for (let i = 0; i < numberOfSprints; i++) {
-			const sprintId = this.createId()
+			const sprintId = createId()
 			const obj = {
 				id: sprintId,
 				name: 'sprint-' + i,
@@ -527,7 +527,7 @@ const methods = {
 	},
 
 	doCreateTeam() {
-		this.$store.dispatch('addTeamToDb', { id: this.createId(), dbName: this.$store.state.selectedDatabaseName, teamName: this.teamName })
+		this.$store.dispatch('addTeamToDb', { id: createId(), dbName: this.$store.state.selectedDatabaseName, teamName: this.teamName })
 	},
 
 	doRemoveTeams(teamNamesToRemove) {

@@ -2,6 +2,7 @@
  * This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
  */
 import { SEV, LEVEL, MISC } from '../../../constants.js'
+import { collapseNode, expandNode, dedup, showNode } from '../../../common_functions.js'
 import { eventBus } from '../../../main'
 import { utilities } from '../../mixins/generic.js'
 
@@ -591,8 +592,8 @@ const methods = {
 	onToggleHandler(event, node) {
 		if (!this.allowToggleBranch) return
 		if (node.isExpanded) {
-			this.collapseNode(node)
-		} else this.expandNode(node)
+			collapseNode(node)
+		} else expandNode(node)
 
 		event.stopPropagation()
 	},
@@ -700,13 +701,13 @@ const methods = {
 				if (!nm.isExpanded) {
 					if (type === 'search') nm.tmp.savedIsExpandedInSearch = false
 					if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = false
-					this.expandNode(nm)
+					expandNode(nm)
 				}
 			} else {
 				if (nm.isExpanded) {
 					if (type === 'search') nm.tmp.savedIsExpandedInSearch = true
 					if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = true
-					this.collapseNode(nm)
+					collapseNode(nm)
 				}
 				if (highLights && Object.keys(highLights).length > 0) {
 					nm.tmp.isHighlighted_1 = !!highLights.doHighLight_1
@@ -754,7 +755,7 @@ const methods = {
 			if (parentId) sibling.parentId = parentId
 			if (productId) sibling.productId = productId
 			// if moving to another product in the context menu of the Products detail view, show the inserted nodes in the new product
-			if (productId && this.isDetailsViewSelected) this.showNode(sibling)
+			if (productId && this.isDetailsViewSelected) showNode(sibling)
 			sibling.path = newPath
 			sibling.pathStr = JSON.stringify(newPath)
 			sibling.ind = i
@@ -772,13 +773,13 @@ const methods = {
 		for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
 			if (nm.isExpanded) {
-				if (type === 'search' && nm.tmp.savedIsExpandedInSearch === false) this.collapseNode(nm)
-				if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === false) this.collapseNode(nm)
+				if (type === 'search' && nm.tmp.savedIsExpandedInSearch === false) collapseNode(nm)
+				if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === false) collapseNode(nm)
 			}
 			if (i === maxDepth) {
 				if (!nm.isExpanded) {
-					if (type === 'search' && nm.tmp.savedIsExpandedInSearch === true) this.expandNode(nm)
-					if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === true) this.expandNode(nm)
+					if (type === 'search' && nm.tmp.savedIsExpandedInSearch === true) expandNode(nm)
+					if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === true) expandNode(nm)
 				}
 				delete nm.tmp[undoHighLight]
 			}
@@ -808,7 +809,7 @@ const methods = {
 				const newDependencies = []
 				if (removedItemIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
-					for (const d of this.dedup(nm.dependencies)) {
+					for (const d of dedup(nm.dependencies)) {
 						// dependency references within the deleted nodes survive
 						if (removedItemIds.includes(d)) {
 							newDependencies.push(d)
@@ -816,7 +817,7 @@ const methods = {
 					}
 				} else {
 					// nm is an outsider
-					for (const d of this.dedup(nm.dependencies)) {
+					for (const d of dedup(nm.dependencies)) {
 						// outsider references not referencing any of the nodes survive
 						if (!removedItemIds.includes(d)) {
 							newDependencies.push(d)
@@ -832,7 +833,7 @@ const methods = {
 				const newConditionalFor = []
 				if (removedItemIds.includes(nm._id)) {
 					// nm is one of the deleted nodes
-					for (const c of this.dedup(nm.conditionalFor)) {
+					for (const c of dedup(nm.conditionalFor)) {
 						// dependency references within the deleted nodes survive
 						if (removedItemIds.includes(c)) {
 							newConditionalFor.push(c)
@@ -840,7 +841,7 @@ const methods = {
 					}
 				} else {
 					// nm is an outsider
-					for (const c of this.dedup(nm.conditionalFor)) {
+					for (const c of dedup(nm.conditionalFor)) {
 						// outsider references not referencing any of the nodes survive
 						if (!removedItemIds.includes(c)) {
 							newConditionalFor.push(c)

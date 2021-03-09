@@ -1,4 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
+import { collapseNode } from '../../common_functions.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
 
 const HOURINMILIS = 3600000
@@ -389,7 +390,7 @@ const methods = {
 						// collapse nodes with no findings in their subtree
 						if (nm.level > LEVEL.PRODUCT) {
 							if (nm.isExpanded) {
-								this.collapseNode(nm)
+								collapseNode(nm)
 								nodesCollapsed.push(nm)
 							}
 						}

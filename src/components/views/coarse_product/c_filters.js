@@ -1,4 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../../constants.js'
+import { hideNode } from '../../../common_functions.js'
 import commonFilters from '../common_filters.js'
 
 const methods = {
@@ -46,7 +47,7 @@ const methods = {
 
 		// hide unselected nodes with no selected descendants
 		for (const nm of unselectedNodes) {
-			if (!window.slVueTree.checkForFilteredDescendants(nm)) this.hideNode(nm)
+			if (!window.slVueTree.checkForFilteredDescendants(nm)) hideNode(nm)
 		}
 		this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 

@@ -1,4 +1,5 @@
 import { SEV, STATE, MISC } from '../../constants.js'
+import { createId, expandNode } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
 
 function created() {
@@ -70,7 +71,7 @@ const methods = {
 
 	/* Clone an item EXCLUDING its descendants */
 	doCloneItem(node) {
-		const newId = this.createId()
+		const newId = createId()
 		let newNodeLocation
 		const prevNode = window.slVueTree.getPreviousNode(node.path)
 		if (node.path.slice(-1)[0] === 0) {
@@ -159,7 +160,7 @@ const methods = {
 		let newNodeLocation
 		const now = Date.now()
 		// prepare the new node for insertion and set isSelected to true
-		const _id = this.createId()
+		const _id = createId()
 		const newNode = {
 			_id,
 			dependencies: [],
@@ -213,7 +214,7 @@ const methods = {
 			if (newNodeLocation.placement === 'inside') {
 				// unselect the node that was clicked before the insert and expand it to show the inserted node
 				this.contextNodeSelected.isSelected = false
-				this.expandNode(this.contextNodeSelected)
+				expandNode(this.contextNodeSelected)
 			} else {
 				// unselect the node that was clicked before the insert
 				this.contextNodeSelected.isSelected = false
