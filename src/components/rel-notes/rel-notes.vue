@@ -23,7 +23,7 @@
           <p>Bug fixes:</p>
           <ul>
             <li>Fix the state name to "Ready for test/review"</li>
-						<li>Use unique key when listing the log"</li>
+						<li>Use unique key when listing the log</li>
 						<li>Unintended context menu choices removed</li>
           </ul>
           <hr />
