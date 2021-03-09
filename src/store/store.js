@@ -100,14 +100,6 @@ export default new Vuex.Store({
 		// creating a CouchDb instance
 		createDefaultCalendar: false,
 		isDatabaseInitiated: false,
-		// logging
-		logState: {
-			logSessionSeq: 0,
-			logSavePending: false,
-			runningWatchdogId: null,
-			savedLogs: [],
-			unsavedLogs: []
-		},
 
 		// authentication, refresh every 9 minutes (CouchDB defaults at 10 min.)
 		cookieRefreshInterval: 540,
@@ -1140,7 +1132,7 @@ export default new Vuex.Store({
 		endSession(state) {
 			clearInterval(state.authentication.runningCookieRefreshId)
 			state.authentication.cookieAuthenticated = false
-			clearInterval(state.logState.runningWatchdogId)
+			clearInterval(state.logging.runningWatchdogId)
 		},
 
 		///////////////////// planning board //////////////////////////

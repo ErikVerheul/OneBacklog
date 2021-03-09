@@ -1,4 +1,5 @@
 import { SEV } from '../../constants.js'
+import { localTimeAndMilis } from '../../common_functions.js'
 import globalAxios from 'axios'
 import router from '../../router'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -17,8 +18,6 @@ const actions = {
 		dispatch,
 		state
 	}, payload) {
-		// set to false until proofed to be true
-		state.cookieAuthenticated = false
 		if (rootState.online) {
 			globalAxios({
 				method: 'POST',
@@ -27,7 +26,7 @@ const actions = {
 			}).then(() => {
 				state.cookieAuthenticated = true
 				// eslint-disable-next-line no-console
-				if (rootState.debugConnectionAndLogging) console.log('refreshCookie: Authentication cookie refresh is running')
+				if (rootState.debugConnectionAndLogging) console.log(`refreshCookie@${localTimeAndMilis()}: Authentication cookie refresh is running, caller = ${payload.caller}`)
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
@@ -39,10 +38,8 @@ const actions = {
 				clearInterval(state.runningCookieRefreshId)
 				rootState.online = false
 				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: SEV.CRITICAL })
-				const msg = 'Refresh of the authentication cookie failed with ' + error
-				// do not try to save the log if a network error is detected, just queue the log
-				const skipSaving = error.message === 'Network error'
-				dispatch('doLog', { event: msg, level: SEV.CRITICAL, skipSaving })
+				const msg = `Refresh of the authentication cookie failed. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.CRITICAL })
 			})
 		}
 	},
@@ -55,8 +52,7 @@ const actions = {
 	}) {
 		if (rootState.online) {
 			state.runningCookieRefreshId = setInterval(() => {
-				// dispatch with an empty payload
-				dispatch('refreshCookie', {})
+				dispatch('refreshCookie', { caller: 'refreshCookieLoop' })
 			}, rootState.cookieRefreshInterval * 1000)
 		}
 	},
@@ -107,7 +103,7 @@ const actions = {
 				{ refreshCookieLoop: null },
 				{ getDatabases: null }
 			]
-			dispatch('refreshCookie', { toDispatch })
+			dispatch('refreshCookie', { caller: 'signin', toDispatch })
 		}).catch(error => {
 			// cannot log failure here as the database name is unknown yet
 			// eslint-disable-next-line no-console

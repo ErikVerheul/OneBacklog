@@ -759,7 +759,7 @@ const actions = {
 		dispatch,
 		commit
 	}) {
-		// stop listening if not online or authenticated. Watchdog will start it again
+		// stop listening if not online or authenticated. sync will start it again
 		if (!rootState.online || !rootState.authentication.cookieAuthenticated) return
 
 		rootState.listenForChangesRunning = true
@@ -799,9 +799,7 @@ const actions = {
 				if (error.response && error.response.status === 401) rootState.authentication.cookieAuthenticated = false
 				if (error.message === 'Network error') rootState.online = false
 				const msg = `Listening for changes made by other users failed. ${error}`
-				// do not try to save the log if an error is detected, just queue the log
-				const skipSaving = true
-				dispatch('doLog', { event: msg, level: SEV.WARNING, skipSaving })
+				dispatch('doLog', { event: msg, level: SEV.WARNING })
 			}
 		})
 	}
