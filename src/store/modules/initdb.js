@@ -204,7 +204,7 @@ const actions = {
 				'New',
 				'Ready',
 				'In progress',
-				'In progress',
+				'Ready for test/review',
 				'Done'
 			],
 			taskState: [
