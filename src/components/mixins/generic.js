@@ -1,5 +1,4 @@
 import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
-import * as common_functions from '../../common_functions.js'
 import { mapGetters } from 'vuex'
 
 const constants = {
