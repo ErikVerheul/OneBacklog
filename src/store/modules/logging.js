@@ -65,8 +65,8 @@ const actions = {
 				} else {
 					if (rootState.authentication.cookieAuthenticated) {
 						consoleLogStatus()
-						// save any pending log messages
-						if (state.unsavedLogs.length > 0) dispatch('saveLog')
+						// save the log on every watchdog cycle
+						if (rootState.online && rootState.authentication.cookieAuthenticated) dispatch('saveLog')
 						// if returning from a computer sleep state, restart listenForChanges
 						if (!rootState.listenForChangesRunning) {
 							dispatch('listenForChanges')
@@ -96,7 +96,6 @@ const actions = {
 	doLog({
 		rootState,
 		state,
-		dispatch
 	}, payload) {
 		state.logSessionSeq++
 		const newLog = {
@@ -111,7 +110,6 @@ const actions = {
 		if (rootState.debug) console.log(`logging => ${localTimeAndMilis()}: ${payload.event}`)
 		// push the new log entry to the unsaved logs
 		state.unsavedLogs.push(newLog)
-		if (rootState.online && rootState.authentication.cookieAuthenticated) dispatch('saveLog')
 	},
 
 	saveLog({
@@ -119,40 +117,32 @@ const actions = {
 		dispatch
 	}) {
 		if (state.unsavedLogs.length > 0) {
-			if (rootState.authentication.cookieAuthenticated) {
-				if (rootState.userData.currentDb) {
-					// try to store all unsaved logs
-					globalAxios({
-						method: 'GET',
-						url: rootState.userData.currentDb + '/' + LOGDOCNAME
-					}).then(res => {
-						const log = res.data
-						// eslint-disable-next-line no-console
-						if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
-						for (const logEntry of state.unsavedLogs) {
-							log.entries.unshift(logEntry)
-						}
-						dispatch('replaceLog', {
-							log, caller: 'saveLog', onSuccessCallback: () => {
-								// delete the unsaved logs after a successful save only
-								state.unsavedLogs = []
-							}
-						})
-					}).catch(error => {
-						// eslint-disable-next-line no-console
-						if (rootState.debugConnectionAndLogging) console.log(`saveLog: Could not read the log. Pushed log entry to unsavedLogs. A retry is pending. ${error}`)
-					})
-				} else {
+			if (rootState.userData.currentDb) {
+				// try to store all unsaved logs
+				globalAxios({
+					method: 'GET',
+					url: rootState.userData.currentDb + '/' + LOGDOCNAME
+				}).then(res => {
+					const log = res.data
 					// eslint-disable-next-line no-console
-					if (rootState.debugConnectionAndLogging) console.log(`saveLog: Could not read the log. A retry is pending, the database name is undefined yet`)
-				}
+					if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
+					for (const logEntry of state.unsavedLogs) {
+						log.entries.unshift(logEntry)
+					}
+					dispatch('replaceLog', {
+						log, caller: 'saveLog', onSuccessCallback: () => {
+							// delete the unsaved logs after a successful save only
+							state.unsavedLogs = []
+						}
+					})
+				}).catch(error => {
+					// eslint-disable-next-line no-console
+					if (rootState.debugConnectionAndLogging) console.log(`saveLog: Could not read the log. Pushed log entry to unsavedLogs. A retry is pending. ${error}`)
+				})
 			} else {
 				// eslint-disable-next-line no-console
-				if (rootState.debugConnectionAndLogging) console.log(`saveLog: Could not read the log. A retry is pending, you are not authenticated yet`)
+				if (rootState.debugConnectionAndLogging) console.log(`saveLog: Could not read the log. A retry is pending, the database name is undefined yet`)
 			}
-		} else {
-			// eslint-disable-next-line no-console
-			if (rootState.debugConnectionAndLogging) console.log(`saveLog: Skipped, nothing to log`)
 		}
 	},
 
