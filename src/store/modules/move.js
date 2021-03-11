@@ -11,8 +11,7 @@ const actions = {
 	* Note: the tree model is updated before the database is. To update the database the new priority must be calculated first while inserting the node.
 	* Order of execution:
 	* 1. update the moved nodes with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
-	* 2. if moving to another product or level, call getMovedChildrenIds
-	* 2.1 update the productId (not parentId) and level of the descendants in updateMovedDescendantsBulk. History is ignored
+	* 2. if moving to another product or level, call getMovedChildren and update the productId (not parentId) and level of the descendants in updateMovedDescendantsBulk.
 	*/
 	updateMovedItemsBulk({
 		rootState,
@@ -208,7 +207,7 @@ const actions = {
 					}
 					for (const it of items) {
 						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
-						dispatch('getMovedChildrenIds', { updates, id: it.id })
+						dispatch('getMovedChildren', { updates, parentId: it.id })
 					}
 				}
 				if (payload.move) {
@@ -227,77 +226,55 @@ const actions = {
 		})
 	},
 
-	processDescendants({
-		dispatch
-	}, payload) {
-		const descendantIds = []
-		for (const r of payload.results) {
-			const id = r.id
-			descendantIds.push(id)
-			dispatch('getMovedChildrenIds', { updates: payload.updates, id })
-		}
-		dispatch('updateMovedDescendantsBulk', { updates: payload.updates, descendantIds })
-	},
-
-	getMovedChildrenIds({
+	getMovedChildren({
 		rootState,
 		dispatch
 	}, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.id)
+			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.parentId) + '&include_docs=true'
 		}).then(res => {
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
-				dispatch('processDescendants', { updates: payload.updates, results })
+				dispatch('loopMoveResults', { updates: payload.updates, results })
 			}
 		}).catch(error => {
-			const msg = 'getMovedChildrenIds: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
+			const msg = 'getMovedChildren: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
+	},
+
+	loopMoveResults({
+		dispatch
+	}, payload) {
+		for (const r of payload.results) {
+			const id = r.id
+			dispatch('getMovedChildren', { updates: payload.updates, parentId: id })
+		}
+		// execute update for these results
+		dispatch('updateMovedDescendantsBulk', { updates: payload.updates, results: payload.results })
 	},
 
 	updateMovedDescendantsBulk({
 		rootState,
 		dispatch
 	}, payload) {
+		const docs = payload.results.map(r => r.doc)
 		const updates = payload.updates
-
-		const docsToGet = []
-		for (const id of payload.descendantIds) {
-			docsToGet.push({ id: id })
-		}
-
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet }
-		}).then(res => {
-			const results = res.data.results
-			const docs = []
-			for (const r of results) {
-				const envelope = r.docs[0]
-				if (envelope.ok) {
-					const doc = envelope.ok
-					doc.productId = updates.targetProductId
-					// the parentId does not change for descendants
-					doc.level = doc.level + updates.levelShift
-					// priority does not change for descendants
-					const newHist = {
-						ignoreEvent: ['updateMovedDescendantsBulk'],
-						timestamp: Date.now(),
-						distributeEvent: false
-					}
-					doc.history.unshift(newHist)
-					docs.push(doc)
-				}
+		for (const doc of docs) {
+			doc.productId = updates.targetProductId
+			// the parentId does not change for descendants
+			doc.level = doc.level + updates.levelShift
+			// priority does not change for descendants
+			const newHist = {
+				ignoreEvent: ['updateMovedDescendantsBulk'],
+				timestamp: Date.now(),
+				distributeEvent: false
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'updateMovedDescendantsBulk' })
-		}).catch(e => {
-			const msg = 'updateMovedDescendantsBulk: Could not read decendants in bulk. Error = ' + e
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
+			doc.history.unshift(newHist)
+		}
+		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'updateMovedDescendantsBulk' })
 	}
 }
 
