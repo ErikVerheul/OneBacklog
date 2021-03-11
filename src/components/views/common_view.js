@@ -455,8 +455,7 @@ const methods = {
 				}
 			}
 			window.slVueTree.removeNodes([node])
-			const skipUpdateProductId = node.parentId === 'root'
-			window.slVueTree.insertNodes(cursorPosition, [node], { skipUpdateProductId })
+			window.slVueTree.insertNodes(cursorPosition, [node], { skipUpdateProductId: node.parentId === 'root' })
 			// restore the sprintId
 			this.$store.commit('updateNodesAndCurrentDoc', { node, sprintId: r.sprintId })
 		}

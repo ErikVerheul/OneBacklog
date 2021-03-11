@@ -427,7 +427,6 @@ const methods = {
 		correctProductId(this)
 		const destNodeModel = cursorPosition.nodeModel
 		const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
-		console.log('insertNodes: productId = ' + productId)
 		let predecessorNode
 		let successorNode
 		if (cursorPosition.placement === 'inside') {
