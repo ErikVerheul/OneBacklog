@@ -494,7 +494,7 @@ const actions = {
 			followers: [],
 			description: window.btoa('<p>To insert one or more requirement areas inside this node right-click on this nodes title in the tree view.</p>'),
 			acceptanceCriteria: window.btoa('<p>n/a</p>'),
-			priority: 0,
+			// do not set a priority, must be null
 			comments: [{
 				ignoreEvent: 'comments initiated',
 				timestamp: Date.now(),
