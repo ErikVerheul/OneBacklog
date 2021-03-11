@@ -28,10 +28,10 @@ const mutations = {
 		const rootGetters = payload.rootGetters
 		for (const item of payload.batch) {
 			const _id = item.id
-			const productId = item.key[0]
-			const itemLevel = item.key[1]
+			const productId = item.key[1]
+			const itemLevel = item.key[2]
 			// negate the priority
-			const priority = -item.key[2]
+			const priority = -item.key[3]
 			const parentId = item.value[1]
 			const reqarea = item.value[0] || null
 			const itemState = item.value[2]
@@ -112,8 +112,8 @@ const mutations = {
 			// expand the default product up to the feature level
 			const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
 			const doShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= LEVEL.FEATURE : itemLevel <= LEVEL.PRODUCT
-
-			const isDraggable = itemLevel > LEVEL.PRODUCT
+			// the root cannot be dragged
+			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
 				const parentNode = parentNodes[parentId]
 				const ind = parentNode.children.length

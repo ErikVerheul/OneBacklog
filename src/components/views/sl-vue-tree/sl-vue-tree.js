@@ -414,9 +414,20 @@ const methods = {
 				nodes[i].data.lastChange = Date.now()
 			}
 		}
+		function correctProductId(vm) {
+			for (const n of nodes) {
+				if (n.level === LEVEL.PRODUCT && n._id !== n.productId) {
+					// eslint-disable-next-line no-console
+					if (vm.debugMode) console.log(`Product item with id ${n._id} was assigned ${n.productId} as product id. Is corrected to be equal to the id`)
+					n.product_id = n._id
+				}
+			}
+		}
 
+		correctProductId(this)
 		const destNodeModel = cursorPosition.nodeModel
 		const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
+		console.log('insertNodes: productId = ' + productId)
 		let predecessorNode
 		let successorNode
 		if (cursorPosition.placement === 'inside') {
@@ -439,7 +450,7 @@ const methods = {
 			this.updatePaths(parentPath, destSiblings, insertInd, parentId, productId)
 		}
 		// if not excluded in options do assign new priorities
-		if (!options || options.calculatePrios) {
+		if (!options || options.calculatePrios || options.calculatePrios === undefined) {
 			assignNewPrios(nodes, predecessorNode, successorNode)
 		}
 	},
@@ -560,8 +571,15 @@ const methods = {
 				this.stopDrag()
 				return
 			}
-			// prevent drag to other product when not in Products overview
-			if (!this.isOverviewSelected && this.cursorPosition.nodeModel.productId !== this.$store.state.currentProductId) {
+			// prevent dragging a product into another product
+			if (this.isDetailsViewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.placement === 'inside' ||
+				this.isOverviewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.nodeModel.parentId !== 'root') {
+				this.showLastEvent('Cannot drag a product into another product', SEV.WARNING)
+				this.stopDrag()
+				return
+			}
+			// prevent dragging an item into another product when in Product details view
+			if (this.isDetailsViewSelected && dn.level !== LEVEL.PRODUCT && dn.productId !== this.cursorPosition.nodeModel.productId) {
 				this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', SEV.WARNING)
 				this.stopDrag()
 				return

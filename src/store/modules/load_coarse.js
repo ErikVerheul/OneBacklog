@@ -42,9 +42,9 @@ const actions = {
 			for (const item of batch) {
 				const _id = item.id
 				// the productId of the 'requirement-areas' top dummy product document is null to have it ordened below root in the details view
-				const productId = item.key[0] || MISC.AREA_PRODUCTID
-				const itemLevel = item.key[1]
-				const priority = -item.key[2]
+				const productId = item.key[1] || MISC.AREA_PRODUCTID
+				const itemLevel = item.key[2]
+				const priority = -item.key[3]
 				const parentId = item.value[1]
 				const reqarea = item.value[0] || null
 				const itemState = item.value[2]
@@ -114,8 +114,8 @@ const actions = {
 				// expand the default product up to the feature level
 				const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
 				const doShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= LEVEL.FEATURE : itemLevel <= LEVEL.PRODUCT
-				// products cannot be dragged
-				const isDraggable = itemLevel > LEVEL.PRODUCT
+				// the root cannot be dragged
+				const isDraggable = itemLevel >= LEVEL.PRODUCT
 				if (parentNodes[parentId] !== undefined) {
 					const parentNode = parentNodes[parentId]
 					const ind = parentNode.children.length

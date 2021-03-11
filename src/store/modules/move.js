@@ -137,7 +137,7 @@ const actions = {
 					doc.level = doc.level + m.levelShift
 					doc.productId = m.targetProductId
 					if (doc.level === LEVEL.PRODUCT && doc.productId !== doc._id) {
-						const msg = `updateMovedItemsBulk: Product with id ${doc._id} was assigned ${doc.productId} as product id. Is corrected to be equeal to the id.`
+						const msg = `updateMovedItemsBulk: Product with id ${doc._id} was assigned ${doc.productId} as product id. Is corrected to be equal to the id.`
 						dispatch('doLog', { event: msg, level: SEV.WARNING })
 						doc.productId = doc._id
 					}

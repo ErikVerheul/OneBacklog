@@ -18,7 +18,7 @@ function showProduct(docs, leafLevel) {
 		const parentId = doc.parentId
 		if (parentNodes[parentId] !== undefined) {
 			const itemLevel = doc.level
-			const isDraggable = itemLevel > LEVEL.PRODUCT
+			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			const isExpanded = itemLevel < LEVEL.FEATURE
 			const doShow = itemLevel <= LEVEL.PRODUCT
 			const parentNode = parentNodes[parentId]

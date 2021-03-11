@@ -117,7 +117,7 @@ const actions = {
 					isSelected: false,
 					isExpanded: true,
 					isSelectable: true,
-					isDraggable: payload.newProduct.level > LEVEL.PRODUCT,
+					isDraggable: payload.newProduct.level >= LEVEL.PRODUCT,
 					doShow: true,
 					data: {
 						state: payload.newProduct.state,

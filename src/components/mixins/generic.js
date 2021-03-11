@@ -261,7 +261,7 @@ const utilities = {
 			const sourceParentId = nodes[0].parentId
 			const sourceLevel = nodes[0].level
 			const targetNode = cursorPosition.nodeModel
-			const targetProductId = targetNode.productId
+			let targetProductId = targetNode.productId
 			let targetParent
 			let targetParentId
 			let targetLevel
@@ -336,7 +336,11 @@ const utilities = {
 			} else sortedIndMap = reverseMoveMap
 
 			window.slVueTree.removeNodes(nodes)
-			window.slVueTree.insertNodes(cursorPosition, nodes)
+			const skipUpdateProductId = sourceLevel === LEVEL.PRODUCT || targetLevel === LEVEL.PRODUCT
+			if (skipUpdateProductId) targetProductId = nodes[0]._id
+			console.log('moveNodes: sourceLevel = ' + sourceLevel + ', targetLevel = ' + targetLevel + ', skipUpdateProductId = ' + skipUpdateProductId)
+			// if moving a product skip updating the productId
+			window.slVueTree.insertNodes(cursorPosition, nodes, { skipUpdateProductId })
 
 			return {
 				placement,
