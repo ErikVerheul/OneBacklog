@@ -121,7 +121,7 @@ const actions = {
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
-				dispatch('loopResults', { entry: payload.entry, results })
+				dispatch('loopUndoResults', { entry: payload.entry, results })
 			}
 		}).catch(error => {
 			const msg = `restoreDescendants: Could not scan the descendants of document with id ${payload.parentId}, ${error}`
@@ -129,7 +129,7 @@ const actions = {
 		})
 	},
 
-	loopResults({
+	loopUndoResults({
 		dispatch
 	}, payload) {
 		for (const r of payload.results) {
