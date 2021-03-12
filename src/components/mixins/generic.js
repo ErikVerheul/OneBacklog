@@ -340,7 +340,7 @@ const utilities = {
 			} else sortedIndMap = reverseMoveMap
 
 			window.slVueTree.removeNodes(nodes)
-			// if moving a product skip updating the productId
+			// if moving a product skip updating the productId; nodes are assigned their new priority
 			window.slVueTree.insertNodes(cursorPosition, nodes, { skipUpdateProductId })
 
 			return {

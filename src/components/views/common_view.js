@@ -455,6 +455,7 @@ const methods = {
 				}
 			}
 			window.slVueTree.removeNodes([node])
+			// the node is assigned a new priority
 			window.slVueTree.insertNodes(cursorPosition, [node], { skipUpdateProductId: node.parentId === 'root' })
 			// restore the sprintId
 			this.$store.commit('updateNodesAndCurrentDoc', { node, sprintId: r.sprintId })
@@ -486,9 +487,10 @@ const methods = {
 					const targetParentId = moveDataContainer.sourceParentId
 					// the nodes are restored prior to the database update as we need the newly calculated priority to store
 					if (this.moveBack(sourceParentId, targetParentId, reverseMoveMap)) {
+						// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
+						if (!window.slVueTree.dependencyViolationsFound()) this.showLastEvent('Item(s) move is undone', SEV.INFO)
 						// update the nodes in the database
 						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, undoMove: true })
-						if (!window.slVueTree.dependencyViolationsFound()) this.showLastEvent('Item(s) move undone', SEV.INFO)
 					} else this.showLastEvent('Undo failed. Sign out and -in again to recover.', SEV.ERROR)
 				}
 				break
@@ -705,12 +707,11 @@ const methods = {
 	/* Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location */
 	nodeDropped(nodes, cursorPosition) {
 		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
-		const clickedLevel = moveDataContainer.sourceLevel
-		const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
-		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
-
+		// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
 		if (!window.slVueTree.dependencyViolationsFound()) {
 			// show the event message if no dependency warning message is displayed
+			const clickedLevel = moveDataContainer.sourceLevel
+			const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
 			const title = this.itemTitleTrunc(60, nodes[0].title)
 			let evt = ''
 			if (nodes.length === 1) {
@@ -719,6 +720,7 @@ const methods = {
 			if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
 			this.showLastEvent(evt, SEV.INFO)
 		}
+		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
 	},
 
 	getViewOptions() {
