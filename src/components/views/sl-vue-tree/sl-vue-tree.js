@@ -40,7 +40,8 @@ function data() {
 			y: 0
 		},
 		preventDrag: false,
-		lastSelectCursorPosition: null
+		lastSelectCursorPosition: null,
+		lastSelectedNode: {}
 	}
 }
 
@@ -423,7 +424,7 @@ const methods = {
 				}
 			}
 		}
-
+		// check and correction for error: product level items must have their own id as productId
 		correctProductId(this)
 		const destNodeModel = cursorPosition.nodeModel
 		const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
@@ -523,6 +524,7 @@ const methods = {
 			return
 		}
 		this.mouseIsDown = true
+		this.lastSelectedNode = node
 	},
 
 	onNodeMouseupHandler(event) {
@@ -583,8 +585,18 @@ const methods = {
 				this.stopDrag()
 				return
 			}
-			// prevent placement on wrong level when the user selects the parent as target node to insert after
+			// prevent unintended move to another level when the user selects the item's parent as target node to insert after
 			if (this.cursorPosition.placement === 'after' && this.cursorPosition.nodeModel.level < dn.level) {
+				const parentType = this.getLevelText(this.cursorPosition.nodeModel.level)
+				this.showLastEvent(`Cannot drag here. Drag into the ${parentType} or before the ${parentType}'s first child`, SEV.WARNING)
+				this.stopDrag()
+				return
+			}
+			// prevent unintended move to another level when the user selects the item's parent next sibling as target node to insert before
+			const sourceParent = this.getParentNode(this.lastSelectedNode)
+			const nextParent = this.getNextSibling(sourceParent.path)
+			if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel === nextParent) {
+				this.showLastEvent(`Cannot drag here. Drag to the lower edge of the last child`, SEV.WARNING)
 				this.stopDrag()
 				return
 			}
@@ -641,15 +653,15 @@ const methods = {
 		this.updatePaths([0], newChildren)
 	},
 
-	/* Select a node from the tree; a node must have been selected before; multiple nodes must have the same parent */
+	/* Select a node from the tree; another node must have been selected before; multiple nodes must have the same parent */
 	select(cursorPosition, event) {
 		this.lastSelectCursorPosition = cursorPosition
 		const selNode = cursorPosition.nodeModel
 		if (selNode.isSelectable) {
 			this.preventDrag = false
-			const lastSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
+			const prevSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
 			// ctrl-select or shift-select mode is allowed only if nodes have the same parent and are above productlevel (epics, features and higher)
-			if (selNode.level > LEVEL.PRODUCT && this.allowMultiselect && selNode.parentId === lastSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
+			if (selNode.level > LEVEL.PRODUCT && this.allowMultiselect && selNode.parentId === prevSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
 				if (event.ctrlKey) {
 					// multi selection
 					this.$store.commit('addSelectedNode', selNode)
@@ -657,15 +669,15 @@ const methods = {
 					if (event.shiftKey) {
 						// range selection
 						const siblings = this.getNodeSiblings(selNode.path)
-						if (selNode.ind > lastSelectedNode.ind) {
+						if (selNode.ind > prevSelectedNode.ind) {
 							for (const s of siblings) {
-								if (s.ind > lastSelectedNode.ind && s.ind <= selNode.ind) {
+								if (s.ind > prevSelectedNode.ind && s.ind <= selNode.ind) {
 									this.$store.commit('addSelectedNode', s)
 								}
 							}
-						} else if (selNode.ind < lastSelectedNode.ind) {
+						} else if (selNode.ind < prevSelectedNode.ind) {
 							for (let i = siblings.length - 1; i >= 0; i--) {
-								if (siblings[i].ind < lastSelectedNode.ind && siblings[i].ind >= selNode.ind) {
+								if (siblings[i].ind < prevSelectedNode.ind && siblings[i].ind >= selNode.ind) {
 									this.$store.commit('addSelectedNode', siblings[i])
 								}
 							}

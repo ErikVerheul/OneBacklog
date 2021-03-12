@@ -135,6 +135,7 @@ const actions = {
 					doc.parentId = m.targetParentId
 					doc.level = doc.level + m.levelShift
 					doc.productId = m.targetProductId
+					// check and correction for error: product level items must have their own id as productId
 					if (doc.level === LEVEL.PRODUCT && doc.productId !== doc._id) {
 						const msg = `updateMovedItemsBulk: Product with id ${doc._id} was assigned ${doc.productId} as product id. Is corrected to be equal to the id.`
 						dispatch('doLog', { event: msg, level: SEV.WARNING })
