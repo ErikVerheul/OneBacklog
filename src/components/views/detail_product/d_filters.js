@@ -1,5 +1,5 @@
 import { SEV, LEVEL } from '../../../constants.js'
-import { expandNode, hideNode } from '../../../common_functions.js'
+import { collapseNode, expandNode, hideNode } from '../../../common_functions.js'
 import { utilities } from '../../mixins/generic.js'
 import commonFilters from '../common_filters.js'
 
@@ -23,7 +23,7 @@ const methods = {
 			if (onlyFilterOnDepth) {
 				if (nm.level < this.selectedTreeDepth) {
 					expandNode(nm)
-				} else this.collapseNode(nm)
+				} else collapseNode(nm)
 
 				if (nm.level === this.selectedTreeDepth) return
 			} else {
