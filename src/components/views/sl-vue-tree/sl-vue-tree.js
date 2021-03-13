@@ -229,7 +229,6 @@ const methods = {
 		const $nodeItem = $target.getAttribute('path') ? $target : getClosestElementWithPath($target)
 		if (!$nodeItem) return null
 
-		let placement
 		const pathStr = $nodeItem.getAttribute('path')
 		const path = JSON.parse(pathStr)
 		const nodeModel = this.getNodeModel(path)
@@ -239,6 +238,7 @@ const methods = {
 		const edgeSize = this.edgeSize
 		const offsetY = y - $nodeItem.getBoundingClientRect().top
 
+		let placement
 		if (nodeModel.isLeaf) {
 			placement = offsetY >= nodeHeight / 2 ? 'after' : 'before'
 		} else {
@@ -585,20 +585,13 @@ const methods = {
 				this.stopDrag()
 				return
 			}
-			// prevent unintended move to another level when the user selects the item's parent as target node to insert after
-			if (this.cursorPosition.placement === 'after' && this.cursorPosition.nodeModel.level < dn.level) {
-				const parentType = this.getLevelText(this.cursorPosition.nodeModel.level)
-				this.showLastEvent(`Cannot drag here. Drag into the ${parentType} or before the ${parentType}'s first child`, SEV.WARNING)
-				this.stopDrag()
-				return
-			}
-			// prevent unintended move to another level when the user selects the item's parent next sibling as target node to insert before
+			// if the cursor is placed below the last child of a parent item insert the moved item(s) as childs of that parent
 			const sourceParent = this.getParentNode(this.lastSelectedNode)
 			const nextParent = this.getNextSibling(sourceParent.path)
 			if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel === nextParent) {
-				this.showLastEvent(`Cannot drag here. Drag to the lower edge of the last child`, SEV.WARNING)
-				this.stopDrag()
-				return
+				// change the cursorPosition.nodeModel to the last child of the sourceParent and insert after this child
+				this.cursorPosition.nodeModel = sourceParent.children.slice(-1)[0]
+				this.cursorPosition.placement = 'after'
 			}
 		}
 
