@@ -478,7 +478,7 @@ const methods = {
 			return
 		}
 
-		if (this.preventDrag) return
+		if (this.preventDrag || !this.lastSelectedNode.isSelected) return
 
 		const initialDraggingState = this.isDragging
 		const isDraggingLocal =
@@ -525,6 +525,11 @@ const methods = {
 		}
 		this.mouseIsDown = true
 		this.lastSelectedNode = node
+
+		// if no node selected for dragging, select this node as the first node to be dragged
+		if (this.draggableNodes.length === 0) {
+			this.$store.commit('renewSelectedNodes', node)
+		}
 	},
 
 	onNodeMouseupHandler(event) {
@@ -553,7 +558,7 @@ const methods = {
 		}
 
 		// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-		if (this.draggableNodes.length === 0 || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
+		if (!this.lastSelectedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
 			if (this.$store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', SEV.WARNING)
 			if (this.$store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
 			this.stopDrag()
