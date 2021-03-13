@@ -585,14 +585,15 @@ const methods = {
 				this.stopDrag()
 				return
 			}
-			// if the cursor is placed below the last child of a parent item insert the moved item(s) as childs of that parent
-			const sourceParent = this.getParentNode(this.lastSelectedNode)
-			const nextParent = this.getNextSibling(sourceParent.path)
-			if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel === nextParent) {
-				// change the cursorPosition.nodeModel to the last child of the sourceParent and insert after this child
-				this.cursorPosition.nodeModel = sourceParent.children.slice(-1)[0]
-				this.cursorPosition.placement = 'after'
-			}
+		}
+
+		// if the cursor is placed below the last child of a parent item insert the moved item(s) as childs of that parent
+		const sourceParent = this.getParentNode(this.lastSelectedNode)
+		const nextParent = this.getNextSibling(sourceParent.path)
+		if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel === nextParent) {
+			// change the cursorPosition.nodeModel to the last child of the sourceParent and insert after this child
+			this.cursorPosition.nodeModel = sourceParent.children.slice(-1)[0]
+			this.cursorPosition.placement = 'after'
 		}
 
 		// allow the drop to be cancelled
@@ -900,8 +901,8 @@ const methods = {
 				// skip requirement areas dummy product items
 				if (nm._id === MISC.AREA_PRODUCTID) return
 
-				if (nm.tmp.savedIsExpandedInDependency === false) this.collapseNode(nm)
-				if (nm.tmp.savedIsExpandedInDependency === true) this.expandNode(nm)
+				if (nm.tmp.savedIsExpandedInDependency === false) collapseNode(nm)
+				if (nm.tmp.savedIsExpandedInDependency === true) expandNode(nm)
 				// delete if set or not
 				delete nm.tmp.savedIsExpandedInDependency
 			}, nodesToScan)
