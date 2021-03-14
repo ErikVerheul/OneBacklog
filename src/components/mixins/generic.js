@@ -283,8 +283,44 @@ const utilities = {
 			const targetParentTitle = targetParent.title
 
 			// if moving a product (one at a time) skip the productId update in its descendants and assign the product id to the target product id
-			const skipUpdateProductId = targetParentId === 'root'
-			if (skipUpdateProductId) targetProductId = nodes[0]._id
+			if (targetParentId === 'root') targetProductId = nodes[0]._id
+
+			// calculate the source sprintId from the target sprintId or visa versa
+			function calcSprintId(sprintIdIn) {
+				let sprintIdOut
+				if (sourceLevel === targetLevel) {
+					if (sourceParentId === targetParentId) {
+						sprintIdOut = sprintIdIn
+					} else if (targetLevel === LEVEL.TASK) {
+						// if the task is moved from another PBI assign the spintId of the parent PBI to the targetSprintId
+						if (targetParent.data.sprintId) {
+							sprintIdOut = targetParent.data.sprintId
+						}
+					} else sprintIdOut = sprintIdIn
+				} else {
+					// move to a different level
+					if (targetLevel === LEVEL.TASK) {
+						// if the node is moved from any other level to task level assign the spintId of the parent PBI to the targetSprintId
+						if (targetParent.data.sprintId) {
+							sprintIdOut = targetParent.data.sprintId
+						}
+					} else {
+						if (targetLevel === LEVEL.PBI) {
+							if (sourceLevel === LEVEL.TASK) {
+								// a task promoted to PBI preserves its sprint
+								sprintIdOut = sprintIdIn
+							} else {
+								// items moved from feature level and above have no sprint assigned
+								sprintIdOut = undefined
+							}
+						} else {
+							// items moved to feature level and above have no sprint assigned
+							sprintIdOut = undefined
+						}
+					}
+				}
+				return sprintIdOut
+			}
 
 			// map the source and target node location and the source and target sprintId to the node id
 			let doRevertOrder = false
@@ -293,12 +329,10 @@ const utilities = {
 				// ------------ set source and target sprint ids ---------------
 				const sourceSprintId = nodes[i].data.sprintId
 				let targetSprintId
-				if (targetLevel === LEVEL.PBI || targetLevel === LEVEL.TASK) {
-					// node is moved from any level to pbi or task level
-					if (targetParent.data.sprintId) {
-						targetSprintId = targetParent.data.sprintId
-					}
-				}
+				if (nodes[i].data.state === STATE.DONE) {
+					// done items do not change sprint
+					targetSprintId = sourceSprintId
+				} else targetSprintId = calcSprintId(sourceSprintId)
 
 				// check if the undo mapping need to be sorted in reverse order to accommodate the restore of multiple items
 				if (sourceParentId === targetParentId && insertInd < nodes[i].ind) doRevertOrder = true
@@ -310,18 +344,17 @@ const utilities = {
 					targetSprintId
 				})
 			}
+
 			// create a mapping to move the items back to their original position on undo; also restore the sprintId and the date/time the item was moved
 			const reverseMoveMap = []
 			for (let i = 0; i < nodes.length; i++) {
 				// ------------ set source and target sprint ids ---------------
 				const targetSprintId = nodes[i].data.sprintId
 				let sourceSprintId
-				if (targetLevel === LEVEL.PBI || targetLevel === LEVEL.TASK) {
-					// node is moved from any level to pbi or task level
-					if (targetParent.data.sprintId) {
-						sourceSprintId = targetParent.data.sprintId
-					}
-				}
+				if (nodes[i].data.state === STATE.DONE) {
+					// done items do not change sprint
+					sourceSprintId = targetSprintId
+				} else sourceSprintId = calcSprintId(targetSprintId)
 
 				reverseMoveMap.push({
 					node: nodes[i],
@@ -341,7 +374,7 @@ const utilities = {
 
 			window.slVueTree.removeNodes(nodes)
 			// if moving a product skip updating the productId; nodes are assigned their new priority
-			window.slVueTree.insertNodes(cursorPosition, nodes, { skipUpdateProductId })
+			window.slVueTree.insertNodes(cursorPosition, nodes, { skipUpdateProductId: targetParentId === 'root' })
 
 			return {
 				placement,
