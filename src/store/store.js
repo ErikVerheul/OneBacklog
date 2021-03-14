@@ -2,7 +2,7 @@ import globalAxios from 'axios'
 import router from '../router'
 import { expandNode, collapseNode, addToArray, removeFromArray } from '../common_functions.js'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
-import { SEV, LEVEL, STATE, MISC } from '../constants.js'
+import { SEV, LEVEL, MISC } from '../constants.js'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import attachments from './modules/attachments'
@@ -191,7 +191,6 @@ export default new Vuex.Store({
 		cannotImportProducts: [],
 		loadedSprintId: null,
 		sprintCalendar: [],
-		stories: [],
 		warningText: ''
 	},
 
@@ -424,25 +423,6 @@ export default new Vuex.Store({
 						myCurrentProductRoles.includes('PO') ||
 						myCurrentProductRoles.includes('developer'))
 			} else return false
-		},
-		//////////////////////////////// planning board getters //////////////////////////////
-		////                     not available in mixins (generic.js)                      ///
-		getStoryPoints(state) {
-			let sum = 0
-			for (const s of state.stories) {
-				sum += s.size
-			}
-			return sum
-		},
-		getStoryPointsDone(state) {
-			let sum = 0
-			for (const s of state.stories) {
-				if (s.tasks[STATE.TODO].length === 0 &&
-					s.tasks[STATE.INPROGRESS].length === 0 &&
-					s.tasks[STATE.TESTREVIEW].length === 0 &&
-					s.tasks[STATE.DONE].length > 0) sum += s.size
-			}
-			return sum
 		}
 	},
 
@@ -1122,9 +1102,9 @@ export default new Vuex.Store({
 			state.loadedTreeDepth = undefined
 			state.myProductOptions = []
 			state.mySessionId = null
+			state.planningboard.stories = []
 			state.resetSearch = {}
 			state.showHeaderDropDowns = true
-			state.stories = []
 			state.treeNodes = []
 			state.userData = {}
 		},
@@ -1133,158 +1113,6 @@ export default new Vuex.Store({
 			clearInterval(state.authentication.runningCookieRefreshId)
 			state.authentication.cookieAuthenticated = false
 			clearInterval(state.logging.runningWatchdogId)
-		},
-
-		///////////////////// planning board //////////////////////////
-
-		/* Show the items in the order as they appear in the tree view */
-		createSprint(state, payload) {
-			const featureIdToNodeMap = {}
-			const epicIdToNodeMap = {}
-			const productIdToNodeMap = {}
-			function getParentNode(id, parentIdToNodeMap) {
-				let parent = parentIdToNodeMap[id]
-				if (parent) {
-					return parent
-				} else {
-					parent = window.slVueTree.getNodeById(id)
-					if (parent) {
-						parentIdToNodeMap[id] = parent
-						return parent
-					}
-				}
-				return null
-			}
-
-			let storyIdx = 0
-			for (const f of payload.featureMap) {
-				for (const s of payload.pbiResults) {
-					const featureId = s.key[3]
-					if (f.id === featureId) {
-						const storyId = s.id
-						const productId = s.key[2]
-						const storyTitle = s.value[0]
-						const featureNode = getParentNode(featureId, featureIdToNodeMap)
-						if (!featureNode) continue
-
-						const featureName = featureNode.title
-						const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
-						if (!epicNode) continue
-
-						const epicName = epicNode.title
-						const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
-						if (!productNode) continue
-
-						const productName = productNode.title
-						const subType = s.value[1]
-						const storySize = s.value[3]
-						const newStory = {
-							idx: storyIdx,
-							storyId,
-							featureId,
-							featureName,
-							epicName,
-							productId,
-							productName,
-							title: storyTitle,
-							size: storySize,
-							subType,
-							tasks: {
-								[STATE.ON_HOLD]: [],
-								[STATE.TODO]: [],
-								[STATE.INPROGRESS]: [],
-								[STATE.TESTREVIEW]: [],
-								[STATE.DONE]: []
-							}
-						}
-
-						for (const t of payload.taskResults) {
-							if (t.key[3] === storyId) {
-								const taskState = t.value[2]
-								switch (taskState) {
-									case STATE.ON_HOLD:
-										newStory.tasks[STATE.ON_HOLD].push({
-											id: t.id,
-											title: t.value[0],
-											taskOwner: t.value[4],
-											priority: -t.key[5]
-										})
-										break
-									case STATE.TODO:
-									case STATE.READY:
-										newStory.tasks[STATE.TODO].push({
-											id: t.id,
-											title: t.value[0],
-											taskOwner: t.value[4],
-											priority: -t.key[5]
-										})
-										break
-									case STATE.INPROGRESS:
-										newStory.tasks[STATE.INPROGRESS].push({
-											id: t.id,
-											title: t.value[0],
-											taskOwner: t.value[4],
-											priority: -t.key[5]
-										})
-										break
-									case STATE.TESTREVIEW:
-										newStory.tasks[STATE.TESTREVIEW].push({
-											id: t.id,
-											title: t.value[0],
-											taskOwner: t.value[4],
-											priority: -t.key[5]
-										})
-										break
-									case STATE.DONE:
-										newStory.tasks[STATE.DONE].push({
-											id: t.id,
-											title: t.value[0],
-											taskOwner: t.value[4],
-											priority: -t.key[5]
-										})
-										break
-								}
-							}
-						}
-						state.stories.push(newStory)
-						storyIdx++
-					}
-				}
-			}
-		},
-
-		/* Add the task to the planning board */
-		addTaskToBoard(state, doc) {
-			for (const s of state.stories) {
-				if (s.storyId === doc.parentId) {
-					const targetColumn = s.tasks[doc.state]
-					targetColumn.unshift({
-						id: doc._id,
-						title: doc.title,
-						taskOwner: doc.taskOwner,
-						priority: doc.priority
-					})
-					targetColumn.sort((a, b) => b.priority - a.priority)
-					break
-				}
-			}
-		},
-
-		/* Remove the task from the planning board */
-		removeTaskFromBoard(state, payload) {
-			for (const s of state.stories) {
-				if (s.storyId === payload.storyId) {
-					const targetColumn = s.tasks[payload.taskState]
-					const newTargetColumn = []
-					for (const c of targetColumn) {
-						if (c.id !== payload.taskId) {
-							newTargetColumn.push(c)
-						}
-					}
-					s.tasks[payload.taskState] = newTargetColumn
-					break
-				}
-			}
 		}
 	},
 

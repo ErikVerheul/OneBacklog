@@ -41,7 +41,7 @@
           <b-button @click="clearWarning()" size="sm">Dismiss</b-button>
         </b-col>
       </b-row>
-      <div v-for="story in $store.state.stories" :key="story.idx">
+      <div v-for="story in $store.state.planningboard.stories" :key="story.idx">
         <b-row>
           <b-col cols="12">
             <story-lane :idx="story.idx"></story-lane>

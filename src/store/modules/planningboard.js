@@ -1,4 +1,4 @@
-import { SEV, LEVEL } from '../../constants.js'
+import { SEV, LEVEL, STATE } from '../../constants.js'
 import { expandNode } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -24,7 +24,180 @@ const state = {
 	taskIdsToImport: [],
 	featureMap: [],
 	pbiResults: [],
-	pathsFound: []
+	pathsFound: [],
+	stories: [],
+}
+
+const mutations = {
+	/* Show the items in the order as they appear in the tree view */
+	createSprint(state, payload) {
+		const featureIdToNodeMap = {}
+		const epicIdToNodeMap = {}
+		const productIdToNodeMap = {}
+		function getParentNode(id, parentIdToNodeMap) {
+			let parent = parentIdToNodeMap[id]
+			if (parent) {
+				return parent
+			} else {
+				parent = window.slVueTree.getNodeById(id)
+				if (parent) {
+					parentIdToNodeMap[id] = parent
+					return parent
+				}
+			}
+			return null
+		}
+
+		let storyIdx = 0
+		for (const f of payload.featureMap) {
+			for (const s of payload.pbiResults) {
+				const featureId = s.key[3]
+				if (f.id === featureId) {
+					const storyId = s.id
+					const productId = s.key[2]
+					const storyTitle = s.value[0]
+					const featureNode = getParentNode(featureId, featureIdToNodeMap)
+					if (!featureNode) continue
+
+					const featureName = featureNode.title
+					const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
+					if (!epicNode) continue
+
+					const epicName = epicNode.title
+					const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
+					if (!productNode) continue
+
+					const productName = productNode.title
+					const subType = s.value[1]
+					const storySize = s.value[3]
+					const newStory = {
+						idx: storyIdx,
+						storyId,
+						featureId,
+						featureName,
+						epicName,
+						productId,
+						productName,
+						title: storyTitle,
+						size: storySize,
+						subType,
+						tasks: {
+							[STATE.ON_HOLD]: [],
+							[STATE.TODO]: [],
+							[STATE.INPROGRESS]: [],
+							[STATE.TESTREVIEW]: [],
+							[STATE.DONE]: []
+						}
+					}
+
+					for (const t of payload.taskResults) {
+						if (t.key[3] === storyId) {
+							const taskState = t.value[2]
+							switch (taskState) {
+								case STATE.ON_HOLD:
+									newStory.tasks[STATE.ON_HOLD].push({
+										id: t.id,
+										title: t.value[0],
+										taskOwner: t.value[4],
+										priority: -t.key[5]
+									})
+									break
+								case STATE.TODO:
+								case STATE.READY:
+									newStory.tasks[STATE.TODO].push({
+										id: t.id,
+										title: t.value[0],
+										taskOwner: t.value[4],
+										priority: -t.key[5]
+									})
+									break
+								case STATE.INPROGRESS:
+									newStory.tasks[STATE.INPROGRESS].push({
+										id: t.id,
+										title: t.value[0],
+										taskOwner: t.value[4],
+										priority: -t.key[5]
+									})
+									break
+								case STATE.TESTREVIEW:
+									newStory.tasks[STATE.TESTREVIEW].push({
+										id: t.id,
+										title: t.value[0],
+										taskOwner: t.value[4],
+										priority: -t.key[5]
+									})
+									break
+								case STATE.DONE:
+									newStory.tasks[STATE.DONE].push({
+										id: t.id,
+										title: t.value[0],
+										taskOwner: t.value[4],
+										priority: -t.key[5]
+									})
+									break
+							}
+						}
+					}
+					state.stories.push(newStory)
+					storyIdx++
+				}
+			}
+		}
+	},
+
+	/* Add the task to the planning board */
+	addTaskToBoard(state, doc) {
+		for (const s of state.stories) {
+			if (s.storyId === doc.parentId) {
+				const targetColumn = s.tasks[doc.state]
+				targetColumn.unshift({
+					id: doc._id,
+					title: doc.title,
+					taskOwner: doc.taskOwner,
+					priority: doc.priority
+				})
+				targetColumn.sort((a, b) => b.priority - a.priority)
+				break
+			}
+		}
+	},
+
+	/* Remove the task from the planning board */
+	removeTaskFromBoard(state, payload) {
+		for (const s of state.stories) {
+			if (s.storyId === payload.storyId) {
+				const targetColumn = s.tasks[payload.taskState]
+				const newTargetColumn = []
+				for (const c of targetColumn) {
+					if (c.id !== payload.taskId) {
+						newTargetColumn.push(c)
+					}
+				}
+				s.tasks[payload.taskState] = newTargetColumn
+				break
+			}
+		}
+	}
+}
+
+const getters = {
+	getStoryPoints(state) {
+		let sum = 0
+		for (const s of state.stories) {
+			sum += s.size
+		}
+		return sum
+	},
+	getStoryPointsDone(state) {
+		let sum = 0
+		for (const s of state.stories) {
+			if (s.tasks[STATE.TODO].length === 0 &&
+				s.tasks[STATE.INPROGRESS].length === 0 &&
+				s.tasks[STATE.TESTREVIEW].length === 0 &&
+				s.tasks[STATE.DONE].length > 0) sum += s.size
+		}
+		return sum
+	}
 }
 
 const actions = {
@@ -35,6 +208,8 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		state.parentIdsToImport = []
+		state.taskIdsToImport = []
 		function isCurrentSprint(sprintId) {
 			for (const s of rootState.sprintCalendar) {
 				if (s.id === sprintId) {
@@ -44,7 +219,7 @@ const actions = {
 		}
 		if (!busyLoading) {
 			busyLoading = true
-			rootState.stories = []
+			state.stories = []
 			state.featureMap = []
 			state.pbiResults = []
 			state.pathsFound = []
@@ -84,20 +259,24 @@ const actions = {
 					}
 				}
 
-				dispatch('loadMissingPbis', {
-					missingPbiIds,
-					onSuccessCallBack: () => {
-						// order the items as in the tree view
-						state.featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
-						commit('createSprint', { sprintId: payload.sprintId, featureMap: state.featureMap, pbiResults: state.pbiResults, taskResults })
-						busyLoading = false
+				const paintSprintLanes = () => {
+					// order the items as in the tree view
+					state.featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
+					commit('createSprint', { sprintId: payload.sprintId, featureMap: state.featureMap, pbiResults: state.pbiResults, taskResults })
+					busyLoading = false
+					loadRequests--
+					if (loadRequests > 0) {
 						loadRequests--
-						if (loadRequests > 0) {
-							loadRequests--
-							dispatch('loadPlanningBoard', payload)
-						} else if (isCurrentSprint(payload.sprintId)) dispatch('loadUnfinished', rootState.userData.myTeam)
-					}
-				})
+						dispatch('loadPlanningBoard', payload)
+					} else if (isCurrentSprint(payload.sprintId)) dispatch('loadUnfinished', rootState.userData.myTeam)
+				}
+
+				if (missingPbiIds.length > 0) {
+					dispatch('loadMissingPbis', {
+						missingPbiIds,
+						onSuccessCallBack: paintSprintLanes
+					})
+				} else paintSprintLanes()
 			}).catch(error => {
 				const msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -262,10 +441,10 @@ const actions = {
 	},
 
 	updateTasks({
-		rootState,
+		state,
 		dispatch
 	}, payload) {
-		const story = rootState.stories[payload.idx]
+		const story = state.stories[payload.idx]
 		const beforeMoveIds = []
 		for (const t of story.tasks[payload.taskState]) {
 			beforeMoveIds.push(t.id)
@@ -446,7 +625,7 @@ const actions = {
 	},
 
 	/*
-	* From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint ||
+	* From the 'Product details' view context menu PBI's can be selected to be assigned to the current or next sprint ||
 	* for undo: see undoRemoveSprintIds
 	*/
 	addSprintIds({
@@ -610,7 +789,7 @@ const actions = {
 			const storyDoc = res.data
 			// a new task is created in a user story currently on the planning board; calculate its prioriry
 			let taskPriority = 0
-			for (const s of rootState.stories) {
+			for (const s of state.stories) {
 				if (s.storyId === storyDoc._id) {
 					taskPriority = calcPriority(s.tasks)
 					break
@@ -690,7 +869,7 @@ const actions = {
 						window.slVueTree.insertNodes(cursorPosition, [newNode])
 					}
 					// place the task on the planning board
-					for (const s of rootState.stories) {
+					for (const s of state.stories) {
 						if (s.storyId === storyDoc._id) {
 							const targetColumn = s.tasks[payload.taskState]
 							targetColumn.unshift({
@@ -775,7 +954,7 @@ const actions = {
 						if (node) window.slVueTree.removeNodes([node])
 					}
 					// remove the task from the planning board
-					for (const s of rootState.stories) {
+					for (const s of state.stories) {
 						if (s.storyId === storyId) {
 							const targetColumn = s.tasks[taskState]
 							const newTargetColumn = []
@@ -822,7 +1001,7 @@ const actions = {
 				caller: 'boardUpdateTaskTitle',
 				onSuccessCallback: () => {
 					// update the board
-					for (const s of rootState.stories) {
+					for (const s of state.stories) {
 						if (s.storyId === doc.parentId) {
 							const tasks = s.tasks
 							const targetColumn = tasks[doc.state]
@@ -894,5 +1073,7 @@ const actions = {
 
 export default {
 	state,
+	mutations,
+	getters,
 	actions
 }

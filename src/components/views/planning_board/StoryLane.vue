@@ -2,61 +2,61 @@
   <b-container fluid>
     <b-row no-gutters>
       <b-col>
-        <story-column id="userStory" :story="$store.state.stories[idx]"></story-column>
+        <story-column id="userStory" :story="$store.state.planningboard.stories[idx]"></story-column>
       </b-col>
       <b-col>
         <task-column
           :taskState="STATE.ON_HOLD"
           title="[On hold]"
-          :tasks="$store.state.stories[idx].tasks[STATE.ON_HOLD]"
+          :tasks="$store.state.planningboard.stories[idx].tasks[STATE.ON_HOLD]"
           :idx="idx"
-          :productId="$store.state.stories[idx].productId"
-          :storyId="$store.state.stories[idx].storyId"
-          :storyTitle="$store.state.stories[idx].title"
+          :productId="$store.state.planningboard.stories[idx].productId"
+          :storyId="$store.state.planningboard.stories[idx].storyId"
+          :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
       </b-col>
       <b-col>
         <task-column
           :taskState="STATE.TODO"
           title="Todo"
-          :tasks="$store.state.stories[idx].tasks[STATE.TODO]"
+          :tasks="$store.state.planningboard.stories[idx].tasks[STATE.TODO]"
           :idx="idx"
-          :productId="$store.state.stories[idx].productId"
-          :storyId="$store.state.stories[idx].storyId"
-          :storyTitle="$store.state.stories[idx].title"
+          :productId="$store.state.planningboard.stories[idx].productId"
+          :storyId="$store.state.planningboard.stories[idx].storyId"
+          :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
       </b-col>
       <b-col>
         <task-column
           :taskState="STATE.INPROGRESS"
           title="In progress"
-          :tasks="$store.state.stories[idx].tasks[STATE.INPROGRESS]"
+          :tasks="$store.state.planningboard.stories[idx].tasks[STATE.INPROGRESS]"
           :idx="idx"
-          :productId="$store.state.stories[idx].productId"
-          :storyId="$store.state.stories[idx].storyId"
-          :storyTitle="$store.state.stories[idx].title"
+          :productId="$store.state.planningboard.stories[idx].productId"
+          :storyId="$store.state.planningboard.stories[idx].storyId"
+          :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
       </b-col>
       <b-col>
         <task-column
           :taskState="STATE.TESTREVIEW"
           title="Test / review"
-          :tasks="$store.state.stories[idx].tasks[STATE.TESTREVIEW]"
+          :tasks="$store.state.planningboard.stories[idx].tasks[STATE.TESTREVIEW]"
           :idx="idx"
-          :productId="$store.state.stories[idx].productId"
-          :storyId="$store.state.stories[idx].storyId"
-          :storyTitle="$store.state.stories[idx].title"
+          :productId="$store.state.planningboard.stories[idx].productId"
+          :storyId="$store.state.planningboard.stories[idx].storyId"
+          :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
       </b-col>
       <b-col>
         <task-column
           :taskState="STATE.DONE"
           title="Done"
-          :tasks="$store.state.stories[idx].tasks[STATE.DONE]"
+          :tasks="$store.state.planningboard.stories[idx].tasks[STATE.DONE]"
           :idx="idx"
-          :productId="$store.state.stories[idx].productId"
-          :storyId="$store.state.stories[idx].storyId"
-          :storyTitle="$store.state.stories[idx].title"
+          :productId="$store.state.planningboard.stories[idx].productId"
+          :storyId="$store.state.planningboard.stories[idx].storyId"
+          :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
       </b-col>
     </b-row>

@@ -527,11 +527,13 @@ const actions = {
 							break
 						case 'nodeMovedEvent':
 							{
+								console.log('sync: updateboard.nodeMovedEvent')
 								const item = lastHistObj.nodeMovedEvent
 								const sourceSprintId = item[11]
 								const targetSprintId = item[12]
 								const involvedSprintIds = [doc.sprintId].concat([sourceSprintId]).concat([targetSprintId]).concat(window.slVueTree.getDescendantsInfoOnId(doc._id).sprintIds)
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
+									console.log('sync: the item is moved in, within or out of the loaded sprint')
 									// the item is moved in, within or out of the loaded sprint
 									const sourceLevel = item[0]
 									const targetLevel = item[1]
@@ -542,7 +544,7 @@ const actions = {
 									if (sourceLevel === LEVEL.TASK && targetLevel === LEVEL.TASK && sourceParentId === targetParentId) {
 										// move position of items within the same user story
 										let tasks
-										for (const s of rootState.stories) {
+										for (const s of rootState.planningboard.stories) {
 											if (s.storyId === targetParentId) {
 												const columnKeys = Object.keys(s.tasks)
 												for (const ck of columnKeys) {
@@ -562,6 +564,7 @@ const actions = {
 										}
 										tasks.sort((a, b) => b.priority - a.priority)
 									} else {
+										console.log('sync: the item was moved to another user story in or out of this sprint')
 										// the item was moved to another user story in or out of this sprint
 										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
@@ -575,7 +578,7 @@ const actions = {
 									// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
 									if (doc.level === LEVEL.TASK) {
 										// a task is removed from a user story currently displayed on the planning board
-										for (const s of rootState.stories) {
+										for (const s of rootState.planningboard.stories) {
 											if (s.storyId === doc.parentId) {
 												const newArray = []
 												for (const t of s.tasks[doc.state]) {
@@ -594,7 +597,7 @@ const actions = {
 							break
 						case 'setPointsEvent':
 							if (doc.sprintId === rootState.loadedSprintId && doc.level === LEVEL.PBI) {
-								for (const s of rootState.stories) {
+								for (const s of rootState.planningboard.stories) {
 									if (s.storyId === doc._id) {
 										s.size = doc.spsize
 										break
@@ -606,7 +609,7 @@ const actions = {
 							if (doc.sprintId === rootState.loadedSprintId && doc.level === LEVEL.TASK) {
 								const prevState = lastHistObj.setStateEvent[0]
 								const newTaskPosition = lastHistObj.setStateEvent[3]
-								for (const s of rootState.stories) {
+								for (const s of rootState.planningboard.stories) {
 									if (s.storyId === doc.parentId) {
 										const sourceColumn = s.tasks[prevState]
 										const targetColumn = s.tasks[doc.state]
@@ -630,7 +633,7 @@ const actions = {
 							break
 						case 'setSubTypeEvent':
 							if (doc.sprintId === rootState.loadedSprintId && doc.level === LEVEL.PBI) {
-								for (const s of rootState.stories) {
+								for (const s of rootState.planningboard.stories) {
 									if (s.storyId === doc._id) {
 										s.subType = doc.subtype
 										break
@@ -646,7 +649,7 @@ const actions = {
 							if (doc.sprintId === rootState.loadedSprintId) {
 								switch (doc.level) {
 									case LEVEL.FEATURE:
-										for (const s of rootState.stories) {
+										for (const s of rootState.planningboard.stories) {
 											if (s.featureId === doc._id) {
 												s.featureName = doc.title
 												break
@@ -654,7 +657,7 @@ const actions = {
 										}
 										break
 									case LEVEL.PBI:
-										for (const s of rootState.stories) {
+										for (const s of rootState.planningboard.stories) {
 											if (s.storyId === doc._id) {
 												s.title = doc.title
 												break
@@ -662,7 +665,7 @@ const actions = {
 										}
 										break
 									case LEVEL.TASK:
-										for (const s of rootState.stories) {
+										for (const s of rootState.planningboard.stories) {
 											if (s.storyId === doc.parentId) {
 												const tasks = s.tasks
 												const targetColumn = tasks[doc.state]
@@ -690,7 +693,7 @@ const actions = {
 						case 'updateTaskOrderEvent':
 							if (doc.sprintId === rootState.loadedSprintId) {
 								const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates
-								rootState.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
+								rootState.planningboard.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
 							}
 							break
 						default:
