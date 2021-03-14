@@ -286,6 +286,12 @@ const methods = {
 		const node = this.getNodeById(parentId)
 		if (node !== null) {
 			return this.getDescendantsInfo(node)
+		} else return {
+			ids: [],
+			descendants: [],
+			sprintIds: [],
+			count: 0,
+			depth: 0
 		}
 	},
 
