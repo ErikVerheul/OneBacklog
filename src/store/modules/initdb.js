@@ -291,7 +291,8 @@ const actions = {
 					 */
 					details: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.productId, doc.level, doc.priority * -1],
+							const seq = doc.level === 2 ? -doc.priority : doc.productId
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([seq, doc.productId, doc.level, -doc.priority],
 								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
 						}`
@@ -299,14 +300,15 @@ const actions = {
 					/* Filter on parentIds to map documents to their parent */
 					docToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.parentId, doc.priority * -1]);
+							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.parentId, -doc.priority]);
 						}`
 					},
 					/* Filter up to and including the feature level */
 					overview: {
 						map: `function(doc) {
+							const seq = doc.level === 2 ? -doc.priority : doc.productId
 							const pbiLevel = 5
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level < pbiLevel) emit([doc.productId, doc.level, doc.priority * -1],
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level < pbiLevel) emit([seq, doc.productId, doc.level, -doc.priority],
 								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
 						}`
@@ -329,7 +331,7 @@ const actions = {
 					/* Filter on delmark and parentId to map removed documents to their parent in order of priority */
 					removedDocToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, doc.priority * -1]);
+							if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority]);
 						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
@@ -343,7 +345,7 @@ const actions = {
 					sprints: {
 						map: `function(doc) {
 							const pbiLevel = 5
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, doc.priority * -1], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
 						}`
 					},
 					/* Filter on tasks assigned to sprints not done */
@@ -351,7 +353,7 @@ const actions = {
 						map: `function(doc) {
 							const taskLevel = 6
 							const doneSate = 6
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level === taskLevel && doc.sprintId && doc.state < doneSate) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, doc.priority * -1], doc._id);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level === taskLevel && doc.sprintId && doc.state < doneSate) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc._id);
 						}`
 					},
 					/* Filter on teams */
@@ -364,7 +366,7 @@ const actions = {
 				/* Filter on unremovedMark and parentId to map unremoved documents to their parent in order of priority */
 				unremovedDocToParentMap: {
 					map: `function(doc) {
-							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId, doc.priority * -1]);
+							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId, -doc.priority]);
 						}`
 				},
 				language: 'javascript'
