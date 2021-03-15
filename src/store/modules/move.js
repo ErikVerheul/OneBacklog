@@ -2,8 +2,8 @@ import { LEVEL, SEV } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
-var threadingHasStarted = false
-var runningThreadsCount = 0
+var threadingHasStarted
+var runningThreadsCount
 
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
@@ -13,8 +13,9 @@ const actions = {
 	/*
 	* Note: the tree model is updated before the database is. To update the database the new priority must be calculated first while inserting the node.
 	* Order of execution:
-	* 1. update the moved nodes with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
+	* 1. update the moved items with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
 	* 2. if moving to another product or level, call getMovedChildren and update the productId (not parentId) and level of the descendants in updateMovedDescendantsBulk.
+	* 3. save the update of the moved items with the nodeMovedEvent if all child updates are done (thus preventing other users to process the update premature)
 	*/
 	updateMovedItemsBulk({
 		rootState,
@@ -257,6 +258,7 @@ const actions = {
 				}
 			}
 		}).catch(error => {
+			runningThreadsCount--
 			const msg = 'getMovedChildren: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
