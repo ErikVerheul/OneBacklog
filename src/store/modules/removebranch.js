@@ -9,8 +9,8 @@ var removedConds
 var extDepsRemovedCount
 var extCondsRemovedCount
 var removedSprintIds
-var getChildrenDispatched
-var loadTasksRunning
+var threadsDispatchedCount
+var runningThreadsCount
 
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
@@ -45,8 +45,8 @@ const actions = {
 		extDepsRemovedCount = 0
 		extCondsRemovedCount = 0
 		removedSprintIds = []
-		getChildrenDispatched = 0
-		loadTasksRunning = 0
+		threadsDispatchedCount = 0
+		runningThreadsCount = 0
 
 		const id = payload.node._id
 		const delmark = createId()
@@ -94,7 +94,7 @@ const actions = {
 			}
 			doc.history.unshift(newHist)
 			// multiple instances can be dispatched
-			getChildrenDispatched++
+			threadsDispatchedCount++
 			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, createUndo: payload.createUndo } })
 		}
 		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
@@ -108,13 +108,13 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.id) + '&include_docs=true'
 		}).then(res => {
-			loadTasksRunning++
+			runningThreadsCount++
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
 				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo })
 			} else {
-				if (getChildrenDispatched - loadTasksRunning === 0) {
+				if (threadsDispatchedCount - runningThreadsCount === 0) {
 					// db iteration ready
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('getChildrenToRemove: dispatching removeExternalConds')
@@ -122,6 +122,7 @@ const actions = {
 				}
 			}
 		}).catch(error => {
+			runningThreadsCount--
 			const msg = `removeBranch.getChildrenToRemove: Could not read the items from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -164,8 +165,8 @@ const actions = {
 					}
 				}
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch: [{ removeExternalDeps: payload }], caller: 'removeExternalConds' })
-			}).catch(e => {
-				const msg = 'removeExternalConds: Could not read batch of documents: ' + e
+			}).catch(error => {
+				const msg = `removeExternalConds: Could not read batch of documents. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		} else dispatch('removeExternalDeps', payload)

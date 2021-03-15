@@ -5,8 +5,8 @@ import globalAxios from 'axios'
 
 var fromHistory
 var histArray
-var startRestore
-var loadTasksRunning
+var threadingHasStarted
+var runningThreadsCount
 var unremovedMark
 
 function composeRangeString1(id) {
@@ -28,8 +28,8 @@ const actions = {
 		histArray = payload.histArray
 		const removedDocId = histArray[0]
 		const newRoles = histArray[6]
-		startRestore = true
-		loadTasksRunning = 0
+		threadingHasStarted = false
+		runningThreadsCount = 0
 		// get the removed document
 		globalAxios({
 			method: 'GET',
@@ -124,42 +124,44 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		loadTasksRunning++
+		runningThreadsCount++
 		const url = fromHistory ? `${rootState.userData.currentDb}/_design/design1/_view/unremovedDocToParentMap?${composeRangeString1(payload.parentNode._id)}&include_docs=true` :
 			`${rootState.userData.currentDb}/_design/design1/_view/docToParentMap?${composeRangeString2(payload.parentNode._id)}&include_docs=true`
 		globalAxios({
 			method: 'GET',
 			url
 		}).then(res => {
-			loadTasksRunning--
+			runningThreadsCount--
 			const results = res.data.rows
 			// console.log('loadChildren: results = ' + results.map(r => r.doc.title))
 			if (results.length > 0) {
+				threadingHasStarted = true
 				dispatch('processResults', { parentNode: payload.parentNode, results })
-			} else startRestore = false
-
-			if (!startRestore && loadTasksRunning === 0) {
-				// nodes are restored
-				if (fromHistory) {
-					// restore external dependencies
-					const dependencies = dedup(histArray[3])
-					for (const d of dependencies) {
-						const node = window.slVueTree.getNodeById(d.id)
-						if (node !== null) node.dependencies.push(d.dependentOn)
+			} else {
+				if (threadingHasStarted && runningThreadsCount === 0) {
+					// nodes are restored
+					if (fromHistory) {
+						// restore external dependencies
+						const dependencies = dedup(histArray[3])
+						for (const d of dependencies) {
+							const node = window.slVueTree.getNodeById(d.id)
+							if (node !== null) node.dependencies.push(d.dependentOn)
+						}
+						// restore external conditions
+						const conditionalFor = dedup(histArray[5])
+						for (const c of conditionalFor) {
+							const node = window.slVueTree.getNodeById(c.id)
+							if (node !== null) node.conditionalFor.push(c.conditionalFor)
+						}
 					}
-					// restore external conditions
-					const conditionalFor = dedup(histArray[5])
-					for (const c of conditionalFor) {
-						const node = window.slVueTree.getNodeById(c.id)
-						if (node !== null) node.conditionalFor.push(c.conditionalFor)
-					}
+					// execute passed function if provided
+					if (payload.onSuccessCallback) payload.onSuccessCallback()
+					// execute passed actions if provided
+					dispatch('additionalActions', payload)
 				}
-				// execute passed function if provided
-				if (payload.onSuccessCallback) payload.onSuccessCallback()
-				// execute passed actions if provided
-				dispatch('additionalActions', payload)
 			}
 		}).catch(error => {
+			runningThreadsCount--
 			const msg = `loadChildren: Could not scan the descendants of document with id ${payload.parentNode._id}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

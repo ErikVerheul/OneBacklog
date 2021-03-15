@@ -513,7 +513,6 @@ const actions = {
 					}
 				}
 			}
-			const toDispatch = [{ syncOtherPlanningBoards: { storyId: payload.storyId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds } }]
 
 			// must set history
 			for (const c of newChildren) {
@@ -528,7 +527,7 @@ const actions = {
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb,
 				docs: newChildren,
-				toDispatch,
+				toDispatch: [{ syncOtherPlanningBoards: { storyId: payload.storyId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds } }],
 				onSuccessCallback: () => {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the position of the tasks of the story and update the index and priority values in the tree
