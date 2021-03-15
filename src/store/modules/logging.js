@@ -60,29 +60,26 @@ const actions = {
 				url: rootState.userData.currentDb + '/' + LOGDOCNAME
 			}).then(() => {
 				rootState.online = true
+				rootState.authentication.cookieAuthenticated = true
 				if (wasOffline) {
 					restartLoops()
 				} else {
-					if (rootState.authentication.cookieAuthenticated) {
-						consoleLogStatus()
-						// save the log on every watchdog cycle
-						if (rootState.online && rootState.authentication.cookieAuthenticated) dispatch('saveLog')
-						// if returning from a computer sleep state, restart listenForChanges
-						if (!rootState.listenForChangesRunning) {
-							dispatch('listenForChanges')
-						}
-					} else {
-						// refresh the authorization cookie and wait for the next watchdog cycle to restart listenForChanges
-						dispatch('refreshCookie', { caller: 'watchdog', toDispatch: [{ refreshCookieLoop: null }] })
+					consoleLogStatus()
+					// save the log on every watchdog cycle
+					dispatch('saveLog')
+					// if returning from a computer sleep state, restart listenForChanges
+					if (!rootState.listenForChangesRunning) {
+						dispatch('listenForChanges')
 					}
 				}
 			}).catch(error => {
 				if (error.response && error.response.status === 401) {
-					// stop the cookie refresh loop and let watchdog start a new one in the next watchdog cycle
-					clearInterval(rootState.authentication.runningCookieRefreshId)
 					rootState.authentication.cookieAuthenticated = false
 					// if error status 401 is returned we are online again despite the error condition (no authentication)
 					rootState.online = true
+					// stop the cookie refresh loop and refresh the authorization cookie and wait for the next watchdog cycle to restart listenForChanges
+					clearInterval(rootState.authentication.runningCookieRefreshId)
+					dispatch('refreshCookie', { caller: 'watchdog', toDispatch: [{ refreshCookieLoop: null }] })
 				} else {
 					rootState.online = false
 					commit('showLastEvent', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
