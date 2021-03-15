@@ -2,6 +2,9 @@ import { LEVEL, SEV } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
+var threadingHasStarted = false
+var runningThreadsCount = 0
+
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
 }
@@ -18,6 +21,8 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		threadingHasStarted = false
+		runningThreadsCount = 0
 		const mdc = payload.moveDataContainer
 		const items = []
 		let moveInfo = []
@@ -159,7 +164,21 @@ const actions = {
 				// ToDo: make this an alert with the only option to restart the application
 				commit('showLastEvent', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
 			} else {
-				dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move })
+				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
+					// if moving to another product or another level, update the descendants of the moved(back) items
+					const updates = {
+						targetProductId: m.targetProductId,
+						levelShift: m.levelShift
+					}
+					for (const it of items) {
+						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
+						const toDispatch = [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move } }]
+						dispatch('getMovedChildren', { updates, parentId: it.id, toDispatch })
+					}
+				} else {
+					// no need to process descendants
+					dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move })
+				}
 			}
 		}).catch(e => {
 			const msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
@@ -172,13 +191,12 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const m = payload.moveInfo
 		const items = payload.items
 		const docs = payload.docs
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_docs',
-			data: { docs: docs }
+			data: { docs }
 		}).then(res => {
 			let updateOk = 0
 			let updateConflict = 0
@@ -200,17 +218,7 @@ const actions = {
 					// show the history in the current opened item
 					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
 				}
-				// if moving to another product or another level, update the descendants of the moved(back) items
-				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
-					const updates = {
-						targetProductId: m.targetProductId,
-						levelShift: m.levelShift
-					}
-					for (const it of items) {
-						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
-						dispatch('getMovedChildren', { updates, parentId: it.id })
-					}
-				}
+
 				if (payload.move) {
 					// create an entry for undoing the move in a last-in first-out sequence
 					const entry = {
@@ -231,14 +239,22 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		runningThreadsCount++
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.parentId) + '&include_docs=true'
 		}).then(res => {
+			runningThreadsCount--
 			const results = res.data.rows
 			if (results.length > 0) {
+				threadingHasStarted = true
 				// process next level
-				dispatch('loopMoveResults', { updates: payload.updates, results })
+				dispatch('loopMoveResults', { updates: payload.updates, results, toDispatch: payload.toDispatch })
+			} else {
+				if (threadingHasStarted && runningThreadsCount === 0) {
+					// execute saveMovedItems that emits the nodeMovedEvent to other online users
+					dispatch('additionalActions', payload)
+				}
 			}
 		}).catch(error => {
 			const msg = 'getMovedChildren: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
@@ -251,7 +267,7 @@ const actions = {
 	}, payload) {
 		for (const r of payload.results) {
 			const id = r.id
-			dispatch('getMovedChildren', { updates: payload.updates, parentId: id })
+			dispatch('getMovedChildren', { updates: payload.updates, parentId: id, toDispatch: payload.toDispatch })
 		}
 		// execute update for these results
 		dispatch('updateMovedDescendantsBulk', { updates: payload.updates, results: payload.results })
