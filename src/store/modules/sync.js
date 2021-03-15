@@ -527,13 +527,11 @@ const actions = {
 							break
 						case 'nodeMovedEvent':
 							{
-								console.log('sync: updateboard.nodeMovedEvent')
 								const item = lastHistObj.nodeMovedEvent
 								const sourceSprintId = item[11]
 								const targetSprintId = item[12]
 								const involvedSprintIds = [doc.sprintId].concat([sourceSprintId]).concat([targetSprintId]).concat(window.slVueTree.getDescendantsInfoOnId(doc._id).sprintIds)
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
-									console.log('sync: the item is moved in, within or out of the loaded sprint')
 									// the item is moved in, within or out of the loaded sprint
 									const sourceLevel = item[0]
 									const targetLevel = item[1]
@@ -564,7 +562,6 @@ const actions = {
 										}
 										tasks.sort((a, b) => b.priority - a.priority)
 									} else {
-										console.log('sync: the item was moved to another user story in or out of this sprint')
 										// the item was moved to another user story in or out of this sprint
 										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
