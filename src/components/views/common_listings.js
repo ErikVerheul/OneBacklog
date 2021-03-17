@@ -19,33 +19,33 @@ const computed = {
     return this.$store.state.uploadDone
   },
 
-  getFilteredComments () {
-    const filteredComments = []
-    const comments = this.$store.state.currentDoc.comments
-    let allText = ''
-    for (const c of comments) {
-      if (c.ignoreEvent) continue
+	getFilteredComments () {
+		const filteredComments = []
+		for (let i = 0; i < this.$store.state.currentDoc.comments.length; i++) {
+			let commentItem = this.$store.state.currentDoc.comments[i]
+			let allText = ''
+			const keys = Object.keys(commentItem)
+			for (let j = 0; j < keys.length; j++) {
+				if (keys[j] === 'addCommentEvent') {
+					// for compatibility to versions < 1.8
+					if (j === 0 && !Array.isArray(commentItem.addCommentEvent)) {
+						commentItem.addCommentEvent = [commentItem.addCommentEvent]
+					}
+					allText += this.mkComment(commentItem[keys[j]])
+				}
+				if (keys[j] === 'removeCommentEvent') allText += this.mkRemoveCommentEvent(commentItem[keys[j]])
+				if (keys[j] === 'resetCommentsEvent') allText += this.mkResetCommentsEvent(commentItem[keys[j]])
 
-      if (c.addCommentEvent) {
-        const comment = window.atob(c.addCommentEvent)
-        allText += comment
-      }
-			if (c.removeCommentEvent) {
-				const comment = window.atob(c.removeCommentEvent)
-				allText += comment
+				if (keys[j] === 'by') allText += this.mkBy(commentItem[keys[j]])
+				if (keys[j] === 'timestamp') allText += this.mkTimestamp(commentItem[keys[j]])
 			}
-      if (c.resetCommentsEvent) {
-        const comment = c.resetCommentsEvent
-        allText += comment
-      }
-      allText += c.by
-      allText += this.mkTimestamp(c.timestamp)
-      if (allText.includes(this.$store.state.filterForComment)) {
-        filteredComments.push(c)
-      }
-    }
-    return filteredComments
-  },
+
+			if (allText.includes(this.$store.state.filterForComment)) {
+				filteredComments.push(commentItem)
+			}
+		}
+		return filteredComments
+	},
 
   getFilteredHistory () {
     function removeImages (text) {
@@ -325,7 +325,7 @@ const methods = {
   },
 
   mkComment (value) {
-    return window.atob(value)
+    return window.atob(value[0])
   },
 
   mkTaskRemovedEvent (value) {
@@ -349,11 +349,11 @@ const methods = {
   },
 
 	mkRemoveCommentEvent() {
-		return `<h5>Your last comment is removed.</h5>`
+		return `<h5>Your last comment on this ${this.getLevelText(this.$store.state.currentDoc.level, this.$store.state.currentDoc.subtype)} is removed.</h5>`
 	},
 
 	mkRemoveCommentFromHistoryEvent() {
-		return `<h5>Your last comment on the history is removed.</h5>`
+		return `<h5>Your last comment on the history of this ${this.getLevelText(this.$store.state.currentDoc.level, this.$store.state.currentDoc.subtype)} is removed.</h5>`
 	},
 
   mkResetHistoryEvent (value) {

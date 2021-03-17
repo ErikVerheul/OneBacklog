@@ -660,7 +660,7 @@ const actions = {
 		}).then((res) => {
 			const tmpDoc = res.data
 			const newComment = {
-				addCommentEvent: window.btoa(payload.comment),
+				addCommentEvent: [window.btoa(payload.comment)],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -706,13 +706,13 @@ const actions = {
 			// find and change my last comment
 			for (const c of comments) {
 				if (Object.keys(c)[0] === 'addCommentEvent' && c.by === rootState.userData.user) {
-					c.addCommentEvent = window.btoa('Comment removed')
+					c.addCommentEvent = [window.btoa('Comment removed')]
 					break
 				}
 			}
 
 			const newComment = {
-				removeCommentEvent: window.btoa('Last comment removed'),
+				removeCommentEvent: 'Last comment removed',
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -748,9 +748,8 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			const tmpDoc = res.data
-			const newCommentToHistory = window.btoa(payload.comment)
 			const newHist = {
-				commentToHistoryEvent: [newCommentToHistory],
+				commentToHistoryEvent: [window.btoa(payload.comment)],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -796,13 +795,13 @@ const actions = {
 			// find and change my last comment
 			for (const c of history) {
 				if (Object.keys(c)[0] === 'commentToHistoryEvent' && c.by === rootState.userData.user) {
-					c.addCommentEvent = window.btoa('Comment removed')
+					c.commentToHistoryEvent = [window.btoa('Comment removed')]
 					break
 				}
 			}
 
 			const newHistory = {
-				removeCommentFromHistoryEvent: window.btoa('Last comment removed'),
+				removeCommentFromHistoryEvent: 'Last comment removed',
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,

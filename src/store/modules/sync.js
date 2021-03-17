@@ -1,34 +1,36 @@
 /*
 * Events processed in sync:
-* 'addCommentEvent':							see switch(commentsEvent)
-* 'addSprintIdsEvent':						see process other events for tree views
-* 'acceptanceEvent':							see process other events for tree views
-* 'boardReloadEvent':							see histEvent === 'boardReloadEvent'
-* 'changeReqAreaColorEvent':			see if (processHistory && isReqAreaItem) and if (rootGetters.isOverviewSelected && isReqAreaItem)
-* 'commentToHistoryEvent':				see process other events for tree views
-* 'conditionRemovedEvent':				see process other events for tree views
-* 'createEvent':									see if (processHistory && isReqAreaItem), if (rootGetters.isOverviewSelected && isReqAreaItem) and process other events for tree views	+	see if (updateBoard)
-* 'createTaskEvent':							see process other events for tree views	+	see if (updateBoard)
-* 'dependencyRemovedEvent':				see process other events for tree views
-* 'descriptionEvent':							see process other events for tree views
-* 'docRestoredEvent':							see if (processHistory && isReqAreaItem) and process other events for tree views	+	see if (updateBoard)
-* 'nodeMovedEvent':								see if (rootGetters.isOverviewSelected && isReqAreaItem) and process other events for tree views	+	see if (updateBoard)
-* 'removeAttachmentEvent':				see process other events for tree views
-* 'removedWithDescendantsEvent':	see if (processHistory && isReqAreaItem) and process other events for tree views +	see if (updateBoard)
-* 'removeSprintIdsEvent':					see process other events for tree views
-* 'setConditionEvent':						see process other events for tree views
-* 'setDependencyEvent':						see process other events for tree views
-* 'setHrsEvent':									see process other events for tree views
-* 'setPointsEvent':								see process other events for tree views	+	see if (updateBoard)
-* 'setSizeEvent':									see process other events for tree views
-* 'setStateEvent':								see process other events for tree views	+	see if (updateBoard)
-* 'setSubTypeEvent':							see process other events for tree views	+	see if (updateBoard)
-* 'setTeamOwnerEvent':						see process other events for tree views	+	see if (updateBoard)
-* 'setTitleEvent':								see if (processHistory && isReqAreaItem) and process other events for tree views	+	see if (updateBoard)
-* 'taskRemovedEvent':							see process other events for tree views	+	see if (updateBoard)
-* 'uploadAttachmentEvent':				see process other events for tree views
-* 'updateReqAreaEvent':						see process other events for tree views
-* 'updateTaskOrderEvent':					see if (updateBoard)
+* 'addSprintIdsEvent'
+* 'acceptanceEvent'
+* 'addCommentEvent'
+* 'boardReloadEvent'
+* 'changeReqAreaColorEvent'
+* 'commentToHistoryEvent'
+* 'conditionRemovedEvent'
+* 'createEvent'
+* 'createTaskEvent'
+* 'dependencyRemovedEvent'
+* 'descriptionEvent'
+* 'docRestoredEvent'
+* 'nodeMovedEvent'
+* 'removeAttachmentEvent'
+* 'removeCommentEvent'
+* 'removeCommentFromHistoryEvent'
+* 'removedWithDescendantsEvent'
+* 'removeSprintIdsEvent'
+* 'setConditionEvent'
+* 'setDependencyEvent'
+* 'setHrsEvent'
+* 'setPointsEvent'
+* 'setSizeEvent'
+* 'setStateEvent'
+* 'setSubTypeEvent'
+* 'setTeamOwnerEvent'
+* 'setTitleEvent'
+* 'taskRemovedEvent'
+* 'uploadAttachmentEvent'
+* 'updateReqAreaEvent'
+* 'updateTaskOrderEvent'
 */
 
 import { SEV, LEVEL, MISC } from '../../constants.js'
@@ -229,8 +231,14 @@ const actions = {
 							case 'addCommentEvent':
 								node.data.lastCommentAddition = lastCommentsTimestamp
 								// show the comments update
-								if (isCurrentDocument) rootState.currentDoc.comments = doc.comments
+								if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
 								showSyncMessage(`added a comment to item`, SEV.INFO)
+								break
+							case 'removeCommentEvent':
+								node.data.lastCommentAddition = lastCommentsTimestamp
+								// show the comments update
+								if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
+								showSyncMessage(`removed the last comment to item`, SEV.INFO)
 								break
 							default:
 								// eslint-disable-next-line no-console
@@ -340,6 +348,10 @@ const actions = {
 								case 'removeAttachmentEvent':
 									commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: doc.lastAttachmentAddition })
 									showSyncMessage(`removed an attachment from`, SEV.INFO)
+									break
+								case 'removeCommentFromHistoryEvent':
+									commit('updateNodesAndCurrentDoc', { node, replaceHistory: doc.history })
+									showSyncMessage(`removed the last comment to the history of`, SEV.INFO)
 									break
 								case 'removedWithDescendantsEvent':
 									if (node && doc.delmark) {
