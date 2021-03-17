@@ -830,6 +830,12 @@ export default new Vuex.Store({
 									node.dependencies = newDependencies
 								}
 								break
+							case 'replaceComments':
+								// not stored in the node
+								break
+							case 'replaceHistory':
+								// not stored in the node
+								break
 							case 'reqarea':
 								node.data.reqarea = payload.reqarea
 								break
@@ -997,6 +1003,12 @@ export default new Vuex.Store({
 									break
 								case 'removeLastDependencyOn':
 									state.currentDoc.dependencies.slice(0, -1)
+									break
+								case 'replaceComments':
+									state.currentDoc.comments = payload.replaceComments
+									break
+								case 'replaceHistory':
+									state.currentDoc.history = payload.replaceHistory
 									break
 								case 'reqarea':
 									state.currentDoc.reqarea = payload.reqarea

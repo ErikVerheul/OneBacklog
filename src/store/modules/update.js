@@ -647,7 +647,6 @@ const actions = {
 		})
 	},
 
-	// ToDo: create undo?
 	addComment({
 		rootState,
 		commit,
@@ -677,6 +676,12 @@ const actions = {
 				caller: 'addComment',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, newComment, lastCommentAddition: payload.timestamp })
+					// create an entry for undoing the change in a last-in first-out sequence
+					const entry = {
+						node,
+						type: 'undoNewComment',
+					}
+					rootState.changeHistory.unshift(entry)
 				}
 			})
 		}).catch(error => {
@@ -685,7 +690,52 @@ const actions = {
 		})
 	},
 
-	// ToDo: create undo?
+	undoNewCommentAsync({
+		rootState,
+		commit,
+		dispatch
+	}, payload) {
+		const node = payload.node
+		const id = node._id
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + id
+		}).then(res => {
+			const tmpDoc = res.data
+			const comments = tmpDoc.comments
+			// find and change my last comment
+			for (const c of comments) {
+				if (Object.keys(c)[0] === 'addCommentEvent' && c.by === rootState.userData.user) {
+					c.addCommentEvent = window.btoa('Comment removed')
+					break
+				}
+			}
+
+			const newComment = {
+				removeCommentEvent: window.btoa('Last comment removed'),
+				by: rootState.userData.user,
+				timestamp: Date.now(),
+				sessionId: rootState.mySessionId,
+				distributeEvent: true
+			}
+			tmpDoc.comments.unshift(newComment)
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb,
+				updatedDoc: tmpDoc,
+				caller: 'undoNewCommentAsync',
+				onSuccessCallback: () => {
+					commit('updateNodesAndCurrentDoc', { node, replaceComments: comments })
+					commit('showLastEvent', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
+				}
+			})
+
+		}).catch(error => {
+			const msg = `undoNewCommentAsync: Could not read document with id ${id}. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
 	addHistoryComment({
 		rootState,
 		commit,
@@ -716,10 +766,62 @@ const actions = {
 				caller: 'addHistoryComment',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: payload.timestamp, newHist })
+					// create an entry for undoing the change in a last-in first-out sequence
+					const entry = {
+						node,
+						type: 'undoNewCommentToHistory'
+					}
+					rootState.changeHistory.unshift(entry)
 				}
 			})
 		}).catch(error => {
 			const msg = 'addHistoryComment: Could not read document with _id ' + id + ', ' + error
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	undoNewCommentToHistoryAsync({
+		rootState,
+		commit,
+		dispatch
+	}, payload) {
+		const node = payload.node
+		const id = node._id
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + id
+		}).then(res => {
+			const tmpDoc = res.data
+			const history = tmpDoc.history
+			// find and change my last comment
+			for (const c of history) {
+				if (Object.keys(c)[0] === 'commentToHistoryEvent' && c.by === rootState.userData.user) {
+					c.addCommentEvent = window.btoa('Comment removed')
+					break
+				}
+			}
+
+			const newHistory = {
+				removeCommentFromHistoryEvent: window.btoa('Last comment removed'),
+				by: rootState.userData.user,
+				timestamp: Date.now(),
+				sessionId: rootState.mySessionId,
+				distributeEvent: true
+			}
+			tmpDoc.history.unshift(newHistory)
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb,
+				updatedDoc: tmpDoc,
+				caller: 'undoNewCommentAsync',
+				onSuccessCallback: () => {
+					commit('updateNodesAndCurrentDoc', { node, replaceHistory: history })
+					commit('showLastEvent', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
+				}
+			})
+
+		}).catch(error => {
+			const msg = `undoNewCommentToHistoryAsync: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

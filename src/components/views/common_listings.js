@@ -30,6 +30,10 @@ const computed = {
         const comment = window.atob(c.addCommentEvent)
         allText += comment
       }
+			if (c.removeCommentEvent) {
+				const comment = window.atob(c.removeCommentEvent)
+				allText += comment
+			}
       if (c.resetCommentsEvent) {
         const comment = c.resetCommentsEvent
         allText += comment
@@ -77,7 +81,8 @@ const computed = {
         if (keys[j] === 'newChildEvent') allText += this.mkNewChildEvent(histItem[keys[j]])
         if (keys[j] === 'nodeMovedEvent') allText += this.mkNodeMovedEvent(histItem[keys[j]])
         if (keys[j] === 'removeAttachmentEvent') allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
-        if (keys[j] === 'removedFromParentEvent') allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
+				if (keys[j] === 'removeCommentFromHistoryEvent') allText += this.mkRemoveCommentFromHistoryEvent(histItem[keys[j]])
+				if (keys[j] === 'removedFromParentEvent') allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
         if (keys[j] === 'removedWithDescendantsEvent') allText += this.mkRemovedWithDescendantsEvent(histItem[keys[j]])
         if (keys[j] === 'setConditionEvent') allText += this.mkSetConditionsEvent(histItem[keys[j]])
         if (keys[j] === 'setDependencyEvent') allText += this.mkSetDependenciesEvent(histItem[keys[j]])
@@ -152,7 +157,8 @@ const methods = {
     if (key === 'importToSprintEvent') return this.mkImportToSprintEvent(value)
     if (key === 'newChildEvent') return this.mkNewChildEvent(value)
     if (key === 'nodeMovedEvent') return this.mkNodeMovedEvent(value)
-    if (key === 'removeAttachmentEvent') return this.mkRemoveAttachmentEvent(value)
+		if (key === 'removeCommentFromHistoryEvent') return this.mkRemoveCommentFromHistoryEvent(value)
+		if (key === 'removeAttachmentEvent') return this.mkRemoveAttachmentEvent(value)
     if (key === 'removedFromParentEvent') return this.mkRemovedFromParentEvent(value)
     if (key === 'removedWithDescendantsEvent') return this.mkRemovedWithDescendantsEvent(value)
     if (key === 'setConditionEvent') return this.mkSetConditionsEvent(value)
@@ -179,6 +185,7 @@ const methods = {
 
   prepCommentsText (key, value) {
     if (key === 'addCommentEvent') return this.mkComment(value)
+		if (key === 'removeCommentEvent') return this.mkRemoveCommentEvent(value)
     if (key === 'resetCommentsEvent') return this.mkResetCommentsEvent(value)
     if (key === 'by') return this.mkBy(value)
     if (key === 'timestamp') return this.mkTimestamp(value)
@@ -340,6 +347,14 @@ const methods = {
   mkRemoveAttachmentEvent (value) {
     return "<h5>Attachment with title '" + value[0] + "' is removed.</h5>"
   },
+
+	mkRemoveCommentEvent() {
+		return `<h5>Your last comment is removed.</h5>`
+	},
+
+	mkRemoveCommentFromHistoryEvent() {
+		return `<h5>Your last comment on the history is removed.</h5>`
+	},
 
   mkResetHistoryEvent (value) {
     return `<h5> ${value[0]} History items are removed.</h5>`

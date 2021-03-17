@@ -98,6 +98,10 @@ const computed = {
 					return 'your change of the item description'
 				case 'undoMove':
 					return 'your change of priority (move of items)'
+				case 'undoNewComment':
+					return 'Remove your last added comment'
+				case 'undoNewCommentToHistory':
+					return 'Remove your last added comment to history'
 				case 'undoNewNode':
 					return 'your creation of a new item'
 				case 'undoReqAreaColorChange':
@@ -496,6 +500,12 @@ const methods = {
 				break
 			case 'undoNewNode':
 				this.$store.dispatch('removeBranch', { node: entry.newNode, createUndo: false })
+				break
+			case 'undoNewComment':
+				this.$store.dispatch('undoNewCommentAsync', { node: entry.node })
+				break
+			case 'undoNewCommentToHistory':
+				this.$store.dispatch('undoNewCommentToHistoryAsync', { node: entry.node })
 				break
 			case 'undoReqAreaColorChange':
 				this.$store.dispatch('updateColorDb', { node: entry.node, newColor: entry.prevColor, createUndo: false })
