@@ -6,6 +6,23 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.8 - 18 March 2021 Feature update, refactoring and bug fix</h3>
+          <p>New features:</p>
+          <ul>
+						<li>Enable the move of products within the tree</li>
+						<li>Create undo for last added comment</li>
+          </ul>
+          <p>Refactored</p>
+          <ul>
+            <li>Prevent dragging when no item is selected</li>
+						<li>Sprint assingment on moved items refactored</li>
+						<li>Improved performance when moving an item with descendant items to another level or product></li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix tree collapse when filtering on tree depth</li>
+          </ul>
+          <hr />
           <h3>v.1.7 - 9 March 2021 Feature update, refactoring and bug fixes</h3>
           <p>New features:</p>
           <ul>
