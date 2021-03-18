@@ -285,6 +285,8 @@ N             N      Y    importToSprintEvent             planningboard.js
 N			 				Y	     Y    newChildEvent										load.js
 Y             Y	     Y    nodeMovedEvent	            		move.js
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js
+Y             Y	     Y    removeCommentEvent	        		update.js
+Y             Y	     Y    removeCommentFromHistoryEvent  	update.js
 N             Y	     Y    removedFromParentEvent	      	remove.js
 Y             N      Y    removedWithDescendantsEvent     remove.js
 Y 			 			Y 	   Y    removeSprintIdsEvent						update.js
