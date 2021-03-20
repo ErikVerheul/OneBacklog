@@ -31,6 +31,10 @@ const methods = {
 		this.$store.dispatch('saveMyOptionsAsync')
 	},
 
+	refreshPlanningboard() {
+		if (this.isPlanningBoardSelected) this.$store.dispatch('loadPlanningBoard', { sprintId: this.$store.state.loadedSprintId, team: this.$store.state.userData.myTeam })
+	},
+
 	showOptions() {
 		this.showOptionsModal = true
 	},

@@ -120,12 +120,22 @@ const mutations = {
 									})
 									break
 								case STATE.TESTREVIEW:
-									newStory.tasks[STATE.TESTREVIEW].push({
-										id: t.id,
-										title: t.value[0],
-										taskOwner: t.value[4],
-										priority: -t.key[5]
-									})
+									if (payload.rootState.userData.myOptions.showTestReview === 'do_show_test_review') {
+										newStory.tasks[STATE.TESTREVIEW].push({
+											id: t.id,
+											title: t.value[0],
+											taskOwner: t.value[4],
+											priority: -t.key[5]
+										})
+									} else {
+										// if the test/review column is omitted these items are added to the inprogress column
+										newStory.tasks[STATE.INPROGRESS].push({
+											id: t.id,
+											title: t.value[0],
+											taskOwner: t.value[4],
+											priority: -t.key[5]
+										})
+									}
 									break
 								case STATE.DONE:
 									newStory.tasks[STATE.DONE].push({
@@ -262,7 +272,7 @@ const actions = {
 				const paintSprintLanes = () => {
 					// order the items as in the tree view
 					state.featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
-					commit('createSprint', { sprintId: payload.sprintId, featureMap: state.featureMap, pbiResults: state.pbiResults, taskResults })
+					commit('createSprint', { rootState, sprintId: payload.sprintId, featureMap: state.featureMap, pbiResults: state.pbiResults, taskResults })
 					busyLoading = false
 					loadRequests--
 					if (loadRequests > 0) {

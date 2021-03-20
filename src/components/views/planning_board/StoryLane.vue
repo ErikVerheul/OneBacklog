@@ -4,7 +4,7 @@
       <b-col>
         <story-column id="userStory" :story="$store.state.planningboard.stories[idx]"></story-column>
       </b-col>
-      <b-col>
+      <b-col v-if="$store.state.userData.myOptions.showOnHold === 'do_show_on_hold'">
         <task-column
           :taskState="STATE.ON_HOLD"
           title="[On hold]"
@@ -37,7 +37,7 @@
           :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
       </b-col>
-      <b-col>
+      <b-col v-if="$store.state.userData.myOptions.showTestReview === 'do_show_test_review'">
         <task-column
           :taskState="STATE.TESTREVIEW"
           title="Test / review"

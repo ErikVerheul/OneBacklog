@@ -148,7 +148,7 @@
       </b-container>
     </b-modal>
 
-    <b-modal size="lg" v-model="showOptionsModal" title="Options menu">
+    <b-modal v-model="showOptionsModal" @ok="refreshPlanningboard" title="Options menu">
       <h5>For the Product details and overview</h5>
       <b-form-checkbox v-model="$store.state.userData.myOptions.levelShiftWarning" value="do_warn" unchecked-value="do_not_warn">
         Warn me when I move an item to another level
