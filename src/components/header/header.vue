@@ -17,7 +17,7 @@
             <b-dropdown-item to="../../board">Planning board</b-dropdown-item>
             <b-dropdown-divider v-if="isAssistAdmin || isAdmin || isServerAdmin"></b-dropdown-divider>
             <b-dropdown-item v-if="isAssistAdmin" to="../../assistadmin">AssistAdmin</b-dropdown-item>
-						<b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
+            <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
             <b-dropdown-item v-if="isServerAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
           </b-nav-item-dropdown>
 
@@ -40,6 +40,15 @@
             <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
             <b-dropdown-item @click="onSignout">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
+
+          <b-nav-item @click="showOptions">
+            <span class="cog-item">
+              <i>
+                <font-awesome-icon icon="cog" />
+              </i>
+            </span>
+          </b-nav-item>
+
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
@@ -111,32 +120,50 @@
       <b-container align-v="true">
         <h3>Generic roles :</h3>
         <p>By default the application uses two databases. The _users database owned by the admin role and a database holding the products. More databases can be created but the _users database is
-          shared.<br/>
+          shared.<br />
           What a user can see or do is determined by the roles assigned to that user.</p>
         <ul>
           <li>'_admin': Is the CouchDb administrator. Can setup and delete databases. See the CouchDB documentation. The scope is per CouchDb instance including all databases.</li>
         </ul>
-				<h5 v-if="isServerAdmin" class="have-role">You are CouchDb administrator</h5>
-				<h5 v-else class="not-have-role">No, you are not a CouchDb administrator</h5>
+        <h5 v-if="isServerAdmin" class="have-role">You are CouchDb administrator</h5>
+        <h5 v-else class="not-have-role">No, you are not a CouchDb administrator</h5>
         Two roles are set per database and include all products defined in that database:
         <ul>
           <li>'admin': Can create products, teams and users. Can (un)assign databases and roles to users and user access to products. Is not member of a team.</li>
           <li>'areaPO': The APOs create and maintain their requirement areas. Can change priorities at the epic and feature level. Is not member of a team.</li>
         </ul>
-				<h5 v-if="isAdmin" class="have-role">You are Admin</h5>
-				<h5 v-else class="not-have-role">No, you are not Admin</h5>
-				<h5 v-if="isAPO" class="have-role">You are Area Product Owner</h5>
-				<h5 v-else class="not-have-role">No, you are not Area Product Owner</h5>
-				<h3>Product specific roles :</h3>
-       Three roles are set per product in a database:
+        <h5 v-if="isAdmin" class="have-role">You are Admin</h5>
+        <h5 v-else class="not-have-role">No, you are not Admin</h5>
+        <h5 v-if="isAPO" class="have-role">You are Area Product Owner</h5>
+        <h5 v-else class="not-have-role">No, you are not Area Product Owner</h5>
+        <h3>Product specific roles :</h3>
+        Three roles are set per product in a database:
         <ul>
           <li>'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products. Can change priorities at these levels. Must be member of a team.</li>
           <li>'developer': Can create and maintain pbi's and features for the assigned products when team member. Must be member of a team.</li>
           <li>'guest': Can only view the items of the assigned products. Has no access to attachments. Cannot join a team.</li>
         </ul>
-				<h5>Click on a product level item in the tree view to see in the message bar what your assigned roles are for that product.</h5>
+        <h5>Click on a product level item in the tree view to see in the message bar what your assigned roles are for that product.</h5>
         <p>Users can have multiple roles. Users can only see/access the products that are assigned to them by the admin.</p>
       </b-container>
+    </b-modal>
+
+    <b-modal size="lg" v-model="showOptionsModal" title="Options menu">
+      <h5>For the Product details and overview</h5>
+      <b-form-checkbox v-model="$store.state.userData.myOptions.levelShiftWarning" value="do_warn" unchecked-value="do_not_warn">
+        Warn me when I move an item to another level
+      </b-form-checkbox>
+
+      <h5 class="spacer">For the Planning board</h5>
+      <b-form-checkbox v-model="$store.state.userData.myOptions.showOnHold" value="do_show_on_hold" unchecked-value="do_not_show_on_hold">
+        Show the [On hold] status column on the planning board
+      </b-form-checkbox>
+			<b-form-checkbox v-model="$store.state.userData.myOptions.showTestReview" value="do_show_test_review" unchecked-value="do_not_show_test_review">
+        Show the Test/review status column on the planning board
+      </b-form-checkbox>
+
+      <b-button class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</b-button>
+			<p v-if="$store.state.areOptionsSaved">Your options have been saved</p>
     </b-modal>
   </div>
 </template>
@@ -144,6 +171,9 @@
 <script src="./header.js"></script>
 
 <style scoped>
+.cog-item {
+  color: #408fae;
+}
 
 .logo {
   width: 62px;
@@ -155,12 +185,16 @@ li {
 }
 
 .have-role {
-	color: green;
-	margin-bottom: 1em;
+  color: green;
+  margin-bottom: 1em;
 }
 
 .not-have-role {
-	color: red;
-	margin-bottom: 1em;
+  color: red;
+  margin-bottom: 1em;
+}
+
+.spacer {
+  margin-top: 1em;
 }
 </style>

@@ -100,7 +100,6 @@ export default new Vuex.Store({
 		// creating a CouchDb instance
 		createDefaultCalendar: false,
 		isDatabaseInitiated: false,
-
 		// authentication, refresh every 9 minutes (CouchDB defaults at 10 min.)
 		cookieRefreshInterval: 540,
 		mySessionId: null,
@@ -143,6 +142,8 @@ export default new Vuex.Store({
 		selectedNodes: [],
 		selectNodeOngoing: false,
 		uploadDone: true,
+		// options
+		areOptionsSaved: false,
 		// utilities for server Admin and admin
 		areDatabasesFound: false,
 		areProductsFound: false,
@@ -1092,6 +1093,7 @@ export default new Vuex.Store({
 
 		/* Reset this data on sign-in */
 		resetData(state) {
+			state.areOptionsSaved = false
 			state.availableProductIds = []
 			state.authentication.sessionAuthData = {}
 			state.changeHistory = []

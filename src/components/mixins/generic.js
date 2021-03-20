@@ -253,6 +253,26 @@ const utilities = {
 
 		//////////////////////////////////////// move items //////////////////////////////////////
 
+		checkMove(nodes, cursorPosition) {
+			const sourceLevel = nodes[0].level
+			const targetNode = cursorPosition.nodeModel
+			let targetLevel
+			if (cursorPosition.placement === 'inside') {
+				targetLevel = targetNode.level + 1
+			} else {
+				targetLevel = targetNode.level
+			}
+
+			const levelShift = targetLevel - sourceLevel
+			return {
+				nodes,
+				cursorPosition,
+				sourceLevel,
+				targetLevel,
+				levelShift
+			}
+		},
+
 		/* Move the nodes (must have the same parent) to the position designated by cursorPosition */
 		moveNodes(nodes, cursorPosition) {
 			// save the status of source and target before move

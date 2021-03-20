@@ -21,11 +21,20 @@ function data() {
 		headerMyDatabase: '',
 		headerDatabaseOptions: [],
 		teamOptions: [],
-		newDefaultProductId: undefined
+		newDefaultProductId: undefined,
+		showOptionsModal: false
 	}
 }
 
 const methods = {
+	saveMyOptions() {
+		this.$store.dispatch('saveMyOptionsAsync')
+	},
+
+	showOptions() {
+		this.showOptionsModal = true
+	},
+
 	changeDatabase() {
 		this.headerMyDatabase = this.$store.state.userData.currentDb
 		this.headerDatabaseOptions = []

@@ -76,6 +76,18 @@ const actions = {
 				} else rootState.myAssignedDatabases.push(db)
 			}
 
+			// set the user's options
+			if (allUserData.myOptions) {
+				rootState.userData.myOptions = allUserData.myOptions
+			} else {
+				// set the user's default options if not found
+				rootState.userData.myOptions = {
+					levelShiftWarning: 'do_warn',
+					showOnHold: 'do_not_show_on_hold',
+					showTestReview: 'do_show_test_review'
+				}
+			}
+
 			// start the watchdog
 			dispatch('watchdog')
 			const msg = `getOtherUserData: '${allUserData.name}' has signed-in in database '${allUserData.currentDb}'`

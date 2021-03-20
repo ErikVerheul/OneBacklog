@@ -244,6 +244,17 @@
     <!-- Context modal -->
     <DcontextMenu></DcontextMenu>
 
+		<b-modal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant= "warning" title="Move to another level?">
+			<p v-if="movePreflightData.targetLevel < movePreflightData.sourceLevel">
+				You are about to promote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
+			</p>
+			<p v-else>
+				You are about to demote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
+			</p>
+			<p>Press OK to continue</p>
+			<p class="note">Note: Change your options settings to prevent this warning</p>
+    </b-modal>
+
     <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
       <b-form-group>
         <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
@@ -412,6 +423,10 @@
 }
 
 //my stuff
+.note {
+	background: #eee;
+}
+
 .square {
   position: absolute;
   right: 3px;

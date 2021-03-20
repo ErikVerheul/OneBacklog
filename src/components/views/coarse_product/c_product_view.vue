@@ -227,6 +227,18 @@
     </multipane>
     <!-- Context modal -->
     <CcontextMenu></CcontextMenu>
+
+    <b-modal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant="warning" title="Move to another level?">
+      <p v-if="movePreflightData.targetLevel < movePreflightData.sourceLevel">
+        You are about to promote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
+      </p>
+      <p v-else>
+        You are about to demote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
+      </p>
+      <p>Press OK to continue</p>
+      <p class="note">Note: Change your options settings to prevent this warning</p>
+    </b-modal>
+
     <!-- color select -->
     <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color">
       <h4>Enter a color in hex format eg. #567cd6</h4>
@@ -404,6 +416,10 @@
 }
 
 //my stuff
+.note {
+	background: #eee;
+}
+
 .square {
   position: absolute;
   right: 3px;

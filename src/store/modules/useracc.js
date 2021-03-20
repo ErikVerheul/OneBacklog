@@ -501,7 +501,24 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
-	}
+	},
+
+	saveMyOptionsAsync({
+		rootState,
+		dispatch
+	}) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + rootState.userData.user
+		}).then(res => {
+			const tmpUserData = res.data
+			tmpUserData.myOptions = rootState.userData.myOptions
+			dispatch('updateUser', { data: tmpUserData, onSuccessCallback: () => rootState.areOptionsSaved = true })
+		}).catch(error => {
+			const msg = `saveMyOptionsAsync: Could not update the options for user '${rootState.userData.user}', ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
 }
 
 export default {

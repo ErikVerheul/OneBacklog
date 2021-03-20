@@ -78,7 +78,10 @@ function data() {
 		fileInfo: null,
 		newHistory: '',
 		filterForCommentPrep: '',
-		filterForHistoryPrep: ''
+		filterForHistoryPrep: '',
+		// move data
+		movePreflightData: {},
+		warnForMoveToOtherLevel: false
 	}
 }
 
@@ -714,8 +717,24 @@ const methods = {
 		}
 	},
 
-	/* Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location */
 	nodeDropped(nodes, cursorPosition) {
+		this.movePreflightData = this.checkMove(nodes, cursorPosition)
+		if (this.$store.state.userData.myOptions.levelShiftWarning === 'do_warn' && this.movePreflightData.levelShift !== 0) {
+			// move to another level; let the user decide to continue or cancel
+			this.warnForMoveToOtherLevel = true
+		} else {
+			this.doMove(nodes, cursorPosition)
+		}
+	},
+
+	continueMove() {
+		const nodes = this.movePreflightData.nodes
+		const cursorPosition = this.movePreflightData.cursorPosition
+		this.doMove(nodes, cursorPosition)
+	},
+
+	/* Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location */
+	doMove(nodes, cursorPosition) {
 		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
 		// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
 		if (!window.slVueTree.dependencyViolationsFound()) {
