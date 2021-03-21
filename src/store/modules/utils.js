@@ -170,7 +170,7 @@ const actions = {
 			if (!payload.reportRestoreSuccess && !rootState.databaseOptions.includes(payload.dbTargetName)) {
 				rootState.databaseOptions.push(payload.dbTargetName)
 			}
-			dispatch('setDatabasePermissions', { dbName: payload.dbTargetName, reportRestoreSuccess: payload.reportRestoreSuccess })
+			dispatch('setDatabasePermissions', { dbName: payload.dbTargetName, reportRestoreSuccess: payload.reportRestoreSuccess, autoSignOut: payload.autoSignOut })
 		}).catch(error => {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(error)

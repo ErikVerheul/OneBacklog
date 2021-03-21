@@ -1,6 +1,7 @@
 import { LEVEL, MISC } from '../../constants.js'
 import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
+import router from '../../router'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
 const actions = {
@@ -109,7 +110,8 @@ const actions = {
 	},
 
 	setDatabasePermissions({
-		rootState
+		rootState,
+		commit
 	}, payload) {
 		// set the persmissions on the database holding the documents
 		const dbPermissions = {
@@ -127,10 +129,15 @@ const actions = {
 			url: payload.dbName + '/_security',
 			data: dbPermissions
 		}).then(() => {
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set' })
-			if (payload.reportRestoreSuccess) {
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Success, the database restore is ready' })
-				rootState.isRestoreReady = true
+			if (payload.autoSignOut) {
+				commit('endSession')
+				router.replace('/')
+			} else {
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Success, database permissions for ' + payload.dbName + ' are set' })
+				if (payload.reportRestoreSuccess) {
+					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Success, the database restore is ready' })
+					rootState.isRestoreReady = true
+				}
 			}
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Failure, could not set permissions on database ' + payload.dbName + ', ' + error })

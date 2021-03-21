@@ -55,8 +55,8 @@
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
         <template v-if="$store.state.selectedDatabaseName !== 'not selected yet'">
-          <p class="colorRed">Database '{{ dbToReplace }}' will be replaced by '{{ $store.state.selectedDatabaseName }}'. Make sure nu users of this database are on-line right now.</p>
-          <p class="colorRed" v-if="isCurrentDbSelected">You are replacing your current database. When the restore is ready sign-out and in again, to continue.
+          <p class="colorRed">Database '{{ dbToReplace }}' will be replaced by '{{ $store.state.selectedDatabaseName }}'. Make sure no users of this database are on-line right now.</p>
+          <p class="colorRed" v-if="isCurrentDbSelected">You are replacing your current database. When the restore is ready, you will be signed-out automatically.
           </p>
         </template>
         <hr>
@@ -307,6 +307,7 @@ export default {
       const payload = {
         dbSourceName: this.$store.state.selectedDatabaseName,
         dbTargetName: this.dbToReplace,
+				autoSignOut: this.isCurrentDbSelected,
         reportRestoreSuccess: true
       }
       this.$store.dispatch('replaceDB', payload)
