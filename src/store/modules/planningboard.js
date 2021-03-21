@@ -120,22 +120,12 @@ const mutations = {
 									})
 									break
 								case STATE.TESTREVIEW:
-									if (payload.rootState.userData.myOptions.showTestReview === 'do_show_test_review') {
-										newStory.tasks[STATE.TESTREVIEW].push({
-											id: t.id,
-											title: t.value[0],
-											taskOwner: t.value[4],
-											priority: -t.key[5]
-										})
-									} else {
-										// if the test/review column is omitted these items are added to the inprogress column
-										newStory.tasks[STATE.INPROGRESS].push({
-											id: t.id,
-											title: t.value[0],
-											taskOwner: t.value[4],
-											priority: -t.key[5]
-										})
-									}
+									newStory.tasks[STATE.TESTREVIEW].push({
+										id: t.id,
+										title: t.value[0],
+										taskOwner: t.value[4],
+										priority: -t.key[5]
+									})
 									break
 								case STATE.DONE:
 									newStory.tasks[STATE.DONE].push({

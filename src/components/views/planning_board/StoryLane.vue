@@ -37,7 +37,7 @@
           :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
       </b-col>
-      <b-col v-if="$store.state.userData.myOptions.showTestReview === 'do_show_test_review'">
+      <b-col>
         <task-column
           :taskState="STATE.TESTREVIEW"
           title="Test / review"

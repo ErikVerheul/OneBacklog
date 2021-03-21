@@ -158,9 +158,6 @@
       <b-form-checkbox v-model="$store.state.userData.myOptions.showOnHold" value="do_show_on_hold" unchecked-value="do_not_show_on_hold">
         Show the [On hold] status column on the planning board
       </b-form-checkbox>
-			<b-form-checkbox v-model="$store.state.userData.myOptions.showTestReview" value="do_show_test_review" unchecked-value="do_not_show_test_review">
-        Show the Test/review status column on the planning board
-      </b-form-checkbox>
 
       <b-button class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</b-button>
 			<p v-if="$store.state.areOptionsSaved">Your options have been saved</p>
