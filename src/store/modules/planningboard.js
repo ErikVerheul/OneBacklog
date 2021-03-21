@@ -400,17 +400,18 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
+			const timestamp = Date.now()
 			for (const r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
 					const oldSprintId = doc.sprintId
 					doc.sprintId = newSprintId
-					doc.lastChange = Date.now()
+					doc.lastChange = timestamp
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree view
 						const node = window.slVueTree.getNodeById(doc._id)
-						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId })
+						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId, lastChange: timestamp, newHist })
 					}
 					let oldSprintName
 					for (const s of rootState.sprintCalendar) {
