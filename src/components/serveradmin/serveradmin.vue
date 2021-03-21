@@ -21,8 +21,8 @@
         </b-form-group>
         <hr>
         <b-button v-if="!showLogModal" class="m-1" @click="doViewLog" variant="primary">Show</b-button>
-        <b-button v-if="!showLogModal" class="m-1" @click="cancel">Cancel</b-button>
-        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-if="!showLogModal" class="m-1" @click="cancel">Return</b-button>
+        <b-button v-else class="m-1" @click="cancel" variant="primary">Cancel</b-button>
         <b-modal v-model="showLogModal" size="lg" :title="logModalTitle()">
           <div v-for="item in $store.state.logEntries" :key="createLogKey(item.timestamp, item.sessionId, item.sessionSeq)">
             Event: {{ item.event }} <br />
@@ -37,15 +37,14 @@
 
       <div v-if="optionSelected === 'Create a database backup'">
         <h2>Create a database backup</h2>
-        <p>For real disaster protection consider to use a backup strategy as provided by your hosting partner. See https://docs.couchdb.org/en/latest/maintenance/backups.html</p>
+        <p>For real disaster protection consider to use a backup strategy as provided by your hosting partner.</p>
         <b-form-group>
           <h5>Select the database to backup</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
         <hr>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doCreateBackup" variant="primary">Start backup</b-button>
-        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</b-button>
-        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'Restore a database from backup'">
@@ -104,6 +103,7 @@
 
       <div v-if="optionSelected === 'Change my default database to any available database'">
         <h2>Change my default database to any available database</h2>
+				<p>Use this option if you need to connect to a database that is not assigned to your profile</p>
         <b-form-group>
           <h5>Select the database you want to connect to</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
@@ -156,9 +156,8 @@
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
         <hr>
-        <b-button v-if="$store.state.selectedDatabaseName && !$store.state.isDbDeleted" variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
-        <b-button v-if="!$store.state.isDbDeleted" class="m-1" @click="cancel">Cancel</b-button>
-        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <b-button v-if="$store.state.selectedDatabaseName" variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
+        <b-button class="m-1" @click="cancel" variant="primary">Return</b-button>
       </div>
 
       <div v-if="optionSelected === 'All FAUXTON tasks'">

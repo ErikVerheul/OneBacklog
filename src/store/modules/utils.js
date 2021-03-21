@@ -289,6 +289,7 @@ const actions = {
 			}
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Database '${dbName}' has been deleted` })
 			rootState.isDbDeleted = true
+			rootState.selectedDatabaseName = undefined
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Database '${dbName}' could not be deleted, ${error}` })
 		})
