@@ -9,7 +9,7 @@
 
       <b-navbar-nav>
         <b-nav-form>
-          <b-form-select v-model="selectedSprint" :options="options"></b-form-select>
+          <b-form-select v-model="selectedSprint" :options="sprintTitles"></b-form-select>
         </b-nav-form>
       </b-navbar-nav>
 
@@ -147,17 +147,17 @@ export default {
 
       if (getNextSprint) {
         const nextSprint = this.$store.state.sprintCalendar[i + 1]
-        this.options.push({ value: nextSprint, text: nextSprint.name + ' (next sprint)' })
+        this.sprintTitles.push({ value: nextSprint, text: nextSprint.name + ' (next sprint)' })
         getNextSprint = false
       }
       if (getCurrSprint) {
         const currSprint = sprint
-        this.options.push({ value: currSprint, text: currSprint.name + ' (current sprint)' })
+        this.sprintTitles.push({ value: currSprint, text: currSprint.name + ' (current sprint)' })
         this.currentSprintId = sprint.id
         getCurrSprint = false
         continue
       }
-      this.options.push({ value: sprint, text: sprint.name })
+      this.sprintTitles.push({ value: sprint, text: sprint.name })
     }
   },
 
@@ -174,7 +174,7 @@ export default {
       selectedSprint: null,
       currentSprintLoaded: false,
       currentSprintId: undefined,
-      options: []
+      sprintTitles: []
     }
   },
 
@@ -199,7 +199,7 @@ export default {
     },
 
     unfinishedWork () {
-      return this.$store.state.planningboard.taskIdsToImport.length > 0
+      return this.$store.state.planningboard.itemIdsToImport.length > 0
     },
 
     getStartDateString () {
@@ -234,7 +234,7 @@ export default {
     },
 
     showInfo () {
-      return `Found ${this.$store.state.planningboard.taskIdsToImport.length} unfinished tasks in ${this.$store.state.planningboard.parentIdsToImport.length} stories to import`
+      return `Found ${this.$store.state.planningboard.itemIdsToImport.length} unfinished tasks in ${this.$store.state.planningboard.itemIdsToImport.length} items to import`
     },
 
     prepSelected (idx) {

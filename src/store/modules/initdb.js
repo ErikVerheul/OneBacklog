@@ -303,6 +303,14 @@ const actions = {
 							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.parentId, -doc.priority]);
 						}`
 					},
+					/* Filter on tasks assigned to sprints not done */
+					itemsNotDone: {
+						map: `function(doc) {
+							const pbiLevel = 5
+							const doneSate = 6
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId && doc.state < doneSate) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc.level);
+						}`
+					},
 					/* Filter up to and including the feature level */
 					overview: {
 						map: `function(doc) {
@@ -348,26 +356,18 @@ const actions = {
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
 						}`
 					},
-					/* Filter on tasks assigned to sprints not done */
-					tasksNotDone: {
-						map: `function(doc) {
-							const taskLevel = 6
-							const doneSate = 6
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level === taskLevel && doc.sprintId && doc.state < doneSate) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc._id);
-						}`
-					},
 					/* Filter on teams */
 					teams: {
 						map: `function(doc) {
 							if (doc.type ==='team' && !doc.delmark) emit(doc.teamName, doc.members);
 						}`
-					}
-				},
-				/* Filter on unremovedMark and parentId to map unremoved documents to their parent in order of priority */
-				unremovedDocToParentMap: {
-					map: `function(doc) {
+					},
+					/* Filter on unremovedMark and parentId to map unremoved documents to their parent in order of priority */
+					unremovedDocToParentMap: {
+						map: `function(doc) {
 							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId, -doc.priority]);
 						}`
+					}
 				},
 				language: 'javascript'
 			}

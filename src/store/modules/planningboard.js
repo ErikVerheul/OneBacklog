@@ -20,8 +20,7 @@ function composeRangeString3(id) {
 }
 
 const state = {
-	parentIdsToImport: [],
-	taskIdsToImport: [],
+	itemIdsToImport: [],
 	featureMap: [],
 	pbiResults: [],
 	pathsFound: [],
@@ -208,8 +207,7 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		state.parentIdsToImport = []
-		state.taskIdsToImport = []
+		state.itemIdsToImport = []
 		function isCurrentSprint(sprintId) {
 			for (const s of rootState.sprintCalendar) {
 				if (s.id === sprintId) {
@@ -329,11 +327,12 @@ const actions = {
 	},
 
 	/*
-	* Load unfinished tasks from previous sprints.
-	* Skip tasks from products not assigned to this user.
-	* Skip tasks from products where the user is not the PO or developer for that product.
-	* Also load the parent (the story) of the unfinished task.
-	* Save the task and story ids.
+	* Select unfinished pbi's and tasks from previous sprints.
+	* Skip items from products not assigned to this user.
+	* Skip items from products where the user is not the PO or developer for that product.
+	* Select PBI's that are not Done with or without child tasks.
+	* Select tasks that are not Done including their parent PBI.
+	* Return the id's in state.itemIdsToImport
 	*/
 	loadUnfinished({
 		rootState,
@@ -341,7 +340,7 @@ const actions = {
 		state,
 		dispatch
 	}, team) {
-		function isAnyPreviousSprint(sprintId) {
+		function isPreviousSprint(sprintId) {
 			for (const s of rootState.sprintCalendar) {
 				if (s.id === sprintId) {
 					return (Date.now() > s.startTimestamp + s.sprintLength)
@@ -351,31 +350,35 @@ const actions = {
 
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/tasksNotDone?' + composeRangeString2(team)
+			url: rootState.userData.currentDb + '/_design/design1/_view/itemsNotDone?' + composeRangeString2(team)
 		}).then(res => {
 			const results = res.data.rows
-			state.parentIdsToImport = []
-			state.taskIdsToImport = []
+			state.itemIdsToImport = []
+			const cannotImportProducts = []
 			for (const r of results) {
 				const sprintId = r.key[1]
-				const productId = r.key[2]
-				if (isAnyPreviousSprint(sprintId)) {
-					if (rootGetters.getMyAssignedProductIds.includes(productId) &&
-						(rootGetters.getMyProductsRoles[productId].includes('PO') ||
-							rootGetters.getMyProductsRoles[productId].includes('developer'))) {
-						const parentId = r.key[3]
-						if (!state.parentIdsToImport.includes(parentId)) state.parentIdsToImport.push(parentId)
-						const id = r.value
-						state.taskIdsToImport.push(id)
+				if (isPreviousSprint(sprintId)) {
+					const productId = r.key[2]
+					if (rootGetters.getMyAssignedProductIds.includes(productId) && rootGetters.getMyProductsRoles[productId].includes('PO' || rootGetters.getMyProductsRoles[productId].includes('developer'))) {
+						if (r.value === LEVEL.PBI) {
+							const id = r.id
+							if (!state.itemIdsToImport.includes(id)) state.itemIdsToImport.push(id)
+						}
+						if (r.value === LEVEL.TASK) {
+							const parentId = r.key[3]
+							if (!state.itemIdsToImport.includes(parentId)) state.itemIdsToImport.push(parentId)
+							const id = r.id
+							if (!state.itemIdsToImport.includes(id)) state.itemIdsToImport.push(id)
+						}
 					} else {
-						if (!rootState.cannotImportProducts.includes(productId)) rootState.cannotImportProducts.push(productId)
+						if (!cannotImportProducts.includes(productId)) cannotImportProducts.push(productId)
 					}
 				}
 			}
-			const cannotImportCount = rootState.cannotImportProducts.length
+			const cannotImportCount = cannotImportProducts.length
 			if (cannotImportCount > 0) rootState.warningText = `You cannot import all unfinished tasks as ${cannotImportCount} product(s) are not assigned to you`
 		}).catch(error => {
-			const msg = 'loadUnfinished: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
+			const msg = `loadUnfinished: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -387,7 +390,7 @@ const actions = {
 		commit
 	}, newSprintId) {
 		const docsToGet = []
-		for (const id of state.parentIdsToImport.concat(state.taskIdsToImport)) {
+		for (const id of state.itemIdsToImport) {
 			docsToGet.push({ id: id })
 		}
 		globalAxios({
@@ -403,6 +406,7 @@ const actions = {
 					const doc = envelope.ok
 					const oldSprintId = doc.sprintId
 					doc.sprintId = newSprintId
+					doc.lastChange = Date.now()
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree view
 						const node = window.slVueTree.getNodeById(doc._id)

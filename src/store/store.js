@@ -189,7 +189,6 @@ export default new Vuex.Store({
 		showHeaderDropDowns: true,
 		userData: {},
 		// planning board
-		cannotImportProducts: [],
 		loadedSprintId: null,
 		sprintCalendar: [],
 		warningText: ''
