@@ -54,16 +54,16 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		rootState.isDefaultCalendarFound = false
+		rootState.isDefaultCalendarLoaded = false
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/config'
 		}).then(res => {
 			if (res.data.defaultSprintCalendar) {
-				rootState.currentCalendar = res.data.defaultSprintCalendar
+				rootState.loadedCalendar = res.data.defaultSprintCalendar
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchDefaultSprintCalendar: success, ${res.data.defaultSprintCalendar.length} sprint periods are read` })
-				rootState.isDefaultCalendarFound = true
+				rootState.isDefaultCalendarLoaded = true
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchDefaultSprintCalendar: no calendar is found' })
@@ -90,7 +90,7 @@ const actions = {
 				updatedDoc,
 				caller: 'saveDefaultSprintCalendar',
 				onSuccessCallback: () => {
-					rootState.currentCalendar = payload.newSprintCalendar
+					rootState.loadedCalendar = payload.newSprintCalendar
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `saveDefaultSprintCalendar: success, calendar with ${payload.newSprintCalendar.length} sprint periods is saved` })
 					rootState.isCalendarSaved = true
 				}
@@ -107,16 +107,16 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		rootState.isTeamCalendarFound = false
+		rootState.isTeamCalendarLoaded = false
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/' + payload.teamId
 		}).then(res => {
 			if (res.data.teamCalendar) {
-				rootState.currentCalendar = res.data.teamCalendar
+				rootState.loadedCalendar = res.data.teamCalendar
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamCalendar: success, ${res.data.teamCalendar.length} sprint periods are read` })
-				rootState.isTeamCalendarFound = true
+				rootState.isTeamCalendarLoaded = true
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchTeamCalendar: no calendar is found' })
@@ -128,10 +128,11 @@ const actions = {
 	},
 
 	/*
+	* For use in the startup sequence only.
 	* Load the team calendar by _id and if present make it the current team's calendar.
 	* If the team calendar does not exist replace the current calendar with the default calendar.
 	*/
-	loadTeamCalendar({
+	loadTeamCalendarAtStartup({
 		rootState,
 		dispatch
 	}, id) {
@@ -142,7 +143,7 @@ const actions = {
 			const doc = res.data
 			if (doc.teamCalendar && doc.teamCalendar.length > 0) {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(`loadTeamCalendar: A team document with calendar is loaded; id = ${id}`)
+				if (rootState.debug) console.log(`loadTeamCalendarAtStartup: A team document with calendar is loaded; id = ${id}`)
 				// check if the team calendar needs to be extended
 				const lastTeamSprint = doc.teamCalendar.slice(-1)[0]
 				if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
@@ -154,16 +155,17 @@ const actions = {
 				}
 			} else {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log(`loadTeamCalendar: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
+				if (rootState.debug) console.log(`loadTeamCalendarAtStartup: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
 				rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
 				dispatch('getRoot')
 			}
 		}).catch(error => {
-			const msg = `loadTeamCalendar: Could not read document with id ${id}. ${error}`
+			const msg = `loadTeamCalendarAtStartup: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
+	/* For use in the startup sequence only. */
 	extendTeamCalendar({
 		rootState,
 		dispatch

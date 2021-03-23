@@ -213,7 +213,6 @@ const actions = {
 					}
 			} else {
 				if (configData.defaultSprintCalendar) {
-					rootState.isDefaultCalendarFound = true
 					const lastSprint = configData.defaultSprintCalendar.slice(-1)[0]
 					if (lastSprint.startTimestamp - lastSprint.sprintLength < Date.now()) {
 						// sprint calendar ran out of sprints; extend the calendar automatically
@@ -235,7 +234,6 @@ const actions = {
 						dispatch('getAllTeams')
 					}
 				} else {
-					rootState.isDefaultCalendarFound = false
 					// missing calendar
 					if (rootGetters.isAdmin || rootGetters.isAssistAdmin) {
 						// save the config data in memory
@@ -272,7 +270,7 @@ const actions = {
 				if (rootState.userData.myTeam === t.key) {
 					userInATeam = true
 					// load team calendar if present
-					dispatch('loadTeamCalendar', t.id)
+					dispatch('loadTeamCalendarAtStartup', t.id)
 				}
 			}
 			if (!userInATeam) {

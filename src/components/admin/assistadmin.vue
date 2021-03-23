@@ -191,12 +191,12 @@
                 <div v-if="!$store.state.createDefaultCalendar && checkForExistingCalendar">
                   <b-button @click="doLoadDefaultCalendar" variant="primary">Load the default sprint calendar</b-button>
                 </div>
-                <div v-else-if="!$store.state.isDefaultCalendarFound && !creatingCalendar">
+                <div v-else-if="!$store.state.isDefaultCalendarLoaded && !creatingCalendar">
                   <h5>The default sprint calendar is not found, create a new calendar</h5>
                   <b-button class="m-1" @click="creatingCalendar = true" variant="primary">Create calendar</b-button>
                   <b-button class="m-1" @click="cancel">Cancel</b-button>
                 </div>
-                <div v-if="!$store.state.isDefaultCalendarFound && creatingCalendar">
+                <div v-if="!$store.state.isDefaultCalendarLoaded && creatingCalendar">
                   <b-row>
                     <b-col cols="12">
                       <h4>Create the default calendar</h4>
@@ -237,7 +237,7 @@
 
               <template v-else-if="optionSelected === 'Create / Maintain a team sprint calendar'">
                 <h4>Maintain the team sprint calendar of database '{{ $store.state.selectedDatabaseName }}' or create a new one when not existant</h4>
-                <template v-if="!$store.state.isTeamCalendarFound">
+                <template v-if="!$store.state.isTeamCalendarLoaded">
                   <b-form-group v-if="!selectedTeamName" label="Select a team">
                     <b-form-radio-group v-model="selectedTeamName" :options="teamOptions">
                     </b-form-radio-group>
@@ -258,7 +258,7 @@
                 </template>
               </template>
 
-              <template v-if="!$store.state.isCalendarSaved && ($store.state.isDefaultCalendarFound || $store.state.isTeamCalendarFound)">
+              <template v-if="!$store.state.isCalendarSaved && ($store.state.isDefaultCalendarLoaded || $store.state.isTeamCalendarLoaded)">
                 <h5>The calendar is {{ workflowStatusMsg }}, modify calendar</h5>
                 <b-list-group>
                   <b-list-group-item button variant="secondary" v-b-modal.modal-extend>Extend this calendar with new sprints</b-list-group-item>
