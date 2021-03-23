@@ -23,10 +23,13 @@
         <b-col cols="5">
           <h5>Welcome {{ userData.user}} from team '{{ userData.myTeam }}'</h5>
         </b-col>
-        <b-col cols="4">
+        <b-col cols="3">
           <h5>{{ getStoryPoints }} story points in this sprint</h5>
         </b-col>
-        <b-col cols="2">
+				<b-col cols="2">
+          <h5 v-if="$store.state.userData.myOptions.showCountDown === 'do_show_countdown'" class="warning">{{ minutesToSprintSwitch }}</h5>
+        </b-col>
+        <b-col cols="1">
           <h5>points done: {{ getStoryPointsDone }}</h5>
         </b-col>
         <b-col cols="1">
@@ -137,6 +140,8 @@ export default {
   },
 
   mounted () {
+		// start the timer
+		this.minuteTimer()
     // create the sprint selection options, recent first + next sprint on top
     const now = Date.now()
     let getNextSprint = true
@@ -162,11 +167,15 @@ export default {
   },
 
   beforeDestroy () {
+		// stop the timer
+		clearInterval(this.minutesNowTimerId)
     this.unsubscribe()
   },
 
   data () {
     return {
+			minutesNow: Math.floor(Date.now()/60000),
+			minutesNowTimerId: null,
       contextOptionSelected: undefined,
       showAssistance: false,
 			// ToDo: assistanceText is never used, remove?
@@ -220,10 +229,26 @@ export default {
 
     squareColor () {
       return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
-    }
+    },
+
+		/* If less then one hour to go, return the minutes left to the end of the current sprint, else return an empty string */
+		minutesToSprintSwitch () {
+			const minutesSprintEnd = Math.floor((this.selectedSprint.startTimestamp + this.selectedSprint.sprintLength)/60000)
+			let minutesLeft = minutesSprintEnd - this.minutesNow
+			if (this.currentSprintId === this.$store.state.loadedSprintId && minutesLeft >= 0 && minutesLeft < 60) {
+				return `This sprint ends in ${minutesLeft} minutes`
+			} else return ''
+		}
   },
 
   methods: {
+		/* A timer updating the number of minutes since 1/1/1970 in this.minutesNow every minute. Use the timer id to stop the timer */
+		minuteTimer() {
+			this.minutesNowTimerId = setInterval(() => {
+				this.minutesNow = Math.floor(Date.now()/60000)
+				}, 60000)
+		},
+
     clearWarning () {
       this.$store.state.warningText = ''
     },
@@ -290,6 +315,10 @@ export default {
 .title-bar {
   background-color: #408fae;
   padding-top: 4px;
+}
+
+.warning{
+	background-color: orange;
 }
 
 .warning-bar {

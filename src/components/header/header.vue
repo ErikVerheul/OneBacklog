@@ -148,7 +148,7 @@
       </b-container>
     </b-modal>
 
-    <b-modal v-model="showOptionsModal" @ok="refreshPlanningboard" title="Options menu">
+    <b-modal size="lg" v-model="showOptionsModal" @ok="refreshPlanningboard" title="Options menu">
       <h5>For the Product details and overview</h5>
       <b-form-checkbox v-model="$store.state.userData.myOptions.levelShiftWarning" value="do_warn" unchecked-value="do_not_warn">
         Warn me when I move an item to another level
@@ -156,7 +156,10 @@
 
       <h5 class="spacer">For the Planning board</h5>
       <b-form-checkbox v-model="$store.state.userData.myOptions.showOnHold" value="do_show_on_hold" unchecked-value="do_not_show_on_hold">
-        Show the [On hold] status column on the planning board
+        Show the [On hold] status column
+      </b-form-checkbox>
+			<b-form-checkbox v-model="$store.state.userData.myOptions.showCountDown" value="do_show_countdown" unchecked-value="do_not_show_countdown">
+        Show a count down timer when the sprint ends within 60 minutes
       </b-form-checkbox>
 
       <b-button class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</b-button>

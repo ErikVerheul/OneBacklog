@@ -83,7 +83,8 @@ const actions = {
 				// set the user's default options if not found
 				rootState.userData.myOptions = {
 					levelShiftWarning: 'do_warn',
-					showOnHold: 'do_not_show_on_hold'
+					showOnHold: 'do_not_show_on_hold',
+					showCountDown: 'do_show_countdown'
 				}
 			}
 
