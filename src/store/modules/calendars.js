@@ -68,7 +68,7 @@ const actions = {
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchDefaultSprintCalendar: no calendar is found' })
 		}).catch(error => {
-			const msg = `fetchDefaultSprintCalendar: Could not read config document of database '${payload.dbName}', ${error}`
+			const msg = `fetchDefaultSprintCalendar: Could not read config document of database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -96,7 +96,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'saveDefaultSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
+			const msg = `saveDefaultSprintCalendar: Could not read config document of database ${payload.dbName}. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -121,16 +121,16 @@ const actions = {
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchTeamCalendar: no calendar is found' })
 		}).catch(error => {
-			const msg = `fetchTeamCalendar: Could not read team document with id ${payload.teamId} in database '${payload.dbName}', ${error}`
+			const msg = `fetchTeamCalendar: Could not read team document with id ${payload.teamId} in database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
 	/*
-* Load the team calendar by _id and if present make it the current team's calendar.
-* If the team calendar does not exist replace the current calendar with the default calendar.
-*/
+	* Load the team calendar by _id and if present make it the current team's calendar.
+	* If the team calendar does not exist replace the current calendar with the default calendar.
+	*/
 	loadTeamCalendar({
 		rootState,
 		dispatch
@@ -142,7 +142,7 @@ const actions = {
 			const doc = res.data
 			if (doc.teamCalendar && doc.teamCalendar.length > 0) {
 				// eslint-disable-next-line no-console
-				if (rootState.debug) console.log('loadTeamCalendar: A team document with calendar is loaded; id = ' + id)
+				if (rootState.debug) console.log(`loadTeamCalendar: A team document with calendar is loaded; id = ${id}`)
 				// check if the team calendar needs to be extended
 				const lastTeamSprint = doc.teamCalendar.slice(-1)[0]
 				if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
@@ -159,7 +159,7 @@ const actions = {
 				dispatch('getRoot')
 			}
 		}).catch(error => {
-			const msg = 'loadTeamCalendar: Could not read document with id ' + id + ', ' + error
+			const msg = `loadTeamCalendar: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
