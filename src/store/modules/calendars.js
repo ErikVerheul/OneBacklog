@@ -68,7 +68,7 @@ const actions = {
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchDefaultSprintCalendar: no calendar is found' })
 		}).catch(error => {
-			const msg = `fetchDefaultSprintCalendar: Could not read config document of database '${payload.dbName}', ${error}`
+			const msg = `fetchDefaultSprintCalendar: Could not read config document of database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -96,7 +96,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'saveDefaultSprintCalendar: Could not read config document of database ' + payload.dbName + ', ' + error
+			const msg = `saveDefaultSprintCalendar: Could not read config document of database ${payload.dbName}. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -121,7 +121,7 @@ const actions = {
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchTeamCalendar: no calendar is found' })
 		}).catch(error => {
-			const msg = `fetchTeamCalendar: Could not read team document with id ${payload.teamId} in database '${payload.dbName}', ${error}`
+			const msg = `fetchTeamCalendar: Could not read team document with id ${payload.teamId} in database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -129,9 +129,9 @@ const actions = {
 
 	/*
 	* For use in the startup sequence only.
-* Load the team calendar by _id and if present make it the current team's calendar.
-* If the team calendar does not exist replace the current calendar with the default calendar.
-*/
+	* Load the team calendar by _id and if present make it the current team's calendar.
+	* If the team calendar does not exist replace the current calendar with the default calendar.
+	*/
 	loadTeamCalendarAtStartup({
 		rootState,
 		dispatch
