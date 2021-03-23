@@ -254,6 +254,11 @@ const actions = {
 		})
 	},
 
+	/*
+	* Load all team data in rootState.allTeams;
+	* Try to load the team calendar of the current user if the user is member of a team.
+	* Note that a user can be member of one team only.
+	*/
 	getAllTeams({
 		rootState,
 		dispatch

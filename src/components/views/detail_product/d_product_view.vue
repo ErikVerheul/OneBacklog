@@ -118,7 +118,7 @@
               <b-badge v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)" variant="info">See history</b-badge>
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
               <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
-              <b-badge v-if="inSprint(node)" variant="info">In {{ getSprintText(node) }} sprint</b-badge>
+              <b-badge v-if="inActiveSprint(node)" variant="info">In {{ getActiveSprintText(node) }} sprint</b-badge>
             </template>
 
             <template slot="toggle" slot-scope="{ node }">

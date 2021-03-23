@@ -29,7 +29,6 @@ function beforeCreate() {
 function created() {
 	// must reset the event listener to prevent duplication
 	eventBus.$off('context-menu')
-	this.sprints = this.getCurrentAndNextSprint()
 }
 
 function mounted() {
@@ -80,32 +79,32 @@ const methods = {
 	},
 
 	/* Return true if in the current or next sprint */
-	inSprint(node) {
+	inActiveSprint(node) {
 		const sprintId = node.data.sprintId
 		if (!sprintId) {
 			// item not in any sprint
 			return false
 		}
-		if (this.sprints === undefined) {
+		if (this.getActiveSprints === undefined) {
 			// no sprint definitions available
 			return false
 		}
-		if (this.getSprint(sprintId) === null) {
+		if (this.getSprintById(sprintId) === null) {
 			// sprint not found
 			return false
 		}
-		if (sprintId === this.sprints.currentSprint.id || sprintId === this.sprints.nextSprint.id) {
+		if (sprintId === this.getActiveSprints.currentSprint.id || sprintId === this.getActiveSprints.nextSprint.id) {
 			return true
 		}
 		return false
 	},
 
-	getSprintText(node) {
+	getActiveSprintText(node) {
 		const sprintId = node.data.sprintId
-		if (sprintId === this.sprints.currentSprint.id) {
+		if (sprintId === this.getActiveSprints.currentSprint.id) {
 			return 'current'
 		}
-		if (sprintId === this.sprints.nextSprint.id) {
+		if (sprintId === this.getActiveSprints.nextSprint.id) {
 			return 'next'
 		}
 	},

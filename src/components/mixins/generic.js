@@ -137,7 +137,29 @@ const utilities = {
 			'isPlanningBoardSelected',
 			'leafLevel',
 			'myTeam'
-		])
+		]),
+
+		/*
+		* Return the current and coming next sprint objects depending on the current date and time.
+		* Return undefined if not found.
+		*/
+		getActiveSprints() {
+			// currentTime is updated continuously by the watchdog in logging.js
+			const now = this.$store.state.currentTime
+			let currentSprint
+			let nextSprint
+			for (let i = 0; i < this.$store.state.sprintCalendar.length; i++) {
+				const s = this.$store.state.sprintCalendar[i]
+				if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
+					currentSprint = s
+					nextSprint = this.$store.state.sprintCalendar[i + 1]
+					break
+				}
+			}
+			if (currentSprint && nextSprint) {
+				return { currentSprint, nextSprint }
+			} else return undefined
+		}
 	},
 
 	methods: {
@@ -228,27 +250,21 @@ const utilities = {
 		},
 
 		////////////////////////////////////////// sprints ////////////////////////////////////////
-		getCurrentAndNextSprint() {
-			const now = Date.now()
-			let currentSprint
-			let nextSprint
-			for (let i = 0; i < this.$store.state.sprintCalendar.length; i++) {
-				const s = this.$store.state.sprintCalendar[i]
-				if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
-					currentSprint = s
-					nextSprint = this.$store.state.sprintCalendar[i + 1]
-					break
-				}
-			}
-			return { currentSprint, nextSprint }
-		},
 
-		/* Return the sprint record with the id or null if not found */
-		getSprint(id) {
+		/* Return the sprint object with the id or null if not found */
+		getSprintById(id) {
 			for (const s of this.$store.state.sprintCalendar) {
 				if (s.id === id) return s
 			}
 			return null
+		},
+
+		/* Return the sprint object with the id or null if not found */
+		getSprintNameById(id) {
+			const sprint = this.getSprintById(id)
+			if (sprint) {
+				return sprint.name
+			} else return 'Unknown sprint'
 		},
 
 		//////////////////////////////////////// move items //////////////////////////////////////

@@ -9,7 +9,7 @@
 
       <b-navbar-nav>
         <b-nav-form>
-          <b-form-select v-model="selectedSprint" :options="sprintTitles"></b-form-select>
+          <b-form-select v-model="selectedSprint" :options="sprintTitleOptions"></b-form-select>
         </b-nav-form>
       </b-navbar-nav>
 
@@ -49,41 +49,15 @@
         </b-row>
       </div>
     </b-container>
-    <b-modal
-      v-if="currentSprintLoaded && askForImport() && unfinishedWork"
-      @ok="procSelected"
-      v-model="currentSprintLoaded"
-      title="Import unfinished tasks from previous sprints?"
-    >
+    <b-modal v-if="currentSprintLoaded && askForImport() && unfinishedWork" @ok="procSelected" v-model="currentSprintLoaded" title="Import unfinished tasks from previous sprints?">
       <b-list-group>
-        <b-list-group-item
-          button
-          :active="contextOptionSelected === MOVE_TASKS"
-          variant="dark"
-          @click="prepSelected(MOVE_TASKS)"
-        >Yes, please</b-list-group-item>
-        <b-list-group-item
-          button
-          :active="contextOptionSelected === NO_NOT_YET"
-          variant="dark"
-          @click="prepSelected(NO_NOT_YET)"
-        >No, not yet</b-list-group-item>
-        <b-list-group-item
-          button
-          :active="contextOptionSelected === NO_STOP_ASKING"
-          variant="danger"
-          @click="prepSelected(NO_STOP_ASKING)"
-        >No, and do not ask again</b-list-group-item>
+        <b-list-group-item button :active="contextOptionSelected === MOVE_TASKS" variant="dark" @click="prepSelected(MOVE_TASKS)">Yes, please</b-list-group-item>
+        <b-list-group-item button :active="contextOptionSelected === NO_NOT_YET" variant="dark" @click="prepSelected(NO_NOT_YET)">No, not yet</b-list-group-item>
+        <b-list-group-item button :active="contextOptionSelected === NO_STOP_ASKING" variant="danger" @click="prepSelected(NO_STOP_ASKING)">No, and do not ask again</b-list-group-item>
       </b-list-group>
       <p class="message">{{ showInfo() }}</p>
       <div class="d-block text-center">
-        <b-button
-          v-if="contextOptionSelected !== undefined"
-          v-show="!showAssistance"
-          size="sm"
-          variant="outline-primary"
-          @click="showAssistance='true'"
-        >Need assistance?</b-button>
+        <b-button v-if="contextOptionSelected !== undefined" v-show="!showAssistance" size="sm" variant="outline-primary" @click="showAssistance='true'">Need assistance?</b-button>
         <div v-if="showAssistance" class="d-block text-left border" v-html="assistanceText"></div>
       </div>
     </b-modal>
@@ -92,22 +66,24 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-
+import { utilities } from '../../mixins/generic.js'
 import AppHeader from '../../header/header.vue'
 import StoryLane from './StoryLane'
 
 export default {
-  beforeCreate () {
+  mixins: [utilities],
+
+  beforeCreate() {
     this.$store.state.currentView = 'planningBoard'
   },
 
-  created () {
+  created() {
     this.MOVE_TASKS = 0
     this.NO_NOT_YET = 1
     this.NO_STOP_ASKING = 2
 
     if (this.$store.state.loadedSprintId) {
-      // load the last loaded sprint again
+      // preset the selected sprint to the last loaded sprint
       for (const s of this.$store.state.sprintCalendar) {
         if (s.id === this.$store.state.loadedSprintId) {
           this.selectedSprint = s
@@ -115,19 +91,11 @@ export default {
         }
       }
     }
-    if (!this.selectedSprint) {
-      // load the current sprint
-      const now = Date.now()
-      let currentSprint
-      for (let i = 0; i < this.$store.state.sprintCalendar.length; i++) {
-        const s = this.$store.state.sprintCalendar[i]
-        if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
-          currentSprint = s
-          break
-        }
-      }
-      this.selectedSprint = currentSprint
+		if (!this.selectedSprint) {
+      // preset the selected sprint to the current sprint
+      this.selectedSprint = this.getActiveSprints.currentSprint
     }
+
     // reload when the user changes team
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateTeam') {
@@ -136,52 +104,25 @@ export default {
     })
   },
 
-  mounted () {
-    // create the sprint selection options, recent first + next sprint on top
-    const now = Date.now()
-    let getNextSprint = true
-    let getCurrSprint = true
-    for (let i = this.$store.state.sprintCalendar.length - 1; i >= 0; i--) {
-      const sprint = this.$store.state.sprintCalendar[i]
-      if (sprint.startTimestamp > now) continue
-
-      if (getNextSprint) {
-        const nextSprint = this.$store.state.sprintCalendar[i + 1]
-        this.sprintTitles.push({ value: nextSprint, text: nextSprint.name + ' (next sprint)' })
-        getNextSprint = false
-      }
-      if (getCurrSprint) {
-        const currSprint = sprint
-        this.sprintTitles.push({ value: currSprint, text: currSprint.name + ' (current sprint)' })
-        this.currentSprintId = sprint.id
-        getCurrSprint = false
-        continue
-      }
-      this.sprintTitles.push({ value: sprint, text: sprint.name })
-    }
-  },
-
-  beforeDestroy () {
+  beforeDestroy() {
     this.unsubscribe()
   },
 
-  data () {
+  data() {
     return {
       contextOptionSelected: undefined,
       showAssistance: false,
-			// ToDo: assistanceText is never used, remove?
+      // ToDo: assistanceText is never used, remove?
       assistanceText: '',
       selectedSprint: null,
-      currentSprintLoaded: false,
-      currentSprintId: undefined,
-      sprintTitles: []
+      currentSprintLoaded: false
     }
   },
 
   watch: {
     // initially load the current sprint and reload when the user selects another sprint
     selectedSprint: function (newVal) {
-      this.currentSprintLoaded = newVal.id === this.currentSprintId
+      this.currentSprintLoaded = newVal.id === this.getActiveSprints.currentSprint.id
       this.$store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.userData.myTeam })
     }
   },
@@ -194,50 +135,76 @@ export default {
     ]),
     ...mapState(['userData']),
 
-    showWarning () {
+    showWarning() {
       return this.$store.state.warningText !== ''
     },
 
-    unfinishedWork () {
+    unfinishedWork() {
       return this.$store.state.planningboard.itemIdsToImport.length > 0
     },
 
-    getStartDateString () {
+    getStartDateString() {
       if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp).toString().substring(0, 33)
       return ''
     },
 
-    getEndDateString () {
+    getEndDateString() {
       if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp + this.selectedSprint.sprintLength).toString().substring(0, 33)
       return ''
     },
 
-    squareText () {
+		/* Return date/time dependant sprint selection options, recent first + next sprint on top*/
+    sprintTitleOptions() {
+      const now = this.$store.state.currentTime
+      const options = []
+      let getNextSprint = true
+      let getCurrSprint = true
+      for (let i = this.$store.state.sprintCalendar.length - 1; i >= 0; i--) {
+        const sprint = this.$store.state.sprintCalendar[i]
+        if (sprint.startTimestamp > now) continue
+
+        if (getNextSprint) {
+          const nextSprint = this.$store.state.sprintCalendar[i + 1]
+          options.push({ value: nextSprint, text: nextSprint.name + ' (next sprint)' })
+          getNextSprint = false
+        }
+        if (getCurrSprint) {
+          const currSprint = sprint
+          options.push({ value: currSprint, text: currSprint.name + ' (current sprint)' })
+          getCurrSprint = false
+          continue
+        }
+        options.push({ value: sprint, text: sprint.name })
+      }
+      return options
+    },
+
+    squareText() {
       if (this.$store.state.online) {
         return 'sync'
       } else return 'offline'
     },
 
-    squareColor () {
+    squareColor() {
       return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
     }
   },
 
   methods: {
-    clearWarning () {
+    clearWarning() {
       this.$store.state.warningText = ''
     },
 
-    askForImport () {
+    askForImport() {
       if (!this.userData.doNotAskForImport) return true
-      return !this.userData.doNotAskForImport.includes(this.currentSprintId)
+      return !this.userData.doNotAskForImport.includes(this.getActiveSprints.currentSprint.id)
     },
 
-    showInfo () {
+    showInfo() {
       return `Found ${this.$store.state.planningboard.itemIdsToImport.length} unfinished tasks in ${this.$store.state.planningboard.itemIdsToImport.length} items to import`
     },
 
-    prepSelected (idx) {
+    prepSelected(idx) {
       this.showAssistance = false
       this.contextOptionSelected = idx
       switch (this.contextOptionSelected) {
@@ -253,17 +220,17 @@ export default {
       }
     },
 
-    procSelected () {
+    procSelected() {
       this.showAssistance = false
       switch (this.contextOptionSelected) {
         case this.MOVE_TASKS:
-          this.$store.dispatch('importInSprint', this.currentSprintId)
+          this.$store.dispatch('importInSprint', this.getActiveSprints.currentSprint.id)
           break
         case this.NO_NOT_YET:
           // do nothing
           break
         case this.NO_STOP_ASKING:
-          this.$store.dispatch('registerMyNoSprintImport', this.currentSprintId)
+          this.$store.dispatch('registerMyNoSprintImport', this.getActiveSprints.currentSprint.id)
           break
       }
     }

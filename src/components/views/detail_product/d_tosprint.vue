@@ -12,42 +12,41 @@
 import { LEVEL } from '../../../constants.js'
 import { utilities } from '../../mixins/generic.js'
 
-// is initiated on component creation
-var recentSprints
-
-function shortStartDate (sprint) {
+function shortStartDate(sprint) {
   const date = new Date(sprint.startTimestamp)
   const shortDateStr = date.toUTCString()
   return shortDateStr
 }
 
-function shortEndDate (sprint) {
+function shortEndDate(sprint) {
   const date = new Date(sprint.startTimestamp + sprint.sprintLength)
   const shortDateStr = date.toUTCString()
   return shortDateStr
 }
 
 export default {
-	mixins: [utilities],
-  created () {
-    recentSprints = this.getCurrentAndNextSprint()
-  },
+  mixins: [utilities],
 
-  mounted () {
+  mounted() {
     window.assignToSprintRef = this.$refs.assignToSprintRef
-    const currentSprintTxt = `Current sprint: '${recentSprints.currentSprint.name}' started ${shortStartDate(recentSprints.currentSprint)} and ending ${shortEndDate(recentSprints.currentSprint)}`
-    const nextSprintTxt = `Next sprint: '${recentSprints.nextSprint.name}' starting ${shortStartDate(recentSprints.nextSprint)} and ending ${shortEndDate(recentSprints.nextSprint)}`
-    this.sprintOptions = [
-      { text: currentSprintTxt, value: recentSprints.currentSprint.id },
-      { text: nextSprintTxt, value: recentSprints.nextSprint.id }
-    ]
   },
 
-  data () {
+  data() {
     return {
       contextNodeTitle: this.$store.state.currentDoc.title,
-      sprintOptions: [],
       selectedSprintId: undefined
+    }
+  },
+
+  computed: {
+    sprintOptions() {
+			const activeSprints = this.getActiveSprints
+      const currentSprintTxt = `Current sprint: '${activeSprints.currentSprint.name}' started ${shortStartDate(activeSprints.currentSprint)} and ending ${shortEndDate(activeSprints.currentSprint)}`
+      const nextSprintTxt = `Next sprint: '${activeSprints.nextSprint.name}' starting ${shortStartDate(activeSprints.nextSprint)} and ending ${shortEndDate(activeSprints.nextSprint)}`
+      return [
+        { text: currentSprintTxt, value: activeSprints.currentSprint.id },
+        { text: nextSprintTxt, value: activeSprints.nextSprint.id }
+      ]
     }
   },
 
@@ -56,19 +55,13 @@ export default {
     * From the 'Product details' view context menu a PBI or a task can be selected to be assigned to the current or next sprint
     * Only items that are not in a sprint already can be assigned to a sprint.
     */
-    addItemToSprint () {
-      function getSprintName (id) {
-        if (id === recentSprints.currentSprint.id) {
-          return recentSprints.currentSprint.name
-        } else return recentSprints.nextSprint.name
-      }
-
+    addItemToSprint() {
       const currentDoc = this.$store.state.currentDoc
       if (currentDoc.sprintId) return
 
       const itemLevel = currentDoc.level
       const sprintId = this.selectedSprintId
-      const sprintName = getSprintName(sprintId)
+      const sprintName = this.getSprintNameById(sprintId)
 
       // when a PBI is selected, that PBI and it descendant tasks that have no sprint assigned yet, are assigned to the sprint
       if (itemLevel === LEVEL.PBI) {

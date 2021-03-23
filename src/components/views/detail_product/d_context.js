@@ -9,7 +9,6 @@ function created() {
 	this.PBITOSPRINT = 11
 	this.FROMSPRINT = 12
 	this.TASKTOSPRINT = 13
-	this.sprints = this.getCurrentAndNextSprint()
 	eventBus.$on('context-menu', (node) => {
 		this.showContextMenu(node)
 	})
@@ -266,24 +265,18 @@ const methods = {
 		window.assignToSprintRef.show()
 	},
 
-	/* Assign the task to the sprint of its PBI; or if the PBI has no sprint assigned ask the user to select. */
+	/* Assign the task to the sprint of its PBI; or if the PBI has no sprint assigned, ask the user to select. */
 	doAddTaskToSprint() {
 		const taskNode = this.contextNodeSelected
 		const pbiNode = window.slVueTree.getParentNode(taskNode)
 		const pbiSprintId = pbiNode.data.sprintId
 		if (pbiSprintId) {
-			const sprintName = this.getSprintName(pbiSprintId)
+			const sprintName = this.getSprintNameById(pbiSprintId)
 			// assign the task to the same sprint the PBI is assigned to
 			this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName, createUndo: true })
 		} else {
 			window.assignToSprintRef.show()
 		}
-	},
-
-	getSprintName(id) {
-		if (id === this.sprints.currentSprint.id) {
-			return this.sprints.currentSprint.name
-		} else return this.sprints.nextSprint.name
 	},
 
 	doRemoveFromSprint() {
@@ -296,7 +289,7 @@ const methods = {
 				if (d.data.sprintId === sprintId) itemIds.push(d._id)
 			}
 		}
-		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: this.getSprintName(sprintId) })
+		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: this.getSprintNameById(sprintId) })
 	}
 }
 
