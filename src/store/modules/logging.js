@@ -61,6 +61,8 @@ const actions = {
 			}).then(() => {
 				rootState.online = true
 				rootState.authentication.cookieAuthenticated = true
+				// update the current time
+				rootState.currentTime = Date.now()
 				if (wasOffline) {
 					restartLoops()
 				} else {

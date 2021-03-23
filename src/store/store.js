@@ -180,6 +180,7 @@ export default new Vuex.Store({
 		// traverseTree
 		descendantIds: [],
 		// app wide globals
+		currentTime: Date.now(),
 		configData: null,
 		demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
 		eventSyncColor: '#004466',
