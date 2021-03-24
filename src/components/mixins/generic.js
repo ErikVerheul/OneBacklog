@@ -148,11 +148,11 @@ const utilities = {
 			const now = this.$store.state.currentTime
 			let currentSprint
 			let nextSprint
-			for (let i = 0; i < this.$store.state.sprintCalendar.length; i++) {
-				const s = this.$store.state.sprintCalendar[i]
+			for (let i = 0; i < this.$store.state.myTeamSprintCalendar.length; i++) {
+				const s = this.$store.state.myTeamSprintCalendar[i]
 				if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
 					currentSprint = s
-					nextSprint = this.$store.state.sprintCalendar[i + 1]
+					nextSprint = this.$store.state.myTeamSprintCalendar[i + 1]
 					break
 				}
 			}
@@ -253,7 +253,7 @@ const utilities = {
 
 		/* Return the sprint object with the id or null if not found */
 		getSprintById(id) {
-			for (const s of this.$store.state.sprintCalendar) {
+			for (const s of this.$store.state.myTeamSprintCalendar) {
 				if (s.id === id) return s
 			}
 			return null

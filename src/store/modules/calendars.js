@@ -150,13 +150,13 @@ const actions = {
 					dispatch('extendTeamCalendar', doc)
 				} else {
 					// replace the defaultSprintCalendar or other team calendar with this team calendar
-					rootState.sprintCalendar = doc.teamCalendar
+					rootState.myTeamSprintCalendar = doc.teamCalendar
 					dispatch('getRoot')
 				}
 			} else {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(`loadTeamCalendarAtStartup: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
-				rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+				rootState.myTeamSprintCalendar = rootState.configData.defaultSprintCalendar
 				dispatch('getRoot')
 			}
 		}).catch(error => {
@@ -170,10 +170,10 @@ const actions = {
 		rootState,
 		dispatch
 	}, doc) {
-		const extTeamCalendar = doc.teamCalendar.slice()
+		const extendedTeamCalendar = doc.teamCalendar.slice()
 		let newSprintCount = 0
-		while (extTeamCalendar.slice(-1)[0].startTimestamp - extTeamCalendar.slice(-1)[0].sprintLength < Date.now()) {
-			const prevSprint = extTeamCalendar.slice(-1)[0]
+		while (extendedTeamCalendar.slice(-1)[0].startTimestamp - extendedTeamCalendar.slice(-1)[0].sprintLength < Date.now()) {
+			const prevSprint = extendedTeamCalendar.slice(-1)[0]
 			const newSprint = {
 				id: createId(),
 				name: createNextName(prevSprint.name),
@@ -181,16 +181,16 @@ const actions = {
 				sprintLength: prevSprint.sprintLength
 			}
 			newSprintCount++
-			extTeamCalendar.push(newSprint)
+			extendedTeamCalendar.push(newSprint)
 		}
 
-		doc.teamCalendar = extTeamCalendar
+		doc.teamCalendar = extendedTeamCalendar
 		// update the team with the extended team calendar and continue loading the tree model
 		const toDispatch = [{ getRoot: null }]
 		dispatch('updateDoc', {
 			dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, onSuccessCallback: () => {
 				// replace the defaultSprintCalendar or other team calendar with this team calendar
-				rootState.sprintCalendar = extTeamCalendar
+				rootState.myTeamSprintCalendar = extendedTeamCalendar
 				const msg = `extendTeamCalendar: The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
 				dispatch('doLog', { event: msg, level: SEV.INFO })
 			}, caller: 'extendTeamCalendar'

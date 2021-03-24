@@ -84,7 +84,7 @@ export default {
 
     if (this.$store.state.loadedSprintId) {
       // preset the selected sprint to the last loaded sprint
-      for (const s of this.$store.state.sprintCalendar) {
+      for (const s of this.$store.state.myTeamSprintCalendar) {
         if (s.id === this.$store.state.loadedSprintId) {
           this.selectedSprint = s
           break
@@ -159,12 +159,12 @@ export default {
       const options = []
       let getNextSprint = true
       let getCurrSprint = true
-      for (let i = this.$store.state.sprintCalendar.length - 1; i >= 0; i--) {
-        const sprint = this.$store.state.sprintCalendar[i]
+      for (let i = this.$store.state.myTeamSprintCalendar.length - 1; i >= 0; i--) {
+        const sprint = this.$store.state.myTeamSprintCalendar[i]
         if (sprint.startTimestamp > now) continue
 
         if (getNextSprint) {
-          const nextSprint = this.$store.state.sprintCalendar[i + 1]
+          const nextSprint = this.$store.state.myTeamSprintCalendar[i + 1]
           options.push({ value: nextSprint, text: nextSprint.name + ' (next sprint)' })
           getNextSprint = false
         }

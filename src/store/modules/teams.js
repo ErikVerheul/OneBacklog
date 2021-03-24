@@ -311,11 +311,11 @@ const actions = {
 								if (newTeamDoc.teamCalendar && newTeamDoc.teamCalendar.length > 0) {
 									// eslint-disable-next-line no-console
 									if (rootState.debug) console.log('updateTeamsInDb: A team calendar is found, use this sprint calendar')
-									rootState.sprintCalendar = newTeamDoc.teamCalendar
+									rootState.myTeamSprintCalendar = newTeamDoc.teamCalendar
 								} else {
 									// eslint-disable-next-line no-console
 									if (rootState.debug) console.log('updateTeamsInDb: No team calendar found, use the default sprint calendar')
-									rootState.sprintCalendar = rootState.configData.defaultSprintCalendar
+									rootState.myTeamSprintCalendar = rootState.configData.defaultSprintCalendar
 								}
 								// update the user data, the planningBoard.vue listens to this change and will re-render if in view
 								commit('updateTeam', payload.newTeam)
