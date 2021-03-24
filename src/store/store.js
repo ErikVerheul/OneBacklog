@@ -100,8 +100,7 @@ export default new Vuex.Store({
 		// creating a CouchDb instance
 		createDefaultCalendar: false,
 		isDatabaseInitiated: false,
-		// authentication, refresh every 9 minutes (CouchDB defaults at 10 min.)
-		cookieRefreshInterval: 540,
+		// authentication
 		mySessionId: null,
 		// startup
 		availableProductIds: [],

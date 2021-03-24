@@ -4,6 +4,9 @@ import globalAxios from 'axios'
 import router from '../../router'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
+// refresh authentication every 9 minutes (CouchDB defaults at 10 min.)
+const COOKIE_REFRESH_INTERVAL = 540000
+
 const state = {
 	sessionAuthData: undefined,
 	cookieAuthenticated: false,
@@ -53,7 +56,7 @@ const actions = {
 		if (rootState.online) {
 			state.runningCookieRefreshId = setInterval(() => {
 				dispatch('refreshCookie', { caller: 'refreshCookieLoop' })
-			}, rootState.cookieRefreshInterval * 1000)
+			}, COOKIE_REFRESH_INTERVAL)
 		}
 	},
 
