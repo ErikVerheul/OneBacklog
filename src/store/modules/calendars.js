@@ -91,6 +91,10 @@ const actions = {
 				caller: 'saveDefaultSprintCalendar',
 				onSuccessCallback: () => {
 					rootState.loadedCalendar = payload.newSprintCalendar
+					// if updating my current database, update myTeamSprintCalendar
+					if (payload.dbName === rootState.userData.currentDb) {
+						rootState.myTeamSprintCalendar = payload.newSprintCalendar
+					}
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `saveDefaultSprintCalendar: success, calendar with ${payload.newSprintCalendar.length} sprint periods is saved` })
 					rootState.isCalendarSaved = true
 				}
