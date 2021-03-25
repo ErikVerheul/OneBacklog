@@ -99,6 +99,8 @@ export default {
     // reload when the user changes team
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateTeam') {
+				// select and load the current sprint of the newly selected team calendar
+				this.selectedSprint = this.getActiveSprints.currentSprint
         this.$store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: state.userData.myTeam })
       }
     })
@@ -156,15 +158,16 @@ export default {
 		/* Return date/time dependant sprint selection options, recent first + next sprint on top*/
     sprintTitleOptions() {
       const now = this.$store.state.currentTime
+			const calendar = this.$store.state.myTeamSprintCalendar
       const options = []
       let getNextSprint = true
       let getCurrSprint = true
-      for (let i = this.$store.state.myTeamSprintCalendar.length - 1; i >= 0; i--) {
-        const sprint = this.$store.state.myTeamSprintCalendar[i]
+      for (let i = calendar.length - 1; i >= 0; i--) {
+        const sprint = calendar[i]
         if (sprint.startTimestamp > now) continue
 
         if (getNextSprint) {
-          const nextSprint = this.$store.state.myTeamSprintCalendar[i + 1]
+          const nextSprint = calendar[i + 1]
           options.push({ value: nextSprint, text: nextSprint.name + ' (next sprint)' })
           getNextSprint = false
         }
