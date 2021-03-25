@@ -66,6 +66,10 @@ const actions = {
 				updatedDoc: teamDoc,
 				caller: 'updateTeamCalendarAction',
 				onSuccessCallback: () => {
+					// if updating the team calendar of my current team in my current database, update myTeamSprintCalendar
+					if (payload.dbName === rootState.userData.currentDb && teamDoc.teamName === rootState.userData.myTeam) {
+						rootState.myTeamSprintCalendar = payload.newSprintCalendar
+					}
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `updateTeamCalendarAction: success, the team calendar for team '${payload.teamName}' is updated` })
 					rootState.isCalendarSaved = true
 				}
