@@ -209,7 +209,7 @@ const actions = {
 	}, payload) {
 		state.itemIdsToImport = []
 		function isCurrentSprint(sprintId) {
-			for (const s of rootState.myTeamSprintCalendar) {
+			for (const s of rootState.myCurrentSprintCalendar) {
 				if (s.id === sprintId) {
 					return (Date.now() > s.startTimestamp && Date.now() < s.startTimestamp + s.sprintLength)
 				}
@@ -341,7 +341,7 @@ const actions = {
 		dispatch
 	}, team) {
 		function isPreviousSprint(sprintId) {
-			for (const s of rootState.myTeamSprintCalendar) {
+			for (const s of rootState.myCurrentSprintCalendar) {
 				if (s.id === sprintId) {
 					return (Date.now() > s.startTimestamp + s.sprintLength)
 				}
@@ -414,11 +414,11 @@ const actions = {
 						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId, lastChange: timestamp, newHist })
 					}
 					let oldSprintName
-					for (const s of rootState.myTeamSprintCalendar) {
+					for (const s of rootState.myCurrentSprintCalendar) {
 						if (s.id === oldSprintId) oldSprintName = s.name
 					}
 					let newSprintName
-					for (const s of rootState.myTeamSprintCalendar) {
+					for (const s of rootState.myCurrentSprintCalendar) {
 						if (s.id === newSprintId) newSprintName = s.name
 					}
 					const newHist = {

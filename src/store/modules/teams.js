@@ -66,9 +66,9 @@ const actions = {
 				updatedDoc: teamDoc,
 				caller: 'updateTeamCalendarAction',
 				onSuccessCallback: () => {
-					// if updating the team calendar of my current team in my current database, update myTeamSprintCalendar
+					// if updating the team calendar of my current team in my current database, update myCurrentSprintCalendar
 					if (payload.dbName === rootState.userData.currentDb && teamDoc.teamName === rootState.userData.myTeam) {
-						rootState.myTeamSprintCalendar = payload.newSprintCalendar
+						rootState.myCurrentSprintCalendar = payload.newSprintCalendar
 					}
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `updateTeamCalendarAction: success, the team calendar for team '${payload.teamName}' is updated` })
 					rootState.isCalendarSaved = true
@@ -315,11 +315,11 @@ const actions = {
 								if (newTeamDoc.teamCalendar && newTeamDoc.teamCalendar.length > 0) {
 									// eslint-disable-next-line no-console
 									if (rootState.debug) console.log('updateTeamsInDb: A team calendar is found, use this sprint calendar')
-									rootState.myTeamSprintCalendar = newTeamDoc.teamCalendar
+									rootState.myCurrentSprintCalendar = newTeamDoc.teamCalendar
 								} else {
 									// eslint-disable-next-line no-console
 									if (rootState.debug) console.log('updateTeamsInDb: No team calendar found, use the default sprint calendar')
-									rootState.myTeamSprintCalendar = rootState.configData.defaultSprintCalendar
+									rootState.myCurrentSprintCalendar = rootState.configData.defaultSprintCalendar
 								}
 								// update the user data, the planningBoard.vue listens to this change and will re-render if in view
 								commit('updateTeam', payload.newTeam)

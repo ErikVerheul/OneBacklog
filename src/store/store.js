@@ -190,7 +190,7 @@ export default new Vuex.Store({
 		userData: {},
 		// planning board
 		loadedSprintId: null,
-		myTeamSprintCalendar: [],
+		myCurrentSprintCalendar: [],
 		warningText: ''
 	},
 
@@ -251,8 +251,8 @@ export default new Vuex.Store({
 		},
 
 		getItemSprintName(state) {
-			if (state.currentDoc.sprintId && state.myTeamSprintCalendar) {
-				for (const s of state.myTeamSprintCalendar) {
+			if (state.currentDoc.sprintId && state.myCurrentSprintCalendar) {
+				for (const s of state.myCurrentSprintCalendar) {
 					if (s.id === state.currentDoc.sprintId) return s.name
 				}
 			}

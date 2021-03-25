@@ -222,7 +222,7 @@ const actions = {
 								// save the config data in memory
 								rootState.configData = configData
 								// assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
-								rootState.myTeamSprintCalendar = configData.defaultSprintCalendar
+								rootState.myCurrentSprintCalendar = configData.defaultSprintCalendar
 								dispatch('getAllTeams')
 							}
 						})
@@ -230,7 +230,7 @@ const actions = {
 						// save the config data in memory
 						rootState.configData = configData
 						// assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
-						rootState.myTeamSprintCalendar = configData.defaultSprintCalendar
+						rootState.myCurrentSprintCalendar = configData.defaultSprintCalendar
 						dispatch('getAllTeams')
 					}
 				} else {

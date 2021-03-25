@@ -84,7 +84,7 @@ export default {
 
     if (this.$store.state.loadedSprintId) {
       // preset the selected sprint to the last loaded sprint
-      for (const s of this.$store.state.myTeamSprintCalendar) {
+      for (const s of this.$store.state.myCurrentSprintCalendar) {
         if (s.id === this.$store.state.loadedSprintId) {
           this.selectedSprint = s
           break
@@ -158,7 +158,7 @@ export default {
 		/* Return date/time dependant sprint selection options, recent first + next sprint on top*/
     sprintTitleOptions() {
       const now = this.$store.state.currentTime
-			const calendar = this.$store.state.myTeamSprintCalendar
+			const calendar = this.$store.state.myCurrentSprintCalendar
       const options = []
       let getNextSprint = true
       let getCurrSprint = true

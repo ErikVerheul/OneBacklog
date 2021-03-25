@@ -91,9 +91,9 @@ const actions = {
 				caller: 'saveDefaultSprintCalendar',
 				onSuccessCallback: () => {
 					rootState.loadedCalendar = payload.newSprintCalendar
-					// if updating my current database, update myTeamSprintCalendar
+					// if updating my current database, update myCurrentSprintCalendar
 					if (payload.dbName === rootState.userData.currentDb) {
-						rootState.myTeamSprintCalendar = payload.newSprintCalendar
+						rootState.myCurrentSprintCalendar = payload.newSprintCalendar
 					}
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `saveDefaultSprintCalendar: success, calendar with ${payload.newSprintCalendar.length} sprint periods is saved` })
 					rootState.isCalendarSaved = true
@@ -154,13 +154,13 @@ const actions = {
 					dispatch('extendTeamCalendar', doc)
 				} else {
 					// replace the defaultSprintCalendar or other team calendar with this team calendar
-					rootState.myTeamSprintCalendar = doc.teamCalendar
+					rootState.myCurrentSprintCalendar = doc.teamCalendar
 					dispatch('getRoot')
 				}
 			} else {
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log(`loadTeamCalendarAtStartup: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
-				rootState.myTeamSprintCalendar = rootState.configData.defaultSprintCalendar
+				rootState.myCurrentSprintCalendar = rootState.configData.defaultSprintCalendar
 				dispatch('getRoot')
 			}
 		}).catch(error => {
@@ -194,7 +194,7 @@ const actions = {
 		dispatch('updateDoc', {
 			dbName: rootState.userData.currentDb, updatedDoc: doc, toDispatch, onSuccessCallback: () => {
 				// replace the defaultSprintCalendar or other team calendar with this team calendar
-				rootState.myTeamSprintCalendar = extendedTeamCalendar
+				rootState.myCurrentSprintCalendar = extendedTeamCalendar
 				const msg = `extendTeamCalendar: The sprint calendar of team '${doc.teamName}' is automatically extended with ${newSprintCount} sprints`
 				dispatch('doLog', { event: msg, level: SEV.INFO })
 			}, caller: 'extendTeamCalendar'
