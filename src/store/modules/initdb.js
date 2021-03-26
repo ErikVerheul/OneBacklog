@@ -366,7 +366,7 @@ const actions = {
 					/* Filter on teams */
 					teams: {
 						map: `function(doc) {
-							if (doc.type ==='team' && !doc.delmark) emit(doc.teamName, doc.members);
+							if (doc.type ==='team' && !doc.delmark) emit(doc.teamName, [doc.members, doc.teamCalendar !== undefined])
 						}`
 					},
 					/* Filter on unremovedMark and parentId to map unremoved documents to their parent in order of priority */

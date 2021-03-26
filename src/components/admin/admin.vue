@@ -369,7 +369,12 @@
                 <h4>List of teams and members working on products in database '{{ $store.state.selectedDatabaseName }}'</h4>
                 <div v-for="team in $store.state.fetchedTeams" :key="team.teamName">
                   <hr>
-                  <b>Team '{{ team.teamName }}'</b>
+                  <template v-if="team.hasTeamCalendar">
+                    <b>Team '{{ team.teamName }}'</b> (has its own team sprint calendar)
+                  </template>
+                  <template v-else>
+                    <b>Team '{{ team.teamName }}'</b> (uses the default sprint calendar)
+                  </template>
                   <div v-for="m of team.members" :key="m">
                     <i>'{{ m }}' is member of this team</i>
                   </div>

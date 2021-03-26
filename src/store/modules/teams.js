@@ -159,8 +159,9 @@ const actions = {
 			for (const r of rows) {
 				const teamId = r.id
 				const teamName = r.key
-				const members = r.value
-				rootState.fetchedTeams.push({ teamId, teamName, members })
+				const members = r.value[0]
+				const hasTeamCalendar = r.value[1]
+				rootState.fetchedTeams.push({ teamId, teamName, members, hasTeamCalendar })
 			}
 			// execute passed callback if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()

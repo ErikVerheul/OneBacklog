@@ -292,7 +292,7 @@ const actions = {
 			const teams = res.data.rows
 			let userInATeam = false
 			for (const t of teams) {
-				rootState.allTeams[t.key] = { id: t.id, members: t.value }
+				rootState.allTeams[t.key] = { id: t.id, members: t.value[0] }
 				if (rootState.userData.myTeam === t.key) {
 					userInATeam = true
 					// load team calendar if present
