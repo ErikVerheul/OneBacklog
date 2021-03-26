@@ -29,7 +29,7 @@
     <div>
       <b-container>
         <b-row>
-          <b-col cols="5">
+          <b-col cols="4">
             <h3 v-if="getCurrentItemLevel <= LEVEL.EPIC">
               {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
               <input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
@@ -44,12 +44,12 @@
             </h3>
           </b-col>
           <b-col cols="5">
-            <h3>{{ $store.state.currentProductTitle }} [Overview]</h3>
+            <h3 align="center">{{ $store.state.currentProductTitle }} [Overview]</h3>
           </b-col>
-          <b-col cols="2">
+          <b-col cols="3">
             <h3 align="right">
               State:
-              <b-dropdown right class="m-2 .btn.btn-secondary.dropdown-toggle">
+              <b-dropdown right class="m-1 .btn.btn-secondary.dropdown-toggle">
                 <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
                 <b-dropdown-item @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</b-dropdown-item>
@@ -416,6 +416,10 @@
 }
 
 //my stuff
+h3 {
+	height: 45px;
+}
+
 .note {
 	background: #eee;
 }
