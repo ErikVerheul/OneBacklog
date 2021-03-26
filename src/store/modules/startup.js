@@ -1,8 +1,12 @@
 import { SEV } from '../../constants.js'
+import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
 import router from '../../router'
+
+const HOUR_MILIS = 60 * 60000
+const DAY_MILIS = 24 * HOUR_MILIS
 
 const actions = {
 	/*
@@ -234,13 +238,30 @@ const actions = {
 						dispatch('getAllTeams')
 					}
 				} else {
-					// missing calendar
+					// missing default calendar
 					if (rootGetters.isAdmin || rootGetters.isAssistAdmin) {
+						// create a basic sprint calendar of 3 sprints with a length of 14 days starting an hour before now
+						const calendar = []
+						const numberOfSprints = 3
+						const sprintLengthMillis = DAY_MILIS * 14
+						const start = Date.now() - HOUR_MILIS
+						for (let i = 0; i < numberOfSprints; i++) {
+							const sprint = {
+								id: createId(),
+								name: 'sprint-' + i,
+								startTimestamp: start + i * sprintLengthMillis,
+								sprintLength: sprintLengthMillis
+							}
+							calendar.push(sprint)
+						}
+						configData.defaultSprintCalendar = calendar
+						// set my sprint calendar
+						rootState.myCurrentSprintCalendar = calendar
 						// save the config data in memory
 						rootState.configData = configData
-						rootState.createDefaultCalendar = true
-						alert('Error: No default sprint calendar is set. You will be redirected to the Admin view where you can create one.')
-						router.replace('/admin')
+						// update the config document
+						const toDispatch = [{ getAllTeams: null }]
+						dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: configData, toDispatch, caller: 'getConfig' })
 					} else {
 						alert('Error: No default sprint calendar is set. Consult your administrator. The application will exit.')
 						commit('endSession')

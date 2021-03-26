@@ -98,7 +98,6 @@ export default new Vuex.Store({
 		debug: process.env.VUE_APP_DEBUG === 'true' || false,
 		debugConnectionAndLogging: process.env.VUE_APP_DEBUG_CONNECTION === 'true' || false,
 		// creating a CouchDb instance
-		createDefaultCalendar: false,
 		isDatabaseInitiated: false,
 		// authentication
 		mySessionId: null,
@@ -1098,7 +1097,6 @@ export default new Vuex.Store({
 			state.changeHistory = []
 			state.configData = null
 			state.currentDoc = null
-			state.createDefaultCalendar = false
 			state.currentProductId = null
 			state.currentProductTitle = ''
 			state.filterTreeIsSet = false,

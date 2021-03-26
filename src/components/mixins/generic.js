@@ -146,13 +146,14 @@ const utilities = {
 		getActiveSprints() {
 			// currentTime is updated continuously by the watchdog in logging.js
 			const now = this.$store.state.currentTime
+			const myCurrentSprintCalendar = this.$store.state.myCurrentSprintCalendar
 			let currentSprint
 			let nextSprint
-			for (let i = 0; i < this.$store.state.myCurrentSprintCalendar.length; i++) {
-				const s = this.$store.state.myCurrentSprintCalendar[i]
+			for (let i = 0; i < myCurrentSprintCalendar.length; i++) {
+				const s = myCurrentSprintCalendar[i]
 				if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
 					currentSprint = s
-					nextSprint = this.$store.state.myCurrentSprintCalendar[i + 1]
+					nextSprint = myCurrentSprintCalendar[i + 1]
 					break
 				}
 			}

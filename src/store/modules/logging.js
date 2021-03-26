@@ -5,7 +5,7 @@ import globalAxios from 'axios'
 
 const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
-const WATCHDOGINTERVAL = 5
+const WATCHDOGINTERVAL = 5000
 
 const state = {
 	logSessionSeq: 0,
@@ -88,7 +88,7 @@ const actions = {
 				}
 				consoleLogStatus()
 			})
-		}, WATCHDOGINTERVAL * 1000)
+		}, WATCHDOGINTERVAL)
 	},
 
 	/* Create a log entry and save it. */

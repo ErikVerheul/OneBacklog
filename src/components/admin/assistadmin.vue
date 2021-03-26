@@ -11,7 +11,7 @@
       <b-button block @click="removeTeams">Remove teams without members</b-button>
       <b-button block @click="listTeams">List teams</b-button>
       <br />
-      <b-button block @click="createOrUpdateDefaultCalendar">Create / Maintain the default sprint calendar</b-button>
+      <b-button block @click="maintainDefaultSprintCalendar">Maintain the default sprint calendar</b-button>
       <b-button block @click="createOrUpdateTeamCalendar">Create / Maintain a team sprint calendar</b-button>
       <template v-if="optionSelected != 'Select a task'">
         <template v-if="getUserFirst">
@@ -184,59 +184,17 @@
               <b-button v-if="!$store.state.areTeamsRemoved" class="m-1" @click="cancel">Cancel</b-button>
             </template>
 
-            <template v-if="optionSelected === 'Create / Maintain the default sprint calendar' || optionSelected === 'Create / Maintain a team sprint calendar'">
+            <template v-if="optionSelected === 'Maintain the default sprint calendar' || optionSelected === 'Create / Maintain a team sprint calendar'">
 
-              <template v-if="optionSelected === 'Create / Maintain the default sprint calendar'">
-                <h4>Maintain the default sprint calendar of database '{{ $store.state.selectedDatabaseName }}' or create a new one when not existant</h4>
-                <div v-if="!$store.state.createDefaultCalendar && checkForExistingCalendar">
+              <template v-if="optionSelected === 'Maintain the default sprint calendar'">
+                <h4>Maintain the default sprint calendar of database '{{ $store.state.selectedDatabaseName }}'</h4>
+                <div v-if="checkForExistingCalendar">
                   <b-button @click="doLoadDefaultCalendar" variant="primary">Load the default sprint calendar</b-button>
-                </div>
-                <div v-else-if="!$store.state.isDefaultCalendarLoaded && !creatingCalendar">
-                  <h5>The default sprint calendar is not found, create a new calendar</h5>
-                  <b-button class="m-1" @click="creatingCalendar = true" variant="primary">Create calendar</b-button>
-                  <b-button class="m-1" @click="cancel">Cancel</b-button>
-                </div>
-                <div v-if="!$store.state.isDefaultCalendarLoaded && creatingCalendar">
-                  <b-row>
-                    <b-col cols="12">
-                      <h4>Create the default calendar</h4>
-                    </b-col>
-
-                    <b-col v-if="!startDateStr" sm="12">
-                      <center>
-                        <p>Choose the start date of the first sprint:</p>
-                        <b-calendar v-model="startDateStr"></b-calendar>
-                      </center>
-                    </b-col>
-                    <b-col v-else sm="12">
-                      <center>
-                        <h4>Selected start date of the first sprint is {{ startDateStr }}</h4>
-                        <b-form @submit.prevent="onSubmit" @reset="onReset" v-if="show">
-                          <b-form-group id="input-group-1" label="Enter the daytime hour (UTC) the sprint starts and ends:" label-for="input-1"
-                            description="Choose a number from 0 to 23 and use the UTC clock.">
-                            <b-form-input id="input-1" v-model="sprintStartTimeStr" type="number" min="0" max="23" step="1" required></b-form-input>
-                          </b-form-group>
-
-                          <b-form-group id="input-group-2" label="Enter the sprint length in days:" label-for="input-2">
-                            <b-form-input id="input-2" v-model="sprintLengthStr" type="number" min="1" required></b-form-input>
-                          </b-form-group>
-
-                          <b-form-group id="input-group-3" label="Enter the number of sprints to generate:" label-for="input-3">
-                            <b-form-input id="input-3" v-model="numberOfSprintsStr" type="number" min="1" required></b-form-input>
-                          </b-form-group>
-
-                          <b-button v-if="!$store.state.isCalendarSaved" class="m-1" type="submit" variant="primary">Submit</b-button>
-                          <b-button v-if="!$store.state.isCalendarSaved" class="m-1" type="reset">Reset</b-button>
-                          <b-button v-if="$store.state.isCalendarSaved" @click="signIn()" class="m-1">Exit</b-button>
-                        </b-form>
-                      </center>
-                    </b-col>
-                  </b-row>
                 </div>
               </template>
 
               <template v-else-if="optionSelected === 'Create / Maintain a team sprint calendar'">
-                <h4>Maintain the team sprint calendar of database '{{ $store.state.selectedDatabaseName }}' or create a new one when not existant</h4>
+                <h4>Maintain the team sprint calendar of database '{{ $store.state.selectedDatabaseName }}'</h4>
                 <template v-if="!$store.state.isTeamCalendarLoaded">
                   <b-form-group v-if="!selectedTeamName" label="Select a team">
                     <b-form-radio-group v-model="selectedTeamName" :options="teamOptions">

@@ -26,7 +26,6 @@ function data() {
 		localMessage: '',
 		selectedUser: undefined,
 		isDatabaseSelected: false,
-		creatingCalendar: false,
 		startDateStr: '',
 		sprintStartTimeStr: '12',
 		sprintLengthStr: '14',
@@ -85,14 +84,13 @@ const computed = {
 }
 
 const methods = {
-	createOrUpdateDefaultCalendar() {
-		this.optionSelected = 'Create / Maintain the default sprint calendar'
+	maintainDefaultSprintCalendar() {
+		this.optionSelected = 'Maintain the default sprint calendar'
 		this.getUserFirst = false
 		this.checkForExistingCalendar = true
 		this.$store.state.isDefaultCalendarLoaded = false
 		this.$store.state.isCalendarSaved = false
 		this.dbIsSelected = false
-		this.creatingCalendar = false
 		this.$store.state.backendMessages = []
 		this.startDateStr = undefined
 		this.workflowStatusMsg = 'found'
@@ -106,7 +104,6 @@ const methods = {
 		this.$store.state.isTeamCalendarLoaded = false
 		this.$store.state.isCalendarSaved = false
 		this.dbIsSelected = false
-		this.creatingCalendar = false
 		this.$store.state.backendMessages = []
 		this.startDateStr = undefined
 		this.workflowStatusMsg = 'found'
@@ -137,11 +134,6 @@ const methods = {
 		this.$store.state.areTeamsRemoved = false
 	},
 
-	onSubmit(evt) {
-		evt.preventDefault()
-		this.doCreateDefaultCalendar()
-	},
-
 	onReset(evt) {
 		evt.preventDefault()
 		// Reset our form values
@@ -161,7 +153,7 @@ const methods = {
 			case 'Create a user and assign product(s)':
 				this.callGetDbProducts()
 				break
-			case 'Create / Maintain the default sprint calendar':
+			case 'Maintain the default sprint calendar':
 				this.$store.state.isDefaultCalendarLoaded = false
 				this.$store.state.isTeamCalendarLoaded = false
 				break
@@ -497,33 +489,6 @@ const methods = {
 				}
 			}
 		})
-	},
-
-	doCreateDefaultCalendar() {
-		const startDate = new Date(this.startDateStr)
-		startDate.setUTCHours(parseInt(this.sprintStartTimeStr))
-		if (startDate > Date.now()) {
-			this.localMessage = 'The first sprint starts at ' + startDate.toString() + '. Select a start date and time in the (near) past.'
-			return
-		}
-
-		const sprintLengthMillis = parseInt(this.sprintLengthStr) * DAY_MILIS
-		const numberOfSprints = parseInt(this.numberOfSprintsStr)
-
-		const calendar = []
-		for (let i = 0; i < numberOfSprints; i++) {
-			const sprintId = createId()
-			const obj = {
-				id: sprintId,
-				name: 'sprint-' + i,
-				startTimestamp: startDate.valueOf() + i * sprintLengthMillis,
-				sprintLength: sprintLengthMillis
-			}
-			calendar.push(obj)
-		}
-		this.$store.state.backendMessages = []
-		this.workflowStatusMsg = 'created'
-		this.$store.dispatch('saveDefaultSprintCalendar', { dbName: this.$store.state.selectedDatabaseName, newSprintCalendar: calendar })
 	},
 
 	doCreateTeam() {
