@@ -6,6 +6,19 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.9 - 26 March 2021 Feature update and bug fixes</h3>
+          <p>New features:</p>
+          <ul>
+						<li>Optional warning when promoting/demoting an item to another level implemented</li>
+						<li>Automatically create a basic default sprint calendar when an admin signs in to a newly created database</li>
+						<li>Show in List teams if a team has its own team sprint calendar</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>If changing team, select and load the current sprint of the team calendar of the selected team</li>
+						<li>Update tree model with timestamp when importing items in current sprint</li>
+          </ul>
+          <hr />
 					<h3>v.1.8 - 18 March 2021 Feature update, refactoring and bug fix</h3>
           <p>New features:</p>
           <ul>

@@ -211,9 +211,9 @@
 					<li>createMessenger: Success, messenger document is created</li>
 					<li>updateUser: The profile of user 'couchdbadmin' is updated successfully</li>
 				</ul>
-				<p>Click on 'Exit' and sign-in again to see the product view with the root document and the first product,<br>
+				<p>Click on 'Exit' and sign-in again as Admin to see the product view with the root document and the first product. A basic default sprint calendar is created automatically.<br>
 					then:<br>
-					As 'admin' in the Admin view create the default sprint calendar and the first users and their roles. Assign one or more admins to take over that task.<br>
+					In the Admin view create the first users and their roles. Assign one or more admins to take over that task.<br>
 					Note: Keep your 'admin' role as a backup.
 				</p>
 			</b-col>
