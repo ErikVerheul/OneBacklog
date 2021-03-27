@@ -1,4 +1,5 @@
 import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
+import router from '../../router'
 import { mapGetters } from 'vuex'
 
 const constants = {
@@ -153,13 +154,17 @@ const utilities = {
 				const s = myCurrentSprintCalendar[i]
 				if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
 					currentSprint = s
-					nextSprint = myCurrentSprintCalendar[i + 1]
+					if (myCurrentSprintCalendar[i + 1]) nextSprint = myCurrentSprintCalendar[i + 1]
 					break
 				}
 			}
 			if (currentSprint && nextSprint) {
 				return { currentSprint, nextSprint }
-			} else return undefined
+			} else {
+				alert('Error: Missing current and/or next sprint; you need to sign-in again to have the sprint calendar extended. The application will exit.')
+				this.$store.commit('endSession')
+				router.replace('/')
+			}
 		}
 	},
 
