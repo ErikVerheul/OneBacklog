@@ -408,11 +408,6 @@ const actions = {
 					const oldSprintId = doc.sprintId
 					doc.sprintId = newSprintId
 					doc.lastChange = timestamp
-					if (rootState.lastTreeView === 'detailProduct') {
-						// update the tree view
-						const node = window.slVueTree.getNodeById(doc._id)
-						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId, lastChange: timestamp, newHist })
-					}
 					let oldSprintName
 					for (const s of rootState.myCurrentSprintCalendar) {
 						if (s.id === oldSprintId) oldSprintName = s.name
@@ -429,6 +424,12 @@ const actions = {
 						distributeEvent: false
 					}
 					doc.history.unshift(newHist)
+
+					if (rootState.lastTreeView === 'detailProduct') {
+						// update the tree view
+						const node = window.slVueTree.getNodeById(doc._id)
+						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId, lastChange: timestamp, newHist })
+					}
 					docs.push(doc)
 				}
 			}
