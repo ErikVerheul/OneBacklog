@@ -288,9 +288,9 @@ export default new Vuex.Store({
 			}
 		},
 
-		/* Return all my products with my assigned roles in my current database */
+		/* Return all my products (the productsRoles object) with my assigned roles in my current database */
 		getMyProductsRoles(state) {
-			if (state.userData.currentDb) {
+			if (state.userData.currentDb && state.userData.myDatabases[state.userData.currentDb]) {
 				return state.userData.myDatabases[state.userData.currentDb].productsRoles
 			}
 			return {}
