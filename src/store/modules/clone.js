@@ -145,7 +145,7 @@ const actions = {
 			// copy the assigned roles
 			const userRoles = rootState.userData.myDatabases[rootState.userData.currentDb].productsRoles[payload.clonedProductId]
 			// update the current user's profile with the cloned product;
-			dispatch('assignProductToUser', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles })
+			dispatch('assignProductToUserAction', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles })
 			// show the product clone in the tree view
 			showProduct(payload.docs, getters.leafLevel)
 			// eslint-disable-next-line no-console

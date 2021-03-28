@@ -552,7 +552,7 @@ export default new Vuex.Store({
 					const tmpUserData = res.data
 					tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId] = payload.newRoles
 					tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = addToArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
-					dispatch('updateUser', { data: tmpUserData, onSuccessCallback: updateProducts })
+					dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: updateProducts })
 				}
 			}).catch(error => {
 				const msg = `addToMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
@@ -596,7 +596,7 @@ export default new Vuex.Store({
 						// delete the id from my subscriptions
 						tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = removeFromArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
 					}
-					dispatch('updateUser', { data: tmpUserData, onSuccessCallback: updateProducts })
+					dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: updateProducts })
 				}
 			}).catch(error => {
 				const msg = `removeFromMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
@@ -611,7 +611,7 @@ export default new Vuex.Store({
 			}).then(res => {
 				const tmpUserData = res.data
 				tmpUserData.myDatabases[state.userData.currentDb].subscriptions = payload.productIds
-				dispatch('updateUser', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
+				dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
 			}).catch(error => {
 				const msg = `updateMyProductSubscriptions: User ${state.userData.user} cannot save its updated profile. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })

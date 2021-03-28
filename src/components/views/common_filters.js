@@ -78,7 +78,7 @@ const methods = {
       toDate: this.toDate,
       selectedTime: this.selectedTime
     }
-    this.$store.dispatch('saveMyFilterSettings', myFilterSettings)
+    this.$store.dispatch('saveMyFilterSettingsAction', myFilterSettings)
     this.showLastEvent('Saving the filter settings', SEV.INFO)
   },
 

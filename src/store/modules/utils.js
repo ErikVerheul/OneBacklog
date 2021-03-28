@@ -140,7 +140,7 @@ const actions = {
 				value: _id,
 				text: payload.newProduct.title
 			}
-			dispatch('assignProductToUser', { dbName: payload.dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: [] })
+			dispatch('assignProductToUserAction', { dbName: payload.dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: [] })
 		}).catch(error => {
 			const msg = `createProductAction: Could not create product '${product.title}' with url ${payload.dbName + '/' + _id}, ` + error
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })

@@ -50,7 +50,7 @@ const actions = {
 	},
 
 	/* Get the default sprint calendar of a specific database (for admin use only) */
-	fetchDefaultSprintCalendar({
+	fetchDefaultSprintCalendarAction({
 		rootState,
 		dispatch
 	}, payload) {
@@ -62,20 +62,20 @@ const actions = {
 		}).then(res => {
 			if (res.data.defaultSprintCalendar) {
 				rootState.loadedCalendar = res.data.defaultSprintCalendar
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchDefaultSprintCalendar: success, ${res.data.defaultSprintCalendar.length} sprint periods are read` })
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchDefaultSprintCalendarAction: success, ${res.data.defaultSprintCalendar.length} sprint periods are read` })
 				rootState.isDefaultCalendarLoaded = true
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
-			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchDefaultSprintCalendar: no calendar is found' })
+			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchDefaultSprintCalendarAction: no calendar is found' })
 		}).catch(error => {
-			const msg = `fetchDefaultSprintCalendar: Could not read config document of database '${payload.dbName}'. ${error}`
+			const msg = `fetchDefaultSprintCalendarAction: Could not read config document of database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
 	/* Save or update the default sprint calendar of a specific database */
-	saveDefaultSprintCalendar({
+	saveDefaultSprintCalendarAction({
 		rootState,
 		dispatch
 	}, payload) {
@@ -88,26 +88,26 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: payload.dbName,
 				updatedDoc,
-				caller: 'saveDefaultSprintCalendar',
+				caller: 'saveDefaultSprintCalendarAction',
 				onSuccessCallback: () => {
 					rootState.loadedCalendar = payload.newSprintCalendar
 					// if updating my current database, update myCurrentSprintCalendar
 					if (payload.dbName === rootState.userData.currentDb) {
 						rootState.myCurrentSprintCalendar = payload.newSprintCalendar
 					}
-					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `saveDefaultSprintCalendar: success, calendar with ${payload.newSprintCalendar.length} sprint periods is saved` })
+					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `saveDefaultSprintCalendarAction: success, calendar with ${payload.newSprintCalendar.length} sprint periods is saved` })
 					rootState.isCalendarSaved = true
 				}
 			})
 		}).catch(error => {
-			const msg = `saveDefaultSprintCalendar: Could not read config document of database ${payload.dbName}. ${error}`
+			const msg = `saveDefaultSprintCalendarAction: Could not read config document of database ${payload.dbName}. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
 	/* Get the team sprint calendar of a specific team in a specific database */
-	fetchTeamCalendar({
+	fetchTeamCalendarAction({
 		rootState,
 		dispatch
 	}, payload) {
@@ -119,13 +119,13 @@ const actions = {
 		}).then(res => {
 			if (res.data.teamCalendar) {
 				rootState.loadedCalendar = res.data.teamCalendar
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamCalendar: success, ${res.data.teamCalendar.length} sprint periods are read` })
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamCalendarAction: success, ${res.data.teamCalendar.length} sprint periods are read` })
 				rootState.isTeamCalendarLoaded = true
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
-			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchTeamCalendar: no calendar is found' })
+			} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'fetchTeamCalendarAction: no calendar is found' })
 		}).catch(error => {
-			const msg = `fetchTeamCalendar: Could not read team document with id ${payload.teamId} in database '${payload.dbName}'. ${error}`
+			const msg = `fetchTeamCalendarAction: Could not read team document with id ${payload.teamId} in database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

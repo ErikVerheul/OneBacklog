@@ -8,7 +8,7 @@ const actions = {
 	/*
 	* Order of execution:
 	* 0. initUserDb - one time initialization of the user database when the Couchdb instance is created
-	* 1. createDatabases - also calls setDatabasePermissions and createUserIfNotExistent and set isDatabaseInitiated to false
+	* 1. createDatabases - also calls setDatabasePermissions and createUserIfNotExistentAction and set isDatabaseInitiated to false
 	* 2. createLog
 	* 3. createConfig
 	* 4. installDesignViews
@@ -16,7 +16,7 @@ const actions = {
 	* 6. createRootDoc & createReqAreasParent
 	* 7. createDefaultTeam
 	* 8. createFirstProduct
-	* 9. assignProductToUser in useracc.js and set isDatabaseInitiated to true when successful
+	* 9. assignProductToUserAction in useracc.js and set isDatabaseInitiated to true when successful
 	* 10. createMessenger
 	*/
 
@@ -572,7 +572,7 @@ const actions = {
 				text: title
 			}
 			// add the new product to the current user's profile without assigning roles
-			dispatch('assignProductToUser', { dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: [] })
+			dispatch('assignProductToUserAction', { dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: [] })
 			dispatch('createMessenger', dbName)
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createFirstProduct: Success, product with _id ' + _id + ' is created' })
 		}).catch(error => {

@@ -15,7 +15,7 @@ const actions = {
 			const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
 			tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
 			const toDispatch = [{ updateTeamsInDb: { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } }]
-			dispatch('updateUser', { data: tmpUserData, toDispatch })
+			dispatch('updateUserAction', { data: tmpUserData, toDispatch })
 		}).catch(error => {
 			const msg = `changeTeam: Could not change team for user ${rootState.userData.user}. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -81,7 +81,7 @@ const actions = {
 		})
 	},
 
-	addTeamToDb({
+	addTeamAction({
 		rootState,
 		dispatch
 	}, payload) {
@@ -117,7 +117,7 @@ const actions = {
 				dispatch('updateDoc', {
 					dbName,
 					updatedDoc: newDoc,
-					caller: 'addTeamToDb',
+					caller: 'addTeamAction',
 					onSuccessCallback: () => {
 						rootState.isTeamCreated = true
 						rootState.allTeams[teamName] = { id: payload.id, members: [] }
@@ -134,7 +134,7 @@ const actions = {
 				})
 			} else {
 				rootState.backendMessages.push({
-					seqKey: rootState.seqKey++, msg: `addTeamToDb: Cannot add team name '${teamName}'. Reason: team already exist in database '${dbName}'`
+					seqKey: rootState.seqKey++, msg: `addTeamAction: Cannot add team name '${teamName}'. Reason: team already exist in database '${dbName}'`
 				})
 			}
 		}).catch(error => {
@@ -144,7 +144,7 @@ const actions = {
 		})
 	},
 
-	fetchTeams({
+	fetchTeamsAction({
 		rootState,
 		dispatch
 	}, payload) {
@@ -166,16 +166,16 @@ const actions = {
 			// execute passed callback if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeams: success, ${rootState.fetchedTeams.length} team names are read` })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `fetchTeamsAction: success, ${rootState.fetchedTeams.length} team names are read` })
 			rootState.areTeamsFound = true
 		}).catch(error => {
-			const msg = `fetchTeams: Could not read the documents from database '${payload.dbName}', ${error}`
+			const msg = `fetchTeamsAction: Could not read the documents from database '${payload.dbName}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
-	removeTeamsFromDb({
+	removeTeamsAction({
 		rootState,
 		dispatch
 	}, payload) {
@@ -194,21 +194,23 @@ const actions = {
 					docsToRemove.push(doc)
 				}
 			}
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
+
 			const toDispatch = [{ retireTeams: { dbName, teamNamesToRetire: teamNamesToRemove } }]
 			dispatch('updateBulk', {
 				dbName,
 				docs: docsToRemove,
 				toDispatch,
-				caller: 'removeTeamsFromDb',
+				caller: 'removeTeamsAction',
 				onSuccessCallback: () => {
 					rootState.areTeamsRemoved = true
 					rootState.backendMessages.push({
-						seqKey: rootState.seqKey++, msg: `removeTeamsFromDb: Teams [${teamNamesToRemove}] are removed from database '${dbName}'`
+						seqKey: rootState.seqKey++, msg: `removeTeamsAction: Teams [${teamNamesToRemove}] are removed from database '${dbName}'`
 					})
 				}
 			})
 		}).catch(error => {
-			const msg = `'removeTeamsFromDb: Could not read the teams in database '${dbName}'. ${error}`
+			const msg = `'removeTeamsAction: Could not read the teams in database '${dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

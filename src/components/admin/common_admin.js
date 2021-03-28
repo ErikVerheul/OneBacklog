@@ -162,7 +162,7 @@ const methods = {
 				this.selectedTeamName = undefined
 				this.$store.state.isDefaultCalendarLoaded = false
 				this.$store.state.isTeamCalendarLoaded = false
-				this.$store.dispatch('fetchTeams', {
+				this.$store.dispatch('fetchTeamsAction', {
 					dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
 						for (const t of this.$store.state.fetchedTeams) {
 							this.teamOptions.push(t.teamName)
@@ -171,15 +171,15 @@ const methods = {
 				})
 				break
 			case 'List teams':
-				this.$store.dispatch('fetchTeams', { dbName: this.$store.state.selectedDatabaseName })
+				this.$store.dispatch('fetchTeamsAction', { dbName: this.$store.state.selectedDatabaseName })
 				break
 			case 'Remove teams without members':
 				this.teamNamesToRemove = []
-				this.$store.dispatch('fetchTeams', {
+				this.$store.dispatch('fetchTeamsAction', {
 					dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
 						for (const t of this.$store.state.fetchedTeams) {
 							if (t.members.length === 0) {
-								this.teamsToRemoveOptions.push(t.teamName)
+								if (!this.teamsToRemoveOptions.includes(t.teamName)) this.teamsToRemoveOptions.push(t.teamName)
 							}
 						}
 					}
@@ -229,7 +229,7 @@ const methods = {
 			newSprintCalendar.push(sprint)
 			prevSprintEnd = sprint.startTimestamp + sprint.sprintLength
 		}
-		if (this.$store.state.isDefaultCalendarLoaded) this.$store.dispatch('saveDefaultSprintCalendar', {
+		if (this.$store.state.isDefaultCalendarLoaded) this.$store.dispatch('saveDefaultSprintCalendarAction', {
 			dbName: this.$store.state.selectedDatabaseName, newSprintCalendar
 		})
 		if (this.$store.state.isTeamCalendarLoaded) this.$store.dispatch('updateTeamCalendarAction', {
@@ -258,7 +258,7 @@ const methods = {
 			j++
 		}
 		const newSprintCalendar = currentCalendar.concat(extendSprintCalendar)
-		if (this.$store.state.isDefaultCalendarLoaded) this.$store.dispatch('saveDefaultSprintCalendar', {
+		if (this.$store.state.isDefaultCalendarLoaded) this.$store.dispatch('saveDefaultSprintCalendarAction', {
 			dbName: this.$store.state.selectedDatabaseName, newSprintCalendar
 		})
 		if (this.$store.state.isTeamCalendarLoaded) this.$store.dispatch('updateTeamCalendarAction', {
@@ -294,7 +294,7 @@ const methods = {
 	* If onlyMyProducts is true, only select the the products assigned to me (assistAdmin)
 	*/
 	callGetDbProducts(onlyMyProducts) {
-		this.$store.dispatch('getProductsRoles', { dbName: this.$store.state.selectedDatabaseName, onlyMyProducts })
+		this.$store.dispatch('getProductsRolesAction', { dbName: this.$store.state.selectedDatabaseName, onlyMyProducts })
 	},
 
 	doCreateUser() {
@@ -343,13 +343,13 @@ const methods = {
 		if (this.$store.state.isUserRemoved) {
 			newUserData._rev = this.$store.state.useracc.fetchedUserData._rev
 			// replace existing removed user
-			this.$store.dispatch('updateUser', { data: newUserData, onSuccessCallback: () => this.$store.state.isUserCreated = true })
-		} else this.$store.dispatch('createUserIfNotExistent', newUserData)
+			this.$store.dispatch('updateUserAction', { data: newUserData, onSuccessCallback: () => this.$store.state.isUserCreated = true })
+		} else this.$store.dispatch('createUserIfNotExistentAction', newUserData)
 	},
 
 	/* Creates fetchedUserData and have the prod.roles set in dbProducts */
 	doFetchUser(userName, justCheck) {
-		this.$store.dispatch('getUser', { userName, justCheck })
+		this.$store.dispatch('getUserAction', { userName, justCheck })
 	},
 
 	doSelectUserDb(dbName) {
@@ -481,7 +481,7 @@ const methods = {
 				this.localMessage = `Product '${productName}' is added the the user's product subscriptions.`
 			}
 		}
-		this.$store.dispatch('updateUser', {
+		this.$store.dispatch('updateUserAction', {
 			data: newUserData, onSuccessCallback: () => {
 				if (removeDb) {
 					// the user cannot select this database anymore
@@ -492,15 +492,24 @@ const methods = {
 	},
 
 	doCreateTeam() {
-		this.$store.dispatch('addTeamToDb', { id: createId(), dbName: this.$store.state.selectedDatabaseName, teamName: this.teamName })
+		this.$store.dispatch('addTeamAction', { id: createId(), dbName: this.$store.state.selectedDatabaseName, teamName: this.teamName })
 	},
 
 	doRemoveTeams(teamNamesToRemove) {
-		this.$store.dispatch('removeTeamsFromDb', { dbName: this.$store.state.selectedDatabaseName, teamNamesToRemove })
+		this.$store.dispatch('removeTeamsAction', {
+			dbName: this.$store.state.selectedDatabaseName, teamNamesToRemove, onSuccessCallback: () => {
+				// remove the teams from the selection options
+				const newOptions = []
+				for (const tn of this.teamsToRemoveOptions) {
+					if (!teamNamesToRemove.includes(tn)) newOptions.push(tn)
+				}
+				this.teamsToRemoveOptions = newOptions
+			}
+		})
 	},
 
 	doLoadDefaultCalendar() {
-		this.$store.dispatch('fetchDefaultSprintCalendar', {
+		this.$store.dispatch('fetchDefaultSprintCalendarAction', {
 			dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
 				this.checkForExistingCalendar = false
 				// get the current sprint number if the calendar is available
@@ -517,14 +526,14 @@ const methods = {
 	},
 
 	doLoadTeamCalendar() {
-		this.$store.dispatch('fetchTeams', {
+		this.$store.dispatch('fetchTeamsAction', {
 			dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
 				this.checkForExistingCalendar = false
 				for (const t of this.$store.state.fetchedTeams) {
 					if (t.teamName === this.selectedTeamName) {
 						// save the teamId for use in createTeamCalendarAction and updateTeamCalendarAction
 						this.selectedTeamId = t.teamId
-						this.$store.dispatch('fetchTeamCalendar', {
+						this.$store.dispatch('fetchTeamCalendarAction', {
 							dbName: this.$store.state.selectedDatabaseName, teamId: t.teamId, onSuccessCallback: () => {
 								// get the current sprint number if the calendar is available
 								const now = Date.now()
@@ -551,7 +560,7 @@ const methods = {
 	},
 
 	doGetTeamsOfDb() {
-		this.$store.dispatch('fetchTeams', this.$store.state.selectedDatabaseName)
+		this.$store.dispatch('fetchTeamsAction', this.$store.state.selectedDatabaseName)
 	},
 
 	userIsMe() {

@@ -20,7 +20,7 @@ const actions = {
 	* Preset the selected database to the user's current database
 	* If justCheck === true return with rootState.isUserFound = false and no error message
 	*/
-	getUser({
+	getUserAction({
 		rootState,
 		state,
 		dispatch
@@ -42,7 +42,7 @@ const actions = {
 			rootState.isUserFound = true
 		}).catch(error => {
 			if (!payload.justCheck) {
-				const msg = `getUser: Could not find user '${payload.userName}', ${error}`
+				const msg = `getUserAction: Could not find user '${payload.userName}', ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
@@ -98,7 +98,7 @@ const actions = {
 	* if payload.onlyMyProducts select the products that are assigned to the current user (assistAdmin)
 	* The result is stored in state.dbProducts
 	*/
-	getProductsRoles({
+	getProductsRolesAction({
 		rootState,
 		rootGetters,
 		state,
@@ -132,13 +132,13 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			const msg = `getProductsRoles: Could not find products in database ${payload.dbName}, ${error}`
+			const msg = `getProductsRolesAction: Could not find products in database ${payload.dbName}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
-	saveMyFilterSettings({
+	saveMyFilterSettingsAction({
 		rootState,
 		dispatch
 	}, newFilterSettings) {
@@ -148,9 +148,9 @@ const actions = {
 		}).then(res => {
 			const tmpUserData = res.data
 			tmpUserData.myDatabases[rootState.userData.currentDb].filterSettings = newFilterSettings
-			dispatch('updateUser', { data: tmpUserData })
+			dispatch('updateUserAction', { data: tmpUserData })
 		}).catch(error => {
-			const msg = `saveMyFilterSettings: User '${rootState.userData.user}' cannot save the product filter settings, ${error}`
+			const msg = `saveMyFilterSettingsAction: User '${rootState.userData.user}' cannot save the product filter settings, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -166,7 +166,7 @@ const actions = {
 			const tmpUserData = res.data
 			tmpUserData.password = newPassword
 			const toDispatch = [{ signout: null }]
-			dispatch('updateUser', { data: tmpUserData, toDispatch })
+			dispatch('updateUserAction', { data: tmpUserData, toDispatch })
 		}).catch(error => {
 			const msg = `changeMyPasswordAction: Could not change password for user '${rootState.userData.user}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -174,7 +174,7 @@ const actions = {
 		})
 	},
 
-	assignProductToUser({
+	assignProductToUserAction({
 		rootState,
 		dispatch
 	}, payload) {
@@ -204,7 +204,7 @@ const actions = {
 				tmpUserData.myDatabases[payload.dbName] = newDb
 				addedDb = payload.dbName
 			}
-			dispatch('updateUser', {
+			dispatch('updateUserAction', {
 				data: tmpUserData, onSuccessCallback: () => {
 					if (tmpUserData.name === rootState.userData.user && tmpUserData.currentDb === rootState.userData.currentDb) {
 						// the user is updating its own profile and loaded its current database (admin is not updating another user)
@@ -216,8 +216,8 @@ const actions = {
 					rootState.isProductCreated = true
 					// set result for database initiation process (initdb)
 					rootState.isDatabaseInitiated = true
-					const msg = (rolesSet.length === 0) ? `assignProductToUser: The product with Id ${productId} is added to your profile with no roles set` :
-						`assignProductToUser: The product with Id ${productId} is added to your profile with roles [${rolesSet}]`
+					const msg = (rolesSet.length === 0) ? `assignProductToUserAction: The product with Id ${productId} is added to your profile with no roles set` :
+						`assignProductToUserAction: The product with Id ${productId} is added to your profile with roles [${rolesSet}]`
 					rootState.backendMessages.push({
 						seqKey: rootState.seqKey++,
 						msg
@@ -225,7 +225,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = `assignProductToUser: Could not update subscribed products for user '${payload.selectedUser}', ${error}`
+			const msg = `assignProductToUserAction: Could not update subscribed products for user '${payload.selectedUser}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -245,7 +245,7 @@ const actions = {
 				const id = product.id
 				availableProductIds.push(id)
 			}
-			dispatch('changeDbInMyProfile', { dbName: payload.dbName, autoSignOut: payload.autoSignOut, productIds: availableProductIds })
+			dispatch('changeDbInMyProfileAction', { dbName: payload.dbName, autoSignOut: payload.autoSignOut, productIds: availableProductIds })
 		}).catch(error => {
 			const msg = `changeCurrentDb: Could not find products in database ${rootState.userData.currentDb}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -257,7 +257,7 @@ const actions = {
 	* Change the current database assigned to the current user if the database is assigned to the user.
 	* If the database is not assigned to the user and the user is 'Admin', add the database to the Admin's profile and assign all products in that database.
 	*/
-	changeDbInMyProfile({
+	changeDbInMyProfileAction({
 		rootState,
 		rootGetters,
 		dispatch,
@@ -293,11 +293,11 @@ const actions = {
 					return
 				}
 			}
-			dispatch('updateUser', {
+			dispatch('updateUserAction', {
 				data: tmpUserData,
 				onSuccessCallback: () => {
 					rootState.isCurrentDbChanged = true
-					const msg = `changeDbInMyProfile: The default database of user '${rootState.userData.user}' is changed to ${payload.dbName}`
+					const msg = `changeDbInMyProfileAction: The default database of user '${rootState.userData.user}' is changed to ${payload.dbName}`
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 					dispatch('doLog', { event: msg, level: SEV.INFO })
 					if (payload.autoSignOut) {
@@ -306,7 +306,7 @@ const actions = {
 					}
 				}
 			}).catch(error => {
-				const msg = `changeDbInMyProfile: Could not update the default database for user '${rootState.userData.user}', ${error}`
+				const msg = `changeDbInMyProfileAction: Could not update the default database for user '${rootState.userData.user}', ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
@@ -327,14 +327,14 @@ const actions = {
 			} else tmpUserData.doNotAskForImport = [sprintId]
 			// update the current user data
 			rootState.userData.doNotAskForImport = tmpUserData.doNotAskForImport
-			dispatch('updateUser', { data: tmpUserData })
+			dispatch('updateUserAction', { data: tmpUserData })
 		}).catch(error => {
 			const msg = `registerMyNoSprintImport: Could not update do not ask for import for user '${rootState.userData.user}', ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
-	updateMyAvailableProductOpions({
+	updateMyAvailableProductOpionsAction({
 		rootState,
 		dispatch
 	}, dbName) {
@@ -355,14 +355,14 @@ const actions = {
 				}
 			}
 		}).catch(error => {
-			const msg = `updateMyAvailableProductOpions: Could not update product options for user '${rootState.userData.user}' and database ${dbName}, ${error}`
+			const msg = `updateMyAvailableProductOpionsAction: Could not update product options for user '${rootState.userData.user}' and database ${dbName}, ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
 	/* Update the user profile in CouchDb. If the profile of the current user is updated, the in-memory profile is updated also */
-	updateUser({
+	updateUserAction({
 		rootState,
 		commit,
 		dispatch
@@ -382,7 +382,7 @@ const actions = {
 			}
 		}
 		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log(`updateUser: Users roles are: ${allRoles}`)
+		if (rootState.debug) console.log(`updateUserAction: Users roles are: ${allRoles}`)
 		userData.roles = allRoles
 		globalAxios({
 			method: 'PUT',
@@ -393,25 +393,25 @@ const actions = {
 				// the user is updating its own profile and loaded its current database (admin is not updating another user)
 				commit('setMyUserData', payload.data)
 				// update the available product options
-				dispatch('updateMyAvailableProductOpions', userData.currentDb)
+				dispatch('updateMyAvailableProductOpionsAction', userData.currentDb)
 			}
 			// execute passed callback if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			// execute passed actions if provided
 			dispatch('additionalActions', payload)
 			rootState.isUserUpdated = true
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `updateUser: The profile of user '${userData.name}' is updated successfully` })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `updateUserAction: The profile of user '${userData.name}' is updated successfully` })
 		}).catch(error => {
 			// execute passed callback if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
-			const msg = `updateUser: Could not update the profile of user '${userData.name}', ${error}`
+			const msg = `updateUserAction: Could not update the profile of user '${userData.name}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
 	/* Create user if not existent already */
-	createUserIfNotExistent({
+	createUserIfNotExistentAction({
 		rootState,
 		dispatch
 	}, userData) {
@@ -420,14 +420,14 @@ const actions = {
 			method: 'GET',
 			url: '/_users/org.couchdb.user:' + userData.name
 		}).then(() => {
-			const msg = `createUserIfNotExistent: Cannot create user '${userData.name}' that already exists'`
+			const msg = `createUserIfNotExistentAction: Cannot create user '${userData.name}' that already exists'`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
 				dispatch('createUserAction', userData)
 			} else {
-				const msg = `createUserIfNotExistent: While checking if user '${userData.name}' exists an error occurred, ${error}`
+				const msg = `createUserIfNotExistentAction: While checking if user '${userData.name}' exists an error occurred, ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
@@ -513,7 +513,7 @@ const actions = {
 		}).then(res => {
 			const tmpUserData = res.data
 			tmpUserData.myOptions = rootState.userData.myOptions
-			dispatch('updateUser', { data: tmpUserData, onSuccessCallback: () => rootState.areOptionsSaved = true })
+			dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: () => rootState.areOptionsSaved = true })
 		}).catch(error => {
 			const msg = `saveMyOptionsAsync: Could not update the options for user '${rootState.userData.user}', ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
