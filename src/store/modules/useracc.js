@@ -111,7 +111,10 @@ const actions = {
 		}).then(res => {
 			rootState.areProductsFound = true
 			if (payload.onlyMyProducts) {
-				state.dbProducts = res.data.rows.map(row => { if (rootGetters.getAllMyAssignedProductIds.includes(row.id)) return row })
+				state.dbProducts = []
+				for (const row of res.data.rows) {
+					if (rootGetters.getAllMyAssignedProductIds.includes(row.id)) state.dbProducts.push(row)
+				}
 			} else state.dbProducts = res.data.rows
 			// add empty roles array to each product
 			for (const product of state.dbProducts) {
