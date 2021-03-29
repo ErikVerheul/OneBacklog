@@ -28,7 +28,7 @@
             Event: {{ item.event }} <br />
             Severity: {{ severity(item.level) }} <br />
             By: {{ item.by }} <br />
-						SessionId: {{ item.sessionId}} <br />
+            SessionId: {{ item.sessionId}} <br />
             Timestamp: {{ new Date(item.timestamp) }}
             <hr>
           </div>
@@ -43,8 +43,11 @@
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
         </b-form-group>
         <hr>
-        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="doCreateBackup" variant="primary">Start backup</b-button>
-        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Return</b-button>
+        <template v-if="!$store.state.utils.copyBusy">
+          <b-button class="m-1" @click="doCreateBackup" variant="primary">Start backup</b-button>
+          <b-button class="m-1" @click="cancel">Return</b-button>
+        </template>
+				<h5 v-else>Busy copying. Please wait...</h5>
       </div>
 
       <div v-if="optionSelected === 'Restore a database from backup'">
@@ -103,7 +106,7 @@
 
       <div v-if="optionSelected === 'Change my default database to any available database'">
         <h2>Change my default database to any available database</h2>
-				<p>Use this option if you need to connect to a database that is not assigned to your profile</p>
+        <p>Use this option if you need to connect to a database that is not assigned to your profile</p>
         <b-form-group>
           <h5>Select the database you want to connect to</h5>
           <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
@@ -169,6 +172,7 @@
         <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
       </div>
 
+			<hr>
       <p>{{ localMessage }}</p>
       <div v-if="$store.state.backendMessages.length > 0">
         <div v-for="item in $store.state.backendMessages" :key="item.seqKey">
@@ -219,11 +223,11 @@ export default {
       return 'Log of database ' + this.$store.state.selectedDatabaseName
     },
 
-		createLogKey(timestamp, sessionId, sessionSeq) {
-			// Todo: over time sessionId and sessionSeq will always be defined
-			if (sessionSeq) return timestamp + sessionId + sessionSeq
-			return timestamp
-		},
+    createLogKey(timestamp, sessionId, sessionSeq) {
+      // Todo: over time sessionId and sessionSeq will always be defined
+      if (sessionSeq) return timestamp + sessionId + sessionSeq
+      return timestamp
+    },
 
     severity(level) {
       let severity = ''
@@ -289,7 +293,6 @@ export default {
         dbSourceName: this.$store.state.selectedDatabaseName,
         dbTargetName: createBackupName(this.$store.state.selectedDatabaseName)
       }
-      this.localMessage = this.$store.state.selectedDatabaseName + ' will be copied to ' + payload.dbTargetName + '. Please wait ...'
       this.$store.dispatch('copyDB', payload)
     },
 
@@ -306,7 +309,7 @@ export default {
       const payload = {
         dbSourceName: this.$store.state.selectedDatabaseName,
         dbTargetName: this.dbToReplace,
-				autoSignOut: this.isCurrentDbSelected,
+        autoSignOut: this.isCurrentDbSelected,
         reportRestoreSuccess: true
       }
       this.$store.dispatch('replaceDB', payload)
