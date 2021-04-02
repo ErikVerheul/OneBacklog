@@ -5,7 +5,6 @@ import globalAxios from 'axios'
 
 var fromHistory
 var histArray
-var threadingHasStarted
 var runningThreadsCount
 var unremovedMark
 
@@ -28,7 +27,6 @@ const actions = {
 		histArray = payload.histArray
 		const removedDocId = histArray[0]
 		const newRoles = histArray[6]
-		threadingHasStarted = false
 		runningThreadsCount = 0
 		// get the removed document
 		globalAxios({
@@ -135,10 +133,9 @@ const actions = {
 			const results = res.data.rows
 			// console.log('loadChildren: results = ' + results.map(r => r.doc.title))
 			if (results.length > 0) {
-				threadingHasStarted = true
 				dispatch('processResults', { parentNode: payload.parentNode, results })
 			} else {
-				if (threadingHasStarted && runningThreadsCount === 0) {
+				if (runningThreadsCount === 0) {
 					// nodes are restored
 					if (fromHistory) {
 						// restore external dependencies

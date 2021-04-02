@@ -2,7 +2,6 @@ import { LEVEL, SEV } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
-var threadingHasStarted
 var runningThreadsCount
 
 function composeRangeString(id) {
@@ -22,7 +21,6 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		threadingHasStarted = false
 		runningThreadsCount = 0
 		const mdc = payload.moveDataContainer
 		const items = []
@@ -212,7 +210,7 @@ const actions = {
 				// note that logging may fail if the connection is lost
 				dispatch('doLog', { event: msg, level: SEV.WARNING })
 				// ToDo: make this an alert with the only option to restart the application
-				commit('showLastEvent', { txt: 'The move failed due to update conflicts or errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
+				commit('showLastEvent', { txt: 'The move failed due to update conflicts or errors. Undo and try again after sign-out or contact your administrator', severity: SEV.WARNING })
 			} else {
 				// no conflicts, no other errors
 				for (const it of items) {
@@ -248,11 +246,10 @@ const actions = {
 			runningThreadsCount--
 			const results = res.data.rows
 			if (results.length > 0) {
-				threadingHasStarted = true
 				// process next level
 				dispatch('loopMoveResults', { updates: payload.updates, results, toDispatch: payload.toDispatch })
 			} else {
-				if (threadingHasStarted && runningThreadsCount === 0) {
+				if (runningThreadsCount === 0) {
 					// execute saveMovedItems that emits the nodeMovedEvent to other online users
 					dispatch('additionalActions', payload)
 				}
