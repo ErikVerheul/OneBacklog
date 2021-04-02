@@ -41,7 +41,7 @@ export function collapseNode(node) {
 		hideDescendants(node)
 	}
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////// other functions ///////////////////////////////////////////////
 
 /* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 export function createId() {
@@ -128,4 +128,20 @@ export function getLocationInfo(newPrio, parentNode) {
 	}
 }
 
-export default { expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, localTimeAndMilis, removeFromArray }
+/* Return the sprint object or null if not found */
+export function getSprintById(id, calendar) {
+	for (const s of calendar) {
+		if (s.id === id) return s
+	}
+	return null
+}
+
+/* Return the name of sprint or 'Unknown sprint' if not found */
+export function getSprintNameById(id, calendar) {
+	const sprint = getSprintById(id, calendar)
+	if (sprint) {
+		return sprint.name
+	} else return 'Unknown sprint'
+}
+
+export default { expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray }

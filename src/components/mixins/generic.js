@@ -257,24 +257,6 @@ const utilities = {
 			this.showLastEvent(evt, SEV.INFO)
 		},
 
-		////////////////////////////////////////// sprints ////////////////////////////////////////
-
-		/* Return the sprint object with the id or null if not found */
-		getSprintById(id) {
-			for (const s of this.$store.state.myCurrentSprintCalendar) {
-				if (s.id === id) return s
-			}
-			return null
-		},
-
-		/* Return the sprint object with the id or null if not found */
-		getSprintNameById(id) {
-			const sprint = this.getSprintById(id)
-			if (sprint) {
-				return sprint.name
-			} else return 'Unknown sprint'
-		},
-
 		//////////////////////////////////////// move items //////////////////////////////////////
 
 		checkMove(nodes, cursorPosition) {
