@@ -1,5 +1,5 @@
 <template>
-  <div class="b-card story-column-item">
+  <div class="b-card story-column-item" @contextmenu.prevent="showContextMenu = !showContextMenu">
     <div class="b-card-block">
       <i class="colorYellow" v-if="story.subType === 0">
         <font-awesome-icon icon="folder" />
@@ -10,7 +10,6 @@
       <i class="colorRed" v-if="story.subType === 2">
         <font-awesome-icon icon="bug" />
       </i>
-      <span class="text-muted">#{{ getShortId(story.storyId) }}</span>
       {{ story.title }}
       <p>size = {{ story.size }}</p>
       <p class="small-text">
@@ -21,16 +20,94 @@
         P: {{ story.productName }}
       </p>
     </div>
+    <b-modal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="User story menu">
+      <template>
+        <b-list-group>
+          <b-list-group-item button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard</b-list-group-item>
+          <b-list-group-item button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }} from the sprint</b-list-group-item>
+        </b-list-group>
+      </template>
+    </b-modal>
   </div>
 </template>
 
 <script>
+import { LEVEL } from '../../../constants.js'
+import { authorization, utilities } from '../../mixins/generic.js'
+
 export default {
+  mixins: [authorization, utilities],
   name: 'StoryItem',
   props: ['story'],
+
+  created() {
+    this.ID_TO_CLIPBOARD = 0
+    this.REMOVE_STORY = 1
+  },
+
+  computed: {
+    storyType () {
+      switch (this.story.subType) {
+        case 0:
+          return 'User story'
+				case 1:
+          return 'Spike'
+				case 2:
+          return 'Defect'
+				default:
+					return 'Unknown subtype'
+      }
+    }
+  },
+
+  data() {
+    return {
+      debugMode: this.$store.state.debug,
+      showContextMenu: false,
+      contextOptionSelected: undefined,
+      disableOkButton: true
+    }
+  },
+
   methods: {
-    getShortId (id) {
-      return id.slice(-5)
+    prepSelected(idx) {
+      this.contextOptionSelected = idx
+      this.disableOkButton = false
+      switch (this.contextOptionSelected) {
+        case this.ID_TO_CLIPBOARD:
+        case this.REMOVE_STORY:
+          break
+        default:
+          this.assistanceText = 'No assistance available'
+          this.listItemText = 'nothing selected as yet'
+      }
+    },
+
+    procSelected() {
+      if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
+        this.showAssistance = false
+        switch (this.contextOptionSelected) {
+          case this.ID_TO_CLIPBOARD:
+            navigator.clipboard.writeText(this.story.storyId.slice(-5)).then(() => {
+              // eslint-disable-next-line no-console
+              if (this.debugMode) console.log('TaskItem.procSelected: clipboard successfully set')
+            }, () => {
+              // eslint-disable-next-line no-console
+              if (this.debugMode) console.log('TaskItem.procSelected: clipboard write failed')
+            })
+            break
+          case this.REMOVE_STORY:
+            this.$store.dispatch('boardRemoveStoryFromSprint', this.story.storyId)
+            break
+        }
+      } else {
+        this.$store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
+      }
+    },
+
+    doCancel() {
+      this.contextOptionSelected = undefined
+      this.disableOkButton = true
     }
   }
 }
@@ -49,5 +126,4 @@ export default {
 .b-card.story-column-item {
   background: #8b8cc7;
 }
-
 </style>

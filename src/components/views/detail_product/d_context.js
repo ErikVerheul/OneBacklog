@@ -1,4 +1,5 @@
 import { SEV, LEVEL } from '../../../constants.js'
+import { getSprintNameById } from '../../../common_functions.js'
 import commonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
@@ -271,7 +272,7 @@ const methods = {
 		const pbiNode = window.slVueTree.getParentNode(taskNode)
 		const pbiSprintId = pbiNode.data.sprintId
 		if (pbiSprintId) {
-			const sprintName = this.getSprintNameById(pbiSprintId)
+			const sprintName = getSprintNameById(pbiSprintId, this.$store.state.myCurrentSprintCalendar)
 			// assign the task to the same sprint the PBI is assigned to
 			this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName, createUndo: true })
 		} else {
@@ -289,7 +290,7 @@ const methods = {
 				if (d.data.sprintId === sprintId) itemIds.push(d._id)
 			}
 		}
-		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: this.getSprintNameById(sprintId) })
+		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: getSprintNameById(sprintId, this.$store.state.myCurrentSprintCalendar) })
 	}
 }
 

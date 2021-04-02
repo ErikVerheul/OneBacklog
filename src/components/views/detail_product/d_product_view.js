@@ -1,4 +1,5 @@
 import { SEV, LEVEL } from '../../../constants.js'
+import { getSprintById } from '../../../common_functions.js'
 import AppHeader from '../../header/header.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
@@ -89,7 +90,7 @@ const methods = {
 			// no sprint definitions available
 			return false
 		}
-		if (this.getSprintById(sprintId) === null) {
+		if (getSprintById(sprintId, this.$store.state.myCurrentSprintCalendar) === null) {
 			// sprint not found
 			return false
 		}

@@ -10,6 +10,7 @@
 
 <script>
 import { LEVEL } from '../../../constants.js'
+import { getSprintNameById } from '../../../common_functions.js'
 import { utilities } from '../../mixins/generic.js'
 
 function shortStartDate(sprint) {
@@ -61,7 +62,7 @@ export default {
 
       const itemLevel = currentDoc.level
       const sprintId = this.selectedSprintId
-      const sprintName = this.getSprintNameById(sprintId)
+      const sprintName = getSprintNameById(sprintId, this.$store.state.myCurrentSprintCalendar)
 
       // when a PBI is selected, that PBI and it descendant tasks that have no sprint assigned yet, are assigned to the sprint
       if (itemLevel === LEVEL.PBI) {

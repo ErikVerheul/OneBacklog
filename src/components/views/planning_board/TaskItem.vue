@@ -1,7 +1,6 @@
 <template>
   <div :class="getClass(columnName)" @contextmenu.prevent="showContextMenu = !showContextMenu">
     <div class="b-card-block">
-      <span class="text-muted">#{{ getShortId(item.id) }}</span>
       {{ item.title }}
       <br />
       {{ item.taskOwner }}
@@ -74,10 +73,6 @@ export default {
   },
 
   methods: {
-    getShortId(id) {
-      return id.slice(-5)
-    },
-
     prepSelected(idx) {
       this.contextOptionSelected = idx
       this.newTaskTitle = ''

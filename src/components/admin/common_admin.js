@@ -75,7 +75,7 @@ const computed = {
 	},
 
 	acceptNewEndDate() {
-		return this.getSprintById().startTimestamp + this.changedDurationStr * DAY_MILIS + this.changedHourStr * HOUR_MILIS >= Date.now()
+		return this.getLoadedSprintById().startTimestamp + this.changedDurationStr * DAY_MILIS + this.changedHourStr * HOUR_MILIS >= Date.now()
 	},
 
 	changeDisableOkButton() {
@@ -193,25 +193,25 @@ const methods = {
 		return Object.keys(this.$store.state.useracc.fetchedUserData.myDatabases)
 	},
 
-	getSprintById() {
+	getLoadedSprintById() {
 		return this.$store.state.loadedCalendar[parseInt(this.changedNumberStr)]
 	},
 
 	getStartDate() {
-		return new Date(this.getSprintById().startTimestamp).toString()
+		return new Date(this.getLoadedSprintById().startTimestamp).toString()
 	},
 
 	getDuration() {
-		return this.getSprintById().sprintLength / DAY_MILIS
+		return this.getLoadedSprintById().sprintLength / DAY_MILIS
 	},
 
 	getEndDate() {
-		return new Date(this.getSprintById().startTimestamp + this.getSprintById().sprintLength).toString()
+		return new Date(this.getLoadedSprintById().startTimestamp + this.getLoadedSprintById().sprintLength).toString()
 	},
 
 	calcNewEndDate() {
 		const newSprintLength = this.changedDurationStr * DAY_MILIS + this.changedHourStr * HOUR_MILIS
-		return new Date(this.getSprintById().startTimestamp + newSprintLength).toString()
+		return new Date(this.getLoadedSprintById().startTimestamp + newSprintLength).toString()
 	},
 
 	changeSprintInCalendar() {

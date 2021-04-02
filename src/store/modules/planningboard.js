@@ -1,4 +1,5 @@
 import { SEV, LEVEL, STATE } from '../../constants.js'
+import { getSprintNameById } from '../../common_functions.js'
 import { expandNode } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -720,7 +721,7 @@ const actions = {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
-					doc.sprintId = undefined
+					delete doc.sprintId
 					const newHist = {
 						removeSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName],
 						by: rootState.userData.user,
@@ -919,6 +920,109 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = 'addHistoryToStory: Could not read document with id ' + payload.storyId + ', ' + error
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/* Remove a story from the sprint and update the planning board. Also remove the sprintId from the node if the Details view if active.*/
+	boardRemoveStoryFromSprint({
+		rootState,
+		dispatch
+	}, storyId) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + storyId
+		}).then(res => {
+			const storyDoc = res.data
+			const removedSprintId = storyDoc.sprintId
+			delete storyDoc.sprintId
+
+			const newHist = {
+				removeSprintIdsEvent: [storyDoc.level, storyDoc.subtype, getSprintNameById(rootState.loadedSprintId, rootState.myCurrentSprintCalendar)],
+				by: rootState.userData.user,
+				timestamp: Date.now(),
+				sessionId: rootState.mySessionId,
+				distributeEvent: true
+			}
+			storyDoc.lastChange = Date.now()
+			storyDoc.history.unshift(newHist)
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb,
+				updatedDoc: storyDoc,
+				caller: 'boardRemoveTask', toDispatch: [{ removeSprintFromChildren: { storyId, removedSprintId } }],
+				onSuccessCallback: () => {
+					if (rootState.lastTreeView === 'detailProduct') {
+						// remove the sprintId from the node in the tree view
+						const node = window.slVueTree.getNodeById(storyId)
+						if (node) {
+							delete node.data.sprintId
+							// remove the sprintId from the tasks
+							if (node.children) {
+								for (const c of node.children) {
+									delete c.data.sprintId
+								}
+							}
+						}
+					}
+					// remove the story from the planning board
+					const updatedStories = []
+					let idx = 0
+					for (const s of state.stories) {
+						if (s.storyId !== storyId) {
+							// repair the index
+							s.idx = idx
+							updatedStories.push(s)
+							idx++
+						}
+					}
+					state.stories = updatedStories
+				}
+			})
+		}).catch(error => {
+			const msg = `boardRemoveStoryFromSprint: Could not read document with id ${storyId}. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/*
+	* Remove sprintId from the children (tasks) of a User story if the sprintId matches the removedSprintId.
+	* Trigger a board reload to other users of the same team and with the same sprint in view.
+	*/
+	removeSprintFromChildren({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString3(payload.storyId) + '&include_docs=true'
+		}).then(res => {
+			const results = res.data.rows
+			if (results.length > 0) {
+				// remove the sprintId
+				const childDocs = results.map(r => r.doc)
+				const updatedDocs = []
+				const updatedDocIds = []
+				for (const doc of childDocs) {
+					if (doc.sprintId === payload.removedSprintId) {
+						delete doc.sprintId
+						const newHist = {
+							ignoreEvent: ['removeSprintFromChildren'],
+							timestamp: Date.now(),
+							distributeEvent: false
+						}
+						doc.history.unshift(newHist)
+						updatedDocs.push(doc)
+						updatedDocIds.push(doc._id)
+					}
+				}
+				const toDispatch = [{ triggerBoardReload: { parentId: 'messenger', sprintId: payload.removedSprintId } }]
+				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, toDispatch, caller: 'removeSprintFromChildren' })
+			} else {
+				dispatch('triggerBoardReload', { parentId: 'messenger', sprintId: payload.removedSprintId } )
+			}
+		}).catch(error => {
+			const msg = `removeSprintFromChildren: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
