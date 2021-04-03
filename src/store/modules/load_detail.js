@@ -1,9 +1,8 @@
-import { SEV, LEVEL } from '../../constants.js'
+import { SEV, LEVEL, MISC } from '../../constants.js'
 import { dedup } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
-const AREA_PRODUCTID = 'requirement-areas'
 var parentNodes
 var orphansFound
 var levelErrorsFound
@@ -89,7 +88,7 @@ const mutations = {
 				continue
 			}
 			// create req areas to title mapper and req areas to color mapper
-			if (productId === AREA_PRODUCTID) {
+			if (productId === MISC.AREA_PRODUCTID) {
 				if (itemLevel === 3) {
 					rootState.reqAreaMapper[_id] = title
 					rootState.colorMapper[_id] = { reqAreaItemColor }
