@@ -9,7 +9,7 @@ var orgProductTitle
 var newProductTitle
 
 function composeRangeString(id) {
-	return `startkey=["${id}",${LEVEL.PRODUCT},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${LEVEL.TASK},${Number.MAX_SAFE_INTEGER}]`
+	return `startkey="${id}"&endkey="${id}"`
 }
 
 function showProduct(docs, leafLevel) {
@@ -70,17 +70,18 @@ function showProduct(docs, leafLevel) {
 
 const actions = {
 	/*
-		* Load the current product document and all its descendants.
-		* History and attachments are not copied
-		*/
+	* Load the current product document and all its descendants.
+	* History and attachments are not copied
+	*/
 	cloneProduct({
 		rootState,
+		getters,
 		dispatch
 	}, node) {
 		const productId = node.productId
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/details?' + composeRangeString(productId) + '&include_docs=true'
+			url: rootState.userData.currentDb + '/_design/design1/_view/productItems?' + composeRangeString(productId) + '&include_docs=true'
 		}).then(res => {
 			// extract the documents
 			const docs = []
@@ -121,37 +122,22 @@ const actions = {
 				}
 			}
 			// save the new product in the database
-			dispatch('storeProduct', { docs, clonedProductId: productId })
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, caller: 'cloneProduct', onSuccessCallback: () => {
+					const newProductOption = {
+						value: newProductId,
+						text: newProductTitle
+					}
+					// copy the assigned roles
+					const userRoles = rootState.userData.myDatabases[rootState.userData.currentDb].productsRoles[productId]
+					// update the current user's profile with the cloned product;
+					dispatch('assignProductToUserAction', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles })
+					// show the product clone in the tree view
+					showProduct(docs, getters.leafLevel)
+				}
+			})
 		}).catch(error => {
 			const msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	storeProduct({
-		rootState,
-		getters,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_docs',
-			data: { docs: payload.docs }
-		}).then(res => {
-			const newProductOption = {
-				value: newProductId,
-				text: newProductTitle
-			}
-			// copy the assigned roles
-			const userRoles = rootState.userData.myDatabases[rootState.userData.currentDb].productsRoles[payload.clonedProductId]
-			// update the current user's profile with the cloned product;
-			dispatch('assignProductToUserAction', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles })
-			// show the product clone in the tree view
-			showProduct(payload.docs, getters.leafLevel)
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('storeProduct: ' + res.data.length + ' documents are processed')
-		}).catch(error => {
-			const msg = 'storeProduct: Could not update batch of documents: ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
