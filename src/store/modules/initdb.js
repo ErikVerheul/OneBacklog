@@ -54,12 +54,12 @@ const actions = {
 					"list-all": {
 						map: `function(doc) {
 							var myTeam = doc.myDatabases[doc.currentDb].myTeam
-							if (!doc.delmark) emit(doc._id, [doc.currentDb, myTeam]);
+							if (!doc.delmark) emit(doc._id, [doc.currentDb, myTeam])
 						}`
 					},
 					/* Filter on removed items of any type, then emit the product _rev of the removed documents. */
 					"removed": {
-						map: 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1);}'
+						map: 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1)}'
 					},
 				},
 				language: 'javascript'
@@ -288,7 +288,7 @@ const actions = {
 					/* Filter on items with assigned requirement area */
 					assignedToReqArea: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark && doc.reqarea) emit(doc.reqarea, 1);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.reqarea) emit(doc.reqarea, 1)
 						}`
 					},
 					/*
@@ -298,16 +298,17 @@ const actions = {
 					 */
 					details: {
 						map: `function(doc) {
-							const seq = doc.level === 2 ? -doc.priority : doc.productId
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([seq, doc.productId, doc.level, -doc.priority],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
-								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
+							const productLevel = 2
+							const seq = doc.level === productLevel ? doc.parentId : doc.productId
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, seq, -doc.priority],
+								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
+								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`
 					},
 					/* Filter on parentIds to map documents to their parent */
 					docToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.parentId, -doc.priority]);
+							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.parentId, -doc.priority], 1)
 						}`
 					},
 					/* Filter on tasks assigned to sprints not done */
@@ -315,52 +316,59 @@ const actions = {
 						map: `function(doc) {
 							const pbiLevel = 5
 							const doneSate = 6
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId && doc.state < doneSate) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc.level);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId && doc.state < doneSate) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc.level)
 						}`
 					},
 					/* Filter up to and including the feature level */
 					overview: {
 						map: `function(doc) {
-							const seq = doc.level === 2 ? -doc.priority : doc.productId
+							const productLevel = 2
 							const pbiLevel = 5
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level < pbiLevel) emit([seq, doc.productId, doc.level, -doc.priority],
-								[doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
-								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange]);
+							const seq = doc.level === productLevel ? doc.parentId : doc.productId
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level < pbiLevel) emit([doc.level, seq, -doc.priority],
+								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
+								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`
 					},
 					/* Filter and sort documents by team. */
 					ownedByTeam: {
-						map: 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.team) emit(doc.team, 1);}'
+						map: 'function (doc) {if (doc.type == "backlogItem" && !doc.delmark && doc.team) emit(doc.team, 1)}'
 					},
-					/* Filter on document type 'backlogItem' but skip the dummy req areas product, then emit the product id and title. */
+					/* Filter on document type 'backlogItem' but skip the root, the messenger and the req areas items. Emit all item ids belonging to the product ids. */
+					productItems: {
+						map: `function(doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc._id !== "root" && doc._id !== "messenger" && doc._id !== "requirement-areas") emit(doc.productId, 1)
+						}`
+					},
+					/* Filter on document type 'backlogItem' but skip the dummy req areas product. Emit the product id and title. */
 					products: {
 						map: `function(doc) {
 							const productLevel = 2
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level === productLevel && doc._id !== "requirement-areas") emit(doc._id, doc.title);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level === productLevel && doc._id !== "requirement-areas") emit(doc._id, doc.title)
 						}`
 					},
 					/* Filter on removed items of any type, then emit the product _rev of the removed documents. */
 					removed: {
-						map: 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1);}'
+						map: 'function (doc) {if (doc.delmark || doc._deleted) emit(doc._rev, 1)}'
 					},
 					/* Filter on delmark and parentId to map removed documents to their parent in order of priority */
 					removedDocToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority]);
+							if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority], 1)
 						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
 					shortIdFilter: {
 						map: `function(doc) {
 							const databaseLevel = 1
-							if (doc.type == "backlogItem" && doc.level > databaseLevel) emit([doc._id.slice(-5)], 1);
+							if (doc.type == "backlogItem" && doc.level > databaseLevel) emit([doc._id.slice(-5)], 1)
 						}`
 					},
 					/* Filter on document type 'backlogItem', then emit sprintId, team level and (minus) priority to load the tasks in order as represented in the tree view */
 					sprints: {
 						map: `function(doc) {
 							const pbiLevel = 5
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]);
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner])
 						}`
 					},
 					/* Filter on teams */
@@ -372,7 +380,7 @@ const actions = {
 					/* Filter on unremovedMark and parentId to map unremoved documents to their parent in order of priority */
 					unremovedDocToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId, -doc.priority]);
+							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId, -doc.priority], 1)
 						}`
 					}
 				},

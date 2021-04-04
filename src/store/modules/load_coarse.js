@@ -15,7 +15,12 @@ const state = {
 }
 
 const actions = {
-	/* Load all items from all products */
+	/*
+	 * Load all items from all products.
+	 * The database is sorted by level, productId and priority or level, parentId and priority for top level product documents.
+	 * In the object parentNodes the created tree nodes are mapped to to their id's.
+	 * The map is used to insert siblings to their parent. The CouchDb design filter sort order guarantees that the parents are read before any siblings.
+	 */
 	loadOverview({
 		rootState,
 		rootGetters,
@@ -41,29 +46,32 @@ const actions = {
 			const batch = res.data.rows
 			for (const item of batch) {
 				const _id = item.id
+				const itemLevel = item.key[0]
+				const priority = -item.key[2]
 				// the productId of the 'requirement-areas' top dummy product document is null to have it ordened below root in the details view
-				const productId = item.key[1] || MISC.AREA_PRODUCTID
-				const itemLevel = item.key[2]
-				const priority = -item.key[3]
-				const parentId = item.value[1]
-				const reqarea = item.value[0] || null
-				const itemState = item.value[2]
-				const title = item.value[3]
-				const team = item.value[4]
-				const subtype = item.value[5]
-				const dependencies = dedup(item.value[6])
-				const conditionalFor = dedup(item.value[7])
-				const reqAreaItemColor = item.value[10] || null
-				const sprintId = item.value[11]
-				const lastAttachmentAddition = item.value[12] || 0
-				const lastChange = item.value[13] || 0
-				const lastCommentAddition = item.value[14] || 0
-				const lastCommentToHistory = item.value[15] || 0
-				const lastContentChange = item.value[16] || 0
-				const lastPositionChange = item.value[17] || 0
-				const lastStateChange = item.value[18] || 0
+				const productId = item.value[0] || MISC.AREA_PRODUCTID
+				const reqarea = item.value[1] || null
+				const parentId = item.value[2]
+				const itemState = item.value[3]
+				const title = item.value[4]
+				const team = item.value[5]
+				const subtype = item.value[6]
+				const dependencies = dedup(item.value[7])
+				const conditionalFor = dedup(item.value[8])
+				// for future use:
+				// const lastHistoryEntry = item.value[9]
+				// const lastCommentEntry = item.value[10]
+				const reqAreaItemColor = item.value[11] || null
+				const sprintId = item.value[12]
+				const lastAttachmentAddition = item.value[13] || 0
+				const lastChange = item.value[14] || 0
+				const lastCommentAddition = item.value[15] || 0
+				const lastCommentToHistory = item.value[16] || 0
+				const lastContentChange = item.value[17] || 0
+				const lastPositionChange = item.value[18] || 0
+				const lastStateChange = item.value[19] || 0
 
-				if (itemLevel === 1) {
+				if (itemLevel === LEVEL.DATABASE) {
 					state.docsCount++
 					// initialize with the root document
 					rootState.treeNodes = [
@@ -106,7 +114,7 @@ const actions = {
 				if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyProductSubscriptions.includes(productId)) continue
 
 				// create a map with product titles
-				if (itemLevel === 2) {
+				if (itemLevel === LEVEL.PRODUCT) {
 					rootState.productTitlesMap[_id] = title
 				}
 
