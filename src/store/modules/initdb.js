@@ -299,9 +299,9 @@ const actions = {
 					details: {
 						map: `function(doc) {
 							const productLevel = 2
-							const seq = doc.level === productLevel ? doc.parentId : doc.productId
+							const seq = doc.level === productLevel ? null : doc.productId
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, seq, -doc.priority],
-								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
+								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`
 					},
@@ -324,9 +324,9 @@ const actions = {
 						map: `function(doc) {
 							const productLevel = 2
 							const pbiLevel = 5
-							const seq = doc.level === productLevel ? doc.parentId : doc.productId
+							const seq = doc.level === productLevel ? null : doc.productId
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level < pbiLevel) emit([doc.level, seq, -doc.priority],
-								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.history[0], doc.comments[0], doc.color, doc.sprintId,
+								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`
 					},
@@ -499,6 +499,7 @@ const actions = {
 		const doc = {
 			_id: 'requirement-areas',
 			type: 'backlogItem',
+			productId: 'requirement-areas',
 			parentId: 'root',
 			team: 'n/a',
 			level: 2,

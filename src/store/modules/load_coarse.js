@@ -48,8 +48,7 @@ const actions = {
 				const _id = item.id
 				const itemLevel = item.key[0]
 				const priority = -item.key[2]
-				// the productId of the 'requirement-areas' top dummy product document is null to have it ordened below root in the details view
-				const productId = item.value[0] || MISC.AREA_PRODUCTID
+				const productId = item.value[0]
 				const reqarea = item.value[1] || null
 				const parentId = item.value[2]
 				const itemState = item.value[3]
@@ -58,18 +57,15 @@ const actions = {
 				const subtype = item.value[6]
 				const dependencies = dedup(item.value[7])
 				const conditionalFor = dedup(item.value[8])
-				// for future use:
-				// const lastHistoryEntry = item.value[9]
-				// const lastCommentEntry = item.value[10]
-				const reqAreaItemColor = item.value[11] || null
-				const sprintId = item.value[12]
-				const lastAttachmentAddition = item.value[13] || 0
-				const lastChange = item.value[14] || 0
-				const lastCommentAddition = item.value[15] || 0
-				const lastCommentToHistory = item.value[16] || 0
-				const lastContentChange = item.value[17] || 0
-				const lastPositionChange = item.value[18] || 0
-				const lastStateChange = item.value[19] || 0
+				const reqAreaItemColor = item.value[9] || null
+				const sprintId = item.value[10]
+				const lastAttachmentAddition = item.value[11] || 0
+				const lastChange = item.value[12] || 0
+				const lastCommentAddition = item.value[13] || 0
+				const lastCommentToHistory = item.value[14] || 0
+				const lastContentChange = item.value[15] || 0
+				const lastPositionChange = item.value[16] || 0
+				const lastStateChange = item.value[17] || 0
 
 				if (itemLevel === LEVEL.DATABASE) {
 					state.docsCount++
