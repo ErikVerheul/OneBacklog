@@ -103,7 +103,7 @@ const actions = {
 					newProductId = newId
 					docs[0].parentId = 'root'
 					// use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
-					docs[0].priority = -Date.now()
+					docs[0].priority = Date.now()
 					orgProductTitle = docs[0].title
 					newProductTitle = 'CLONE: ' + orgProductTitle
 					docs[0].title = newProductTitle

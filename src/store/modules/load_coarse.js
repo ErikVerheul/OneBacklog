@@ -47,7 +47,7 @@ const actions = {
 			for (const item of batch) {
 				const _id = item.id
 				const itemLevel = item.key[0]
-				const priority = -item.key[2]
+				const priority = item.key[2]
 				const productId = item.value[0]
 				const reqarea = item.value[1] || null
 				const parentId = item.value[2]
