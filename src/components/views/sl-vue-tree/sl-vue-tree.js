@@ -531,11 +531,6 @@ const methods = {
 		}
 		this.mouseIsDown = true
 		this.lastSelectedNode = node
-
-		// if no node selected for dragging, select this node as the first node to be dragged
-		if (this.draggableNodes.length === 0) {
-			this.$store.commit('renewSelectedNodes', node)
-		}
 	},
 
 	onNodeMouseupHandler(event) {
