@@ -9,7 +9,6 @@ var removedConds
 var extDepsRemovedCount
 var extCondsRemovedCount
 var removedSprintIds
-var threadsDispatchedCount
 var runningThreadsCount
 
 function composeRangeString(id) {
@@ -45,7 +44,6 @@ const actions = {
 		extDepsRemovedCount = 0
 		extCondsRemovedCount = 0
 		removedSprintIds = []
-		threadsDispatchedCount = 0
 		runningThreadsCount = 0
 
 		const id = payload.node._id
@@ -94,7 +92,6 @@ const actions = {
 			}
 			doc.history.unshift(newHist)
 			// multiple instances can be dispatched
-			threadsDispatchedCount++
 			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, createUndo: payload.createUndo } })
 		}
 		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
@@ -104,17 +101,18 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
+		runningThreadsCount++
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.id) + '&include_docs=true'
 		}).then(res => {
-			runningThreadsCount++
+			runningThreadsCount--
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
 				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo })
 			} else {
-				if (threadsDispatchedCount - runningThreadsCount === 0) {
+				if (runningThreadsCount === 0) {
 					// db iteration ready
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('getChildrenToRemove: dispatching removeExternalConds')
@@ -123,7 +121,7 @@ const actions = {
 			}
 		}).catch(error => {
 			runningThreadsCount--
-			const msg = `removeBranch.getChildrenToRemove: Could not read the items from database ${rootState.userData.currentDb}, ${error}`
+			const msg = `getChildrenToRemove: Could not fetch the child documents of document with id ${payload.id} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

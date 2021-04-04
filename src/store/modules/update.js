@@ -847,7 +847,7 @@ const actions = {
 		}).catch(error => {
 			// execute passed function if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
-			const msg = `updateDoc: (called by ${payload.caller}) Could not write document with url ${payload.dbName}/${id}, ${error}`
+			const msg = `updateDoc: (called by ${payload.caller}) Could not write document with url ${payload.dbName}/${id}. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -862,18 +862,16 @@ const actions = {
 			url: payload.dbName + '/_bulk_docs',
 			data: { docs: payload.docs }
 		}).then(res => {
-			let updateOk = 0
-			let updateConflict = 0
-			let otherError = 0
+			let updateOkCount = 0
+			let updateConflictCount = 0
+			let otherErrorCount = 0
 			for (const result of res.data) {
-				if (result.ok) updateOk++
-				if (result.error === 'conflict') updateConflict++
-				if (result.error && result.error != 'conflict') otherError++
+				if (result.ok) updateOkCount++
+				if (result.error === 'conflict') updateConflictCount++
+				if (result.error && result.error != 'conflict') otherErrorCount++
 			}
-			// eslint-disable-next-line no-console
-			const msg = 'updateBulk: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
-
-			if (updateConflict > 0 || otherError > 0) {
+			if (updateConflictCount > 0 || otherErrorCount > 0) {
+				const msg = `updateBulk: (called by ${payload.caller}) ${updateOkCount} documents are updated, ${updateConflictCount} updates have a conflict, ${otherErrorCount} updates failed on error`
 				dispatch('doLog', { event: msg, level: SEV.WARNING })
 				// execute passed function if provided
 				if (payload.onFailureCallback) {
@@ -887,7 +885,7 @@ const actions = {
 			}
 		}).catch(error => {
 			if (payload.onFailureCallback) payload.onFailureCallback()
-			const msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents, ${error}`
+			const msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents with ids ${payload.docs.map(doc => doc._id)}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

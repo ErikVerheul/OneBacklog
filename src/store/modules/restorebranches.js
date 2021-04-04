@@ -159,7 +159,7 @@ const actions = {
 			}
 		}).catch(error => {
 			runningThreadsCount--
-			const msg = `loadChildren: Could not scan the descendants of document with id ${payload.parentNode._id}, ${error}`
+			const msg = `loadChildren: Could not fetch the child documents of document with id ${payload.parentNode._id} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

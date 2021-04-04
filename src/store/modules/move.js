@@ -171,8 +171,7 @@ const actions = {
 					}
 					for (const it of items) {
 						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
-						const toDispatch = [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move } }]
-						dispatch('getMovedChildren', { updates, parentId: it.id, toDispatch })
+						dispatch('getMovedChildren', { updates, parentId: it.id, toDispatch: [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move } }] })
 					}
 				} else {
 					// no need to process descendants
@@ -205,16 +204,15 @@ const actions = {
 				if (result.error === 'conflict') updateConflict++
 				if (result.error && result.error !== 'conflict') otherError++
 			}
-			const msg = 'saveMovedItems: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
 			if (updateConflict > 0 || otherError > 0) {
-				// note that logging may fail if the connection is lost
+				const msg = 'saveMovedItems: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
 				dispatch('doLog', { event: msg, level: SEV.WARNING })
 				// ToDo: make this an alert with the only option to restart the application
 				commit('showLastEvent', { txt: 'The move failed due to update conflicts or errors. Undo and try again after sign-out or contact your administrator', severity: SEV.WARNING })
 			} else {
 				// no conflicts, no other errors
 				for (const it of items) {
-					// show the history in the current opened item
+					// update the history of the moved items
 					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
 				}
 
@@ -256,7 +254,7 @@ const actions = {
 			}
 		}).catch(error => {
 			runningThreadsCount--
-			const msg = 'getMovedChildren: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
+			const msg = `getMovedChildren: Could not fetch the child documents of document with id ${payload.parentId} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

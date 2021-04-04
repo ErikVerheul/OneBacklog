@@ -124,7 +124,7 @@ const actions = {
 				dispatch('loopUndoResults', { entry: payload.entry, results })
 			}
 		}).catch(error => {
-			const msg = `restoreDescendants: Could not scan the descendants of document with id ${payload.parentId}, ${error}`
+			const msg = `restoreDescendants: Could not fetch the child documents of document with id ${payload.parentId} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

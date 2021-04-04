@@ -571,7 +571,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'updateMovedTasks: Could not read batch of documents, ' + error
+			const msg = `updateMovedTasks: Could not fetch the child documents of document with id ${payload.storyId} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -1022,7 +1022,7 @@ const actions = {
 				dispatch('triggerBoardReload', { parentId: 'messenger', sprintId: payload.removedSprintId } )
 			}
 		}).catch(error => {
-			const msg = `removeSprintFromChildren: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
+			const msg = `removeSprintFromChildren: Could not fetch the child documents of document with id ${payload.storyId} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
