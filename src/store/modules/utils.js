@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import {  removeFromArray } from '../../common_functions.js'
+import { removeFromArray } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 
@@ -133,7 +133,7 @@ const actions = {
 					placement: 'after'
 				}
 				// add the product to the treemodel, the path etc. will be calculated
-				window.slVueTree.insertNodes(cursorPosition, [newNode], { calculatePrios: false})
+				window.slVueTree.insertNodes(cursorPosition, [newNode], { calculatePrios: false })
 			}
 			// add the product to my subscriptions and productsRoles with no roles assigned
 			const newProductOption = {
@@ -376,7 +376,7 @@ const actions = {
 			if (error.length > 0) {
 				const errorStr = ''
 				for (const e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+					errorStr.concat(`${e.id} (error = ${e.error},  reason = ${e.reason}), `)
 				}
 				const msg = 'resetHistAndComm: These documents cannot be updated: ' + errorStr
 				dispatch('doLog', { event: msg, level: SEV.WARNING })

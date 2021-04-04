@@ -156,7 +156,7 @@ const actions = {
 			if (error.length > 0) {
 				const errorStr = ''
 				for (const e of error) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+					errorStr.concat(`${e.id} (error = ${e.error},  reason = ${e.reason}), `)
 				}
 				const msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
 				dispatch('doLog', { event: msg, level: SEV.ERROR })

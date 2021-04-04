@@ -281,7 +281,7 @@ const actions = {
 			if (errors.length > 0) {
 				const errorStr = ''
 				for (const e of errors) {
-					errorStr.concat(e.id + '( error = ' + e.error + ', reason = ' + e.reason + '), ')
+					errorStr.concat(`${e.id} (error = ${e.error},  reason = ${e.reason}), `)
 				}
 				const msg = 'restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored: ' + errorStr
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
