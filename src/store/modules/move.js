@@ -178,8 +178,8 @@ const actions = {
 					dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move })
 				}
 			}
-		}).catch(e => {
-			const msg = 'updateMovedItemsBulk: Could not read descendants in bulk. Error = ' + e
+		}).catch(error => {
+			const msg = `updateMovedItemsBulk: Could not read descendants in bulk. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -191,31 +191,12 @@ const actions = {
 	}, payload) {
 		const items = payload.items
 		const docs = payload.docs
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_docs',
-			data: { docs }
-		}).then(res => {
-			let updateOk = 0
-			let updateConflict = 0
-			let otherError = 0
-			for (const result of res.data) {
-				if (result.ok) updateOk++
-				if (result.error === 'conflict') updateConflict++
-				if (result.error && result.error !== 'conflict') otherError++
-			}
-			if (updateConflict > 0 || otherError > 0) {
-				const msg = 'saveMovedItems: ' + updateOk + ' documents are updated, ' + updateConflict + ' updates have a conflict, ' + otherError + ' updates failed on error'
-				dispatch('doLog', { event: msg, level: SEV.WARNING })
-				// ToDo: make this an alert with the only option to restart the application
-				commit('showLastEvent', { txt: 'The move failed due to update conflicts or errors. Undo and try again after sign-out or contact your administrator', severity: SEV.WARNING })
-			} else {
-				// no conflicts, no other errors
+		dispatch('updateBulk', {
+			dbName: rootState.userData.currentDb, docs, caller: 'saveMovedItems', onSuccessCallback: () => {
 				for (const it of items) {
 					// update the history of the moved items
 					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
 				}
-
 				if (payload.move) {
 					// create an entry for undoing the move in a last-in first-out sequence
 					const entry = {
@@ -226,9 +207,6 @@ const actions = {
 					rootState.changeHistory.unshift(entry)
 				}
 			}
-		}).catch(error => {
-			const msg = 'saveMovedItems: Could not save the moved documents: ' + error
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
