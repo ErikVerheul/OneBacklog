@@ -15,7 +15,7 @@ function composeRangeString(id) {
 /* Return a priority that places the new product as the last product in the tree view */
 function calcNewProductPriority() {
 	const lastProductNode = window.slVueTree.getRootNode().children.slice(-1)[0]
-	return -Math.floor((lastProductNode.data.priority + Number.MAX_SAFE_INTEGER) / 2)
+	return Math.floor((lastProductNode.data.priority + Number.MIN_SAFE_INTEGER) / 2)
 }
 
 function showProduct(docs, leafLevel) {

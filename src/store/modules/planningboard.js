@@ -99,7 +99,7 @@ const mutations = {
 										id: t.id,
 										title: t.value[0],
 										taskOwner: t.value[4],
-										priority: t.key[5]
+										priority: -t.key[5]
 									})
 									break
 								case STATE.TODO:
@@ -108,7 +108,7 @@ const mutations = {
 										id: t.id,
 										title: t.value[0],
 										taskOwner: t.value[4],
-										priority: t.key[5]
+										priority: -t.key[5]
 									})
 									break
 								case STATE.INPROGRESS:
@@ -116,7 +116,7 @@ const mutations = {
 										id: t.id,
 										title: t.value[0],
 										taskOwner: t.value[4],
-										priority: t.key[5]
+										priority: -t.key[5]
 									})
 									break
 								case STATE.TESTREVIEW:
@@ -124,7 +124,7 @@ const mutations = {
 										id: t.id,
 										title: t.value[0],
 										taskOwner: t.value[4],
-										priority: t.key[5]
+										priority: -t.key[5]
 									})
 									break
 								case STATE.DONE:
@@ -132,7 +132,7 @@ const mutations = {
 										id: t.id,
 										title: t.value[0],
 										taskOwner: t.value[4],
-										priority: t.key[5]
+										priority: -t.key[5]
 									})
 									break
 							}
