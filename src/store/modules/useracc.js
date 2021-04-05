@@ -211,9 +211,14 @@ const actions = {
 				data: tmpUserData, onSuccessCallback: () => {
 					if (tmpUserData.name === rootState.userData.user && tmpUserData.currentDb === rootState.userData.currentDb) {
 						// the user is updating its own profile and loaded its current database (admin is not updating another user)
-						if (addedDb) rootState.myAssignedDatabases = addToArray(rootState.myAssignedDatabases, addedDb)
+						if (addedDb) {
+							// assign the new database to this user
+							rootState.myAssignedDatabases = addToArray(rootState.myAssignedDatabases, addedDb)
+						}
 						// the user gets a new product to select
 						rootState.myProductOptions.push(payload.newProductOption)
+						// if newly added, add the product to the available product ids
+						if (!rootState.availableProductIds.includes(productId)) rootState.availableProductIds.push(productId)
 					}
 					// set result for 'Create a product' admin process (admin.js)
 					rootState.isProductCreated = true
