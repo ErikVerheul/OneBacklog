@@ -133,10 +133,10 @@
           <b-col sm="2">
             Remove when created
           </b-col>
-          <b-col sm="1">
+          <b-col sm="2">
             <b-form-input v-model="removeAge" type="number"></b-form-input>
           </b-col>
-          <b-col sm="9">
+          <b-col sm="8">
             days ago or more (enter 0 to remove all)
           </b-col>
         </b-row>
