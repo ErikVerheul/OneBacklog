@@ -12,6 +12,12 @@ function composeRangeString(id) {
 	return `startkey="${id}"&endkey="${id}"`
 }
 
+/* Return a priority that places the new product as the last product in the tree view */
+function calcNewProductPriority() {
+	const lastProductNode = window.slVueTree.getRootNode().children.slice(-1)[0]
+	return -Math.floor((lastProductNode.data.priority + Number.MAX_SAFE_INTEGER) / 2)
+}
+
 function showProduct(docs, leafLevel) {
 	const parentNodes = { root: window.slVueTree.getNodeById('root') }
 	for (const doc of docs) {
@@ -102,8 +108,7 @@ const actions = {
 				if (i === 0) {
 					newProductId = newId
 					docs[0].parentId = 'root'
-					// use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
-					docs[0].priority = Date.now()
+					docs[0].priority = calcNewProductPriority()
 					orgProductTitle = docs[0].title
 					newProductTitle = 'CLONE: ' + orgProductTitle
 					docs[0].title = newProductTitle
