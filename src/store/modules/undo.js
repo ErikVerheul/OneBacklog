@@ -31,7 +31,7 @@ const actions = {
 		}).then(res => {
 			const updatedDoc = res.data
 			const newHist = {
-				ignoreEvent: ['restoreItemAndDescendants'],
+				itemRestoredEvent: [updatedDoc.level, updatedDoc.subtype],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false
@@ -201,7 +201,7 @@ const actions = {
 		}).then(res => {
 			const grandParentDoc = res.data
 			const newHist = {
-				docRestoredEvent: [entry.removedNode._id, entry.removedDescendantsCount, entry.removedIntDependencies, entry.removedExtDependencies,
+				childItemRestoredEvent: [entry.removedNode._id, entry.removedDescendantsCount, entry.removedIntDependencies, entry.removedExtDependencies,
 				entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds, entry.itemsRemovedFromReqArea,
 				entry.removedNode.level, entry.removedNode.data.subtype, entry.removedNode.title
 				],

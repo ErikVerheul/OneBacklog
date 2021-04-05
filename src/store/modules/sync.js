@@ -3,7 +3,7 @@ import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
-const boardEvents = ['createEvent', 'createTaskEvent', 'docRestoredEvent', 'nodeMovedEvent', 'removedWithDescendantsEvent', 'setPointsEvent', 'setStateEvent', 'setSubTypeEvent', 'setTeamOwnerEvent', 'setTitleEvent', 'taskRemovedEvent', 'updateTaskOrderEvent']
+const boardEvents = ['createEvent', 'createTaskEvent', 'childItemRestoredEvent', 'nodeMovedEvent', 'removedWithDescendantsEvent', 'setPointsEvent', 'setStateEvent', 'setSubTypeEvent', 'setTeamOwnerEvent', 'setTitleEvent', 'taskRemovedEvent', 'updateTaskOrderEvent']
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
 /*
@@ -179,7 +179,7 @@ const actions = {
 				// note that both updateTree and updateBoard can be true
 				if (updateTree) {
 					// check for exception 'node not found'
-					if (node === null && histEvent !== 'docRestoredEvent' && histEvent !== 'createEvent' && histEvent !== 'createTaskEvent') {
+					if (node === null && histEvent !== 'childItemRestoredEvent' && histEvent !== 'createEvent' && histEvent !== 'createTaskEvent') {
 						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
 						dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
 						return
@@ -252,9 +252,9 @@ const actions = {
 									commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
 									showSyncMessage(`changed the title of`, SEV.INFO)
 									break
-								case 'docRestoredEvent':
+								case 'childItemRestoredEvent':
 									dispatch('restoreBranch', {
-										histArray: lastHistObj.docRestoredEvent,
+										histArray: lastHistObj.childItemRestoredEvent,
 										restoreReqArea: true
 									})
 									break
@@ -299,9 +299,9 @@ const actions = {
 									commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastContentChange: doc.lastContentChange })
 									showSyncMessage(`changed the description of`, SEV.INFO)
 									break
-								case 'docRestoredEvent':
+								case 'childItemRestoredEvent':
 									dispatch('restoreBranch', {
-										histArray: lastHistObj.docRestoredEvent,
+										histArray: lastHistObj.childItemRestoredEvent,
 										isSameUserInDifferentSession,
 										toDispatch: updateBoard ? [{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }] : undefined
 									})
@@ -490,9 +490,9 @@ const actions = {
 								}
 							}
 							break
-						case 'docRestoredEvent':
+						case 'childItemRestoredEvent':
 							{
-								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.docRestoredEvent[7])
+								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.childItemRestoredEvent[7])
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
 									// one or more of the removed items or their descendants assigned to the loaded sprint are restored
 									if (doc.level === LEVEL.TASK) {
@@ -725,7 +725,7 @@ const actions = {
 		// update the board only if selected as the current view AND loaded for my team OR setTeamOwnerEvent is received
 		const updateBoard = rootGetters.isPlanningBoardSelected && (doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent')
 		// process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, or the item is a requirement area item while the overview is in view
-		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || histEvent === 'changeReqAreaColorEvent' || (histEvent === 'docRestoredEvent' && doc.level === LEVEL.DATABASE) || (rootGetters.isOverviewSelected && isReqAreaItem)) {
+		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || histEvent === 'changeReqAreaColorEvent' || (histEvent === 'childItemRestoredEvent' && doc.level === LEVEL.DATABASE) || (rootGetters.isOverviewSelected && isReqAreaItem)) {
 			doProc(doc)
 		}
 	},

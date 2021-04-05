@@ -67,6 +67,7 @@ const computed = {
 
       for (let j = 0; j < keys.length; j++) {
         if (keys[j] === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
+				if (keys[j] === 'childItemRestoredEvent') allText += this.mkChildItemRestoredEvent(histItem[keys[j]])
         if (keys[j] === 'cloneEvent') allText += this.mkCloneEvent(histItem[keys[j]])
         if (keys[j] === 'commentToHistoryEvent') allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
         if (keys[j] === 'conditionRemovedEvent') allText += this.mkConditionRemovedEvent(histItem[keys[j]])
@@ -75,9 +76,8 @@ const computed = {
         if (keys[j] === 'createRootEvent') allText += this.mkCreateRootEvent(histItem[keys[j]])
         if (keys[j] === 'dependencyRemovedEvent') allText += this.mkDependencyRemovedEvent(histItem[keys[j]])
         if (keys[j] === 'descriptionEvent') allText += removeImages(this.mkDescriptionEvent(histItem[keys[j]]))
-        if (keys[j] === 'docRestoredEvent') allText += this.mkDocRestoredEvent(histItem[keys[j]])
-        if (keys[j] === 'grandParentDocRestoredEvent') allText += this.mkGrandParentDocRestoredEvent(histItem[keys[j]])
         if (keys[j] === 'importToSprintEvent') allText += this.mkImportToSprintEvent(histItem[keys[j]])
+				if (keys[j] === 'itemRestoredEvent') allText += this.mkItemRestoredEvent(histItem[keys[j]])
         if (keys[j] === 'newChildEvent') allText += this.mkNewChildEvent(histItem[keys[j]])
         if (keys[j] === 'nodeMovedEvent') allText += this.mkNodeMovedEvent(histItem[keys[j]])
         if (keys[j] === 'removeAttachmentEvent') allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
@@ -144,6 +144,7 @@ const methods = {
 
   prepHistoryText (key, value) {
     if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value)
+		if (key === 'childItemRestoredEvent') return this.mkChildItemRestoredEvent(value)
     if (key === 'cloneEvent') return this.mkCloneEvent(value)
     if (key === 'commentToHistoryEvent') return this.mkCommentToHistoryEvent(value)
     if (key === 'conditionRemovedEvent') return this.mkConditionRemovedEvent(value)
@@ -152,9 +153,8 @@ const methods = {
     if (key === 'createRootEvent') return this.mkCreateRootEvent(value)
     if (key === 'dependencyRemovedEvent') return this.mkDependencyRemovedEvent(value)
     if (key === 'descriptionEvent') return this.mkDescriptionEvent(value)
-    if (key === 'docRestoredEvent') return this.mkDocRestoredEvent(value)
-    if (key === 'grandParentDocRestoredEvent') return this.mkGrandParentDocRestoredEvent(value)
     if (key === 'importToSprintEvent') return this.mkImportToSprintEvent(value)
+		if (key === 'itemRestoredEvent') return this.mkItemRestoredEvent(value)
     if (key === 'newChildEvent') return this.mkNewChildEvent(value)
     if (key === 'nodeMovedEvent') return this.mkNodeMovedEvent(value)
 		if (key === 'removeCommentFromHistoryEvent') return this.mkRemoveCommentFromHistoryEvent(value)
@@ -199,6 +199,10 @@ const methods = {
       return '<h5>User subscribed to receive messages about this backlog item.</h5>'
     }
   },
+
+	mkChildItemRestoredEvent(value) {
+		return `<h5>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h5>`
+	},
 
   mkCreateRootEvent (value) {
     return '<h5>The root document was created for database ' + value[0] + '.</h5>'
@@ -290,20 +294,16 @@ const methods = {
       <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
   },
 
-  mkGrandParentDocRestoredEvent (value) {
-    return `<h5>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h5>`
-  },
-
   mkImportToSprintEvent (value) {
     return `<h5>This ${this.getLevelText(value[0], value[1])} was imported from sprint '${value[2]}' to sprint '${value[3]}'.</h5>`
   },
 
+	mkItemRestoredEvent(value) {
+		return `<h5>This ${this.getLevelText(value[0], value[1])} is restored from removal including its descendants.</h5>`
+	},
+
   mkNewChildEvent (value) {
     return `<h5>A ${this.getLevelText(value[0])} was created as a child of this item at position ${value[1]}.</h5>`
-  },
-
-  mkDocRestoredEvent (value) {
-    return `<h5>This item and ${value[1]} descendants are restored from removal.</h5>`
   },
 
   mkSetConditionsEvent (value) {

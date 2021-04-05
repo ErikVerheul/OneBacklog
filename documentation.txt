@@ -270,6 +270,7 @@ Y            	Y	     Y    addCommentEvent	              	update.js
 Y			 				Y	     Y    addSprintIdsEvent								planningboard.js
 Y			 				N	     N    boardReloadEvent								planningboard.js
 Y            	N	     N    changeReqAreaColorEvent         update.js
+N             N	     Y    childItemRestoredEvent	  			undo.js
 N             Y	     Y    cloneEvent	                  	clone.js
 Y             Y	     Y    commentToHistoryEvent	        	update.js
 Y             Y	     Y    conditionRemovedEvent	        	update.js
@@ -279,9 +280,8 @@ N			 				N	     Y    createRootEvent									intdb.js
 Y             N	     Y    createTaskEvent 	              planningboard.js
 Y             Y	     Y    dependencyRemovedEvent 	      	update.js
 Y             Y	     Y    descriptionEvent	            	update.js
-Y             Y	     Y    docRestoredEvent 	            	undo.js
-N             N	     Y    grandParentDocRestoredEvent	  	undo.js
 N             N      Y    importToSprintEvent             planningboard.js
+N			 				N	     Y    itemRestoredEvent								undo.js
 N			 				Y	     Y    newChildEvent										load.js
 Y             Y	     Y    nodeMovedEvent	            		move.js
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js
