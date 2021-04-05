@@ -92,6 +92,7 @@ const actions = {
 			}
 			doc.history.unshift(newHist)
 			// multiple instances can be dispatched
+			runningThreadsCount++
 			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, createUndo: payload.createUndo } })
 		}
 		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
@@ -101,13 +102,13 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		runningThreadsCount++
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.id) + '&include_docs=true'
 		}).then(res => {
 			runningThreadsCount--
 			const results = res.data.rows
+			console.log('getChildrenToRemove: runningThreadsCount = ' + runningThreadsCount + ', results.length = ' + results.length)
 			if (results.length > 0) {
 				// process next level
 				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo })
@@ -208,8 +209,8 @@ const actions = {
 				}
 				const toDispatch = [{ addHistToRemovedDoc: { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo } }]
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
-			}).catch(e => {
-				const msg = 'removeExternalDeps: Could not read batch of documents: ' + e
+			}).catch(error => {
+				const msg = `removeExternalDeps: Could not read batch of documents. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		} else dispatch('addHistToRemovedDoc', { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo })
