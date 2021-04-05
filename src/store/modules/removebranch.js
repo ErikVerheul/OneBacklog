@@ -108,7 +108,6 @@ const actions = {
 		}).then(res => {
 			runningThreadsCount--
 			const results = res.data.rows
-			console.log('getChildrenToRemove: runningThreadsCount = ' + runningThreadsCount + ', results.length = ' + results.length)
 			if (results.length > 0) {
 				// process next level
 				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo })
