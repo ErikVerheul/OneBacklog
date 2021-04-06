@@ -2,7 +2,10 @@
   <b-container fluid>
     <b-row no-gutters>
       <b-col>
-        <story-column id="userStory" :story="$store.state.planningboard.stories[idx]"></story-column>
+        <story-column
+					:story="$store.state.planningboard.stories[idx]"
+					:productId="$store.state.planningboard.stories[idx].productId"
+				></story-column>
       </b-col>
       <b-col v-if="$store.state.userData.myOptions.showOnHold === 'do_show_on_hold'">
         <task-column

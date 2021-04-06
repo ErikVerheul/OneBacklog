@@ -38,7 +38,7 @@ import { authorization, utilities } from '../../mixins/generic.js'
 export default {
   mixins: [authorization, utilities],
   name: 'StoryItem',
-  props: ['story'],
+  props: ['productId', 'story'],
 
   created() {
     this.ID_TO_CLIPBOARD = 0
