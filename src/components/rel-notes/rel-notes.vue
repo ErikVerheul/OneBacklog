@@ -6,6 +6,25 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.10 - 6 April 2021 Feature update and bug and security fixes</h3>
+          <p>New features:</p>
+          <ul>
+						<li>Context menu for story items on planningboard including options to remove the story and its tasks from the sprint and to copy the story short id to the clipboard</li>
+						<li>Sign-out when no current or next sprint is available. Need to sign-in again to have the sprint calendar extended. (Happens when the user session is extended over the end date of the current sprint and no next sprint is available)</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix incorrect list of user assigned products</li>
+						<li>Fix cloned product not added to available products in current session</li>
+						<li>Fix missing history when removal is undone</li>
+						<li>Fix regression in planning board</li>
+						<li>Fix performance regression when removing a branch</li>
+          </ul>
+					<p>Sucurity:</p>
+          <ul>
+            <li>Update dependencies with security update</li>
+          </ul>
+          <hr />
 					<h3>v.1.9 - 26 March 2021 Feature update and bug fixes</h3>
           <p>New features:</p>
           <ul>
