@@ -91,7 +91,7 @@ const actions = {
 		}, WATCHDOGINTERVAL)
 	},
 
-	/* Create a log entry and save it. */
+	/* Create a log entry and let watchdog save it. */
 	doLog({
 		rootState,
 		state,
@@ -113,6 +113,7 @@ const actions = {
 
 	saveLog({
 		rootState,
+		state,
 		dispatch
 	}) {
 		if (state.unsavedLogs.length > 0) {
@@ -128,12 +129,7 @@ const actions = {
 					for (const logEntry of state.unsavedLogs) {
 						log.entries.unshift(logEntry)
 					}
-					dispatch('replaceLog', {
-						log, caller: 'saveLog', onSuccessCallback: () => {
-							// delete the unsaved logs after a successful save only
-							state.unsavedLogs = []
-						}
-					})
+					dispatch('replaceLog', log)
 				}).catch(error => {
 					const msg = `saveLog: Could not read the log. Pushed log entry to unsavedLogs. A retry is pending. ${error}`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -145,22 +141,22 @@ const actions = {
 		}
 	},
 
-	// save the log
 	replaceLog({
 		rootState,
+		state,
 		dispatch
-	}, payload) {
+	}, log) {
 		// limit the number of saved log entries
-		payload.log.entries = payload.log.entries.slice(0, MAXLOGSIZE)
+		log.entries = log.entries.slice(0, MAXLOGSIZE)
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + LOGDOCNAME,
-			data: payload.log
+			data: log
 		}).then(() => {
-			// execute passed function if provided
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
+			// delete the logs now they are saved
+			state.unsavedLogs = []
 			// eslint-disable-next-line no-console
-			if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved by ${payload.caller}`)
+			if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved`)
 		}).catch(error => {
 			const msg = `replaceLog: Could not save the log. A retry is pending. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
