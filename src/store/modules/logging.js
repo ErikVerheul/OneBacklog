@@ -135,19 +135,20 @@ const actions = {
 						}
 					})
 				}).catch(error => {
-					// eslint-disable-next-line no-console
-					if (rootState.debugConnectionAndLogging) console.log(`saveLog: Could not read the log. Pushed log entry to unsavedLogs. A retry is pending. ${error}`)
+					const msg = `saveLog: Could not read the log. Pushed log entry to unsavedLogs. A retry is pending. ${error}`
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				})
 			} else {
-				// eslint-disable-next-line no-console
-				if (rootState.debugConnectionAndLogging) console.log(`saveLog: Could not read the log. A retry is pending, the database name is undefined yet`)
+				const msg = `saveLog: Could not read the log. A retry is pending, the database name is undefined yet`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
 		}
 	},
 
 	// save the log
 	replaceLog({
-		rootState
+		rootState,
+		dispatch
 	}, payload) {
 		// limit the number of saved log entries
 		payload.log.entries = payload.log.entries.slice(0, MAXLOGSIZE)
@@ -161,8 +162,8 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved by ${payload.caller}`)
 		}).catch(error => {
-			// eslint-disable-next-line no-console
-			if (rootState.debugConnectionAndLogging) console.log(`replaceLog: Could not save the log. A retry is pending. ${error}`)
+			const msg = `replaceLog: Could not save the log. A retry is pending. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
 }
