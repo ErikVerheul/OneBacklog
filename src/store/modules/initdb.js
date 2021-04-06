@@ -300,6 +300,7 @@ const actions = {
 						map: `function(doc) {
 							const productLevel = 2
 							const seq = doc.level === productLevel ? null : doc.productId
+							// negate priority to sort the highest abosolute priority value on top
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, seq, -doc.priority],
 								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
@@ -324,6 +325,7 @@ const actions = {
 						map: `function(doc) {
 							const productLevel = 2
 							const pbiLevel = 5
+							// negate priority to sort the highest abosolute priority value on top
 							const seq = doc.level === productLevel ? null : doc.productId
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level < pbiLevel) emit([doc.level, seq, -doc.priority],
 								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
