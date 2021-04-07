@@ -289,7 +289,7 @@ Y             Y	     Y    removeCommentEvent	        		update.js
 Y             Y	     Y    removeCommentFromHistoryEvent  	update.js
 N             Y	     Y    removedFromParentEvent	      	remove.js
 Y             N      Y    removedWithDescendantsEvent     remove.js
-Y 			 			Y 	   Y    removeSprintIdsEvent						update.js
+Y 			 			Y 	   Y    removeSprintIdsEvent						planningboard.js
 N			 				N	     Y    resetHistoryEvent								utils.js
 Y             Y	     Y    setConditionEvent	          		update.js
 Y             Y	     Y    setDependencyEvent	        		update.js
