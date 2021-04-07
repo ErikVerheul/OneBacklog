@@ -79,7 +79,7 @@ const actions = {
 					rootState.authentication.cookieAuthenticated = false
 					// if error status 401 is returned we are online again despite the error condition (no authentication)
 					rootState.online = true
-					// stop the cookie refresh loop and refresh the authorization cookie and wait for the next watchdog cycle to restart listenForChanges
+					// restart the cookie authorization refresh loop and wait for the next watchdog cycle to restart listenForChanges
 					clearInterval(rootState.authentication.runningCookieRefreshId)
 					dispatch('refreshCookie', { caller: 'watchdog', toDispatch: [{ refreshCookieLoop: null }] })
 				} else {
