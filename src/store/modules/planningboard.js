@@ -721,9 +721,10 @@ const actions = {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
+					const removedSprintId = doc.sprintId
 					delete doc.sprintId
 					const newHist = {
-						removeSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName],
+						removeSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, removedSprintId],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
@@ -924,7 +925,7 @@ const actions = {
 		})
 	},
 
-	/* Remove a story from the sprint and update the planning board. Also remove the sprintId from the node if the Details view if active.*/
+	/* Remove a story from the sprint and update the planning board. Also remove the sprintId from the node if the Details view is active.*/
 	boardRemoveStoryFromSprint({
 		rootState,
 		dispatch
@@ -938,7 +939,7 @@ const actions = {
 			delete storyDoc.sprintId
 
 			const newHist = {
-				removeSprintIdsEvent: [storyDoc.level, storyDoc.subtype, getSprintNameById(rootState.loadedSprintId, rootState.myCurrentSprintCalendar)],
+				removeSprintIdsEvent: [storyDoc.level, storyDoc.subtype, getSprintNameById(rootState.loadedSprintId, rootState.myCurrentSprintCalendar), removedSprintId],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
