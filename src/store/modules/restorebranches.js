@@ -14,7 +14,7 @@ function composeRangeString1(id) {
 }
 
 function composeRangeString2(id) {
-	return `startkey="${id}"&endkey="${id}"`
+	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
 const actions = {
