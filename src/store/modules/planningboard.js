@@ -3,6 +3,7 @@ import { getSprintNameById } from '../../common_functions.js'
 import { expandNode } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
+// Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 const MIN_ID = ''
 const MAX_ID = '999999999999zzzzz'
@@ -18,6 +19,14 @@ function composeRangeString2(team) {
 }
 function composeRangeString3(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
+}
+
+function removeFromBoard(commit, doc, removedSprintId) {
+	if (removedSprintId === '*' || doc.sprintId === undefined || doc.sprintId === removedSprintId) {
+		// remove from all sprints ('*') ELSE do not remove items assigned to other sprints (note that the sprintId might not be deleted from the document before this code is executed)
+		if (doc.level === LEVEL.PBI) commit('removeStoryFromBoard', doc._id)
+		if (doc.level === LEVEL.TASK) commit('removeTaskFromBoard', { storyId: doc.parentId, taskId: doc._id, taskState: doc.state })
+	}
 }
 
 const state = {
@@ -177,6 +186,21 @@ const mutations = {
 				break
 			}
 		}
+	},
+
+	/* Remove the story from the planning board */
+	removeStoryFromBoard(state, storyId) {
+		const updatedStories = []
+		let idx = 0
+		for (const s of state.stories) {
+			if (s.storyId !== storyId) {
+				// repair the index
+				s.idx = idx
+				updatedStories.push(s)
+				idx++
+			}
+		}
+		state.stories = updatedStories
 	}
 }
 
@@ -896,35 +920,6 @@ const actions = {
 		})
 	},
 
-	/* Register the history of the removal of a task in the parent story and trigger an event for synchronization */
-	addHistoryToStory({
-		rootState,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + payload.storyId
-		}).then(res => {
-			const storyDoc = res.data
-			const newHist = {
-				taskRemovedEvent: [payload.taskTitle, payload.teamName, payload.storyId, payload.taskId, payload.taskState],
-				by: rootState.userData.user,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
-				distributeEvent: true
-			}
-			storyDoc.history.unshift(newHist)
-			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb,
-				updatedDoc: storyDoc,
-				caller: 'addHistoryToStory'
-			})
-		}).catch(error => {
-			const msg = 'addHistoryToStory: Could not read document with id ' + payload.storyId + ', ' + error
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
 	/* Remove a story from the sprint and update the planning board. Also remove the sprintId from the node if the Details view is active.*/
 	boardRemoveStoryFromSprint({
 		rootState,
@@ -937,9 +932,8 @@ const actions = {
 			const storyDoc = res.data
 			const removedSprintId = storyDoc.sprintId
 			delete storyDoc.sprintId
-
 			const newHist = {
-				removeSprintIdsEvent: [storyDoc.level, storyDoc.subtype, getSprintNameById(rootState.loadedSprintId, rootState.myCurrentSprintCalendar), removedSprintId],
+				removeStoryEvent: [storyDoc.level, storyDoc.subtype, getSprintNameById(rootState.loadedSprintId, rootState.myCurrentSprintCalendar), removedSprintId],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -951,7 +945,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: storyDoc,
-				caller: 'boardRemoveTask', toDispatch: [{ removeSprintFromChildren: { storyId, removedSprintId } }],
+				caller: 'boardRemoveStoryFromSprint', toDispatch: [{ removeSprintFromChildren: { storyId, removedSprintId } }],
 				onSuccessCallback: () => {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// remove the sprintId from the node in the tree view
@@ -966,18 +960,6 @@ const actions = {
 							}
 						}
 					}
-					// remove the story from the planning board
-					const updatedStories = []
-					let idx = 0
-					for (const s of state.stories) {
-						if (s.storyId !== storyId) {
-							// repair the index
-							s.idx = idx
-							updatedStories.push(s)
-							idx++
-						}
-					}
-					state.stories = updatedStories
 				}
 			})
 		}).catch(error => {
@@ -992,7 +974,8 @@ const actions = {
 	*/
 	removeSprintFromChildren({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, payload) {
 		globalAxios({
 			method: 'GET',
@@ -1000,10 +983,9 @@ const actions = {
 		}).then(res => {
 			const results = res.data.rows
 			if (results.length > 0) {
-				// remove the sprintId
+				// remove the sprintId from the child document
 				const childDocs = results.map(r => r.doc)
 				const updatedDocs = []
-				const updatedDocIds = []
 				for (const doc of childDocs) {
 					if (doc.sprintId === payload.removedSprintId) {
 						delete doc.sprintId
@@ -1014,13 +996,18 @@ const actions = {
 						}
 						doc.history.unshift(newHist)
 						updatedDocs.push(doc)
-						updatedDocIds.push(doc._id)
 					}
 				}
-				const toDispatch = [{ triggerBoardReload: { parentId: 'messenger', sprintId: payload.removedSprintId } }]
-				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, toDispatch, caller: 'removeSprintFromChildren' })
+				dispatch('updateBulk', {
+					dbName: rootState.userData.currentDb, docs: updatedDocs, caller: 'removeSprintFromChildren', onSuccessCallback: () => {
+						for (const doc of updatedDocs) {
+							commit('removeTaskFromBoard', { storyId: doc.parentId, taskId: doc._id, taskState: doc.state })
+						}
+						commit('removeStoryFromBoard', payload.storyId)
+					}
+				})
 			} else {
-				dispatch('triggerBoardReload', { parentId: 'messenger', sprintId: payload.removedSprintId } )
+				commit('removeStoryFromBoard', payload.storyId)
 			}
 		}).catch(error => {
 			const msg = `removeSprintFromChildren: Could not fetch the child documents of document with id ${payload.storyId} in database ${rootState.userData.currentDb}. ${error}`
@@ -1031,7 +1018,8 @@ const actions = {
 	/* Remove a task from the database and planning board. Also remove the node from the Details view if active. */
 	boardRemoveTask({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, taskId) {
 		globalAxios({
 			method: 'GET',
@@ -1063,24 +1051,40 @@ const actions = {
 						const node = window.slVueTree.getNodeById(taskId)
 						if (node) window.slVueTree.removeNodes([node])
 					}
-					// remove the task from the planning board
-					for (const s of state.stories) {
-						if (s.storyId === storyId) {
-							const targetColumn = s.tasks[taskState]
-							const newTargetColumn = []
-							for (const c of targetColumn) {
-								if (c.id !== taskId) {
-									newTargetColumn.push(c)
-								}
-							}
-							s.tasks[taskState] = newTargetColumn
-							break
-						}
-					}
+					commit('removeTaskFromBoard', { storyId, taskId, taskState })
 				}
 			})
 		}).catch(error => {
 			const msg = 'boardRemoveTask: Could not read document with id ' + taskId + ', ' + error
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/* Register the history of the removal of a task in the parent story and trigger an event for synchronization */
+	addHistoryToStory({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.storyId
+		}).then(res => {
+			const storyDoc = res.data
+			const newHist = {
+				taskRemovedEvent: [payload.taskTitle, payload.teamName, payload.storyId, payload.taskId, payload.taskState],
+				by: rootState.userData.user,
+				timestamp: Date.now(),
+				sessionId: rootState.mySessionId,
+				distributeEvent: true
+			}
+			storyDoc.history.unshift(newHist)
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb,
+				updatedDoc: storyDoc,
+				caller: 'addHistoryToStory'
+			})
+		}).catch(error => {
+			const msg = 'addHistoryToStory: Could not read document with id ' + payload.storyId + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -1178,6 +1182,65 @@ const actions = {
 			const msg = 'boardUpdateTaskOwner: Could not read document with id ' + payload.taskId + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
+	},
+
+	////////////////////////////////// board only updates for use by the synchronization feature //////////////////////////
+
+	syncRemoveItemsFromBoard({
+		dispatch,
+		commit
+	}, payload) {
+		const doc = payload.doc
+		const removedSprintId = payload.removedSprintId
+		if (doc.level === LEVEL.PBI || doc.level === LEVEL.PBI) {
+			// if the parent is a story or task, remove it from the board
+			removeFromBoard(commit, doc, removedSprintId)
+		}
+		if (doc.level < LEVEL.TASK) {
+			// process the descendants, if any
+			dispatch('removeDescendantsFromBoard', { parentId: doc._id, removedSprintId })
+		}
+	},
+
+	/* Remove a story from the board and remove its children (tasks) if the sprintId matches the removedSprintId. */
+	removeDescendantsFromBoard({
+		rootState,
+		dispatch
+	}, payload) {
+		const removedSprintId = payload.removedSprintId
+		const parentId = payload.parentId
+		// set the url to scan the descendants at the level of the parentId
+		const url = removedSprintId === '*' ? rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString3(parentId) + '&include_docs=true' :
+			rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString3(parentId) + '&include_docs=true'
+		globalAxios({
+			method: 'GET',
+			url
+		}).then(res => {
+			const results = res.data.rows
+			if (results.length > 0) {
+				// process next level
+				dispatch('remDescFromBoardLoop', { results, removedSprintId })
+			}
+		}).catch(error => {
+			const msg = `removeDescendantsFromBoard: Could not fetch the child documents of document with id ${parentId} in database ${rootState.userData.currentDb}. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	remDescFromBoardLoop({
+		dispatch,
+		commit
+	}, payload) {
+		const results = payload.results
+		const removedSprintId = payload.removedSprintId
+		for (const r of results) {
+			dispatch('removeDescendantsFromBoard', { parentId: r.id, removedSprintId })
+		}
+		// execute story or task board removal
+		const childDocs = results.map(r => r.doc)
+		for (const doc of childDocs) {
+			removeFromBoard(commit, doc, removedSprintId)
+		}
 	}
 }
 

@@ -347,7 +347,7 @@ const actions = {
 										showSyncMessage(`removed the`, SEV.INFO)
 									}
 									break
-								case 'removeSprintIdsEvent':
+								case 'removeStoryEvent':
 									commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
 									showSyncMessage(`unassigned the sprint from`, SEV.INFO)
 									break
@@ -545,29 +545,17 @@ const actions = {
 								}
 							}
 							break
-						case 'removedWithDescendantsEvent':
+						case 'removeStoryEvent':
 							{
-								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.removedWithDescendantsEvent[4])
-								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
-									// the item or its descendants are no longer assigned to the loaded sprint and must be removed from the board
-									if (doc.level === LEVEL.TASK) {
-										// a task is removed from a user story currently displayed on the planning board
-										for (const s of rootState.planningboard.stories) {
-											if (s.storyId === doc.parentId) {
-												const newArray = []
-												for (const t of s.tasks[doc.state]) {
-													if (t.id !== doc._id) newArray.push(t)
-												}
-												s.tasks[doc.state] = newArray
-												break
-											}
-										}
-									} else {
-										// a user story is removed from the planning board
-										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-									}
+								const removedSprintId = lastHistObj.removeStoryEvent[3]
+								if (removedSprintId === rootState.loadedSprintId) {
+									dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: removedSprintId })
 								}
 							}
+							break
+						case 'removedWithDescendantsEvent':
+							// the item and its descendants are removed, so no longer assigned to any sprint and must be removed from the board. ('*' = all sprints)
+							dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*' })
 							break
 						case 'setPointsEvent':
 							if (doc.sprintId === rootState.loadedSprintId && doc.level === LEVEL.PBI) {
@@ -671,10 +659,8 @@ const actions = {
 							}
 							break
 						default:
-							if (doc.sprintId === rootState.loadedSprintId) {
-								// eslint-disable-next-line no-console
-								if (rootState.debug) console.log('sync.planningBoard: event not found, name = ' + histEvent)
-							}
+							// eslint-disable-next-line no-console
+							if (rootState.debug) console.log('sync.planningBoard: event not found, name = ' + histEvent)
 					}
 				}
 			} catch (error) {
@@ -722,12 +708,15 @@ const actions = {
 		const isReqAreaItem = doc.productId === MISC.AREA_PRODUCTID
 		// update the tree only for documents available in the currently loaded tree model (eg. 'products overview' has no pbi and task items)
 		const updateTree = doc.level <= rootState.loadedTreeDepth
-		// update the board only if selected as the current view AND loaded for my team OR setTeamOwnerEvent is received
-		const updateBoard = rootGetters.isPlanningBoardSelected && (doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent')
+		// update the board only if the planningboard is selected with the sprint the document is assigned to OR the removeStoryEvent event is received AND loaded for my team OR setTeamOwnerEvent is received
+		const updateBoard = rootGetters.isPlanningBoardSelected &&
+			(doc.sprintId === rootState.loadedSprintId || histEvent === 'removeStoryEvent' || histEvent === 'removedWithDescendantsEvent') &&
+			(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent')
 		// process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, or the item is a requirement area item while the overview is in view
-		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) || histEvent === 'changeReqAreaColorEvent' || (histEvent === 'childItemRestoredEvent' && doc.level === LEVEL.DATABASE) || (rootGetters.isOverviewSelected && isReqAreaItem)) {
-			doProc(doc)
-		}
+		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
+			histEvent === 'changeReqAreaColorEvent' ||
+			(histEvent === 'childItemRestoredEvent' && doc.level === LEVEL.DATABASE) ||
+			(rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
 	},
 
 	/* Listen for document changes. The timeout, if no changes are available is 60 seconds (default maximum) */
