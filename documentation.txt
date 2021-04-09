@@ -270,7 +270,7 @@ Y            	Y	     Y    addCommentEvent	              	update.js
 Y			 				Y	     Y    addSprintIdsEvent								planningboard.js
 Y			 				N	     N    boardReloadEvent								planningboard.js
 Y            	N	     N    changeReqAreaColorEvent         update.js
-N             N	     Y    childItemRestoredEvent	  			undo.js
+Y             N	     Y    childItemRestoredEvent	  			undo.js
 N             Y	     Y    cloneEvent	                  	clone.js
 Y             Y	     Y    commentToHistoryEvent	        	update.js
 Y             Y	     Y    conditionRemovedEvent	        	update.js
@@ -289,7 +289,8 @@ Y             Y	     Y    removeCommentEvent	        		update.js
 Y             Y	     Y    removeCommentFromHistoryEvent  	update.js
 N             Y	     Y    removedFromParentEvent	      	remove.js
 Y             N      Y    removedWithDescendantsEvent     remove.js
-Y 			 			Y 	   Y    removeSprintIdsEvent						planningboard.js
+N 			 			Y 	   Y    removeSprintIdsEvent						planningboard.js
+Y 			 			Y 	   Y    removeStoryEvent								planningboard.js
 N			 				N	     Y    resetHistoryEvent								utils.js
 Y             Y	     Y    setConditionEvent	          		update.js
 Y             Y	     Y    setDependencyEvent	        		update.js
