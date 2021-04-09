@@ -3,6 +3,7 @@ import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 import router from '../../router'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
+// Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 const actions = {
 	/*
@@ -309,7 +310,7 @@ const actions = {
 					/* Filter on parentIds to map documents to their parent */
 					docToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.parentId, -doc.priority], 1)
+							if (doc.type == "backlogItem" && !doc.delmark) emit(doc.parentId, 1)
 						}`
 					},
 					/* Filter on tasks assigned to sprints not done */
@@ -356,7 +357,7 @@ const actions = {
 					/* Filter on delmark and parentId to map removed documents to their parent in order of priority */
 					removedDocToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority], 1)
+							if (doc.type == "backlogItem" && doc.delmark) emit(doc.parentId, 1)
 						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
@@ -382,7 +383,7 @@ const actions = {
 					/* Filter on unremovedMark and parentId to map unremoved documents to their parent in order of priority */
 					unremovedDocToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId, -doc.priority], 1)
+							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId], 1)
 						}`
 					}
 				},
