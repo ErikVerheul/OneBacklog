@@ -2,6 +2,7 @@ import { SEV, LEVEL, MISC } from '../../constants.js'
 import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
+// Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 var docsRemovedIds
 var removedDeps
@@ -12,7 +13,7 @@ var removedSprintIds
 var runningThreadsCount
 
 function composeRangeString(id) {
-	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
+	return `startkey="${id}"&endkey="${id}"`
 }
 
 function getLevelText(configData, level) {
@@ -228,13 +229,7 @@ const actions = {
 		}).then(res => {
 			const updatedDoc = res.data
 			const newHist = {
-				removedWithDescendantsEvent: [
-					id,
-					docsRemovedIds.length,
-					extDepsRemovedCount,
-					extCondsRemovedCount,
-					removedSprintIds
-				],
+				removedWithDescendantsEvent: [id, docsRemovedIds.length, extDepsRemovedCount, extCondsRemovedCount, removedSprintIds],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,

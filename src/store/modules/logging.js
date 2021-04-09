@@ -2,6 +2,7 @@ import { SEV } from '../../constants.js'
 import { localTimeAndMilis } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
+// Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000

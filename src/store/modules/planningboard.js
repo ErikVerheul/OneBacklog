@@ -18,7 +18,7 @@ function composeRangeString2(team) {
 	return `startkey=["${team}","${MIN_ID}","${MIN_ID}","${MIN_ID}",${Number.MIN_SAFE_INTEGER}]&endkey=["${team}","${MAX_ID}","${MAX_ID}","${MAX_ID}",${Number.MAX_SAFE_INTEGER}]`
 }
 function composeRangeString3(id) {
-	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
+	return `startkey="${id}"&endkey="${id}"`
 }
 
 function removeFromBoard(commit, doc, removedSprintId) {

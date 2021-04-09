@@ -2,6 +2,7 @@ import { SEV, LEVEL } from '../../constants.js'
 import { dedup, getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
+// Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 var fromHistory
 var histArray
@@ -9,11 +10,11 @@ var runningThreadsCount
 var unremovedMark
 
 function composeRangeString1(id) {
-	return `startkey=["${unremovedMark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${unremovedMark}","${id}",${Number.MAX_SAFE_INTEGER}]`
+	return `startkey=["${unremovedMark}","${id}"]&endkey=["${unremovedMark}","${id}"]`
 }
 
 function composeRangeString2(id) {
-	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
+	return `startkey="${id}"&endkey="${id}"`
 }
 
 const actions = {

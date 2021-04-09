@@ -1,9 +1,12 @@
 import { SEV, MISC } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
+// Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
-function composeRangeString(delmark, id) {
-	return `startkey=["${delmark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${id}",${Number.MAX_SAFE_INTEGER}]`
+var runningThreadsCount
+
+function composeRangeString(id) {
+	return `startkey="${id}"&endkey="${id}"`
 }
 
 const actions = {
@@ -25,6 +28,7 @@ const actions = {
 		dispatch
 	}, entry) {
 		const _id = entry.removedNode._id
+		runningThreadsCount = 0
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id
@@ -109,21 +113,28 @@ const actions = {
 		})
 	},
 
-	/* Executes the passed action on all descendants of the parent */
+	/* Executes the passed action on all removed descendants of the parent */
 	restoreDescendants({
 		rootState,
 		dispatch
 	}, payload) {
+		runningThreadsCount++
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(payload.entry.delmark, payload.parentId) + '&include_docs=true'
+			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(payload.parentId) + '&include_docs=true'
 		}).then(res => {
+			runningThreadsCount--
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
 				dispatch('loopUndoResults', { entry: payload.entry, results })
+			} else {
+				if (runningThreadsCount === 0) {
+					// continue
+				}
 			}
 		}).catch(error => {
+			runningThreadsCount--
 			const msg = `restoreDescendants: Could not fetch the child documents of document with id ${payload.parentId} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -133,8 +144,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		for (const r of payload.results) {
-			const id = r.id
-			dispatch('restoreDescendants', { entry: payload.entry, parentId: id })
+			dispatch('restoreDescendants', { entry: payload.entry, parentId: r.id })
 		}
 		// execute unremove for these results
 		dispatch('unremoveDescendants', { entry: payload.entry, results: payload.results })
@@ -211,6 +221,8 @@ const actions = {
 				distributeEvent: true
 			}
 			grandParentDoc.history.unshift(newHist)
+
+			//ToDo: must be saved as last DB update !!!!!!!!!!!!
 
 			// unmark for removal in case it was removed
 			if (grandParentDoc.delmark) {

@@ -2,6 +2,7 @@ import globalAxios from 'axios'
 import router from '../router'
 import { expandNode, collapseNode, addToArray, removeFromArray } from '../common_functions.js'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
+// Save the history, to trigger the distribution to other online users, when all other database updates are done.
 import { SEV, LEVEL, MISC } from '../constants.js'
 import Vue from 'vue'
 import Vuex from 'vuex'
