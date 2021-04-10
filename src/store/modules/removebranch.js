@@ -30,9 +30,10 @@ const actions = {
 	* 2. processItemsToRemove, dispatches getChildrenToRemove for every document
 	* 3. getChildrenToRemove, dispatches processItemsToRemove for every parent id and dispatches removeExternalConds when all parent ids are processed
 	* 4. removeExternalConds, dispatches removeExternalDeps
-	* 5. removeExternalDeps, dispatches addHistToRemovedDoc
-	* 6. addHistToRemovedDoc, adds history to the removed items and dispatches addHistToRemovedParent. If a REQAREA item is removed then removeReqAreaAssignments is dispachted
-	* 7. addHistToRemovedParent adds history to the parent and updates the tree view and created undo data
+	* 5. removeExternalDeps, dispatches addHistToRemovedParent, or if a REQAREA item is removed then removeReqAreaAssignments is dispachted
+	* 6. removeReqAreaAssignments, dispatches addHistToRemovedParent
+	* 7. addHistToRemovedParent, dispatches addHistToRemovedDoc and adds history to the parent
+	* 8. addHistToRemovedDoc, adds history to the removed item, updates the tree view and creates undo data
 	*/
 
 	removeBranch({
@@ -207,44 +208,50 @@ const actions = {
 						}
 					}
 				}
-				const toDispatch = [{ addHistToRemovedDoc: { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo } }]
+				// remove reqarea assignments when removing a requirement area
+				const toDispatch = payload.node.productId === MISC.AREA_PRODUCTID ? [{ removeReqAreaAssignments: payload.node._id }] : [{ addHistToRemovedParent: payload }]
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
 			}).catch(error => {
 				const msg = `removeExternalDeps: Could not read batch of documents. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
-		} else dispatch('addHistToRemovedDoc', { node: payload.node, delmark: payload.delmark, createUndo: payload.createUndo })
+		} else {
+			if (payload.node.productId === MISC.AREA_PRODUCTID) {
+				// remove reqarea assignments when removing a requirement area
+				dispatch('removeReqAreaAssignments', payload)
+			} else {
+				dispatch('addHistToRemovedParent', payload)
+			}
+		}
 	},
 
-	/* Add history to the removed item it self */
-	addHistToRemovedDoc({
+	/* Remove reqarea assignments when removing a requirement area */
+	removeReqAreaAssignments({
 		rootState,
 		dispatch
 	}, payload) {
-		const id = payload.node._id
-		// get the document
+		const reqArea = payload.node._id
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id
+			url: rootState.userData.currentDb + '/_design/design1/_view/assignedToReqArea?' + `startkey="${reqArea}"&endkey="${reqArea}"&include_docs=true`
 		}).then(res => {
-			const updatedDoc = res.data
-			const newHist = {
-				removedWithDescendantsEvent: [id, docsRemovedIds.length, extDepsRemovedCount, extCondsRemovedCount, removedSprintIds],
-				by: rootState.userData.user,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
-				distributeEvent: true
+			const updatedDocs = []
+			const results = res.data.rows
+			for (const r of results) {
+				const doc = r.doc
+				delete doc.reqarea
+				const newHist = {
+					ignoreEvent: ['removeReqAreaAssignments'],
+					timestamp: Date.now(),
+					distributeEvent: false
+				}
+				doc.history.unshift(newHist)
+				updatedDocs.push(doc)
 			}
-			updatedDoc.history.unshift(newHist)
-
 			const toDispatch = [{ addHistToRemovedParent: payload }]
-			if (payload.node.productId === MISC.AREA_PRODUCTID) {
-				// remove reqarea assignments
-				toDispatch.push({ removeReqAreaAssignments: id })
-			}
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, toDispatch, caller: 'addHistToRemovedDoc' })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, toDispatch, caller: 'removeReqAreaAssignments' })
 		}).catch(error => {
-			const msg = `addHistToRemovedDoc: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
+			const msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -252,9 +259,7 @@ const actions = {
 	/* Add history to the parent of the removed item */
 	addHistToRemovedParent({
 		rootState,
-		rootGetters,
-		dispatch,
-		commit
+		dispatch
 	}, payload) {
 		const id = payload.node.parentId
 		// get the document
@@ -281,7 +286,39 @@ const actions = {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: doc,
 				caller: 'addHistToRemovedParent',
-				onSuccessCallback: () => {
+				toDispatch: [{ addHistToRemovedDoc: payload }]
+			})
+		}).catch(error => {
+			const msg = `addHistToRemovedDoc: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/* Add history to the removed item, update the tree view and creates undo data */
+	addHistToRemovedDoc({
+		rootState,
+		rootGetters,
+		dispatch,
+		commit
+	}, payload) {
+		const removed_doc_id = payload.node._id
+		// get the document
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + removed_doc_id
+		}).then(res => {
+			const updatedDoc = res.data
+			const newHist = {
+				removedWithDescendantsEvent: [removed_doc_id, docsRemovedIds.length, extDepsRemovedCount, extCondsRemovedCount, removedSprintIds],
+				by: rootState.userData.user,
+				timestamp: Date.now(),
+				sessionId: rootState.mySessionId,
+				distributeEvent: true
+			}
+			updatedDoc.history.unshift(newHist)
+
+			dispatch('updateDoc', {
+				dbName: rootState.userData.currentDb, updatedDoc, caller: 'addHistToRemovedDoc', onSuccessCallback: () => {
 					// FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
 					const itemsRemovedFromReqArea = []
 					if (payload.node.productId === MISC.AREA_PRODUCTID) {
@@ -351,35 +388,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = `addHistToRemovedDoc: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	removeReqAreaAssignments({
-		rootState,
-		dispatch
-	}, reqArea) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/assignedToReqArea?' + `startkey="${reqArea}"&endkey="${reqArea}"&include_docs=true`
-		}).then(res => {
-			const updatedDocs = []
-			const results = res.data.rows
-			for (const r of results) {
-				const doc = r.doc
-				delete doc.reqarea
-				const newHist = {
-					ignoreEvent: ['removeReqAreaAssignments'],
-					timestamp: Date.now(),
-					distributeEvent: false
-				}
-				doc.history.unshift(newHist)
-				updatedDocs.push(doc)
-			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, caller: 'removeReqAreaAssignments' })
-		}).catch(error => {
-			const msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ', ' + error
+			const msg = `addHistToRemovedDoc: Could not read the document with id ${removed_doc_id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
