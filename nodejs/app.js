@@ -1,7 +1,7 @@
 'use strict'
 require('dotenv').config()
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-	"dependencyRemovedEvent", "descriptionEvent", "childItemRestoredEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent", "removeCommentFromHistoryEvent", "removedFromParentEvent",
+	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent", "removeCommentFromHistoryEvent", "removedFromParentEvent",
 	"setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
 	"removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
@@ -97,7 +97,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 			}
 		case "descriptionEvent":
 			return mkHeader() + `<h3>The description changed from:</h3><p>${atob(value[0])}</p> to <p>${atob(value[1])}</p>` + mkFooter()
-		case "childItemRestoredEvent":
+		case "undoBranchRemovalEvent":
 			return mkHeader() + `<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h3>` + mkFooter()
 		case "newChildEvent":
 			return mkHeader() + `<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}.</h3>` + mkFooter()
