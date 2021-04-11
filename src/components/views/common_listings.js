@@ -67,7 +67,6 @@ const computed = {
 
       for (let j = 0; j < keys.length; j++) {
         if (keys[j] === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
-				if (keys[j] === 'childItemRestoredEvent') allText += this.mkChildItemRestoredEvent(histItem[keys[j]])
         if (keys[j] === 'cloneEvent') allText += this.mkCloneEvent(histItem[keys[j]])
         if (keys[j] === 'commentToHistoryEvent') allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
         if (keys[j] === 'conditionRemovedEvent') allText += this.mkConditionRemovedEvent(histItem[keys[j]])
@@ -96,6 +95,7 @@ const computed = {
         if (keys[j] === 'setTitleEvent') allText += this.mkSetTitleEvent(histItem[keys[j]])
         if (keys[j] === 'subscribeEvent') allText += this.mkSubscribeEvent(histItem[keys[j]])
         if (keys[j] === 'taskRemovedEvent') allText += this.mkTaskRemovedEvent(histItem[keys[j]])
+				if (keys[j] === 'undoBranchRemovalEvent') allText += this.mkUndoBranchRemovalEvent(histItem[keys[j]])
         if (keys[j] === 'updateTaskOwnerEvent') allText += this.mkUpdateTaskOwnerEvent(histItem[keys[j]])
         if (keys[j] === 'uploadAttachmentEvent') allText += this.mkUploadAttachmentEvent(histItem[keys[j]])
         if (keys[j] === 'resetHistoryEvent') allText += this.mkResetHistoryEvent(histItem[keys[j]])
@@ -144,7 +144,6 @@ const methods = {
 
   prepHistoryText (key, value) {
     if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value)
-		if (key === 'childItemRestoredEvent') return this.mkChildItemRestoredEvent(value)
     if (key === 'cloneEvent') return this.mkCloneEvent(value)
     if (key === 'commentToHistoryEvent') return this.mkCommentToHistoryEvent(value)
     if (key === 'conditionRemovedEvent') return this.mkConditionRemovedEvent(value)
@@ -173,6 +172,7 @@ const methods = {
     if (key === 'setTitleEvent') return this.mkSetTitleEvent(value)
     if (key === 'subscribeEvent') return this.mkSubscribeEvent(value)
     if (key === 'taskRemovedEvent') return this.mkTaskRemovedEvent(value)
+		if (key === 'undoBranchRemovalEvent') return this.mkUndoBranchRemovalEvent(value)
     if (key === 'updateTaskOwnerEvent') return this.mkUpdateTaskOwnerEvent(value)
     if (key === 'uploadAttachmentEvent') return this.mkUploadAttachmentEvent(value)
     if (key === 'resetHistoryEvent') return this.mkResetHistoryEvent(value)
@@ -200,7 +200,7 @@ const methods = {
     }
   },
 
-	mkChildItemRestoredEvent(value) {
+	mkUndoBranchRemovalEvent(value) {
 		return `<h5>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h5>`
 	},
 

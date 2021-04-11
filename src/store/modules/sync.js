@@ -3,7 +3,7 @@ import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
-const boardEvents = ['createEvent', 'createTaskEvent', 'childItemRestoredEvent', 'nodeMovedEvent', 'removedWithDescendantsEvent', 'setPointsEvent', 'setStateEvent', 'setSubTypeEvent', 'setTeamOwnerEvent', 'setTitleEvent', 'taskRemovedEvent', 'updateTaskOrderEvent']
+const boardEvents = ['createEvent', 'createTaskEvent', 'undoBranchRemovalEvent', 'nodeMovedEvent', 'removedWithDescendantsEvent', 'setPointsEvent', 'setStateEvent', 'setSubTypeEvent', 'setTeamOwnerEvent', 'setTitleEvent', 'taskRemovedEvent', 'updateTaskOrderEvent']
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
 /*
@@ -179,7 +179,7 @@ const actions = {
 				// note that both updateTree and updateBoard can be true
 				if (updateTree) {
 					// check for exception 'node not found'
-					if (node === null && histEvent !== 'childItemRestoredEvent' && histEvent !== 'createEvent' && histEvent !== 'createTaskEvent') {
+					if (node === null && (histEvent !== 'undoBranchRemovalEvent' || histEvent !== 'createEvent' || histEvent !== 'createTaskEvent')) {
 						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
 						dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
 						return
@@ -252,9 +252,9 @@ const actions = {
 									commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
 									showSyncMessage(`changed the title of`, SEV.INFO)
 									break
-								case 'childItemRestoredEvent':
+								case 'undoBranchRemovalEvent':
 									dispatch('restoreBranch', {
-										histArray: lastHistObj.childItemRestoredEvent,
+										histArray: lastHistObj.undoBranchRemovalEvent,
 										restoreReqArea: true
 									})
 									break
@@ -299,9 +299,9 @@ const actions = {
 									commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastContentChange: doc.lastContentChange })
 									showSyncMessage(`changed the description of`, SEV.INFO)
 									break
-								case 'childItemRestoredEvent':
+								case 'undoBranchRemovalEvent':
 									dispatch('restoreBranch', {
-										histArray: lastHistObj.childItemRestoredEvent,
+										histArray: lastHistObj.undoBranchRemovalEvent,
 										isSameUserInDifferentSession,
 										toDispatch: updateBoard ? [{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }] : undefined
 									})
@@ -490,9 +490,9 @@ const actions = {
 								}
 							}
 							break
-						case 'childItemRestoredEvent':
+						case 'undoBranchRemovalEvent':
 							{
-								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.childItemRestoredEvent[7])
+								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.undoBranchRemovalEvent[7])
 								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
 									// one or more of the removed items or their descendants assigned to the loaded sprint are restored
 									if (doc.level === LEVEL.TASK) {
@@ -554,8 +554,11 @@ const actions = {
 							}
 							break
 						case 'removedWithDescendantsEvent':
-							// the item and its descendants are removed, so no longer assigned to any sprint and must be removed from the board. ('*' = all sprints)
-							dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*' })
+							{
+								const delmark = lastHistObj.removedWithDescendantsEvent[5]
+								// the item and its descendants are removed, so no longer assigned to any sprint and must be removed from the board. ('*' = all sprints)
+								dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*', delmark })
+							}
 							break
 						case 'setPointsEvent':
 							if (doc.sprintId === rootState.loadedSprintId && doc.level === LEVEL.PBI) {
@@ -715,7 +718,7 @@ const actions = {
 		// process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, or the item is a requirement area item while the overview is in view
 		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
 			histEvent === 'changeReqAreaColorEvent' ||
-			(histEvent === 'childItemRestoredEvent' && doc.level === LEVEL.DATABASE) ||
+			(histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) ||
 			(rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
 	},
 

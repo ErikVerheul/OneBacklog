@@ -29,7 +29,8 @@ Database--------- backlogItem document -------------------- node
 "sprintId"(string)----------------------------------------- data.sprintId
 "comments": []--------------------------------------------- loaded on request
 "history": []---------------------------------------------- loaded on request
-"delmark"(string)------------------------------------------ if present the document is marked for deletion; value 'true' or UID
+"delmark"(string)------------------------------------------ if present the document is marked for deletion; value 'true' or removal UID in versions > 1.8
+"unremovedMark"(string)------------------------------------ former delmark UID used used by the synchronization to sync a remote removal undo
 "lastPositionChange"--------------------------------------- data.lastPositionChange,
 "lastStateChange"------------------------------------------ data.lastStateChange,
 "lastContentChange"---------------------------------------- data.lastContentChange, // last change of title, description or acceptance criteria
@@ -270,7 +271,6 @@ Y            	Y	     Y    addCommentEvent	              	update.js
 Y			 				Y	     Y    addSprintIdsEvent								planningboard.js
 Y			 				N	     N    boardReloadEvent								planningboard.js
 Y            	N	     N    changeReqAreaColorEvent         update.js
-Y             N	     Y    childItemRestoredEvent	  			undo.js
 N             Y	     Y    cloneEvent	                  	clone.js
 Y             Y	     Y    commentToHistoryEvent	        	update.js
 Y             Y	     Y    conditionRemovedEvent	        	update.js
@@ -304,6 +304,7 @@ Y             Y	     Y    setTeamOwnerEvent	            	update.js
 Y             Y	     Y    setTitleEvent	                	update.js, planningboard.js
 N			 				N	     Y    subscribeEvent									update.js
 Y             N      Y    taskRemovedEvent								planningboard.js
+Y             N	     Y    undoBranchRemovalEvent	  			undo.js
 Y             Y	     Y    uploadAttachmentEvent	        	attachments.js
 Y             N	     N    updateTaskOrderEvent	        	planningboard.js
 
