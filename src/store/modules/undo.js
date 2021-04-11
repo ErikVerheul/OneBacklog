@@ -27,7 +27,7 @@ const actions = {
 	* 2. unremove the descendants
 	* 3. restore the external dependencies & conditions
 	* 4. if a req area item is restored, restore the removed references to the requirement area
-	* 5. add history to the parent's parent to trigger the distribution (distributed: true)
+	* 5. add history to the parent's parent to trigger the distribution (distributeEvent: true)
 	* 6. update the tree view
 	* If any of these steps fail the next steps are not executed but not undone
 	*/
