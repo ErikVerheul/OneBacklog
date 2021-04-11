@@ -450,7 +450,7 @@ export default new Vuex.Store({
 
 		resetFindOnId({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
-			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}, state.resetSearch.searchType = ${state.resetSearch.searchType}`)
+			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
 			const node = state.resetSearch.node
 			const prevSelectedNode = state.resetSearch.currentSelectedNode
 			if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
