@@ -10,7 +10,7 @@ var runningThreadsCount
 var unremovedMark
 
 function composeRangeString1(id) {
-	return `startkey=["${unremovedMark}","${id}"]&endkey=["${unremovedMark}","${id}"]`
+	return `startkey=["${unremovedMark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${unremovedMark}","${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
 function composeRangeString2(id) {
@@ -170,7 +170,7 @@ const actions = {
 	}, payload) {
 		for (const r of payload.results) {
 			// add the child node
-			const newParentNode = window.slVueTree.insertDescendantNode(payload.parentNode, r.doc)
+			const newParentNode = window.slVueTree.appendDescendantNode(payload.parentNode, r.doc)
 			// scan next level
 			dispatch('loadChildren', { parentNode: newParentNode })
 		}

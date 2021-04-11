@@ -358,8 +358,8 @@ const actions = {
 					/* Filter on delmark and parentId to map removed documents to their parent in order of priority */
 					removedDocToParentMap: {
 						map: `function(doc) {
-							// use doc.priority to order the results when on the same doc.level
-							if (doc.type == "backlogItem" && doc.delmark) emit([doc.parentId, -doc.priority], 1)
+							// doc.delmark can be undefined, boolean true or an id; doc.priority is used to order the results when on the same doc.level
+  						if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority], 1)
 						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
@@ -385,7 +385,8 @@ const actions = {
 					/* Filter on unremovedMark and parentId to map unremoved documents to their parent in order of priority */
 					unremovedDocToParentMap: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId], 1)
+							// doc.unremovedMark can be undefined or an id; doc.priority is used to order the results when on the same doc.level
+  						if (doc.type == "backlogItem" && doc.unremovedMark) emit([doc.unremovedMark, doc.parentId, -doc.priority])
 						}`
 					}
 				},

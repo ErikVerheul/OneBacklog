@@ -4,13 +4,13 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
-var docsRemovedIds
 var removedDeps
 var removedConds
 var extDepsRemovedCount
 var extCondsRemovedCount
 var removedSprintIds
 var runningThreadsCount
+var removedDocsCount
 
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
@@ -40,13 +40,13 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		docsRemovedIds = []
 		removedDeps = {}
 		removedConds = {}
 		extDepsRemovedCount = 0
 		extCondsRemovedCount = 0
 		removedSprintIds = []
 		runningThreadsCount = 0
+		removedDocsCount = 0
 
 		const id = payload.node._id
 		const delmark = createId()
@@ -65,12 +65,12 @@ const actions = {
 
 	processItemsToRemove({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, payload) {
 		const toDispatch = []
 		const removedParentLevel = payload.node.level
 		for (const doc of payload.results) {
-			docsRemovedIds.push(doc._id)
 			if (doc.dependencies && doc.dependencies.length > 0) {
 				for (const d of doc.dependencies) {
 					removedDeps[d] = { dependentOn: doc._id, level: doc.level, removedParentLevel }
@@ -97,7 +97,12 @@ const actions = {
 			runningThreadsCount++
 			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, createUndo: payload.createUndo } })
 		}
-		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove' })
+		dispatch('updateBulk', {
+			dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove', onSuccessCallback: () => {
+				removedDocsCount += payload.results.length
+				commit('showLastEvent', { txt: `${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
+			}
+		})
 	},
 
 	getChildrenToRemove({
@@ -273,7 +278,7 @@ const actions = {
 				removedFromParentEvent: [
 					payload.node.level,
 					payload.node.title,
-					docsRemovedIds.length - 1,
+					removedDocsCount,
 					payload.node.data.subtype
 				],
 				by: rootState.userData.user,
@@ -309,7 +314,7 @@ const actions = {
 		}).then(res => {
 			const updatedDoc = res.data
 			const newHist = {
-				removedWithDescendantsEvent: [removed_doc_id, docsRemovedIds.length, extDepsRemovedCount, extCondsRemovedCount, removedSprintIds],
+				removedWithDescendantsEvent: [removed_doc_id, removedDocsCount, extDepsRemovedCount, extCondsRemovedCount, removedSprintIds, payload.delmark],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -359,14 +364,13 @@ const actions = {
 								}
 
 								if (payload.createUndo) {
-									const removedDescendantsCount = docsRemovedIds.length - 1
 									// create an entry for undoing the remove in a last-in first-out sequence
 									const entry = {
 										type: 'undoRemove',
 										delmark: payload.delmark,
 										isProductRemoved: removedNode.level === LEVEL.PRODUCT,
 										itemsRemovedFromReqArea,
-										removedDescendantsCount,
+										removedDescendantsCount: removedDocsCount - 1,
 										removedExtConditions: removed.removedExtConditions,
 										removedExtDependencies: removed.removedExtDependencies,
 										removedIntConditions: removed.removedIntConditions,
@@ -378,7 +382,7 @@ const actions = {
 										entry.removedProductRoles = rootGetters.getMyProductsRoles[removedNode._id]
 									}
 									rootState.changeHistory.unshift(entry)
-									commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} and ${removedDescendantsCount} descendants are removed`, severity: SEV.INFO })
+									commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
 								} else {
 									commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
 								}

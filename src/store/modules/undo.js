@@ -3,11 +3,13 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
+var globalEntry
 var runningThreadsCount
 var updatedParentDoc
+var descendantNodesRestoredCount
 
-function composeRangeString(id) {
-	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
+function composeRangeString(delmark, parentId) {
+	return `startkey=["${delmark}","${parentId}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${parentId}",${Number.MAX_SAFE_INTEGER}]`
 }
 
 function getLevelText(configData, level) {
@@ -35,8 +37,10 @@ const actions = {
 		rootState,
 		dispatch
 	}, entry) {
-		const _id = entry.removedNode._id
+		globalEntry = entry
+		const _id = globalEntry.removedNode._id
 		runningThreadsCount = 0
+		descendantNodesRestoredCount = 0
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id
@@ -54,7 +58,7 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: updatedParentDoc,
-				toDispatch: [{ restoreDescendants: { entry, parentId: entry.removedNode._id } }],
+				toDispatch: [{ restoreDescendants: { parentId: globalEntry.removedNode._id } }],
 				caller: 'restoreItemAndDescendants',
 			})
 		}).catch(error => {
@@ -71,18 +75,17 @@ const actions = {
 		runningThreadsCount++
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(payload.parentId) + '&include_docs=true'
+			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(globalEntry.delmark, payload.parentId) + '&include_docs=true'
 		}).then(res => {
 			runningThreadsCount--
-			const entry = payload.entry
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
-				dispatch('loopUndoResults', { entry: payload.entry, results })
+				dispatch('loopUndoResults', { results })
 			} else {
 				if (runningThreadsCount === 0) {
 					// the items are updated in the database, restore the external dependencies & conditions
-					dispatch('restoreExtDepsAndConds', entry)
+					dispatch('restoreExtDepsAndConds')
 				}
 			}
 		}).catch(error => {
@@ -96,32 +99,39 @@ const actions = {
 		dispatch
 	}, payload) {
 		for (const r of payload.results) {
-			dispatch('restoreDescendants', { entry: payload.entry, parentId: r.id })
+			dispatch('restoreDescendants', { parentId: r.id })
 		}
 		// execute unremove for these results
-		dispatch('unremoveDescendants', { entry: payload.entry, results: payload.results })
+		dispatch('unremoveDescendants', { results: payload.results })
 	},
 
-	/* Unmark the removed item and its descendants for removal. Do not distribute this event */
+	/* Unmark the removed item and its descendants for removal. Create nodes from the retrieved docs and add then to the removed node */
 	unremoveDescendants({
 		rootState,
 		rootGetters,
 		dispatch
 	}, payload) {
-		function getParentNode(id, nodes) {
+		function getParentNode(id) {
 			let parentNode
-			// traverse the nodes to find the parent node in its children
+			// traverse the node to find the parent node for the item with this id
 			window.slVueTree.traverseModels((nm) => {
 				if (nm._id === id) {
 					parentNode = nm
 					return false
 				}
-			}, nodes)
+			}, [globalEntry.removedNode])
 			return parentNode
 		}
-		const entry = payload.entry
+
 		const results = payload.results
 		const docs = results.map(r => r.doc)
+		// all docs have the same parent and level
+		const sharedDocLevel = docs[0].level
+		let parentNode = undefined
+		if (sharedDocLevel <= rootGetters.leafLevel) {
+			// get the parentNode if a node needs to be recovered
+			parentNode = getParentNode(docs[0].parentId)
+		}
 		for (const doc of docs) {
 			const newHist = {
 				ignoreEvent: ['unremoveDescendants'],
@@ -131,33 +141,30 @@ const actions = {
 			doc.history.unshift(newHist)
 			// restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
 			if (doc.dependencies) {
-				for (const d of entry.removedIntDependencies) {
+				for (const d of globalEntry.removedIntDependencies) {
 					if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
 				}
 			}
 			// restore removed conditions if the array exists (when not the condition cannot be removed from this document)
 			if (doc.conditionalFor) {
-				for (const c of entry.removedIntConditions) {
+				for (const c of globalEntry.removedIntConditions) {
 					if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
 				}
 			}
-			// unmark for removal
+			// set the unremovedMark and unmark the removal
 			doc.unremovedMark = doc.delmark
 			delete doc.delmark
+
+			// create a node and insert it in the removed node
+			if (parentNode && parentNode.level < rootGetters.leafLevel) {
+				// restore the node as child of the parent up to leafLevel
+				window.slVueTree.appendDescendantNode(parentNode, doc)
+				descendantNodesRestoredCount++
+			}
 		}
 
 		dispatch('updateBulk', {
-			dbName: rootState.userData.currentDb, docs, caller: 'unremoveDescendants', onSuccessCallback: () => {
-				const leafLevel = rootGetters.leafLevel
-				// add the children to the removed node; note: all nodes have the same parent
-				const parentNode = getParentNode(docs[0].parentId, [entry.removedNode])
-				if (parentNode && parentNode.level < leafLevel) {
-					// restore the nodes as childs of the parent up to leafLevel
-					for (const doc of docs) {
-						window.slVueTree.insertDescendantNode(parentNode, doc)
-					}
-				}
-			}
+			dbName: rootState.userData.currentDb, docs, caller: 'unremoveDescendants'
 		})
 	},
 
@@ -166,18 +173,17 @@ const actions = {
 		rootState,
 		commit,
 		dispatch
-	}, entry) {
-		const _id = entry.removedNode.parentId
+	}) {
+		const _id = globalEntry.removedNode.parentId
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id
 		}).then(res => {
 			const grandParentDoc = res.data
 			const newHist = {
-				childItemRestoredEvent: [entry.removedNode._id, entry.removedDescendantsCount, entry.removedIntDependencies, entry.removedExtDependencies,
-				entry.removedIntConditions, entry.removedExtConditions, entry.removedProductRoles, entry.sprintIds, entry.itemsRemovedFromReqArea,
-				entry.removedNode.level, entry.removedNode.data.subtype, entry.removedNode.title
-				],
+				undoBranchRemovalEvent: [globalEntry.removedNode._id, globalEntry.removedDescendantsCount, globalEntry.removedIntDependencies, globalEntry.removedExtDependencies,
+				globalEntry.removedIntConditions, globalEntry.removedExtConditions, globalEntry.removedProductRoles, globalEntry.sprintIds, globalEntry.itemsRemovedFromReqArea,
+				globalEntry.removedNode.level, globalEntry.removedNode.data.subtype, globalEntry.removedNode.title],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -193,21 +199,21 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, caller: 'updateGrandParentHist', onSuccessCallback: () => {
 					// FOR PRODUCTS OVERVIEW ONLY: when undoing the removal of a requirement area, items must be reassigned to this area
-					if (entry.removedNode.productId === MISC.AREA_PRODUCTID) {
+					if (globalEntry.removedNode.productId === MISC.AREA_PRODUCTID) {
 						window.slVueTree.traverseModels((nm) => {
-							if (entry.itemsRemovedFromReqArea.includes(nm._id)) {
-								nm.data.reqarea = entry.removedNode._id
+							if (globalEntry.itemsRemovedFromReqArea.includes(nm._id)) {
+								nm.data.reqarea = globalEntry.removedNode._id
 							}
 						})
 					}
-					if (entry.isProductRemoved) {
+					if (globalEntry.isProductRemoved) {
 						// re-enter the users roles for this product and update the user's subscriptions and product selection arrays with the re-entered product
-						dispatch('addToMyProducts', { newRoles: entry.removedProductRoles, productId: _id, productTitle: entry.removedNode.title })
+						dispatch('addToMyProducts', { newRoles: globalEntry.removedProductRoles, productId: _id, productTitle: globalEntry.removedNode.title })
 					}
-					const path = entry.removedNode.path
+					const path = globalEntry.removedNode.path
 					const prevNode = window.slVueTree.getPreviousNode(path)
 					let cursorPosition
-					if (entry.removedNode.path.slice(-1)[0] === 0) {
+					if (globalEntry.removedNode.path.slice(-1)[0] === 0) {
 						// the previous node is the parent
 						cursorPosition = {
 							nodeModel: prevNode,
@@ -221,30 +227,30 @@ const actions = {
 						}
 					}
 					// do not recalculate priorities when inserting a product node. ToDo: check this
-					window.slVueTree.insertNodes(cursorPosition, [entry.removedNode], { calculatePrios: entry.removedNode.parentId !== 'root' })
+					window.slVueTree.insertNodes(cursorPosition, [globalEntry.removedNode], { calculatePrios: globalEntry.removedNode.parentId !== 'root' })
 
 					// select the recovered node
-					commit('updateNodesAndCurrentDoc', { selectNode: entry.removedNode })
-					rootState.currentProductId = entry.removedNode.productId
+					commit('updateNodesAndCurrentDoc', { selectNode: globalEntry.removedNode })
+					rootState.currentProductId = globalEntry.removedNode.productId
 					// restore the removed dependencies
-					for (const d of entry.removedIntDependencies) {
+					for (const d of globalEntry.removedIntDependencies) {
 						const node = window.slVueTree.getNodeById(d.id)
 						if (node !== null) node.dependencies.push(d.dependentOn)
 					}
-					for (const d of entry.removedExtDependencies) {
+					for (const d of globalEntry.removedExtDependencies) {
 						const node = window.slVueTree.getNodeById(d.id)
 						if (node !== null) node.dependencies.push(d.dependentOn)
 					}
-					for (const c of entry.removedIntConditions) {
+					for (const c of globalEntry.removedIntConditions) {
 						const node = window.slVueTree.getNodeById(c.id)
 						if (node !== null) node.conditionalFor.push(c.conditionalFor)
 					}
-					for (const c of entry.removedExtConditions) {
+					for (const c of globalEntry.removedExtConditions) {
 						const node = window.slVueTree.getNodeById(c.id)
 						if (node !== null) node.conditionalFor.push(c.conditionalFor)
 					}
 					commit('updateNodesAndCurrentDoc', { newDoc: updatedParentDoc })
-					commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, entry.removedNode.level)} and ${entry.removedDescendantsCount} descendants are restored`, severity: SEV.INFO })
+					commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
@@ -257,21 +263,21 @@ const actions = {
 	restoreExtDepsAndConds({
 		rootState,
 		dispatch
-	}, entry) {
+	}) {
 		const docsToGet = []
-		for (const d of entry.removedExtDependencies) {
+		for (const d of globalEntry.removedExtDependencies) {
 			docsToGet.push({ id: d.id })
 		}
-		for (const c of entry.removedExtConditions) {
+		for (const c of globalEntry.removedExtConditions) {
 			docsToGet.push({ id: c.id })
 		}
 		if (docsToGet.length === 0) {
 			// no conds or deps to restore
-			if (entry.removedNode.productId === MISC.AREA_PRODUCTID) {
+			if (globalEntry.removedNode.productId === MISC.AREA_PRODUCTID) {
 				// restore the removed references to the requirement area
-				dispatch('restoreReqarea', entry)
+				dispatch('restoreReqarea', globalEntry)
 			} else {
-				dispatch('updateGrandParentHist', entry)
+				dispatch('updateGrandParentHist', globalEntry)
 			}
 			return
 		}
@@ -288,13 +294,13 @@ const actions = {
 				if (doc) {
 					// restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
 					if (doc.dependencies) {
-						for (const d of entry.removedExtDependencies) {
+						for (const d of globalEntry.removedExtDependencies) {
 							if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
 						}
 					}
 					// restore removed conditions if the array exists (when not the condition cannot be removed from this document)
 					if (doc.conditionalFor) {
-						for (const c of entry.removedExtConditions) {
+						for (const c of globalEntry.removedExtConditions) {
 							if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
 						}
 					}
@@ -316,7 +322,7 @@ const actions = {
 				const msg = `restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored. ${errorStr}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
-			const toDispatch = entry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: entry }] : [{ updateGrandParentHist: entry }]
+			const toDispatch = globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateGrandParentHist: globalEntry }]
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreExtDepsAndConds' })
 		}).catch(error => {
 			const msg = `restoreExtDepsAndConds: Could not read batch of documents. ${error}`
@@ -328,13 +334,13 @@ const actions = {
 	restoreReqarea({
 		rootState,
 		dispatch
-	}, entry) {
+	}) {
 		const docsToGet = []
-		for (const id of entry.itemsRemovedFromReqArea) {
+		for (const id of globalEntry.itemsRemovedFromReqArea) {
 			docsToGet.push({ id: id })
 		}
 		if (docsToGet.length === 0) {
-			dispatch('updateGrandParentHist', entry)
+			dispatch('updateGrandParentHist', globalEntry)
 			return
 		}
 		globalAxios({
@@ -347,18 +353,17 @@ const actions = {
 			for (const r of results) {
 				const doc = r.docs[0].ok
 				if (doc) {
-					doc.reqarea = entry.removedNode._id
+					doc.reqarea = globalEntry.removedNode._id
 					const newHist = {
 						ignoreEvent: ['restoreReqarea'],
 						timestamp: Date.now(),
 						distributeEvent: false
 					}
 					doc.history.unshift(newHist)
-
 					docs.push(doc)
 				}
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateGrandParentHist: entry }], caller: 'restoreReqarea' })
+			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateGrandParentHist: globalEntry }], caller: 'restoreReqarea' })
 		}).catch(error => {
 			const msg = `restoreReqarea: Could not read batch of documents. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })

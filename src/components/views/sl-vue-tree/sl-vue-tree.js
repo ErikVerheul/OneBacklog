@@ -392,7 +392,7 @@ const methods = {
 	},
 
 	/* Add a node, derived from its document, as last child of the parentNode's children; return the created node */
-	insertDescendantNode(parentNode, doc) {
+	appendDescendantNode(parentNode, doc) {
 		const ind = parentNode.children.length
 		const path = parentNode.path.concat(ind)
 		const newNode = this.createNode(doc, ind, path)

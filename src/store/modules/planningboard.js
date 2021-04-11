@@ -20,6 +20,9 @@ function composeRangeString2(team) {
 function composeRangeString3(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
 }
+function composeRangeString4(delmark, id) {
+	return `startkey=["${delmark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${id}",${Number.MAX_SAFE_INTEGER}]`
+}
 
 function removeFromBoard(commit, doc, removedSprintId) {
 	if (removedSprintId === '*' || doc.sprintId === undefined || doc.sprintId === removedSprintId) {
@@ -1209,8 +1212,8 @@ const actions = {
 	}, payload) {
 		const removedSprintId = payload.removedSprintId
 		const parentId = payload.parentId
-		// set the url to scan the descendants at the level of the parentId
-		const url = removedSprintId === '*' ? rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString3(parentId) + '&include_docs=true' :
+		// set the url to use the view 'removedDocToParentMap' on a branch removal OR 'docToParentMap' on a sprint removal without document removal
+		const url = removedSprintId === '*' ? rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString4(payload.delmark, parentId) + '&include_docs=true' :
 			rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString3(parentId) + '&include_docs=true'
 		globalAxios({
 			method: 'GET',
