@@ -11,6 +11,8 @@ var extCondsRemovedCount
 var removedSprintIds
 var runningThreadsCount
 var removedDocsCount
+var boardPBIs
+var boardTasks
 
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
@@ -47,6 +49,8 @@ const actions = {
 		removedSprintIds = []
 		runningThreadsCount = 0
 		removedDocsCount = 0
+		boardPBIs = []
+		boardTasks = []
 
 		const id = payload.node._id
 		const delmark = createId()
@@ -86,6 +90,12 @@ const actions = {
 			}
 			// mark for removal
 			doc.delmark = payload.delmark
+
+			// save the affected items on the boards
+			if (doc.sprintId) {
+				if (doc.level === LEVEL.PBI) boardPBIs.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
+				if (doc.level === LEVEL.TASK) boardTasks.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
+			}
 
 			const newHist = {
 				ignoreEvent: ['removeDescendants'],
@@ -318,7 +328,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: boardPBIs.length > 0 || boardTasks.length > 0, additionalData: { boardPBIs, boardTasks } }
 			}
 			updatedDoc.history.unshift(newHist)
 

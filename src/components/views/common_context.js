@@ -144,7 +144,8 @@ const methods = {
 				by: this.$store.state.userData.user,
 				timestamp: Date.now(),
 				sessionId: this.$store.state.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: false }
 			}]
 		}
 		// update the database and select this document
@@ -152,10 +153,10 @@ const methods = {
 	},
 
 	/*
-		 * Create and insert a new node in the tree and create a document for this new item
-		 * A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
-		 * This method also contains 'Product details' view specific code
-		 */
+	* Create and insert a new node in the tree and create a document for this new item
+	* A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
+	* This method also contains 'Product details' view specific code
+	*/
 	doInsertNewItem() {
 		let newNodeLocation
 		const now = Date.now()
@@ -228,7 +229,7 @@ const methods = {
 				type: 'backlogItem',
 				productId: newNode.productId,
 				parentId: newNode.parentId,
-				sprintId: sprintId,
+				sprintId,
 				team: team,
 				taskOwner: newNode.data.taskOwner,
 				level: insertLevel,
@@ -255,7 +256,8 @@ const methods = {
 					by: this.$store.state.userData.user,
 					timestamp: Date.now(),
 					sessionId: this.$store.state.mySessionId,
-					distributeEvent: true
+					distributeEvent: true,
+					updateBoards: { update: false }
 				}]
 			}
 			// update the parent history and than save the new document

@@ -121,18 +121,26 @@ const actions = {
 			const results = res.data.results
 			const docs = []
 			const error = []
+			const boardPBIs = []
+			const boardTasks = []
 			for (const r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
 					const item = getPayLoadItem(doc._id)
+					// save the affected items on the boards
+					if (doc.level === LEVEL.PBI) boardPBIs.push({ sprintId: item.sourceSprintId, team: doc.team, docId: doc._id })
+					if (doc.level === LEVEL.PBI) boardPBIs.push({ sprintId: item.targetSprintId, team: doc.team, docId: doc._id })
+					if (doc.level === LEVEL.TASK) boardTasks.push({ sprintId: item.sourceSprintId, team: doc.team, docId: doc._id })
+					if (doc.level === LEVEL.TASK) boardTasks.push({ sprintId: item.targetSprintId, team: doc.team, docId: doc._id })
 					const newHist = {
 						nodeMovedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId, m.targetParentId,
 						item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
-						distributeEvent: true
+						distributeEvent: true,
+						updateBoards: { update: doc.level === LEVEL.PBI || doc.level === LEVEL.TASK, additionalData: { boardPBIs, boardTasks } }
 					}
 
 					doc.history.unshift(newHist)

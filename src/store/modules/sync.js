@@ -3,7 +3,7 @@ import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
-const boardEvents = ['createEvent', 'createTaskEvent', 'undoBranchRemovalEvent', 'nodeMovedEvent', 'removedWithDescendantsEvent', 'setPointsEvent', 'setStateEvent', 'setSubTypeEvent', 'setTeamOwnerEvent', 'setTitleEvent', 'taskRemovedEvent', 'updateTaskOrderEvent']
+const boardEvents = ['createTaskEvent', 'undoBranchRemovalEvent', 'nodeMovedEvent', 'removedWithDescendantsEvent', 'setPointsEvent', 'setStateEvent', 'setSubTypeEvent', 'setTeamOwnerEvent', 'setTitleEvent', 'taskRemovedEvent', 'updateTaskOrderEvent']
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
 /*
@@ -28,7 +28,7 @@ const actions = {
 					`listenForChanges: document with _id ${doc._id} is processed, priority = ${doc.priority}, current view = ${rootState.currentView},
 				commentsEvent = ${commentsEvent}, distributed = ${lastCommentsObj.distributeEvent}, timestamp = ${String(new Date(lastCommentsTimestamp)).substring(0, 24)}, process = ${processComment} title = '${doc.title}',
 				histEvent = ${histEvent}, distributed = ${lastHistObj.distributeEvent}, timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}, process = ${processHistory}, title = '${doc.title}',
-				updateTree = ${updateTree}, updateBoard = ${updateBoard},`)
+				updateTree = ${updateTree}, updateThisBoard = ${updateThisBoard}`)
 			}
 			rootState.eventSyncColor = '#e6f7ff'
 			setTimeout(function () {
@@ -78,6 +78,30 @@ const actions = {
 				if (isSameUserInDifferentSession) {
 					commit('showLastEvent', { txt: `You ${text} ${standardTxt} in another session`, severity })
 				} else commit('showLastEvent', { txt: `Another user ${text} ${standardTxt}`, severity })
+			}
+		}
+
+		function mustUpdateThisBoard(eventData, doc) {
+			console.log('mustUpdateThisBoard: eventData = ' + JSON.stringify(eventData, null, 2))
+			if (!eventData || !eventData.update ) return false
+
+			// additionalData: { boardPBIs, boardTasks }
+			// boardPBIs.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
+
+			if (eventData.additionalData) {
+				const sprintsAffected = []
+				const teamsAffected = []
+				for (const bp of eventData.additionalData.boardPBIs) {
+					sprintsAffected.push(bp.sprintId)
+					teamsAffected.push(bp.team)
+				}
+				for (const bt of eventData.additionalData.boardTasks) {
+					sprintsAffected.push(bt.sprintId)
+					teamsAffected.push(bt.team)
+				}
+				return sprintsAffected.includes(rootState.loadedSprintId) && teamsAffected.includes(rootState.userData.myTeam)
+			} else {
+				return doc.sprintId === rootState.loadedSprintId && doc.team === rootState.userData.myTeam
 			}
 		}
 
@@ -176,10 +200,10 @@ const actions = {
 				}
 
 				const node = window.slVueTree.getNodeById(doc._id)
-				// note that both updateTree and updateBoard can be true
+				// note that both updateTree and updateThisBoard can be true
 				if (updateTree) {
 					// check for exception 'node not found'
-					if (node === null && (histEvent !== 'undoBranchRemovalEvent' || histEvent !== 'createEvent' || histEvent !== 'createTaskEvent')) {
+					if (node === null && !(histEvent === 'undoBranchRemovalEvent' || histEvent === 'createEvent' || histEvent === 'createTaskEvent')) {
 						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
 						dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
 						return
@@ -303,7 +327,7 @@ const actions = {
 									dispatch('restoreBranch', {
 										histArray: lastHistObj.undoBranchRemovalEvent,
 										isSameUserInDifferentSession,
-										toDispatch: updateBoard ? [{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }] : undefined
+										toDispatch: updateThisBoard ? [{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }] : undefined
 									})
 									break
 								case 'nodeMovedEvent':
@@ -471,14 +495,13 @@ const actions = {
 					}
 				}
 
-				if (updateBoard) {
+				if (updateThisBoard) {
 					// eslint-disable-next-line no-console
 					if (rootState.debug) console.log('sync:update the board with event ' + histEvent)
 					reportOddTimestamp(lastHistObj, doc._id)
 
 					// process events for the planning board
 					switch (histEvent) {
-						case 'createEvent':
 						case 'createTaskEvent':
 							if (doc.sprintId === rootState.loadedSprintId) {
 								if (doc.level === LEVEL.TASK) {
@@ -656,9 +679,10 @@ const actions = {
 							}
 							break
 						case 'updateTaskOrderEvent':
+							// updateTaskOrderEvent: { sprintId: rootState.loadedSprintId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds }
 							if (doc.sprintId === rootState.loadedSprintId) {
 								const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates
-								rootState.planningboard.stories[taskUpdates.idx].tasks[taskUpdates.state] = taskUpdates.tasks
+								rootState.planningboard.stories[taskUpdates.idx].tasks[taskUpdates.taskState] = taskUpdates.tasks
 							}
 							break
 						default:
@@ -677,6 +701,7 @@ const actions = {
 		const commentsEvent = Object.keys(lastCommentsObj)[0]
 
 		const lastHistObj = doc.history[0]
+		// console.log('sync: lastHistObj = ' + JSON.stringify(lastHistObj, null, 2))
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
 
@@ -711,10 +736,9 @@ const actions = {
 		const isReqAreaItem = doc.productId === MISC.AREA_PRODUCTID
 		// update the tree only for documents available in the currently loaded tree model (eg. 'products overview' has no pbi and task items)
 		const updateTree = doc.level <= rootState.loadedTreeDepth
-		// update the board only if the planningboard is selected with the sprint the document is assigned to OR the removeStoryEvent event is received AND loaded for my team OR setTeamOwnerEvent is received
-		const updateBoard = rootGetters.isPlanningBoardSelected &&
-			(doc.sprintId === rootState.loadedSprintId || histEvent === 'removeStoryEvent' || histEvent === 'removedWithDescendantsEvent') &&
-			(doc.team === rootState.userData.myTeam || histEvent === 'setTeamOwnerEvent')
+		// update the board if the event changes the current view (sprintId and team) effecting any PBIs and/or tasks
+		const updateThisBoard = mustUpdateThisBoard(lastHistObj.updateBoards, doc)
+
 		// process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, or the item is a requirement area item while the overview is in view
 		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
 			histEvent === 'changeReqAreaColorEvent' ||

@@ -7,6 +7,8 @@ var globalEntry
 var runningThreadsCount
 var updatedParentDoc
 var descendantNodesRestoredCount
+var boardPBIs
+var boardTasks
 
 function composeRangeString(delmark, parentId) {
 	return `startkey=["${delmark}","${parentId}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${parentId}",${Number.MAX_SAFE_INTEGER}]`
@@ -41,6 +43,8 @@ const actions = {
 		const _id = globalEntry.removedNode._id
 		runningThreadsCount = 0
 		descendantNodesRestoredCount = 0
+		boardPBIs = []
+		boardTasks = []
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id
@@ -55,6 +59,13 @@ const actions = {
 			updatedParentDoc.history.unshift(newHist)
 			updatedParentDoc.unremovedMark = updatedParentDoc.delmark
 			delete updatedParentDoc.delmark
+
+			// save the affected items on the boards
+			if (updatedParentDoc.sprintId) {
+				if (updatedParentDoc.level === LEVEL.PBI) boardPBIs.push({ sprintId: updatedParentDoc.sprintId, team: updatedParentDoc.team, docId: updatedParentDoc._id })
+				if (updatedParentDoc.level === LEVEL.TASK) boardTasks.push({ sprintId: updatedParentDoc.sprintId, team: updatedParentDoc.team, docId: updatedParentDoc._id })
+			}
+
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: updatedParentDoc,
@@ -155,6 +166,12 @@ const actions = {
 			doc.unremovedMark = doc.delmark
 			delete doc.delmark
 
+			// save the affected items on the boards
+			if (doc.sprintId) {
+				if (doc.level === LEVEL.PBI) boardPBIs.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
+				if (doc.level === LEVEL.TASK) boardTasks.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
+			}
+
 			// create a node and insert it in the removed node
 			if (parentNode && parentNode.level < rootGetters.leafLevel) {
 				// restore the node as child of the parent up to leafLevel
@@ -187,7 +204,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: boardPBIs.length > 0 || boardTasks.length > 0, additionalData: { boardPBIs, boardTasks } }
 			}
 			grandParentDoc.history.unshift(newHist)
 

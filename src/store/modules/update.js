@@ -185,7 +185,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
 			}
 			tmpDoc.history.unshift(newHist)
 
@@ -245,7 +246,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
 			}
 			tmpDoc.history.unshift(newHist)
 			tmpDoc.state = payload.newState
@@ -351,7 +353,8 @@ const actions = {
 					by: rootState.userData.user,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
-					distributeEvent: true
+					distributeEvent: true,
+					updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
 				}
 				tmpDoc.history.unshift(newHist)
 				const prevLastChange = tmpDoc.lastChange || 0
@@ -457,7 +460,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
 			}
 			tmpDoc.history.unshift(newHist)
 			const prevLastContentChange = tmpDoc.lastContentChange || 0
@@ -485,7 +489,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'setDocTitle: Could not read document with id ' + id + ', ' + error
+			const msg = `setDocTitle: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -507,7 +511,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
 			}
 			tmpDoc.history.unshift(newHist)
 			const prevLastChange = tmpDoc.lastChange || 0

@@ -507,7 +507,7 @@ const actions = {
 			if (node) dispatch('setState', { node, newState: payload.taskState, position: newTaskPosition, timestamp: Date.now() })
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
-				// task changed position, task did not change state
+				// task changed position, task did not change state; must swap priorities
 				dispatch('updateMovedTasks', { storyId: story.storyId, afterMoveIds, taskUpdates: payload })
 			}
 		}
@@ -619,13 +619,14 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: true }
 			}
 			tmpDoc.history.unshift(newHist)
 
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'syncOtherPlanningBoards' })
 		}).catch(error => {
-			const msg = 'setColor: Could not read document with _id ' + payload.storyId + ', ' + error
+			const msg = `syncOtherPlanningBoards: Could not read document with id ${payload.storyId}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -862,7 +863,8 @@ const actions = {
 					by: rootState.userData.user,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
-					distributeEvent: true
+					distributeEvent: true,
+					updateBoards: { update: true }
 				}]
 			}
 			dispatch('updateDoc', {
@@ -1078,7 +1080,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { update: true }
 			}
 			storyDoc.history.unshift(newHist)
 			dispatch('updateDoc', {
@@ -1195,8 +1198,8 @@ const actions = {
 	}, payload) {
 		const doc = payload.doc
 		const removedSprintId = payload.removedSprintId
-		if (doc.level === LEVEL.PBI || doc.level === LEVEL.PBI) {
-			// if the parent is a story or task, remove it from the board
+		if (doc.level === LEVEL.PBI || doc.level === LEVEL.TASK) {
+			// if the item is a story or task, remove it from the board
 			removeFromBoard(commit, doc, removedSprintId)
 		}
 		if (doc.level < LEVEL.TASK) {
