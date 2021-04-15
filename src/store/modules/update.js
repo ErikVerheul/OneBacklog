@@ -186,7 +186,7 @@ const actions = {
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
+				updateBoards: { sprintId: tmpDoc.sprintId, team: tmpDoc.team, level: tmpDoc.level }
 			}
 			tmpDoc.history.unshift(newHist)
 
@@ -247,7 +247,7 @@ const actions = {
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
+				updateBoards: { sprintId: tmpDoc.sprintId, team: tmpDoc.team, level: tmpDoc.level }
 			}
 			tmpDoc.history.unshift(newHist)
 			tmpDoc.state = payload.newState
@@ -332,6 +332,11 @@ const actions = {
 		})
 	},
 
+	/*
+	* Assign the item and its descendants to my team if the item is not done.
+	* The assigned sprints, not done, are removed.
+	* The items will be removed from the board of the 'old' team if in view.
+	*/
 	assignToMyTeam({
 		rootState,
 		rootGetters,
@@ -354,13 +359,16 @@ const actions = {
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
-					updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
+					updateBoards: { sprintId: tmpDoc.sprintId, team: oldTeam, level: tmpDoc.level }
 				}
 				tmpDoc.history.unshift(newHist)
 				const prevLastChange = tmpDoc.lastChange || 0
-				tmpDoc.lastChange = payload.timestamp
-
-				tmpDoc.team = payload.newTeam
+				if (tmpDoc.state !== STATE.DONE) {
+					// set the team name and delete the spint assignment
+					tmpDoc.team = payload.newTeam
+					delete tmpDoc.sprintId
+					tmpDoc.lastChange = payload.timestamp
+				}
 				const toDispatch = descendantsInfo.count > 0 ? [
 					{ setTeamDescendantsBulk: { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: descendantsInfo.descendants } }
 				] : undefined
@@ -419,19 +427,23 @@ const actions = {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
-					const oldTeam = doc.team
-					if (payload.newTeam != oldTeam) {
-						const newHist = {
-							setTeamEventDescendant: [oldTeam, payload.newTeam, payload.parentTitle],
-							by: rootState.userData.user,
-							timestamp: Date.now(),
-							sessionId: rootState.mySessionId,
-							distributeEvent: false
+					if (doc.state !== STATE.DONE) {
+						const oldTeam = doc.team
+						if (payload.newTeam != oldTeam) {
+							const newHist = {
+								setTeamEventDescendant: [oldTeam, payload.newTeam, payload.parentTitle],
+								by: rootState.userData.user,
+								timestamp: Date.now(),
+								sessionId: rootState.mySessionId,
+								distributeEvent: false
+							}
+							doc.history.unshift(newHist)
+							// set the team name and delete the spint assignment
+							doc.team = payload.newTeam
+							delete doc.sprintId
+							doc.lastChange = Date.now()
+							docs.push(doc)
 						}
-						doc.history.unshift(newHist)
-						// set the team name
-						doc.team = payload.newTeam
-						docs.push(doc)
 					}
 				}
 			}
@@ -461,7 +473,7 @@ const actions = {
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
+				updateBoards: { sprintId: tmpDoc.sprintId, team: tmpDoc.team, level: tmpDoc.level }
 			}
 			tmpDoc.history.unshift(newHist)
 			const prevLastContentChange = tmpDoc.lastContentChange || 0
@@ -512,7 +524,7 @@ const actions = {
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { update: tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) }
+				updateBoards: { sprintId: tmpDoc.sprintId, team: tmpDoc.team, level: tmpDoc.level }
 			}
 			tmpDoc.history.unshift(newHist)
 			const prevLastChange = tmpDoc.lastChange || 0
@@ -1001,7 +1013,25 @@ const actions = {
 		}).catch(error => {
 			// execute passed function if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
-			const msg = 'loadDoc: Could not read document with _id ' + payload.id + ', ' + error
+			const msg = `loadDoc: Could not read document with _id ${payload.id}. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/* Add history to a document in the current database */
+	addHistToDoc({
+		rootState,
+		dispatch
+	}, payload) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + payload.id
+		}).then(res => {
+			const updatedDoc = res.data
+			updatedDoc.history.unshift(payload.newHist)
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, caller: 'addHistToDoc' })
+		}).catch(error => {
+			const msg = `addHistToDoc: Could not read document with _id ${payload.id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}
