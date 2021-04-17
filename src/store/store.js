@@ -250,6 +250,7 @@ export default new Vuex.Store({
 			return txt
 		},
 
+		/* Returns the sprint name if found in the user's current teamcalendar or in the default calendar. Returns 'undefined' is in another user's teamcalendar. */
 		getItemSprintName(state) {
 			if (state.currentDoc.sprintId && state.myCurrentSprintCalendar) {
 				for (const s of state.myCurrentSprintCalendar) {
@@ -452,6 +453,11 @@ export default new Vuex.Store({
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
 			const node = state.resetSearch.node
+			if (!node) {
+				// the filter did not find a node
+				return
+			}
+			// load and select the previous selected document
 			const prevSelectedNode = state.resetSearch.currentSelectedNode
 			if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
 				// the node was found in another product
