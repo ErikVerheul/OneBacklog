@@ -292,12 +292,24 @@ const actions = {
 		}).then(res => {
 			const teams = res.data.rows
 			let userInATeam = false
+
 			for (const t of teams) {
-				rootState.allTeams[t.key] = { id: t.id, members: t.value[0] }
-				if (rootState.userData.myTeam === t.key) {
+				const teamName = t.key
+				const teamId = t.id
+				const members = t.value[0]
+				const hasTeamCalendar = t.value[1]
+				rootState.allTeams[teamName] = { id: teamId, members, hasTeamCalendar }
+				if (rootState.userData.myTeam === teamName) {
 					userInATeam = true
 					// load team calendar if present
-					dispatch('loadTeamCalendarAtStartup', t.id)
+					if (hasTeamCalendar) {
+						dispatch('loadTeamCalendarAtStartup', teamId)
+					} else {
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log(`getAllTeams: No team calendar defined for your team '${teamName}', the default sprint calendar will be used`)
+						// continue to load the tree model
+						dispatch('getRoot')
+					}
 				}
 			}
 			if (!userInATeam) {

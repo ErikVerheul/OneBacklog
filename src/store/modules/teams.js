@@ -121,7 +121,7 @@ const actions = {
 					caller: 'addTeamAction',
 					onSuccessCallback: () => {
 						rootState.isTeamCreated = true
-						rootState.allTeams[teamName] = { id: payload.id, members: [] }
+						rootState.allTeams[teamName] = { id: payload.id, members: [], hasTeamCalendar: false }
 						rootState.backendMessages.push({
 							seqKey: rootState.seqKey++, msg: `doCreateTeam: Team '${teamName}' is created in database '${dbName}'`
 						})
