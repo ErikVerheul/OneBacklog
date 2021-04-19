@@ -286,7 +286,7 @@ const methods = {
   },
 
   mkRemovedFromParentEvent (value) {
-    return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2]} descendants are removed from this parent.</h5>`
+    return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2] - 1} descendants are removed from this parent.</h5>`
   },
 
   mkRemovedWithDescendantsEvent (value) {
