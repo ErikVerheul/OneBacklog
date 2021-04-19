@@ -207,7 +207,7 @@ const actions = {
 			],
 
 			itemState: [
-				'not in use',
+				'state not in use',
 				'On hold',
 				'New',
 				'Ready',
@@ -216,7 +216,7 @@ const actions = {
 				'Done'
 			],
 			taskState: [
-				'not in use',
+				'state not in use',
 				'On hold',
 				'ToDo',
 				'ToDo',
