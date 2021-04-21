@@ -76,11 +76,13 @@ export default {
 
       if (itemLevel === LEVEL.TASK) {
         // when a task is selected, the task's PBI and the task are assigned to the sprint
+				const itemIds = [currentDoc._id]
         const pbiNode = window.slVueTree.getNodeById(currentDoc.parentId)
         if (!pbiNode.data.sprintId) {
-          const itemIds = [pbiNode._id, currentDoc._id]
-          this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName, createUndo: true })
+					// if no other sprint is assigned, also assign the sprint to the task's PBI
+          itemIds.push(pbiNode._id)
         }
+				this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName, createUndo: true })
       }
     }
   }

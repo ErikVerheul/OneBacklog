@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
+// if fromHistory = true one branch is restored, if false one or more products are loaded in the tree
 var fromHistory
 var histArray
 var runningThreadsCount
@@ -17,14 +18,29 @@ function composeRangeString2(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
 }
 
+const state = {
+	updateThisBoard: false,
+	sprintId: undefined,
+	team: undefined
+}
+
 const actions = {
-	/* Restore one branch or product into the tree view. This action is used by the synchronization to sync a remote removal undo. The items are already unremoved by the remote session */
-	restoreBranch({
+	/*
+	* Restore (fromHistory = true) one branch or product into the tree view for use by the synchronization.
+	* This action is used by the synchronization to sync a remote removal undo.
+	* The items are already unremoved by the remote session.
+	* PBI and task documents, assigned to a sprint, are saved for restoring the planning board view, if openened.
+	*/
+	syncRestoreBranch({
 		rootState,
+		state,
 		commit,
 		dispatch
 	}, payload) {
 		fromHistory = true
+		state.updateThisBoard = payload.updateThisBoard
+		state.sprintId = payload.sprintId
+		state.team = payload.team
 		histArray = payload.histArray
 		const removedDocId = histArray[0]
 		const newRoles = histArray[6]
@@ -37,6 +53,11 @@ const actions = {
 			const doc = res.data
 			unremovedMark = doc.unremovedMark
 			if (unremovedMark) {
+				// update the board if in view
+				if (state.updateThisBoard && state.sprintId === doc.sprintId && state.team === doc.team) {
+					if (doc.level === LEVEL.PBI) commit('addStoryToBoard', doc)
+					if (doc.level === LEVEL.TASK) commit('addTaskToBoard', doc)
+				}
 				// no need to add history here as the data is only used to update the tree model (no update of the database)
 				const parentNode = window.slVueTree.getNodeById(doc.parentId)
 				if (parentNode) {
@@ -49,8 +70,7 @@ const actions = {
 						placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 					}, [newNode], options)
 					// load the children of the node
-					dispatch('loadChildren', { parentNode: newNode })
-					dispatch('additionalActions', payload)
+					dispatch('loadChildNodes', { parentNode: newNode })
 
 					if (payload.restoreReqArea) {
 						// restore references to the requirement area
@@ -70,20 +90,20 @@ const actions = {
 					}
 					commit('showLastEvent', { txt: `The items removed in another session are restored`, severity: SEV.INFO })
 				} else {
-					const msg = `restoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The parent node is missing`
+					const msg = `syncRestoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The parent node is missing`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				}
 			} else {
-				const msg = `restoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The unremovedMark is missing`
+				const msg = `syncRestoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The unremovedMark is missing`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
 		}).catch(error => {
-			const msg = `restoreBranch: Could not load the removed document with id ${removedDocId} in database ${rootState.userData.currentDb}, ${error}`
+			const msg = `syncRestoreBranch: Could not load the removed document with id ${removedDocId} in database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
-	/* LoadProducts is a special case of restoreBranch. It can load multiple products */
+	/* LoadProducts (fromHistory = false) is a special case of syncRestoreBranch and called when the default product changed. It can load multiple products */
 	loadProducts({
 		rootState,
 		dispatch
@@ -111,7 +131,7 @@ const actions = {
 					placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 				}, [newNode], { skipUpdateProductId: true })
 				// load the children of the nodes
-				dispatch('loadChildren', { parentNode: newNode })
+				dispatch('loadChildNodes', { parentNode: newNode })
 			}
 		}).catch(error => {
 			const msg = `loadProducts: Could not load products with ids ${payload.missingIds} in database ${rootState.userData.currentDb}, ${error}`
@@ -119,7 +139,7 @@ const actions = {
 		})
 	},
 
-	loadChildren({
+	loadChildNodes({
 		rootState,
 		dispatch
 	}, payload) {
@@ -132,12 +152,11 @@ const actions = {
 		}).then(res => {
 			runningThreadsCount--
 			const results = res.data.rows
-			// console.log('loadChildren: results = ' + results.map(r => r.doc.title))
 			if (results.length > 0) {
-				dispatch('processResults', { parentNode: payload.parentNode, results })
+				dispatch('createChildNodes', { parentNode: payload.parentNode, results })
 			} else {
 				if (runningThreadsCount === 0) {
-					// nodes are restored
+					// end of loop; the nodes are restored
 					if (fromHistory) {
 						// restore external dependencies
 						const dependencies = dedup(histArray[3])
@@ -152,31 +171,35 @@ const actions = {
 							if (node !== null) node.conditionalFor.push(c.conditionalFor)
 						}
 					}
-					// execute passed function if provided
-					if (payload.onSuccessCallback) payload.onSuccessCallback()
-					// execute passed actions if provided
-					dispatch('additionalActions', payload)
 				}
 			}
 		}).catch(error => {
 			runningThreadsCount--
-			const msg = `loadChildren: Could not fetch the child documents of document with id ${payload.parentNode._id} in database ${rootState.userData.currentDb}. ${error}`
+			const msg = `loadChildNodes: Could not fetch the child documents of document with id ${payload.parentNode._id} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
-	processResults({
+	createChildNodes({
+		commit,
 		dispatch
 	}, payload) {
 		for (const r of payload.results) {
 			// add the child node
-			const newParentNode = window.slVueTree.appendDescendantNode(payload.parentNode, r.doc)
+			const doc = r.doc
+			const newParentNode = window.slVueTree.appendDescendantNode(payload.parentNode, doc)
+			// also update the board if in view
+			if (state.updateThisBoard && state.sprintId === doc.sprintId && state.team === doc.team) {
+				if (doc.level === LEVEL.PBI) commit('addStoryToBoard', doc)
+				if (doc.level === LEVEL.TASK) commit('addTaskToBoard', doc)
+			}
 			// scan next level
-			dispatch('loadChildren', { parentNode: newParentNode })
+			dispatch('loadChildNodes', { parentNode: newParentNode })
 		}
-	},
+	}
 }
 
 export default {
+	state,
 	actions
 }

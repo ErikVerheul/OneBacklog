@@ -477,7 +477,7 @@ const methods = {
 				this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange, createUndo: false })
 				break
 			case 'undoAddSprintIds':
-				this.$store.dispatch('removeSprintIds', { parentId: entry.parentId, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName, createUndo: false })
+				this.$store.dispatch('removeSprintIds', { parentId: entry.id, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName, createUndo: false })
 				break
 			case 'undoChangeTeam':
 				this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange, createUndo: false })
@@ -517,7 +517,6 @@ const methods = {
 				this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange, createUndo: false })
 				break
 			case 'undoRemove':
-				this.showLastEvent('Busy undoing remove...', SEV.INFO)
 				this.$store.dispatch('restoreItemAndDescendants', entry)
 				break
 			case 'undoRemoveSprintIds':

@@ -11,6 +11,7 @@ function composeRangeString(id) {
 
 const actions = {
 	/*
+	* Multiple items with the same parent can be moved. The children of these items need no update unless the move is to another level (promote/demote) or product.
 	* Note: the tree model is updated before the database is. To update the database the new priority must be calculated first while inserting the node.
 	* Order of execution:
 	* 1. update the moved items with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
@@ -121,18 +122,21 @@ const actions = {
 			const results = res.data.results
 			const docs = []
 			const error = []
-			const boardPBIs = []
-			const boardTasks = []
 			for (const r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
-					const item = getPayLoadItem(doc._id)
 					// save the affected items on the boards
-					if (doc.level === LEVEL.PBI) boardPBIs.push({ sprintId: item.sourceSprintId, team: doc.team, docId: doc._id })
-					if (doc.level === LEVEL.PBI) boardPBIs.push({ sprintId: item.targetSprintId, team: doc.team, docId: doc._id })
-					if (doc.level === LEVEL.TASK) boardTasks.push({ sprintId: item.sourceSprintId, team: doc.team, docId: doc._id })
-					if (doc.level === LEVEL.TASK) boardTasks.push({ sprintId: item.targetSprintId, team: doc.team, docId: doc._id })
+					const descendantsMetaData = window.slVueTree.getDescendantsInfoOnId(doc._id)
+					const sprintsAffected = doc.sprintId ? [doc.sprintId] : []
+					for (const s of descendantsMetaData.sprintIds) {
+						if (!sprintsAffected.includes(s)) sprintsAffected.push(s)
+					}
+					const teamsAffected = doc.team ? [doc.team] : []
+					for (const t of descendantsMetaData.teams) {
+						if (!teamsAffected.includes(t)) teamsAffected.push(t)
+					}
+					const item = getPayLoadItem(doc._id)
 					const newHist = {
 						nodeMovedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId, m.targetParentId,
 						item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange],
@@ -140,9 +144,8 @@ const actions = {
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: true,
-						updateBoards: { update: doc.level === LEVEL.PBI || doc.level === LEVEL.TASK, additionalData: { boardPBIs, boardTasks } }
+						updateBoards: { sprintsAffected, teamsAffected }
 					}
-
 					doc.history.unshift(newHist)
 
 					doc.parentId = m.targetParentId

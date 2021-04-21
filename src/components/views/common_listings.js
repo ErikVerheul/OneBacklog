@@ -63,7 +63,7 @@ const computed = {
       const histItem = this.$store.state.currentDoc.history[i]
       let allText = ''
       const keys = Object.keys(histItem)
-      if (keys[0] === 'ignoreEvent' || keys[0] === 'updateTaskOrderEvent' || keys[0] === 'changeReqAreaColorEvent') continue
+			if (keys[0] === 'ignoreEvent' || keys[0] === 'updateTaskOrderEvent' || keys[0] === 'changeReqAreaColorEvent' || keys[0] === 'removeItemsFromSprintEvent') continue
 
       for (let j = 0; j < keys.length; j++) {
         if (keys[j] === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))

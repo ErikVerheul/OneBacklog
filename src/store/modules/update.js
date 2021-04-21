@@ -61,7 +61,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'changeSubsription: Could not read document with _id ' + id + ', ' + error
+			const msg = `changeSubsription: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -111,7 +111,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'setTsSize: Could not read document with _id ' + id + ', ' + error
+			const msg = `setTsSize: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -161,7 +161,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'setPersonHours: Could not read document with id ' + id + ', ' + error
+			const msg = `setPersonHours: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -180,13 +180,17 @@ const actions = {
 			const tmpDoc = res.data
 			// update size only
 			const oldPoints = tmpDoc.spsize
+			let updateBoards = undefined
+			if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
+			}
 			const newHist = {
 				setPointsEvent: [oldPoints, payload.newPoints],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { sprintId: tmpDoc.sprintId, team: tmpDoc.team, level: tmpDoc.level }
+				updateBoards
 			}
 			tmpDoc.history.unshift(newHist)
 
@@ -213,7 +217,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'setStoryPoints: Could not read document with _id ' + id + ', ' + error
+			const msg = `setStoryPoints: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -241,13 +245,17 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			const oldState = tmpDoc.state
+			let updateBoards = undefined
+			if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
+			}
 			const newHist = {
 				setStateEvent: [oldState, payload.newState, payload.newTeam, payload.position],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { sprintId: tmpDoc.sprintId, team: tmpDoc.team, level: tmpDoc.level }
+				updateBoards
 			}
 			tmpDoc.history.unshift(newHist)
 			tmpDoc.state = payload.newState
@@ -353,13 +361,17 @@ const actions = {
 			const tmpDoc = res.data
 			const oldTeam = tmpDoc.team
 			if (payload.newTeam != oldTeam) {
+				let updateBoards = undefined
+				if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+					updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
+				}
 				const newHist = {
 					setTeamOwnerEvent: [oldTeam, payload.newTeam, descendantsInfo.count],
 					by: rootState.userData.user,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
-					updateBoards: { sprintId: tmpDoc.sprintId, team: oldTeam, level: tmpDoc.level }
+					updateBoards
 				}
 				tmpDoc.history.unshift(newHist)
 				const prevLastChange = tmpDoc.lastChange || 0
@@ -402,7 +414,7 @@ const actions = {
 				})
 			}
 		}).catch(error => {
-			const msg = 'assignToMyTeam: Could not read document with _id ' + id + ', ' + error
+			const msg = `assignToMyTeam: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -467,13 +479,17 @@ const actions = {
 		}).then(res => {
 			const oldTitle = rootState.currentDoc.title
 			const tmpDoc = res.data
+			let updateBoards = undefined
+			if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
+			}
 			const newHist = {
 				setTitleEvent: [oldTitle, payload.newTitle],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { sprintId: tmpDoc.sprintId, team: tmpDoc.team, level: tmpDoc.level }
+				updateBoards
 			}
 			tmpDoc.history.unshift(newHist)
 			const prevLastContentChange = tmpDoc.lastContentChange || 0
@@ -518,13 +534,17 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			const tmpDoc = res.data
+			let updateBoards = undefined
+			if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
+			}
 			const newHist = {
 				setSubTypeEvent: [rootState.currentDoc.subtype, payload.newSubType],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { sprintId: tmpDoc.sprintId, team: tmpDoc.team, level: tmpDoc.level }
+				updateBoards
 			}
 			tmpDoc.history.unshift(newHist)
 			const prevLastChange = tmpDoc.lastChange || 0
@@ -552,7 +572,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'setSubType: Could not read document with id ' + id + ', ' + error
+			const msg = `setSubType: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -606,7 +626,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'saveDescription: Could not read document with id ' + id + ', ' + error
+			const msg = `saveDescription: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -660,7 +680,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'saveAcceptance: Could not read document with id ' + id + ', ' + error
+			const msg = `saveAcceptance: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -703,7 +723,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'addComment: Could not read document with _id ' + id + ', ' + error
+			const msg = `addComment: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -792,7 +812,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'addHistoryComment: Could not read document with _id ' + id + ', ' + error
+			const msg = `addHistoryComment: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -990,7 +1010,7 @@ const actions = {
 			}]
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: parentDoc, toDispatch, caller: 'createDocWithParentHist' })
 		}).catch(error => {
-			const msg = 'createDocWithParentHist: Could not read parent document with id ' + _id + ', ' + error
+			const msg = `createDocWithParentHist: Could not read parent document with id ${_id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -1018,20 +1038,23 @@ const actions = {
 		})
 	},
 
-	/* Add history to a document in the current database */
-	addHistToDoc({
+	/* Send a message to to other users online with access to the current product */
+	sendMessageAsync({
 		rootState,
 		dispatch
-	}, payload) {
+	}, newHist) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + payload.id
+			url: rootState.userData.currentDb + '/messenger'
 		}).then(res => {
-			const updatedDoc = res.data
-			updatedDoc.history.unshift(payload.newHist)
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc, caller: 'addHistToDoc' })
+			const tmpDoc = res.data
+			// add the productId this message applies to
+			tmpDoc.productId = rootState.currentProductId
+			// replace the history
+			tmpDoc.history = [newHist]
+			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'sendMessageAsync' })
 		}).catch(error => {
-			const msg = `addHistToDoc: Could not read document with _id ${payload.id}. ${error}`
+			const msg = `sendMessageAsync: Could not read the 'messenger' document. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

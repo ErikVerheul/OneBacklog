@@ -7,8 +7,8 @@ var globalEntry
 var runningThreadsCount
 var updatedParentDoc
 var descendantNodesRestoredCount
-var boardPBIs
-var boardTasks
+var sprintsAffected
+var teamsAffected
 
 function composeRangeString(delmark, parentId) {
 	return `startkey=["${delmark}","${parentId}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${parentId}",${Number.MAX_SAFE_INTEGER}]`
@@ -43,8 +43,8 @@ const actions = {
 		const _id = globalEntry.removedNode._id
 		runningThreadsCount = 0
 		descendantNodesRestoredCount = 0
-		boardPBIs = []
-		boardTasks = []
+		sprintsAffected = []
+		teamsAffected = []
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id
@@ -62,8 +62,10 @@ const actions = {
 
 			// save the affected items on the boards
 			if (updatedParentDoc.sprintId) {
-				if (updatedParentDoc.level === LEVEL.PBI) boardPBIs.push({ sprintId: updatedParentDoc.sprintId, team: updatedParentDoc.team, docId: updatedParentDoc._id })
-				if (updatedParentDoc.level === LEVEL.TASK) boardTasks.push({ sprintId: updatedParentDoc.sprintId, team: updatedParentDoc.team, docId: updatedParentDoc._id })
+				if (updatedParentDoc.level === LEVEL.PBI || updatedParentDoc.level === LEVEL.TASK) {
+					if (!sprintsAffected.includes(updatedParentDoc.sprintId)) sprintsAffected.push(updatedParentDoc.sprintId)
+					if (!teamsAffected.includes(updatedParentDoc.team)) teamsAffected.push(updatedParentDoc.team)
+				}
 			}
 
 			dispatch('updateDoc', {
@@ -120,6 +122,7 @@ const actions = {
 	unremoveDescendants({
 		rootState,
 		rootGetters,
+		commit,
 		dispatch
 	}, payload) {
 		function getParentNode(id) {
@@ -168,8 +171,10 @@ const actions = {
 
 			// save the affected items on the boards
 			if (doc.sprintId) {
-				if (doc.level === LEVEL.PBI) boardPBIs.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
-				if (doc.level === LEVEL.TASK) boardTasks.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
+				if (doc.level === LEVEL.PBI || doc.level === LEVEL.TASK) {
+					if (!sprintsAffected.includes(doc.sprintId)) sprintsAffected.push(doc.sprintId)
+					if (!teamsAffected.includes(doc.team)) teamsAffected.push(doc.team)
+				}
 			}
 
 			// create a node and insert it in the removed node
@@ -178,6 +183,7 @@ const actions = {
 				window.slVueTree.appendDescendantNode(parentNode, doc)
 				descendantNodesRestoredCount++
 			}
+			if (descendantNodesRestoredCount > 0) commit('showLastEvent', { txt: `${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
 		}
 
 		dispatch('updateBulk', {
@@ -198,14 +204,14 @@ const actions = {
 		}).then(res => {
 			const grandParentDoc = res.data
 			const newHist = {
-				undoBranchRemovalEvent: [globalEntry.removedNode._id, globalEntry.removedDescendantsCount, globalEntry.removedIntDependencies, globalEntry.removedExtDependencies,
-				globalEntry.removedIntConditions, globalEntry.removedExtConditions, globalEntry.removedProductRoles, globalEntry.sprintIds, globalEntry.itemsRemovedFromReqArea,
+				undoBranchRemovalEvent: [globalEntry.removedNode._id, descendantNodesRestoredCount, globalEntry.removedIntDependencies, globalEntry.removedExtDependencies,
+				globalEntry.removedIntConditions, globalEntry.removedExtConditions, globalEntry.removedProductRoles, 'not in use', globalEntry.itemsRemovedFromReqArea,
 				globalEntry.removedNode.level, globalEntry.removedNode.data.subtype, globalEntry.removedNode.title],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { update: boardPBIs.length > 0 || boardTasks.length > 0, additionalData: { boardPBIs, boardTasks } }
+				updateBoards: { sprintsAffected, teamsAffected }
 			}
 			grandParentDoc.history.unshift(newHist)
 

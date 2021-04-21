@@ -261,6 +261,7 @@ const methods = {
 		const ids = []
 		const descendants = []
 		const sprintIds = []
+		const teams = []
 		const initLevel = node.level
 		let count = 0
 		let maxDepth = node.level
@@ -269,6 +270,7 @@ const methods = {
 				ids.push(nm._id)
 				descendants.push(nm)
 				if (nm.data.sprintId && !sprintIds.includes(nm.data.sprintId)) sprintIds.push(nm.data.sprintId)
+				if (nm.data.team && !teams.includes(nm.data.team)) teams.push(nm.data.team)
 				count++
 				if (nm.level > maxDepth) maxDepth = nm.level
 			}
@@ -277,6 +279,7 @@ const methods = {
 			ids,
 			descendants,
 			sprintIds,
+			teams,
 			count,
 			depth: maxDepth - initLevel
 		}
@@ -290,6 +293,7 @@ const methods = {
 			ids: [],
 			descendants: [],
 			sprintIds: [],
+			teams: [],
 			count: 0,
 			depth: 0
 		}

@@ -251,7 +251,7 @@ const utilities = {
 				if (this.getLastSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
 				if (this.getLastSelectedNode.data.reqarea) evt += ` This ${itemType} belongs to requirement area '${this.$store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
 			} else {
-				const multiNodesTitle = `'${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
+				const multiNodesTitle = `${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
 				evt = `${itemType} ${multiNodesTitle} are selected.`
 			}
 			this.showLastEvent(evt, SEV.INFO)

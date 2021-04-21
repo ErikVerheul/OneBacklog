@@ -115,7 +115,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'updateReqArea: Could not read document with _id ' + id + ', ' + error
+			const msg = `updateReqArea: Could not read document with _id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

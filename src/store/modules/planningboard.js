@@ -37,7 +37,7 @@ const state = {
 	featureMap: [],
 	pbiResults: [],
 	pathsFound: [],
-	stories: [],
+	stories: []
 }
 
 const mutations = {
@@ -67,6 +67,7 @@ const mutations = {
 				if (f.id === featureId) {
 					const storyId = s.id
 					const productId = s.key[2]
+					const priority = -s.key[5]
 					const storyTitle = s.value[0]
 					const featureNode = getParentNode(featureId, featureIdToNodeMap)
 					if (!featureNode) continue
@@ -84,6 +85,7 @@ const mutations = {
 					const storySize = s.value[3]
 					const newStory = {
 						idx: storyIdx,
+						priority,
 						storyId,
 						featureId,
 						featureName,
@@ -157,6 +159,83 @@ const mutations = {
 		}
 	},
 
+	/* Move position of tasks within the same user story */
+	moveTaskWithinStory(state, payload) {
+		let tasks
+		for (const s of state.stories) {
+			if (s.storyId === payload.targetParentId) {
+				const columnKeys = Object.keys(s.tasks)
+				for (const ck of columnKeys) {
+					for (const t of s.tasks[ck]) {
+						// move position of the item within the same task column
+						if (t.id === payload.doc._id) {
+							t.priority = payload.newlyCalculatedPriority
+							tasks = s.tasks[ck]
+							break
+						}
+					}
+				}
+				if (tasks) break
+			}
+		}
+		tasks.sort((a, b) => b.priority - a.priority)
+	},
+
+	/* Add a story to the board on a location based on its priority */
+	addStoryToBoard(state, doc) {
+		const feature = window.slVueTree.getNodeById(doc.parentId)
+		if (feature) {
+			const epic = window.slVueTree.getNodeById(feature.parentId)
+			if (epic) {
+				const product = window.slVueTree.getNodeById(doc.productId)
+				if (product) {
+					const newStory = {
+						idx: state.stories.length,
+						priority: doc.priority,
+						storyId: doc._id,
+						featureId: feature._id,
+						featureName: feature.title,
+						epicName: epic.title,
+						productId: doc.productId,
+						productName: product.title,
+						title: doc.title,
+						size: doc.spsize,
+						subType: doc.subtype,
+						tasks: {
+							[STATE.ON_HOLD]: [],
+							[STATE.TODO]: [],
+							[STATE.INPROGRESS]: [],
+							[STATE.TESTREVIEW]: [],
+							[STATE.DONE]: []
+						}
+					}
+					// insert the new story
+					const updatedStories = []
+					let newStoryIsInserted = false
+					for (let i = 0; i < state.stories.length; i++) {
+						let story = state.stories[i]
+						if (!newStoryIsInserted && newStory.priority > story.priority) {
+							newStory.idx = i
+							updatedStories.push(newStory)
+							newStoryIsInserted = true
+							story.idx++
+							updatedStories.push(story)
+						} else
+							if (newStoryIsInserted) {
+								story.idx++
+								updatedStories.push(story)
+							} else updatedStories.push(story)
+					}
+					if (!newStoryIsInserted) {
+						newStory.idx = state.stories.length
+						updatedStories.push(newStory)
+					}
+					state.stories = updatedStories
+				}
+			}
+		}
+	},
+
 	/* Add the task to the planning board */
 	addTaskToBoard(state, doc) {
 		for (const s of state.stories) {
@@ -189,6 +268,48 @@ const mutations = {
 				break
 			}
 		}
+	},
+
+	moveStoryOnBoard(state, doc) {
+		const storyId = doc._id
+		const updatedStories = []
+		let movingStory
+		let idx = 0
+		// find and remove the moving story
+		for (const s of state.stories) {
+			if (s.storyId !== storyId) {
+				// repair the index
+				s.idx = idx
+				updatedStories.push(s)
+				idx++
+			} else movingStory = s
+		}
+		state.stories = updatedStories
+
+		// insert the moving story
+		const updatedStories2 = []
+		let storyIsInserted = false
+		movingStory.priority = doc.priority
+		for (let i = 0; i < state.stories.length; i++) {
+			let story = state.stories[i]
+			// ToDo: sort on product prio / epic prio / feature prio and story prio
+			if (!storyIsInserted && movingStory.priority > story.priority) {
+				movingStory.idx = i
+				updatedStories2.push(movingStory)
+				storyIsInserted = true
+				story.idx++
+				updatedStories2.push(story)
+			} else
+				if (storyIsInserted) {
+					story.idx++
+					updatedStories2.push(story)
+				} else updatedStories2.push(story)
+		}
+		if (!storyIsInserted) {
+			movingStory.idx = state.stories.length
+			updatedStories2.push(movingStory)
+		}
+		state.stories = updatedStories2
 	},
 
 	/* Remove the story from the planning board */
@@ -403,14 +524,14 @@ const actions = {
 					}
 				}
 			}
-			const cannotImportCount = cannotImportProducts.length
-			if (cannotImportCount > 0) rootState.warningText = `You cannot import all unfinished tasks as ${cannotImportCount} product(s) are not assigned to you`
+			if (cannotImportProducts.length > 0) rootState.warningText = `You cannot import all unfinished tasks as ${cannotImportProducts.length} product(s) are not assigned to you`
 		}).catch(error => {
 			const msg = `loadUnfinished: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
+	/* Import the unfinished items in the current sprint */
 	importInSprint({
 		rootState,
 		state,
@@ -464,8 +585,16 @@ const actions = {
 
 			const toDispatch = [
 				{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } },
-				// also trigger the reload of other sessions with this board open
-				{ triggerBoardReload: { parentId: 'messenger', sprintId: rootState.loadedSprintId } }
+				// also trigger the reload of other sessions of members of my team with this sprint opened in their board
+				{	sendMessageAsync:	{
+						boardReloadEvent: [rootState.loadedSprintId, rootState.userData.myTeam],
+						by: rootState.userData.user,
+						timestamp: Date.now(),
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+						updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
+					}
+				}
 			]
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 		}).catch(error => {
@@ -620,7 +749,7 @@ const actions = {
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { update: true }
+				updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
 			}
 			tmpDoc.history.unshift(newHist)
 
@@ -631,37 +760,7 @@ const actions = {
 		})
 	},
 
-	/* Create an event to trigger a planning reload after items are assigned or unassigned to a sprint */
-	triggerBoardReload({
-		rootState,
-		dispatch
-	}, payload) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + payload.parentId
-		}).then(res => {
-			const tmpDoc = res.data
-			const newHist = {
-				boardReloadEvent: [payload.sprintId, rootState.userData.myTeam],
-				by: rootState.userData.user,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
-				distributeEvent: true
-			}
-			// replace the history
-			tmpDoc.history = [newHist]
-
-			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'triggerBoardReload' })
-		}).catch(error => {
-			const msg = 'triggerBoardReload: Could not read document with _id ' + payload.parentId + ', ' + error
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	/*
-	* From the 'Product details' view context menu PBI's can be selected to be assigned to the current or next sprint ||
-	* for undo: see undoRemoveSprintIds
-	*/
+	/* A sprintId is assigned to a PBI, a task or a PBI and one or more tasks */
 	addSprintIds({
 		rootState,
 		commit,
@@ -678,10 +777,18 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
+			let newPBI
+			const newTasks = []
 			for (const r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
+					if (doc.level === LEVEL.PBI) {
+						newPBI = { parentId: doc.parentId, productId: doc.productId, priority: doc.priority, _id: doc._id, spsize: doc.spsize, subtype: doc.subtype, title: doc.title }
+					}
+					if (doc.level === LEVEL.TASK) {
+						newTasks.push({ parentId: doc.parentId, state: doc.state, _id: doc._id, priority: doc.priority, taskOwner: doc.taskOwner, title: doc.title })
+					}
 					const reAssigned = doc.sprintId !== undefined
 					doc.sprintId = payload.sprintId
 					const newHist = {
@@ -689,17 +796,25 @@ const actions = {
 						by: rootState.userData.user,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
-						distributeEvent: false
+						distributeEvent: true
 					}
 					doc.history.unshift(newHist)
 					docs.push(doc)
 				}
 			}
-			const toDispatch = [{ triggerBoardReload: payload }]
+			const newHist = {
+				addItemsToSprintEvent: [newPBI, newTasks],
+				by: rootState.userData.user,
+				timestamp: Date.now(),
+				sessionId: rootState.mySessionId,
+				distributeEvent: true,
+				updateBoards: { sprintsAffected: [payload.sprintId], teamsAffected: [rootState.userData.myTeam] }
+			}
+			const toDispatch = [{ sendMessageAsync: newHist }]
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb,
-				docs,
 				toDispatch,
+				docs,
 				onSuccessCallback: () => {
 					for (const d of docs) {
 						// update the tree view and show the history in the current opened item
@@ -713,7 +828,7 @@ const actions = {
 						// create an entry for undoing the add-to-sprint for use with removeSprintIds action
 						const entry = {
 							type: 'undoAddSprintIds',
-							parentId: payload.parentId,
+							id: payload.itemIds[0],
 							sprintId: payload.sprintId,
 							itemIds: payload.itemIds,
 							sprintName: payload.sprintName
@@ -728,7 +843,7 @@ const actions = {
 		})
 	},
 
-	/* Remove the sprintId only if equal to sprintId specified, leaving items assigned to other sprints untouched */
+	/* Remove a sprintId assigned to a PBI, a task or a PBI and one or more tasks */
 	removeSprintIds({
 		rootState,
 		commit,
@@ -745,26 +860,43 @@ const actions = {
 		}).then(res => {
 			const results = res.data.results
 			const docs = []
+			let storyIdToRemove
+			const tasksToRemove = []
 			for (const r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
+					if (doc.level === LEVEL.PBI) {
+						storyIdToRemove = doc._id
+					}
+					if (doc.level === LEVEL.TASK) {
+						tasksToRemove.push({ storyId: doc.parentId, taskState: doc.state, taskId: doc._id })
+					}
 					const removedSprintId = doc.sprintId
 					delete doc.sprintId
+
 					const newHist = {
 						removeSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, removedSprintId],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
-						distributeEvent: false
+						distributeEvent: true
 					}
-					doc.lastChange = Date.now()
 					doc.history.unshift(newHist)
+					doc.lastChange = Date.now()
 					docs.push(doc)
 				}
 			}
 
-			const toDispatch = [{ triggerBoardReload: payload }]
+			const newHist = {
+				removeItemsFromSprintEvent: [storyIdToRemove, tasksToRemove],
+				by: rootState.userData.user,
+				timestamp: Date.now(),
+				sessionId: rootState.mySessionId,
+				distributeEvent: true,
+				updateBoards: { sprintsAffected: [payload.sprintId], teamsAffected: [rootState.userData.myTeam] }
+			}
+			const toDispatch = [{ sendMessageAsync: newHist }]
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb,
 				docs,
@@ -777,15 +909,17 @@ const actions = {
 					}
 					// show children nodes
 					expandNode(window.slVueTree.getNodeById(payload.parentId))
-					// create an entry for undoing the remove-from-sprint in a last-in first-out sequence
-					const entry = {
-						type: 'undoRemoveSprintIds',
-						parentId: payload.parentId,
-						itemIds: payload.itemIds,
-						sprintId: payload.sprintId,
-						sprintName: payload.sprintName
+					if (payload.createUndo) {
+						// create an entry for undoing the remove-from-sprint in a last-in first-out sequence
+						const entry = {
+							type: 'undoRemoveSprintIds',
+							parentId: payload.parentId,
+							itemIds: payload.itemIds,
+							sprintId: payload.sprintId,
+							sprintName: payload.sprintName
+						}
+						rootState.changeHistory.unshift(entry)
 					}
-					rootState.changeHistory.unshift(entry)
 					commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: SEV.INFO })
 				}
 			})
@@ -864,7 +998,7 @@ const actions = {
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
-					updateBoards: { update: true }
+					updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
 				}]
 			}
 			dispatch('updateDoc', {
@@ -942,7 +1076,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { sprintsAffected: [removedSprintId], teamsAffected: [storyDoc.team] }
 			}
 			storyDoc.lastChange = Date.now()
 			storyDoc.history.unshift(newHist)
@@ -1034,6 +1169,7 @@ const actions = {
 			const storyId = taskDoc.parentId
 			const taskState = taskDoc.state
 			const taskTitle = taskDoc.title
+			const sprintId = taskDoc.sprintId
 			const teamName = taskDoc.team
 			taskDoc.delmark = 'true'
 			// no use to add history to a removed document
@@ -1044,7 +1180,7 @@ const actions = {
 			}
 			taskDoc.history.unshift(newHist)
 
-			const toDispatch = [{ addHistoryToStory: { storyId, taskId, taskState, taskTitle, teamName } }]
+			const toDispatch = [{ addHistoryToStory: { storyId, taskId, taskState, taskTitle, sprintId, teamName } }]
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: taskDoc,
@@ -1081,7 +1217,7 @@ const actions = {
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { update: true }
+				updateBoards: { sprintsAffected: [payload.sprintId], teamsAffected: [payload.teamName] }
 			}
 			storyDoc.history.unshift(newHist)
 			dispatch('updateDoc', {
@@ -1090,7 +1226,7 @@ const actions = {
 				caller: 'addHistoryToStory'
 			})
 		}).catch(error => {
-			const msg = 'addHistoryToStory: Could not read document with id ' + payload.storyId + ', ' + error
+			const msg = `addHistoryToStory: Could not read document with id ${payload.storyId}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -1201,10 +1337,9 @@ const actions = {
 		if (doc.level === LEVEL.PBI || doc.level === LEVEL.TASK) {
 			// if the item is a story or task, remove it from the board
 			removeFromBoard(commit, doc, removedSprintId)
-		}
-		if (doc.level < LEVEL.TASK) {
-			// process the descendants, if any
-			dispatch('removeDescendantsFromBoard', { parentId: doc._id, removedSprintId })
+		} else {
+			// process the descendants
+			dispatch('removeDescendantsFromBoard', { parentId: doc._id, removedSprintId, delmark: payload.delmark })
 		}
 	},
 
@@ -1214,9 +1349,10 @@ const actions = {
 		dispatch
 	}, payload) {
 		const removedSprintId = payload.removedSprintId
+		const delmark = payload.delmark
 		const parentId = payload.parentId
 		// set the url to use the view 'removedDocToParentMap' on a branch removal OR 'docToParentMap' on a sprint removal without document removal
-		const url = removedSprintId === '*' ? rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString4(payload.delmark, parentId) + '&include_docs=true' :
+		const url = removedSprintId === '*' ? rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString4(delmark, parentId) + '&include_docs=true' :
 			rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString3(parentId) + '&include_docs=true'
 		globalAxios({
 			method: 'GET',
@@ -1225,7 +1361,7 @@ const actions = {
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
-				dispatch('remDescFromBoardLoop', { results, removedSprintId })
+				dispatch('remDescFromBoardLoop', { results, removedSprintId, delmark })
 			}
 		}).catch(error => {
 			const msg = `removeDescendantsFromBoard: Could not fetch the child documents of document with id ${parentId} in database ${rootState.userData.currentDb}. ${error}`
@@ -1239,8 +1375,9 @@ const actions = {
 	}, payload) {
 		const results = payload.results
 		const removedSprintId = payload.removedSprintId
+		const delmark = payload.delmark
 		for (const r of results) {
-			dispatch('removeDescendantsFromBoard', { parentId: r.id, removedSprintId })
+			dispatch('removeDescendantsFromBoard', { parentId: r.id, removedSprintId, delmark })
 		}
 		// execute story or task board removal
 		const childDocs = results.map(r => r.doc)

@@ -210,8 +210,8 @@ const methods = {
 	},
 
 	doAssignToMyTeam() {
-		if (this.contextNodeSelected.level > this.productLevel) {
-			// can assign team from epic level and down (higher level numbers)
+		if (this.contextNodeSelected.level >= this.featureLevel) {
+			// can assign team from feature level and down (higher level numbers)
 			const node = this.contextNodeSelected
 			const newTeam = this.myTeam
 			this.$store.dispatch('assignToMyTeam', { node, newTeam, timestamp: Date.now(), createUndo: true })
@@ -290,7 +290,7 @@ const methods = {
 				if (d.data.sprintId === sprintId) itemIds.push(d._id)
 			}
 		}
-		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: getSprintNameById(sprintId, this.$store.state.myCurrentSprintCalendar) })
+		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: getSprintNameById(sprintId, this.$store.state.myCurrentSprintCalendar), createUndo: true })
 	}
 }
 

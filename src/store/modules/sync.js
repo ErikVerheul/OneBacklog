@@ -3,7 +3,6 @@ import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
-const boardEvents = ['createTaskEvent', 'undoBranchRemovalEvent', 'nodeMovedEvent', 'removedWithDescendantsEvent', 'setPointsEvent', 'setStateEvent', 'setSubTypeEvent', 'setTeamOwnerEvent', 'setTitleEvent', 'taskRemovedEvent', 'updateTaskOrderEvent']
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
 /*
@@ -25,9 +24,9 @@ const actions = {
 			if (rootState.debug) {
 				// eslint-disable-next-line no-console
 				console.log(
-					`listenForChanges: document with _id ${doc._id} is processed, priority = ${doc.priority}, current view = ${rootState.currentView},
-				commentsEvent = ${commentsEvent}, distributed = ${lastCommentsObj.distributeEvent}, timestamp = ${String(new Date(lastCommentsTimestamp)).substring(0, 24)}, process = ${processComment} title = '${doc.title}',
-				histEvent = ${histEvent}, distributed = ${lastHistObj.distributeEvent}, timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}, process = ${processHistory}, title = '${doc.title}',
+					`listenForChanges: document with _id ${doc._id} is processed, priority = ${doc.priority}, sprintId = ${doc.sprintId}, current view = ${rootState.currentView},
+				commentsEvent = ${commentsEvent}, distributed = ${lastCommentsObj.distributeEvent}, timestamp = ${String(new Date(lastCommentsTimestamp)).substring(0, 24)}, processComment = ${processComment} title = '${doc.title}',
+				histEvent = ${histEvent}, distributed = ${lastHistObj.distributeEvent}, timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}, processHistory = ${processHistory}, title = '${doc.title}',
 				updateTree = ${updateTree}, updateThisBoard = ${updateThisBoard}`)
 			}
 			rootState.eventSyncColor = '#e6f7ff'
@@ -81,27 +80,16 @@ const actions = {
 			}
 		}
 
-		function mustUpdateThisBoard(eventData, doc) {
-			console.log('mustUpdateThisBoard: eventData = ' + JSON.stringify(eventData, null, 2))
-			if (!eventData || !eventData.update ) return false
+		/*
+		* Return false if there are no affected items.
+		* Return true if at least one combination of sprintId and team matches with the current board in view.
+		*/
+		function mustUpdateThisBoard(affectedItems) {
+			if (!affectedItems) return false
 
-			// additionalData: { boardPBIs, boardTasks }
-			// boardPBIs.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
-
-			if (eventData.additionalData) {
-				const sprintsAffected = []
-				const teamsAffected = []
-				for (const bp of eventData.additionalData.boardPBIs) {
-					sprintsAffected.push(bp.sprintId)
-					teamsAffected.push(bp.team)
-				}
-				for (const bt of eventData.additionalData.boardTasks) {
-					sprintsAffected.push(bt.sprintId)
-					teamsAffected.push(bt.team)
-				}
-				return sprintsAffected.includes(rootState.loadedSprintId) && teamsAffected.includes(rootState.userData.myTeam)
-			} else {
-				return doc.sprintId === rootState.loadedSprintId && doc.team === rootState.userData.myTeam
+			if (affectedItems.sprintsAffected && affectedItems.teamsAffected) {
+				// check for a match with the current sprint and team in view
+				return affectedItems.sprintsAffected.includes(rootState.loadedSprintId) && affectedItems.teamsAffected.includes(rootState.userData.myTeam)
 			}
 		}
 
@@ -190,27 +178,19 @@ const actions = {
 		}
 
 		function doProc(doc) {
-			doBlinck(doc)
 			try {
-				// process events for the tree view that not have/need a mapping to a node
-				if (updateTree && histEvent === 'changeReqAreaColorEvent' && rootGetters.isDetailsViewSelected) {
-					commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-					showSyncMessage(`changed the color indication of ${getLevelText(doc)} '${doc.title}'`, SEV.INFO, true)
-					return
-				}
-
+				if (updateTree || updateThisBoard) doBlinck(doc)
 				const node = window.slVueTree.getNodeById(doc._id)
 				// note that both updateTree and updateThisBoard can be true
 				if (updateTree) {
-					// check for exception 'node not found'
-					if (node === null && !(histEvent === 'undoBranchRemovalEvent' || histEvent === 'createEvent' || histEvent === 'createTaskEvent')) {
+					// check for exception 'node not found'; skip the check for events that do not map to a node
+					if (node === null && !(histEvent === 'undoBranchRemovalEvent' || histEvent === 'createEvent' || histEvent === 'createTaskEvent' || histEvent === 'changeReqAreaColorEvent')) {
 						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
 						dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
 						return
 					}
 
 					const isCurrentDocument = doc._id === rootState.currentDoc._id
-
 					if (processComment) {
 						// process the last event from the document comments array (in the tree)
 						reportOddTimestamp(lastCommentsObj, doc._id)
@@ -277,14 +257,11 @@ const actions = {
 									showSyncMessage(`changed the title of`, SEV.INFO)
 									break
 								case 'undoBranchRemovalEvent':
-									dispatch('restoreBranch', {
+									dispatch('syncRestoreBranch', {
 										histArray: lastHistObj.undoBranchRemovalEvent,
 										restoreReqArea: true
 									})
 									break
-								default:
-									// eslint-disable-next-line no-console
-									if (rootState.debug && !boardEvents.includes(histEvent)) console.log('sync.trees.isReqAreaItem: event not found, name = ' + histEvent)
 							}
 						} else {
 							// process events for non requirement area items
@@ -297,8 +274,11 @@ const actions = {
 									commit('updateNodesAndCurrentDoc', { node, sprintId: doc.sprintId, lastChange: doc.lastChange })
 									showSyncMessage(`set the sprint for`, SEV.INFO)
 									break
-								case 'boardReloadEvent':
-									// nothing to do here
+								case 'changeReqAreaColorEvent':
+									if (rootGetters.isDetailsViewSelected) {
+										commit('updateColorMapper', { id: doc._id, newColor: doc.color })
+										showSyncMessage(`changed the color indication of ${getLevelText(doc)} '${doc.title}'`, SEV.INFO, true)
+									}
 									break
 								case 'commentToHistoryEvent':
 									commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: doc.lastCommentToHistory })
@@ -324,10 +304,12 @@ const actions = {
 									showSyncMessage(`changed the description of`, SEV.INFO)
 									break
 								case 'undoBranchRemovalEvent':
-									dispatch('restoreBranch', {
+									dispatch('syncRestoreBranch', {
 										histArray: lastHistObj.undoBranchRemovalEvent,
 										isSameUserInDifferentSession,
-										toDispatch: updateThisBoard ? [{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } }] : undefined
+										updateThisBoard,
+										sprintId: rootState.loadedSprintId,
+										team: rootState.userData.myTeam
 									})
 									break
 								case 'nodeMovedEvent':
@@ -370,6 +352,10 @@ const actions = {
 										window.slVueTree.removeNodes([node])
 										showSyncMessage(`removed the`, SEV.INFO)
 									}
+									break
+								case 'removeSprintIdsEvent':
+									commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
+									showSyncMessage(`removed the sprint for`, SEV.INFO)
 									break
 								case 'removeStoryEvent':
 									commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
@@ -502,67 +488,79 @@ const actions = {
 
 					// process events for the planning board
 					switch (histEvent) {
-						case 'createTaskEvent':
-							if (doc.sprintId === rootState.loadedSprintId) {
-								if (doc.level === LEVEL.TASK) {
-									// a new task is created on another user's product details view or board
-									commit('addTaskToBoard', doc)
-								} else if (doc.level === LEVEL.PBI) {
-									// a user story is created
-									dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+						case 'addItemsToSprintEvent':
+							{
+								const newPBI = lastHistObj.addItemsToSprintEvent[0]
+								if (newPBI) commit('addStoryToBoard', newPBI)
+								const newTasks = lastHistObj.addItemsToSprintEvent[1]
+								for (const t of newTasks) {
+									commit('addTaskToBoard', t)
 								}
+							}
+							break
+						case 'boardReloadEvent':
+							// this event is passed via the 'messenger' dummy backlogitem, the sprintId and the team name are in the message not in the doc
+							{
+								const sprintId = lastHistObj.boardReloadEvent[0]
+								const team = lastHistObj.boardReloadEvent[1]
+								if (sprintId === rootState.loadedSprintId && team === rootState.userData.myTeam) {
+									dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
+								}
+							}
+							break
+						case 'createTaskEvent':
+							if (doc.level === LEVEL.TASK) {
+								// a new task is created on another user's product details view or board
+								commit('addTaskToBoard', doc)
 							}
 							break
 						case 'undoBranchRemovalEvent':
-							{
-								const involvedSprintIds = [doc.sprintId].concat(lastHistObj.undoBranchRemovalEvent[7])
-								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
-									// one or more of the removed items or their descendants assigned to the loaded sprint are restored
-									if (doc.level === LEVEL.TASK) {
-										// a task removal is undone from a user story currently on the planning board
-										commit('addTaskToBoard', doc)
-									}
-								}
-							}
+							// is handled in 'processHistory'
 							break
 						case 'nodeMovedEvent':
+							// process moves initiated from the details view
 							{
 								const item = lastHistObj.nodeMovedEvent
+								const sourceLevel = item[0]
+								const targetLevel = item[1]
+								const sourceParentId = item[7]
+								const targetParentId = item[8]
+								const newlyCalculatedPriority = item[10]
 								const sourceSprintId = item[11]
 								const targetSprintId = item[12]
-								const involvedSprintIds = [doc.sprintId].concat([sourceSprintId]).concat([targetSprintId]).concat(window.slVueTree.getDescendantsInfoOnId(doc._id).sprintIds)
-								if (involvedSprintIds.includes(rootState.loadedSprintId)) {
-									// the item is moved in, within or out of the loaded sprint
-									const sourceLevel = item[0]
-									const targetLevel = item[1]
-									const sourceParentId = item[7]
-									const targetParentId = item[8]
-									const newlyCalculatedPriority = item[10]
-
-									if (sourceLevel === LEVEL.TASK && targetLevel === LEVEL.TASK && sourceParentId === targetParentId) {
-										// move position of items within the same user story
-										let tasks
-										for (const s of rootState.planningboard.stories) {
-											if (s.storyId === targetParentId) {
-												const columnKeys = Object.keys(s.tasks)
-												for (const ck of columnKeys) {
-													if (targetSprintId === rootState.loadedSprintId) {
-														for (const t of s.tasks[ck]) {
-															// move position of the item within the same task column
-															if (t.id === doc._id) {
-																t.priority = newlyCalculatedPriority
-																tasks = s.tasks[ck]
-																break
-															}
-														}
-													}
-												}
-												if (tasks) break
-											}
+								if (targetLevel === LEVEL.TASK) {
+									// a task is positioned on or away from the current board
+									if (targetSprintId !== rootState.loadedSprintId) {
+										// task is moved to another sprint or to no sprint
+										commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+										break
+									}
+									if (sourceSprintId !== rootState.loadedSprintId) {
+										// task is moved into the loaded sprint
+										commit('addTaskToBoard', doc)
+										break
+									}
+									if (targetSprintId === rootState.loadedSprintId && sourceSprintId === rootState.loadedSprintId) {
+										// task is moved within the loaded sprint
+										if (sourceParentId === targetParentId && sourceLevel === LEVEL.TASK) {
+											// task is moved within a story
+											commit('moveTaskWithinStory', { targetParentId, doc, newlyCalculatedPriority })
 										}
-										tasks.sort((a, b) => b.priority - a.priority)
+										if (sourceParentId !== targetParentId) {
+											// task is moved between stories
+											commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+											commit('addTaskToBoard', doc)
+										}
+										break
+									}
+								}
+								if (targetLevel === LEVEL.PBI) {
+									// assumption: the assigned sprintId does not change
+									if (sourceLevel === LEVEL.PBI) {
+										// story is moved within the loaded sprint
+										commit('moveStoryOnBoard', doc)
 									} else {
-										// the item was moved to another user story in or out of this sprint
+										// a task is promoted to a pbi
 										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
 								}
@@ -583,8 +581,18 @@ const actions = {
 								dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*', delmark })
 							}
 							break
+						case 'removeItemsFromSprintEvent':
+							{
+								const storyIdToRemove = lastHistObj.removeItemsFromSprintEvent[0]
+								if (storyIdToRemove) commit('removeStoryFromBoard', storyIdToRemove)
+								const tasksToRemove = lastHistObj.removeItemsFromSprintEvent[1]
+								for (const t of tasksToRemove) {
+									commit('removeTaskFromBoard', t)
+								}
+							}
+							break
 						case 'setPointsEvent':
-							if (doc.sprintId === rootState.loadedSprintId && doc.level === LEVEL.PBI) {
+							if (doc.level === LEVEL.PBI) {
 								for (const s of rootState.planningboard.stories) {
 									if (s.storyId === doc._id) {
 										s.size = doc.spsize
@@ -594,7 +602,7 @@ const actions = {
 							}
 							break
 						case 'setStateEvent':
-							if (doc.sprintId === rootState.loadedSprintId && doc.level === LEVEL.TASK) {
+							if (doc.level === LEVEL.TASK) {
 								const prevState = lastHistObj.setStateEvent[0]
 								const newTaskPosition = lastHistObj.setStateEvent[3]
 								for (const s of rootState.planningboard.stories) {
@@ -620,7 +628,7 @@ const actions = {
 							}
 							break
 						case 'setSubTypeEvent':
-							if (doc.sprintId === rootState.loadedSprintId && doc.level === LEVEL.PBI) {
+							if (doc.level === LEVEL.PBI) {
 								for (const s of rootState.planningboard.stories) {
 									if (s.storyId === doc._id) {
 										s.subType = doc.subtype
@@ -630,48 +638,38 @@ const actions = {
 							}
 							break
 						case 'setTeamOwnerEvent':
-							// the item is now owned by my team. ToDo: if the item is a task, insert direct without reload
-							dispatch('loadPlanningBoard', { sprintId: doc.sprintId, team: rootState.userData.myTeam })
+							// a user assigned items to his team, remove them from my team
+							dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 							break
 						case 'setTitleEvent':
-							if (doc.sprintId === rootState.loadedSprintId) {
-								switch (doc.level) {
-									case LEVEL.FEATURE:
-										for (const s of rootState.planningboard.stories) {
-											if (s.featureId === doc._id) {
-												s.featureName = doc.title
-												break
-											}
+							switch (doc.level) {
+								case LEVEL.PBI:
+									for (const s of rootState.planningboard.stories) {
+										if (s.storyId === doc._id) {
+											s.title = doc.title
+											break
 										}
-										break
-									case LEVEL.PBI:
-										for (const s of rootState.planningboard.stories) {
-											if (s.storyId === doc._id) {
-												s.title = doc.title
-												break
-											}
-										}
-										break
-									case LEVEL.TASK:
-										for (const s of rootState.planningboard.stories) {
-											if (s.storyId === doc.parentId) {
-												const tasks = s.tasks
-												const targetColumn = tasks[doc.state]
-												for (const t of targetColumn) {
-													if (t.id === doc._id) {
-														t.title = doc.title
-														break
-													}
+									}
+									break
+								case LEVEL.TASK:
+									for (const s of rootState.planningboard.stories) {
+										if (s.storyId === doc.parentId) {
+											const tasks = s.tasks
+											const targetColumn = tasks[doc.state]
+											for (const t of targetColumn) {
+												if (t.id === doc._id) {
+													t.title = doc.title
+													break
 												}
-												break
 											}
+											break
 										}
-										break
-								}
+									}
+									break
 							}
 							break
 						case 'taskRemovedEvent':
-							if (doc.sprintId === rootState.loadedSprintId) {
+							{
 								const storyId = lastHistObj.taskRemovedEvent[2]
 								const taskId = lastHistObj.taskRemovedEvent[3]
 								const taskState = lastHistObj.taskRemovedEvent[4]
@@ -679,8 +677,7 @@ const actions = {
 							}
 							break
 						case 'updateTaskOrderEvent':
-							// updateTaskOrderEvent: { sprintId: rootState.loadedSprintId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds }
-							if (doc.sprintId === rootState.loadedSprintId) {
+							{
 								const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates
 								rootState.planningboard.stories[taskUpdates.idx].tasks[taskUpdates.taskState] = taskUpdates.tasks
 							}
@@ -715,30 +712,12 @@ const actions = {
 			return
 		}
 
-		const logEvent = processComment ? commentsEvent : histEvent
-		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('sync:received event ' + logEvent)
-
 		const isSameUserInDifferentSession = processComment ? lastCommentsObj.by === rootState.userData.user : lastHistObj.by === rootState.userData.user
-
-		// handle special 'boardReloadEvent' and return
-		if (processHistory && rootGetters.isPlanningBoardSelected && histEvent === 'boardReloadEvent') {
-			// this event is passed via the 'messenger' dummy backlogitem, the team name is in the message not in the doc; always process this event if the board is loaded
-			const sprintId = lastHistObj.boardReloadEvent[0]
-			const team = lastHistObj.boardReloadEvent[1]
-			if (sprintId === rootState.loadedSprintId && team === rootState.userData.myTeam) {
-				dispatch('loadPlanningBoard', { sprintId, team: rootState.userData.myTeam })
-				doBlinck(doc)
-			}
-			return
-		}
-
 		const isReqAreaItem = doc.productId === MISC.AREA_PRODUCTID
 		// update the tree only for documents available in the currently loaded tree model (eg. 'products overview' has no pbi and task items)
-		const updateTree = doc.level <= rootState.loadedTreeDepth
+		const updateTree = doc.level <= rootState.loadedTreeDepth && histEvent !== 'boardReloadEvent'
 		// update the board if the event changes the current view (sprintId and team) effecting any PBIs and/or tasks
-		const updateThisBoard = mustUpdateThisBoard(lastHistObj.updateBoards, doc)
-
+		const updateThisBoard = mustUpdateThisBoard(lastHistObj.updateBoards)
 		// process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, or the item is a requirement area item while the overview is in view
 		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
 			histEvent === 'changeReqAreaColorEvent' ||

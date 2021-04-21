@@ -144,8 +144,7 @@ const methods = {
 				by: this.$store.state.userData.user,
 				timestamp: Date.now(),
 				sessionId: this.$store.state.mySessionId,
-				distributeEvent: true,
-				updateBoards: { update: false }
+				distributeEvent: true
 			}]
 		}
 		// update the database and select this document
@@ -256,8 +255,7 @@ const methods = {
 					by: this.$store.state.userData.user,
 					timestamp: Date.now(),
 					sessionId: this.$store.state.mySessionId,
-					distributeEvent: true,
-					updateBoards: { update: false }
+					distributeEvent: true
 				}]
 			}
 			// update the parent history and than save the new document

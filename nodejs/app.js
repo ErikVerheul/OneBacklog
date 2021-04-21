@@ -21,7 +21,7 @@ function getSubTypeText(dbName, idx) {
 }
 
 function getLevelText(dbName, level, subtype) {
-	if (level < 0 || level > TASKLEVEL) return `'Level not supported'`
+	if (level < 0 || level > TASKLEVEL) return `Level not supported`
 
 	if (subtype && level === PBILEVEL) {
 		return getSubTypeText(dbName, subtype)
@@ -30,7 +30,7 @@ function getLevelText(dbName, level, subtype) {
 
 function getItemStateText(dbName, idx) {
 	if (idx < 0 || idx > TASKLEVEL) {
-		return `'Error: unknown state'`
+		return `Error: unknown state`
 	}
 	return configData[dbName].itemState[idx]
 }

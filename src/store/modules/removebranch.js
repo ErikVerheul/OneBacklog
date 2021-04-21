@@ -8,11 +8,10 @@ var removedDeps
 var removedConds
 var extDepsRemovedCount
 var extCondsRemovedCount
-var removedSprintIds
 var runningThreadsCount
 var removedDocsCount
-var boardPBIs
-var boardTasks
+var sprintsAffected
+var teamsAffected
 
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
@@ -46,11 +45,10 @@ const actions = {
 		removedConds = {}
 		extDepsRemovedCount = 0
 		extCondsRemovedCount = 0
-		removedSprintIds = []
 		runningThreadsCount = 0
 		removedDocsCount = 0
-		boardPBIs = []
-		boardTasks = []
+		sprintsAffected = []
+		teamsAffected = []
 
 		const id = payload.node._id
 		const delmark = createId()
@@ -85,16 +83,15 @@ const actions = {
 					removedConds[c] = { conditionalFor: doc._id, level: doc.level, removedParentLevel }
 				}
 			}
-			if (doc.sprintId) {
-				if (!removedSprintIds.includes(doc.sprintId)) removedSprintIds.push(doc.sprintId)
-			}
 			// mark for removal
 			doc.delmark = payload.delmark
 
 			// save the affected items on the boards
 			if (doc.sprintId) {
-				if (doc.level === LEVEL.PBI) boardPBIs.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
-				if (doc.level === LEVEL.TASK) boardTasks.push({ sprintId: doc.sprintId, team: doc.team, docId: doc._id })
+				if (doc.level === LEVEL.PBI || doc.level === LEVEL.TASK) {
+					if (!sprintsAffected.includes(doc.sprintId)) sprintsAffected.push(doc.sprintId)
+					if (!teamsAffected.includes(doc.team)) teamsAffected.push(doc.team)
+				}
 			}
 
 			const newHist = {
@@ -266,7 +263,7 @@ const actions = {
 			const toDispatch = [{ addHistToRemovedParent: payload }]
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, toDispatch, caller: 'removeReqAreaAssignments' })
 		}).catch(error => {
-			const msg = 'removeReqAreaAssignment: Could not read document with id ' + reqArea + ', ' + error
+			const msg = `removeReqAreaAssignment: Could not read document with id ${reqArea}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -324,12 +321,12 @@ const actions = {
 		}).then(res => {
 			const updatedDoc = res.data
 			const newHist = {
-				removedWithDescendantsEvent: [removed_doc_id, removedDocsCount, extDepsRemovedCount, extCondsRemovedCount, removedSprintIds, payload.delmark],
+				removedWithDescendantsEvent: [removed_doc_id, removedDocsCount, extDepsRemovedCount, extCondsRemovedCount, sprintsAffected, payload.delmark],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
-				updateBoards: { update: boardPBIs.length > 0 || boardTasks.length > 0, additionalData: { boardPBIs, boardTasks } }
+				updateBoards: { sprintsAffected, teamsAffected }
 			}
 			updatedDoc.history.unshift(newHist)
 
@@ -387,7 +384,7 @@ const actions = {
 										removedIntConditions: removed.removedIntConditions,
 										removedIntDependencies: removed.removedIntDependencies,
 										removedNode,
-										sprintIds: removedSprintIds
+										sprintIds: sprintsAffected
 									}
 									if (entry.isProductRemoved) {
 										entry.removedProductRoles = rootGetters.getMyProductsRoles[removedNode._id]

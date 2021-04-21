@@ -143,7 +143,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = 'cloneProduct: Could not read a product from database ' + rootState.userData.currentDb + ', ' + error
+			const msg = `cloneProduct: Could not read a product from database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	}

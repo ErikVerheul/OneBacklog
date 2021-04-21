@@ -76,7 +76,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = `'updateTeamCalendarAction: Could not read the team with id ${payload.teamId} in database '${payload.dbName}'. ${error}`
+			const msg = `updateTeamCalendarAction: Could not read the team with id ${payload.teamId} in database '${payload.dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -123,13 +123,13 @@ const actions = {
 						rootState.isTeamCreated = true
 						rootState.allTeams[teamName] = { id: payload.id, members: [], hasTeamCalendar: false }
 						rootState.backendMessages.push({
-							seqKey: rootState.seqKey++, msg: `doCreateTeam: Team '${teamName}' is created in database '${dbName}'`
+							seqKey: rootState.seqKey++, msg: `addTeamAction: Team '${teamName}' is created in database '${dbName}'`
 						})
 					},
 					onFailureCallback: () => {
 						rootState.isTeamCreated = false
 						rootState.backendMessages.push({
-							seqKey: rootState.seqKey++, msg: `doCreateTeam: The creation of team '${teamName}' failed. See the log in database '${dbName}'`
+							seqKey: rootState.seqKey++, msg: `addTeamAction: The creation of team '${teamName}' failed. See the log in database '${dbName}'`
 						})
 					}
 				})
@@ -139,7 +139,7 @@ const actions = {
 				})
 			}
 		}).catch(error => {
-			const msg = `'ddTeamToDb: Could not read the teams in database '${dbName}'. ${error}`
+			const msg = `addTeamAction: Could not read the teams in database '${dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -211,7 +211,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
-			const msg = `'removeTeamsAction: Could not read the teams in database '${dbName}'. ${error}`
+			const msg = `removeTeamsAction: Could not read the teams in database '${dbName}'. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

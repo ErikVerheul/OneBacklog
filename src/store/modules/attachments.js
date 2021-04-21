@@ -98,7 +98,7 @@ const actions = {
         })
       }).catch(error => {
         rootState.uploadDone = true
-        const msg = 'uploadAttachmentAsync: Could not read document with _id ' + _id + ', ' + error
+        const msg = `uploadAttachmentAsync: Could not read document with _id ${_id}. ${error}`
         dispatch('doLog', { event: msg, level: SEV.ERROR })
       })
     }
@@ -140,11 +140,10 @@ const actions = {
         })
       }
     }).catch(error => {
-      const msg = 'removeAttachmentAsync: Could not read document with _id ' + id + ', ' + error
+      const msg = `removeAttachmentAsync: Could not read document with id ${id}. ${error}`
       dispatch('doLog', { event: msg, level: SEV.ERROR })
     })
   }
-
 }
 
 export default {
