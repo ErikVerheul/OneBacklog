@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { createId } from '../../common_functions.js'
+import { createId, getLevelText } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -15,13 +15,6 @@ var teamsAffected
 
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
-}
-
-function getLevelText(configData, level) {
-	if (level < 0 || level > LEVEL.TASK) {
-		return 'Level not supported'
-	}
-	return configData.itemType[level]
 }
 
 const actions = {

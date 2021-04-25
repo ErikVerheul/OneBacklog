@@ -178,7 +178,7 @@ const utilities = {
 			return this.$store.state.configData.itemState[idx]
 		},
 
-		/* mappings from config document */
+		// usage in Vue components; see also common-functions.js for the same function
 		getLevelText(level, subtype = 0) {
 			if (level < 0 || level > LEVEL.TASK) {
 				return 'Level not supported'

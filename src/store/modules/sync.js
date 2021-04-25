@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { getLocationInfo } from '../../common_functions.js'
+import { getLevelText, getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
@@ -43,28 +43,8 @@ const actions = {
 			}
 		}
 
-		function getLevelText(doc) {
-			if (doc.level < 0 || doc.level > LEVEL.TASK) {
-				return 'Level not supported'
-			}
-			if (doc.level === LEVEL.PBI) {
-				return getSubType(doc.subtype)
-			}
-			if (doc.level === LEVEL.EPIC && doc.parentId === MISC.AREA_PRODUCTID) {
-				return 'requirement area'
-			}
-			return rootState.configData.itemType[doc.level]
-		}
-
 		function getProductTitle(id) {
 			return rootState.productTitlesMap[id]
-		}
-
-		function getSubType(idx) {
-			if (idx < 0 || idx >= rootState.configData.subtype.length) {
-				return 'Error: unknown subtype'
-			}
-			return rootState.configData.subtype[idx]
 		}
 
 		function showSyncMessage(text, severity, specialText = false) {
@@ -73,7 +53,7 @@ const actions = {
 					commit('showLastEvent', { txt: `You ${text} in another session`, severity })
 				} else commit('showLastEvent', { txt: `Another user ${text}`, severity })
 			} else {
-				const standardTxt = `${getLevelText(doc)} '${doc.title}' in product '${getProductTitle(doc.productId)}'`
+				const standardTxt = `${getLevelText(rootState.configData, doc.level, doc.subtype)} '${doc.title}' in product '${getProductTitle(doc.productId)}'`
 				if (isSameUserInDifferentSession) {
 					commit('showLastEvent', { txt: `You ${text} ${standardTxt} in another session`, severity })
 				} else commit('showLastEvent', { txt: `Another user ${text} ${standardTxt}`, severity })
@@ -227,7 +207,7 @@ const actions = {
 								case 'changeReqAreaColorEvent':
 									commit('updateColorMapper', { id: doc._id, newColor: doc.color })
 									commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
-									showSyncMessage(`changed the color indication of ${getLevelText(doc)} '${doc.title}'`, SEV.INFO, true)
+									showSyncMessage(`changed the color indication of ${getLevelText(rootState.configData, doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
 									break
 								case 'createEvent':
 									if (node === null) {
@@ -277,7 +257,7 @@ const actions = {
 								case 'changeReqAreaColorEvent':
 									if (rootGetters.isDetailsViewSelected) {
 										commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-										showSyncMessage(`changed the color indication of ${getLevelText(doc)} '${doc.title}'`, SEV.INFO, true)
+										showSyncMessage(`changed the color indication of ${getLevelText(rootState.configData, doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
 									}
 									break
 								case 'commentToHistoryEvent':
@@ -528,6 +508,7 @@ const actions = {
 								const newlyCalculatedPriority = item[10]
 								const sourceSprintId = item[11]
 								const targetSprintId = item[12]
+								const affectedStories = item[15]
 								if (targetLevel === LEVEL.TASK) {
 									// a task is positioned on or away from the current board
 									if (targetSprintId !== rootState.loadedSprintId) {
@@ -553,7 +534,7 @@ const actions = {
 										}
 										break
 									}
-								}
+								} else
 								if (targetLevel === LEVEL.PBI) {
 									// assumption: the assigned sprintId does not change
 									if (sourceLevel === LEVEL.PBI) {
@@ -563,6 +544,10 @@ const actions = {
 										// a task is promoted to a pbi
 										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 									}
+								} else {
+									// an item higher in the hierarchy has moved
+									console.log('nodeMovedEvent: doc.level = ' + doc.level + ', doc.title = ' + doc.title)
+									commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 								}
 							}
 							break

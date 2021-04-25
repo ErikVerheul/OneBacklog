@@ -2,7 +2,7 @@
 * Common functions for use in Vuex
 * Usage: import * as <any name> from '../common_functions.js' to get all named exports in one object
 */
-
+import { LEVEL } from './constants.js'
 //////////////// expand, collapse, show and hide nodes as a side effect of these 4 functions ////////////
 export function showNode(node) {
 	if (node) {
@@ -69,6 +69,24 @@ export function addToArray(arr, item) {
 	for (const el of arr) newArr.push(el)
 	if (!newArr.includes(item)) newArr.push(item)
 	return newArr
+}
+
+function getSubType(configData, idx) {
+	if (idx < 0 || idx >= configData.subtype.length) {
+		return 'Error: unknown subtype'
+	}
+	return configData.subtype[idx]
+}
+
+// usage in Vuex; see also generic.js for the same function
+export function getLevelText(configData, level, subtype = 0) {
+	if (level < 0 || level > LEVEL.TASK) {
+		return 'Level not supported'
+	}
+	if (level === LEVEL.PBI) {
+		return getSubType(configData, subtype)
+	}
+	return configData.itemType[level]
 }
 
 export function localTimeAndMilis() {
@@ -144,4 +162,4 @@ export function getSprintNameById(id, calendar) {
 	} else return 'Unknown sprint'
 }
 
-export default { expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray }
+export default { expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLevelText, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray }
