@@ -50,14 +50,15 @@ function comparePriorities(a, b) {
 
 const state = {
 	itemIdsToImport: [],
-	featureMap: [],
 	pbiResults: [],
-	pathsFound: [],
 	stories: []
 }
 
 const mutations = {
-	/* Show the items in the order as they appear in the tree view */
+	/*
+	* Show the items in the order as they appear in the tree view
+	* Note that items that do not fit in the feature/epic/product chain in the backing view are skipped
+	*/
 	createSprint(state, payload) {
 		const featureIdToNodeMap = {}
 		const epicIdToNodeMap = {}
@@ -76,115 +77,116 @@ const mutations = {
 			return null
 		}
 
-		let storyIdx = 0
-		for (const f of payload.featureMap) {
-			for (const s of payload.pbiResults) {
-				const featureId = s.key[3]
-				if (f.id === featureId) {
-					const storyId = s.id
-					const productId = s.key[2]
-					const priority = -s.key[5]
-					const storyTitle = s.value[0]
-					const spikePersonHours = s.value[4]
-					const priorityChain = [priority]
-					const featureNode = getParentNode(featureId, featureIdToNodeMap)
-					if (!featureNode) continue
+		const allStories = []
+		for (const s of payload.pbiResults) {
+			// the parent is the PBI's feature
+			const featureId = s.key[3]
+			const storyId = s.id
+			const productId = s.key[2]
+			const priority = -s.key[5]
+			const storyTitle = s.value[0]
+			const spikePersonHours = s.value[4]
+			const priorityChain = [priority]
+			const featureNode = getParentNode(featureId, featureIdToNodeMap)
+			if (!featureNode) continue
 
-					const featureName = featureNode.title
-					priorityChain.unshift(featureNode.data.priority)
-					const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
-					if (!epicNode) continue
+			const featureName = featureNode.title
+			priorityChain.unshift(featureNode.data.priority)
+			const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
+			if (!epicNode) continue
 
-					const epicName = epicNode.title
-					priorityChain.unshift(epicNode.data.priority)
-					const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
-					if (!productNode) continue
+			const epicName = epicNode.title
+			priorityChain.unshift(epicNode.data.priority)
+			const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
+			if (!productNode) continue
 
-					const productName = productNode.title
-					priorityChain.unshift(productNode.data.priority)
-					const subType = s.value[1]
-					const storySize = s.value[3]
-					const newStory = {
-						idx: storyIdx,
-						priorityChain,
-						storyId,
-						featureId,
-						featureName,
-						epicName,
-						productId,
-						productName,
-						title: storyTitle,
-						size: storySize,
-						spikePersonHours,
-						subType,
-						tasks: {
-							[STATE.ON_HOLD]: [],
-							[STATE.TODO]: [],
-							[STATE.INPROGRESS]: [],
-							[STATE.TESTREVIEW]: [],
-							[STATE.DONE]: []
-						}
-					}
-
-					for (const t of payload.taskResults) {
-						if (t.key[3] === storyId) {
-							const taskState = t.value[2]
-							switch (taskState) {
-								case STATE.ON_HOLD:
-									newStory.tasks[STATE.ON_HOLD].push({
-										id: t.id,
-										title: t.value[0],
-										taskOwner: t.value[5],
-										priority: -t.key[5]
-									})
-									break
-								case STATE.TODO:
-								case STATE.READY:
-									newStory.tasks[STATE.TODO].push({
-										id: t.id,
-										title: t.value[0],
-										taskOwner: t.value[5],
-										priority: -t.key[5]
-									})
-									break
-								case STATE.INPROGRESS:
-									newStory.tasks[STATE.INPROGRESS].push({
-										id: t.id,
-										title: t.value[0],
-										taskOwner: t.value[5],
-										priority: -t.key[5]
-									})
-									break
-								case STATE.TESTREVIEW:
-									newStory.tasks[STATE.TESTREVIEW].push({
-										id: t.id,
-										title: t.value[0],
-										taskOwner: t.value[5],
-										priority: -t.key[5]
-									})
-									break
-								case STATE.DONE:
-									newStory.tasks[STATE.DONE].push({
-										id: t.id,
-										title: t.value[0],
-										taskOwner: t.value[5],
-										priority: -t.key[5]
-									})
-									break
-							}
-						}
-					}
-					state.stories.push(newStory)
-					storyIdx++
+			const productName = productNode.title
+			priorityChain.unshift(productNode.data.priority)
+			const subType = s.value[1]
+			const storySize = s.value[3]
+			const newStory = {
+				idx: undefined,
+				priorityChain,
+				storyId,
+				featureId,
+				featureName,
+				epicName,
+				productId,
+				productName,
+				title: storyTitle,
+				size: storySize,
+				spikePersonHours,
+				subType,
+				tasks: {
+					[STATE.ON_HOLD]: [],
+					[STATE.TODO]: [],
+					[STATE.INPROGRESS]: [],
+					[STATE.TESTREVIEW]: [],
+					[STATE.DONE]: []
 				}
 			}
+
+			for (const t of payload.taskResults) {
+				// the parent is the task's story
+				if (t.key[3] === storyId) {
+					const taskState = t.value[2]
+					switch (taskState) {
+						case STATE.ON_HOLD:
+							newStory.tasks[STATE.ON_HOLD].push({
+								id: t.id,
+								title: t.value[0],
+								taskOwner: t.value[5],
+								priority: -t.key[5]
+							})
+							break
+						case STATE.TODO:
+						case STATE.READY:
+							newStory.tasks[STATE.TODO].push({
+								id: t.id,
+								title: t.value[0],
+								taskOwner: t.value[5],
+								priority: -t.key[5]
+							})
+							break
+						case STATE.INPROGRESS:
+							newStory.tasks[STATE.INPROGRESS].push({
+								id: t.id,
+								title: t.value[0],
+								taskOwner: t.value[5],
+								priority: -t.key[5]
+							})
+							break
+						case STATE.TESTREVIEW:
+							newStory.tasks[STATE.TESTREVIEW].push({
+								id: t.id,
+								title: t.value[0],
+								taskOwner: t.value[5],
+								priority: -t.key[5]
+							})
+							break
+						case STATE.DONE:
+							newStory.tasks[STATE.DONE].push({
+								id: t.id,
+								title: t.value[0],
+								taskOwner: t.value[5],
+								priority: -t.key[5]
+							})
+							break
+					}
+				}
+			}
+			allStories.push(newStory)
 		}
+		allStories.sort((a, b) => comparePriorities(b.priorityChain, a.priorityChain))
+		// assign the indexes
+		for (let i = 0; i < allStories.length; i++) {
+			allStories[i].idx = i
+		}
+		state.stories = allStories
 	},
 
 	/* Reorder stories on the board on changed priorities */
 	reorderStories(state, payload) {
-		// affectedStories.push({ id: d._id, featureId: d.parentId, sprintId: d.data.sprintId, priority: d.data.priority })
-		// commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 		const changedStories = []
 		for (const as of payload.affectedStories) {
 			if (as.sprintId === payload.sprintId && payload.team === as.team) {
@@ -246,7 +248,6 @@ const mutations = {
 			} else updatedBoardStories.push(story)
 		}
 		// sort on priorities
-		// console.log('reorderStories: before sort = ' + updatedBoardStories.map(s => '\n' + s.title + ': ' + s.priorityChain))
 		updatedBoardStories.sort((a, b) => comparePriorities(b.priorityChain, a.priorityChain))
 		// reassign the indexes
 		for (let i = 0; i < updatedBoardStories.length; i++) {
@@ -428,9 +429,7 @@ const actions = {
 		if (!busyLoading) {
 			busyLoading = true
 			state.stories = []
-			state.featureMap = []
 			state.pbiResults = []
-			state.pathsFound = []
 			globalAxios({
 				method: 'GET',
 				url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(payload.sprintId, payload.team)
@@ -446,34 +445,22 @@ const actions = {
 					if (itemLevel === LEVEL.PBI) {
 						const pbiId = r.id
 						if (!foundPbiIds.includes(pbiId)) foundPbiIds.push(pbiId)
-						const featureId = r.key[3]
-						// get the feature from the backing details or overview
-						const featureNode = window.slVueTree.getNodeById(featureId)
-						if (featureNode) {
-							// note that stories without a associated feature are skipped
-							if (!state.pathsFound.includes(featureNode.pathStr)) {
-								// ToDo: replace the feature path with the priority chain for ordening
-								state.featureMap.push({ path: featureNode.path, id: featureNode._id })
-							}
-							state.pathsFound.push(featureNode.pathStr)
-							state.pbiResults.push(r)
-						}
+						state.pbiResults.push(r)
 					}
 					if (itemLevel === LEVEL.TASK) {
 						taskResults.push(r)
+						// the parent is the task's story
 						const pbiId = r.key[3]
 						if (!foundPbiIds.includes(pbiId)) {
 							foundPbiIds.push(pbiId)
+							// the task is missing its story
 							if (!missingPbiIds.includes(pbiId)) missingPbiIds.push(pbiId)
 						}
 					}
 				}
 
 				const paintSprintLanes = () => {
-					// order the items as in the tree view
-					state.featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
-					// ToDo: replace the feature path with the priority chain for ordening
-					commit('createSprint', { rootState, sprintId: payload.sprintId, featureMap: state.featureMap, pbiResults: state.pbiResults, taskResults })
+					commit('createSprint', { rootState, sprintId: payload.sprintId, pbiResults: state.pbiResults, taskResults })
 					busyLoading = false
 					loadRequests--
 					if (loadRequests > 0) {
@@ -496,7 +483,7 @@ const actions = {
 		loadRequests++
 	},
 
-	/* Extend featureMap and pbiResults with PBIs moved to another sprint */
+	/* Extend pbiResults with PBIs missing for tasks found for the sprint */
 	loadMissingPbis({
 		rootState,
 		state,
@@ -521,16 +508,7 @@ const actions = {
 						key: [doc.printId, doc.team, doc.productId, doc.parentId, doc.level, doc.priority],
 						value: [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]
 					}
-					const featureId = doc.parentId
-					const feature = window.slVueTree.getNodeById(featureId)
-					if (feature) {
-						if (!state.pathsFound.includes(feature.pathStr)) {
-							state.featureMap.push({ path: feature.path, id: feature._id })
-						}
-						state.pathsFound.push(feature.pathStr)
-						// stories without a associated feature are skipped
-						state.pbiResults.push(newPbiResult)
-					}
+					state.pbiResults.push(newPbiResult)
 				}
 			}
 			payload.onSuccessCallBack()
@@ -570,18 +548,18 @@ const actions = {
 			state.itemIdsToImport = []
 			const cannotImportProducts = []
 			for (const r of results) {
+				const id = r.id
 				const sprintId = r.key[1]
+				const productId = r.key[2]
 				if (isPreviousSprint(sprintId)) {
-					const productId = r.key[2]
 					if (rootGetters.getMyAssignedProductIds.includes(productId) && rootGetters.getMyProductsRoles[productId].includes('PO' || rootGetters.getMyProductsRoles[productId].includes('developer'))) {
 						if (r.value === LEVEL.PBI) {
-							const id = r.id
 							if (!state.itemIdsToImport.includes(id)) state.itemIdsToImport.push(id)
 						}
 						if (r.value === LEVEL.TASK) {
-							const parentId = r.key[3]
-							if (!state.itemIdsToImport.includes(parentId)) state.itemIdsToImport.push(parentId)
-							const id = r.id
+							// the parent is the task's story
+							const storyId = r.key[3]
+							if (!state.itemIdsToImport.includes(storyId)) state.itemIdsToImport.push(storyId)
 							if (!state.itemIdsToImport.includes(id)) state.itemIdsToImport.push(id)
 						}
 					} else {

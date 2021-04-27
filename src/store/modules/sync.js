@@ -510,7 +510,6 @@ const actions = {
 							break
 						case 'nodeMovedEvent':
 							// process moves initiated from the details view
-							// dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 							{
 								const item = lastHistObj.nodeMovedEvent
 								const sourceLevel = item[0]
