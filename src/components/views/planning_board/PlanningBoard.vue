@@ -24,7 +24,8 @@
           <h5>Welcome {{ userData.user}} from team '{{ userData.myTeam }}'</h5>
         </b-col>
         <b-col cols="4">
-          <h5>{{ getStoryPoints }} story points in this sprint</h5>
+          <h5 v-if="getPersonHours > 0">{{ getStoryPoints }} story points and {{ getPersonHours }} hours for spikes in this sprint</h5>
+					<h5 v-else>{{ getStoryPoints }} story points in this sprint</h5>
         </b-col>
         <b-col cols="2">
           <h5>points done: {{ getStoryPointsDone }}</h5>
@@ -131,6 +132,7 @@ export default {
 
   computed: {
     ...mapGetters([
+			'getPersonHours',
       'getStoryPoints',
       'getStoryPointsDone',
       'myTeam'

@@ -11,7 +11,8 @@
         <font-awesome-icon icon="bug" />
       </i>
       {{ story.title }}
-      <p>size = {{ story.size }}</p>
+      <p v-if="story.subType !== 1">size = {{ story.size }}</p>
+			<p v-else>hours = {{ story.spikePersonHours }}</p>
       <p class="small-text">
         F: {{ story.featureName }}
         <br />

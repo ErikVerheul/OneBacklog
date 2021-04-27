@@ -373,7 +373,7 @@ const actions = {
 					sprints: {
 						map: `function(doc) {
 							const pbiLevel = 5
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner])
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.spikepersonhours, doc.taskOwner])
 						}`
 					},
 					/* Filter on teams */

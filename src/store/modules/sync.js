@@ -650,6 +650,16 @@ const actions = {
 								}
 							}
 							break
+						case 'setHrsEvent':
+							if (doc.level === LEVEL.PBI) {
+								for (const s of rootState.planningboard.stories) {
+									if (s.storyId === doc._id) {
+										s.spikePersonHours = doc.spikepersonhours
+										break
+									}
+								}
+							}
+							break
 						case 'setPointsEvent':
 							if (doc.level === LEVEL.PBI) {
 								for (const s of rootState.planningboard.stories) {

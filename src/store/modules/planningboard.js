@@ -85,6 +85,7 @@ const mutations = {
 					const productId = s.key[2]
 					const priority = -s.key[5]
 					const storyTitle = s.value[0]
+					const spikePersonHours = s.value[4]
 					const priorityChain = [priority]
 					const featureNode = getParentNode(featureId, featureIdToNodeMap)
 					if (!featureNode) continue
@@ -114,6 +115,7 @@ const mutations = {
 						productName,
 						title: storyTitle,
 						size: storySize,
+						spikePersonHours,
 						subType,
 						tasks: {
 							[STATE.ON_HOLD]: [],
@@ -132,7 +134,7 @@ const mutations = {
 									newStory.tasks[STATE.ON_HOLD].push({
 										id: t.id,
 										title: t.value[0],
-										taskOwner: t.value[4],
+										taskOwner: t.value[5],
 										priority: -t.key[5]
 									})
 									break
@@ -141,7 +143,7 @@ const mutations = {
 									newStory.tasks[STATE.TODO].push({
 										id: t.id,
 										title: t.value[0],
-										taskOwner: t.value[4],
+										taskOwner: t.value[5],
 										priority: -t.key[5]
 									})
 									break
@@ -149,7 +151,7 @@ const mutations = {
 									newStory.tasks[STATE.INPROGRESS].push({
 										id: t.id,
 										title: t.value[0],
-										taskOwner: t.value[4],
+										taskOwner: t.value[5],
 										priority: -t.key[5]
 									})
 									break
@@ -157,7 +159,7 @@ const mutations = {
 									newStory.tasks[STATE.TESTREVIEW].push({
 										id: t.id,
 										title: t.value[0],
-										taskOwner: t.value[4],
+										taskOwner: t.value[5],
 										priority: -t.key[5]
 									})
 									break
@@ -165,7 +167,7 @@ const mutations = {
 									newStory.tasks[STATE.DONE].push({
 										id: t.id,
 										title: t.value[0],
-										taskOwner: t.value[4],
+										taskOwner: t.value[5],
 										priority: -t.key[5]
 									})
 									break
@@ -381,10 +383,17 @@ const mutations = {
 }
 
 const getters = {
+	getPersonHours(state) {
+		let sum = 0
+		for (const s of state.stories) {
+			if (s.subType === 1) sum += s.spikePersonHours
+		}
+		return sum
+	},
 	getStoryPoints(state) {
 		let sum = 0
 		for (const s of state.stories) {
-			sum += s.size
+			if (s.subType !== 1) sum += s.size
 		}
 		return sum
 	},
