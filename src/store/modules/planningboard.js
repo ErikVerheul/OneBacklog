@@ -32,6 +32,22 @@ function removeFromBoard(commit, doc, removedSprintId) {
 	}
 }
 
+/*
+* Compare two arrays with a chain of priorities as integers. The arrays must have the same length.
+* Returns a positive integer if a > b
+* Returns a negative integer if a < b
+* Returns 0 if a === b
+*/
+function comparePriorities(a, b) {
+	for (let i = 0; i < a.length; i++) {
+		const diff = a[i] - b[i]
+		if (diff !== 0) {
+			return diff
+		}
+	}
+	return 0
+}
+
 const state = {
 	itemIdsToImport: [],
 	featureMap: [],
@@ -69,23 +85,27 @@ const mutations = {
 					const productId = s.key[2]
 					const priority = -s.key[5]
 					const storyTitle = s.value[0]
+					const priorityChain = [priority]
 					const featureNode = getParentNode(featureId, featureIdToNodeMap)
 					if (!featureNode) continue
 
 					const featureName = featureNode.title
+					priorityChain.unshift(featureNode.data.priority)
 					const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
 					if (!epicNode) continue
 
 					const epicName = epicNode.title
+					priorityChain.unshift(epicNode.data.priority)
 					const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
 					if (!productNode) continue
 
 					const productName = productNode.title
+					priorityChain.unshift(productNode.data.priority)
 					const subType = s.value[1]
 					const storySize = s.value[3]
 					const newStory = {
 						idx: storyIdx,
-						priority,
+						priorityChain,
 						storyId,
 						featureId,
 						featureName,
@@ -159,6 +179,80 @@ const mutations = {
 		}
 	},
 
+	/* Reorder stories on the board on changed priorities */
+	reorderStories(state, payload) {
+		// affectedStories.push({ id: d._id, featureId: d.parentId, sprintId: d.data.sprintId, priority: d.data.priority })
+		// commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+		const changedStories = []
+		for (const as of payload.affectedStories) {
+			if (as.sprintId === payload.sprintId && payload.team === as.team) {
+				// continue with the stories on the current board
+				const priorityChain = [as.priority]
+				const featureNode = window.slVueTree.getNodeById(as.featureId)
+				if (!featureNode) continue
+
+				const featureName = featureNode.title
+				priorityChain.unshift(featureNode.data.priority)
+				const epicNode = window.slVueTree.getNodeById(featureNode.parentId)
+				if (!epicNode) continue
+
+				const epicName = epicNode.title
+				priorityChain.unshift(epicNode.data.priority)
+				const productNode = window.slVueTree.getNodeById(epicNode.parentId)
+				if (!productNode) continue
+
+				const productName = productNode.title
+				priorityChain.unshift(productNode.data.priority)
+
+				let originalStory
+				for (const s of state.stories) {
+					if (s.storyId === as.id) {
+						originalStory = s
+					}
+				}
+				if (!originalStory) continue
+
+				// create updated story
+				const newStory = {
+					idx: undefined,
+					priorityChain,
+					storyId: as.id,
+					featureId: as.featureId,
+					featureName,
+					epicName,
+					productId: productNode._id,
+					productName,
+					title: originalStory.title,
+					size: originalStory.size,
+					subType: originalStory.subtype,
+					tasks: originalStory.tasks
+				}
+				changedStories.push(newStory)
+			}
+		}
+		// replace affected stories on the current board
+		const updatedBoardStories = []
+		const changedStoriesIds = changedStories.map(cs => cs.storyId)
+		for (const story of state.stories) {
+			if (changedStoriesIds.includes(story.storyId)) {
+				for (const cs of changedStories) {
+					if (cs.storyId === story.storyId) {
+						// select the new story
+						updatedBoardStories.push(cs)
+					}
+				}
+			} else updatedBoardStories.push(story)
+		}
+		// sort on priorities
+		// console.log('reorderStories: before sort = ' + updatedBoardStories.map(s => '\n' + s.title + ': ' + s.priorityChain))
+		updatedBoardStories.sort((a, b) => comparePriorities(b.priorityChain, a.priorityChain))
+		// reassign the indexes
+		for (let i = 0; i < updatedBoardStories.length; i++) {
+			updatedBoardStories[i].idx = i
+		}
+		state.stories = updatedBoardStories
+	},
+
 	/* Move position of tasks within the same user story */
 	moveTaskWithinStory(state, payload) {
 		let tasks
@@ -181,59 +275,59 @@ const mutations = {
 		tasks.sort((a, b) => b.priority - a.priority)
 	},
 
-	/* Add a story to the board on a location based on its priority */
-	addStoryToBoard(state, doc) {
-		const feature = window.slVueTree.getNodeById(doc.parentId)
-		if (feature) {
-			const epic = window.slVueTree.getNodeById(feature.parentId)
-			if (epic) {
-				const product = window.slVueTree.getNodeById(doc.productId)
-				if (product) {
-					const newStory = {
-						idx: state.stories.length,
-						priority: doc.priority,
-						storyId: doc._id,
-						featureId: feature._id,
-						featureName: feature.title,
-						epicName: epic.title,
-						productId: doc.productId,
-						productName: product.title,
-						title: doc.title,
-						size: doc.spsize,
-						subType: doc.subtype,
-						tasks: {
-							[STATE.ON_HOLD]: [],
-							[STATE.TODO]: [],
-							[STATE.INPROGRESS]: [],
-							[STATE.TESTREVIEW]: [],
-							[STATE.DONE]: []
-						}
-					}
-					// insert the new story
-					const updatedStories = []
-					let newStoryIsInserted = false
-					for (let i = 0; i < state.stories.length; i++) {
-						let story = state.stories[i]
-						if (!newStoryIsInserted && newStory.priority > story.priority) {
-							newStory.idx = i
-							updatedStories.push(newStory)
-							newStoryIsInserted = true
-							story.idx++
-							updatedStories.push(story)
-						} else
-							if (newStoryIsInserted) {
-								story.idx++
-								updatedStories.push(story)
-							} else updatedStories.push(story)
-					}
-					if (!newStoryIsInserted) {
-						newStory.idx = state.stories.length
-						updatedStories.push(newStory)
-					}
-					state.stories = updatedStories
-				}
+	/* Add a story to the board on a location based on its priority. No tasks are added yet */
+	addEmptyStoryToBoard(state, doc) {
+		const priorityChain = [doc.priority]
+		const featureNode = window.slVueTree.getNodeById(doc.parentId)
+		if (!featureNode) return
+
+		const featureName = featureNode.title
+		priorityChain.unshift(featureNode.data.priority)
+		const epicNode = window.slVueTree.getNodeById(featureNode.parentId)
+		if (!epicNode) return
+
+		const epicName = epicNode.title
+		priorityChain.unshift(epicNode.data.priority)
+		const productNode = window.slVueTree.getNodeById(doc.productId)
+		if (!productNode) return
+
+		const productName = productNode.title
+		priorityChain.unshift(productNode.data.priority)
+
+		const newStory = {
+			idx: undefined,
+			priorityChain,
+			storyId: doc._id,
+			featureId: featureNode._id,
+			featureName,
+			epicName,
+			productId: doc.productId,
+			productName,
+			title: doc.title,
+			size: doc.spsize,
+			subType: doc.subtype,
+			tasks: {
+				[STATE.ON_HOLD]: [],
+				[STATE.TODO]: [],
+				[STATE.INPROGRESS]: [],
+				[STATE.TESTREVIEW]: [],
+				[STATE.DONE]: []
 			}
 		}
+
+		const updatedBoardStories = []
+		for (const story of state.stories) {
+			updatedBoardStories.push(story)
+		}
+		// insert the new story
+		updatedBoardStories.push(newStory)
+		// sort on priorities
+		updatedBoardStories.sort((a, b) => comparePriorities(b.priorityChain, a.priorityChain))
+		// reassign the indexes
+		for (let i = 0; i < updatedBoardStories.length; i++) {
+			updatedBoardStories[i].idx = i
+		}
+		state.stories = updatedBoardStories
 	},
 
 	/* Add the task to the planning board */
@@ -268,48 +362,6 @@ const mutations = {
 				break
 			}
 		}
-	},
-
-	moveStoryOnBoard(state, doc) {
-		const storyId = doc._id
-		const updatedStories = []
-		let movingStory
-		let idx = 0
-		// find and remove the moving story
-		for (const s of state.stories) {
-			if (s.storyId !== storyId) {
-				// repair the index
-				s.idx = idx
-				updatedStories.push(s)
-				idx++
-			} else movingStory = s
-		}
-		state.stories = updatedStories
-
-		// insert the moving story
-		const updatedStories2 = []
-		let storyIsInserted = false
-		movingStory.priority = doc.priority
-		for (let i = 0; i < state.stories.length; i++) {
-			let story = state.stories[i]
-			// ToDo: sort on product prio / epic prio / feature prio and story prio
-			if (!storyIsInserted && movingStory.priority > story.priority) {
-				movingStory.idx = i
-				updatedStories2.push(movingStory)
-				storyIsInserted = true
-				story.idx++
-				updatedStories2.push(story)
-			} else
-				if (storyIsInserted) {
-					story.idx++
-					updatedStories2.push(story)
-				} else updatedStories2.push(story)
-		}
-		if (!storyIsInserted) {
-			movingStory.idx = state.stories.length
-			updatedStories2.push(movingStory)
-		}
-		state.stories = updatedStories2
 	},
 
 	/* Remove the story from the planning board */
@@ -386,13 +438,15 @@ const actions = {
 						const pbiId = r.id
 						if (!foundPbiIds.includes(pbiId)) foundPbiIds.push(pbiId)
 						const featureId = r.key[3]
-						const feature = window.slVueTree.getNodeById(featureId)
-						if (feature) {
-							if (!state.pathsFound.includes(feature.pathStr)) {
-								state.featureMap.push({ path: feature.path, id: feature._id })
+						// get the feature from the backing details or overview
+						const featureNode = window.slVueTree.getNodeById(featureId)
+						if (featureNode) {
+							// note that stories without a associated feature are skipped
+							if (!state.pathsFound.includes(featureNode.pathStr)) {
+								// ToDo: replace the feature path with the priority chain for ordening
+								state.featureMap.push({ path: featureNode.path, id: featureNode._id })
 							}
-							state.pathsFound.push(feature.pathStr)
-							// stories without a associated feature are skipped
+							state.pathsFound.push(featureNode.pathStr)
 							state.pbiResults.push(r)
 						}
 					}
@@ -409,6 +463,7 @@ const actions = {
 				const paintSprintLanes = () => {
 					// order the items as in the tree view
 					state.featureMap.sort((a, b) => window.slVueTree.comparePaths(a.path, b.path))
+					// ToDo: replace the feature path with the priority chain for ordening
 					commit('createSprint', { rootState, sprintId: payload.sprintId, featureMap: state.featureMap, pbiResults: state.pbiResults, taskResults })
 					busyLoading = false
 					loadRequests--
@@ -428,7 +483,8 @@ const actions = {
 				const msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
-		} loadRequests++
+		}
+		loadRequests++
 	},
 
 	/* Extend featureMap and pbiResults with PBIs moved to another sprint */
@@ -586,7 +642,8 @@ const actions = {
 			const toDispatch = [
 				{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } },
 				// also trigger the reload of other sessions of members of my team with this sprint opened in their board
-				{	sendMessageAsync:	{
+				{
+					sendMessageAsync: {
 						boardReloadEvent: [rootState.loadedSprintId, rootState.userData.myTeam],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
@@ -603,6 +660,39 @@ const actions = {
 		})
 	},
 
+	/* Add the tasks belonging to the story if assigned to the current sprint and team */
+	addTasksToStory({
+		rootState,
+		dispatch,
+		commit
+	}, storyDoc) {
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString3(storyDoc._id) + '&include_docs=true'
+		}).then(res => {
+			const taskDocs = res.data.rows.map((r) => r.doc)
+			taskDocs.sort((a, b) => b.priority - a.priority)
+			let story
+			for (const s of state.stories) {
+				if (s.storyId === storyDoc._id) story = s
+			}
+			if (story) {
+				for (const td of taskDocs) {
+					if (td.sprintId === rootState.loadedSprintId && td.team === rootState.userData.myTeam) {
+						commit('addTaskToBoard', td)
+					}
+				}
+			} else {
+				const msg = `addTasksToStory: Could not find the story with id ${storyDoc._id} on the current planning board`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			}
+		}).catch(error => {
+			const msg = `addTasksToStory: Could not fetch the child documents of document with id ${storyDoc._id} in database ${rootState.userData.currentDb}. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/* Update a task state change in the database */
 	updateTasks({
 		state,
 		dispatch
@@ -929,7 +1019,7 @@ const actions = {
 		})
 	},
 
-	/* Update the parent history and than save the new document */
+	/* Create a task from the board. Update the parent history and than save the new document and update the details view if active */
 	boardAddTask({
 		rootState,
 		dispatch
@@ -1231,6 +1321,8 @@ const actions = {
 		})
 	},
 
+	/////////////////////////////////////////////// updates triggered from the board ////////////////////////////////////////
+
 	boardUpdateTaskTitle({
 		rootState,
 		dispatch
@@ -1247,7 +1339,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
 			}
 			doc.history.unshift(newHist)
 
@@ -1302,7 +1395,8 @@ const actions = {
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
 			}
 			doc.history.unshift(newHist)
 
@@ -1326,7 +1420,7 @@ const actions = {
 		})
 	},
 
-	////////////////////////////////// board only updates for use by the synchronization feature //////////////////////////
+	////////////////////////////////// board only updates triggered by the synchronization feature //////////////////////////
 
 	syncRemoveItemsFromBoard({
 		dispatch,
