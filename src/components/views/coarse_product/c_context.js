@@ -87,11 +87,11 @@ const methods = {
         break
       case this.INSERTBELOW:
         this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
-        this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item'
+        this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item.'
         break
       case this.INSERTINSIDE:
         this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
-        this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
+        this.listItemText = `Insert a ${this.contextChildType} inside this ${this.contextNodeType}.`
         break
       case this.REMOVEITEM:
         this.assistanceText = this.$store.state.help.help.remove
@@ -99,14 +99,14 @@ const methods = {
           this.listItemText = 'WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
           this.disableOkButton = true
         } else if (this.hasConditions) {
-          this.listItemText = 'WARNING: this item is conditional for other items. Remove the condition(s) first'
+          this.listItemText = 'WARNING: this item is conditional for other items. Remove the condition(s) first.'
           this.disableOkButton = true
-        } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants`
+        } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants.`
 				break
 			case this.ASIGNTOMYTEAM:
 				this.assistanceText = this.$store.state.help.help.team
 				this.contextWarning = `Descendants of this ${this.contextNodeType} might be assigned to another team. To be save use the 'Product details' view to assign your team to this ${this.contextNodeType}`
-				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'`
+				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
 				break
       case this.REMOVEREQAREA:
         this.assistanceText = this.$store.state.help.help.remove
@@ -114,15 +114,15 @@ const methods = {
         break
       case this.CHECKSTATES:
         this.assistanceText = this.$store.state.help.help.consistencyCheck
-        this.listItemText = 'Start the check. See in the tree if any red badges appear'
+        this.listItemText = 'Start the check. See in the tree if any red badges appear.'
         break
       case this.SETDEPENDENCY:
         this.assistanceText = this.$store.state.help.help.setDependency
         if (!this.$store.state.selectNodeOngoing) {
-          this.listItemText = 'Click OK and right-click a node this item depends on'
+          this.listItemText = 'Click OK and right-click a node this item depends on.'
         } else {
           if (checkNode(this, this.contextNodeSelected)) {
-            this.listItemText = 'Click OK to set this condition'
+            this.listItemText = 'Click OK to set this condition.'
           } else {
             this.listItemText = ''
             this.disableOkButton = true
