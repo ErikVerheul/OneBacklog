@@ -666,7 +666,7 @@ const methods = {
 				el.value = '?'
 				return
 			}
-			const newHrs = el.value
+			const newHrs = parseInt(el.value)
 			if (newHrs !== this.$store.state.currentDoc.spikepersonhours) {
 				this.$store.dispatch('setPersonHours', {
 					node,
