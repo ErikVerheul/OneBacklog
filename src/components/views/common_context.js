@@ -229,7 +229,7 @@ const methods = {
 				productId: newNode.productId,
 				parentId: newNode.parentId,
 				sprintId,
-				team: team,
+				team,
 				taskOwner: newNode.data.taskOwner,
 				level: insertLevel,
 				subtype: 0,
@@ -255,7 +255,8 @@ const methods = {
 					by: this.$store.state.userData.user,
 					timestamp: Date.now(),
 					sessionId: this.$store.state.mySessionId,
-					distributeEvent: true
+					distributeEvent: true,
+					updateBoards: { sprintsAffected: [sprintId], teamsAffected: [team] }
 				}]
 			}
 			// update the parent history and than save the new document
