@@ -124,12 +124,17 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			const oldPersonHours = tmpDoc.spikepersonhours
+			let updateBoards = undefined
+			if (tmpDoc.sprintId) {
+				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
+			}
 			const newHist = {
 				setHrsEvent: [oldPersonHours, payload.newHrs],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				distributeEvent: true
+				distributeEvent: true,
+				updateBoards
 			}
 			tmpDoc.history.unshift(newHist)
 			const prevLastChange = tmpDoc.lastChange
@@ -176,7 +181,7 @@ const actions = {
 			// update size only
 			const oldPoints = tmpDoc.spsize
 			let updateBoards = undefined
-			if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+			if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
 				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 			}
 			const newHist = {
@@ -241,7 +246,7 @@ const actions = {
 			const tmpDoc = res.data
 			const oldState = tmpDoc.state
 			let updateBoards = undefined
-			if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+			if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
 				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 			}
 			const newHist = {
@@ -357,7 +362,7 @@ const actions = {
 			const oldTeam = tmpDoc.team
 			if (payload.newTeam != oldTeam) {
 				let updateBoards = undefined
-				if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
 					updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 				}
 				const newHist = {
@@ -475,7 +480,7 @@ const actions = {
 			const oldTitle = rootState.currentDoc.title
 			const tmpDoc = res.data
 			let updateBoards = undefined
-			if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+			if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
 				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 			}
 			const newHist = {
@@ -530,7 +535,7 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			let updateBoards = undefined
-			if (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK) {
+			if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
 				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 			}
 			const newHist = {
