@@ -126,28 +126,7 @@ const actions = {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
-					// save the affected items on the boards
-					const descendantsMetaData = window.slVueTree.getDescendantsInfoOnId(doc._id)
-					const sprintsAffected = doc.sprintId ? [doc.sprintId] : []
-					for (const s of descendantsMetaData.sprintIds) {
-						if (!sprintsAffected.includes(s)) sprintsAffected.push(s)
-					}
-					const teamsAffected = doc.team ? [doc.team] : []
-					for (const t of descendantsMetaData.teams) {
-						if (!teamsAffected.includes(t)) teamsAffected.push(t)
-					}
 					const item = getPayLoadItem(doc._id)
-					const newHist = {
-						nodeMovedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId, m.targetParentId,
-						item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange],
-						by: rootState.userData.user,
-						timestamp: Date.now(),
-						sessionId: rootState.mySessionId,
-						distributeEvent: true,
-						updateBoards: { sprintsAffected, teamsAffected }
-					}
-					doc.history.unshift(newHist)
-
 					doc.parentId = m.targetParentId
 					doc.level = doc.level + m.levelShift
 					doc.productId = m.targetProductId
@@ -159,6 +138,31 @@ const actions = {
 					}
 					doc.priority = item.newlyCalculatedPriority
 					doc.sprintId = item.targetSprintId
+					// save the affected items on the boards
+					const descendantsMetaData = window.slVueTree.getDescendantsInfoOnId(doc._id)
+					const sprintsAffected = doc.sprintId ? [doc.sprintId] : []
+					for (const s of descendantsMetaData.sprintIds) {
+						if (!sprintsAffected.includes(s)) sprintsAffected.push(s)
+					}
+					const teamsAffected = doc.team ? [doc.team] : []
+					for (const t of descendantsMetaData.teams) {
+						if (!teamsAffected.includes(t)) teamsAffected.push(t)
+					}
+					const affectedStories = doc.level === LEVEL.PBI && doc.sprintId && doc.team ? [{ id: doc._id, featureId: doc.parentId, sprintId: doc.sprintId, team: doc.team, priority: doc.priority }] : []
+					for (const d of descendantsMetaData.descendants) {
+						// select all descendant PBI's with an assigned sprint and team
+						if (d.level === LEVEL.PBI && d.data.sprintId && d.data.team) affectedStories.push({ id: d._id, featureId: d.parentId, sprintId: d.data.sprintId, team: d.data.team, priority: d.data.priority })
+					}
+					const newHist = {
+						nodeMovedEvent: [m.sourceLevel, m.sourceLevel + m.levelShift, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId, m.targetParentId,
+							item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange, affectedStories],
+						by: rootState.userData.user,
+						timestamp: Date.now(),
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+						updateBoards: { sprintsAffected, teamsAffected }
+					}
+					doc.history.unshift(newHist)
 					doc.lastPositionChange = item.lastPositionChange
 					doc.lastChange = item.lastPositionChange
 					docs.push(doc)
@@ -196,6 +200,7 @@ const actions = {
 		})
 	},
 
+	/* Save the updated documents of the moved items. For every item saved, Couchdb will sent a synchronization event as defined in the added history */
 	saveMovedItems({
 		rootState,
 		commit,
@@ -206,7 +211,7 @@ const actions = {
 		dispatch('updateBulk', {
 			dbName: rootState.userData.currentDb, docs, caller: 'saveMovedItems', onSuccessCallback: () => {
 				for (const it of items) {
-					// update the history of the moved items
+					// update the history of the moved items in the current tree view
 					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
 				}
 				if (payload.move) {
