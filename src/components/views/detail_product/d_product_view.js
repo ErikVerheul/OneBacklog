@@ -70,7 +70,9 @@ const methods = {
 			if (this.getCurrentItemLevel < LEVEL.TASK) {
 				txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
 			} else {
-				txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${this.$store.state.currentDoc.taskOwner}' of team '${this.$store.state.currentDoc.team}'`
+				if (this.$store.state.currentDoc.taskOwner) {
+					txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${this.$store.state.currentDoc.taskOwner}' of team '${this.$store.state.currentDoc.team}'`
+				} else txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
 			}
 			if (this.getItemSprintName) {
 				txt += ` (Sprint '${this.getItemSprintName})'`
