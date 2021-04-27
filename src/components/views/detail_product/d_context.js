@@ -95,9 +95,13 @@ const methods = {
 				this.assistanceText = this.$store.state.help.help.itemClone
 				this.listItemText = 'Make a clone of this item. No descendant items are copied.'
 				break
+			case this.FROMSPRINT:
+				if (this.contextNodeSelected.level === LEVEL.PBI) this.listItemText = `Remove this User story from the assigned sprint including it's tasks with the same sprint assigned.`
+				if (this.contextNodeSelected.level === LEVEL.TASK) this.listItemText = `Remove the Task from the assigned sprint.`
+				break
 			case this.INSERTBELOW:
 				this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
-				this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item'
+				this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item.'
 				break
 			case this.INSERTINSIDE:
 				this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
@@ -106,8 +110,19 @@ const methods = {
 			case this.MOVETOPRODUCT:
 				this.assistanceText = this.$store.state.help.help.move
 				if (!this.$store.state.moveOngoing) {
-					this.listItemText = `Item selected. Choose a ${this.getLevelText(this.contextNodeSelected.level - 1)} as drop position in any other product`
-				} else this.listItemText = 'Drop position is set'
+					this.listItemText = `Item selected. Choose a ${this.getLevelText(this.contextNodeSelected.level - 1)} as drop position in any other product.`
+				} else this.listItemText = 'Drop position is set.'
+				break
+			case this.PBITOSPRINT:
+				this.listItemText = `Assign the current or next sprint to this ${this.contextNodeType}`
+				break
+			case this.TASKTOSPRINT:
+				{
+					const pbiNode = window.slVueTree.getParentNode(this.contextNodeSelected)
+					if (pbiNode.data.sprintId) {
+						this.listItemText = `Assign this Task to the same sprint the User story is assigned to.`
+					} else this.listItemText = `Assign this Task to the current or next sprint.`
+				}
 				break
 			case this.REMOVEITEM:
 				this.assistanceText = this.$store.state.help.help.remove
@@ -115,9 +130,9 @@ const methods = {
 					this.listItemText = 'WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
 					this.disableOkButton = true
 				} else if (this.hasConditions) {
-					this.listItemText = 'WARNING: this item is conditional for other items. Remove the condition(s) first'
+					this.listItemText = 'WARNING: this item is conditional for other items. Remove the condition(s) first.'
 					this.disableOkButton = true
-				} else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants`
+				} else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants.`
 				break
 			case this.ASIGNTOMYTEAM:
 				this.assistanceText = this.$store.state.help.help.team
@@ -127,19 +142,19 @@ const methods = {
 				} else if (this.contextParentTeam !== 'not asigned yet' && this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.myTeam) {
 					this.contextWarning = `WARNING: The team of parent ${this.contextParentType} (${this.contextParentTeam}) and your team (${this.myTeam}) do not match. Read the assistance text.`
 				}
-				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'`
+				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
 				break
 			case this.CHECKSTATES:
 				this.assistanceText = this.$store.state.help.help.consistencyCheck
-				this.listItemText = 'Start the check. See in the tree if any red badges appear'
+				this.listItemText = 'Start the check. See in the tree if any red badges appear.'
 				break
 			case this.SETDEPENDENCY:
 				this.assistanceText = this.$store.state.help.help.setDependency
 				if (!this.$store.state.selectNodeOngoing) {
-					this.listItemText = 'Click OK and right-click a node this item depends on'
+					this.listItemText = 'Click OK and right-click a node this item depends on.'
 				} else {
 					if (checkNode(this, this.contextNodeSelected)) {
-						this.listItemText = 'Click OK to set this condition'
+						this.listItemText = 'Click OK to set this condition.'
 					} else {
 						this.listItemText = ''
 						this.disableOkButton = true
