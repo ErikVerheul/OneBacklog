@@ -60,6 +60,11 @@ const actions = {
 			}
 		}
 
+		function logIllegalMove(targetLevel, sourceLevel, id) {
+			const msg = `sync.nodeMovedEvent: illegal move, targetLevel = ${targetLevel}, sourceLevel = ${sourceLevel}, doc._id = ${id}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		}
+
 		/*
 		* Return false if there are no affected items.
 		* Return true if at least one combination of sprintId and team matches with the current board in view.
@@ -237,6 +242,7 @@ const actions = {
 									showSyncMessage(`changed the title of`, SEV.INFO)
 									break
 								case 'undoBranchRemovalEvent':
+									// does also update the board
 									dispatch('syncRestoreBranch', {
 										histArray: lastHistObj.undoBranchRemovalEvent,
 										restoreReqArea: true
@@ -284,6 +290,7 @@ const actions = {
 									showSyncMessage(`changed the description of`, SEV.INFO)
 									break
 								case 'undoBranchRemovalEvent':
+									// does also update the board
 									dispatch('syncRestoreBranch', {
 										histArray: lastHistObj.undoBranchRemovalEvent,
 										isSameUserInDifferentSession,
@@ -453,6 +460,10 @@ const actions = {
 									}
 									showSyncMessage(`changed the priority of`, SEV.INFO)
 									break
+								case 'updateTaskOwnerEvent':
+									commit('updateNodesAndCurrentDoc', { node, taskOwner: doc.taskOwner, lastContentChange: doc.lastContentChange })
+									showSyncMessage(`changed the task owner of`, SEV.INFO)
+									break
 								default:
 									// eslint-disable-next-line no-console
 									if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
@@ -471,7 +482,7 @@ const actions = {
 						case 'addItemsToSprintEvent':
 							{
 								const newPBI = lastHistObj.addItemsToSprintEvent[0]
-								if (newPBI) commit('addStoryToBoard', newPBI)
+								if (newPBI) commit('addEmptyStoryToBoard', newPBI)
 								const newTasks = lastHistObj.addItemsToSprintEvent[1]
 								for (const t of newTasks) {
 									commit('addTaskToBoard', t)
@@ -499,6 +510,7 @@ const actions = {
 							break
 						case 'nodeMovedEvent':
 							// process moves initiated from the details view
+							// dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
 							{
 								const item = lastHistObj.nodeMovedEvent
 								const sourceLevel = item[0]
@@ -509,45 +521,107 @@ const actions = {
 								const sourceSprintId = item[11]
 								const targetSprintId = item[12]
 								const affectedStories = item[15]
-								if (targetLevel === LEVEL.TASK) {
-									// a task is positioned on or away from the current board
-									if (targetSprintId !== rootState.loadedSprintId) {
-										// task is moved to another sprint or to no sprint
-										commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
-										break
-									}
-									if (sourceSprintId !== rootState.loadedSprintId) {
-										// task is moved into the loaded sprint
-										commit('addTaskToBoard', doc)
-										break
-									}
-									if (targetSprintId === rootState.loadedSprintId && sourceSprintId === rootState.loadedSprintId) {
-										// task is moved within the loaded sprint
-										if (sourceParentId === targetParentId && sourceLevel === LEVEL.TASK) {
-											// task is moved within a story
-											commit('moveTaskWithinStory', { targetParentId, doc, newlyCalculatedPriority })
+								console.log('nodeMovedEvent: doc.level = ' + doc.level + ', sourceLevel = ' + sourceLevel + ', targetLevel = ' + targetLevel + ', doc.title = ' + doc.title)
+								switch (targetLevel) {
+									case LEVEL.TASK:
+										switch (sourceLevel) {
+											case LEVEL.TASK:
+												// a task is positioned on or away from the current board
+												if (targetSprintId !== rootState.loadedSprintId) {
+													// task is moved to another sprint or to no sprint
+													commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+													break
+												}
+												if (sourceSprintId !== rootState.loadedSprintId) {
+													// task is moved into the loaded sprint
+													commit('addTaskToBoard', doc)
+													break
+												}
+												if (targetSprintId === rootState.loadedSprintId && sourceSprintId === rootState.loadedSprintId) {
+													// task is moved within the loaded sprint
+													if (sourceParentId === targetParentId && sourceLevel === LEVEL.TASK) {
+														// task is moved within a story
+														commit('moveTaskWithinStory', { targetParentId, doc, newlyCalculatedPriority })
+													}
+													if (sourceParentId !== targetParentId) {
+														// task is moved between stories
+														commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+														commit('addTaskToBoard', doc)
+													}
+												}
+												break
+											case LEVEL.PBI:
+												// a PBI is demoted to a task
+												commit('removeStoryFromBoard', doc._id)
+												commit('addTaskToBoard', doc)
+												break
+											default:
+												logIllegalMove(targetLevel, sourceLevel, doc._id)
 										}
-										if (sourceParentId !== targetParentId) {
-											// task is moved between stories
-											commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
-											commit('addTaskToBoard', doc)
+										break
+									case LEVEL.PBI:
+										switch (sourceLevel) {
+											case LEVEL.TASK:
+												// a task is promoted to a PBI
+												commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+												commit('addEmptyStoryToBoard', doc)
+												break
+											case LEVEL.PBI:
+												// a PBI is moved within the board
+												commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												break
+											case LEVEL.FEATURE:
+												// a FEATURE is demoted to a PBI
+												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												break
+											default:
+												logIllegalMove(targetLevel, sourceLevel, doc._id)
 										}
 										break
-									}
-								} else
-								if (targetLevel === LEVEL.PBI) {
-									// assumption: the assigned sprintId does not change
-									if (sourceLevel === LEVEL.PBI) {
-										// story is moved within the loaded sprint
-										commit('moveStoryOnBoard', doc)
-									} else {
-										// a task is promoted to a pbi
-										dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-									}
-								} else {
-									// an item higher in the hierarchy has moved
-									console.log('nodeMovedEvent: doc.level = ' + doc.level + ', doc.title = ' + doc.title)
-									commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+									case LEVEL.FEATURE:
+										switch (sourceLevel) {
+											case LEVEL.PBI:
+												// a PBI is promoted to a feature
+												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												break
+											case LEVEL.FEATURE:
+												// a FEATURE is moved within the board
+												commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												break
+											case LEVEL.EPIC:
+												// an EPIC is demoted to a FEATURE
+												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												break
+											default:
+												logIllegalMove(targetLevel, sourceLevel, doc._id)
+										}
+										break
+									case LEVEL.EPIC:
+										switch (sourceLevel) {
+											case LEVEL.FEATURE:
+												// a FEATURE is promoted to an EPIC
+												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												break
+											case LEVEL.EPIC:
+												// an EPIC is is moved within the board
+												commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												break
+											default:
+												logIllegalMove(targetLevel, sourceLevel, doc._id)
+										}
+										break
+									case LEVEL.PRODUCT:
+										switch (sourceLevel) {
+											case LEVEL.PRODUCT:
+												// a PRODUCT is moved with the board
+												commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												break
+											default:
+												logIllegalMove(targetLevel, sourceLevel, doc._id)
+										}
+										break
+									default:
+										logIllegalMove(targetLevel, sourceLevel, doc._id)
 								}
 							}
 							break
@@ -667,6 +741,21 @@ const actions = {
 								rootState.planningboard.stories[taskUpdates.idx].tasks[taskUpdates.taskState] = taskUpdates.tasks
 							}
 							break
+						case 'updateTaskOwnerEvent':
+							for (const s of rootState.planningboard.stories) {
+								if (s.storyId === doc.parentId) {
+									const tasks = s.tasks
+									const targetColumn = tasks[doc.state]
+									for (const t of targetColumn) {
+										if (t.id === doc._id) {
+											t.taskOwner = doc.taskOwner
+											break
+										}
+									}
+									break
+								}
+							}
+							break
 						default:
 							// eslint-disable-next-line no-console
 							if (rootState.debug) console.log('sync.planningBoard: event not found, name = ' + histEvent)
@@ -705,9 +794,7 @@ const actions = {
 		const updateThisBoard = mustUpdateThisBoard(lastHistObj.updateBoards)
 		// process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, or the item is a requirement area item while the overview is in view
 		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
-			histEvent === 'changeReqAreaColorEvent' ||
-			(histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) ||
-			(rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
+			histEvent === 'changeReqAreaColorEvent' || (histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) || (rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
 	},
 
 	/* Listen for document changes. The timeout, if no changes are available is 60 seconds (default maximum) */
