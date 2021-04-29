@@ -224,8 +224,7 @@ const actions = {
 					}
 					rootState.changeHistory.unshift(entry)
 				}
-				movedCount += docs.length
-				commit('showLastEvent', { txt: `${movedCount} items have been moved`, severity: SEV.INFO })
+				commit('showLastEvent', { txt: `${docs.length} items have been moved and and ${movedCount} decendants updated`, severity: SEV.INFO })
 			}
 		})
 	},
@@ -289,7 +288,7 @@ const actions = {
 		}
 		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, onSuccessCallback: () => {
 			movedCount += docs.length
-			commit('startOrContinueShowProgress', `${movedCount} items are moved`)
+			commit('startOrContinueShowProgress', `${movedCount} descendant items are updated`)
 		}, caller: 'updateMovedDescendantsBulk' })
 	}
 }
