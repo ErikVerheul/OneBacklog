@@ -264,7 +264,7 @@ const actions = {
 			const prevLastChange = tmpDoc.lastChange
 			tmpDoc.lastChange = payload.timestamp
 
-			// ToDo: if newState === onHold create a toDispatch to put all decendants also on hold
+			// ToDo: if newState === onHold create a toDispatch to put all descendants also on hold
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
