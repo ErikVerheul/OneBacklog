@@ -178,7 +178,7 @@ const actions = {
 				window.slVueTree.appendDescendantNode(parentNode, doc)
 				descendantNodesRestoredCount++
 			}
-			if (descendantNodesRestoredCount > 0) commit('showLastEvent', { txt: `${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
+			if (descendantNodesRestoredCount > 0) commit('startOrContinueShowProgress',`${descendantNodesRestoredCount} descendants are restored`)
 		}
 
 		dispatch('updateBulk', {

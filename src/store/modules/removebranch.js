@@ -100,7 +100,7 @@ const actions = {
 		dispatch('updateBulk', {
 			dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove', onSuccessCallback: () => {
 				removedDocsCount += payload.results.length
-				commit('showLastEvent', { txt: `${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
+				commit('startOrContinueShowProgress', `${removedDocsCount - 1} descendants are removed`)
 			}
 		})
 	},

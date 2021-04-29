@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 var runningThreadsCount
+var movedCount
 
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
@@ -27,6 +28,7 @@ const actions = {
 		const mdc = payload.moveDataContainer
 		const items = []
 		let moveInfo = []
+		movedCount = 0
 		if (payload.move) {
 			moveInfo = {
 				// this info is the same for all nodes moved
@@ -222,11 +224,12 @@ const actions = {
 					}
 					rootState.changeHistory.unshift(entry)
 				}
+				movedCount += docs.length
+				commit('showLastEvent', { txt: `${movedCount} items have been moved`, severity: SEV.INFO })
 			}
 		})
 	},
 
-	// ToDo: show progress
 	getMovedChildren({
 		rootState,
 		dispatch
@@ -267,7 +270,8 @@ const actions = {
 
 	updateMovedDescendantsBulk({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, payload) {
 		const docs = payload.results.map(r => r.doc)
 		const updates = payload.updates
@@ -283,7 +287,10 @@ const actions = {
 			}
 			doc.history.unshift(newHist)
 		}
-		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'updateMovedDescendantsBulk' })
+		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, onSuccessCallback: () => {
+			movedCount += docs.length
+			commit('startOrContinueShowProgress', `${movedCount} items are moved`)
+		}, caller: 'updateMovedDescendantsBulk' })
 	}
 }
 
