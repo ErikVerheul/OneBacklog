@@ -132,14 +132,16 @@ export default new Vuex.Store({
 		filterTreeIsSet: false,
 		itemId: '',
 		keyword: '',
-		moveOngoing: false,
 		lastTreeView: undefined,
+		moveOngoing: false,
+		progressMessage: '',
 		searchOn: false,
 		selectedForView: 'comments',
 		previousSelectedNodes: undefined,
 		resetSearch: {},
 		selectedNodes: [],
 		selectNodeOngoing: false,
+		showProgress: false,
 		uploadDone: true,
 		// options
 		areOptionsSaved: false,
@@ -260,6 +262,7 @@ export default new Vuex.Store({
 		},
 
 		getLastEventTxt(state) {
+			if (state.showProgress) return state.progressMessage
 			if (state.eventList[0]) return state.eventList[0].txt
 		},
 
@@ -1072,12 +1075,21 @@ export default new Vuex.Store({
 			state.userData.myTeam = newTeam
 		},
 
-		/* A copy of the showLastEvent mixin which can not be used in modules */
+		/*
+		* A copy of the showLastEvent mixin which can not be used in modules
+		* Stops showing running progress indicator
+		*/
 		showLastEvent(state, payload) {
+			state.showProgress = false
 			state.eventKey++
 			const newEvent = createEvent({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
 			state.eventList.unshift(newEvent)
 			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
+		},
+
+		startOrContinueShowProgress(state, msg) {
+			state.showProgress = true
+			state.progressMessage = msg
 		},
 
 		switchCurrentProduct(state, newProductId) {
