@@ -172,7 +172,7 @@
           :active="contextOptionSelected === MOVETOPRODUCT"
           variant="dark"
           @click="showSelected(MOVETOPRODUCT)"
-        >Insert the moved item here</b-list-group-item>
+        >Insert the {{ getLevelText(this.movedNode.level, this.movedNode.data.subtype) }} here</b-list-group-item>
       </b-list-group>
 
       <div class="d-block text-center">

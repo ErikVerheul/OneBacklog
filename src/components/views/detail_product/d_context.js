@@ -3,9 +3,6 @@ import { getSprintNameById } from '../../../common_functions.js'
 import commonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
-// is initiated in method moveItemToOtherProduct
-var movedNode
-
 function created() {
 	this.PBITOSPRINT = 11
 	this.FROMSPRINT = 12
@@ -19,7 +16,8 @@ function data() {
 	return {
 		isInSprint: false,
 		canAssignPbiToSprint: false,
-		canAssignTaskToSprint: false
+		canAssignTaskToSprint: false,
+		movedNode: {}
 	}
 }
 
@@ -237,13 +235,13 @@ const methods = {
 		if (this.$store.state.moveOngoing) {
 			const targetPosition = window.slVueTree.lastSelectCursorPosition
 			// only allow to drop the node inside a new parent 1 level higher (lower value) than the source node
-			if (targetPosition.nodeModel.level !== movedNode.level - 1) {
-				this.showLastEvent('You can only drop inside a ' + this.getLevelText(movedNode.level - 1), SEV.WARNING)
+			if (targetPosition.nodeModel.level !== this.movedNode.level - 1) {
+				this.showLastEvent('You can only drop inside a ' + this.getLevelText(this.movedNode.level - 1), SEV.WARNING)
 				return
 			}
 
 			// move the node to the new place and update the productId and parentId; movedNode is updated by this call
-			const moveDataContainer = window.slVueTree.moveNodes([movedNode], targetPosition)
+			const moveDataContainer = window.slVueTree.moveNodes([this.movedNode], targetPosition)
 
 			// update the database
 			this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
@@ -251,7 +249,7 @@ const methods = {
 		} else {
 			this.$store.state.moveOngoing = true
 			this.moveSourceProductId = this.$store.state.currentProductId
-			movedNode = this.contextNodeSelected
+			this.movedNode = this.contextNodeSelected
 		}
 	},
 
