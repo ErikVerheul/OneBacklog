@@ -224,9 +224,7 @@ export default {
     },
 
     createLogKey(timestamp, sessionId, sessionSeq) {
-      // Todo: over time sessionId and sessionSeq will always be defined
-      if (sessionSeq) return timestamp + sessionId + sessionSeq
-      return timestamp
+      return timestamp + sessionId + sessionSeq
     },
 
     severity(level) {
