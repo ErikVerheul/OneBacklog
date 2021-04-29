@@ -6,6 +6,24 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.11 - 29 April 2021 Feature update, bug fixes and performance enhancements</h3>
+          <p>New features:</p>
+          <ul>
+						<li>Spike person hours implemented on the planning board</li>
+						<li>Show progress indicator when moving, removing items and when undoing these actions</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+						<li>Fix incomplete synchronization between boards when moving items to another level</li>
+            <li>Fix a bug when clearing a search on id that did not return a result</li>
+						<li>Fix spike person hours saved as string instead of integer value</li>
+						<li>Skip showing owner name if not defined; show team name only</li>
+          </ul>
+					<p>Performance enhancements:</p>
+          <ul>
+            <li>Lightweigth planning board refresh implemented</li>
+          </ul>
+          <hr />
 					<h3>v.1.10 - 6 April 2021 Feature update and bug and security fixes</h3>
           <p>New features:</p>
           <ul>
@@ -20,7 +38,7 @@
 						<li>Fix regression in planning board</li>
 						<li>Fix performance regression when removing a branch</li>
           </ul>
-					<p>Sucurity:</p>
+					<p>Security:</p>
           <ul>
             <li>Update dependencies with security update</li>
           </ul>
