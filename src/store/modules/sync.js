@@ -520,7 +520,6 @@ const actions = {
 								const sourceSprintId = item[11]
 								const targetSprintId = item[12]
 								const moveToOtherProduct = item[15]
-								console.log('nodeMovedEvent: doc.level = ' + doc.level + ', sourceLevel = ' + sourceLevel + ', targetLevel = ' + targetLevel + ', doc.title = ' + doc.title + ', moveToOtherProduct = ' + moveToOtherProduct)
 								if (moveToOtherProduct) {
 									dispatch('renewPlanningBoard')
 								} else
