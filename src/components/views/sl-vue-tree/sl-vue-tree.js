@@ -425,19 +425,20 @@ const methods = {
 				nodes[i].data.lastChange = Date.now()
 			}
 		}
+		// check and correction for error: product level items must have their own id as productId
 		function correctProductId(vm) {
 			for (const n of nodes) {
 				if (n.level === LEVEL.PRODUCT && n._id !== n.productId) {
 					// eslint-disable-next-line no-console
-					if (vm.debugMode) console.log(`Product item with id ${n._id} was assigned ${n.productId} as product id. Is corrected to be equal to the id`)
+					if (vm.debugMode) console.log(`insertNodes: Product item with id ${n._id} was assigned ${n.productId} as product id. Is corrected to be equal to the id`)
 					n.product_id = n._id
 				}
 			}
 		}
-		// check and correction for error: product level items must have their own id as productId
-		correctProductId(this)
+
 		const destNodeModel = cursorPosition.nodeModel
 		const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
+		correctProductId(this)
 		let predecessorNode
 		let successorNode
 		if (cursorPosition.placement === 'inside') {
