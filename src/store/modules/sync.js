@@ -36,8 +36,8 @@ const actions = {
 		}
 
 		function reportOddTimestamp(event, docId) {
-			if (Date.now() - event.timestamp > 1000) {
-				const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 second`
+			if (Date.now() - event.timestamp > 5000) {
+				const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 5 seconds`
 				commit('showLastEvent', { txt: msg, severity: SEV.WARNING })
 				dispatch('doLog', { event: msg + ` The document id is ${docId}.`, level: SEV.WARNING })
 			}
@@ -75,7 +75,7 @@ const actions = {
 			if (affectedItems.sprintsAffected && affectedItems.teamsAffected) {
 				// check for a match with the current sprint and team in view
 				return affectedItems.sprintsAffected.includes(rootState.loadedSprintId) && affectedItems.teamsAffected.includes(rootState.userData.myTeam)
-			}
+			} else return false
 		}
 
 		function createNode(doc) {
@@ -149,13 +149,13 @@ const actions = {
 					window.slVueTree.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'inside'
-					}, [node], { calculatePrios: false })
+					}, [node], { calculatePrios: false, skipUpdateProductId: true })
 				} else {
 					// insert after prevNode
 					window.slVueTree.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'after'
-					}, [node], { calculatePrios: false })
+					}, [node], { calculatePrios: false, skipUpdateProductId: true })
 				}
 				if (item[13] === 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
 				if (item[13] === 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: item[14] })
@@ -519,8 +519,11 @@ const actions = {
 								const newlyCalculatedPriority = item[10]
 								const sourceSprintId = item[11]
 								const targetSprintId = item[12]
-								const affectedStories = item[15]
-								console.log('nodeMovedEvent: doc.level = ' + doc.level + ', sourceLevel = ' + sourceLevel + ', targetLevel = ' + targetLevel + ', doc.title = ' + doc.title)
+								const moveToOtherProduct = item[15]
+								console.log('nodeMovedEvent: doc.level = ' + doc.level + ', sourceLevel = ' + sourceLevel + ', targetLevel = ' + targetLevel + ', doc.title = ' + doc.title + ', moveToOtherProduct = ' + moveToOtherProduct)
+								if (moveToOtherProduct) {
+									dispatch('renewPlanningBoard')
+								} else
 								switch (targetLevel) {
 									case LEVEL.TASK:
 										switch (sourceLevel) {
@@ -566,58 +569,22 @@ const actions = {
 												commit('addEmptyStoryToBoard', doc)
 												break
 											case LEVEL.PBI:
-												// a PBI is moved within the board
-												commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-												break
 											case LEVEL.FEATURE:
-												// a FEATURE is demoted to a PBI
-												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
+												// case LEVEL.PBI: a PBI is moved within the board ||
+												// case LEVEL.FEATURE: a FEATURE is demoted to a PBI
+												dispatch('renewPlanningBoard')
 												break
 											default:
 												logIllegalMove(targetLevel, sourceLevel, doc._id)
 										}
 										break
 									case LEVEL.FEATURE:
-										switch (sourceLevel) {
-											case LEVEL.PBI:
-												// a PBI is promoted to a feature
-												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-												break
-											case LEVEL.FEATURE:
-												// a FEATURE is moved within the board
-												commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-												break
-											case LEVEL.EPIC:
-												// an EPIC is demoted to a FEATURE
-												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-												break
-											default:
-												logIllegalMove(targetLevel, sourceLevel, doc._id)
-										}
-										break
 									case LEVEL.EPIC:
-										switch (sourceLevel) {
-											case LEVEL.FEATURE:
-												// a FEATURE is promoted to an EPIC
-												dispatch('loadPlanningBoard', { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-												break
-											case LEVEL.EPIC:
-												// an EPIC is is moved within the board
-												commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-												break
-											default:
-												logIllegalMove(targetLevel, sourceLevel, doc._id)
-										}
-										break
 									case LEVEL.PRODUCT:
-										switch (sourceLevel) {
-											case LEVEL.PRODUCT:
-												// a PRODUCT is moved with the board
-												commit('reorderStories', { affectedStories, sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam })
-												break
-											default:
-												logIllegalMove(targetLevel, sourceLevel, doc._id)
-										}
+										// case LEVEL.FEATURE: a PBI is promoted to a feature || a FEATURE is moved within the board || an EPIC is demoted to a FEATURE ||
+										// case LEVEL.EPIC: a FEATURE is promoted to an EPIC || an EPIC is is moved within the board ||
+										// case LEVEL.PRODUCT: a PRODUCT is moved within the board
+										dispatch('renewPlanningBoard')
 										break
 									default:
 										logIllegalMove(targetLevel, sourceLevel, doc._id)

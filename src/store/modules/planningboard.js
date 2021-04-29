@@ -23,7 +23,6 @@ function composeRangeString3(id) {
 function composeRangeString4(delmark, id) {
 	return `startkey=["${delmark}","${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${delmark}","${id}",${Number.MAX_SAFE_INTEGER}]`
 }
-
 function removeFromBoard(commit, doc, removedSprintId) {
 	if (removedSprintId === '*' || doc.sprintId === undefined || doc.sprintId === removedSprintId) {
 		// remove from all sprints ('*') ELSE do not remove items assigned to other sprints (note that the sprintId might not be deleted from the document before this code is executed)
@@ -60,23 +59,6 @@ const mutations = {
 	* Note that items that do not fit in the feature/epic/product chain in the backing view are skipped
 	*/
 	createSprint(state, payload) {
-		const featureIdToNodeMap = {}
-		const epicIdToNodeMap = {}
-		const productIdToNodeMap = {}
-		function getParentNode(id, parentIdToNodeMap) {
-			let parent = parentIdToNodeMap[id]
-			if (parent) {
-				return parent
-			} else {
-				parent = window.slVueTree.getNodeById(id)
-				if (parent) {
-					parentIdToNodeMap[id] = parent
-					return parent
-				}
-			}
-			return null
-		}
-
 		const allStories = []
 		for (const s of payload.pbiResults) {
 			// the parent is the PBI's feature
@@ -87,17 +69,17 @@ const mutations = {
 			const storyTitle = s.value[0]
 			const spikePersonHours = s.value[4]
 			const priorityChain = [priority]
-			const featureNode = getParentNode(featureId, featureIdToNodeMap)
+			const featureNode = window.slVueTree.getNodeById(featureId)
 			if (!featureNode) continue
 
 			const featureName = featureNode.title
 			priorityChain.unshift(featureNode.data.priority)
-			const epicNode = getParentNode(featureNode.parentId, epicIdToNodeMap)
+			const epicNode = window.slVueTree.getNodeById(featureNode.parentId)
 			if (!epicNode) continue
 
 			const epicName = epicNode.title
 			priorityChain.unshift(epicNode.data.priority)
-			const productNode = getParentNode(epicNode.parentId, productIdToNodeMap)
+			const productNode = window.slVueTree.getNodeById(epicNode.parentId)
 			if (!productNode) continue
 
 			const productName = productNode.title
@@ -182,78 +164,8 @@ const mutations = {
 		for (let i = 0; i < allStories.length; i++) {
 			allStories[i].idx = i
 		}
+		// console.log('createSprint: allStories.map(s => s.priorityChain + s.title) = ' + allStories.map(s => '\n idx = ' + s.idx + ', ' + s.priorityChain + ', ' + s.title))
 		state.stories = allStories
-	},
-
-	/* Reorder stories on the board on changed priorities */
-	reorderStories(state, payload) {
-		const changedStories = []
-		for (const as of payload.affectedStories) {
-			if (as.sprintId === payload.sprintId && payload.team === as.team) {
-				// continue with the stories on the current board
-				const priorityChain = [as.priority]
-				const featureNode = window.slVueTree.getNodeById(as.featureId)
-				if (!featureNode) continue
-
-				const featureName = featureNode.title
-				priorityChain.unshift(featureNode.data.priority)
-				const epicNode = window.slVueTree.getNodeById(featureNode.parentId)
-				if (!epicNode) continue
-
-				const epicName = epicNode.title
-				priorityChain.unshift(epicNode.data.priority)
-				const productNode = window.slVueTree.getNodeById(epicNode.parentId)
-				if (!productNode) continue
-
-				const productName = productNode.title
-				priorityChain.unshift(productNode.data.priority)
-
-				let originalStory
-				for (const s of state.stories) {
-					if (s.storyId === as.id) {
-						originalStory = s
-					}
-				}
-				if (!originalStory) continue
-
-				// create updated story
-				const newStory = {
-					idx: undefined,
-					priorityChain,
-					storyId: as.id,
-					featureId: as.featureId,
-					featureName,
-					epicName,
-					productId: productNode._id,
-					productName,
-					title: originalStory.title,
-					size: originalStory.size,
-					subType: originalStory.subtype,
-					tasks: originalStory.tasks
-				}
-				changedStories.push(newStory)
-			}
-		}
-		// replace affected stories on the current board
-		const updatedBoardStories = []
-		const changedStoriesIds = changedStories.map(cs => cs.storyId)
-		for (const story of state.stories) {
-			if (changedStoriesIds.includes(story.storyId)) {
-				for (const cs of changedStories) {
-					if (cs.storyId === story.storyId) {
-						// select the new story
-						updatedBoardStories.push(cs)
-					}
-				}
-			} else updatedBoardStories.push(story)
-		}
-		// sort on priorities
-		updatedBoardStories.sort((a, b) => comparePriorities(b.priorityChain, a.priorityChain))
-		// reassign the indexes
-		for (let i = 0; i < updatedBoardStories.length; i++) {
-			updatedBoardStories[i].idx = i
-		}
-		state.stories = updatedBoardStories
 	},
 
 	/* Move position of tasks within the same user story */
@@ -460,7 +372,7 @@ const actions = {
 				}
 
 				const paintSprintLanes = () => {
-					commit('createSprint', { rootState, sprintId: payload.sprintId, pbiResults: state.pbiResults, taskResults })
+					commit('createSprint', { pbiResults: state.pbiResults, taskResults })
 					busyLoading = false
 					loadRequests--
 					if (loadRequests > 0) {
@@ -470,20 +382,66 @@ const actions = {
 				}
 
 				if (missingPbiIds.length > 0) {
-					dispatch('loadMissingPbis', {
-						missingPbiIds,
-						onSuccessCallBack: paintSprintLanes
-					})
+					dispatch('loadMissingPbis', {	missingPbiIds,onSuccessCallBack: paintSprintLanes	})
 				} else paintSprintLanes()
 			}).catch(error => {
-				const msg = 'loadPlanningBoard: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
+				const msg = `PlanningBoard: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		}
 		loadRequests++
 	},
 
-	/* Extend pbiResults with PBIs missing for tasks found for the sprint */
+	/* A lightweight version of loadPlanningBoard for updating the board after a change that needs a reload of the PBI level */
+	renewPlanningBoard({
+		rootState,
+		commit,
+		dispatch
+	}) {
+		const sprintId = rootState.loadedSprintId
+		const team = rootState.userData.myTeam
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(sprintId, team)
+		}).then(res => {
+			const results = res.data.rows
+			const foundPbiIds = []
+			const pbiResults = []
+			const taskResults = []
+			const missingPbiIds = []
+			for (const r of results) {
+				const itemLevel = r.key[4]
+				if (itemLevel === LEVEL.PBI) {
+					const pbiId = r.id
+					if (!foundPbiIds.includes(pbiId)) foundPbiIds.push(pbiId)
+					pbiResults.push(r)
+				}
+				if (itemLevel === LEVEL.TASK) {
+					taskResults.push(r)
+					// the parent is the task's story
+					const pbiId = r.key[3]
+					if (!foundPbiIds.includes(pbiId)) {
+						foundPbiIds.push(pbiId)
+						// the task is missing its story
+						if (!missingPbiIds.includes(pbiId)) missingPbiIds.push(pbiId)
+					}
+				}
+			}
+
+			const paintSprintLanes = () => {
+				commit('createSprint', { pbiResults, taskResults })
+			}
+
+			if (missingPbiIds.length > 0) {
+				dispatch('loadMissingPbis', {	missingPbiIds, onSuccessCallBack: paintSprintLanes })
+			} else paintSprintLanes()
+		}).catch(error => {
+			const msg = `renewPlanningBoard: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/* Extend pbiResults for tasks with PBIs not assigned to the sprint */
 	loadMissingPbis({
 		rootState,
 		state,
@@ -503,17 +461,18 @@ const actions = {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
+					// emulate a result from the sprints filter; must negate the priority
 					const newPbiResult = {
 						id: doc._id,
-						key: [doc.printId, doc.team, doc.productId, doc.parentId, doc.level, doc.priority],
-						value: [doc.title, doc.subtype, doc.state, doc.spsize, doc.taskOwner]
+						key: [doc.printId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority],
+						value: [doc.title, doc.subtype, doc.state, doc.spsize, doc.spikepersonhours, doc.taskOwner]
 					}
 					state.pbiResults.push(newPbiResult)
 				}
 			}
 			payload.onSuccessCallBack()
 		}).catch(error => {
-			const msg = 'loadMissingPbis: Could not read the items from database ' + rootState.userData.currentDb + ', ' + error
+			const msg = `loadMissingPbis: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -643,38 +602,6 @@ const actions = {
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch })
 		}).catch(error => {
 			const msg = 'importInSprint: Could not read batch of documents, ' + error
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	/* Add the tasks belonging to the story if assigned to the current sprint and team */
-	addTasksToStory({
-		rootState,
-		dispatch,
-		commit
-	}, storyDoc) {
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString3(storyDoc._id) + '&include_docs=true'
-		}).then(res => {
-			const taskDocs = res.data.rows.map((r) => r.doc)
-			taskDocs.sort((a, b) => b.priority - a.priority)
-			let story
-			for (const s of state.stories) {
-				if (s.storyId === storyDoc._id) story = s
-			}
-			if (story) {
-				for (const td of taskDocs) {
-					if (td.sprintId === rootState.loadedSprintId && td.team === rootState.userData.myTeam) {
-						commit('addTaskToBoard', td)
-					}
-				}
-			} else {
-				const msg = `addTasksToStory: Could not find the story with id ${storyDoc._id} on the current planning board`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-			}
-		}).catch(error => {
-			const msg = `addTasksToStory: Could not fetch the child documents of document with id ${storyDoc._id} in database ${rootState.userData.currentDb}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
