@@ -231,7 +231,7 @@ const utilities = {
 		},
 
 		showLastEvent(txt, severity) {
-			this.$store.commit('addToEventList', { txt, severity })
+			this.$store.commit('showLastEvent', { txt, severity })
 		},
 
 		showSelectionEvent(selNodes) {

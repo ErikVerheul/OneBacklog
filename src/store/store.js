@@ -1076,8 +1076,8 @@ export default new Vuex.Store({
 		},
 
 		/*
-		* A copy of the showLastEvent mixin which can not be used in modules
-		* Stops showing running progress indicator
+		* Show a message in the message bar in the Product details or Products overview
+		* Stops showing running progress indicator upto the next process indicator call
 		*/
 		showLastEvent(state, payload) {
 			state.showProgress = false
