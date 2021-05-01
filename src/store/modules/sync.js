@@ -134,31 +134,37 @@ const actions = {
 			const newParentNode = window.slVueTree.getNodeById(newParentId)
 			if (newParentNode === null) return
 			const item = lastHistObj.nodeMovedEvent
-			if (item[1] > rootState.loadedTreeDepth) {
+			const targetLevel = item[1]
+			const newPriority = item[10]
+			const targetSprintId = item[12]
+			const moveType = item[13]
+			const lastPositionChange = item[14]
+			const isProductMoved = item[15]
+			if (targetLevel > rootState.loadedTreeDepth) {
 				// skip items that are not available in the tree
 				return
 			}
-			if (node.level === LEVEL.PBI || node.level === LEVEL.TASK) commit('updateNodesAndCurrentDoc', { node, sprintId: item[12] })
-			const locationInfo = getLocationInfo(item[10], newParentNode)
+			if (node.level === LEVEL.PBI || node.level === LEVEL.TASK) commit('updateNodesAndCurrentDoc', { node, sprintId: targetSprintId })
+			const locationInfo = getLocationInfo(newPriority, newParentNode)
 			if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
 				// move the node to the new position w/r to its siblings; first remove the node, then insert
 				window.slVueTree.removeNodes([node])
-				node.data.priority = item[10]
+				node.data.priority = newPriority
 				// do not recalculate the priority during insert
 				if (locationInfo.newInd === 0) {
 					window.slVueTree.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'inside'
-					}, [node], { calculatePrios: false, skipUpdateProductId: true })
+					}, [node], { calculatePrios: false, skipUpdateProductId: isProductMoved })
 				} else {
 					// insert after prevNode
 					window.slVueTree.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'after'
-					}, [node], { calculatePrios: false, skipUpdateProductId: true })
+					}, [node], { calculatePrios: false, skipUpdateProductId: isProductMoved })
 				}
-				if (item[13] === 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
-				if (item[13] === 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: item[14] })
+				if (moveType === 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
+				if (moveType === 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange })
 			}
 		}
 
