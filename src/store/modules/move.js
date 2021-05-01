@@ -44,6 +44,7 @@ const actions = {
 
 				targetProductId: mdc.targetProductId,
 				targetParentId: mdc.targetParentId,
+				targetLevel: mdc.targetLevel,
 				targetProductTitle: mdc.targetProductTitle,
 				targetParentTitle: mdc.targetParentTitle
 			}
@@ -78,6 +79,7 @@ const actions = {
 				levelShift: mdc.sourceLevel - mdc.targetLevel,
 				targetProductId: mdc.sourceProductId,
 				targetParentId: mdc.sourceParentId,
+				targetLevel: mdc.sourceLevel,
 				targetParentTitle: mdc.sourceParentTitle
 			}
 
@@ -142,9 +144,10 @@ const actions = {
 					for (const t of descendantsMetaData.teams) {
 						if (!teamsAffected.includes(t)) teamsAffected.push(t)
 					}
+					const isProductMoved = m.sourceLevel === LEVEL.PRODUCT && m.targetLevel === LEVEL.PRODUCT
 					const newHist = {
 						nodeMovedEvent: [m.sourceLevel, targetLevel, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId,
-							m.targetParentId, item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange, m.sourceProductId !== m.targetProductId],
+							m.targetParentId, item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange, isProductMoved],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
