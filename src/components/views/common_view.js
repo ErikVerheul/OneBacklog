@@ -732,16 +732,20 @@ const methods = {
 		this.doMove(nodes, cursorPosition)
 	},
 
-	/* Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location */
+	/*
+	* Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location.
+	* IMPORTANT: To guarantee an immediate response, as an exception to the rule the tree is updated before the database.
+	* If the move fails in the database the user must reload the tree to return to the previous state.
+	*/
 	doMove(nodes, cursorPosition) {
 		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
-		// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
+		// show the event message before the database update is finished
 		if (!window.slVueTree.dependencyViolationsFound()) {
-			// show the event message if no dependency warning message is displayed
+			// if dependency violations were found dependencyViolationsFound displayed a message; if not, display a success message
 			const clickedLevel = moveDataContainer.sourceLevel
 			const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
 			const title = this.itemTitleTrunc(60, nodes[0].title)
-			let evt = ''
+			let evt
 			if (nodes.length === 1) {
 				evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
 			} else evt = `${this.getLevelText(clickedLevel)} '${title}' and ${nodes.length - 1} other item(s) are dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`

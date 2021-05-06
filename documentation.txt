@@ -41,7 +41,7 @@ Database--------- backlogItem document -------------------- node
 "lastChange"----------------------------------------------- data.lastChange:, // calculated on save on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
 "_attachments": {}----------------------------------------- system field when attachments are stored; attachments are loaded on request
 
-Other ducument types are teams and sprints. Use Fauxton to see the field definitions. The config document of type config is a one-off ducument.
+Other document types are logging, team and config. Use Fauxton to see the field definitions. The logging and config documents are a one-off documents.
 
 The tree nodes
 =====================================================================
