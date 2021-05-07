@@ -36,8 +36,8 @@ const actions = {
 		}
 
 		function reportOddTimestamp(event, docId) {
-			if (Date.now() - event.timestamp > 5000) {
-				const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 5 seconds`
+			if (Date.now() - event.timestamp > 60000) {
+				const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 minute`
 				commit('showLastEvent', { txt: msg, severity: SEV.WARNING })
 				dispatch('doLog', { event: msg + ` The document id is ${docId}.`, level: SEV.WARNING })
 			}
