@@ -54,12 +54,12 @@ const routes = [
   {
     path: '/detailProduct',
     component: ProductPage,
-    beforeEnter (to, from, next) {
-      if (store.state.userData.user) {
-        if (store.state.isProductAssigned) next()
-      } else {
-        next('/signin')
-      }
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user && store.state.isProductAssigned) {
+				next()
+			} else {
+				next('/signin')
+			}
     }
   },
   {
