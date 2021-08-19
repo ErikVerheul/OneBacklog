@@ -259,7 +259,7 @@ const actions = {
 							// process events for non requirement area items
 							switch (histEvent) {
 								case 'acceptanceEvent':
-									commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: doc.acceptanceCriteria, lastContentChange: doc.lastContentChange })
+									commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: window.atob(doc.acceptanceCriteria), lastContentChange: doc.lastContentChange })
 									showSyncMessage(`changed the acceptance criteria for`, SEV.INFO)
 									break
 								case 'addSprintIdsEvent':
@@ -292,7 +292,7 @@ const actions = {
 									showSyncMessage(`removed a condition for`, SEV.INFO)
 									break
 								case 'descriptionEvent':
-									commit('updateNodesAndCurrentDoc', { node, description: doc.description, lastContentChange: doc.lastContentChange })
+									commit('updateNodesAndCurrentDoc', { node, description: window.atob(doc.description), lastContentChange: doc.lastContentChange })
 									showSyncMessage(`changed the description of`, SEV.INFO)
 									break
 								case 'undoBranchRemovalEvent':
