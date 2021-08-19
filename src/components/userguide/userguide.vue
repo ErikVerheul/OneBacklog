@@ -225,15 +225,29 @@
 <script>
 import AppHeader from '../header/header.vue'
 export default {
+	/* Prevent accidental reloading of this page */
+  beforeMount() {
+    window.addEventListener("beforeunload", this.preventNav)
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.preventNav)
+  },
+
   components: {
     'app-header': AppHeader
-	},
+  },
 
-	methods: {
-		getImgUrl(img) {
-			return process.env.VUE_APP_SITE_URL + '/' + img
-		}
-	}
+  methods: {
+    preventNav(event) {
+      event.preventDefault()
+      event.returnValue = ""
+    },
+
+    getImgUrl(img) {
+      return process.env.VUE_APP_SITE_URL + '/' + img
+    }
+  }
 }
 </script>
 

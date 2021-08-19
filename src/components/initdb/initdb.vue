@@ -60,11 +60,20 @@ import router from '../../router'
 import AppHeader from '../header/header.vue'
 
 export default {
-	mounted () {
-    this.$store.state.backendMessages = []
-	},
+  /* Prevent accidental reloading of this page */
+  beforeMount() {
+    window.addEventListener("beforeunload", this.preventNav)
+  },
 
-  data () {
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.preventNav)
+  },
+
+  mounted() {
+    this.$store.state.backendMessages = []
+  },
+
+  data() {
     return {
       dbName: '',
       email: ''
@@ -72,34 +81,39 @@ export default {
   },
 
   computed: {
-    state () {
+    state() {
       const mask = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       return mask.test(this.email)
     },
 
-    invalidEmail () {
+    invalidEmail() {
       return 'Please enter a valid e-mail address'
     }
 
   },
 
   methods: {
-    doCreateDatabase () {
+    preventNav(event) {
+      event.preventDefault()
+      event.returnValue = ""
+    },
+
+    doCreateDatabase() {
       const payload = {
         dbName: this.dbName,
         email: this.email,
         createUser: true
-			}
-			this.$store.dispatch('initUserDb')
+      }
+      this.$store.dispatch('initUserDb')
       this.$store.dispatch('createDatabase', payload)
     },
 
-    cancel () {
+    cancel() {
       this.signOut()
     },
 
-    signOut () {
-			this.$store.commit('endSession')
+    signOut() {
+      this.$store.commit('endSession')
       router.replace('/')
     }
   },

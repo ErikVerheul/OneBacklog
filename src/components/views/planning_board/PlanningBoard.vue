@@ -25,7 +25,7 @@
         </b-col>
         <b-col cols="4">
           <h5 v-if="getPersonHours > 0">{{ getStoryPoints }} story points and {{ getPersonHours }} hours for spikes in this sprint</h5>
-					<h5 v-else>{{ getStoryPoints }} story points in this sprint</h5>
+          <h5 v-else>{{ getStoryPoints }} story points in this sprint</h5>
         </b-col>
         <b-col cols="2">
           <h5>points done: {{ getStoryPointsDone }}</h5>
@@ -92,7 +92,7 @@ export default {
         }
       }
     }
-		if (!this.selectedSprint) {
+    if (!this.selectedSprint) {
       // preset the selected sprint to the current sprint
       this.selectedSprint = this.getActiveSprints.currentSprint
     }
@@ -100,14 +100,20 @@ export default {
     // reload when the user changes team
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateTeam') {
-				// select and load the current sprint of the newly selected team calendar
-				this.selectedSprint = this.getActiveSprints.currentSprint
+        // select and load the current sprint of the newly selected team calendar
+        this.selectedSprint = this.getActiveSprints.currentSprint
         this.$store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: state.userData.myTeam })
       }
     })
   },
 
+  /* Prevent accidental reloading of this page */
+  beforeMount() {
+    window.addEventListener("beforeunload", this.preventNav)
+  },
+
   beforeDestroy() {
+    window.removeEventListener("beforeunload", this.preventNav)
     this.unsubscribe()
   },
 
@@ -132,7 +138,7 @@ export default {
 
   computed: {
     ...mapGetters([
-			'getPersonHours',
+      'getPersonHours',
       'getStoryPoints',
       'getStoryPointsDone',
       'myTeam'
@@ -157,10 +163,10 @@ export default {
       return ''
     },
 
-		/* Return date/time dependant sprint selection options, recent first + next sprint on top*/
+    /* Return date/time dependant sprint selection options, recent first + next sprint on top*/
     sprintTitleOptions() {
       const now = this.$store.state.currentTime
-			const calendar = this.$store.state.myCurrentSprintCalendar
+      const calendar = this.$store.state.myCurrentSprintCalendar
       const options = []
       let getNextSprint = true
       let getCurrSprint = true
@@ -196,6 +202,11 @@ export default {
   },
 
   methods: {
+    preventNav(event) {
+      event.preventDefault()
+      event.returnValue = ""
+    },
+
     clearWarning() {
       this.$store.state.warningText = ''
     },

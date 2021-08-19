@@ -2,12 +2,26 @@ import { STATE, LEVEL, MISC } from '../../constants.js'
 import { createId } from '../../common_functions.js'
 import common_admin from './common_admin'
 
+/* Prevent accidental reloading of this page */
+function beforeMount() {
+	window.addEventListener("beforeunload", this.preventNav)
+}
+
+function beforeDestroy() {
+	window.removeEventListener("beforeunload", this.preventNav)
+}
+
 function mounted() {
 	this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
 }
 
 const methods = {
-/* For all options the available databases are fetched once at mount */
+	preventNav(event) {
+		event.preventDefault()
+		event.returnValue = ""
+	},
+
+	/* For all options the available databases are fetched once at mount */
 	createUser() {
 		this.optionSelected = 'Create a user and assign product(s)'
 		this.getUserFirst = false
@@ -101,6 +115,8 @@ const methods = {
 
 export default {
 	extends: common_admin,
+	beforeMount,
+	beforeDestroy,
 	mounted,
 	methods
 }

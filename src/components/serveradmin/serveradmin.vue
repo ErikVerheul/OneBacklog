@@ -47,7 +47,7 @@
           <b-button class="m-1" @click="doCreateBackup" variant="primary">Start backup</b-button>
           <b-button class="m-1" @click="cancel">Return</b-button>
         </template>
-				<h5 v-else>Busy copying. Please wait...</h5>
+        <h5 v-else>Busy copying. Please wait...</h5>
       </div>
 
       <div v-if="optionSelected === 'Restore a database from backup'">
@@ -172,7 +172,7 @@
         <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
       </div>
 
-			<hr>
+      <hr>
       <p>{{ localMessage }}</p>
       <div v-if="$store.state.backendMessages.length > 0">
         <div v-for="item in $store.state.backendMessages" :key="item.seqKey">
@@ -204,6 +204,15 @@ export default {
     }
   },
 
+  /* Prevent accidental reloading of this page */
+  beforeMount() {
+    window.addEventListener("beforeunload", this.preventNav)
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.preventNav)
+  },
+
   mounted() {
     this.$store.state.backendMessages = []
   },
@@ -219,6 +228,11 @@ export default {
   },
 
   methods: {
+    preventNav(event) {
+      event.preventDefault()
+      event.returnValue = ""
+    },
+
     logModalTitle() {
       return 'Log of database ' + this.$store.state.selectedDatabaseName
     },

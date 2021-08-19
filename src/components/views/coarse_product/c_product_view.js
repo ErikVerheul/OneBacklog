@@ -30,6 +30,15 @@ function created() {
 	eventBus.$off('context-menu')
 }
 
+/* Prevent accidental reloading of this page */
+function beforeMount() {
+	window.addEventListener("beforeunload", this.preventNav)
+}
+
+function beforeDestroy() {
+	window.removeEventListener("beforeunload", this.preventNav)
+}
+
 function mounted() {
 	// expose instance to the global namespace
 	window.slVueTree = this.$refs.slVueTree
@@ -75,6 +84,11 @@ const computed = {
 }
 
 const methods = {
+	preventNav(event) {
+		event.preventDefault()
+		event.returnValue = ""
+	},
+
 	getItemInfo() {
 		let txt = ''
 		if (this.getCurrentItemLevel !== LEVEL.PRODUCT) {
@@ -240,6 +254,8 @@ export default {
 	extends: commonView,
 	beforeCreate,
 	created,
+	beforeMount,
+	beforeDestroy,
 	mounted,
 	data,
 	computed,
