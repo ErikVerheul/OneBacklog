@@ -25,6 +25,8 @@ const computed = {
 			let commentItem = this.$store.state.currentDoc.comments[i]
 			let allText = ''
 			const keys = Object.keys(commentItem)
+			if (keys[0] === 'ignoreEvent') continue
+
 			for (let j = 0; j < keys.length; j++) {
 				if (keys[j] === 'addCommentEvent') {
 					// for compatibility to versions < 1.8
@@ -367,11 +369,11 @@ const methods = {
   },
 
   mkRemoveSprintIdsEvent (value) {
-    return `<h5>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}</h5>`
+    return `<h5>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h5>`
   },
 
   mkResetCommentsEvent (value) {
-    return `<h5> ${value[0]} Comment items are removed.</h5>`
+    return `<h5> ${value[0]} Comment items are removed in a cleanup initiated by an admistrator.</h5>`
   },
 
   mkCloneEvent (value) {
