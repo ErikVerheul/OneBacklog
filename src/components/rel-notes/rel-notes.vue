@@ -5,7 +5,8 @@
       <b-row>
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
-					<h3>v.1.12 - 19 August 2021 Feature update, bug fixes and dependency updates</h3>
+					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.12 - 19 August 2021 Bug fixes and dependency updates</h3>
           <p>Bug fixes:</p>
           <ul>
             <li>When clicking the reload function of the browser the sign-in page appears. Fixed with a warning.</li>
@@ -17,7 +18,6 @@
 						<li>Vue development dependency updates to v.4.5.13</li>
           </ul>
           <hr />
-          <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
           <h3>v.1.11 - 29 April 2021 Feature update, bug fixes and performance enhancements</h3>
           <p>New features:</p>
           <ul>
