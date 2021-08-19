@@ -5,68 +5,81 @@
       <b-row>
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
+					<h3>v.1.12 - 19 August 2021 Feature update, bug fixes and dependency updates</h3>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>When clicking the reload function of the browser the sign-in page appears. Fixed with a warning.</li>
+            <li>When changing the text of an item's description the text of the same item on display of other users is shown as base-64 encoded. The sync function is not working as expected. Fixed for both the item's description and acceptance criteria.</li>
+          </ul>
+          <p>Dependency updates:</p>
+          <ul>
+            <li>Multiple vulnerability issues fixed in updated dependencies</li>
+						<li>Vue development dependency updates to v.4.5.13</li>
+          </ul>
+          <hr />
           <p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
-					<h3>v.1.11 - 29 April 2021 Feature update, bug fixes and performance enhancements</h3>
+          <h3>v.1.11 - 29 April 2021 Feature update, bug fixes and performance enhancements</h3>
           <p>New features:</p>
           <ul>
-						<li>Spike person hours implemented on the planning board</li>
-						<li>Show progress indicator when moving, removing items and when undoing these actions</li>
+            <li>Spike person hours implemented on the planning board</li>
+            <li>Show progress indicator when moving, removing items and when undoing these actions</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
-						<li>Fix incomplete synchronization between boards when moving items to another level</li>
+            <li>Fix incomplete synchronization between boards when moving items to another level</li>
             <li>Fix a bug when clearing a search on id that did not return a result</li>
-						<li>Fix spike person hours saved as string instead of integer value</li>
-						<li>Skip showing owner name if not defined; show team name only</li>
+            <li>Fix spike person hours saved as string instead of integer value</li>
+            <li>Skip showing owner name if not defined; show team name only</li>
           </ul>
-					<p>Performance enhancements:</p>
+          <p>Performance enhancements:</p>
           <ul>
             <li>Lightweigth planning board refresh implemented</li>
           </ul>
           <hr />
-					<h3>v.1.10 - 6 April 2021 Feature update and bug and security fixes</h3>
+          <h3>v.1.10 - 6 April 2021 Feature update and bug and security fixes</h3>
           <p>New features:</p>
           <ul>
-						<li>Context menu for story items on planningboard including options to remove the story and its tasks from the sprint and to copy the story short id to the clipboard</li>
-						<li>Sign-out when no current or next sprint is available. Need to sign-in again to have the sprint calendar extended. (Happens when the user session is extended over the end date of the current sprint and no next sprint is available)</li>
+            <li>Context menu for story items on planningboard including options to remove the story and its tasks from the sprint and to copy the story short id to the clipboard</li>
+            <li>Sign-out when no current or next sprint is available. Need to sign-in again to have the sprint calendar extended. (Happens when the user session is extended over the end date of the
+              current sprint and no next sprint is available)</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
             <li>Fix incorrect list of user assigned products</li>
-						<li>Fix cloned product not added to available products in current session</li>
-						<li>Fix missing history when removal is undone</li>
-						<li>Fix regression in planning board</li>
-						<li>Fix performance regression when removing a branch</li>
+            <li>Fix cloned product not added to available products in current session</li>
+            <li>Fix missing history when removal is undone</li>
+            <li>Fix regression in planning board</li>
+            <li>Fix performance regression when removing a branch</li>
           </ul>
-					<p>Security:</p>
+          <p>Security:</p>
           <ul>
             <li>Update dependencies with security update</li>
           </ul>
           <hr />
-					<h3>v.1.9 - 26 March 2021 Feature update and bug fixes</h3>
+          <h3>v.1.9 - 26 March 2021 Feature update and bug fixes</h3>
           <p>New features:</p>
           <ul>
-						<li>Optional warning when promoting/demoting an item to another level implemented</li>
-						<li>Automatically create a basic default sprint calendar when an admin signs in to a newly created database</li>
-						<li>Show in List teams if a team has its own team sprint calendar</li>
+            <li>Optional warning when promoting/demoting an item to another level implemented</li>
+            <li>Automatically create a basic default sprint calendar when an admin signs in to a newly created database</li>
+            <li>Show in List teams if a team has its own team sprint calendar</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
             <li>If changing team, select and load the current sprint of the team calendar of the selected team</li>
-						<li>Update tree model with timestamp when importing items in current sprint</li>
+            <li>Update tree model with timestamp when importing items in current sprint</li>
           </ul>
           <hr />
-					<h3>v.1.8 - 18 March 2021 Feature update, refactoring and bug fix</h3>
+          <h3>v.1.8 - 18 March 2021 Feature update, refactoring and bug fix</h3>
           <p>New features:</p>
           <ul>
-						<li>Enable the move of products within the tree</li>
-						<li>Create undo for last added comment</li>
+            <li>Enable the move of products within the tree</li>
+            <li>Create undo for last added comment</li>
           </ul>
           <p>Refactored</p>
           <ul>
             <li>Prevent dragging when no item is selected</li>
-						<li>Sprint assingment on moved items refactored</li>
-						<li>Improved performance when moving an item with descendant items to another level or product></li>
+            <li>Sprint assingment on moved items refactored</li>
+            <li>Improved performance when moving an item with descendant items to another level or product></li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
@@ -76,22 +89,22 @@
           <h3>v.1.7 - 9 March 2021 Feature update, refactoring and bug fixes</h3>
           <p>New features:</p>
           <ul>
-						<li>Auto extend the default sprint calendar when ran out</li>
-						<li>'Remove this task' added in context menu of tasks in planning board</li>
-						<li>Trim the input when searching on item key</li>
+            <li>Auto extend the default sprint calendar when ran out</li>
+            <li>'Remove this task' added in context menu of tasks in planning board</li>
+            <li>Trim the input when searching on item key</li>
             <li>Add a tooltip to show what the next undo will do</li>
             <li>Create undo for assigning a requirement area and have it synced to other users that are online</li>
           </ul>
           <p>Refactored</p>
           <ul>
             <li>Undo removes from the database to cope with changes initiated by other sessions via synchronization</li>
-						<li>Watchdog and logging refactored. Avoid error messages when returning from a computer sleep state</li>
+            <li>Watchdog and logging refactored. Avoid error messages when returning from a computer sleep state</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
             <li>Fix the state name to "Ready for test/review"</li>
-						<li>Use unique key when listing the log</li>
-						<li>Unintended context menu choices removed</li>
+            <li>Use unique key when listing the log</li>
+            <li>Unintended context menu choices removed</li>
           </ul>
           <hr />
           <h3>v.1.6.1 - 17 February 2021 Bug fix</h3>
@@ -747,6 +760,22 @@
 <script>
 import AppHeader from '../header/header.vue'
 export default {
+  /* Prevent accidental reloading of this page */
+  beforeMount() {
+    window.addEventListener("beforeunload", this.preventNav)
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.preventNav)
+  },
+
+  methods: {
+    preventNav(event) {
+      event.preventDefault()
+      event.returnValue = ""
+    },
+  },
+
   components: {
     'app-header': AppHeader
   }
