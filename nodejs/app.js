@@ -48,8 +48,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
             <h3>'${doc.title}'</h3>`
 	}
 	function mkFooter() {
-		return `<p>The shortId is ${doc.shortId}<br>
-            The mutation date is ${new Date(event.timestamp)}</p></html>`
+		return `<p>This mutation occurred in database ${dbName} and document with id ${doc._id}</p></html>`
 	}
 	function cText(condition, text) {
 		if (condition) return text
