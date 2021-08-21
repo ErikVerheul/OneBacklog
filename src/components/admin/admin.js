@@ -81,8 +81,9 @@ const methods = {
 
 	doCreateProduct() {
 		const _id = createId()
-		// use the negative creation date as the priority of the new product so that sorting on priority gives the same result as sorting on id
-		const priority = -Date.now()
+		// a newly created product node will be inserted below the last product (see createProductAction in utils.js)
+		const lastProductNode = window.slVueTree.getRootNode().children.slice(-1)[0]
+		const priority = Math.floor((lastProductNode.data.priority + Number.MIN_SAFE_INTEGER) / 2)
 		// create a new document
 		const newProduct = {
 			_id,
@@ -104,8 +105,8 @@ const methods = {
 				distributeEvent: false
 			}]
 		}
-		// update the database and add the product to this admin's subscriptions and productsRoles
-		this.$store.dispatch('createProductAction', { dbName: this.$store.state.selectedDatabaseName, newProduct, priority })
+		// update the database, insert the new node below the last product and add the product to this admin's subscriptions and productsRoles
+		this.$store.dispatch('createProductAction', { dbName: this.$store.state.selectedDatabaseName, newProduct, lastProductNode })
 	},
 
 	doRemoveUser() {

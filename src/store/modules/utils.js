@@ -101,10 +101,6 @@ const actions = {
 			const msg = `createProductAction: Product '${product.title}' with id = ${_id} is created`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			if (rootState.selectedDatabaseName === rootState.userData.currentDb) {
-				// add a node to my product details view
-				const myCurrentProductNodes = window.slVueTree.getProducts()
-				// get the last product node
-				const lastProductNode = myCurrentProductNodes.slice(-1)[0]
 				// create a new node
 				const newNode = {
 					_id,
@@ -123,14 +119,14 @@ const actions = {
 					data: {
 						state: product.state,
 						subtype: 0,
-						priority: payload.priority,
+						priority: product.priority,
 						team: product.team,
 						lastChange: Date.now()
 					},
 					tmp: {}
 				}
 				const cursorPosition = {
-					nodeModel: lastProductNode,
+					nodeModel: payload.lastProductNode,
 					placement: 'after'
 				}
 				// add the product to the treemodel, the path etc. will be calculated
