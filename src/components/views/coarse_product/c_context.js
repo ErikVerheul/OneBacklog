@@ -30,10 +30,11 @@ const methods = {
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
       const allowExtraLevel = node.level < this.taskLevel
       if (this.haveAccessInTree(node.level, '*', 'open the context menu', allowExtraLevel)) {
+				// note that the parent of the root node is undefined
         const parentNode = window.slVueTree.getParentNode(node)
         this.contextNodeSelected = node
-        this.contextParentTeam = parentNode.data.team
-        this.contextParentType = this.getLevelText(parentNode.level)
+				this.contextParentTeam = parentNode ? parentNode.data.team : undefined
+				this.contextParentType = parentNode ? this.getLevelText(parentNode.level) : undefined
         this.contextNodeTitle = node.title
         this.contextNodeLevel = node.level
         this.contextNodeType = this.getLevelText(node.level)

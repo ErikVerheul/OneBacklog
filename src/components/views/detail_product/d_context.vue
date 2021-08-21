@@ -47,21 +47,26 @@
             >Assign this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants to my team</b-list-group-item>
           </template>
           <template v-else>
+						<!-- cannot create a database or product here -->
             <b-list-group-item
-              v-if="contextNodeLevel !== productLevel"
+              v-if="contextNodeLevel > productLevel"
               button
               :active="contextOptionSelected === INSERTBELOW"
               variant="dark"
               @click="showSelected(INSERTBELOW)"
-            >Insert a {{ contextNodeType }} below this node</b-list-group-item>
+            >Insert a {{ contextNodeType }} below this {{ contextNodeType }}</b-list-group-item>
 
-            <b-list-group-item
-              v-if="contextNodeLevel < taskLevel"
-              button
-              :active="contextOptionSelected === INSERTINSIDE"
-              variant="dark"
-              @click="showSelected(INSERTINSIDE)"
-            >Insert a {{ contextChildType }} inside this {{ contextNodeType }}</b-list-group-item>
+						<p v-if="contextNodeLevel === databaseLevel"> A new product is created in the admin view.</p>
+						<template v-else>
+							<!-- cannot create item inside task -->
+							<b-list-group-item
+								v-if="contextNodeLevel < taskLevel"
+								button
+								:active="contextOptionSelected === INSERTINSIDE"
+								variant="dark"
+								@click="showSelected(INSERTINSIDE)"
+							>Insert a {{ contextChildType }} inside this {{ contextNodeType }}</b-list-group-item>
+						</template>
 
             <b-list-group-item
               v-if="contextNodeLevel >= productLevel"
