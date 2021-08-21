@@ -83,8 +83,8 @@ const actions = {
 		rootGetters,
 		dispatch,
 	}, payload) {
-		const _id = payload.newProduct._id
 		const product = payload.newProduct
+		const _id = product._id
 		const position = rootGetters.getMyProductsCount + 1
 		// do not distribute this event; other users have no access rights yet
 		product.history = [{
@@ -107,24 +107,24 @@ const actions = {
 				const lastProductNode = myCurrentProductNodes.slice(-1)[0]
 				// create a new node
 				const newNode = {
-					productId: payload.newProduct.productId,
-					parentId: payload.newProduct.parentId,
-					_id: payload.newProduct._id,
+					_id,
+					productId: product.productId,
+					parentId: product.parentId,
 					dependencies: [],
 					conditionalFor: [],
-					title: payload.newProduct.title,
+					title: product.title,
 					isLeaf: false,
 					children: [],
 					isSelected: false,
 					isExpanded: true,
 					isSelectable: true,
-					isDraggable: payload.newProduct.level >= LEVEL.PRODUCT,
+					isDraggable: true,
 					doShow: true,
 					data: {
-						state: payload.newProduct.state,
+						state: product.state,
 						subtype: 0,
 						priority: payload.priority,
-						team: payload.newProduct.team,
+						team: product.team,
 						lastChange: Date.now()
 					},
 					tmp: {}
@@ -134,12 +134,12 @@ const actions = {
 					placement: 'after'
 				}
 				// add the product to the treemodel, the path etc. will be calculated
-				window.slVueTree.insertNodes(cursorPosition, [newNode], { calculatePrios: false })
+				window.slVueTree.insertNodes(cursorPosition, [newNode], { calculatePrios: false, skipUpdateProductId: true })
 			}
 			// add the product to my subscriptions and productsRoles with no roles assigned
 			const newProductOption = {
 				value: _id,
-				text: payload.newProduct.title
+				text: product.title
 			}
 			dispatch('assignProductToUserAction', { dbName: payload.dbName, selectedUser: rootState.userData.user, newProductOption, userRoles: [] })
 		}).catch(error => {
