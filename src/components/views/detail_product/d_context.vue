@@ -56,7 +56,7 @@
               @click="showSelected(INSERTBELOW)"
             >Insert a {{ contextNodeType }} below this {{ contextNodeType }}</b-list-group-item>
 
-						<p v-if="contextNodeLevel === databaseLevel"> A new product is created in the admin view.</p>
+						<p class="colorSeaBlue" v-if="contextNodeLevel === databaseLevel">Cannot create a product here. An admin can create a new product in the admin view.</p>
 						<template v-else>
 							<!-- cannot create item inside task -->
 							<b-list-group-item
