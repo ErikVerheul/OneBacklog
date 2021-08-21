@@ -183,9 +183,9 @@ const methods = {
 		this.getRootComponent().$emit('drop', draggingNodes, position)
 	},
 
-	// trigger the context component via the eventbus unless on root
+	// trigger the context component via the eventbus
 	emitNodeContextmenu(node) {
-		if (!this.isRoot) eventBus.$emit('context-menu', node)
+		eventBus.$emit('context-menu', node)
 	},
 
 	emitSelect(fromContextMenu) {
