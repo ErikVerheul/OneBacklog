@@ -436,7 +436,7 @@ const actions = {
 			level: LEVEL.DATABASE,
 			state: 2,
 			title: 'The root of all products in this database',
-			team: 'server admins',
+			team: 'n/a',
 			followers: [],
 			description: window.btoa('<p>Database root document</p>'),
 			acceptanceCriteria: window.btoa('<p>not applicable</p>'),

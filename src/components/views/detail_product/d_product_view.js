@@ -80,7 +80,7 @@ const methods = {
 
 	getItemInfo() {
 		let txt = ''
-		if (this.getCurrentItemLevel !== LEVEL.PRODUCT) {
+		if (this.getCurrentItemLevel > LEVEL.PRODUCT) {
 			if (this.getCurrentItemLevel < LEVEL.TASK) {
 				txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
 			} else {
