@@ -78,7 +78,7 @@ The next two roles are set for all databases in a CouchDb instance and include a
 - 'admin': The overall admin can create products, teams and maintain users and calendars. Can (un)assign databases and products to users. Can (un)assign global 'admin' and 'APO' roles to users. Can (un)assign user roles per product. Need not be a member of a team.
 - 'APO': The Area Product Owners create and maintain the requirement areas. Can change priorities at the epic and feature level. Need not be a member of a team.
 
-The next role is limited to the databases and products assigned to this user by the overall admin:
+The next role is limited to the databases assigned to this user by the overall admin:
 - 'assistAdmin': Can create teams and users. Can (un)assign databases and products to users. Can (un)assign user roles per product. Cannot (un)assign global roles or create products or remove users. Need not be a member of a team.
 
 These three roles are set per product in a database:

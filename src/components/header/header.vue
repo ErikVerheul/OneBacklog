@@ -130,7 +130,7 @@
         Two roles are set per database and include all products defined in that database:
         <ul>
           <li>'admin': Can create products, teams and users. Can (un)assign databases and roles to users and user access to products. Is not member of a team.</li>
-					<li>'assistAdmin': An admin can delegate tasks to assistant admins as an extension to their product specific roles (see below) and only for the databases and products assigned to them. Can create teams and users. Can (un)assign databases and products to users. Can (un)assign user roles per product. Cannot (un)assign global roles or create products or remove users. Need not be a member of a team.</li>
+					<li>'assistAdmin': An admin can delegate tasks to assistant admins as an extension to their product specific roles (see below). For the databases assigned he/she can create teams and users. Can (un)assign databases and products to users. Can (un)assign user roles per product. Cannot (un)assign global roles or create products or remove users. Need not be a member of a team.</li>
           <li>'areaPO': The Area Product Owners create and maintain their requirement areas. Can change priorities at the epic and feature level. Is not member of a team.</li>
         </ul>
         <h5 v-if="isAdmin" class="have-role">You are Admin</h5>
