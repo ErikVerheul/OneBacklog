@@ -628,6 +628,7 @@ const actions = {
 			data: newDoc
 		}).then(() => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createMessenger: Success, messenger document is created' })
+			rootState.isDatabaseCreated = true
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'createMessenger: Failure, cannot create messenger document, ' + error })
 		})

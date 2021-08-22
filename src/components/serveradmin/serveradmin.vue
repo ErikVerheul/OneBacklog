@@ -81,7 +81,7 @@
         <b-form-input v-model="newDbName" placeholder="Enter the database name"></b-form-input>
         <hr>
         <b-button v-if="newDbName === ''" class="m-1" @click="cancel">Cancel</b-button>
-        <div v-if="newDbName !== ''">
+        <div v-else>
           <p>Database {{ newDbName }} will be created</p>
           <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="doCreateDatabase" variant="primary">Start creation</b-button>
           <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="cancel">Cancel</b-button>
