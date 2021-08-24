@@ -436,7 +436,7 @@ const methods = {
 			}
 			if (removeDb) {
 				if (Object.keys(newUserData.myDatabases).length > 1) {
-					// delete the database entry in the profile (includes all subscriptions)
+					// delete the database entry in the profile (includes all subscriptions) only if the user is assigned more than one database
 					delete newUserData.myDatabases[dbName]
 					if (dbName === newUserData.currentDb) {
 						// must change current database
@@ -455,7 +455,7 @@ const methods = {
 			removeDb = false
 		}
 
-		// update the subscriptions and productsRoles if the database is not removed from the user's profile
+		// update the subscriptions, productsRoles ans product descriptions if the database is not removed from the user's profile
 		if (!removeDb) {
 			// remove obsolete subscriptions
 			const newSubscriptions = []
@@ -466,22 +466,22 @@ const methods = {
 			}
 			newUserData.myDatabases[dbName].subscriptions = newSubscriptions
 			newUserData.myDatabases[dbName].productsRoles = newProductsRoles
-		}
-		// the user must have at least one product subscription
-		if (newUserData.myDatabases[dbName] && newUserData.myDatabases[dbName].subscriptions.length === 0) {
-			if (Object.keys(newProductsRoles).length > 0) {
-				// subscribe the first assigned product
-				const subscriptionId = Object.keys(newProductsRoles)[0]
-				newUserData.myDatabases[dbName].subscriptions = [subscriptionId]
-				// get the product name
-				let productName = ''
-				for (const o of Object.values(this.$store.state.useracc.dbProducts)) {
-					if (o.id === subscriptionId) {
-						productName = o.value
-						break
+			// the user must have at least one product subscription
+			if (newUserData.myDatabases[dbName].subscriptions.length === 0) {
+				if (Object.keys(newProductsRoles).length > 0) {
+					// subscribe the first assigned product
+					const subscriptionId = Object.keys(newProductsRoles)[0]
+					newUserData.myDatabases[dbName].subscriptions = [subscriptionId]
+					// get the product name
+					let productName = ''
+					for (const o of Object.values(this.$store.state.useracc.dbProducts)) {
+						if (o.id === subscriptionId) {
+							productName = o.value
+							break
+						}
 					}
+					this.localMessage = `Product '${productName}' is added the the user's product subscriptions.`
 				}
-				this.localMessage = `Product '${productName}' is added the the user's product subscriptions.`
 			}
 		}
 		this.$store.dispatch('updateUserAction', {
