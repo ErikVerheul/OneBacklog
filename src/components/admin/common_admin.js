@@ -151,7 +151,10 @@ const methods = {
 	doAfterDbIsSelected() {
 		switch (this.optionSelected) {
 			case 'Create a user and assign product(s)':
-				this.callGetDbProducts()
+				{
+					const onlyMyproducts = this.$store.state.useracc.userIsAssistAdmin
+					this.callGetDbProducts(onlyMyproducts)
+				}
 				break
 			case 'Maintain the default sprint calendar':
 				this.$store.state.isDefaultCalendarLoaded = false
@@ -442,7 +445,7 @@ const methods = {
 						newUserData.currentDb = databases[0]
 					}
 				} else {
-					// cannot remove last database fron user profile
+					// cannot remove last database from user profile
 					this.canRemoveDatabase = false
 					return
 				}
@@ -465,7 +468,7 @@ const methods = {
 			newUserData.myDatabases[dbName].productsRoles = newProductsRoles
 		}
 		// the user must have at least one product subscription
-		if (newUserData.myDatabases[dbName].subscriptions.length === 0) {
+		if (newUserData.myDatabases[dbName] && newUserData.myDatabases[dbName].subscriptions.length === 0) {
 			if (Object.keys(newProductsRoles).length > 0) {
 				// subscribe the first assigned product
 				const subscriptionId = Object.keys(newProductsRoles)[0]

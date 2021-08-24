@@ -95,8 +95,8 @@ const actions = {
 
 	/*
 	* Get all products of the set database and get the assigned roles to the products assigned to this user or
-	* (if not found) create an empty roles array for all (other) products in the database
-	* if payload.onlyMyProducts select the products that are assigned to the current user (assistAdmin)
+	* (if not found) create an empty roles array for all (other) products in the database.
+	* If payload.onlyMyProducts select the products that are assigned to the current user (assistAdmin)
 	* The result is stored in state.dbProducts
 	*/
 	getProductsRolesAction({
