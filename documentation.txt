@@ -70,7 +70,7 @@ data: {
 	reqarea: doc.reqarea, // or null or not present
 	sprintId: doc.sprintId, // the sprint this item is (was) in; or null or not present
 	team: doc.team, // the team membership of the user who updated the state the last time
-	taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that him self
+	taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that work him self
 	subtype: doc.subtype,
 	reqAreaItemColor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
 	lastPositionChange: doc.lastPositionChange,
