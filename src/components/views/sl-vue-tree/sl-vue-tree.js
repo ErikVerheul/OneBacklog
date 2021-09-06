@@ -464,6 +464,8 @@ const methods = {
 		if (!options || options.calculatePrios || options.calculatePrios === undefined) {
 			assignNewPrios(nodes, predecessorNode, successorNode)
 		}
+		// return the inserted nodes
+		return nodes
 	},
 
 	isDescendantNodeSelected(node) {
