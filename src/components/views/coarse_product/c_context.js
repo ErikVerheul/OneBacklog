@@ -151,7 +151,7 @@ const methods = {
         this.doCloneProduct(this.contextNodeSelected)
         break
       case this.CLONEITEM:
-        this.doCloneItem(this.contextNodeSelected)
+        this.doCopyItem(this.contextNodeSelected)
         break
       case this.INSERTBELOW:
         this.doInsertNewItem()

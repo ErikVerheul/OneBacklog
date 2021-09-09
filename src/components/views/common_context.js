@@ -69,27 +69,17 @@ const methods = {
 		this.$store.dispatch('cloneProduct', node)
 	},
 
-	/* Clone an item EXCLUDING its descendants */
-	doCloneItem(node) {
-		const newId = createId()
+	/* Copy an item EXCLUDING its descendants and reset its dependencies, conditions and followers
+	* Insert the new node above the original
+	*/
+	doCopyItem(node) {
 		let newNodeLocation
 		const prevNode = window.slVueTree.getPreviousNode(node.path)
-		if (node.path.slice(-1)[0] === 0) {
-			// the previous node is the parent
-			newNodeLocation = {
-				nodeModel: prevNode,
-				placement: 'inside'
-			}
-		} else {
-			// the previous node is a sibling
-			newNodeLocation = {
-				nodeModel: prevNode,
-				placement: 'after'
-			}
-		}
 		// prepare the new node for insertion
 		const newNode = {
-			_id: newId,
+			_id: createId(),
+			productId: undefined,
+			parentId: undefined,
 			title: 'COPY: ' + node.title,
 			isLeaf: node.isLeaf,
 			dependencies: [],
@@ -110,37 +100,54 @@ const methods = {
 			},
 			tmp: {}
 		}
-		// must insert the new node in the tree first to get the productId, parentId, pririty and set the location parameters
-		window.slVueTree.insertNodes(newNodeLocation, [newNode])
+
+		if (node.path.slice(-1)[0] === 0) {
+			// the previous node is the parent
+			newNodeLocation = {
+				nodeModel: prevNode,
+				placement: 'inside'
+			}
+			newNode.parentId = prevNode._id
+		} else {
+			// the previous node is a sibling
+			newNodeLocation = {
+				nodeModel: prevNode,
+				placement: 'after'
+			}
+			newNode.parentId = prevNode.parentId
+		}
+
+		// must insert the new node in the tree first to set the ind, level, productId, parentId and priority of the inserted node
+		const insertedNode = window.slVueTree.insertNodes(newNodeLocation, [newNode])[0]
 		// create a new document and store it
 		const currentDoc = this.$store.state.currentDoc
 		const newDoc = {
 			productId: currentDoc.productId,
-			parentId: newNode.parentId,
-			_id: newNode._id,
+			parentId: insertedNode.parentId,
+			_id: insertedNode._id,
 			type: 'backlogItem',
 			team: currentDoc.team,
-			level: newNode.level,
+			level: insertedNode.level,
 			subtype: currentDoc.subtype,
-			state: STATE.NEW_OR_TODO,
+			state: insertedNode.data.state,
 			tssize: currentDoc.tssize,
 			spsize: currentDoc.spsize,
 			spikepersonhours: currentDoc.spikepersonhours,
-			reqarea: null,
+			reqarea: currentDoc.reqarea,
 			dependencies: [],
 			conditionalFor: [],
-			title: newNode.title,
+			title: insertedNode.title,
 			followers: [],
 			description: window.btoa(currentDoc.description),
 			acceptanceCriteria: window.btoa(currentDoc.acceptanceCriteria),
-			priority: newNode.data.priority,
+			priority: insertedNode.data.priority,
 			comments: [{
 				ignoreEvent: 'comments initiated',
 				timestamp: Date.now(),
 				distributeEvent: false
 			}],
 			history: [{
-				createEvent: [newNode.level, window.slVueTree.getParentNode(newNode).title, newNode.ind + 1],
+				createEvent: [insertedNode.level, window.slVueTree.getParentNode(insertedNode).title, insertedNode.ind + 1],
 				by: this.$store.state.userData.user,
 				timestamp: Date.now(),
 				sessionId: this.$store.state.mySessionId,
@@ -148,21 +155,22 @@ const methods = {
 			}]
 		}
 		// update the database and select this document
-		this.$store.dispatch('createDocWithParentHist', { newNode, newDoc })
+		this.$store.dispatch('createDocWithParentHist', { insertedNode, newDoc })
 	},
 
 	/*
 	* Create and insert a new node in the tree and create a document for this new item
 	* A new node can be inserted 'inside' or 'after' the selected location node (contextNodeSelected)
-	* This method also contains 'Product details' view specific code
 	*/
 	doInsertNewItem() {
 		let newNodeLocation
 		const now = Date.now()
 		// prepare the new node for insertion and set isSelected to true
-		const _id = createId()
 		const newNode = {
-			_id,
+			_id: createId(),
+			productId: this.contextNodeSelected.productId,
+			parentId: undefined,
+			title: undefined,
 			dependencies: [],
 			conditionalFor: [],
 			children: [],
@@ -174,6 +182,9 @@ const methods = {
 			data: {
 				state: STATE.NEW_OR_TODO,
 				subtype: 0,
+				sprintId: undefined,
+				taskOwner: undefined,
+				team: undefined,
 				lastChange: now
 			},
 			tmp: {}
@@ -185,6 +196,7 @@ const methods = {
 				nodeModel: this.contextNodeSelected,
 				placement: 'after'
 			}
+			newNode.parentId = this.contextNodeSelected.parentId
 		} else {
 			// new node is a child placed a level lower (inside) than the selected node
 			insertLevel += 1
@@ -192,6 +204,7 @@ const methods = {
 				nodeModel: this.contextNodeSelected,
 				placement: 'inside'
 			}
+			newNode.parentId = this.contextNodeSelected._id
 		}
 
 		let team = this.myTeam
@@ -211,56 +224,53 @@ const methods = {
 		newNode.title = newNode.parentId === MISC.AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(insertLevel)
 
 		if (this.haveAccessInTree(insertLevel, team, 'create new items of this type')) {
+			// unselect the node that was clicked before the insert
+			this.contextNodeSelected.isSelected = false
 			if (newNodeLocation.placement === 'inside') {
-				// unselect the node that was clicked before the insert and expand it to show the inserted node
-				this.contextNodeSelected.isSelected = false
+				// expand the parent node to show the inserted node
 				expandNode(this.contextNodeSelected)
-			} else {
-				// unselect the node that was clicked before the insert
-				this.contextNodeSelected.isSelected = false
 			}
-			// must insert the new node in the tree first to get the productId, parentId, priority and set the location parameters
-			window.slVueTree.insertNodes(newNodeLocation, [newNode])
+			// must insert the new node in the tree first to set the ind, level, productId, parentId and priority of the inserted node
+			const insertedNode = window.slVueTree.insertNodes(newNodeLocation, [newNode])[0]
 
 			// create a new document and store it
 			const newDoc = {
-				_id: _id,
+				_id: insertedNode._id,
 				type: 'backlogItem',
-				productId: newNode.productId,
-				parentId: newNode.parentId,
+				productId: insertedNode.productId,
+				parentId: insertedNode.parentId,
 				sprintId,
 				team,
-				taskOwner: newNode.data.taskOwner,
-				level: insertLevel,
+				level: insertedNode.level,
 				subtype: 0,
-				state: STATE.NEW_OR_TODO,
+				state: insertedNode.data.state,
 				tssize: 3,
 				spsize: 0,
 				spikepersonhours: 0,
 				reqarea: null,
 				dependencies: [],
 				conditionalFor: [],
-				title: newNode.title,
+				title: insertedNode.title,
 				followers: [],
 				description: window.btoa(''),
 				acceptanceCriteria: insertLevel < this.taskLevel ? window.btoa('<p>Please do not neglect</p>') : window.btoa('<p>See the acceptance criteria of the story/spike/defect.</p>'),
-				priority: newNode.data.priority,
+				priority: insertedNode.data.priority,
 				comments: [{
 					ignoreEvent: 'comments initiated',
-					timestamp: Date.now(),
+					timestamp: now,
 					distributeEvent: false
 				}],
 				history: [{
-					createEvent: [insertLevel, window.slVueTree.getParentNode(newNode).title, newNode.ind + 1],
+					createEvent: [insertLevel, window.slVueTree.getParentNode(insertedNode).title, insertedNode.ind + 1],
 					by: this.$store.state.userData.user,
-					timestamp: Date.now(),
+					timestamp: now,
 					sessionId: this.$store.state.mySessionId,
 					distributeEvent: true,
 					updateBoards: { sprintsAffected: [sprintId], teamsAffected: [team] }
 				}]
 			}
 			// update the parent history and than save the new document
-			this.$store.dispatch('createDocWithParentHist', { newNode, newDoc })
+			this.$store.dispatch('createDocWithParentHist', { insertedNode, newDoc })
 		}
 	},
 

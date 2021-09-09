@@ -984,7 +984,7 @@ const actions = {
 			const parentDoc = res.data
 			// create a history event for the parent to trigger an email message to followers
 			const parentHist = {
-				newChildEvent: [payload.newNode.level, payload.newNode.ind + 1],
+				newChildEvent: [payload.insertedNode.level, payload.insertedNode.ind + 1],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false
@@ -992,6 +992,7 @@ const actions = {
 			parentDoc.lastChange = Date.now()
 			parentDoc.history.unshift(parentHist)
 			const toDispatch = [{
+				// create the new document
 				updateDoc: {
 					dbName: rootState.userData.currentDb,
 					updatedDoc: payload.newDoc,
@@ -999,12 +1000,12 @@ const actions = {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoNewNode',
-							newNode: payload.newNode
+							newNode: payload.insertedNode
 						}
 						rootState.changeHistory.unshift(entry)
 						// select and show the new node
-						commit('updateNodesAndCurrentDoc', { newNode: payload.newNode, newDoc: payload.newDoc })
-						commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: SEV.INFO })
+						commit('updateNodesAndCurrentDoc', { newNode: payload.insertedNode, newDoc: payload.newDoc })
+						commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.insertedNode.level)} is inserted.`, severity: SEV.INFO })
 					}
 				}
 			}]
