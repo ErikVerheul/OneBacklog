@@ -404,6 +404,50 @@ const methods = {
 		return newNode
 	},
 
+	/* Return the productId, parentId, level, the index position and priority if this node is to be inserted */
+	preFlightSingeNodeInsert(cursorPosition, node) {
+		/* Recalculate the priorities of the inserted nodes. */
+		function calcNewPrio(node, predecessorNode, successorNode) {
+			let predecessorPrio
+			let successorPrio
+			if (predecessorNode !== null) {
+				predecessorPrio = predecessorNode.data.priority
+			} else predecessorPrio = Number.MAX_SAFE_INTEGER
+
+			if (successorNode !== null) {
+				successorPrio = successorNode.data.priority
+			} else successorPrio = Number.MIN_SAFE_INTEGER
+
+			const stepSize = Math.floor((predecessorPrio - successorPrio) / 2)
+		return Math.floor(predecessorPrio - stepSize)
+		}
+
+		let predecessorNode
+		let successorNode
+		let parentId
+		let level
+		let ind
+		const destNodeModel = cursorPosition.nodeModel
+		if (cursorPosition.placement === 'inside') {
+			// insert inside a parent -> the nodes become top level children
+			const destSiblings = destNodeModel.children || []
+			parentId = destNodeModel._id
+			level = destNodeModel.level + 1
+			ind = 0
+			predecessorNode = null
+			successorNode = destSiblings[0] || null
+		} else {
+			// insert before or after the cursor position
+			const destSiblings = this.getNodeSiblings(destNodeModel.path)
+			parentId = destNodeModel.parentId
+			level = destNodeModel.level
+			ind = cursorPosition.placement === 'before' ? destNodeModel.ind : destNodeModel.ind + 1
+			predecessorNode = destSiblings[ind - 1] || null
+			successorNode = destSiblings[ind] || null
+		}
+		return { productId: destNodeModel.productId, parentId, level, ind, priority: calcNewPrio(node, predecessorNode, successorNode)}
+	},
+
 	/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. Use the options object to suppress productId updates and/or priority recalculation */
 	insertNodes(cursorPosition, nodes, options) {
 		/* Recalculate the priorities of the inserted nodes. Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).*/
@@ -425,7 +469,7 @@ const methods = {
 				nodes[i].data.lastChange = Date.now()
 			}
 		}
-		// check and correction for error: product level items must have their own id as productId
+		/* Check and correction for error: product level items must have their own id as productId */
 		function correctProductId(vm) {
 			for (const n of nodes) {
 				if (n.level === LEVEL.PRODUCT && n._id !== n.productId) {
@@ -449,6 +493,8 @@ const methods = {
 			destSiblings.unshift(...nodes)
 			successorNode = destSiblings[nodes.length] || null
 			this.updatePaths(destNodeModel.path, destSiblings, 0, parentId, productId)
+			// expand the parent node to show the inserted nodes
+			destNodeModel.isExpanded = true
 		} else {
 			// insert before or after the cursor position
 			const destSiblings = this.getNodeSiblings(destNodeModel.path)
