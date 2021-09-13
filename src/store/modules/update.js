@@ -984,7 +984,7 @@ const actions = {
 			const parentDoc = res.data
 			// create a history event for the parent to trigger an email message to followers
 			const parentHist = {
-				newChildEvent: [payload.insertedNode.level, payload.insertedNode.ind + 1],
+				newChildEvent: [payload.newNode.level, payload.newNode.ind + 1],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false
@@ -997,15 +997,26 @@ const actions = {
 					dbName: rootState.userData.currentDb,
 					updatedDoc: payload.newDoc,
 					onSuccessCallback: () => {
-						// create an entry for undoing the change in a last-in first-out sequence
-						const entry = {
-							type: 'undoNewNode',
-							newNode: payload.insertedNode
+						// insert the new node in the tree and set the path and ind
+						window.slVueTree.insertNodes(payload.newNodeLocation, [payload.newNode])[0]
+						// The level, productId, parentId and priority are reset and should equal the preflight values; check the priority value only
+						if (payload.newDoc.priority === payload.newNode.data.priority) {
+							// create an entry for undoing the change in a last-in first-out sequence
+							const entry = {
+								type: 'undoNewNode',
+								newNode: payload.newNode
+							}
+							rootState.changeHistory.unshift(entry)
+							// select and show the new node
+							commit('updateNodesAndCurrentDoc', { newNode: payload.newNode, newDoc: payload.newDoc })
+							commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: SEV.INFO })
+						} else {
+							window.slVueTree.removeNodes([payload.newNode])
+							commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
+							const msg = `createDocWithParentHist: doc priority ${payload.newDoc.priority} of document with id ${payload.newDoc._id} does not match node priority ${payload.newNode.data.priority}.
+							The tree structure has changed while the new document was created. The insertion is undone.`
+							dispatch('doLog', { event: msg, level: SEV.ERROR })
 						}
-						rootState.changeHistory.unshift(entry)
-						// select and show the new node
-						commit('updateNodesAndCurrentDoc', { newNode: payload.insertedNode, newDoc: payload.newDoc })
-						commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.insertedNode.level)} is inserted.`, severity: SEV.INFO })
 					}
 				}
 			}]
