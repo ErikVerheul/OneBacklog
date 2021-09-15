@@ -734,7 +734,7 @@ const methods = {
 
 	/*
 	* Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location.
-	* IMPORTANT: To guarantee an immediate response, as an exception to the rule the tree is updated before the database.
+	* IMPORTANT: To guarantee an immediate response, as an exception to the rule, the tree is updated before the database.
 	* If the move fails in the database the user must reload the tree to return to the previous state.
 	*/
 	doMove(nodes, cursorPosition) {
