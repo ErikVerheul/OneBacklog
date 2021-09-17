@@ -976,10 +976,9 @@ const actions = {
 		dispatch,
 		commit
 	}, payload) {
-		const _id = payload.newDoc.parentId
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id
+			url: rootState.userData.currentDb + '/' + payload.newDoc.parentId
 		}).then(res => {
 			const parentDoc = res.data
 			// create a history event for the parent to trigger an email message to followers
@@ -999,7 +998,7 @@ const actions = {
 					onSuccessCallback: () => {
 						// insert the new node in the tree and set the path and ind
 						window.slVueTree.insertNodes(payload.newNodeLocation, [payload.newNode])[0]
-						// The level, productId, parentId and priority are reset and should equal the preflight values; check the priority value only
+						// the level, productId, parentId and priority are reset and should equal the preflight values; check the priority value only
 						if (payload.newDoc.priority === payload.newNode.data.priority) {
 							// create an entry for undoing the change in a last-in first-out sequence
 							const entry = {
@@ -1011,18 +1010,18 @@ const actions = {
 							commit('updateNodesAndCurrentDoc', { newNode: payload.newNode, newDoc: payload.newDoc })
 							commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 						} else {
-							window.slVueTree.removeNodes([payload.newNode])
-							commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
+							// the priority has changed after the preflihgt insert; revert the change in the tree and database
 							const msg = `createDocWithParentHist: doc priority ${payload.newDoc.priority} of document with id ${payload.newDoc._id} does not match node priority ${payload.newNode.data.priority}.
 							The tree structure has changed while the new document was created. The insertion is undone.`
 							dispatch('doLog', { event: msg, level: SEV.ERROR })
+							dispatch('removeBranch', { node: payload.newNode, createUndo: false, undoOnError: true })
 						}
 					}
 				}
 			}]
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: parentDoc, toDispatch, caller: 'createDocWithParentHist' })
 		}).catch(error => {
-			const msg = `createDocWithParentHist: Could not read parent document with id ${_id}. ${error}`
+			const msg = `createDocWithParentHist: Could not read parent document with id ${payload.newDoc.parentId}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

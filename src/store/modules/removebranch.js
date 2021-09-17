@@ -51,7 +51,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			const doc = res.data
-			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, createUndo: payload.createUndo })
+			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, createUndo: payload.createUndo, undoOnError: payload.undoOnError })
 		}).catch(error => {
 			const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -95,7 +95,7 @@ const actions = {
 			doc.history.unshift(newHist)
 			// multiple instances can be dispatched
 			runningThreadsCount++
-			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, createUndo: payload.createUndo } })
+			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, createUndo: payload.createUndo, undoOnError: payload.undoOnError } })
 		}
 		dispatch('updateBulk', {
 			dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove', onSuccessCallback: () => {
@@ -117,7 +117,7 @@ const actions = {
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
-				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo })
+				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo, undoOnError: payload.undoOnError })
 			} else {
 				if (runningThreadsCount === 0) {
 					// db iteration ready
@@ -385,7 +385,9 @@ const actions = {
 									rootState.changeHistory.unshift(entry)
 									commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
 								} else {
-									commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
+									if (payload.undoOnError) {
+										commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
+									} else commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
 								}
 							} else commit('showLastEvent', { txt: `Cannot remove remove node with title ${removedNode.title}`, severity: SEV.ERROR })
 						}

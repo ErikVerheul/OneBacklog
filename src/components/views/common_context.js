@@ -329,7 +329,7 @@ const methods = {
 			}
 			this.showLastEvent('Busy removing branche...', SEV.INFO)
 			// set remove mark in the database on the clicked item and descendants (if any), then remove the node
-			this.$store.dispatch('removeBranch', { node: selectedNode, createUndo: true })
+			this.$store.dispatch('removeBranch', { node: selectedNode, createUndo: true, undoOnError: false })
 		}
 	},
 

@@ -502,7 +502,7 @@ const methods = {
 				}
 				break
 			case 'undoNewNode':
-				this.$store.dispatch('removeBranch', { node: entry.newNode, createUndo: false })
+				this.$store.dispatch('removeBranch', { node: entry.newNode, createUndo: false, undoOnError: false })
 				break
 			case 'undoNewComment':
 				this.$store.dispatch('undoNewCommentAsync', { node: entry.node })
