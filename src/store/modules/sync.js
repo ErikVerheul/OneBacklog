@@ -505,7 +505,12 @@ const actions = {
 								}
 							}
 							break
+						case 'createEvent':
 						case 'createTaskEvent':
+							if (doc.level === LEVEL.PBI) {
+								// a new story is created on another user's product details view
+								commit('addEmptyStoryToBoard', doc)
+							}
 							if (doc.level === LEVEL.TASK) {
 								// a new task is created on another user's product details view or board
 								commit('addTaskToBoard', doc)
