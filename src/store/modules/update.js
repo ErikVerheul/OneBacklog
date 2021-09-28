@@ -865,6 +865,8 @@ const actions = {
 
 	/*
 	* Create or update an existing document by creating a new revision.
+	* On success execute the onSuccessCallback if passed, then dispatch any actions (can be more than one) if passed.
+	* On failure execute the onFailureCallback if passed,
 	*/
 	updateDoc({
 		rootState,
