@@ -112,7 +112,7 @@ const computed = {
 				case 'undoPersonHoursChange':
 					return 'your assigned effort in person hours for the spike'
 				case 'undoRemove':
-					return 'your removal of the item or branche of items'
+					return 'your removal of the item or branch of items'
 				case 'undoRemoveSprintIds':
 					return 'your removal of this item from a sprint'
 				case 'undoSelectedPbiType':

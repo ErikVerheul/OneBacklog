@@ -18,7 +18,7 @@ function composeRangeString(delmark, parentId) {
 
 const actions = {
 	/*
-	* Undo removal of a branche
+	* Undo removal of a branch
 	* Order of execution:
 	* 1. unremove the parent
 	* 2. unremove the descendants
