@@ -101,6 +101,11 @@ const authorization = {
 				}
 			}
 			const productId = this.$store.state.currentProductId
+			if (this.getMyProductsRoles[productId] == undefined) {
+				this.showLastEvent(`Sorry, the item belongs to a product that is not assigned to you. Check with your administrator for a fix.`, SEV.WARNING)
+				return false
+			}
+
 			const skipTestOnTeam = itemTeam === '*' || this.isAdmin || this.isAPO || level <= LEVEL.EPIC
 			const canAccessOnTeam = skipTestOnTeam || itemTeam && itemTeam === this.myTeam
 			const canAccessOnLevel = this.haveWritePermission(level, productId) || allowExtraLevel && this.haveWritePermission(level + 1, productId)
