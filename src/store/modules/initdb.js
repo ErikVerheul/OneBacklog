@@ -341,7 +341,7 @@ const actions = {
 					/* Filter on document type 'backlogItem' but skip the root, the messenger and the req areas items. Emit all item ids belonging to the product ids. */
 					productItems: {
 						map: `function(doc) {
-							if (doc.type == "backlogItem" && !doc.delmark && doc._id !== "root" && doc._id !== "messenger" && doc._id !== "requirement-areas") emit(doc.productId, 1)
+							if (doc.type == "backlogItem" && !doc.delmark && doc._id !== "root" && doc._id !== "messenger" && doc.productId !== "requirement-areas") emit(doc.productId, 1)
 						}`
 					},
 					/* Filter on document type 'backlogItem' but skip the dummy req areas product. Emit the product id and title. */
