@@ -65,7 +65,7 @@ export default {
         return this.tasks
       },
       set (tasks) {
-        if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
+        if (this.haveWritePermission(this.productId, LEVEL.TASK)) {
           this.$store.dispatch('updateTasks', {
             tasks,
             taskState: this.taskState,

@@ -59,8 +59,8 @@ const watch = {
 	selectedPbiType: function (val) {
 		// prevent looping
 		if (val !== this.$store.state.currentDoc.subtype) {
-			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the LEVEL.PBI type')) {
-				const node = this.getLastSelectedNode
+			const node = this.getLastSelectedNode
+			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the LEVEL.PBI type')) {
 				this.$store.dispatch('setSubType', {
 					node,
 					newSubType: val,
@@ -164,7 +164,7 @@ const methods = {
 		 * precondition: the selected nodes have all the same parent (same level)
 		 */
 		const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
-		if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
+		if (this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1

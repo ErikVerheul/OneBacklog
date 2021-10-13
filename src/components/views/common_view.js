@@ -96,7 +96,7 @@ const computed = {
 				case 'undoAddSprintIds':
 					return 'your assignment to a sprint'
 				case 'undoBranchClone':
-					return 'the creation of a branch clone'
+					return 'the creation of a product or branch clone'
 				case 'undoChangeTeam':
 					return 'your change to another team'
 				case 'undoDescriptionChange':
@@ -592,7 +592,7 @@ const methods = {
 	updateDescription(node = this.getLastSelectedNode) {
 		if (this.$store.state.currentDoc.description !== this.newDescription) {
 			// skip update when not changed
-			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
+			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
 				this.$store.dispatch('saveDescription', {
 					node,
 					newDescription: this.newDescription,
@@ -606,7 +606,7 @@ const methods = {
 	updateAcceptance(node = this.getLastSelectedNode) {
 		// skip update when not changed
 		if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
-			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
+			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 				this.$store.dispatch('saveAcceptance', {
 					node,
 					newAcceptance: this.newAcceptance,
@@ -618,8 +618,8 @@ const methods = {
 	},
 
 	updateTsSize() {
-		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
-			const node = this.getLastSelectedNode
+		const node = this.getLastSelectedNode
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
 			const size = document.getElementById('tShirtSizeId').value.toUpperCase()
 			const sizeArray = this.$store.state.configData.tsSize
 			if (sizeArray.includes(size)) {
@@ -644,8 +644,8 @@ const methods = {
 
 	/* Only authorized users who are member of the owning team can change story points. */
 	updateStoryPoints() {
-		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item')) {
-			const node = this.getLastSelectedNode
+		const node = this.getLastSelectedNode
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item')) {
 			const el = document.getElementById('storyPointsId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
@@ -664,8 +664,8 @@ const methods = {
 	},
 
 	updatePersonHours() {
-		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
-			const node = this.getLastSelectedNode
+		const node = this.getLastSelectedNode
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
 			const el = document.getElementById('personHoursId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
@@ -691,8 +691,8 @@ const methods = {
 	*/
 	onStateChange(newState) {
 		if (newState !== this.$store.state.currentDoc.state) {
-			if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
-				const node = this.getLastSelectedNode
+			const node = this.getLastSelectedNode
+			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
 				this.$store.dispatch('setState', {
 					node,
 					newState,
@@ -708,9 +708,8 @@ const methods = {
 		const oldTitle = this.$store.state.currentDoc.title
 		const newTitle = document.getElementById('titleField').value
 		if (oldTitle === newTitle) return
-
-		if (this.haveAccessInTree(this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
-			const node = this.getLastSelectedNode
+		const node = this.getLastSelectedNode
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
 			// update current document in database
 			this.$store.dispatch('setDocTitle', {
 				node,

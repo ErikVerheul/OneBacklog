@@ -157,7 +157,7 @@ const methods = {
 			return true
 		}
 		const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
-		if (this.haveAccessInTree(position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
+		if (this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node) => {
 				const sourceProductId = draggingNodes[0].productId
 				const targetProductId = position.nodeModel.productId

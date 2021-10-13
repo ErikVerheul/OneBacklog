@@ -37,13 +37,13 @@ const authorization = {
 
 	methods: {
 		/*
-		* Returns true if the user has write access to the product at the given level. If no productId is specified the current productId is used.
+		* Returns true if the user has write access to the product at the given level.
 		* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
 		* Note that level 0 is not used and the root of the tree starts with level 1.
 		* Note that guests have no write permissions.
 		* See README.md for the role definitions.
 		*/
-		haveWritePermission(level, productId = this.$store.state.currentProductId) {
+		haveWritePermission(productId, level) {
 			const levels = []
 			for (let i = 0; i <= LEVEL.TASK; i++) {
 				// initialize with false
@@ -90,7 +90,7 @@ const authorization = {
 			return levels[level]
 		},
 
-		haveAccessInTree(level, itemTeam, forAction, allowExtraLevel = false) {
+		haveAccessInTree(productId, level, itemTeam, forAction, allowExtraLevel = false) {
 			if (this.isReqAreaItem) {
 				// requirement areas settings are only accessable for APO's
 				if (this.isAPO) {
@@ -100,7 +100,6 @@ const authorization = {
 					return false
 				}
 			}
-			const productId = this.$store.state.currentProductId
 			if (this.getMyProductsRoles[productId] == undefined) {
 				this.showLastEvent(`Sorry, the item belongs to a product that is not assigned to you. Check with your administrator for a fix.`, SEV.WARNING)
 				return false
@@ -108,7 +107,7 @@ const authorization = {
 
 			const skipTestOnTeam = itemTeam === '*' || this.isAdmin || this.isAPO || level <= LEVEL.EPIC
 			const canAccessOnTeam = skipTestOnTeam || itemTeam && itemTeam === this.myTeam
-			const canAccessOnLevel = this.haveWritePermission(level, productId) || allowExtraLevel && this.haveWritePermission(level + 1, productId)
+			const canAccessOnLevel = this.haveWritePermission(productId, level) || allowExtraLevel && this.haveWritePermission(productId, level + 1)
 
 			if (canAccessOnTeam && canAccessOnLevel) return true
 

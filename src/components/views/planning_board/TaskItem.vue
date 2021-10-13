@@ -107,7 +107,7 @@ export default {
     },
 
     procSelected() {
-      if (this.haveWritePermission(LEVEL.TASK, this.productId)) {
+      if (this.haveWritePermission(this.productId, LEVEL.TASK)) {
         this.showAssistance = false
         switch (this.contextOptionSelected) {
           case this.ADD_TASK:

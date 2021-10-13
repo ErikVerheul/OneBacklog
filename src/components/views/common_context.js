@@ -67,12 +67,11 @@ const methods = {
 
 	/* Clone a product INCLUDING its descendants */
 	doCloneProduct(node) {
-		this.$store.dispatch('cloneProduct', node)
+		this.$store.dispatch('cloneBranch', node)
 	},
 
 	/* Clone a branch INCLUDING its descendants */
 	doCloneBranch(node) {
-		console.log('doCloneBranch: node.title = ' + node.title)
 		this.$store.dispatch('cloneBranch', node)
 	},
 
@@ -231,7 +230,7 @@ const methods = {
 			newNode.data.team = node.data.team
 		} else newNode.data.team = this.myTeam
 
-		if (this.haveAccessInTree(newNode.level, newNode.data.team, 'create new items of this type')) {
+		if (this.haveAccessInTree(newNode.productId, newNode.level, newNode.data.team, 'create new items of this type')) {
 			newNode.title = newNode.parentId === MISC.AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(newNode.level)
 			if (newNode.level === SEV.TASK) {
 				// when inserting a task, set the task owner to the current user
@@ -325,7 +324,7 @@ const methods = {
 	*/
 	doRemove() {
 		const selectedNode = this.contextNodeSelected
-		if (this.haveAccessInTree(selectedNode.level, selectedNode.data.team, 'remove this item')) {
+		if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
 			// when removing a product
 			if (selectedNode.level === this.productLevel) {
 				if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
