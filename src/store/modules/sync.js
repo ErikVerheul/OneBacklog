@@ -78,7 +78,7 @@ const actions = {
 			} else return false
 		}
 
-		function createNode(doc) {
+		function createNewNode(doc) {
 			const parentNode = window.slVueTree.getNodeById(doc.parentId)
 			if (parentNode === null) {
 				const msg = `listenForChanges: no parent node available yet - doc.productId = ${doc.productId}, doc.parentId = ${doc.parentId}, doc._id = ${doc._id}, title = '${doc.title}'`
@@ -222,7 +222,7 @@ const actions = {
 									break
 								case 'createEvent':
 									if (node === null) {
-										createNode(doc)
+										createNewNode(doc)
 										showSyncMessage(`created`, SEV.INFO)
 									}
 									break
@@ -283,7 +283,7 @@ const actions = {
 								case 'createEvent':
 								case 'createTaskEvent':
 									if (node === null) {
-										createNode(doc)
+										createNewNode(doc)
 										showSyncMessage(`created`, SEV.INFO)
 									}
 									break
