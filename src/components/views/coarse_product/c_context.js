@@ -82,6 +82,10 @@ const methods = {
         this.assistanceText = this.$store.state.help.help.productClone
 				this.listItemText = 'Make a clone of this product including its descendant items.'
         break
+			case this.CLONEBRANCH:
+				this.assistanceText = this.$store.state.help.help.branchClone
+				this.listItemText = 'Make a clone of this branch including its descendant items.'
+				break
       case this.CLONEITEM:
         this.assistanceText = this.$store.state.help.help.itemClone
         this.listItemText = 'Make a clone of this item. No descendant items are copied.'
@@ -150,6 +154,9 @@ const methods = {
       case this.CLONEPRODUCT:
         this.doCloneProduct(this.contextNodeSelected)
         break
+			case this.CLONEBRANCH:
+				this.doCloneBranch(this.contextNodeSelected)
+				break
       case this.CLONEITEM:
         this.doCopyItem(this.contextNodeSelected)
         break

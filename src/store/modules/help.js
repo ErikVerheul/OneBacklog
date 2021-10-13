@@ -116,6 +116,18 @@ const state = {
         <p>Note that you will be the only user with access to the clone. An admin has to assign other users with this product to allow them to see and/or contribute to the new product.
         </p>`,
 
+		branchClone: `<h4>Branch clone help</h4>
+        <p>
+        You are about to clone a branch.<br/>
+        </p>
+        <hr>
+        <p>This feature copies a branch with all its descendants in the current database and will show it in your view. The branch title is prepended with 'Clone of '<br>
+        Use this feature to create a copy of a branch to speed up the creation of a similar branch.
+        </p>
+        <hr>
+        <p>Note that attachments, dependencies, conditions and assigned sprintIds are not copied.
+        </p>`,
+
     itemClone: `<h4>Item copy help</h4>
         <p>
         You are about to copy a product backlog item.<br/>

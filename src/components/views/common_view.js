@@ -95,6 +95,8 @@ const computed = {
 					return 'your change of the item acceptance criteria'
 				case 'undoAddSprintIds':
 					return 'your assignment to a sprint'
+				case 'undoBranchClone':
+					return 'the creation of a branch clone'
 				case 'undoChangeTeam':
 					return 'your change to another team'
 				case 'undoDescriptionChange':
@@ -478,6 +480,9 @@ const methods = {
 				break
 			case 'undoAddSprintIds':
 				this.$store.dispatch('removeSprintIds', { parentId: entry.id, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName, createUndo: false })
+				break
+			case 'undoBranchClone':
+				this.$store.dispatch('removeBranch', { node: entry.newNode, createUndo: false, undoOnError: false })
 				break
 			case 'undoChangeTeam':
 				this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange, createUndo: false })

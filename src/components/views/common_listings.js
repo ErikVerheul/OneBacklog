@@ -68,7 +68,8 @@ const computed = {
 			if (keys[0] === 'ignoreEvent' || keys[0] === 'updateTaskOrderEvent' || keys[0] === 'changeReqAreaColorEvent' || keys[0] === 'removeItemsFromSprintEvent') continue
 
       for (let j = 0; j < keys.length; j++) {
-        if (keys[j] === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
+				if (keys[j] === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[keys[j]]))
+				if (keys[j] === 'clonedBranchEvent') allText += this.mkClonedBranchEvent(histItem[keys[j]])
         if (keys[j] === 'cloneEvent') allText += this.mkCloneEvent(histItem[keys[j]])
         if (keys[j] === 'commentToHistoryEvent') allText += this.mkCommentToHistoryEvent(histItem[keys[j]])
         if (keys[j] === 'conditionRemovedEvent') allText += this.mkConditionRemovedEvent(histItem[keys[j]])
@@ -146,6 +147,7 @@ const methods = {
 
   prepHistoryText (key, value) {
     if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value)
+		if (key === 'clonedBranchEvent') return this.mkClonedBranchEvent(value)
     if (key === 'cloneEvent') return this.mkCloneEvent(value)
     if (key === 'commentToHistoryEvent') return this.mkCommentToHistoryEvent(value)
     if (key === 'conditionRemovedEvent') return this.mkConditionRemovedEvent(value)
@@ -375,6 +377,10 @@ const methods = {
   mkResetCommentsEvent (value) {
     return `<h5> ${value[0]} Comment items are removed in a cleanup initiated by an admistrator.</h5>`
   },
+
+	mkClonedBranchEvent(value) {
+		return `<h5>This ${this.getLevelText(value[0], value[1])} and its descendants have been cloned.</h5>`
+	},
 
   mkCloneEvent (value) {
     return `<h5>This ${this.getLevelText(value[0], value[1])} has been cloned as item of product '${value[2]}'.</h5>`

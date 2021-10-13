@@ -22,8 +22,9 @@ function created() {
 	this.SHOWDEPENDENCIES = 7
 	this.SHOWCONDITIONS = 8
 	this.CLONEPRODUCT = 9
-	this.CLONEITEM = 10
-	this.REMOVEREQAREA = 11
+	this.CLONEBRANCH = 10
+	this.CLONEITEM = 11
+	this.REMOVEREQAREA = 12
 }
 
 function data() {
@@ -67,6 +68,12 @@ const methods = {
 	/* Clone a product INCLUDING its descendants */
 	doCloneProduct(node) {
 		this.$store.dispatch('cloneProduct', node)
+	},
+
+	/* Clone a branch INCLUDING its descendants */
+	doCloneBranch(node) {
+		console.log('doCloneBranch: node.title = ' + node.title)
+		this.$store.dispatch('cloneBranch', node)
 	},
 
 	/* Copy an item EXCLUDING its descendants and reset its sprintId, dependencies, conditions and followers
@@ -327,7 +334,7 @@ const methods = {
 					return
 				}
 			}
-			this.showLastEvent('Busy removing branche...', SEV.INFO)
+			this.showLastEvent('Busy removing branch...', SEV.INFO)
 			// set remove mark in the database on the clicked item and descendants (if any), then remove the node
 			this.$store.dispatch('removeBranch', { node: selectedNode, createUndo: true, undoOnError: false })
 		}
