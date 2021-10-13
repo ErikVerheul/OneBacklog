@@ -19,6 +19,7 @@ function composeRangeString(id) {
 
 const actions = {
 	/*
+	* Remove a product or branch. When a product is removed also unassign the removed product from the user. Other user profiles are updated on sign-in.
 	* Order of execution:
 	* 1. removeBranch
 	* 2. processItemsToRemove, dispatches getChildrenToRemove for every document
