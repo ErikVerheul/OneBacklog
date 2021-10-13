@@ -51,6 +51,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
 			const doc = res.data
+			// note: when undoOnError === true a special message is displayed after removal telling the user that the removal was caused by an error condition
 			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, createUndo: payload.createUndo, undoOnError: payload.undoOnError })
 		}).catch(error => {
 			const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
