@@ -123,6 +123,7 @@ export default new Vuex.Store({
 		colorMapper: {},
 		reqAreaOptions: [],
 		// detail & coarse tree views
+		busyWithLastUndo: false,
 		currentDoc: null,
 		changeHistory: [],
 		eventKey: 0,
@@ -432,12 +433,10 @@ export default new Vuex.Store({
 
 	actions: {
 		/* Launch additional actions if provided in the payload */
-		additionalActions({ state, dispatch }, payload) {
+		additionalActions({ dispatch }, payload) {
 			if (payload.toDispatch) {
 				for (const td of payload.toDispatch) {
 					const name = Object.keys(td)[0]
-					// eslint-disable-next-line no-console
-					if (state.debug) console.log('additionalActions: dispatching ' + name)
 					dispatch(name, td[name])
 				}
 			}
@@ -449,7 +448,6 @@ export default new Vuex.Store({
 			commit('restoreTreeView', { productModels: payload.productModels, undoHighLight: 'isHighlighted_1' })
 			commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
-			// do NOT execute passed actions if provided
 		},
 
 		resetFindOnId({ state, dispatch, commit }, payload) {

@@ -252,7 +252,7 @@ const methods = {
 			const moveDataContainer = window.slVueTree.moveNodes([this.movedNode], targetPosition)
 
 			// update the database
-			this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
+			this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, createUndo: true })
 			this.$store.state.moveOngoing = false
 		} else {
 			this.$store.state.moveOngoing = true

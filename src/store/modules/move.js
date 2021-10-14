@@ -29,7 +29,7 @@ const actions = {
 		const items = []
 		let moveInfo = []
 		movedCount = 0
-		if (payload.move) {
+		if (payload.createUndo) {
 			moveInfo = {
 				// this info is the same for all nodes moved
 				type: 'move',
@@ -69,7 +69,7 @@ const actions = {
 				}
 				items.push(payloadItem)
 			}
-		} else if (payload.undoMove) {
+		} else {
 			moveInfo = {
 				type: 'undoMove',
 				sourceProductId: mdc.targetProductId,
@@ -103,7 +103,7 @@ const actions = {
 				}
 				items.push(payloadItem)
 			}
-		} else return
+		}
 
 		// lookup to not rely on the order of the response being the same as in the request
 		function getPayLoadItem(id) {
@@ -147,7 +147,7 @@ const actions = {
 					const isProductMoved = m.sourceLevel === LEVEL.PRODUCT && m.targetLevel === LEVEL.PRODUCT
 					const newHist = {
 						nodeMovedEvent: [m.sourceLevel, targetLevel, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId,
-							m.targetParentId, item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange, isProductMoved],
+						m.targetParentId, item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange, isProductMoved],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
@@ -191,16 +191,17 @@ const actions = {
 					}
 					for (const it of items) {
 						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
-						dispatch('getMovedChildren', { updates, parentId: it.id, toDispatch: [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move } }] })
+						dispatch('getMovedChildren', { updates, parentId: it.id, toDispatch: [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, createUndo: payload.createUndo } }] })
 					}
 				} else {
 					// no need to process descendants
-					dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, move: payload.move })
+					dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, createUndo: payload.createUndo })
 				}
 			}
 		}).catch(error => {
 			const msg = `updateMovedItemsBulk: Could not read descendants in bulk. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 		})
 	},
 
@@ -218,7 +219,7 @@ const actions = {
 					// update the history of the moved items in the current tree view
 					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
 				}
-				if (payload.move) {
+				if (payload.createUndo) {
 					// create an entry for undoing the move in a last-in first-out sequence
 					const entry = {
 						type: 'undoMove',
@@ -226,8 +227,13 @@ const actions = {
 						items
 					}
 					rootState.changeHistory.unshift(entry)
+					commit('showLastEvent', { txt: `${docs.length} items have been moved with ${movedCount} descendants`, severity: SEV.INFO })
+				} else {
+					commit('showLastEvent', { txt: `${docs.length} items have been moved back with ${movedCount} descendants`, severity: SEV.INFO })
+					rootState.busyWithLastUndo = false
 				}
-				commit('showLastEvent', { txt: `${docs.length} items have been moved and and ${movedCount} decendants updated`, severity: SEV.INFO })
+			}, onFailureCallback: () => {
+				if (!payload.createUndo) rootState.busyWithLastUndo = false
 			}
 		})
 	},
@@ -248,7 +254,7 @@ const actions = {
 				dispatch('loopMoveResults', { updates: payload.updates, results, toDispatch: payload.toDispatch })
 			} else {
 				if (runningThreadsCount === 0) {
-					// execute saveMovedItems that emits the nodeMovedEvent to other online users
+					// db iteration ready; execute saveMovedItems that emits the nodeMovedEvent to other online users
 					dispatch('additionalActions', payload)
 				}
 			}
@@ -289,10 +295,12 @@ const actions = {
 			}
 			doc.history.unshift(newHist)
 		}
-		dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, onSuccessCallback: () => {
-			movedCount += docs.length
-			commit('startOrContinueShowProgress', `${movedCount} descendant items are updated`)
-		}, caller: 'updateMovedDescendantsBulk' })
+		dispatch('updateBulk', {
+			dbName: rootState.userData.currentDb, docs, onSuccessCallback: () => {
+				movedCount += docs.length
+				commit('startOrContinueShowProgress', `${movedCount} descendant items are updated`)
+			}, caller: 'updateMovedDescendantsBulk'
+		})
 	}
 }
 

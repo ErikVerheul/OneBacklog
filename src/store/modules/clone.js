@@ -46,7 +46,7 @@ const actions = {
 		commit
 	}, originalNode) {
 		if (busyCloning) {
-			commit('showLastEvent', { txt: `Cannot start a clone while another clone is busy. Try later.`, severity: SEV.WARNING })
+			commit('showLastEvent', { txt: `Cannot start a clone while another clone is busy. Please try later`, severity: SEV.WARNING })
 			return
 		}
 		busyCloning = true

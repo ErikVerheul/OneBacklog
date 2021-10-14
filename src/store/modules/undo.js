@@ -70,6 +70,7 @@ const actions = {
 				caller: 'restoreItemAndDescendants',
 			})
 		}).catch(error => {
+			rootState.busyWithLastUndo = false
 			const msg = `restoreItemAndDescendants: Could not read document with _id ${_id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -92,7 +93,7 @@ const actions = {
 				dispatch('loopUndoResults', { results })
 			} else {
 				if (runningThreadsCount === 0) {
-					// the items are updated in the database, restore the external dependencies & conditions
+					// db iteration ready; the items are updated in the database, restore the external dependencies & conditions
 					dispatch('restoreExtDepsAndConds')
 				}
 			}
@@ -270,9 +271,11 @@ const actions = {
 					}
 					commit('updateNodesAndCurrentDoc', { newDoc: updatedParentDoc })
 					commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
+					rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
+			rootState.busyWithLastUndo = false
 			const msg = `updateGrandParentHist: Could not read document with _id ${_id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -344,6 +347,7 @@ const actions = {
 			const toDispatch = globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateGrandParentHist: globalEntry }]
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreExtDepsAndConds' })
 		}).catch(error => {
+			rootState.busyWithLastUndo = false
 			const msg = `restoreExtDepsAndConds: Could not read batch of documents. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -384,6 +388,7 @@ const actions = {
 			}
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateGrandParentHist: globalEntry }], caller: 'restoreReqarea' })
 		}).catch(error => {
+			rootState.busyWithLastUndo = false
 			const msg = `restoreReqarea: Could not read batch of documents. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

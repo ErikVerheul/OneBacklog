@@ -838,10 +838,14 @@ const actions = {
 							sprintName: payload.sprintName
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Item(s) from sprint removal is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Item(s) from sprint removal is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = 'addSprintIds: Could not read batch of documents, ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -914,6 +918,7 @@ const actions = {
 					// show children nodes
 					expandNode(window.slVueTree.getNodeById(payload.parentId))
 					if (payload.createUndo) {
+						commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: SEV.INFO })
 						// create an entry for undoing the remove-from-sprint in a last-in first-out sequence
 						const entry = {
 							type: 'undoRemoveSprintIds',
@@ -923,11 +928,14 @@ const actions = {
 							sprintName: payload.sprintName
 						}
 						rootState.changeHistory.unshift(entry)
+					} else {
+						commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is undone`, severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
 					}
-					commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
+			rootState.busyWithLastUndo = false
 			const msg = 'removeSprintIds: Could not read batch of documents, ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

@@ -156,7 +156,7 @@ const actions = {
 				dispatch('createChildNodes', { parentNode: payload.parentNode, results })
 			} else {
 				if (runningThreadsCount === 0) {
-					// end of loop; the nodes are restored
+					// db iteration ready; the nodes are restored
 					if (fromHistory) {
 						// restore external dependencies
 						const dependencies = dedup(histArray[3])

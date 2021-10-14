@@ -102,10 +102,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item T-shirt size is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Change of item T-shirt size is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `setTsSize: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -157,10 +161,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of spike person hours is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Change of spike person hours is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `setPersonHours: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -213,10 +221,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item story points is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Change of item story points is undone', severity: SEV.INFO })
+						payload.createUndo
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) payload.createUndo
 			const msg = `setStoryPoints: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -325,7 +337,10 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 						infoMsg = 'Item state has changed'
-					} else infoMsg = 'Change of item state is undone'
+					} else {
+						infoMsg = 'Change of item state is undone'
+						rootState.busyWithLastUndo = false
+					}
 					// show warnings or infos
 					if (warnMsg) {
 						commit('showLastEvent', { txt: warnMsg, severity: SEV.WARNING })
@@ -335,6 +350,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `setState: Could not read document with id ${id}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -409,11 +425,15 @@ const actions = {
 								prevLastChange
 							}
 							rootState.changeHistory.unshift(entry)
-						} else commit('showLastEvent', { txt: 'Change of owning team is undone', severity: SEV.INFO })
+						} else {
+							rootState.busyWithLastUndo = false
+							commit('showLastEvent', { txt: 'Change of owning team is undone', severity: SEV.INFO })
+						}
 					}
 				})
 			}
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `assignToMyTeam: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -513,10 +533,14 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item title is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Change of item title is undone', severity: SEV.INFO })
+						payload.createUndo
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) payload.createUndo
 			const msg = `setDocTitle: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -568,10 +592,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of item type is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Change of item type is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `setSubType: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -622,10 +650,14 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of the item description is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Change of the item description is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `saveDescription: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -676,10 +708,14 @@ const actions = {
 							prevLastContentChange
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `saveAcceptance: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -763,6 +799,7 @@ const actions = {
 				updatedDoc: tmpDoc,
 				caller: 'undoNewCommentAsync',
 				onSuccessCallback: () => {
+					rootState.busyWithLastUndo = false
 					commit('updateNodesAndCurrentDoc', { node, replaceComments: comments })
 					commit('showLastEvent', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
 				}
@@ -852,6 +889,7 @@ const actions = {
 				updatedDoc: tmpDoc,
 				caller: 'undoNewCommentAsync',
 				onSuccessCallback: () => {
+					rootState.busyWithLastUndo = false
 					commit('updateNodesAndCurrentDoc', { node, replaceHistory: history })
 					commit('showLastEvent', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
 				}

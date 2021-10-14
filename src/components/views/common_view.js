@@ -472,8 +472,14 @@ const methods = {
 		return true
 	},
 
+	// Undo a change that was recorded in the change history. Pass createUndo: false to indicate that this is a undo operation and no new undo must be created in the change history
 	onUndoEvent() {
+		if (this.$store.state.busyWithLastUndo) {
+			this.showLastEvent('The last undo has not finished. Please try later', SEV.WARNING)
+			return
+		}
 		const entry = this.$store.state.changeHistory.shift()
+		this.$store.state.busyWithLastUndo = true
 		switch (entry.type) {
 			case 'undoAcceptanceChange':
 				this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange, createUndo: false })
@@ -482,7 +488,7 @@ const methods = {
 				this.$store.dispatch('removeSprintIds', { parentId: entry.id, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName, createUndo: false })
 				break
 			case 'undoBranchClone':
-				this.$store.dispatch('removeBranch', { node: entry.newNode, createUndo: false, undoOnError: false })
+				this.$store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, createUndo: false })
 				break
 			case 'undoChangeTeam':
 				this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange, createUndo: false })
@@ -502,12 +508,15 @@ const methods = {
 						// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
 						if (!window.slVueTree.dependencyViolationsFound()) this.showLastEvent('Item(s) move is undone', SEV.INFO)
 						// update the nodes in the database
-						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, undoMove: true })
-					} else this.showLastEvent('Undo failed. Sign out and -in again to recover.', SEV.ERROR)
+						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, createUndo: false })
+					} else {
+						this.showLastEvent('Undo failed. Sign out and -in again to recover.', SEV.ERROR)
+						this.$store.state.busyWithLastUndo = false
+					}
 				}
 				break
 			case 'undoNewNode':
-				this.$store.dispatch('removeBranch', { node: entry.newNode, createUndo: false, undoOnError: false })
+				this.$store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, createUndo: false })
 				break
 			case 'undoNewComment':
 				this.$store.dispatch('undoNewCommentAsync', { node: entry.node })
@@ -756,7 +765,7 @@ const methods = {
 			if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
 			this.showLastEvent(evt, SEV.INFO)
 		}
-		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, move: true })
+		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, createUndo: true })
 	},
 
 	getViewOptions() {

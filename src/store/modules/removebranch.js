@@ -55,6 +55,7 @@ const actions = {
 			// note: when undoOnError === true a special message is displayed after removal telling the user that the removal was caused by an error condition
 			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, createUndo: payload.createUndo, undoOnError: payload.undoOnError })
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -123,8 +124,6 @@ const actions = {
 			} else {
 				if (runningThreadsCount === 0) {
 					// db iteration ready
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('getChildrenToRemove: dispatching removeExternalConds')
 					dispatch('removeExternalConds', payload)
 				}
 			}
@@ -173,6 +172,7 @@ const actions = {
 				}
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch: [{ removeExternalDeps: payload }], caller: 'removeExternalConds' })
 			}).catch(error => {
+				if (!payload.createUndo) rootState.busyWithLastUndo = false
 				const msg = `removeExternalConds: Could not read batch of documents. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
@@ -219,6 +219,7 @@ const actions = {
 				const toDispatch = payload.node.productId === MISC.AREA_PRODUCTID ? [{ removeReqAreaAssignments: payload.node._id }] : [{ addHistToRemovedParent: payload }]
 				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
 			}).catch(error => {
+				if (!payload.createUndo) rootState.busyWithLastUndo = false
 				const msg = `removeExternalDeps: Could not read batch of documents. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
@@ -258,6 +259,7 @@ const actions = {
 			const toDispatch = [{ addHistToRemovedParent: payload }]
 			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, toDispatch, caller: 'removeReqAreaAssignments' })
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `removeReqAreaAssignment: Could not read document with id ${reqArea}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -296,6 +298,7 @@ const actions = {
 				toDispatch: [{ addHistToRemovedDoc: payload }]
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `addHistToRemovedDoc: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -387,6 +390,7 @@ const actions = {
 									rootState.changeHistory.unshift(entry)
 									commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
 								} else {
+									rootState.busyWithLastUndo = false
 									if (payload.undoOnError) {
 										commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
 									} else commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
@@ -397,6 +401,7 @@ const actions = {
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `addHistToRemovedDoc: Could not read the document with id ${removed_doc_id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

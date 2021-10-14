@@ -55,10 +55,14 @@ const actions = {
 							prevColor
 						}
 						rootState.changeHistory.unshift(entry)
-					} else commit('showLastEvent', { txt: 'Change of requirement area color indication is undone', severity: SEV.INFO })
+					} else {
+						commit('showLastEvent', { txt: 'Change of requirement area color indication is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
+					}
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUndo) rootState.busyWithLastUndo = false
 			const msg = `updateColorDb: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -101,6 +105,7 @@ const actions = {
 				toDispatch,
 				caller: 'updateReqArea',
 				onSuccessCallback: () => {
+					commit('updateNodesAndCurrentDoc', { node: payload.node, reqarea: payload.reqareaId, lastChange: payload.timestamp, newHist })
 					if (payload.createUndo) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -110,11 +115,14 @@ const actions = {
 							prevLastChange
 						}
 						rootState.changeHistory.unshift(entry)
+					} else {
+						commit('showLastEvent', { txt: 'Change of requirement area assignment is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
 					}
-					commit('updateNodesAndCurrentDoc', { node: payload.node, reqarea: payload.reqareaId, lastChange: payload.timestamp, newHist })
 				}
 			})
 		}).catch(error => {
+			if (!payload.createUn) rootState.busyWithLastUndo = false
 			const msg = `updateReqArea: Could not read document with _id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
