@@ -4,6 +4,7 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
+var busyCloning = false
 var runningThreadsCount
 var clonedRootDoc
 var clonedRootNode
@@ -41,8 +42,14 @@ const actions = {
 	*/
 	cloneBranch({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, originalNode) {
+		if (busyCloning) {
+			commit('showLastEvent', { txt: `Cannot start a clone while another clone is busy. Try later.`, severity: SEV.WARNING })
+			return
+		}
+		busyCloning = true
 		runningThreadsCount = 0
 		clonedDocsCount = 0
 		let cloneProductId = undefined
@@ -61,6 +68,7 @@ const actions = {
 		}).catch(error => {
 			const msg = `cloneBranch: Could not read the document with id ${originalNode._id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
+			busyCloning = false
 		})
 	},
 
@@ -148,7 +156,7 @@ const actions = {
 			if (results.length > 0) {
 				// process next level
 				dispatch('processItemsToClone',
-					{ originalNode: payload.originalNode, cloneProductId: payload.cloneProductId, results: results.map((r) => r.doc), newParentId: payload.parentId, cloneParentId: payload.cloneParentId, cloneParentNode: payload.cloneParentNode })
+					{ originalNode: payload.originalNode, cloneProductId: payload.cloneProductId, results: results.map(r => r.doc), newParentId: payload.parentId, cloneParentId: payload.cloneParentId, cloneParentNode: payload.cloneParentNode })
 			} else {
 				if (runningThreadsCount === 0) {
 					// db iteration ready
@@ -201,6 +209,7 @@ const actions = {
 		}).catch(error => {
 			const msg = `addHistToClonedDoc: Could not read the document with id ${payload.originalNode._id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
+			busyCloning = false
 		})
 	},
 
@@ -227,6 +236,7 @@ const actions = {
 		}
 		rootState.changeHistory.unshift(entry)
 		commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, payload.originalNode.level)} '${payload.originalNode.title}' and ${clonedDocsCount - 1} descendants are cloned`, severity: SEV.INFO })
+		busyCloning = false
 	}
 }
 
