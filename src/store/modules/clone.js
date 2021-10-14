@@ -37,7 +37,7 @@ const actions = {
 	* 2. processItemsToClone, dispatches getChildrenToClone for every document in the passed results array
 	* 3. getChildrenToClone, dispatches processItemsToClone for every parent id and dispatches addHistToClonedDoc when all parent ids are processed
 	* 4. addHistToClonedDoc, adds history to the cloned item, updates the tree view and creates undo data
-	* Attachments, dependencies, conditions, sprintId, color (reqarea items), delmark, unremovedMark are not copied.
+	* Attachments, dependencies, conditions, sprintId, color (reqarea items), delmark, unremovedMark and history are not copied.
 	* The event is not distributed to other on-line users.
 	*/
 	cloneBranch({
@@ -100,7 +100,12 @@ const actions = {
 				acceptanceCriteria: doc.acceptanceCriteria,
 				priority: doc._id === payload.originalNode._id ? calcNewClonePriority(payload.originalNode) : doc.priority,
 				comments: doc.comments,
-				history: doc.history,
+				history: [{
+					resetHistoryEvent: [doc.history.length],
+					by: rootState.userData.user,
+					timestamp: Date.now(),
+					distributeEvent: false
+				}],
 				delmark: false,
 				// add last changes
 				lastPositionChange: doc.lastPositionChange,
@@ -121,6 +126,7 @@ const actions = {
 			// add history to the created clone
 			const newHist = {
 				ignoreEvent: ['cloneDescendants'],
+				by: rootState.userData.user,
 				timestamp: Date.now(),
 				distributeEvent: false
 			}
