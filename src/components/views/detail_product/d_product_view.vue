@@ -193,7 +193,7 @@
           <div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
             <div class="d-table w-100">
               <h5 class="title is-6">Description</h5>
-              <div class="d-table-cell tar">
+              <div v-if = "$store.state.currentDoc.history[0]" class="d-table-cell tar">
                 <p class="title is-6"> Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
