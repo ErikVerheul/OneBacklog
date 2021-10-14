@@ -535,7 +535,7 @@ const actions = {
 						rootState.changeHistory.unshift(entry)
 					} else {
 						commit('showLastEvent', { txt: 'Change of item title is undone', severity: SEV.INFO })
-						payload.createUndo
+						rootState.busyWithLastUndo = false
 					}
 				}
 			})
