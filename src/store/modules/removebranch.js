@@ -14,6 +14,7 @@ var sprintsAffected
 var teamsAffected
 
 function reset(rootState, payload) {
+	console.log('removeBranch: reset is called')
 	rootState.busyRemovingBranch = false
 	if (payload.isUndoAction) rootState.busyWithLastUndo = false
 }
@@ -417,12 +418,13 @@ const actions = {
 									rootState.changeHistory.unshift(entry)
 									commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
 								} else {
-									reset(rootState, payload)
 									if (payload.undoOnError) {
 										commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
 									} else commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
 								}
 							} else commit('showLastEvent', { txt: `Cannot remove remove node with title ${removedNode.title}`, severity: SEV.ERROR })
+							// removeBranch is done
+							reset(rootState, payload)
 						}, onFailureCallback: () => {
 							reset(rootState, payload)
 						}
