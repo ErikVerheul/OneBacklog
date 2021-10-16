@@ -166,7 +166,6 @@ const methods = {
 				distributeEvent: true
 			}]
 		}
-		// update the database, create the node and select this document
 		this.$store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
 	},
 
@@ -275,7 +274,6 @@ const methods = {
 					updateBoards: { sprintsAffected: [node.data.sprintId], teamsAffected: [newNode.data.team] }
 				}]
 			}
-			// update the database, create the node and select this document
 			this.$store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
 		}
 	},

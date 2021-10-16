@@ -1041,7 +1041,7 @@ const actions = {
 		})
 	},
 
-	/* Add history to the parent and than save the document */
+	/* Create the document in the database, create the node, select it and add history to the parent document */
 	createDocWithParentHist({
 		rootState,
 		dispatch,
