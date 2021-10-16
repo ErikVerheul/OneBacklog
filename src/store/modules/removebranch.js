@@ -14,7 +14,6 @@ var sprintsAffected
 var teamsAffected
 
 function reset(rootState, payload) {
-	console.log('removeBranch: reset is called')
 	rootState.busyRemovingBranch = false
 	if (payload.isUndoAction) rootState.busyWithLastUndo = false
 }
