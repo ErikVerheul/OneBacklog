@@ -382,7 +382,7 @@ const actions = {
 				}
 
 				if (missingPbiIds.length > 0) {
-					dispatch('loadMissingPbis', {	missingPbiIds,onSuccessCallBack: paintSprintLanes	})
+					dispatch('loadMissingPbis', { missingPbiIds, onSuccessCallBack: paintSprintLanes })
 				} else paintSprintLanes()
 			}).catch(error => {
 				const msg = `PlanningBoard: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
@@ -433,7 +433,7 @@ const actions = {
 			}
 
 			if (missingPbiIds.length > 0) {
-				dispatch('loadMissingPbis', {	missingPbiIds, onSuccessCallBack: paintSprintLanes })
+				dispatch('loadMissingPbis', { missingPbiIds, onSuccessCallBack: paintSprintLanes })
 			} else paintSprintLanes()
 		}).catch(error => {
 			const msg = `renewPlanningBoard: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
@@ -770,6 +770,7 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		if (payload.isUndoAction) rootState.busyWithLastUndo = false
 		const docsToGet = []
 		for (const id of payload.itemIds) {
 			docsToGet.push({ id: id })
@@ -828,7 +829,7 @@ const actions = {
 					// show child nodes
 					const parentNode = window.slVueTree.getNodeById(payload.parentId)
 					if (parentNode) expandNode(parentNode)
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						// create an entry for undoing the add-to-sprint for use with removeSprintIds action
 						const entry = {
 							type: 'undoAddSprintIds',
@@ -842,10 +843,12 @@ const actions = {
 						commit('showLastEvent', { txt: 'Item(s) from sprint removal is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = 'addSprintIds: Could not read batch of documents, ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -857,6 +860,7 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		const docsToGet = []
 		for (const id of payload.itemIds) {
 			docsToGet.push({ id: id })
@@ -917,7 +921,7 @@ const actions = {
 					}
 					// show children nodes
 					expandNode(window.slVueTree.getNodeById(payload.parentId))
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: SEV.INFO })
 						// create an entry for undoing the remove-from-sprint in a last-in first-out sequence
 						const entry = {
@@ -932,10 +936,12 @@ const actions = {
 						commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is undone`, severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = 'removeSprintIds: Could not read batch of documents, ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

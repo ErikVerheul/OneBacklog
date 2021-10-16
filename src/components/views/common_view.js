@@ -472,29 +472,29 @@ const methods = {
 		return true
 	},
 
-	// Undo a change that was recorded in the change history. Pass createUndo: false to indicate that this is a undo operation and no new undo must be created in the change history
+	/* Undo a change that was recorded in the change history. Pass isUndoAction: true to indicate that this is a undo operation and no new undo must be created in the change history */
 	onUndoEvent() {
 		if (this.$store.state.busyWithLastUndo) {
 			this.showLastEvent('The last undo has not finished. Please try later', SEV.WARNING)
 			return
 		}
+		const isUndoAction = true
 		const entry = this.$store.state.changeHistory.shift()
-		this.$store.state.busyWithLastUndo = true
 		switch (entry.type) {
 			case 'undoAcceptanceChange':
-				this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange, createUndo: false })
+				this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange, isUndoAction })
 				break
 			case 'undoAddSprintIds':
-				this.$store.dispatch('removeSprintIds', { parentId: entry.id, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName, createUndo: false })
+				this.$store.dispatch('removeSprintIds', { parentId: entry.id, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName, isUndoAction })
 				break
 			case 'undoBranchClone':
-				this.$store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, createUndo: false })
+				this.$store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, isUndoAction })
 				break
 			case 'undoChangeTeam':
-				this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange, createUndo: false })
+				this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoDescriptionChange':
-				this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange, createUndo: false })
+				this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange, isUndoAction })
 				break
 			case 'undoMove':
 				{
@@ -508,7 +508,7 @@ const methods = {
 						// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
 						if (!window.slVueTree.dependencyViolationsFound()) this.showLastEvent('Item(s) move is undone', SEV.INFO)
 						// update the nodes in the database
-						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, createUndo: false })
+						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, isUndoAction })
 					} else {
 						this.showLastEvent('Undo failed. Sign out and -in again to recover.', SEV.ERROR)
 						this.$store.state.busyWithLastUndo = false
@@ -516,7 +516,7 @@ const methods = {
 				}
 				break
 			case 'undoNewNode':
-				this.$store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, createUndo: false })
+				this.$store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, isUndoAction })
 				break
 			case 'undoNewComment':
 				this.$store.dispatch('undoNewCommentAsync', { node: entry.node })
@@ -525,37 +525,37 @@ const methods = {
 				this.$store.dispatch('undoNewCommentToHistoryAsync', { node: entry.node })
 				break
 			case 'undoReqAreaColorChange':
-				this.$store.dispatch('updateColorDb', { node: entry.node, newColor: entry.prevColor, createUndo: false })
+				this.$store.dispatch('updateColorDb', { node: entry.node, newColor: entry.prevColor, isUndoAction })
 				break
 			case 'undoPersonHoursChange':
-				this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange, createUndo: false })
+				this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoRemove':
-				this.$store.dispatch('restoreItemAndDescendants', entry)
+				this.$store.dispatch('undoRemovedItemAndDescendants', entry)
 				break
 			case 'undoRemoveSprintIds':
-				this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName, createUndo: false })
+				this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName, isUndoAction })
 				break
 			case 'undoSelectedPbiType':
-				this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange, createUndo: false })
+				this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoSetDependency':
 				this.$store.dispatch('undoSetDependencyAsync', entry)
 				break
 			case 'undoStateChange':
-				this.$store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, createUndo: false })
+				this.$store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoStoryPointsChange':
-				this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange, createUndo: false })
+				this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoTitleChange':
-				this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange, createUndo: false })
+				this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange, isUndoAction })
 				break
 			case 'undoTsSizeChange':
-				this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange, createUndo: false })
+				this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoUpdateReqArea':
-				this.$store.dispatch('updateReqArea', { node: entry.node, reqareaId: entry.oldAreaId, timestamp: entry.prevLastChange, createUndo: false })
+				this.$store.dispatch('updateReqArea', { node: entry.node, reqareaId: entry.oldAreaId, timestamp: entry.prevLastChange, isUndoAction })
 				break
 		}
 	},
@@ -605,8 +605,7 @@ const methods = {
 				this.$store.dispatch('saveDescription', {
 					node,
 					newDescription: this.newDescription,
-					timestamp: Date.now(),
-					createUndo: true
+					timestamp: Date.now()
 				})
 			}
 		}
@@ -619,8 +618,7 @@ const methods = {
 				this.$store.dispatch('saveAcceptance', {
 					node,
 					newAcceptance: this.newAcceptance,
-					timestamp: Date.now(),
-					createUndo: true
+					timestamp: Date.now()
 				})
 			}
 		}
@@ -637,8 +635,7 @@ const methods = {
 					this.$store.dispatch('setTsSize', {
 						node,
 						newSizeIdx,
-						timestamp: Date.now(),
-						createUndo: true
+						timestamp: Date.now()
 					})
 				}
 			} else {
@@ -665,8 +662,7 @@ const methods = {
 				this.$store.dispatch('setStoryPoints', {
 					node,
 					newPoints,
-					timestamp: Date.now(),
-					createUndo: true
+					timestamp: Date.now()
 				})
 			}
 		}
@@ -685,8 +681,7 @@ const methods = {
 				this.$store.dispatch('setPersonHours', {
 					node,
 					newHrs,
-					timestamp: Date.now(),
-					createUndo: true
+					timestamp: Date.now()
 				})
 			}
 		}
@@ -706,8 +701,7 @@ const methods = {
 					node,
 					newState,
 					position: node.ind,
-					timestamp: Date.now(),
-					createUndo: true
+					timestamp: Date.now()
 				})
 			}
 		}
@@ -723,8 +717,7 @@ const methods = {
 			this.$store.dispatch('setDocTitle', {
 				node,
 				newTitle: newTitle,
-				timestamp: Date.now(),
-				createUndo: true
+				timestamp: Date.now()
 			})
 		}
 	},
@@ -765,7 +758,7 @@ const methods = {
 			if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
 			this.showLastEvent(evt, SEV.INFO)
 		}
-		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, createUndo: true })
+		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer })
 	},
 
 	getViewOptions() {

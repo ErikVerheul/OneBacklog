@@ -30,10 +30,11 @@ const actions = {
 	*/
 
 	/* The parent is the removed node and parent of the removed children. The grandParent is the parent of the removed node and was not removed. */
-	restoreItemAndDescendants({
+	undoRemovedItemAndDescendants({
 		rootState,
 		dispatch
 	}, entry) {
+		rootState.busyWithLastUndo = true
 		globalEntry = entry
 		const _id = globalEntry.removedNode._id
 		runningThreadsCount = 0
@@ -64,19 +65,22 @@ const actions = {
 			}
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb,
-				updatedDoc: updatedParentDoc,
-				toDispatch: [{ restoreDescendants: { parentId: globalEntry.removedNode._id } }],
-				caller: 'restoreItemAndDescendants',
+				dbName: rootState.userData.currentDb, updatedDoc: updatedParentDoc, toDispatch: [{ restoreDescendants: { parentId: globalEntry.removedNode._id } }], onFailureCallback: () => {
+					rootState.busyWithLastUndo = false
+				}, caller: 'undoRemovedItemAndDescendants'
 			})
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
-			const msg = `restoreItemAndDescendants: Could not read document with _id ${_id}. ${error}`
+			const msg = `undoRemovedItemAndDescendants: Could not read document with _id ${_id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
-	/* Executes the passed action on all removed descendants of the parent */
+	/*
+	* Executes the passed action on all removed descendants of the parent.
+	* Starts restoreExtDepsAndConds if all restoreDescendants threads have finished.
+	* Do not reset the busyWithLastUndo as one of the instances fails.
+	*/
 	restoreDescendants({
 		rootState,
 		dispatch
@@ -108,13 +112,17 @@ const actions = {
 		dispatch
 	}, payload) {
 		for (const r of payload.results) {
+			// multiple threads can be started
 			dispatch('restoreDescendants', { parentId: r.id })
 		}
 		// execute unremove for these results
 		dispatch('unremoveDescendants', { results: payload.results })
 	},
 
-	/* Unmark the removed item and its descendants for removal. Create nodes from the retrieved docs and add then to the removed node */
+	/*
+	* Unmark the removed item and its descendants for removal. Create nodes from the retrieved docs and add then to the removed node.
+	* Do not reset the busyWithLastUndo as one of the intances fails
+	*/
 	unremoveDescendants({
 		rootState,
 		rootGetters,
@@ -179,7 +187,7 @@ const actions = {
 				window.slVueTree.appendDescendantNode(parentNode, doc)
 				descendantNodesRestoredCount++
 			}
-			if (descendantNodesRestoredCount > 0) commit('startOrContinueShowProgress',`${descendantNodesRestoredCount} descendants are restored`)
+			if (descendantNodesRestoredCount > 0) commit('startOrContinueShowProgress', `${descendantNodesRestoredCount} descendants are restored`)
 		}
 
 		dispatch('updateBulk', {
@@ -272,6 +280,8 @@ const actions = {
 					commit('updateNodesAndCurrentDoc', { newDoc: updatedParentDoc })
 					commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
 					rootState.busyWithLastUndo = false
+				}, onFailureCallback: () => {
+					rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
@@ -281,7 +291,10 @@ const actions = {
 		})
 	},
 
-	/* Restore the dependencies on and conditions for documents external to the restored descendants */
+	/*
+	* Restore the dependencies on and conditions for documents external to the restored descendants.
+	* This action is called after that all nodes are restored
+	*/
 	restoreExtDepsAndConds({
 		rootState,
 		dispatch
@@ -345,7 +358,11 @@ const actions = {
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
 			const toDispatch = globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateGrandParentHist: globalEntry }]
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'restoreExtDepsAndConds' })
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, toDispatch, onFailureCallback: () => {
+					rootState.busyWithLastUndo = false
+				}, caller: 'restoreExtDepsAndConds'
+			})
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
 			const msg = `restoreExtDepsAndConds: Could not read batch of documents. ${error}`
@@ -386,7 +403,11 @@ const actions = {
 					docs.push(doc)
 				}
 			}
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateGrandParentHist: globalEntry }], caller: 'restoreReqarea' })
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateGrandParentHist: globalEntry }], onFailureCallback: () => {
+					rootState.busyWithLastUndo = false
+				}, caller: 'restoreReqarea'
+			})
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
 			const msg = `restoreReqarea: Could not read batch of documents. ${error}`

@@ -68,6 +68,7 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -92,7 +93,7 @@ const actions = {
 				caller: 'setTsSize',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The T-shirt size of this item is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -104,12 +105,14 @@ const actions = {
 						rootState.changeHistory.unshift(entry)
 					} else {
 						commit('showLastEvent', { txt: 'Change of item T-shirt size is undone', severity: SEV.INFO })
-						rootState.busyWithLastUndo = false
+						if (payload.isUndoAction) rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `setTsSize: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -122,6 +125,7 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -151,7 +155,7 @@ const actions = {
 				caller: 'setPersonHours',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The maximum effort of this spike is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -165,10 +169,12 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of spike person hours is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `setPersonHours: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -181,6 +187,7 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -211,7 +218,7 @@ const actions = {
 				caller: 'setStoryPoints',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The story points assigned to this item have changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -223,12 +230,14 @@ const actions = {
 						rootState.changeHistory.unshift(entry)
 					} else {
 						commit('showLastEvent', { txt: 'Change of item story points is undone', severity: SEV.INFO })
-						payload.createUndo
+						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) payload.createUndo
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `setStoryPoints: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -251,6 +260,7 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -326,7 +336,7 @@ const actions = {
 						}
 						parentNode.tmp.inconsistentState = hasInconsistentState
 					}
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoStateChange',
@@ -347,10 +357,12 @@ const actions = {
 					} else {
 						if (infoMsg) commit('showLastEvent', { txt: infoMsg, severity: SEV.INFO })
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `setState: Could not read document with id ${id}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -370,6 +382,7 @@ const actions = {
 		const node = payload.node
 		const descendantsInfo = window.slVueTree.getDescendantsInfo(node)
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -413,7 +426,7 @@ const actions = {
 						}
 						commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam, lastChange: payload.timestamp, newHist })
 
-						if (payload.createUndo) {
+						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							if (descendantsInfo.count === 0) {
 								commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
 							} else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
@@ -429,11 +442,13 @@ const actions = {
 							rootState.busyWithLastUndo = false
 							commit('showLastEvent', { txt: 'Change of owning team is undone', severity: SEV.INFO })
 						}
+					}, onFailureCallback: () => {
+						if (payload.isUndoAction) rootState.busyWithLastUndo = false
 					}
 				})
 			}
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `assignToMyTeam: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -493,6 +508,7 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -523,7 +539,7 @@ const actions = {
 				caller: 'setDocTitle',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The item title is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -537,10 +553,12 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of item title is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) payload.createUndo
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `setDocTitle: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -553,6 +571,7 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -582,7 +601,7 @@ const actions = {
 				caller: 'setSubType',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The item type is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -596,10 +615,12 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of item type is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `setSubType: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -612,6 +633,7 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -640,7 +662,7 @@ const actions = {
 				caller: 'saveDescription',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The item description is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -654,10 +676,12 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of the item description is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `saveDescription: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -670,6 +694,7 @@ const actions = {
 	}, payload) {
 		const node = payload.node
 		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
@@ -698,7 +723,7 @@ const actions = {
 				caller: 'saveAcceptance',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The item acceptance criteria are changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -712,10 +737,12 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `saveAcceptance: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -903,8 +930,7 @@ const actions = {
 
 	/*
 	* Create or update an existing document by creating a new revision.
-	* On success execute the onSuccessCallback if passed, then dispatch any actions (can be more than one) if passed.
-	* On failure execute the onFailureCallback if passed,
+	* Executes a onSuccessCallback and onFailureCallback if provided in the payload.
 	*/
 	updateDoc({
 		rootState,
@@ -931,6 +957,10 @@ const actions = {
 		})
 	},
 
+	/*
+	* Update or create multiple documents in bulk.
+	* Executes a onSuccessCallback, onFailureCallback and additionalActions callback if provided in the payload.
+	*/
 	updateBulk({
 		commit,
 		dispatch
@@ -962,6 +992,7 @@ const actions = {
 				dispatch('additionalActions', payload)
 			}
 		}).catch(error => {
+			// execute passed function if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
 			const msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents with ids ${payload.docs.map(doc => doc._id)}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -1054,7 +1085,8 @@ const actions = {
 							const msg = `createDocWithParentHist: doc priority ${payload.newDoc.priority} of document with id ${payload.newDoc._id} does not match node priority ${payload.newNode.data.priority}.
 							The tree structure has changed while the new document was created. The insertion is undone.`
 							dispatch('doLog', { event: msg, level: SEV.ERROR })
-							dispatch('removeBranch', { node: payload.newNode, createUndo: false, undoOnError: true })
+							// note: while this action is executed the user cannot undo other actions
+							dispatch('removeBranch', { node: payload.newNode, undoOnError: true, isUndoAction: true })
 						}
 					}
 				}
@@ -1066,7 +1098,10 @@ const actions = {
 		})
 	},
 
-	/* Load document by _id and make it the current backlog item */
+	/*
+	* Load document by _id and make it the current backlog item.
+	* Executes a onSuccessCallback and onFailureCallback callback if provided in the payload.
+	*/
 	loadDoc({
 		rootState,
 		commit,

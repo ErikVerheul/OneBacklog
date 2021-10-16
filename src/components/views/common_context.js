@@ -75,7 +75,7 @@ const methods = {
 		this.$store.dispatch('cloneBranch', node)
 	},
 
-	/* Copy an item EXCLUDING its descendants and reset its sprintId, dependencies, conditions and followers
+	/* Copy an item EXCLUDING its descendants, attachments, sprintId, dependencies, conditions and followers
 	* Insert the new node above the original (inside or after the previous node)
 	*/
 	doCopyItem(node) {
@@ -323,20 +323,22 @@ const methods = {
 	* The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
 	*/
 	doRemove() {
-		const selectedNode = this.contextNodeSelected
-		if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
-			// when removing a product
-			if (selectedNode.level === this.productLevel) {
-				if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
-					// cannot remove the last assigned product or product in the tree
-					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
-					return
+		if (!this.$store.state.busyRemovingBranch) {
+			const selectedNode = this.contextNodeSelected
+			if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
+				// when removing a product
+				if (selectedNode.level === this.productLevel) {
+					if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
+						// cannot remove the last assigned product or product in the tree
+						this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
+						return
+					}
 				}
+				this.showLastEvent('Busy removing branch...', SEV.INFO)
+				// set remove mark in the database on the clicked item and descendants (if any), then remove the node
+				this.$store.dispatch('removeBranch', { node: selectedNode, undoOnError: false })
 			}
-			this.showLastEvent('Busy removing branch...', SEV.INFO)
-			// set remove mark in the database on the clicked item and descendants (if any), then remove the node
-			this.$store.dispatch('removeBranch', { node: selectedNode, createUndo: true, undoOnError: false })
-		}
+		} else this.showLastEvent('Busy removing another branch. Please try later', SEV.WARNING)
 	},
 
 	/* Undo the tree expansion and highlighting */
@@ -347,7 +349,7 @@ const methods = {
 		}
 	},
 
-	/* Update the dependencies and the corresponding conditions in the tree model and the database. */
+	/* Remove the dependencies and the corresponding conditions in the tree model and the database. */
 	doRemoveDependencies() {
 		this.undoShowDependencies(this.dependenciesObjects)
 		if (this.selectedDependencyIds.length > 0) {
@@ -359,7 +361,7 @@ const methods = {
 		}
 	},
 
-	/* Update the conditions and the corresponding dependencies in the tree model and the database. */
+	/* Remove the conditions and the corresponding dependencies in the tree model and the database. */
 	doRemoveConditions() {
 		this.undoShowDependencies(this.conditionsObjects)
 		if (this.selectedConditionIds.length > 0) {

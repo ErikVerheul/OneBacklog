@@ -124,6 +124,7 @@ export default new Vuex.Store({
 		reqAreaOptions: [],
 		// detail & coarse tree views
 		busyWithLastUndo: false,
+		busyRemovingBranch: false,
 		currentDoc: null,
 		changeHistory: [],
 		eventKey: 0,

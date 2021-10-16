@@ -39,6 +39,7 @@ const actions = {
 	* 4. addHistToClonedDoc, adds history to the cloned item, updates the tree view and creates undo data
 	* Attachments, dependencies, conditions, sprintId, color (reqarea items), delmark, unremovedMark and history are not copied.
 	* The event is not distributed to other on-line users.
+	* Only one clone action can be executed at a time.
 	*/
 	cloneBranch({
 		rootState,
@@ -181,7 +182,6 @@ const actions = {
 		rootState,
 		dispatch
 	}, payload) {
-		// get the document
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + payload.originalNode._id
@@ -204,12 +204,18 @@ const actions = {
 					value: payload.cloneProductId,
 					text: clonedRootNode.title
 				}
-				dispatch('assignProductToUserAction', { dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles })
+				dispatch('assignProductToUserAction', {
+					dbName: rootState.userData.currentDb, selectedUser: rootState.userData.user, newProductOption, userRoles, onFailureCallback: () => {
+						busyCloning = false
+					}
+				})
 			}
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc, caller: 'addHistToClonedDoc', onSuccessCallback: () => {
 					dispatch('showBranch', payload)
+				}, onfailureCallback: () => {
+					busyCloning = false
 				}
 			})
 		}).catch(error => {

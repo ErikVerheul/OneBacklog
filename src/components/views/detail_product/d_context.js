@@ -235,7 +235,7 @@ const methods = {
 			// can assign team from feature level and down (higher level numbers)
 			const node = this.contextNodeSelected
 			const newTeam = this.myTeam
-			this.$store.dispatch('assignToMyTeam', { node, newTeam, timestamp: Date.now(), createUndo: true })
+			this.$store.dispatch('assignToMyTeam', { node, newTeam, timestamp: Date.now() })
 		}
 	},
 
@@ -252,7 +252,7 @@ const methods = {
 			const moveDataContainer = window.slVueTree.moveNodes([this.movedNode], targetPosition)
 
 			// update the database
-			this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, createUndo: true })
+			this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer })
 			this.$store.state.moveOngoing = false
 		} else {
 			this.$store.state.moveOngoing = true
@@ -295,7 +295,7 @@ const methods = {
 		if (pbiSprintId) {
 			const sprintName = getSprintNameById(pbiSprintId, this.$store.state.myCurrentSprintCalendar)
 			// assign the task to the same sprint the PBI is assigned to
-			this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName, createUndo: true })
+			this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName })
 		} else {
 			window.assignToSprintRef.show()
 		}
@@ -311,7 +311,7 @@ const methods = {
 				if (d.data.sprintId === sprintId) itemIds.push(d._id)
 			}
 		}
-		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: getSprintNameById(sprintId, this.$store.state.myCurrentSprintCalendar), createUndo: true })
+		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: getSprintNameById(sprintId, this.$store.state.myCurrentSprintCalendar) })
 	}
 }
 

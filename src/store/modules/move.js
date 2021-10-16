@@ -29,7 +29,7 @@ const actions = {
 		const items = []
 		let moveInfo = []
 		movedCount = 0
-		if (payload.createUndo) {
+		if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 			moveInfo = {
 				// this info is the same for all nodes moved
 				type: 'move',
@@ -70,6 +70,7 @@ const actions = {
 				items.push(payloadItem)
 			}
 		} else {
+			rootState.busyWithLastUndo = true
 			moveInfo = {
 				type: 'undoMove',
 				sourceProductId: mdc.targetProductId,
@@ -182,6 +183,7 @@ const actions = {
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 				// ToDo: make this an alert with the only option to restart the application
 				commit('showLastEvent', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
+				if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			} else {
 				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
 					// if moving to another product or another level, update the descendants of the moved(back) items
@@ -191,17 +193,17 @@ const actions = {
 					}
 					for (const it of items) {
 						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
-						dispatch('getMovedChildren', { updates, parentId: it.id, toDispatch: [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, createUndo: payload.createUndo } }] })
+						dispatch('getMovedChildren', { updates, parentId: it.id, toDispatch: [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, isUndoAction: payload.isUndoAction } }] })
 					}
 				} else {
 					// no need to process descendants
-					dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, createUndo: payload.createUndo })
+					dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, isUndoAction: payload.isUndoAction })
 				}
 			}
 		}).catch(error => {
 			const msg = `updateMovedItemsBulk: Could not read descendants in bulk. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 		})
 	},
 
@@ -219,7 +221,7 @@ const actions = {
 					// update the history of the moved items in the current tree view
 					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
 				}
-				if (payload.createUndo) {
+				if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 					// create an entry for undoing the move in a last-in first-out sequence
 					const entry = {
 						type: 'undoMove',
@@ -233,7 +235,7 @@ const actions = {
 					rootState.busyWithLastUndo = false
 				}
 			}, onFailureCallback: () => {
-				if (!payload.createUndo) rootState.busyWithLastUndo = false
+				if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			}
 		})
 	},

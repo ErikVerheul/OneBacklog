@@ -13,6 +13,11 @@ var removedDocsCount
 var sprintsAffected
 var teamsAffected
 
+function reset(rootState, payload) {
+	rootState.busyRemovingBranch = false
+	if (payload.isUndoAction) rootState.busyWithLastUndo = false
+}
+
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
 }
@@ -29,6 +34,7 @@ const actions = {
 	* 6. removeReqAreaAssignments, dispatches addHistToRemovedParent
 	* 7. addHistToRemovedParent, dispatches addHistToRemovedDoc and adds history to the parent
 	* 8. addHistToRemovedDoc, adds history to the removed item, updates the tree view and creates undo data
+	* If payload.isUndoAction === true this action is used to undo a branch creation and no undo entry is created (no undo of an undo)
 	*/
 
 	removeBranch({
@@ -44,6 +50,10 @@ const actions = {
 		sprintsAffected = []
 		teamsAffected = []
 
+		// while running this state is set upon a reset is called
+		rootState.busyRemovingBranch = true
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
+
 		const id = payload.node._id
 		const delmark = createId()
 		// get the document
@@ -53,14 +63,15 @@ const actions = {
 		}).then(res => {
 			const doc = res.data
 			// note: when undoOnError === true a special message is displayed after removal telling the user that the removal was caused by an error condition
-			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, createUndo: payload.createUndo, undoOnError: payload.undoOnError })
+			dispatch('processItemsToRemove', { node: payload.node, results: [doc], delmark, isUndoAction: payload.isUndoAction, undoOnError: payload.undoOnError })
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			reset(rootState, payload)
 			const msg = `removeBranch: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
+	/* Do not reset the busyWithLastUndo as one of the intances fails */
 	processItemsToRemove({
 		rootState,
 		dispatch,
@@ -98,7 +109,7 @@ const actions = {
 			doc.history.unshift(newHist)
 			// multiple instances can be dispatched
 			runningThreadsCount++
-			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, createUndo: payload.createUndo, undoOnError: payload.undoOnError } })
+			toDispatch.push({ getChildrenToRemove: { node: payload.node, id: doc._id, delmark: payload.delmark, isUndoAction: payload.isUndoAction, undoOnError: payload.undoOnError } })
 		}
 		dispatch('updateBulk', {
 			dbName: rootState.userData.currentDb, docs: payload.results, toDispatch, caller: 'processItemsToRemove', onSuccessCallback: () => {
@@ -108,6 +119,11 @@ const actions = {
 		})
 	},
 
+	/*
+	* Executes processItemsToRemove on all descendants of the parent.
+	* Starts removeExternalConds if all getChildrenToRemove threads have finished.
+	* Do not reset the busyWithLastUndo as one of the instances fails.
+	*/
 	getChildrenToRemove({
 		rootState,
 		dispatch
@@ -120,10 +136,10 @@ const actions = {
 			const results = res.data.rows
 			if (results.length > 0) {
 				// process next level
-				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, createUndo: payload.createUndo, undoOnError: payload.undoOnError })
+				dispatch('processItemsToRemove', { node: payload.node, results: results.map((r) => r.doc), delmark: payload.delmark, isUndoAction: payload.isUndoAction, undoOnError: payload.undoOnError })
 			} else {
 				if (runningThreadsCount === 0) {
-					// db iteration ready
+					// db iteration ready; the items are updated in the database, remove the external dependencies & conditions
 					dispatch('removeExternalConds', payload)
 				}
 			}
@@ -170,9 +186,13 @@ const actions = {
 						}
 					}
 				}
-				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch: [{ removeExternalDeps: payload }], caller: 'removeExternalConds' })
+				dispatch('updateBulk', {
+					dbName: rootState.userData.currentDb, docs, toDispatch: [{ removeExternalDeps: payload }], caller: 'removeExternalConds', onFailureCallback: () => {
+						reset(rootState, payload)
+					}
+				})
 			}).catch(error => {
-				if (!payload.createUndo) rootState.busyWithLastUndo = false
+				reset(rootState, payload)
 				const msg = `removeExternalConds: Could not read batch of documents. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
@@ -217,9 +237,13 @@ const actions = {
 				}
 				// remove reqarea assignments when removing a requirement area
 				const toDispatch = payload.node.productId === MISC.AREA_PRODUCTID ? [{ removeReqAreaAssignments: payload.node._id }] : [{ addHistToRemovedParent: payload }]
-				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps' })
+				dispatch('updateBulk', {
+					dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps', onFailureCallback: () => {
+						reset(rootState, payload)
+					}
+				})
 			}).catch(error => {
-				if (!payload.createUndo) rootState.busyWithLastUndo = false
+				reset(rootState, payload)
 				const msg = `removeExternalDeps: Could not read batch of documents. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
@@ -257,9 +281,13 @@ const actions = {
 				updatedDocs.push(doc)
 			}
 			const toDispatch = [{ addHistToRemovedParent: payload }]
-			dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs: updatedDocs, toDispatch, caller: 'removeReqAreaAssignments' })
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs: updatedDocs, toDispatch, caller: 'removeReqAreaAssignments', onFailureCallback: () => {
+					reset(rootState, payload)
+				}
+			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			reset(rootState, payload)
 			const msg = `removeReqAreaAssignment: Could not read document with id ${reqArea}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -292,13 +320,12 @@ const actions = {
 			doc.history.unshift(newHist)
 
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb,
-				updatedDoc: doc,
-				caller: 'addHistToRemovedParent',
-				toDispatch: [{ addHistToRemovedDoc: payload }]
+				dbName: rootState.userData.currentDb, updatedDoc: doc, caller: 'addHistToRemovedParent', toDispatch: [{ addHistToRemovedDoc: payload }], onFailureCallback: () => {
+					reset(rootState, payload)
+				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			reset(rootState, payload)
 			const msg = `addHistToRemovedDoc: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -369,7 +396,7 @@ const actions = {
 									dispatch('removeFromMyProducts', { productId: removedNode._id })
 								}
 
-								if (payload.createUndo) {
+								if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 									// create an entry for undoing the remove in a last-in first-out sequence
 									const entry = {
 										type: 'undoRemove',
@@ -390,18 +417,20 @@ const actions = {
 									rootState.changeHistory.unshift(entry)
 									commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
 								} else {
-									rootState.busyWithLastUndo = false
+									reset(rootState, payload)
 									if (payload.undoOnError) {
 										commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
 									} else commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
 								}
 							} else commit('showLastEvent', { txt: `Cannot remove remove node with title ${removedNode.title}`, severity: SEV.ERROR })
+						}, onFailureCallback: () => {
+							reset(rootState, payload)
 						}
 					})
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			reset(rootState, payload)
 			const msg = `addHistToRemovedDoc: Could not read the document with id ${removed_doc_id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

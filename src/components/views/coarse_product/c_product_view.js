@@ -214,7 +214,7 @@ const methods = {
 	},
 
 	setUserColor(newColor) {
-		this.$store.dispatch('updateColorDb', { node: this.getLastSelectedNode, newColor, createUndo: true })
+		this.$store.dispatch('updateColorDb', { node: this.getLastSelectedNode, newColor })
 	},
 
 	setReqArea(reqarea) {
@@ -235,7 +235,7 @@ const methods = {
 
 	/* Update the req area of the item (null for no req area set) */
 	doSetReqArea() {
-		this.$store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqareaId: this.selReqAreaId, timestamp: Date.now(), createUndo: true })
+		this.$store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqareaId: this.selReqAreaId, timestamp: Date.now() })
 	}
 }
 

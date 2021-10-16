@@ -71,7 +71,7 @@ export default {
         for (const d of descendants) {
           if (!d.data.sprintId) itemIds.push(d._id)
         }
-        this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName, createUndo: true })
+        this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName })
       }
 
       if (itemLevel === LEVEL.TASK) {
@@ -82,7 +82,7 @@ export default {
 					// if no other sprint is assigned, also assign the sprint to the task's PBI
           itemIds.push(pbiNode._id)
         }
-				this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName, createUndo: true })
+				this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName })
       }
     }
   }

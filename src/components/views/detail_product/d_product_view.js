@@ -64,8 +64,7 @@ const watch = {
 				this.$store.dispatch('setSubType', {
 					node,
 					newSubType: val,
-					timestamp: Date.now(),
-					createUndo: true
+					timestamp: Date.now()
 				})
 			}
 		}

@@ -112,7 +112,7 @@ const actions = {
 		const dbName = rootState.userData.currentDb
 		const undo = true
 		const id = payload.dependentOnNode._id
-
+		rootState.busyWithLastUndo = true
 		globalAxios({
 			method: 'GET',
 			url: dbName + '/' + id
@@ -134,10 +134,14 @@ const actions = {
 				// add hist to payload
 				payload.hist = newHist
 				const toDispatch = [{ alsoUndoSetConditionAsync: payload }]
-				dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'undoSetDependencyAsync' })
+				dispatch('updateDoc', {
+					dbName, updatedDoc: tmpDoc, toDispatch, caller: 'undoSetDependencyAsync', onFailureCallback: () => {
+						rootState.busyWithLastUndo = false
+					}
+				})
 			}
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			rootState.busyWithLastUndo = false
 			commit('showLastEvent', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
 			const msg = 'undoSetDependencyAsync: Could not read document with _id ' + id + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -178,6 +182,8 @@ const actions = {
 						commit('updateNodesAndCurrentDoc', { node: payload.dependentOnNode, removeLastDependencyOn: null, lastChange: payload.dependentOnPrevLastChange, newHist: payload.hist })
 						commit('updateNodesAndCurrentDoc', { node: payload.conditionalForNode, removeLastConditionalFor: null, lastChange: payload.conditionalForprevLastChange, newHist })
 						commit('showLastEvent', { txt: 'Dependency set is undone', severity: SEV.INFO })
+						rootState.busyWithLastUndo = false
+					}, onFailureCallback: () => {
 						rootState.busyWithLastUndo = false
 					}
 				})

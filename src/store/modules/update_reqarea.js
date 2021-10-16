@@ -18,6 +18,7 @@ const actions = {
 		// user cannot update before the current transaction is completed
 		if (!state.canUpdateColor) return
 
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		state.canUpdateColor = false
 		const node = payload.node
 		const id = node._id
@@ -46,7 +47,7 @@ const actions = {
 					state.canUpdateColor = true
 					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor, newHist })
 					commit('updateColorMapper', { id, newColor: payload.newColor })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The requirement area color indication is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
@@ -59,10 +60,12 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of requirement area color indication is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
-			if (!payload.createUndo) rootState.busyWithLastUndo = false
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			const msg = `updateColorDb: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -106,7 +109,7 @@ const actions = {
 				caller: 'updateReqArea',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node: payload.node, reqarea: payload.reqareaId, lastChange: payload.timestamp, newHist })
-					if (payload.createUndo) {
+					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoUpdateReqArea',
@@ -119,6 +122,8 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of requirement area assignment is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
 		}).catch(error => {
@@ -201,10 +206,13 @@ const actions = {
 							}
 						}
 					}
+				}, onFailureCallback: () => {
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				}
 			})
-		}).catch(e => {
-			const msg = 'updateReqAreaChildren: Could not read batch of documents: ' + e
+		}).catch(error => {
+			if (payload.isUndoAction) rootState.busyWithLastUndo = false
+			const msg = 'updateReqAreaChildren: Could not read batch of documents: ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

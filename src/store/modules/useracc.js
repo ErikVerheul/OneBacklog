@@ -231,9 +231,11 @@ const actions = {
 						seqKey: rootState.seqKey++,
 						msg
 					})
-				}
+				}, onFailureCallback: payload.onFailureCallback
 			})
 		}).catch(error => {
+			// execute passed callback if provided
+			if (payload.onFailureCallback) payload.onFailureCallback
 			const msg = `assignProductToUserAction: Could not update subscribed products for user '${payload.selectedUser}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -370,7 +372,10 @@ const actions = {
 		})
 	},
 
-	/* Update the user profile in CouchDb. If the profile of the current user is updated, the in-memory profile is updated also */
+	/*
+	* Update the user profile in CouchDb. If the profile of the current user is updated, the in-memory profile is updated also.
+	* Executes a onSuccessCallback and additionalActions callback if provided in the payload.
+	*/
 	updateUserAction({
 		rootState,
 		commit,
