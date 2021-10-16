@@ -6,6 +6,23 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.13 - 16 October 2021 Feature update and bug and security fixes</h3>
+          <p>New features:</p>
+          <ul>
+            <li>Feature added to clone any branch or product</li>
+						<li>Assistance Admins can (un)assign all products of the databases assigned to him/her to all users</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>When selecting a new product the haveWritePermission of the previous selected product is used, fixed</li>
+						<li>Prevent overlapping (concurrent) undo's and branch/product cloning by the user to avoid errors</li>
+            <li>Show a Return button instead of a Cancel button when the database is successfully created</li>
+          </ul>
+          <p>Security:</p>
+          <ul>
+            <li>Vue2-editor dependency update</li>
+          </ul>
+          <hr />
 					<h3>v.1.12 - 19 August 2021 Bug fixes and dependency updates</h3>
           <p>Bug fixes:</p>
           <ul>
