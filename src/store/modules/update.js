@@ -317,7 +317,7 @@ const actions = {
 					}
 					// check on team
 					const parentNode = window.slVueTree.getParentNode(node)
-					if (parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin) {
+					if (parentNode && parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin) {
 						if (parentNode.data.team !== rootGetters.myTeam) {
 							warnMsg = concatMsg(warnMsg, `The team of parent '${parentNode.title}' (${parentNode.data.team}) and your team (${rootGetters.myTeam}) do not match.
 							Consider to assign team '${parentNode.data.team}' to this item`)

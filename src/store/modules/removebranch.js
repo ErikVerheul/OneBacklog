@@ -367,67 +367,70 @@ const actions = {
 							}
 						})
 					}
-
-					// remove any dependency references to/from outside the removed items; note: these cannot be undone
-					const removed = window.slVueTree.correctDependencies(payload.node)
 					// before removal select the predecessor of the removed node (sibling or parent)
 					const prevNode = window.slVueTree.getPreviousNode(payload.node.path)
-					let nowSelectedNode = prevNode
-					if (prevNode.level === LEVEL.DATABASE) {
-						// if a product is to be removed and the previous node is root, select the next product
-						const nextProduct = window.slVueTree.getNextSibling(payload.node.path)
-						if (nextProduct === null) {
-							// there is no next product; cannot remove the last product; note that this action is already blocked with a warming
-							return
+					// skip updating the tree if the previous node is not found (= null)
+					if (prevNode) {
+						// remove any dependency references to/from outside the removed items; note: these cannot be undone
+						const removed = window.slVueTree.correctDependencies(payload.node)
+						let nowSelectedNode = prevNode
+						if (prevNode.level === LEVEL.DATABASE) {
+							// if a product is to be removed and the previous node is root, select the next product
+							const nextProduct = window.slVueTree.getNextSibling(payload.node.path)
+							if (nextProduct === null) {
+								// there is no next product; cannot remove the last product; note that this action is already blocked with a warming
+								reset(rootState, payload)
+								return
+							}
+							nowSelectedNode = nextProduct
 						}
-						nowSelectedNode = nextProduct
-					}
-					commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
-					// load the new selected item
-					dispatch('loadDoc', {
-						id: nowSelectedNode._id, onSuccessCallback: () => {
-							const removedNode = payload.node
-							// remove the node and its children from the tree view
-							if (window.slVueTree.removeNodes([removedNode])) {
-								// remove the children; on restore the children are recovered from the database
-								removedNode.children = []
-								if (removedNode.level === LEVEL.PRODUCT) {
-									// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
-									dispatch('removeFromMyProducts', { productId: removedNode._id })
-								}
+						commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
+						// load the new selected item
+						dispatch('loadDoc', {
+							id: nowSelectedNode._id, onSuccessCallback: () => {
+								const removedNode = payload.node
+								// remove the node and its children from the tree view
+								if (window.slVueTree.removeNodes([removedNode])) {
+									// remove the children; on restore the children are recovered from the database
+									removedNode.children = []
+									if (removedNode.level === LEVEL.PRODUCT) {
+										// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
+										dispatch('removeFromMyProducts', { productId: removedNode._id })
+									}
 
-								if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-									// create an entry for undoing the remove in a last-in first-out sequence
-									const entry = {
-										type: 'undoRemove',
-										delmark: payload.delmark,
-										isProductRemoved: removedNode.level === LEVEL.PRODUCT,
-										itemsRemovedFromReqArea,
-										removedDescendantsCount: removedDocsCount - 1,
-										removedExtConditions: removed.removedExtConditions,
-										removedExtDependencies: removed.removedExtDependencies,
-										removedIntConditions: removed.removedIntConditions,
-										removedIntDependencies: removed.removedIntDependencies,
-										removedNode,
-										sprintIds: sprintsAffected
+									if (!payload.isUndoAction || payload.isUndoAction === undefined) {
+										// create an entry for undoing the remove in a last-in first-out sequence
+										const entry = {
+											type: 'undoRemove',
+											delmark: payload.delmark,
+											isProductRemoved: removedNode.level === LEVEL.PRODUCT,
+											itemsRemovedFromReqArea,
+											removedDescendantsCount: removedDocsCount - 1,
+											removedExtConditions: removed.removedExtConditions,
+											removedExtDependencies: removed.removedExtDependencies,
+											removedIntConditions: removed.removedIntConditions,
+											removedIntDependencies: removed.removedIntDependencies,
+											removedNode,
+											sprintIds: sprintsAffected
+										}
+										if (entry.isProductRemoved) {
+											entry.removedProductRoles = rootGetters.getMyProductsRoles[removedNode._id]
+										}
+										rootState.changeHistory.unshift(entry)
+										commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
+									} else {
+										if (payload.undoOnError) {
+											commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
+										} else commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
 									}
-									if (entry.isProductRemoved) {
-										entry.removedProductRoles = rootGetters.getMyProductsRoles[removedNode._id]
-									}
-									rootState.changeHistory.unshift(entry)
-									commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
-								} else {
-									if (payload.undoOnError) {
-										commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
-									} else commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
-								}
-							} else commit('showLastEvent', { txt: `Cannot remove remove node with title ${removedNode.title}`, severity: SEV.ERROR })
-							// removeBranch is done
-							reset(rootState, payload)
-						}, onFailureCallback: () => {
-							reset(rootState, payload)
-						}
-					})
+								} else commit('showLastEvent', { txt: `Cannot remove remove node with title ${removedNode.title}`, severity: SEV.ERROR })
+								// removeBranch is done
+								reset(rootState, payload)
+							}, onFailureCallback: () => {
+								reset(rootState, payload)
+							}
+						})
+					} else reset(rootState, payload)
 				}
 			})
 		}).catch(error => {

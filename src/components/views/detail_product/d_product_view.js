@@ -163,7 +163,8 @@ const methods = {
 		 * precondition: the selected nodes have all the same parent (same level)
 		 */
 		const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
-		if (this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
+		// cancel quietly if getParentNode(position.nodeModel) returns null (not found)
+		if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1

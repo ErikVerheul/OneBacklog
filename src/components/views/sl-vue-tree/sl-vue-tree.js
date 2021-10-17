@@ -196,10 +196,11 @@ const methods = {
 		return nodeModels.map((nm) => nm)
 	},
 
-	getNodeModel(path, tree = this.$store.state.treeNodes) {
+	/* Return the nodeModel on the given path in the given tree branch (default: the complete tree) or null if not found */
+	getNodeModel(path, branch = this.$store.state.treeNodes) {
 		const ind = path[0]
-		if (path.length === 1) return tree[ind] || null
-		return this.getNodeModel(path.slice(1), tree[ind].children)
+		if (path.length === 1) return branch[ind] || null
+		return this.getNodeModel(path.slice(1), branch[ind].children)
 	},
 
 	/* Return the current product node in an array */
@@ -218,6 +219,7 @@ const methods = {
 		return idsWithReqArea
 	},
 
+	/* Return the node closest to the current cursor position or null if not found */
 	getCursorModelPositionFromCoords(x, y) {
 		function getClosestElementWithPath($el) {
 			if (!$el) return null
@@ -299,6 +301,7 @@ const methods = {
 		}
 	},
 
+	/* Return the sibling node below the node with the passed path or null if not found */
 	getNextSibling(path) {
 		const nextPath = path.slice(0, -1).concat(path.slice(-1)[0] + 1)
 		return this.getNodeModel(nextPath)
@@ -325,14 +328,12 @@ const methods = {
 		return this.$parent
 	},
 
+	/* Return the parent or null if not found */
 	getParentNode(node) {
-		for (let i = LEVEL.DATABASE; i < node.path.length; i++) {
-			const path = node.path.slice(0, i)
-			if (path.length === node.path.length - 1) {
-				return this.getNodeModel(path)
-			}
-		}
+		const path = node.path.slice(0, -1)
+		return this.getNodeModel(path)
 	},
+
 
 	/* Return an array with the node of the passed productId or an empty array if the product is not found */
 	getProductModel(productId) {
@@ -362,6 +363,7 @@ const methods = {
 		return this.$store.state.treeNodes[0].children
 	},
 
+	/* Return the node on top of the node with the passed path or null if not found */
 	getPreviousNode(path) {
 		let prevPath
 		if (path.slice(-1)[0] === 0) {
@@ -649,6 +651,12 @@ const methods = {
 		// if the cursor is placed below the last child of a parent item insert the moved item(s) as childs of that parent
 		const sourceParent = this.getParentNode(this.lastSelectedNode)
 		const nextParent = this.getNextSibling(sourceParent.path)
+		if (sourceParent === null || nextParent === null) {
+			// cancel the drop
+			this.showLastEvent('Source or destination parent node not found', SEV.ERROR)
+			this.stopDrag()
+			return
+		}
 		if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel === nextParent) {
 			// change the cursorPosition.nodeModel to the last child of the sourceParent and insert after this child
 			this.cursorPosition.nodeModel = sourceParent.children.slice(-1)[0]
@@ -772,13 +780,15 @@ const methods = {
 		}, nodesToScan)
 	},
 
-	/*
-	* Show the path from productlevel up to the node and highlight or warnLight the node; if type is set prepare for undo
-	*/
+	/* Show the path from productlevel up to the node and highlight or warnLight the node; if type is set, prepare for undo */
 	showPathToNode(node, highLights, type) {
 		const maxDepth = node.path.length
 		for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
+			if (nm === null) {
+				// node not found; skip
+				continue
+			}
 			if (i < maxDepth) {
 				if (!nm.isExpanded) {
 					if (type === 'search') nm.tmp.savedIsExpandedInSearch = false
@@ -854,6 +864,10 @@ const methods = {
 		const maxDepth = node.path.length
 		for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 			const nm = this.getNodeModel(node.path.slice(0, i))
+			if (nm === null) {
+				// node not found; skip
+				continue
+			}
 			if (nm.isExpanded) {
 				if (type === 'search' && nm.tmp.savedIsExpandedInSearch === false) collapseNode(nm)
 				if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === false) collapseNode(nm)

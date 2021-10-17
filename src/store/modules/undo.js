@@ -129,15 +129,15 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		function getParentNode(id) {
+		/* Traverse the removedNode branch to find the parent node for the item with this id; return undefined if not found */
+		function getParentNodeById(id, removedNode) {
 			let parentNode
-			// traverse the node to find the parent node for the item with this id
 			window.slVueTree.traverseModels((nm) => {
 				if (nm._id === id) {
 					parentNode = nm
 					return false
 				}
-			}, [globalEntry.removedNode])
+			}, [removedNode])
 			return parentNode
 		}
 
@@ -148,7 +148,7 @@ const actions = {
 		let parentNode = undefined
 		if (sharedDocLevel <= rootGetters.leafLevel) {
 			// get the parentNode if a node needs to be recovered
-			parentNode = getParentNode(docs[0].parentId)
+			parentNode = getParentNodeById(docs[0].parentId, globalEntry.removedNode)
 		}
 		for (const doc of docs) {
 			const newHist = {

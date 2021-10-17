@@ -36,7 +36,7 @@ const methods = {
 			// for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
 			const allowExtraLevel = node.level < this.taskLevel
 			if (this.haveAccessInTree(node.productId, node.level, '*', 'open the context menu', allowExtraLevel)) {
-				// note that the parent of the root node is undefined
+				// note that getParentNode(node) can return null if requesting the parent of the root node or if the parent was removed
 				const parentNode = window.slVueTree.getParentNode(node)
 				this.contextNodeSelected = node
 				this.contextParentTeam = parentNode ? parentNode.data.team : undefined
@@ -122,9 +122,11 @@ const methods = {
 			case this.TASKTOSPRINT:
 				{
 					const pbiNode = window.slVueTree.getParentNode(this.contextNodeSelected)
-					if (pbiNode.data.sprintId) {
-						this.listItemText = `Assign this Task to the same sprint the User story is assigned to.`
-					} else this.listItemText = `Assign this Task to the current or next sprint.`
+					if (pbiNode) {
+						if (pbiNode.data.sprintId) {
+							this.listItemText = `Assign this Task to the same sprint the User story is assigned to.`
+						} else this.listItemText = `Assign this Task to the current or next sprint.`
+					} else this.listItemText('Cannot find the user story this task belongs to.')
 				}
 				break
 			case this.REMOVEITEM:
@@ -291,14 +293,16 @@ const methods = {
 	doAddTaskToSprint() {
 		const taskNode = this.contextNodeSelected
 		const pbiNode = window.slVueTree.getParentNode(taskNode)
-		const pbiSprintId = pbiNode.data.sprintId
-		if (pbiSprintId) {
-			const sprintName = getSprintNameById(pbiSprintId, this.$store.state.myCurrentSprintCalendar)
-			// assign the task to the same sprint the PBI is assigned to
-			this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName })
-		} else {
-			window.assignToSprintRef.show()
-		}
+		if (pbiNode) {
+			const pbiSprintId = pbiNode.data.sprintId
+			if (pbiSprintId) {
+				const sprintName = getSprintNameById(pbiSprintId, this.$store.state.myCurrentSprintCalendar)
+				// assign the task to the same sprint the PBI is assigned to
+				this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName })
+			} else {
+				window.assignToSprintRef.show()
+			}
+		} else this.showLastEvent('Cannot find the user story this task belongs to. Task is not assigned.', SEV.ERROR)
 	},
 
 	doRemoveFromSprint() {
