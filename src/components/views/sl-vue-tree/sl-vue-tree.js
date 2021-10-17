@@ -183,9 +183,9 @@ const methods = {
 		this.getRootComponent().$emit('drop', draggingNodes, position)
 	},
 
-	// trigger the context component via the eventbus
+	// trigger the context component via the eventbus if the node is selectable
 	emitNodeContextmenu(node) {
-		eventBus.$emit('context-menu', node)
+		if (node.isSelectable) eventBus.$emit('context-menu', node)
 	},
 
 	emitSelect(fromContextMenu) {
@@ -757,6 +757,13 @@ const methods = {
 		this.$store.commit('updateNodesAndCurrentDoc', { selectNode: selNode })
 	},
 
+	/* Set all nodes of the branch to be not selectable including the branchRoot itself */
+	setBranchUnselectable(branchRoot) {
+		this.traverseModels((nm) => {
+			nm.isSelectable = false
+		}, [branchRoot])
+	},
+
 	setModelCursorPosition(pos) {
 		if (this.isRoot) {
 			this.rootCursorPosition = pos
@@ -814,7 +821,7 @@ const methods = {
 
 	/*
 	* Traverse the node models or the full tree (default), breadth first
-	* Stop when the call back returns false
+	* Stop when the callback returns false
 	*/
 	traverseModels(cb, nodeModels = this.$store.state.treeNodes) {
 		let shouldStop = false

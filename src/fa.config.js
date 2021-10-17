@@ -8,6 +8,7 @@ import {
 } from '@fortawesome/vue-fontawesome'
 
 import {
+	faBan,
   faFolder,
   faFile,
   faChevronDown,
@@ -18,6 +19,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
+	faBan,
   faFolder,
   faFile,
   faChevronDown,

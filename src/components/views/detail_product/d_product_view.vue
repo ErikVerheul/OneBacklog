@@ -111,6 +111,11 @@
                 </i>
               </span>
               {{ patchTitle(node) }}
+              <span v-if="!node.isSelectable" class="item-icon">
+                <i class="colorRed">
+                  <font-awesome-icon icon="ban" />
+                </i>
+              </span>
               <b-badge v-if="node.tmp.inconsistentState" variant="danger">{{ getNodeStateText(node) + '?' }}</b-badge>
               <b-badge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</b-badge>
               <b-badge v-else variant="light">{{ getNodeStateText(node) }}</b-badge>
@@ -193,7 +198,7 @@
           <div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
             <div class="d-table w-100">
               <h5 class="title is-6">Description</h5>
-              <div v-if = "$store.state.currentDoc.history[0]" class="d-table-cell tar">
+              <div v-if="$store.state.currentDoc.history[0]" class="d-table-cell tar">
                 <p class="title is-6"> Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
@@ -244,15 +249,15 @@
     <!-- Context modal -->
     <DcontextMenu></DcontextMenu>
 
-		<b-modal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant= "warning" title="Move to another level?">
-			<p v-if="movePreflightData.targetLevel < movePreflightData.sourceLevel">
-				You are about to promote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
-			</p>
-			<p v-else>
-				You are about to demote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
-			</p>
-			<p>Press OK to continue</p>
-			<p class="note">Note: Change your options settings to prevent this warning</p>
+    <b-modal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant="warning" title="Move to another level?">
+      <p v-if="movePreflightData.targetLevel < movePreflightData.sourceLevel">
+        You are about to promote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
+      </p>
+      <p v-else>
+        You are about to demote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
+      </p>
+      <p>Press OK to continue</p>
+      <p class="note">Note: Change your options settings to prevent this warning</p>
     </b-modal>
 
     <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
@@ -424,11 +429,11 @@
 
 //my stuff
 h3 {
-	height: 45px;
+  height: 45px;
 }
 
 .note {
-	background: #eee;
+  background: #eee;
 }
 
 .square {

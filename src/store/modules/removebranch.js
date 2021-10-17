@@ -14,7 +14,6 @@ var sprintsAffected
 var teamsAffected
 
 function reset(rootState, payload) {
-	rootState.busyRemovingBranch = false
 	if (payload.isUndoAction) rootState.busyWithLastUndo = false
 }
 
@@ -51,8 +50,10 @@ const actions = {
 		teamsAffected = []
 
 		// while running this state is set upon a reset is called
-		rootState.busyRemovingBranch = true
 		if (payload.isUndoAction) rootState.busyWithLastUndo = true
+
+		// make all nodes, to be removed, including the branch root unselectable
+		window.slVueTree.setBranchUnselectable(payload.node)
 
 		const id = payload.node._id
 		const delmark = createId()
@@ -397,6 +398,8 @@ const actions = {
 										// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
 										dispatch('removeFromMyProducts', { productId: removedNode._id })
 									}
+									// make the removed node selectable again
+									removedNode.isSelectable = true
 
 									if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 										// create an entry for undoing the remove in a last-in first-out sequence

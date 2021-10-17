@@ -90,6 +90,11 @@
                 </i>
               </span>
               {{ patchTitle(node) }}
+							<span v-if="!node.isSelectable" class="item-icon">
+                <i class="colorRed">
+                  <font-awesome-icon icon="ban" />
+                </i>
+              </span>
               <b-badge v-if="node.tmp.inconsistentState" variant="danger">{{ getNodeStateText(node) + '?' }}</b-badge>
               <b-badge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</b-badge>
               <b-badge v-else variant="light">{{ getNodeStateText(node) }}</b-badge>

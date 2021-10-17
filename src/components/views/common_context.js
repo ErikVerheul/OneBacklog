@@ -321,22 +321,20 @@ const methods = {
 	* The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
 	*/
 	doRemove() {
-		if (!this.$store.state.busyRemovingBranch) {
-			const selectedNode = this.contextNodeSelected
-			if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
-				// when removing a product
-				if (selectedNode.level === this.productLevel) {
-					if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
-						// cannot remove the last assigned product or product in the tree
-						this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
-						return
-					}
+		const selectedNode = this.contextNodeSelected
+		if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
+			// when removing a product
+			if (selectedNode.level === this.productLevel) {
+				if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
+					// cannot remove the last assigned product or product in the tree
+					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
+					return
 				}
-				this.showLastEvent('Busy removing branch...', SEV.INFO)
-				// set remove mark in the database on the clicked item and descendants (if any), then remove the node
-				this.$store.dispatch('removeBranch', { node: selectedNode, undoOnError: false })
 			}
-		} else this.showLastEvent('Busy removing another branch. Please try later', SEV.WARNING)
+			this.showLastEvent('Busy removing branch...', SEV.INFO)
+			// set remove mark in the database on the clicked item and descendants (if any), then remove the node
+			this.$store.dispatch('removeBranch', { node: selectedNode, undoOnError: false })
+		}
 	},
 
 	/* Undo the tree expansion and highlighting */
