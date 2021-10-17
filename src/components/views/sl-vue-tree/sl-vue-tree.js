@@ -67,8 +67,8 @@ const computed = {
 
 	filteredNodes() {
 		if (this.isRoot) {
-			const retNodes = this.getNodes(this.$store.state.treeNodes)
-			// console.log('filteredNodes1: returning ' + retNodes.length + ' nodes')
+			const retNodes = this.$store.state.treeNodes.map((nm) => nm)
+			// console.log('filteredNodes1: returning the root node')
 			return retNodes
 		}
 		const retNodes = this.getParentComponent().filteredNodes[this.parentInd].children.filter(node => {
@@ -190,10 +190,6 @@ const methods = {
 
 	emitSelect(fromContextMenu) {
 		this.getRootComponent().$emit('nodes-are-selected', fromContextMenu)
-	},
-
-	getNodes(nodeModels) {
-		return nodeModels.map((nm) => nm)
 	},
 
 	/* Return the nodeModel on the given path in the given tree branch (default: the complete tree) or null if not found */
@@ -651,9 +647,9 @@ const methods = {
 		// if the cursor is placed below the last child of a parent item insert the moved item(s) as childs of that parent
 		const sourceParent = this.getParentNode(this.lastSelectedNode)
 		const nextParent = this.getNextSibling(sourceParent.path)
-		if (sourceParent === null || nextParent === null) {
+		if (sourceParent === null) {
 			// cancel the drop
-			this.showLastEvent('Source or destination parent node not found', SEV.ERROR)
+			this.showLastEvent('The parent of the selected node is not found', SEV.ERROR)
 			this.stopDrag()
 			return
 		}
