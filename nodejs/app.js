@@ -1,7 +1,7 @@
 'use strict'
 require('dotenv').config()
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent", "removeCommentFromHistoryEvent", "removedFromParentEvent",
+	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent", "removeCommentFromHistoryEvent", "removedWithDescendantsEvent",
 	"setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
 	"removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
@@ -122,9 +122,9 @@ function mkHtml(dbName, eventType, value, event, doc) {
 			return mkHeader() + `<h3>The last comment on this item is removed.</h3>` + mkFooter()
 		case 'removeCommentFromHistoryEvent':
 			return mkHeader() + `<h3>The last comment on the history of this item is removed.</h3>` + mkFooter()
-		case "removedFromParentEvent":
-			return mkHeader() + `<h3>${getLevelText(dbName, value[0], value[3])} with title: '${value[1]}' and ${value[2]} descendants are removed from this parent</h3>
-            <p>From the descendants ${value[4]} external dependencies and ${value[5]} external conditions were removed.</p>` + mkFooter()
+		case "removedWithDescendantsEvent":
+			return mkHeader() + `<h3>This item and ${value[1] - 1} descendants are removed.</h3>
+          <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>` + mkFooter()
 		case "removeStoryEvent":
 			return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>` + mkFooter()
 		case "setConditionEvent":

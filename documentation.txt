@@ -289,9 +289,8 @@ Y             Y	     Y    nodeMovedEvent	            		move.js
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js
 Y             Y	     Y    removeCommentEvent	        		update.js
 Y             Y	     Y    removeCommentFromHistoryEvent  	update.js
-N             Y	     Y    removedFromParentEvent	      	removebranch.js
 Y 			 			N 	   N    removeItemsFromSprintEvent			planningboard.js
-Y             N      Y    removedWithDescendantsEvent     removebranch.js
+Y             Y      Y    removedWithDescendantsEvent     removebranch.js
 N 			 			Y 	   Y    removeSprintIdsEvent						planningboard.js
 Y 			 			Y 	   Y    removeStoryEvent								planningboard.js
 N			 				N	     Y    resetHistoryEvent								utils.js

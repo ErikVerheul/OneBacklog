@@ -29,10 +29,9 @@ const actions = {
 	* 2. processItemsToRemove, dispatches getChildrenToRemove for every document
 	* 3. getChildrenToRemove, dispatches processItemsToRemove for every parent id and dispatches removeExternalConds when all parent ids are processed
 	* 4. removeExternalConds, dispatches removeExternalDeps
-	* 5. removeExternalDeps, dispatches addHistToRemovedParent, or if a REQAREA item is removed then removeReqAreaAssignments is dispachted
-	* 6. removeReqAreaAssignments, dispatches addHistToRemovedParent
-	* 7. addHistToRemovedParent, dispatches addHistToRemovedDoc and adds history to the parent
-	* 8. addHistToRemovedDoc, adds history to the removed item, updates the tree view and creates undo data
+	* 5. removeExternalDeps, dispatches addHistToRemovedDoc, or if a REQAREA item is removed then removeReqAreaAssignments is dispachted
+	* 6. removeReqAreaAssignments, dispatches addHistToRemovedDoc
+	* 7. addHistToRemovedDoc, adds history to the removed item, updates the tree view and creates undo data
 	* If payload.isUndoAction === true this action is used to undo a branch creation and no undo entry is created (no undo of an undo)
 	*/
 
@@ -237,7 +236,7 @@ const actions = {
 					}
 				}
 				// remove reqarea assignments when removing a requirement area
-				const toDispatch = payload.node.productId === MISC.AREA_PRODUCTID ? [{ removeReqAreaAssignments: payload.node._id }] : [{ addHistToRemovedParent: payload }]
+				const toDispatch = payload.node.productId === MISC.AREA_PRODUCTID ? [{ removeReqAreaAssignments: payload.node._id }] : [{ addHistToRemovedDoc: payload }]
 				dispatch('updateBulk', {
 					dbName: rootState.userData.currentDb, docs, toDispatch, caller: 'removeExternalDeps', onFailureCallback: () => {
 						reset(rootState, payload)
@@ -253,7 +252,7 @@ const actions = {
 				// remove reqarea assignments when removing a requirement area
 				dispatch('removeReqAreaAssignments', payload)
 			} else {
-				dispatch('addHistToRemovedParent', payload)
+				dispatch('addHistToRemovedDoc', payload)
 			}
 		}
 	},
@@ -281,7 +280,7 @@ const actions = {
 				doc.history.unshift(newHist)
 				updatedDocs.push(doc)
 			}
-			const toDispatch = [{ addHistToRemovedParent: payload }]
+			const toDispatch = [{ addHistToRemovedDoc: payload }]
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb, docs: updatedDocs, toDispatch, caller: 'removeReqAreaAssignments', onFailureCallback: () => {
 					reset(rootState, payload)
@@ -290,44 +289,6 @@ const actions = {
 		}).catch(error => {
 			reset(rootState, payload)
 			const msg = `removeReqAreaAssignment: Could not read document with id ${reqArea}. ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	/* Add history to the parent of the removed item */
-	addHistToRemovedParent({
-		rootState,
-		dispatch
-	}, payload) {
-		const id = payload.node.parentId
-		// get the document
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id
-		}).then(res => {
-			const doc = res.data
-
-			const newHist = {
-				removedFromParentEvent: [
-					payload.node.level,
-					payload.node.title,
-					removedDocsCount,
-					payload.node.data.subtype
-				],
-				by: rootState.userData.user,
-				timestamp: Date.now(),
-				distributeEvent: false
-			}
-			doc.history.unshift(newHist)
-
-			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: doc, caller: 'addHistToRemovedParent', toDispatch: [{ addHistToRemovedDoc: payload }], onFailureCallback: () => {
-					reset(rootState, payload)
-				}
-			})
-		}).catch(error => {
-			reset(rootState, payload)
-			const msg = `addHistToRemovedDoc: Could not read the document with id ${id} from database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},

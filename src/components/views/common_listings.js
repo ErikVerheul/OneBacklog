@@ -84,7 +84,6 @@ const computed = {
         if (keys[j] === 'nodeMovedEvent') allText += this.mkNodeMovedEvent(histItem[keys[j]])
         if (keys[j] === 'removeAttachmentEvent') allText += this.mkRemoveAttachmentEvent(histItem[keys[j]])
 				if (keys[j] === 'removeCommentFromHistoryEvent') allText += this.mkRemoveCommentFromHistoryEvent(histItem[keys[j]])
-				if (keys[j] === 'removedFromParentEvent') allText += this.mkRemovedFromParentEvent(histItem[keys[j]])
         if (keys[j] === 'removedWithDescendantsEvent') allText += this.mkRemovedWithDescendantsEvent(histItem[keys[j]])
         if (keys[j] === 'setConditionEvent') allText += this.mkSetConditionsEvent(histItem[keys[j]])
         if (keys[j] === 'setDependencyEvent') allText += this.mkSetDependenciesEvent(histItem[keys[j]])
@@ -162,7 +161,6 @@ const methods = {
     if (key === 'nodeMovedEvent') return this.mkNodeMovedEvent(value)
 		if (key === 'removeCommentFromHistoryEvent') return this.mkRemoveCommentFromHistoryEvent(value)
 		if (key === 'removeAttachmentEvent') return this.mkRemoveAttachmentEvent(value)
-    if (key === 'removedFromParentEvent') return this.mkRemovedFromParentEvent(value)
     if (key === 'removedWithDescendantsEvent') return this.mkRemovedWithDescendantsEvent(value)
     if (key === 'setConditionEvent') return this.mkSetConditionsEvent(value)
     if (key === 'setDependencyEvent') return this.mkSetDependenciesEvent(value)
@@ -287,10 +285,6 @@ const methods = {
       txt += (value[4] > 0) ? `<p>${value[4]} children also changed type.</p>` : ''
       return txt
     }
-  },
-
-  mkRemovedFromParentEvent (value) {
-    return `<h5>The ${this.getLevelText(value[0], value[3])} with title '${value[1]}' and ${value[2] - 1} descendants are removed from this parent.</h5>`
   },
 
   mkRemovedWithDescendantsEvent (value) {
