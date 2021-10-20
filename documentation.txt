@@ -30,7 +30,7 @@ Database--------- backlogItem document -------------------- node
 "comments": []--------------------------------------------- loaded on request
 "history": []---------------------------------------------- loaded on request
 "delmark"(string)------------------------------------------ if present the document is marked for deletion; value 'true' or removal UID in versions > 1.8
-"unremovedMark"(string)------------------------------------ former delmark UID used by the synchronization to sync a remote removal undo
+"unremovedMark"(string)------------------------------------ mark removals and unremovals in the document with a group id to enable nested removals and restores
 "lastPositionChange"--------------------------------------- data.lastPositionChange,
 "lastStateChange"------------------------------------------ data.lastStateChange,
 "lastContentChange"---------------------------------------- data.lastContentChange, // last change of title, description or acceptance criteria

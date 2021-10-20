@@ -4,8 +4,7 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
-// if fromHistory = true one branch is restored, if false one or more products are loaded in the tree
-var fromHistory
+var doSyncRestoreBranch
 var histArray
 var runningThreadsCount
 var unremovedMark
@@ -26,7 +25,7 @@ const state = {
 
 const actions = {
 	/*
-	* Restore (fromHistory = true) one branch or product into the tree view for use by the synchronization.
+	* Restore (sets doSyncRestoreBranch to true) one branch or product into the tree view for use by the synchronization.
 	* This action is used by the synchronization to sync a remote removal undo.
 	* The items are already unremoved by the remote session.
 	* PBI and task documents, assigned to a sprint, are saved for restoring the planning board view, if openened.
@@ -37,7 +36,7 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		fromHistory = true
+		doSyncRestoreBranch = true
 		state.updateThisBoard = payload.updateThisBoard
 		state.sprintId = payload.sprintId
 		state.team = payload.team
@@ -103,12 +102,12 @@ const actions = {
 		})
 	},
 
-	/* LoadProducts (fromHistory = false) is a special case of syncRestoreBranch and called when the default product changed. It can load multiple products */
+	/* LoadProducts (sets doSyncRestoreBranch to false) is a special case of syncRestoreBranch and called when the default product changed. It can load multiple products */
 	loadProducts({
 		rootState,
 		dispatch
 	}, payload) {
-		fromHistory = false
+		doSyncRestoreBranch = false
 		const docIdsToGet = []
 		for (const id of payload.missingIds) {
 			docIdsToGet.push({ id: id })
@@ -139,12 +138,16 @@ const actions = {
 		})
 	},
 
+	/*
+	* This action is used by syncRestoreBranch (doSyncRestoreBranch = true) to load the children to restore one branch and restore its external dependencies and conditions,
+	* or by loadProducts (doSyncRestoreBranch = false) to load the children of one or more products.
+	*/
 	loadChildNodes({
 		rootState,
 		dispatch
 	}, payload) {
 		runningThreadsCount++
-		const url = fromHistory ? `${rootState.userData.currentDb}/_design/design1/_view/unremovedDocToParentMap?${composeRangeString1(payload.parentNode._id)}&include_docs=true` :
+		const url = doSyncRestoreBranch ? `${rootState.userData.currentDb}/_design/design1/_view/unremovedDocToParentMap?${composeRangeString1(payload.parentNode._id)}&include_docs=true` :
 			`${rootState.userData.currentDb}/_design/design1/_view/docToParentMap?${composeRangeString2(payload.parentNode._id)}&include_docs=true`
 		globalAxios({
 			method: 'GET',
@@ -157,7 +160,7 @@ const actions = {
 			} else {
 				if (runningThreadsCount === 0) {
 					// db iteration ready; the nodes are restored
-					if (fromHistory) {
+					if (doSyncRestoreBranch) {
 						// restore external dependencies
 						const dependencies = dedup(histArray[3])
 						for (const d of dependencies) {

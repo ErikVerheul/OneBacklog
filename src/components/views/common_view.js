@@ -531,7 +531,7 @@ const methods = {
 				this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoRemove':
-				this.$store.dispatch('undoRemovedItemAndDescendants', entry)
+				this.$store.dispatch('undoRemovedBranch', entry)
 				break
 			case 'undoRemoveSprintIds':
 				this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName, isUndoAction })
