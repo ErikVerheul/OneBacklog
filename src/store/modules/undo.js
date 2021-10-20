@@ -20,17 +20,17 @@ const actions = {
 	/*
 	* Undo removal of a branch
 	* Order of execution:
-	* 1. unremove the parent
-	* 2. unremove the descendants
+	* 1. unremove the branch root document
+	* 2. unremove the descendant documents
 	* 3. restore the external dependencies & conditions
 	* 4. if a req area item is restored, restore the removed references to the requirement area
-	* 5. add history to the parent's parent to trigger the distribution (distributeEvent: true)
+	* 5. add history to the branch root document's parent to trigger the distribution (distributeEvent: true)
 	* 6. update the tree view
 	* If any of these steps fail the next steps are not executed but not undone
 	*/
 
-	/* The parent is the removed node and parent of the removed children. The grandParent is the parent of the removed node and was not removed. */
-	undoRemovedItemAndDescendants({
+	/* The branch root document matches the removed node. The branch root parent is the parent of the removed node and was not removed. */
+	undoRemovedBranch({
 		rootState,
 		dispatch
 	}, entry) {
@@ -67,17 +67,17 @@ const actions = {
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb, updatedDoc: updatedParentDoc, toDispatch: [{ restoreDescendants: { parentId: globalEntry.removedNode._id } }], onFailureCallback: () => {
 					rootState.busyWithLastUndo = false
-				}, caller: 'undoRemovedItemAndDescendants'
+				}, caller: 'undoRemovedBranch'
 			})
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
-			const msg = `undoRemovedItemAndDescendants: Could not read document with _id ${_id}. ${error}`
+			const msg = `undoRemovedBranch: Could not read document with _id ${_id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
 	/*
-	* Executes the passed action on all removed descendants of the parent.
+	* Executes the passed action on all removed descendants of the branch root document.
 	* Starts restoreExtDepsAndConds if all restoreDescendants threads have finished.
 	* Do not reset the busyWithLastUndo as one of the instances fails.
 	*/
@@ -195,8 +195,8 @@ const actions = {
 		})
 	},
 
-	/* The parent is the removed node and parent of the removed children. The grandParent is the parent of the removed node and was not removed. */
-	updateGrandParentHist({
+	/* The branch root document matches the removed node. The branch root parent is the parent of the removed node and was not removed. */
+	updateRemovedBranchRootHist({
 		rootState,
 		commit,
 		dispatch
@@ -206,7 +206,7 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id
 		}).then(res => {
-			const grandParentDoc = res.data
+			const removedBranchRootDoc = res.data
 			const newHist = {
 				undoBranchRemovalEvent: [globalEntry.removedNode._id, descendantNodesRestoredCount, globalEntry.removedIntDependencies, globalEntry.removedExtDependencies,
 				globalEntry.removedIntConditions, globalEntry.removedExtConditions, globalEntry.removedProductRoles, 'not in use', globalEntry.itemsRemovedFromReqArea,
@@ -217,15 +217,15 @@ const actions = {
 				distributeEvent: true,
 				updateBoards: { sprintsAffected, teamsAffected }
 			}
-			grandParentDoc.history.unshift(newHist)
+			removedBranchRootDoc.history.unshift(newHist)
 
 			// unmark for removal in case it was removed
-			if (grandParentDoc.delmark) {
+			if (removedBranchRootDoc.delmark) {
 				commit('showLastEvent', { txt: 'The document representing the item to restore under was removed. The removal is made undone.', severity: SEV.WARNING })
-				delete grandParentDoc.delmark
+				delete removedBranchRootDoc.delmark
 			}
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: grandParentDoc, caller: 'updateGrandParentHist', onSuccessCallback: () => {
+				dbName: rootState.userData.currentDb, updatedDoc: removedBranchRootDoc, caller: 'updateRemovedBranchRootHist', onSuccessCallback: () => {
 					// FOR PRODUCTS OVERVIEW ONLY: when undoing the removal of a requirement area, items must be reassigned to this area
 					if (globalEntry.removedNode.productId === MISC.AREA_PRODUCTID) {
 						window.slVueTree.traverseModels((nm) => {
@@ -286,7 +286,7 @@ const actions = {
 			})
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
-			const msg = `updateGrandParentHist: Could not read document with _id ${_id}. ${error}`
+			const msg = `updateRemovedBranchRootHist: Could not read document with _id ${_id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -312,7 +312,7 @@ const actions = {
 				// restore the removed references to the requirement area
 				dispatch('restoreReqarea', globalEntry)
 			} else {
-				dispatch('updateGrandParentHist', globalEntry)
+				dispatch('updateRemovedBranchRootHist', globalEntry)
 			}
 			return
 		}
@@ -357,7 +357,7 @@ const actions = {
 				const msg = `restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored. ${errorStr}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
-			const toDispatch = globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateGrandParentHist: globalEntry }]
+			const toDispatch = globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateRemovedBranchRootHist: globalEntry }]
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb, docs, toDispatch, onFailureCallback: () => {
 					rootState.busyWithLastUndo = false
@@ -380,7 +380,7 @@ const actions = {
 			docsToGet.push({ id: id })
 		}
 		if (docsToGet.length === 0) {
-			dispatch('updateGrandParentHist', globalEntry)
+			dispatch('updateRemovedBranchRootHist', globalEntry)
 			return
 		}
 		globalAxios({
@@ -404,7 +404,7 @@ const actions = {
 				}
 			}
 			dispatch('updateBulk', {
-				dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateGrandParentHist: globalEntry }], onFailureCallback: () => {
+				dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateRemovedBranchRootHist: globalEntry }], onFailureCallback: () => {
 					rootState.busyWithLastUndo = false
 				}, caller: 'restoreReqarea'
 			})
