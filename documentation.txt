@@ -29,8 +29,8 @@ Database--------- backlogItem document -------------------- node
 "sprintId"(string)----------------------------------------- data.sprintId
 "comments": []--------------------------------------------- loaded on request
 "history": []---------------------------------------------- loaded on request
-"delmark"(string)------------------------------------------ if present the document is marked for deletion; value 'true' or removal UID in versions > 1.8
-"unremovedMark"(string)------------------------------------ mark removals and unremovals in the document with a group id to enable nested removals and restores
+"delmark"(string)------------------------------------------ if present the document is marked for deletion with a group removal UID (in versions > 1.8)
+"unremovedMark"(string)------------------------------------ mark the unremoval of the document with the remove group id (delmark value) to enable nested removals and undos
 "lastPositionChange"--------------------------------------- data.lastPositionChange,
 "lastStateChange"------------------------------------------ data.lastStateChange,
 "lastContentChange"---------------------------------------- data.lastContentChange, // last change of title, description or acceptance criteria

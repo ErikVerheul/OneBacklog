@@ -352,8 +352,8 @@ const actions = {
 					/* Filter on delmark and parentId to map removed documents to their parent in order of priority */
 					removedDocToParentMap: {
 						map: `function(doc) {
-							// doc.delmark can be undefined, boolean true or an id; doc.priority is used to order the results when on the same doc.level
-  						if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority], 1)
+							// doc.delmark can be undefined or an id; doc.priority is used to order the results when on the same doc.level
+  						if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority])
 						}`
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
