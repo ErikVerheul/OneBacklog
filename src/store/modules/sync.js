@@ -783,7 +783,7 @@ const actions = {
 			histEvent === 'changeReqAreaColorEvent' || (histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) || (rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
 	},
 
-	/* Listen for document changes. The timeout, if no changes are available is 60 seconds (default maximum) */
+	/* Listen for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
 	listenForChanges({
 		rootState,
 		dispatch,
@@ -822,6 +822,11 @@ const actions = {
 			}
 		}).catch(error => {
 			rootState.listenForChangesRunning = false
+			if (error.response && error.response.status === 404) {
+				// database not found; cannot log; possible cause is that the server admin is restoring the current database
+				commit('endSession')
+				return
+			}
 			if (error.message === 'Request aborted') {
 				// the user typed F5 or Ctrl-F5
 				commit('endSession')
