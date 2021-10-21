@@ -236,7 +236,7 @@ const actions = {
 					}
 					if (globalEntry.isProductRemoved) {
 						// re-enter the users roles for this product and update the user's subscriptions and product selection arrays with the re-entered product
-						dispatch('addToMyProducts', { newRoles: globalEntry.removedProductRoles, productId: _id, productTitle: globalEntry.removedNode.title })
+						dispatch('addToMyProducts', { newRoles: globalEntry.removedProductRoles, productId: globalEntry.removedNode._id, productTitle: globalEntry.removedNode.title })
 					}
 					const path = globalEntry.removedNode.path
 					const prevNode = window.slVueTree.getPreviousNode(path)
