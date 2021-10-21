@@ -26,7 +26,7 @@ const actions = {
 				console.log(
 					`listenForChanges @ ${String(new Date()).substring(0, 24)}: document with _id ${doc._id} is processed, priority = ${doc.priority}, sprintId = ${doc.sprintId}, current view = ${rootState.currentView},
 				commentsEvent = ${commentsEvent}, timestamp = ${String(new Date(lastCommentsTimestamp)).substring(0, 24)}, processComment = ${processComment} title = '${doc.title}',
-				histEvent = ${histEvent}, distributed = ${lastHistObj.distributeEvent}, timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}, processHistory = ${processHistory}, title = '${doc.title}',
+				histEvent = ${histEvent}, timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}, processHistory = ${processHistory}, title = '${doc.title}',
 				updateTree = ${updateTree}, updateThisBoard = ${updateThisBoard}`)
 			}
 			rootState.eventSyncColor = '#e6f7ff'
