@@ -1,9 +1,9 @@
 'use strict'
 require('dotenv').config()
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent", "removeCommentFromHistoryEvent", "removedWithDescendantsEvent",
-	"setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
-	"removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
+	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent",
+	"removeCommentFromHistoryEvent", "removedWithDescendantsEvent", "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent",
+	"setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
 const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
 const atob = require('atob')
 const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' })
