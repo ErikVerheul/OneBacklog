@@ -6,6 +6,19 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.14 - 21 October 2021 Bug and security fixes, tools update</h3>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Data loss on cuncurrent and overlapping branch/product removal and undo, fixed</li>
+          </ul>
+          <p>Security:</p>
+          <ul>
+            <li>Security issue in dependencies fixed; dev tools updated</li>
+          </ul>
+					<p>Tools:</p>
+          <ul>
+            <li>Dev tools updated</li>
+          </ul>
 					<h3>v.1.13 - 16 October 2021 Feature update and bug and security fixes</h3>
           <p>New features:</p>
           <ul>
