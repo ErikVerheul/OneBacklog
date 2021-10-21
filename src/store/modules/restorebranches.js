@@ -89,15 +89,15 @@ const actions = {
 					}
 					commit('showLastEvent', { txt: `The items removed in another session are restored`, severity: SEV.INFO })
 				} else {
-					const msg = `syncRestoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The parent node is missing`
+					const msg = `syncRestoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants from database ${rootState.userData.currentDb}. The parent node is missing`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				}
 			} else {
-				const msg = `syncRestoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants in database ${rootState.userData.currentDb}. The unremovedMark is missing`
+				const msg = `syncRestoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants from database ${rootState.userData.currentDb}. The unremovedMark is missing`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
 		}).catch(error => {
-			const msg = `syncRestoreBranch: Could not load the removed document with id ${removedDocId} in database ${rootState.userData.currentDb}, ${error}`
+			const msg = `syncRestoreBranch: Could not load the removed branch root document with id ${removedDocId} in database ${rootState.userData.currentDb}, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
