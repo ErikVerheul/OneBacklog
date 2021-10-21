@@ -195,8 +195,8 @@ const actions = {
 		})
 	},
 
-	/* The branch root document matches the removed node. The branch root parent is the parent of the removed node and was not removed. */
-	updateRemovedBranchRootHist({
+	/* The branch root parent is the parent of the removed node and was not removed. */
+	updateRemovedBranchParentHist({
 		rootState,
 		commit,
 		dispatch
@@ -219,13 +219,13 @@ const actions = {
 			}
 			removedBranchRootDoc.history.unshift(newHist)
 
-			// unmark for removal in case it was removed
+			// quit the undo if the branch parent is missing
 			if (removedBranchRootDoc.delmark) {
-				commit('showLastEvent', { txt: 'The document representing the item to restore under was removed. The removal is made undone.', severity: SEV.WARNING })
-				delete removedBranchRootDoc.delmark
+				commit('showLastEvent', { txt: 'Cannot undo the removal. The document representing the item to restore under was removed.', severity: SEV.WARNING })
+				return
 			}
 			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb, updatedDoc: removedBranchRootDoc, caller: 'updateRemovedBranchRootHist', onSuccessCallback: () => {
+				dbName: rootState.userData.currentDb, updatedDoc: removedBranchRootDoc, caller: 'updateRemovedBranchParentHist', onSuccessCallback: () => {
 					// FOR PRODUCTS OVERVIEW ONLY: when undoing the removal of a requirement area, items must be reassigned to this area
 					if (globalEntry.removedNode.productId === MISC.AREA_PRODUCTID) {
 						window.slVueTree.traverseModels((nm) => {
@@ -286,7 +286,7 @@ const actions = {
 			})
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
-			const msg = `updateRemovedBranchRootHist: Could not read document with _id ${_id}. ${error}`
+			const msg = `updateRemovedBranchParentHist: Could not read document with _id ${_id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -312,7 +312,7 @@ const actions = {
 				// restore the removed references to the requirement area
 				dispatch('restoreReqarea', globalEntry)
 			} else {
-				dispatch('updateRemovedBranchRootHist', globalEntry)
+				dispatch('updateRemovedBranchParentHist', globalEntry)
 			}
 			return
 		}
@@ -357,7 +357,7 @@ const actions = {
 				const msg = `restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored. ${errorStr}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
-			const toDispatch = globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateRemovedBranchRootHist: globalEntry }]
+			const toDispatch = globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateRemovedBranchParentHist: globalEntry }]
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb, docs, toDispatch, onFailureCallback: () => {
 					rootState.busyWithLastUndo = false
@@ -380,7 +380,7 @@ const actions = {
 			docsToGet.push({ id: id })
 		}
 		if (docsToGet.length === 0) {
-			dispatch('updateRemovedBranchRootHist', globalEntry)
+			dispatch('updateRemovedBranchParentHist', globalEntry)
 			return
 		}
 		globalAxios({
@@ -404,7 +404,7 @@ const actions = {
 				}
 			}
 			dispatch('updateBulk', {
-				dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateRemovedBranchRootHist: globalEntry }], onFailureCallback: () => {
+				dbName: rootState.userData.currentDb, docs, toDispatch: [{ updateRemovedBranchParentHist: globalEntry }], onFailureCallback: () => {
 					rootState.busyWithLastUndo = false
 				}, caller: 'restoreReqarea'
 			})
