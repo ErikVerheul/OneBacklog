@@ -9,11 +9,11 @@
 					<h3>v.1.14 - 21 October 2021 Bug and security fixes, tools update</h3>
           <p>Bug fixes:</p>
           <ul>
-            <li>Data loss on cuncurrent and overlapping branch/product removal and undo, fixed</li>
+            <li>Data loss on concurrent and overlapping branch/product removal and undo, fixed</li>
           </ul>
           <p>Security:</p>
           <ul>
-            <li>Security issue in dependencies fixed; dev tools updated</li>
+            <li>Security issue in dependencies fixed</li>
           </ul>
 					<p>Tools:</p>
           <ul>
