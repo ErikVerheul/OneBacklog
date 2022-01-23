@@ -1,57 +1,45 @@
 {
   "name": "onebacklog",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/vue-fontawesome": "^2.0.2",
-    "ajv": "^6.12.6",
-    "ajv-keywords": "^3.5.2",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
-    "core-js": "^3.16.1",
-    "jquery": "^3.6.0",
-    "serve": "^11.3.2",
     "vue": "^2.6.14",
     "vue-multipane": "^0.9.5",
     "vue-router": "^3.5.2",
     "vue2-editor": "^2.10.2",
     "vuedraggable": "^2.24.3",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2"   
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.5.13",
-    "@vue/cli-plugin-eslint": "^4.5.13",
-    "@vue/cli-plugin-router": "^4.5.13",
-    "@vue/cli-plugin-vuex": "^4.5.13",
-    "@vue/cli-service": "^4.5.13",
-    "babel-eslint": "^10.1.0",
+    "@vitejs/plugin-vue": "^1.6.1",
+    "vite": "^2.7.13",
+    
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "node-sass": "^4.14.1",
-    "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.6.14"
+    "eslint-plugin-vue": "^6.2.2",    
+    "vite-plugin-vue2": "1.8.1",
+    "sass": "1.32.12"
   },
   "eslintConfig": {
     "root": true,
     "env": {
-      "es6": true,
-      "node": true
+      "es2021": true
     },
     "extends": [
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
     "rules": {
       "no-console": 2,
       "semi": [
@@ -59,10 +47,5 @@
         "never"
       ]
     }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+  }
 }

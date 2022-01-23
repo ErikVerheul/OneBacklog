@@ -404,7 +404,7 @@ export default {
     },
 
     doFauxton() {
-      window.open(process.env.VUE_APP_API_URL + '/_utils/#/documentation', '_blank')
+      window.open(import.meta.env.VITE_API_URL + '/_utils/#/documentation', '_blank')
       this.fauxtonStarted = true
     },
 

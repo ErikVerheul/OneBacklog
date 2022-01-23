@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import StoryItem from './StoryItem'
+import StoryItem from './StoryItem.vue'
 
 export default {
   name: 'StoryColumn',
