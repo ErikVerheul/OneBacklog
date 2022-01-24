@@ -5,18 +5,6 @@ import router from './router'
 import store from './store/store'
 import './fa.config'
 
-if (import.meta.env.VITE_DEBUG === true) {
-	// eslint-disable-next-line no-console
-	console.log('import.meta.env.VITE_IS_DEMO = ' + import.meta.env.VITE_IS_DEMO)
-	// eslint-disable-next-line no-console
-	console.log('import.meta.env.VITE_DEBUG = ' + import.meta.env.VITE_DEBUG)
-	// eslint-disable-next-line no-console
-	console.log('import.meta.env.VITE_DEBUG_CONNECTION = ' + import.meta.env.VITE_DEBUG_CONNECTION)
-	// eslint-disable-next-line no-console
-	console.log('import.meta.env.VITE_SITE_URL = ' + import.meta.env.VITE_SITE_URL)
-	// eslint-disable-next-line no-console
-	console.log('import.meta.env.VITE_API_URL = ' + import.meta.env.VITE_API_URL)
-}
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.withCredentials = true
 

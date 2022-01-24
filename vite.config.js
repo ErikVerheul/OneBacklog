@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import fs from 'fs'
-// import vue from '@vitejs/plugin-vue' for Vue3
+// import vue from '@vitejs/plugin-vue' // for Vue3
 import { createVuePlugin as vue } from "vite-plugin-vue2" // for Vue2
 
 // see https://vitejs.dev/config/

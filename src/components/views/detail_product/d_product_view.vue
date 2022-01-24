@@ -300,7 +300,6 @@
 <script src="./d_product_view.js"></script>
 
 <style lang="scss" scoped>
-@import "../../../css/sl-vue-tree-dark.css";
 
 // horizontal panes
 .horizontal-panes {
@@ -417,13 +416,6 @@
 
 .tree-container {
   flex-grow: 1;
-  height: 100%;
-}
-
-.sl-vue-tree.sl-vue-tree-root {
-  flex-grow: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
   height: 100%;
 }
 
