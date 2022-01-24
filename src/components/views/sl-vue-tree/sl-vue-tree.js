@@ -969,9 +969,9 @@ const methods = {
 			this.showDependencyViolations(violations, this.isOverviewSelected)
 		} else {
 			// reset the tree view
-			const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getCurrentProductModel()
+			const nodesToScan = this.isOverviewSelected ? undefined : getCurrentProductModel()
 			// traverse the tree to reset to the tree view state
-			window.slVueTree.traverseModels((nm) => {
+			traverseModels((nm) => {
 				// skip root level
 				if (nm.level === LEVEL.DATABASE) return
 				// skip requirement areas dummy product items
