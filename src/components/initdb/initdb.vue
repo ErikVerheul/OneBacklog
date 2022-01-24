@@ -62,11 +62,11 @@ import AppHeader from '../header/header.vue'
 export default {
   /* Prevent accidental reloading of this page */
   beforeMount() {
-    window.addEventListener("beforeunload", this.preventNav)
+    window.addEventListener("beforeUnload", this.preventNav)
   },
 
   beforeDestroy() {
-    window.removeEventListener("beforeunload", this.preventNav)
+    window.removeEventListener("beforeUnload", this.preventNav)
   },
 
   mounted() {

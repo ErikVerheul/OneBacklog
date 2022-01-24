@@ -4,11 +4,11 @@ import common_admin from './common_admin'
 
 /* Prevent accidental reloading of this page */
 function beforeMount() {
-	window.addEventListener("beforeunload", this.preventNav)
+	window.addEventListener("beforeUnload", this.preventNav)
 }
 
 function beforeDestroy() {
-	window.removeEventListener("beforeunload", this.preventNav)
+	window.removeEventListener("beforeUnload", this.preventNav)
 }
 
 function mounted() {

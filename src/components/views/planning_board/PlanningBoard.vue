@@ -109,11 +109,11 @@ export default {
 
   /* Prevent accidental reloading of this page */
   beforeMount() {
-    window.addEventListener("beforeunload", this.preventNav)
+    window.addEventListener("beforeUnload", this.preventNav)
   },
 
   beforeDestroy() {
-    window.removeEventListener("beforeunload", this.preventNav)
+    window.removeEventListener("beforeUnload", this.preventNav)
     this.unsubscribe()
   },
 
