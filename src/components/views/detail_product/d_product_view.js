@@ -22,8 +22,6 @@ function beforeCreate() {
 		// reset filters and searches
 		this.$store.state.filterTreeIsSet = false
 		this.$store.state.resetSearch = {}
-
-		this.$store.dispatch('loadProductDetails')
 	} else returning = true
 }
 
@@ -34,18 +32,21 @@ function created() {
 
 /* Prevent accidental reloading of this page */
 function beforeMount() {
-	window.addEventListener("beforeunload", this.preventNav)
+	window.addEventListener("beforeUnload", this.preventNav)
 }
 
 function beforeDestroy() {
-	window.removeEventListener("beforeunload", this.preventNav)
+	window.removeEventListener("beforeUnload", this.preventNav)
 }
 
 function mounted() {
 	// expose instance to the global namespace
-	window.slVueTree = this.$refs.slVueTree
+	window.slVueTree = this.$refs.slVueTreeRef
+	console.log('d_product_view.js: slVueTree exposed globaly')
 	if (returning) {
 		this.showLastEvent('Returning to the Product details', SEV.INFO)
+	} else {
+		this.$store.dispatch('loadProductDetails')
 	}
 }
 
