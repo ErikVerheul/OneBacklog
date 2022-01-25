@@ -20,8 +20,6 @@ function beforeCreate() {
 		// reset filters and searches
 		this.$store.state.filterTreeIsSet = false
 		this.$store.state.resetSearch = {}
-
-		this.$store.dispatch('loadOverview')
 	} else returning = true
 }
 
@@ -41,9 +39,11 @@ function beforeDestroy() {
 
 function mounted() {
 	// expose instance to the global namespace
-	window.slVueTree = this.$refs.slVueTree
+	window.slVueTree = this.$refs.slVueTreeRef
 	if (returning) {
 		this.showLastEvent('Returning to the Products overview', SEV.INFO)
+	} else {
+		this.$store.dispatch('loadOverview')
 	}
 }
 

@@ -73,7 +73,7 @@
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
-          <sl-vue-tree :value="$store.state.treeNodes" ref="slVueTree" :allow-multiselect="true" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
+          <sl-vue-tree :value="$store.state.treeNodes" ref="slVueTreeRef" :allow-multiselect="true" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
