@@ -305,7 +305,7 @@ cd to the root directory of this app and use your favorate editor to create a fi
 VUE_APP_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
 VUE_APP_DEBUG=false // set to true to see console log messages on most critical events
 VUE_APP_DEBUG_CONNECTION=false // set to true to see console log messages regarding the cooky renewal
-VUE_APP_SSL_PATH=< local ssl install directory > // MUST CHANGE
+VUE_APP_SSL_PATH=< local ssl install directory > // MUST CHANGE if your certificates live elsewhere
 VUE_APP_SITE_URL=https://localhost:8080 # or https://<your remote host> when the CouchDb instance is hosted in the cloud
 VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
 ```
