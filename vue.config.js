@@ -12,7 +12,6 @@ module.exports = {
     https: true,
     key: fs.readFileSync(process.env.VUE_APP_SSL_PATH + '/localhost.key'),
     cert: fs.readFileSync(process.env.VUE_APP_SSL_PATH + '/localhost.crt'),
-    ca: fs.readFileSync(process.env.VUE_APP_SSL_PATH + '/RootCA.pem')
   } : {},
 
   productionSourceMap: false
