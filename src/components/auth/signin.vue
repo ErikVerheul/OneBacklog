@@ -20,10 +20,7 @@
             </div>
           </b-form>
         </div>
-        <div
-          v-if="!this.$store.state.demo"
-          class="text-center big-margin"
-        >No account yet? Ask your SM or PO to create one.</div>
+        <div v-if="!this.$store.state.demo" class="text-center big-margin">No account yet? Ask your SM or PO to create one.</div>
         <div class="text-center">
           This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
           MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu.
@@ -40,7 +37,8 @@
             <b>demoUser</b>.
           </p>
           <p>
-            Note that demoUser has the overall permission of Area PO and the permissions of "PO", "developer" and "guest" for the 'Register your feature proposals and bug findings here' and 'Feel free to play with this product'.
+            Note that demoUser has the overall permission of Area PO and the permissions of "PO", "developer" and "guest" for the 'Register your feature proposals and bug findings here' and 'Feel free
+            to play with this product'.
             <br />So you can do almost everything. Please do not remove other peoples entries.
           </p>
         </div>
@@ -50,22 +48,27 @@
 </template>
 
 <script>
-export default {
-  data () {
-    return {
-      name: '',
-      password: ''
-    }
-  },
-  methods: {
-    onSubmit () {
-      const formData = {
-        name: this.name,
-        password: this.password
-      }
-      this.$store.dispatch('signin', formData)
-    }
+
+function data() {
+  return {
+    name: '',
+    password: ''
   }
+}
+
+const methods = {
+  onSubmit() {
+    const formData = {
+      name: this.name,
+      password: this.password
+    }
+    this.$store.dispatch('signin', formData)
+  }
+}
+
+export default {
+  data,
+  methods
 }
 
 </script>
@@ -118,7 +121,7 @@ export default {
 
 .submit button:hover,
 .submit button:active {
-  background-color:  #408fae;
+  background-color: #408fae;
   color: white;
 }
 
