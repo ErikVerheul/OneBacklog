@@ -1,5 +1,6 @@
 import { SEV, LEVEL } from '../../../constants.js'
 import { getSprintNameById } from '../../../common_functions.js'
+import { utilities } from '../../mixins/generic.js'
 import commonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
@@ -251,7 +252,7 @@ const methods = {
 			}
 
 			// move the node to the new place and update the productId and parentId; movedNode is updated by this call
-			const moveDataContainer = window.slVueTree.moveNodes([this.movedNode], targetPosition)
+			const moveDataContainer = this.moveNodes([this.movedNode], targetPosition)
 
 			// update the database
 			this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer })
@@ -320,6 +321,7 @@ const methods = {
 }
 
 export default {
+	mixins: [utilities],
 	extends: commonContext,
 	created,
 	data,

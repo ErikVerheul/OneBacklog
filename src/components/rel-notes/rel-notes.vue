@@ -6,6 +6,16 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.15 - 25 Januari 2022 Security fixes, refactoring</h3>
+          <p>Security:</p>
+          <ul>
+            <li>Security issues in dependencies fixed</li>
+          </ul>
+					<p>Refactoring:</p>
+          <ul>
+            <li>Example localhost certificates made available in the distribution</li>
+						<li>Other minor refactoring</li>
+          </ul>
 					<h3>v.1.14 - 21 October 2021 Bug and security fixes, tools update</h3>
           <p>Bug fixes:</p>
           <ul>

@@ -40,7 +40,6 @@ function beforeDestroy() {
 function mounted() {
 	// expose instance to the global namespace
 	window.slVueTree = this.$refs.slVueTreeRef
-	console.log('c_product_view.js: slVueTree exposed globaly')
 	if (returning) {
 		this.showLastEvent('Returning to the Products overview', SEV.INFO)
 	} else {
