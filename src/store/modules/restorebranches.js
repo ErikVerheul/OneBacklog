@@ -184,6 +184,7 @@ const actions = {
 	},
 
 	createChildNodes({
+		rootState,
 		commit,
 		dispatch
 	}, payload) {
