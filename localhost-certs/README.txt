@@ -3,4 +3,4 @@ To avoid your browser to show a warning about a self-signed certificate you shou
 Add localhost: 127.0.0.1 to your hosts file if not already present.
 The same article also explains how to create a self-signed certificate and root CA your self.
 
-Note: These ceritfiactes will not work on the Internet. They are trusted only on your system.
+Note: These certificates will not work on the Internet. They are trusted only on your system.
