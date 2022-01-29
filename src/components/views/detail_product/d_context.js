@@ -26,8 +26,6 @@ const methods = {
 	showContextMenu(node) {
 		if (this.$store.state.selectedNodes.length === 1) {
 			// select and load the item
-			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
-			const fromContextMenu = true
 			this.contextOptionSelected = undefined
 			this.listItemText = ''
 			this.showAssistance = false
