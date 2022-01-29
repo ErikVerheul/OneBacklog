@@ -22,6 +22,7 @@ function beforeCreate() {
 		// reset filters and searches
 		this.$store.state.filterTreeIsSet = false
 		this.$store.state.resetSearch = {}
+		returning = false
 	} else returning = true
 }
 
