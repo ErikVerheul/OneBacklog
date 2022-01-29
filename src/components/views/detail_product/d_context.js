@@ -28,7 +28,6 @@ const methods = {
 			// select and load the item
 			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
 			const fromContextMenu = true
-			this.$store.state.helpersRef.emitSelect(fromContextMenu)
 			this.contextOptionSelected = undefined
 			this.listItemText = ''
 			this.showAssistance = false
