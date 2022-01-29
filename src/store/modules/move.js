@@ -133,7 +133,7 @@ const actions = {
 					const doc = envelope.ok
 					const item = getPayLoadItem(doc._id)
 					const targetLevel = m.sourceLevel + m.levelShift
-					const descendantsMetaData = window.slVueTree.getDescendantsInfoOnId(doc._id)
+					const descendantsMetaData = rootState.helpersRef.getDescendantsInfoOnId(doc._id)
 					// find the affected sprints
 					const sprintsAffected = []
 					if (item.sourceSprintId) sprintsAffected.push(item.sourceSprintId)

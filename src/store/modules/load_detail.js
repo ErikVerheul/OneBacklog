@@ -169,8 +169,6 @@ const mutations = {
 				orphansFound.push({ id: _id, parentId, productId })
 			}
 		}
-		window.slVueTree.setDescendantsReqArea()
-		window.slVueTree.dependencyViolationsFound()
 	}
 }
 
@@ -195,12 +193,18 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id
 		}).then(res => {
+			// after this assignment the access rights can be set in the store
 			rootState.currentProductId = _id
 			rootState.currentProductTitle = res.data.title
 			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('loadProductDetails: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
-			dispatch('loadAssignedAndSubscribed')
+			dispatch('loadAssignedAndSubscribed', {
+				onSuccessCallback: () => {
+					rootState.helpersRef.setDescendantsReqArea()
+					rootState.helpersRef.dependencyViolationsFound()
+				}
+			})
 		}).catch(error => {
 			let msg = `loadProductDetails: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
 			if (error.response && error.response.status === 404) {
@@ -217,7 +221,7 @@ const actions = {
 		state,
 		commit,
 		dispatch
-	}) {
+	}, payload) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/details'
@@ -244,8 +248,11 @@ const actions = {
 					dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
 				}
 			}
-			// all products are read; do not start listenForChanges again after sign-out/in
+
+			// all products are read; initialize the helpers functions
+			dispatch('createHelpers')
 			if (!rootState.listenForChangesRunning) {
+				// do not start listenForChanges again after sign-out/in
 				dispatch('listenForChanges')
 				// eslint-disable-next-line no-console
 				if (rootState.debug) console.log('loadAssignedAndSubscribed: listenForChanges is started')
@@ -254,6 +261,7 @@ const actions = {
 			parentNodes = {}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(res.data.rows.length + ' documents are loaded')
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
 		}).catch(error => {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(`loadAssignedAndSubscribed: Could not read a product from database ${rootState.userData.currentDb}, ${error}`)

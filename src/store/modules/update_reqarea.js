@@ -219,17 +219,18 @@ const actions = {
 
 	/* Update the tree with synced requirent area change assignment */
 	updateReqAreaInTree({
+		rootState,
 		commit,
 	}, hist) {
 		const parentId = hist.updateReqAreaEvent[0]
 		const oldReqArea = hist.updateReqAreaEvent[1]
 		const newReqAreaId = hist.updateReqAreaEvent[2]
 		const timestamp = hist.timeStamp
-		const node = window.slVueTree.getNodeById(parentId)
+		const node = rootState.helpersRef.getNodeById(parentId)
 		if (node) {
 			commit('updateNodesAndCurrentDoc', { node, reqarea: newReqAreaId, lastChange: timestamp, newHist: hist })
 			commit('showLastEvent', { txt: `Another user assigned the requirement area '${hist.updateReqAreaEvent[3]}' to item '${node.title}'`, severity: SEV.INFO })
-			const descendants = window.slVueTree.getDescendantsInfo(node).descendants
+			const descendants = rootState.helpersRef.getDescendantsInfo(node).descendants
 			for (const d of descendants) {
 				const currentReqArea = d.data.reqarea
 				if (newReqAreaId !== null) {

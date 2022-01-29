@@ -41,8 +41,6 @@ function beforeDestroy() {
 }
 
 function mounted() {
-	// expose instance to the global namespace
-	window.slVueTree = this.$refs.slVueTreeRef
 	if (returning) {
 		this.showLastEvent('Returning to the Product details', SEV.INFO)
 	} else {
@@ -141,7 +139,7 @@ const methods = {
 				const currentProductId = this.$store.state.currentProductId
 				if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
 					// another product is selected; reset the tree filter and Id selection or title search on the current product
-					const productModels = window.slVueTree.getProductModel(currentProductId)
+					const productModels = this.$store.state.helpersRef.getProductModel(currentProductId)
 					this.$store.dispatch('resetFilterAndSearches', {
 						caller: 'onNodesSelected', productModels, onSuccessCallback: () => {
 							// collapse the currently selected product and switch and expand to the newly selected product
@@ -163,13 +161,13 @@ const methods = {
 		 * 4. Disallow the drop of multiple nodes within the range of the selected nodes.
 		 * precondition: the selected nodes have all the same parent (same level)
 		 */
-		const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
+		const parentNode = position.placement === 'inside' ? position.nodeModel : this.$store.state.helpersRef.getParentNode(position.nodeModel)
 		// cancel quietly if getParentNode(position.nodeModel) returns null (not found)
 		if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > LEVEL.TASK
+				const failedCheck3 = (targetLevel + this.$store.state.helpersRef.getDescendantsInfo(node).depth) > LEVEL.TASK
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0

@@ -130,19 +130,19 @@ const methods = {
 							// another product is selected; collapse the currently selected product and switch to the new product
 							this.$store.commit('switchCurrentProduct', this.newDefaultProductId)
 							// select new default product node
-							window.slVueTree.selectNodeById(this.newDefaultProductId)
+							this.$store.state.helpersRef.selectNodeById(this.newDefaultProductId)
 						}
 						// remove unselected products from the tree view
 						for (const id of myOldSubscriptions) {
 							if (!productIds.includes(id)) {
-								window.slVueTree.removeProduct(id)
+								this.$store.state.helpersRef.removeProduct(id)
 							}
 						}
 						// load product(s) in the tree view if missing
 						const missingIds = []
 						for (const productId of productIds) {
 							if (this.getMyProductSubscriptions.includes(productId)) {
-								if (window.slVueTree.getNodeById(productId) === null) {
+								if (this.$store.state.helpersRef.getNodeById(productId) === null) {
 									missingIds.push(productId)
 								}
 							}
@@ -151,7 +151,7 @@ const methods = {
 							this.$store.dispatch('loadProducts', { missingIds, productIdToSelect: this.newDefaultProductId })
 						}
 						// show the event
-						this.showSelectionEvent([window.slVueTree.getNodeById(this.newDefaultProductId)])
+						this.showSelectionEvent([this.$store.state.helpersRef.getNodeById(this.newDefaultProductId)])
 					}
 				})
 			}

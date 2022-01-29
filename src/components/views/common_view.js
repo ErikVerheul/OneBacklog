@@ -316,11 +316,11 @@ const methods = {
 	onSetMyFilters() {
 		if (this.$store.state.filterTreeIsSet) {
 			// if this filter was on, reset it after resetting any set search and reset the label of the button; pass the array of productmodels to apply the reset on
-			const productModels = this.isOverviewSelected ? undefined : window.slVueTree.getCurrentProductModel()
+			const productModels = this.isOverviewSelected ? undefined : this.$store.state.helpersRef.getCurrentProductModel()
 			this.$store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters', productModels })
 		} else {
 			// update the available req area options
-			const currReqAreaIds = window.slVueTree.getCurrentReqAreaIds()
+			const currReqAreaIds = this.$store.state.helpersRef.getCurrentReqAreaIds()
 			this.$store.state.reqAreaOptions = []
 			for (const id of currReqAreaIds) {
 				this.$store.state.reqAreaOptions.push({ id, title: this.$store.state.reqAreaMapper[id] })
@@ -337,7 +337,7 @@ const methods = {
 			caller: 'findItemOnId', onSuccessCallback: () => {
 				const isShortId = id.length === SHORTKEYLENGTH
 				let node
-				window.slVueTree.traverseModels((nm) => {
+				this.$store.state.helpersRef.traverseModels((nm) => {
 					if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
 						// short id or full id did match
 						node = nm
@@ -363,7 +363,7 @@ const methods = {
 									this.$store.commit('switchCurrentProduct', node.productId)
 								}
 								// expand the product up to the found item
-								window.slVueTree.showPathToNode(node, { noHighLight: true }, 'search')
+								this.$store.state.helpersRef.showPathToNode(node, { noHighLight: true }, 'search')
 								this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
 								this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 							}
@@ -387,13 +387,13 @@ const methods = {
 			caller: 'searchInTitles', onSuccessCallback: () => {
 				const nodesFound = []
 				const nodesCollapsed = []
-				const nodesToScan = this.isOverviewSelected ? undefined : window.slVueTree.getCurrentProductModel()
-				window.slVueTree.traverseModels((nm) => {
+				const nodesToScan = this.isOverviewSelected ? undefined : this.$store.state.helpersRef.getCurrentProductModel()
+				this.$store.state.helpersRef.traverseModels((nm) => {
 					// save node display state
 					nm.tmp.savedIsExpandedInSearch = nm.isExpanded
 					if (nm.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
 						// expand the product up to the found item and highlight it
-						window.slVueTree.showPathToNode(nm, { doHighLight_1: true }, 'search')
+						this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true }, 'search')
 						nodesFound.push(nm)
 					} else {
 						// collapse nodes with no findings in their subtree
@@ -436,7 +436,7 @@ const methods = {
 	* Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
 	*/
 	moveBack(sourceParentId, targetParentId, reverseMoveMap) {
-		const parentNode = window.slVueTree.getNodeById(targetParentId)
+		const parentNode = this.$store.state.helpersRef.getNodeById(targetParentId)
 		if (parentNode === null) return false
 
 		for (const r of reverseMoveMap) {
@@ -463,9 +463,9 @@ const methods = {
 					placement: 'after'
 				}
 			}
-			window.slVueTree.removeNodes([node])
+			this.$store.state.helpersRef.removeNodes([node])
 			// the node is assigned a new priority
-			window.slVueTree.insertNodes(cursorPosition, [node], { skipUpdateProductId: node.parentId === 'root' })
+			this.$store.state.helpersRef.insertNodes(cursorPosition, [node], { skipUpdateProductId: node.parentId === 'root' })
 			// restore the sprintId
 			this.$store.commit('updateNodesAndCurrentDoc', { node, sprintId: r.sprintId })
 		}
@@ -506,7 +506,7 @@ const methods = {
 					// the nodes are restored prior to the database update as we need the newly calculated priority to store
 					if (this.moveBack(sourceParentId, targetParentId, reverseMoveMap)) {
 						// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
-						if (!window.slVueTree.dependencyViolationsFound()) this.showLastEvent('Item(s) move is undone', SEV.INFO)
+						if (!this.$store.state.helpersRef.dependencyViolationsFound()) this.showLastEvent('Item(s) move is undone', SEV.INFO)
 						// update the nodes in the database
 						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, isUndoAction })
 					} else {
@@ -746,7 +746,7 @@ const methods = {
 	doMove(nodes, cursorPosition) {
 		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
 		// show the event message before the database update is finished
-		if (!window.slVueTree.dependencyViolationsFound()) {
+		if (!this.$store.state.helpersRef.dependencyViolationsFound()) {
 			// if dependency violations were found dependencyViolationsFound displayed a message; if not, display a success message
 			const clickedLevel = moveDataContainer.sourceLevel
 			const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel

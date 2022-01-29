@@ -219,6 +219,7 @@ const actions = {
 
 	/* Add deceased † symbol to the team names of retired teams in the database and tree model */
 	retireTeams({
+		rootState,
 		dispatch
 	}, payload) {
 		const dbName = payload.dbName
@@ -242,7 +243,7 @@ const actions = {
 				docs,
 				caller: 'retireTeams',
 				onSuccessCallback: () => {
-					window.slVueTree.traverseModels((nm) => {
+					rootState.helpersRef.traverseModels((nm) => {
 						if (nm.data.team && teamNamesToRetire.includes(nm.data.team)) {
 							nm.data.team = nm.data.team + '†'
 						}

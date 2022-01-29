@@ -67,7 +67,7 @@ export default {
       // when a PBI is selected, that PBI and it descendant tasks that have no sprint assigned yet, are assigned to the sprint
       if (itemLevel === LEVEL.PBI) {
         const itemIds = [currentDoc._id]
-        const descendants = window.slVueTree.getDescendantsInfoOnId(currentDoc._id).descendants
+        const descendants = this.$store.state.helpersRef.getDescendantsInfoOnId(currentDoc._id).descendants
         for (const d of descendants) {
           if (!d.data.sprintId) itemIds.push(d._id)
         }
@@ -77,7 +77,7 @@ export default {
       if (itemLevel === LEVEL.TASK) {
         // when a task is selected, the task's PBI and the task are assigned to the sprint
 				const itemIds = [currentDoc._id]
-        const pbiNode = window.slVueTree.getNodeById(currentDoc.parentId)
+        const pbiNode = this.$store.state.helpersRef.getNodeById(currentDoc.parentId)
         if (!pbiNode.data.sprintId) {
 					// if no other sprint is assigned, also assign the sprint to the task's PBI
           itemIds.push(pbiNode._id)

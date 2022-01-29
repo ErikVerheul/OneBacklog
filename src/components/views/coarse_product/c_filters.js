@@ -9,7 +9,7 @@ const methods = {
 		if (this.$store.state.filterTreeIsSet || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
 		// save node display state
-		window.slVueTree.traverseModels((nm) => {
+		this.$store.state.helpersRef.traverseModels((nm) => {
 			nm.tmp.savedDoShowInFilter = nm.doShow
 			nm.tmp.savedIsExpandedInFilter = nm.isExpanded
 		})
@@ -36,18 +36,18 @@ const methods = {
 				isExcluded = this.doFilterOnTime(nm)
 			}
 			if (!isExcluded) {
-				window.slVueTree.showPathToNode(nm, { doHighLight_1: (nm.level > LEVEL.PRODUCT) })
+				this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: (nm.level > LEVEL.PRODUCT) })
 				if (nm.level > LEVEL.PRODUCT) count++
 			} else {
 				unselectedNodes.push(nm)
 			}
 		}
 		// execute the callback for ALL products
-		window.slVueTree.traverseModels(cb)
+		this.$store.state.helpersRef.traverseModels(cb)
 
 		// hide unselected nodes with no selected descendants
 		for (const nm of unselectedNodes) {
-			if (!window.slVueTree.checkForFilteredDescendants(nm)) hideNode(nm)
+			if (!this.$store.state.helpersRef.checkForFilteredDescendants(nm)) hideNode(nm)
 		}
 		this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 

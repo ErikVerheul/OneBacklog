@@ -81,7 +81,7 @@ const methods = {
 	doCopyItem(node) {
 		const now = Date.now()
 		let newNodeLocation
-		const prevNode = window.slVueTree.getPreviousNode(node.path)
+		const prevNode = this.$store.state.helpersRef.getPreviousNode(node.path)
 		if (node.path.slice(-1)[0] === 0) {
 			// the previous node is the parent
 			newNodeLocation = {
@@ -124,7 +124,7 @@ const methods = {
 			tmp: {}
 		}
 
-		const preFligthData = window.slVueTree.preFlightSingeNodeInsert(newNodeLocation, newNode)
+		const preFligthData = this.$store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
 		newNode.productId = preFligthData.productId
 		newNode.parentId = preFligthData.parentId
 		newNode.level = preFligthData.level
@@ -159,7 +159,7 @@ const methods = {
 				distributeEvent: false
 			}],
 			history: [{
-				createEvent: [newNode.level, window.slVueTree.getNodeById(newNode.parentId).title, newNode.ind + 1],
+				createEvent: [newNode.level, this.$store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
 				by: this.$store.state.userData.user,
 				timestamp: now,
 				sessionId: this.$store.state.mySessionId,
@@ -217,7 +217,7 @@ const methods = {
 			tmp: {}
 		}
 
-		const preFligthData = window.slVueTree.preFlightSingeNodeInsert(newNodeLocation, newNode)
+		const preFligthData = this.$store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
 		newNode.productId = preFligthData.productId
 		newNode.parentId = preFligthData.parentId
 		newNode.level = preFligthData.level
@@ -266,7 +266,7 @@ const methods = {
 					distributeEvent: false
 				}],
 				history: [{
-					createEvent: [newNode.level, window.slVueTree.getNodeById(newNode.parentId).title, newNode.ind + 1],
+					createEvent: [newNode.level, this.$store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
 					by: this.$store.state.userData.user,
 					timestamp: now,
 					sessionId: this.$store.state.mySessionId,
@@ -284,8 +284,8 @@ const methods = {
 	*/
 	doCheckStates() {
 		let count = 0
-		window.slVueTree.traverseModels((nm) => {
-			const descendants = window.slVueTree.getDescendantsInfo(nm).descendants
+		this.$store.state.helpersRef.traverseModels((nm) => {
+			const descendants = this.$store.state.helpersRef.getDescendantsInfo(nm).descendants
 			if (descendants.length > 0) {
 				let highestState = this.newState
 				let allDone = true
@@ -296,7 +296,7 @@ const methods = {
 				if (nm.data.state > highestState || nm.data.state === this.doneState && !allDone) {
 					// node has a higher state than any of its descendants or set to done while one of its descendants is not done
 					nm.tmp.inconsistentState = true
-					window.slVueTree.showPathToNode(nm)
+					this.$store.state.helpersRef.showPathToNode(nm)
 					count++
 				} else {
 					nm.tmp.inconsistentState = false
@@ -325,7 +325,7 @@ const methods = {
 		if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
 			// when removing a product
 			if (selectedNode.level === this.productLevel) {
-				if (this.getMyAssignedProductIds.length === 1 || window.slVueTree.getProducts().length <= 1) {
+				if (this.getMyAssignedProductIds.length === 1 || this.$store.state.helpersRef.getProducts().length <= 1) {
 					// cannot remove the last assigned product or product in the tree
 					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
 					return
@@ -340,8 +340,8 @@ const methods = {
 	/* Undo the tree expansion and highlighting */
 	undoShowDependencies(dependenciesObjects) {
 		for (const o of dependenciesObjects) {
-			const node = window.slVueTree.getNodeById(o._id)
-			if (node) window.slVueTree.undoShowPath(node, 'dependency', 'isHighlighted_2')
+			const node = this.$store.state.helpersRef.getNodeById(o._id)
+			if (node) this.$store.state.helpersRef.undoShowPath(node, 'dependency', 'isHighlighted_2')
 		}
 	},
 

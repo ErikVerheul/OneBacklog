@@ -10,10 +10,10 @@ const methods = {
 		if (this.$store.state.filterTreeIsSet || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
 		// save node display state
-		window.slVueTree.traverseModels((nm) => {
+		this.$store.state.helpersRef.traverseModels((nm) => {
 			nm.tmp.savedDoShowInFilter = nm.doShow
 			nm.tmp.savedIsExpandedInFilter = nm.isExpanded
-		}, window.slVueTree.getCurrentProductModel())
+		}, this.$store.state.helpersRef.getCurrentProductModel())
 
 		const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
 		let count = 0
@@ -44,11 +44,11 @@ const methods = {
 				if (!isExcluded) {
 					if (this.filterTreeDepth) {
 						if (nm.level <= this.selectedTreeDepth) {
-							window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
+							this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
 							if (nm.level > LEVEL.PRODUCT) count++
 						} else return
 					} else {
-						window.slVueTree.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
+						this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
 						if (nm.level > LEVEL.PRODUCT) count++
 					}
 				} else {
@@ -57,12 +57,12 @@ const methods = {
 			}
 		}
 		// execute the callback for the current product
-		window.slVueTree.traverseModels(cb, window.slVueTree.getCurrentProductModel())
+		this.$store.state.helpersRef.traverseModels(cb, this.$store.state.helpersRef.getCurrentProductModel())
 
 		if (!onlyFilterOnDepth) {
 			// hide unselected nodes with no selected descendants
 			for (const nm of unselectedNodes) {
-				if (!window.slVueTree.checkForFilteredDescendants(nm)) hideNode(nm)
+				if (!this.$store.state.helpersRef.checkForFilteredDescendants(nm)) hideNode(nm)
 			}
 			this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 		} else {

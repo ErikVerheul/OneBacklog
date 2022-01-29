@@ -39,8 +39,6 @@ function beforeDestroy() {
 }
 
 function mounted() {
-	// expose instance to the global namespace
-	window.slVueTree = this.$refs.slVueTreeRef
 	if (returning) {
 		this.showLastEvent('Returning to the Products overview', SEV.INFO)
 	} else {
@@ -142,7 +140,7 @@ const methods = {
 		function areAlldependenciesFound(nodes) {
 			for (const node of nodes) {
 				for (const depId of node.dependencies) {
-					const item = window.slVueTree.getNodeById(depId)
+					const item = this.$store.state.helpersRef.getNodeById(depId)
 					if (!item) return false
 				}
 			}
@@ -151,13 +149,13 @@ const methods = {
 		function areAllConditionsFound(nodes) {
 			for (const node of nodes) {
 				for (const conId of node.conditionalFor) {
-					const item = window.slVueTree.getNodeById(conId)
+					const item = this.$store.state.helpersRef.getNodeById(conId)
 					if (!item) return false
 				}
 			}
 			return true
 		}
-		const parentNode = position.placement === 'inside' ? position.nodeModel : window.slVueTree.getParentNode(position.nodeModel)
+		const parentNode = position.placement === 'inside' ? position.nodeModel : this.$store.state.helpersRef.getParentNode(position.nodeModel)
 		// cancel quietly if getParentNode(position.nodeModel) returns null (not found)
 		if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node) => {
@@ -169,7 +167,7 @@ const methods = {
 				if (position.placement === 'inside') targetLevel++
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + window.slVueTree.getDescendantsInfo(node).depth) > LEVEL.PBI
+				const failedCheck3 = (targetLevel + this.$store.state.helpersRef.getDescendantsInfo(node).depth) > LEVEL.PBI
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0
@@ -223,7 +221,7 @@ const methods = {
 		if (this.isAPO) {
 			this.selReqAreaId = reqarea
 			// set the req area options
-			const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
+			const currReqAreaNodes = this.$store.state.helpersRef.getReqAreaNodes()
 			if (currReqAreaNodes) {
 				this.$store.state.reqAreaOptions = []
 				for (const nm of currReqAreaNodes) {

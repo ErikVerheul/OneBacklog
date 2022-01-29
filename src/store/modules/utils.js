@@ -130,7 +130,7 @@ const actions = {
 					placement: 'after'
 				}
 				// add the product to the treemodel, the path etc. will be calculated
-				window.slVueTree.insertNodes(cursorPosition, [newNode], { calculatePrios: false, skipUpdateProductId: true })
+				rootState.helpersRef.insertNodes(cursorPosition, [newNode], { calculatePrios: false, skipUpdateProductId: true })
 			}
 			// add the product to my subscriptions and productsRoles with no roles assigned
 			const newProductOption = {

@@ -82,7 +82,7 @@ const methods = {
 	doCreateProduct() {
 		const _id = createId()
 		// a newly created product node will be inserted below the last product (see createProductAction in utils.js)
-		const lastProductNode = window.slVueTree.getRootNode().children.slice(-1)[0]
+		const lastProductNode = this.$store.state.helpersRef.getRootNode().children.slice(-1)[0]
 		const priority = Math.floor((lastProductNode.data.priority + Number.MIN_SAFE_INTEGER) / 2)
 		// create a new document
 		const newProduct = {

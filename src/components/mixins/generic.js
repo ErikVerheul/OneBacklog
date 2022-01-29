@@ -302,14 +302,14 @@ const utilities = {
 				targetLevel = targetNode.level + 1
 				insertInd = 0
 			} else {
-				targetParent = window.slVueTree.getParentNode(targetNode)
+				targetParent = this.$store.state.helpersRef.getParentNode(targetNode)
 				targetParentId = targetNode.parentId
 				targetLevel = targetNode.level
 				insertInd = targetNode.ind
 			}
-			const sourceProductTitle = window.slVueTree.getNodeById(sourceProductId).title
-			const sourceParentTitle = window.slVueTree.getNodeById(sourceParentId).title
-			const targetProductTitle = window.slVueTree.getNodeById(targetProductId).title
+			const sourceProductTitle = this.$store.state.helpersRef.getNodeById(sourceProductId).title
+			const sourceParentTitle = this.$store.state.helpersRef.getNodeById(sourceParentId).title
+			const targetProductTitle = this.$store.state.helpersRef.getNodeById(targetProductId).title
 			const targetParentTitle = targetParent.title
 
 			// if moving a product (one at a time) skip the productId update in its descendants and assign the product id to the target product id
@@ -402,9 +402,9 @@ const utilities = {
 				sortedIndMap = reverseMoveMap.sort((a, b) => b.targetInd - a.targetInd)
 			} else sortedIndMap = reverseMoveMap
 
-			window.slVueTree.removeNodes(nodes)
+			this.$store.state.helpersRef.removeNodes(nodes)
 			// if moving a product skip updating the productId; nodes are assigned their new priority
-			window.slVueTree.insertNodes(cursorPosition, nodes, { skipUpdateProductId: targetParentId === 'root' })
+			this.$store.state.helpersRef.insertNodes(cursorPosition, nodes, { skipUpdateProductId: targetParentId === 'root' })
 
 			return {
 				placement,

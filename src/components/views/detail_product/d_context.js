@@ -28,7 +28,7 @@ const methods = {
 			// select and load the item
 			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
 			const fromContextMenu = true
-			window.slVueTree.emitSelect(fromContextMenu)
+			this.$store.state.helpersRef.emitSelect(fromContextMenu)
 			this.contextOptionSelected = undefined
 			this.listItemText = ''
 			this.showAssistance = false
@@ -38,7 +38,7 @@ const methods = {
 			const allowExtraLevel = node.level < this.taskLevel
 			if (this.haveAccessInTree(node.productId, node.level, '*', 'open the context menu', allowExtraLevel)) {
 				// note that getParentNode(node) can return null if requesting the parent of the root node or if the parent was removed
-				const parentNode = window.slVueTree.getParentNode(node)
+				const parentNode = this.$store.state.helpersRef.getParentNode(node)
 				this.contextNodeSelected = node
 				this.contextParentTeam = parentNode ? parentNode.data.team : undefined
 				this.contextParentType = parentNode ? this.getLevelText(parentNode.level) : undefined
@@ -46,7 +46,7 @@ const methods = {
 				this.contextNodeLevel = node.level
 				this.contextNodeType = this.getLevelText(node.level)
 				this.contextChildType = this.getLevelText(node.level + 1)
-				this.contextNodeDescendants = window.slVueTree.getDescendantsInfo(node)
+				this.contextNodeDescendants = this.$store.state.helpersRef.getDescendantsInfo(node)
 				this.contextNodeTeam = node.data.team
 				this.hasDependencies = node.dependencies && node.dependencies.length > 0
 				this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
@@ -75,7 +75,7 @@ const methods = {
 				vm.contextWarning = 'WARNING: Cannot add the same dependency twice'
 				return false
 			}
-			if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
+			if (this.$store.state.helpersRef.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
 				vm.contextWarning = 'WARNING: Cannot create a dependency on an item with lower priority'
 				return false
 			}
@@ -122,7 +122,7 @@ const methods = {
 				break
 			case this.TASKTOSPRINT:
 				{
-					const pbiNode = window.slVueTree.getParentNode(this.contextNodeSelected)
+					const pbiNode = this.$store.state.helpersRef.getParentNode(this.contextNodeSelected)
 					if (pbiNode) {
 						if (pbiNode.data.sprintId) {
 							this.listItemText = `Assign this Task to the same sprint the User story is assigned to.`
@@ -244,7 +244,7 @@ const methods = {
 
 	moveItemToOtherProduct() {
 		if (this.$store.state.moveOngoing) {
-			const targetPosition = window.slVueTree.lastSelectCursorPosition
+			const targetPosition = this.$store.state.lastSelectCursorPosition
 			// only allow to drop the node inside a new parent 1 level higher (lower value) than the source node
 			if (targetPosition.nodeModel.level !== this.movedNode.level - 1) {
 				this.showLastEvent('You can only drop inside a ' + this.getLevelText(this.movedNode.level - 1), SEV.WARNING)
@@ -267,9 +267,9 @@ const methods = {
 	getDependencies() {
 		this.dependenciesObjects = []
 		for (const depId of this.contextNodeSelected.dependencies) {
-			const item = window.slVueTree.getNodeById(depId)
+			const item = this.$store.state.helpersRef.getNodeById(depId)
 			if (item) {
-				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'dependency')
 				this.dependenciesObjects.push({ _id: depId, title: item.title })
 			}
 		}
@@ -278,9 +278,9 @@ const methods = {
 	getConditions() {
 		this.conditionsObjects = []
 		for (const conId of this.contextNodeSelected.conditionalFor) {
-			const item = window.slVueTree.getNodeById(conId)
+			const item = this.$store.state.helpersRef.getNodeById(conId)
 			if (item) {
-				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'dependency')
 				this.conditionsObjects.push({ _id: conId, title: item.title })
 			}
 		}
@@ -293,7 +293,7 @@ const methods = {
 	/* Assign the task to the sprint of its PBI; or if the PBI has no sprint assigned, ask the user to select. */
 	doAddTaskToSprint() {
 		const taskNode = this.contextNodeSelected
-		const pbiNode = window.slVueTree.getParentNode(taskNode)
+		const pbiNode = this.$store.state.helpersRef.getParentNode(taskNode)
 		if (pbiNode) {
 			const pbiSprintId = pbiNode.data.sprintId
 			if (pbiSprintId) {
@@ -311,7 +311,7 @@ const methods = {
 		const sprintId = node.data.sprintId
 		const itemIds = [node._id]
 		if (node.level === LEVEL.PBI) {
-			for (const d of window.slVueTree.getDescendantsInfo(node).descendants) {
+			for (const d of this.$store.state.helpersRef.getDescendantsInfo(node).descendants) {
 				// only remove the sprintId of descendants with the same sprintId as the parent
 				if (d.data.sprintId === sprintId) itemIds.push(d._id)
 			}

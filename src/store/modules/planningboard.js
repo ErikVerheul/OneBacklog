@@ -69,17 +69,17 @@ const mutations = {
 			const storyTitle = s.value[0]
 			const spikePersonHours = s.value[4]
 			const priorityChain = [priority]
-			const featureNode = window.slVueTree.getNodeById(featureId)
+			const featureNode = payload.helpersRef.getNodeById(featureId)
 			if (!featureNode) continue
 
 			const featureName = featureNode.title
 			priorityChain.unshift(featureNode.data.priority)
-			const epicNode = window.slVueTree.getNodeById(featureNode.parentId)
+			const epicNode = payload.helpersRef.getNodeById(featureNode.parentId)
 			if (!epicNode) continue
 
 			const epicName = epicNode.title
 			priorityChain.unshift(epicNode.data.priority)
-			const productNode = window.slVueTree.getNodeById(epicNode.parentId)
+			const productNode = payload.helpersRef.getNodeById(epicNode.parentId)
 			if (!productNode) continue
 
 			const productName = productNode.title
@@ -193,17 +193,17 @@ const mutations = {
 	/* Add a story to the board on a location based on its priority. No tasks are added yet */
 	addEmptyStoryToBoard(state, doc) {
 		const priorityChain = [doc.priority]
-		const featureNode = window.slVueTree.getNodeById(doc.parentId)
+		const featureNode = state.helpersRef.getNodeById(doc.parentId)
 		if (!featureNode) return
 
 		const featureName = featureNode.title
 		priorityChain.unshift(featureNode.data.priority)
-		const epicNode = window.slVueTree.getNodeById(featureNode.parentId)
+		const epicNode = state.helpersRef.getNodeById(featureNode.parentId)
 		if (!epicNode) return
 
 		const epicName = epicNode.title
 		priorityChain.unshift(epicNode.data.priority)
-		const productNode = window.slVueTree.getNodeById(doc.productId)
+		const productNode = state.helpersRef.getNodeById(doc.productId)
 		if (!productNode) return
 
 		const productName = productNode.title
@@ -372,7 +372,7 @@ const actions = {
 				}
 
 				const paintSprintLanes = () => {
-					commit('createSprint', { pbiResults: state.pbiResults, taskResults })
+					commit('createSprint', { helpersRef: rootState.helpersRef, pbiResults: state.pbiResults, taskResults })
 					busyLoading = false
 					loadRequests--
 					if (loadRequests > 0) {
@@ -429,7 +429,7 @@ const actions = {
 			}
 
 			const paintSprintLanes = () => {
-				commit('createSprint', { pbiResults, taskResults })
+				commit('createSprint', { helpersRef: rootState.helpersRef, pbiResults, taskResults })
 			}
 
 			if (missingPbiIds.length > 0) {
@@ -578,7 +578,7 @@ const actions = {
 
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree view
-						const node = window.slVueTree.getNodeById(doc._id)
+						const node = rootState.helpersRef.getNodeById(doc._id)
 						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId, lastChange: timestamp, newHist })
 					}
 					docs.push(doc)
@@ -608,6 +608,7 @@ const actions = {
 
 	/* Update a task state change in the database */
 	updateTasks({
+		rootState,
 		state,
 		dispatch
 	}, payload) {
@@ -636,7 +637,7 @@ const actions = {
 				newTaskPosition++
 			}
 
-			const node = window.slVueTree.getNodeById(newTaskId)
+			const node = rootState.helpersRef.getNodeById(newTaskId)
 			if (node) dispatch('setState', { node, newState: payload.taskState, position: newTaskPosition, timestamp: Date.now() })
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
@@ -698,7 +699,7 @@ const actions = {
 				onSuccessCallback: () => {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the position of the tasks of the story and update the index and priority values in the tree
-						const storyNode = window.slVueTree.getNodeById(payload.storyId)
+						const storyNode = rootState.helpersRef.getNodeById(payload.storyId)
 						if (!storyNode) return
 
 						const mapper = []
@@ -823,11 +824,11 @@ const actions = {
 				onSuccessCallback: () => {
 					for (const d of docs) {
 						// update the tree view and show the history in the current opened item
-						const node = window.slVueTree.getNodeById(d._id)
+						const node = rootState.helpersRef.getNodeById(d._id)
 						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: d.sprintId, newHist: d.history[0] })
 					}
 					// show child nodes
-					const parentNode = window.slVueTree.getNodeById(payload.parentId)
+					const parentNode = rootState.helpersRef.getNodeById(payload.parentId)
 					if (parentNode) expandNode(parentNode)
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						// create an entry for undoing the add-to-sprint for use with removeSprintIds action
@@ -916,11 +917,11 @@ const actions = {
 				onSuccessCallback: () => {
 					for (const d of docs) {
 						// update the tree view
-						const node = window.slVueTree.getNodeById(d._id)
+						const node = rootState.helpersRef.getNodeById(d._id)
 						if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, newHist: d.history[0] })
 					}
 					// show children nodes
-					expandNode(window.slVueTree.getNodeById(payload.parentId))
+					expandNode(rootState.helpersRef.getNodeById(payload.parentId))
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: SEV.INFO })
 						// create an entry for undoing the remove-from-sprint in a last-in first-out sequence
@@ -1050,11 +1051,11 @@ const actions = {
 						}
 						// position the new node as the first child of story
 						const cursorPosition = {
-							nodeModel: window.slVueTree.getNodeById(storyDoc._id),
+							nodeModel: rootState.helpersRef.getNodeById(storyDoc._id),
 							placement: 'inside'
 						}
 						// insert the new node in the tree and set the productId, parentId, the location parameters and priority
-						window.slVueTree.insertNodes(cursorPosition, [newNode])
+						rootState.helpersRef.insertNodes(cursorPosition, [newNode])
 					}
 					// place the task on the planning board
 					for (const s of state.stories) {
@@ -1107,7 +1108,7 @@ const actions = {
 				onSuccessCallback: () => {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// remove the sprintId from the node in the tree view
-						const node = window.slVueTree.getNodeById(storyId)
+						const node = rootState.helpersRef.getNodeById(storyId)
 						if (node) {
 							delete node.data.sprintId
 							// remove the sprintId from the tasks
@@ -1207,8 +1208,8 @@ const actions = {
 				onSuccessCallback: () => {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// remove the node from the tree view
-						const node = window.slVueTree.getNodeById(taskId)
-						if (node) window.slVueTree.removeNodes([node])
+						const node = rootState.helpersRef.getNodeById(taskId)
+						if (node) rootState.helpersRef.removeNodes([node])
 					}
 					commit('removeTaskFromBoard', { storyId, taskId, taskState })
 				}
@@ -1293,7 +1294,7 @@ const actions = {
 					}
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree model
-						const node = window.slVueTree.getNodeById(payload.taskId)
+						const node = rootState.helpersRef.getNodeById(payload.taskId)
 						if (node) {
 							node.title = doc.title
 						}
@@ -1335,7 +1336,7 @@ const actions = {
 				onSuccessCallback: () => {
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree model
-						const node = window.slVueTree.getNodeById(payload.taskId)
+						const node = rootState.helpersRef.getNodeById(payload.taskId)
 						if (node) {
 							commit('updateNodesAndCurrentDoc', { node, taskOwner: doc.taskOwner })
 						}

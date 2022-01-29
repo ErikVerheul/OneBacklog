@@ -183,7 +183,7 @@ const actions = {
 					orphansFound.push({ id: _id, parentId, productId })
 				}
 			}
-			window.slVueTree.dependencyViolationsFound()
+			rootState.helpersRef.dependencyViolationsFound()
 			commit('createColorMapper')
 			const severity = state.orphansCount === 0 ? SEV.INFO : SEV.WARNING
 			commit('showLastEvent', { txt: `${state.docsCount} documents are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity })

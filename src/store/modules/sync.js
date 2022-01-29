@@ -79,7 +79,7 @@ const actions = {
 		}
 
 		function createNewNode(doc) {
-			const parentNode = window.slVueTree.getNodeById(doc.parentId)
+			const parentNode = rootState.helpersRef.getNodeById(doc.parentId)
 			if (parentNode === null) {
 				const msg = `listenForChanges: no parent node available yet - doc.productId = ${doc.productId}, doc.parentId = ${doc.parentId}, doc._id = ${doc._id}, title = '${doc.title}'`
 				dispatch('doLog', { event: msg, level: SEV.WARNING })
@@ -123,7 +123,7 @@ const actions = {
 				},
 				tmp: {}
 			}
-			window.slVueTree.insertNodes({
+			rootState.helpersRef.insertNodes({
 				nodeModel: locationInfo.prevNode,
 				placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 			}, [node])
@@ -131,7 +131,7 @@ const actions = {
 		}
 
 		function moveNode(node, newParentId) {
-			const newParentNode = window.slVueTree.getNodeById(newParentId)
+			const newParentNode = rootState.helpersRef.getNodeById(newParentId)
 			if (newParentNode === null) return
 			const item = lastHistObj.nodeMovedEvent
 			const targetLevel = item[1]
@@ -146,19 +146,19 @@ const actions = {
 			}
 			if (node.level === LEVEL.PBI || node.level === LEVEL.TASK) commit('updateNodesAndCurrentDoc', { node, sprintId: targetSprintId })
 			const locationInfo = getLocationInfo(newPriority, newParentNode)
-			if (window.slVueTree.comparePaths(locationInfo.newPath, node.path) !== 0) {
+			if (rootState.helpersRef.comparePaths(locationInfo.newPath, node.path) !== 0) {
 				// move the node to the new position w/r to its siblings; first remove the node, then insert
-				window.slVueTree.removeNodes([node])
+				rootState.helpersRef.removeNodes([node])
 				node.data.priority = newPriority
 				// do not recalculate the priority during insert
 				if (locationInfo.newInd === 0) {
-					window.slVueTree.insertNodes({
+					rootState.helpersRef.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'inside'
 					}, [node], { calculatePrios: false, skipUpdateProductId: isProductMoved })
 				} else {
 					// insert after prevNode
-					window.slVueTree.insertNodes({
+					rootState.helpersRef.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: 'after'
 					}, [node], { calculatePrios: false, skipUpdateProductId: isProductMoved })
@@ -171,7 +171,7 @@ const actions = {
 		function doProc(doc) {
 			try {
 				if (updateTree || updateThisBoard) doBlinck(doc)
-				const node = window.slVueTree.getNodeById(doc._id)
+				const node = rootState.helpersRef.getNodeById(doc._id)
 				// note that both updateTree and updateThisBoard can be true
 				if (updateTree) {
 					// check for exception 'node not found'; skip the check for events that do not map to a node
@@ -234,12 +234,12 @@ const actions = {
 									if (node) {
 										// remove references from the requirement area
 										const reqAreaId = lastHistObj.removedWithDescendantsEvent[0]
-										window.slVueTree.traverseModels((nm) => {
+										rootState.helpersRef.traverseModels((nm) => {
 											if (nm.data.reqarea === reqAreaId) {
 												delete nm.data.reqarea
 											}
 										})
-										window.slVueTree.removeNodes([node])
+										rootState.helpersRef.removeNodes([node])
 										showSyncMessage(`removed`, SEV.INFO)
 									}
 									break
@@ -320,15 +320,15 @@ const actions = {
 								case 'removedWithDescendantsEvent':
 									if (node && doc.delmark) {
 										// remove any dependency references to/from outside the removed items
-										window.slVueTree.correctDependencies(node)
+										rootState.helpersRef.correctDependencies(node)
 										let signOut = false
-										if (node.isSelected || window.slVueTree.isDescendantNodeSelected(node)) {
+										if (node.isSelected || rootState.helpersRef.isDescendantNodeSelected(node)) {
 											// before removal select the predecessor of the removed node (sibling or parent)
-											const prevNode = window.slVueTree.getPreviousNode(node.path)
+											const prevNode = rootState.helpersRef.getPreviousNode(node.path)
 											let nowSelectedNode = prevNode
 											if (prevNode.level === LEVEL.DATABASE) {
 												// if a product is to be removed and the previous node is root, select the next product
-												const nextProduct = window.slVueTree.getNextSibling(node.path)
+												const nextProduct = rootState.helpersRef.getNextSibling(node.path)
 												if (nextProduct === null) {
 													// there is no next product
 													alert('WARNING - the only product you are viewing is removed by another user! You will be signed out. Contact your administrator.')
@@ -342,7 +342,7 @@ const actions = {
 											// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
 											dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, signOut })
 										}
-										window.slVueTree.removeNodes([node])
+										rootState.helpersRef.removeNodes([node])
 										showSyncMessage(`removed the`, SEV.INFO)
 									}
 									break
@@ -409,15 +409,15 @@ const actions = {
 										const taskTitle = lastHistObj.taskRemovedEvent[0]
 										const team = lastHistObj.taskRemovedEvent[1]
 										// remove the node from the tree view
-										const node = window.slVueTree.getNodeById(taskId)
+										const node = rootState.helpersRef.getNodeById(taskId)
 										if (node) {
 											if (node.isSelected) {
 												// before removal select the predecessor of the removed node (sibling or parent)
-												const prevNode = window.slVueTree.getPreviousNode(node.path)
+												const prevNode = rootState.helpersRef.getPreviousNode(node.path)
 												let nowSelectedNode = prevNode
 												commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
 											}
-											window.slVueTree.removeNodes([node])
+											rootState.helpersRef.removeNodes([node])
 											showSyncMessage(`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`, SEV.INFO, SPECIAL_TEXT)
 										}
 									}
@@ -434,7 +434,7 @@ const actions = {
 									if (rootState.lastTreeView === 'detailProduct') {
 										// update the position of the tasks of the story and update the index and priority values in the tree
 										const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
-										const storyNode = window.slVueTree.getNodeById(doc._id)
+										const storyNode = rootState.helpersRef.getNodeById(doc._id)
 										if (!storyNode) return
 
 										const mapper = []

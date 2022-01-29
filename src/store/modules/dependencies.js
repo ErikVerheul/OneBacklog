@@ -284,7 +284,7 @@ const actions = {
 					commit('updateNodesAndCurrentDoc', { node: payload.node, dependenciesRemoved: payload.newDeps, lastChange: payload.timestamp, newHist: payload.hist })
 					// update the conditions in the tree model
 					for (const id of payload.removedIds) {
-						const depOnNode = window.slVueTree.getNodeById(id)
+						const depOnNode = rootState.helpersRef.getNodeById(id)
 						if (depOnNode === null) continue
 
 						const conIdArray = []
@@ -294,7 +294,7 @@ const actions = {
 						// no need to pass history as the currenly selected node is the node wth the conditions
 						commit('updateNodesAndCurrentDoc', { node: depOnNode, conditionsremoved: conIdArray, lastChange: payload.timestamp })
 						// check for resolved dependency violations
-						window.slVueTree.checkDepencyViolations(rootGetters.isOverviewSelected)
+						rootState.helpersRef.checkDepencyViolations(rootGetters.isOverviewSelected)
 					}
 				}
 			})
@@ -395,7 +395,7 @@ const actions = {
 					commit('updateNodesAndCurrentDoc', { node: payload.node, conditionsremoved: payload.newCons, lastChange: payload.timestamp, newHist: payload.hist })
 					// update the dependencies in the tree model
 					for (const id of payload.removedIds) {
-						const condForNode = window.slVueTree.getNodeById(id)
+						const condForNode = rootState.helpersRef.getNodeById(id)
 						if (condForNode === null) continue
 
 						const depIdArray = []
@@ -405,7 +405,7 @@ const actions = {
 						// no need to pass history as the currenly selcted node is the node with the dependencies
 						commit('updateNodesAndCurrentDoc', { node: condForNode, dependenciesRemoved: depIdArray, lastChange: payload.timestamp })
 						// check for resolved dependency violations
-						window.slVueTree.checkDepencyViolations(rootGetters.isOverviewSelected)
+						rootState.helpersRef.checkDepencyViolations(rootGetters.isOverviewSelected)
 					}
 				}
 			})

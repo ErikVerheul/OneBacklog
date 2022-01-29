@@ -21,7 +21,7 @@ const methods = {
 			// select and load the item
 			this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
 			const fromContextMenu = true
-			window.slVueTree.emitSelect(fromContextMenu)
+			this.$store.state.helpersRef.emitSelect(fromContextMenu)
       this.contextOptionSelected = undefined
       this.listItemText = ''
       this.showAssistance = false
@@ -31,7 +31,7 @@ const methods = {
       const allowExtraLevel = node.level < this.taskLevel
       if (this.haveAccessInTree(node.productId, node.level, '*', 'open the context menu', allowExtraLevel)) {
 				// note that getParentNode(node) can return null if requesting the parent of the root node or if the parent was removed
-        const parentNode = window.slVueTree.getParentNode(node)
+        const parentNode = this.$store.state.helpersRef.getParentNode(node)
         this.contextNodeSelected = node
 				this.contextParentTeam = parentNode ? parentNode.data.team : undefined
 				this.contextParentType = parentNode ? this.getLevelText(parentNode.level) : undefined
@@ -39,7 +39,7 @@ const methods = {
         this.contextNodeLevel = node.level
         this.contextNodeType = this.getLevelText(node.level)
 				this.contextChildType = this.getLevelText(node.level + 1)
-				this.contextNodeDescendants = window.slVueTree.getDescendantsInfo(node)
+				this.contextNodeDescendants = this.$store.state.helpersRef.getDescendantsInfo(node)
         this.contextNodeTeam = node.data.team
         this.hasDependencies = node.dependencies && node.dependencies.length > 0
         this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
@@ -67,7 +67,7 @@ const methods = {
         vm.contextWarning = 'WARNING: Cannot add the same dependency twice'
         return false
       }
-      if (window.slVueTree.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
+      if (this.$store.state.helpersRef.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
         vm.contextWarning = 'WARNING: Cannot create a dependency on an item with lower priority'
         return false
       }
@@ -189,9 +189,9 @@ const methods = {
 		this.dependenciesObjects = []
 		this.allDepenciesFound = true
 		for (const depId of this.contextNodeSelected.dependencies) {
-			const item = window.slVueTree.getNodeById(depId)
+			const item = this.$store.state.helpersRef.getNodeById(depId)
 			if (item) {
-				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'dependency')
 				this.dependenciesObjects.push({ _id: depId, title: item.title })
 			} else this.allDepenciesFound = false
 		}
@@ -202,9 +202,9 @@ const methods = {
 		this.conditionsObjects = []
 		this.allConditionsFound = true
 		for (const conId of this.contextNodeSelected.conditionalFor) {
-			const item = window.slVueTree.getNodeById(conId)
+			const item = this.$store.state.helpersRef.getNodeById(conId)
 			if (item) {
-				window.slVueTree.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'dependency')
 				this.conditionsObjects.push({ _id: conId, title: item.title })
 			} else this.allConditionsFound = false
 		}

@@ -132,7 +132,7 @@ const actions = {
 		/* Traverse the removedNode branch to find the parent node for the item with this id; return undefined if not found */
 		function getParentNodeById(id, removedNode) {
 			let parentNode
-			window.slVueTree.traverseModels((nm) => {
+			rootState.helpersRef.traverseModels((nm) => {
 				if (nm._id === id) {
 					parentNode = nm
 					return false
@@ -184,7 +184,7 @@ const actions = {
 			// create a node and insert it in the removed node
 			if (parentNode && parentNode.level < rootGetters.leafLevel) {
 				// restore the node as child of the parent up to leafLevel
-				window.slVueTree.appendDescendantNode(parentNode, doc)
+				rootState.helpersRef.appendDescendantNode(parentNode, doc)
 				descendantNodesRestoredCount++
 			}
 			if (descendantNodesRestoredCount > 0) commit('startOrContinueShowProgress', `${descendantNodesRestoredCount} descendants are restored`)
@@ -228,7 +228,7 @@ const actions = {
 				dbName: rootState.userData.currentDb, updatedDoc: removedBranchRootDoc, caller: 'updateRemovedBranchParentHist', onSuccessCallback: () => {
 					// FOR PRODUCTS OVERVIEW ONLY: when undoing the removal of a requirement area, items must be reassigned to this area
 					if (globalEntry.removedNode.productId === MISC.AREA_PRODUCTID) {
-						window.slVueTree.traverseModels((nm) => {
+						rootState.helpersRef.traverseModels((nm) => {
 							if (globalEntry.itemsRemovedFromReqArea.includes(nm._id)) {
 								nm.data.reqarea = globalEntry.removedNode._id
 							}
@@ -239,7 +239,7 @@ const actions = {
 						dispatch('addToMyProducts', { newRoles: globalEntry.removedProductRoles, productId: globalEntry.removedNode._id, productTitle: globalEntry.removedNode.title })
 					}
 					const path = globalEntry.removedNode.path
-					const prevNode = window.slVueTree.getPreviousNode(path)
+					const prevNode = rootState.helpersRef.getPreviousNode(path)
 					let cursorPosition
 					if (globalEntry.removedNode.path.slice(-1)[0] === 0) {
 						// the previous node is the parent
@@ -255,26 +255,26 @@ const actions = {
 						}
 					}
 					// do not recalculate priorities when inserting a product node. ToDo: check this
-					window.slVueTree.insertNodes(cursorPosition, [globalEntry.removedNode], { calculatePrios: globalEntry.removedNode.parentId !== 'root' })
+					rootState.helpersRef.insertNodes(cursorPosition, [globalEntry.removedNode], { calculatePrios: globalEntry.removedNode.parentId !== 'root' })
 
 					// select the recovered node
 					commit('updateNodesAndCurrentDoc', { selectNode: globalEntry.removedNode })
 					rootState.currentProductId = globalEntry.removedNode.productId
 					// restore the removed dependencies
 					for (const d of globalEntry.removedIntDependencies) {
-						const node = window.slVueTree.getNodeById(d.id)
+						const node = rootState.helpersRef.getNodeById(d.id)
 						if (node !== null) node.dependencies.push(d.dependentOn)
 					}
 					for (const d of globalEntry.removedExtDependencies) {
-						const node = window.slVueTree.getNodeById(d.id)
+						const node = rootState.helpersRef.getNodeById(d.id)
 						if (node !== null) node.dependencies.push(d.dependentOn)
 					}
 					for (const c of globalEntry.removedIntConditions) {
-						const node = window.slVueTree.getNodeById(c.id)
+						const node = rootState.helpersRef.getNodeById(c.id)
 						if (node !== null) node.conditionalFor.push(c.conditionalFor)
 					}
 					for (const c of globalEntry.removedExtConditions) {
-						const node = window.slVueTree.getNodeById(c.id)
+						const node = rootState.helpersRef.getNodeById(c.id)
 						if (node !== null) node.conditionalFor.push(c.conditionalFor)
 					}
 					commit('updateNodesAndCurrentDoc', { newDoc: updatedParentDoc })

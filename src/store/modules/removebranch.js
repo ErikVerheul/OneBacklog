@@ -52,7 +52,7 @@ const actions = {
 		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 
 		// make all nodes, to be removed, including the branch root unselectable
-		window.slVueTree.setBranchUnselectable(payload.node)
+		rootState.helpersRef.setBranchUnselectable(payload.node)
 
 		const id = payload.node._id
 		const delmark = createId()
@@ -322,7 +322,7 @@ const actions = {
 					// FOR PRODUCTS OVERVIEW ONLY: when removing a requirement area, items assigned to this area should be updated
 					const itemsRemovedFromReqArea = []
 					if (payload.node.productId === MISC.AREA_PRODUCTID) {
-						window.slVueTree.traverseModels((nm) => {
+						rootState.helpersRef.traverseModels((nm) => {
 							if (nm.data.reqarea === payload.node._id) {
 								delete nm.data.reqarea
 								itemsRemovedFromReqArea.push(nm._id)
@@ -330,15 +330,15 @@ const actions = {
 						})
 					}
 					// before removal select the predecessor of the removed node (sibling or parent)
-					const prevNode = window.slVueTree.getPreviousNode(payload.node.path)
+					const prevNode = rootState.helpersRef.getPreviousNode(payload.node.path)
 					// skip updating the tree if the previous node is not found (= null)
 					if (prevNode) {
 						// remove any dependency references to/from outside the removed items; note: these cannot be undone
-						const removed = window.slVueTree.correctDependencies(payload.node)
+						const removed = rootState.helpersRef.correctDependencies(payload.node)
 						let nowSelectedNode = prevNode
 						if (prevNode.level === LEVEL.DATABASE) {
 							// if a product is to be removed and the previous node is root, select the next product
-							const nextProduct = window.slVueTree.getNextSibling(payload.node.path)
+							const nextProduct = rootState.helpersRef.getNextSibling(payload.node.path)
 							if (nextProduct === null) {
 								// there is no next product; cannot remove the last product; note that this action is already blocked with a warming
 								reset(rootState, payload)
@@ -352,7 +352,7 @@ const actions = {
 							id: nowSelectedNode._id, onSuccessCallback: () => {
 								const removedNode = payload.node
 								// remove the node and its children from the tree view
-								if (window.slVueTree.removeNodes([removedNode])) {
+								if (rootState.helpersRef.removeNodes([removedNode])) {
 									// remove the children; on restore the children are recovered from the database
 									removedNode.children = []
 									if (removedNode.level === LEVEL.PRODUCT) {

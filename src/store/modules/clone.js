@@ -16,8 +16,8 @@ function composeRangeString2(id) {
 }
 
 /* Return a priority that places the cloned item above the original */
-function calcNewClonePriority(node) {
-	const prevNode = window.slVueTree.getPreviousNode(node.path)
+function calcNewClonePriority(rootState, node) {
+	const prevNode = rootState.helpersRef.getPreviousNode(node.path)
 	let newPrio
 	// place the clone above the original
 	if (prevNode.level < node.level) {
@@ -99,7 +99,7 @@ const actions = {
 				title: doc._id === payload.originalNode._id ? 'Clone of ' + doc.title : doc.title,
 				description: doc.description,
 				acceptanceCriteria: doc.acceptanceCriteria,
-				priority: doc._id === payload.originalNode._id ? calcNewClonePriority(payload.originalNode) : doc.priority,
+				priority: doc._id === payload.originalNode._id ? calcNewClonePriority(rootState, payload.originalNode) : doc.priority,
 				comments: doc.comments,
 				history: [{
 					resetHistoryEvent: [doc.history.length],
@@ -118,7 +118,7 @@ const actions = {
 				lastCommentToHistory: doc.lastCommentToHistory,
 				lastChange: Date.now(),
 			}
-			const clonedNode = window.slVueTree.createNode(clonedDoc)
+			const clonedNode = rootState.helpersRef.createNode(clonedDoc)
 			if (doc._id === payload.originalNode._id) {
 				clonedRootDoc = clonedDoc
 				// save the root node of the new branch
@@ -230,15 +230,15 @@ const actions = {
 		rootState,
 		commit,
 	}, payload) {
-		const parentNode = window.slVueTree.getNodeById(payload.originalNode.parentId)
+		const parentNode = rootState.helpersRef.getNodeById(payload.originalNode.parentId)
 		const locationInfo = getLocationInfo(clonedRootDoc.priority, parentNode)
 		// insert the cloned root node in the tree above the original
-		window.slVueTree.insertNodes({
+		rootState.helpersRef.insertNodes({
 			nodeModel: locationInfo.prevNode,
 			placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 		}, [clonedRootNode], { skipUpdateProductId: true })
 		// select the cloned node
-		const nowSelectedNode = window.slVueTree.getNodeById(clonedRootDoc._id)
+		const nowSelectedNode = rootState.helpersRef.getNodeById(clonedRootDoc._id)
 		commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
 		// create an entry for undoing the clone in a last-in first-out sequence
 		const entry = {

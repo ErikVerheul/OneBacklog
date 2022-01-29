@@ -58,13 +58,13 @@ const actions = {
 					if (doc.level === LEVEL.TASK) commit('addTaskToBoard', doc)
 				}
 				// no need to add history here as the data is only used to update the tree model (no update of the database)
-				const parentNode = window.slVueTree.getNodeById(doc.parentId)
+				const parentNode = rootState.helpersRef.getNodeById(doc.parentId)
 				if (parentNode) {
 					const locationInfo = getLocationInfo(doc.priority, parentNode)
-					const newNode = window.slVueTree.createNode(doc)
+					const newNode = rootState.helpersRef.createNode(doc)
 					const options = doc.level === LEVEL.PRODUCT ? { skipUpdateProductId: true } : { skipUpdateProductId: false }
 					// insert the parent node in the tree
-					window.slVueTree.insertNodes({
+					rootState.helpersRef.insertNodes({
 						nodeModel: locationInfo.prevNode,
 						placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 					}, [newNode], options)
@@ -75,12 +75,12 @@ const actions = {
 						// restore references to the requirement area
 						const reqAreaId = doc._id
 						const itemsRemovedFromReqArea = histArray[8]
-						window.slVueTree.traverseModels((nm) => {
+						rootState.helpersRef.traverseModels((nm) => {
 							if (itemsRemovedFromReqArea.includes(nm._id)) {
 								nm.data.reqarea = reqAreaId
 							}
 						})
-						window.slVueTree.setDescendantsReqArea()
+						rootState.helpersRef.setDescendantsReqArea()
 					} else {
 						if (doc.level === LEVEL.PRODUCT) {
 							// re-enter all the current users product roles, and update the user's subscriptions and product selection arrays with the removed product
@@ -121,11 +121,11 @@ const actions = {
 			for (const r of results) {
 				const doc = r.docs[0].ok
 				// no need to add history here as the data is only used to update the tree model (no update of the database)
-				const parentNode = window.slVueTree.getRootNode()
+				const parentNode = rootState.helpersRef.getRootNode()
 				const locationInfo = getLocationInfo(doc.priority, parentNode)
-				const newNode = window.slVueTree.createNode(doc)
+				const newNode = rootState.helpersRef.createNode(doc)
 				// insert the product node in the tree
-				window.slVueTree.insertNodes({
+				rootState.helpersRef.insertNodes({
 					nodeModel: locationInfo.prevNode,
 					placement: locationInfo.newInd === 0 ? 'inside' : 'after'
 				}, [newNode], { skipUpdateProductId: true })
@@ -164,13 +164,13 @@ const actions = {
 						// restore external dependencies
 						const dependencies = dedup(histArray[3])
 						for (const d of dependencies) {
-							const node = window.slVueTree.getNodeById(d.id)
+							const node = rootState.helpersRef.getNodeById(d.id)
 							if (node !== null) node.dependencies.push(d.dependentOn)
 						}
 						// restore external conditions
 						const conditionalFor = dedup(histArray[5])
 						for (const c of conditionalFor) {
-							const node = window.slVueTree.getNodeById(c.id)
+							const node = rootState.helpersRef.getNodeById(c.id)
 							if (node !== null) node.conditionalFor.push(c.conditionalFor)
 						}
 					}
@@ -190,7 +190,7 @@ const actions = {
 		for (const r of payload.results) {
 			// add the child node
 			const doc = r.doc
-			const newParentNode = window.slVueTree.appendDescendantNode(payload.parentNode, doc)
+			const newParentNode = rootState.helpersRef.appendDescendantNode(payload.parentNode, doc)
 			// also update the board if in view
 			if (state.updateThisBoard && state.sprintId === doc.sprintId && state.team === doc.team) {
 				if (doc.level === LEVEL.PBI) commit('addEmptyStoryToBoard', doc)

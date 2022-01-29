@@ -12,6 +12,7 @@ import calendars from './modules/calendars'
 import clone from './modules/clone'
 import dependencies from './modules/dependencies'
 import help from './modules/help'
+import helpers from './modules/helpers'
 import initdb from './modules/initdb'
 import loadoverview from './modules/load_coarse'
 import loadproducts from './modules/load_detail'
@@ -32,7 +33,9 @@ import utils from './modules/utils'
 
 const MAX_EVENTLIST_SIZE = 100
 
-function createEvent(payload) {
+Vue.use(Vuex)
+
+function createEventToDisplay(payload) {
 	function pad(num, size) {
 		var s = "000" + num
 		return s.substr(s.length - size)
@@ -71,8 +74,6 @@ function createEvent(payload) {
 	return newEvent
 }
 
-Vue.use(Vuex)
-
 /* If the node is selectable, store the currently selected nodes, unselect all previous selected nodes and select the node */
 function renewSelection(state, node) {
 	if (node.isSelectable) {
@@ -93,8 +94,10 @@ function cleanHistory(doc) {
 	return doc
 }
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
 	state: {
+		// generic helper functions
+		helpersRef: null,
 		// console log settings
 		debug: process.env.VUE_APP_DEBUG === 'true' || false,
 		debugConnectionAndLogging: process.env.VUE_APP_DEBUG_CONNECTION === 'true' || false,
@@ -110,7 +113,7 @@ export default new Vuex.Store({
 		iAmAdmin: false,
 		iAmAssistAdmin: false,
 		iAmServerAdmin: false,
-		myAssignedDatabases: undefined,
+		myAssignedDatabases: [],
 		// tree loading
 		allTeams: {},
 		loadedTreeDepth: undefined,
@@ -186,6 +189,7 @@ export default new Vuex.Store({
 		configData: null,
 		demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
 		eventSyncColor: '#004466',
+		lastSelectCursorPosition: null,
 		listenForChangesRunning: false,
 		myProductOptions: [],
 		online: true,
@@ -210,11 +214,11 @@ export default new Vuex.Store({
 		},
 
 		isReqAreaTopLevel(state) {
-			return state.currentDoc._id === MISC.AREA_PRODUCTID
+			if (state.currentDoc) return state.currentDoc._id === MISC.AREA_PRODUCTID
 		},
 
 		isReqAreaItem(state) {
-			return state.currentDoc._id === MISC.AREA_PRODUCTID || state.currentDoc.productId === MISC.AREA_PRODUCTID
+			if (state.currentDoc) return state.currentDoc._id === MISC.AREA_PRODUCTID || state.currentDoc.productId === MISC.AREA_PRODUCTID
 		},
 
 		getCurrentDefaultProductId(state) {
@@ -321,7 +325,7 @@ export default new Vuex.Store({
 			if (state.userData.myDatabases) {
 				const productsRoles = state.userData.myDatabases[state.userData.currentDb].productsRoles
 				return Object.keys(productsRoles)
-			}
+			} else return []
 		},
 
 		getMyProductSubscriptions(state, getters) {
@@ -351,6 +355,10 @@ export default new Vuex.Store({
 			} else return getters.getLastSelectedNode
 		},
 
+		getTreeModel(state) {
+			return state.treeNodes
+		},
+
 		isDetailsViewSelected(state) {
 			return state.currentView === 'detailProduct'
 		},
@@ -373,6 +381,7 @@ export default new Vuex.Store({
 			if (state.userData.myDatabases) {
 				return state.userData.myTeam
 			}
+			return 'Unknown if no database is assigned to you'
 		},
 
 		/////////////////// generic (not product nor database specific) roles /////////////////
@@ -464,7 +473,7 @@ export default new Vuex.Store({
 				// the node was found in another product
 				commit('switchCurrentProduct', prevSelectedNode.productId)
 			} else {
-				window.slVueTree.undoShowPath(node, 'search', 'isHighlighted_1')
+				state.helpersRef.undoShowPath(node, 'search', 'isHighlighted_1')
 			}
 			// select the node after loading the document
 			dispatch('loadDoc', {
@@ -485,7 +494,7 @@ export default new Vuex.Store({
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
 			const prevSelectedNode = state.resetSearch.currentSelectedNode
 			for (const n of state.resetSearch.nodesFound) {
-				window.slVueTree.undoShowPath(n, 'search', 'isHighlighted_1')
+				state.helpersRef.undoShowPath(n, 'search', 'isHighlighted_1')
 			}
 			for (const n of state.resetSearch.nodesCollapsed) {
 				expandNode(n)
@@ -630,7 +639,7 @@ export default new Vuex.Store({
 	mutations: {
 		addToEventList(state, payload) {
 			state.eventKey++
-			const newEvent = createEvent({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
+			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
 			state.eventList.unshift(newEvent)
 			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
 		},
@@ -649,7 +658,7 @@ export default new Vuex.Store({
 
 		/* Create or re-create the color mapper from the defined req areas (only available in Products overview) */
 		createColorMapper(state) {
-			const currReqAreaNodes = window.slVueTree.getReqAreaNodes()
+			const currReqAreaNodes = state.helpersRef.getReqAreaNodes()
 			if (currReqAreaNodes) {
 				state.colorMapper = {}
 				for (const nm of currReqAreaNodes) {
@@ -684,7 +693,7 @@ export default new Vuex.Store({
 		/* Traverse the tree to reset to the state before filtering or search */
 		restoreTreeView(state, payload) {
 			// traverse the tree to reset to the state before filtering
-			window.slVueTree.traverseModels((nm) => {
+			state.helpersRef.traverseModels((nm) => {
 				// skip requirement areas dummy product items
 				if (nm._id === MISC.AREA_PRODUCTID) return
 				if (state.currentView === 'detailProduct') {
@@ -1080,7 +1089,7 @@ export default new Vuex.Store({
 		showLastEvent(state, payload) {
 			state.showProgress = false
 			state.eventKey++
-			const newEvent = createEvent({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
+			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
 			state.eventList.unshift(newEvent)
 			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
 		},
@@ -1091,8 +1100,8 @@ export default new Vuex.Store({
 		},
 
 		switchCurrentProduct(state, newProductId) {
-			const currentProductNode = window.slVueTree.getNodeById(state.currentProductId)
-			const newCurrentProductNode = window.slVueTree.getNodeById(newProductId)
+			const currentProductNode = state.helpersRef.getNodeById(state.currentProductId)
+			const newCurrentProductNode = state.helpersRef.getNodeById(newProductId)
 			if (currentProductNode !== null && newCurrentProductNode !== null) {
 				// if the current product is not removed and the newly selected product exists
 				if (state.currentView !== 'coarseProduct') {
@@ -1149,6 +1158,7 @@ export default new Vuex.Store({
 		authentication,
 		calendars,
 		clone,
+		helpers,
 		dependencies,
 		help,
 		initdb,
@@ -1169,3 +1179,5 @@ export default new Vuex.Store({
 		utils
 	}
 })
+
+export default store

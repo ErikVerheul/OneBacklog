@@ -296,7 +296,7 @@ const actions = {
 					commit('updateNodesAndCurrentDoc', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
 					let infoMsg = undefined
 					let warnMsg = undefined
-					const descendants = window.slVueTree.getDescendantsInfo(node).descendants
+					const descendants = rootState.helpersRef.getDescendantsInfo(node).descendants
 					// check on inconsistent state when the node has descendants (duplicate of code in doCheckStates())
 					if (descendants.length > 0) {
 						let highestState = STATE.NEW
@@ -316,7 +316,7 @@ const actions = {
 						}
 					}
 					// check on team
-					const parentNode = window.slVueTree.getParentNode(node)
+					const parentNode = rootState.helpersRef.getParentNode(node)
 					if (parentNode && parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin) {
 						if (parentNode.data.team !== rootGetters.myTeam) {
 							warnMsg = concatMsg(warnMsg, `The team of parent '${parentNode.title}' (${parentNode.data.team}) and your team (${rootGetters.myTeam}) do not match.
@@ -325,7 +325,7 @@ const actions = {
 					}
 					// recalculate and (re)set the inconsistency state of the parent item
 					if (parentNode && parentNode.data.state === STATE.DONE) {
-						const descendants = window.slVueTree.getDescendantsInfo(parentNode).descendants
+						const descendants = rootState.helpersRef.getDescendantsInfo(parentNode).descendants
 						let hasInconsistentState = false
 						for (const d of descendants) {
 							if (d.data.state === STATE.ON_HOLD) continue
@@ -380,7 +380,7 @@ const actions = {
 		dispatch
 	}, payload) {
 		const node = payload.node
-		const descendantsInfo = window.slVueTree.getDescendantsInfo(node)
+		const descendantsInfo = rootState.helpersRef.getDescendantsInfo(node)
 		const id = node._id
 		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		globalAxios({
@@ -1068,7 +1068,7 @@ const actions = {
 					updatedDoc: payload.newDoc,
 					onSuccessCallback: () => {
 						// insert the new node in the tree and set the path and ind
-						window.slVueTree.insertNodes(payload.newNodeLocation, [payload.newNode])[0]
+						rootState.helpersRef.insertNodes(payload.newNodeLocation, [payload.newNode])[0]
 						// the level, productId, parentId and priority are reset and should equal the preflight values; check the priority value only
 						if (payload.newDoc.priority === payload.newNode.data.priority) {
 							// create an entry for undoing the change in a last-in first-out sequence
