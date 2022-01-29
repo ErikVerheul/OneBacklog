@@ -5,7 +5,21 @@ import router from './router'
 import store from './store/store'
 import './fa.config'
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL
+if (process.env.VUE_APP_DEBUG === true) {
+	// eslint-disable-next-line no-console
+	console.log('process.env.VUE_APP_IS_DEMO = ' + process.env.VUE_APP_IS_DEMO)
+	// eslint-disable-next-line no-console
+	console.log('process.env.VUE_APP_DEBUG = ' + process.env.VUE_APP_DEBUG)
+	// eslint-disable-next-line no-console
+	console.log('process.env.VUE_APP_DEBUG_CONNECTION = ' + process.env.VUE_APP_DEBUG_CONNECTION)
+	// eslint-disable-next-line no-console
+	console.log('process.env.NODE_ENV = ' + process.env.NODE_ENV)
+	// eslint-disable-next-line no-console
+	console.log('process.env.VUE_APP_SITE_URL = ' + process.env.VUE_APP_SITE_URL)
+	// eslint-disable-next-line no-console
+	console.log('process.env.VUE_APP_API_URL = ' + process.env.VUE_APP_API_URL)
+}
+axios.defaults.baseURL = process.env.VUE_APP_API_URL
 axios.defaults.withCredentials = true
 
 const reqInterceptor = axios.interceptors.request.use(config => {
@@ -20,8 +34,8 @@ axios.interceptors.response.eject(resInterceptor)
 
 export const eventBus = new Vue()
 // import the global css, see https://stackoverflow.com/questions/39438094/best-way-to-have-global-css-in-vuejs
-import './css/onebacklog.scss'
-import './css/onebacklog.css'
+import '@/css/onebacklog.scss'
+import '@/css/onebacklog.css'
 new Vue({
 	el: '#onebacklog',
 	router,

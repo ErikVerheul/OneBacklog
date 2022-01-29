@@ -69,7 +69,7 @@
 import { mapState, mapGetters } from 'vuex'
 import { utilities } from '../../mixins/generic.js'
 import AppHeader from '../../header/header.vue'
-import StoryLane from './StoryLane.vue'
+import StoryLane from './StoryLane'
 
 export default {
   mixins: [utilities],
@@ -109,11 +109,11 @@ export default {
 
   /* Prevent accidental reloading of this page */
   beforeMount() {
-    window.addEventListener("beforeUnload", this.preventNav)
+    window.addEventListener("beforeunload", this.preventNav)
   },
 
   beforeDestroy() {
-    window.removeEventListener("beforeUnload", this.preventNav)
+    window.removeEventListener("beforeunload", this.preventNav)
     this.unsubscribe()
   },
 

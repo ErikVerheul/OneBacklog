@@ -96,8 +96,8 @@ function cleanHistory(doc) {
 export default new Vuex.Store({
 	state: {
 		// console log settings
-		debug: import.meta.env.VITE_DEBUG === 'true' || false,
-		debugConnectionAndLogging: import.meta.env.VITE_DEBUG_CONNECTION === 'true' || false,
+		debug: process.env.VUE_APP_DEBUG === 'true' || false,
+		debugConnectionAndLogging: process.env.VUE_APP_DEBUG_CONNECTION === 'true' || false,
 		// creating a CouchDb instance
 		isDatabaseInitiated: false,
 		// authentication
@@ -184,7 +184,7 @@ export default new Vuex.Store({
 		// app wide globals
 		currentTime: Date.now(),
 		configData: null,
-		demo: import.meta.env.VITE_IS_DEMO === 'true' || false,
+		demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
 		eventSyncColor: '#004466',
 		listenForChangesRunning: false,
 		myProductOptions: [],

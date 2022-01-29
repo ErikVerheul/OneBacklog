@@ -1,4 +1,4 @@
-<template>
+<template >
 	<div>
 	<app-header />
 	<b-container>
@@ -227,11 +227,11 @@ import AppHeader from '../header/header.vue'
 export default {
 	/* Prevent accidental reloading of this page */
   beforeMount() {
-    window.addEventListener("beforeUnload", this.preventNav)
+    window.addEventListener("beforeunload", this.preventNav)
   },
 
   beforeDestroy() {
-    window.removeEventListener("beforeUnload", this.preventNav)
+    window.removeEventListener("beforeunload", this.preventNav)
   },
 
   components: {

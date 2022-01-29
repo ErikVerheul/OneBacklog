@@ -206,11 +206,11 @@ export default {
 
   /* Prevent accidental reloading of this page */
   beforeMount() {
-    window.addEventListener("beforeUnload", this.preventNav)
+    window.addEventListener("beforeunload", this.preventNav)
   },
 
   beforeDestroy() {
-    window.removeEventListener("beforeUnload", this.preventNav)
+    window.removeEventListener("beforeunload", this.preventNav)
   },
 
   mounted() {
@@ -404,7 +404,7 @@ export default {
     },
 
     doFauxton() {
-      window.open(import.meta.env.VITE_API_URL + '/_utils/#/documentation', '_blank')
+      window.open(process.env.VUE_APP_API_URL + '/_utils/#/documentation', '_blank')
       this.fauxtonStarted = true
     },
 

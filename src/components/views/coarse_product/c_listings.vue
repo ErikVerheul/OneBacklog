@@ -1,4 +1,4 @@
-<template>
+<template >
   <div>
     <ul v-if="$store.state.selectedForView==='comments'">
       <li v-for="comment in getFilteredComments" :key="comment.timestamp">

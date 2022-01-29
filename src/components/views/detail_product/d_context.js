@@ -252,6 +252,7 @@ const methods = {
 			}
 
 			// move the node to the new place and update the productId and parentId; movedNode is updated by this call
+			console.log('this.moveNodes is called')
 			const moveDataContainer = this.moveNodes([this.movedNode], targetPosition)
 
 			// update the database

@@ -68,8 +68,8 @@
 
 <script>
 import { STATE } from '../../../constants.js'
-import TaskColumn from './TaskColumn.vue'
-import StoryColumn from './StoryColumn.vue'
+import TaskColumn from './TaskColumn'
+import StoryColumn from './StoryColumn'
 
 
 export default {

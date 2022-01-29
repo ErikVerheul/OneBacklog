@@ -41,7 +41,7 @@ import { LEVEL } from '../../../constants.js'
 import { createId } from '../../../common_functions.js'
 import { authorization, utilities } from '../../mixins/generic.js'
 import Draggable from 'vuedraggable'
-import TaskItem from './TaskItem.vue'
+import TaskItem from './TaskItem'
 
 export default {
   mixins: [authorization, utilities],
