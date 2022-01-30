@@ -62,3 +62,92 @@
 </template>
 
 <script src="./sl-vue-tree.js"></script>
+
+<style scoped>
+.sl-vue-tree {
+  position: relative;
+  cursor: default;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+}
+
+.sl-vue-tree.sl-vue-tree-root {
+  background-color: rgb(9, 22, 29);
+  color: rgba(255, 255, 255, 0.5);
+  flex-grow: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.sl-vue-tree-selected > .sl-vue-tree-node-item {
+  background-color: #13242d;
+  color: white;
+}
+
+.sl-vue-tree-highlighted-1 > .sl-vue-tree-node-item {
+  color: rgb(98, 153, 226);
+}
+
+.sl-vue-tree-highlighted-2 > .sl-vue-tree-node-item {
+  color: rgb(99, 233, 122);
+}
+
+.sl-vue-tree-warnlighted > .sl-vue-tree-node-item {
+  color: red;
+}
+
+.sl-vue-tree-node-item.sl-vue-tree-cursor-inside {
+  color: orange;
+}
+
+.sl-vue-tree-node-item {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  padding-left: 10px;
+  padding-right: 10px;
+  line-height: 28px;
+  border: 1px solid transparent;
+}
+
+.sl-vue-tree-gap {
+  width: 15px;
+  min-height: 1px;
+}
+
+.sl-vue-tree-toggle {
+  display: inline-block;
+  text-align: left;
+  width: 20px;
+}
+
+.sl-vue-tree-dependency-violation {
+  display: inline-block;
+  position: absolute;
+  right: 50px;
+}
+
+.sl-vue-tree-sidebar {
+  display: inline-block;
+  position: absolute;
+  right: 10px;
+}
+
+.sl-vue-tree-cursor {
+  position: absolute;
+  border: 1px solid;
+  border-color: white;
+  height: 1px;
+  width: 100%;
+}
+</style>

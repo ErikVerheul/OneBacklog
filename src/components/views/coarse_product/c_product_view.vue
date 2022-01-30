@@ -300,7 +300,6 @@
 <script src="./c_product_view.js"></script>
 
 <style lang="scss" scoped>
-@import "../../../css/sl-vue-tree-dark.css";
 
 // horizontal panes
 .horizontal-panes {
