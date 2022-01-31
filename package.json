@@ -17,7 +17,6 @@
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.16.1",
-    "jquery": "^3.6.0",
     "serve": "^11.3.2",
     "vue": "^2.6.14",
     "vue-multipane": "^0.9.5",
