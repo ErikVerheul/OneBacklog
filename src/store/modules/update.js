@@ -1,5 +1,4 @@
 import { SEV, STATE, LEVEL } from '../../constants.js'
-import { getLevelText } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -1079,7 +1078,7 @@ const actions = {
 							rootState.changeHistory.unshift(entry)
 							// select and show the new node
 							commit('updateNodesAndCurrentDoc', { newNode: payload.newNode, newDoc: payload.newDoc })
-							commit('showLastEvent', { txt: `Item of type ${getLevelText(rootState.configData, payload.newNode.level)} is inserted.`, severity: SEV.INFO })
+							commit('showLastEvent', { txt: `Item of type ${rootState.helpersRef.getLevelText(payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 						} else {
 							// the priority has changed after the preflihgt insert; revert the change in the tree and database
 							const msg = `createDocWithParentHist: doc priority ${payload.newDoc.priority} of document with id ${payload.newDoc._id} does not match node priority ${payload.newNode.data.priority}.

@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { createId, getLevelText } from '../../common_functions.js'
+import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -381,7 +381,7 @@ const actions = {
 											entry.removedProductRoles = rootGetters.getMyProductsRoles[removedNode._id]
 										}
 										rootState.changeHistory.unshift(entry)
-										commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
+										commit('showLastEvent', { txt: `The ${rootState.helpersRef.getLevelText(removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
 									} else {
 										if (payload.undoOnError) {
 											commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })

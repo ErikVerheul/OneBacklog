@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { getLevelText, getLocationInfo } from '../../common_functions.js'
+import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
@@ -53,7 +53,7 @@ const actions = {
 					commit('showLastEvent', { txt: `You ${text} in another session`, severity })
 				} else commit('showLastEvent', { txt: `Another user ${text}`, severity })
 			} else {
-				const standardTxt = `${getLevelText(rootState.configData, doc.level, doc.subtype)} '${doc.title}' in product '${getProductTitle(doc.productId)}'`
+				const standardTxt = `${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}' in product '${getProductTitle(doc.productId)}'`
 				if (isSameUserInDifferentSession) {
 					commit('showLastEvent', { txt: `You ${text} ${standardTxt} in another session`, severity })
 				} else commit('showLastEvent', { txt: `Another user ${text} ${standardTxt}`, severity })
@@ -218,7 +218,7 @@ const actions = {
 								case 'changeReqAreaColorEvent':
 									commit('updateColorMapper', { id: doc._id, newColor: doc.color })
 									commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
-									showSyncMessage(`changed the color indication of ${getLevelText(rootState.configData, doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
+									showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
 									break
 								case 'createEvent':
 									if (node === null) {
@@ -269,7 +269,7 @@ const actions = {
 								case 'changeReqAreaColorEvent':
 									if (rootGetters.isDetailsViewSelected) {
 										commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-										showSyncMessage(`changed the color indication of ${getLevelText(rootState.configData, doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
+										showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
 									}
 									break
 								case 'commentToHistoryEvent':

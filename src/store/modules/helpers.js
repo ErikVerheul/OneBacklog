@@ -16,7 +16,25 @@ const actions = {
 	}) {
 		rootState.helpersRef = Object.freeze({
 			name: 'OneBacklog global helper functions',
-			version: '1.0.0',
+
+			/* Return the subtype description (on PBI level only) */
+			getSubType(idx) {
+				if (idx < 0 || idx >= rootState.configData.subtype.length) {
+					return 'Error: unknown subtype'
+				}
+				return rootState.configData.subtype[idx]
+			},
+
+			/* Return the description of the give level, or the subtype description if the level equals the PBI level */
+			getLevelText(level, subtype = 0) {
+				if (level < 0 || level > LEVEL.TASK) {
+					return 'Error: Level not supported'
+				}
+				if (level === LEVEL.PBI) {
+					return this.getSubType(subtype)
+				}
+				return rootState.configData.itemType[level]
+			},
 
 			/* Return the nodeModel on the given path in the given tree branch (default: the complete tree) or null if not found */
 			getNodeModel(path, branch = rootGetters.getTreeModel) {

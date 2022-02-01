@@ -182,15 +182,12 @@ const utilities = {
 			return this.$store.state.configData.itemState[idx]
 		},
 
-		// usage in Vue components; see also common-functions.js for the same function
-		getLevelText(level, subtype = 0) {
-			if (level < 0 || level > LEVEL.TASK) {
-				return 'Level not supported'
-			}
-			if (level === LEVEL.PBI) {
-				return this.getSubType(subtype)
-			}
-			return this.$store.state.configData.itemType[level]
+		getLevelText(level) {
+			if (this.$store.state.helpersRef) return this.$store.state.helpersRef.getLevelText(level)
+		},
+
+		getSubType(idx) {
+			if (this.$store.state.helpersRef) return this.$store.state.helpersRef.getSubType(idx)
 		},
 
 		getNodeStateText(node) {
@@ -206,13 +203,6 @@ const utilities = {
 				}
 				return this.$store.state.configData.taskState[idx]
 			}
-		},
-
-		getSubType(idx) {
-			if (idx < 0 || idx >= this.$store.state.configData.subtype.length) {
-				return 'Error: unknown subtype'
-			}
-			return this.$store.state.configData.subtype[idx]
 		},
 
 		getTaskStateText(idx) {

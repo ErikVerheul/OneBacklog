@@ -1,5 +1,4 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { getLevelText } from '../../common_functions.js'
 
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -278,7 +277,7 @@ const actions = {
 						if (node !== null) node.conditionalFor.push(c.conditionalFor)
 					}
 					commit('updateNodesAndCurrentDoc', { newDoc: updatedParentDoc })
-					commit('showLastEvent', { txt: `The ${getLevelText(rootState.configData, globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
+					commit('showLastEvent', { txt: `The ${rootState.helpersRef.getLevelText(globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
 					rootState.busyWithLastUndo = false
 				}, onFailureCallback: () => {
 					rootState.busyWithLastUndo = false
