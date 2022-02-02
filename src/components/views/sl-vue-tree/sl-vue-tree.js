@@ -85,7 +85,7 @@ const computed = {
 		const gaps = []
 		let i = this.nodeLevel
 		while (i-- > 0) gaps.push(i)
-		if (this.nodeLevel + 1 === this.leafLevel) gaps.push(i)
+		if (this.nodeLevel + 1 === this.$store.state.helpersRef.getLeafLevel()) gaps.push(i)
 		return gaps
 	},
 

@@ -142,7 +142,6 @@ const utilities = {
 			'isFollower',
 			'isOverviewSelected',
 			'isPlanningBoardSelected',
-			'leafLevel',
 			'myTeam'
 		]),
 

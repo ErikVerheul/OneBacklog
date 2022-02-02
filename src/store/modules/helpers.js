@@ -17,6 +17,11 @@ const actions = {
 		rootState.helpersRef = Object.freeze({
 			name: 'OneBacklog global helper functions',
 
+			/* Convenience function */
+			getLeafLevel() {
+				return rootGetters.leafLevel
+			},
+
 			/* Return the subtype description (on PBI level only) */
 			getSubType(idx) {
 				if (idx < 0 || idx >= rootState.configData.subtype.length) {
@@ -31,7 +36,7 @@ const actions = {
 					return 'Error: Level not supported'
 				}
 				if (level === LEVEL.PBI) {
-					return this.getSubType(subtype)
+					return rootState.helpersRef.getSubType(subtype)
 				}
 				return rootState.configData.itemType[level]
 			},
@@ -57,7 +62,7 @@ const actions = {
 					dependencies: doc.dependencies || [],
 					conditionalFor: doc.conditionalFor || [],
 					title: doc.title,
-					isLeaf: doc.level === this.leafLevel,
+					isLeaf: doc.level === rootGetters.leafLevel,
 					children: [],
 					isExpanded: false,
 					isSelectable: true,
