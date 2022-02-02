@@ -127,11 +127,11 @@
             </template>
 
             <template slot="toggle" slot-scope="{ node }">
-              <span v-if="!node.isLeaf">
+              <span>
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>
-                <i v-if="!node.isExpanded">
+                <i v-else>
                   <font-awesome-icon icon="chevron-right" />
                 </i>
               </span>

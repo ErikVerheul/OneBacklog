@@ -21,9 +21,11 @@
               cursorPosition.nodeModel.pathStr === node.pathStr
           }">
 
-        <div class="sl-vue-tree-gap" v-for="gapInd in gaps" :key="gapInd"></div>
-
         <div class="sl-vue-tree-title">
+					<template v-for="gapVal in gaps">
+            <span class="sl-vue-tree-gap" :key="gapVal" />
+          </template>
+
           <span class="sl-vue-tree-toggle" v-if="!node.isLeaf" @click="onToggleHandler($event, node)">
             <slot name="toggle" :node="node"></slot>
           </span>
@@ -121,6 +123,7 @@
 }
 
 .sl-vue-tree-gap {
+	display: inline-block;
   width: 15px;
   min-height: 1px;
 }
