@@ -6,19 +6,48 @@ import globalAxios from 'axios'
 
 var removedDeps
 var removedConds
-var extDepsRemovedCount
-var extCondsRemovedCount
+var extDepsRemovedFromIds
+var extCondsRemovedFromIds
 var runningThreadsCount
 var removedDocsCount
 var sprintsAffected
 var teamsAffected
 
+/* Stop the undo action */
 function reset(rootState, payload) {
 	if (payload.isUndoAction) rootState.busyWithLastUndo = false
 }
 
+/* Compose the selection string for the range to loop through */
 function composeRangeString(id) {
 	return `startkey=["${id}",${Number.MIN_SAFE_INTEGER}]&endkey=["${id}",${Number.MAX_SAFE_INTEGER}]`
+}
+
+/* Split the external and internal dependencies and conditions */
+function splitDepsAndConds() {
+	var removedIntDependencies = []
+	var removedExtDependencies = []
+	var removedIntConditions = []
+	var removedExtConditions = []
+	// split the external and internal dependencies
+	for (const id of Object.keys(removedDeps)) {
+		let item = removedDeps[id]
+		if (extCondsRemovedFromIds.includes(id)) {
+			removedExtConditions.push({ id, conditionalFor: item.dependentOn })
+		} else {
+			removedIntConditions.push({ id, conditionalFor: item.dependentOn })
+		}
+	}
+	// split the external and internal conditions
+	for (const id of Object.keys(removedConds)) {
+		let item = removedConds[id]
+		if (extDepsRemovedFromIds.includes(id)) {
+			removedExtDependencies.push({ id, dependentOn: item.conditionalFor })
+		} else {
+			removedIntDependencies.push({ id, dependentOn: item.conditionalFor })
+		}
+	}
+	return { removedIntConditions, removedExtConditions, removedIntDependencies, removedExtDependencies }
 }
 
 const actions = {
@@ -41,8 +70,8 @@ const actions = {
 	}, payload) {
 		removedDeps = {}
 		removedConds = {}
-		extDepsRemovedCount = 0
-		extCondsRemovedCount = 0
+		extDepsRemovedFromIds = []
+		extCondsRemovedFromIds = []
 		runningThreadsCount = 0
 		removedDocsCount = 0
 		sprintsAffected = []
@@ -175,7 +204,7 @@ const actions = {
 								if (c !== removedDeps[doc._id].dependentOn) newConditionalFor.push(c)
 							}
 							doc.conditionalFor = newConditionalFor
-							extCondsRemovedCount++
+							extCondsRemovedFromIds.push(doc._id)
 							const newHist = {
 								ignoreEvent: ['removeExternalConds'],
 								timestamp: Date.now(),
@@ -224,7 +253,7 @@ const actions = {
 								if (d !== removedConds[doc._id].conditionalFor) newDependencies.push(d)
 							}
 							doc.dependencies = newDependencies
-							extDepsRemovedCount++
+							extDepsRemovedFromIds.push(doc._id)
 							const newHist = {
 								ignoreEvent: ['removeExternalDeps'],
 								timestamp: Date.now(),
@@ -308,7 +337,7 @@ const actions = {
 		}).then(res => {
 			const updatedDoc = res.data
 			const newHist = {
-				removedWithDescendantsEvent: [removed_doc_id, removedDocsCount, extDepsRemovedCount, extCondsRemovedCount, sprintsAffected, payload.delmark],
+				removedWithDescendantsEvent: [removed_doc_id, removedDocsCount, extDepsRemovedFromIds.length, extCondsRemovedFromIds.length, sprintsAffected, payload.delmark],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -333,8 +362,7 @@ const actions = {
 					const prevNode = rootState.helpersRef.getPreviousNode(payload.node.path)
 					// skip updating the tree if the previous node is not found (= null)
 					if (prevNode) {
-						// remove any dependency references to/from outside the removed items; note: these cannot be undone
-						const removed = rootState.helpersRef.correctDependencies(payload.node)
+						// remove any dependency references to/from outside the removed items
 						let nowSelectedNode = prevNode
 						if (prevNode.level === LEVEL.DATABASE) {
 							// if a product is to be removed and the previous node is root, select the next product
@@ -363,6 +391,35 @@ const actions = {
 									removedNode.isSelectable = true
 
 									if (!payload.isUndoAction || payload.isUndoAction === undefined) {
+										// get the data of the removed external dependencies and conditions
+										const removed = splitDepsAndConds()
+
+										// remove the external (not removed nodes) dependencies in the tree model
+										for (let dep of removed.removedExtDependencies) {
+											let node = rootState.helpersRef.getNodeById(dep.id)
+											if (node) {
+												const newDependencies = []
+												for (let d of node.dependencies) {
+													if (d !== dep.dependentOn) {
+														newDependencies.push(d)
+													}
+													node.dependencies = newDependencies
+												}
+											}
+										}
+										// remove the external (not removed nodes) conditions in the tree model
+										for (let con of removed.removedExtConditions) {
+											let node = rootState.helpersRef.getNodeById(con.id)
+											if (node) {
+												const newConditionalFor = []
+												for (let c of node.conditionalFor) {
+													if (c !== con.conditionalFor) {
+														newConditionalFor.push(c)
+													}
+													node.conditionalFor = newConditionalFor
+												}
+											}
+										}
 										// create an entry for undoing the remove in a last-in first-out sequence
 										const entry = {
 											type: 'undoRemove',

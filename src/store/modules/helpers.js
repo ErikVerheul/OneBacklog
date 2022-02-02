@@ -478,10 +478,6 @@ const actions = {
 			/* When nodes are deleted orphan dependencies can be created. This method removes them. */
 			correctDependencies(removedNode) {
 				const removedItemIds = rootState.helpersRef.getDescendantsInfo(removedNode).ids
-				const removedIntDependencies = []
-				const removedIntConditions = []
-				const removedExtDependencies = []
-				const removedExtConditions = []
 				rootState.helpersRef.traverseModels((nm) => {
 					if (nm.dependencies && nm.dependencies.length > 0) {
 						const newDependencies = []
@@ -491,7 +487,7 @@ const actions = {
 								// dependency references within the deleted nodes survive
 								if (removedItemIds.includes(d)) {
 									newDependencies.push(d)
-								} else removedIntDependencies.push({ id: nm._id, dependentOn: d })
+								}
 							}
 						} else {
 							// nm is an outsider
@@ -499,8 +495,6 @@ const actions = {
 								// outsider references not referencing any of the nodes survive
 								if (!removedItemIds.includes(d)) {
 									newDependencies.push(d)
-								} else {
-									removedExtDependencies.push({ id: nm._id, dependentOn: d })
 								}
 							}
 						}
@@ -515,7 +509,7 @@ const actions = {
 								// dependency references within the deleted nodes survive
 								if (removedItemIds.includes(c)) {
 									newConditionalFor.push(c)
-								} else removedIntConditions.push({ id: nm._id, conditionalFor: c })
+								}
 							}
 						} else {
 							// nm is an outsider
@@ -523,15 +517,12 @@ const actions = {
 								// outsider references not referencing any of the nodes survive
 								if (!removedItemIds.includes(c)) {
 									newConditionalFor.push(c)
-								} else {
-									removedExtConditions.push({ id: nm._id, conditionalFor: c })
 								}
 							}
 						}
 						nm.conditionalFor = newConditionalFor
 					}
 				}, rootState.helpersRef.getProductModel(removedNode.productId))
-				return { removedIntDependencies, removedIntConditions, removedExtDependencies, removedExtConditions }
 			},
 
 			/* Return the productId, parentId, level, the index position and priority if this node is to be inserted */
