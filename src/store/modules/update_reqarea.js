@@ -45,8 +45,8 @@ const actions = {
 				caller: 'updateColorDb',
 				onSuccessCallback: () => {
 					state.canUpdateColor = true
-					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor, newHist })
 					commit('updateColorMapper', { id, newColor: payload.newColor })
+					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('showLastEvent', { txt: 'The requirement area color indication is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
