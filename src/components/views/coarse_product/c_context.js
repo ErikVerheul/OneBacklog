@@ -1,5 +1,6 @@
 import { SEV } from '../../../constants.js'
 import commonContext from '../common_context.js'
+import { utilities } from '../../mixins/generic.js'
 import { eventBus } from '../../../main'
 
 function created () {
@@ -211,6 +212,7 @@ const methods = {
 }
 
 export default {
+	mixins: [utilities],
   extends: commonContext,
   created,
 	data,
