@@ -96,7 +96,24 @@ const methods = {
 		return txt
 	},
 
-	/* event handling */
+	/* Get the requirement area colors not in use already */
+	getRemainingColorOptions() {
+		const availableOptions = []
+		// the requirements areas product must be the first product in the hierarchy
+		const reqAreaNodes = this.$store.state.helpersRef.getProducts()[0].children
+		for (let co of this.colorOptions) {
+			let colorInUse = false
+			for (let nm of reqAreaNodes) {
+				if (nm.data.reqAreaItemColor === co.hexCode) {
+					colorInUse = true
+				}
+			}
+			if (!colorInUse) availableOptions.push(co)
+		}
+		return availableOptions
+	},
+
+	/* Event handling */
 	onNodesSelected(fromContextMenu) {
 		const selNodes = this.$store.state.selectedNodes
 		// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
@@ -217,9 +234,9 @@ const methods = {
 		this.$store.dispatch('updateColorDb', { node: this.getLastSelectedNode, newColor })
 	},
 
-	setReqArea(reqarea) {
+	setReqArea(node) {
 		if (this.isAPO) {
-			this.selReqAreaId = reqarea
+			this.selReqAreaId = node.data.reqarea || null
 			// set the req area options
 			const currReqAreaNodes = this.$store.state.helpersRef.getReqAreaNodes()
 			if (currReqAreaNodes) {

@@ -149,9 +149,9 @@
               </template>
               <p v-else-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT">
                 <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
-                  :style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node.data.reqarea)" squared size="sm">Change
+                  :style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node)" squared size="sm">Change
                 </b-button>
-                <b-button v-else @click="setReqArea(null)" squared variant="seablueLight" size="sm">Set</b-button>
+                <b-button v-else @click="setReqArea(node)" squared variant="seablueLight" size="sm">Set</b-button>
               </p>
             </template>
           </sl-vue-tree>
@@ -178,7 +178,7 @@
               <span v-else-if="!isReqAreaTopLevel">
                 <b-form-group>
                   Select a display color for this requirement area:
-                  <b-form-radio-group v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="colorOptions" plain />
+                  <b-form-radio-group v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" plain />
                 </b-form-group>
               </span>
             </div>
