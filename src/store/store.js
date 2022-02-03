@@ -667,13 +667,23 @@ const store = new Vuex.Store({
 			}
 		},
 
-		/* Change one color; must create a new object for reactivity */
+		/* Change or add one color; must create a new object for reactivity */
 		updateColorMapper(state, payload) {
 			const newColorMapper = {}
-			for (const id of Object.keys(state.colorMapper)) {
-				if (id === payload.id) {
-					newColorMapper[id] = { reqAreaItemColor: payload.newColor }
-				} else newColorMapper[id] = state.colorMapper[id]
+			const reqAreaIds = Object.keys(state.colorMapper)
+			if (reqAreaIds.includes(payload.id)) {
+				// change the color of a mapping
+				for (const id of reqAreaIds) {
+					if (id === payload.id) {
+						newColorMapper[id] = { reqAreaItemColor: payload.newColor }
+					} else newColorMapper[id] = state.colorMapper[id]
+				}
+			} else {
+				// add a new color to the mapping
+				for (const id of reqAreaIds) {
+					newColorMapper[id] = state.colorMapper[id]
+				}
+				newColorMapper[payload.id] = { reqAreaItemColor: payload.newColor }
 			}
 			state.colorMapper = newColorMapper
 		},
