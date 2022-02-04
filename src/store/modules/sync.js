@@ -226,6 +226,10 @@ const actions = {
 										showSyncMessage(`created`, SEV.INFO)
 									}
 									break
+								case 'descriptionEvent':
+									commit('updateNodesAndCurrentDoc', { node, description: window.atob(doc.description), lastContentChange: doc.lastContentChange })
+									showSyncMessage(`changed the description of`, SEV.INFO)
+									break
 								case 'nodeMovedEvent':
 									moveNode(node, doc.parentId)
 									showSyncMessage(`moved`, SEV.INFO)
