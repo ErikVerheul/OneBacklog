@@ -5,31 +5,22 @@ import { SEV, LEVEL } from '../../../constants.js'
 import { collapseNode, expandNode } from '../../../common_functions.js'
 import { eventBus } from '../../../main'
 
+// in px; used to calculate the node closest to the current cursor position
+const edgeSize = 6
+
 const props = {
-	edgeSize: {
-		type: Number,
-		default: 6
-	},
 	nodeLevel: {
 		type: Number,
 		default: 0
 	},
+
 	parentInd: {
 		type: Number
-	},
-	allowMultiselect: {
-		type: Boolean,
-		default: true
-	},
-	allowToggleBranch: {
-		type: Boolean,
-		default: true
 	}
 }
 
 function data() {
 	return {
-		debugMode: this.$store.state.debug,
 		draggableNodes: [],
 		rootCursorPosition: null,
 		mouseIsDown: false,
@@ -76,7 +67,7 @@ const computed = {
 		return retNodes
 	},
 
-	/**
+	/*
 	 * gaps is used for nodes indentation
 	 * nodeLevel starts with 0; item level with 1
 	 * @returns {number[]}
@@ -85,7 +76,10 @@ const computed = {
 		const gaps = []
 		let i = this.nodeLevel
 		while (i-- > 0) gaps.push(i)
-		if (this.nodeLevel + 1 === this.$store.state.helpersRef.getLeafLevel()) gaps.push(i)
+		if (this.nodeLevel + 1 === this.$store.state.helpersRef.getLeafLevel()) {
+			// create an extra array member for an extra indent on leaf level (this level has no leading chevron in the tree view)
+			gaps.push(i)
+		}
 		return gaps
 	},
 
@@ -132,7 +126,6 @@ const methods = {
 		if (!nodeModel) return null
 
 		const nodeHeight = nodeItem.offsetHeight
-		const edgeSize = this.edgeSize
 		const offsetY = y - nodeItem.getBoundingClientRect().top
 
 		let placement
@@ -318,7 +311,6 @@ const methods = {
 	},
 
 	onToggleHandler(event, node) {
-		if (!this.allowToggleBranch) return
 		if (node.isExpanded) {
 			collapseNode(node)
 		} else expandNode(node)
@@ -334,7 +326,7 @@ const methods = {
 			this.preventDrag = false
 			const prevSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
 			// ctrl-select or shift-select mode is allowed only if nodes have the same parent and are above productlevel (epics, features and higher)
-			if (selNode.level > LEVEL.PRODUCT && this.allowMultiselect && selNode.parentId === prevSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
+			if (selNode.level > LEVEL.PRODUCT && selNode.parentId === prevSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
 				if (event.ctrlKey) {
 					// multi selection
 					this.$store.commit('addSelectedNode', selNode)
