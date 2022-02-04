@@ -118,7 +118,7 @@ const methods = {
 		const selNodes = this.$store.state.selectedNodes
 		// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
 		this.updateDescription(this.getPreviousNodeSelected)
-		this.updateAcceptance(this.getPreviousNodeSelected)
+		if (!this.isReqAreaItemSelected) this.updateAcceptance(this.getPreviousNodeSelected)
 
 		// load the document if not already in memory
 		if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id) {
