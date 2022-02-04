@@ -195,6 +195,7 @@
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
             <vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
           </div>
+					<template v-if="!isReqAreaItemSelected">
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
             <div>
@@ -205,6 +206,7 @@
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
             <vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptance()"></vue-editor>
           </div>
+					</template>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
