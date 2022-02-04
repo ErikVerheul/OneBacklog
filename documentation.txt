@@ -105,7 +105,7 @@ The item types are defined in the CONFIG file:
 		"Task"
   ],
 
-Requirement areas are children of the 'Requirments areas overview' dummy product with id 'requirement-areas'. All req areas have productId = parentId = 'requirement-areas'.
+Requirement areas are children of the 'REQUIREMENT AREAS' dummy product with id 'requirement-areas'. All req areas have productId = parentId = 'requirement-areas'.
 
 These types map to the level attribute in the database documents and in the tree nodes
 
