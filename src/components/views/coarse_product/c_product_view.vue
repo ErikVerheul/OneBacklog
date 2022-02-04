@@ -90,7 +90,7 @@
                 </i>
               </span>
               {{ patchTitle(node) }}
-							<span v-if="!node.isSelectable" class="item-icon">
+              <span v-if="!node.isSelectable" class="item-icon">
                 <i class="colorRed">
                   <font-awesome-icon icon="ban" />
                 </i>
@@ -195,18 +195,18 @@
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
             <vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
           </div>
-					<template v-if="!isReqAreaItemSelected">
-          <multipane-resizer></multipane-resizer>
-          <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
-            <div>
-              <h5 class="title is-6">Acceptance criteria</h5>
+          <template v-if="!isReqAreaItemSelected">
+            <multipane-resizer></multipane-resizer>
+            <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+              <div>
+                <h5 class="title is-6">Acceptance criteria</h5>
+              </div>
             </div>
-          </div>
-          <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
-          <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
-            <vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptance()"></vue-editor>
-          </div>
-					</template>
+            <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
+            <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
+              <vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptance()"></vue-editor>
+            </div>
+          </template>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
@@ -302,7 +302,6 @@
 <script src="./c_product_view.js"></script>
 
 <style lang="scss" scoped>
-
 // horizontal panes
 .horizontal-panes {
   width: 100%;
@@ -423,11 +422,11 @@
 
 //my stuff
 h3 {
-	height: 45px;
+  height: 45px;
 }
 
 .note {
-	background: #eee;
+  background: #eee;
 }
 
 .square {
