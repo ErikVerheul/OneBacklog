@@ -6,6 +6,22 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.16 - 5 Febuari 2022 New feature, bug fixes, refactoring</h3>
+					<p>New feature:</p>
+          <ul>
+            <li>When creating a new requirement area do not show color options already in use</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+						<li>Descrioption changes of requirent area items are not synchronized with other users having the same item selected, fixed</li>
+            <li>When removing an item in the product overview with dependencies or conditions on its descendants, these are not recovered on the undo, fixed</li>
+          </ul>
+					<p>Refactoring:</p>
+          <ul>
+						<li>Sign out refactored app wide to prevent the listenforchanges longpoll to continue after sign out</li>
+            <li>Move global functions to helpers module</li>
+						<li>Redundant enries in package.json removed</li>
+          </ul>
 					<h3>v.1.15 - 25 Januari 2022 Security fixes, refactoring</h3>
           <p>Security:</p>
           <ul>
