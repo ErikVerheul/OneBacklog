@@ -1,6 +1,7 @@
 import { SEV } from '../../constants.js'
 import { createId } from '../../common_functions.js'
 import globalAxios from 'axios'
+
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
@@ -213,8 +214,7 @@ const actions = {
 				if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
 					if (rootGetters.isAdmin) { router.replace('/admin') } else {
 						alert('Error: No default product is set. Consult your administrator. The application will exit.')
-						commit('endSession')
-						router.replace('/')
+						commit('endSession', 'startup: getConfig - No default product is set')
 					}
 			} else {
 				if (configData.defaultSprintCalendar) {
@@ -265,8 +265,7 @@ const actions = {
 						dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: configData, toDispatch, caller: 'getConfig' })
 					} else {
 						alert('Error: No default sprint calendar is set. Consult your administrator. The application will exit.')
-						commit('endSession')
-						router.replace('/')
+						commit('endSession', 'startup: getConfig - No default sprint calendar is set')
 					}
 				}
 			}

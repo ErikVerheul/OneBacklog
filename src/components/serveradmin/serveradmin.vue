@@ -118,7 +118,7 @@
         <div v-if="$store.state.isCurrentDbChanged">
           <h4>Success! Click 'Exit' to sign-out. Sign-in to see the product details view of the '{{ $store.state.selectedDatabaseName }} 'database</h4>
           <div>
-            <b-button class="m-1" @click="signIn()">Exit</b-button>
+            <b-button class="m-1" @click="signOut()">Exit</b-button>
           </div>
         </div>
       </div>
@@ -186,7 +186,6 @@
 <script>
 import { MISC } from '../../constants.js'
 import AppHeader from '../header/header.vue'
-import router from '../../router'
 
 export default {
   data() {
@@ -414,9 +413,8 @@ export default {
       this.optionSelected = 'Select a task'
     },
 
-    signIn() {
-      this.$store.commit('endSession')
-      router.replace('/')
+    signOut() {
+      this.$store.commit('endSession', 'serveradmin')
     }
   },
 

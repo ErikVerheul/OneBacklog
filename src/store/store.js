@@ -114,6 +114,7 @@ const store = new Vuex.Store({
 		iAmAssistAdmin: false,
 		iAmServerAdmin: false,
 		myAssignedDatabases: [],
+		signedOut: true,
 		// tree loading
 		allTeams: {},
 		loadedTreeDepth: undefined,
@@ -594,9 +595,8 @@ const store = new Vuex.Store({
 						if (o.value !== payload.productId) newOptions.push(o)
 					}
 					state.myProductOptions = newOptions
-					if (payload.signOut) {
-						commit('endSession')
-						router.replace('/')
+					if (payload.doSignOut) {
+						commit('endSession', 'removeFromMyProducts, payload.doSignOut = true')
 					}
 				}
 
@@ -1125,9 +1125,13 @@ const store = new Vuex.Store({
 			}
 		},
 
-		/* Reset this data on sign-in */
-		resetData(state) {
+		endSession(state, caller) {
+			// stop the timers
+			clearInterval(state.authentication.runningCookieRefreshId)
+			clearInterval(state.logging.runningWatchdogId)
+			// clear the data
 			state.areOptionsSaved = false
+			state.authentication.cookieAuthenticated = false
 			state.availableProductIds = []
 			state.authentication.sessionAuthData = {}
 			state.changeHistory = []
@@ -1154,12 +1158,11 @@ const store = new Vuex.Store({
 			state.showHeaderDropDowns = true
 			state.treeNodes = []
 			state.userData = {}
-		},
-
-		endSession(state) {
-			clearInterval(state.authentication.runningCookieRefreshId)
-			state.authentication.cookieAuthenticated = false
-			clearInterval(state.logging.runningWatchdogId)
+			// load sign-in page
+			router.replace('/')
+			state.signedOut = true
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log('endSession was executed, signedOut = ' + state.signedOut + ', mySessionId = ' + state.mySessionId + ', caller = ' + caller)
 		}
 	},
 

@@ -71,7 +71,7 @@ const actions = {
 					// save the log on every watchdog cycle
 					dispatch('saveLog')
 					// if returning from a computer sleep state, restart listenForChanges
-					if (!rootState.listenForChangesRunning) {
+					if (!rootState.signedOut && !rootState.listenForChangesRunning) {
 						dispatch('listenForChanges')
 					}
 				}

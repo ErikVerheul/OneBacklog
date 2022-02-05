@@ -251,7 +251,7 @@ const actions = {
 
 			// all products are read; initialize the helpers functions
 			dispatch('createHelpers')
-			if (!rootState.listenForChangesRunning) {
+			if (!rootState.signedOut && !rootState.listenForChangesRunning) {
 				// do not start listenForChanges again after sign-out/in
 				dispatch('listenForChanges')
 				// eslint-disable-next-line no-console

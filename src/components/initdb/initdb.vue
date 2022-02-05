@@ -32,7 +32,7 @@
       </b-form-group>
       <div v-if="!$store.state.isDatabaseInitiated">
           <b-button v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</b-button>
-          <b-button class="m-1" @click="cancel" variant="outline-primary">Cancel</b-button>
+          <b-button class="m-1" @click="signOut" variant="outline-primary">Cancel</b-button>
       </div>
       <div v-else>
         <h5>Success! Apart from being a CouchDb 'server admin' you have the 'admin' role.</h5>
@@ -56,7 +56,6 @@
 </template>
 
 <script>
-import router from '../../router'
 import AppHeader from '../header/header.vue'
 
 export default {
@@ -108,13 +107,8 @@ export default {
       this.$store.dispatch('createDatabase', payload)
     },
 
-    cancel() {
-      this.signOut()
-    },
-
     signOut() {
-      this.$store.commit('endSession')
-      router.replace('/')
+      this.$store.commit('endSession', 'initdb')
     }
   },
 

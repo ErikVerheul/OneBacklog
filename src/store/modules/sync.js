@@ -3,6 +3,7 @@ import { getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
+
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
 /*
@@ -325,7 +326,7 @@ const actions = {
 									if (node && doc.delmark) {
 										// remove any dependency references to/from outside the removed items
 										rootState.helpersRef.correctDependencies(node)
-										let signOut = false
+										let doSignOut = false
 										if (node.isSelected || rootState.helpersRef.isDescendantNodeSelected(node)) {
 											// before removal select the predecessor of the removed node (sibling or parent)
 											const prevNode = rootState.helpersRef.getPreviousNode(node.path)
@@ -336,7 +337,7 @@ const actions = {
 												if (nextProduct === null) {
 													// there is no next product
 													alert('WARNING - the only product you are viewing is removed by another user! You will be signed out. Contact your administrator.')
-													signOut = true
+													doSignOut = true
 												}
 												nowSelectedNode = nextProduct
 											}
@@ -344,7 +345,7 @@ const actions = {
 										}
 										if (node.level === LEVEL.PRODUCT) {
 											// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
-											dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, signOut })
+											dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, doSignOut })
 										}
 										rootState.helpersRef.removeNodes([node])
 										showSyncMessage(`removed the`, SEV.INFO)
@@ -538,71 +539,71 @@ const actions = {
 								if (moveToOtherProduct) {
 									dispatch('renewPlanningBoard')
 								} else
-								switch (targetLevel) {
-									case LEVEL.TASK:
-										switch (sourceLevel) {
-											case LEVEL.TASK:
-												// a task is positioned on or away from the current board
-												if (targetSprintId !== rootState.loadedSprintId) {
-													// task is moved to another sprint or to no sprint
-													commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+									switch (targetLevel) {
+										case LEVEL.TASK:
+											switch (sourceLevel) {
+												case LEVEL.TASK:
+													// a task is positioned on or away from the current board
+													if (targetSprintId !== rootState.loadedSprintId) {
+														// task is moved to another sprint or to no sprint
+														commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+														break
+													}
+													if (sourceSprintId !== rootState.loadedSprintId) {
+														// task is moved into the loaded sprint
+														commit('addTaskToBoard', doc)
+														break
+													}
+													if (targetSprintId === rootState.loadedSprintId && sourceSprintId === rootState.loadedSprintId) {
+														// task is moved within the loaded sprint
+														if (sourceParentId === targetParentId && sourceLevel === LEVEL.TASK) {
+															// task is moved within a story
+															commit('moveTaskWithinStory', { targetParentId, doc, newlyCalculatedPriority })
+														}
+														if (sourceParentId !== targetParentId) {
+															// task is moved between stories
+															commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+															commit('addTaskToBoard', doc)
+														}
+													}
 													break
-												}
-												if (sourceSprintId !== rootState.loadedSprintId) {
-													// task is moved into the loaded sprint
+												case LEVEL.PBI:
+													// a PBI is demoted to a task
+													commit('removeStoryFromBoard', doc._id)
 													commit('addTaskToBoard', doc)
 													break
-												}
-												if (targetSprintId === rootState.loadedSprintId && sourceSprintId === rootState.loadedSprintId) {
-													// task is moved within the loaded sprint
-													if (sourceParentId === targetParentId && sourceLevel === LEVEL.TASK) {
-														// task is moved within a story
-														commit('moveTaskWithinStory', { targetParentId, doc, newlyCalculatedPriority })
-													}
-													if (sourceParentId !== targetParentId) {
-														// task is moved between stories
-														commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
-														commit('addTaskToBoard', doc)
-													}
-												}
-												break
-											case LEVEL.PBI:
-												// a PBI is demoted to a task
-												commit('removeStoryFromBoard', doc._id)
-												commit('addTaskToBoard', doc)
-												break
-											default:
-												logIllegalMove(targetLevel, sourceLevel, doc._id)
-										}
-										break
-									case LEVEL.PBI:
-										switch (sourceLevel) {
-											case LEVEL.TASK:
-												// a task is promoted to a PBI
-												commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
-												commit('addEmptyStoryToBoard', doc)
-												break
-											case LEVEL.PBI:
-											case LEVEL.FEATURE:
-												// case LEVEL.PBI: a PBI is moved within the board ||
-												// case LEVEL.FEATURE: a FEATURE is demoted to a PBI
-												dispatch('renewPlanningBoard')
-												break
-											default:
-												logIllegalMove(targetLevel, sourceLevel, doc._id)
-										}
-										break
-									case LEVEL.FEATURE:
-									case LEVEL.EPIC:
-									case LEVEL.PRODUCT:
-										// case LEVEL.FEATURE: a PBI is promoted to a feature || a FEATURE is moved within the board || an EPIC is demoted to a FEATURE ||
-										// case LEVEL.EPIC: a FEATURE is promoted to an EPIC || an EPIC is is moved within the board ||
-										// case LEVEL.PRODUCT: a PRODUCT is moved within the board
-										dispatch('renewPlanningBoard')
-										break
-									default:
-										logIllegalMove(targetLevel, sourceLevel, doc._id)
-								}
+												default:
+													logIllegalMove(targetLevel, sourceLevel, doc._id)
+											}
+											break
+										case LEVEL.PBI:
+											switch (sourceLevel) {
+												case LEVEL.TASK:
+													// a task is promoted to a PBI
+													commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
+													commit('addEmptyStoryToBoard', doc)
+													break
+												case LEVEL.PBI:
+												case LEVEL.FEATURE:
+													// case LEVEL.PBI: a PBI is moved within the board ||
+													// case LEVEL.FEATURE: a FEATURE is demoted to a PBI
+													dispatch('renewPlanningBoard')
+													break
+												default:
+													logIllegalMove(targetLevel, sourceLevel, doc._id)
+											}
+											break
+										case LEVEL.FEATURE:
+										case LEVEL.EPIC:
+										case LEVEL.PRODUCT:
+											// case LEVEL.FEATURE: a PBI is promoted to a feature || a FEATURE is moved within the board || an EPIC is demoted to a FEATURE ||
+											// case LEVEL.EPIC: a FEATURE is promoted to an EPIC || an EPIC is is moved within the board ||
+											// case LEVEL.PRODUCT: a PRODUCT is moved within the board
+											dispatch('renewPlanningBoard')
+											break
+										default:
+											logIllegalMove(targetLevel, sourceLevel, doc._id)
+									}
 							}
 							break
 						case 'removeStoryEvent':
@@ -793,7 +794,13 @@ const actions = {
 		dispatch,
 		commit
 	}) {
-		// stop listening if not online or authenticated. sync will start it again
+		// stop listening if signed-out
+		if (rootState.signedOut) {
+			// eslint-disable-next-line no-console
+			if (rootState.debug) console.log('sync: listenForChanges is blocked as the user is signed out, mySessionId = ' + rootState.mySessionId)
+			return
+		}
+		// stop listening if not online or authenticated. logging.watchdog will start it again
 		if (!rootState.online || !rootState.authentication.cookieAuthenticated) return
 
 		rootState.listenForChangesRunning = true
@@ -812,7 +819,6 @@ const actions = {
 
 					lastSeq = r.seq
 					const doc = r.doc
-					// console.log('listenForChanges: doc = ' + JSON.stringify(doc, null, 2))
 					const isLastCommentNewer = doc.comments[0].timestamp > doc.history[0].timestamp
 					if (
 						// compare with the session id of the most recent distributed comments or history event
@@ -828,12 +834,14 @@ const actions = {
 			rootState.listenForChangesRunning = false
 			if (error.response && error.response.status === 404) {
 				// database not found; cannot log; possible cause is that the server admin is restoring the current database
-				commit('endSession')
+				commit('endSession', 'listenForChanges: catch:error.response.status === 404')
 				return
 			}
 			if (error.message === 'Request aborted') {
 				// the user typed F5 or Ctrl-F5
-				commit('endSession')
+				if (!rootState.signedOut) {
+					commit('endSession', 'listenForChanges: catch:Request aborted')
+				}
 			} else {
 				if (error.response && error.response.status === 401) rootState.authentication.cookieAuthenticated = false
 				if (error.message === 'Network error') rootState.online = false

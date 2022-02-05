@@ -1,7 +1,7 @@
 import { SEV } from '../../constants.js'
 import { localTimeAndMilis } from '../../common_functions.js'
 import globalAxios from 'axios'
-import router from '../../router'
+
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
@@ -65,8 +65,7 @@ const actions = {
 	signin({
 		rootState,
 		state,
-		dispatch,
-		commit
+		dispatch
 	}, authData) {
 		function create_UUID() {
 			let dt = Date.now()
@@ -77,14 +76,13 @@ const actions = {
 			})
 			return uuid
 		}
-		// reset the data from the current session
-		if (rootState.mySessionId) commit('resetData')
 		globalAxios({
 			method: 'POST',
 			url: '/_session',
 			data: authData
 		}).then(res => {
 			rootState.online = true
+			rootState.signedOut = false
 			rootState.mySessionId = create_UUID()
 			state.sessionAuthData = authData
 			rootState.iAmAssistAdmin = res.data.roles.includes('assistAdmin')
@@ -107,17 +105,12 @@ const actions = {
 				{ refreshCookieLoop: null },
 				{ getDatabases: null }
 			]
-			dispatch('refreshCookie', { caller: 'signin', toDispatch })
+			dispatch('refreshCookie', { caller: 'authentication: signin', toDispatch })
 		}).catch(error => {
 			// cannot log failure here as the database name is unknown yet
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('Sign in failed with ' + error)
 		})
-	},
-
-	signout({commit}) {
-		commit('endSession')
-		router.replace('/')
 	}
 }
 

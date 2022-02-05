@@ -1,5 +1,4 @@
 import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
-import router from '../../router'
 import { mapGetters } from 'vuex'
 
 const constants = {
@@ -167,8 +166,7 @@ const utilities = {
 				return { currentSprint, nextSprint }
 			} else {
 				alert('Error: Missing current and/or next sprint; you need to sign-in again to have the sprint calendar extended. The application will exit.')
-				this.$store.commit('endSession')
-				router.replace('/')
+				this.$store.commit('endSession', 'generic: getActiveSprints - Missing current and/or next sprint')
 			}
 		}
 	},

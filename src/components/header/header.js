@@ -175,7 +175,7 @@ const methods = {
 	},
 
 	onSignout() {
-		this.$store.dispatch('signout')
+		this.$store.commit('endSession', 'header - user signed out')
 	}
 }
 

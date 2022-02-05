@@ -1,7 +1,7 @@
 import { SEV } from '../../constants.js'
 import { addToArray } from '../../common_functions.js'
 import globalAxios from 'axios'
-import router from '../../router'
+
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
@@ -312,8 +312,7 @@ const actions = {
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 					dispatch('doLog', { event: msg, level: SEV.INFO })
 					if (payload.autoSignOut) {
-						commit('endSession')
-						router.replace('/')
+						commit('endSession', 'useracc: changeDbInMyProfileAction')
 					}
 				}
 			}).catch(error => {

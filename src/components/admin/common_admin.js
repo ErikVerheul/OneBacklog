@@ -134,6 +134,7 @@ const methods = {
 		this.$store.state.areTeamsRemoved = false
 	},
 
+	// ToDo: remove this method if not used
 	onReset(evt) {
 		evt.preventDefault()
 		// Reset our form values
@@ -574,11 +575,6 @@ const methods = {
 		this.optionSelected = 'Select a task'
 		this.dbIsSelected = false
 		this.$store.state.backendMessages = []
-	},
-
-	signIn() {
-		this.$store.commit('endSession')
-		router.replace('/')
 	}
 }
 
