@@ -13,14 +13,14 @@
           </ul>
           <p>Bug fixes:</p>
           <ul>
-						<li>Descrioption changes of requirent area items are not synchronized with other users having the same item selected, fixed</li>
+						<li>Description changes of requirement area items are not synchronized with other users having the same item selected, fixed</li>
             <li>When removing an item in the product overview with dependencies or conditions on its descendants, these are not recovered on the undo, fixed</li>
           </ul>
 					<p>Refactoring:</p>
           <ul>
 						<li>Sign out refactored app wide to prevent the listenforchanges longpoll to continue after sign out</li>
             <li>Move global functions to helpers module</li>
-						<li>Redundant enries in package.json removed</li>
+						<li>Redundant entries in package.json removed</li>
           </ul>
 					<h3>v.1.15 - 25 Januari 2022 Security fixes, refactoring</h3>
           <p>Security:</p>
