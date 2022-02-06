@@ -502,7 +502,7 @@ const actions = {
 			tssize: 1,
 			spsize: null,
 			spikepersonhours: 0,
-			title: 'Requirement areas overview',
+			title: 'REQUIREMENT AREAS',
 			followers: [],
 			description: window.btoa('<p>To insert one or more requirement areas inside this node right-click on this nodes title in the tree view.</p>'),
 			acceptanceCriteria: window.btoa('<p>n/a</p>'),
