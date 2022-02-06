@@ -108,11 +108,11 @@ const actions = {
 					rootState.showHeaderDropDowns = false
 					rootState.backendMessages = []
 					router.push('/init')
-					return
 				}
+			} else {
+				const msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}
-			const msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
 
