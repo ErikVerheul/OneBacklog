@@ -139,6 +139,9 @@ const actions = {
 						rootState.busyWithLastUndo = false
 					}
 				})
+			} else {
+				// nothing to remove
+				rootState.busyWithLastUndo = false
 			}
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
