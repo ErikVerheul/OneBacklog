@@ -211,7 +211,7 @@ const actions = {
 				return violations
 			},
 
-			/* Show the path from productlevel up to the node and highlight or warnLight the node; if type is set, prepare for undo */
+			/* Show the path from PRODUCTLEVEL up to the node and highlight or warnLight the node; if type is set, prepare for undo */
 			showPathToNode(node, highLights, type) {
 				const maxDepth = node.path.length
 				for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
@@ -223,15 +223,15 @@ const actions = {
 					if (i < maxDepth) {
 						if (!nm.isExpanded) {
 							if (type === 'search') nm.tmp.savedIsExpandedInSearch = false
+							if (type === 'condition') nm.tmp.savedIsExpandedInCondition = false
 							if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = false
 							expandNode(nm)
+						} else {
+							if (type === 'search') nm.tmp.savedIsExpandedInSearch = true
+							if (type === 'condition') nm.tmp.savedIsExpandedInCondition = true
+							if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = true
 						}
 					} else {
-						if (nm.isExpanded) {
-							if (type === 'search') nm.tmp.savedIsExpandedInSearch = true
-							if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = true
-							collapseNode(nm)
-						}
 						if (highLights && Object.keys(highLights).length > 0) {
 							nm.tmp.isHighlighted_1 = !!highLights.doHighLight_1
 							nm.tmp.isHighlighted_2 = !!highLights.doHighLight_2
@@ -252,15 +252,10 @@ const actions = {
 					}
 					if (nm.isExpanded) {
 						if (type === 'search' && nm.tmp.savedIsExpandedInSearch === false) collapseNode(nm)
+						if (type === 'condition' && nm.tmp.savedIsExpandedInCondition === false) collapseNode(nm)
 						if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === false) collapseNode(nm)
 					}
-					if (i === maxDepth) {
-						if (!nm.isExpanded) {
-							if (type === 'search' && nm.tmp.savedIsExpandedInSearch === true) expandNode(nm)
-							if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === true) expandNode(nm)
-						}
-						delete nm.tmp[undoHighLight]
-					}
+					if (i === maxDepth) delete nm.tmp[undoHighLight]
 					// delete if set or not
 					delete nm.tmp.savedIsExpandedInSearch
 					delete nm.tmp.savedIsExpandedInDependency
@@ -272,7 +267,7 @@ const actions = {
 				const nodesToScan = allProducts ? undefined : rootState.helpersRef.getCurrentProductModel()
 				for (let column = 0; column < violations.length; column++) {
 					const v = violations[column]
-					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true }, 'dependency')
+					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true }, 'condition')
 					rootState.helpersRef.showPathToNode(v.depNode, { doWarn: true }, 'dependency')
 					rootState.helpersRef.traverseModels((nm) => {
 						if ((rootState.helpersRef.comparePaths(v.depNode.path, nm.path) !== 1) && (rootState.helpersRef.comparePaths(nm.path, v.condNode.path) !== 1)) {
@@ -292,7 +287,7 @@ const actions = {
 
 			/*
 			* Find and show dependency violations in the current product (details view) or all products (coarse view).
-			* Undo the tree expansion from a previous scan on violations if no violations are faund.
+			* Undo the tree expansion from a previous scan on violations if no violations are found.
 			* Return true if violations are found, false otherwise.
 			*/
 			dependencyViolationsFound() {

@@ -3,15 +3,17 @@ import { createId } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
 
 function created() {
-	this.onholdState = 1
-	this.newState = 2
-	this.doneState = 6
-	this.databaseLevel = 1
-	this.productLevel = 2
-	this.epicLevel = 3
-	this.featureLevel = 4
-	this.pbiLevel = 5
-	this.taskLevel = 6
+	this.ONHOLDSTATE = 1
+	this.NEWSTATE = 2
+	this.DONESTATE = 6
+
+	this.DATABASELEVEL = 1
+	this.PRODUCTLEVEL = 2
+	this.EPICLEVEL = 3
+	this.FEATURELEVEL = 4
+	this.PBILEVEL = 5
+	this.TASKLEVEL = 6
+
 	this.INSERTBELOW = 0
 	this.INSERTINSIDE = 1
 	this.MOVETOPRODUCT = 2
@@ -25,6 +27,9 @@ function created() {
 	this.CLONEBRANCH = 10
 	this.CLONEITEM = 11
 	this.REMOVEREQAREA = 12
+	this.PBITOSPRINT = 13
+	this.FROMSPRINT = 14
+	this.TASKTOSPRINT = 15
 }
 
 function data() {
@@ -258,7 +263,7 @@ const methods = {
 				title: newNode.title,
 				followers: [],
 				description: window.btoa(''),
-				acceptanceCriteria: newNode.level < this.taskLevel ? window.btoa('<p>Please do not neglect</p>') : window.btoa('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+				acceptanceCriteria: newNode.level < this.TASKLEVEL ? window.btoa('<p>Please do not neglect</p>') : window.btoa('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				priority: newNode.data.priority,
 				comments: [{
 					ignoreEvent: 'comments initiated',
@@ -291,12 +296,12 @@ const methods = {
 				let allDone = true
 				for (const desc of descendants) {
 					if (desc.data.state > highestState) highestState = desc.data.state
-					if (desc.data.state < this.doneState && desc.data.state !== this.onholdState) allDone = false
+					if (desc.data.state < this.doneState && desc.data.state !== this.ONHOLDSTATE) allDone = false
 				}
 				if (nm.data.state > highestState || nm.data.state === this.doneState && !allDone) {
 					// node has a higher state than any of its descendants or set to done while one of its descendants is not done
 					nm.tmp.inconsistentState = true
-					this.$store.state.helpersRef.showPathToNode(nm)
+					this.$store.state.helpersRef.showPathToNode(nm, { noHighLight: true })
 					count++
 				} else {
 					nm.tmp.inconsistentState = false
@@ -324,7 +329,7 @@ const methods = {
 		const selectedNode = this.contextNodeSelected
 		if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
 			// when removing a product
-			if (selectedNode.level === this.productLevel) {
+			if (selectedNode.level === this.PRODUCTLEVEL) {
 				if (this.getMyAssignedProductIds.length === 1 || this.$store.state.helpersRef.getProducts().length <= 1) {
 					// cannot remove the last assigned product or product in the tree
 					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
@@ -342,6 +347,14 @@ const methods = {
 		for (const o of dependenciesObjects) {
 			const node = this.$store.state.helpersRef.getNodeById(o._id)
 			if (node) this.$store.state.helpersRef.undoShowPath(node, 'dependency', 'isHighlighted_2')
+		}
+	},
+
+	/* Undo the tree expansion and highlighting */
+	undoShowConditions(conditionsObjects) {
+		for (const o of conditionsObjects) {
+			const node = this.$store.state.helpersRef.getNodeById(o._id)
+			if (node) this.$store.state.helpersRef.undoShowPath(node, 'condition', 'isHighlighted_2')
 		}
 	},
 
@@ -377,7 +390,7 @@ const methods = {
 			this.undoShowDependencies(this.dependenciesObjects)
 		}
 		if (this.contextOptionSelected === this.SHOWCONDITIONS) {
-			this.undoShowDependencies(this.conditionsObjects)
+			this.undoShowConditions(this.conditionsObjects)
 		}
 	}
 }

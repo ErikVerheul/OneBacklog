@@ -3,7 +3,7 @@
 * Usage: import * as <any name> from '../common_functions.js' to get all named exports in one object
 */
 
-//////////////// expand, collapse, show and hide nodes as a side effect of these 4 functions ////////////
+//////////////// expand, collapse and show or hide the children of the node ////////////
 export function showNode(node) {
 	if (node) {
 		node.doShow = true
@@ -17,28 +17,20 @@ export function hideNode(node) {
 }
 
 export function expandNode(node) {
-	function unhideDescendants(node) {
-		for (const nm of node.children) {
-			showNode(nm)
-			unhideDescendants(nm)
-		}
-	}
 	if (node) {
 		node.isExpanded = true
-		unhideDescendants(node)
+		for (const nm of node.children) {
+			showNode(nm)
+		}
 	}
 }
 
 export function collapseNode(node) {
-	function hideDescendants(node) {
-		for (const nm of node.children) {
-			hideNode(nm)
-			hideDescendants(nm)
-		}
-	}
 	if (node) {
 		node.isExpanded = false
-		hideDescendants(node)
+		for (const nm of node.children) {
+			hideNode(nm)
+		}
 	}
 }
 ///////////////////////////////////////// other functions ///////////////////////////////////////////////

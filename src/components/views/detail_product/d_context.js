@@ -5,9 +5,6 @@ import commonContext from '../common_context.js'
 import { eventBus } from '../../../main'
 
 function created() {
-	this.PBITOSPRINT = 11
-	this.FROMSPRINT = 12
-	this.TASKTOSPRINT = 13
 	eventBus.$on('context-menu', (node) => {
 		this.showContextMenu(node)
 	})
@@ -32,7 +29,7 @@ const methods = {
 			this.disableOkButton = true
 			this.contextWarning = undefined
 			// for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
-			const allowExtraLevel = node.level < this.taskLevel
+			const allowExtraLevel = node.level < this.TASKLEVEL
 			if (this.haveAccessInTree(node.productId, node.level, '*', 'open the context menu', allowExtraLevel)) {
 				// note that getParentNode(node) can return null if requesting the parent of the root node or if the parent was removed
 				const parentNode = this.$store.state.helpersRef.getParentNode(node)
@@ -50,9 +47,9 @@ const methods = {
 				this.allowRemoval = true
 				this.isInSprint = !!node.data.sprintId
 				// can only assign pbi's to a sprint if not in a sprint already
-				this.canAssignPbiToSprint = node.level === this.pbiLevel && !node.data.sprintId
+				this.canAssignPbiToSprint = node.level === this.PBILEVEL && !node.data.sprintId
 				// can only assign tasks to a sprint if not in a sprint already
-				this.canAssignTaskToSprint = node.level === this.taskLevel && !node.data.sprintId
+				this.canAssignTaskToSprint = node.level === this.TASKLEVEL && !node.data.sprintId
 				if (this.$refs.d_contextMenuRef) {
 					// prevent error message on recompile
 					this.$refs.d_contextMenuRef.show()
@@ -142,7 +139,7 @@ const methods = {
 				if (this.areDescendantsAssignedToOtherTeam(this.contextNodeDescendants.descendants)) {
 					this.contextWarning = `Descendants of this ${this.contextNodeType} are assigned to another team.
 					Click OK to assign all these items to your team or Cancel and join team '${this.contextNodeTeam}' to open the context menu.`
-				} else if (this.contextParentTeam !== 'not asigned yet' && this.contextNodeLevel > this.featureLevel && this.contextParentTeam !== this.myTeam) {
+				} else if (this.contextParentTeam !== 'not asigned yet' && this.contextNodeLevel > this.FEATURELEVEL && this.contextParentTeam !== this.myTeam) {
 					this.contextWarning = `WARNING: The team of parent ${this.contextParentType} (${this.contextParentTeam}) and your team (${this.myTeam}) do not match. Read the assistance text.`
 				}
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
@@ -231,7 +228,7 @@ const methods = {
 	},
 
 	doAssignToMyTeam() {
-		if (this.contextNodeSelected.level >= this.featureLevel) {
+		if (this.contextNodeSelected.level >= this.FEATURELEVEL) {
 			// can assign team from feature level and down (higher level numbers)
 			const node = this.contextNodeSelected
 			const newTeam = this.myTeam
@@ -277,7 +274,7 @@ const methods = {
 		for (const conId of this.contextNodeSelected.conditionalFor) {
 			const item = this.$store.state.helpersRef.getNodeById(conId)
 			if (item) {
-				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'condition')
 				this.conditionsObjects.push({ _id: conId, title: item.title })
 			}
 		}

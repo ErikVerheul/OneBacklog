@@ -293,8 +293,8 @@ const actions = {
 					 */
 					details: {
 						map: `function(doc) {
-							const productLevel = 2
-							const seq = doc.level === productLevel ? null : doc.productId
+							const PRODUCTLEVEL = 2
+							const seq = doc.level === PRODUCTLEVEL ? null : doc.productId
 							// negate priority to sort the highest abosolute priority value on top
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, seq, -doc.priority],
 								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
@@ -311,19 +311,19 @@ const actions = {
 					/* Filter on tasks assigned to sprints not done */
 					itemsNotDone: {
 						map: `function(doc) {
-							const pbiLevel = 5
-							const doneSate = 6
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId && doc.state < doneSate) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc.level)
+							const PBILEVEL = 5
+							const DONESTATE = 6
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= PBILEVEL && doc.sprintId && doc.state < DONESTATE) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc.level)
 						}`
 					},
 					/* Filter up to and including the feature level */
 					overview: {
 						map: `function(doc) {
-							const productLevel = 2
-							const pbiLevel = 5
+							const PRODUCTLEVEL = 2
+							const PBILEVEL = 5
 							// negate priority to sort the highest abosolute priority value on top
-							const seq = doc.level === productLevel ? null : doc.productId
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level < pbiLevel) emit([doc.level, seq, -doc.priority],
+							const seq = doc.level === PRODUCTLEVEL ? null : doc.productId
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level < PBILEVEL) emit([doc.level, seq, -doc.priority],
 								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
 								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`
@@ -335,8 +335,8 @@ const actions = {
 					/* Filter on document type 'backlogItem' but skip the dummy req areas product. Emit the product id and title. */
 					products: {
 						map: `function(doc) {
-							const productLevel = 2
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level === productLevel && doc._id !== "requirement-areas") emit(doc._id, doc.title)
+							const PRODUCTLEVEL = 2
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level === PRODUCTLEVEL && doc._id !== "requirement-areas") emit(doc._id, doc.title)
 						}`
 					},
 					/* Filter on removed items of any type, then emit the product _rev of the removed documents. */
@@ -353,15 +353,15 @@ const actions = {
 					/* Filter on document type 'backlogItem', then sort on shortId. */
 					shortIdFilter: {
 						map: `function(doc) {
-							const databaseLevel = 1
-							if (doc.type == "backlogItem" && doc.level > databaseLevel) emit([doc._id.slice(-5)], 1)
+							const DATABASELEVEL = 1
+							if (doc.type == "backlogItem" && doc.level > DATABASELEVEL) emit([doc._id.slice(-5)], 1)
 						}`
 					},
 					/* Filter on document type 'backlogItem', then emit sprintId, team level and (minus) priority to load the tasks in order as represented in the tree view */
 					sprints: {
 						map: `function(doc) {
-							const pbiLevel = 5
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= pbiLevel && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.spikepersonhours, doc.taskOwner])
+							const PBILEVEL = 5
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= PBILEVEL && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.spikepersonhours, doc.taskOwner])
 						}`
 					},
 					/* Filter on teams */

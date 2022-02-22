@@ -31,9 +31,9 @@
     <template v-else>
       <b-list-group>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
-          <template v-if="(isPO || isDeveloper) && contextNodeLevel > epicLevel && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
+          <template v-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
             <b-list-group-item
-              v-if="contextNodeLevel > pbiLevel"
+              v-if="contextNodeLevel > PBILEVEL"
               button
               :active="contextOptionSelected === ASIGNTOMYTEAM"
               variant="dark"
@@ -49,18 +49,18 @@
           <template v-else>
 						<!-- cannot create a database or product here -->
             <b-list-group-item
-              v-if="contextNodeLevel > productLevel"
+              v-if="contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === INSERTBELOW"
               variant="dark"
               @click="showSelected(INSERTBELOW)"
             >Insert a {{ contextNodeType }} below this {{ contextNodeType }}</b-list-group-item>
 
-						<p class="colorSeaBlue" v-if="contextNodeLevel === databaseLevel">Cannot create a product here. An admin can create a new product in the admin view.</p>
+						<p class="colorSeaBlue" v-if="contextNodeLevel === DATABASELEVEL">Cannot create a product here. An admin can create a new product in the admin view.</p>
 						<template v-else>
 							<!-- cannot create item inside task -->
 							<b-list-group-item
-								v-if="contextNodeLevel < taskLevel"
+								v-if="contextNodeLevel < TASKLEVEL"
 								button
 								:active="contextOptionSelected === INSERTINSIDE"
 								variant="dark"
@@ -69,7 +69,7 @@
 						</template>
 
             <b-list-group-item
-              v-if="contextNodeLevel >= productLevel"
+              v-if="contextNodeLevel >= PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CHECKSTATES"
               variant="dark"
@@ -77,7 +77,7 @@
             >Run a check on item state consistency</b-list-group-item>
 
             <b-list-group-item
-              v-if="hasDependencies && contextNodeLevel > productLevel"
+              v-if="hasDependencies && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWDEPENDENCIES"
               variant="dark"
@@ -85,7 +85,7 @@
             >▲ Show/remove existing dependencies on this item</b-list-group-item>
 
             <b-list-group-item
-              v-if="hasConditions && contextNodeLevel > productLevel"
+              v-if="hasConditions && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWCONDITIONS"
               variant="dark"
@@ -93,7 +93,7 @@
             >▼ Show/remove existing conditions for other items</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > productLevel"
+              v-if="contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SETDEPENDENCY"
               variant="dark"
@@ -106,7 +106,7 @@
             </b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > productLevel"
+              v-if="contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === MOVETOPRODUCT"
               variant="dark"
@@ -114,7 +114,7 @@
             >Move this {{ contextNodeType }} to another product</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel === productLevel"
+              v-if="contextNodeLevel === PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEPRODUCT"
               variant="dark"
@@ -122,7 +122,7 @@
             >Make a clone of this {{ contextNodeType }}</b-list-group-item>
 
 						<b-list-group-item
-              v-if="contextNodeLevel > productLevel"
+              v-if="contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEBRANCH"
               variant="dark"
@@ -130,7 +130,7 @@
             >Make a clone of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > productLevel"
+              v-if="contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEITEM"
               variant="dark"
@@ -162,7 +162,7 @@
             >Remove this {{ contextNodeType }} from the sprint</b-list-group-item>
 
             <b-list-group-item
-              v-if="allowRemoval && contextNodeLevel >= productLevel"
+              v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL"
               button
               :active="contextOptionSelected === REMOVEITEM"
               variant="danger"

@@ -27,7 +27,7 @@ const methods = {
       this.disableOkButton = true
 			this.contextWarning = undefined
       // for access to the context menu all roles get an extra level, however they cannot change the item's properties on that level
-      const allowExtraLevel = node.level < this.taskLevel
+      const allowExtraLevel = node.level < this.TASKLEVEL
       if (this.haveAccessInTree(node.productId, node.level, '*', 'open the context menu', allowExtraLevel)) {
 				// note that getParentNode(node) can return null if requesting the parent of the root node or if the parent was removed
         const parentNode = this.$store.state.helpersRef.getParentNode(node)
@@ -203,7 +203,7 @@ const methods = {
 		for (const conId of this.contextNodeSelected.conditionalFor) {
 			const item = this.$store.state.helpersRef.getNodeById(conId)
 			if (item) {
-				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'dependency')
+				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'condition')
 				this.conditionsObjects.push({ _id: conId, title: item.title })
 			} else this.allConditionsFound = false
 		}
