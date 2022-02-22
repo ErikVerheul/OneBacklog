@@ -211,11 +211,13 @@ const actions = {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('getConfig: The configuration document is loaded')
 			if (!rootState.isProductAssigned) {
-				if (rootGetters.isServerAdmin) { router.replace('/serveradmin') } else
-					if (rootGetters.isAdmin) { router.replace('/admin') } else {
-						alert('Error: No default product is set. Consult your administrator. The application will exit.')
-						commit('endSession', 'startup: getConfig - No default product is set')
-					}
+				if (rootGetters.isServerAdmin || rootGetters.isAdmin) {
+					alert('Error: No default product is set. You are routed to the admin page.')
+					router.replace('/admin')
+				} else {
+					alert('Error: No default product is set. Consult your administrator. The application will exit.')
+					commit('endSession', 'startup: getConfig - No default product is set')
+				}
 			} else {
 				if (configData.defaultSprintCalendar) {
 					const lastSprint = configData.defaultSprintCalendar.slice(-1)[0]
