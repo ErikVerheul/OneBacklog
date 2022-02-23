@@ -494,25 +494,27 @@ const store = new Vuex.Store({
 
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
 			const prevSelectedNode = state.resetSearch.currentSelectedNode
-			for (const n of state.resetSearch.nodesFound) {
-				state.helpersRef.undoShowPath(n, 'search', 'isHighlighted_1')
-			}
-			for (const n of state.resetSearch.nodesCollapsed) {
-				expandNode(n)
-			}
-			// select the node after loading the document
-			dispatch('loadDoc', {
-				id: prevSelectedNode._id, onSuccessCallback: () => {
-					state.keyword = ''
-					state.resetSearch = {}
-					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
+			if (state.resetSearch.nodesFound) {
+				for (const n of state.resetSearch.nodesFound) {
+					state.helpersRef.undoShowPath(n, 'search', 'isHighlighted_1')
 				}
-			})
-			if (payload.caller === 'findItemOnId' || payload.caller === 'searchInTitles' || payload.caller === 'onSetMyFilters') {
-				if (payload.onSuccessCallback) payload.onSuccessCallback()
-				// execute passed actions if provided
-				dispatch('additionalActions', payload)
+				for (const n of state.resetSearch.nodesCollapsed) {
+					expandNode(n)
+				}
+				// select the node after loading the document
+				dispatch('loadDoc', {
+					id: prevSelectedNode._id, onSuccessCallback: () => {
+						state.keyword = ''
+						state.resetSearch = {}
+						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+						commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
+					}
+				})
+				if (payload.caller === 'findItemOnId' || payload.caller === 'searchInTitles' || payload.caller === 'onSetMyFilters') {
+					if (payload.onSuccessCallback) payload.onSuccessCallback()
+					// execute passed actions if provided
+					dispatch('additionalActions', payload)
+				}
 			}
 		},
 
@@ -1140,7 +1142,7 @@ const store = new Vuex.Store({
 			state.currentProductId = null
 			state.currentProductTitle = ''
 			state.filterTreeIsSet = false,
-			state.iAmAPO = false
+				state.iAmAPO = false
 			state.iAmAdmin = false
 			state.iAmAssistAdmin = false
 			state.iAmServerAdmin = false
