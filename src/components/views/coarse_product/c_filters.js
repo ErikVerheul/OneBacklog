@@ -23,17 +23,17 @@ const methods = {
 
 			// select nodeModels NOT to show; the node is shown if not excluded by any filter
 			let isExcluded = false
-			if (!isExcluded && this.filterOnReqAreas) {
-				isExcluded = this.doFilterOnReqAreas(nm)
+			if (this.filterOnReqAreas) {
+				isExcluded = !this.doFilterOnReqAreas(nm)
 			}
 			if (!isExcluded && this.filterOnTeams) {
-				isExcluded = this.doFilterOnTeams(nm)
+				isExcluded = !this.doFilterOnTeams(nm)
 			}
 			if (!isExcluded && this.filterOnState) {
-				isExcluded = this.doFilterOnState(nm)
+				isExcluded = !this.doFilterOnState(nm)
 			}
 			if (!isExcluded && this.filterOnTime) {
-				isExcluded = this.doFilterOnTime(nm)
+				isExcluded = !this.doFilterOnTime(nm)
 			}
 			if (!isExcluded) {
 				this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: (nm.level > LEVEL.PRODUCT) })

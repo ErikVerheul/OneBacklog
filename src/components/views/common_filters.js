@@ -4,6 +4,7 @@ import { utilities } from '../mixins/generic.js'
 function data () {
 	// these values are used if no filter settings were saved
   return {
+		filterOnDependencies: false,
     filterOnReqAreas: false,
     selectedReqAreas: [],
     filterOnTeams: false,
@@ -25,6 +26,7 @@ function mounted () {
   // init the filter settings
   const myFilterSettings = this.$store.state.userData.myFilterSettings
   if (myFilterSettings) {
+		this.filterOnDependencies = myFilterSettings.filterOnDependencies || false
     this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
     this.selectedReqAreas = myFilterSettings.selectedReqAreas
     this.filterOnTeams = myFilterSettings.filterOnTeams
@@ -65,6 +67,7 @@ function mounted () {
 const methods = {
   onSaveFilters () {
     const myFilterSettings = {
+			filterOnDependencies: this.filterOnDependencies,
       filterOnReqAreas: this.filterOnReqAreas,
       selectedReqAreas: this.selectedReqAreas,
       filterOnTeams: this.filterOnTeams,
@@ -82,34 +85,39 @@ const methods = {
     this.showLastEvent('Saving the filter settings', SEV.INFO)
   },
 
+	doFilterOnDependencies(nm) {
+		if (nm.level <= LEVEL.PRODUCT) return true
+		return (nm.dependencies && nm.dependencies.length > 0) || (nm.conditionalFor && nm.conditionalFor.length > 0)
+	},
+
   doFilterOnReqAreas (nm) {
-    if (nm.level < LEVEL.PRODUCT) return false
-    return !(this.selectedReqAreas.includes(nm.data.reqarea))
+    if (nm.level < LEVEL.PRODUCT) return true
+    return this.selectedReqAreas.includes(nm.data.reqarea)
   },
 
   doFilterOnTeams (nm) {
-    if (nm.level <= LEVEL.PRODUCT) return false
-    return !(this.selectedTeams.includes(nm.data.team))
+    if (nm.level <= LEVEL.PRODUCT) return true
+    return this.selectedTeams.includes(nm.data.team)
   },
 
   doFilterOnState (nm) {
-    if (nm.level <= LEVEL.PRODUCT) return false
-    return !(this.selectedStates.includes(nm.data.state))
+    if (nm.level <= LEVEL.PRODUCT) return true
+    return this.selectedStates.includes(nm.data.state)
   },
 
   doFilterOnTime (nm) {
-    if (nm.level <= LEVEL.PRODUCT) return false
+    if (nm.level <= LEVEL.PRODUCT) return true
 
     if (this.selectedTime === '0') {
       if (this.fromDate && this.toDate) {
         // process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
         const fromMilis = Date.parse(this.fromDate)
         const endOfToMilis = Date.parse(this.toDate) + 24 * 60 * 60000
-        return !(nm.data.lastChange >= fromMilis && nm.data.lastChange < endOfToMilis)
+        return nm.data.lastChange >= fromMilis && nm.data.lastChange < endOfToMilis
       }
     } else {
       const sinceMilis = parseInt(this.selectedTime) * 60000
-      return !(Date.now() - nm.data.lastChange < sinceMilis)
+      return Date.now() - nm.data.lastChange < sinceMilis
     }
   }
 }

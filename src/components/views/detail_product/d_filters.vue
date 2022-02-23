@@ -9,6 +9,11 @@
       <b-container align-v="true">
         <b-container fluid>
           <b-row class="my-1">
+						<b-col sm="12">
+              <b-form-checkbox v-model="filterOnDependencies">Filter on items with dependencies</b-form-checkbox>
+              <hr />
+            </b-col>
+
             <b-col sm="12">
               <b-form-checkbox v-model="filterOnReqAreas">Filter on requirement area(s)</b-form-checkbox>
               <div v-if="filterOnReqAreas" class="indent20">

@@ -6,8 +6,8 @@ import commonFilters from '../common_filters.js'
 const methods = {
 	/* Apply the AND logic to the included filters */
 	onApplyMyFilters() {
-		// return if a filer is already set or no filter is selected
-		if (this.$store.state.filterTreeIsSet || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
+		// return if a filter is already set or no filter is selected
+		if (this.$store.state.filterTreeIsSet || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
 		// save node display state
 		this.$store.state.helpersRef.traverseModels((nm) => {
@@ -29,26 +29,29 @@ const methods = {
 			} else {
 				// select nodeModels NOT to show; the node is shown if not excluded by any filter
 				let isExcluded = false
-				if (this.filterOnReqAreas) {
-					isExcluded = this.doFilterOnReqAreas(nm)
+				if (this.filterOnDependencies) {
+					isExcluded = !this.doFilterOnDependencies(nm)
+				}
+				if (!isExcluded && this.filterOnReqAreas) {
+					isExcluded = !this.doFilterOnReqAreas(nm)
 				}
 				if (!isExcluded && this.filterOnTeams) {
-					isExcluded = this.doFilterOnTeams(nm)
+					isExcluded = !this.doFilterOnTeams(nm)
 				}
 				if (!isExcluded && this.filterOnState) {
-					isExcluded = this.doFilterOnState(nm)
+					isExcluded = !this.doFilterOnState(nm)
 				}
 				if (!isExcluded && this.filterOnTime) {
-					isExcluded = this.doFilterOnTime(nm)
+					isExcluded = !this.doFilterOnTime(nm)
 				}
 				if (!isExcluded) {
 					if (this.filterTreeDepth) {
 						if (nm.level <= this.selectedTreeDepth) {
-							this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
+							this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT }, 'search')
 							if (nm.level > LEVEL.PRODUCT) count++
 						} else return
 					} else {
-						this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
+						this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT }, 'search')
 						if (nm.level > LEVEL.PRODUCT) count++
 					}
 				} else {
