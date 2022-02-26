@@ -283,34 +283,6 @@ const methods = {
 		}
 	},
 
-	/*
-	* Check for 'done' items with sub-items not 'done' and highlight them with a warning badge 'Done?' in the tree view.
-	* Check for items with a higher state than any of its decendants and highlight them with a warning badge '<state?>' in the tree view.
-	*/
-	doCheckStates() {
-		let count = 0
-		this.$store.state.helpersRef.traverseModels((nm) => {
-			const descendants = this.$store.state.helpersRef.getDescendantsInfo(nm).descendants
-			if (descendants.length > 0) {
-				let highestState = this.newState
-				let allDone = true
-				for (const desc of descendants) {
-					if (desc.data.state > highestState) highestState = desc.data.state
-					if (desc.data.state < this.doneState && desc.data.state !== this.ONHOLDSTATE) allDone = false
-				}
-				if (nm.data.state > highestState || nm.data.state === this.doneState && !allDone) {
-					// node has a higher state than any of its descendants or set to done while one of its descendants is not done
-					nm.tmp.inconsistentState = true
-					this.$store.state.helpersRef.showPathToNode(nm, { noHighLight: true })
-					count++
-				} else {
-					nm.tmp.inconsistentState = false
-				}
-			}
-		}, [this.contextNodeSelected])
-		this.showLastEvent(`${count} inconsistent state settings are found`, SEV.INFO)
-	},
-
 	doSetDependency() {
 		if (this.$store.state.selectNodeOngoing) {
 			this.$store.dispatch('setDepAndCond', { dependentOnNode: this.dependentOnNode, conditionalForNode: this.contextNodeSelected, timestamp: Date.now() })
@@ -342,26 +314,29 @@ const methods = {
 		}
 	},
 
-	/* Undo the tree expansion and highlighting */
-	undoShowDependencies(dependenciesObjects) {
-		for (const o of dependenciesObjects) {
-			const node = this.$store.state.helpersRef.getNodeById(o._id)
-			if (node) this.$store.state.helpersRef.undoShowPath(node, 'dependency', 'isHighlighted_2')
+	/* Return an array with the product node aNode is a descendant of, or an empty array if no parent is found */
+	getProductNode(aNode) {
+		const allProductNodes = this.$store.state.helpersRef.getProducts()
+		for (let nm of allProductNodes) {
+			if (nm.productId === aNode.productId) return [nm]
 		}
+		return []
 	},
 
 	/* Undo the tree expansion and highlighting */
-	undoShowConditions(conditionsObjects) {
-		for (const o of conditionsObjects) {
-			const node = this.$store.state.helpersRef.getNodeById(o._id)
-			if (node) this.$store.state.helpersRef.undoShowPath(node, 'condition', 'isHighlighted_2')
-		}
+	undoShowDependencies(nodesToScan) {
+		this.$store.commit('restoreTreeView', { type: 'dependency', nodesToScan })
+	},
+
+	/* Undo the tree expansion and highlighting */
+	undoShowConditions(nodesToScan) {
+		this.$store.commit('restoreTreeView', { type: 'condition', nodesToScan })
 	},
 
 	/* Remove the dependencies and the corresponding conditions in the tree model and the database. */
 	doRemoveDependencies() {
-		this.undoShowDependencies(this.dependenciesObjects)
-		if (this.selectedDependencyIds.length > 0) {
+		if (this.selectedDependencyIds && this.selectedDependencyIds.length > 0) {
+			this.undoShowDependencies(this.getProductNode(this.contextNodeSelected))
 			const newDeps = []
 			for (const id of this.contextNodeSelected.dependencies) {
 				if (!this.selectedDependencyIds.includes(id)) newDeps.push(id)
@@ -372,26 +347,57 @@ const methods = {
 
 	/* Remove the conditions and the corresponding dependencies in the tree model and the database. */
 	doRemoveConditions() {
-		this.undoShowDependencies(this.conditionsObjects)
-		if (this.selectedConditionIds.length > 0) {
+		if (this.selectedConditionIds && this.selectedConditionIds.length > 0) {
+			this.undoShowConditions(this.getProductNode(this.contextNodeSelected))
 			const newCons = []
-			for (const obj of this.conditionsObjects) {
-				if (!this.selectedConditionIds.includes(obj._id)) newCons.push(obj)
+			for (const id of this.contextNodeSelected.conditions) {
+				if (!this.selectedConditionIds.includes(id)) newCons.push(id)
 			}
 			this.$store.dispatch('removeConditionsAsync', { node: this.contextNodeSelected, newCons, removedIds: this.selectedConditionIds, timestamp: Date.now() })
 		}
 	},
 
+	/* Cancel the context menu */
 	doCancel() {
 		this.showAssistance = false
 		this.$store.state.moveOngoing = false
 		this.$store.state.selectNodeOngoing = false
 		if (this.contextOptionSelected === this.SHOWDEPENDENCIES) {
-			this.undoShowDependencies(this.dependenciesObjects)
+			this.undoShowDependencies(this.getProductNode(this.contextNodeSelected))
 		}
 		if (this.contextOptionSelected === this.SHOWCONDITIONS) {
-			this.undoShowConditions(this.conditionsObjects)
+			this.undoShowConditions(this.getProductNode(this.contextNodeSelected))
 		}
+	},
+
+	getDependencies() {
+		this.dependenciesObjects = []
+		this.allDepenciesFound = true
+		const nodesToScan = this.getProductNode(this.contextNodeSelected)
+		this.$store.commit('saveTreeView', { nodesToScan, type: 'dependency' })
+		for (const depId of this.contextNodeSelected.dependencies) {
+			const item = this.$store.state.helpersRef.getNodeById(depId)
+			if (item) {
+				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true })
+				this.dependenciesObjects.push({ _id: depId, title: item.title })
+			} else this.allDepenciesFound = false
+		}
+		this.disableOkButton = !this.allDepenciesFound
+	},
+
+	getConditions() {
+		this.conditionsObjects = []
+		this.allConditionsFound = true
+		const nodesToScan = this.getProductNode(this.contextNodeSelected)
+		this.$store.commit('saveTreeView', { nodesToScan, type: 'condition' })
+		for (const conId of this.contextNodeSelected.conditionalFor) {
+			const item = this.$store.state.helpersRef.getNodeById(conId)
+			if (item) {
+				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true })
+				this.conditionsObjects.push({ _id: conId, title: item.title })
+			} else this.allConditionsFound = false
+		}
+		this.disableOkButton = !this.allConditionsFound
 	}
 }
 

@@ -12,7 +12,7 @@
 				<h5>User guide</h5>
 				<p>This text</p>
 				<h5>Filters and searches</h5>
-				<p>For &apos;Filter in tree &apos;, &apos;Select on (short) Id&apos; and &apos;Search in titles&apos; see <a href="#tv-features">Tree view search and filtering</a></p>
+				<p>For &apos;Filter in tree &apos;, &apos;Select on (short) Id&apos; and &apos;Search in titles&apos; see <a href="#tv-features">Tree view undo, search and filtering</a></p>
 				<h5>Select your view</h5>
 				<p>For &apos;Select your view&apos; see <a href="#pv">Product details</a>, <a href="#rv">Products overview</a> and <a href="#pb">Sprint planning board</a></p>
 				<p>In the Product details view you van assign a sprint to a PBI or task. <a href="#sp">See Sprint assignment</a></p>
@@ -122,15 +122,16 @@
 					<p>This view shows all products in the database up to the feature level. The requirement area are color coded choosen by the APO.</p>
 				</div>
 				<div id="tv-features">
-					<h4>Tree view search and filtering</h4>
+					<h4>Tree view undo, search and filtering</h4>
 					<div class="indent20">
 						<h5>The Undo button</h5>
 						<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
 						<h5>Filter in tree view</h5>
 						<b-img :src="getImgUrl('img/filters.png')" alt="Example filters modal" />
-						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the button which now has the text 'Clear filter'. You can alse use the full, 18+ positions long, id</p>
-						<h5>Select on (short) Id</h5>
-						<p>All product items have a short Id for easy lookup and reference. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
+						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the 'Clear filter' button.</p>
+						<p>You can filter on a combination of properties like team, item state, recent changes etc. You can use this filter a pre-selection before the Id selection and search in titles, as outlined below.</p>
+						<h5>Select an item on (short) Id</h5>
+						<p>You can also use the full, 18+ positions long, id. More convenient is the use of the short Id. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
 						<ul>
 							<li>The item is found in the currently selected and opened product. The item will be selected and highlighted in the tree view.</li>
 							<li>The item is found in the currently selected product but that product is not opened. The product will be opened and item will be selected and highlighted in the tree view</li>
@@ -139,11 +140,9 @@
 							<li>The item is NOT found in the database. You get a message. Check if you made a mistype.</li>
 							<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This unlikely event is logged for the server admin.</li>
 						</ul>
-						<p>To undo the select click on the white X next to the input field.</p>
+						<p>To return to the original view, click on the white X next to the input field.</p>
 						<h5>Search in titles</h5>
-						<p>Input field for the search button. Searches for the keyword in the title of all items of the current product. To return to the normal view click on the white X next to the input field.</p>
-						<h5>Recent changes + Search in titles</h5>
-						<p>When you start a search when a filter is in effect or visa versa the other selection will be cleared first. You cannot have two selections on top of each other.</p>
+						<p>Input field for the search button. Select the items within the currently selected branch which contain the key. To return to the original view, click on the white X next to the input field.</p>
 					</div>
 				</div>
 				<div id="sp">

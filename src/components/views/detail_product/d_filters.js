@@ -10,10 +10,8 @@ const methods = {
 		if (this.$store.state.filterTreeIsSet || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
 		// save node display state
-		this.$store.state.helpersRef.traverseModels((nm) => {
-			nm.tmp.savedDoShowInFilter = nm.doShow
-			nm.tmp.savedIsExpandedInFilter = nm.isExpanded
-		}, this.$store.state.helpersRef.getCurrentProductModel())
+		const nodesToScan = this.$store.state.helpersRef.getCurrentProductModel()
+		this.$store.commit('saveTreeView', { nodesToScan, type: 'filter' })
 
 		const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
 		let count = 0
@@ -47,11 +45,11 @@ const methods = {
 				if (!isExcluded) {
 					if (this.filterTreeDepth) {
 						if (nm.level <= this.selectedTreeDepth) {
-							this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT }, 'search')
+							this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
 							if (nm.level > LEVEL.PRODUCT) count++
 						} else return
 					} else {
-						this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT }, 'search')
+						this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
 						if (nm.level > LEVEL.PRODUCT) count++
 					}
 				} else {

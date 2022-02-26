@@ -150,6 +150,7 @@ const actions = {
 			/*
 			* Traverse the node models or the full tree (default), breadth first
 			* Stop when the callback returns false
+			* nodeModels: array of nodes
 			*/
 			traverseModels: function (cb, nodeModels = rootGetters.getTreeModel) {
 				let shouldStop = false
@@ -211,8 +212,8 @@ const actions = {
 				return violations
 			},
 
-			/* Show the path from PRODUCTLEVEL up to the node and highlight or warnLight the node; if type is set, prepare for undo */
-			showPathToNode(node, highLights, type) {
+			/* Show the path from PRODUCTLEVEL up to the node and highlight or warnLight the node */
+			showPathToNode(node, highLights) {
 				const maxDepth = node.path.length
 				for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
 					const nm = rootState.helpersRef.getNodeModel(node.path.slice(0, i))
@@ -221,54 +222,26 @@ const actions = {
 						continue
 					}
 					if (i < maxDepth) {
-						if (!nm.isExpanded) {
-							if (type === 'search') nm.tmp.savedIsExpandedInSearch = false
-							if (type === 'condition') nm.tmp.savedIsExpandedInCondition = false
-							if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = false
-							expandNode(nm)
-						} else {
-							if (type === 'search') nm.tmp.savedIsExpandedInSearch = true
-							if (type === 'condition') nm.tmp.savedIsExpandedInCondition = true
-							if (type === 'dependency') nm.tmp.savedIsExpandedInDependency = true
-						}
-					} else {
-						if (highLights && Object.keys(highLights).length > 0) {
-							nm.tmp.isHighlighted_1 = !!highLights.doHighLight_1
-							nm.tmp.isHighlighted_2 = !!highLights.doHighLight_2
-							nm.tmp.isWarnLighted = !!highLights.doWarn
-						}
+						expandNode(nm)
 					}
 				}
-			},
-
-			/* Undo the changes set by showPathToNode(...) including the removal of one highlight */
-			undoShowPath(node, type, undoHighLight) {
-				const maxDepth = node.path.length
-				for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
-					const nm = rootState.helpersRef.getNodeModel(node.path.slice(0, i))
-					if (nm === null) {
-						// node not found; skip
-						continue
-					}
-					if (nm.isExpanded) {
-						if (type === 'search' && nm.tmp.savedIsExpandedInSearch === false) collapseNode(nm)
-						if (type === 'condition' && nm.tmp.savedIsExpandedInCondition === false) collapseNode(nm)
-						if (type === 'dependency' && nm.tmp.savedIsExpandedInDependency === false) collapseNode(nm)
-					}
-					if (i === maxDepth) delete nm.tmp[undoHighLight]
-					// delete if set or not
-					delete nm.tmp.savedIsExpandedInSearch
-					delete nm.tmp.savedIsExpandedInDependency
+				// set the highlight; highLights.noHighlight sets nothing
+				if (highLights && Object.keys(highLights).length > 0) {
+					node.tmp.isHighlighted_1 = !!highLights.doHighLight_1
+					node.tmp.isHighlighted_2 = !!highLights.doHighLight_2
+					node.tmp.isWarnLighted = !!highLights.doWarn
 				}
 			},
 
 			/* Show the path from condNode to depNode including both nodes */
 			showDependencyViolations(violations, allProducts) {
 				const nodesToScan = allProducts ? undefined : rootState.helpersRef.getCurrentProductModel()
+				commit('saveTreeView', { nodesToScan, type: 'condition' })
+				commit('saveTreeView', { nodesToScan, type: 'dependency' })
 				for (let column = 0; column < violations.length; column++) {
 					const v = violations[column]
-					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true }, 'condition')
-					rootState.helpersRef.showPathToNode(v.depNode, { doWarn: true }, 'dependency')
+					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true })
+					rootState.helpersRef.showPathToNode(v.depNode, { doWarn: true })
 					rootState.helpersRef.traverseModels((nm) => {
 						if ((rootState.helpersRef.comparePaths(v.depNode.path, nm.path) !== 1) && (rootState.helpersRef.comparePaths(nm.path, v.condNode.path) !== 1)) {
 							if (nm.tmp.markedViolations) {

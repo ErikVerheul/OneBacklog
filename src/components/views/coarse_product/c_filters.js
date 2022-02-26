@@ -8,11 +8,9 @@ const methods = {
 		// return if a filer is already set or no filter is selected
 		if (this.$store.state.filterTreeIsSet || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
-		// save node display state
-		this.$store.state.helpersRef.traverseModels((nm) => {
-			nm.tmp.savedDoShowInFilter = nm.doShow
-			nm.tmp.savedIsExpandedInFilter = nm.isExpanded
-		})
+		// save node display state; scan all products
+		const nodesToScan = undefined
+		this.$store.commit('saveTreeView', { nodesToScan, type: 'filter' })
 
 		let count = 0
 		const unselectedNodes = []

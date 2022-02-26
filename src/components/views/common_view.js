@@ -1,4 +1,4 @@
-import { SEV, LEVEL } from '../../constants.js'
+import { SEV, LEVEL, STATE } from '../../constants.js'
 import { collapseNode } from '../../common_functions.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
 
@@ -39,7 +39,7 @@ function mounted() {
 	el2.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter') {
 			event.preventDefault()
-			this.searchInTitles()
+			this.exeSearchInTitles(this.getLastSelectedNode)
 		}
 	})
 
@@ -309,6 +309,27 @@ const methods = {
 		return node.data.lastCommentToHistory ? Date.now() - node.data.lastCommentToHistory < HOURINMILIS : false
 	},
 
+	/*
+	* Check for 'done' items with sub-items not 'done' and highlight them with a warning badge 'Done?' in the tree view.
+	* Check for items with a higher state than any of its decendants and highlight them with a warning badge '<state?>' in the tree view.
+	*/
+	hasInconsistentState(node) {
+		if (node._id === "requirement-areas") {
+			// skip this dummy product
+			return false
+		}
+		const descendants = this.$store.state.helpersRef.getDescendantsInfo(node).descendants
+		if (descendants.length > 0) {
+			let highestState = STATE.NEW
+			let allDone = true
+			for (const d of descendants) {
+				if (d.data.state > highestState) highestState = d.data.state
+				if (d.data.state < STATE.DONE && d.data.state !== STATE.ON_HOLD) allDone = false
+			}
+			return (node.data.state > highestState || node.data.state === STATE.DONE && !allDone)
+		}
+	},
+
 	hasOtherUpdate(node) {
 		return node.data.lastChange ? Date.now() - node.data.lastChange < HOURINMILIS : false
 	},
@@ -319,7 +340,7 @@ const methods = {
 			const productModels = this.isOverviewSelected ? undefined : this.$store.state.helpersRef.getCurrentProductModel()
 			this.$store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters', productModels })
 		} else {
-			// update the available req area options
+			// this filter was not set; update the available req area options first
 			const currReqAreaIds = this.$store.state.helpersRef.getCurrentReqAreaIds()
 			this.$store.state.reqAreaOptions = []
 			for (const id of currReqAreaIds) {
@@ -332,103 +353,96 @@ const methods = {
 
 	/* Find, load and select an item with a given short or full Id. Scan the full tree */
 	findItemOnId(id) {
-		// reset any active search first
-		this.$store.dispatch('resetAnySearches', {
-			caller: 'findItemOnId', onSuccessCallback: () => {
-				const isShortId = id.length === SHORTKEYLENGTH
-				let node
-				this.$store.state.helpersRef.traverseModels((nm) => {
-					if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
-						// short id or full id did match
-						node = nm
-						return false
-					}
-				})
-				if (node) {
-					// load and select the document if not already current
-					if (node._id !== this.$store.state.currentDoc._id) {
-						// select the node after loading the document
-						this.$store.dispatch('loadDoc', {
-							id: node._id, onSuccessCallback: () => {
-								// create reset object
-								this.$store.state.resetSearch = {
-									searchType: 'findItemOnId',
-									view: 'detailProduct',
-									currentSelectedNode: this.getLastSelectedNode,
-									node,
-									highLight: 'noHighLight'
-								}
-								if (this.isDetailsViewSelected && node.productId !== this.$store.state.currentProductId) {
-									// the node is found but not in the current product; collapse the currently selected product and switch to the new product
-									this.$store.commit('switchCurrentProduct', node.productId)
-								}
-								// expand the product up to the found item
-								this.$store.state.helpersRef.showPathToNode(node, { noHighLight: true }, 'search')
-								this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
-								this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
-							}
-						})
-					}
-				} else {
-					// the node is not found in the current product selection; try to find it in the database using the short id
-					const lookUpId = isShortId ? id : id.slice(-5)
-					this.$store.dispatch('loadItemByShortId', lookUpId)
-				}
+		const isShortId = id.length === SHORTKEYLENGTH
+		let node
+		this.$store.state.helpersRef.traverseModels((nm) => {
+			if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
+				// short id or full id did match
+				node = nm
+				return false
 			}
 		})
+		if (node) {
+			// save display state of the full screen
+			const nodesToScan = undefined
+			this.$store.commit('saveTreeView', { nodesToScan, type: 'findId' })
+			// load and select the document if not already current
+			if (node._id !== this.$store.state.currentDoc._id) {
+				// select the node after loading the document
+				this.$store.dispatch('loadDoc', {
+					id: node._id, onSuccessCallback: () => {
+						// create reset object
+						this.$store.state.resetSearch = {
+							searchType: 'findItemOnId',
+							view: 'detailProduct',
+							currentSelectedNode: this.getLastSelectedNode,
+							node,
+							highLight: 'noHighLight'
+						}
+						if (this.isDetailsViewSelected && node.productId !== this.$store.state.currentProductId) {
+							// the node is found but not in the current product; collapse the currently selected product and switch to the new product
+							this.$store.commit('switchCurrentProduct', node.productId)
+						}
+						// expand the tree view up to the found item
+						this.$store.state.helpersRef.showPathToNode(node, { noHighLight: true })
+						this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
+						this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
+					}
+				})
+			}
+		} else {
+			// the node is not found in the current product selection; try to find it in the database using the short id
+			const lookUpId = isShortId ? id : id.slice(-5)
+			this.$store.dispatch('loadItemByShortId', lookUpId)
+		}
 	},
 
-	searchInTitles() {
+	exeSearchInTitles(branchHead) {
 		// cannot search on empty string
 		if (this.$store.state.keyword === '') return
 
-		// reset any active search first
-		this.$store.dispatch('resetAnySearches', {
-			caller: 'searchInTitles', onSuccessCallback: () => {
-				const nodesFound = []
-				const nodesCollapsed = []
-				const nodesToScan = this.isOverviewSelected ? undefined : this.$store.state.helpersRef.getCurrentProductModel()
-				this.$store.state.helpersRef.traverseModels((nm) => {
-					// save node display state
-					nm.tmp.savedIsExpandedInSearch = nm.isExpanded
-					if (nm.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
-						// expand the product up to the found item and highlight it
-						this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true }, 'search')
-						nodesFound.push(nm)
-					} else {
-						// collapse nodes with no findings in their subtree
-						if (nm.level > LEVEL.PRODUCT) {
-							if (nm.isExpanded) {
-								collapseNode(nm)
-								nodesCollapsed.push(nm)
-							}
-						}
+		const nodesFound = []
+		const nodesCollapsed = []
+		// save display state of the branch
+		const nodesToScan = [branchHead]
+		this.$store.commit('saveTreeView', { nodesToScan, type: 'titles' })
+		this.$store.state.helpersRef.traverseModels((nm) => {
+			if (nm.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
+				// expand the product up to the found item and highlight it
+				this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
+				nodesFound.push(nm)
+			} else {
+				// collapse nodes with no findings in their subtree
+				if (nm.level > LEVEL.PRODUCT) {
+					if (nm.isExpanded) {
+						collapseNode(nm)
+						nodesCollapsed.push(nm)
 					}
-				}, nodesToScan)
-
-				// create reset object
-				this.$store.state.resetSearch = {
-					searchType: 'searchInTitles',
-					nodesFound,
-					nodesCollapsed,
-					view: 'detailProduct',
-					currentSelectedNode: this.getLastSelectedNode
 				}
-
-				const productStr = this.isOverviewSelected ? 'all products' : ` product '${this.$store.state.currentProductTitle}'`
-				if (nodesFound.length > 0) {
-					// load and select the first node found
-					this.$store.dispatch('loadDoc', {
-						id: nodesFound[0]._id, onSuccessCallback: () => {
-							this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
-							if (nodesFound.length === 1) {
-								this.showLastEvent(`One item title matches your search in ${productStr}. This item is selected`, SEV.INFO)
-							} else this.showLastEvent(`${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`, SEV.INFO)
-						}
-					})
-				} else this.showLastEvent(`No item titles match your search in ${productStr}`, SEV.INFO)
 			}
-		})
+		}, nodesToScan)
+
+		// create reset object
+		this.$store.state.resetSearch = {
+			searchType: 'searchInTitles',
+			nodesFound,
+			nodesCollapsed,
+			view: 'detailProduct',
+			currentSelectedNode: this.getLastSelectedNode
+		}
+
+		const productStr = this.isOverviewSelected ? 'all products' : ` product '${this.$store.state.currentProductTitle}'`
+		if (nodesFound.length > 0) {
+			// load and select the first node found
+			this.$store.dispatch('loadDoc', {
+				id: nodesFound[0]._id, onSuccessCallback: () => {
+					this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
+					if (nodesFound.length === 1) {
+						this.showLastEvent(`One item title matches your search in ${productStr}. This item is selected`, SEV.INFO)
+					} else this.showLastEvent(`${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`, SEV.INFO)
+				}
+			})
+		} else this.showLastEvent(`No item titles match your search in ${productStr}`, SEV.INFO)
 	},
 
 	/*

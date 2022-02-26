@@ -455,9 +455,8 @@ const store = new Vuex.Store({
 		resetTreeFilter({ state, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetTreeFilter is called by ${payload.caller}`)
-			commit('restoreTreeView', { productModels: payload.productModels, undoHighLight: 'isHighlighted_1' })
+			commit('restoreTreeView', { type: 'filter', nodesToScan: payload.productModels })
 			commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
 		},
 
 		resetFindOnId({ state, dispatch, commit }, payload) {
@@ -470,52 +469,42 @@ const store = new Vuex.Store({
 			}
 			// load and select the previous selected document
 			const prevSelectedNode = state.resetSearch.currentSelectedNode
-			if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
-				// the node was found in another product
-				commit('switchCurrentProduct', prevSelectedNode.productId)
-			} else {
-				state.helpersRef.undoShowPath(node, 'search', 'isHighlighted_1')
-			}
-			// select the node after loading the document
 			dispatch('loadDoc', {
 				id: prevSelectedNode._id, onSuccessCallback: () => {
+					if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
+						// the node was found in another product
+						commit('switchCurrentProduct', prevSelectedNode.productId)
+					} else {
+						commit('restoreTreeView', { type: 'findId', nodesToScan: undefined })
+					}
 					state.itemId = ''
 					state.resetSearch = {}
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
 				}
 			})
-			if (payload.caller === 'findItemOnId' || payload.caller === 'searchInTitles' || payload.caller === 'onSetMyFilters') {
-				if (payload.onSuccessCallback) payload.onSuccessCallback()
-				// execute passed actions if provided
-				dispatch('additionalActions', payload)
-			}
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
+			// execute passed actions if provided
+			dispatch('additionalActions', payload)
 		},
 
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}`)
 			const prevSelectedNode = state.resetSearch.currentSelectedNode
-			if (state.resetSearch.nodesFound) {
-				for (const n of state.resetSearch.nodesFound) {
-					state.helpersRef.undoShowPath(n, 'search', 'isHighlighted_1')
+			// load and select the previous selected document
+			dispatch('loadDoc', {
+				id: prevSelectedNode._id, onSuccessCallback: () => {
+					state.keyword = ''
+					state.resetSearch = {}
+					commit('restoreTreeView', { type: 'titles', nodesToScan: [prevSelectedNode] })
+					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
 				}
-				for (const n of state.resetSearch.nodesCollapsed) {
-					expandNode(n)
-				}
-				// select the node after loading the document
-				dispatch('loadDoc', {
-					id: prevSelectedNode._id, onSuccessCallback: () => {
-						state.keyword = ''
-						state.resetSearch = {}
-						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-						commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
-					}
-				})
-				if (payload.caller === 'findItemOnId' || payload.caller === 'searchInTitles' || payload.caller === 'onSetMyFilters') {
-					if (payload.onSuccessCallback) payload.onSuccessCallback()
-					// execute passed actions if provided
-					dispatch('additionalActions', payload)
-				}
-			}
+			})
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
+			// execute passed actions if provided
+			dispatch('additionalActions', payload)
 		},
 
 		/* Clear any outstanding searches and execute the callback and/or actions if provided */
@@ -529,7 +518,7 @@ const store = new Vuex.Store({
 					dispatch('resetSearchInTitles', payload)
 				}
 			} else {
-				// no searches were set; execute the callbacks
+				// no searches were set; execute the callback
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
 				dispatch('additionalActions', payload)
@@ -702,9 +691,55 @@ const store = new Vuex.Store({
 			renewSelection(state, newNode)
 		},
 
-		/* Traverse the tree to reset to the state before filtering or search */
+		/* Traverse the tree to save the view state before change */
+		saveTreeView(state, payload) {
+			state.helpersRef.traverseModels((nm) => {
+				if (payload.type === 'condition') {
+					nm.tmp.savedIsExpandedInCondition = nm.isExpanded
+					nm.tmp.savedDoShowInCondition = nm.doShow
+					nm.tmp.savedHighLigthsInCondition = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+				}
+
+				if (payload.type === 'dependency') {
+					nm.tmp.savedIsExpandedInDependency = nm.isExpanded
+					nm.tmp.savedDoShowInDependency = nm.doShow
+					nm.tmp.savedHighLigthsInDependency = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+				}
+
+				if (payload.type === 'findId') {
+					nm.tmp.savedIsExpandedInFindId = nm.isExpanded
+					nm.tmp.savedDoShowInFindId = nm.doShow
+					nm.tmp.savedHighLigthsInFindId = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+				}
+
+				if (payload.type === 'filter') {
+					nm.tmp.savedIsExpandedInFilter = nm.isExpanded
+					nm.tmp.savedDoShowInFilter = nm.doShow
+					nm.tmp.savedHighLigthsInFilter = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+				}
+
+				if (payload.type === 'titles') {
+					nm.tmp.savedIsExpandedInTitles = nm.isExpanded
+					nm.tmp.savedDoShowInTitles = nm.doShow
+					nm.tmp.savedHighLigthsInTitles = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+				}
+				// remove highLights
+				delete nm.tmp.isHighlighted_1
+				delete nm.tmp.isHighlighted_2
+				delete nm.tmp.isWarnLighted
+			}, payload.nodesToScan)
+		},
+
+		/* Traverse the tree to reset to the state before the view change */
 		restoreTreeView(state, payload) {
-			// traverse the tree to reset to the state before filtering
+			function resetHighLights(node, highLights) {
+				if (highLights && Object.keys(highLights).length > 0) {
+					node.tmp.isHighlighted_1 = !!highLights.isHighlighted_1
+					node.tmp.isHighlighted_2 = !!highLights.isHighlighted_2
+					node.tmp.isWarnLighted = !!highLights.isWarnLighted
+				}
+			}
+
 			state.helpersRef.traverseModels((nm) => {
 				// skip requirement areas dummy product items
 				if (nm._id === MISC.AREA_PRODUCTID) return
@@ -715,14 +750,49 @@ const store = new Vuex.Store({
 					// skip database level and above (smaller level number)
 					if (nm.level <= LEVEL.DATABASE) return
 				}
-				delete nm.tmp[payload.undoHighLight]
 				// reset the view state
-				nm.isExpanded = nm.tmp.savedIsExpandedInFilter
-				delete nm.tmp.savedIsExpandedInFilter
-				nm.doShow = nm.tmp.savedDoShowInFilter
-				delete nm.tmp.savedDoShowInFilter
-				state.filterTreeIsSet = false
-			}, payload.productModels)
+				if (payload.type === 'condition') {
+					nm.isExpanded = nm.tmp.savedIsExpandedInCondition
+					delete nm.tmp.savedIsExpandedInCondition
+					nm.doShow = nm.tmp.savedDoShowInCondition
+					delete nm.tmp.savedDoShowInCondition
+					resetHighLights(nm, nm.tmp.savedHighLigthsInCondition)
+				}
+
+				if (payload.type === 'dependency') {
+					nm.isExpanded = nm.tmp.savedIsExpandedInDependency
+					delete nm.tmp.savedIsExpandedInDependency
+					nm.doShow = nm.tmp.savedDoShowInDependency
+					delete nm.tmp.savedDoShowInDependency
+					resetHighLights(nm, nm.tmp.savedHighLigthsInDependency)
+				}
+
+				if (payload.type === 'findId') {
+					nm.isExpanded = nm.tmp.savedIsExpandedInFindId
+					delete nm.tmp.savedIsExpandedInFindId
+					nm.doShow = nm.tmp.savedDoShowInFindId
+					delete nm.tmp.savedDoShowInFindId
+					resetHighLights(nm, nm.tmp.savedHighLigthsInFindId)
+				}
+
+				if (payload.type === 'filter') {
+					nm.isExpanded = nm.tmp.savedIsExpandedInFilter
+					delete nm.tmp.savedIsExpandedInFilter
+					nm.doShow = nm.tmp.savedDoShowInFilter
+					delete nm.tmp.savedDoShowInFilter
+					resetHighLights(nm, nm.tmp.savedHighLigthsInFilter)
+
+					state.filterTreeIsSet = false
+				}
+
+				if (payload.type === 'titles') {
+					nm.isExpanded = nm.tmp.savedIsExpandedInTitles
+					delete nm.tmp.savedIsExpandedInTitles
+					nm.doShow = nm.tmp.savedDoShowInTitles
+					delete nm.tmp.savedDoShowInTitles
+					resetHighLights(nm, nm.tmp.savedHighLigthsInTitles)
+				}
+			}, payload.nodesToScan)
 		},
 
 		updateNodesAndCurrentDoc(state, payload) {
@@ -775,9 +845,6 @@ const store = new Vuex.Store({
 								break
 							case 'followers':
 								// not stored in the node
-								break
-							case 'inconsistentState':
-								node.tmp.inconsistentState = payload.inconsistentState
 								break
 							case 'isExpanded':
 								if (payload.isExpanded) {
@@ -952,9 +1019,6 @@ const store = new Vuex.Store({
 									break
 								case 'followers':
 									state.currentDoc.followers = payload.followers
-									break
-								case 'inconsistentState':
-									// not a database field
 									break
 								case 'isExpanded':
 									// not a database field

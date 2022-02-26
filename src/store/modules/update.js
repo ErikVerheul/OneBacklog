@@ -293,27 +293,6 @@ const actions = {
 				caller: 'setState',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
-					let infoMsg = undefined
-					let warnMsg = undefined
-					const descendants = rootState.helpersRef.getDescendantsInfo(node).descendants
-					// check on inconsistent state when the node has descendants (duplicate of code in doCheckStates())
-					if (descendants.length > 0) {
-						let highestState = STATE.NEW
-						let allDone = true
-						for (const d of descendants) {
-							if (d.data.state > highestState) highestState = d.data.state
-							if (d.data.state < STATE.DONE) allDone = false
-						}
-						if (payload.newState > highestState || payload.newState === STATE.DONE && !allDone) {
-							// node has a higher state than any of its descendants or set to done while one of its descendants is not done
-							commit('updateNodesAndCurrentDoc', { node, inconsistentState: true })
-							if (payload.newState === STATE.DONE && !allDone) {
-								warnMsg = 'You are assigning an inconsistant state to this item. Not all descendants are done.'
-							} else warnMsg = 'You are assigning an inconsistant state to this item. None of the item\'s descendants reached this STATE.'
-						} else {
-							commit('updateNodesAndCurrentDoc', { node, inconsistentState: false })
-						}
-					}
 					// check on team
 					const parentNode = rootState.helpersRef.getParentNode(node)
 					if (parentNode && parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin) {
@@ -321,19 +300,6 @@ const actions = {
 							warnMsg = concatMsg(warnMsg, `The team of parent '${parentNode.title}' (${parentNode.data.team}) and your team (${rootGetters.myTeam}) do not match.
 							Consider to assign team '${parentNode.data.team}' to this item`)
 						}
-					}
-					// recalculate and (re)set the inconsistency state of the parent item
-					if (parentNode && parentNode.data.state === STATE.DONE) {
-						const descendants = rootState.helpersRef.getDescendantsInfo(parentNode).descendants
-						let hasInconsistentState = false
-						for (const d of descendants) {
-							if (d.data.state === STATE.ON_HOLD) continue
-							if (d.data.state !== STATE.DONE) {
-								hasInconsistentState = true
-								break
-							}
-						}
-						parentNode.tmp.inconsistentState = hasInconsistentState
 					}
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						// create an entry for undoing the change in a last-in first-out sequence

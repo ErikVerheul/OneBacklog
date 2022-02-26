@@ -83,16 +83,26 @@ data: {
 }
 // temporary and private use, not stored, not synced with other on-line users
 tmp: {
-	inconsistentState: false // calculated on consistency check
 	isHighlighted_1: boolean // light blue
 	isHighlighted_2: boolean // light green
 	isWarnLighted: boolean // red
 	markedViolations: [] // column number to place this dependency violation in
-	savedIsExpandedInCondition: isExpanded === false // to restore the original view after finding condition violations
-	savedIsExpandedInDependency: isExpanded === false // to restore the original view after finding dependency violations
+
+	savedIsExpandedInCondition: isExpanded // to restore the original view after finding condition violations
+	savedDoShowInCondition: doShow // to restore the original view after finding condition violations
+	savedHighLigthsInCondition: { isHighlighted_1: boolean, isHighlighted_2: boolean, isWarnLighted: boolean }
+	savedIsExpandedInDependency: isExpanded // to restore the original view after finding dependency violations
+	savedDoShowInDependency: doShow // to restore the original view after finding dependency violations
+	savedHighLigthsInDependency: { isHighlighted_1: boolean, isHighlighted_2: boolean, isWarnLighted: boolean }
 	savedIsExpandedInFilter: isExpanded, // to restore the original view after applying a filter
-	savedIsExpandedInSearch: isExpanded, // to restore the original view after applying a search for id or string in titles
 	savedDoShowInFilter: doShow // to restore the original view after applying a filter
+	savedHighLigthsInFilter: { isHighlighted_1: boolean, isHighlighted_2: boolean, isWarnLighted: boolean }
+	savedIsExpandedInFindId: isExpanded, // to restore the original view after the selection of an item by Id
+	savedDoShowInFindId: doShow // to restore the original view after the selection of an item by Id
+	savedHighLigthsInFindId: { isHighlighted_1: boolean, isHighlighted_2: boolean, isWarnLighted: boolean }
+	savedIsExpandedInTitles: isExpanded, // to restore the original view after applying a search for a string in titles
+	savedDoShowInTitles: doShow // to restore the original view after applying a search for a string in titles
+	savedHighLigthsInTitles: { isHighlighted_1: boolean, isHighlighted_2: boolean, isWarnLighted: boolean }
 }
 
 The item types are defined in the CONFIG file:

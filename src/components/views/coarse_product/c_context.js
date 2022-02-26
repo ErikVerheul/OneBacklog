@@ -170,7 +170,7 @@ const methods = {
         this.doRemove()
         break
       case this.CHECKSTATES:
-        this.doCheckStates()
+				this.$store.state.helpersRef.doCheckStates(this.contextNodeSelected)
         break
       case this.SETDEPENDENCY:
         this.doSetDependency()
@@ -182,33 +182,7 @@ const methods = {
         this.doRemoveConditions()
         break
     }
-  },
-
-	getDependencies() {
-		this.dependenciesObjects = []
-		this.allDepenciesFound = true
-		for (const depId of this.contextNodeSelected.dependencies) {
-			const item = this.$store.state.helpersRef.getNodeById(depId)
-			if (item) {
-				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'dependency')
-				this.dependenciesObjects.push({ _id: depId, title: item.title })
-			} else this.allDepenciesFound = false
-		}
-		this.disableOkButton = !this.allDepenciesFound
-	},
-
-	getConditions() {
-		this.conditionsObjects = []
-		this.allConditionsFound = true
-		for (const conId of this.contextNodeSelected.conditionalFor) {
-			const item = this.$store.state.helpersRef.getNodeById(conId)
-			if (item) {
-				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'condition')
-				this.conditionsObjects.push({ _id: conId, title: item.title })
-			} else this.allConditionsFound = false
-		}
-		this.disableOkButton = !this.allConditionsFound
-	}
+  }
 }
 
 export default {

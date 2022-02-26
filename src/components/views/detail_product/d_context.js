@@ -204,7 +204,7 @@ const methods = {
 				this.doAssignToMyTeam()
 				break
 			case this.CHECKSTATES:
-				this.doCheckStates()
+				this.$store.state.helpersRef.doCheckStates(this.contextNodeSelected)
 				break
 			case this.SETDEPENDENCY:
 				this.doSetDependency()
@@ -255,28 +255,6 @@ const methods = {
 			this.$store.state.moveOngoing = true
 			this.moveSourceProductId = this.$store.state.currentProductId
 			this.movedNode = this.contextNodeSelected
-		}
-	},
-
-	getDependencies() {
-		this.dependenciesObjects = []
-		for (const depId of this.contextNodeSelected.dependencies) {
-			const item = this.$store.state.helpersRef.getNodeById(depId)
-			if (item) {
-				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'dependency')
-				this.dependenciesObjects.push({ _id: depId, title: item.title })
-			}
-		}
-	},
-
-	getConditions() {
-		this.conditionsObjects = []
-		for (const conId of this.contextNodeSelected.conditionalFor) {
-			const item = this.$store.state.helpersRef.getNodeById(conId)
-			if (item) {
-				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true }, 'condition')
-				this.conditionsObjects.push({ _id: conId, title: item.title })
-			}
 		}
 	},
 
