@@ -10,14 +10,14 @@
           </b-tooltip>
           <b-button class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
           <div class="divider" />
-          <b-input-group>
+          <b-input-group v-show="$store.state.resetSearch.searchType !== 'searchInTitles'">
             <b-form-input id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetFindId" variant="primary" type="reset">x</b-button>
             </b-input-group-append>
           </b-input-group>
           <div class="divider" />
-          <b-input-group v-show="!isRootSelected">
+          <b-input-group v-show="!isRootSelected && $store.state.resetSearch.searchType !== 'findItemOnId'">
             <b-form-input id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetSearchTitles" variant="primary" type="reset">x</b-button>
