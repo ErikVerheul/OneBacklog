@@ -20,7 +20,7 @@ function beforeCreate() {
 		this.$store.state.treeNodes = []
 		this.$store.state.changeHistory = []
 		// reset filters and searches
-		this.$store.state.filterTreeIsSet = false
+		this.$store.state.resetFilter = null
 		this.$store.state.resetSearch = {}
 		returning = false
 	} else returning = true

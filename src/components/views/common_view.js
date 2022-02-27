@@ -335,7 +335,7 @@ const methods = {
 	},
 
 	onSetMyFilters() {
-		if (this.$store.state.filterTreeIsSet) {
+		if (this.$store.state.resetFilter) {
 			// if this filter was on, reset it after resetting any set search and reset the label of the button; pass the array of productmodels to apply the reset on
 			const productModels = this.isOverviewSelected ? undefined : this.$store.state.helpersRef.getCurrentProductModel()
 			this.$store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters', productModels })

@@ -134,7 +134,6 @@ const store = new Vuex.Store({
 		eventList: [],
 		filterForComment: '',
 		filterForHistory: '',
-		filterTreeIsSet: false,
 		itemId: '',
 		keyword: '',
 		lastTreeView: undefined,
@@ -143,6 +142,7 @@ const store = new Vuex.Store({
 		searchOn: false,
 		selectedForView: 'comments',
 		previousSelectedNodes: undefined,
+		resetFilter: null,
 		resetSearch: {},
 		selectedNodes: [],
 		selectNodeOngoing: false,
@@ -246,7 +246,7 @@ const store = new Vuex.Store({
 
 		getFilterButtonText(state) {
 			let txt = 'Filter in tree view'
-			if (state.filterTreeIsSet) {
+			if (state.resetFilter) {
 				txt = 'Clear filter'
 				if (state.resetSearch.searchType === 'findItemOnId') {
 					txt += ' and Id selection'
@@ -452,13 +452,6 @@ const store = new Vuex.Store({
 			}
 		},
 
-		resetTreeFilter({ state, commit }, payload) {
-			// eslint-disable-next-line no-console
-			if (state.debug) console.log(`resetTreeFilter is called by ${payload.caller}`)
-			commit('restoreTreeView', { type: 'filter', nodesToScan: payload.productModels })
-			commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
-		},
-
 		resetFindOnId({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
@@ -507,31 +500,41 @@ const store = new Vuex.Store({
 			dispatch('additionalActions', payload)
 		},
 
-		/* Clear any outstanding searches and execute the callback and/or actions if provided */
-		resetAnySearches({ state, dispatch }, payload) {
-			if (state.resetSearch.searchType) {
-				// only one search can/will be reset
-				if (state.resetSearch.searchType === 'findItemOnId') {
-					dispatch('resetFindOnId', payload)
-				}
-				if (state.resetSearch.searchType === 'searchInTitles') {
-					dispatch('resetSearchInTitles', payload)
-				}
+		/* If a filter is active reset to the tree state as before the filter was set; otherwise reset the set search (can only be one) */
+		resetFilterAndSearches({ state, dispatch, commit }, payload) {
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log(`resetFilterAndSearches is called by ${payload.caller}`)
+			if (state.resetFilter) {
+				const prevSelectedNode = state.resetFilter.currentSelectedNode
+				// load and select the previous selected document
+				dispatch('loadDoc', {
+					id: prevSelectedNode._id, onSuccessCallback: () => {
+						state.itemId = ''
+						state.keyword = ''
+						state.resetSearch = {}
+						state.resetFind = null
+						commit('restoreTreeView', { type: 'filter', nodesToScan: payload.productModels })
+						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
+						commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
+					}
+				})
 			} else {
-				// no searches were set; execute the callback
-				if (payload.onSuccessCallback) payload.onSuccessCallback()
-				// execute passed actions if provided
-				dispatch('additionalActions', payload)
+				/* Clear any outstanding searches and execute the callback and/or actions if provided */
+				if (state.resetSearch.searchType) {
+					// only one search can/will be reset
+					if (state.resetSearch.searchType === 'findItemOnId') {
+						dispatch('resetFindOnId', payload)
+					}
+					if (state.resetSearch.searchType === 'searchInTitles') {
+						dispatch('resetSearchInTitles', payload)
+					}
+				} else {
+					// no searches were set; execute the callback
+					if (payload.onSuccessCallback) payload.onSuccessCallback()
+					// execute passed actions if provided
+					dispatch('additionalActions', payload)
+				}
 			}
-		},
-
-		/* Clear any outstanding filters and searches and execute the callback and/or actions if provided */
-		resetFilterAndSearches({ state, dispatch }, payload) {
-			if (state.filterTreeIsSet) {
-				// create an action to reset the tree filter after the searches are reset
-				payload.toDispatch = [{ 'resetTreeFilter': payload }]
-			}
-			dispatch('resetAnySearches', payload)
 		},
 
 		/* Add the product to my profile and update my available products and my product options	*/
@@ -782,7 +785,7 @@ const store = new Vuex.Store({
 					delete nm.tmp.savedDoShowInFilter
 					resetHighLights(nm, nm.tmp.savedHighLigthsInFilter)
 
-					state.filterTreeIsSet = false
+					state.resetFilter = null
 				}
 
 				if (payload.type === 'titles') {
@@ -1205,8 +1208,8 @@ const store = new Vuex.Store({
 			state.currentDoc = null
 			state.currentProductId = null
 			state.currentProductTitle = ''
-			state.filterTreeIsSet = false,
-				state.iAmAPO = false
+			state.resetFilter = null,
+			state.iAmAPO = false
 			state.iAmAdmin = false
 			state.iAmAssistAdmin = false
 			state.iAmServerAdmin = false

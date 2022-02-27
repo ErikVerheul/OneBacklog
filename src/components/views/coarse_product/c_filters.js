@@ -6,7 +6,7 @@ const methods = {
 	/* Apply the AND logic to the included filters */
 	onApplyMyFilters() {
 		// return if a filer is already set or no filter is selected
-		if (this.$store.state.filterTreeIsSet || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
+		if (this.$store.state.resetFilter || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
 		// save node display state; scan all products
 		const nodesToScan = undefined
@@ -49,7 +49,10 @@ const methods = {
 		}
 		this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 
-		this.$store.state.filterTreeIsSet = true
+		// create reset object
+		this.$store.state.resetFilter = {
+			currentSelectedNode: this.getLastSelectedNode,
+		}
 	}
 }
 

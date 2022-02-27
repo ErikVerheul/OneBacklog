@@ -7,7 +7,7 @@ const methods = {
 	/* Apply the AND logic to the included filters */
 	onApplyMyFilters() {
 		// return if a filter is already set or no filter is selected
-		if (this.$store.state.filterTreeIsSet || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
+		if (this.$store.state.resetFilter || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
 		// save node display state
 		const nodesToScan = this.$store.state.helpersRef.getCurrentProductModel()
@@ -70,7 +70,9 @@ const methods = {
 			this.showLastEvent(`The tree is displayed up to the ${this.getLevelText(this.selectedTreeDepth)} level in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 		}
 		// create reset object
-		this.$store.state.filterTreeIsSet = true
+		this.$store.state.resetFilter = {
+			currentSelectedNode: this.getLastSelectedNode,
+		}
 	}
 }
 
