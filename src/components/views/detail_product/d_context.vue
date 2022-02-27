@@ -69,14 +69,6 @@
 						</template>
 
             <b-list-group-item
-              v-if="contextNodeLevel >= PRODUCTLEVEL"
-              button
-              :active="contextOptionSelected === CHECKSTATES"
-              variant="dark"
-              @click="showSelected(CHECKSTATES)"
-            >Run a check on item state consistency</b-list-group-item>
-
-            <b-list-group-item
               v-if="hasDependencies && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWDEPENDENCIES"

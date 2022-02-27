@@ -144,10 +144,6 @@ const methods = {
 				}
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
 				break
-			case this.CHECKSTATES:
-				this.assistanceText = this.$store.state.help.help.consistencyCheck
-				this.listItemText = 'Start the check. See in the tree if any red badges appear.'
-				break
 			case this.SETDEPENDENCY:
 				this.assistanceText = this.$store.state.help.help.setDependency
 				if (!this.$store.state.selectNodeOngoing) {
@@ -202,9 +198,6 @@ const methods = {
 				break
 			case this.ASIGNTOMYTEAM:
 				this.doAssignToMyTeam()
-				break
-			case this.CHECKSTATES:
-				this.$store.state.helpersRef.doCheckStates(this.contextNodeSelected)
 				break
 			case this.SETDEPENDENCY:
 				this.doSetDependency()

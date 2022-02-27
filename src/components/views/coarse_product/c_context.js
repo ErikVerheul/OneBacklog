@@ -116,10 +116,6 @@ const methods = {
         this.assistanceText = this.$store.state.help.help.remove
         this.listItemText = 'Remove this requirement area'
         break
-      case this.CHECKSTATES:
-        this.assistanceText = this.$store.state.help.help.consistencyCheck
-        this.listItemText = 'Start the check. See in the tree if any red badges appear.'
-        break
       case this.SETDEPENDENCY:
         this.assistanceText = this.$store.state.help.help.setDependency
         if (!this.$store.state.selectNodeOngoing) {
@@ -168,9 +164,6 @@ const methods = {
       case this.REMOVEITEM:
       case this.REMOVEREQAREA:
         this.doRemove()
-        break
-      case this.CHECKSTATES:
-				this.$store.state.helpersRef.doCheckStates(this.contextNodeSelected)
         break
       case this.SETDEPENDENCY:
         this.doSetDependency()

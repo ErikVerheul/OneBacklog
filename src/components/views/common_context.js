@@ -19,7 +19,6 @@ function created() {
 	this.MOVETOPRODUCT = 2
 	this.REMOVEITEM = 3
 	this.ASIGNTOMYTEAM = 4
-	this.CHECKSTATES = 5
 	this.SETDEPENDENCY = 6
 	this.SHOWDEPENDENCIES = 7
 	this.SHOWCONDITIONS = 8
