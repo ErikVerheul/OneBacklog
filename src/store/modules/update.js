@@ -293,6 +293,8 @@ const actions = {
 				caller: 'setState',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
+					let infoMsg = undefined
+					let warnMsg = undefined
 					// check on team
 					const parentNode = rootState.helpersRef.getParentNode(node)
 					if (parentNode && parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin) {
