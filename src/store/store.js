@@ -455,16 +455,15 @@ const store = new Vuex.Store({
 		resetFindOnId({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
-			const node = state.resetSearch.node
-			if (!node) {
-				// the filter did not find a node
+			if (!state.resetSearch.nodeFound) {
+				// the search did not find a node
 				return
 			}
 			// load and select the previous selected document
-			const prevSelectedNode = state.resetSearch.currentSelectedNode
+			const prevSelectedNode = state.resetSearch.savedSelectedNode
 			dispatch('loadDoc', {
 				id: prevSelectedNode._id, onSuccessCallback: () => {
-					if (state.resetSearch.view === 'detailProduct' && node.productId !== prevSelectedNode.productId) {
+					if (state.resetSearch.view === 'detailProduct' && state.resetSearch.nodeFound.productId !== prevSelectedNode.productId) {
 						// the node was found in another product
 						commit('switchCurrentProduct', prevSelectedNode.productId)
 					} else {
@@ -481,7 +480,7 @@ const store = new Vuex.Store({
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}`)
-			const prevSelectedNode = state.resetSearch.currentSelectedNode
+			const prevSelectedNode = state.resetSearch.savedSelectedNode
 			// load and select the previous selected document
 			dispatch('loadDoc', {
 				id: prevSelectedNode._id, onSuccessCallback: () => {
@@ -499,7 +498,7 @@ const store = new Vuex.Store({
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetFilterAndSearches is called by ${payload.caller}`)
 			if (state.resetFilter) {
-				const prevSelectedNode = state.resetFilter.currentSelectedNode
+				const prevSelectedNode = state.resetFilter.savedSelectedNode
 				// load and select the previous selected document
 				dispatch('loadDoc', {
 					id: prevSelectedNode._id, onSuccessCallback: () => {

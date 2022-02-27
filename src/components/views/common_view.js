@@ -354,39 +354,38 @@ const methods = {
 	/* Find, load and select an item with a given short or full Id. Scan the full tree */
 	findItemOnId(id) {
 		const isShortId = id.length === SHORTKEYLENGTH
-		let node
+		let nodeFound
 		this.$store.state.helpersRef.traverseModels((nm) => {
 			if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
 				// short id or full id did match
-				node = nm
+				nodeFound = nm
 				return false
 			}
 		})
-		if (node) {
+		if (nodeFound) {
 			// save display state of the full screen
 			const nodesToScan = undefined
 			this.$store.commit('saveTreeView', { nodesToScan, type: 'findId' })
 			// load and select the document if not already current
-			if (node._id !== this.$store.state.currentDoc._id) {
+			if (nodeFound._id !== this.$store.state.currentDoc._id) {
 				// select the node after loading the document
 				this.$store.dispatch('loadDoc', {
-					id: node._id, onSuccessCallback: () => {
+					id: nodeFound._id, onSuccessCallback: () => {
 						// create reset object
 						this.$store.state.resetSearch = {
 							searchType: 'findItemOnId',
-							view: 'detailProduct',
-							currentSelectedNode: this.getLastSelectedNode,
-							node,
-							highLight: 'noHighLight'
+							view: this.$store.state.currentView,
+							savedSelectedNode: this.getLastSelectedNode,
+							nodeFound
 						}
-						if (this.isDetailsViewSelected && node.productId !== this.$store.state.currentProductId) {
+						if (this.isDetailsViewSelected && nodeFound.productId !== this.$store.state.currentProductId) {
 							// the node is found but not in the current product; collapse the currently selected product and switch to the new product
-							this.$store.commit('switchCurrentProduct', node.productId)
+							this.$store.commit('switchCurrentProduct', nodeFound.productId)
 						}
 						// expand the tree view up to the found item
-						this.$store.state.helpersRef.showPathToNode(node, { noHighLight: true })
-						this.$store.commit('updateNodesAndCurrentDoc', { selectNode: node })
-						this.showLastEvent(`The item with full Id ${node._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
+						this.$store.state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
+						this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
+						this.showLastEvent(`The item with full Id ${nodeFound._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
 					}
 				})
 			}
@@ -402,7 +401,6 @@ const methods = {
 		if (this.$store.state.keyword === '') return
 
 		const nodesFound = []
-		const nodesCollapsed = []
 		// save display state of the branch
 		const nodesToScan = [branchHead]
 		this.$store.commit('saveTreeView', { nodesToScan, type: 'titles' })
@@ -416,7 +414,6 @@ const methods = {
 				if (nm.level > LEVEL.PRODUCT) {
 					if (nm.isExpanded) {
 						collapseNode(nm)
-						nodesCollapsed.push(nm)
 					}
 				}
 			}
@@ -425,10 +422,8 @@ const methods = {
 		// create reset object
 		this.$store.state.resetSearch = {
 			searchType: 'searchInTitles',
-			nodesFound,
-			nodesCollapsed,
-			view: 'detailProduct',
-			currentSelectedNode: this.getLastSelectedNode
+			view: this.$store.state.currentView,
+			savedSelectedNode: this.getLastSelectedNode
 		}
 
 		const productStr = this.isOverviewSelected ? 'all products' : ` product '${this.$store.state.currentProductTitle}'`

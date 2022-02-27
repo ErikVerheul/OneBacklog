@@ -71,7 +71,7 @@ const methods = {
 		}
 		// create reset object
 		this.$store.state.resetFilter = {
-			currentSelectedNode: this.getLastSelectedNode,
+			savedSelectedNode: this.getLastSelectedNode,
 		}
 	}
 }
