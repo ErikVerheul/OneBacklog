@@ -476,9 +476,6 @@ const store = new Vuex.Store({
 					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
 				}
 			})
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
-			// execute passed actions if provided
-			dispatch('additionalActions', payload)
 		},
 
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
@@ -495,9 +492,6 @@ const store = new Vuex.Store({
 					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
 				}
 			})
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
-			// execute passed actions if provided
-			dispatch('additionalActions', payload)
 		},
 
 		/* If a filter is active reset to the tree state as before the filter was set; otherwise reset the set search (can only be one) */
@@ -528,11 +522,6 @@ const store = new Vuex.Store({
 					if (state.resetSearch.searchType === 'searchInTitles') {
 						dispatch('resetSearchInTitles', payload)
 					}
-				} else {
-					// no searches were set; execute the callback
-					if (payload.onSuccessCallback) payload.onSuccessCallback()
-					// execute passed actions if provided
-					dispatch('additionalActions', payload)
 				}
 			}
 		},

@@ -139,13 +139,9 @@ const methods = {
 				const currentProductId = this.$store.state.currentProductId
 				if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
 					// another product is selected; reset the tree filter and Id selection or title search on the current product
-					const productModels = this.$store.state.helpersRef.getProductModel(currentProductId)
-					this.$store.dispatch('resetFilterAndSearches', {
-						caller: 'onNodesSelected', productModels, onSuccessCallback: () => {
-							// collapse the currently selected product and switch and expand to the newly selected product
-							this.$store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
-						}
-					})
+					this.$store.dispatch('resetFilterAndSearches', { caller: 'onNodesSelected', productModels: this.$store.state.helpersRef.getCurrentProductModel() })
+					// collapse the currently selected product and switch and expand to the newly selected product
+					this.$store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
 				}
 				if (!fromContextMenu) this.showSelectionEvent(selNodes)
 			}
