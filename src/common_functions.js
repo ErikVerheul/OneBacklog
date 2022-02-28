@@ -37,7 +37,7 @@ export function collapseNode(node) {
 
 /* Create an id starting with the time past since 1/1/1970 in miliseconds + a 5 character alphanumeric random value */
 export function createId() {
-	const ext = Math.random().toString(36).replace('0.', '').substr(0, 5)
+	const ext = Math.random().toString(36).replace('0.', '').substring(0, 5)
 	return Date.now().toString().concat(ext)
 }
 
@@ -66,7 +66,7 @@ export function addToArray(arr, item) {
 export function localTimeAndMilis() {
 	function pad(num, size) {
 		var s = "000" + num
-		return s.substr(s.length - size)
+		return s.substring(s.length - size)
 	}
 	const now = new Date()
 	return `${now.toLocaleTimeString()}.${pad(now.getMilliseconds(), 3)}`

@@ -38,7 +38,7 @@ Vue.use(Vuex)
 function createEventToDisplay(payload) {
 	function pad(num, size) {
 		var s = "000" + num
-		return s.substr(s.length - size)
+		return s.substring(s.length - size)
 	}
 	const now = new Date()
 	let color = '#408FAE'
@@ -512,7 +512,7 @@ const store = new Vuex.Store({
 					}
 				})
 			} else {
-				/* Clear any outstanding searches and execute the callback and/or actions if provided */
+				// clear any outstanding searches and execute the callback and/or actions if provided
 				if (state.resetSearch.searchType) {
 					// only one search can/will be reset
 					if (state.resetSearch.searchType === 'findItemOnId') {
