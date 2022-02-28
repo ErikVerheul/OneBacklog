@@ -621,14 +621,16 @@ const methods = {
 	},
 
 	updateAcceptance(node = this.getLastSelectedNode) {
-		// skip update when not changed
-		if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
-			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
-				this.$store.dispatch('saveAcceptance', {
-					node,
-					newAcceptance: this.newAcceptance,
-					timestamp: Date.now()
-				})
+		if (node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas') {
+			// skip update when not changed
+			if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
+				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
+					this.$store.dispatch('saveAcceptance', {
+						node,
+						newAcceptance: this.newAcceptance,
+						timestamp: Date.now()
+					})
+				}
 			}
 		}
 	},
