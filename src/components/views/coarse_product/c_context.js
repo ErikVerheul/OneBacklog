@@ -66,7 +66,7 @@ const methods = {
         vm.contextWarning = 'WARNING: Cannot add the same dependency twice'
         return false
       }
-      if (this.$store.state.helpersRef.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
+      if (vm.$store.state.helpersRef.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
         vm.contextWarning = 'WARNING: Cannot create a dependency on an item with lower priority'
         return false
       }
