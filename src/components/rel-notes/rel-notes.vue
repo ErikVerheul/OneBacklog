@@ -6,6 +6,23 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+					<h3>v.1.17 - 28 Febuari 2022 New features, bug fixes, refactoring</h3>
+					<p>New features:</p>
+          <ul>
+            <li>Save and restore node highlighting when using searches (on top of) a filter; show state inconsistency on the fly</li>
+						<li>When no product is assigned to an admin or server admin show a warning and route to the admin page</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+						<li>Hidden error when resetting search in titles without previous search, fixed</li>
+            <li>When removing an item in the product overview with dependencies or conditions on its descendants, these are not recovered on the undo, fixed</li>
+						<li>Fix false mesage 'The last undo has not finished. Please try later' when the dependency is manually removed</li>
+						<li>Fix regression error when adding a dependency</li>
+          </ul>
+					<p>Refactoring:</p>
+          <ul>
+						<li>Showpath and undoShowPath refactored; use capital literals for constants</li>
+          </ul>
 					<h3>v.1.16 - 5 Febuari 2022 New feature, bug fixes, refactoring</h3>
 					<p>New feature:</p>
           <ul>
