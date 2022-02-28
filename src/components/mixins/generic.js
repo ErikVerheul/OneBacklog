@@ -99,7 +99,8 @@ const authorization = {
 					return false
 				}
 			}
-			if (this.getMyProductsRoles[productId] == undefined) {
+			if (productId !== MISC.AREA_PRODUCTID && this.getMyProductsRoles[productId] == undefined) {
+				// do not show this message if the user tries to move a regular item into the requirement areas dummy product
 				this.showLastEvent(`Sorry, the item belongs to a product that is not assigned to you. Check with your administrator for a fix.`, SEV.WARNING)
 				return false
 			}
