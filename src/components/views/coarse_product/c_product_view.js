@@ -154,19 +154,19 @@ const methods = {
 		 * precondition: the selected nodes have all the same parent (same level)
 		 * Area PO's need not to be member of the item's team
 		 */
-		function areAlldependenciesFound(nodes) {
+		function areAlldependenciesFound(vm, nodes) {
 			for (const node of nodes) {
 				for (const depId of node.dependencies) {
-					const item = this.$store.state.helpersRef.getNodeById(depId)
+					const item = vm.$store.state.helpersRef.getNodeById(depId)
 					if (!item) return false
 				}
 			}
 			return true
 		}
-		function areAllConditionsFound(nodes) {
+		function areAllConditionsFound(vm, nodes) {
 			for (const node of nodes) {
 				for (const conId of node.conditionalFor) {
-					const item = this.$store.state.helpersRef.getNodeById(conId)
+					const item = vm.$store.state.helpersRef.getNodeById(conId)
 					if (!item) return false
 				}
 			}
@@ -205,14 +205,14 @@ const methods = {
 				cancel(true)
 			}
 
-			if (!areAlldependenciesFound(draggingNodes)) {
+			if (!areAlldependenciesFound(this, draggingNodes)) {
 				if (draggingNodes.length === 1) {
 					this.showLastEvent('Cannot move the item as it has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
 				} else this.showLastEvent('Cannot move these items as one of them has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
 				cancel(true)
 			}
 
-			if (!areAllConditionsFound(draggingNodes)) {
+			if (!areAllConditionsFound(this, draggingNodes)) {
 				if (draggingNodes.length === 1) {
 					this.showLastEvent('Cannot move the item as it has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
 				} else this.showLastEvent('Cannot move these items as one of them has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
