@@ -83,6 +83,10 @@ const computed = {
 }
 
 const methods = {
+	doShowState(node) {
+		return node._id !== 'root' && node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas'
+	},
+
 	preventNav(event) {
 		event.preventDefault()
 		event.returnValue = ""

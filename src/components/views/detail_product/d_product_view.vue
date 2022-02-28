@@ -47,7 +47,7 @@
             <h3 align="center">{{ $store.state.currentProductTitle }} [Details]</h3>
           </b-col>
           <b-col cols="3">
-            <h3 align="right">
+            <h3 v-if="$store.state.currentDoc._id !== 'root'" align="right">
               State:
               <b-dropdown v-if="$store.state.currentDoc.level < LEVEL.TASK" right class="m-1 .btn.btn-secondary.dropdown-toggle">
                 <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
@@ -118,7 +118,7 @@
               </span>
               <b-badge v-if="hasInconsistentState(node)" variant="danger">{{ getNodeStateText(node) + '?' }}</b-badge>
               <b-badge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</b-badge>
-              <b-badge v-else variant="light">{{ getNodeStateText(node) }}</b-badge>
+              <b-badge v-else-if="doShowState(node)" variant="light">{{ getNodeStateText(node) }}</b-badge>
               <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
               <b-badge v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)" variant="info">See history</b-badge>
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>

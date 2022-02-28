@@ -71,6 +71,10 @@ const watch = {
 }
 
 const methods = {
+	doShowState(node) {
+		return node._id !== 'root'
+	},
+
 	preventNav(event) {
 		event.preventDefault()
 		event.returnValue = ""
