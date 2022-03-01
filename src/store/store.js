@@ -180,6 +180,7 @@ const store = new Vuex.Store({
 		logEntries: [],
 		selectedDatabaseName: '',
 		seqKey: 0,
+		stopListeningForChanges: false,
 		teamsToRemoveIds: [],
 		userOptions: [],
 		warning: '',
@@ -1213,6 +1214,7 @@ const store = new Vuex.Store({
 			state.planningboard.stories = []
 			state.resetSearch = {}
 			state.showHeaderDropDowns = true
+			state.stopListeningForChanges = false
 			state.treeNodes = []
 			state.userData = {}
 			// load sign-in page

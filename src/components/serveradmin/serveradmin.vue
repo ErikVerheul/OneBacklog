@@ -58,7 +58,7 @@
         </b-form-group>
         <template v-if="$store.state.selectedDatabaseName !== 'not selected yet'">
           <p class="colorRed">Database '{{ dbToReplace }}' will be replaced by '{{ $store.state.selectedDatabaseName }}'. Make sure no users of this database are on-line right now.</p>
-          <p class="colorRed" v-if="isCurrentDbSelected">You are replacing your current database. When the restore is ready, you will be signed-out automatically.
+          <p class="colorRed" v-if="isCurrentDbSelected()">You are replacing your current database. When the restore is ready, you will be signed-out automatically.
           </p>
         </template>
         <hr>
@@ -219,10 +219,6 @@ export default {
   computed: {
     dbToReplace() {
       return this.$store.state.selectedDatabaseName.slice(0, this.$store.state.selectedDatabaseName.indexOf('-backup-'))
-    },
-
-    isCurrentDbSelected() {
-      return this.dbToReplace === this.$store.state.userData.currentDb
     }
   },
 
@@ -238,6 +234,16 @@ export default {
 
     createLogKey(timestamp, sessionId, sessionSeq) {
       return timestamp + sessionId + sessionSeq
+    },
+
+		isCurrentDbSelected() {
+      if (this.dbToReplace === this.$store.state.userData.currentDb) {
+				this.$store.state.stopListeningForChanges = true
+				// also stop the watchdog
+				clearInterval(this.$store.state.logging.runningWatchdogId)
+				return true
+			}
+			return false
     },
 
     severity(level) {
@@ -320,7 +326,7 @@ export default {
       const payload = {
         dbSourceName: this.$store.state.selectedDatabaseName,
         dbTargetName: this.dbToReplace,
-        autoSignOut: this.isCurrentDbSelected,
+        autoSignOut: this.isCurrentDbSelected(),
         reportRestoreSuccess: true
       }
       this.$store.dispatch('replaceDB', payload)

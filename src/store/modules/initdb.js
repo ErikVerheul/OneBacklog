@@ -111,7 +111,8 @@ const actions = {
 	},
 
 	setDatabasePermissions({
-		rootState
+		rootState,
+		commit
 	}, payload) {
 		// set the persmissions on the database holding the documents
 		const dbPermissions = {
@@ -133,6 +134,9 @@ const actions = {
 			if (payload.reportRestoreSuccess) {
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Success, the database restore is ready' })
 				rootState.isRestoreReady = true
+			}
+			if (payload.autoSignOut) {
+				commit('endSession', 'initdb: setDatabasePermissions')
 			}
 		}).catch(error => {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setDatabasePermissions: Failure, could not set permissions on database ' + payload.dbName + ', ' + error })

@@ -796,6 +796,9 @@ const actions = {
 		dispatch,
 		commit
 	}) {
+		if (rootState.stopListeningForChanges) {
+			return
+		}
 		// stop listening if signed-out
 		if (rootState.signedOut) {
 			// eslint-disable-next-line no-console
@@ -834,6 +837,9 @@ const actions = {
 			}
 		}).catch(error => {
 			rootState.listenForChangesRunning = false
+			if (rootState.stopListeningForChanges) {
+				return
+			}
 			if (error.response && error.response.status === 404) {
 				// database not found; cannot log; possible cause is that the server admin is restoring the current database
 				commit('endSession', 'listenForChanges: catch:error.response.status === 404')
