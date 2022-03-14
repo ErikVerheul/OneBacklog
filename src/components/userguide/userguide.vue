@@ -16,7 +16,7 @@
 				<h5>Select your view</h5>
 				<p>For &apos;Select your view&apos; see <a href="#pv">Product details</a>, <a href="#rv">Products overview</a> and <a href="#pb">Sprint planning board</a></p>
 				<p>In the Product details view you van assign a sprint to a PBI or task. <a href="#sp">See Sprint assignment</a></p>
-				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or server admin.
+				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or server admin.</p>
 				<h5><em>User</em></h5>
 				<ul>
 					<li>Change database: Only applicable for users with products in more than one database.</li>
@@ -40,8 +40,9 @@
 						</ul>
 					</p>
 
-					<p>The authorization is set per database and product based on the following roles:<br/>
+					<p>The authorization is set per database and product based on the following roles:<br>
 						Three roles are set per database:
+					</p>
 					<ul>
 						<li>'_admin': Is the database administrator. Is set the OneBacklog instance is created. Can setup and delete databases.  Can create comments and see and upload attachments. See the CouchDB documentation.</li>
 						<li>'admin': Can create, maintain and assign users to products. Can create comments and see and upload attachments.</li>
@@ -80,7 +81,7 @@
 					<p>When adding multiple versions of an attachment with the same name the file name will be extended with _1, _2 etc. Click on an attachment button to let your browser display the attachment in a new tab.</p>
 					<p>When you select Attachments or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 					<p>Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different units:</p>
-					<p>Product and epic size estimate:
+					<p>Product and epic size estimate:</p>
 					<p class="indent20">Products and epics are estimated in T-shirt sizes. Features and pbi's are estimated in story points using the. A common practice is to use the Fibonacci scale. However this is not enforced.</p>
 					<p>Feature effort estimate:</p>
 					<p class="indent20">Both features and pbi's are estimated in story points. When all pbi's belonging to a feature are refined the feature effort should be the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.</p>
@@ -131,7 +132,7 @@
 						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the 'Clear filter' button.</p>
 						<p>You can filter on a combination of properties like team, item state, recent changes etc. You can use this filter as pre-selection before the Id selection and search in titles, as outlined below.</p>
 						<h5>Select an item on (short) Id</h5>
-						<p>You can also use the full, 18+ positions long, id. More convenient is the use of the short Id. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:
+						<p>You can also use the full, 18+ positions long, id. More convenient is the use of the short Id. This Id is 5 characters long. It is displayed in the product view right from the item title. When you select on an Id:</p>
 						<ul>
 							<li>The item is found in the currently selected and opened product. The item will be selected and highlighted in the tree view.</li>
 							<li>The item is found in the currently selected product but that product is not opened. The product will be opened and item will be selected and highlighted in the tree view</li>
@@ -147,7 +148,7 @@
 				</div>
 				<div id="sp">
 					<h4>Sprint assignment</h4>
-					<p>A PBI can be assigned to the current or upcoming sprint. All tasks of the PBI are assigned to that sprint too. Each individual task can be unassigned. New tasks are automatically assigned to the PBI's sprint.<br/>
+					<p>A PBI can be assigned to the current or upcoming sprint. All tasks of the PBI are assigned to that sprint too. Each individual task can be unassigned. New tasks are automatically assigned to the PBI's sprint.<br>
 					When a PBI has no assigned sprint but a sprint is assigned to one of its tasks that sprint is also assigned to the PBI.</p>
 				</div>
 				<div id="pb">
