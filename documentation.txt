@@ -215,13 +215,13 @@ In the CONFIG document the PBI subtypes are defined
 In the CONFIG document the item states are defined
 As per release 1.0
 itemState										taskState
--------------------------------------
-0		state not in use
+---------------------------------------------------------
+0	state not in use						state not in use
 1   "On hold"								"On hold"
-2   "New"										"ToDo"
+2   "New"									"ToDo"
 3   "Ready"									"ToDo"
-4   "In progress"						"In progress"
-5		"Ready for test/review"	"Ready for test/review"
+4   "In progress"							"In progress"
+5	"Ready for test/review"					"Ready for test/review"
 6   "Done"									"Done"
 Items can move to tasks and back
 
@@ -277,47 +277,47 @@ Thee events and their usage:
 
 distibuted	mailed	listed	event                       	file
 ----------------------------------------------------------------
-Y            	Y	     Y    acceptanceEvent	              	update.js
-Y            	Y	     Y    addCommentEvent	              	update.js
-Y			 				N	     N    addItemsToSprintEvent						planningboard.js
-Y			 				Y	     Y    addSprintIdsEvent								planningboard.js
-Y			 				N	     N    boardReloadEvent								planningboard.js
-Y            	N	     N    changeReqAreaColorEvent         update.js
-N             N	     Y    clonedBranchEvent	              clone.js
+Y             Y	     Y    acceptanceEvent	              	update.js
+Y             Y	     Y    addCommentEvent	              	update.js
+Y			  N	     N    addItemsToSprintEvent				planningboard.js
+Y			  Y	     Y    addSprintIdsEvent					planningboard.js
+Y			  N	     N    boardReloadEvent					planningboard.js
+Y             N	     N    changeReqAreaColorEvent           update.js
+N             N	     Y    clonedBranchEvent	                clone.js
 N             Y	     Y    cloneEvent	                  	clone.js
 Y             Y	     Y    commentToHistoryEvent	        	update.js
 Y             Y	     Y    conditionRemovedEvent	        	update.js
 Y             N	     Y    createEvent 	                	common.context.js 2X
-N             N	     Y  	  															utils.js
-N			 				N	     Y    createRootEvent									intdb.js
-Y             N	     Y    createTaskEvent 	              planningboard.js
+N             N	     Y  	  								utils.js
+N			  N	     Y    createRootEvent					intdb.js
+Y             N	     Y    createTaskEvent 	                 planningboard.js
 Y             Y	     Y    dependencyRemovedEvent 	      	update.js
 Y             Y	     Y    descriptionEvent	            	update.js
-N             N      Y    importToSprintEvent             planningboard.js
-N			 				N	     Y    itemRestoredEvent								undo.js
-N			 				Y	     Y    newChildEvent										update.js
-Y             Y	     Y    nodeMovedEvent	            		move.js
+N             N      Y    importToSprintEvent               planningboard.js
+N			  N	     Y    itemRestoredEvent					undo.js
+N			  Y	     Y    newChildEvent						update.js
+Y             Y	     Y    nodeMovedEvent	            	move.js
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js
-Y             Y	     Y    removeCommentEvent	        		update.js
+Y             Y	     Y    removeCommentEvent	        	update.js
 Y             Y	     Y    removeCommentFromHistoryEvent  	update.js
-Y 			 			N 	   N    removeItemsFromSprintEvent			planningboard.js
-Y             Y      Y    removedWithDescendantsEvent     removebranch.js
-N 			 			Y 	   Y    removeSprintIdsEvent						planningboard.js
-Y 			 			Y 	   Y    removeStoryEvent								planningboard.js
-N			 				N	     Y    resetHistoryEvent								utils.js
+Y 			  N 	 N    removeItemsFromSprintEvent		planningboard.js
+Y             Y      Y    removedWithDescendantsEvent       removebranch.js
+N 			  Y 	 Y    removeSprintIdsEvent				planningboard.js
+Y 			  Y 	 Y    removeStoryEvent					planningboard.js
+N			  N	     Y    resetHistoryEvent					utils.js
 Y             Y	     Y    setConditionEvent	          		update.js
-Y             Y	     Y    setDependencyEvent	        		update.js
+Y             Y	     Y    setDependencyEvent	        	update.js
 Y             Y	     Y    setHrsEvent	                  	update.js
 Y             Y	     Y    setPointsEvent	              	update.js
 Y             Y	     Y    setSizeEvent	                	update.js
 Y             Y	     Y    setStateEvent	                	update.js
 Y             Y	     Y    setSubTypeEvent	              	update.js
-N			 				N	     Y    setTeamEventDescendant					update.js
+N			  N	     Y    setTeamEventDescendant			update.js
 Y             Y	     Y    setTeamOwnerEvent	            	update.js
 Y             Y	     Y    setTitleEvent	                	update.js, planningboard.js
-N			 				N	     Y    subscribeEvent									update.js
-Y             N      Y    taskRemovedEvent								planningboard.js
-Y             N	     Y    undoBranchRemovalEvent	  			undo.js
+N			  N	     Y    subscribeEvent					update.js
+Y             N      Y    taskRemovedEvent					planningboard.js
+Y             N	     Y    undoBranchRemovalEvent	  		undo.js
 Y             Y	     Y    uploadAttachmentEvent	        	attachments.js
 Y             N	     N    updateTaskOrderEvent	        	planningboard.js
 
