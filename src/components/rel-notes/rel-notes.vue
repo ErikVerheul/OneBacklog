@@ -275,8 +275,7 @@
           <ul>
             <li>'Not returning original view after clearing depth only filter' fixed</li>
           </ul>
-          <p>Install and documentation
-          <p>
+          <p>Install and documentation:</p>
           <ul>
             <li>Both native ES2015 and legacy code is shipped to production</li>
             <li>Debug options included in environment settings</li>
@@ -289,8 +288,7 @@
           <ul>
             <li>Dependency security fix</li>
           </ul>
-          <p>Documentation
-          <p>
+          <p>Documentation:</p>
           <ul>
             <li>Updated the installation instructions</li>
           </ul>
@@ -306,8 +304,7 @@
           <ul>
             <li>Dependency security fix</li>
           </ul>
-          <p>Documentation
-          <p>
+          <p>Documentation:</p>
           <ul>
             <li>Updated for the changes</li>
           </ul>
@@ -324,8 +321,7 @@
           <ul>
             <li>Dependency security fix</li>
           </ul>
-          <p>Documentation
-          <p>
+          <p>Documentation:</p>
           <ul>
             <li>'How to create a HTTPS certificate for localhost domains' doc added as html page</li>
             <li>README.md file updated with instructions on how to configure CouchDb 3.x</li>
