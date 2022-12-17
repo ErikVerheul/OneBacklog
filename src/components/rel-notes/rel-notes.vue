@@ -6,6 +6,16 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.18 - 17 December 2022 Bug fixes, Security fixes</h3>
+					<p>Bug fixes:</p>
+          <ul>
+            <li>Do not update acceptance criteria for requirement areas</li>
+						<li>Prevent signing in before the database restore is ready when restoring the current database</li>
+          </ul>
+          <p>Security:</p>
+          <ul>
+            <li>Security issues in development dependencies fixed after upgrading to Node v18.12.1 and version updates</li>
+          </ul>
 					<h3>v.1.17 - 28 Febuari 2022 New features, bug fixes, refactoring</h3>
 					<p>New features:</p>
           <ul>
