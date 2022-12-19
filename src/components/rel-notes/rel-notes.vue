@@ -6,7 +6,7 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
-          <h3>v.1.18 - 17 December 2022 Bug fixes, Security fixes</h3>
+          <h3>v.1.18 - 18 December 2022 Bug fixes, Security fixes</h3>
 					<p>Bug fixes:</p>
           <ul>
             <li>Do not update acceptance criteria for requirement areas</li>
