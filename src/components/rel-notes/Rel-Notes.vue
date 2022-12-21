@@ -86,7 +86,7 @@
           </ul>
           <p>Security:</p>
           <ul>
-            <li>Vue2-editor dependency update</li>
+            <li>vue2-editor dependency update</li>
           </ul>
           <hr />
 					<h3>v.1.12 - 19 August 2021 Bug fixes and dependency updates</h3>
@@ -837,14 +837,14 @@
 </template>
 
 <script>
-import AppHeader from '../header/header.vue'
+import AppHeader from '../header/Header-comp.vue'
 export default {
   /* Prevent accidental reloading of this page */
   beforeMount() {
     window.addEventListener("beforeunload", this.preventNav)
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("beforeunload", this.preventNav)
   },
 

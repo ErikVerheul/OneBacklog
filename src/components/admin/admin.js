@@ -7,7 +7,7 @@ function beforeMount() {
 	window.addEventListener("beforeunload", this.preventNav)
 }
 
-function beforeDestroy() {
+function beforeUnmount() {
 	window.removeEventListener("beforeunload", this.preventNav)
 }
 
@@ -117,7 +117,7 @@ const methods = {
 export default {
 	extends: common_admin,
 	beforeMount,
-	beforeDestroy,
+	beforeUnmount,
 	mounted,
 	methods
 }

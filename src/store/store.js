@@ -4,8 +4,7 @@ import { expandNode, collapseNode, addToArray, removeFromArray } from '../common
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 import { SEV, LEVEL, MISC } from '../constants.js'
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import attachments from './modules/attachments'
 import authentication from './modules/authentication'
 import calendars from './modules/calendars'
@@ -32,8 +31,6 @@ import utils from './modules/utils'
 
 
 const MAX_EVENTLIST_SIZE = 100
-
-Vue.use(Vuex)
 
 function createEventToDisplay(payload) {
 	function pad(num, size) {
@@ -94,7 +91,7 @@ function cleanHistory(doc) {
 	return doc
 }
 
-const store = new Vuex.Store({
+const store = createStore({
 	state: {
 		// generic helper functions
 		helpersRef: null,

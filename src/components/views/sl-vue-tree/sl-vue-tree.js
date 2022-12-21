@@ -3,7 +3,6 @@
  */
 import { SEV, LEVEL } from '../../../constants.js'
 import { collapseNode, expandNode } from '../../../common_functions.js'
-import { eventBus } from '../../../main'
 
 // in px; used to calculate the node closest to the current cursor position
 const edgeSize = 6
@@ -44,7 +43,7 @@ function mounted() {
 	}
 }
 
-function beforeDestroy() {
+function beforeUnmount() {
 	document.removeEventListener('mouseup', this.onDocumentMouseupHandler)
 }
 
@@ -100,7 +99,7 @@ const methods = {
 
 	// trigger the context component via the eventbus if the node is selectable
 	emitNodeContextmenu(node) {
-		if (node.isSelectable) eventBus.$emit('context-menu', node)
+		if (node.isSelectable) this.eventBus.emit('context-menu', node)
 	},
 
 	emitSelect(fromContextMenu) {
@@ -391,7 +390,7 @@ export default {
 	props,
 	data,
 	mounted,
-	beforeDestroy,
+	beforeUnmount,
 	computed,
 	methods
 }

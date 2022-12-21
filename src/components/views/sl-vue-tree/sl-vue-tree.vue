@@ -22,9 +22,7 @@
           }">
 
         <div class="sl-vue-tree-title">
-					<template v-for="gapVal in gaps">
-            <span class="sl-vue-tree-gap" :key="gapVal" />
-          </template>
+          <span class="sl-vue-tree-gap" v-for="gapVal in gaps" :key="gapVal"/>
 
           <span class="sl-vue-tree-toggle" v-if="!node.isLeaf" @click="onToggleHandler($event, node)">
             <slot name="toggle" :node="node"></slot>
@@ -42,20 +40,20 @@
         </div>
       </div>
 
-      <sl-vue-tree v-if="node.children && node.children.length && node.isExpanded" :value="node.children" :nodeLevel="node.level" :parentInd="nodeInd">
-        <template slot="title" slot-scope="{ node }">
+      <sl-vue-tree v-if="node.children && node.children.length && node.isExpanded" :nodeLevel="node.level" :parentInd="nodeInd">
+        <template v-slot:title="{ node }">
           <slot name="title" :node="node"></slot>
         </template>
 
-        <template slot="toggle" slot-scope="{ node }">
+        <template v-slot:toggle="{ node }">
           <slot name="toggle" :node="node"></slot>
         </template>
 
-        <div slot="dependency-violation" slot-scope="{ node }">
+        <template v-slot:dependency-violation="{ node }">
           <slot name="dependency-violation" :node="node"></slot>
-        </div>
+        </template>
 
-        <template slot="sidebar" slot-scope="{ node }">
+        <template v-slot:sidebar="{ node }">
           <slot name="sidebar" :node="node"></slot>
         </template>
       </sl-vue-tree>

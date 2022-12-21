@@ -6,36 +6,33 @@
       {{ item.taskOwner }}
     </div>
     <b-modal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="Task menu">
-      <template>
-        <b-list-group>
-          <b-list-group-item button :active="contextOptionSelected === ADD_TASK" variant="dark" @click="prepSelected(ADD_TASK)">Add a new task</b-list-group-item>
-          <b-list-group-item button :active="contextOptionSelected === CHANGE_TITLE" variant="dark" @click="prepSelected(CHANGE_TITLE)">Change task title</b-list-group-item>
-          <b-list-group-item button :active="contextOptionSelected === CHANGE_OWNER" variant="dark" @click="prepSelected(CHANGE_OWNER)">Change task owner</b-list-group-item>
-          <b-list-group-item button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard</b-list-group-item>
-          <b-list-group-item button :active="contextOptionSelected === REMOVE_TASK" variant="danger" @click="prepSelected(REMOVE_TASK)">Remove this task</b-list-group-item>
-        </b-list-group>
+      <b-list-group>
+        <b-list-group-item button :active="contextOptionSelected === ADD_TASK" variant="dark" @click="prepSelected(ADD_TASK)">Add a new task</b-list-group-item>
+        <b-list-group-item button :active="contextOptionSelected === CHANGE_TITLE" variant="dark" @click="prepSelected(CHANGE_TITLE)">Change task title</b-list-group-item>
+        <b-list-group-item button :active="contextOptionSelected === CHANGE_OWNER" variant="dark" @click="prepSelected(CHANGE_OWNER)">Change task owner</b-list-group-item>
+        <b-list-group-item button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard</b-list-group-item>
+        <b-list-group-item button :active="contextOptionSelected === REMOVE_TASK" variant="danger" @click="prepSelected(REMOVE_TASK)">Remove this task</b-list-group-item>
+      </b-list-group>
 
-        <div v-if="contextOptionSelected === ADD_TASK" class="title_block">
-          <b-form-input v-model="newTaskTitle" placeholder="Enter the title of the new task"></b-form-input>
-        </div>
+      <div v-if="contextOptionSelected === ADD_TASK" class="title_block">
+        <b-form-input v-model="newTaskTitle" placeholder="Enter the title of the new task"></b-form-input>
+      </div>
 
-        <div v-if="contextOptionSelected === CHANGE_TITLE" class="title_block">
-          <b-form-input v-model="changedTaskTitle" placeholder="Change the title of this task"></b-form-input>
-        </div>
+      <div v-if="contextOptionSelected === CHANGE_TITLE" class="title_block">
+        <b-form-input v-model="changedTaskTitle" placeholder="Change the title of this task"></b-form-input>
+      </div>
 
-        <div v-if="contextOptionSelected === CHANGE_OWNER" class="title_block">
-          <h5>Select a team member to own this task</h5>
-          <b-row class="my-1">
-            <b-col sm="12">Start typing an username or select from the list:</b-col>
-            <b-col sm="6">
-              <b-form-group>
-                <b-form-select v-model="selectedUser" :options="userOptions"></b-form-select>
-              </b-form-group>
-            </b-col>
-          </b-row>
-        </div>
-
-      </template>
+      <div v-if="contextOptionSelected === CHANGE_OWNER" class="title_block">
+        <h5>Select a team member to own this task</h5>
+        <b-row class="my-1">
+          <b-col sm="12">Start typing an username or select from the list:</b-col>
+          <b-col sm="6">
+            <b-form-group>
+              <b-form-select v-model="selectedUser" :options="userOptions"></b-form-select>
+            </b-form-group>
+          </b-col>
+        </b-row>
+      </div>
     </b-modal>
   </div>
 </template>

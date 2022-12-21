@@ -4,11 +4,11 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-nav-form>
-          <b-button class="m-1" id="tooltip-undo" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
+          <b-button id="tooltip-undo" class="m-1" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
           <b-tooltip target="tooltip-undo" triggers="hover">
             {{ undoTitle }}
           </b-tooltip>
-          <b-button class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
+          <b-button class="m-1" v-show="!isRootSelected && !isReqAreaItemSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
           <div class="divider" />
           <b-input-group v-show="$store.state.resetSearch.searchType !== 'searchInTitles'">
             <b-form-input id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
@@ -17,7 +17,7 @@
             </b-input-group-append>
           </b-input-group>
           <div class="divider" />
-          <b-input-group v-show="!isRootSelected && $store.state.resetSearch.searchType !== 'findItemOnId'">
+          <b-input-group v-show="!isRootSelected && !isReqAreaItemSelected && $store.state.resetSearch.searchType !== 'findItemOnId'">
             <b-form-input id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetSearchTitles" variant="primary" type="reset">x</b-button>
@@ -44,28 +44,19 @@
             </h3>
           </b-col>
           <b-col cols="5">
-            <h3 align="center">{{ $store.state.currentProductTitle }} [Details]</h3>
+            <h3 align="center">{{ $store.state.currentProductTitle }} [Overview]</h3>
           </b-col>
           <b-col cols="3">
-            <h3 v-if="$store.state.currentDoc._id !== 'root'" align="right">
+            <h3 v-if="$store.state.currentDoc._id !== 'root' && $store.state.currentDoc._id !== 'requirement-areas' && $store.state.currentDoc.parentId !== 'requirement-areas'" align="right">
               State:
-              <b-dropdown v-if="$store.state.currentDoc.level < LEVEL.TASK" right class="m-1 .btn.btn-secondary.dropdown-toggle">
-                <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
+              <b-dropdown right class="m-1 .btn.btn-secondary.dropdown-toggle">
+                <template v-slot:buttonContent>{{ getItemStateText($store.state.currentDoc.state) }}</template>
                 <b-dropdown-item @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</b-dropdown-item>
                 <b-dropdown-item @click="onStateChange(STATE.DONE)">{{ getItemStateText(STATE.DONE) }}</b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
                 <b-dropdown-item @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</b-dropdown-item>
-              </b-dropdown>
-              <b-dropdown v-else right class="m-2 .btn.btn-secondary.dropdown-toggle">
-                <template slot="button-content">{{ getTaskStateText($store.state.currentDoc.state) }}</template>
-                <b-dropdown-item @click="onStateChange(STATE.TODO)">{{ getTaskStateText(STATE.TODO) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(STATE.INPROGRESS)">{{ getTaskStateText(STATE.INPROGRESS) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(STATE.TESTREVIEW)">{{ getTaskStateText(STATE.TESTREVIEW) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(STATE.DONE)">{{ getTaskStateText(STATE.DONE) }}</b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="onStateChange(STATE.ON_HOLD)">{{ getTaskStateText(STATE.ON_HOLD) }}</b-dropdown-item>
               </b-dropdown>
             </h3>
           </b-col>
@@ -83,7 +74,7 @@
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
           <sl-vue-tree :value="$store.state.treeNodes" :allow-multiselect="true" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
-            <template slot="title" slot-scope="{ node }">
+            <template v-slot:title="{ node }">
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
                   <font-awesome-icon icon="folder" />
@@ -95,18 +86,6 @@
                   <font-awesome-icon icon="folder" />
                 </i>
                 <i class="colorOrange" v-if="node.level == LEVEL.FEATURE">
-                  <font-awesome-icon icon="folder" />
-                </i>
-                <i class="colorYellow" v-if="node.level == LEVEL.PBI && node.data.subtype == userStorySubtype">
-                  <font-awesome-icon icon="folder" />
-                </i>
-                <i v-if="node.level == LEVEL.PBI && node.data.subtype == spikeSubtype">
-                  <font-awesome-icon icon="hourglass-start" />
-                </i>
-                <i class="colorRed" v-if="node.level == LEVEL.PBI && node.data.subtype == defectSubtype">
-                  <font-awesome-icon icon="bug" />
-                </i>
-                <i class="colorWhite" v-if="node.isLeaf">
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
@@ -123,50 +102,59 @@
               <b-badge v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)" variant="info">See history</b-badge>
               <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
               <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
-              <b-badge v-if="inActiveSprint(node)" variant="info">In {{ getActiveSprintText(node) }} sprint</b-badge>
             </template>
 
-            <template slot="toggle" slot-scope="{ node }">
-              <span>
+            <template v-slot:toggle="{ node }">
+              <span v-if="!node.isLeaf">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>
-                <i v-else>
+                <i v-if="!node.isExpanded">
                   <font-awesome-icon icon="chevron-right" />
                 </i>
               </span>
             </template>
 
-            <template v-if="node.tmp.markedViolations" slot="dependency-violation" slot-scope="{ node }">
-              <div v-if="rowLength(node.tmp.markedViolations) === 1">
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-              </div>
-              <div v-else-if="rowLength(node.tmp.markedViolations) === 2">
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-              </div>
-              <div v-else-if="rowLength(node.tmp.markedViolations) === 3">
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-              </div>
-              <div v-else-if="rowLength(node.tmp.markedViolations) === 4">
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
-              </div>
-              <div v-else>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
-              </div>
-            </template>
+            <template v-slot:dependencyViolation="{ node }">
+							<template v-if="node.tmp.markedViolations">
+								<div v-if="rowLength(node.tmp.markedViolations) === 1">
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+								</div>
+								<div v-else-if="rowLength(node.tmp.markedViolations) === 2">
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+								</div>
+								<div v-else-if="rowLength(node.tmp.markedViolations) === 3">
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+								</div>
+								<div v-else-if="rowLength(node.tmp.markedViolations) === 4">
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+								</div>
+								<div v-else>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+									<span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
+								</div>
+							</template>
+						</template>
 
-            <template v-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
-              <p class="rectangle" :style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
+            <template v-slot:sidebar="{ node }">
+              <template v-if="node.productId === MISC.AREA_PRODUCTID">
+                <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{'background-color': node.data.reqAreaItemColor}"></p>
+              </template>
+              <p v-else-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT">
+                <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
+                  :style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node)" squared size="sm">Change
+                </b-button>
+                <b-button v-else @click="setReqArea(node)" squared variant="seablueLight" size="sm">Set</b-button>
+              </p>
             </template>
           </sl-vue-tree>
         </div>
@@ -179,26 +167,28 @@
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
               <b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="$store.state.currentDoc.title" @blur="updateTitle()"></b-input>
-              <div class="d-table-cell tac">Short Id = {{ $store.state.currentDoc._id.slice(-5) }}</div>
+              <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ $store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <b-button variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
               </div>
             </div>
           </div>
-          <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+          <div class="pane" :style="{ minHeight: '40px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <p class="title is-6"> {{ getItemInfo() }}</p>
-              <div v-if="getCurrentItemLevel==LEVEL.PBI" class="d-table-cell tar">
+              <p v-if="!isReqAreaItem" class="title is-6">{{ getItemInfo() }}</p>
+              <!-- do not use parenthesis with @change: see https://stackoverflow.com/questions/53106723/bootstrap-vue-select-sending-old-value -->
+              <span v-else-if="!isReqAreaTopLevel">
                 <b-form-group>
-                  <b-form-radio-group v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
+                  Select a display color for this requirement area:
+                  <b-form-radio-group v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" plain />
                 </b-form-group>
-              </div>
+              </span>
             </div>
           </div>
           <div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
             <div class="d-table w-100">
               <h5 class="title is-6">Description</h5>
-              <div v-if="$store.state.currentDoc.history[0]" class="d-table-cell tar">
+              <div class="d-table-cell tar">
                 <p class="title is-6"> Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
@@ -207,21 +197,23 @@
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
             <vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
           </div>
-          <multipane-resizer></multipane-resizer>
-          <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
-            <div>
-              <h5 class="title is-6">Acceptance criteria</h5>
+          <template v-if="!isReqAreaItemSelected">
+            <multipane-resizer></multipane-resizer>
+            <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+              <div>
+                <h5 class="title is-6">Acceptance criteria</h5>
+              </div>
             </div>
-          </div>
-          <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
-          <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
-            <vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptance()"></vue-editor>
-          </div>
+            <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
+            <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
+              <vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptance()"></vue-editor>
+            </div>
+          </template>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <b-button variant="primary" :pressed.sync="doAddition">Add {{ $store.state.selectedForView }}</b-button>
+                <b-button variant="primary" :pressed="doAddition">Add {{ $store.state.selectedForView }}</b-button>
               </div>
               <div class="d-table-cell tac">
                 <b-form-group label="Select to see">
@@ -230,7 +222,7 @@
               </div>
               <div class="d-table-cell tar">
                 <b-button v-if="$store.state.selectedForView === 'comments' && !isCommentsFilterActive || $store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
-                  :pressed.sync="startFiltering">Filter {{ $store.state.selectedForView }}</b-button>
+                  :pressed ="startFiltering">Filter {{ $store.state.selectedForView }}</b-button>
                 <b-button v-else variant="primary" @click="stopFiltering">Clear {{ $store.state.selectedForView }} filter</b-button>
               </div>
             </div>
@@ -242,12 +234,8 @@
         </multipane>
       </div>
     </multipane>
-
-    <filters></filters>
-    <!-- ToSprint modal -->
-    <toSprint></toSprint>
     <!-- Context modal -->
-    <DcontextMenu></DcontextMenu>
+    <CcontextMenu></CcontextMenu>
 
     <b-modal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant="warning" title="Move to another level?">
       <p v-if="movePreflightData.targetLevel < movePreflightData.sourceLevel">
@@ -260,6 +248,22 @@
       <p class="note">Note: Change your options settings to prevent this warning</p>
     </b-modal>
 
+    <!-- color select -->
+    <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color">
+      <h4>Enter a color in hex format eg. #567cd6</h4>
+      <b-form-input v-model="userReqAreaItemcolor" :state="colorState"></b-form-input>
+    </b-modal>
+    <!-- set req area -->
+    <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
+      <template v-slot:modal-title>
+        {{ getLastSelectedNode.title }}
+      </template>
+      <b-form-group label="Select the requirement area this item belongs to:">
+        <b-form-radio-group v-model="selReqAreaId" :options="this.$store.state.reqAreaOptions" value-field="id" text-field="title" stacked></b-form-radio-group>
+      </b-form-group>
+    </b-modal>
+    <!-- filter modals -->
+    <filters></filters>
     <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
       <b-form-group>
         <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
@@ -297,10 +301,9 @@
   </div>
 </template>
 
-<script src="./d_product_view.js"></script>
+<script src="./c_product_view.js"></script>
 
 <style lang="scss" scoped>
-
 // horizontal panes
 .horizontal-panes {
   width: 100%;
@@ -419,13 +422,6 @@
   height: 100%;
 }
 
-.sl-vue-tree.sl-vue-tree-root {
-  flex-grow: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: 100%;
-}
-
 //my stuff
 h3 {
   height: 45px;
@@ -443,11 +439,12 @@ h3 {
 }
 
 .rectangle {
-  width: 25px;
+  width: 71px;
   height: 25px;
 }
 
 .violation-column {
+  text-indent: -60%;
   display: inline-block;
   width: 40px;
 }

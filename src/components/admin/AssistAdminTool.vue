@@ -213,18 +213,14 @@
                     </b-form-radio-group>
                   </b-form-group>
 
-                  <template>
-                    <div v-if="checkForExistingCalendar">
-                      <b-button @click="doLoadTeamCalendar" variant="primary">Load the team sprint calendar</b-button>
-                    </div>
-                    <div v-else>
-                      <h5>The calendar is not found, create a team calendar from the default calendar</h5>
-                      <p class="colorRed">This is a one way change. When the team calendar is created the team has to maintain it.</p>
-                      <b-button v-if="!$store.state.isCalendarSaved" class="m-1" @click="doCreateTeamCalendar" variant="primary">Create team sprint calendar</b-button>
-                      <b-button v-if="!$store.state.isCalendarSaved" class="m-1" @click="cancel">Cancel</b-button>
-                      <b-button v-if="$store.state.isCalendarSaved" class="m-1" @click="cancel">Return</b-button>
-                    </div>
-                  </template>
+                  <b-button v-if="checkForExistingCalendar" @click="doLoadTeamCalendar" variant="primary">Load the team sprint calendar</b-button>
+                  <div v-else>
+                    <h5>The calendar is not found, create a team calendar from the default calendar</h5>
+                    <p class="colorRed">This is a one way change. When the team calendar is created the team has to maintain it.</p>
+                    <b-button v-if="!$store.state.isCalendarSaved" class="m-1" @click="doCreateTeamCalendar" variant="primary">Create team sprint calendar</b-button>
+                    <b-button v-if="!$store.state.isCalendarSaved" class="m-1" @click="cancel">Cancel</b-button>
+                    <b-button v-if="$store.state.isCalendarSaved" class="m-1" @click="cancel">Return</b-button>
+                  </div>
                 </template>
               </template>
 

@@ -1,15 +1,14 @@
 import { SEV, LEVEL } from '../../../constants.js'
 import { getSprintById } from '../../../common_functions.js'
-import AppHeader from '../../header/header.vue'
+import AppHeader from '../../header/Header-comp.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
-import DcontextMenu from './d_context.vue'
-import Filters from './d_filters.vue'
-import Listings from './d_listings.vue'
+import DcontextMenu from './d_Context.vue'
+import Filters from './d_Filters.vue'
+import Listings from './d_Listings.vue'
 import ToSprint from './d_tosprint.vue'
-import { eventBus } from '../../../main'
 
 const thisView = 'detailProduct'
 var returning = false
@@ -28,7 +27,7 @@ function beforeCreate() {
 
 function created() {
 	// must reset the event listener to prevent duplication
-	eventBus.$off('context-menu')
+	this.eventBus.off('context-menu')
 }
 
 /* Prevent accidental reloading of this page */
@@ -36,7 +35,7 @@ function beforeMount() {
 	window.addEventListener("beforeunload", this.preventNav)
 }
 
-function beforeDestroy() {
+function beforeUnmount() {
 	window.removeEventListener("beforeunload", this.preventNav)
 }
 
@@ -220,7 +219,7 @@ export default {
 	beforeCreate,
 	created,
 	beforeMount,
-	beforeDestroy,
+	beforeUnmount,
 	mounted,
 	data,
 	watch,

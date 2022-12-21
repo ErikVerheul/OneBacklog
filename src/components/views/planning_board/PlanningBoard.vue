@@ -68,7 +68,7 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import { utilities } from '../../mixins/generic.js'
-import AppHeader from '../../header/header.vue'
+import AppHeader from '../../header/Header-comp.vue'
 import StoryLane from './StoryLane'
 
 export default {
@@ -112,7 +112,7 @@ export default {
     window.addEventListener("beforeunload", this.preventNav)
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("beforeunload", this.preventNav)
     this.unsubscribe()
   },

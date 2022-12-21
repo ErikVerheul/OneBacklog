@@ -215,14 +215,12 @@
             </template>
 
             <template v-else-if="optionSelected === 'Create a product'">
-              <template>
                 <h2>Create a new product in the database '{{ $store.state.selectedDatabaseName }}' by entering its title</h2>
                 <b-form-input v-model="productTitle" placeholder="Enter the product title"></b-form-input>
                 <template v-if="!$store.state.isProductCreated">
                   <b-button v-if="productTitle !== ''" class="m-3" @click="doCreateProduct" variant="primary">Create product</b-button>
                   <b-button class="m-3" @click="cancel()">Cancel</b-button>
                 </template>
-              </template>
               <template v-if="$store.state.isProductCreated">
                 <h4>Note: The product is assigned to you. Use the 'Maintain user permissions to products' option to assign the new product to other users.</h4>
 								<hr>
@@ -273,9 +271,7 @@
                   </b-form-group>
 
                   <template v-if="selectedTeamName">
-                    <div v-if="checkForExistingCalendar">
-                      <b-button @click="doLoadTeamCalendar" variant="primary">Load the team sprint calendar</b-button>
-                    </div>
+                    <b-button v-if="checkForExistingCalendar" @click="doLoadTeamCalendar" variant="primary">Load the team sprint calendar</b-button>
                     <div v-else>
                       <h5>The calendar is not found, create a team calendar from the default calendar</h5>
                       <p class="colorRed">This is a one way change. When the team calendar is created the team has to maintain it.</p>

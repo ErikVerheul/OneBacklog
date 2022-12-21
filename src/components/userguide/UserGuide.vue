@@ -223,14 +223,14 @@
 </template>
 
 <script>
-import AppHeader from '../header/header.vue'
+import AppHeader from '../header/Header-comp.vue'
 export default {
 	/* Prevent accidental reloading of this page */
   beforeMount() {
     window.addEventListener("beforeunload", this.preventNav)
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("beforeunload", this.preventNav)
   },
 

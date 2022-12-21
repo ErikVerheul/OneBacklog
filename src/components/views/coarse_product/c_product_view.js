@@ -1,13 +1,12 @@
 import { SEV, LEVEL, MISC } from '../../../constants.js'
-import AppHeader from '../../header/header.vue'
+import AppHeader from '../../header/Header-comp.vue'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
-import CcontextMenu from './c_context.vue'
+import CcontextMenu from './c_Context.vue'
 import Filters from './c_filters.vue'
-import Listings from './c_listings.vue'
-import { eventBus } from '../../../main'
+import Listings from './c_Listings.vue'
 
 const thisView = 'coarseProduct'
 var returning = false
@@ -26,7 +25,7 @@ function beforeCreate() {
 
 function created() {
 	// must reset the event listener to prevent duplicated
-	eventBus.$off('context-menu')
+	this.eventBus.off('context-menu')
 }
 
 /* Prevent accidental reloading of this page */
@@ -34,7 +33,7 @@ function beforeMount() {
 	window.addEventListener("beforeunload", this.preventNav)
 }
 
-function beforeDestroy() {
+function beforeUnmount() {
 	window.removeEventListener("beforeunload", this.preventNav)
 }
 
@@ -276,7 +275,7 @@ export default {
 	beforeCreate,
 	created,
 	beforeMount,
-	beforeDestroy,
+	beforeUnmount,
 	mounted,
 	data,
 	computed,

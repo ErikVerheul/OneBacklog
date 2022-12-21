@@ -1,9 +1,18 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import OneBacklog from './OneBacklog.vue'
 import axios from 'axios'
 import router from './router'
 import store from './store/store'
-import './fa.config'
+import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import FontAwesomeIcon from './fa.config'
+// import the global css
+import '@/css/onebacklog.scss'
+import '@/css/onebacklog.css'
+import mitt from 'mitt'
+
+const eventBus = mitt()
 
 if (process.env.VUE_APP_DEBUG === true) {
 	// eslint-disable-next-line no-console
@@ -32,13 +41,12 @@ const resInterceptor = axios.interceptors.response.use(res => {
 axios.interceptors.request.eject(reqInterceptor)
 axios.interceptors.response.eject(resInterceptor)
 
-export const eventBus = new Vue()
-// import the global css, see https://stackoverflow.com/questions/39438094/best-way-to-have-global-css-in-vuejs
-import '@/css/onebacklog.scss'
-import '@/css/onebacklog.css'
-new Vue({
-	el: '#onebacklog',
-	router,
-	store,
-	render: h => h(OneBacklog)
-})
+const app = createApp(OneBacklog)
+app.use(router)
+app.use(store)
+app.use(BootstrapVue)
+app.component("font-awesome-icon", FontAwesomeIcon)
+app.config.globalProperties.eventBus = eventBus
+
+app.mount('#onebacklog')
+

@@ -185,7 +185,7 @@
 
 <script>
 import { MISC } from '../../constants.js'
-import AppHeader from '../header/header.vue'
+import AppHeader from '../header/Header-comp.vue'
 
 export default {
   data() {
@@ -208,7 +208,7 @@ export default {
     window.addEventListener("beforeunload", this.preventNav)
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("beforeunload", this.preventNav)
   },
 

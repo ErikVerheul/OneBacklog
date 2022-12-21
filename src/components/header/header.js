@@ -1,4 +1,4 @@
-import Licence from './licence.vue'
+import Licence from './Licence-test.vue'
 import { authorization, utilities } from '../mixins/generic.js'
 
 const MINPASSWORDLENGTH = 8

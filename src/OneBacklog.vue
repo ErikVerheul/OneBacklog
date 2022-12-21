@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: 'onebacklog'
+  name: 'OneBacklog'
 }
 
 </script>

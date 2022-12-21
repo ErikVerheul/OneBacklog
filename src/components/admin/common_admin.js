@@ -1,5 +1,5 @@
 import { addToArray, removeFromArray, createId } from '../../common_functions.js'
-import AppHeader from '../header/header.vue'
+import AppHeader from '../header/Header-comp.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
 
