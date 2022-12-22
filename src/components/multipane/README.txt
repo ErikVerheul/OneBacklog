@@ -1,0 +1,1 @@
+Multipane is a copied from https://github.com/yansern/vue-multipane into the project to make it Vue3 compatible. See the link for the usage docs.
