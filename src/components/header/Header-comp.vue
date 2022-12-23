@@ -21,11 +21,9 @@
             <b-dropdown-item v-if="isServerAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
           </b-nav-item-dropdown>
 
-          <b-nav-item-dropdown right>
+          <b-nav-item-dropdown text="User" right>
             <!-- Using buttonContent slot -->
-            <template v-slot:buttonContent>
-              <em>User</em>
-            </template>
+            <template v-slot:buttonContent></template>
 
             <template v-if="isAuthenticated">
               <b-dropdown-item v-if="$store.state.myAssignedDatabases.length > 1" @click="changeDatabase">Change database
