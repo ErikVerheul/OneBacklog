@@ -9,10 +9,10 @@
 
 <script>
 import Quill from "quill"
-import defaultToolbar from "../../helpers/default-toolbar.js"
-import oldApi from "../../helpers/old-api.js"
-import mergeDeep from "../../helpers/merge-deep.js"
-import MarkdownShortcuts from "../../helpers/markdown-shortcuts.js"
+import defaultToolbar from "../../vueeditor-helpers/default-toolbar.js"
+import oldApi from "../../vueeditor-helpers/old-api.js"
+import mergeDeep from "../../vueeditor-helpers/merge-deep.js"
+import MarkdownShortcuts from "../../vueeditor-helpers/markdown-shortcuts.js"
 import 'quill/dist/quill.snow.css'
 
 function objectHasKey(obj, key) {
