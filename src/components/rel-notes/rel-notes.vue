@@ -9,8 +9,8 @@
           <h3>v.1.19 - 8 August 2023 Bug fix</h3>
 					<p>Bug fixes:</p>
           <ul>
-            <li>Assigning an dependency failed due to a missing import</li>
-            <li>Fixed eror when pasting text with unicode (2 bytes per character).</li>
+            <li>Assigning a dependency failed due to a missing import, fixed</li>
+            <li>Fixed error when pasting text with unicode (2 bytes per character).</li>
           </ul>
           <h3>v.1.18 - 18 December 2022 Bug fixes, Security fixes</h3>
 					<p>Bug fixes:</p>
