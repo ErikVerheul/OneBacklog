@@ -1,4 +1,5 @@
 import { SEV, STATE, LEVEL } from '../../constants.js'
+import { utoa, atou } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -607,9 +608,9 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			// decode from base64
-			const oldDescription = window.atob(tmpDoc.description)
+			const oldDescription = atou(tmpDoc.description)
 			// encode to base64
-			const newEncodedDescription = window.btoa(payload.newDescription)
+			const newEncodedDescription = utoa(payload.newDescription)
 			const newHist = {
 				descriptionEvent: [tmpDoc.description, newEncodedDescription],
 				by: rootState.userData.user,
@@ -668,9 +669,9 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			// decode from base64
-			const oldAcceptance = window.atob(tmpDoc.acceptanceCriteria)
+			const oldAcceptance = atou(tmpDoc.acceptanceCriteria)
 			// encode to base64
-			const newEncodedAcceptance = window.btoa(payload.newAcceptance)
+			const newEncodedAcceptance = utoa(payload.newAcceptance)
 			const newHist = {
 				acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance],
 				by: rootState.userData.user,
@@ -728,7 +729,7 @@ const actions = {
 		}).then((res) => {
 			const tmpDoc = res.data
 			const newComment = {
-				addCommentEvent: [window.btoa(payload.comment)],
+				addCommentEvent: [utoa(payload.comment)],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -774,7 +775,7 @@ const actions = {
 			// find and change my last comment
 			for (const c of comments) {
 				if (Object.keys(c)[0] === 'addCommentEvent' && c.by === rootState.userData.user) {
-					c.addCommentEvent = [window.btoa('Comment removed')]
+					c.addCommentEvent = [utoa('Comment removed')]
 					break
 				}
 			}
@@ -818,7 +819,7 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			const newHist = {
-				commentToHistoryEvent: [window.btoa(payload.comment)],
+				commentToHistoryEvent: [utoa(payload.comment)],
 				by: rootState.userData.user,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
@@ -864,7 +865,7 @@ const actions = {
 			// find and change my last comment
 			for (const c of history) {
 				if (Object.keys(c)[0] === 'commentToHistoryEvent' && c.by === rootState.userData.user) {
-					c.commentToHistoryEvent = [window.btoa('Comment removed')]
+					c.commentToHistoryEvent = [utoa('Comment removed')]
 					break
 				}
 			}

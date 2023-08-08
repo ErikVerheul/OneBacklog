@@ -1,4 +1,6 @@
 import { utilities } from '../mixins/generic.js'
+import { atou } from '../../common_functions.js'
+
 
 function convertToShortIds (ids) {
   if (!ids || ids.length === 0) return 'none'
@@ -264,11 +266,11 @@ const methods = {
   },
 
   mkDescriptionEvent (value) {
-    return '<h5>The description of the item has changed:<hr></h5>' + window.atob(value[0]) + '<hr>' + window.atob(value[1]) + '<hr>'
+    return '<h5>The description of the item has changed:<hr></h5>' + atou(value[0]) + '<hr>' + atou(value[1]) + '<hr>'
   },
 
   mkAcceptanceEvent (value) {
-    return '<h5>The acceptance criteria of the item have changed:<hr></h5>' + window.atob(value[0]) + '<hr>' + window.atob(value[1]) + '<hr>'
+    return '<h5>The acceptance criteria of the item have changed:<hr></h5>' + atou(value[0]) + '<hr>' + atou(value[1]) + '<hr>'
   },
 
   mkNodeMovedEvent (value) {
@@ -323,7 +325,7 @@ const methods = {
   },
 
   mkComment (value) {
-    return window.atob(value[0])
+    return atou(value[0])
   },
 
   mkTaskRemovedEvent (value) {
@@ -339,7 +341,7 @@ const methods = {
   },
 
   mkCommentToHistoryEvent (value) {
-    return window.atob(value[0])
+    return atou(value[0])
   },
 
   mkRemoveAttachmentEvent (value) {

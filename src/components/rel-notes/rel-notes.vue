@@ -6,6 +6,12 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.19 - 8 August 2023 Bug fix</h3>
+					<p>Bug fixes:</p>
+          <ul>
+            <li>Assigning an dependency failed due to a missing import</li>
+            <li>Fixed eror when pasting text with unicode (2 bytes per character).</li>
+          </ul>
           <h3>v.1.18 - 18 December 2022 Bug fixes, Security fixes</h3>
 					<p>Bug fixes:</p>
           <ul>

@@ -3,6 +3,32 @@
 * Usage: import * as <any name> from '../common_functions.js' to get all named exports in one object
 */
 
+/* The "Unicode Problem" See https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
+Since btoa interprets the code points of its input string as byte values, 
+calling btoa on a string will cause a "Character Out Of Range" exception if a character's code point exceeds 0xff. 
+For use cases where you need to encode arbitrary Unicode text, 
+it is necessary to first convert the string to its constituent bytes in UTF-8, and then encode the bytes.*/
+
+function base64ToBytes(base64) {
+	const binString = window.atob(base64)
+	return Uint8Array.from(binString, (m) => m.codePointAt(0))
+}
+
+function bytesToBase64(bytes) {
+	const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join("")
+	return window.btoa(binString)
+}
+
+// convert unicode string to base64 encoded ascii
+export function utoa(str) {
+    return bytesToBase64(new TextEncoder().encode(str))
+}
+
+// convert base64 encoded ascii to unicode string
+export function atou(bytes) {
+    return new TextDecoder().decode(base64ToBytes(bytes))
+}
+
 //////////////// expand, collapse and show or hide the children of the node ////////////
 export function showNode(node) {
 	if (node) {
@@ -136,4 +162,4 @@ export function getSprintNameById(id, calendar) {
 	} else return 'Unknown sprint'
 }
 
-export default { expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray }
+export default { utoa, atou, expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray }

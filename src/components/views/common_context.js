@@ -1,5 +1,5 @@
 import { SEV, STATE, MISC } from '../../constants.js'
-import { createId } from '../../common_functions.js'
+import { utoa, createId } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
 
 function created() {
@@ -154,8 +154,8 @@ const methods = {
 			conditionalFor: [],
 			title: newNode.title,
 			followers: [],
-			description: window.btoa(currentDoc.description),
-			acceptanceCriteria: window.btoa(currentDoc.acceptanceCriteria),
+			description: utoa(currentDoc.description),
+			acceptanceCriteria: utoa(currentDoc.acceptanceCriteria),
 			priority: newNode.data.priority,
 			comments: [{
 				ignoreEvent: 'comments initiated',
@@ -261,8 +261,8 @@ const methods = {
 				conditionalFor: [],
 				title: newNode.title,
 				followers: [],
-				description: window.btoa(''),
-				acceptanceCriteria: newNode.level < this.TASKLEVEL ? window.btoa('<p>Please do not neglect</p>') : window.btoa('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+				description: utoa(''),
+				acceptanceCriteria: newNode.level < this.TASKLEVEL ? utoa('<p>Please do not neglect</p>') : utoa('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				priority: newNode.data.priority,
 				comments: [{
 					ignoreEvent: 'comments initiated',
