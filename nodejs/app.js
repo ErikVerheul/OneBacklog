@@ -67,7 +67,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 		case "acceptanceEvent":
 			return mkHeader() + `<h3>The acceptance criteria changed from:</h3><p>${atob(value[0])}</p> to <p>${atob(value[1])}</p>` + mkFooter()
 		case "addCommentEvent":
-			return mkHeader() + `<h3>The user added a comment:</h3><p>${atob(value)}</p>` + mkFooter()
+			return mkHeader() + `<h3>The user added a comment:</h3><p>${atob(value[0])}</p>` + mkFooter()
 		case "addSprintIdsEvent":
 			{
 				let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
