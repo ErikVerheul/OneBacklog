@@ -96,9 +96,6 @@ function cleanHistory(doc) {
 
 const store = new Vuex.Store({
 	state: {
-		// before signin
-		screenWidth: undefined,
-		smallScreen: false,
 		// generic helper functions
 		helpersRef: null,
 		// console log settings
