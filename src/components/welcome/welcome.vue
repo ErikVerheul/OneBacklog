@@ -26,7 +26,9 @@
 export default {
   methods: {
     isScreenWidthSufficient() {
-      return window.screen.width >= 1024
+      this.$store.state.screenWidth = window.screen.width
+      this.$store.state.smallScreen = window.screen.width < 1600
+      return window.screen.width >= 1600
     }
   }
 }

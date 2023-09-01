@@ -95,7 +95,8 @@ const actions = {
 
 			// start the watchdog
 			dispatch('watchdog')
-			const msg = `getOtherUserData: '${allUserData.name}' has signed-in in database '${allUserData.currentDb}'`
+			const screenSize = rootState.smallScreen ? 'SMALL' : 'LARGE'
+			const msg = `getOtherUserData: '${allUserData.name}' has signed-in on a ${screenSize} screen with a width of ${rootState.screenWidth} px`
 			// now that the database is known, the log file is available
 			dispatch('doLog', { event: msg, level: SEV.INFO })
 			dispatch('getAllProducts', { allUserData })
