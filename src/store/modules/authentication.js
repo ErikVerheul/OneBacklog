@@ -15,7 +15,7 @@ const state = {
 }
 
 const actions = {
-	/* Refresh the authentication cookie; passed functions and actions are excuted when defined in the payload */
+	/* Refresh the authentication cookie; passed functions and actions are executed when defined in the payload */
 	refreshCookie({
 		rootState,
 		commit,
