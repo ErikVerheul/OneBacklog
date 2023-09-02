@@ -6,6 +6,12 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.20 - 2 September 2023 Bug fix</h3>
+					<p>Changes:</p>
+          <ul>
+            <li>Disallow signing in on devices with a width smaller than 1600 px</li>
+            <li>Revert to http://localhost:8080 instead of https://localhost:8080 in development mode. Creating a local CA certificate to much a hassle.</li>
+          </ul>
           <h3>v.1.19 - 8 August 2023 Bug fix</h3>
 					<p>Bug fixes:</p>
           <ul>

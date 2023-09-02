@@ -196,8 +196,7 @@ Then, the calendar items (iterations) are stored as type 'calendar' in the datab
 Finally see this https://www.youtube.com/watch?v=LAvM4_JY0Ic video about the real role the product owner has.
 
 ## Build Setup
-The app uses a secure https connection to the hosting site and for the cooky authentication over port 6984 to connect to the database. You can use the same certificate for both.<br/>
-See https://onebacklog.net/localhost-https.html for how to create a HTTPS certificate for localhost domains.</br>
+The app uses a secure https connection to the hosting site and for the cookie authentication over port 6984 to connect to the database. You can use the same certificate for both.<br/>
 
 ## install CouchDB
 Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
@@ -304,8 +303,7 @@ cd to the root directory of this app and use your favorate editor to create a fi
 ```
 VUE_APP_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
 VUE_APP_DEBUG=false // set to true to see console log messages on most critical events
-VUE_APP_DEBUG_CONNECTION=false // set to true to see console log messages regarding the cooky renewal
-VUE_APP_SSL_PATH=< local ssl install directory > // MUST CHANGE if your certificates live elsewhere
+VUE_APP_DEBUG_CONNECTION=false // set to true to see console log messages regarding the CouchDb cookie authentication renewal
 VUE_APP_SITE_URL=https://localhost:8080 # or https://<your remote host> when the CouchDb instance is hosted in the cloud
 VUE_APP_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
 ```
