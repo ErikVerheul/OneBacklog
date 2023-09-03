@@ -18,6 +18,8 @@ const actions = {
 			url: payload.dbName + '/log'
 		}).then(res => {
 			rootState.logEntries = res.data.entries
+			// sort on descending timestamp
+			rootState.logEntries.sort((a, b) => b.timestamp - a.timestamp)
 			// execute passed function if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			rootState.isLogLoaded = true
