@@ -15,20 +15,33 @@
 
       <div v-if="optionSelected === 'View the log'">
         <h2>View the log</h2>
-        <b-form-group>
-          <h5>Select the database to view the log</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
-        </b-form-group>
+        <b-row>
+          <b-col>
+            <b-form-group>
+              <h5>Select the database to view the log</h5>
+              <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+                stacked></b-form-radio-group>
+            </b-form-group>
+          </b-col>
+          <b-col>
+            <h5>Select severity levels to show</h5>
+            <div>
+              <b-form-checkbox-group v-model="selectedLogLevels" :options="options" stacked class="mb-3"
+                value-field="item" text-field="name" disabled-field="notEnabled"></b-form-checkbox-group>
+            </div>
+          </b-col>
+        </b-row>
         <hr>
         <b-button v-if="!showLogModal" class="m-1" @click="doViewLog" variant="primary">Show</b-button>
         <b-button v-if="!showLogModal" class="m-1" @click="cancel">Return</b-button>
         <b-button v-else class="m-1" @click="cancel" variant="primary">Cancel</b-button>
         <b-modal v-model="showLogModal" size="lg" :title="logModalTitle()">
-          <div v-for="item in $store.state.logEntries" :key="createLogKey(item.timestamp, item.sessionId, item.sessionSeq)">
+          <div v-for="item in filtered($store.state.logEntries)"
+            :key="createLogKey(item.timestamp, item.sessionId, item.sessionSeq)">
             Event: {{ item.event }} <br />
             Severity: {{ severity(item.level) }} <br />
             By: {{ item.by }} <br />
-            SessionId: {{ item.sessionId}} <br />
+            SessionId: {{ item.sessionId }} <br />
             Timestamp: {{ new Date(item.timestamp) }}
             <hr>
           </div>
@@ -40,7 +53,8 @@
         <p>For real disaster protection consider to use a backup strategy as provided by your hosting partner.</p>
         <b-form-group>
           <h5>Select the database to backup</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
+          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></b-form-radio-group>
         </b-form-group>
         <hr>
         <template v-if="!$store.state.utils.copyBusy">
@@ -54,15 +68,19 @@
         <h2>Restore a database from backup</h2>
         <b-form-group>
           <h5>Select the database to restore</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
+          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></b-form-radio-group>
         </b-form-group>
         <template v-if="$store.state.selectedDatabaseName !== 'not selected yet'">
-          <p class="colorRed">Database '{{ dbToReplace }}' will be replaced by '{{ $store.state.selectedDatabaseName }}'. Make sure no users of this database are on-line right now.</p>
-          <p class="colorRed" v-if="isCurrentDbSelected()">You are replacing your current database. When the restore is ready, you will be signed-out automatically.
+          <p class="colorRed">Database '{{ dbToReplace }}' will be replaced by '{{ $store.state.selectedDatabaseName }}'.
+            Make sure no users of this database are on-line right now.</p>
+          <p class="colorRed" v-if="isCurrentDbSelected()">You are replacing your current database. When the restore is
+            ready, you will be signed-out automatically.
           </p>
         </template>
         <hr>
-        <b-button v-if="$store.state.selectedDatabaseName !== 'not selected yet' && !$store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup" variant="primary">Start restore</b-button>
+        <b-button v-if="$store.state.selectedDatabaseName !== 'not selected yet' && !$store.state.utils.copyBusy"
+          class="m-1" @click="doRestoreBackup" variant="primary">Start restore</b-button>
         <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</b-button>
         <h5 v-else>Busy copying. Please wait...</h5>
 
@@ -83,7 +101,8 @@
         <b-button v-if="newDbName === ''" class="m-1" @click="cancel">Cancel</b-button>
         <div v-else>
           <p>Database {{ newDbName }} will be created</p>
-          <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="doCreateDatabase" variant="primary">Start creation</b-button>
+          <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="doCreateDatabase" variant="primary">Start
+            creation</b-button>
           <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="cancel">Cancel</b-button>
           <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         </div>
@@ -93,10 +112,12 @@
         <h2>Select a database</h2>
         <b-form-group>
           <h5>Select the database you want removed documents to be purged</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
+          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></b-form-radio-group>
         </b-form-group>
         <hr>
-        <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="doPurgeDb" variant="primary">Purge removed documents and compact the database</b-button>
+        <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="doPurgeDb" variant="primary">Purge removed
+          documents and compact the database</b-button>
         <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="cancel">Cancel</b-button>
         <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         <div v-if="$store.state.isPurgeReady">
@@ -109,14 +130,17 @@
         <p>Use this option if you need to connect to a database that is not assigned to your profile</p>
         <b-form-group>
           <h5>Select the database you want to connect to</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
+          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></b-form-radio-group>
         </b-form-group>
         <hr>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb" variant="primary">Change my database</b-button>
+        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb" variant="primary">Change my
+          database</b-button>
         <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel">Cancel</b-button>
         <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         <div v-if="$store.state.isCurrentDbChanged">
-          <h4>Success! Click 'Exit' to sign-out. Sign-in to see the product details view of the '{{ $store.state.selectedDatabaseName }} 'database</h4>
+          <h4>Success! Click 'Exit' to sign-out. Sign-in to see the product details view of the '{{
+            $store.state.selectedDatabaseName }} 'database</h4>
           <div>
             <b-button class="m-1" @click="signOut()">Exit</b-button>
           </div>
@@ -127,7 +151,8 @@
         <h2>Remove history and comments</h2>
         <b-form-group>
           <h5>Select the database you want to reset the history and comments</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
+          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></b-form-radio-group>
         </b-form-group>
         <b-row class="my-1">
           <b-col sm="2">
@@ -141,7 +166,8 @@
           </b-col>
         </b-row>
         <hr>
-        <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm" variant="primary">Remove history and comments</b-button>
+        <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm" variant="primary">Remove
+          history and comments</b-button>
         <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="cancel">Cancel</b-button>
         <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
         <div v-if="$store.state.isHistAndCommReset">
@@ -156,10 +182,12 @@
         <h2>Delete a database</h2>
         <b-form-group>
           <h5>Select the database you want to delete</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions" stacked></b-form-radio-group>
+          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></b-form-radio-group>
         </b-form-group>
         <hr>
-        <b-button v-if="$store.state.selectedDatabaseName" variant="danger" class="m-1" @click="doDeleteDb">Delete selected database</b-button>
+        <b-button v-if="$store.state.selectedDatabaseName" variant="danger" class="m-1" @click="doDeleteDb">Delete
+          selected database</b-button>
         <b-button class="m-1" @click="cancel" variant="primary">Return</b-button>
       </div>
 
@@ -199,7 +227,15 @@ export default {
       newDbName: '',
       productName: '',
       removeAge: 365,
-      showLogModal: false
+      showLogModal: false,
+      selectedLogLevels: [0, 1, 2, 3],
+      options: [
+        { item: -1, name: 'DEBUG' },
+        { item: 0, name: 'INFO' },
+        { item: 1, name: 'WARNING' },
+        { item: 2, name: 'ERROR' },
+        { item: 3, name: 'CRITICAL', notEnabled: true },
+      ]
     }
   },
 
@@ -236,14 +272,14 @@ export default {
       return timestamp + sessionId + sessionSeq
     },
 
-		isCurrentDbSelected() {
+    isCurrentDbSelected() {
       if (this.dbToReplace === this.$store.state.userData.currentDb) {
-				this.$store.state.stopListeningForChanges = true
-				// also stop the watchdog
-				clearInterval(this.$store.state.logging.runningWatchdogId)
-				return true
-			}
-			return false
+        this.$store.state.stopListeningForChanges = true
+        // also stop the watchdog
+        clearInterval(this.$store.state.logging.runningWatchdogId)
+        return true
+      }
+      return false
     },
 
     severity(level) {
@@ -265,6 +301,10 @@ export default {
           severity = 'CRITICAL'
       }
       return severity
+    },
+
+    filtered(logEntries) {
+      return logEntries.filter(e => this.selectedLogLevels.includes(e.level))
     },
 
     viewLog() {
