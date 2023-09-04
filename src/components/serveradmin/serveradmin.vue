@@ -212,7 +212,7 @@
 </template>
 
 <script>
-import { MISC } from '../../constants.js'
+import { SEV, MISC } from '../../constants.js'
 import AppHeader from '../header/header.vue'
 
 export default {
@@ -230,11 +230,11 @@ export default {
       showLogModal: false,
       selectedLogLevels: [0, 1, 2, 3],
       options: [
-        { item: -1, name: 'DEBUG' },
-        { item: 0, name: 'INFO' },
-        { item: 1, name: 'WARNING' },
-        { item: 2, name: 'ERROR' },
-        { item: 3, name: 'CRITICAL', notEnabled: true },
+        { item: SEV.DEBUG, name: 'DEBUG' },
+        { item: SEV.INFO, name: 'INFO' },
+        { item: SEV.WARNING, name: 'WARNING' },
+        { item: SEV.ERROR, name: 'ERROR' },
+        { item: SEV.CRITICAL, name: 'CRITICAL', notEnabled: true },
       ]
     }
   },
@@ -285,19 +285,19 @@ export default {
     severity(level) {
       let severity = ''
       switch (level) {
-        case -1:
+        case SEV.DEBUG:
           severity = 'DEBUG'
           break
-        case 0:
+        case SEV.INFO:
           severity = 'INFO'
           break
-        case 1:
+        case SEV.WARNING:
           severity = 'WARNING'
           break
-        case 2:
+        case SEV.ERROR:
           severity = 'ERROR'
           break
-        case 3:
+        case SEV.CRITICAL:
           severity = 'CRITICAL'
       }
       return severity
