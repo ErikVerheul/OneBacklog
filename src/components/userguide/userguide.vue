@@ -56,9 +56,8 @@
 							<li>pbi's of kind user-story/defect/spike which are realized by executing</li>
 							<li>tasks</li>
 						</ul>
-						<p><b>Note that a PBI can be a user story or a defect or a spike. They share the same level between feature and task.</b></p>
 					</p>
-
+					<p><b>Note that a PBI can be a user story or a defect or a spike. They share the same level between feature and task.</b></p>				
 					<p>The authorization is set per database and product based on the following roles:<br>
 						Three roles are set per database:
 					</p>
