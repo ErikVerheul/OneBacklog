@@ -518,7 +518,8 @@ const actions = {
 
 	saveMyOptionsAsync({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}) {
 		globalAxios({
 			method: 'GET',
@@ -526,8 +527,9 @@ const actions = {
 		}).then(res => {
 			const tmpUserData = res.data
 			tmpUserData.myOptions = rootState.userData.myOptions
-			dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: () => rootState.areOptionsSaved = true })
+			dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: () => commit('showLastEvent', { txt: 'Your options have been saved', severity: SEV.INFO }) })
 		}).catch(error => {
+			commit('showLastEvent', { txt: 'Your options have NOT been saved', severity: SEV.ERROR })
 			const msg = `saveMyOptionsAsync: Could not update the options for user '${rootState.userData.user}', ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

@@ -69,7 +69,7 @@
 						</template>
 
             <b-list-group-item
-              v-if="hasDependencies && contextNodeLevel > PRODUCTLEVEL"
+              v-if="$store.state.userData.myOptions.proUser === 'true' && hasDependencies && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWDEPENDENCIES"
               variant="dark"
@@ -77,7 +77,7 @@
             >▲ Show/remove existing dependencies on this item</b-list-group-item>
 
             <b-list-group-item
-              v-if="hasConditions && contextNodeLevel > PRODUCTLEVEL"
+              v-if="$store.state.userData.myOptions.proUser === 'true' && hasConditions && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWCONDITIONS"
               variant="dark"
@@ -85,7 +85,7 @@
             >▼ Show/remove existing conditions for other items</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > PRODUCTLEVEL"
+              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SETDEPENDENCY"
               variant="dark"
@@ -98,7 +98,7 @@
             </b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > PRODUCTLEVEL"
+              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === MOVETOPRODUCT"
               variant="dark"
@@ -106,7 +106,7 @@
             >Move this {{ contextNodeType }} to another product</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel === PRODUCTLEVEL"
+              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel === PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEPRODUCT"
               variant="dark"
@@ -114,7 +114,7 @@
             >Make a clone of this {{ contextNodeType }}</b-list-group-item>
 
 						<b-list-group-item
-              v-if="contextNodeLevel > PRODUCTLEVEL"
+              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEBRANCH"
               variant="dark"
@@ -122,7 +122,7 @@
             >Make a clone of this {{ contextNodeType }}</b-list-group-item>
 
             <b-list-group-item
-              v-if="contextNodeLevel > PRODUCTLEVEL"
+              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEITEM"
               variant="dark"

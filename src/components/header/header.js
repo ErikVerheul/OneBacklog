@@ -10,7 +10,7 @@ function created() {
 
 function data() {
 	return {
-		appVersion: 'OneBackLog v.1.20',
+		appVersion: 'OneBackLog v.1.21',
 		disableOkButton: false,
 		oldPassword: '',
 		newPassword1: '',
@@ -28,6 +28,7 @@ function data() {
 
 const methods = {
 	saveMyOptions() {
+		this.showOptionsModal = false
 		this.$store.dispatch('saveMyOptionsAsync')
 	},
 

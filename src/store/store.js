@@ -148,8 +148,6 @@ const store = new Vuex.Store({
 		selectNodeOngoing: false,
 		showProgress: false,
 		uploadDone: true,
-		// options
-		areOptionsSaved: false,
 		// utilities for server Admin and admin
 		areDatabasesFound: false,
 		areProductsFound: false,
@@ -1188,7 +1186,6 @@ const store = new Vuex.Store({
 			clearInterval(state.authentication.runningCookieRefreshId)
 			clearInterval(state.logging.runningWatchdogId)
 			// clear the data
-			state.areOptionsSaved = false
 			state.authentication.cookieAuthenticated = false
 			state.availableProductIds = []
 			state.authentication.sessionAuthData = {}

@@ -258,6 +258,7 @@ const methods = {
 	},
 
 	patchTitle(node) {
+		if (this.$store.state.userData.myOptions.proUser === 'false') return node.title
 		let patch = ''
 		if (node.dependencies && node.dependencies.length > 0) patch = '▲ '
 		if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▼ '

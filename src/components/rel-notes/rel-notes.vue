@@ -6,7 +6,19 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
-          <h3>v.1.20 - 2 September 2023 Bug fix</h3>
+          <h3>v.1.21 - 5 September 2023 New feature, bug fix</h3>
+					<p>New feature:</p>
+          <ul>
+            <li>Two modes are introduced, the standard mode for starters which is the default and a professional mode with many more features.</li>
+            <li>The user can switch between the modes without the need to sing-in again. </li>
+            <li>The professional mode sports the 'Products overview' for use by the Area Product owner, the option to change database, to move multiple items at once in the tree view and dependency management and alerts.</li>
+            <li>As a result the standard mode is less intimidating. Eg. the context menu has 4 options instead of 8.</li>
+          </ul>
+          <p>Bug fix:</p>
+          <ul>
+            <li>In development mode the images are now visible in teh User guide.</li>
+          </ul>
+          <h3>v.1.20 - 2 September 2023 Development URL change</h3>
 					<p>Changes:</p>
           <ul>
             <li>Disallow signing in on devices with a width smaller than 1600 px</li>

@@ -82,7 +82,7 @@
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
-          <sl-vue-tree :value="$store.state.treeNodes" :allow-multiselect="true" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
+          <sl-vue-tree :value="$store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
@@ -137,7 +137,7 @@
               </span>
             </template>
 
-            <template v-if="node.tmp.markedViolations" slot="dependency-violation" slot-scope="{ node }">
+            <template v-if="$store.state.userData.myOptions.proUser === 'true' && node.tmp.markedViolations" slot="dependency-violation" slot-scope="{ node }">
               <div v-if="rowLength(node.tmp.markedViolations) === 1">
                 <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
               </div>
@@ -165,7 +165,7 @@
               </div>
             </template>
 
-            <template v-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
+            <template v-if="$store.state.userData.myOptions.proUser === 'true' && $store.state.colorMapper && node.level > LEVEL.PRODUCT && node.data.reqarea" slot="sidebar" slot-scope="{ node }">
               <p class="rectangle" :style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
             </template>
           </sl-vue-tree>

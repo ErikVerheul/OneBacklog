@@ -11,15 +11,33 @@
 				<p>Always mention the version number located after the app name when reporting issues. When you click on the release number the <b>release notes </b> will be displayed.</p>
 				<h5>User guide</h5>
 				<p>This text</p>
+				<h5>Professional mode</h5>
+				<p>Initially a new user starts this app in non-professional mode offering basic features. Any time the user can select professional mode bij selecting the cog at the top right in the application bar.</p>
+				<p>Professional mode adds the following features:</p>
+				<ul>
+					<li>The 'Products overview', a view mostly used by the Area Product Owner to manage his crossover interests by product area. </li>
+					<li>The user has the option to change database. A database contains products which are maintained independant from products in other databases.</li>
+					<li>When prioritizing the backlog the product owner can move multiple items as a group to another priority.</li>
+					<li>Initially the products tree view is expanded to the feature level and not to the user story level to maintain overview on bigger products</li>
+					<li>The user can set dependencies between backlog items and be alerted when conficts arise.</li>
+				</ul>
+				<p>In the context menu the user has more options</p>
+				<ul>
+					<li>The user can assign dependencies between backlog items.</li>
+					<li>The user can clone a backlog item.</li>
+					<li>The user can copy a backlog item.</li>
+					<li>The user can move a backlog item to another product.</li>
+				</ul>
+				<p class="pro-user">In this guide the professional features are colored in gold</p>
 				<h5>Filters and searches</h5>
-				<p>To undo an action, select a subset of the tree view, select an item on Id or search items title see <a href="#tv-features">Tree view undo, search and filtering</a></p>
+				<p>To undo an action click on the Undo button which appears in the navigation bar. To select a subset of the tree view, to select an item on Id or to search items on title see <a href="#tv-features">Tree view undo, search and filtering</a></p>
 				<h5>Select your view</h5>
 				<p>For &apos;Select your view&apos; see <a href="#pv">Product details</a>, <a href="#rv">Products overview</a> and <a href="#pb">Sprint planning board</a></p>
 				<p>In the Product details view you van assign a sprint to a PBI or task. <a href="#sp">See Sprint assignment</a></p>
 				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or server admin.</p>
 				<h5><em>User</em></h5>
 				<ul>
-					<li>Change database: Only applicable for users with products in more than one database.</li>
+					<li class="pro-user">Change database: Only applicable for users with products in more than one database.</li>
 					<li>Change team: Its the user and only the user who can switch between teams.</li>
 					<li>Select products: If multiple products are assigned to you, you can choose the products to be displayed. You also select which is the default product. On the next sign-in this products loads first and opens on top of the other products.</li>
 					<li>Change password: You need to know your old password. The password of user demoUser cannot be changed.</li>
@@ -38,6 +56,7 @@
 							<li>pbi's of kind user-story/defect/spike which are realized by executing</li>
 							<li>tasks</li>
 						</ul>
+						<p><b>Note that a PBI can be a user story or a defect or a spike. They share the same level between feature and task.</b></p>
 					</p>
 
 					<p>The authorization is set per database and product based on the following roles:<br>
@@ -46,7 +65,7 @@
 					<ul>
 						<li>'_admin': Is the database administrator. Is set the OneBacklog instance is created. Can setup and delete databases.  Can create comments and see and upload attachments. See the CouchDB documentation.</li>
 						<li>'admin': Can create, maintain and assign users to products. Can create comments and see and upload attachments.</li>
-						<li>'APO': The APO maintains the requirement areas backlog. Can create comments and see and upload attachments.</li>
+						<li class="pro-user">'APO': The APO maintains the requirement areas backlog. Can create comments and see and upload attachments.</li>
 					</ul>
 					Three roles are set per product (a product lives in a database):
 					<ul>
@@ -56,12 +75,14 @@
 					</ul>
 					Users can have multiple roles. Users can only access the products that are assigned to them by the 'admin'.
 					<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
-					<b-img :src="getImgUrl('img/context-menu.png')" alt="Example context menu" />
+					<b-img :src="getImgUrl('img/starter context menu.png')" alt="Example context menu" />
+					<p class="pro-user">Professional users have more options</p>
+					<b-img :src="getImgUrl('img/professional context menu.png')" alt="Example context menu" />
 					<p>Select the action to execute and press OK.</p>
 					<p>One of the options is to clone a branch or product. This feature is used when you have templates for reuse. Using a clone of a template can speed up the creation of simular products. Note that attachments, dependencies, conditions, sprint assignments and history are not copied. However the comments are.</p>
 					<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. You can make a shallow copy of any backlog item which will appear above the selected item. When you selected a product item you can make a full clone with a copy of all descendants. See the 'Need assistance?' text.</p>
 					<h4>Drag &amp; drop in the backlog item tree</h4>
-					<p>This a powerful feature of this application. As a PO you can move complete branches within one product and between products (in the Products overview). In the product detail view use the context menu to move a branch to another product. You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button, drag the item to its new position. To select multiple items select one item, then the second while pressing the <b>Ctrl key</b> and without releasing the mouse button move them to the new position. All selected items must have the same parent. Use the Shift key to select a range of items. Not all moves are allowed. Watch the event bar for warnings.</p>
+					<p>This a powerful feature of this application. <span class="pro-user">As a PO you can move complete branches within one product and between products (in the Products overview). In the product detail view use the context menu to move a branch to another product.</span> You can promote a branch where a feature becomes an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item and without releasing the mouse button, drag the item to its new position. <span class="pro-user">To select multiple items select one item, then the second while pressing the <b>Ctrl key</b> and without releasing the mouse button move them to the new position. All selected items must have the same parent. Use the Shift key to select a range of adjacent items. Not all moves are allowed.</span> Watch the event bar for warnings.</p>
 					<h4>The title input field</h4>
 					<p>On the right side of the screen above the Description field is the input field to change the title of the currently selected item. The change takes place when you move away from this field and click on another location. You will see the update in the tree view.</p>
 					<h4>The item short Id</h4>
@@ -107,8 +128,8 @@
 							<li>on hold (still in the sprint, waiting to be continued)</li>
 						</ul>
 					</p>
-					<p>Dependencies:</p>
-					<p>Items with dependencies on other items are designated with a ▼ symbol in front of the title name. Use the context menu to assign dependencies or to inspect or remove them.
+					<p class="pro-user">Dependencies:</p>
+					<p class="pro-user">Items with dependencies on other items are designated with a ▼ symbol in front of the title name. Use the context menu to assign dependencies or to inspect or remove them.
 						When dependencies are set the items which become conditional for the dependent items are designated with a ▲ symbol. Use the context menu to inspect or remove them.
 						When after dragging items in tree one or more dependencies are violated you receive an error message.
 					</p>
@@ -117,10 +138,10 @@
 					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its blue color.</p>
 				</div>
 				<div id="rv">
-					<h4>Products overview</h4>
-					<p>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can create and asign requirement areas to items. The PO can drag&#38;drop items between his products and set dependencies between items in different products (not recommanded).</p>
+					<h4 class="pro-user">Products overview</h4>
+					<p class="pro-user">The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can create and asign requirement areas to items. The PO can drag&#38;drop items between his products and set dependencies between items in different products (not recommanded).</p>
 					<b-img :src="getImgUrl('img/products-overview.png')" alt="Example roducts overview" />
-					<p>This view shows all products in the database up to the feature level. The requirement area are color coded choosen by the APO.</p>
+					<p class="pro-user">This view shows all products in the database up to the feature level. The requirement area are color coded choosen by the APO.</p>
 				</div>
 				<div id="tv-features">
 					<h4>Tree view undo, filtering and search</h4>
@@ -129,6 +150,7 @@
 						<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
 						<h5>Filter in tree view</h5>
 						<b-img :src="getImgUrl('img/filters.png')" alt="Example filters modal" />
+						<p class="pro-user">Only professional users can filter on requirement areas.</p>
 						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the 'Clear filter' button.</p>
 						<p>You can filter on a combination of properties like team, item state, recent changes etc. You can use this filter as pre-selection before the Id selection and search in titles, as outlined below.</p>
 						<h5>Select an item on (short) Id</h5>
@@ -149,7 +171,7 @@
 				<div id="sp">
 					<h4>Sprint assignment</h4>
 					<p>A PBI can be assigned to the current or upcoming sprint. All tasks of the PBI are assigned to that sprint too. Each individual task can be unassigned. New tasks are automatically assigned to the PBI's sprint.<br>
-					When a PBI has no assigned sprint but a sprint is assigned to one of its tasks that sprint is also assigned to the PBI.</p>
+					When a PBI has no assigned sprint but one of its tasks is assigned to a sprint that sprint the PBI is also assigned to that sprint.</p>
 				</div>
 				<div id="pb">
 					<h4>Sprint planning board</h4>
@@ -173,7 +195,7 @@
 					</div>
 				</div>
 				<div id="sv">
-				<h4>Admins see these options:</h4>
+				<h4>Maintenance views: Admins see these options:</h4>
 				<ul>
 					<li>
 						<h5>Admin</h5>
@@ -263,6 +285,10 @@ p,
 ul {
   margin-left: 10px;
   color: black;
+}
+
+.pro-user {
+	color:gold
 }
 
 .indent20 {

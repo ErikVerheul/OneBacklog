@@ -326,8 +326,8 @@ const methods = {
 		if (selNode.isSelectable) {
 			this.preventDrag = false
 			const prevSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
-			// ctrl-select or shift-select mode is allowed only if nodes have the same parent and are above PRODUCTLEVEL (epics, features and higher)
-			if (selNode.level > LEVEL.PRODUCT && selNode.parentId === prevSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
+			// ctrl-select or shift-select mode is allowed only if in professional mode and nodes have the same parent and are above PRODUCTLEVEL (epics, features and higher)
+			if (this.$store.state.userData.myOptions.proUser === 'true' && selNode.level > LEVEL.PRODUCT && selNode.parentId === prevSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
 				if (event.ctrlKey) {
 					// multi selection
 					this.$store.commit('addSelectedNode', selNode)

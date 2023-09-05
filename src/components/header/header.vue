@@ -13,7 +13,7 @@
         <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
           <b-nav-item-dropdown text="Select your view" right>
             <b-dropdown-item to="../../detailProduct">Product details</b-dropdown-item>
-            <b-dropdown-item to="../../coarseProduct">Products overview</b-dropdown-item>
+            <b-dropdown-item v-if="$store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products overview</b-dropdown-item>
             <b-dropdown-item to="../../board">Planning board</b-dropdown-item>
             <b-dropdown-divider v-if="isAssistAdmin || isAdmin || isServerAdmin"></b-dropdown-divider>
             <b-dropdown-item v-if="isAssistAdmin" to="../../assistadmin">AssistAdmin</b-dropdown-item>
@@ -28,7 +28,7 @@
             </template>
 
             <template v-if="isAuthenticated">
-              <b-dropdown-item v-if="$store.state.myAssignedDatabases.length > 1" @click="changeDatabase">Change database
+              <b-dropdown-item v-if="$store.state.userData.myOptions.proUser === 'true' && $store.state.myAssignedDatabases.length > 1" @click="changeDatabase">Change database
               </b-dropdown-item>
               <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>
               <b-dropdown-item v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</b-dropdown-item>
@@ -152,10 +152,15 @@
     </b-modal>
 
 		<!-- when not initialized do not show the options -->
-    <b-modal v-if="$store.state.userData.myOptions" v-model="showOptionsModal" @ok="refreshPlanningboard" title="Options menu">
-      <h5>For the Product details and overview</h5>
+    <b-modal size="lg" v-if="$store.state.userData.myOptions" v-model="showOptionsModal" @ok="refreshPlanningboard" hide-footer title="Options menu">
+      <h5>If you manage large complex products</h5>
+      <b-form-checkbox v-model="$store.state.userData.myOptions.proUser" value=true unchecked-value=false>
+        Use the professional mode of this app
+      </b-form-checkbox>
+
+      <h5 class="spacer">When changing the priority of backlog item(s)</h5>
       <b-form-checkbox v-model="$store.state.userData.myOptions.levelShiftWarning" value="do_warn" unchecked-value="do_not_warn">
-        Warn me when I move an item to another level
+        Warn me when I move items to another level (eg. from task to user story)
       </b-form-checkbox>
 
       <h5 class="spacer">For the Planning board</h5>
@@ -163,8 +168,8 @@
         Show the [On hold] status column on the planning board
       </b-form-checkbox>
 
+      <b-button class="m-4" @click="showOptionsModal = false" variant="dark">Cancel</b-button>
       <b-button class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</b-button>
-			<p v-if="$store.state.areOptionsSaved">Your options have been saved</p>
     </b-modal>
   </div>
 </template>
