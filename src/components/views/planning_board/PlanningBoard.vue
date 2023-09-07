@@ -165,7 +165,7 @@ export default {
 
     /* Return date/time dependant sprint selection options, recent first + next sprint on top*/
     sprintTitleOptions() {
-      const now = this.$store.state.currentTime
+      const now = Date.now()
       const calendar = this.$store.state.myCurrentSprintCalendar
       const options = []
       let getNextSprint = true

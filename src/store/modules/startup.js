@@ -88,7 +88,7 @@ const actions = {
 			} else {
 				// set the user's default options if not found
 				rootState.userData.myOptions = {
-					proUser: false,
+					proUser: 'false',
 					levelShiftWarning: 'do_warn',
 					showOnHold: 'do_not_show_on_hold'
 				}
