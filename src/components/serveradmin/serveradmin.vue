@@ -42,7 +42,8 @@
             Severity: {{ severity(item.level) }} <br />
             By: {{ item.by }} <br />
             SessionId: {{ item.sessionId }} <br />
-            Timestamp: {{ new Date(item.timestamp) }}
+            Timestamp: {{ new Date(item.timestamp) }} <br />
+            Save Time: {{ new Date(item.saveTime) }}
             <hr>
           </div>
         </b-modal>
