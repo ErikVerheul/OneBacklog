@@ -802,7 +802,8 @@ const actions = {
 		// stop listening if signed-out
 		if (rootState.signedOut) {
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('sync: listenForChanges is blocked as the user is signed out, mySessionId = ' + rootState.mySessionId)
+			const msg = 'sync: listenForChanges is blocked as the user is signed out'
+			dispatch('doLog', { event: msg, level: SEV.INFO })
 			return
 		}
 		// stop listening if not online or authenticated. logging.watchdog will start it again
@@ -851,8 +852,9 @@ const actions = {
 					commit('endSession', 'listenForChanges: catch:Request aborted')
 				}
 			} else {
-				if (error.response && error.response.status === 401) rootState.authentication.cookieAuthenticated = false
-				if (error.message === 'Network error') rootState.online = false
+				// next 2 lines commented out; let watchDog fix these issues
+				// if (error.response && error.response.status === 401) rootState.authentication.cookieAuthenticated = false
+				// if (error.message === 'Network error') rootState.online = false
 				const msg = `Listening for changes made by other users failed. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.WARNING })
 			}
