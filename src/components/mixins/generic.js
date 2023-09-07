@@ -150,8 +150,7 @@ const utilities = {
 		* Return undefined if not found.
 		*/
 		getActiveSprints() {
-			// currentTime is updated continuously by the watchdog in logging.js
-			const now = this.$store.state.currentTime
+			const now = Date.now()
 			const myCurrentSprintCalendar = this.$store.state.myCurrentSprintCalendar
 			let currentSprint
 			let nextSprint

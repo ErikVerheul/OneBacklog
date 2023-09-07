@@ -62,8 +62,6 @@ const actions = {
 			}).then(() => {
 				rootState.online = true
 				rootState.authentication.cookieAuthenticated = true
-				// update the current time
-				rootState.currentTime = Date.now()
 				if (wasOffline) {
 					restartLoops()
 				} else {
@@ -118,7 +116,7 @@ const actions = {
 		state,
 		dispatch
 	}) {
-		if (state.unsavedLogs.length > 0) {
+		if (!rootState.signedOut && state.unsavedLogs.length > 0) {
 			if (rootState.userData.currentDb) {
 				// try to store all unsaved logs
 				globalAxios({
@@ -129,6 +127,8 @@ const actions = {
 					// eslint-disable-next-line no-console
 					if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
 					for (const logEntry of state.unsavedLogs) {
+						// add the save time for debugging
+						logEntry.saveTime = Date.now()
 						log.entries.unshift(logEntry)
 					}
 					dispatch('replaceLog', log)

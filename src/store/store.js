@@ -185,7 +185,6 @@ const store = new Vuex.Store({
 		// traverseTree
 		descendantIds: [],
 		// app wide globals
-		currentTime: Date.now(),
 		configData: null,
 		demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
 		eventSyncColor: '#004466',
@@ -1218,7 +1217,7 @@ const store = new Vuex.Store({
 			router.replace('/')
 			state.signedOut = true
 			// eslint-disable-next-line no-console
-			if (state.debug) console.log('endSession was executed, signedOut = ' + state.signedOut + ', mySessionId = ' + state.mySessionId + ', caller = ' + caller)
+			if (state.debug) console.log('endSession was executed, signedOut = ' + state.signedOut + ', caller = ' + caller)
 		}
 	},
 
