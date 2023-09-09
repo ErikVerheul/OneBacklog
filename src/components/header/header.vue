@@ -152,7 +152,7 @@
     </b-modal>
 
 		<!-- when not initialized do not show the options -->
-    <b-modal size="lg" v-if="$store.state.userData.myOptions" v-model="showOptionsModal" @ok="refreshPlanningboard" hide-footer title="Options menu">
+    <b-modal size="lg" v-if="$store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
       <h5>If you manage large complex products</h5>
       <b-form-checkbox v-model="$store.state.userData.myOptions.proUser" value='true' unchecked-value='false'>
         Use the professional mode of this app

@@ -28,6 +28,8 @@ function data() {
 
 const methods = {
 	saveMyOptions() {
+		// refreshPlanningboard to (un)show the OnHold column
+		this.refreshPlanningboard()
 		this.showOptionsModal = false
 		this.$store.dispatch('saveMyOptionsAsync')
 	},
