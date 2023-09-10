@@ -306,11 +306,13 @@ const actions = {
 					// load team calendar if present
 					if (hasTeamCalendar) {
 						dispatch('loadTeamCalendarAtStartup', teamId)
+						break
 					} else {
 						// eslint-disable-next-line no-console
 						if (rootState.debug) console.log(`getAllTeams: No team calendar defined for your team '${teamName}', the default sprint calendar will be used`)
 						// continue to load the tree model
 						dispatch('getRoot')
+						break
 					}
 				}
 			}
