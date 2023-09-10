@@ -38,12 +38,13 @@
 				<h5><em>User</em></h5>
 				<ul>
 					<li class="pro-user">Change database: Only applicable for users with products in more than one database.</li>
-					<li>Change team: Its the user and only the user who can switch between teams.</li>
+					<li>Change team: Its the user and only the user who can switch between teams *.</li>
 					<li>Select products: If multiple products are assigned to you, you can choose the products to be displayed. You also select which is the default product. On the next sign-in this products loads first and opens on top of the other products.</li>
 					<li>Change password: You need to know your old password. The password of user demoUser cannot be changed.</li>
 					<li>License information: click to see the license regarding the source code.</li>
 					<li>Sign out: Preferred way to sign out. Will stop the cookie authentication and reset the URL to sign in again. When you reset your browser with F5 or Ctrl-F5 you need to reset the URL your self.</li>
 				</ul>
+				<p>(*) A user can be member of none or 1 team at a time. However, when another team needs help, a user can join that team temporarily.</p>
 				<div id="pv">
 					<h4>Product details view</h4>
 					<p>The Product details view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
