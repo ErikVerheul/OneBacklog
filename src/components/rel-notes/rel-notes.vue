@@ -6,6 +6,12 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.22 - 11 September 2023 New feature, bug fix</h3>
+					<p>New feature:</p>
+          <ul>
+            <li>The user can now select a new menu item 'My team' for info about his team and the other teams.</li>
+            <li>The welcome screen now shows the actual screen width when less than 1600, the minimum required. </li>
+          </ul>
           <h3>v.1.21 - 5 September 2023 New feature, bug fix</h3>
 					<p>New feature:</p>
           <ul>
