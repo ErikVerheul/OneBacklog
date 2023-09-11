@@ -60,6 +60,12 @@ const methods = {
 		this.$refs.changeTeamRef.show()
 	},
 
+	showMyTeam() {
+		this.selectedTeam = this.myTeam
+		this.doShowTeam()
+		this.$refs.showTeamRef.show()
+	},
+
 	selectProducts() {
 		this.newDefaultProductId = this.getCurrentDefaultProductId
 		this.selectedProducts = this.getMyAssignedProductIds
@@ -83,6 +89,16 @@ const methods = {
 
 	doChangeTeam() {
 		this.$store.dispatch('changeTeam', this.selectedTeam)
+	},
+
+	doShowTeam() {
+		this.$store.dispatch('fetchTeamsAction', { dbName: this.$store.state.selectedDatabaseName })
+	},
+
+	getMyTeamRecord(myTeam) {
+		for (const rec of this.$store.state.fetchedTeams) {
+			if (rec.teamName === myTeam) return rec
+		}
 	},
 
 	setDefaultProductOptions() {
