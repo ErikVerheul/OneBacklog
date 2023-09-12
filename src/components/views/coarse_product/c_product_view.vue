@@ -4,14 +4,14 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-nav-form>
-          <b-button id="tooltip-undo" class="m-1" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
+          <b-button class="m-1" id="tooltip-undo" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
           <b-tooltip target="tooltip-undo" triggers="hover">
             {{ undoTitle }}
           </b-tooltip>
           <b-button class="m-1" v-show="!isRootSelected && !isReqAreaItemSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
           <div class="divider" />
           <b-input-group v-show="$store.state.resetSearch.searchType !== 'searchInTitles'">
-            <b-form-input id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
+            <b-form-input class="form-width" id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetFindId" variant="primary" type="reset">x</b-button>
             </b-input-group-append>
@@ -360,6 +360,10 @@
 }
 
 // other stuff
+.form-width {
+  max-width: 180px
+}
+
 .container {
   margin-top: 10px;
   max-width: 100%;
