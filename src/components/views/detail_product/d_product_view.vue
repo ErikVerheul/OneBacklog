@@ -11,7 +11,7 @@
           <b-button class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
           <div class="divider" />
           <b-input-group v-show="$store.state.resetSearch.searchType !== 'searchInTitles'">
-            <b-form-input id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
+            <b-form-input class="form-width" id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
             <b-input-group-append>
               <b-button @click="resetFindId" variant="primary" type="reset">x</b-button>
             </b-input-group-append>
@@ -359,6 +359,10 @@
 }
 
 // other stuff
+.form-width {
+  max-width: 180px
+}
+
 .container {
   margin-top: 10px;
   max-width: 100%;
