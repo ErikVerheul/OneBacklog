@@ -7,6 +7,12 @@
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
           <h3>v.1.22 - 11 September 2023 New feature, bug fix</h3>
+          <p>Minor updates:</p>
+          <ul>
+            <li>Prevent the event text to overlap the signal light.</li>
+            <li>The DEMO tag is removed.</li>
+            <li>The welcome screen now shows the actual screen width when less than 1400, the minimum required. </li>
+          </ul>
 					<p>New feature:</p>
           <ul>
             <li>The user can now select a new menu item 'My team' for info about his team and the other teams.</li>
