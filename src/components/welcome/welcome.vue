@@ -26,7 +26,7 @@
           large or small. Your role determines what you can do. Run this application on a desktop computer or tablet with
           a pointing device.</p>
         <h5 class="colorRed">You cannot sign-in on this device. The app detected that you are using a device with a screen
-          width of {{ screenWidth }} which is less than the required 1600 pixels. Please note that this app is intended for use on a device with full HD resolution
+          width of {{ screenWidth }} which is less than the required 1400 pixels. Please note that this app is intended for use on a device with full HD resolution
           or higher. You will need a pointing device, like a mouse, to accurately manipulate the items in the tree view of
           your products.</h5>
       </div>
@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     isScreenWidthSufficient() {
-      return this.screenWidth >= 1600
+      return this.screenWidth >= 1400
     }
   }
 }
