@@ -14,7 +14,7 @@ const actions = {
 		rootGetters,
 		commit
 	}) {
-		rootState.helpersRef = Object.freeze({
+		rootState.helpersRef = {
 			name: 'OneBacklog global helper functions',
 
 			/* Convenience function */
@@ -627,7 +627,7 @@ const actions = {
 					nm.isSelectable = false
 				}, [branchRoot])
 			}
-		})
+		}
 	}
 }
 
