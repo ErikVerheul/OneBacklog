@@ -404,6 +404,7 @@
   text-align: left;
   color: white;
   padding: 9px;
+  padding-right: 55px;
   border-radius: 2px;
 }
 
