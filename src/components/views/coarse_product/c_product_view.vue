@@ -364,11 +364,6 @@
   max-width: 180px
 }
 
-.container {
-  margin-top: 10px;
-  max-width: 100%;
-}
-
 .d-table {
   display: table;
 }
@@ -380,10 +375,6 @@
 
 .w-100 {
   width: 100%;
-}
-
-.w-50 {
-  width: 50%;
 }
 
 .tar {
@@ -449,25 +440,6 @@ h3 {
   text-indent: -60%;
   display: inline-block;
   width: 40px;
-}
-
-input[type="number"] {
-  -moz-appearance: numberfield;
-  width: 80px;
-}
-
-.inline {
-  display: inline-block;
-}
-
-.align-left {
-  float: left;
-  margin-top: 10px;
-}
-
-.align-right {
-  float: right;
-  margin-top: 10px;
 }
 
 .divider {

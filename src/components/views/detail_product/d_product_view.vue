@@ -363,11 +363,6 @@
   max-width: 180px
 }
 
-.container {
-  margin-top: 10px;
-  max-width: 100%;
-}
-
 .d-table {
   display: table;
 }
@@ -379,10 +374,6 @@
 
 .w-100 {
   width: 100%;
-}
-
-.w-50 {
-  width: 50%;
 }
 
 .tar {
@@ -424,13 +415,6 @@
   height: 100%;
 }
 
-.sl-vue-tree.sl-vue-tree-root {
-  flex-grow: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: 100%;
-}
-
 //my stuff
 h3 {
   height: 45px;
@@ -455,25 +439,6 @@ h3 {
 .violation-column {
   display: inline-block;
   width: 40px;
-}
-
-input[type="number"] {
-  -moz-appearance: numberfield;
-  width: 80px;
-}
-
-.inline {
-  display: inline-block;
-}
-
-.align-left {
-  float: left;
-  margin-top: 10px;
-}
-
-.align-right {
-  float: right;
-  margin-top: 10px;
 }
 
 .divider {
