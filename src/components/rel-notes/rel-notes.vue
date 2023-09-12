@@ -10,7 +10,6 @@
           <p>Minor updates:</p>
           <ul>
             <li>Prevent the event text to overlap the signal light.</li>
-            <li>The DEMO tag is removed.</li>
             <li>The welcome screen now shows the actual screen width when less than 1400, the minimum required. </li>
           </ul>
           <h3>v.1.22 - 11 September 2023 New feature</h3>
