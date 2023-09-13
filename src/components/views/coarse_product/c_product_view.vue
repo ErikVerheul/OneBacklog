@@ -197,7 +197,7 @@
           </div>
           <template v-if="!isReqAreaItemSelected">
             <multipane-resizer></multipane-resizer>
-            <div class="pane" :style="{ minHeight: '40px', height: '40px', maxHeight: '40px' }">
+            <div class="pane" :style="{ height: '45px', top: '5px' }">
               <div>
                 <h5 class="title is-6">Acceptance criteria</h5>
               </div>
@@ -208,7 +208,7 @@
             </div>
           </template>
           <multipane-resizer></multipane-resizer>
-          <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
+          <div class="pane" :style="{ height: '75px', top:'5px'}">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
                 <b-button variant="primary" :pressed.sync="doAddition">Add {{ $store.state.selectedForView }}</b-button>
@@ -301,8 +301,8 @@
 
 <script src="./c_product_view.js"></script>
 
-<style lang="scss" scoped>
-// horizontal panes
+<style scoped>
+/* horizontal panes */
 .horizontal-panes {
   width: 100%;
   border: 1px solid #ccc;
@@ -319,7 +319,7 @@
   border-top: 1px solid #ccc;
 }
 
-// vertical panes
+/* vertical panes */
 .custom-resizer {
   width: 100%;
   height: 100%;
@@ -348,8 +348,8 @@
     left: 50%;
     margin-top: -20px;
     margin-left: -1.5px;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+    border-left: 1px solid #408fae;
+    border-right: 1px solid #408fae;
   }
 
   &:hover {
@@ -359,9 +359,11 @@
   }
 }
 
-// other stuff
-.form-width {
-  max-width: 180px
+/* other stuff */
+.container {
+  margin-top: 10px;
+  max-width: 100%;
+  margin-bottom: 15px;
 }
 
 .d-table {
@@ -395,11 +397,12 @@
   border-radius: 2px;
 }
 
-//tree stuff
+/* tree stuff */
 .last-event {
   text-align: left;
   color: white;
   padding: 9px;
+  padding-right: 55px;
   border-radius: 2px;
 }
 
@@ -415,7 +418,11 @@
   height: 100%;
 }
 
-//my stuff
+/* my stuff */
+.form-width {
+  max-width: 180px
+}
+
 h3 {
   height: 45px;
 }
