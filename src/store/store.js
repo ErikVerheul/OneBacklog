@@ -29,6 +29,7 @@ import update_reqarea from './modules/update_reqarea'
 import update from './modules/update'
 import useracc from './modules/useracc'
 import utils from './modules/utils'
+import watchdog from './modules/watchdog'
 
 
 const MAX_EVENTLIST_SIZE = 100
@@ -193,6 +194,7 @@ const store = new Vuex.Store({
 		myProductOptions: [],
 		online: true,
 		showHeaderDropDowns: true,
+		unsavedLogs: [],
 		userData: {},
 		// planning board
 		loadedSprintId: null,
@@ -1210,8 +1212,9 @@ const store = new Vuex.Store({
 			state.planningboard.stories = []
 			state.resetSearch = {}
 			state.showHeaderDropDowns = true
-			state.stopListeningForChanges = false
+			state.stopListeningForChanges = true
 			state.treeNodes = []
+			state.unsavedLogs = []
 			state.userData = {}
 			// load sign-in page
 			router.replace('/')
@@ -1244,7 +1247,8 @@ const store = new Vuex.Store({
 		update_reqarea,
 		update,
 		useracc,
-		utils
+		utils,
+		watchdog
 	}
 })
 

@@ -2,8 +2,8 @@ module.exports = {
   lintOnSave: true,
 
   devServer: process.env.NODE_ENV === 'development' ? {
-    // no need for the webpack webSocketServer
-    webSocketServer: false,
+    // the webpack webSocketServer is needed for auto-refreshing the app on changes
+    // webSocketServer: false,
     host: 'localhost',
     port: 8080
   } : {},

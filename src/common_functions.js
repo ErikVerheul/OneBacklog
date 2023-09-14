@@ -94,8 +94,18 @@ export function localTimeAndMilis() {
 		var s = "000" + num
 		return s.substring(s.length - size)
 	}
+	// remove the AM/PM ending (Chrome)
+	function strip(timeString) {
+		const len = timeString.length
+		if (len <= 8) {
+			// Firefox
+			return timeString
+		}
+		// Chrome
+		return timeString.substring(0, len - 3)
+	}
 	const now = new Date()
-	return `${now.toLocaleTimeString()}.${pad(now.getMilliseconds(), 3)}`
+	return `${strip(now.toLocaleTimeString())}.${pad(now.getMilliseconds(), 3)}`
 }
 
 /* Remove item (not an object) from array if present. Returns a new array so that it is reactive */

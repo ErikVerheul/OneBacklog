@@ -1,5 +1,4 @@
 import { SEV } from '../../constants.js'
-import { localTimeAndMilis } from '../../common_functions.js'
 import globalAxios from 'axios'
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -29,8 +28,6 @@ const actions = {
 				data: state.sessionAuthData
 			}).then(() => {
 				state.cookieAuthenticated = true
-				// eslint-disable-next-line no-console
-				if (rootState.debugConnectionAndLogging) console.log(`refreshCookie@${localTimeAndMilis()}: Authentication cookie refresh is running, caller = ${payload.caller}`)
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
@@ -40,10 +37,9 @@ const actions = {
 				if (payload.onFailureCallback) payload.onFailureCallback()
 				// stop the interval function and wait for the watchDog to start again
 				clearInterval(state.runningCookieRefreshId)
-				rootState.online = false
+				state.cookieAuthenticated = false
 				commit('showLastEvent', { txt: 'Refresh of the authentication cookie failed', severity: SEV.CRITICAL })
-				const msg = `Refresh of the authentication cookie failed. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.CRITICAL })
+				dispatch('doLog', { event: `Refresh of the authentication cookie failed. ${error}`, level: SEV.CRITICAL })
 			})
 		}
 	},
@@ -55,6 +51,7 @@ const actions = {
 		dispatch
 	}) {
 		if (rootState.online) {
+			dispatch('doLog', { event: `The authentication cookie refresh loop is started.`, level: SEV.INFO })
 			state.runningCookieRefreshId = setInterval(() => {
 				dispatch('refreshCookie', { caller: 'refreshCookieLoop' })
 			}, COOKIE_REFRESH_INTERVAL)
@@ -105,7 +102,7 @@ const actions = {
 				{ refreshCookieLoop: null },
 				{ getDatabases: null }
 			]
-			dispatch('refreshCookie', { caller: 'authentication: signin', toDispatch })
+			dispatch('refreshCookie', { caller: 'authentication:signin', toDispatch })
 		}).catch(error => {
 			// cannot log failure here as the database name is unknown yet
 			// eslint-disable-next-line no-console

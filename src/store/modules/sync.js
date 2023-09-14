@@ -790,26 +790,27 @@ const actions = {
 			histEvent === 'changeReqAreaColorEvent' || (histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) || (rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
 	},
 
-	/* Listen for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
+	/* Is started by the watchdog. Listens for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
 	listenForChanges({
 		rootState,
 		dispatch,
 		commit
 	}) {
+		const listenForChangesWasRunning = rootState.listenForChangesRunning
 		if (rootState.stopListeningForChanges) {
+			rootState.listenForChangesRunning = false
 			return
 		}
 		// stop listening if signed-out
 		if (rootState.signedOut) {
-			// eslint-disable-next-line no-console
-			const msg = 'sync: listenForChanges is blocked as the user is signed out'
-			dispatch('doLog', { event: msg, level: SEV.INFO })
+			dispatch('doLog', { event: 'sync: listenForChanges is blocked as the user is signed out', level: SEV.INFO })
+			rootState.listenForChangesRunning = false
 			return
 		}
-		// stop listening if not online or authenticated. logging.watchdog will start it again
-		if (!rootState.online || !rootState.authentication.cookieAuthenticated) return
-
 		rootState.listenForChangesRunning = true
+		if (!listenForChangesWasRunning) {
+			dispatch('doLog', { event: 'sync: listenForChanges started.', level: SEV.INFO })
+		}
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
@@ -852,11 +853,7 @@ const actions = {
 					commit('endSession', 'listenForChanges: catch:Request aborted')
 				}
 			} else {
-				// next 2 lines commented out; let watchDog fix these issues
-				// if (error.response && error.response.status === 401) rootState.authentication.cookieAuthenticated = false
-				// if (error.message === 'Network error') rootState.online = false
-				const msg = `Listening for changes made by other users failed. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.WARNING })
+				dispatch('doLog', { event: `Listening for changes made by other users failed. ${error}`, level: SEV.WARNING })
 			}
 		})
 	}

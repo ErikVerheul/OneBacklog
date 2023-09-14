@@ -6,6 +6,12 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.1.24 - 14 September 2023 Refactoring</h3>
+          <p>Minor updates:</p>
+          <ul>
+            <li>Improve visibility of resize handlers.</li>
+            <li>Have the watchdog code in its own file. </li>
+          </ul>
           <h3>v.1.23 - 12 September 2023 Minor updates</h3>
           <p>Minor updates:</p>
           <ul>

@@ -6,90 +6,17 @@ import globalAxios from 'axios'
 
 const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
-const WATCHDOGINTERVAL = 5000
 
 const state = {
 	logSessionSeq: 0,
-	runningWatchdogId: null,
-	unsavedLogs: []
+	runningWatchdogId: null
 }
 
 const actions = {
 	/*
 	 * Logging is not possible without network connection to the database.
 	 * When logging fails the entries are stored in the unsavedLogs array.
-	 * This watchdog tests in intervals if the browser becomes online. If so then the action:
-	 * - restarts the cookie authentication service
-	 * - restarts the synchronization service
-	 * - saves the stored log entries if available
 	 */
-	watchdog({
-		rootState,
-		state,
-		commit,
-		dispatch
-	}) {
-		function consoleLogStatus() {
-			if (rootState.debugConnectionAndLogging) {
-				// eslint-disable-next-line no-console
-				console.log('watchdog:' +
-					'\nOnline = ' + rootState.online +
-					'\nlogsToSaveCount = ' + state.unsavedLogs.length +
-					'\ncookieAuthenticated = ' + rootState.authentication.cookieAuthenticated +
-					'\nListenForChangesRunning = ' + rootState.listenForChangesRunning +
-					'\ntimestamp = ' + new Date().toString())
-			}
-		}
-		function restartLoops() {
-			const msg = `restartLoops: Watchdog attemps to rectify the connection error.`
-			dispatch('refreshCookie', {
-				caller: 'restartLoops',
-				onSuccessCallback: () => {
-					consoleLogStatus()
-					commit('showLastEvent', { txt: 'You are online again', severity: SEV.INFO })
-				},
-				onFailureCallback: () => consoleLogStatus(),
-				toDispatch: [{ refreshCookieLoop: null }, { listenForChanges: null }, { doLog: { event: msg, level: SEV.INFO } }]
-			})
-		}
-
-		// test the connection and authentication status every WATCHDOGINTERVAL seconds
-		state.runningWatchdogId = setInterval(() => {
-			const wasOffline = !rootState.online
-			globalAxios({
-				method: 'HEAD',
-				url: rootState.userData.currentDb + '/' + LOGDOCNAME
-			}).then(() => {
-				rootState.online = true
-				rootState.authentication.cookieAuthenticated = true
-				if (wasOffline) {
-					restartLoops()
-				} else {
-					consoleLogStatus()
-					// save the log on every watchdog cycle
-					dispatch('saveLog')
-					// if returning from a computer sleep state, restart listenForChanges
-					if (!rootState.signedOut && !rootState.listenForChangesRunning) {
-						dispatch('listenForChanges')
-					}
-				}
-			}).catch(error => {
-				if (error.response && error.response.status === 401) {
-					rootState.authentication.cookieAuthenticated = false
-					// if error status 401 is returned we are online again despite the error condition (no authentication)
-					rootState.online = true
-					commit('showLastEvent', { txt: 'You are online again. The cookie authorization refresh loop is started', severity: SEV.INFO })
-					// restart the cookie authorization refresh loop and wait for the next watchdog cycle to restart listenForChanges
-					clearInterval(rootState.authentication.runningCookieRefreshId)
-					dispatch('refreshCookie', { caller: 'watchdog', toDispatch: [{ refreshCookieLoop: null }] })
-				} else {
-					rootState.online = false
-					commit('showLastEvent', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
-				}
-				consoleLogStatus()
-			})
-		}, WATCHDOGINTERVAL)
-	},
 
 	/* Create a log entry and let watchdog save it. */
 	doLog({
@@ -108,15 +35,14 @@ const actions = {
 		// eslint-disable-next-line no-console
 		if (rootState.debug) console.log(`logging => ${localTimeAndMilis()}: ${payload.event}`)
 		// push the new log entry to the unsaved logs
-		state.unsavedLogs.push(newLog)
+		rootState.unsavedLogs.push(newLog)
 	},
 
 	saveLog({
 		rootState,
-		state,
 		dispatch
 	}) {
-		if (!rootState.signedOut && state.unsavedLogs.length > 0) {
+		if (!rootState.signedOut && rootState.unsavedLogs.length > 0) {
 			if (rootState.userData.currentDb) {
 				// try to store all unsaved logs
 				globalAxios({
@@ -126,7 +52,7 @@ const actions = {
 					const log = res.data
 					// eslint-disable-next-line no-console
 					if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
-					for (const logEntry of state.unsavedLogs) {
+					for (const logEntry of rootState.unsavedLogs) {
 						// add the save time for debugging
 						logEntry.saveTime = Date.now()
 						log.entries.unshift(logEntry)
@@ -156,7 +82,7 @@ const actions = {
 			data: log
 		}).then(() => {
 			// delete the logs now they are saved
-			state.unsavedLogs = []
+			rootState.unsavedLogs = []
 			// eslint-disable-next-line no-console
 			if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved`)
 		}).catch(error => {
