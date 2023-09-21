@@ -42,8 +42,10 @@
             Severity: {{ severity(item.level) }} <br />
             By: {{ item.by }} <br />
             SessionId: {{ item.sessionId }} <br />
-            Timestamp: {{ new Date(item.timestamp) }} <br />
-            Save Time: {{ new Date(item.saveTime) }}
+            Timestamp: {{ new Date(item.timestamp) }}
+            <template v-if="item.saveTime">
+              <br />Save Time: {{ new Date(item.saveTime) }}
+            </template>
             <hr>
           </div>
         </b-modal>
@@ -450,7 +452,7 @@ export default {
     },
 
     doFauxton() {
-      window.open(process.env.VUE_APP_API_URL + '/_utils/#/documentation', '_blank')
+      window.open(import.meta.env.VITE_API_URL + '/_utils/#/documentation', '_blank')
       this.fauxtonStarted = true
     },
 

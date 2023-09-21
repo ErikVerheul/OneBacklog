@@ -4,9 +4,9 @@ const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSpri
 	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent",
 	"removeCommentFromHistoryEvent", "removedWithDescendantsEvent", "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent",
 	"setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
-const nano = require('nano')('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
+const nano = require('nano')('http://' + import.meta.env.COUCH_USER + ':' + import.meta.env.COUCH_PW + '@localhost:5984')
 const atob = require('atob')
-const mailgun = require('mailgun-js')({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' })
+const mailgun = require('mailgun-js')({ apiKey: import.meta.env.API_KEY, domain: import.meta.env.DOMAIN, host: 'api.eu.mailgun.net' })
 const PBILEVEL = 5
 const TASKLEVEL = 6
 var db

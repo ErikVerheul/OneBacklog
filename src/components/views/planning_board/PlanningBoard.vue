@@ -69,7 +69,7 @@
 import { mapState, mapGetters } from 'vuex'
 import { utilities } from '../../mixins/generic.js'
 import AppHeader from '../../header/header.vue'
-import StoryLane from './StoryLane'
+import StoryLane from './StoryLane.vue'
 
 export default {
   mixins: [utilities],

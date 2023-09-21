@@ -7,7 +7,7 @@ import commonView from '../common_view.js'
 import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
-import { eventBus } from '../../../main'
+import { eventBus } from '../../../main.js'
 
 const thisView = 'coarseProduct'
 var returning = false

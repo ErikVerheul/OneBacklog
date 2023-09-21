@@ -135,7 +135,7 @@ const methods = {
 
   showAttachment (attachment) {
     const _id = this.$store.state.currentDoc._id
-    const url = process.env.VUE_APP_API_URL + '/' + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
+    const url = import.meta.env.VITE_API_URL + '/' + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
     window.open(url)
   },
 

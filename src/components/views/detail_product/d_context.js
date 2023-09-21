@@ -2,7 +2,7 @@ import { SEV, LEVEL } from '../../../constants.js'
 import { getSprintNameById } from '../../../common_functions.js'
 import { utilities } from '../../mixins/generic.js'
 import commonContext from '../common_context.js'
-import { eventBus } from '../../../main'
+import { eventBus } from '../../../main.js'
 
 function created() {
 	eventBus.$on('context-menu', (node) => {

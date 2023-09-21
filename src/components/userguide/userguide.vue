@@ -267,7 +267,7 @@ export default {
     },
 
     getImgUrl(img) {
-      return process.env.VUE_APP_SITE_URL + '/' + img
+      return import.meta.env.VITE_SITE_URL + '/' + img
     }
   }
 }

@@ -71,7 +71,6 @@ const actions = {
 
 	replaceLog({
 		rootState,
-		state,
 		dispatch
 	}, log) {
 		// limit the number of saved log entries

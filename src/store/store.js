@@ -100,8 +100,8 @@ const store = new Vuex.Store({
 		// generic helper functions
 		helpersRef: null,
 		// console log settings
-		debug: process.env.VUE_APP_DEBUG === 'true' || false,
-		debugConnectionAndLogging: process.env.VUE_APP_DEBUG_CONNECTION === 'true' || false,
+		debug: import.meta.env.VITE_DEBUG === 'true' || false,
+		debugConnectionAndLogging: import.meta.env.VITE_DEBUG_CONNECTION === 'true' || false,
 		// creating a CouchDb instance
 		isDatabaseInitiated: false,
 		// authentication
@@ -187,7 +187,7 @@ const store = new Vuex.Store({
 		descendantIds: [],
 		// app wide globals
 		configData: null,
-		demo: process.env.VUE_APP_IS_DEMO === 'true' || false,
+		demo: import.meta.env.VITE_IS_DEMO === 'true' || false,
 		eventSyncColor: '#004466',
 		lastSelectCursorPosition: null,
 		listenForChangesRunning: false,

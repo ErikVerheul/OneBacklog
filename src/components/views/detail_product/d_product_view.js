@@ -9,7 +9,7 @@ import DcontextMenu from './d_context.vue'
 import Filters from './d_filters.vue'
 import Listings from './d_listings.vue'
 import ToSprint from './d_tosprint.vue'
-import { eventBus } from '../../../main'
+import { eventBus } from '../../../main.js'
 
 const thisView = 'detailProduct'
 var returning = false

@@ -301,7 +301,7 @@
 
 <script src="./c_product_view.js"></script>
 
-<style scoped>
+<style lang="scss" scoped>
 /* horizontal panes */
 .horizontal-panes {
   width: 100%;

@@ -4,7 +4,7 @@
 import { SEV, LEVEL } from '../../../constants.js'
 import { collapseNode, expandNode } from '../../../common_functions.js'
 import commonView from '../common_view.js'
-import { eventBus } from '../../../main'
+import { eventBus } from '../../../main.js'
 
 // in px; used to calculate the node closest to the current cursor position
 const edgeSize = 6

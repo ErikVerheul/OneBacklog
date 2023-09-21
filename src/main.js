@@ -5,7 +5,7 @@ import router from './router'
 import store from './store/store'
 import './fa.config'
 
-axios.defaults.baseURL = process.env.VUE_APP_API_URL
+axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.withCredentials = true
 
 const reqInterceptor = axios.interceptors.request.use(config => {
