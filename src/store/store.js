@@ -1185,7 +1185,7 @@ const store = new Vuex.Store({
 		endSession(state, caller) {
 			// stop the timers
 			clearInterval(state.authentication.runningCookieRefreshId)
-			clearInterval(state.logging.runningWatchdogId)
+			clearInterval(state.watchdog.runningWatchdogId)
 			// clear the data
 			state.authentication.cookieAuthenticated = false
 			state.availableProductIds = []

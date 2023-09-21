@@ -8,8 +8,7 @@ const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
 
 const state = {
-	logSessionSeq: 0,
-	runningWatchdogId: null
+	logSessionSeq: 0
 }
 
 const actions = {

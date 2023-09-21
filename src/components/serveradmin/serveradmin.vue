@@ -279,7 +279,7 @@ export default {
       if (this.dbToReplace === this.$store.state.userData.currentDb) {
         this.$store.state.stopListeningForChanges = true
         // also stop the watchdog
-        clearInterval(this.$store.state.logging.runningWatchdogId)
+        clearInterval(this.$store.state.watchdog.runningWatchdogId)
         return true
       }
       return false
