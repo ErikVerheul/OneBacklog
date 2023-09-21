@@ -277,6 +277,7 @@ export default {
 
     isCurrentDbSelected() {
       if (this.dbToReplace === this.$store.state.userData.currentDb) {
+        // will be set to false when automatically signed-out after database change
         this.$store.state.stopListeningForChanges = true
         // also stop the watchdog
         clearInterval(this.$store.state.watchdog.runningWatchdogId)
