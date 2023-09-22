@@ -6,7 +6,7 @@
         <b-col cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
-          <h3>v.1.25 - 21 September 2023 Bug fixes, move to Vite</h3>
+          <h3>v.1.25 - 22 September 2023 Bug fixes, move to Vite</h3>
           <p>Bug fixes:</p>
           <ul>
             <li>App still active after sign-out: fixed</li>
@@ -15,6 +15,7 @@
           <p>New, faster, development environment Vite</p>
           <ul>
             <li>Move from Vue-CLI to Vite </li>
+            <li>Installation scripts updated </li>
           </ul>
           <h3>v.1.24 - 14 September 2023 Refactoring</h3>
           <p>Minor updates:</p>
