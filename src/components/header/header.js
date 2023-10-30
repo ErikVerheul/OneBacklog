@@ -193,8 +193,8 @@ const methods = {
 		this.$store.dispatch('changeMyPasswordAction', this.newPassword1)
 	},
 
-	onSignout() {
-		this.$store.commit('endSession', 'header - user signed out')
+	onSignout() {	
+		this.$store.commit('endSession', 'header: user signed out')
 	}
 }
 
