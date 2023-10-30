@@ -320,7 +320,7 @@ When starting the app the first time use the server admin credentials you create
 
 ### serve with hot reload for development at localhost:8080
 ``` bash
-npm run serve
+npm run dev
 ```
 
 ### lints and fixes files
@@ -333,11 +333,10 @@ npm run lint
 npm run build
 ```
 
-### build for production and view the bundle analyzer report
+### vite preview
 ``` bash
-npm run build --report
+npm run serve --report
 ```
 
 ## Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+See [Configuration Reference](https://vitejs.dev/config/).
