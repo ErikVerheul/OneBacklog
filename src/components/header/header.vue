@@ -2,7 +2,7 @@
   <div>
     <b-navbar toggleable="md" type="dark" variant="dark">
       <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-      <b-img class="logo" :src="require('../../assets/logo.png')" alt="OneBacklog logo" />
+      <b-img class="logo" :src="logo" center fluid alt="OneBacklog logo" />
       <b-navbar-brand to="../../rel-notes">{{ appVersion }}</b-navbar-brand>
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
@@ -24,7 +24,7 @@
 
           <b-nav-item-dropdown right>
             <!-- Using button-content slot -->
-            <template slot="button-content">
+            <template v-slot:button-content>
               <em>User</em>
             </template>
 

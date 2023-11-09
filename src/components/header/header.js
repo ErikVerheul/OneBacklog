@@ -1,5 +1,6 @@
 import Licence from './licence.vue'
 import { authorization, utilities } from '../mixins/generic.js'
+import logo from '../../assets/logo.png'
 
 const MINPASSWORDLENGTH = 8
 
@@ -11,6 +12,7 @@ function created() {
 function data() {
 	return {
 		appVersion: 'v.1.25',
+		logo: logo,
 		disableOkButton: false,
 		oldPassword: '',
 		newPassword1: '',

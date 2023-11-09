@@ -1,12 +1,11 @@
 import { SEV } from '../../../constants.js'
 import commonContext from '../common_context.js'
 import { utilities } from '../../mixins/generic.js'
-import { eventBus } from '../../../main.js'
 
-function created () {
-  eventBus.$on('context-menu', (node) => {
-    this.showContextMenu(node)
-  })
+function created() {
+	this.eventBus.on('context-menu', (node) => {
+		this.showContextMenu(node)
+	})
 }
 
 function data() {

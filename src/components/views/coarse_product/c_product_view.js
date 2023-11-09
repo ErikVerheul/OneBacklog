@@ -1,13 +1,13 @@
 import { SEV, LEVEL, MISC } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
-import { Multipane, MultipaneResizer } from 'vue-multipane'
-import { VueEditor } from 'vue2-editor'
+import Multipane from '../../multipane/Multipane-comp.vue'
+import MultipaneResizer from '../../multipane/Multipane-Resizer.vue'
+import VueEditor from '../../vue-editor/VueEditor.vue'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
 import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
-import { eventBus } from '../../../main.js'
 
 const thisView = 'coarseProduct'
 var returning = false
@@ -25,8 +25,8 @@ function beforeCreate() {
 }
 
 function created() {
-	// must reset the event listener to prevent duplicated
-	eventBus.$off('context-menu')
+	// must reset the event listener to prevent duplication
+	this.eventBus.off('context-menu')
 }
 
 /* Prevent accidental reloading of this page */

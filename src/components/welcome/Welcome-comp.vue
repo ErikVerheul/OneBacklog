@@ -2,7 +2,7 @@
   <div class="container">
     <div v-if="isScreenWidthSufficient()" class="row">
       <div class="col-lg-12 col-sm-12">
-        <b-img :src="require('../../assets/logo.png')" center fluid alt="OneBacklog logo" />
+        <b-img :src="logo" center fluid alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12 cta">
         <router-link to="/signin">Sign In</router-link>
@@ -18,7 +18,7 @@
     </div>
     <div v-else class="row">
       <div class="col-lg-12 col-sm-12">
-        <b-img hight="200" width="200" :src="require('../../assets/logo.png')" center fluid alt="OneBacklog logo" />
+        <b-img hight="200" width="200" :src="logo" center fluid alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12">
         <h3>Welcome to the OneBacklog single page web application</h3>
@@ -35,9 +35,11 @@
 </template>
 
 <script>
+import logo from '../../assets/logo.png'
 export default {
   data() {
     return {
+      logo: logo,
       screenWidth: window.screen.width
     }
   },

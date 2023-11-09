@@ -1,15 +1,15 @@
 import { SEV, LEVEL } from '../../../constants.js'
 import { getSprintById } from '../../../common_functions.js'
 import AppHeader from '../../header/header.vue'
-import { Multipane, MultipaneResizer } from 'vue-multipane'
-import { VueEditor } from 'vue2-editor'
+import Multipane from '../../multipane/Multipane-comp.vue'
+import MultipaneResizer from '../../multipane/Multipane-Resizer.vue'
+import VueEditor from '../../vue-editor/VueEditor.vue'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
 import DcontextMenu from './d_context.vue'
 import Filters from './d_filters.vue'
 import Listings from './d_listings.vue'
 import ToSprint from './d_tosprint.vue'
-import { eventBus } from '../../../main.js'
 
 const thisView = 'detailProduct'
 var returning = false
@@ -28,7 +28,7 @@ function beforeCreate() {
 
 function created() {
 	// must reset the event listener to prevent duplication
-	eventBus.$off('context-menu')
+	this.eventBus.off('context-menu')
 }
 
 /* Prevent accidental reloading of this page */
