@@ -17,7 +17,6 @@
     "bootstrap-vue": "^2.23.1",
     "popper.js": "^1.16.1",
     "vue": "^2.7.14",
-    "vue-multipane": "^0.9.5",
     "vue-router": "^3.6.5",
     "vue2-editor": "^2.10.3",
     "vuedraggable": "^2.24.3",

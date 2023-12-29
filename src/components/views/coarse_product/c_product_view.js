@@ -1,6 +1,7 @@
 import { SEV, LEVEL, MISC } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
-import { Multipane, MultipaneResizer } from 'vue-multipane'
+import Multipane from '../../multipane/Multipane-comp.vue'
+import MultipaneResizer from '../../multipane/Multipane-Resizer.vue'
 import { VueEditor } from 'vue2-editor'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
