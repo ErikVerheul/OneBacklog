@@ -40,7 +40,7 @@
 import { LEVEL } from '../../../constants.js'
 import { createId } from '../../../common_functions.js'
 import { authorization, utilities } from '../../mixins/generic.js'
-import Draggable from 'vuedraggable'
+// import {Draggable} from 'vue-draggable-next'
 import TaskItem from './TaskItem.vue'
 
 export default {
@@ -49,7 +49,7 @@ export default {
   props: ['productId', 'storyId', 'storyTitle', 'tasks', 'title', 'taskState', 'idx'],
   components: {
     taskitem: TaskItem,
-    draggable: Draggable
+    // draggable: Draggable
   },
 
   data () {
