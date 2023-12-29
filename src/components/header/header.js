@@ -10,7 +10,7 @@ function created() {
 
 function data() {
 	return {
-		appVersion: 'v.1.25',
+		appVersion: 'v.2.0.0',
 		disableOkButton: false,
 		oldPassword: '',
 		newPassword1: '',
