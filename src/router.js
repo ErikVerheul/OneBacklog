@@ -1,27 +1,19 @@
-import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
-import VueRouter from 'vue-router'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-
+import { createRouter, createWebHistory } from 'vue-router'
 import store from './store/store'
 
-import WelcomePage from './components/welcome/welcome.vue'
-import RelNotesPage from './components/rel-notes/rel-notes.vue'
-import UserGuidePage from './components/userguide/userguide.vue'
-import InitPage from './components/initdb/initdb.vue'
-import SigninPage from './components/auth/signin.vue'
+import WelcomePage from './components/welcome/Welcome-comp.vue'
+import RelNotesPage from './components/rel-notes/Rel-Notes.vue'
+import UserGuidePage from './components/userguide/UserGuide.vue'
+import InitPage from './components/initdb/InitDb.vue'
+import SigninPage from './components/auth/Signin.vue'
 import ProductPage from './components/views/detail_product/d_product_view.vue'
 import ReqsAreaPage from './components/views/coarse_product/c_product_view.vue'
 
 import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
 
-import AssistAdminPage from './components/admin/assistadmin.vue'
-import AdminPage from './components/admin/admin.vue'
-import ServerAdminPage from './components/serveradmin/serveradmin.vue'
-
-Vue.use(VueRouter)
-Vue.use(BootstrapVue)
+import AssistAdminPage from './components/admin/AssistAdminTool.vue'
+import AdminPage from './components/admin/AdminTool.vue'
+import ServerAdminPage from './components/serveradmin/ServerAdmin.vue'
 
 const routes = [
   {
@@ -118,12 +110,12 @@ const routes = [
     }
   },
   {
-    path: '*',
+		path: '/:pathMatch(.*)*',
     component: SigninPage
   }
 ]
 
-export default new VueRouter({
-  mode: 'history',
+export default createRouter({
+	history: createWebHistory(),
   routes
 })

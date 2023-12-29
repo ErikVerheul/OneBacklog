@@ -10,7 +10,6 @@ import DcontextMenu from './d_context.vue'
 import Filters from './d_filters.vue'
 import Listings from './d_listings.vue'
 import ToSprint from './d_tosprint.vue'
-import { eventBus } from '../../../main.js'
 
 const thisView = 'detailProduct'
 var returning = false
@@ -29,7 +28,7 @@ function beforeCreate() {
 
 function created() {
 	// must reset the event listener to prevent duplication
-	eventBus.$off('context-menu')
+	this.eventBus.off('context-menu')
 }
 
 /* Prevent accidental reloading of this page */

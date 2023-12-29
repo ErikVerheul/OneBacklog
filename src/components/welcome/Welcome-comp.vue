@@ -1,8 +1,8 @@
 <template>
-  <div class="container">
+  <CContainer>
     <div v-if="isScreenWidthSufficient()" class="row">
       <div class="col-lg-12 col-sm-12">
-        <b-img :src="require('../../assets/logo.png')" center fluid alt="OneBacklog logo" />
+        <CImage :src="logo" align="center" fluid alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12 cta">
         <router-link to="/signin">Sign In</router-link>
@@ -18,7 +18,7 @@
     </div>
     <div v-else class="row">
       <div class="col-lg-12 col-sm-12">
-        <b-img hight="200" width="200" :src="require('../../assets/logo.png')" center fluid alt="OneBacklog logo" />
+        <CImage hight="200" width="200" :src="logo" align="center" fluid alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12">
         <h3>Welcome to the OneBacklog single page web application</h3>
@@ -26,26 +26,25 @@
           large or small. Your role determines what you can do. Run this application on a desktop computer or tablet with
           a pointing device.</p>
         <h5 class="colorRed">You cannot sign-in on this device. The app detected that you are using a device with a screen
-          width of {{ screenWidth }} which is less than the required 1400 pixels. Please note that this app is intended for use on a device with full HD resolution
+          width of {{ screenWidth }} which is less than the required 1400 pixels. Please note that this app is intended
+          for use on a device with full HD resolution
           or higher. You will need a pointing device, like a mouse, to accurately manipulate the items in the tree view of
           your products.</h5>
       </div>
     </div>
-  </div>
+  </CContainer>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      screenWidth: window.screen.width
-    }
-  },
-  methods: {
-    isScreenWidthSufficient() {
-      return this.screenWidth >= 1400
-    }
-  }
+<script setup>
+import { reactive } from 'vue'
+import logo from '../../assets/logo.png'
+const state = reactive({
+  logo: logo,
+  screenWidth: window.screen.width
+})
+
+function isScreenWidthSufficient() {
+  return state.screenWidth >= 1400
 }
 </script>
 

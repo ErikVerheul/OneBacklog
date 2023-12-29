@@ -8,7 +8,6 @@ import commonView from '../common_view.js'
 import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
-import { eventBus } from '../../../main.js'
 
 const thisView = 'coarseProduct'
 var returning = false
@@ -27,7 +26,7 @@ function beforeCreate() {
 
 function created() {
 	// must reset the event listener to prevent duplicated
-	eventBus.$off('context-menu')
+	this.eventBus.off('context-menu')
 }
 
 /* Prevent accidental reloading of this page */
