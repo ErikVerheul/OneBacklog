@@ -1,13 +1,13 @@
 <template>
-  <b-container fluid>
-    <b-row no-gutters>
-      <b-col>
+  <BContainer fluid>
+    <BRow no-gutters>
+      <BCol>
         <story-column
 					:story="$store.state.planningboard.stories[idx]"
 					:productId="$store.state.planningboard.stories[idx].productId"
 				></story-column>
-      </b-col>
-      <b-col v-if="$store.state.userData.myOptions.showOnHold === 'do_show_on_hold'">
+      </BCol>
+      <BCol v-if="$store.state.userData.myOptions.showOnHold === 'do_show_on_hold'">
         <task-column
           :taskState="STATE.ON_HOLD"
           title="[On hold]"
@@ -17,8 +17,8 @@
           :storyId="$store.state.planningboard.stories[idx].storyId"
           :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
-      </b-col>
-      <b-col>
+      </BCol>
+      <BCol>
         <task-column
           :taskState="STATE.TODO"
           title="Todo"
@@ -28,8 +28,8 @@
           :storyId="$store.state.planningboard.stories[idx].storyId"
           :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
-      </b-col>
-      <b-col>
+      </BCol>
+      <BCol>
         <task-column
           :taskState="STATE.INPROGRESS"
           title="In progress"
@@ -39,8 +39,8 @@
           :storyId="$store.state.planningboard.stories[idx].storyId"
           :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
-      </b-col>
-      <b-col>
+      </BCol>
+      <BCol>
         <task-column
           :taskState="STATE.TESTREVIEW"
           title="Test / review"
@@ -50,8 +50,8 @@
           :storyId="$store.state.planningboard.stories[idx].storyId"
           :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
-      </b-col>
-      <b-col>
+      </BCol>
+      <BCol>
         <task-column
           :taskState="STATE.DONE"
           title="Done"
@@ -61,9 +61,9 @@
           :storyId="$store.state.planningboard.stories[idx].storyId"
           :storyTitle="$store.state.planningboard.stories[idx].title"
         ></task-column>
-      </b-col>
-    </b-row>
-  </b-container>
+      </BCol>
+    </BRow>
+  </BContainer>
 </template>
 
 <script>

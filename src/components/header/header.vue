@@ -1,89 +1,89 @@
 <template>
   <div>
-    <b-navbar toggleable="md" type="dark" variant="dark">
-      <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-      <b-img class="logo" :src="logo" alt="OneBacklog logo" />
-      <b-navbar-brand to="../../rel-notes">{{ appVersion }}</b-navbar-brand>
-      <b-collapse is-nav id="nav_collapse">
-        <b-navbar-nav>
-          <b-nav-item to="../../userguide">User guide</b-nav-item>
-        </b-navbar-nav>
+    <BNavbar toggleable="md" type="dark" variant="dark">
+      <BNavbar-toggle target="nav_collapse"></BNavbar-toggle>
+      <BImg class="logo" :src="logo" alt="OneBacklog logo" />
+      <BNavbar-brand to="../../rel-notes">{{ appVersion }}</BNavbar-brand>
+      <BCollapse is-nav id="nav_collapse">
+        <BNavbarNav>
+          <BNavItem to="../../userguide">User guide</BNavItem>
+        </BNavbarNav>
         <!-- app-header additions go in this slot -->
         <slot></slot>
-        <b-navbar-nav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
-          <b-nav-item-dropdown text="Select your view" right>
-            <b-dropdown-item to="../../detailProduct">Product details</b-dropdown-item>
-            <b-dropdown-item v-if="$store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products
-              overview</b-dropdown-item>
-            <b-dropdown-item to="../../board">Planning board</b-dropdown-item>
-            <b-dropdown-divider v-if="isAssistAdmin || isAdmin || isServerAdmin"></b-dropdown-divider>
-            <b-dropdown-item v-if="isAssistAdmin" to="../../assistadmin">AssistAdmin</b-dropdown-item>
-            <b-dropdown-item v-if="isAdmin" to="../../admin">Admin</b-dropdown-item>
-            <b-dropdown-item v-if="isServerAdmin" to="../../serveradmin">Server admin</b-dropdown-item>
-          </b-nav-item-dropdown>
+        <BNavbarNav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
+          <BNavItemDropdown text="Select your view" right>
+            <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
+            <BDropdownItem v-if="$store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products
+              overview</BDropdownItem>
+            <BDropdownItem to="../../board">Planning board</BDropdownItem>
+            <BDropdownDivider v-if="isAssistAdmin || isAdmin || isServerAdmin"></BDropdownDivider>
+            <BDropdownItem v-if="isAssistAdmin" to="../../assistadmin">AssistAdmin</BDropdownItem>
+            <BDropdownItem v-if="isAdmin" to="../../admin">Admin</BDropdownItem>
+            <BDropdownItem v-if="isServerAdmin" to="../../serveradmin">Server admin</BDropdownItem>
+          </BNavItemDropdown>
 
-          <b-nav-item-dropdown right>
+          <BNavItemDropdown right>
             <!-- Using button-content slot -->
             <template slot="button-content">
               <em>User</em>
             </template>
 
             <template v-if="isAuthenticated">
-              <b-dropdown-item
+              <BDropdownItem
                 v-if="$store.state.userData.myOptions.proUser === 'true' && $store.state.myAssignedDatabases.length > 1"
                 @click="changeDatabase">Change database
-              </b-dropdown-item>
-              <b-dropdown-item @click="showMyTeam">My team</b-dropdown-item>
-              <b-dropdown-item @click="changeTeam">Change team</b-dropdown-item>             
-              <b-dropdown-item v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select
-                products</b-dropdown-item>
-              <b-dropdown-item @click="changeMyPassword">Change password</b-dropdown-item>
-              <b-dropdown-item @click="showMyRoles">My authorizations</b-dropdown-item>
+              </BDropdownItem>
+              <BDropdownItem @click="showMyTeam">My team</BDropdownItem>
+              <BDropdownItem @click="changeTeam">Change team</BDropdownItem>             
+              <BDropdownItem v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select
+                products</BDropdownItem>
+              <BDropdownItem @click="changeMyPassword">Change password</BDropdownItem>
+              <BDropdownItem @click="showMyRoles">My authorizations</BDropdownItem>
             </template>
-            <b-dropdown-item v-else>No options here when not authenticated</b-dropdown-item>
+            <BDropdownItem v-else>No options here when not authenticated</BDropdownItem>
 
-            <b-dropdown-item v-b-modal.licence-modal>Licence information</b-dropdown-item>
-            <b-dropdown-item @click="onSignout">Sign Out</b-dropdown-item>
-          </b-nav-item-dropdown>
+            <BDropdownItem v-BModal.licence-modal>Licence information</BDropdownItem>
+            <BDropdownItem @click="onSignout">Sign Out</BDropdownItem>
+          </BNavItemDropdown>
 
-          <b-nav-item @click="showOptions">
+          <BNavItem @click="showOptions">
             <span class="cog-item">
               <i>
                 <font-awesome-icon icon="cog" />
               </i>
             </span>
-          </b-nav-item>
+          </BNavItem>
 
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
+        </BNavbarNav>
+      </BCollapse>
+    </BNavbar>
     <appLicence>
       <slot name="licence"></slot>
     </appLicence>
 
-    <b-modal size="lg" ref="changeDatabaseRef" @ok="doChangeDatabase" title="Change your database">
-      <b-container align-v="true">
+    <BModal size="lg" ref="changeDatabaseRef" @ok="doChangeDatabase" title="Change your database">
+      <BContainer align-v="true">
         <h5>Select another database. Your current database is '{{ $store.state.userData.currentDb }}'</h5>
-        <b-form-group>
-          <b-form-radio-group v-model="headerMyDatabase" :options="headerDatabaseOptions"
-            name="headerDatabaseOptions"></b-form-radio-group>
-        </b-form-group>
+        <BFormGroup>
+          <BFormRadioGroup v-model="headerMyDatabase" :options="headerDatabaseOptions"
+            name="headerDatabaseOptions"></BFormRadioGroup>
+        </BFormGroup>
         <p>After you have changed the database you will be signed-out. Sign-in again to connect to the selected database
         </p>
-      </b-container>
-    </b-modal>
+      </BContainer>
+    </BModal>
 
-    <b-modal size="lg" ref="changeTeamRef" @ok="doChangeTeam" title="Change your team">
-      <b-container align-v="true">
+    <BModal size="lg" ref="changeTeamRef" @ok="doChangeTeam" title="Change your team">
+      <BContainer align-v="true">
         <h5>Select your new team. Your current team is '{{ myTeam }}'</h5>
-        <b-form-group>
-          <b-form-radio-group v-model="selectedTeam" :options="teamOptions" name="teamOptions"></b-form-radio-group>
-        </b-form-group>
-      </b-container>
-    </b-modal>
+        <BFormGroup>
+          <BFormRadioGroup v-model="selectedTeam" :options="teamOptions" name="teamOptions"></BFormRadioGroup>
+        </BFormGroup>
+      </BContainer>
+    </BModal>
 
-    <b-modal size="lg" ref="showTeamRef" title="My team members (and an overview of all teams)">
-      <b-container align-v="true">
+    <BModal size="lg" ref="showTeamRef" title="My team members (and an overview of all teams)">
+      <BContainer align-v="true">
         <p v-if="!$store.state.areTeamsFound"> No teams found</p>
         <div v-else>
           <h5>The members of my team '{{ myTeam }}'</h5>
@@ -105,27 +105,27 @@
             </div>
           </div>
         </div>
-      </b-container>
-    </b-modal>
+      </BContainer>
+    </BModal>
 
-    <b-modal size="lg" ref="selectProductsRef" @ok="doSelectProducts"
+    <BModal size="lg" ref="selectProductsRef" @ok="doSelectProducts"
       title="Select one or more (hold shift or Ctrl) products to be loaded">
-      <b-container align-v="true">
-        <b-form-select size="sm" v-model="selectedProducts" :options="$store.state.myProductOptions" multiple
-          :select-size="$store.state.myProductOptions.length"></b-form-select>
-      </b-container>
-    </b-modal>
+      <BContainer align-v="true">
+        <BFormSelect size="sm" v-model="selectedProducts" :options="$store.state.myProductOptions" multiple
+          :select-size="$store.state.myProductOptions.length"></BFormSelect>
+      </BContainer>
+    </BModal>
 
-    <b-modal size="lg" ref="selectDefaultProductRef" @ok="updateProductsSubscriptions"
+    <BModal size="lg" ref="selectDefaultProductRef" @ok="updateProductsSubscriptions"
       title="Select the default product you are working on">
-      <b-container align-v="true">
-        <b-form-select v-model="newDefaultProductId" :options="defaultProductOptions"
-          :select-size="defaultProductOptions.length"></b-form-select>
-      </b-container>
-    </b-modal>
+      <BContainer align-v="true">
+        <BFormSelect v-model="newDefaultProductId" :options="defaultProductOptions"
+          :select-size="defaultProductOptions.length"></BFormSelect>
+      </BContainer>
+    </BModal>
 
-    <b-modal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password">
-      <b-container align-v="true">
+    <BModal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password">
+      <BContainer align-v="true">
         <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'">
           <h2>Demo users cannot change the password</h2>
         </template>
@@ -133,29 +133,29 @@
           <h2>Demo users cannot change the password</h2>
         </template>
         <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user !== 'demoUser'">
-          <b-row class="my-1">
-            <b-card bg-variant="light">
-              <b-form-group label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg"
+          <BRow class="my-1">
+            <BCard bg-variant="light">
+              <BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg"
                 label-class="font-weight-bold pt-0" class="mb-0">
-                <b-form-group label-cols-sm="5" label="Current password:" label-align-sm="right" label-for="currentPW">
-                  <b-form-input v-model="oldPassword" id="currentPW" type="password"></b-form-input>
-                </b-form-group>
-                <b-form-group label-cols-sm="5" label="New password:" label-align-sm="right" label-for="newPW1">
-                  <b-form-input v-model="newPassword1" id="newPW1" type="password"></b-form-input>
-                </b-form-group>
-                <b-form-group label-cols-sm="5" label="Retype new password:" label-align-sm="right" label-for="newPW2">
-                  <b-form-input v-model="newPassword2" id="newPW2" type="password"></b-form-input>
-                </b-form-group>
-              </b-form-group>
-            </b-card>
+                <BFormGroup label-cols-sm="5" label="Current password:" label-align-sm="right" label-for="currentPW">
+                  <BFormInput v-model="oldPassword" id="currentPW" type="password"></BFormInput>
+                </BFormGroup>
+                <BFormGroup label-cols-sm="5" label="New password:" label-align-sm="right" label-for="newPW1">
+                  <BFormInput v-model="newPassword1" id="newPW1" type="password"></BFormInput>
+                </BFormGroup>
+                <BFormGroup label-cols-sm="5" label="Retype new password:" label-align-sm="right" label-for="newPW2">
+                  <BFormInput v-model="newPassword2" id="newPW2" type="password"></BFormInput>
+                </BFormGroup>
+              </BFormGroup>
+            </BCard>
             You will be forced to sign-in again
-          </b-row>
+          </BRow>
         </template>
-      </b-container>
-    </b-modal>
+      </BContainer>
+    </BModal>
 
-    <b-modal size="lg" ref="showMyRolesRef" title="My authorizations">
-      <b-container align-v="true">
+    <BModal size="lg" ref="showMyRolesRef" title="My authorizations">
+      <BContainer align-v="true">
         <h3>Generic roles :</h3>
         <p>By default the application uses two databases. The _users database owned by the admin role and a database
           holding the products. More databases can be created but the _users database is
@@ -198,31 +198,31 @@
           product.</h5>
         <p>Users can have multiple roles. Users can only see/access the products that are assigned to them by the admin.
         </p>
-      </b-container>
-    </b-modal>
+      </BContainer>
+    </BModal>
 
     <!-- when not initialized do not show the options -->
-    <b-modal size="lg" v-if="$store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
+    <BModal size="lg" v-if="$store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
       <h5>If you manage large complex products</h5>
-      <b-form-checkbox v-model="$store.state.userData.myOptions.proUser" value='true' unchecked-value='false'>
+      <BFormCheckbox v-model="$store.state.userData.myOptions.proUser" value='true' unchecked-value='false'>
         Use the professional mode of this app
-      </b-form-checkbox>
+      </BFormCheckbox>
 
       <h5 class="spacer">When changing the priority of backlog item(s)</h5>
-      <b-form-checkbox v-model="$store.state.userData.myOptions.levelShiftWarning" value="do_warn"
+      <BFormCheckbox v-model="$store.state.userData.myOptions.levelShiftWarning" value="do_warn"
         unchecked-value="do_not_warn">
         Warn me when I move items to another level (eg. from task to user story)
-      </b-form-checkbox>
+      </BFormCheckbox>
 
       <h5 class="spacer">For the Planning board</h5>
-      <b-form-checkbox v-model="$store.state.userData.myOptions.showOnHold" value="do_show_on_hold"
+      <BFormCheckbox v-model="$store.state.userData.myOptions.showOnHold" value="do_show_on_hold"
         unchecked-value="do_not_show_on_hold">
         Show the [On hold] status column on the planning board
-      </b-form-checkbox>
+      </BFormCheckbox>
 
-      <b-button class="m-4" @click="showOptionsModal = false" variant="dark">Cancel</b-button>
-      <b-button class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</b-button>
-    </b-modal>
+      <BButton class="m-4" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
+      <BButton class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
+    </BModal>
   </div>
 </template>
 

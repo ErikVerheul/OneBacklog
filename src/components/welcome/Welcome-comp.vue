@@ -1,8 +1,8 @@
 <template>
-  <CContainer>
+  <BContainer>
     <div v-if="isScreenWidthSufficient()" class="row">
       <div class="col-lg-12 col-sm-12">
-        <CImage :src="logo" align="center" fluid alt="OneBacklog logo" />
+        <BImg :src="logo" center alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12 cta">
         <router-link to="/signin">Sign In</router-link>
@@ -18,7 +18,7 @@
     </div>
     <div v-else class="row">
       <div class="col-lg-12 col-sm-12">
-        <CImage hight="200" width="200" :src="logo" align="center" fluid alt="OneBacklog logo" />
+        <BImg hight="200" width="200" :src="logo" center alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12">
         <h3>Welcome to the OneBacklog single page web application</h3>
@@ -32,7 +32,7 @@
           your products.</h5>
       </div>
     </div>
-  </CContainer>
+  </BContainer>
 </template>
 
 <script setup>

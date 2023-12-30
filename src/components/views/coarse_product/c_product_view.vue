@@ -2,34 +2,35 @@
   <div>
     <app-header>
       <!-- Right aligned nav items -->
-      <b-navbar-nav class="ml-auto">
-        <b-nav-form>
-          <b-button class="m-1" id="tooltip-undo" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</b-button>
-          <b-tooltip target="tooltip-undo" triggers="hover">
+      <BNavbarNav class="ml-auto">
+        <BNavForm>
+          <BButton class="m-1" id="tooltip-undo" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
+          <!-- TODO: check if BTooltip component exixts -->
+          <BTooltip target="tooltip-undo" triggers="hover">
             {{ undoTitle }}
-          </b-tooltip>
-          <b-button class="m-1" v-show="!isRootSelected && !isReqAreaItemSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</b-button>
+          </BTooltip>
+          <BButton class="m-1" v-show="!isRootSelected && !isReqAreaItemSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</BButton>
           <div class="divider" />
-          <b-input-group v-show="$store.state.resetSearch.searchType !== 'searchInTitles'">
-            <b-form-input class="form-width" id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></b-form-input>
-            <b-input-group-append>
-              <b-button @click="resetFindId" variant="primary" type="reset">x</b-button>
-            </b-input-group-append>
-          </b-input-group>
+          <BInputGroup v-show="$store.state.resetSearch.searchType !== 'searchInTitles'">
+            <BFormInput class="form-width" id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></BFormInput>
+            <BInputGroup-append>
+              <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
+            </BInputGroup-append>
+          </BInputGroup>
           <div class="divider" />
-          <b-input-group v-show="!isRootSelected && !isReqAreaItemSelected && $store.state.resetSearch.searchType !== 'findItemOnId'">
-            <b-form-input id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></b-form-input>
-            <b-input-group-append>
-              <b-button @click="resetSearchTitles" variant="primary" type="reset">x</b-button>
-            </b-input-group-append>
-          </b-input-group>
-        </b-nav-form>
-      </b-navbar-nav>
+          <BInputGroup v-show="!isRootSelected && !isReqAreaItemSelected && $store.state.resetSearch.searchType !== 'findItemOnId'">
+            <BFormInput id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></BFormInput>
+            <BInputGroup-append>
+              <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
+            </BInputGroup-append>
+          </BInputGroup>
+        </BNavForm>
+      </BNavbarNav>
     </app-header>
     <div>
-      <b-container>
-        <b-row>
-          <b-col cols="4">
+      <BContainer>
+        <BRow>
+          <BCol cols="4">
             <h3 v-if="getCurrentItemLevel <= LEVEL.EPIC">
               {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
               <input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
@@ -42,34 +43,34 @@
               Person hours:
               <input type="text" size="3" maxlength="3" id="personHoursId" :value="$store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
             </h3>
-          </b-col>
-          <b-col cols="5">
+          </BCol>
+          <BCol cols="5">
             <h3 align="center">{{ $store.state.currentProductTitle }} [Overview]</h3>
-          </b-col>
-          <b-col cols="3">
+          </BCol>
+          <BCol cols="3">
             <h3 v-if="$store.state.currentDoc._id !== 'root' && $store.state.currentDoc._id !== 'requirement-areas' && $store.state.currentDoc.parentId !== 'requirement-areas'" align="right">
               State:
-              <b-dropdown right class="m-1 .btn.btn-secondary.dropdown-toggle">
+              <BDropdown right class="m-1 .btn.btn-secondary.dropdown-toggle">
                 <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
-                <b-dropdown-item @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</b-dropdown-item>
-                <b-dropdown-item @click="onStateChange(STATE.DONE)">{{ getItemStateText(STATE.DONE) }}</b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</b-dropdown-item>
-              </b-dropdown>
+                <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
+                <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
+                <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>
+                <BDropdownItem @click="onStateChange(STATE.DONE)">{{ getItemStateText(STATE.DONE) }}</BDropdownItem>
+                <BDropdownDivider></BDropdownDivider>
+                <BDropdownItem @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</BDropdownItem>
+              </BDropdown>
             </h3>
-          </b-col>
-        </b-row>
-      </b-container>
+          </BCol>
+        </BRow>
+      </BContainer>
     </div>
     <!-- vertical panes -->
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
         <div class="square" :style="{'background-color': squareColor}">{{ squareText }}</div>
-        <b-button block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" :style="{'background-color': getLastEventColor}">
-          {{ getLastEventTxt }} </b-button>
+        <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" :style="{'background-color': getLastEventColor}">
+          {{ getLastEventTxt }} </BButton>
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
@@ -95,13 +96,13 @@
                   <font-awesome-icon icon="ban" />
                 </i>
               </span>
-              <b-badge v-if="hasInconsistentState(node)" variant="danger">{{ getNodeStateText(node) + '?' }}</b-badge>
-              <b-badge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</b-badge>
-              <b-badge v-else-if="doShowState(node)" variant="light">{{ getNodeStateText(node) }}</b-badge>
-              <b-badge v-if="hasNodeMoved(node)" variant="info">Moved</b-badge>
-              <b-badge v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)" variant="info">See history</b-badge>
-              <b-badge v-if="hasNewComment(node)" variant="info">See comments</b-badge>
-              <b-badge v-if="isAttachmentAdded(node)" variant="info">See attachments</b-badge>
+              <BBadge v-if="hasInconsistentState(node)" variant="danger">{{ getNodeStateText(node) + '?' }}</BBadge>
+              <BBadge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</BBadge>
+              <BBadge v-else-if="doShowState(node)" variant="light">{{ getNodeStateText(node) }}</BBadge>
+              <BBadge v-if="hasNodeMoved(node)" variant="info">Moved</BBadge>
+              <BBadge v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)" variant="info">See history</BBadge>
+              <BBadge v-if="hasNewComment(node)" variant="info">See comments</BBadge>
+              <BBadge v-if="isAttachmentAdded(node)" variant="info">See attachments</BBadge>
             </template>
 
             <template slot="toggle" slot-scope="{ node }">
@@ -148,10 +149,10 @@
                 <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{'background-color': node.data.reqAreaItemColor}"></p>
               </template>
               <p v-else-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT">
-                <b-button v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
+                <BButton v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
                   :style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node)" squared size="sm">Change
-                </b-button>
-                <b-button v-else @click="setReqArea(node)" squared variant="seablueLight" size="sm">Set</b-button>
+                </BButton>
+                <BButton v-else @click="setReqArea(node)" squared variant="seablueLight" size="sm">Set</BButton>
               </p>
             </template>
           </sl-vue-tree>
@@ -164,10 +165,10 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <b-input class="d-table-cell" type="text" maxlength="60" id="titleField" :value="$store.state.currentDoc.title" @blur="updateTitle()"></b-input>
+              <BFormInput class="d-table-cell" type="text" maxlength="60" id="titleField" :value="$store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
               <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ $store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
-                <b-button variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</b-button>
+                <BButton variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</BButton>
               </div>
             </div>
           </div>
@@ -176,10 +177,10 @@
               <p v-if="!isReqAreaItem" class="title is-6">{{ getItemInfo() }}</p>
               <!-- do not use parenthesis with @change: see https://stackoverflow.com/questions/53106723/bootstrap-vue-select-sending-old-value -->
               <span v-else-if="!isReqAreaTopLevel">
-                <b-form-group>
+                <BFormGroup>
                   Select a display color for this requirement area:
-                  <b-form-radio-group v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" plain />
-                </b-form-group>
+                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" plain />
+                </BFormGroup>
               </span>
             </div>
           </div>
@@ -211,17 +212,17 @@
           <div class="pane" :style="{ height: '75px', top:'5px'}">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <b-button variant="primary" :pressed.sync="doAddition">Add {{ $store.state.selectedForView }}</b-button>
+                <BButton variant="primary" :pressed.sync="doAddition">Add {{ $store.state.selectedForView }}</BButton>
               </div>
               <div class="d-table-cell tac">
-                <b-form-group label="Select to see">
-                  <b-form-radio-group v-model="$store.state.selectedForView" :options="getViewOptions()" plain name="viewOptions" />
-                </b-form-group>
+                <BFormGroup label="Select to see">
+                  <BFormRadioGroup v-model="$store.state.selectedForView" :options="getViewOptions()" plain name="viewOptions" />
+                </BFormGroup>
               </div>
               <div class="d-table-cell tar">
-                <b-button v-if="$store.state.selectedForView === 'comments' && !isCommentsFilterActive || $store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
-                  :pressed.sync="startFiltering">Filter {{ $store.state.selectedForView }}</b-button>
-                <b-button v-else variant="primary" @click="stopFiltering">Clear {{ $store.state.selectedForView }} filter</b-button>
+                <BButton v-if="$store.state.selectedForView === 'comments' && !isCommentsFilterActive || $store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
+                  :pressed.sync="startFiltering">Filter {{ $store.state.selectedForView }}</BButton>
+                <BButton v-else variant="primary" @click="stopFiltering">Clear {{ $store.state.selectedForView }} filter</BButton>
               </div>
             </div>
           </div>
@@ -235,7 +236,7 @@
     <!-- Context modal -->
     <CcontextMenu></CcontextMenu>
 
-    <b-modal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant="warning" title="Move to another level?">
+    <BModal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant="warning" title="Move to another level?">
       <p v-if="movePreflightData.targetLevel < movePreflightData.sourceLevel">
         You are about to promote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
       </p>
@@ -244,57 +245,57 @@
       </p>
       <p>Press OK to continue</p>
       <p class="note">Note: Change your options settings to prevent this warning</p>
-    </b-modal>
+    </BModal>
 
     <!-- color select -->
-    <b-modal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color">
+    <BModal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color">
       <h4>Enter a color in hex format eg. #567cd6</h4>
-      <b-form-input v-model="userReqAreaItemcolor" :state="colorState"></b-form-input>
-    </b-modal>
+      <BFormInput v-model="userReqAreaItemcolor" :state="colorState"></BFormInput>
+    </BModal>
     <!-- set req area -->
-    <b-modal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
+    <BModal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
       <template v-slot:modal-title>
         {{ getLastSelectedNode.title }}
       </template>
-      <b-form-group label="Select the requirement area this item belongs to:">
-        <b-form-radio-group v-model="selReqAreaId" :options="this.$store.state.reqAreaOptions" value-field="id" text-field="title" stacked></b-form-radio-group>
-      </b-form-group>
-    </b-modal>
+      <BFormGroup label="Select the requirement area this item belongs to:">
+        <BFormRadioGroup v-model="selReqAreaId" :options="this.$store.state.reqAreaOptions" value-field="id" text-field="title" stacked></BFormRadioGroup>
+      </BFormGroup>
+    </BModal>
     <!-- filter modals -->
     <filters></filters>
-    <b-modal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
-      <b-form-group>
+    <BModal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
+      <BFormGroup>
         <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
-      </b-form-group>
-    </b-modal>
+      </BFormGroup>
+    </BModal>
 
-    <b-modal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event">
-      <b-form-group>
+    <BModal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event">
+      <BFormGroup>
         <vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
-      </b-form-group>
-    </b-modal>
+      </BFormGroup>
+    </BModal>
 
-    <b-modal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments">
-      <b-form-input v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></b-form-input>
-    </b-modal>
+    <BModal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments">
+      <BFormInput v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></BFormInput>
+    </BModal>
 
-    <b-modal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
-      <b-form-file v-model="fileInfo" :state="Boolean(fileInfo)" placeholder="Choose a file..."></b-form-file>
+    <BModal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
+      <BFormFile v-model="fileInfo" :state="Boolean(fileInfo)" placeholder="Choose a file..."></BFormFile>
       <div v-if="fileInfo !== null" class="mt-3">File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
       <div v-if="uploadToLarge" class="mt-3 colorRed">Cannot upload files this size</div>
-    </b-modal>
+    </BModal>
 
-    <b-modal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
-      <b-form-input v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></b-form-input>
-    </b-modal>
+    <BModal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
+      <BFormInput v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></BFormInput>
+    </BModal>
 
-    <b-modal size="lg" ref="historyEventRef" title="Event history" ok-only>
+    <BModal size="lg" ref="historyEventRef" title="Event history" ok-only>
       <div v-if="$store.state.eventList.length > 0">
         <div v-for="item in $store.state.eventList" :key="item.eventKey">
           <p class="event-list" :style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
         </div>
       </div>
-    </b-modal>
+    </BModal>
 
   </div>
 </template>

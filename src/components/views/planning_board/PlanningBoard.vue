@@ -2,66 +2,66 @@
   <div>
     <app-header>
       <!-- Right aligned nav items -->
-      <b-navbar-nav class="ml-auto">
-        <b-nav-text>Start: {{ getStartDateString }}</b-nav-text>
+      <BNavbarNav class="ml-auto">
+        <BNavText>Start: {{ getStartDateString }}</BNavText>
         <div class="divider" />
-      </b-navbar-nav>
+      </BNavbarNav>
 
-      <b-navbar-nav>
-        <b-nav-form>
-          <b-form-select v-model="selectedSprint" :options="sprintTitleOptions"></b-form-select>
-        </b-nav-form>
-      </b-navbar-nav>
+      <BNavbarNav>
+        <BNavForm>
+          <BFormSelect v-model="selectedSprint" :options="sprintTitleOptions"></BFormSelect>
+        </BNavForm>
+      </BNavbarNav>
 
-      <b-navbar-nav>
+      <BNavbarNav>
         <div class="divider" />
-        <b-nav-text>End: {{ getEndDateString }}</b-nav-text>
-      </b-navbar-nav>
+        <BNavText>End: {{ getEndDateString }}</BNavText>
+      </BNavbarNav>
     </app-header>
-    <b-container fluid>
-      <b-row v-if="!showWarning" class="title-bar">
-        <b-col cols="5">
+    <BContainer fluid>
+      <BRow v-if="!showWarning" class="title-bar">
+        <BCol cols="5">
           <h5>Welcome {{ userData.user}} from team '{{ userData.myTeam }}'</h5>
-        </b-col>
-        <b-col cols="4">
+        </BCol>
+        <BCol cols="4">
           <h5 v-if="getPersonHours > 0">{{ getStoryPoints }} story points and {{ getPersonHours }} hours for spikes in this sprint</h5>
           <h5 v-else>{{ getStoryPoints }} story points in this sprint</h5>
-        </b-col>
-        <b-col cols="2">
+        </BCol>
+        <BCol cols="2">
           <h5>points done: {{ getStoryPointsDone }}</h5>
-        </b-col>
-        <b-col cols="1">
+        </BCol>
+        <BCol cols="1">
           <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
-        </b-col>
-      </b-row>
-      <b-row v-else class="warning-bar">
-        <b-col cols="11">
+        </BCol>
+      </BRow>
+      <BRow v-else class="warning-bar">
+        <BCol cols="11">
           <h5>{{ $store.state.warningText }}</h5>
-        </b-col>
-        <b-col cols="1">
-          <b-button @click="clearWarning()" size="sm">Dismiss</b-button>
-        </b-col>
-      </b-row>
+        </BCol>
+        <BCol cols="1">
+          <BButton @click="clearWarning()" size="sm">Dismiss</BButton>
+        </BCol>
+      </BRow>
       <div v-for="story in $store.state.planningboard.stories" :key="story.idx">
-        <b-row>
-          <b-col cols="12">
+        <BRow>
+          <BCol cols="12">
             <story-lane :idx="story.idx"></story-lane>
-          </b-col>
-        </b-row>
+          </BCol>
+        </BRow>
       </div>
-    </b-container>
-    <b-modal v-if="currentSprintLoaded && askForImport() && unfinishedWork" @ok="procSelected" v-model="currentSprintLoaded" title="Import unfinished tasks from previous sprints?">
-      <b-list-group>
-        <b-list-group-item button :active="contextOptionSelected === MOVE_TASKS" variant="dark" @click="prepSelected(MOVE_TASKS)">Yes, please</b-list-group-item>
-        <b-list-group-item button :active="contextOptionSelected === NO_NOT_YET" variant="dark" @click="prepSelected(NO_NOT_YET)">No, not yet</b-list-group-item>
-        <b-list-group-item button :active="contextOptionSelected === NO_STOP_ASKING" variant="danger" @click="prepSelected(NO_STOP_ASKING)">No, and do not ask again</b-list-group-item>
-      </b-list-group>
+    </BContainer>
+    <BModal v-if="currentSprintLoaded && askForImport() && unfinishedWork" @ok="procSelected" v-model="currentSprintLoaded" title="Import unfinished tasks from previous sprints?">
+      <BListGroup>
+        <BListGroupItem button :active="contextOptionSelected === MOVE_TASKS" variant="dark" @click="prepSelected(MOVE_TASKS)">Yes, please</BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === NO_NOT_YET" variant="dark" @click="prepSelected(NO_NOT_YET)">No, not yet</BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === NO_STOP_ASKING" variant="danger" @click="prepSelected(NO_STOP_ASKING)">No, and do not ask again</BListGroupItem>
+      </BListGroup>
       <p class="message">{{ showInfo() }}</p>
       <div class="d-block text-center">
-        <b-button v-if="contextOptionSelected !== undefined" v-show="!showAssistance" size="sm" variant="outline-primary" @click="showAssistance='true'">Need assistance?</b-button>
+        <BButton v-if="contextOptionSelected !== undefined" v-show="!showAssistance" size="sm" variant="outline-primary" @click="showAssistance='true'">Need assistance?</BButton>
         <div v-if="showAssistance" class="d-block text-left border" v-html="assistanceText"></div>
       </div>
-    </b-modal>
+    </BModal>
   </div>
 </template>
 

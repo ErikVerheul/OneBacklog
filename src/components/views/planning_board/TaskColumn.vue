@@ -3,14 +3,14 @@
     <h3 v-if="idx === 0">{{ title }}</h3>
     <hr />
     <template v-if="idx >= 0 && draggables.length === 0">
-      <b-button
+      <BButton
         @click="showModal = !showModal"
         block
         squared
         variant="outline-secondary"
-      >Click to create a task here</b-button>
+      >Click to create a task here</BButton>
     </template>
-    <div class="b-card-body">
+    <div class="BCardBody">
       <draggable v-model="draggables" :group="idx.toString()">
         <div v-for="item in tasks" :key="item.id">
           <taskitem
@@ -24,15 +24,15 @@
         </div>
       </draggable>
     </div>
-    <b-modal
+    <BModal
       v-model="showModal"
       :ok-disabled="taskTitle.length === 0"
       @ok="procSelected"
       @cancel="doCancel"
       title="Enter task title"
     >
-      <b-form-input v-model="taskTitle"></b-form-input>
-    </b-modal>
+      <BFormInput v-model="taskTitle"></BFormInput>
+    </BModal>
   </div>
 </template>
 
@@ -92,7 +92,7 @@ export default {
 .b-cards-margin {
   margin-left: 5px;
 }
-.b-card-body > * {
+.BCardBody > * {
   min-height: 50px;
 }
 .b-card:last-child {

@@ -1,7 +1,7 @@
 <template >
   <div>
     <app-header />
-    <b-container fluid>
+    <BContainer fluid>
       <h1>INITIALIZATION</h1>
       <p>Initialize the database and setup your profile. Your user name is: {{ $store.state.userData.user }}</p>
       <h4>Enter a name for the database following these rules:</h4>
@@ -11,33 +11,33 @@
         <li>Digits (0-9)</li>
         <li>Any of the characters _, $, (, ), +, -, and /</li>
       </ul>
-      <b-form-group :invalid-feedback="invalidEmail" :state="state">
-        <b-row>
-          <b-col sm="2">
+      <BFormGroup :invalid-feedback="invalidEmail" :state="state">
+        <BRow>
+          <BCol sm="2">
             <label>The database name:</label>
-          </b-col>
-          <b-col sm="10">
-            <b-form-input v-model="dbName"></b-form-input>
-          </b-col>
-          <b-col sm="12">
+          </BCol>
+          <BCol sm="10">
+            <BFormInput v-model="dbName"></BFormInput>
+          </BCol>
+          <BCol sm="12">
             <h4>To create your profile the application needs your e-mail address</h4>
-          </b-col>
-          <b-col sm="2">
+          </BCol>
+          <BCol sm="2">
             <label>Your e-mail address:</label>
-          </b-col>
-          <b-col sm="10">
-            <b-form-input v-model="email" type="email"></b-form-input>
-          </b-col>
-        </b-row>
-      </b-form-group>
+          </BCol>
+          <BCol sm="10">
+            <BFormInput v-model="email" type="email"></BFormInput>
+          </BCol>
+        </BRow>
+      </BFormGroup>
       <div v-if="!$store.state.isDatabaseInitiated">
-          <b-button v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</b-button>
-          <b-button class="m-1" @click="signOut" variant="outline-primary">Cancel</b-button>
+          <BButton v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</BButton>
+          <BButton class="m-1" @click="signOut" variant="outline-primary">Cancel</BButton>
       </div>
       <div v-else>
         <h5>Success! Apart from being a CouchDb 'server admin' you have the 'admin' role.</h5>
         <h5>Exit and sign-in again. The 'Admin' view will open. Create a default sprint calendar and create the first users and set their roles. Assign one or more admins to take over your admin task.</h5>
-        <b-button class="m-1" @click="signOut" variant="outline-primary">Exit</b-button>
+        <BButton class="m-1" @click="signOut" variant="outline-primary">Exit</BButton>
       </div>
       <div v-if="$store.state.backendMessages.length > 0">
         <hr>
@@ -51,7 +51,7 @@
           <p>{{ item.msg }}</p>
         </div>
       </div>
-    </b-container>
+    </BContainer>
   </div>
 </template>
 

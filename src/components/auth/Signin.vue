@@ -1,8 +1,8 @@
 <template>
-  <div class="container">
+  <BContainer>
     <div class="row">
       <div class="col-lg-12 col-sm-12">
-        <CImage :src="logo" align="center" fluid alt="OneBacklog logo" />
+        <BImg :src="logo" center alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12" id="signin">
         <div class="signin-form">
@@ -16,10 +16,10 @@
           </div>
           <div class="submit">
             <template v-if="credentialsEntered">
-              <CButton @click="onSubmit">Submit</CButton>
+              <BButton @click="onSubmit">Submit</BButton>
             </template>
             <template v-else>
-              <CButton disabled>Submit</CButton>
+              <BButton disabled>Submit</BButton>
             </template>          
           </div>
         </div>
@@ -50,7 +50,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </BContainer>
 </template>
 
 <script setup>

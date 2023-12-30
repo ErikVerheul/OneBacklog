@@ -1,9 +1,9 @@
 <template >
 	<div>
 	<app-header />
-	<b-container>
-		<b-row>
-			<b-col cols="12" class="left-column">
+	<BContainer>
+		<BRow>
+			<BCol cols="12" class="left-column">
 				<h1>USER GUIDE</h1>
 				<p v-if=this.$store.state.demo>Note: This is a demo version of the application.</p>
 				<p>When you, as CouchDB super admin, have installed CouchDB and the web application you have to <a href="#start_using">initialize the first database</a>.</p>
@@ -48,7 +48,7 @@
 				<div id="pv">
 					<h4>Product details view</h4>
 					<p>The Product details view is the heart of the application. Here are the product backlog items created, maintained during their life cycle and prioritized by the product owner.</p>
-					<b-img :src="getImgUrl('img/example-screen.png')" alt="Product details example screen" />
+					<BImg :src="getImgUrl('img/example-screen.png')" alt="Product details example screen" />
 					<p>The large black area below the event bar shows all the products assigned and selected by the current user with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This is your main tool. What you can do depends on your assigned roles.</p>
 					<p>You can have multiple products. Each of them consists of:
 						<ul>
@@ -75,9 +75,9 @@
 					</ul>
 					Users can have multiple roles. Users can only access the products that are assigned to them by the 'admin'.
 					<p>To open the context menu <b>left click</b> on a node to select, then <b>right click</b> to open the context modal. You will see a modal like this:</p>
-					<b-img :src="getImgUrl('img/starter context menu.png')" alt="Example context menu" />
+					<BImg :src="getImgUrl('img/starter context menu.png')" alt="Example context menu" />
 					<p class="pro-user">Professional users have more options</p>
-					<b-img :src="getImgUrl('img/professional context menu.png')" alt="Example context menu" />
+					<BImg :src="getImgUrl('img/professional context menu.png')" alt="Example context menu" />
 					<p>Select the action to execute and press OK.</p>
 					<p>One of the options is to clone a branch or product. This feature is used when you have templates for reuse. Using a clone of a template can speed up the creation of simular products. Note that attachments, dependencies, conditions, sprint assignments and history are not copied. However the comments are.</p>
 					<p>Click the <b>need assistance?</b> button for some valuable tips. Click on cancel or the small X when uncertain. You can make a shallow copy of any backlog item which will appear above the selected item. When you selected a product item you can make a full clone with a copy of all descendants. See the 'Need assistance?' text.</p>
@@ -98,7 +98,7 @@
 					<h4>Filter comments</h4>
 					<p>Enter a key word and you will only see comments including this key word.</p>
 					<h4>The Comments, Attachments, History radio buttons</h4>
-					<b-img :src="getImgUrl('img/attachments.png')" alt="Example attachment menu" />
+					<BImg :src="getImgUrl('img/attachments.png')" alt="Example attachment menu" />
 					<p>When adding multiple versions of an attachment with the same name the file name will be extended with _1, _2 etc. Click on an attachment button to let your browser display the attachment in a new tab.</p>
 					<p>When you select Attachments or History you can do the same as with Comments. So, it is possible to add comments to the history log also.</p>
 					<p>Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have different units:</p>
@@ -134,13 +134,13 @@
 						When after dragging items in tree one or more dependencies are violated you receive an error message.
 					</p>
 					<p>Badges:</p>
-					<b-img :src="getImgUrl('img/badges.png')" alt="Example badges" />
+					<BImg :src="getImgUrl('img/badges.png')" alt="Example badges" />
 					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the last hour. These badges are informing you of changes made by you and other users working simultaneously on the product. If the state of an item has changed the color turns sea blue. When the title, description or acceptance criteria have changed the 'See history' badge appears. When new comments or attachments are added these badges are displayed. When a badge is older than one hour it disappears when the tree is re-rendered (just click on another node). The state badge stays but looses its blue color.</p>
 				</div>
 				<div id="rv">
 					<h4 class="pro-user">Products overview</h4>
 					<p class="pro-user">The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can create and asign requirement areas to items. The PO can drag&#38;drop items between his products and set dependencies between items in different products (not recommanded).</p>
-					<b-img :src="getImgUrl('img/products-overview.png')" alt="Example roducts overview" />
+					<BImg :src="getImgUrl('img/products-overview.png')" alt="Example roducts overview" />
 					<p class="pro-user">This view shows all products in the database up to the feature level. The requirement area are color coded choosen by the APO.</p>
 				</div>
 				<div id="tv-features">
@@ -149,7 +149,7 @@
 						<h5>The Undo button</h5>
 						<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these changes can be undone in reverse order. When you sign out your changes are final.</p>
 						<h5>Filter in tree view</h5>
-						<b-img :src="getImgUrl('img/filters.png')" alt="Example filters modal" />
+						<BImg :src="getImgUrl('img/filters.png')" alt="Example filters modal" />
 						<p class="pro-user">Only professional users can filter on requirement areas.</p>
 						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press the 'Clear filter' button.</p>
 						<p>You can filter on a combination of properties like team, item state, recent changes etc. You can use this filter as pre-selection before the Id selection and search in titles, as outlined below.</p>
@@ -176,14 +176,14 @@
 				<div id="pb">
 					<h4>Sprint planning board</h4>
 					<div class="indent20">
-						<b-img :src="getImgUrl('img/planning-board.png')" alt="Example planning board" />
+						<BImg :src="getImgUrl('img/planning-board.png')" alt="Example planning board" />
 						<p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
 						<p>When you right click on a task the context menu is opened:</p>
-						<b-img :src="getImgUrl('img/task-context.png')" alt="Example context menu" />
+						<BImg :src="getImgUrl('img/task-context.png')" alt="Example context menu" />
 						<p>Note: Removing a task does not delete the task. In the Product details view you can change the state back to &apos;In progress&apos; or any other state.</p>
 						<p>Left click on a &apos;Click to create a task here&apos; button to create a task in a column without task.</p>
 						<h5>Unfinished tasks</h5>
-						<b-img :src="getImgUrl('img/unfinished-tasks.png')" alt="Example unfinished tasks" />
+						<BImg :src="getImgUrl('img/unfinished-tasks.png')" alt="Example unfinished tasks" />
 						<p>If your team has any tasks not DONE in a previous sprint this modal will pop up when a PO or developer opens the planning board. Select &apos;No, do not ask again&apos; to stop showing this message during this sprint. In the next sprint it will show up again.</p>
 						<h5>Sprint ending, start of next sprint</h5>
 						<p>When the end date and time of a sprint is due, the next sprint starts automatically. When the current sprint is about to end use the Product details view to:</p>
@@ -200,12 +200,12 @@
 					<li>
 						<h5>Admin</h5>
 						<p>The admin creates and maintains user permissions here. Team names can be added and listed.</p>
-						<b-img :src="getImgUrl('img/admin-menu.png')" alt="The admin menu" />
+						<BImg :src="getImgUrl('img/admin-menu.png')" alt="The admin menu" />
 					</li>
 					<li>
 						<h5>Server admin</h5>
 						<p>During operation a server admin can use the Server admin view which offers a menu of common tasks.</p>
-						<b-img :src="getImgUrl('img/server-admin-menu.png')" alt="The server admin menu" />
+						<BImg :src="getImgUrl('img/server-admin-menu.png')" alt="The server admin menu" />
 					</li>
 				</ul>
 				</div>
@@ -238,9 +238,9 @@
 					In the Admin view create the first users and their roles. Assign one or more admins to take over that task.<br>
 					Note: Keep your 'admin' role as a backup.
 				</p>
-			</b-col>
-		</b-row>
-	</b-container>
+			</BCol>
+		</BRow>
+	</BContainer>
 	</div>
 </template>
 

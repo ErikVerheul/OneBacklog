@@ -14,8 +14,8 @@
           <template v-if="getNrOfTitles() > 1">
             {{ index + 1 }}/{{ getNrOfTitles() }}
           </template>
-          <b-button class="space3px" @click="showAttachment(attach)"> {{ attach.title }} </b-button>
-          <b-button class="space3px" variant="danger" @click="removeAttachment(attach)">X</b-button>
+          <BButton class="space3px" @click="showAttachment(attach)"> {{ attach.title }} </BButton>
+          <BButton class="space3px" variant="danger" @click="removeAttachment(attach)">X</BButton>
         </span>
       </div>
     </ul>

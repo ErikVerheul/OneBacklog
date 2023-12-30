@@ -1,5 +1,5 @@
 <template>
-  <b-modal
+  <BModal
     ref="d_contextMenuRef"
     :ok-disabled="disableOkButton"
     @ok="procSelected"
@@ -9,82 +9,82 @@
     <template v-if="contextOptionSelected === SHOWDEPENDENCIES || contextOptionSelected === SHOWCONDITIONS">
       <template v-if="contextOptionSelected === SHOWDEPENDENCIES">
         <p>Select the dependencies to remove:</p>
-				<b-form-checkbox-group
+				<BFormCheckboxGroup
 					v-model="selectedDependencyIds"
 					stacked
 					:options="dependenciesObjects"
 					value-field="_id"
 					text-field="title">
-				</b-form-checkbox-group>
+				</BFormCheckboxGroup>
       </template>
       <template v-if="contextOptionSelected === SHOWCONDITIONS">
         <p>Select the conditions to remove:</p>
-				<b-form-checkbox-group
+				<BFormCheckboxGroup
 					v-model="selectedConditionIds"
 					stacked
 					:options="conditionsObjects"
 					value-field="_id"
 					text-field="title">
-				</b-form-checkbox-group>
+				</BFormCheckboxGroup>
       </template>
     </template>
     <template v-else>
-      <b-list-group>
+      <BListGroup>
         <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
           <template v-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
-            <b-list-group-item
+            <BListGroupItem
               v-if="contextNodeLevel > PBILEVEL"
               button
               :active="contextOptionSelected === ASIGNTOMYTEAM"
               variant="dark"
               @click="showSelected(ASIGNTOMYTEAM)"
-            >Assign this {{ contextNodeType }} to my team</b-list-group-item>
-            <b-list-group-item v-else
+            >Assign this {{ contextNodeType }} to my team</BListGroupItem>
+            <BListGroupItem v-else
               button
               :active="contextOptionSelected === ASIGNTOMYTEAM"
               variant="dark"
               @click="showSelected(ASIGNTOMYTEAM)"
-            >Assign this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants to my team</b-list-group-item>
+            >Assign this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants to my team</BListGroupItem>
           </template>
           <template v-else>
 						<!-- cannot create a database or product here -->
-            <b-list-group-item
+            <BListGroupItem
               v-if="contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === INSERTBELOW"
               variant="dark"
               @click="showSelected(INSERTBELOW)"
-            >Insert a {{ contextNodeType }} below this {{ contextNodeType }}</b-list-group-item>
+            >Insert a {{ contextNodeType }} below this {{ contextNodeType }}</BListGroupItem>
 
 						<p class="colorSeaBlue" v-if="contextNodeLevel === DATABASELEVEL">Cannot create a product here. An admin can create a new product in the admin view.</p>
 						<template v-else>
 							<!-- cannot create item inside task -->
-							<b-list-group-item
+							<BListGroupItem
 								v-if="contextNodeLevel < TASKLEVEL"
 								button
 								:active="contextOptionSelected === INSERTINSIDE"
 								variant="dark"
 								@click="showSelected(INSERTINSIDE)"
-							>Insert a {{ contextChildType }} inside this {{ contextNodeType }}</b-list-group-item>
+							>Insert a {{ contextChildType }} inside this {{ contextNodeType }}</BListGroupItem>
 						</template>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="$store.state.userData.myOptions.proUser === 'true' && hasDependencies && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWDEPENDENCIES"
               variant="dark"
               @click="showSelected(SHOWDEPENDENCIES)"
-            >▲ Show/remove existing dependencies on this item</b-list-group-item>
+            >▲ Show/remove existing dependencies on this item</BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="$store.state.userData.myOptions.proUser === 'true' && hasConditions && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWCONDITIONS"
               variant="dark"
               @click="showSelected(SHOWCONDITIONS)"
-            >▼ Show/remove existing conditions for other items</b-list-group-item>
+            >▼ Show/remove existing conditions for other items</BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SETDEPENDENCY"
@@ -95,105 +95,105 @@
                 v-if="this.contextNodeSelected.dependencies.length === 0"
               >Select a node this item depends on</template>
               <template v-else>Select another node this item depends on</template>
-            </b-list-group-item>
+            </BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === MOVETOPRODUCT"
               variant="dark"
               @click="showSelected(MOVETOPRODUCT)"
-            >Move this {{ contextNodeType }} to another product</b-list-group-item>
+            >Move this {{ contextNodeType }} to another product</BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel === PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEPRODUCT"
               variant="dark"
               @click="showSelected(CLONEPRODUCT)"
-            >Make a clone of this {{ contextNodeType }}</b-list-group-item>
+            >Make a clone of this {{ contextNodeType }}</BListGroupItem>
 
-						<b-list-group-item
+						<BListGroupItem
               v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEBRANCH"
               variant="dark"
               @click="showSelected(CLONEBRANCH)"
-            >Make a clone of this {{ contextNodeType }}</b-list-group-item>
+            >Make a clone of this {{ contextNodeType }}</BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEITEM"
               variant="dark"
               @click="showSelected(CLONEITEM)"
-            >Make a copy of this {{ contextNodeType }}</b-list-group-item>
+            >Make a copy of this {{ contextNodeType }}</BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="canAssignPbiToSprint"
               button
               :active="contextOptionSelected === PBITOSPRINT"
               variant="dark"
               @click="showSelected(PBITOSPRINT)"
-            >Assing this {{ contextNodeType }} to a sprint</b-list-group-item>
+            >Assing this {{ contextNodeType }} to a sprint</BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="canAssignTaskToSprint"
               button
               :active="contextOptionSelected === TASKTOSPRINT"
               variant="dark"
               @click="showSelected(TASKTOSPRINT)"
-            >Assing this task to the sprint</b-list-group-item>
+            >Assing this task to the sprint</BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="isInSprint"
               button
               :active="contextOptionSelected === FROMSPRINT"
               variant="dark"
               @click="showSelected(FROMSPRINT)"
-            >Remove this {{ contextNodeType }} from the sprint</b-list-group-item>
+            >Remove this {{ contextNodeType }} from the sprint</BListGroupItem>
 
-            <b-list-group-item
+            <BListGroupItem
               v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL"
               button
               :active="contextOptionSelected === REMOVEITEM"
               variant="danger"
               @click="showSelected(REMOVEITEM)"
-            >Delete this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants</b-list-group-item>
+            >Delete this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants</BListGroupItem>
           </template>
         </template>
 
-        <b-list-group-item
+        <BListGroupItem
           v-if="$store.state.selectNodeOngoing"
           button
           :active="contextOptionSelected === SETDEPENDENCY"
           variant="dark"
           @click="showSelected(SETDEPENDENCY)"
-        >Select this node as a condition for '{{ dependentOnNode.title }}'</b-list-group-item>
+        >Select this node as a condition for '{{ dependentOnNode.title }}'</BListGroupItem>
 
-        <b-list-group-item
+        <BListGroupItem
           v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.currentProductId"
           button
           :active="contextOptionSelected === MOVETOPRODUCT"
           variant="dark"
           @click="showSelected(MOVETOPRODUCT)"
-        >Insert the {{ getLevelText(this.movedNode.level, this.movedNode.data.subtype) }} here</b-list-group-item>
-      </b-list-group>
+        >Insert the {{ getLevelText(this.movedNode.level, this.movedNode.data.subtype) }} here</BListGroupItem>
+      </BListGroup>
 
       <div class="d-block text-center">
         <div class="message">{{ listItemText }}</div>
-        <b-button
+        <BButton
           v-if="contextOptionSelected !== undefined"
           v-show="!showAssistance"
           size="sm"
           variant="outline-primary"
           @click="showAssistance='true'"
-        >Need assistance?</b-button>
+        >Need assistance?</BButton>
         <div v-if="showAssistance" class="d-block text-left border" v-html="assistanceText"></div>
         <div v-if="contextWarning" class="d-block warning">{{ contextWarning }}</div>
       </div>
     </template>
-  </b-modal>
+  </BModal>
 </template>
 
 <script src="./d_context.js"></script>

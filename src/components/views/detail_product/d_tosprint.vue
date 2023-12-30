@@ -1,11 +1,11 @@
 <template>
-  <b-modal size="xl" ref="assignToSprintRef" @ok="addItemToSprint" :title="contextNodeTitle">
+  <BModal size="xl" ref="assignToSprintRef" @ok="addItemToSprint" :title="contextNodeTitle">
     <div>
-      <b-form-group label="Assing this item to a sprint">
-        <b-form-radio-group v-model="selectedSprintId" :options="sprintOptions" stacked></b-form-radio-group>
-      </b-form-group>
+      <BFormGroup label="Assing this item to a sprint">
+        <BFormRadioGroup v-model="selectedSprintId" :options="sprintOptions" stacked></BFormRadioGroup>
+      </BFormGroup>
     </div>
-  </b-modal>
+  </BModal>
 </template>
 
 <script>

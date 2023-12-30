@@ -21,14 +21,14 @@
         P: {{ story.productName }}
       </p>
     </div>
-    <b-modal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="User story menu">
+    <BModal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="User story menu">
       <template>
-        <b-list-group>
-          <b-list-group-item button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard</b-list-group-item>
-          <b-list-group-item button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }} from the sprint</b-list-group-item>
-        </b-list-group>
+        <BListGroup>
+          <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard</BListGroupItem>
+          <BListGroupItem button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }} from the sprint</BListGroupItem>
+        </BListGroup>
       </template>
-    </b-modal>
+    </BModal>
   </div>
 </template>
 

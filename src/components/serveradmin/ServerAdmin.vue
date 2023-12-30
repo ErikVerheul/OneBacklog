@@ -1,41 +1,41 @@
 <template>
   <div>
     <app-header></app-header>
-    <b-container>
+    <BContainer>
       <h2>Server admin view: {{ optionSelected }}</h2>
-      <b-button block @click="viewLog">View the log</b-button>
-      <b-button block @click="createBackup">Create a database backup</b-button>
-      <b-button block @click="restoreBackup">Restore a database from backup</b-button>
-      <b-button block @click="createNewDb">Create a new database</b-button>
-      <b-button block @click="changeMyDb">Change my default database to any available database</b-button>
-      <b-button block @click="purgeDb">Purge removed documents and compact the database</b-button>
-      <b-button block variant="warning" @click="remHistAndComm">Remove history and comments</b-button>
-      <b-button block variant="warning" @click="deleteDb">Delete a database</b-button>
-      <b-button block @click="fauxton">All FAUXTON tasks</b-button>
+      <BButton block @click="viewLog">View the log</BButton>
+      <BButton block @click="createBackup">Create a database backup</BButton>
+      <BButton block @click="restoreBackup">Restore a database from backup</BButton>
+      <BButton block @click="createNewDb">Create a new database</BButton>
+      <BButton block @click="changeMyDb">Change my default database to any available database</BButton>
+      <BButton block @click="purgeDb">Purge removed documents and compact the database</BButton>
+      <BButton block variant="warning" @click="remHistAndComm">Remove history and comments</BButton>
+      <BButton block variant="warning" @click="deleteDb">Delete a database</BButton>
+      <BButton block @click="fauxton">All FAUXTON tasks</BButton>
 
       <div v-if="optionSelected === 'View the log'">
         <h2>View the log</h2>
-        <b-row>
-          <b-col>
-            <b-form-group>
+        <BRow>
+          <BCol>
+            <BFormGroup>
               <h5>Select the database to view the log</h5>
-              <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
-                stacked></b-form-radio-group>
-            </b-form-group>
-          </b-col>
-          <b-col>
+              <BFormRadioGroup v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+                stacked></BFormRadioGroup>
+            </BFormGroup>
+          </BCol>
+          <BCol>
             <h5>Select severity levels to show</h5>
             <div>
-              <b-form-checkbox-group v-model="selectedLogLevels" :options="options" stacked class="mb-3"
-                value-field="item" text-field="name" disabled-field="notEnabled"></b-form-checkbox-group>
+              <BFormCheckboxGroup v-model="selectedLogLevels" :options="options" stacked class="mb-3"
+                value-field="item" text-field="name" disabled-field="notEnabled"></BFormCheckboxGroup>
             </div>
-          </b-col>
-        </b-row>
+          </BCol>
+        </BRow>
         <hr>
-        <b-button v-if="!showLogModal" class="m-1" @click="doViewLog" variant="primary">Show</b-button>
-        <b-button v-if="!showLogModal" class="m-1" @click="cancel">Return</b-button>
-        <b-button v-else class="m-1" @click="cancel" variant="primary">Cancel</b-button>
-        <b-modal v-model="showLogModal" size="lg" :title="logModalTitle()">
+        <BButton v-if="!showLogModal" class="m-1" @click="doViewLog" variant="primary">Show</BButton>
+        <BButton v-if="!showLogModal" class="m-1" @click="cancel">Return</BButton>
+        <BButton v-else class="m-1" @click="cancel" variant="primary">Cancel</BButton>
+        <BModal v-model="showLogModal" size="lg" :title="logModalTitle()">
           <div v-for="item in filtered($store.state.logEntries)"
             :key="createLogKey(item.timestamp, item.sessionId, item.sessionSeq)">
             Event: {{ item.event }} <br />
@@ -48,32 +48,32 @@
             </template>
             <hr>
           </div>
-        </b-modal>
+        </BModal>
       </div>
 
       <div v-if="optionSelected === 'Create a database backup'">
         <h2>Create a database backup</h2>
         <p>For real disaster protection consider to use a backup strategy as provided by your hosting partner.</p>
-        <b-form-group>
+        <BFormGroup>
           <h5>Select the database to backup</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
-            stacked></b-form-radio-group>
-        </b-form-group>
+          <BFormRadioGroup v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></BFormRadioGroup>
+        </BFormGroup>
         <hr>
         <template v-if="!$store.state.utils.copyBusy">
-          <b-button class="m-1" @click="doCreateBackup" variant="primary">Start backup</b-button>
-          <b-button class="m-1" @click="cancel">Return</b-button>
+          <BButton class="m-1" @click="doCreateBackup" variant="primary">Start backup</BButton>
+          <BButton class="m-1" @click="cancel">Return</BButton>
         </template>
         <h5 v-else>Busy copying. Please wait...</h5>
       </div>
 
       <div v-if="optionSelected === 'Restore a database from backup'">
         <h2>Restore a database from backup</h2>
-        <b-form-group>
+        <BFormGroup>
           <h5>Select the database to restore</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
-            stacked></b-form-radio-group>
-        </b-form-group>
+          <BFormRadioGroup v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></BFormRadioGroup>
+        </BFormGroup>
         <template v-if="$store.state.selectedDatabaseName !== 'not selected yet'">
           <p class="colorRed">Database '{{ dbToReplace }}' will be replaced by '{{ $store.state.selectedDatabaseName }}'.
             Make sure no users of this database are on-line right now.</p>
@@ -82,9 +82,9 @@
           </p>
         </template>
         <hr>
-        <b-button v-if="$store.state.selectedDatabaseName !== 'not selected yet' && !$store.state.utils.copyBusy"
-          class="m-1" @click="doRestoreBackup" variant="primary">Start restore</b-button>
-        <b-button v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</b-button>
+        <BButton v-if="$store.state.selectedDatabaseName !== 'not selected yet' && !$store.state.utils.copyBusy"
+          class="m-1" @click="doRestoreBackup" variant="primary">Start restore</BButton>
+        <BButton v-if="!$store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</BButton>
         <h5 v-else>Busy copying. Please wait...</h5>
 
       </div>
@@ -99,30 +99,30 @@
           <li>Any of the characters _, $, (, ), +, -, and /</li>
           <li>A database with this name must not already exist</li>
         </ul>
-        <b-form-input v-model="newDbName" placeholder="Enter the database name"></b-form-input>
+        <BFormInput v-model="newDbName" placeholder="Enter the database name"></BFormInput>
         <hr>
-        <b-button v-if="newDbName === ''" class="m-1" @click="cancel">Cancel</b-button>
+        <BButton v-if="newDbName === ''" class="m-1" @click="cancel">Cancel</BButton>
         <div v-else>
           <p>Database {{ newDbName }} will be created</p>
-          <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="doCreateDatabase" variant="primary">Start
-            creation</b-button>
-          <b-button v-if="!$store.state.isDatabaseCreated" class="m-1" @click="cancel">Cancel</b-button>
-          <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+          <BButton v-if="!$store.state.isDatabaseCreated" class="m-1" @click="doCreateDatabase" variant="primary">Start
+            creation</BButton>
+          <BButton v-if="!$store.state.isDatabaseCreated" class="m-1" @click="cancel">Cancel</BButton>
+          <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
         </div>
       </div>
 
       <div v-if="optionSelected === 'Purge removed documents and compact the database'">
         <h2>Select a database</h2>
-        <b-form-group>
+        <BFormGroup>
           <h5>Select the database you want removed documents to be purged</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
-            stacked></b-form-radio-group>
-        </b-form-group>
+          <BFormRadioGroup v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></BFormRadioGroup>
+        </BFormGroup>
         <hr>
-        <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="doPurgeDb" variant="primary">Purge removed
-          documents and compact the database</b-button>
-        <b-button v-if="!$store.state.isPurgeReady" class="m-1" @click="cancel">Cancel</b-button>
-        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <BButton v-if="!$store.state.isPurgeReady" class="m-1" @click="doPurgeDb" variant="primary">Purge removed
+          documents and compact the database</BButton>
+        <BButton v-if="!$store.state.isPurgeReady" class="m-1" @click="cancel">Cancel</BButton>
+        <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
         <div v-if="$store.state.isPurgeReady">
           <h4>Success! The purge is ready</h4>
         </div>
@@ -131,48 +131,48 @@
       <div v-if="optionSelected === 'Change my default database to any available database'">
         <h2>Change my default database to any available database</h2>
         <p>Use this option if you need to connect to a database that is not assigned to your profile</p>
-        <b-form-group>
+        <BFormGroup>
           <h5>Select the database you want to connect to</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
-            stacked></b-form-radio-group>
-        </b-form-group>
+          <BFormRadioGroup v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></BFormRadioGroup>
+        </BFormGroup>
         <hr>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb" variant="primary">Change my
-          database</b-button>
-        <b-button v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel">Cancel</b-button>
-        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <BButton v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb" variant="primary">Change my
+          database</BButton>
+        <BButton v-if="!$store.state.isCurrentDbChanged" class="m-1" @click="cancel">Cancel</BButton>
+        <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
         <div v-if="$store.state.isCurrentDbChanged">
           <h4>Success! Click 'Exit' to sign-out. Sign-in to see the product details view of the '{{
             $store.state.selectedDatabaseName }} 'database</h4>
           <div>
-            <b-button class="m-1" @click="signOut()">Exit</b-button>
+            <BButton class="m-1" @click="signOut()">Exit</BButton>
           </div>
         </div>
       </div>
 
       <div v-if="optionSelected === 'Remove history and comments'">
         <h2>Remove history and comments</h2>
-        <b-form-group>
+        <BFormGroup>
           <h5>Select the database you want to reset the history and comments</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
-            stacked></b-form-radio-group>
-        </b-form-group>
-        <b-row class="my-1">
-          <b-col sm="2">
+          <BFormRadioGroup v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></BFormRadioGroup>
+        </BFormGroup>
+        <BRow class="my-1">
+          <BCol sm="2">
             Remove when created
-          </b-col>
-          <b-col sm="2">
-            <b-form-input v-model="removeAge" type="number"></b-form-input>
-          </b-col>
-          <b-col sm="8">
+          </BCol>
+          <BCol sm="2">
+            <BFormInput v-model="removeAge" type="number"></BFormInput>
+          </BCol>
+          <BCol sm="8">
             days ago or more (enter 0 to remove all)
-          </b-col>
-        </b-row>
+          </BCol>
+        </BRow>
         <hr>
-        <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm" variant="primary">Remove
-          history and comments</b-button>
-        <b-button v-if="!$store.state.isHistAndCommReset" class="m-1" @click="cancel">Cancel</b-button>
-        <b-button v-else class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <BButton v-if="!$store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm" variant="primary">Remove
+          history and comments</BButton>
+        <BButton v-if="!$store.state.isHistAndCommReset" class="m-1" @click="cancel">Cancel</BButton>
+        <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
         <div v-if="$store.state.isHistAndCommReset">
           <h4>Success! History and comments are removed</h4>
         </div>
@@ -183,23 +183,23 @@
 
       <div v-if="optionSelected === 'Delete a database'">
         <h2>Delete a database</h2>
-        <b-form-group>
+        <BFormGroup>
           <h5>Select the database you want to delete</h5>
-          <b-form-radio-group v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
-            stacked></b-form-radio-group>
-        </b-form-group>
+          <BFormRadioGroup v-model="$store.state.selectedDatabaseName" :options="$store.state.databaseOptions"
+            stacked></BFormRadioGroup>
+        </BFormGroup>
         <hr>
-        <b-button v-if="$store.state.selectedDatabaseName" variant="danger" class="m-1" @click="doDeleteDb">Delete
-          selected database</b-button>
-        <b-button class="m-1" @click="cancel" variant="primary">Return</b-button>
+        <BButton v-if="$store.state.selectedDatabaseName" variant="danger" class="m-1" @click="doDeleteDb">Delete
+          selected database</BButton>
+        <BButton class="m-1" @click="cancel" variant="primary">Return</BButton>
       </div>
 
       <div v-if="optionSelected === 'All FAUXTON tasks'">
         <h2>All FAUXTON tasks</h2>
         <h4>As server admin you have all other feautures available in FAUXTON, read the documentation</h4>
         <hr>
-        <b-button class="m-1" @click="doFauxton" variant="primary">Start FAUXTON</b-button>
-        <b-button class="m-1" @click="cancel">Cancel</b-button>
+        <BButton class="m-1" @click="doFauxton" variant="primary">Start FAUXTON</BButton>
+        <BButton class="m-1" @click="cancel">Cancel</BButton>
         <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
       </div>
 
@@ -210,7 +210,7 @@
           <p>{{ item.msg }}</p>
         </div>
       </div>
-    </b-container>
+    </BContainer>
   </div>
 </template>
 

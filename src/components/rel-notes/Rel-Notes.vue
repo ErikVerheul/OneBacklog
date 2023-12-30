@@ -1,9 +1,9 @@
 <template>
   <div>
     <app-header />
-    <b-container>
-      <b-row>
-        <b-col cols="12" class="left-column">
+    <BContainer>
+      <BRow>
+        <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
 					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
           <h3>v.1.25 - 22 September 2023 Bug fixes, move to Vite</h3>
@@ -883,9 +883,9 @@
           </ul>
           <hr />
           <h3>v.0.4.5 - 11 May 2019 - First public release on onebacklog.net</h3>
-        </b-col>
-      </b-row>
-    </b-container>
+        </BCol>
+      </BRow>
+    </BContainer>
   </div>
 </template>
 
