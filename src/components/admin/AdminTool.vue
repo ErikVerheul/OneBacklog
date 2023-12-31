@@ -2,11 +2,11 @@
   <div>
     <app-header></app-header>
     <BContainer>
-      <h2>Admin view: {{ optionSelected }}</h2>
+      <h2 class="text-center">Admin view: {{ optionSelected }}</h2>
       <template v-if="optionSelected === 'Select a task'">
-        <p>Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked
+        <p class="text-center">Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked
           to select one</p>
-        <CButtonGroup vertical role="group" aria-label="Vertical button group">
+        <BButtonGroup vertical class="d-grid gap-2" aria-label="Vertical button group">
           <BButton block @click="createUser">Create a user and assign product(s)</BButton>
           <BButton block @click="maintainUsers">Maintain user permissions to products </BButton>
           <BButton block @click="removeUser" variant="warning">Remove a user</BButton>
@@ -21,7 +21,7 @@
           <br />
           <BButton block @click="maintainDefaultSprintCalendar">Maintain the default sprint calendar</BButton>
           <BButton block @click="createOrUpdateTeamCalendar">Create / Maintain a team sprint calendar</BButton>
-        </CButtonGroup>
+        </BButtonGroup>
       </template>
       <template v-else>
         <div v-if="optionSelected === 'Remove a product'">
