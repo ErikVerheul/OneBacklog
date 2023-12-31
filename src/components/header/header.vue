@@ -1,6 +1,6 @@
 <template>
   <div>
-    <BNavbar toggleable="md" type="dark" variant="dark">
+    <BNavbar class="navbar-dark bg-dark">
       <BNavbar-toggle target="nav_collapse"></BNavbar-toggle>
       <BImg class="logo" :src="logo" alt="OneBacklog logo" />
       <BNavbar-brand to="../../rel-notes">{{ appVersion }}</BNavbar-brand>
@@ -10,7 +10,7 @@
         </BNavbarNav>
         <!-- app-header additions go in this slot -->
         <slot></slot>
-        <BNavbarNav v-if="store.state.showHeaderDropDowns" class="ml-auto">
+        <BNavbarNav v-if="store.state.showHeaderDropDowns" class="ms-auto mb-2 mb-lg-0">
           <BNavItemDropdown text="Select your view" right>
             <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
             <BDropdownItem v-if="store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products
@@ -22,11 +22,9 @@
             <BDropdownItem v-if="isServerAdmin" to="../../serveradmin">Server admin</BDropdownItem>
           </BNavItemDropdown>
 
-          <BNavItemDropdown right>
+          <BNavItemDropdown text="User" right>
             <!-- Using button-content slot -->
-            <template slot="button-content">
-              <em>User</em>
-            </template>
+            <template slot="button-content"></template>
 
             <template v-if="isAuthenticated">
               <BDropdownItem
@@ -42,7 +40,7 @@
             </template>
             <BDropdownItem v-else>No options here when not authenticated</BDropdownItem>
 
-            <BDropdownItem v-BModal.licence-modal>Licence information</BDropdownItem>
+            <BDropdownItem v-b-modal.licence-modal>Licence information</BDropdownItem>
             <BDropdownItem @click="onSignout">Sign Out</BDropdownItem>
           </BNavItemDropdown>
 
@@ -200,8 +198,8 @@
         </p>
       </BContainer>
     </BModal>
-
-    <!-- when not initialized do not show the options -->
+    showOptionsModal = {{ showOptionsModal }}
+    <!-- when userData not initialized do not show the options -->
     <BModal size="lg" v-if="store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
       <h5>If you manage large complex products</h5>
       <BFormCheckbox v-model="store.state.userData.myOptions.proUser" value='true' unchecked-value='false'>
