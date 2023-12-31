@@ -2,16 +2,18 @@
   <div>
     <app-header></app-header>
     <BContainer>
-      <h2>Server admin view: {{ optionSelected }}</h2>
-      <BButton block @click="viewLog">View the log</BButton>
-      <BButton block @click="createBackup">Create a database backup</BButton>
-      <BButton block @click="restoreBackup">Restore a database from backup</BButton>
-      <BButton block @click="createNewDb">Create a new database</BButton>
-      <BButton block @click="changeMyDb">Change my default database to any available database</BButton>
-      <BButton block @click="purgeDb">Purge removed documents and compact the database</BButton>
-      <BButton block variant="warning" @click="remHistAndComm">Remove history and comments</BButton>
-      <BButton block variant="warning" @click="deleteDb">Delete a database</BButton>
-      <BButton block @click="fauxton">All FAUXTON tasks</BButton>
+      <h2 class="text-center">Server admin view: {{ optionSelected }}</h2>
+      <BButtonGroup vertical class="d-grid gap-2" aria-label="Vertical button group">
+        <BButton block @click="viewLog">View the log</BButton>
+        <BButton block @click="createBackup">Create a database backup</BButton>
+        <BButton block @click="restoreBackup">Restore a database from backup</BButton>
+        <BButton block @click="createNewDb">Create a new database</BButton>
+        <BButton block @click="changeMyDb">Change my default database to any available database</BButton>
+        <BButton block @click="purgeDb">Purge removed documents and compact the database</BButton>
+        <BButton block variant="warning" @click="remHistAndComm">Remove history and comments</BButton>
+        <BButton block variant="warning" @click="deleteDb">Delete a database</BButton>
+        <BButton block @click="fauxton">All FAUXTON tasks</BButton>
+      </BButtonGroup>
 
       <div v-if="optionSelected === 'View the log'">
         <h2>View the log</h2>
@@ -19,15 +21,15 @@
           <BCol>
             <BFormGroup>
               <h5>Select the database to view the log</h5>
-              <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-                stacked></BFormRadioGroup>
+              <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked>
+              </BFormRadioGroup>
             </BFormGroup>
           </BCol>
           <BCol>
             <h5>Select severity levels to show</h5>
             <div>
-              <BFormCheckboxGroup v-model="selectedLogLevels" :options="options" stacked class="mb-3"
-                value-field="item" text-field="name" disabled-field="notEnabled"></BFormCheckboxGroup>
+              <BFormCheckboxGroup v-model="selectedLogLevels" :options="options" stacked class="mb-3" value-field="item"
+                text-field="name" disabled-field="notEnabled"></BFormCheckboxGroup>
             </div>
           </BCol>
         </BRow>
@@ -56,8 +58,8 @@
         <p>For real disaster protection consider to use a backup strategy as provided by your hosting partner.</p>
         <BFormGroup>
           <h5>Select the database to backup</h5>
-          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-            stacked></BFormRadioGroup>
+          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked>
+          </BFormRadioGroup>
         </BFormGroup>
         <hr>
         <template v-if="!store.state.utils.copyBusy">
@@ -71,8 +73,8 @@
         <h2>Restore a database from backup</h2>
         <BFormGroup>
           <h5>Select the database to restore</h5>
-          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-            stacked></BFormRadioGroup>
+          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked>
+          </BFormRadioGroup>
         </BFormGroup>
         <template v-if="store.state.selectedDatabaseName !== 'not selected yet'">
           <p class="colorRed">Database '{{ dbToReplace }}' will be replaced by '{{ store.state.selectedDatabaseName }}'.
@@ -82,8 +84,8 @@
           </p>
         </template>
         <hr>
-        <BButton v-if="store.state.selectedDatabaseName !== 'not selected yet' && !store.state.utils.copyBusy"
-          class="m-1" @click="doRestoreBackup" variant="primary">Start restore</BButton>
+        <BButton v-if="store.state.selectedDatabaseName !== 'not selected yet' && !store.state.utils.copyBusy" class="m-1"
+          @click="doRestoreBackup" variant="primary">Start restore</BButton>
         <BButton v-if="!store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</BButton>
         <h5 v-else>Busy copying. Please wait...</h5>
 
@@ -115,8 +117,8 @@
         <h2>Select a database</h2>
         <BFormGroup>
           <h5>Select the database you want removed documents to be purged</h5>
-          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-            stacked></BFormRadioGroup>
+          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked>
+          </BFormRadioGroup>
         </BFormGroup>
         <hr>
         <BButton v-if="!store.state.isPurgeReady" class="m-1" @click="doPurgeDb" variant="primary">Purge removed
@@ -133,8 +135,8 @@
         <p>Use this option if you need to connect to a database that is not assigned to your profile</p>
         <BFormGroup>
           <h5>Select the database you want to connect to</h5>
-          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-            stacked></BFormRadioGroup>
+          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked>
+          </BFormRadioGroup>
         </BFormGroup>
         <hr>
         <BButton v-if="!store.state.isCurrentDbChanged" class="m-1" @click="doChangeMyDb" variant="primary">Change my
@@ -154,8 +156,8 @@
         <h2>Remove history and comments</h2>
         <BFormGroup>
           <h5>Select the database you want to reset the history and comments</h5>
-          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-            stacked></BFormRadioGroup>
+          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked>
+          </BFormRadioGroup>
         </BFormGroup>
         <BRow class="my-1">
           <BCol sm="2">
@@ -185,8 +187,8 @@
         <h2>Delete a database</h2>
         <BFormGroup>
           <h5>Select the database you want to delete</h5>
-          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-            stacked></BFormRadioGroup>
+          <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked>
+          </BFormRadioGroup>
         </BFormGroup>
         <hr>
         <BButton v-if="store.state.selectedDatabaseName" variant="danger" class="m-1" @click="doDeleteDb">Delete
@@ -202,10 +204,10 @@
         <BButton class="m-1" @click="cancel">Cancel</BButton>
         <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
       </div>
-
-      <hr>
+    
       <p>{{ localMessage }}</p>
       <div v-if="store.state.backendMessages.length > 0">
+        <hr>
         <div v-for="item in store.state.backendMessages" :key="item.seqKey">
           <p>{{ item.msg }}</p>
         </div>
