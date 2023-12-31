@@ -35,6 +35,7 @@
 <script>
 import { LEVEL } from '../../../constants.js'
 import { authorization, utilities } from '../../mixins/generic.js'
+import store from '../../../store/store.js'
 
 export default {
   mixins: [authorization, utilities],
