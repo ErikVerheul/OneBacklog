@@ -1,4 +1,5 @@
 <template>
+  <BButton @click="show">Click me</BButton>
   <BContainer>
     <div class="row">
       <div class="col-lg-12 col-sm-12">
@@ -51,13 +52,17 @@
       </div>
     </div>
   </BContainer>
+  <BModal v-model="programmaticModal" id="my-modal">
+    <BButton @click="hide">Hide me</BButton>
+  </BModal>
 </template>
 
 <script setup>
-import { computed, reactive } from 'vue'
+import {useModal} from 'bootstrap-vue-next'
+import { computed, reactive, ref } from 'vue'
 import { useStore } from 'vuex'
 import logo from '../../assets/logo.png'
-
+const programmaticModal = ref(false)
 const store = useStore()
 const state = reactive({
   logo: logo,
@@ -77,6 +82,8 @@ function onSubmit() {
   }
   store.dispatch('signin', credentials)
 }
+
+const {show, hide, modal} = useModal('my-modal')
 </script>
 
 <style scoped>
