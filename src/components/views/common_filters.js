@@ -1,5 +1,6 @@
 import { SEV, LEVEL } from '../../constants.js'
 import { utilities } from '../mixins/generic.js'
+import store from '../../store/store.js'
 
 function data () {
 	// these values are used if no filter settings were saved
@@ -24,7 +25,7 @@ function data () {
 
 function mounted () {
   // init the filter settings
-  const myFilterSettings = this.$store.state.userData.myFilterSettings
+  const myFilterSettings = store.state.userData.myFilterSettings
   if (myFilterSettings) {
 		this.filterOnDependencies = myFilterSettings.filterOnDependencies || false
     this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
@@ -44,7 +45,7 @@ function mounted () {
   window.myFilters = this.$refs.myFiltersRef
   // set the available team options
   this.teamOptions = []
-  for (const team of Object.keys(this.$store.state.allTeams)) {
+  for (const team of Object.keys(store.state.allTeams)) {
     this.teamOptions.push(team)
   }
   // remove non existing teams
@@ -58,7 +59,7 @@ function mounted () {
   // set the available state options; 0 is not in use
   let i = 0
   this.stateOptions = []
-  for (const state of this.$store.state.configData.itemState) {
+  for (const state of store.state.configData.itemState) {
     if (i > 0) this.stateOptions.push({ text: state, value: i })
     i++
   }
@@ -81,7 +82,7 @@ const methods = {
       toDate: this.toDate,
       selectedTime: this.selectedTime
     }
-    this.$store.dispatch('saveMyFilterSettingsAction', myFilterSettings)
+    store.dispatch('saveMyFilterSettingsAction', myFilterSettings)
     this.showLastEvent('Saving the filter settings', SEV.INFO)
   },
 

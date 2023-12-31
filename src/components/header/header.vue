@@ -10,10 +10,10 @@
         </BNavbarNav>
         <!-- app-header additions go in this slot -->
         <slot></slot>
-        <BNavbarNav v-if="$store.state.showHeaderDropDowns" class="ml-auto">
+        <BNavbarNav v-if="store.state.showHeaderDropDowns" class="ml-auto">
           <BNavItemDropdown text="Select your view" right>
             <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
-            <BDropdownItem v-if="$store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products
+            <BDropdownItem v-if="store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products
               overview</BDropdownItem>
             <BDropdownItem to="../../board">Planning board</BDropdownItem>
             <BDropdownDivider v-if="isAssistAdmin || isAdmin || isServerAdmin"></BDropdownDivider>
@@ -30,7 +30,7 @@
 
             <template v-if="isAuthenticated">
               <BDropdownItem
-                v-if="$store.state.userData.myOptions.proUser === 'true' && $store.state.myAssignedDatabases.length > 1"
+                v-if="store.state.userData.myOptions.proUser === 'true' && store.state.myAssignedDatabases.length > 1"
                 @click="changeDatabase">Change database
               </BDropdownItem>
               <BDropdownItem @click="showMyTeam">My team</BDropdownItem>
@@ -63,7 +63,7 @@
 
     <BModal size="lg" ref="changeDatabaseRef" @ok="doChangeDatabase" title="Change your database">
       <BContainer align-v="true">
-        <h5>Select another database. Your current database is '{{ $store.state.userData.currentDb }}'</h5>
+        <h5>Select another database. Your current database is '{{ store.state.userData.currentDb }}'</h5>
         <BFormGroup>
           <BFormRadioGroup v-model="headerMyDatabase" :options="headerDatabaseOptions"
             name="headerDatabaseOptions"></BFormRadioGroup>
@@ -84,16 +84,16 @@
 
     <BModal size="lg" ref="showTeamRef" title="My team members (and an overview of all teams)">
       <BContainer align-v="true">
-        <p v-if="!$store.state.areTeamsFound"> No teams found</p>
+        <p v-if="!store.state.areTeamsFound"> No teams found</p>
         <div v-else>
           <h5>The members of my team '{{ myTeam }}'</h5>
           <div v-for="m of getMyTeamRecord(myTeam).members" :key="m">
-            <i v-if="m === $store.state.userData.user">I ({{ m }}) am member of this team</i>
+            <i v-if="m === store.state.userData.user">I ({{ m }}) am member of this team</i>
             <i v-else>'{{ m }}' is member of this team</i>
           </div>
           <hr>
-          <h5>All teams working on products managed in database '{{ $store.state.selectedDatabaseName }}'</h5>
-          <div v-for="team in $store.state.fetchedTeams" :key="team.teamName">          
+          <h5>All teams working on products managed in database '{{ store.state.selectedDatabaseName }}'</h5>
+          <div v-for="team in store.state.fetchedTeams" :key="team.teamName">          
             <template v-if="team.hasTeamCalendar">
               <b>Team '{{ team.teamName }}'</b> (has its own team sprint calendar)
             </template>
@@ -111,8 +111,8 @@
     <BModal size="lg" ref="selectProductsRef" @ok="doSelectProducts"
       title="Select one or more (hold shift or Ctrl) products to be loaded">
       <BContainer align-v="true">
-        <BFormSelect size="sm" v-model="selectedProducts" :options="$store.state.myProductOptions" multiple
-          :select-size="$store.state.myProductOptions.length"></BFormSelect>
+        <BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple
+          :select-size="store.state.myProductOptions.length"></BFormSelect>
       </BContainer>
     </BModal>
 
@@ -126,13 +126,13 @@
 
     <BModal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password">
       <BContainer align-v="true">
-        <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user === 'demoUser'">
+        <template v-if="isAuthenticated && store.state.demo && store.state.userData.user === 'demoUser'">
           <h2>Demo users cannot change the password</h2>
         </template>
         <template v-if="isAuthenticated && isServerAdmin">
           <h2>Demo users cannot change the password</h2>
         </template>
-        <template v-if="isAuthenticated && $store.state.demo && $store.state.userData.user !== 'demoUser'">
+        <template v-if="isAuthenticated && store.state.demo && store.state.userData.user !== 'demoUser'">
           <BRow class="my-1">
             <BCard bg-variant="light">
               <BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg"
@@ -202,20 +202,20 @@
     </BModal>
 
     <!-- when not initialized do not show the options -->
-    <BModal size="lg" v-if="$store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
+    <BModal size="lg" v-if="store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
       <h5>If you manage large complex products</h5>
-      <BFormCheckbox v-model="$store.state.userData.myOptions.proUser" value='true' unchecked-value='false'>
+      <BFormCheckbox v-model="store.state.userData.myOptions.proUser" value='true' unchecked-value='false'>
         Use the professional mode of this app
       </BFormCheckbox>
 
       <h5 class="spacer">When changing the priority of backlog item(s)</h5>
-      <BFormCheckbox v-model="$store.state.userData.myOptions.levelShiftWarning" value="do_warn"
+      <BFormCheckbox v-model="store.state.userData.myOptions.levelShiftWarning" value="do_warn"
         unchecked-value="do_not_warn">
         Warn me when I move items to another level (eg. from task to user story)
       </BFormCheckbox>
 
       <h5 class="spacer">For the Planning board</h5>
-      <BFormCheckbox v-model="$store.state.userData.myOptions.showOnHold" value="do_show_on_hold"
+      <BFormCheckbox v-model="store.state.userData.myOptions.showOnHold" value="do_show_on_hold"
         unchecked-value="do_not_show_on_hold">
         Show the [On hold] status column on the planning board
       </BFormCheckbox>

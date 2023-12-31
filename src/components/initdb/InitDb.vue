@@ -3,7 +3,7 @@
     <app-header />
     <BContainer fluid>
       <h1>INITIALIZATION</h1>
-      <p>Initialize the database and setup your profile. Your user name is: {{ $store.state.userData.user }}</p>
+      <p>Initialize the database and setup your profile. Your user name is: {{ store.state.userData.user }}</p>
       <h4>Enter a name for the database following these rules:</h4>
       <ul>
         <li>Name must begin with a lowercase letter (a-z)</li>
@@ -30,7 +30,7 @@
           </BCol>
         </BRow>
       </BFormGroup>
-      <div v-if="!$store.state.isDatabaseInitiated">
+      <div v-if="!store.state.isDatabaseInitiated">
           <BButton v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</BButton>
           <BButton class="m-1" @click="signOut" variant="outline-primary">Cancel</BButton>
       </div>
@@ -39,15 +39,15 @@
         <h5>Exit and sign-in again. The 'Admin' view will open. Create a default sprint calendar and create the first users and set their roles. Assign one or more admins to take over your admin task.</h5>
         <BButton class="m-1" @click="signOut" variant="outline-primary">Exit</BButton>
       </div>
-      <div v-if="$store.state.backendMessages.length > 0">
+      <div v-if="store.state.backendMessages.length > 0">
         <hr>
-        <div v-for="item in $store.state.backendMessages" :key="item.seqKey">
+        <div v-for="item in store.state.backendMessages" :key="item.seqKey">
           <p>{{ item.msg }}</p>
         </div>
       </div>
-			<div v-if="$store.state.backendMessages.length > 0">
+			<div v-if="store.state.backendMessages.length > 0">
         <hr>
-        <div v-for="item in $store.state.backendMessages" :key="item.seqKey">
+        <div v-for="item in store.state.backendMessages" :key="item.seqKey">
           <p>{{ item.msg }}</p>
         </div>
       </div>
@@ -57,6 +57,7 @@
 
 <script>
 import AppHeader from '../header/header.vue'
+import store from '../../store/store.js'
 
 export default {
   /* Prevent accidental reloading of this page */
@@ -64,12 +65,12 @@ export default {
     window.addEventListener("beforeunload", this.preventNav)
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("beforeunload", this.preventNav)
   },
 
   mounted() {
-    this.$store.state.backendMessages = []
+    store.state.backendMessages = []
   },
 
   data() {
@@ -103,12 +104,12 @@ export default {
         email: this.email,
         createUser: true
       }
-      this.$store.dispatch('initUserDb')
-      this.$store.dispatch('createDatabase', payload)
+      store.dispatch('initUserDb')
+      store.dispatch('createDatabase', payload)
     },
 
     signOut() {
-      this.$store.commit('endSession', 'initdb')
+      store.commit('endSession', 'initdb')
     }
   },
 

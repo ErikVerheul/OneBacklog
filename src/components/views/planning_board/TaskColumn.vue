@@ -42,6 +42,7 @@ import { createId } from '../../../common_functions.js'
 import { authorization, utilities } from '../../mixins/generic.js'
 // import {Draggable} from 'vue-draggable-next'
 import TaskItem from './TaskItem.vue'
+import store from '../../../store/store.js'
 
 export default {
   mixins: [authorization, utilities],
@@ -66,19 +67,19 @@ export default {
       },
       set (tasks) {
         if (this.haveWritePermission(this.productId, LEVEL.TASK)) {
-          this.$store.dispatch('updateTasks', {
+          store.dispatch('updateTasks', {
             tasks,
             taskState: this.taskState,
             idx: this.idx
           })
-        } else this.$store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
+        } else store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
       }
     }
   },
 
   methods: {
     procSelected () {
-      this.$store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.taskTitle })
+      store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.taskTitle })
     },
 
     doCancel () {

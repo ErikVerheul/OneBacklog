@@ -10,18 +10,19 @@ import DcontextMenu from './d_context.vue'
 import Filters from './d_filters.vue'
 import Listings from './d_listings.vue'
 import ToSprint from './d_tosprint.vue'
+import store from '../../../store/store.js'
 
 const thisView = 'detailProduct'
 var returning = false
 
 function beforeCreate() {
-	this.$store.state.currentView = thisView
-	if (thisView !== this.$store.state.lastTreeView) {
-		this.$store.state.treeNodes = []
-		this.$store.state.changeHistory = []
+	store.state.currentView = thisView
+	if (thisView !== store.state.lastTreeView) {
+		store.state.treeNodes = []
+		store.state.changeHistory = []
 		// reset filters and searches
-		this.$store.state.resetFilter = null
-		this.$store.state.resetSearch = {}
+		store.state.resetFilter = null
+		store.state.resetSearch = {}
 		returning = false
 	} else returning = true
 }
@@ -36,7 +37,7 @@ function beforeMount() {
 	window.addEventListener("beforeunload", this.preventNav)
 }
 
-function beforeDestroy() {
+function beforeUnmount() {
 	window.removeEventListener("beforeunload", this.preventNav)
 }
 
@@ -44,7 +45,7 @@ function mounted() {
 	if (returning) {
 		this.showLastEvent('Returning to the Product details', SEV.INFO)
 	} else {
-		this.$store.dispatch('loadProductDetails')
+		store.dispatch('loadProductDetails')
 	}
 }
 
@@ -57,10 +58,10 @@ function data() {
 const watch = {
 	selectedPbiType: function (val) {
 		// prevent looping
-		if (val !== this.$store.state.currentDoc.subtype) {
+		if (val !== store.state.currentDoc.subtype) {
 			const node = this.getLastSelectedNode
-			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the LEVEL.PBI type')) {
-				this.$store.dispatch('setSubType', {
+			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the LEVEL.PBI type')) {
+				store.dispatch('setSubType', {
 					node,
 					newSubType: val,
 					timestamp: Date.now()
@@ -84,11 +85,11 @@ const methods = {
 		let txt = ''
 		if (this.getCurrentItemLevel > LEVEL.PRODUCT) {
 			if (this.getCurrentItemLevel < LEVEL.TASK) {
-				txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
+				txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${store.state.currentDoc.team}'`
 			} else {
-				if (this.$store.state.currentDoc.taskOwner) {
-					txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${this.$store.state.currentDoc.taskOwner}' of team '${this.$store.state.currentDoc.team}'`
-				} else txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
+				if (store.state.currentDoc.taskOwner) {
+					txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${store.state.currentDoc.taskOwner}' of team '${store.state.currentDoc.team}'`
+				} else txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${store.state.currentDoc.team}'`
 			}
 			if (this.getItemSprintName) {
 				txt += ` (Sprint '${this.getItemSprintName})'`
@@ -108,7 +109,7 @@ const methods = {
 			// no sprint definitions available
 			return false
 		}
-		if (getSprintById(sprintId, this.$store.state.myCurrentSprintCalendar) === null) {
+		if (getSprintById(sprintId, store.state.myCurrentSprintCalendar) === null) {
 			// sprint not found
 			return false
 		}
@@ -130,22 +131,22 @@ const methods = {
 
 	/* event handling */
 	onNodesSelected(fromContextMenu) {
-		const selNodes = this.$store.state.selectedNodes
+		const selNodes = store.state.selectedNodes
 		// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
 		this.updateDescription(this.getPreviousNodeSelected)
 		this.updateAcceptance(this.getPreviousNodeSelected)
 
 		// load the selected document
-		this.$store.dispatch('loadDoc', {
+		store.dispatch('loadDoc', {
 			id: this.getLastSelectedNode._id,
 			onSuccessCallback: () => {
 				// if the user clicked on a node of another product (not root)
-				const currentProductId = this.$store.state.currentProductId
+				const currentProductId = store.state.currentProductId
 				if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
 					// another product is selected; reset the tree filter and Id selection or title search on the current product
-					this.$store.dispatch('resetFilterAndSearches', { caller: 'onNodesSelected', productModels: this.$store.state.helpersRef.getCurrentProductModel() })
+					store.dispatch('resetFilterAndSearches', { caller: 'onNodesSelected', productModels: store.state.helpersRef.getCurrentProductModel() })
 					// collapse the currently selected product and switch and expand to the newly selected product
-					this.$store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
+					store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
 				}
 				if (!fromContextMenu) this.showSelectionEvent(selNodes)
 			}
@@ -161,13 +162,13 @@ const methods = {
 		 * 4. Disallow the drop of multiple nodes within the range of the selected nodes.
 		 * precondition: the selected nodes have all the same parent (same level)
 		 */
-		const parentNode = position.placement === 'inside' ? position.nodeModel : this.$store.state.helpersRef.getParentNode(position.nodeModel)
+		const parentNode = position.placement === 'inside' ? position.nodeModel : store.state.helpersRef.getParentNode(position.nodeModel)
 		// cancel quietly if getParentNode(position.nodeModel) returns null (not found)
 		if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + this.$store.state.helpersRef.getDescendantsInfo(node).depth) > LEVEL.TASK
+				const failedCheck3 = (targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth) > LEVEL.TASK
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0
@@ -193,7 +194,7 @@ const methods = {
 	},
 
 	getPbiOptions() {
-		this.selectedPbiType = this.$store.state.currentDoc.subtype
+		this.selectedPbiType = store.state.currentDoc.subtype
 		const options = [
 			{ text: 'User story', value: 0 },
 			{ text: 'Spike', value: 1 },
@@ -220,7 +221,7 @@ export default {
 	beforeCreate,
 	created,
 	beforeMount,
-	beforeDestroy,
+	beforeUnmount,
 	mounted,
 	data,
 	watch,

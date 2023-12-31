@@ -1,18 +1,19 @@
 import { STATE, LEVEL, MISC } from '../../constants.js'
 import { createId } from '../../common_functions.js'
 import common_admin from './common_admin'
+import store from '../../store/store.js'
 
 /* Prevent accidental reloading of this page */
 function beforeMount() {
 	window.addEventListener("beforeunload", this.preventNav)
 }
 
-function beforeDestroy() {
+function beforeUnmount() {
 	window.removeEventListener("beforeunload", this.preventNav)
 }
 
 function mounted() {
-	this.$store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
+	store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
 }
 
 const methods = {
@@ -29,12 +30,12 @@ const methods = {
 		this.password = undefined
 		this.userEmail = undefined
 		this.credentialsReady = false
-		this.$store.state.backendMessages = []
+		store.state.backendMessages = []
 		this.localMessage = ''
-		this.$store.state.useracc.userIsAdmin = false
-		this.$store.state.useracc.userIsAPO = false
-		this.$store.state.isUserRemoved = false
-		this.$store.state.isUserCreated = false
+		store.state.useracc.userIsAdmin = false
+		store.state.useracc.userIsAPO = false
+		store.state.isUserRemoved = false
+		store.state.isUserCreated = false
 	},
 
 	maintainUsers() {
@@ -44,33 +45,33 @@ const methods = {
 		this.canRemoveLastProduct = true
 		this.canRemoveDatabase = true,
 		this.localMessage = ''
-		this.$store.state.backendMessages = []
-		this.$store.state.isUserFound = false
-		this.$store.state.areDatabasesFound = false
-		this.$store.state.areProductsFound = false
-		this.$store.state.isUserUpdated = false
+		store.state.backendMessages = []
+		store.state.isUserFound = false
+		store.state.areDatabasesFound = false
+		store.state.areProductsFound = false
+		store.state.isUserUpdated = false
 		// get the users to select from
-		this.$store.dispatch('getAllUsers')
+		store.dispatch('getAllUsers')
 	},
 
 	removeUser() {
 		this.optionSelected = 'Remove a user'
 		this.getUserFirst = true
-		this.$store.state.isUserFound = false
+		store.state.isUserFound = false
 		this.userName = undefined
-		this.$store.state.backendMessages = []
+		store.state.backendMessages = []
 		this.localMessage = ''
-		this.$store.state.isUserDeleted = false
-		this.$store.dispatch('getAllUsers')
+		store.state.isUserDeleted = false
+		store.dispatch('getAllUsers')
 	},
 
 	createProduct() {
 		this.optionSelected = 'Create a product'
 		this.getUserFirst = false
 		this.productTitle = ''
-		this.$store.state.isProductCreated = false
+		store.state.isProductCreated = false
 		this.dbIsSelected = false
-		this.$store.state.backendMessages = []
+		store.state.backendMessages = []
 	},
 
 	removeProduct() {
@@ -82,7 +83,7 @@ const methods = {
 	doCreateProduct() {
 		const _id = createId()
 		// a newly created product node will be inserted below the last product (see createProductAction in utils.js)
-		const lastProductNode = this.$store.state.helpersRef.getRootNode().children.slice(-1)[0]
+		const lastProductNode = store.state.helpersRef.getRootNode().children.slice(-1)[0]
 		const priority = Math.floor((lastProductNode.data.priority + Number.MIN_SAFE_INTEGER) / 2)
 		// create a new document
 		const newProduct = {
@@ -106,18 +107,18 @@ const methods = {
 			}]
 		}
 		// update the database, insert the new node below the last product and add the product to this admin's subscriptions and productsRoles
-		this.$store.dispatch('createProductAction', { dbName: this.$store.state.selectedDatabaseName, newProduct, lastProductNode })
+		store.dispatch('createProductAction', { dbName: store.state.selectedDatabaseName, newProduct, lastProductNode })
 	},
 
 	doRemoveUser() {
-		this.$store.dispatch('removeUserIfExistent', this.selectedUser)
+		store.dispatch('removeUserIfExistent', this.selectedUser)
 	},
 }
 
 export default {
 	extends: common_admin,
 	beforeMount,
-	beforeDestroy,
+	beforeUnmount,
 	mounted,
 	methods
 }

@@ -1,56 +1,58 @@
 import { SEV, LEVEL, STATE } from '../../constants.js'
 import { collapseNode } from '../../common_functions.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
+import store from '../../store/store.js'
 
 const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
 
+// TODO: fix this functionality
 function mounted() {
-	function idCheck(vm) {
-		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-		const trimmedItemId = vm.$store.state.itemId.trim()
-		if (trimmedItemId.length !== SHORTKEYLENGTH && trimmedItemId.length < FULLKEYLENGTH) {
-			vm.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
-			return false
-		}
+	// function idCheck(vm) {
+	// 	const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
+	// 	const trimmedItemId = vm.store.state.itemId.trim()
+	// 	if (trimmedItemId.length !== SHORTKEYLENGTH && trimmedItemId.length < FULLKEYLENGTH) {
+	// 		vm.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
+	// 		return false
+	// 	}
 
-		for (let i = 0; i < trimmedItemId.length; i++) {
-			if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) return false
-		}
-		return true
-	}
+	// 	for (let i = 0; i < trimmedItemId.length; i++) {
+	// 		if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) return false
+	// 	}
+	// 	return true
+	// }
 
-	const el = document.getElementById('findItemOnId')
-	// fire the search on id on pressing enter in the select-on-Id input field (instead of submitting the form)
-	el.addEventListener('keydown', (event) => {
-		if (event.key === 'Enter') {
-			event.preventDefault()
-			// check for valid input and convert to lowercase
-			if (idCheck(this)) {
-				this.findItemOnId(this.$store.state.itemId.toLowerCase().trim())
-			}
-		}
-	})
+	// const el = document.getElementById('findItemOnId')
+	// // fire the search on id on pressing enter in the select-on-Id input field (instead of submitting the form)
+	// el.addEventListener('keydown', (event) => {
+	// 	if (event.key === 'Enter') {
+	// 		event.preventDefault()
+	// 		// check for valid input and convert to lowercase
+	// 		if (idCheck(this)) {
+	// 			this.findItemOnId(store.state.itemId.toLowerCase().trim())
+	// 		}
+	// 	}
+	// })
 
-	const el2 = document.getElementById('searchInput')
-	// fire the search button on pressing enter in the search input field (instead of submitting the form)
-	el2.addEventListener('keydown', (event) => {
-		if (event.key === 'Enter') {
-			event.preventDefault()
-			this.exeSearchInTitles(this.getLastSelectedNode)
-		}
-	})
+	// const el2 = document.getElementById('searchInput')
+	// // fire the search button on pressing enter in the search input field (instead of submitting the form)
+	// el2.addEventListener('keydown', (event) => {
+	// 	if (event.key === 'Enter') {
+	// 		event.preventDefault()
+	// 		this.exeSearchInTitles(this.getLastSelectedNode)
+	// 	}
+	// })
 
-	const el3 = document.getElementById('titleField')
-	// update the item title on pressing enter
-	el3.addEventListener('keydown', (event) => {
-		if (event.key === 'Enter') {
-			event.preventDefault()
-			this.updateTitle()
-		}
-	})
+	// const el3 = document.getElementById('titleField')
+	// // update the item title on pressing enter
+	// el3.addEventListener('keydown', (event) => {
+	// 	if (event.key === 'Enter') {
+	// 		event.preventDefault()
+	// 		this.updateTitle()
+	// 	}
+	// })
 }
 
 function data() {
@@ -87,7 +89,7 @@ function data() {
 
 const computed = {
 	undoTitle() {
-		const changes = this.$store.state.changeHistory
+		const changes = store.state.changeHistory
 		if (changes && changes.length > 0) {
 			const changeType = changes[0].type
 			switch (changeType) {
@@ -146,17 +148,17 @@ const computed = {
 		if (this.getMyAssignedProductIds.length === 1) { msg_4 = ` You have 1 product.` }
 		else msg_4 = ` You selected ${this.getMyProductSubscriptions.length} from ${this.getMyAssignedProductIds.length} products.`
 
-		return `Welcome '${this.$store.state.userData.user}'.` + msg_2 + ` Your current database is set to '${this.$store.state.userData.currentDb}'.` + msg_4
+		return `Welcome '${store.state.userData.user}'.` + msg_2 + ` Your current database is set to '${store.state.userData.currentDb}'.` + msg_4
 	},
 
 	squareText() {
-		if (this.$store.state.online) { return 'sync' } else {
+		if (store.state.online) { return 'sync' } else {
 			return 'offline'
 		}
 	},
 
 	squareColor() {
-		return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
+		return store.state.online ? store.state.eventSyncColor : '#ff0000'
 	},
 
 	subsribeTitle() {
@@ -175,7 +177,7 @@ const computed = {
 
 	description: {
 		get() {
-			return this.$store.state.currentDoc.description
+			return store.state.currentDoc.description
 		},
 		set(newDescription) {
 			this.newDescription = newDescription
@@ -184,7 +186,7 @@ const computed = {
 
 	acceptanceCriteria: {
 		get() {
-			return this.$store.state.currentDoc.acceptanceCriteria
+			return store.state.currentDoc.acceptanceCriteria
 		},
 		set(newAcceptanceCriteria) {
 			this.newAcceptance = newAcceptanceCriteria
@@ -201,11 +203,11 @@ const watch = {
 	doAddition: function (val) {
 		if (val === true) {
 			this.doAddition = false
-			if (this.$store.state.selectedForView === 'attachments') {
+			if (store.state.selectedForView === 'attachments') {
 				this.fileInfo = null
 				this.$refs.uploadRef.show()
 			}
-			if (this.$store.state.selectedForView === 'comments') {
+			if (store.state.selectedForView === 'comments') {
 				if (this.canCreateComments) {
 					this.newComment = ''
 					this.$refs.commentsEditorRef.show()
@@ -213,7 +215,7 @@ const watch = {
 					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
 				}
 			}
-			if (this.$store.state.selectedForView === 'history') {
+			if (store.state.selectedForView === 'history') {
 				this.newHistory = ''
 				this.$refs.historyEditorRef.show()
 			}
@@ -223,11 +225,11 @@ const watch = {
 	startFiltering: function (val) {
 		if (val === true) {
 			this.startFiltering = false
-			if (this.$store.state.selectedForView === 'comments') {
+			if (store.state.selectedForView === 'comments') {
 				this.$refs.commentsFilterRef.show()
 				this.isCommentsFilterActive = true
 			}
-			if (this.$store.state.selectedForView === 'history') {
+			if (store.state.selectedForView === 'history') {
 				this.$refs.historyFilterRef.show()
 				this.isHistoryFilterActive = true
 			}
@@ -237,12 +239,12 @@ const watch = {
 
 const methods = {
 	stopFiltering() {
-		if (this.$store.state.selectedForView === 'comments') {
+		if (store.state.selectedForView === 'comments') {
 			this.filterForCommentPrep = ''
 			this.filterComments()
 			this.isCommentsFilterActive = false
 		}
-		if (this.$store.state.selectedForView === 'history') {
+		if (store.state.selectedForView === 'history') {
 			this.filterForHistoryPrep = ''
 			this.filterHistory()
 			this.isHistoryFilterActive = false
@@ -250,15 +252,15 @@ const methods = {
 	},
 
 	resetFindId() {
-		this.$store.dispatch('resetFindOnId', { caller: 'resetFindId' })
+		store.dispatch('resetFindOnId', { caller: 'resetFindId' })
 	},
 
 	resetSearchTitles() {
-		this.$store.dispatch('resetSearchInTitles', { caller: 'resetSearchTitles' })
+		store.dispatch('resetSearchInTitles', { caller: 'resetSearchTitles' })
 	},
 
 	patchTitle(node) {
-		if (this.$store.state.userData.myOptions.proUser === 'false') return node.title
+		if (store.state.userData.myOptions.proUser === 'false') return node.title
 		let patch = ''
 		if (node.dependencies && node.dependencies.length > 0) patch = '▲ '
 		if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▼ '
@@ -319,7 +321,7 @@ const methods = {
 			// skip this dummy product
 			return false
 		}
-		const descendants = this.$store.state.helpersRef.getDescendantsInfo(node).descendants
+		const descendants = store.state.helpersRef.getDescendantsInfo(node).descendants
 		if (descendants.length > 0) {
 			let highestState = STATE.NEW
 			let allDone = true
@@ -336,16 +338,16 @@ const methods = {
 	},
 
 	onSetMyFilters() {
-		if (this.$store.state.resetFilter) {
+		if (store.state.resetFilter) {
 			// if this filter was on, reset it after resetting any set search and reset the label of the button; pass the array of productmodels to apply the reset on
-			const productModels = this.isOverviewSelected ? undefined : this.$store.state.helpersRef.getCurrentProductModel()
-			this.$store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters', productModels })
+			const productModels = this.isOverviewSelected ? undefined : store.state.helpersRef.getCurrentProductModel()
+			store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters', productModels })
 		} else {
 			// this filter was not set; update the available req area options first
-			const currReqAreaIds = this.$store.state.helpersRef.getCurrentReqAreaIds()
-			this.$store.state.reqAreaOptions = []
+			const currReqAreaIds = store.state.helpersRef.getCurrentReqAreaIds()
+			store.state.reqAreaOptions = []
 			for (const id of currReqAreaIds) {
-				this.$store.state.reqAreaOptions.push({ id, title: this.$store.state.reqAreaMapper[id] })
+				store.state.reqAreaOptions.push({ id, title: store.state.reqAreaMapper[id] })
 			}
 			// open the modal to set the filters
 			window.myFilters.show()
@@ -356,7 +358,7 @@ const methods = {
 	findItemOnId(id) {
 		const isShortId = id.length === SHORTKEYLENGTH
 		let nodeFound
-		this.$store.state.helpersRef.traverseModels((nm) => {
+		store.state.helpersRef.traverseModels((nm) => {
 			if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
 				// short id or full id did match
 				nodeFound = nm
@@ -366,49 +368,49 @@ const methods = {
 		if (nodeFound) {
 			// save display state of the full screen
 			const nodesToScan = undefined
-			this.$store.commit('saveTreeView', { nodesToScan, type: 'findId' })
+			store.commit('saveTreeView', { nodesToScan, type: 'findId' })
 			// load and select the document if not already current
-			if (nodeFound._id !== this.$store.state.currentDoc._id) {
+			if (nodeFound._id !== store.state.currentDoc._id) {
 				// select the node after loading the document
-				this.$store.dispatch('loadDoc', {
+				store.dispatch('loadDoc', {
 					id: nodeFound._id, onSuccessCallback: () => {
 						// create reset object
-						this.$store.state.resetSearch = {
+						store.state.resetSearch = {
 							searchType: 'findItemOnId',
-							view: this.$store.state.currentView,
+							view: store.state.currentView,
 							savedSelectedNode: this.getLastSelectedNode,
 							nodeFound
 						}
-						if (this.isDetailsViewSelected && nodeFound.productId !== this.$store.state.currentProductId) {
+						if (this.isDetailsViewSelected && nodeFound.productId !== store.state.currentProductId) {
 							// the node is found but not in the current product; collapse the currently selected product and switch to the new product
-							this.$store.commit('switchCurrentProduct', nodeFound.productId)
+							store.commit('switchCurrentProduct', nodeFound.productId)
 						}
 						// expand the tree view up to the found item
-						this.$store.state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
-						this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
-						this.showLastEvent(`The item with full Id ${nodeFound._id} is found and selected in product '${this.$store.state.currentProductTitle}'`, SEV.INFO)
+						store.state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
+						store.commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
+						this.showLastEvent(`The item with full Id ${nodeFound._id} is found and selected in product '${store.state.currentProductTitle}'`, SEV.INFO)
 					}
 				})
 			}
 		} else {
 			// the node is not found in the current product selection; try to find it in the database using the short id
 			const lookUpId = isShortId ? id : id.slice(-5)
-			this.$store.dispatch('loadItemByShortId', lookUpId)
+			store.dispatch('loadItemByShortId', lookUpId)
 		}
 	},
 
 	exeSearchInTitles(branchHead) {
 		// cannot search on empty string
-		if (this.$store.state.keyword === '') return
+		if (store.state.keyword === '') return
 
 		const nodesFound = []
 		// save display state of the branch
 		const nodesToScan = [branchHead]
-		this.$store.commit('saveTreeView', { nodesToScan, type: 'titles' })
-		this.$store.state.helpersRef.traverseModels((nm) => {
-			if (nm.title.toLowerCase().includes(this.$store.state.keyword.toLowerCase())) {
+		store.commit('saveTreeView', { nodesToScan, type: 'titles' })
+		store.state.helpersRef.traverseModels((nm) => {
+			if (nm.title.toLowerCase().includes(store.state.keyword.toLowerCase())) {
 				// expand the product up to the found item and highlight it
-				this.$store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
+				store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
 				nodesFound.push(nm)
 			} else {
 				// collapse nodes with no findings in their subtree
@@ -421,18 +423,18 @@ const methods = {
 		}, nodesToScan)
 
 		// create reset object
-		this.$store.state.resetSearch = {
+		store.state.resetSearch = {
 			searchType: 'searchInTitles',
-			view: this.$store.state.currentView,
+			view: store.state.currentView,
 			savedSelectedNode: this.getLastSelectedNode
 		}
 
-		const productStr = this.isOverviewSelected ? 'all products' : ` product '${this.$store.state.currentProductTitle}'`
+		const productStr = this.isOverviewSelected ? 'all products' : ` product '${store.state.currentProductTitle}'`
 		if (nodesFound.length > 0) {
 			// load and select the first node found
-			this.$store.dispatch('loadDoc', {
+			store.dispatch('loadDoc', {
 				id: nodesFound[0]._id, onSuccessCallback: () => {
-					this.$store.commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
+					store.commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
 					if (nodesFound.length === 1) {
 						this.showLastEvent(`One item title matches your search in ${productStr}. This item is selected`, SEV.INFO)
 					} else this.showLastEvent(`${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`, SEV.INFO)
@@ -446,7 +448,7 @@ const methods = {
 	* Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
 	*/
 	moveBack(sourceParentId, targetParentId, reverseMoveMap) {
-		const parentNode = this.$store.state.helpersRef.getNodeById(targetParentId)
+		const parentNode = store.state.helpersRef.getNodeById(targetParentId)
 		if (parentNode === null) return false
 
 		for (const r of reverseMoveMap) {
@@ -473,38 +475,38 @@ const methods = {
 					placement: 'after'
 				}
 			}
-			this.$store.state.helpersRef.removeNodes([node])
+			store.state.helpersRef.removeNodes([node])
 			// the node is assigned a new priority
-			this.$store.state.helpersRef.insertNodes(cursorPosition, [node], { skipUpdateProductId: node.parentId === 'root' })
+			store.state.helpersRef.insertNodes(cursorPosition, [node], { skipUpdateProductId: node.parentId === 'root' })
 			// restore the sprintId
-			this.$store.commit('updateNodesAndCurrentDoc', { node, sprintId: r.sprintId })
+			store.commit('updateNodesAndCurrentDoc', { node, sprintId: r.sprintId })
 		}
 		return true
 	},
 
 	/* Undo a change that was recorded in the change history. Pass isUndoAction: true to indicate that this is a undo operation and no new undo must be created in the change history */
 	onUndoEvent() {
-		if (this.$store.state.busyWithLastUndo) {
+		if (store.state.busyWithLastUndo) {
 			this.showLastEvent('The last undo has not finished. Please try later', SEV.WARNING)
 			return
 		}
 		const isUndoAction = true
-		const entry = this.$store.state.changeHistory.shift()
+		const entry = store.state.changeHistory.shift()
 		switch (entry.type) {
 			case 'undoAcceptanceChange':
-				this.$store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange, isUndoAction })
+				store.dispatch('saveAcceptance', { node: entry.node, newAcceptance: entry.oldAcceptance, timestamp: entry.prevLastContentChange, isUndoAction })
 				break
 			case 'undoAddSprintIds':
-				this.$store.dispatch('removeSprintIds', { parentId: entry.id, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName, isUndoAction })
+				store.dispatch('removeSprintIds', { parentId: entry.id, sprintId: entry.sprintId, itemIds: entry.itemIds, sprintName: entry.sprintName, isUndoAction })
 				break
 			case 'undoBranchClone':
-				this.$store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, isUndoAction })
+				store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, isUndoAction })
 				break
 			case 'undoChangeTeam':
-				this.$store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange, isUndoAction })
+				store.dispatch('assignToMyTeam', { node: entry.node, newTeam: entry.oldTeam, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoDescriptionChange':
-				this.$store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange, isUndoAction })
+				store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange, isUndoAction })
 				break
 			case 'undoMove':
 				{
@@ -516,83 +518,83 @@ const methods = {
 					// the nodes are restored prior to the database update as we need the newly calculated priority to store
 					if (this.moveBack(sourceParentId, targetParentId, reverseMoveMap)) {
 						// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
-						if (!this.$store.state.helpersRef.dependencyViolationsFound()) this.showLastEvent('Item(s) move is undone', SEV.INFO)
+						if (!store.state.helpersRef.dependencyViolationsFound()) this.showLastEvent('Item(s) move is undone', SEV.INFO)
 						// update the nodes in the database
-						this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer, isUndoAction })
+						store.dispatch('updateMovedItemsBulk', { moveDataContainer, isUndoAction })
 					} else {
 						this.showLastEvent('Undo failed. Sign out and -in again to recover.', SEV.ERROR)
-						this.$store.state.busyWithLastUndo = false
+						store.state.busyWithLastUndo = false
 					}
 				}
 				break
 			case 'undoNewNode':
-				this.$store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, isUndoAction })
+				store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, isUndoAction })
 				break
 			case 'undoNewComment':
-				this.$store.dispatch('undoNewCommentAsync', { node: entry.node })
+				store.dispatch('undoNewCommentAsync', { node: entry.node })
 				break
 			case 'undoNewCommentToHistory':
-				this.$store.dispatch('undoNewCommentToHistoryAsync', { node: entry.node })
+				store.dispatch('undoNewCommentToHistoryAsync', { node: entry.node })
 				break
 			case 'undoReqAreaColorChange':
-				this.$store.dispatch('updateColorDb', { node: entry.node, newColor: entry.prevColor, isUndoAction })
+				store.dispatch('updateColorDb', { node: entry.node, newColor: entry.prevColor, isUndoAction })
 				break
 			case 'undoPersonHoursChange':
-				this.$store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange, isUndoAction })
+				store.dispatch('setPersonHours', { node: entry.node, newHrs: entry.oldPersonHours, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoRemove':
-				this.$store.dispatch('undoRemovedBranch', entry)
+				store.dispatch('undoRemovedBranch', entry)
 				break
 			case 'undoRemoveSprintIds':
-				this.$store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName, isUndoAction })
+				store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName, isUndoAction })
 				break
 			case 'undoSelectedPbiType':
-				this.$store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange, isUndoAction })
+				store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoSetDependency':
-				this.$store.dispatch('undoSetDependencyAsync', entry)
+				store.dispatch('undoSetDependencyAsync', entry)
 				break
 			case 'undoStateChange':
-				this.$store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, isUndoAction })
+				store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoStoryPointsChange':
-				this.$store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange, isUndoAction })
+				store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoTitleChange':
-				this.$store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange, isUndoAction })
+				store.dispatch('setDocTitle', { node: entry.node, newTitle: entry.oldTitle, timestamp: entry.prevLastContentChange, isUndoAction })
 				break
 			case 'undoTsSizeChange':
-				this.$store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange, isUndoAction })
+				store.dispatch('setTsSize', { node: entry.node, newSizeIdx: entry.oldTsSize, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoUpdateReqArea':
-				this.$store.dispatch('updateReqArea', { node: entry.node, reqareaId: entry.oldAreaId, timestamp: entry.prevLastChange, isUndoAction })
+				store.dispatch('updateReqArea', { node: entry.node, reqareaId: entry.oldAreaId, timestamp: entry.prevLastChange, isUndoAction })
 				break
 		}
 	},
 
 	subscribeClicked() {
-		this.$store.dispatch('changeSubsription', { node: this.getLastSelectedNode, timestamp: Date.now() })
+		store.dispatch('changeSubsription', { node: this.getLastSelectedNode, timestamp: Date.now() })
 	},
 
 	filterComments() {
-		this.$store.state.filterForComment = this.filterForCommentPrep
+		store.state.filterForComment = this.filterForCommentPrep
 	},
 
 	uploadAttachment() {
-		this.$store.dispatch('uploadAttachmentAsync', {
+		store.dispatch('uploadAttachmentAsync', {
 			node: this.getLastSelectedNode,
 			fileInfo: this.fileInfo,
-			currentDocId: this.$store.state.currentDoc._id,
+			currentDocId: store.state.currentDoc._id,
 			timestamp: Date.now()
 		})
 	},
 
 	filterHistory() {
-		this.$store.state.filterForHistory = this.filterForHistoryPrep
+		store.state.filterForHistory = this.filterForHistoryPrep
 	},
 
 	insertComment() {
-		this.$store.dispatch('addComment', {
+		store.dispatch('addComment', {
 			node: this.getLastSelectedNode,
 			comment: this.newComment,
 			timestamp: Date.now()
@@ -600,7 +602,7 @@ const methods = {
 	},
 
 	insertHist() {
-		this.$store.dispatch('addHistoryComment', {
+		store.dispatch('addHistoryComment', {
 			node: this.getLastSelectedNode,
 			comment: this.newHistory,
 			timestamp: Date.now()
@@ -609,10 +611,10 @@ const methods = {
 
 	/* Tree and database update methods */
 	updateDescription(node = this.getLastSelectedNode) {
-		if (this.$store.state.currentDoc.description !== this.newDescription) {
+		if (store.state.currentDoc.description !== this.newDescription) {
 			// skip update when not changed
-			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the description of this item')) {
-				this.$store.dispatch('saveDescription', {
+			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
+				store.dispatch('saveDescription', {
 					node,
 					newDescription: this.newDescription,
 					timestamp: Date.now()
@@ -624,9 +626,9 @@ const methods = {
 	updateAcceptance(node = this.getLastSelectedNode) {
 		if (node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas') {
 			// skip update when not changed
-			if (this.$store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
-				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
-					this.$store.dispatch('saveAcceptance', {
+			if (store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
+				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
+					store.dispatch('saveAcceptance', {
 						node,
 						newAcceptance: this.newAcceptance,
 						timestamp: Date.now()
@@ -638,13 +640,13 @@ const methods = {
 
 	updateTsSize() {
 		const node = this.getLastSelectedNode
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the t-shirt size of this item')) {
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the t-shirt size of this item')) {
 			const size = document.getElementById('tShirtSizeId').value.toUpperCase()
-			const sizeArray = this.$store.state.configData.tsSize
+			const sizeArray = store.state.configData.tsSize
 			if (sizeArray.includes(size)) {
 				const newSizeIdx = sizeArray.indexOf(size)
-				if (newSizeIdx !== this.$store.state.currentDoc.tssize) {
-					this.$store.dispatch('setTsSize', {
+				if (newSizeIdx !== store.state.currentDoc.tssize) {
+					store.dispatch('setTsSize', {
 						node,
 						newSizeIdx,
 						timestamp: Date.now()
@@ -663,15 +665,15 @@ const methods = {
 	/* Only authorized users who are member of the owning team can change story points. */
 	updateStoryPoints() {
 		const node = this.getLastSelectedNode
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the story points size of this item')) {
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the story points size of this item')) {
 			const el = document.getElementById('storyPointsId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
 				return
 			}
 			const newPoints = parseInt(el.value)
-			if (newPoints !== this.$store.state.currentDoc.spsize) {
-				this.$store.dispatch('setStoryPoints', {
+			if (newPoints !== store.state.currentDoc.spsize) {
+				store.dispatch('setStoryPoints', {
 					node,
 					newPoints,
 					timestamp: Date.now()
@@ -682,15 +684,15 @@ const methods = {
 
 	updatePersonHours() {
 		const node = this.getLastSelectedNode
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change story person hours of this item')) {
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change story person hours of this item')) {
 			const el = document.getElementById('personHoursId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
 				return
 			}
 			const newHrs = parseInt(el.value)
-			if (newHrs !== this.$store.state.currentDoc.spikepersonhours) {
-				this.$store.dispatch('setPersonHours', {
+			if (newHrs !== store.state.currentDoc.spikepersonhours) {
+				store.dispatch('setPersonHours', {
 					node,
 					newHrs,
 					timestamp: Date.now()
@@ -706,10 +708,10 @@ const methods = {
 	* - higher than the state of any of its descendants
 	*/
 	onStateChange(newState) {
-		if (newState !== this.$store.state.currentDoc.state) {
+		if (newState !== store.state.currentDoc.state) {
 			const node = this.getLastSelectedNode
-			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the state of this item')) {
-				this.$store.dispatch('setState', {
+			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the state of this item')) {
+				store.dispatch('setState', {
 					node,
 					newState,
 					position: node.ind,
@@ -720,13 +722,13 @@ const methods = {
 	},
 
 	updateTitle() {
-		const oldTitle = this.$store.state.currentDoc.title
+		const oldTitle = store.state.currentDoc.title
 		const newTitle = document.getElementById('titleField').value
 		if (oldTitle === newTitle) return
 		const node = this.getLastSelectedNode
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, this.$store.state.currentDoc.team, 'change the title of this item')) {
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the title of this item')) {
 			// update current document in database
-			this.$store.dispatch('setDocTitle', {
+			store.dispatch('setDocTitle', {
 				node,
 				newTitle: newTitle,
 				timestamp: Date.now()
@@ -736,7 +738,7 @@ const methods = {
 
 	nodeDropped(nodes, cursorPosition) {
 		this.movePreflightData = this.checkMove(nodes, cursorPosition)
-		if (this.$store.state.userData.myOptions.levelShiftWarning === 'do_warn' && this.movePreflightData.levelShift !== 0) {
+		if (store.state.userData.myOptions.levelShiftWarning === 'do_warn' && this.movePreflightData.levelShift !== 0) {
 			// move to another level; let the user decide to continue or cancel
 			this.warnForMoveToOtherLevel = true
 		} else {
@@ -758,7 +760,7 @@ const methods = {
 	doMove(nodes, cursorPosition) {
 		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
 		// show the event message before the database update is finished
-		if (!this.$store.state.helpersRef.dependencyViolationsFound()) {
+		if (!store.state.helpersRef.dependencyViolationsFound()) {
 			// if dependency violations were found dependencyViolationsFound displayed a message; if not, display a success message
 			const clickedLevel = moveDataContainer.sourceLevel
 			const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
@@ -770,7 +772,7 @@ const methods = {
 			if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
 			this.showLastEvent(evt, SEV.INFO)
 		}
-		this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer })
+		store.dispatch('updateMovedItemsBulk', { moveDataContainer })
 	},
 
 	getViewOptions() {

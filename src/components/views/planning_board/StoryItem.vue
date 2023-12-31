@@ -63,7 +63,7 @@ export default {
 
   data() {
     return {
-      debugMode: this.$store.state.debug,
+      debugMode: store.state.debug,
       showContextMenu: false,
       contextOptionSelected: undefined,
       disableOkButton: true
@@ -98,11 +98,11 @@ export default {
             })
             break
           case this.REMOVE_STORY:
-            this.$store.dispatch('boardRemoveStoryFromSprint', this.story.storyId)
+            store.dispatch('boardRemoveStoryFromSprint', this.story.storyId)
             break
         }
       } else {
-        this.$store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
+        store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
       }
     },
 

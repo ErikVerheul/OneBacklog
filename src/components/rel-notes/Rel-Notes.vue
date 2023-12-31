@@ -5,7 +5,7 @@
       <BRow>
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
-					<p v-if="this.$store.state.demo">Note: This is a demo version of the application.</p>
+          <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
           <h3>v.1.25 - 22 September 2023 Bug fixes, move to Vite</h3>
           <p>Bug fixes:</p>
           <ul>
@@ -30,17 +30,19 @@
             <li>The welcome screen now shows the actual screen width when less than 1400, the minimum required. </li>
           </ul>
           <h3>v.1.22 - 11 September 2023 New feature</h3>
-					<p>New feature:</p>
+          <p>New feature:</p>
           <ul>
             <li>The user can now select a new menu item 'My team' for info about his team and the other teams.</li>
             <li>The welcome screen now shows the actual screen width when less than 1600, the minimum required. </li>
           </ul>
           <h3>v.1.21 - 5 September 2023 New feature, bug fix</h3>
-					<p>New feature:</p>
+          <p>New feature:</p>
           <ul>
-            <li>Two modes are introduced, the standard mode for starters which is the default and a professional mode with many more features.</li>
+            <li>Two modes are introduced, the standard mode for starters which is the default and a professional mode with
+              many more features.</li>
             <li>The user can switch between the modes without the need to sing-in again. </li>
-            <li>The professional mode sports the 'Products overview' for use by the Area Product owner, the option to change database, to move multiple items at once in the tree view and dependency management and alerts.</li>
+            <li>The professional mode sports the 'Products overview' for use by the Area Product owner, the option to
+              change database, to move multiple items at once in the tree view and dependency management and alerts.</li>
             <li>As a result the standard mode is less intimidating. Eg. the context menu has 4 options instead of 8.</li>
           </ul>
           <p>Bug fix:</p>
@@ -48,71 +50,78 @@
             <li>In development mode the images are now visible in teh User guide.</li>
           </ul>
           <h3>v.1.20 - 2 September 2023 Development URL change</h3>
-					<p>Changes:</p>
+          <p>Changes:</p>
           <ul>
             <li>Disallow signing in on devices with a width smaller than 1600 px</li>
-            <li>Revert to http://localhost:8080 instead of https://localhost:8080 in development mode. Creating a local CA certificate to much a hassle.</li>
+            <li>Revert to http://localhost:8080 instead of https://localhost:8080 in development mode. Creating a local CA
+              certificate to much a hassle.</li>
           </ul>
           <h3>v.1.19 - 8 August 2023 Bug fix</h3>
-					<p>Bug fixes:</p>
+          <p>Bug fixes:</p>
           <ul>
             <li>Assigning a dependency failed due to a missing import, fixed</li>
             <li>Fixed error when pasting text with unicode (2 bytes per character).</li>
           </ul>
           <h3>v.1.18 - 18 December 2022 Bug fixes, Security fixes</h3>
-					<p>Bug fixes:</p>
+          <p>Bug fixes:</p>
           <ul>
             <li>Do not update acceptance criteria for requirement areas</li>
-						<li>Prevent signing in before the database restore is ready when restoring the current database</li>
+            <li>Prevent signing in before the database restore is ready when restoring the current database</li>
           </ul>
           <p>Security:</p>
           <ul>
-            <li>Security issues in development dependencies fixed after upgrading to Node v18.12.1 and version updates</li>
+            <li>Security issues in development dependencies fixed after upgrading to Node v18.12.1 and version updates
+            </li>
           </ul>
-					<h3>v.1.17 - 28 Febuari 2022 New features, bug fixes, refactoring</h3>
-					<p>New features:</p>
+          <h3>v.1.17 - 28 Febuari 2022 New features, bug fixes, refactoring</h3>
+          <p>New features:</p>
           <ul>
-            <li>Save and restore node highlighting when using searches (on top of) a filter; show state inconsistency on the fly</li>
-						<li>When no product is assigned to an admin or server admin show a warning and route to the admin page</li>
+            <li>Save and restore node highlighting when using searches (on top of) a filter; show state inconsistency on
+              the fly</li>
+            <li>When no product is assigned to an admin or server admin show a warning and route to the admin page</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
-						<li>Hidden error when resetting search in titles without previous search, fixed</li>
-            <li>When removing an item in the product overview with dependencies or conditions on its descendants, these are not recovered on the undo, fixed</li>
-						<li>Fix false mesage 'The last undo has not finished. Please try later' when the dependency is manually removed</li>
-						<li>Fix regression error when adding a dependency</li>
+            <li>Hidden error when resetting search in titles without previous search, fixed</li>
+            <li>When removing an item in the product overview with dependencies or conditions on its descendants, these
+              are not recovered on the undo, fixed</li>
+            <li>Fix false mesage 'The last undo has not finished. Please try later' when the dependency is manually
+              removed</li>
+            <li>Fix regression error when adding a dependency</li>
           </ul>
-					<p>Refactoring:</p>
+          <p>Refactoring:</p>
           <ul>
-						<li>Showpath and undoShowPath refactored; use capital literals for constants</li>
+            <li>Showpath and undoShowPath refactored; use capital literals for constants</li>
           </ul>
-					<h3>v.1.16 - 5 Febuari 2022 New feature, bug fixes, refactoring</h3>
-					<p>New feature:</p>
+          <h3>v.1.16 - 5 Febuari 2022 New feature, bug fixes, refactoring</h3>
+          <p>New feature:</p>
           <ul>
             <li>When creating a new requirement area do not show color options already in use</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
-						<li>Description changes of requirement area items are not synchronized with other users having the same item selected, fixed</li>
-            <li>When removing an item in the product overview with dependencies or conditions on its descendants, these are not recovered on the undo, fixed</li>
+            <li>Description changes of requirement area items are not synchronized with other users having the same item
+              selected, fixed</li>
+            <li>When removing an item in the product overview with dependencies or conditions on its descendants, these
+              are not recovered on the undo, fixed</li>
           </ul>
-					<p>Refactoring:</p>
+          <p>Refactoring:</p>
           <ul>
-						<li>Sign out refactored app wide to prevent the listenforchanges longpoll to continue after sign out</li>
+            <li>Sign out refactored app wide to prevent the listenforchanges longpoll to continue after sign out</li>
             <li>Move global functions to helpers module</li>
-						<li>Redundant entries in package.json removed</li>
+            <li>Redundant entries in package.json removed</li>
           </ul>
-					<h3>v.1.15 - 25 Januari 2022 Security fixes, refactoring</h3>
+          <h3>v.1.15 - 25 Januari 2022 Security fixes, refactoring</h3>
           <p>Security:</p>
           <ul>
             <li>Security issues in dependencies fixed</li>
           </ul>
-					<p>Refactoring:</p>
+          <p>Refactoring:</p>
           <ul>
             <li>Example localhost certificates made available in the distribution</li>
-						<li>Other minor refactoring</li>
+            <li>Other minor refactoring</li>
           </ul>
-					<h3>v.1.14 - 21 October 2021 Bug and security fixes, tools update</h3>
+          <h3>v.1.14 - 21 October 2021 Bug and security fixes, tools update</h3>
           <p>Bug fixes:</p>
           <ul>
             <li>Data loss on concurrent and overlapping branch/product removal and undo, fixed</li>
@@ -121,20 +130,20 @@
           <ul>
             <li>Security issue in dependencies fixed</li>
           </ul>
-					<p>Tools:</p>
+          <p>Tools:</p>
           <ul>
             <li>Dev tools updated</li>
           </ul>
-					<h3>v.1.13 - 16 October 2021 Feature update and bug and security fixes</h3>
+          <h3>v.1.13 - 16 October 2021 Feature update and bug and security fixes</h3>
           <p>New features:</p>
           <ul>
             <li>Feature added to clone any branch or product</li>
-						<li>Assistance Admins can (un)assign all products of the databases assigned to him/her to all users</li>
+            <li>Assistance Admins can (un)assign all products of the databases assigned to him/her to all users</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
             <li>When selecting a new product the haveWritePermission of the previous selected product is used, fixed</li>
-						<li>Prevent overlapping (concurrent) undo's and branch/product cloning by the user to avoid errors</li>
+            <li>Prevent overlapping (concurrent) undo's and branch/product cloning by the user to avoid errors</li>
             <li>Show a Return button instead of a Cancel button when the database is successfully created</li>
           </ul>
           <p>Security:</p>
@@ -142,16 +151,18 @@
             <li>Vue2-editor dependency update</li>
           </ul>
           <hr />
-					<h3>v.1.12 - 19 August 2021 Bug fixes and dependency updates</h3>
+          <h3>v.1.12 - 19 August 2021 Bug fixes and dependency updates</h3>
           <p>Bug fixes:</p>
           <ul>
             <li>When clicking the reload function of the browser the sign-in page appears. Fixed with a warning.</li>
-            <li>When changing the text of an item's description the text of the same item on display of other users is shown as base-64 encoded. The sync function is not working as expected. Fixed for both the item's description and acceptance criteria.</li>
+            <li>When changing the text of an item's description the text of the same item on display of other users is
+              shown as base-64 encoded. The sync function is not working as expected. Fixed for both the item's
+              description and acceptance criteria.</li>
           </ul>
           <p>Dependency updates:</p>
           <ul>
             <li>Multiple vulnerability issues fixed in updated dependencies</li>
-						<li>Vue development dependency updates to v.4.5.13</li>
+            <li>Vue development dependency updates to v.4.5.13</li>
           </ul>
           <hr />
           <h3>v.1.11 - 29 April 2021 Feature update, bug fixes and performance enhancements</h3>
@@ -175,8 +186,10 @@
           <h3>v.1.10 - 6 April 2021 Feature update and bug and security fixes</h3>
           <p>New features:</p>
           <ul>
-            <li>Context menu for story items on planningboard including options to remove the story and its tasks from the sprint and to copy the story short id to the clipboard</li>
-            <li>Sign-out when no current or next sprint is available. Need to sign-in again to have the sprint calendar extended. (Happens when the user session is extended over the end date of the
+            <li>Context menu for story items on planningboard including options to remove the story and its tasks from the
+              sprint and to copy the story short id to the clipboard</li>
+            <li>Sign-out when no current or next sprint is available. Need to sign-in again to have the sprint calendar
+              extended. (Happens when the user session is extended over the end date of the
               current sprint and no next sprint is available)</li>
           </ul>
           <p>Bug fixes:</p>
@@ -196,7 +209,8 @@
           <p>New features:</p>
           <ul>
             <li>Optional warning when promoting/demoting an item to another level implemented</li>
-            <li>Automatically create a basic default sprint calendar when an admin signs in to a newly created database</li>
+            <li>Automatically create a basic default sprint calendar when an admin signs in to a newly created database
+            </li>
             <li>Show in List teams if a team has its own team sprint calendar</li>
           </ul>
           <p>Bug fixes:</p>
@@ -268,8 +282,10 @@
           </ul>
           <p>User stories done:</p>
           <ul>
-            <li>Do not show a node selection event when selecting the context menu to prevent overwriting a warning message from the context menu</li>
-            <li>Show dependencies/conditions in the tree view when context menu item "Show/remove dependencies/conditions ..." is selected</li>
+            <li>Do not show a node selection event when selecting the context menu to prevent overwriting a warning
+              message from the context menu</li>
+            <li>Show dependencies/conditions in the tree view when context menu item "Show/remove dependencies/conditions
+              ..." is selected</li>
             <li>Show dependency violations in a special sidebar (and remove indicator from the item title)</li>
           </ul>
           <p>Security</p>
@@ -403,7 +419,8 @@
           <ul>
             <li>Fix bug when deleting items from the Products overview (no more orphans left)</li>
             <li>Fix bug when deleting/(undoing this delete) of items with dependencies to items not deleted</li>
-            <li>re-render the planning board after a deletion, of items in another user's session, is completed successfully</li>
+            <li>re-render the planning board after a deletion, of items in another user's session, is completed
+              successfully</li>
           </ul>
           <p>Design changes:</p>
           <ul>
@@ -426,7 +443,8 @@
           </ul>
           <p>Design changes:</p>
           <ul>
-            <li>Introduction of a document with the sole purpose to sync a planning board re-render [NOT downwards compatible]</li>
+            <li>Introduction of a document with the sole purpose to sync a planning board re-render [NOT downwards
+              compatible]</li>
             <li>Descendants of moved nodes are synced individually (not via the parent)</li>
           </ul>
           <hr />
@@ -437,8 +455,10 @@
             <li>Context menu item 'Copy short id to clipboard' implemented for planning board</li>
             <li>Context menu items 'Add a new task' and 'Remove this task' implemented for planning board</li>
             <li>Context menu items 'Change task title' and 'Change task owner' implemented for planning board</li>
-            <li>Remove the sprintId only if equal to sprintId specified, leaving items assigned to other sprints unattached</li>
-            <li>Allow the PO to open the contextmenu of items of another team to reassign the items to his current team</li>
+            <li>Remove the sprintId only if equal to sprintId specified, leaving items assigned to other sprints
+              unattached</li>
+            <li>Allow the PO to open the contextmenu of items of another team to reassign the items to his current team
+            </li>
             <li>Include team membership in all authorization checks</li>
             <li>Sign-out automatically when changing database</li>
           </ul>
@@ -541,7 +561,8 @@
           <h3>v.0.9.1 - 5 March 2020 Feature update and bug fixes</h3>
           <p>Feature update:</p>
           <ul>
-            <li>The filters in the tree view now only highlight the filtered items, not the path to these items. Changed to a less agressive highlight color</li>
+            <li>The filters in the tree view now only highlight the filtered items, not the path to these items. Changed
+              to a less agressive highlight color</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
@@ -556,12 +577,15 @@
           </ul>
           <p>Design changes:</p>
           <ul>
-            <li>When switching between products and requirement areas view, current tree nodes are disposed and loaded new from the database. In the products view only the selected products are loaded
+            <li>When switching between products and requirement areas view, current tree nodes are disposed and loaded new
+              from the database. In the products view only the selected products are loaded
               up to the PBI level. In the requirement area view all products are loaded up to the feature level.</li>
-            <li>When loading the tree nodes only the needed document fields are transferred as values in the GET call. Eg. the description and acceptance criteria are not transferred. Also only the
+            <li>When loading the tree nodes only the needed document fields are transferred as values in the GET call. Eg.
+              the description and acceptance criteria are not transferred. Also only the
               recent history is retrieved.</li>
           </ul>
-          <p>By not transferring the full documents at load time loading is faster and memory usage limited. When the user selects an item the full ducument is loaded.</p>
+          <p>By not transferring the full documents at load time loading is faster and memory usage limited. When the user
+            selects an item the full ducument is loaded.</p>
           <hr />
           <h3>v.0.8.5.1 - 14 February 2020 Regression fix</h3>
           <p>Bug fixes:</p>
@@ -600,12 +624,14 @@
           <h3>v.0.8.4 - 27 January 2020 Feature update</h3>
           <p>New features:</p>
           <ul>
-            <li>Users who subscribed to change notices now receive an email if a change event occurred on these items.</li>
+            <li>Users who subscribed to change notices now receive an email if a change event occurred on these items.
+            </li>
           </ul>
           <p>Design changes:</p>
           <ul>
             <li>A Node.js server side application serves the email dispatch.</li>
-            <li>The synchronization changes listener is now event driven to allow fine grained responses to the changes.</li>
+            <li>The synchronization changes listener is now event driven to allow fine grained responses to the changes.
+            </li>
           </ul>
           <hr />
           <h3>v.0.8.3.1 - 29 December 2019 Bug fix</h3>
@@ -617,7 +643,8 @@
           <hr />
           <h3>v.0.8.3 - 27 December 2019 Feature update and bug fix</h3>
           <ul>
-            <li>The context menu in the products view is extended with 'Make a copy option' for epics, features and PBI items.</li>
+            <li>The context menu in the products view is extended with 'Make a copy option' for epics, features and PBI
+              items.</li>
             <li>The break in upwards compatibility introduced in version 0.8.0 is lifted.</li>
           </ul>
           <p>Bug fixes:</p>
@@ -640,16 +667,20 @@
           <hr />
           <h3>v.0.8.1 - 17 December 2019 Feature update</h3>
           <ul>
-            <li>Changes to the item size, state, title, description, acceptance criteria, added item, moved items and deleted items can be undone in a last change first sequence. A move to another
+            <li>Changes to the item size, state, title, description, acceptance criteria, added item, moved items and
+              deleted items can be undone in a last change first sequence. A move to another
               product cannot be undone automatically.</li>
-            <li>The input fields for 'Find on id' and 'Search in titles' now have a tiny button to clear the field and reset the find/search. The buttons for 'Filter comments' and 'Filter History' now
-              change to 'Clear filter comments' and 'Clear filter history' when the filter is executed. Use these buttons to clear the filter.</li>
+            <li>The input fields for 'Find on id' and 'Search in titles' now have a tiny button to clear the field and
+              reset the find/search. The buttons for 'Filter comments' and 'Filter History' now
+              change to 'Clear filter comments' and 'Clear filter history' when the filter is executed. Use these buttons
+              to clear the filter.</li>
           </ul>
           <hr />
           <h3>v.0.8.0 - 5 December 2019 Major update</h3>
           <p>New features:</p>
           <ul>
-            <li>When changing the state of an item the new state is checked against its descendants. A warning is issued if that state is incompatible. Eg. you can only set a feature to done if all
+            <li>When changing the state of an item the new state is checked against its descendants. A warning is issued
+              if that state is incompatible. Eg. you can only set a feature to done if all
               descendants are done.</li>
             <li>The dependency epic is implemented.</li>
           </ul>
@@ -657,16 +688,19 @@
           <h3>v.0.7.1 - 16 November 2019 Feature update</h3>
           <p>New features:</p>
           <ul>
-            <li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved for use in the next session</li>
+            <li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved
+              for use in the next session</li>
             <li>Product backlog items are now owned by a team</li>
             <li>An authenticated user can assign a backlog item and its descendants to the users team</li>
-            <li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect to a different team than the team of the parent feature</li>
+            <li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect
+              to a different team than the team of the parent feature</li>
           </ul>
           <hr />
           <h3>v.0.7.2 - 26 November 2019 Feature update</h3>
           <p>New features:</p>
           <ul>
-            <li>[USER REQUEST Id = 4i0jz] The product view now shows up to 3 extra badges indicating that an item has changed. This feature is most valuable when another user updates the backlog
+            <li>[USER REQUEST Id = 4i0jz] The product view now shows up to 3 extra badges indicating that an item has
+              changed. This feature is most valuable when another user updates the backlog
               sumultaneous with you</li>
             <li>[Id = 781cc] Uploading and removal of attachments is implemented</li>
           </ul>
@@ -674,14 +708,17 @@
           <h3>v.0.7.1 - 16 November 2019 Feature update</h3>
           <p>New features:</p>
           <ul>
-            <li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved for use in the next session</li>
+            <li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved
+              for use in the next session</li>
             <li>Product backlog items are now owned by a team</li>
             <li>An authenticated user can assign a backlog item and its descendants to the users team</li>
-            <li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect to a different team than the team of the parent feature</li>
+            <li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect
+              to a different team than the team of the parent feature</li>
           </ul>
           <hr />
           <h3>v.0.7.0 - 23 October 2019 Major update</h3>
-          <h5>Note that this release is not backwards compatible with previous releases. The format of the user profile in the _users database now includes database information. An upgrade can be
+          <h5>Note that this release is not backwards compatible with previous releases. The format of the user profile in
+            the _users database now includes database information. An upgrade can be
             fixed using Fauxton.</h5>
           <p>New features:</p>
           <ul>
@@ -737,7 +774,8 @@
           <ul>
             <li>Change to 5 characters alphanumeric short id for more resolution</li>
             <li>Integrate the ISlTreeNodeModel with the ISlTreeNode to one model</li>
-            <li>Use mixin for displaying an event in components; create a mutation for this functionality for use in the VUEX store</li>
+            <li>Use mixin for displaying an event in components; create a mutation for this functionality for use in the
+              VUEX store</li>
           </ul>
           <p>Performance improvements:</p>
           <ul>
@@ -814,7 +852,8 @@
           </ul>
           <p>Performance improvements:</p>
           <ul>
-            <li>Optimized getDraggable when moving the mouse for a better user experience on selecting the drop target</li>
+            <li>Optimized getDraggable when moving the mouse for a better user experience on selecting the drop target
+            </li>
             <li>Prevent unnecessary update of documents</li>
             <li>Limit tree traversals to current product when possible</li>
           </ul>
@@ -866,7 +905,8 @@
           <h3>v.0.4.6 - 15 May 2019 - Minor update</h3>
           <p>New features:</p>
           <ul>
-            <li>The search function in the header now selects all items in a product which have the entered key word in the title</li>
+            <li>The search function in the header now selects all items in a product which have the entered key word in
+              the title</li>
             <li>Show the state of each item in the tree</li>
             <li>Scripts for semi-automatic deployment</li>
           </ul>
@@ -889,29 +929,26 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { onBeforeMount, onBeforeUnmount } from 'vue'
+import { useStore } from 'vuex'
 import AppHeader from '../header/header.vue'
-export default {
-  /* Prevent accidental reloading of this page */
-  beforeMount() {
-    window.addEventListener("beforeunload", this.preventNav)
-  },
 
-  beforeDestroy() {
-    window.removeEventListener("beforeunload", this.preventNav)
-  },
+const store = useStore()
 
-  methods: {
-    preventNav(event) {
-      event.preventDefault()
-      event.returnValue = ""
-    },
-  },
-
-  components: {
-    'app-header': AppHeader
-  }
+function preventNav(event) {
+  event.preventDefault()
+  event.returnValue = ""
 }
+
+/* Prevent accidental reloading of this page */
+onBeforeMount(() => {
+  window.addEventListener("beforeunload", preventNav)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener("beforeunload", preventNav)
+})
 </script>
 
 <style scoped>

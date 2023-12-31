@@ -1,12 +1,13 @@
 import Licence from './licence.vue'
 import { authorization, utilities } from '../mixins/generic.js'
 import logo from '../../assets/logo.png'
+import store from '../../store/store.js'
 
 const MINPASSWORDLENGTH = 8
 
 function created() {
 	// add tag when DEMO version
-	if (this.$store.state.demo) this.appVersion = this.appVersion + ' DEMO'
+	if (store.state.demo) this.appVersion = this.appVersion + ' DEMO'
 }
 
 function data() {
@@ -33,11 +34,11 @@ const methods = {
 		// refreshPlanningboard to (un)show the OnHold column
 		this.refreshPlanningboard()
 		this.showOptionsModal = false
-		this.$store.dispatch('saveMyOptionsAsync')
+		store.dispatch('saveMyOptionsAsync')
 	},
 
 	refreshPlanningboard() {
-		if (this.isPlanningBoardSelected) this.$store.dispatch('loadPlanningBoard', { sprintId: this.$store.state.loadedSprintId, team: this.$store.state.userData.myTeam })
+		if (this.isPlanningBoardSelected) store.dispatch('loadPlanningBoard', { sprintId: store.state.loadedSprintId, team: store.state.userData.myTeam })
 	},
 
 	showOptions() {
@@ -45,9 +46,9 @@ const methods = {
 	},
 
 	changeDatabase() {
-		this.headerMyDatabase = this.$store.state.userData.currentDb
+		this.headerMyDatabase = store.state.userData.currentDb
 		this.headerDatabaseOptions = []
-		for (const db of this.$store.state.myAssignedDatabases) {
+		for (const db of store.state.myAssignedDatabases) {
 			this.headerDatabaseOptions.push(db)
 		}
 		this.$refs.changeDatabaseRef.show()
@@ -56,7 +57,7 @@ const methods = {
 	changeTeam() {
 		this.selectedTeam = this.myTeam
 		this.teamOptions = []
-		for (const team of Object.keys(this.$store.state.allTeams)) {
+		for (const team of Object.keys(store.state.allTeams)) {
 			this.teamOptions.push(team)
 		}
 		this.$refs.changeTeamRef.show()
@@ -83,29 +84,29 @@ const methods = {
 	},
 
 	doChangeDatabase() {
-		if (this.headerMyDatabase !== this.$store.state.userData.currentDb) {
+		if (this.headerMyDatabase !== store.state.userData.currentDb) {
 			const autoSignOut = true
-			this.$store.dispatch('changeCurrentDb', { dbName: this.headerMyDatabase, autoSignOut })
+			store.dispatch('changeCurrentDb', { dbName: this.headerMyDatabase, autoSignOut })
 		}
 	},
 
 	doChangeTeam() {
-		this.$store.dispatch('changeTeam', this.selectedTeam)
+		store.dispatch('changeTeam', this.selectedTeam)
 	},
 
 	doShowTeam() {
-		this.$store.dispatch('fetchTeamsAction', { dbName: this.$store.state.selectedDatabaseName })
+		store.dispatch('fetchTeamsAction', { dbName: store.state.selectedDatabaseName })
 	},
 
 	getMyTeamRecord(myTeam) {
-		for (const rec of this.$store.state.fetchedTeams) {
+		for (const rec of store.state.fetchedTeams) {
 			if (rec.teamName === myTeam) return rec
 		}
 	},
 
 	setDefaultProductOptions() {
 		const options = []
-		for (const o of this.$store.state.myProductOptions) {
+		for (const o of store.state.myProductOptions) {
 			if (this.selectedProducts.includes(o.value)) {
 				options.push(o)
 			}
@@ -141,38 +142,38 @@ const methods = {
 
 	/* The default product changed, update currentProductId, load and show in the tree view and update the user's profile */
 	updateProductsView(productIds) {
-		this.$store.dispatch('loadDoc', {
+		store.dispatch('loadDoc', {
 			id: this.newDefaultProductId, onSuccessCallback: () => {
 				const myOldSubscriptions = this.getMyProductSubscriptions
 				// update the user's profile; place the default productId on top in the array
-				this.$store.dispatch('updateMyProductSubscriptions', {
+				store.dispatch('updateMyProductSubscriptions', {
 					productIds, onSuccessCallback: () => {
-						if (this.$store.state.currentProductId !== this.newDefaultProductId) {
+						if (store.state.currentProductId !== this.newDefaultProductId) {
 							// another product is selected; collapse the currently selected product and switch to the new product
-							this.$store.commit('switchCurrentProduct', this.newDefaultProductId)
+							store.commit('switchCurrentProduct', this.newDefaultProductId)
 							// select new default product node
-							this.$store.state.helpersRef.selectNodeById(this.newDefaultProductId)
+							store.state.helpersRef.selectNodeById(this.newDefaultProductId)
 						}
 						// remove unselected products from the tree view
 						for (const id of myOldSubscriptions) {
 							if (!productIds.includes(id)) {
-								this.$store.state.helpersRef.removeProduct(id)
+								store.state.helpersRef.removeProduct(id)
 							}
 						}
 						// load product(s) in the tree view if missing
 						const missingIds = []
 						for (const productId of productIds) {
 							if (this.getMyProductSubscriptions.includes(productId)) {
-								if (this.$store.state.helpersRef.getNodeById(productId) === null) {
+								if (store.state.helpersRef.getNodeById(productId) === null) {
 									missingIds.push(productId)
 								}
 							}
 						}
 						if (missingIds.length > 0) {
-							this.$store.dispatch('loadProducts', { missingIds, productIdToSelect: this.newDefaultProductId })
+							store.dispatch('loadProducts', { missingIds, productIdToSelect: this.newDefaultProductId })
 						}
 						// show the event
-						this.showSelectionEvent([this.$store.state.helpersRef.getNodeById(this.newDefaultProductId)])
+						this.showSelectionEvent([store.state.helpersRef.getNodeById(this.newDefaultProductId)])
 					}
 				})
 			}
@@ -180,7 +181,7 @@ const methods = {
 	},
 
 	doChangeMyPassWord() {
-		if (this.oldPassword !== this.$store.state.userData.password) {
+		if (this.oldPassword !== store.state.userData.password) {
 			alert('Your current password is incorrect. Please try again.')
 			return
 		}
@@ -192,11 +193,11 @@ const methods = {
 			alert('Your new password must be 8 characters or longer. Please try again.')
 			return
 		}
-		this.$store.dispatch('changeMyPasswordAction', this.newPassword1)
+		store.dispatch('changeMyPasswordAction', this.newPassword1)
 	},
 
 	onSignout() {	
-		this.$store.commit('endSession', 'header: user signed out')
+		store.commit('endSession', 'header: user signed out')
 	}
 }
 

@@ -20,17 +20,17 @@
             </template>
             <template v-else>
               <BButton disabled>Submit</BButton>
-            </template>          
+            </template>
           </div>
         </div>
-        <div v-if="!this.$store.state.demo" class="text-center big-margin">No account yet? Ask your SM or PO to create
+        <div v-if="!store.state.demo" class="text-center big-margin">No account yet? Ask your SM or PO to create
           one.</div>
         <div class="text-center">
           This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
           implied warranty of
           MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu.
         </div>
-        <div v-if="this.$store.state.demo" class="text-center">
+        <div v-if="store.state.demo" class="text-center">
           <p>
             This is a demo instance of the application. Your changes can be overridden by others or by a database restore.
             <br />Please leave your findings in this applications register or raise an issue at

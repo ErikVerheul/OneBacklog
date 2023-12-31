@@ -30,7 +30,7 @@
     </template>
     <template v-else>
       <BListGroup>
-        <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
+        <template v-if="!store.state.moveOngoing && !store.state.selectNodeOngoing">
           <template v-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
             <BListGroupItem
               v-if="contextNodeLevel > PBILEVEL"
@@ -69,7 +69,7 @@
 						</template>
 
             <BListGroupItem
-              v-if="$store.state.userData.myOptions.proUser === 'true' && hasDependencies && contextNodeLevel > PRODUCTLEVEL"
+              v-if="store.state.userData.myOptions.proUser === 'true' && hasDependencies && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWDEPENDENCIES"
               variant="dark"
@@ -77,7 +77,7 @@
             >▲ Show/remove existing dependencies on this item</BListGroupItem>
 
             <BListGroupItem
-              v-if="$store.state.userData.myOptions.proUser === 'true' && hasConditions && contextNodeLevel > PRODUCTLEVEL"
+              v-if="store.state.userData.myOptions.proUser === 'true' && hasConditions && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SHOWCONDITIONS"
               variant="dark"
@@ -85,7 +85,7 @@
             >▼ Show/remove existing conditions for other items</BListGroupItem>
 
             <BListGroupItem
-              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
+              v-if="store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === SETDEPENDENCY"
               variant="dark"
@@ -98,7 +98,7 @@
             </BListGroupItem>
 
             <BListGroupItem
-              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
+              v-if="store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === MOVETOPRODUCT"
               variant="dark"
@@ -106,7 +106,7 @@
             >Move this {{ contextNodeType }} to another product</BListGroupItem>
 
             <BListGroupItem
-              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel === PRODUCTLEVEL"
+              v-if="store.state.userData.myOptions.proUser === 'true' && contextNodeLevel === PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEPRODUCT"
               variant="dark"
@@ -114,7 +114,7 @@
             >Make a clone of this {{ contextNodeType }}</BListGroupItem>
 
 						<BListGroupItem
-              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
+              v-if="store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEBRANCH"
               variant="dark"
@@ -122,7 +122,7 @@
             >Make a clone of this {{ contextNodeType }}</BListGroupItem>
 
             <BListGroupItem
-              v-if="$store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
+              v-if="store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL"
               button
               :active="contextOptionSelected === CLONEITEM"
               variant="dark"
@@ -164,7 +164,7 @@
         </template>
 
         <BListGroupItem
-          v-if="$store.state.selectNodeOngoing"
+          v-if="store.state.selectNodeOngoing"
           button
           :active="contextOptionSelected === SETDEPENDENCY"
           variant="dark"
@@ -172,7 +172,7 @@
         >Select this node as a condition for '{{ dependentOnNode.title }}'</BListGroupItem>
 
         <BListGroupItem
-          v-if="$store.state.moveOngoing && moveSourceProductId !== $store.state.currentProductId"
+          v-if="store.state.moveOngoing && moveSourceProductId !== store.state.currentProductId"
           button
           :active="contextOptionSelected === MOVETOPRODUCT"
           variant="dark"

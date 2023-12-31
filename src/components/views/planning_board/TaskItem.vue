@@ -60,7 +60,7 @@ export default {
 
   data() {
     return {
-      debugMode: this.$store.state.debug,
+      debugMode: store.state.debug,
       showContextMenu: false,
       contextOptionSelected: undefined,
       newTaskTitle: '',
@@ -90,12 +90,12 @@ export default {
         case this.CHANGE_OWNER:
           // populate the userOptions array
           this.userOptions = []
-          for (const userName of this.$store.state.allTeams[this.$store.state.userData.myTeam].members) {
+          for (const userName of store.state.allTeams[store.state.userData.myTeam].members) {
             this.userOptions.push(userName)
           }
           this.assistanceText = undefined
           this.listItemText = 'Change the owner of this task'
-          this.selectedUser = this.$store.state.userData.user
+          this.selectedUser = store.state.userData.user
           break
         case this.ID_TO_CLIPBOARD:
 				case this.REMOVE_TASK:
@@ -111,13 +111,13 @@ export default {
         this.showAssistance = false
         switch (this.contextOptionSelected) {
           case this.ADD_TASK:
-            this.$store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.newTaskTitle })
+            store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.newTaskTitle })
             break
           case this.CHANGE_TITLE:
-            this.$store.dispatch('boardUpdateTaskTitle', { taskId: this.item.id, newTaskTitle: this.changedTaskTitle })
+            store.dispatch('boardUpdateTaskTitle', { taskId: this.item.id, newTaskTitle: this.changedTaskTitle })
             break
           case this.CHANGE_OWNER:
-            this.$store.dispatch('boardUpdateTaskOwner', { taskId: this.item.id, newTaskOwner: this.selectedUser })
+            store.dispatch('boardUpdateTaskOwner', { taskId: this.item.id, newTaskOwner: this.selectedUser })
             break
           case this.ID_TO_CLIPBOARD:
             navigator.clipboard.writeText(this.item.id.slice(-5)).then(() => {
@@ -129,11 +129,11 @@ export default {
             })
             break
           case this.REMOVE_TASK:
-						this.$store.dispatch('boardRemoveTask', this.item.id)
+						store.dispatch('boardRemoveTask', this.item.id)
             break
         }
       } else {
-        this.$store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
+        store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
       }
     },
 

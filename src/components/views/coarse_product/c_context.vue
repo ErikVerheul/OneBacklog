@@ -32,7 +32,7 @@
     </template>
     <template v-else>
       <BListGroup>
-        <template v-if="!$store.state.moveOngoing && !$store.state.selectNodeOngoing">
+        <template v-if="!store.state.moveOngoing && !store.state.selectNodeOngoing">
           <template v-if="isReqAreaItem">
             <template v-if="isReqAreaTopLevel">
               <BListGroupItem
@@ -153,7 +153,7 @@
         </template>
 
         <BListGroupItem
-          v-if="$store.state.selectNodeOngoing"
+          v-if="store.state.selectNodeOngoing"
           button
           :active="contextOptionSelected === SETDEPENDENCY"
           variant="dark"

@@ -4,22 +4,22 @@
       <!-- Right aligned nav items -->
       <BNavbarNav class="ml-auto">
         <BNavForm>
-          <BButton class="m-1" id="tooltip-undo" v-show="$store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
+          <BButton class="m-1" id="tooltip-undo" v-show="store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
           <!-- TODO: check if BTooltip component exixts -->
           <BTooltip target="tooltip-undo" triggers="hover">
             {{ undoTitle }}
           </BTooltip>
           <BButton class="m-1" v-show="!isRootSelected && !isReqAreaItemSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</BButton>
           <div class="divider" />
-          <BInputGroup v-show="$store.state.resetSearch.searchType !== 'searchInTitles'">
-            <BFormInput class="form-width" id="findItemOnId" v-model="$store.state.itemId" placeholder="Select on (short) Id"></BFormInput>
+          <BInputGroup v-show="store.state.resetSearch.searchType !== 'searchInTitles'">
+            <BFormInput class="form-width" id="findItemOnId" v-model="store.state.itemId" placeholder="Select on (short) Id"></BFormInput>
             <BInputGroup-append>
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
             </BInputGroup-append>
           </BInputGroup>
           <div class="divider" />
-          <BInputGroup v-show="!isRootSelected && !isReqAreaItemSelected && $store.state.resetSearch.searchType !== 'findItemOnId'">
-            <BFormInput id="searchInput" v-model="$store.state.keyword" placeholder="Search in titles"></BFormInput>
+          <BInputGroup v-show="!isRootSelected && !isReqAreaItemSelected && store.state.resetSearch.searchType !== 'findItemOnId'">
+            <BFormInput id="searchInput" v-model="store.state.keyword" placeholder="Search in titles"></BFormInput>
             <BInputGroup-append>
               <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
             </BInputGroup-append>
@@ -35,23 +35,23 @@
               {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
               <input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
             </h3>
-            <h3 v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && $store.state.currentDoc.subtype !== spikeSubtype)">
+            <h3 v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
               Story points:
-              <input type="text" size="3" maxlength="3" id="storyPointsId" :value="$store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
+              <input type="text" size="3" maxlength="3" id="storyPointsId" :value="store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
             </h3>
-            <h3 v-if="getCurrentItemLevel === LEVEL.PBI && $store.state.currentDoc.subtype === spikeSubtype">
+            <h3 v-if="getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype === spikeSubtype">
               Person hours:
-              <input type="text" size="3" maxlength="3" id="personHoursId" :value="$store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
+              <input type="text" size="3" maxlength="3" id="personHoursId" :value="store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
             </h3>
           </BCol>
           <BCol cols="5">
-            <h3 align="center">{{ $store.state.currentProductTitle }} [Overview]</h3>
+            <h3 align="center">{{ store.state.currentProductTitle }} [Overview]</h3>
           </BCol>
           <BCol cols="3">
-            <h3 v-if="$store.state.currentDoc._id !== 'root' && $store.state.currentDoc._id !== 'requirement-areas' && $store.state.currentDoc.parentId !== 'requirement-areas'" align="right">
+            <h3 v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== 'requirement-areas' && store.state.currentDoc.parentId !== 'requirement-areas'" align="right">
               State:
               <BDropdown right class="m-1 .btn.btn-secondary.dropdown-toggle">
-                <template slot="button-content">{{ getItemStateText($store.state.currentDoc.state) }}</template>
+                <template slot="button-content">{{ getItemStateText(store.state.currentDoc.state) }}</template>
                 <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>
@@ -74,7 +74,7 @@
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
-          <sl-vue-tree :value="$store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
+          <sl-vue-tree :value="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
             <template slot="title" slot-scope="{ node }">
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
@@ -148,9 +148,9 @@
               <template v-if="node.productId === MISC.AREA_PRODUCTID">
                 <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{'background-color': node.data.reqAreaItemColor}"></p>
               </template>
-              <p v-else-if="$store.state.colorMapper && node.level > LEVEL.PRODUCT">
-                <BButton v-if="node.data.reqarea && $store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
-                  :style="{'background-color': $store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node)" squared size="sm">Change
+              <p v-else-if="store.state.colorMapper && node.level > LEVEL.PRODUCT">
+                <BButton v-if="node.data.reqarea && store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
+                  :style="{'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node)" squared size="sm">Change
                 </BButton>
                 <BButton v-else @click="setReqArea(node)" squared variant="seablueLight" size="sm">Set</BButton>
               </p>
@@ -165,8 +165,8 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell" type="text" maxlength="60" id="titleField" :value="$store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
-              <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ $store.state.currentDoc._id.slice(-5) }}</div>
+              <BFormInput class="d-table-cell" type="text" maxlength="60" id="titleField" :value="store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
+              <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</BButton>
               </div>
@@ -188,7 +188,7 @@
             <div class="d-table w-100">
               <h5 class="title is-6">Description</h5>
               <div class="d-table-cell tar">
-                <p class="title is-6"> Last update by {{ $store.state.currentDoc.history[0].by }} @ {{ new Date($store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
+                <p class="title is-6"> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
           </div>
@@ -212,17 +212,17 @@
           <div class="pane" :style="{ height: '75px', top:'5px'}">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <BButton variant="primary" :pressed.sync="doAddition">Add {{ $store.state.selectedForView }}</BButton>
+                <BButton variant="primary" :pressed.sync="doAddition">Add {{ store.state.selectedForView }}</BButton>
               </div>
               <div class="d-table-cell tac">
                 <BFormGroup label="Select to see">
-                  <BFormRadioGroup v-model="$store.state.selectedForView" :options="getViewOptions()" plain name="viewOptions" />
+                  <BFormRadioGroup v-model="store.state.selectedForView" :options="getViewOptions()" plain name="viewOptions" />
                 </BFormGroup>
               </div>
               <div class="d-table-cell tar">
-                <BButton v-if="$store.state.selectedForView === 'comments' && !isCommentsFilterActive || $store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
-                  :pressed.sync="startFiltering">Filter {{ $store.state.selectedForView }}</BButton>
-                <BButton v-else variant="primary" @click="stopFiltering">Clear {{ $store.state.selectedForView }} filter</BButton>
+                <BButton v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
+                  :pressed.sync="startFiltering">Filter {{ store.state.selectedForView }}</BButton>
+                <BButton v-else variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@
         {{ getLastSelectedNode.title }}
       </template>
       <BFormGroup label="Select the requirement area this item belongs to:">
-        <BFormRadioGroup v-model="selReqAreaId" :options="this.$store.state.reqAreaOptions" value-field="id" text-field="title" stacked></BFormRadioGroup>
+        <BFormRadioGroup v-model="selReqAreaId" :options="this.store.state.reqAreaOptions" value-field="id" text-field="title" stacked></BFormRadioGroup>
       </BFormGroup>
     </BModal>
     <!-- filter modals -->
@@ -290,8 +290,8 @@
     </BModal>
 
     <BModal size="lg" ref="historyEventRef" title="Event history" ok-only>
-      <div v-if="$store.state.eventList.length > 0">
-        <div v-for="item in $store.state.eventList" :key="item.eventKey">
+      <div v-if="store.state.eventList.length > 0">
+        <div v-for="item in store.state.eventList" :key="item.eventKey">
           <p class="event-list" :style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
         </div>
       </div>

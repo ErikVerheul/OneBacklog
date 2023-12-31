@@ -3,16 +3,16 @@
     <BModal size="lg" ref="myFiltersRef" @ok="onApplyMyFilters" title="View, set and/or save your filters">
       <BContainer fluid align-v="true">
         <BRow class="my-1">
-          <BCol sm="12" v-if="$store.state.userData.myOptions.proUser === 'true'">
+          <BCol sm="12" v-if="store.state.userData.myOptions.proUser === 'true'">
             <BFormCheckbox v-model="filterOnDependencies">Filter on items with dependencies</BFormCheckbox>
             <hr />
           </BCol>
 
-          <BCol sm="12" v-if="$store.state.userData.myOptions.proUser === 'true'">
+          <BCol sm="12" v-if="store.state.userData.myOptions.proUser === 'true'">
             <BFormCheckbox v-model="filterOnReqAreas">Filter on requirement area(s)</BFormCheckbox>
             <div v-if="filterOnReqAreas" class="indent20">
               <BFormGroup>
-                <BFormCheckboxGroup v-model="selectedReqAreas" :options="this.$store.state.reqAreaOptions"
+                <BFormCheckboxGroup v-model="selectedReqAreas" :options="store.state.reqAreaOptions"
                   value-field="id" text-field="title" stacked></BFormCheckboxGroup>
               </BFormGroup>
             </div>

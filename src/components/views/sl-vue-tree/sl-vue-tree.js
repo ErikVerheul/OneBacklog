@@ -4,6 +4,7 @@
 import { SEV, LEVEL } from '../../../constants.js'
 import { collapseNode, expandNode } from '../../../common_functions.js'
 import commonView from '../common_view.js'
+import store from '../../../store/store.js'
 
 // in px; used to calculate the node closest to the current cursor position
 const edgeSize = 6
@@ -44,7 +45,7 @@ function mounted() {
 	}
 }
 
-function beforeDestroy() {
+function beforeUnmount() {
 	document.removeEventListener('mouseup', this.onDocumentMouseupHandler)
 }
 
@@ -56,7 +57,7 @@ const computed = {
 
 	filteredNodes() {
 		if (this.isRoot) {
-			const retNodes = this.$store.state.treeNodes.map((nm) => nm)
+			const retNodes = store.state.treeNodes.map((nm) => nm)
 			// console.log('filteredNodes1: returning the root node')
 			return retNodes
 		}
@@ -76,7 +77,7 @@ const computed = {
 		const gaps = []
 		let i = this.nodeLevel
 		while (i-- > 0) gaps.push(i)
-		if (this.nodeLevel + 1 === this.$store.state.helpersRef.getLeafLevel()) {
+		if (this.nodeLevel + 1 === store.state.helpersRef.getLeafLevel()) {
 			// create an extra array member for an extra indent on leaf level (this level has no leading chevron in the tree view)
 			gaps.push(i)
 		}
@@ -100,7 +101,7 @@ const methods = {
 
 	// trigger the context component via the eventbus if the node is selectable
 	emitNodeContextmenu(node) {
-		if (node.isSelectable) this.eventBus.$emit('context-menu', node)
+		if (node.isSelectable) this.eventBus.emit('context-menu', node)
 	},
 
 	emitSelect(fromContextMenu) {
@@ -122,7 +123,7 @@ const methods = {
 
 		const pathStr = nodeItem.getAttribute('path')
 		const path = JSON.parse(pathStr)
-		const nodeModel = this.$store.state.helpersRef.getNodeModel(path)
+		const nodeModel = store.state.helpersRef.getNodeModel(path)
 		if (!nodeModel) return null
 
 		const nodeHeight = nodeItem.offsetHeight
@@ -183,7 +184,7 @@ const methods = {
 		// calculate only once
 		if (isDragStarted) {
 			this.draggableNodes = []
-			for (const node of this.$store.state.selectedNodes) {
+			for (const node of store.state.selectedNodes) {
 				if (node.isDraggable) {
 					this.draggableNodes.push(node)
 				}
@@ -245,9 +246,9 @@ const methods = {
 		}
 
 		// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-		if (!this.lastSelectedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || this.$store.state.moveOngoing || this.$store.state.selectNodeOngoing) {
-			if (this.$store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', SEV.WARNING)
-			if (this.$store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
+		if (!this.lastSelectedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || store.state.moveOngoing || store.state.selectNodeOngoing) {
+			if (store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', SEV.WARNING)
+			if (store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
 			this.stopDrag()
 			return
 		}
@@ -280,8 +281,8 @@ const methods = {
 		}
 
 		// if the cursor is placed below the last child of a parent item insert the moved item(s) as childs of that parent
-		const sourceParent = this.$store.state.helpersRef.getParentNode(this.lastSelectedNode)
-		const nextParent = this.$store.state.helpersRef.getNextSibling(sourceParent.path)
+		const sourceParent = store.state.helpersRef.getParentNode(this.lastSelectedNode)
+		const nextParent = store.state.helpersRef.getNextSibling(sourceParent.path)
 		if (sourceParent === null) {
 			// cancel the drop
 			this.showLastEvent('The parent of the selected node is not found', SEV.ERROR)
@@ -320,30 +321,30 @@ const methods = {
 
 	/* Select a node from the tree; another node must have been selected before; multiple nodes must have the same parent */
 	select(cursorPosition, event) {
-		this.$store.state.lastSelectCursorPosition = cursorPosition
+		store.state.lastSelectCursorPosition = cursorPosition
 		const selNode = cursorPosition.nodeModel
 		if (selNode.isSelectable) {
 			this.preventDrag = false
-			const prevSelectedNode = this.$store.state.selectedNodes.slice(-1)[0] || selNode
+			const prevSelectedNode = store.state.selectedNodes.slice(-1)[0] || selNode
 			// ctrl-select or shift-select mode is allowed only if in professional mode and nodes have the same parent and are above PRODUCTLEVEL (epics, features and higher)
-			if (this.$store.state.userData.myOptions.proUser === 'true' && selNode.level > LEVEL.PRODUCT && selNode.parentId === prevSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
+			if (store.state.userData.myOptions.proUser === 'true' && selNode.level > LEVEL.PRODUCT && selNode.parentId === prevSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
 				if (event.ctrlKey) {
 					// multi selection
-					this.$store.commit('addSelectedNode', selNode)
+					store.commit('addSelectedNode', selNode)
 				} else {
 					if (event.shiftKey) {
 						// range selection
-						const siblings = this.$store.state.helpersRef.getNodeSiblings(selNode.path)
+						const siblings = store.state.helpersRef.getNodeSiblings(selNode.path)
 						if (selNode.ind > prevSelectedNode.ind) {
 							for (const s of siblings) {
 								if (s.ind > prevSelectedNode.ind && s.ind <= selNode.ind) {
-									this.$store.commit('addSelectedNode', s)
+									store.commit('addSelectedNode', s)
 								}
 							}
 						} else if (selNode.ind < prevSelectedNode.ind) {
 							for (let i = siblings.length - 1; i >= 0; i--) {
 								if (siblings[i].ind < prevSelectedNode.ind && siblings[i].ind >= selNode.ind) {
-									this.$store.commit('addSelectedNode', siblings[i])
+									store.commit('addSelectedNode', siblings[i])
 								}
 							}
 						}
@@ -351,9 +352,9 @@ const methods = {
 				}
 			} else {
 				// single selection mode
-				this.$store.commit('renewSelectedNodes', selNode)
+				store.commit('renewSelectedNodes', selNode)
 			}
-			// access the selected nodes using the store: $store.state.selectedNodes
+			// access the selected nodes using the store: store.state.selectedNodes
 			const fromContextMenu = false
 			this.emitSelect(fromContextMenu)
 		}
@@ -369,8 +370,8 @@ const methods = {
 
 	/* test code */
 	showVisibility(caller, toLevel = 3) {
-		const nodesToScan = this.isOverviewSelected ? undefined : this.$store.state.helpersRef.getCurrentProductModel()
-		this.$store.state.helpersRef.traverseModels((nm) => {
+		const nodesToScan = this.isOverviewSelected ? undefined : store.state.helpersRef.getCurrentProductModel()
+		store.state.helpersRef.traverseModels((nm) => {
 			if (nm.level <= toLevel) {
 				// eslint-disable-next-line no-console
 				console.log(`${caller}: level = ${nm.level}, isExpanded = ${nm.isExpanded}, doShow = ${nm.doShow}, title = ${nm.title}`)
@@ -392,7 +393,7 @@ export default {
 	props,
 	data,
 	mounted,
-	beforeDestroy,
+	beforeUnmount,
 	computed,
 	methods
 }

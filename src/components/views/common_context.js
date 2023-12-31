@@ -1,6 +1,7 @@
 import { SEV, STATE, MISC } from '../../constants.js'
 import { utoa, createId } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
+import store from '../../store/store.js'
 
 function created() {
 	this.ONHOLDSTATE = 1
@@ -71,12 +72,12 @@ const methods = {
 
 	/* Clone a product INCLUDING its descendants */
 	doCloneProduct(node) {
-		this.$store.dispatch('cloneBranch', node)
+		store.dispatch('cloneBranch', node)
 	},
 
 	/* Clone a branch INCLUDING its descendants */
 	doCloneBranch(node) {
-		this.$store.dispatch('cloneBranch', node)
+		store.dispatch('cloneBranch', node)
 	},
 
 	/* Copy an item EXCLUDING its descendants, attachments, sprintId, dependencies, conditions and followers
@@ -85,7 +86,7 @@ const methods = {
 	doCopyItem(node) {
 		const now = Date.now()
 		let newNodeLocation
-		const prevNode = this.$store.state.helpersRef.getPreviousNode(node.path)
+		const prevNode = store.state.helpersRef.getPreviousNode(node.path)
 		if (node.path.slice(-1)[0] === 0) {
 			// the previous node is the parent
 			newNodeLocation = {
@@ -128,7 +129,7 @@ const methods = {
 			tmp: {}
 		}
 
-		const preFligthData = this.$store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
+		const preFligthData = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
 		newNode.productId = preFligthData.productId
 		newNode.parentId = preFligthData.parentId
 		newNode.level = preFligthData.level
@@ -136,7 +137,7 @@ const methods = {
 		newNode.data.priority = preFligthData.priority
 
 		// create a new document as a partial copy of the current document
-		const currentDoc = this.$store.state.currentDoc
+		const currentDoc = store.state.currentDoc
 		const newDoc = {
 			productId: newNode.productId,
 			parentId: newNode.parentId,
@@ -163,14 +164,14 @@ const methods = {
 				distributeEvent: false
 			}],
 			history: [{
-				createEvent: [newNode.level, this.$store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
-				by: this.$store.state.userData.user,
+				createEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
+				by: store.state.userData.user,
 				timestamp: now,
-				sessionId: this.$store.state.mySessionId,
+				sessionId: store.state.mySessionId,
 				distributeEvent: true
 			}]
 		}
-		this.$store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
+		store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
 	},
 
 	/*
@@ -221,7 +222,7 @@ const methods = {
 			tmp: {}
 		}
 
-		const preFligthData = this.$store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
+		const preFligthData = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
 		newNode.productId = preFligthData.productId
 		newNode.parentId = preFligthData.parentId
 		newNode.level = preFligthData.level
@@ -237,7 +238,7 @@ const methods = {
 			newNode.title = newNode.parentId === MISC.AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(newNode.level)
 			if (newNode.level === SEV.TASK) {
 				// when inserting a task, set the task owner to the current user
-				newNode.data.taskOwner = this.$store.state.userData.user
+				newNode.data.taskOwner = store.state.userData.user
 				// when inserting a task, copy the sprintId from the parent PBI or sibling task
 				newNode.data.sprintId = node.data.sprintId
 			}
@@ -270,25 +271,25 @@ const methods = {
 					distributeEvent: false
 				}],
 				history: [{
-					createEvent: [newNode.level, this.$store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
-					by: this.$store.state.userData.user,
+					createEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
+					by: store.state.userData.user,
 					timestamp: now,
-					sessionId: this.$store.state.mySessionId,
+					sessionId: store.state.mySessionId,
 					distributeEvent: true,
 					updateBoards: { sprintsAffected: [node.data.sprintId], teamsAffected: [newNode.data.team] }
 				}]
 			}
-			this.$store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
+			store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
 		}
 	},
 
 	doSetDependency() {
-		if (this.$store.state.selectNodeOngoing) {
-			this.$store.dispatch('setDepAndCond', { dependentOnNode: this.dependentOnNode, conditionalForNode: this.contextNodeSelected, timestamp: Date.now() })
+		if (store.state.selectNodeOngoing) {
+			store.dispatch('setDepAndCond', { dependentOnNode: this.dependentOnNode, conditionalForNode: this.contextNodeSelected, timestamp: Date.now() })
 		} else {
 			// save the node the dependency will be added to
 			this.dependentOnNode = this.contextNodeSelected
-			this.$store.state.selectNodeOngoing = true
+			store.state.selectNodeOngoing = true
 		}
 	},
 
@@ -301,7 +302,7 @@ const methods = {
 		if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
 			// when removing a product
 			if (selectedNode.level === this.PRODUCTLEVEL) {
-				if (this.getMyAssignedProductIds.length === 1 || this.$store.state.helpersRef.getProducts().length <= 1) {
+				if (this.getMyAssignedProductIds.length === 1 || store.state.helpersRef.getProducts().length <= 1) {
 					// cannot remove the last assigned product or product in the tree
 					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)
 					return
@@ -309,13 +310,13 @@ const methods = {
 			}
 			this.showLastEvent('Busy removing branch...', SEV.INFO)
 			// set remove mark in the database on the clicked item and descendants (if any), then remove the node
-			this.$store.dispatch('removeBranch', { node: selectedNode, undoOnError: false })
+			store.dispatch('removeBranch', { node: selectedNode, undoOnError: false })
 		}
 	},
 
 	/* Return an array with the product node aNode is a descendant of, or an empty array if no parent is found */
 	getProductNode(aNode) {
-		const allProductNodes = this.$store.state.helpersRef.getProducts()
+		const allProductNodes = store.state.helpersRef.getProducts()
 		for (let nm of allProductNodes) {
 			if (nm.productId === aNode.productId) return [nm]
 		}
@@ -324,12 +325,12 @@ const methods = {
 
 	/* Undo the tree expansion and highlighting */
 	undoShowDependencies(nodesToScan) {
-		this.$store.commit('restoreTreeView', { type: 'dependency', nodesToScan })
+		store.commit('restoreTreeView', { type: 'dependency', nodesToScan })
 	},
 
 	/* Undo the tree expansion and highlighting */
 	undoShowConditions(nodesToScan) {
-		this.$store.commit('restoreTreeView', { type: 'condition', nodesToScan })
+		store.commit('restoreTreeView', { type: 'condition', nodesToScan })
 	},
 
 	/* Remove the dependencies and the corresponding conditions in the tree model and the database. */
@@ -340,7 +341,7 @@ const methods = {
 			for (const id of this.contextNodeSelected.dependencies) {
 				if (!this.selectedDependencyIds.includes(id)) newDeps.push(id)
 			}
-			this.$store.dispatch('removeDependenciesAsync', { node: this.contextNodeSelected, newDeps, removedIds: this.selectedDependencyIds, timestamp: Date.now() })
+			store.dispatch('removeDependenciesAsync', { node: this.contextNodeSelected, newDeps, removedIds: this.selectedDependencyIds, timestamp: Date.now() })
 		}
 	},
 
@@ -352,15 +353,15 @@ const methods = {
 			for (const id of this.contextNodeSelected.conditions) {
 				if (!this.selectedConditionIds.includes(id)) newCons.push(id)
 			}
-			this.$store.dispatch('removeConditionsAsync', { node: this.contextNodeSelected, newCons, removedIds: this.selectedConditionIds, timestamp: Date.now() })
+			store.dispatch('removeConditionsAsync', { node: this.contextNodeSelected, newCons, removedIds: this.selectedConditionIds, timestamp: Date.now() })
 		}
 	},
 
 	/* Cancel the context menu */
 	doCancel() {
 		this.showAssistance = false
-		this.$store.state.moveOngoing = false
-		this.$store.state.selectNodeOngoing = false
+		store.state.moveOngoing = false
+		store.state.selectNodeOngoing = false
 		if (this.contextOptionSelected === this.SHOWDEPENDENCIES) {
 			this.undoShowDependencies(this.getProductNode(this.contextNodeSelected))
 		}
@@ -373,11 +374,11 @@ const methods = {
 		this.dependenciesObjects = []
 		this.allDepenciesFound = true
 		const nodesToScan = this.getProductNode(this.contextNodeSelected)
-		this.$store.commit('saveTreeView', { nodesToScan, type: 'dependency' })
+		store.commit('saveTreeView', { nodesToScan, type: 'dependency' })
 		for (const depId of this.contextNodeSelected.dependencies) {
-			const item = this.$store.state.helpersRef.getNodeById(depId)
+			const item = store.state.helpersRef.getNodeById(depId)
 			if (item) {
-				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true })
+				store.state.helpersRef.showPathToNode(item, { doHighLight_2: true })
 				this.dependenciesObjects.push({ _id: depId, title: item.title })
 			} else this.allDepenciesFound = false
 		}
@@ -388,11 +389,11 @@ const methods = {
 		this.conditionsObjects = []
 		this.allConditionsFound = true
 		const nodesToScan = this.getProductNode(this.contextNodeSelected)
-		this.$store.commit('saveTreeView', { nodesToScan, type: 'condition' })
+		store.commit('saveTreeView', { nodesToScan, type: 'condition' })
 		for (const conId of this.contextNodeSelected.conditionalFor) {
-			const item = this.$store.state.helpersRef.getNodeById(conId)
+			const item = store.state.helpersRef.getNodeById(conId)
 			if (item) {
-				this.$store.state.helpersRef.showPathToNode(item, { doHighLight_2: true })
+				store.state.helpersRef.showPathToNode(item, { doHighLight_2: true })
 				this.conditionsObjects.push({ _id: conId, title: item.title })
 			} else this.allConditionsFound = false
 		}

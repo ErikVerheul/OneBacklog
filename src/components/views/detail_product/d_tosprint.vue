@@ -12,6 +12,7 @@
 import { LEVEL } from '../../../constants.js'
 import { getSprintNameById } from '../../../common_functions.js'
 import { utilities } from '../../mixins/generic.js'
+import store from '../../../store/store.js'
 
 function shortStartDate(sprint) {
   const date = new Date(sprint.startTimestamp)
@@ -34,7 +35,7 @@ export default {
 
   data() {
     return {
-      contextNodeTitle: this.$store.state.currentDoc.title,
+      contextNodeTitle: store.state.currentDoc.title,
       selectedSprintId: undefined
     }
   },
@@ -57,32 +58,32 @@ export default {
     * Only items that are not in a sprint already can be assigned to a sprint.
     */
     addItemToSprint() {
-      const currentDoc = this.$store.state.currentDoc
+      const currentDoc = store.state.currentDoc
       if (currentDoc.sprintId) return
 
       const itemLevel = currentDoc.level
       const sprintId = this.selectedSprintId
-      const sprintName = getSprintNameById(sprintId, this.$store.state.myCurrentSprintCalendar)
+      const sprintName = getSprintNameById(sprintId, store.state.myCurrentSprintCalendar)
 
       // when a PBI is selected, that PBI and it descendant tasks that have no sprint assigned yet, are assigned to the sprint
       if (itemLevel === LEVEL.PBI) {
         const itemIds = [currentDoc._id]
-        const descendants = this.$store.state.helpersRef.getDescendantsInfoOnId(currentDoc._id).descendants
+        const descendants = store.state.helpersRef.getDescendantsInfoOnId(currentDoc._id).descendants
         for (const d of descendants) {
           if (!d.data.sprintId) itemIds.push(d._id)
         }
-        this.$store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName })
+        store.dispatch('addSprintIds', { parentId: currentDoc.parentId, itemIds, sprintId, sprintName })
       }
 
       if (itemLevel === LEVEL.TASK) {
         // when a task is selected, the task's PBI and the task are assigned to the sprint
 				const itemIds = [currentDoc._id]
-        const pbiNode = this.$store.state.helpersRef.getNodeById(currentDoc.parentId)
+        const pbiNode = store.state.helpersRef.getNodeById(currentDoc.parentId)
         if (!pbiNode.data.sprintId) {
 					// if no other sprint is assigned, also assign the sprint to the task's PBI
           itemIds.push(pbiNode._id)
         }
-				this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName })
+				store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName })
       }
     }
   }

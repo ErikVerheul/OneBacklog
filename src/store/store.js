@@ -1,3 +1,4 @@
+import { createStore } from 'vuex'
 import globalAxios from 'axios'
 import router from '../router'
 import { atou, expandNode, collapseNode, addToArray, removeFromArray } from '../common_functions.js'
@@ -33,8 +34,6 @@ import watchdog from './modules/watchdog'
 
 
 const MAX_EVENTLIST_SIZE = 100
-
-Vue.use(Vuex)
 
 function createEventToDisplay(payload) {
 	function pad(num, size) {
@@ -95,111 +94,113 @@ function cleanHistory(doc) {
 	return doc
 }
 
-const store = new Vuex.Store({
-	state: {
-		// generic helper functions
-		helpersRef: null,
-		// console log settings
-		debug: import.meta.env.VITE_DEBUG === 'true' || false,
-		debugConnectionAndLogging: import.meta.env.VITE_DEBUG_CONNECTION === 'true' || false,
-		// creating a CouchDb instance
-		isDatabaseInitiated: false,
-		// authentication
-		mySessionId: null,
-		// startup
-		availableProductIds: [],
-		currentProductId: null,
-		currentProductTitle: '',
-		iAmAPO: false,
-		iAmAdmin: false,
-		iAmAssistAdmin: false,
-		iAmServerAdmin: false,
-		myAssignedDatabases: [],
-		signedOut: true,
-		// tree loading
-		allTeams: {},
-		loadedTreeDepth: undefined,
-		productTitlesMap: {},
-		treeNodes: [],
-		// detail tree view
-		reqAreaMapper: {},
-		// coarse tree view
-		currentView: undefined,
-		colorMapper: {},
-		reqAreaOptions: [],
-		// detail & coarse tree views
-		busyWithLastUndo: false,
-		currentDoc: null,
-		changeHistory: [],
-		eventKey: 0,
-		eventList: [],
-		filterForComment: '',
-		filterForHistory: '',
-		itemId: '',
-		keyword: '',
-		lastTreeView: undefined,
-		moveOngoing: false,
-		progressMessage: '',
-		searchOn: false,
-		selectedForView: 'comments',
-		previousSelectedNodes: undefined,
-		resetFilter: null,
-		resetSearch: {},
-		selectedNodes: [],
-		selectNodeOngoing: false,
-		showProgress: false,
-		uploadDone: true,
-		// utilities for server Admin and admin
-		areDatabasesFound: false,
-		areProductsFound: false,
-		areTeamsFound: false,
-		areTeamsRemoved: false,
-		backendMessages: [],
-		loadedCalendar: [],
-		databaseOptions: undefined,
-		fetchedTeams: [],
-		isCurrentDbChanged: false,
-		isDatabaseCreated: false,
-		isDbDeleted: false,
-		isHistAndCommReset: false,
-		isLogLoaded: false,
-		isProductAssigned: false,
-		isProductCreated: false,
-		isPurgeReady: false,
-		isDefaultCalendarLoaded: false,
-		isTeamCalendarLoaded: false,
-		isCalendarSaved: false,
-		isRestoreReady: false,
-		isTeamCreated: false,
-		isUserCreated: false,
-		isUserDeleted: false,
-		isUserFound: false,
-		isUserRemoved: false,
-		isUserUpdated: false,
-		logEntries: [],
-		selectedDatabaseName: '',
-		seqKey: 0,
-		stopListeningForChanges: false,
-		teamsToRemoveIds: [],
-		userOptions: [],
-		warning: '',
-		// traverseTree
-		descendantIds: [],
-		// app wide globals
-		configData: null,
-		demo: import.meta.env.VITE_IS_DEMO === 'true' || false,
-		eventSyncColor: '#004466',
-		lastSelectCursorPosition: null,
-		listenForChangesRunning: false,
-		myProductOptions: [],
-		online: true,
-		showHeaderDropDowns: true,
-		unsavedLogs: [],
-		userData: {},
-		// planning board
-		loadedSprintId: null,
-		myCurrentSprintCalendar: [],
-		warningText: ''
+const store = createStore({
+	state() {
+		return {
+			// generic helper functions
+			helpersRef: null,
+			// console log settings
+			debug: import.meta.env.VITE_DEBUG === 'true' || false,
+			debugConnectionAndLogging: import.meta.env.VITE_DEBUG_CONNECTION === 'true' || false,
+			// creating a CouchDb instance
+			isDatabaseInitiated: false,
+			// authentication
+			mySessionId: null,
+			// startup
+			availableProductIds: [],
+			currentProductId: null,
+			currentProductTitle: '',
+			iAmAPO: false,
+			iAmAdmin: false,
+			iAmAssistAdmin: false,
+			iAmServerAdmin: false,
+			myAssignedDatabases: [],
+			signedOut: true,
+			// tree loading
+			allTeams: {},
+			loadedTreeDepth: undefined,
+			productTitlesMap: {},
+			treeNodes: [],
+			// detail tree view
+			reqAreaMapper: {},
+			// coarse tree view
+			currentView: undefined,
+			colorMapper: {},
+			reqAreaOptions: [],
+			// detail & coarse tree views
+			busyWithLastUndo: false,
+			currentDoc: null,
+			changeHistory: [],
+			eventKey: 0,
+			eventList: [],
+			filterForComment: '',
+			filterForHistory: '',
+			itemId: '',
+			keyword: '',
+			lastTreeView: undefined,
+			moveOngoing: false,
+			progressMessage: '',
+			searchOn: false,
+			selectedForView: 'comments',
+			previousSelectedNodes: undefined,
+			resetFilter: null,
+			resetSearch: {},
+			selectedNodes: [],
+			selectNodeOngoing: false,
+			showProgress: false,
+			uploadDone: true,
+			// utilities for server Admin and admin
+			areDatabasesFound: false,
+			areProductsFound: false,
+			areTeamsFound: false,
+			areTeamsRemoved: false,
+			backendMessages: [],
+			loadedCalendar: [],
+			databaseOptions: undefined,
+			fetchedTeams: [],
+			isCurrentDbChanged: false,
+			isDatabaseCreated: false,
+			isDbDeleted: false,
+			isHistAndCommReset: false,
+			isLogLoaded: false,
+			isProductAssigned: false,
+			isProductCreated: false,
+			isPurgeReady: false,
+			isDefaultCalendarLoaded: false,
+			isTeamCalendarLoaded: false,
+			isCalendarSaved: false,
+			isRestoreReady: false,
+			isTeamCreated: false,
+			isUserCreated: false,
+			isUserDeleted: false,
+			isUserFound: false,
+			isUserRemoved: false,
+			isUserUpdated: false,
+			logEntries: [],
+			selectedDatabaseName: '',
+			seqKey: 0,
+			stopListeningForChanges: false,
+			teamsToRemoveIds: [],
+			userOptions: [],
+			warning: '',
+			// traverseTree
+			descendantIds: [],
+			// app wide globals
+			configData: null,
+			demo: import.meta.env.VITE_IS_DEMO === 'true' || false,
+			eventSyncColor: '#004466',
+			lastSelectCursorPosition: null,
+			listenForChangesRunning: false,
+			myProductOptions: [],
+			online: true,
+			showHeaderDropDowns: true,
+			unsavedLogs: [],
+			userData: {},
+			// planning board
+			loadedSprintId: null,
+			myCurrentSprintCalendar: [],
+			warningText: ''
+		}
 	},
 
 	getters: {
@@ -1196,7 +1197,7 @@ const store = new Vuex.Store({
 			state.currentProductId = null
 			state.currentProductTitle = ''
 			state.resetFilter = null,
-			state.iAmAPO = false
+				state.iAmAPO = false
 			state.iAmAdmin = false
 			state.iAmAssistAdmin = false
 			state.iAmServerAdmin = false

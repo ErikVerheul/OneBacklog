@@ -36,13 +36,13 @@
       </BRow>
       <BRow v-else class="warning-bar">
         <BCol cols="11">
-          <h5>{{ $store.state.warningText }}</h5>
+          <h5>{{ store.state.warningText }}</h5>
         </BCol>
         <BCol cols="1">
           <BButton @click="clearWarning()" size="sm">Dismiss</BButton>
         </BCol>
       </BRow>
-      <div v-for="story in $store.state.planningboard.stories" :key="story.idx">
+      <div v-for="story in store.state.planningboard.stories" :key="story.idx">
         <BRow>
           <BCol cols="12">
             <story-lane :idx="story.idx"></story-lane>
@@ -70,12 +70,13 @@ import { mapState, mapGetters } from 'vuex'
 import { utilities } from '../../mixins/generic.js'
 import AppHeader from '../../header/header.vue'
 import StoryLane from './StoryLane.vue'
+import store from '../../../store/store.js'
 
 export default {
   mixins: [utilities],
 
   beforeCreate() {
-    this.$store.state.currentView = 'planningBoard'
+    store.state.currentView = 'planningBoard'
   },
 
   created() {
@@ -83,10 +84,10 @@ export default {
     this.NO_NOT_YET = 1
     this.NO_STOP_ASKING = 2
 
-    if (this.$store.state.loadedSprintId) {
+    if (store.state.loadedSprintId) {
       // preset the selected sprint to the last loaded sprint
-      for (const s of this.$store.state.myCurrentSprintCalendar) {
-        if (s.id === this.$store.state.loadedSprintId) {
+      for (const s of store.state.myCurrentSprintCalendar) {
+        if (s.id === store.state.loadedSprintId) {
           this.selectedSprint = s
           break
         }
@@ -98,11 +99,11 @@ export default {
     }
 
     // reload when the user changes team
-    this.unsubscribe = this.$store.subscribe((mutation, state) => {
+    this.unsubscribe = store.subscribe((mutation, state) => {
       if (mutation.type === 'updateTeam') {
         // select and load the current sprint of the newly selected team calendar
         this.selectedSprint = this.getActiveSprints.currentSprint
-        this.$store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: state.userData.myTeam })
+        store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: state.userData.myTeam })
       }
     })
   },
@@ -112,7 +113,7 @@ export default {
     window.addEventListener("beforeunload", this.preventNav)
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("beforeunload", this.preventNav)
     this.unsubscribe()
   },
@@ -132,7 +133,7 @@ export default {
     // initially load the current sprint and reload when the user selects another sprint
     selectedSprint: function (newVal) {
       this.currentSprintLoaded = newVal.id === this.getActiveSprints.currentSprint.id
-      this.$store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.userData.myTeam })
+      store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.userData.myTeam })
     }
   },
 
@@ -146,11 +147,11 @@ export default {
     ...mapState(['userData']),
 
     showWarning() {
-      return this.$store.state.warningText !== ''
+      return store.state.warningText !== ''
     },
 
     unfinishedWork() {
-      return this.$store.state.planningboard.itemIdsToImport.length > 0
+      return store.state.planningboard.itemIdsToImport.length > 0
     },
 
     getStartDateString() {
@@ -166,7 +167,7 @@ export default {
     /* Return date/time dependant sprint selection options, recent first + next sprint on top*/
     sprintTitleOptions() {
       const now = Date.now()
-      const calendar = this.$store.state.myCurrentSprintCalendar
+      const calendar = store.state.myCurrentSprintCalendar
       const options = []
       let getNextSprint = true
       let getCurrSprint = true
@@ -191,13 +192,13 @@ export default {
     },
 
     squareText() {
-      if (this.$store.state.online) {
+      if (store.state.online) {
         return 'sync'
       } else return 'offline'
     },
 
     squareColor() {
-      return this.$store.state.online ? this.$store.state.eventSyncColor : '#ff0000'
+      return store.state.online ? store.state.eventSyncColor : '#ff0000'
     }
   },
 
@@ -208,7 +209,7 @@ export default {
     },
 
     clearWarning() {
-      this.$store.state.warningText = ''
+      store.state.warningText = ''
     },
 
     askForImport() {
@@ -217,7 +218,7 @@ export default {
     },
 
     showInfo() {
-      return `Found ${this.$store.state.planningboard.itemIdsToImport.length} unfinished tasks in ${this.$store.state.planningboard.itemIdsToImport.length} items to import`
+      return `Found ${store.state.planningboard.itemIdsToImport.length} unfinished tasks in ${store.state.planningboard.itemIdsToImport.length} items to import`
     },
 
     prepSelected(idx) {
@@ -240,13 +241,13 @@ export default {
       this.showAssistance = false
       switch (this.contextOptionSelected) {
         case this.MOVE_TASKS:
-          this.$store.dispatch('importInSprint', this.getActiveSprints.currentSprint.id)
+          store.dispatch('importInSprint', this.getActiveSprints.currentSprint.id)
           break
         case this.NO_NOT_YET:
           // do nothing
           break
         case this.NO_STOP_ASKING:
-          this.$store.dispatch('registerMyNoSprintImport', this.getActiveSprints.currentSprint.id)
+          store.dispatch('registerMyNoSprintImport', this.getActiveSprints.currentSprint.id)
           break
       }
     }

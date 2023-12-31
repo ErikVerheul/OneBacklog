@@ -1,7 +1,7 @@
 /*
 * Global functions that need access to the Vuex store
 * Unlike getters these functions need no return value and are not re-evaluated and cached when some of its dependencies have changed.
-* Use in components by calling this.$store.state.helpersRef.functionName(params)
+* Use in components by calling store.state.helpersRef.functionName(params)
 * Use in Vuex actions by calling rootState.helpersRef.functionName(params)
 * Note that the store must be initialized before use
 */

@@ -2,6 +2,7 @@ import { SEV, LEVEL } from '../../../constants.js'
 import { getSprintNameById } from '../../../common_functions.js'
 import { utilities } from '../../mixins/generic.js'
 import commonContext from '../common_context.js'
+import store from '../../../store/store.js'
 
 function created() {
 	this.eventBus.on('context-menu', (node) => {
@@ -20,7 +21,7 @@ function data() {
 
 const methods = {
 	showContextMenu(node) {
-		if (this.$store.state.selectedNodes.length === 1) {
+		if (store.state.selectedNodes.length === 1) {
 			// select and load the item
 			this.contextOptionSelected = undefined
 			this.listItemText = ''
@@ -31,7 +32,7 @@ const methods = {
 			const allowExtraLevel = node.level < this.TASKLEVEL
 			if (this.haveAccessInTree(node.productId, node.level, '*', 'open the context menu', allowExtraLevel)) {
 				// note that getParentNode(node) can return null if requesting the parent of the root node or if the parent was removed
-				const parentNode = this.$store.state.helpersRef.getParentNode(node)
+				const parentNode = store.state.helpersRef.getParentNode(node)
 				this.contextNodeSelected = node
 				this.contextParentTeam = parentNode ? parentNode.data.team : undefined
 				this.contextParentType = parentNode ? this.getLevelText(parentNode.level) : undefined
@@ -39,7 +40,7 @@ const methods = {
 				this.contextNodeLevel = node.level
 				this.contextNodeType = this.getLevelText(node.level)
 				this.contextChildType = this.getLevelText(node.level + 1)
-				this.contextNodeDescendants = this.$store.state.helpersRef.getDescendantsInfo(node)
+				this.contextNodeDescendants = store.state.helpersRef.getDescendantsInfo(node)
 				this.contextNodeTeam = node.data.team
 				this.hasDependencies = node.dependencies && node.dependencies.length > 0
 				this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
@@ -68,7 +69,7 @@ const methods = {
 				vm.contextWarning = 'WARNING: Cannot add the same dependency twice'
 				return false
 			}
-			if (vm.$store.state.helpersRef.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
+			if (vm.store.state.helpersRef.comparePaths(nodeWithDependencies.path, selNode.path) === -1) {
 				vm.contextWarning = 'WARNING: Cannot create a dependency on an item with lower priority'
 				return false
 			}
@@ -81,15 +82,15 @@ const methods = {
 		this.disableOkButton = false
 		switch (this.contextOptionSelected) {
 			case this.CLONEPRODUCT:
-				this.assistanceText = this.$store.state.help.help.productClone
+				this.assistanceText = store.state.help.help.productClone
 				this.listItemText = 'Make a clone of this product including its descendant items.'
 				break
 			case this.CLONEBRANCH:
-				this.assistanceText = this.$store.state.help.help.branchClone
+				this.assistanceText = store.state.help.help.branchClone
 				this.listItemText = 'Make a clone of this branch including its descendant items.'
 				break
 			case this.CLONEITEM:
-				this.assistanceText = this.$store.state.help.help.itemClone
+				this.assistanceText = store.state.help.help.itemClone
 				this.listItemText = 'Make a clone of this item. No descendant items are copied.'
 				break
 			case this.FROMSPRINT:
@@ -97,16 +98,16 @@ const methods = {
 				if (this.contextNodeSelected.level === LEVEL.TASK) this.listItemText = `Remove the Task from the assigned sprint.`
 				break
 			case this.INSERTBELOW:
-				this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level]
+				this.assistanceText = store.state.help.help.insert[this.contextNodeSelected.level]
 				this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item.'
 				break
 			case this.INSERTINSIDE:
-				this.assistanceText = this.$store.state.help.help.insert[this.contextNodeSelected.level + 1]
+				this.assistanceText = store.state.help.help.insert[this.contextNodeSelected.level + 1]
 				this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
 				break
 			case this.MOVETOPRODUCT:
-				this.assistanceText = this.$store.state.help.help.move
-				if (!this.$store.state.moveOngoing) {
+				this.assistanceText = store.state.help.help.move
+				if (!store.state.moveOngoing) {
 					this.listItemText = `Item selected. Choose a ${this.getLevelText(this.contextNodeSelected.level - 1)} as drop position in any other product.`
 				} else this.listItemText = 'Drop position is set.'
 				break
@@ -115,7 +116,7 @@ const methods = {
 				break
 			case this.TASKTOSPRINT:
 				{
-					const pbiNode = this.$store.state.helpersRef.getParentNode(this.contextNodeSelected)
+					const pbiNode = store.state.helpersRef.getParentNode(this.contextNodeSelected)
 					if (pbiNode) {
 						if (pbiNode.data.sprintId) {
 							this.listItemText = `Assign this Task to the same sprint the User story is assigned to.`
@@ -124,7 +125,7 @@ const methods = {
 				}
 				break
 			case this.REMOVEITEM:
-				this.assistanceText = this.$store.state.help.help.remove
+				this.assistanceText = store.state.help.help.remove
 				if (this.hasDependencies) {
 					this.contextWarning = 'WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
 					this.disableOkButton = true
@@ -134,7 +135,7 @@ const methods = {
 				} else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants.`
 				break
 			case this.ASIGNTOMYTEAM:
-				this.assistanceText = this.$store.state.help.help.team
+				this.assistanceText = store.state.help.help.team
 				if (this.areDescendantsAssignedToOtherTeam(this.contextNodeDescendants.descendants)) {
 					this.contextWarning = `Descendants of this ${this.contextNodeType} are assigned to another team.
 					Click OK to assign all these items to your team or Cancel and join team '${this.contextNodeTeam}' to open the context menu.`
@@ -144,8 +145,8 @@ const methods = {
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
 				break
 			case this.SETDEPENDENCY:
-				this.assistanceText = this.$store.state.help.help.setDependency
-				if (!this.$store.state.selectNodeOngoing) {
+				this.assistanceText = store.state.help.help.setDependency
+				if (!store.state.selectNodeOngoing) {
 					this.listItemText = 'Click OK and right-click a node this item depends on.'
 				} else {
 					if (checkNode(this, this.contextNodeSelected)) {
@@ -224,13 +225,13 @@ const methods = {
 			// can assign team from feature level and down (higher level numbers)
 			const node = this.contextNodeSelected
 			const newTeam = this.myTeam
-			this.$store.dispatch('assignToMyTeam', { node, newTeam, timestamp: Date.now() })
+			store.dispatch('assignToMyTeam', { node, newTeam, timestamp: Date.now() })
 		}
 	},
 
 	moveItemToOtherProduct() {
-		if (this.$store.state.moveOngoing) {
-			const targetPosition = this.$store.state.lastSelectCursorPosition
+		if (store.state.moveOngoing) {
+			const targetPosition = store.state.lastSelectCursorPosition
 			// only allow to drop the node inside a new parent 1 level higher (lower value) than the source node
 			if (targetPosition.nodeModel.level !== this.movedNode.level - 1) {
 				this.showLastEvent('You can only drop inside a ' + this.getLevelText(this.movedNode.level - 1), SEV.WARNING)
@@ -241,11 +242,11 @@ const methods = {
 			const moveDataContainer = this.moveNodes([this.movedNode], targetPosition)
 
 			// update the database
-			this.$store.dispatch('updateMovedItemsBulk', { moveDataContainer })
-			this.$store.state.moveOngoing = false
+			store.dispatch('updateMovedItemsBulk', { moveDataContainer })
+			store.state.moveOngoing = false
 		} else {
-			this.$store.state.moveOngoing = true
-			this.moveSourceProductId = this.$store.state.currentProductId
+			store.state.moveOngoing = true
+			this.moveSourceProductId = store.state.currentProductId
 			this.movedNode = this.contextNodeSelected
 		}
 	},
@@ -257,13 +258,13 @@ const methods = {
 	/* Assign the task to the sprint of its PBI; or if the PBI has no sprint assigned, ask the user to select. */
 	doAddTaskToSprint() {
 		const taskNode = this.contextNodeSelected
-		const pbiNode = this.$store.state.helpersRef.getParentNode(taskNode)
+		const pbiNode = store.state.helpersRef.getParentNode(taskNode)
 		if (pbiNode) {
 			const pbiSprintId = pbiNode.data.sprintId
 			if (pbiSprintId) {
-				const sprintName = getSprintNameById(pbiSprintId, this.$store.state.myCurrentSprintCalendar)
+				const sprintName = getSprintNameById(pbiSprintId, store.state.myCurrentSprintCalendar)
 				// assign the task to the same sprint the PBI is assigned to
-				this.$store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName })
+				store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName })
 			} else {
 				window.assignToSprintRef.show()
 			}
@@ -275,12 +276,12 @@ const methods = {
 		const sprintId = node.data.sprintId
 		const itemIds = [node._id]
 		if (node.level === LEVEL.PBI) {
-			for (const d of this.$store.state.helpersRef.getDescendantsInfo(node).descendants) {
+			for (const d of store.state.helpersRef.getDescendantsInfo(node).descendants) {
 				// only remove the sprintId of descendants with the same sprintId as the parent
 				if (d.data.sprintId === sprintId) itemIds.push(d._id)
 			}
 		}
-		this.$store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: getSprintNameById(sprintId, this.$store.state.myCurrentSprintCalendar) })
+		store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: getSprintNameById(sprintId, store.state.myCurrentSprintCalendar) })
 	}
 }
 

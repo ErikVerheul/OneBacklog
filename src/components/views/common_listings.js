@@ -1,5 +1,6 @@
 import { utilities } from '../mixins/generic.js'
 import { atou } from '../../common_functions.js'
+import store from '../../store/store.js'
 
 
 function convertToShortIds (ids) {
@@ -18,13 +19,13 @@ const computed = {
   isUploadDone () {
     // force a re-render
     this.$forceUpdate()
-    return this.$store.state.uploadDone
+    return store.state.uploadDone
   },
 
 	getFilteredComments () {
 		const filteredComments = []
-		for (let i = 0; i < this.$store.state.currentDoc.comments.length; i++) {
-			let commentItem = this.$store.state.currentDoc.comments[i]
+		for (let i = 0; i < store.state.currentDoc.comments.length; i++) {
+			let commentItem = store.state.currentDoc.comments[i]
 			let allText = ''
 			const keys = Object.keys(commentItem)
 			if (keys[0] === 'ignoreEvent') continue
@@ -44,7 +45,7 @@ const computed = {
 				if (keys[j] === 'timestamp') allText += this.mkTimestamp(commentItem[keys[j]])
 			}
 
-			if (allText.includes(this.$store.state.filterForComment)) {
+			if (allText.includes(store.state.filterForComment)) {
 				filteredComments.push(commentItem)
 			}
 		}
@@ -63,8 +64,8 @@ const computed = {
       }
     }
     const filteredHistory = []
-    for (let i = 0; i < this.$store.state.currentDoc.history.length; i++) {
-      const histItem = this.$store.state.currentDoc.history[i]
+    for (let i = 0; i < store.state.currentDoc.history.length; i++) {
+      const histItem = store.state.currentDoc.history[i]
       let allText = ''
       const keys = Object.keys(histItem)
 			if (keys[0] === 'ignoreEvent' || keys[0] === 'updateTaskOrderEvent' || keys[0] === 'changeReqAreaColorEvent' || keys[0] === 'removeItemsFromSprintEvent') continue
@@ -109,7 +110,7 @@ const computed = {
         if (keys[j] === 'by') allText += this.mkBy(histItem[keys[j]])
         if (keys[j] === 'timestamp') allText += this.mkTimestamp(histItem[keys[j]])
       }
-      if (allText.includes(this.$store.state.filterForHistory)) {
+      if (allText.includes(store.state.filterForHistory)) {
         filteredHistory.push(histItem)
       }
     }
@@ -119,31 +120,31 @@ const computed = {
 
 const methods = {
   getAttachments () {
-    if (this.$store.state.currentDoc._attachments) {
-      const titles = Object.keys(this.$store.state.currentDoc._attachments)
+    if (store.state.currentDoc._attachments) {
+      const titles = Object.keys(store.state.currentDoc._attachments)
       const attachmentObjects = []
       for (const title of titles) {
-        attachmentObjects.push({ title, data: this.$store.state.currentDoc._attachments[title] })
+        attachmentObjects.push({ title, data: store.state.currentDoc._attachments[title] })
       }
       return attachmentObjects
     } else return []
   },
 
   getNrOfTitles () {
-    return this.$store.state.currentDoc._attachments ? Object.keys(this.$store.state.currentDoc._attachments).length : 0
+    return store.state.currentDoc._attachments ? Object.keys(store.state.currentDoc._attachments).length : 0
   },
 
   showAttachment (attachment) {
-    const _id = this.$store.state.currentDoc._id
-    const url = import.meta.env.VITE_API_URL + '/' + this.$store.state.userData.currentDb + '/' + _id + '/' + attachment.title
+    const _id = store.state.currentDoc._id
+    const url = import.meta.env.VITE_API_URL + '/' + store.state.userData.currentDb + '/' + _id + '/' + attachment.title
     window.open(url)
   },
 
   removeAttachment (attachment) {
-    delete this.$store.state.currentDoc._attachments[attachment.title]
+    delete store.state.currentDoc._attachments[attachment.title]
     // force a re-render
     this.$forceUpdate()
-    this.$store.dispatch('removeAttachmentAsync', { node: this.getLastSelectedNode, attachmentTitle: attachment.title })
+    store.dispatch('removeAttachmentAsync', { node: this.getLastSelectedNode, attachmentTitle: attachment.title })
   },
 
   prepHistoryText (key, value) {
@@ -349,11 +350,11 @@ const methods = {
   },
 
 	mkRemoveCommentEvent() {
-		return `<h5>Your last comment on this ${this.getLevelText(this.$store.state.currentDoc.level, this.$store.state.currentDoc.subtype)} is removed.</h5>`
+		return `<h5>Your last comment on this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)} is removed.</h5>`
 	},
 
 	mkRemoveCommentFromHistoryEvent() {
-		return `<h5>Your last comment on the history of this ${this.getLevelText(this.$store.state.currentDoc.level, this.$store.state.currentDoc.subtype)} is removed.</h5>`
+		return `<h5>Your last comment on the history of this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)} is removed.</h5>`
 	},
 
   mkResetHistoryEvent (value) {

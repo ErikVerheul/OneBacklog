@@ -2,6 +2,7 @@ import { addToArray, removeFromArray, createId } from '../../common_functions.js
 import AppHeader from '../header/header.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
+import store from '../../store/store.js'
 
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
@@ -56,7 +57,7 @@ const computed = {
 	acceptSprintnr() {
 		if (isNaN(this.changedNumberStr) || !Number.isInteger(parseFloat(this.changedNumberStr))) return false
 		const changeNr = parseInt(this.changedNumberStr)
-		const lastDefinedNr = this.$store.state.loadedCalendar.length - 1
+		const lastDefinedNr = store.state.loadedCalendar.length - 1
 		const accepted = changeNr >= this.currentSprintNr && changeNr <= lastDefinedNr
 		this.acceptSprintNrMsg = accepted ? `` : `Select a sprint number >= the current sprint ${this.currentSprintNr} and smaller than the last defined sprint ${lastDefinedNr}`
 		return accepted
@@ -88,10 +89,10 @@ const methods = {
 		this.optionSelected = 'Maintain the default sprint calendar'
 		this.getUserFirst = false
 		this.checkForExistingCalendar = true
-		this.$store.state.isDefaultCalendarLoaded = false
-		this.$store.state.isCalendarSaved = false
+		store.state.isDefaultCalendarLoaded = false
+		store.state.isCalendarSaved = false
 		this.dbIsSelected = false
-		this.$store.state.backendMessages = []
+		store.state.backendMessages = []
 		this.startDateStr = undefined
 		this.workflowStatusMsg = 'found'
 		this.extendNumberStr = undefined
@@ -101,10 +102,10 @@ const methods = {
 		this.optionSelected = 'Create / Maintain a team sprint calendar'
 		this.getUserFirst = false
 		this.checkForExistingCalendar = true
-		this.$store.state.isTeamCalendarLoaded = false
-		this.$store.state.isCalendarSaved = false
+		store.state.isTeamCalendarLoaded = false
+		store.state.isCalendarSaved = false
 		this.dbIsSelected = false
-		this.$store.state.backendMessages = []
+		store.state.backendMessages = []
 		this.startDateStr = undefined
 		this.workflowStatusMsg = 'found'
 		this.extendNumberStr = undefined
@@ -115,23 +116,23 @@ const methods = {
 		this.getUserFirst = false
 		this.dbIsSelected = false
 		this.teamName = ''
-		this.$store.state.isTeamCreated = false
+		store.state.isTeamCreated = false
 	},
 
 	listTeams() {
 		this.optionSelected = 'List teams'
 		this.getUserFirst = false
 		this.dbIsSelected = false
-		this.$store.state.backendMessages = []
-		this.$store.state.fetchedTeams = []
-		this.$store.state.areTeamsFound = false
+		store.state.backendMessages = []
+		store.state.fetchedTeams = []
+		store.state.areTeamsFound = false
 	},
 
 	removeTeams() {
 		this.optionSelected = 'Remove teams without members'
 		this.getUserFirst = false
 		this.dbIsSelected = false
-		this.$store.state.areTeamsRemoved = false
+		store.state.areTeamsRemoved = false
 	},
 
 	// ToDo: remove this method if not used
@@ -153,35 +154,35 @@ const methods = {
 		switch (this.optionSelected) {
 			case 'Create a user and assign product(s)':
 				{
-					const onlyMyproducts = this.$store.state.useracc.userIsAssistAdmin
+					const onlyMyproducts = store.state.useracc.userIsAssistAdmin
 					this.callGetDbProducts(onlyMyproducts)
 				}
 				break
 			case 'Maintain the default sprint calendar':
-				this.$store.state.isDefaultCalendarLoaded = false
-				this.$store.state.isTeamCalendarLoaded = false
+				store.state.isDefaultCalendarLoaded = false
+				store.state.isTeamCalendarLoaded = false
 				break
 			case 'Create / Maintain a team sprint calendar':
 				this.teamOptions = []
 				this.selectedTeamName = undefined
-				this.$store.state.isDefaultCalendarLoaded = false
-				this.$store.state.isTeamCalendarLoaded = false
-				this.$store.dispatch('fetchTeamsAction', {
-					dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
-						for (const t of this.$store.state.fetchedTeams) {
+				store.state.isDefaultCalendarLoaded = false
+				store.state.isTeamCalendarLoaded = false
+				store.dispatch('fetchTeamsAction', {
+					dbName: store.state.selectedDatabaseName, onSuccessCallback: () => {
+						for (const t of store.state.fetchedTeams) {
 							this.teamOptions.push(t.teamName)
 						}
 					}
 				})
 				break
 			case 'List teams':
-				this.$store.dispatch('fetchTeamsAction', { dbName: this.$store.state.selectedDatabaseName })
+				store.dispatch('fetchTeamsAction', { dbName: store.state.selectedDatabaseName })
 				break
 			case 'Remove teams without members':
 				this.teamNamesToRemove = []
-				this.$store.dispatch('fetchTeamsAction', {
-					dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
-						for (const t of this.$store.state.fetchedTeams) {
+				store.dispatch('fetchTeamsAction', {
+					dbName: store.state.selectedDatabaseName, onSuccessCallback: () => {
+						for (const t of store.state.fetchedTeams) {
 							if (t.members.length === 0) {
 								if (!this.teamsToRemoveOptions.includes(t.teamName)) this.teamsToRemoveOptions.push(t.teamName)
 							}
@@ -194,11 +195,11 @@ const methods = {
 	},
 
 	getUserAssignedDatabases() {
-		return Object.keys(this.$store.state.useracc.fetchedUserData.myDatabases)
+		return Object.keys(store.state.useracc.fetchedUserData.myDatabases)
 	},
 
 	getLoadedSprintById() {
-		return this.$store.state.loadedCalendar[parseInt(this.changedNumberStr)]
+		return store.state.loadedCalendar[parseInt(this.changedNumberStr)]
 	},
 
 	getStartDate() {
@@ -219,7 +220,7 @@ const methods = {
 	},
 
 	changeSprintInCalendar() {
-		const currentCalendar = this.$store.state.loadedCalendar
+		const currentCalendar = store.state.loadedCalendar
 		const calendarLength = currentCalendar.length
 		const unChangedCalendar = currentCalendar.slice(0, parseInt(this.changedNumberStr))
 		const changedSprint = currentCalendar[parseInt(this.changedNumberStr)]
@@ -233,16 +234,16 @@ const methods = {
 			newSprintCalendar.push(sprint)
 			prevSprintEnd = sprint.startTimestamp + sprint.sprintLength
 		}
-		if (this.$store.state.isDefaultCalendarLoaded) this.$store.dispatch('saveDefaultSprintCalendarAction', {
-			dbName: this.$store.state.selectedDatabaseName, newSprintCalendar
+		if (store.state.isDefaultCalendarLoaded) store.dispatch('saveDefaultSprintCalendarAction', {
+			dbName: store.state.selectedDatabaseName, newSprintCalendar
 		})
-		if (this.$store.state.isTeamCalendarLoaded) this.$store.dispatch('updateTeamCalendarAction', {
-			dbName: this.$store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName, newSprintCalendar
+		if (store.state.isTeamCalendarLoaded) store.dispatch('updateTeamCalendarAction', {
+			dbName: store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName, newSprintCalendar
 		})
 	},
 
 	extendCalendar() {
-		const currentCalendar = this.$store.state.loadedCalendar
+		const currentCalendar = store.state.loadedCalendar
 		const lastSprint = currentCalendar.slice(-1)[0]
 		const sprintLengthMillis = lastSprint.sprintLength
 		const numberOfSprints = parseInt(this.extendNumberStr)
@@ -262,11 +263,11 @@ const methods = {
 			j++
 		}
 		const newSprintCalendar = currentCalendar.concat(extendSprintCalendar)
-		if (this.$store.state.isDefaultCalendarLoaded) this.$store.dispatch('saveDefaultSprintCalendarAction', {
-			dbName: this.$store.state.selectedDatabaseName, newSprintCalendar
+		if (store.state.isDefaultCalendarLoaded) store.dispatch('saveDefaultSprintCalendarAction', {
+			dbName: store.state.selectedDatabaseName, newSprintCalendar
 		})
-		if (this.$store.state.isTeamCalendarLoaded) this.$store.dispatch('updateTeamCalendarAction', {
-			dbName: this.$store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName, newSprintCalendar
+		if (store.state.isTeamCalendarLoaded) store.dispatch('updateTeamCalendarAction', {
+			dbName: store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName, newSprintCalendar
 		})
 	},
 
@@ -294,25 +295,25 @@ const methods = {
 	},
 
 	/*
-	* Get all my assigned product ids, titles and assigned roles of the selected database in $store.state.useracc.dbProducts
+	* Get all my assigned product ids, titles and assigned roles of the selected database in store.state.useracc.dbProducts
 	* If onlyMyProducts is true, only select the the products assigned to me (assistAdmin)
 	*/
 	callGetDbProducts(onlyMyProducts) {
-		this.$store.dispatch('getProductsRolesAction', { dbName: this.$store.state.selectedDatabaseName, onlyMyProducts })
+		store.dispatch('getProductsRolesAction', { dbName: store.state.selectedDatabaseName, onlyMyProducts })
 	},
 
 	doCreateUser() {
-		const userIsAdminOrAPO = this.$store.state.useracc.userIsAdmin || this.$store.state.useracc.userIsAPO
+		const userIsAdminOrAPO = store.state.useracc.userIsAdmin || store.state.useracc.userIsAPO
 		// calculate the association of the assigned generic roles
 		const allRoles = []
-		if (this.$store.state.useracc.userIsAdmin) allRoles.push('admin')
-		if (this.$store.state.useracc.userIsAPO) allRoles.push('APO')
+		if (store.state.useracc.userIsAdmin) allRoles.push('admin')
+		if (store.state.useracc.userIsAPO) allRoles.push('APO')
 
 		// generate the productsRoles and subscriptions properties and add the non generic roles
 		const productsRoles = {}
 		const subscriptions = []
 		let rolesAreAssigned = false
-		for (const prod of this.$store.state.useracc.dbProducts) {
+		for (const prod of store.state.useracc.dbProducts) {
 			if (prod.roles.length > 0) {
 				productsRoles[prod.id] = prod.roles
 				rolesAreAssigned = true
@@ -335,29 +336,29 @@ const methods = {
 			type: 'user',
 			roles: allRoles,
 			email: this.userEmail,
-			currentDb: this.$store.state.selectedDatabaseName,
+			currentDb: store.state.selectedDatabaseName,
 			myDatabases: {
-				[this.$store.state.selectedDatabaseName]: {
+				[store.state.selectedDatabaseName]: {
 					myTeam: 'not assigned yet',
 					subscriptions,
 					productsRoles
 				}
 			}
 		}
-		if (this.$store.state.isUserRemoved) {
-			newUserData._rev = this.$store.state.useracc.fetchedUserData._rev
+		if (store.state.isUserRemoved) {
+			newUserData._rev = store.state.useracc.fetchedUserData._rev
 			// replace existing removed user
-			this.$store.dispatch('updateUserAction', { data: newUserData, onSuccessCallback: () => this.$store.state.isUserCreated = true })
-		} else this.$store.dispatch('createUserIfNotExistentAction', newUserData)
+			store.dispatch('updateUserAction', { data: newUserData, onSuccessCallback: () => store.state.isUserCreated = true })
+		} else store.dispatch('createUserIfNotExistentAction', newUserData)
 	},
 
 	/* Creates fetchedUserData and have the prod.roles set in dbProducts */
 	doFetchUser(userName, justCheck) {
-		this.$store.dispatch('getUserAction', { userName, justCheck })
+		store.dispatch('getUserAction', { userName, justCheck })
 	},
 
 	doSelectUserDb(dbName) {
-		this.$store.state.selectedDatabaseName = dbName
+		store.state.selectedDatabaseName = dbName
 		this.isUserDbSelected = true
 	},
 
@@ -368,17 +369,17 @@ const methods = {
 	* Any subscription to a product must refer to an existing product.
 	*/
 	doUpdateUser() {
-		const dbName = this.$store.state.selectedDatabaseName
-		const newUserData = this.$store.state.useracc.fetchedUserData
-		const userIsAdminOrAPO = this.$store.state.useracc.userIsAdmin || this.$store.state.useracc.userIsAPO
+		const dbName = store.state.selectedDatabaseName
+		const newUserData = store.state.useracc.fetchedUserData
+		const userIsAdminOrAPO = store.state.useracc.userIsAdmin || store.state.useracc.userIsAPO
 		// update the generic roles
-		if (this.$store.state.useracc.userIsAssistAdmin) {
+		if (store.state.useracc.userIsAssistAdmin) {
 			newUserData.roles = addToArray(newUserData.roles, 'assistAdmin')
 		} else newUserData.roles = removeFromArray(newUserData.roles, 'assistAdmin')
-		if (this.$store.state.useracc.userIsAdmin) {
+		if (store.state.useracc.userIsAdmin) {
 			newUserData.roles = addToArray(newUserData.roles, 'admin')
 		} else newUserData.roles = removeFromArray(newUserData.roles, 'admin')
-		if (this.$store.state.useracc.userIsAPO) {
+		if (store.state.useracc.userIsAPO) {
 			newUserData.roles = addToArray(newUserData.roles, 'APO')
 		} else newUserData.roles = removeFromArray(newUserData.roles, 'APO')
 
@@ -386,7 +387,7 @@ const methods = {
 		let newProductsRoles = {}
 		if (newUserData.myDatabases[dbName]) {
 			// the database is already assigned to this user
-			for (const prod of this.$store.state.useracc.dbProducts) {
+			for (const prod of store.state.useracc.dbProducts) {
 				if (userIsAdminOrAPO) {
 					// users with admin and APO roles have access to all products
 					newProductsRoles[prod.id] = prod.roles
@@ -418,7 +419,7 @@ const methods = {
 				myTeam: 'not assigned yet',
 				subscriptions: []
 			}
-			for (const prod of this.$store.state.useracc.dbProducts) {
+			for (const prod of store.state.useracc.dbProducts) {
 				if (userIsAdminOrAPO || prod.roles.length > 0) {
 					// admin and APO users have access to a products without any assigned role, other users have no access when no roles are assigned to a product
 					newProductsRoles[prod.id] = prod.roles
@@ -475,7 +476,7 @@ const methods = {
 					newUserData.myDatabases[dbName].subscriptions = [subscriptionId]
 					// get the product name
 					let productName = ''
-					for (const o of Object.values(this.$store.state.useracc.dbProducts)) {
+					for (const o of Object.values(store.state.useracc.dbProducts)) {
 						if (o.id === subscriptionId) {
 							productName = o.value
 							break
@@ -485,23 +486,23 @@ const methods = {
 				}
 			}
 		}
-		this.$store.dispatch('updateUserAction', {
+		store.dispatch('updateUserAction', {
 			data: newUserData, onSuccessCallback: () => {
 				if (removeDb) {
 					// the user cannot select this database anymore
-					this.$store.state.myAssignedDatabases = removeFromArray(this.$store.state.myAssignedDatabases, dbName)
+					store.state.myAssignedDatabases = removeFromArray(store.state.myAssignedDatabases, dbName)
 				}
 			}
 		})
 	},
 
 	doCreateTeam() {
-		this.$store.dispatch('addTeamAction', { id: createId(), dbName: this.$store.state.selectedDatabaseName, teamName: this.teamName })
+		store.dispatch('addTeamAction', { id: createId(), dbName: store.state.selectedDatabaseName, teamName: this.teamName })
 	},
 
 	doRemoveTeams(teamNamesToRemove) {
-		this.$store.dispatch('removeTeamsAction', {
-			dbName: this.$store.state.selectedDatabaseName, teamNamesToRemove, onSuccessCallback: () => {
+		store.dispatch('removeTeamsAction', {
+			dbName: store.state.selectedDatabaseName, teamNamesToRemove, onSuccessCallback: () => {
 				// remove the teams from the selection options
 				const newOptions = []
 				for (const tn of this.teamsToRemoveOptions) {
@@ -513,13 +514,13 @@ const methods = {
 	},
 
 	doLoadDefaultCalendar() {
-		this.$store.dispatch('fetchDefaultSprintCalendarAction', {
-			dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
+		store.dispatch('fetchDefaultSprintCalendarAction', {
+			dbName: store.state.selectedDatabaseName, onSuccessCallback: () => {
 				this.checkForExistingCalendar = false
 				// get the current sprint number if the calendar is available
 				const now = Date.now()
-				for (let i = 0; i < this.$store.state.loadedCalendar.length; i++) {
-					const s = this.$store.state.loadedCalendar[i]
+				for (let i = 0; i < store.state.loadedCalendar.length; i++) {
+					const s = store.state.loadedCalendar[i]
 					if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
 						this.currentSprintNr = i
 						break
@@ -530,19 +531,19 @@ const methods = {
 	},
 
 	doLoadTeamCalendar() {
-		this.$store.dispatch('fetchTeamsAction', {
-			dbName: this.$store.state.selectedDatabaseName, onSuccessCallback: () => {
+		store.dispatch('fetchTeamsAction', {
+			dbName: store.state.selectedDatabaseName, onSuccessCallback: () => {
 				this.checkForExistingCalendar = false
-				for (const t of this.$store.state.fetchedTeams) {
+				for (const t of store.state.fetchedTeams) {
 					if (t.teamName === this.selectedTeamName) {
 						// save the teamId for use in createTeamCalendarAction and updateTeamCalendarAction
 						this.selectedTeamId = t.teamId
-						this.$store.dispatch('fetchTeamCalendarAction', {
-							dbName: this.$store.state.selectedDatabaseName, teamId: t.teamId, onSuccessCallback: () => {
+						store.dispatch('fetchTeamCalendarAction', {
+							dbName: store.state.selectedDatabaseName, teamId: t.teamId, onSuccessCallback: () => {
 								// get the current sprint number if the calendar is available
 								const now = Date.now()
-								for (let i = 0; i < this.$store.state.loadedCalendar.length; i++) {
-									const s = this.$store.state.loadedCalendar[i]
+								for (let i = 0; i < store.state.loadedCalendar.length; i++) {
+									const s = store.state.loadedCalendar[i]
 									if (s.startTimestamp < now && now < s.startTimestamp + s.sprintLength) {
 										this.currentSprintNr = i
 										break
@@ -559,22 +560,22 @@ const methods = {
 	},
 
 	doCreateTeamCalendar() {
-		this.$store.state.isCalendarSaved = false
-		this.$store.dispatch('createTeamCalendarAction', { dbName: this.$store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName })
+		store.state.isCalendarSaved = false
+		store.dispatch('createTeamCalendarAction', { dbName: store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName })
 	},
 
 	doGetTeamsOfDb() {
-		this.$store.dispatch('fetchTeamsAction', this.$store.state.selectedDatabaseName)
+		store.dispatch('fetchTeamsAction', store.state.selectedDatabaseName)
 	},
 
 	userIsMe() {
-		return this.selectedUser === this.$store.state.userData.user
+		return this.selectedUser === store.state.userData.user
 	},
 
 	cancel() {
 		this.optionSelected = 'Select a task'
 		this.dbIsSelected = false
-		this.$store.state.backendMessages = []
+		store.state.backendMessages = []
 	}
 }
 

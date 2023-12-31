@@ -32,5 +32,7 @@ app.use(store)
 app.use(BootstrapVueNext)
 app.component("font-awesome-icon", FontAwesomeIcon)
 app.config.globalProperties.eventBus = eventBus
+// make the store available in all templates
+app.config.globalProperties.store = store
 
 app.mount('#onebacklog')

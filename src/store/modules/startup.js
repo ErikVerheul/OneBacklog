@@ -168,7 +168,7 @@ const actions = {
 					currentDbSettings.subscriptions = [Object.keys(productsRoles)[0]]
 				}
 			}
-			// update user data loaded in getOtherUserData and STORE THE USER DATA in $store.state.userData
+			// update user data loaded in getOtherUserData and STORE THE USER DATA in store.state.userData
 			// postpone the warning message for 'no product found' until the configuration is loaded
 			const toDispatch = [{ getConfig: null }]
 			dispatch('updateUserAction', {

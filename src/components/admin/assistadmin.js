@@ -1,4 +1,5 @@
 import common_admin from './common_admin'
+import store from '../../store/store.js'
 
 const methods = {
 	/* For all options only the databases assigned to the assistAdmin are available for selection */
@@ -9,10 +10,10 @@ const methods = {
 		this.password = undefined
 		this.userEmail = undefined
 		this.credentialsReady = false
-		this.$store.state.backendMessages = []
+		store.state.backendMessages = []
 		this.localMessage = ''
-		this.$store.state.isUserRemoved = false
-		this.$store.state.isUserCreated = false
+		store.state.isUserRemoved = false
+		store.state.isUserCreated = false
 	},
 
 	maintainUsers() {
@@ -22,13 +23,13 @@ const methods = {
 		this.canRemoveLastProduct = true
 		this.canRemoveDatabase = true,
 		this.localMessage = ''
-		this.$store.state.backendMessages = []
-		this.$store.state.isUserFound = false
-		this.$store.state.areDatabasesFound = false
-		this.$store.state.areProductsFound = false
-		this.$store.state.isUserUpdated = false
+		store.state.backendMessages = []
+		store.state.isUserFound = false
+		store.state.areDatabasesFound = false
+		store.state.areProductsFound = false
+		store.state.isUserUpdated = false
 		// get the users to select from
-		this.$store.dispatch('getAllUsers')
+		store.dispatch('getAllUsers')
 	}
 }
 
