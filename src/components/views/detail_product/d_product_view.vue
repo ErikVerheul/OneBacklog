@@ -397,6 +397,7 @@
 
 /* tree stuff */
 .last-event {
+  width: 100%;
   text-align: left;
   color: white;
   padding: 9px;
