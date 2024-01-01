@@ -50,8 +50,7 @@
           <BCol cols="3">
             <h3 v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== 'requirement-areas' && store.state.currentDoc.parentId !== 'requirement-areas'" align="right">
               State:
-              <BDropdown right class="m-1 .btn.btn-secondary.dropdown-toggle">
-                <template slot="button-content">{{ getItemStateText(store.state.currentDoc.state) }}</template>
+              <BDropdown right class="m-1 .btn.btn-secondary.dropdown-toggle" :text=getItemStateText(store.state.currentDoc.state)>
                 <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>

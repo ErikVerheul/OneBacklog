@@ -50,8 +50,7 @@
           <BCol cols="3">
             <h3 v-if="store.state.currentDoc._id !== 'root'" align="right">
               State:
-              <BDropdown v-if="store.state.currentDoc.level < LEVEL.TASK" right class="m-1 .btn.btn-secondary.dropdown-toggle">
-                <template slot="button-content">{{ getItemStateText(store.state.currentDoc.state) }}</template>
+              <BDropdown v-if="store.state.currentDoc.level < LEVEL.TASK" right class="m-1 .btn.btn-secondary.dropdown-toggle" :text=getItemStateText(store.state.currentDoc.state)>
                 <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>
@@ -59,8 +58,7 @@
                 <BDropdownDivider></BDropdownDivider>
                 <BDropdownItem @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</BDropdownItem>
               </BDropdown>
-              <BDropdown v-else right class="m-2 .btn.btn-secondary.dropdown-toggle">
-                <template slot="button-content">{{ getTaskStateText(store.state.currentDoc.state) }}</template>
+              <BDropdown v-else right class="m-2 .btn.btn-secondary.dropdown-toggle" :text=getItemStateText(store.state.currentDoc.state)>
                 <BDropdownItem @click="onStateChange(STATE.TODO)">{{ getTaskStateText(STATE.TODO) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getTaskStateText(STATE.INPROGRESS) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.TESTREVIEW)">{{ getTaskStateText(STATE.TESTREVIEW) }}</BDropdownItem>
