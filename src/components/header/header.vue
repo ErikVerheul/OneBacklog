@@ -198,7 +198,6 @@
         </p>
       </BContainer>
     </BModal>
-    showOptionsModal = {{ showOptionsModal }}
     <!-- when userData not initialized do not show the options -->
     <BModal size="lg" v-if="store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
       <h5>If you manage large complex products</h5>
