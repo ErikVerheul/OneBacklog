@@ -10,7 +10,7 @@
         </BNavbarNav>
         <!-- app-header additions go in this slot -->
         <slot></slot>
-        <BNavbarNav v-if="store.state.showHeaderDropDowns" class="ms-auto mb-2 mb-lg-0">
+        <BNavbarNav v-if="store.state.showHeaderDropDowns" class="ms-auto">
           <BNavItemDropdown text="Select your view" right>
             <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
             <BDropdownItem v-if="store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products

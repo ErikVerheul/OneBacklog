@@ -2,13 +2,13 @@
   <div>
     <app-header>
       <!-- Right aligned nav items -->
-      <BNavbarNav class="ml-auto">
+      <BNavbarNav>
         <BNavForm>
-          <BButton class="m-1" id="tooltip-undo" v-show="store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
+          <BButton id="tooltip-undo" v-show="store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
           <BTooltip target="tooltip-undo" triggers="hover">
             {{ undoTitle }}
           </BTooltip>
-          <BButton class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</BButton>
+          <BButton v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</BButton>
           <div class="divider" />
           <BInputGroup v-show="store.state.resetSearch.searchType !== 'searchInTitles'">
             <BFormInput class="form-width" id="findItemOnId" v-model="store.state.itemId" placeholder="Select on (short) Id"></BFormInput>
