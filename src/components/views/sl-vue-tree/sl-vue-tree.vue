@@ -32,8 +32,8 @@
 
           <slot name="title" :node="node"></slot>
 
-          <div class="sl-vue-tree-dependency-violation">
-            <slot name="dependency-violation" :node="node"></slot>
+          <div class="sl-vue-tree-dependencyviolation">
+            <slot name="dependencyviolation" :node="node"></slot>
           </div>
 
           <div class="sl-vue-tree-sidebar">
@@ -51,8 +51,8 @@
           <slot name="toggle" :node="node"></slot>
         </template>
 
-        <template v-slot:dependency-violation="{ node }">
-          <slot name="dependency-violation" :node="node"></slot>
+        <template v-slot:dependencyviolation="{ node }">
+          <slot name="dependencyviolation" :node="node"></slot>
         </template>
 
         <template v-slot:sidebar="{ node }">
@@ -134,7 +134,7 @@
   width: 20px;
 }
 
-.sl-vue-tree-dependency-violation {
+.sl-vue-tree-dependencyviolation {
   display: inline-block;
   position: absolute;
   right: 50px;

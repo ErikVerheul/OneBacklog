@@ -74,7 +74,7 @@
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
           <sl-vue-tree :value="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
-            <template slot="title" slot-scope="{ node }">
+            <template v-slot:title={node}>
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
                   <font-awesome-icon icon="folder" />
@@ -104,7 +104,7 @@
               <BBadge v-if="isAttachmentAdded(node)" variant="info">See attachments</BBadge>
             </template>
 
-            <template slot="toggle" slot-scope="{ node }">
+            <template v-slot:toggle={node}>
               <span v-if="!node.isLeaf">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
@@ -115,35 +115,37 @@
               </span>
             </template>
 
-            <template v-if="node.tmp.markedViolations" slot="dependency-violation" slot-scope="{ node }">
-              <div v-if="rowLength(node.tmp.markedViolations) === 1">
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-              </div>
-              <div v-else-if="rowLength(node.tmp.markedViolations) === 2">
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-              </div>
-              <div v-else-if="rowLength(node.tmp.markedViolations) === 3">
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-              </div>
-              <div v-else-if="rowLength(node.tmp.markedViolations) === 4">
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
-              </div>
-              <div v-else>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
-                <span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
-              </div>
+            <template v-slot:dependencyviolation={node}>
+              <template v-if="node.tmp.markedViolations">
+                <div v-if="rowLength(node.tmp.markedViolations) === 1">
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                </div>
+                <div v-else-if="rowLength(node.tmp.markedViolations) === 2">
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+                </div>
+                <div v-else-if="rowLength(node.tmp.markedViolations) === 3">
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                </div>
+                <div v-else-if="rowLength(node.tmp.markedViolations) === 4">
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+                </div>
+                <div v-else>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
+                </div>
+              </template>
             </template>
 
-            <template slot="sidebar" slot-scope="{ node }">
+            <template v-slot:sidebar={node}>
               <template v-if="node.productId === MISC.AREA_PRODUCTID">
                 <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{'background-color': node.data.reqAreaItemColor}"></p>
               </template>
