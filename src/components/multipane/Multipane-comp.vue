@@ -8,18 +8,18 @@
 
 <style lang="scss">
 .multipane {
-    display: flex;
+  display: flex;
 
-    &.layout-h {
-        flex-direction: column;
-    }
+  &.layout-h {
+    flex-direction: column;
+  }
 
-    &.layout-v {
-        flex-direction: row;
-    }
+  &.layout-v {
+    flex-direction: row;
+  }
 }
 
-.multipane > div {
+.multipane>div {
   position: relative;
   z-index: 1;
 }
@@ -30,7 +30,7 @@
   z-index: 2;
 }
 
-.layout-h > .multipane-resizer {
+.layout-h>.multipane-resizer {
   width: 100%;
   height: 10px;
   margin-top: -10px;
@@ -38,7 +38,7 @@
   cursor: row-resize;
 }
 
-.layout-v > .multipane-resizer {
+.layout-v>.multipane-resizer {
   width: 10px;
   height: 100%;
   margin-left: -10px;
