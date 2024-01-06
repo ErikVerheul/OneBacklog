@@ -2,24 +2,26 @@ import { SEV, LEVEL, MISC } from '../../../constants.js'
 import AppHeader from '../../header/header.vue'
 import Multipane from '../../multipane/Multipane-comp.vue'
 import MultipaneResizer from '../../multipane/Multipane-Resizer.vue'
-import VueEditor from '../../vue-editor/VueEditor.vue'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
 import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
 import Listings from './c_listings.vue'
+import store from '../../../store/store.js'
 
 const thisView = 'coarseProduct'
 var returning = false
 
 function beforeCreate() {
-	this.$store.state.currentView = thisView
-	if (thisView !== this.$store.state.lastTreeView) {
-		this.$store.state.treeNodes = []
-		this.$store.state.changeHistory = []
+	store.state.currentView = thisView
+	if (thisView !== store.state.lastTreeView) {
+		store.state.treeNodes = []
+		store.state.changeHistory = []
 		// reset filters and searches
-		this.$store.state.resetFilter = null
-		this.$store.state.resetSearch = {}
+		store.state.resetFilter = null
+		store.state.resetSearch = {}
 		returning = false
 	} else returning = true
 }
@@ -42,7 +44,7 @@ function mounted() {
 	if (returning) {
 		this.showLastEvent('Returning to the Products overview', SEV.INFO)
 	} else {
-		this.$store.dispatch('loadOverview')
+		store.dispatch('loadOverview')
 	}
 }
 
@@ -95,7 +97,7 @@ const methods = {
 	getItemInfo() {
 		let txt = ''
 		if (this.getCurrentItemLevel > LEVEL.PRODUCT) {
-			txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${this.$store.state.currentDoc.team}'`
+			txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${store.state.currentDoc.team}'`
 		}
 		return txt
 	},
@@ -104,7 +106,7 @@ const methods = {
 	getRemainingColorOptions() {
 		const availableOptions = []
 		// the requirements areas product must be the first product in the hierarchy
-		const reqAreaNodes = this.$store.state.helpersRef.getProducts()[0].children
+		const reqAreaNodes = store.state.helpersRef.getProducts()[0].children
 		for (let co of this.colorOptions) {
 			let colorInUse = false
 			for (let nm of reqAreaNodes) {
@@ -119,29 +121,22 @@ const methods = {
 
 	/* Event handling */
 	onNodesSelected(fromContextMenu) {
-		const selNodes = this.$store.state.selectedNodes
-		// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
-		this.updateDescription(this.getPreviousNodeSelected)
-		if (!this.isReqAreaItemSelected) this.updateAcceptance(this.getPreviousNodeSelected)
-
-		// load the document if not already in memory
-		if (this.getLastSelectedNode._id !== this.$store.state.currentDoc._id) {
-			this.$store.dispatch('loadDoc', {
-				id: this.getLastSelectedNode._id,
-				onSuccessCallback: () => {
-					// preset the req area color if available
-					this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
-					// if the user clicked on a node of another product (not root)
-					if (this.getLastSelectedNode._id !== 'root' && this.$store.state.currentProductId !== this.getLastSelectedNode.productId) {
-						// update current productId and title
-						this.$store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
-					}
-					if (this.getLastSelectedNode._id !== 'requirement-areas') {
-						if (!fromContextMenu) this.showSelectionEvent(selNodes)
-					} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
+		// load the document
+		store.dispatch('loadDoc', {
+			id: this.getLastSelectedNode._id,
+			onSuccessCallback: () => {
+				// preset the req area color if available
+				this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
+				// if the user clicked on a node of another product (not root)
+				if (this.getLastSelectedNode._id !== 'root' && store.state.currentProductId !== this.getLastSelectedNode.productId) {
+					// update current productId and title
+					store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
 				}
-			})
-		}
+				if (this.getLastSelectedNode._id !== 'requirement-areas') {
+					if (!fromContextMenu) this.showSelectionEvent(store.state.selectedNodes)
+				} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
+			}
+		})
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
@@ -176,7 +171,7 @@ const methods = {
 			}
 			return true
 		}
-		const parentNode = position.placement === 'inside' ? position.nodeModel : this.$store.state.helpersRef.getParentNode(position.nodeModel)
+		const parentNode = position.placement === 'inside' ? position.nodeModel : store.state.helpersRef.getParentNode(position.nodeModel)
 		// cancel quietly if getParentNode(position.nodeModel) returns null (not found)
 		if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node) => {
@@ -188,7 +183,7 @@ const methods = {
 				if (position.placement === 'inside') targetLevel++
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + this.$store.state.helpersRef.getDescendantsInfo(node).depth) > LEVEL.PBI
+				const failedCheck3 = (targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth) > LEVEL.PBI
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0
@@ -235,20 +230,20 @@ const methods = {
 	},
 
 	setUserColor(newColor) {
-		this.$store.dispatch('updateColorDb', { node: this.getLastSelectedNode, newColor })
+		store.dispatch('updateColorDb', { node: this.getLastSelectedNode, newColor })
 	},
 
 	setReqArea(node) {
 		if (this.isAPO) {
 			this.selReqAreaId = node.data.reqarea || null
 			// set the req area options
-			const currReqAreaNodes = this.$store.state.helpersRef.getReqAreaNodes()
+			const currReqAreaNodes = store.state.helpersRef.getReqAreaNodes()
 			if (currReqAreaNodes) {
-				this.$store.state.reqAreaOptions = []
+				store.state.reqAreaOptions = []
 				for (const nm of currReqAreaNodes) {
-					this.$store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
+					store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
 				}
-				if (this.selReqAreaId !== null) this.$store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
+				if (this.selReqAreaId !== null) store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
 				this.setReqAreaShow = true
 			} else this.showLastEvent('Sorry, your assigned role(s) disallow you to assing requirement areas', SEV.WARNING)
 		}
@@ -256,7 +251,7 @@ const methods = {
 
 	/* Update the req area of the item (null for no req area set) */
 	doSetReqArea() {
-		this.$store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqareaId: this.selReqAreaId, timestamp: Date.now() })
+		store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqareaId: this.selReqAreaId, timestamp: Date.now() })
 	}
 }
 
@@ -264,7 +259,7 @@ const components = {
 	'app-header': AppHeader,
 	Multipane,
 	MultipaneResizer,
-	VueEditor,
+	QuillEditor,
 	slVueTree,
 	CcontextMenu,
 	Filters,

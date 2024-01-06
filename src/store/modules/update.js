@@ -1079,11 +1079,11 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + payload.id
 		}).then(res => {
-			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
-			// execute passed function if provided
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log('loadDoc: document with id ' + payload.id + ' is loaded.')
+			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
+			// execute passed function if provided
+			if (payload.onSuccessCallback) payload.onSuccessCallback()		
 		}).catch(error => {
 			// execute passed function if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()

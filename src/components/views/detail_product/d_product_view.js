@@ -3,7 +3,8 @@ import { getSprintById } from '../../../common_functions.js'
 import AppHeader from '../../header/header.vue'
 import Multipane from '../../multipane/Multipane-comp.vue'
 import MultipaneResizer from '../../multipane/Multipane-Resizer.vue'
-import VueEditor from '../../vue-editor/VueEditor.vue'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
 import DcontextMenu from './d_context.vue'
@@ -131,11 +132,6 @@ const methods = {
 
 	/* event handling */
 	onNodesSelected(fromContextMenu) {
-		const selNodes = store.state.selectedNodes
-		// update explicitly as the tree is not an input field receiving focus so that @blur on the editor is not emitted
-		this.updateDescription(this.getPreviousNodeSelected)
-		this.updateAcceptance(this.getPreviousNodeSelected)
-
 		// load the selected document
 		store.dispatch('loadDoc', {
 			id: this.getLastSelectedNode._id,
@@ -148,7 +144,7 @@ const methods = {
 					// collapse the currently selected product and switch and expand to the newly selected product
 					store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
 				}
-				if (!fromContextMenu) this.showSelectionEvent(selNodes)
+				if (!fromContextMenu) this.showSelectionEvent(store.state.selectedNodes)
 			}
 		})
 	},
@@ -208,7 +204,7 @@ const components = {
 	'app-header': AppHeader,
 	Multipane,
 	MultipaneResizer,
-	VueEditor,
+	QuillEditor,
 	slVueTree,
 	DcontextMenu,
 	Filters,

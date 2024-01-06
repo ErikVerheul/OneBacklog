@@ -81,7 +81,7 @@
 
         <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
         <div class="tree-container" @mousedown.stop>
-          <sl-vue-tree :value="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
+          <sl-vue-tree tabindex="0" :value="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
             <template v-slot:title={node}>
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
@@ -206,7 +206,7 @@
           </div>
           <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
-            <vue-editor v-model="description" :editorToolbar="editorToolbar" id="descriptionField" @blur="updateDescription()"></vue-editor>
+            <QuillEditor v-model:content="description" contentType="html" :toolbar="editorToolbar" @focus="initNewDescription" @blur="updateDescription()"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ height: '45px', top: '5px' }">
@@ -216,7 +216,7 @@
           </div>
           <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
-            <vue-editor v-model="acceptanceCriteria" :editorToolbar="editorToolbar" id="acceptanceCriteriaField" @blur="updateAcceptance()"></vue-editor>
+            <QuillEditor v-model:content="acceptanceCriteria" contentType="html" :toolbar="editorToolbar" @focus="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ height: '75px', top:'5px'}">
@@ -263,13 +263,13 @@
 
     <BModal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
       <BFormGroup>
-        <vue-editor v-model="newComment" :editorToolbar="editorToolbar" id="newComment"></vue-editor>
+        <QuillEditor v-model:content=newComment contentType="html" :toolbar="editorToolbar" id="newComment"></QuillEditor>
       </BFormGroup>
     </BModal>
 
     <BModal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event">
       <BFormGroup>
-        <vue-editor v-model="newHistory" :editorToolbar="editorToolbar" id="newHistory"></vue-editor>
+        <QuillEditor v-model:content=newHistory contentType="html" :toolbar="editorToolbar" id="newHistory"></QuillEditor>
       </BFormGroup>
     </BModal>
 

@@ -60,7 +60,9 @@ function data() {
 		userStorySubtype: 0,
 		spikeSubtype: 1,
 		defectSubtype: 2,
+		// description: "",
 		newDescription: '',
+		// acceptanceCriteria: "",
 		newAcceptance: '',
 		editorToolbar: [
 			[{ header: [false, 1, 2, 3, 4, 5, 6] }],
@@ -176,7 +178,7 @@ const computed = {
 	},
 
 	description: {
-		get() {
+		get: () => {
 			return store.state.currentDoc.description
 		},
 		set(newDescription) {
@@ -185,7 +187,7 @@ const computed = {
 	},
 
 	acceptanceCriteria: {
-		get() {
+		get: () => {
 			return store.state.currentDoc.acceptanceCriteria
 		},
 		set(newAcceptanceCriteria) {
@@ -238,6 +240,14 @@ const watch = {
 }
 
 const methods = {
+	initNewDescription() {
+		this.newDescription = store.state.currentDoc.description
+	},
+
+	initNewAcceptance() {
+		this.newAcceptance = store.state.currentDoc.acceptanceCriteria
+	},
+
 	stopFiltering() {
 		if (store.state.selectedForView === 'comments') {
 			this.filterForCommentPrep = ''
