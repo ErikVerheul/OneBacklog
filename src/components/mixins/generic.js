@@ -1,5 +1,6 @@
 import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
 import { mapGetters } from 'vuex'
+import store from '../../store/store.js'
 
 const constants = {
 	/* Make the constants available in the context of 'this' */
@@ -82,9 +83,9 @@ const authorization = {
 			}
 			if (this.getMyProductsRoles[productId]) {
 				// eslint-disable-next-line no-console
-				if (this.$store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
+				if (store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
 				// eslint-disable-next-line no-console
-				if (this.$store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, PBI, TASK]: ${levels}`)
+				if (store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, PBI, TASK]: ${levels}`)
 			}
 			return levels[level]
 		},
@@ -151,7 +152,7 @@ const utilities = {
 		*/
 		getActiveSprints() {
 			const now = Date.now()
-			const myCurrentSprintCalendar = this.$store.state.myCurrentSprintCalendar
+			const myCurrentSprintCalendar = store.state.myCurrentSprintCalendar
 			let currentSprint
 			let nextSprint
 			for (let i = 0; i < myCurrentSprintCalendar.length; i++) {
@@ -166,54 +167,54 @@ const utilities = {
 				return { currentSprint, nextSprint }
 			} else {
 				alert('Error: Missing current and/or next sprint; you need to sign-in again to have the sprint calendar extended. The application will exit.')
-				this.$store.commit('endSession', 'generic: getActiveSprints - Missing current and/or next sprint')
+				store.commit('endSession', 'generic: getActiveSprints - Missing current and/or next sprint')
 			}
 		}
 	},
 
 	methods: {
 		getItemStateText(idx) {
-			if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+			if (idx < 0 || idx >= store.state.configData.itemState.length) {
 				return 'Error: unknown state'
 			}
-			return this.$store.state.configData.itemState[idx]
+			return store.state.configData.itemState[idx]
 		},
 
 		getLevelText(level) {
-			if (this.$store.state.helpersRef) return this.$store.state.helpersRef.getLevelText(level)
+			if (store.state.helpersRef) return store.state.helpersRef.getLevelText(level)
 		},
 
 		getSubType(idx) {
-			if (this.$store.state.helpersRef) return this.$store.state.helpersRef.getSubType(idx)
+			if (store.state.helpersRef) return store.state.helpersRef.getSubType(idx)
 		},
 
 		getNodeStateText(node) {
 			const idx = node.data.state
 			if (node.level < LEVEL.TASK) {
-				if (idx < 0 || idx >= this.$store.state.configData.itemState.length) {
+				if (idx < 0 || idx >= store.state.configData.itemState.length) {
 					return 'Error: unknown state'
 				}
-				return this.$store.state.configData.itemState[idx]
+				return store.state.configData.itemState[idx]
 			} else {
-				if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+				if (idx < 0 || idx >= store.state.configData.taskState.length) {
 					return 'Error: unknown state'
 				}
-				return this.$store.state.configData.taskState[idx]
+				return store.state.configData.taskState[idx]
 			}
 		},
 
 		getTaskStateText(idx) {
-			if (idx < 0 || idx >= this.$store.state.configData.taskState.length) {
+			if (idx < 0 || idx >= store.state.configData.taskState.length) {
 				return 'Error: unknown state'
 			}
-			return this.$store.state.configData.taskState[idx]
+			return store.state.configData.taskState[idx]
 		},
 
 		getTsSize(idx) {
-			if (idx < 0 || idx >= this.$store.state.configData.tsSize.length) {
+			if (idx < 0 || idx >= store.state.configData.tsSize.length) {
 				return 'Error: unknown T-shirt size'
 			}
-			return this.$store.state.configData.tsSize[idx]
+			return store.state.configData.tsSize[idx]
 		},
 
 		itemTitleTrunc(length, title) {
@@ -222,7 +223,7 @@ const utilities = {
 		},
 
 		showLastEvent(txt, severity) {
-			this.$store.commit('showLastEvent', { txt, severity })
+			store.commit('showLastEvent', { txt, severity })
 		},
 
 		showSelectionEvent(selNodes) {
@@ -240,7 +241,7 @@ const utilities = {
 			if (selNodes.length === 1) {
 				evt = `${itemType} '${lastSelectedNodeTitle}' is selected.`
 				if (this.getLastSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
-				if (this.getLastSelectedNode.data.reqarea) evt += ` This ${itemType} belongs to requirement area '${this.$store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
+				if (this.getLastSelectedNode.data.reqarea) evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
 			} else {
 				const multiNodesTitle = `${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
 				evt = `${itemType} ${multiNodesTitle} are selected.`
@@ -289,14 +290,14 @@ const utilities = {
 				targetLevel = targetNode.level + 1
 				insertInd = 0
 			} else {
-				targetParent = this.$store.state.helpersRef.getParentNode(targetNode)
+				targetParent = store.state.helpersRef.getParentNode(targetNode)
 				targetParentId = targetNode.parentId
 				targetLevel = targetNode.level
 				insertInd = targetNode.ind
 			}
-			const sourceProductTitle = this.$store.state.helpersRef.getNodeById(sourceProductId).title
-			const sourceParentTitle = this.$store.state.helpersRef.getNodeById(sourceParentId).title
-			const targetProductTitle = this.$store.state.helpersRef.getNodeById(targetProductId).title
+			const sourceProductTitle = store.state.helpersRef.getNodeById(sourceProductId).title
+			const sourceParentTitle = store.state.helpersRef.getNodeById(sourceParentId).title
+			const targetProductTitle = store.state.helpersRef.getNodeById(targetProductId).title
 			const targetParentTitle = targetParent.title
 
 			// if moving a product (one at a time) skip the productId update in its descendants and assign the product id to the target product id
@@ -389,9 +390,9 @@ const utilities = {
 				sortedIndMap = reverseMoveMap.sort((a, b) => b.targetInd - a.targetInd)
 			} else sortedIndMap = reverseMoveMap
 
-			this.$store.state.helpersRef.removeNodes(nodes)
+			store.state.helpersRef.removeNodes(nodes)
 			// if moving a product skip updating the productId; nodes are assigned their new priority
-			this.$store.state.helpersRef.insertNodes(cursorPosition, nodes, { skipUpdateProductId: targetParentId === 'root' })
+			store.state.helpersRef.insertNodes(cursorPosition, nodes, { skipUpdateProductId: targetParentId === 'root' })
 
 			return {
 				placement,
