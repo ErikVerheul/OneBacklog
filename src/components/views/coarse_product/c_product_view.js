@@ -121,6 +121,9 @@ const methods = {
 
 	/* Event handling */
 	onNodesSelected(fromContextMenu) {
+		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
+		if (this.isDescriptionEdited) this.updateDescription(this.getPreviousNodeSelected)
+		if (this.isAcceptanceEdited) this.updateAcceptance(this.getPreviousNodeSelected)
 		// load the document
 		store.dispatch('loadDoc', {
 			id: this.getLastSelectedNode._id,

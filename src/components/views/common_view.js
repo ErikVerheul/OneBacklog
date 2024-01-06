@@ -63,6 +63,8 @@ function data() {
 		newDescription: '',
 		// acceptanceCriteria: "",
 		newAcceptance: '',
+		isDescriptionEdited: false,
+		isAcceptanceEdited: false,
 		editorToolbar: [
 			[{ header: [false, 1, 2, 3, 4, 5, 6] }],
 			['bold', 'italic', 'underline', 'strike'],
@@ -241,10 +243,14 @@ const watch = {
 const methods = {
 	initNewDescription() {
 		this.newDescription = store.state.currentDoc.description
+		this.isDescriptionEdited = true
+		this.isAcceptanceEdited = false
 	},
 
 	initNewAcceptance() {
 		this.newAcceptance = store.state.currentDoc.acceptanceCriteria
+		this.isDescriptionEdited = false
+		this.isAcceptanceEdited = true
 	},
 
 	stopFiltering() {

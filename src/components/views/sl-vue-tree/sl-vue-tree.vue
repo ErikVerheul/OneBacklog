@@ -69,6 +69,7 @@
 .sl-vue-tree {
   position: relative;
   cursor: default;
+  user-select: none;
 }
 
 .sl-vue-tree.sl-vue-tree-root {
