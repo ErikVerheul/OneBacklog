@@ -79,8 +79,7 @@
         <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" :style="{'background-color': getLastEventColor}">
           {{ getLastEventTxt }} </BButton>
 
-        <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
-        <div class="tree-container" @mousedown.stop>
+        <div class="tree-container">
           <sl-vue-tree tabindex="0" :value="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
             <template v-slot:title={node}>
               <span class="item-icon">
@@ -206,8 +205,7 @@
               </div>
             </div>
           </div>
-          <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
-          <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
+          <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
             <QuillEditor v-model:content="description" contentType="html" :toolbar="editorToolbar" @focus="initNewDescription" @blur="updateDescription()"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
@@ -216,8 +214,7 @@
               <h5 class="title is-6">Acceptance criteria</h5>
             </div>
           </div>
-          <!-- Suppress bug with @mousedown.stop. See https://github.com/yansern/vue-multipane/issues/19 -->
-          <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }" @mousedown.stop>
+          <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
             <QuillEditor v-model:content="acceptanceCriteria" contentType="html" :toolbar="editorToolbar" @focus="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
