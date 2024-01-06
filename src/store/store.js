@@ -1185,41 +1185,14 @@ const store = createStore({
 			// stop the timers
 			clearInterval(state.authentication.runningCookieRefreshId)
 			clearInterval(state.watchdog.runningWatchdogId)
-			// clear the data
-			state.authentication.cookieAuthenticated = false
-			state.availableProductIds = []
-			state.authentication.sessionAuthData = {}
-			state.changeHistory = []
-			state.configData = null
-			state.currentDoc = null
-			state.currentProductId = null
-			state.currentProductTitle = ''
-			state.resetFilter = null,
-				state.iAmAPO = false
-			state.iAmAdmin = false
-			state.iAmAssistAdmin = false
-			state.iAmServerAdmin = false
-			state.isProductAssigned = false
-			state.eventKey = 0
-			state.eventList = []
-			state.lastTreeView = undefined
-			state.listenForChangesRunning = false
-			state.loadedSprintId = null
-			state.loadedTreeDepth = undefined
-			state.myProductOptions = []
-			state.mySessionId = null
-			state.planningboard.stories = []
-			state.resetSearch = {}
-			state.showHeaderDropDowns = true
-			state.stopListeningForChanges = false
-			state.treeNodes = []
-			state.unsavedLogs = []
-			state.userData = {}
-			// load sign-in page
-			router.replace('/')
+			// set signed out status
 			state.signedOut = true
 			// eslint-disable-next-line no-console
-			if (state.debug) console.log('endSession was executed, signedOut = ' + state.signedOut + ', caller = ' + caller)
+			if (state.debug) console.log('endSession was executed, signedOut = ' + state.signedOut + ', caller = ' + caller)	
+			// clear the data
+			state = {}			
+			// load sign-in page
+			router.replace('/')
 		}
 	},
 

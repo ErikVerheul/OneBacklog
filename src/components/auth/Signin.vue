@@ -70,7 +70,6 @@ const credentialsEntered = computed(() => {
 })
 
 function onSubmit() {
-  console.log('onSubmit is fired')
   const credentials = {
     name: state.name,
     password: state.password
