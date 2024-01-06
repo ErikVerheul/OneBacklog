@@ -166,9 +166,11 @@
                 </template>
             </template>
 
-            <!-- <template v-if="store.state.userData.myOptions.proUser === 'true' && store.state.colorMapper && node.level > LEVEL.PRODUCT && node.data.reqarea" v-slot:sidebar={node}>
-              <p class="rectangle" :style="{'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
-            </template> -->
+            <template v-slot:sidebar={node}>
+              <template v-if="store.state.userData.myOptions.proUser === 'true' && store.state.colorMapper && node.level > LEVEL.PRODUCT && node.data.reqarea">
+                <p class="rectangle" :style="{'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
+              </template>
+            </template>
           </sl-vue-tree>
         </div>
       </div>
