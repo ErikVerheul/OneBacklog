@@ -8,51 +8,50 @@ const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
 
-// TODO: fix this functionality
 function mounted() {
-	// function idCheck(vm) {
-	// 	const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-	// 	const trimmedItemId = vm.store.state.itemId.trim()
-	// 	if (trimmedItemId.length !== SHORTKEYLENGTH && trimmedItemId.length < FULLKEYLENGTH) {
-	// 		vm.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
-	// 		return false
-	// 	}
+	function idCheck(vm) {
+		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
+		const trimmedItemId = vm.store.state.itemId.trim()
+		if (trimmedItemId.length !== SHORTKEYLENGTH && trimmedItemId.length < FULLKEYLENGTH) {
+			vm.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
+			return false
+		}
 
-	// 	for (let i = 0; i < trimmedItemId.length; i++) {
-	// 		if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) return false
-	// 	}
-	// 	return true
-	// }
+		for (let i = 0; i < trimmedItemId.length; i++) {
+			if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) return false
+		}
+		return true
+	}
 
-	// const el = document.getElementById('findItemOnId')
-	// // fire the search on id on pressing enter in the select-on-Id input field (instead of submitting the form)
-	// el.addEventListener('keydown', (event) => {
-	// 	if (event.key === 'Enter') {
-	// 		event.preventDefault()
-	// 		// check for valid input and convert to lowercase
-	// 		if (idCheck(this)) {
-	// 			this.findItemOnId(store.state.itemId.toLowerCase().trim())
-	// 		}
-	// 	}
-	// })
+	const el = document.getElementById('findItemOnId')
+	// fire the search on id on pressing enter in the select-on-Id input field (instead of submitting the form)
+	el.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter') {
+			event.preventDefault()
+			// check for valid input and convert to lowercase
+			if (idCheck(this)) {
+				this.findItemOnId(store.state.itemId.toLowerCase().trim())
+			}
+		}
+	})
 
-	// const el2 = document.getElementById('searchInput')
-	// // fire the search button on pressing enter in the search input field (instead of submitting the form)
-	// el2.addEventListener('keydown', (event) => {
-	// 	if (event.key === 'Enter') {
-	// 		event.preventDefault()
-	// 		this.exeSearchInTitles(this.getLastSelectedNode)
-	// 	}
-	// })
+	const el2 = document.getElementById('searchInput')
+	// fire the search button on pressing enter in the search input field (instead of submitting the form)
+	el2.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter') {
+			event.preventDefault()
+			this.exeSearchInTitles(this.getLastSelectedNode)
+		}
+	})
 
-	// const el3 = document.getElementById('titleField')
-	// // update the item title on pressing enter
-	// el3.addEventListener('keydown', (event) => {
-	// 	if (event.key === 'Enter') {
-	// 		event.preventDefault()
-	// 		this.updateTitle()
-	// 	}
-	// })
+	const el3 = document.getElementById('titleField')
+	// update the item title on pressing enter
+	el3.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter') {
+			event.preventDefault()
+			this.updateTitle()
+		}
+	})
 }
 
 function data() {
