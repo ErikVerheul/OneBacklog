@@ -644,9 +644,11 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of the item description is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
-				}, onFailureCallback: () => {
+				}, 
+				onFailureCallback: () => {
 					if (payload.isUndoAction) rootState.busyWithLastUndo = false
-				}
+				}, 
+				toDispatch: payload.toDispatch
 			})
 		}).catch(error => {
 			if (payload.isUndoAction) rootState.busyWithLastUndo = false
@@ -705,9 +707,11 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
-				}, onFailureCallback: () => {
+				}, 
+				onFailureCallback: () => {
 					if (payload.isUndoAction) rootState.busyWithLastUndo = false
-				}
+				}, 
+				toDispatch: payload.toDispatch
 			})
 		}).catch(error => {
 			if (payload.isUndoAction) rootState.busyWithLastUndo = false
