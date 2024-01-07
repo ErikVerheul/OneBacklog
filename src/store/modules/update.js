@@ -644,10 +644,10 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of the item description is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
-				}, 
+				},
 				onFailureCallback: () => {
 					if (payload.isUndoAction) rootState.busyWithLastUndo = false
-				}, 
+				},
 				toDispatch: payload.toDispatch
 			})
 		}).catch(error => {
@@ -707,10 +707,10 @@ const actions = {
 						commit('showLastEvent', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
-				}, 
+				},
 				onFailureCallback: () => {
 					if (payload.isUndoAction) rootState.busyWithLastUndo = false
-				}, 
+				},
 				toDispatch: payload.toDispatch
 			})
 		}).catch(error => {
@@ -1087,7 +1087,7 @@ const actions = {
 			if (rootState.debug) console.log('loadDoc: document with id ' + payload.id + ' is loaded.')
 			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 			// execute passed function if provided
-			if (payload.onSuccessCallback) payload.onSuccessCallback()		
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
 		}).catch(error => {
 			// execute passed function if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
