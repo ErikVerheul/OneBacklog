@@ -64,7 +64,7 @@
         <h5>Select another database. Your current database is '{{ store.state.userData.currentDb }}'</h5>
         <BFormGroup>
           <BFormRadioGroup v-model="headerMyDatabase" :options="headerDatabaseOptions"
-            name="headerDatabaseOptions"></BFormRadioGroup>
+            name="headerDatabaseOptions" />
         </BFormGroup>
         <p>After you have changed the database you will be signed-out. Sign-in again to connect to the selected database
         </p>
@@ -75,7 +75,7 @@
       <BContainer align-v="true">
         <h5>Select your new team. Your current team is '{{ myTeam }}'</h5>
         <BFormGroup>
-          <BFormRadioGroup v-model="selectedTeam" :options="teamOptions" name="teamOptions"></BFormRadioGroup>
+          <BFormRadioGroup v-model="selectedTeam" :options="teamOptions" name="teamOptions" />
         </BFormGroup>
       </BContainer>
     </BModal>

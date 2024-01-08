@@ -193,7 +193,7 @@
               <p class="title is-6"> {{ getItemInfo() }}</p>
               <div v-if="getCurrentItemLevel==LEVEL.PBI" class="d-table-cell tar">
                 <BFormGroup>
-                  <BFormRadioGroup v-model="selectedPbiType" :options="getPbiOptions()" plain name="pbiOptions" />
+                  <BFormRadioGroup v-model="selectedPbiType" :options="getPbiOptions()" name="pbiOptions" />
                 </BFormGroup>
               </div>
             </div>
@@ -225,9 +225,8 @@
                 <BButton variant="primary" :pressed.sync="doAddition">Add {{ store.state.selectedForView }}</BButton>
               </div>
               <div class="d-table-cell tac">
-                <BFormGroup label="Select to see">
-                  <BFormRadioGroup v-model="store.state.selectedForView" :options="getViewOptions()" plain name="viewOptions" />
-                </BFormGroup>
+                <label>Select to see</label>
+                <BFormRadioGroup v-model="store.state.selectedForView" :options="getViewOptions()" name="viewOptions" />
               </div>
               <div class="d-table-cell tar">
                 <BButton v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"

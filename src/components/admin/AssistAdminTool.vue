@@ -61,7 +61,7 @@
                   <BCol sm="12">
                     <BFormGroup>
                       <h5>Select a datatabase holding the products</h5>
-                      <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.myAssignedDatabases" stacked></BFormRadioGroup>
+                      <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.myAssignedDatabases" stacked />
                     </BFormGroup>
                     <BButton class="m-1" @click="isUserDbSelected = true" variant="primary">Continue</BButton>
                     <BButton class="m-1" @click="cancel()">Cancel</BButton>
@@ -100,7 +100,7 @@
           <div v-if="!dbIsSelected">
             <BFormGroup>
               <h5>Select a database to '{{ optionSelected }}'</h5>
-              <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.myAssignedDatabases" stacked></BFormRadioGroup>
+              <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.myAssignedDatabases" stacked />
             </BFormGroup>
             <hr>
             <BButton class="m-1" @click="doAfterDbIsSelected()" variant="primary">Continue</BButton>

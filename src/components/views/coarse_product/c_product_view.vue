@@ -179,7 +179,7 @@
               <span v-else-if="!isReqAreaTopLevel">
                 <BFormGroup>
                   Select a display color for this requirement area:
-                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" plain />
+                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" />
                 </BFormGroup>
               </span>
             </div>
@@ -213,9 +213,8 @@
                 <BButton variant="primary" :pressed.sync="doAddition">Add {{ store.state.selectedForView }}</BButton>
               </div>
               <div class="d-table-cell tac">
-                <BFormGroup label="Select to see">
-                  <BFormRadioGroup v-model="store.state.selectedForView" :options="getViewOptions()" plain name="viewOptions" />
-                </BFormGroup>
+                <label>Select to see</label>
+                <BFormRadioGroup v-model="store.state.selectedForView" :options="getViewOptions()" name="viewOptions" />
               </div>
               <div class="d-table-cell tar">
                 <BButton v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
@@ -256,7 +255,7 @@
         {{ getLastSelectedNode.title }}
       </template>
       <BFormGroup label="Select the requirement area this item belongs to:">
-        <BFormRadioGroup v-model="selReqAreaId" :options="this.store.state.reqAreaOptions" value-field="id" text-field="title" stacked></BFormRadioGroup>
+        <BFormRadioGroup v-model="selReqAreaId" :options="this.store.state.reqAreaOptions" value-field="id" text-field="title" stacked />
       </BFormGroup>
     </BModal>
     <!-- filter modals -->

@@ -99,7 +99,7 @@
                       <p>The databases {{ getUserAssignedDatabases() }} are assigned to this user. Assigning roles to
                         products in another database will also assign that database.</p>
                       <BFormRadioGroup v-model="store.state.selectedDatabaseName"
-                        :options="store.state.databaseOptions" stacked></BFormRadioGroup>
+                        :options="store.state.databaseOptions" stacked />
                     </BFormGroup>
                     <BButton class="m-1" @click="isUserDbSelected = true" variant="primary">Continue</BButton>
                     <BButton class="m-1" @click="cancel()">Cancel</BButton>
@@ -165,7 +165,7 @@
                 'Maintain user permissions to products' as a next step to assign the
                 product to other users.</p>
               <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-                stacked></BFormRadioGroup>
+                stacked />
             </BFormGroup>
             <hr>
             <BButton class="m-1" @click="doAfterDbIsSelected()" variant="primary">Continue</BButton>
@@ -303,8 +303,7 @@
                   store.state.selectedDatabaseName }}'</h4>
                 <template v-if="!store.state.isTeamCalendarLoaded">
                   <BFormGroup label="Select a team">
-                    <BFormRadioGroup v-model="selectedTeamName" :options="teamOptions">
-                    </BFormRadioGroup>
+                    <BFormRadioGroup v-model="selectedTeamName" :options="teamOptions" />
                   </BFormGroup>
 
                   <template v-if="selectedTeamName">
