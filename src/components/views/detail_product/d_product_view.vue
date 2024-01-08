@@ -222,7 +222,7 @@
           <div class="pane" :style="{ height: '75px', top:'5px'}">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <BButton variant="primary" :pressed.sync="doAddition">Add {{ store.state.selectedForView }}</BButton>
+                <BButton variant="primary" @click="doAddition = true">Add {{ store.state.selectedForView }}</BButton>
               </div>
               <div class="d-table-cell tac">
                 <label>Select to see</label>
@@ -230,7 +230,7 @@
               </div>
               <div class="d-table-cell tar">
                 <BButton v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
-                  :pressed.sync="startFiltering">Filter {{ store.state.selectedForView }}</BButton>
+                  @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
                 <BButton v-else variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
               </div>
             </div>

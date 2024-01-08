@@ -226,6 +226,7 @@ const watch = {
 	},
 
 	startFiltering: function (val) {
+		console.log('startFiltering: val = ' + val)
 		if (val === true) {
 			this.startFiltering = false
 			if (store.state.selectedForView === 'comments') {
