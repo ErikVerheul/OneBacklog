@@ -69,7 +69,6 @@
 .sl-vue-tree {
   position: relative;
   cursor: default;
-  user-select: none;
 }
 
 .sl-vue-tree.sl-vue-tree-root {
@@ -110,6 +109,8 @@
   padding-right: 10px;
   line-height: 28px;
   border: 1px solid transparent;
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
 }
 
 .sl-vue-tree-gap {
