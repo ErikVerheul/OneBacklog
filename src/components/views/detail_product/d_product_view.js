@@ -132,24 +132,62 @@ const methods = {
 
 	/* event handling */
 	onNodesSelected(fromContextMenu) {
-		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
-		if (this.isDescriptionEdited) this.updateDescription(this.getPreviousNodeSelected)
-		if (this.isAcceptanceEdited) this.updateAcceptance(this.getPreviousNodeSelected)
-		// load the selected document
-		store.dispatch('loadDoc', {
-			id: this.getLastSelectedNode._id,
-			onSuccessCallback: () => {
-				// if the user clicked on a node of another product (not root)
-				const currentProductId = store.state.currentProductId
-				if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
-					// another product is selected; reset the tree filter and Id selection or title search on the current product
-					store.dispatch('resetFilterAndSearches', { caller: 'onNodesSelected', productModels: store.state.helpersRef.getCurrentProductModel() })
-					// collapse the currently selected product and switch and expand to the newly selected product
-					store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
-				}
-				if (!fromContextMenu) this.showSelectionEvent(store.state.selectedNodes)
+		const afterNewItemLoad = () => {
+			// if the user clicked on a node of another product (not root)
+			const currentProductId = store.state.currentProductId
+			if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
+				// another product is selected; reset the tree filter and Id selection or title search on the current product
+				store.dispatch('resetFilterAndSearches', { caller: 'onNodesSelected', productModels: store.state.helpersRef.getCurrentProductModel() })
+				// collapse the currently selected product and switch and expand to the newly selected product
+				store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
 			}
-		})
+			if (!fromContextMenu) this.showSelectionEvent(store.state.selectedNodes)
+		}
+		const toDispatch = [{
+			loadDoc: {
+				id: this.getLastSelectedNode._id,
+				onSuccessCallback: afterNewItemLoad()
+			}
+		}]
+		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted immediately
+		if (this.isDescriptionEdited) {
+			this.isDescriptionEdited =false
+			const node = this.getPreviousNodeSelected
+			if (store.state.currentDoc.description !== this.newDescription) {
+				// update skipped when not changed			
+				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
+					store.dispatch('saveDescription', {
+						node,
+						newDescription: this.newDescription,
+						timestamp: Date.now(),
+						toDispatch
+					})
+				}
+			}
+		} else if (this.isAcceptanceEdited) {
+			this.isAcceptanceEdited = false
+			const node = this.getPreviousNodeSelected
+			if (node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas') {
+				// update skipped when not changed
+				if (store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
+					if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
+						store.dispatch('saveAcceptance', {
+							node,
+							newAcceptance: this.newAcceptance,
+							timestamp: Date.now(),
+							toDispatch
+						})
+					}
+				}
+			}
+
+		} else {
+			// just load the selected document
+			store.dispatch('loadDoc', {
+				id: this.getLastSelectedNode._id,
+				onSuccessCallback: afterNewItemLoad()
+			})
+		}
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */

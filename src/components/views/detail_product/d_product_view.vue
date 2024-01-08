@@ -1,3 +1,4 @@
+// note about the QuillEditor: the @blur event does not work as expected. See https://github.com/quilljs/quill/issues/1680
 <template>
   <div>
     <app-header>
@@ -206,7 +207,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="description" contentType="html" :toolbar="editorToolbar" @focus="initNewDescription" @blur="updateDescription()"></QuillEditor>
+            <QuillEditor v-model:content="description" contentType="html" :toolbar="editorToolbar" @update:content="initNewDescription" @blur="updateDescription()"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ height: '45px', top: '5px' }">
@@ -215,7 +216,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="acceptanceCriteria" contentType="html" :toolbar="editorToolbar" @focus="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
+            <QuillEditor v-model:content="acceptanceCriteria" contentType="html" :toolbar="editorToolbar" @update:content="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ height: '75px', top:'5px'}">

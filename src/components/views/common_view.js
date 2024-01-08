@@ -242,13 +242,11 @@ const watch = {
 
 const methods = {
 	initNewDescription() {
-		this.newDescription = store.state.currentDoc.description
 		this.isDescriptionEdited = true
 		this.isAcceptanceEdited = false
 	},
 
 	initNewAcceptance() {
-		this.newAcceptance = store.state.currentDoc.acceptanceCriteria
 		this.isDescriptionEdited = false
 		this.isAcceptanceEdited = true
 	},
@@ -626,8 +624,9 @@ const methods = {
 
 	/* Tree and database update methods */
 	updateDescription(node = this.getLastSelectedNode) {
-		if (store.state.currentDoc.description !== this.newDescription) {
-			// skip update when not changed
+		if (this.isDescriptionEdited && (store.state.currentDoc.description !== this.newDescription)) {
+			// update skipped when not changed
+			this.isDescriptionEdited = false
 			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 				store.dispatch('saveDescription', {
 					node,
@@ -640,8 +639,9 @@ const methods = {
 
 	updateAcceptance(node = this.getLastSelectedNode) {
 		if (node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas') {
-			// skip update when not changed
-			if (store.state.currentDoc.acceptanceCriteria !== this.newAcceptance) {
+			if (this.isAcceptanceEdited && (store.state.currentDoc.acceptanceCriteria !== this.newAcceptance)) {
+				// update skipped when not changed
+				this.isAcceptanceEdited = false
 				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 					store.dispatch('saveAcceptance', {
 						node,

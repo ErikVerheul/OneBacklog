@@ -193,7 +193,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="description" contentType="html" :toolbar="editorToolbar" @focus="initNewDescription" @blur="updateDescription()"></QuillEditor>
+            <QuillEditor v-model:content="description" contentType="html" :toolbar="editorToolbar" @update:content="initNewDescription" @blur="updateDescription()"></QuillEditor>
           </div>
           <template v-if="!isReqAreaItemSelected">
             <multipane-resizer></multipane-resizer>
@@ -203,7 +203,7 @@
               </div>
             </div>
             <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-              <QuillEditor v-model:content="acceptanceCriteria" contentType="html" :toolbar="editorToolbar" @focus="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
+              <QuillEditor v-model:content="acceptanceCriteria" contentType="html" :toolbar="editorToolbar" @update:content="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
             </div>
           </template>
           <multipane-resizer></multipane-resizer>
