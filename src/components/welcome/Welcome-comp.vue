@@ -1,6 +1,6 @@
 <template>
   <BContainer>
-    <div v-if="isScreenWidthSufficient()" class="row">
+    <BRow v-if="isScreenWidthSufficient()">
       <div class="col-lg-12 col-sm-12">
         <BImg :src="logo" center alt="OneBacklog logo" />
       </div>
@@ -15,8 +15,8 @@
           device.</p>
         <p>Signin with <b>demoUser</b> and password <b>demoUser</b>.</p>
       </div>
-    </div>
-    <div v-else class="row">
+    </BRow>
+    <BRow v-else>
       <div class="col-lg-12 col-sm-12">
         <BImg hight="200" width="200" :src="logo" center alt="OneBacklog logo" />
       </div>
@@ -31,7 +31,7 @@
           or higher. You will need a pointing device, like a mouse, to accurately manipulate the items in the tree view of
           your products.</h5>
       </div>
-    </div>
+    </BRow>
   </BContainer>
 </template>
 
