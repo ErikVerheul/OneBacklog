@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <sl-vue-tree v-if="node.children && node.children.length && node.isExpanded" :value="node.children" :nodeLevel="node.level" :parentInd="nodeInd">
+      <sl-vue-tree v-if="node.children && node.children.length && node.isExpanded" :modelValue="node.children" :nodeLevel="node.level" :parentInd="nodeInd">
         <template v-slot:title="{ node }">
           <slot name="title" :node="node"></slot>
         </template>

@@ -14,9 +14,8 @@ import ToSprint from './d_tosprint.vue'
 import store from '../../../store/store.js'
 
 const thisView = 'detailProduct'
-var returning = false
 
-function beforeCreate() {
+function created() {
 	store.state.currentView = thisView
 	if (thisView !== store.state.lastTreeView) {
 		store.state.treeNodes = []
@@ -24,27 +23,15 @@ function beforeCreate() {
 		// reset filters and searches
 		store.state.resetFilter = null
 		store.state.resetSearch = {}
-		returning = false
-	} else returning = true
-}
-
-function created() {
+		this.returning = false
+	} else this.returning = true
 	// must reset the event listener to prevent duplication
 	this.eventBus.off('context-menu')
 }
 
-/* Prevent accidental reloading of this page */
-function beforeMount() {
-	window.addEventListener("beforeunload", this.preventNav)
-}
-
-function beforeUnmount() {
-	window.removeEventListener("beforeunload", this.preventNav)
-}
-
 function mounted() {
-	if (returning) {
-		this.showLastEvent('Returning to the Product details', SEV.INFO)
+	if (this.returning) {
+		this.showLastEvent('returning to the Product details', SEV.INFO)
 	} else {
 		store.dispatch('loadProductDetails')
 	}
@@ -52,6 +39,7 @@ function mounted() {
 
 function data() {
 	return {
+		returning: false,
 		sprints: []
 	}
 }
@@ -75,11 +63,6 @@ const watch = {
 const methods = {
 	doShowState(node) {
 		return node._id !== 'root'
-	},
-
-	preventNav(event) {
-		event.preventDefault()
-		event.returnValue = ""
 	},
 
 	getItemInfo() {
@@ -255,10 +238,7 @@ const components = {
 
 export default {
 	extends: commonView,
-	beforeCreate,
 	created,
-	beforeMount,
-	beforeUnmount,
 	mounted,
 	data,
 	watch,

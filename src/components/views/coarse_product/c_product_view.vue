@@ -33,15 +33,15 @@
           <BCol cols="4">
             <h3 v-if="getCurrentItemLevel <= LEVEL.EPIC">
               {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
-              <input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
+              <input type="text" size="3" maxlength="3" id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @blur="updateTsSize()" />
             </h3>
             <h3 v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
               Story points:
-              <input type="text" size="3" maxlength="3" id="storyPointsId" :value="store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
+              <input type="text" size="3" maxlength="3" id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
             </h3>
             <h3 v-if="getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype === spikeSubtype">
               Person hours:
-              <input type="text" size="3" maxlength="3" id="personHoursId" :value="store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
+              <input type="text" size="3" maxlength="3" id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
             </h3>
           </BCol>
           <BCol cols="5">
@@ -72,7 +72,7 @@
           {{ getLastEventTxt }} </BButton>
 
         <div class="tree-container">
-          <sl-vue-tree tabindex="0" :value="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
+          <sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
             <template v-slot:title={node}>
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
@@ -165,7 +165,7 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell" type="text" maxlength="60" id="titleField" :value="store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
+              <BFormInput class="d-table-cell" type="text" maxlength="60" id="titleField" :modelValue="store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
               <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</BButton>

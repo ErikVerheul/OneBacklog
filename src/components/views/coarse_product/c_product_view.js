@@ -12,9 +12,8 @@ import Listings from './c_listings.vue'
 import store from '../../../store/store.js'
 
 const thisView = 'coarseProduct'
-var returning = false
 
-function beforeCreate() {
+function created() {
 	store.state.currentView = thisView
 	if (thisView !== store.state.lastTreeView) {
 		store.state.treeNodes = []
@@ -22,27 +21,15 @@ function beforeCreate() {
 		// reset filters and searches
 		store.state.resetFilter = null
 		store.state.resetSearch = {}
-		returning = false
-	} else returning = true
-}
-
-function created() {
+		this.returning = false
+	} else this.returning = true
 	// must reset the event listener to prevent duplicated
 	this.eventBus.off('context-menu')
 }
 
-/* Prevent accidental reloading of this page */
-function beforeMount() {
-	window.addEventListener("beforeunload", this.preventNav)
-}
-
-function beforeDestroy() {
-	window.removeEventListener("beforeunload", this.preventNav)
-}
-
 function mounted() {
-	if (returning) {
-		this.showLastEvent('Returning to the Products overview', SEV.INFO)
+	if (this.returning) {
+		this.showLastEvent('returning to the Products overview', SEV.INFO)
 	} else {
 		store.dispatch('loadOverview')
 	}
@@ -50,6 +37,7 @@ function mounted() {
 
 function data() {
 	return {
+		returning: false,
 		colorOptions: [
 			{ color: 'red', hexCode: '#FF0000' },
 			{ color: 'yellow', hexCode: '#FFFF00' },
@@ -87,11 +75,6 @@ const computed = {
 const methods = {
 	doShowState(node) {
 		return node._id !== 'root' && node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas'
-	},
-
-	preventNav(event) {
-		event.preventDefault()
-		event.returnValue = ""
 	},
 
 	getItemInfo() {
@@ -271,10 +254,7 @@ const components = {
 
 export default {
 	extends: commonView,
-	beforeCreate,
 	created,
-	beforeMount,
-	beforeDestroy,
 	mounted,
 	data,
 	computed,
