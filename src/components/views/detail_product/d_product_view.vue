@@ -33,15 +33,15 @@
           <BCol cols="4">
             <h3 v-if="getCurrentItemLevel <= LEVEL.EPIC">
               {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
-              <input type="text" size="3" maxlength="3" id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @blur="updateTsSize()" />
+              <input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
             </h3>
             <h3 v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
               Story points:
-              <input type="text" size="3" maxlength="3" id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
+              <input type="text" size="3" maxlength="3" id="storyPointsId" :value="store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
             </h3>
             <h3 v-if="getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype === spikeSubtype">
               Person hours:
-              <input type="text" size="3" maxlength="3" id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
+              <input type="text" size="3" maxlength="3" id="personHoursId" :value="store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
             </h3>
           </BCol>
           <BCol cols="5">
@@ -72,7 +72,6 @@
         </BRow>
       </BContainer>
     </div>
-    <p>store.state.currentDoc.title = {{ store.state.currentDoc.title }}</p>
     <!-- vertical panes -->
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
