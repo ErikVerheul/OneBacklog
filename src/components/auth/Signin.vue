@@ -1,6 +1,6 @@
 <template>
   <BContainer>
-    <div class="row">
+    <BRow>
       <div class="col-lg-12 col-sm-12">
         <BImg :src="logo" center alt="OneBacklog logo" />
       </div>
@@ -8,11 +8,11 @@
         <div class="signin-form">
           <div class="input">
             <label for="name">Name</label>
-            <input type="text" id="name" autocomplete="username" v-model="state.name" />
+            <BFormInput type="text" id="name" autocomplete="username" v-model="state.name" />
           </div>
           <div class="input">
             <label for="password">Password</label>
-            <input type="password" autocomplete="current-password" id="password" v-model="state.password" />
+            <BFormInput type="password" autocomplete="current-password" id="password" v-model="state.password" />
           </div>
           <div class="submit">
             <template v-if="credentialsEntered">
@@ -49,7 +49,7 @@
           </p>
         </div>
       </div>
-    </div>
+    </BRow>
   </BContainer>
 </template>
 
