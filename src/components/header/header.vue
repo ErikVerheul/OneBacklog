@@ -1,6 +1,6 @@
 <template>
   <div>
-    <BNavbar class="navbar-dark bg-dark">
+    <BNavbar toggleable="lg" class="navbar-dark bg-dark">
       <BNavbar-toggle target="nav_collapse"></BNavbar-toggle>
       <BImg class="logo" :src="logo" alt="OneBacklog logo" />
       <BNavbar-brand to="../../rel-notes">{{ appVersion }}</BNavbar-brand>
@@ -8,9 +8,10 @@
         <BNavbarNav>
           <BNavItem to="../../userguide">User guide</BNavItem>
         </BNavbarNav>
-        <!-- app-header additions go in this slot -->
-        <slot></slot>
+             
         <BNavbarNav v-if="store.state.showHeaderDropDowns" class="ms-auto">
+          <!-- app-header additions go in this slot -->
+          <slot></slot>        
           <BNavItemDropdown text="Select your view" right>
             <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
             <BDropdownItem v-if="store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products

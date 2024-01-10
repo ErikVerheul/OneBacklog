@@ -1,35 +1,35 @@
 // note about the QuillEditor: the @blur event does not work as expected. See https://github.com/quilljs/quill/issues/1680
 <template>
   <div>
-    <p>store.state.itemId = {{ store.state.itemId }}</p>
     <app-header>
       <!-- Right aligned nav items -->
       <BNavbarNav>
         <BNavForm>
-          <BButton class="m-1" id="tooltip-undo" v-show="store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
+          <BButton class="group-height" id="tooltip-undo" v-show="store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
           <BTooltip target="tooltip-undo" triggers="hover">
             {{ undoTitle }}
           </BTooltip>
-          <BButton class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</BButton>
           <div class="divider" />
-          <BInputGroup v-show="store.state.resetSearch.searchType !== 'searchInTitles'">
-            <BFormInput class="form-width" id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>
-            <BInputGroup-append>
+          <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">Filter in tree</BButton>
+          <div class="divider" />
+          <BInputGroup class="id-sizing" v-show="store.state.resetSearch.searchType !== 'searchInTitles'">
+            <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>
+            <template #append>
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
-            </BInputGroup-append>
+            </template>
           </BInputGroup>
           <div class="divider" />
-          <BInputGroup v-show="!isRootSelected && store.state.resetSearch.searchType !== 'findItemOnId'">
+          <BInputGroup class="group-height" v-show="!isRootSelected && store.state.resetSearch.searchType !== 'findItemOnId'">
             <BFormInput id="searchInput" v-model="store.state.keyword" @change="doSearchInput" placeholder="Search in titles"></BFormInput>
-            <BInputGroup-append>
+            <template #append>
               <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
-            </BInputGroup-append>
+            </template>
           </BInputGroup>
         </BNavForm>
       </BNavbarNav>
     </app-header>
     <div>
-      <BContainer>
+      <BContainer class="container">
         <BRow>
           <BCol cols="4">
             <h3 v-if="getCurrentItemLevel <= LEVEL.EPIC">
@@ -366,6 +366,20 @@
   margin-bottom: 15px;
 }
 
+.filter-button {
+  width: 15em;
+  height: 45px;
+}
+
+.id-sizing {
+  width: 25em;
+  height: 45px;
+}
+
+.group-height {
+  height: 45px;
+}
+
 .d-table {
   display: table;
 }
@@ -420,10 +434,6 @@
 }
 
 /* my stuff */
-.form-width {
-  max-width: 180px
-}
-
 h3 {
   height: 45px;
 }
@@ -451,7 +461,5 @@ h3 {
 
 .divider {
   width: 15px;
-  height: auto;
-  display: inline-block;
 }
 </style>
