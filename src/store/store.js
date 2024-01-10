@@ -243,20 +243,6 @@ const store = createStore({
 			if (state.currentDoc) return state.currentDoc.state
 		},
 
-		getFilterButtonText(state) {
-			let txt = 'Filter in tree view'
-			if (state.resetFilter) {
-				txt = 'Clear filter'
-				if (state.resetSearch.searchType === 'findItemOnId') {
-					txt += ' and Id selection'
-				}
-				if (state.resetSearch.searchType === 'searchInTitles') {
-					txt += ' and title search'
-				}
-			}
-			return txt
-		},
-
 		/* Returns the sprint name if found in the user's current teamcalendar or in the default calendar. Returns 'undefined' is in another user's teamcalendar. */
 		getItemSprintName(state) {
 			if (state.currentDoc.sprintId && state.myCurrentSprintCalendar) {
@@ -510,17 +496,6 @@ const store = createStore({
 						commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
 					}
 				})
-			} else {
-				// clear any outstanding searches and execute the callback and/or actions if provided
-				if (state.resetSearch.searchType) {
-					// only one search can/will be reset
-					if (state.resetSearch.searchType === 'findItemOnId') {
-						dispatch('resetFindOnId', payload)
-					}
-					if (state.resetSearch.searchType === 'searchInTitles') {
-						dispatch('resetSearchInTitles', payload)
-					}
-				}
 			}
 		},
 

@@ -133,7 +133,6 @@ const utilities = {
 			'getCurrentItemState',
 			'getCurrentItemTsSize',
 			'getCurrentDefaultProductId',
-			'getFilterButtonText',
 			'getItemSprintName',
 			'getPreviousNodeSelected',
 			'getLastSelectedNode',
