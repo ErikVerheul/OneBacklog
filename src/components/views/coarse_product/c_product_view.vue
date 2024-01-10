@@ -165,7 +165,7 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell" type="text" maxlength="60" id="titleField" :modelValue="store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
+              <BFormInput class="d-table-cell" type="text" id="titleField" :modelValue="store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
               <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</BButton>

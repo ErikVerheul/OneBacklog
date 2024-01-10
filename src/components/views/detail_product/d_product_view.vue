@@ -1,25 +1,26 @@
 // note about the QuillEditor: the @blur event does not work as expected. See https://github.com/quilljs/quill/issues/1680
 <template>
   <div>
+    <p>store.state.itemId = {{ store.state.itemId }}</p>
     <app-header>
       <!-- Right aligned nav items -->
       <BNavbarNav>
         <BNavForm>
-          <BButton id="tooltip-undo" v-show="store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
+          <BButton class="m-1" id="tooltip-undo" v-show="store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
           <BTooltip target="tooltip-undo" triggers="hover">
             {{ undoTitle }}
           </BTooltip>
-          <BButton v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</BButton>
+          <BButton class="m-1" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText }}</BButton>
           <div class="divider" />
           <BInputGroup v-show="store.state.resetSearch.searchType !== 'searchInTitles'">
-            <BFormInput class="form-width" id="findItemOnId" v-model="store.state.itemId" placeholder="Select on (short) Id"></BFormInput>
+            <BFormInput class="form-width" id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>
             <BInputGroup-append>
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
             </BInputGroup-append>
           </BInputGroup>
           <div class="divider" />
           <BInputGroup v-show="!isRootSelected && store.state.resetSearch.searchType !== 'findItemOnId'">
-            <BFormInput id="searchInput" v-model="store.state.keyword" placeholder="Search in titles"></BFormInput>
+            <BFormInput id="searchInput" v-model="store.state.keyword" @change="doSearchInput" placeholder="Search in titles"></BFormInput>
             <BInputGroup-append>
               <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
             </BInputGroup-append>
@@ -181,7 +182,7 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell" type="text" maxlength="60" id="titleField" :modelValue="store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
+              <BFormInput class="d-table-cell" type="text" id="titleField" :modelValue="store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
               <div class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</BButton>

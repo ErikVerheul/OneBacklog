@@ -8,52 +8,6 @@ const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
 
-function mounted() {
-	function idCheck(vm) {
-		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
-		const trimmedItemId = vm.store.state.itemId.trim()
-		if (trimmedItemId.length !== SHORTKEYLENGTH && trimmedItemId.length < FULLKEYLENGTH) {
-			vm.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
-			return false
-		}
-
-		for (let i = 0; i < trimmedItemId.length; i++) {
-			if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) return false
-		}
-		return true
-	}
-
-	const el = document.getElementById('findItemOnId')
-	// fire the search on id on pressing enter in the select-on-Id input field (instead of submitting the form)
-	el.addEventListener('keydown', (event) => {
-		if (event.key === 'Enter') {
-			event.preventDefault()
-			// check for valid input and convert to lowercase
-			if (idCheck(this)) {
-				this.findItemOnId(store.state.itemId.toLowerCase().trim())
-			}
-		}
-	})
-
-	const el2 = document.getElementById('searchInput')
-	// fire the search button on pressing enter in the search input field (instead of submitting the form)
-	el2.addEventListener('keydown', (event) => {
-		if (event.key === 'Enter') {
-			event.preventDefault()
-			this.exeSearchInTitles(this.getLastSelectedNode)
-		}
-	})
-
-	const el3 = document.getElementById('titleField')
-	// update the item title on pressing enter
-	el3.addEventListener('keydown', (event) => {
-		if (event.key === 'Enter') {
-			event.preventDefault()
-			this.updateTitle()
-		}
-	})
-}
-
 function data() {
 	return {
 		userStorySubtype: 0,
@@ -368,8 +322,24 @@ const methods = {
 		}
 	},
 
+	idCheck(id) {
+		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz'
+		const trimmedItemId = id.trim()
+		if (trimmedItemId.length !== SHORTKEYLENGTH && trimmedItemId.length < FULLKEYLENGTH) {
+			this.showLastEvent(`Wrong Id length. The length must be 5 for a short Id, or ${FULLKEYLENGTH}+ for a full Id`, SEV.WARNING)
+			return false
+		}
+
+		for (let i = 0; i < trimmedItemId.length; i++) {
+			if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) return false
+		}
+		return true
+	},
+
 	/* Find, load and select an item with a given short or full Id. Scan the full tree */
-	findItemOnId(id) {
+	doFindItemOnId(id) {		
+		if (!this.idCheck(id)) return
+		
 		const isShortId = id.length === SHORTKEYLENGTH
 		let nodeFound
 		store.state.helpersRef.traverseModels((nm) => {
@@ -411,6 +381,10 @@ const methods = {
 			const lookUpId = isShortId ? id : id.slice(-5)
 			store.dispatch('loadItemByShortId', lookUpId)
 		}
+	},
+
+	doSearchInput() {
+		this.exeSearchInTitles(this.getLastSelectedNode)
 	},
 
 	exeSearchInTitles(branchHead) {
@@ -807,7 +781,6 @@ const methods = {
 
 export default {
 	mixins: [constants, authorization, utilities],
-	mounted,
 	data,
 	computed,
 	watch,
