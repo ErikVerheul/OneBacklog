@@ -950,6 +950,7 @@ const actions = {
 	/* Create a task from the board. Update the parent history and than save the new document and update the details view if active */
 	boardAddTask({
 		rootState,
+		state,
 		dispatch
 	}, payload) {
 		// calculate a priority between the prio of the task with the highest prio of this story and the upper limit
@@ -1253,6 +1254,7 @@ const actions = {
 
 	boardUpdateTaskTitle({
 		rootState,
+		state,
 		dispatch
 	}, payload) {
 		globalAxios({
