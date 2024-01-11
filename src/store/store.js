@@ -1158,45 +1158,44 @@ const store = createStore({
 
 		endSession(state, caller) {
 			// stop the timers
-			clearInterval(state.authentication.runningCookieRefreshId)
-			clearInterval(state.watchdog.runningWatchdogId)
-			// set signed out status
+			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
+			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
 			state.signedOut = true
-			// eslint-disable-next-line no-console
-			if (state.debug) console.log('endSession was executed, signedOut = ' + state.signedOut + ', caller = ' + caller)	
-			// clear the data
-			state = {}			
 			// load sign-in page
 			router.replace('/')
-		}
-	},
+			// reset the app by reloading
+			window.location.reload()
+			// eslint-disable-next-line no-console
+			if (state.debug) console.log('endSession, signedOut = ' + state.signedOut + ', caller = ' + caller)
+	}
+},
 
 	modules: {
-		attachments,
-		authentication,
-		calendars,
-		clone,
-		helpers,
-		dependencies,
-		help,
-		initdb,
-		loadoverview,
-		loadproducts,
-		logging,
-		move,
-		planningboard,
-		removebranch,
-		restorebranches,
-		startup,
-		sync,
-		teams,
-		undo,
-		update_reqarea,
-		update,
-		useracc,
-		utils,
-		watchdog
-	}
+	attachments,
+	authentication,
+	calendars,
+	clone,
+	helpers,
+	dependencies,
+	help,
+	initdb,
+	loadoverview,
+	loadproducts,
+	logging,
+	move,
+	planningboard,
+	removebranch,
+	restorebranches,
+	startup,
+	sync,
+	teams,
+	undo,
+	update_reqarea,
+	update,
+	useracc,
+	utils,
+	watchdog
+}
 })
 
 export default store
