@@ -15,6 +15,15 @@ import store from '../../../store/store.js'
 
 const thisView = 'detailProduct'
 
+/* Prevent accidental reloading of this page */
+function beforeMount() {
+	window.addEventListener("beforeunload", this.preventNav)
+}
+
+function beforeDestroy() {
+	window.removeEventListener("beforeunload", this.preventNav)
+}
+
 function created() {
 	store.state.currentView = thisView
 	if (thisView !== store.state.lastTreeView) {
@@ -63,6 +72,11 @@ const watch = {
 const methods = {
 	doShowState(node) {
 		return node._id !== 'root'
+	},
+
+	preventNav(event) {
+		event.preventDefault()
+		event.returnValue = ""
 	},
 
 	getItemInfo() {
@@ -134,7 +148,7 @@ const methods = {
 		}]
 		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted immediately
 		if (this.isDescriptionEdited) {
-			this.isDescriptionEdited =false
+			this.isDescriptionEdited = false
 			const node = this.getPreviousNodeSelected
 			if (store.state.currentDoc.description !== this.newDescription) {
 				// update skipped when not changed			
@@ -237,6 +251,8 @@ const components = {
 }
 
 export default {
+	beforeMount,
+	beforeDestroy,
 	extends: commonView,
 	created,
 	mounted,
