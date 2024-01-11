@@ -1161,8 +1161,6 @@ const store = createStore({
 			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
 			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
 			state.signedOut = true
-			// load sign-in page
-			router.replace('/')
 			// reset the app by reloading
 			window.location.reload()
 			// eslint-disable-next-line no-console
