@@ -55,7 +55,7 @@
 
 <script setup>
 import {useModal} from 'bootstrap-vue-next'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive } from 'vue'
 import { useStore } from 'vuex'
 import logo from '../../assets/logo.png'
 const store = useStore()
@@ -77,7 +77,7 @@ function onSubmit() {
   store.dispatch('signin', credentials)
 }
 
-const {show, hide, modal} = useModal('my-modal')
+const { show, hide, modal } = useModal('my-modal')
 </script>
 
 <style scoped>
