@@ -326,18 +326,18 @@
               <template v-if="store.state.isDefaultCalendarLoaded || store.state.isTeamCalendarLoaded">
                 <h5>The calendar is {{ workflowStatusMsg }}, modify calendar</h5>
                 <BListGroup>
-                  <BListGroupItem button variant="secondary" v-CModal.modal-extend>Extend this calendar with new
+                  <BListGroupItem button variant="secondary" v-b-modal.modal-extend>Extend this calendar with new
                     sprints</BListGroupItem>
-                  <BListGroupItem button variant="secondary" v-CModal.modal-change>Change a sprint length and shift
+                  <BListGroupItem button variant="secondary" v-b-modal.modal-change>Change a sprint length and shift
                     all its successors in time</BListGroupItem>
                 </BListGroup>
                 <BButton class="m-3" @click="cancel()">Return</BButton>
-                <CModal @ok="extendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton"
+                <BModal @ok="extendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton"
                   title="Extend the number of sprints">
                   <BFormInput v-model="extendNumberStr" type="number"
                     placeholder="Enter the number of extensions"></BFormInput>
-                </CModal>
-                <CModal @ok="changeSprintInCalendar" id="modal-change" :ok-disabled="changeDisableOkButton"
+                </BModal>
+                <BModal @ok="changeSprintInCalendar" id="modal-change" :ok-disabled="changeDisableOkButton"
                   title="Change a sprint duration" size="lg">
                   <BContainer>
                     <BRow class="mb-1">
@@ -418,7 +418,7 @@
                         not change.</p>
                     </div>
                   </BContainer>
-                </CModal>
+                </BModal>
               </template>
             </template>
 
