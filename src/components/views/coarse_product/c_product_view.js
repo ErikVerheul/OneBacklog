@@ -18,7 +18,7 @@ function beforeMount() {
 	window.addEventListener("beforeunload", this.preventNav)
 }
 
-function beforeDestroy() {
+function beforeUnmount() {
 	window.removeEventListener("beforeunload", this.preventNav)
 }
 
@@ -268,7 +268,7 @@ const components = {
 
 export default {
 	beforeMount,
-	beforeDestroy,
+	beforeUnmount,
 	extends: commonView,
 	created,
 	mounted,
