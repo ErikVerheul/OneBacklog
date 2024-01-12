@@ -60,15 +60,6 @@ import AppHeader from '../header/header.vue'
 import store from '../../store/store.js'
 
 export default {
-  /* Prevent accidental reloading of this page */
-  beforeMount() {
-    window.addEventListener("beforeunload", this.preventNav)
-  },
-
-  beforeUnmount() {
-    window.removeEventListener("beforeunload", this.preventNav)
-  },
-
   mounted() {
     store.state.backendMessages = []
   },
@@ -93,11 +84,6 @@ export default {
   },
 
   methods: {
-    preventNav(event) {
-      event.preventDefault()
-      event.returnValue = ""
-    },
-
     doCreateDatabase() {
       const payload = {
         dbName: this.dbName,

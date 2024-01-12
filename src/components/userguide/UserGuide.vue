@@ -346,25 +346,10 @@
 </template>
 
 <script setup>
-import { onBeforeMount, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
 import AppHeader from '../header/header.vue'
 
 const store = useStore()
-
-function preventNav(event) {
-	event.preventDefault()
-	event.returnValue = ""
-}
-
-/* Prevent accidental reloading of this page */
-onBeforeMount(() => {
-	window.addEventListener("beforeunload", preventNav)
-})
-
-onBeforeUnmount(() => {
-	window.removeEventListener("beforeunload", preventNav)
-})
 
 function getImgUrl(img) {
 	return import.meta.env.VITE_SITE_URL + '/' + img

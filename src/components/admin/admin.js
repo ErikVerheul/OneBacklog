@@ -3,25 +3,11 @@ import { createId } from '../../common_functions.js'
 import common_admin from './common_admin'
 import store from '../../store/store.js'
 
-/* Prevent accidental reloading of this page */
-function beforeMount() {
-	window.addEventListener("beforeunload", this.preventNav)
-}
-
-function beforeUnmount() {
-	window.removeEventListener("beforeunload", this.preventNav)
-}
-
 function mounted() {
 	store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
 }
 
 const methods = {
-	preventNav(event) {
-		event.preventDefault()
-		event.returnValue = ""
-	},
-
 	/* For all options the available databases are fetched once at mount */
 	createUser() {
 		this.optionSelected = 'Create a user and assign product(s)'
@@ -117,8 +103,6 @@ const methods = {
 
 export default {
 	extends: common_admin,
-	beforeMount,
-	beforeUnmount,
 	mounted,
 	methods
 }

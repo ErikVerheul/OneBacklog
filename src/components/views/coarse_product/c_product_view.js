@@ -13,15 +13,6 @@ import store from '../../../store/store.js'
 
 const thisView = 'coarseProduct'
 
-/* Prevent accidental reloading of this page */
-function beforeMount() {
-	window.addEventListener("beforeunload", this.preventNav)
-}
-
-function beforeUnmount() {
-	window.removeEventListener("beforeunload", this.preventNav)
-}
-
 function created() {
 	store.state.currentView = thisView
 	if (thisView !== store.state.lastTreeView) {
@@ -84,11 +75,6 @@ const computed = {
 const methods = {
 	doShowState(node) {
 		return node._id !== 'root' && node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas'
-	},
-
-	preventNav(event) {
-		event.preventDefault()
-		event.returnValue = ""
 	},
 
 	getItemInfo() {
@@ -267,8 +253,6 @@ const components = {
 }
 
 export default {
-	beforeMount,
-	beforeUnmount,
 	extends: commonView,
 	created,
 	mounted,

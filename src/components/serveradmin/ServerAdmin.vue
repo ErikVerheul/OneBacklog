@@ -245,15 +245,6 @@ export default {
     }
   },
 
-  /* Prevent accidental reloading of this page */
-  beforeMount() {
-    window.addEventListener("beforeunload", this.preventNav)
-  },
-
-  beforeUnmount() {
-    window.removeEventListener("beforeunload", this.preventNav)
-  },
-
   mounted() {
     store.state.backendMessages = []
   },
@@ -265,11 +256,6 @@ export default {
   },
 
   methods: {
-    preventNav(event) {
-      event.preventDefault()
-      event.returnValue = ""
-    },
-
     logModalTitle() {
       return 'Log of database ' + store.state.selectedDatabaseName
     },

@@ -108,16 +108,6 @@ export default {
     })
   },
 
-  /* Prevent accidental reloading of this page */
-  beforeMount() {
-    window.addEventListener("beforeunload", this.preventNav)
-  },
-
-  beforeUnmount() {
-    window.removeEventListener("beforeunload", this.preventNav)
-    this.unsubscribe()
-  },
-
   data() {
     return {
       contextOptionSelected: undefined,
@@ -203,11 +193,6 @@ export default {
   },
 
   methods: {
-    preventNav(event) {
-      event.preventDefault()
-      event.returnValue = ""
-    },
-
     clearWarning() {
       store.state.warningText = ''
     },
