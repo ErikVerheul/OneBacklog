@@ -2,18 +2,20 @@
   <div>
     <app-header></app-header>
     <BContainer>
-      <h2>Assistance Admin view: {{ optionSelected }}</h2>
+      <h2 class="text-center">Assistance Admin view: {{ optionSelected }}</h2>
       <template v-if="optionSelected === 'Select a task'">
-        <p>Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked to select one</p>
-        <BButton block @click="createUser">Create a user and assign product(s)</BButton>
-        <BButton block @click="maintainUsers">Maintain user permissions to products </BButton>
-        <br />
-        <BButton block @click="createTeam">Create a team</BButton>
-        <BButton block @click="removeTeams">Remove teams without members</BButton>
-        <BButton block @click="listTeams">List teams</BButton>
-        <br />
-        <BButton block @click="maintainDefaultSprintCalendar">Maintain the default sprint calendar</BButton>
-        <BButton block @click="createOrUpdateTeamCalendar">Create / Maintain a team sprint calendar</BButton>
+        <p class="text-center">Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked to select one</p>
+        <BButtonGroup vertical class="d-grid gap-2" aria-label="Vertical button group">         
+          <BButton block @click="createUser">Create a user and assign product(s)</BButton>
+          <BButton block @click="maintainUsers">Maintain user permissions to products </BButton>
+          <br />
+          <BButton block @click="createTeam">Create a team</BButton>
+          <BButton block @click="removeTeams">Remove teams without members</BButton>
+          <BButton block @click="listTeams">List teams</BButton>
+          <br />
+          <BButton block @click="maintainDefaultSprintCalendar">Maintain the default sprint calendar</BButton>
+          <BButton block @click="createOrUpdateTeamCalendar">Create / Maintain a team sprint calendar</BButton>
+        </BButtonGroup>
       </template>
       <template v-else>
         <template v-if="getUserFirst">
@@ -69,7 +71,7 @@
                 </div>
                 <div v-else>
                   <BCol v-if="!store.state.areProductsFound" sm="12">
-										<hr>
+                    <hr>
                     <BButton class="m-1" @click="callGetDbProducts(true)" variant="primary">Continue detail role assignment</BButton>
                     <BButton class="m-1" @click="cancel()">Cancel</BButton>
                   </BCol>
@@ -179,7 +181,7 @@
                 <BButton v-if="teamName !== ''" class="m-3" @click="doCreateTeam" variant="primary">Create this team</BButton>
                 <BButton class="m-1" @click="cancel">Cancel</BButton>
               </template>
-							<BButton v-else class="m-3" @click="cancel">Return</BButton>
+              <BButton v-else class="m-3" @click="cancel">Return</BButton>
             </template>
 
             <template v-else-if="optionSelected === 'Remove teams without members'">
@@ -206,7 +208,7 @@
 
               <template v-else-if="optionSelected === 'Create / Maintain a team sprint calendar'">
                 <h4 v-if="!selectedTeamName">Maintain the team sprint calendar of a team in database '{{ store.state.selectedDatabaseName }}'</h4>
-								<h4 v-else>Maintain the team sprint calendar of team '{{ selectedTeamName }}' in database '{{ store.state.selectedDatabaseName }}'</h4>
+                <h4 v-else>Maintain the team sprint calendar of team '{{ selectedTeamName }}' in database '{{ store.state.selectedDatabaseName }}'</h4>
                 <template v-if="!store.state.isTeamCalendarLoaded">
                   <BFormGroup label="Select a team">
                     <BFormRadioGroup v-model="selectedTeamName" :options="teamOptions">
@@ -256,7 +258,7 @@
                           Selected
                         </BCol>
                         <BCol cols="9">
-                          sprint-{{changedNumberStr}}
+                          sprint-{{ changedNumberStr }}
                         </BCol>
                         <BCol cols="3">
                           Starting
@@ -336,7 +338,7 @@
                   </div>
                 </div>
               </div>
-							<hr>
+              <hr>
               <BButton class="m-1" @click="cancel">Return</BButton>
             </template>
           </div>
