@@ -6,6 +6,12 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.0.0 - 13 Januari 2024 MAJOR release</h3>
+          <p>Changes:</p>
+          <ul>
+            <li>Migration to Vue3</li>
+            <li>Use of Vue3 adapted dependencies</li>
+          </ul>
           <h3>v.1.25 - 22 September 2023 Bug fixes, move to Vite</h3>
           <p>Bug fixes:</p>
           <ul>
