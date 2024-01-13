@@ -931,6 +931,7 @@
 
 <script setup>
 import AppHeader from '../header/header.vue'
+import { useStore } from 'vuex'
 
 const store = useStore()
 
