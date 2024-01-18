@@ -17,8 +17,6 @@ function convertToShortIds (ids) {
 
 const computed = {
   isUploadDone () {
-    // force a re-render
-    this.$forceUpdate()
     return store.state.uploadDone
   },
 
@@ -142,8 +140,6 @@ const methods = {
 
   removeAttachment (attachment) {
     delete store.state.currentDoc._attachments[attachment.title]
-    // force a re-render
-    this.$forceUpdate()
     store.dispatch('removeAttachmentAsync', { node: this.getLastSelectedNode, attachmentTitle: attachment.title })
   },
 
