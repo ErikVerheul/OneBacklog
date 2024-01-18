@@ -30,10 +30,6 @@ const computed = {
 
 			for (let j = 0; j < keys.length; j++) {
 				if (keys[j] === 'addCommentEvent') {
-					// for compatibility to versions < 1.8
-					if (j === 0 && !Array.isArray(commentItem.addCommentEvent)) {
-						commentItem.addCommentEvent = [commentItem.addCommentEvent]
-					}
 					allText += this.mkComment(commentItem[keys[j]])
 				}
 				if (keys[j] === 'removeCommentEvent') allText += this.mkRemoveCommentEvent(commentItem[keys[j]])
