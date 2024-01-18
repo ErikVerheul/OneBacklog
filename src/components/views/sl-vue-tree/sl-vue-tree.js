@@ -40,13 +40,6 @@ function mounted() {
 	document.oncontextmenu = function () {
 		return false
 	}
-	if (this.isRoot) {
-		document.addEventListener('mouseup', this.onDocumentMouseupHandler)
-	}
-}
-
-function beforeUnmount() {
-	document.removeEventListener('mouseup', this.onDocumentMouseupHandler)
 }
 
 const computed = {
@@ -393,7 +386,6 @@ export default {
 	props,
 	data,
 	mounted,
-	beforeUnmount,
 	computed,
 	methods
 }
