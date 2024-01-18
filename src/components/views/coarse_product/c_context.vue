@@ -162,8 +162,8 @@
 
       </BListGroup>
 
-      <div class="d-block text-center">
-        <div class="message">{{ listItemText }}</div>
+      <div class="text-center">
+        <div class="message-head">{{ listItemText }}</div>
         <BButton
           v-if="contextOptionSelected !== undefined"
           v-show="!showAssistance"
@@ -171,8 +171,8 @@
           variant="outline-primary"
           @click="showAssistance='true'"
         >Need assistance?</BButton>
-        <div v-if="showAssistance" class="d-block text-left border" v-html="assistanceText"></div>
-        <div v-if="contextWarning" class="d-block warning">{{ contextWarning }}</div>
+        <div v-if="showAssistance" class="assist-text" v-html="assistanceText"></div>
+        <div v-if="contextWarning" class="warn-text">{{ contextWarning }}</div>
       </div>
     </template>
   </BModal>
@@ -180,12 +180,17 @@
 
 <script src="./c_context.js"></script>
 
-<style scoped>
+<style lang="scss" scoped>
 
-.message {
+.assist-text {
+  text-align: left;
+  padding: 10px;
+}
+.message-head {
   margin: 10px;
 }
-.warning {
+.warn-text {
+  text-align: left;
   margin: 10px;
   padding: 10px;
   color: rgb(255, 115, 0);
