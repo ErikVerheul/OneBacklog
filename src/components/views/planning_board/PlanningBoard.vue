@@ -21,7 +21,7 @@
     <BContainer fluid>
       <BRow v-if="!showWarning" class="title-bar">
         <BCol cols="5">
-          <h5>Welcome {{ userData.user}} from team '{{ userData.myTeam }}'</h5>
+          <h5>Welcome {{ userData.user }} from team '{{ userData.myTeam }}'</h5>
         </BCol>
         <BCol cols="4">
           <h5 v-if="getPersonHours > 0">{{ getStoryPoints }} story points and {{ getPersonHours }} hours for spikes in this sprint</h5>
@@ -31,7 +31,7 @@
           <h5>points done: {{ getStoryPointsDone }}</h5>
         </BCol>
         <BCol cols="1">
-          <span class="square" v-bind:style="{'background-color': squareColor}">{{ squareText }}</span>
+          <span class="square" v-bind:style="{ 'background-color': squareColor }">{{ squareText }}</span>
         </BCol>
       </BRow>
       <BRow v-else class="warning-bar">
@@ -50,18 +50,16 @@
         </BRow>
       </div>
     </BContainer>
-    <BModal v-if="currentSprintLoaded && askForImport() && unfinishedWork" @ok="procSelected" v-model="currentSprintLoaded" title="Import unfinished tasks from previous sprints?">
-      <BListGroup>
-        <BListGroupItem button :active="contextOptionSelected === MOVE_TASKS" variant="dark" @click="prepSelected(MOVE_TASKS)">Yes, please</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === NO_NOT_YET" variant="dark" @click="prepSelected(NO_NOT_YET)">No, not yet</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === NO_STOP_ASKING" variant="danger" @click="prepSelected(NO_STOP_ASKING)">No, and do not ask again</BListGroupItem>
-      </BListGroup>
-      <p class="message">{{ showInfo() }}</p>
-      <div class="d-block text-center">
-        <BButton v-if="contextOptionSelected !== undefined" v-show="!showAssistance" size="sm" variant="outline-primary" @click="showAssistance='true'">Need assistance?</BButton>
-        <div v-if="showAssistance" class="d-block text-left border" v-html="assistanceText"></div>
-      </div>
-    </BModal>
+    <template v-if="currentSprintLoaded && askForImport() && unfinishedWork">
+      <BModal @cancel="$router.back()" @close="$router.back()" @ok="procSelected" v-model="currentSprintLoaded" title="Import unfinished tasks from previous sprints?">
+        <BListGroup>
+          <BListGroupItem button :active="contextOptionSelected === MOVE_TASKS" variant="dark" @click="prepSelected(MOVE_TASKS)">Yes, please</BListGroupItem>
+          <BListGroupItem button :active="contextOptionSelected === NO_NOT_YET" variant="dark" @click="prepSelected(NO_NOT_YET)">No, not yet</BListGroupItem>
+          <BListGroupItem button :active="contextOptionSelected === NO_STOP_ASKING" variant="danger" @click="prepSelected(NO_STOP_ASKING)">No, and do not ask again</BListGroupItem>
+        </BListGroup>
+        <p class="message-head">{{ showInfo() }}</p>
+      </BModal>
+    </template>
   </div>
 </template>
 
@@ -111,9 +109,6 @@ export default {
   data() {
     return {
       contextOptionSelected: undefined,
-      showAssistance: false,
-      // ToDo: assistanceText is never used, remove?
-      assistanceText: '',
       selectedSprint: null,
       currentSprintLoaded: false
     }
@@ -207,23 +202,10 @@ export default {
     },
 
     prepSelected(idx) {
-      this.showAssistance = false
       this.contextOptionSelected = idx
-      switch (this.contextOptionSelected) {
-        case this.MOVE_TASKS:
-          this.assistanceText = undefined
-          break
-        case this.NO_NOT_YET:
-          this.assistanceText = undefined
-          break
-        case this.NO_STOP_ASKING:
-          this.assistanceText = undefined
-          break
-      }
     },
 
     procSelected() {
-      this.showAssistance = false
       switch (this.contextOptionSelected) {
         case this.MOVE_TASKS:
           store.dispatch('importInSprint', this.getActiveSprints.currentSprint.id)
@@ -246,10 +228,11 @@ export default {
 }
 </script>
 
-<style scoped>
-.message {
+<style lang="scss" scoped>
+.message-head {
   margin: 10px;
 }
+
 .divider {
   width: 15px;
   height: auto;
