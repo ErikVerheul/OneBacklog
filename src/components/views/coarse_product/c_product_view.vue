@@ -74,7 +74,7 @@
 
         <div class="tree-container">
           <sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
-            <template v-slot:title={node}>
+            <template v-slot:title="{ node }">
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
                   <font-awesome-icon icon="folder" />
@@ -104,7 +104,7 @@
               <BBadge v-if="isAttachmentAdded(node)" variant="info">See attachments</BBadge>
             </template>
 
-            <template v-slot:toggle={node}>
+            <template v-slot:toggle="{ node }">
               <span v-if="!node.isLeaf">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
@@ -115,7 +115,7 @@
               </span>
             </template>
 
-            <template v-slot:dependencyviolation={node}>
+            <template v-slot:dependencyviolation="{ node }">
               <template v-if="node.tmp.markedViolations">
                 <div v-if="rowLength(node.tmp.markedViolations) === 1">
                   <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
@@ -145,7 +145,7 @@
               </template>
             </template>
 
-            <template v-slot:sidebar={node}>
+            <template v-slot:sidebar="{ node }">
               <template v-if="node.productId === MISC.AREA_PRODUCTID">
                 <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{'background-color': node.data.reqAreaItemColor}"></p>
               </template>

@@ -83,7 +83,7 @@
 
         <div class="tree-container">
           <sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
-            <template v-slot:title={node}>
+            <template v-slot:title="{ node }">
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
                   <font-awesome-icon icon="folder" />
@@ -126,7 +126,7 @@
               <BBadge v-if="inActiveSprint(node)" variant="info">In {{ getActiveSprintText(node) }} sprint</BBadge>
             </template>
 
-            <template v-slot:toggle={node}>
+            <template v-slot:toggle="{ node }">
               <span>
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
@@ -137,7 +137,7 @@
               </span>
             </template>
 
-            <template v-slot:dependencyviolation={node}>
+            <template v-slot:dependencyviolation="{ node }">
               <template v-if="store.state.userData.myOptions.proUser === 'true' && node.tmp.markedViolations">
                 <div v-if="rowLength(node.tmp.markedViolations) === 1">
                   <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
@@ -167,7 +167,7 @@
                 </template>
             </template>
 
-            <template v-slot:sidebar={node}>
+            <template v-slot:sidebar="{ node }">
               <template v-if="store.state.userData.myOptions.proUser === 'true' && store.state.colorMapper && node.level > LEVEL.PRODUCT && node.data.reqarea">
                 <p class="rectangle" :style="{'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor}"></p>
               </template>
