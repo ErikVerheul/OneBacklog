@@ -13,10 +13,8 @@ function data() {
 		userStorySubtype: 0,
 		spikeSubtype: 1,
 		defectSubtype: 2,
-		// description: "",
-		newDescription: '',
-		// acceptanceCriteria: "",
-		newAcceptance: '',
+		newDescription: "<p></p>",
+		newAcceptance: "<p></p>",
 		isDescriptionEdited: false,
 		isAcceptanceEdited: false,
 		editorToolbar: [
@@ -134,7 +132,12 @@ const computed = {
 
 	description: {
 		get: () => {
-			return store.state.currentDoc.description
+			let retVal = store.state.currentDoc.description
+			if (retVal === "") {
+				// correct empty field
+				retVal = "<p></p>"
+			}
+			return retVal
 		},
 		set(newDescription) {
 			this.newDescription = newDescription
@@ -143,7 +146,12 @@ const computed = {
 
 	acceptanceCriteria: {
 		get: () => {
-			return store.state.currentDoc.acceptanceCriteria
+			let retVal = store.state.currentDoc.acceptanceCriteria
+			if (retVal === "") {
+				// correct empty field
+				retVal = "<p></p>"
+			}
+			return retVal
 		},
 		set(newAcceptanceCriteria) {
 			this.newAcceptance = newAcceptanceCriteria
