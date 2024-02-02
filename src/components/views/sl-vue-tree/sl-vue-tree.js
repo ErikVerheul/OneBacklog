@@ -189,6 +189,9 @@ const methods = {
 	},
 
 	onNodeMousedownHandler(event, node) {
+		// disallow selection of the root node
+		if (node.level === 1) return
+		
 		if (!this.isRoot) {
 			this.getRootComponent().onNodeMousedownHandler(event, node)
 			return
