@@ -24,7 +24,7 @@ function data() {
 	return {
 		draggableNodes: [],
 		rootCursorPosition: null,
-		mouseIsDown: false,
+		isLeftMouseButtonDown: false,
 		isDragging: false,
 		lastMousePos: {
 			x: 0,
@@ -50,13 +50,10 @@ const computed = {
 
 	filteredNodes() {
 		if (this.isRoot) {
-			const retNodes = store.state.treeNodes.map((nm) => nm)
 			// console.log('filteredNodes1: returning the root node')
-			return retNodes
+			return store.state.treeNodes
 		}
-		const retNodes = this.getParentComponent().filteredNodes[this.parentInd].children.filter(node => {
-			return node.doShow
-		})
+		const retNodes = this.getParentComponent().filteredNodes[this.parentInd].children.filter(node => node.doShow === true)	
 		// console.log('filteredNodes2: returning ' + retNodes.length + ' nodes')
 		return retNodes
 	},
@@ -93,7 +90,7 @@ const methods = {
 	},
 
 	// trigger the context component via the eventbus if the node is selectable
-	emitNodeContextmenu(node) {
+	emitNodeContextMenu(node) {
 		if (node.isSelectable) this.eventBus.emit('context-menu', node)
 	},
 
@@ -141,6 +138,7 @@ const methods = {
 	},
 
 	getParentComponent() {
+		// console.log('getParentComponent returns: ' + JSON.stringify(this.$parent, null, 2))
 		return this.$parent
 	},
 
@@ -158,20 +156,11 @@ const methods = {
 		return true
 	},
 
-	onMousemoveHandler(event) {
-		if (!this.isRoot) {
-			this.getRootComponent().onMousemoveHandler(event)
-			return
-		}
-
-		if (this.preventDrag || !this.lastSelectedNode.isSelected) return
+	onMouseMoveHandler(event) {
+		if (!this.isLeftMouseButtonDown || this.preventDrag || !this.lastSelectedNode.isSelected) return
 
 		const initialDraggingState = this.isDragging
-		const isDraggingLocal =
-			this.isDragging || (
-				this.mouseIsDown &&
-				(this.lastMousePos.y !== event.clientY)
-			)
+		const isDraggingLocal = this.isDragging || this.lastMousePos.y !== event.clientY
 
 		const isDragStarted = !initialDraggingState && isDraggingLocal
 		// calculate only once
@@ -202,19 +191,24 @@ const methods = {
 	},
 
 	onNodeMousedownHandler(event, node) {
-		// handle only left mouse button
-		if (event.button !== 0) return
-
 		if (!this.isRoot) {
 			this.getRootComponent().onNodeMousedownHandler(event, node)
 			return
 		}
-		this.mouseIsDown = true
+		if (!this.isDragging) {
+			// cursorPosition not available, so get it
+			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
+			if (cPos !== null) this.select(cPos, event)
+		}
+		// drag only with left mouse button down
+		if (event.button !== 0) return
+
+		this.isLeftMouseButtonDown = true
 		this.lastSelectedNode = node
 	},
 
 	onNodeMouseupHandler(event) {
-		// handle only left mouse button
+		// drag only with left mouse button down
 		if (event.button !== 0) return
 
 		if (!this.isRoot) {
@@ -222,12 +216,9 @@ const methods = {
 			return
 		}
 
-		this.mouseIsDown = false
+		this.isLeftMouseButtonDown = false
 
 		if (!this.isDragging) {
-			// cursorPosition not available, so get it
-			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
-			if (cPos !== null) this.select(cPos, event)
 			return
 		}
 
@@ -374,7 +365,7 @@ const methods = {
 
 	stopDrag() {
 		this.isDragging = false
-		this.mouseIsDown = false
+		this.isLeftMouseButtonDown = false
 		this.setModelCursorPosition(null)
 	},
 
