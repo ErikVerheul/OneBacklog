@@ -6,6 +6,16 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.0.1 - 2 Februari 2024 bug fix, refactoring and updates</h3>
+          <p>Bug fix:</p>
+          <ul>
+            <li>Fix missing description and/or acceptance-criteria screen updates when database field is empty</li>
+          </ul>
+          <p>Changed feature:</p>
+          <ul>
+            <li>Eliminate need to select node first before start dragging</li>
+          </ul>
+          <p>Code refactoring and dependencies update</p>
           <h3>v.2.0.0 - 13 Januari 2024 MAJOR release</h3>
           <p>Changes:</p>
           <ul>
