@@ -80,6 +80,14 @@ const computed = {
 }
 
 const methods = {
+	getParentComponent() {
+		return this.$parent
+	},
+
+	getRootComponent() {
+		if (this.isRoot) return this
+		return this.getParentComponent().getRootComponent()
+	},
 
 	emitBeforeDrop(draggingNodes, position, cancel) {
 		this.getRootComponent().$emit('beforedrop', draggingNodes, position, cancel)
@@ -135,16 +143,6 @@ const methods = {
 			nodeModel,
 			placement
 		}
-	},
-
-	getParentComponent() {
-		// console.log('getParentComponent returns: ' + JSON.stringify(this.$parent, null, 2))
-		return this.$parent
-	},
-
-	getRootComponent() {
-		if (this.isRoot) return this
-		return this.getParentComponent().getRootComponent()
 	},
 
 	/* Returns true if the path starts with the subPath */
