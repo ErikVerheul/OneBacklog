@@ -1,6 +1,6 @@
 <!-- This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree -->
 <template>
-  <div class="sl-vue-tree" :class="{'sl-vue-tree-root': isRoot }" @mousemove="onMousemoveHandler">
+  <div class="sl-vue-tree" :class="{'sl-vue-tree-root': isRoot }" @mousemove="onMouseMoveHandler">
     <div v-for="(node, nodeInd) in filteredNodes" :class="{'sl-vue-tree-selected': node.isSelected,
 			'sl-vue-tree-highlighted-1': !node.isSelected && node.tmp.isHighlighted_1,
 			'sl-vue-tree-highlighted-2': !node.isSelected && node.tmp.isHighlighted_2,
@@ -11,10 +11,9 @@
             cursorPosition.nodeModel.pathStr === node.pathStr &&
             cursorPosition.placement === 'before' ? 'visible' : 'hidden'
            }">
-        <!-- suggested place for node insertion  -->
       </div>
 
-      <div class="sl-vue-tree-node-item" @mousedown="onNodeMousedownHandler($event, node)" @mouseup="onNodeMouseupHandler($event)" @contextmenu="emitNodeContextmenu(node)" :path="node.pathStr" :class="{
+      <div class="sl-vue-tree-node-item" @mousedown="onNodeMousedownHandler($event, node)" @mouseup="onNodeMouseupHandler($event)" @contextmenu="emitNodeContextMenu(node)" :path="node.pathStr" :class="{
             'sl-vue-tree-cursor-inside':
               cursorPosition &&
               cursorPosition.placement === 'inside' &&
@@ -43,14 +42,14 @@
       </div>
 
       <sl-vue-tree v-if="node.children && node.children.length && node.isExpanded" :modelValue="node.children" :nodeLevel="node.level" :parentInd="nodeInd">
-        <template v-slot:title="{ node }">
-          <slot name="title" :node="node"></slot>
-        </template>
-
         <template v-slot:toggle="{ node }">
           <slot name="toggle" :node="node"></slot>
         </template>
 
+        <template v-slot:title="{ node }">
+          <slot name="title" :node="node"></slot>
+        </template>
+      
         <template v-slot:dependencyviolation="{ node }">
           <slot name="dependencyviolation" :node="node"></slot>
         </template>
