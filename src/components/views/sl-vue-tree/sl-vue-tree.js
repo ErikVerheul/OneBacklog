@@ -16,7 +16,8 @@ const props = {
 	},
 
 	parentInd: {
-		type: Number
+		type: Number,
+		default: 0
 	}
 }
 
