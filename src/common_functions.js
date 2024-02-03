@@ -81,6 +81,13 @@ export function dedup(arr) {
 	} else return []
 }
 
+/* Create a text for the event list immediately after a tree load */
+export function createLoadEventText(state) {
+	let txt = `${state.docsCount} documents are read. ${state.insertedCount} items are inserted. `
+	if (state.orphansCount > 0) txt.concat(`${state.orphansCount} orphans are skipped`)
+	return txt
+}
+
 /* Add item (not an object) to array if not already present. Returns a new array so that it is reactive */
 export function addToArray(arr, item) {
 	const newArr = []
@@ -172,4 +179,4 @@ export function getSprintNameById(id, calendar) {
 	} else return 'Unknown sprint'
 }
 
-export default { utoa, atou, expandNode, collapseNode, showNode, hideNode, addToArray, createId, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray }
+export default { utoa, atou, expandNode, collapseNode, showNode, hideNode, addToArray, createId, createLoadEventText, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray }

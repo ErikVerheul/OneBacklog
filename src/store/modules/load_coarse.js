@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup } from '../../common_functions.js'
+import { dedup,createLoadEventText } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -185,8 +185,8 @@ const actions = {
 			}
 			rootState.helpersRef.dependencyViolationsFound()
 			commit('createColorMapper')
-			const severity = state.orphansCount === 0 ? SEV.INFO : SEV.WARNING
-			commit('showLastEvent', { txt: `${state.docsCount} documents are read. ${state.insertedCount} items are inserted. ${state.orphansCount} orphans are skipped`, severity })
+			const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
+			commit('showLastEvent', { txt: createLoadEventText(state), severity })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {
