@@ -32,7 +32,7 @@ function data() {
 			y: 0
 		},
 		preventDrag: false,
-		lastSelectedNode: {}
+		lastClickedNode: {}
 	}
 }
 
@@ -156,7 +156,7 @@ const methods = {
 	},
 
 	onMouseMoveHandler(event) {
-		if (!this.isLeftMouseButtonDown || this.preventDrag || !this.lastSelectedNode.isSelected) return
+		if (!this.isLeftMouseButtonDown || this.preventDrag || !this.lastClickedNode.isSelected) return
 
 		const initialDraggingState = this.isDragging
 		const isDraggingLocal = this.isDragging || this.lastMousePos.y !== event.clientY
@@ -206,7 +206,7 @@ const methods = {
 		if (event.button !== 0) return
 
 		this.isLeftMouseButtonDown = true
-		this.lastSelectedNode = node
+		this.lastClickedNode = node
 	},
 
 	onNodeMouseupHandler(event) {
@@ -232,7 +232,7 @@ const methods = {
 		}
 
 		// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-		if (!this.lastSelectedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || store.state.moveOngoing || store.state.selectNodeOngoing) {
+		if (!this.lastClickedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || store.state.moveOngoing || store.state.selectNodeOngoing) {
 			if (store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', SEV.WARNING)
 			if (store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
 			this.stopDrag()
@@ -267,7 +267,7 @@ const methods = {
 		}
 
 		// if the cursor is placed below the last child of a parent item insert the moved item(s) as childs of that parent
-		const sourceParent = store.state.helpersRef.getParentNode(this.lastSelectedNode)
+		const sourceParent = store.state.helpersRef.getParentNode(this.lastClickedNode)
 		const nextParent = store.state.helpersRef.getNextSibling(sourceParent.path)
 		if (sourceParent === null) {
 			// cancel the drop
