@@ -49,15 +49,6 @@
             </BCol>
             <BCol cols="2"></BCol>
           </template>
-          <template v-if="getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype === spikeSubtype">
-            <BCol cols="1">
-              <label for="personHoursId">Person hours:</label>
-            </BCol>
-            <BCol cols="1">
-              <BFormInput id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @input="prepUpdate(store.state.currentDoc)" @blur="updatePersonHours()" />
-            </BCol>
-            <BCol cols="2"></BCol>
-          </template>
           <BCol cols="5">
             <h3 align="center">{{ store.state.currentProductTitle }} [Overview]</h3>
           </BCol>

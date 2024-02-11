@@ -33,7 +33,7 @@
         <BRow>
           <template v-if="getCurrentItemLevel <= LEVEL.EPIC">
             <BCol cols="1">
-              <label for="tShirtSizeId">T-Shirt size:</label>
+              <label for="tShirtSizeId">T-Shirt size</label>
             </BCol>
             <BCol cols="1">
               <BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @input="prepUpdate(store.state.currentDoc)" @blur="updateTsSize()" />
@@ -42,7 +42,7 @@
           </template>
           <template v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
             <BCol cols="1">
-              <label for="storyPointsId">Story points:</label>
+              <label for="storyPointsId">Story points</label>
             </BCol>
             <BCol cols="1">
               <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @input="prepUpdate(store.state.currentDoc)" @blur="updateStoryPoints()" />
@@ -51,7 +51,7 @@
           </template>
           <template v-if="getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype === spikeSubtype">
             <BCol cols="1">
-              <label for="personHoursId">Person hours:</label>
+              <label for="personHoursId">Person hrs</label>
             </BCol>
             <BCol cols="1">
               <BFormInput id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @input="prepUpdate(store.state.currentDoc)" @blur="updatePersonHours()" />
@@ -372,15 +372,16 @@
 }
 
 /* other stuff */
+h3 {
+  font-size:1.4em;
+}
 label {
-  font-size:larger;
-  font-weight: 800;
-  margin-top: 3px;
+  font-size:1.4em;
+  font-weight: bolder;
 }
 .container {
   margin-top: 10px;
   max-width: 100%;
-  margin-bottom: 15px;
 }
 
 .filter-button {
