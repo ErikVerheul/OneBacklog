@@ -465,6 +465,10 @@ const store = createStore({
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}`)
+			if (!state.resetSearch.savedSelectedNode) {
+				// the search did not find a node
+				return
+			}
 			const prevSelectedNode = state.resetSearch.savedSelectedNode
 			// load and select the previous selected document
 			dispatch('loadDoc', {
