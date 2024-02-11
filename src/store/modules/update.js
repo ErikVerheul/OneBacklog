@@ -481,8 +481,8 @@ const actions = {
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
 		}).then(res => {
-			const oldTitle = rootState.currentDoc.title
 			const tmpDoc = res.data
+			const oldTitle = tmpDoc.title
 			let updateBoards = undefined
 			if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
 				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
