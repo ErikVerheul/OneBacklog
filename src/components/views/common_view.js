@@ -13,6 +13,7 @@ function data() {
 		userStorySubtype: 0,
 		spikeSubtype: 1,
 		defectSubtype: 2,
+		docToUpdate: null,
 		newDescription: "<p></p>",
 		newAcceptance: "<p></p>",
 		isDescriptionEdited: false,
@@ -344,9 +345,9 @@ const methods = {
 	},
 
 	/* Find, load and select an item with a given short or full Id. Scan the full tree */
-	doFindItemOnId(id) {		
+	doFindItemOnId(id) {
 		if (!this.idCheck(id)) return
-		
+
 		const isShortId = id.length === SHORTKEYLENGTH
 		let nodeFound
 		store.state.helpersRef.traverseModels((nm) => {
@@ -635,16 +636,21 @@ const methods = {
 		}
 	},
 
+	/* Save the document to update for changes that take effect after a @blur event and a possible change of the current doc (the user selected another node in the tree view) */
+	prepUpdate(doc) {
+		this.docToUpdate = doc
+	},
+
+	/* Only authorized users who are member of the owning team can change T-shirt size. */
 	updateTsSize() {
-		const node = this.getLastSelectedNode
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the t-shirt size of this item')) {
+		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the t-shirt size of this item')) {
 			const size = document.getElementById('tShirtSizeId').value.toUpperCase()
 			const sizeArray = store.state.configData.tsSize
 			if (sizeArray.includes(size)) {
 				const newSizeIdx = sizeArray.indexOf(size)
-				if (newSizeIdx !== store.state.currentDoc.tssize) {
+				if (newSizeIdx !== this.docToUpdate.tssize) {
 					store.dispatch('setTsSize', {
-						node,
+						node: store.state.helpersRef.getNodeById(this.docToUpdate._id),
 						newSizeIdx,
 						timestamp: Date.now()
 					})
@@ -661,17 +667,16 @@ const methods = {
 
 	/* Only authorized users who are member of the owning team can change story points. */
 	updateStoryPoints() {
-		const node = this.getLastSelectedNode
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the story points size of this item')) {
+		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the story points size of this item')) {
 			const el = document.getElementById('storyPointsId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
 				return
 			}
 			const newPoints = parseInt(el.value)
-			if (newPoints !== store.state.currentDoc.spsize) {
+			if (newPoints !== this.docToUpdate.spsize) {
 				store.dispatch('setStoryPoints', {
-					node,
+					node: store.state.helpersRef.getNodeById(this.docToUpdate._id),
 					newPoints,
 					timestamp: Date.now()
 				})
@@ -679,18 +684,18 @@ const methods = {
 		}
 	},
 
+	/* Only authorized users who are member of the owning team can change person hours. */
 	updatePersonHours() {
-		const node = this.getLastSelectedNode
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change story person hours of this item')) {
+		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change story person hours of this item')) {
 			const el = document.getElementById('personHoursId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
 				return
 			}
 			const newHrs = parseInt(el.value)
-			if (newHrs !== store.state.currentDoc.spikepersonhours) {
+			if (newHrs !== this.docToUpdate.spikepersonhours) {
 				store.dispatch('setPersonHours', {
-					node,
+					node: store.state.helpersRef.getNodeById(this.docToUpdate._id),
 					newHrs,
 					timestamp: Date.now()
 				})
@@ -719,17 +724,18 @@ const methods = {
 	},
 
 	updateTitle() {
-		const oldTitle = store.state.currentDoc.title
-		const newTitle = document.getElementById('titleField').value
-		if (oldTitle === newTitle) return
-		const node = this.getLastSelectedNode
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the title of this item')) {
-			// update current document in database
-			store.dispatch('setDocTitle', {
-				node,
-				newTitle: newTitle,
-				timestamp: Date.now()
-			})
+		if (this.docToUpdate) {
+			const oldTitle = this.docToUpdate.title
+			const newTitle = document.getElementById('titleField').value
+			if (oldTitle === newTitle) return
+			if (this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the title of this item')) {
+				// update current document in database
+				store.dispatch('setDocTitle', {
+					node: store.state.helpersRef.getNodeById(this.docToUpdate._id),
+					newTitle,
+					timestamp: Date.now()
+				})
+			}
 		}
 	},
 

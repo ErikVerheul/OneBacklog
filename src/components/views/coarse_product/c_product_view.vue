@@ -31,20 +31,33 @@
     <div>
       <BContainer>
         <BRow>
-          <BCol cols="4">
-            <h3 v-if="getCurrentItemLevel <= LEVEL.EPIC">
-              {{ getLevelText(getCurrentItemLevel) }} T-Shirt size:
-              <input type="text" size="3" maxlength="3" id="tShirtSizeId" :value="getCurrentItemTsSize" @blur="updateTsSize()" />
-            </h3>
-            <h3 v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
-              Story points:
-              <input type="text" size="3" maxlength="3" id="storyPointsId" :value="store.state.currentDoc.spsize" @blur="updateStoryPoints()" />
-            </h3>
-            <h3 v-if="getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype === spikeSubtype">
-              Person hours:
-              <input type="text" size="3" maxlength="3" id="personHoursId" :value="store.state.currentDoc.spikepersonhours" @blur="updatePersonHours()" />
-            </h3>
-          </BCol>
+          <template v-if="getCurrentItemLevel <= LEVEL.EPIC">
+            <BCol cols="1">
+              <label for="tShirtSizeId">T-Shirt size:</label>
+            </BCol>
+            <BCol cols="1">
+              <BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @input="prepUpdate(store.state.currentDoc)" @blur="updateTsSize()" />
+            </BCol>
+            <BCol cols="2"></BCol>
+          </template>
+          <template v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
+            <BCol cols="1">
+              <label for="storyPointsId">Story points:</label>
+            </BCol>
+            <BCol cols="1">
+              <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @input="prepUpdate(store.state.currentDoc)" @blur="updateStoryPoints()" />
+            </BCol>
+            <BCol cols="2"></BCol>
+          </template>
+          <template v-if="getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype === spikeSubtype">
+            <BCol cols="1">
+              <label for="personHoursId">Person hours:</label>
+            </BCol>
+            <BCol cols="1">
+              <BFormInput id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @input="prepUpdate(store.state.currentDoc)" @blur="updatePersonHours()" />
+            </BCol>
+            <BCol cols="2"></BCol>
+          </template>
           <BCol cols="5">
             <h3 align="center">{{ store.state.currentProductTitle }} [Overview]</h3>
           </BCol>
@@ -68,8 +81,8 @@
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
-        <div class="square" :style="{'background-color': squareColor}">{{ squareText }}</div>
-        <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" :style="{'background-color': getLastEventColor}">
+        <div class="square" :style="{ 'background-color': squareColor }">{{ squareText }}</div>
+        <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" :style="{ 'background-color': getLastEventColor }">
           {{ getLastEventTxt }} </BButton>
 
         <div class="tree-container">
@@ -147,11 +160,11 @@
 
             <template v-slot:sidebar="{ node }">
               <template v-if="node.productId === MISC.AREA_PRODUCTID">
-                <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{'background-color': node.data.reqAreaItemColor}"></p>
+                <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{ 'background-color': node.data.reqAreaItemColor }"></p>
               </template>
               <p v-else-if="store.state.colorMapper && node.level > LEVEL.PRODUCT">
                 <BButton v-if="node.data.reqarea && store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
-                  :style="{'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor}" @click="setReqArea(node)" squared size="sm">Change
+                  :style="{ 'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor }" @click="setReqArea(node)" squared size="sm">Change
                 </BButton>
                 <BButton v-else @click="setReqArea(node)" squared variant="seablueLight" size="sm">Set</BButton>
               </p>
@@ -166,7 +179,7 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell" type="text" id="titleField" :modelValue="store.state.currentDoc.title" @blur="updateTitle()"></BFormInput>
+              <BFormInput class="d-table-cell" id="titleField" :modelValue="store.state.currentDoc.title" @input="prepUpdate(store.state.currentDoc)" @blur="updateTitle()"></BFormInput>
               <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</BButton>
@@ -208,7 +221,7 @@
             </div>
           </template>
           <multipane-resizer></multipane-resizer>
-          <div class="pane" :style="{ height: '75px', top:'5px'}">
+          <div class="pane" :style="{ height: '75px', top: '5px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
                 <BButton variant="primary" @click="doAddition = true">Add {{ store.state.selectedForView }}</BButton>
@@ -290,7 +303,7 @@
     <BModal size="lg" ref="historyEventRef" title="Event history" ok-only>
       <div v-if="store.state.eventList.length > 0">
         <div v-for="item in store.state.eventList" :key="item.eventKey">
-          <p class="event-list" :style="{'background-color': item.color}">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
+          <p class="event-list" :style="{ 'background-color': item.color }">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
         </div>
       </div>
     </BModal>
@@ -307,14 +320,14 @@
   border: 1px solid #ccc;
 }
 
-.horizontal-panes > .pane {
+.horizontal-panes>.pane {
   text-align: left;
   padding: 5px;
   overflow: hidden;
   background: white;
 }
 
-.horizontal-panes > .pane ~ .pane {
+.horizontal-panes>.pane~.pane {
   border-top: 1px solid #ccc;
 }
 
@@ -324,7 +337,7 @@
   height: 100%;
 }
 
-.custom-resizer > .pane {
+.custom-resizer>.pane {
   text-align: left;
   padding: 2px;
   overflow: hidden;
@@ -332,7 +345,7 @@
   border: 1px solid #ccc;
 }
 
-.custom-resizer > .multipane-resizer {
+.custom-resizer>.multipane-resizer {
   margin: 0;
   left: 0;
   position: relative;
@@ -359,6 +372,11 @@
 }
 
 /* other stuff */
+label {
+  font-size:larger;
+  font-weight: 800;
+  margin-top: 3px;
+}
 .container {
   margin-top: 10px;
   max-width: 100%;
