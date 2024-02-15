@@ -354,6 +354,18 @@ const actions = {
 				return rootGetters.getTreeModel[0]
 			},
 
+			/* Get the productnodes but skip the requirement area dummy product items*/
+			getProductNodes() {
+				const rootChildren = rootState.helpersRef.getRootNode().children
+				const productNodes = []
+				for (const child of rootChildren) {
+					if (child.productId !== "requirement-areas") {
+						productNodes.push(child)
+					}
+				}
+				return productNodes
+			},
+
 			/* Return an array with the node of the passed productId or an empty array if the product is not found */
 			getProductModel(productId) {
 				const productModels = rootState.helpersRef.getRootNode().children
