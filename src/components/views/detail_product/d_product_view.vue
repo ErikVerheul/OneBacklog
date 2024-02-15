@@ -10,7 +10,7 @@
             {{ undoTitle }}
           </BTooltip>
           <div class="divider" />
-          <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">Filter in tree</BButton>
+          <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">{{getFilterButtonText()}}</BButton>
           <div class="divider" />
           <BInputGroup class="id-sizing">
             <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>

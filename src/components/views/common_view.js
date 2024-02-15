@@ -313,6 +313,12 @@ const methods = {
 		return node.data.lastChange ? Date.now() - node.data.lastChange < HOURINMILIS : false
 	},
 
+	getFilterButtonText() {
+		if (store.state.resetFilter === null) {
+			return "Filter in tree"
+		} else return "Reset filter"
+	},
+
 	onSetMyFilters() {
 		if (store.state.resetFilter) {
 			// if this filter was on, reset it after resetting any set search and reset the label of the button; pass the array of productmodels to apply the reset on
@@ -364,7 +370,7 @@ const methods = {
 				nodeFound = nm
 				return false
 			}
-		},productNodes)
+		}, productNodes)
 
 		if (nodeFound) {
 			// save display state of the current products
