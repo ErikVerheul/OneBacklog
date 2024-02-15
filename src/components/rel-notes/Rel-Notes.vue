@@ -6,15 +6,16 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
-          <h3>v.2.0.2 - 15 Februari 2024 bug fix, refactoring and updates</h3>
+          <h3>v.2.0.2 - 15 Februari 2024 bug fix, refactoring and upgrade</h3>
           <p>Bug fix:</p>
           <ul>
-            <li>Saving updated node field in newly selected node  instead of updating origionally selected node: bug fixed</li>
+            <li>Saving updated node field in newly selected node  instead of updating originally selected node: bug fixed</li>
           </ul>
           <p>Changed feature:</p>
           <ul>
             <li>Searches on id and title refactored: mutual exclude search on id and on title, enforce search reset before tree manipulation</li>
           </ul>
+          <p>Upgrade</p>
           <ul>
             <li>Upgrade Vue version</li>
           </ul>
