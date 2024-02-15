@@ -112,7 +112,7 @@
           <p>Bug fixes:</p>
           <ul>
             <li>Hidden error when resetting search in titles without previous search, fixed</li>
-            <li>When removing an item in the product overview with dependencies or conditions on its descendants, these
+            <li>When removing an item in the products overview with dependencies or conditions on its descendants, these
               are not recovered on the undo, fixed</li>
             <li>Fix false mesage 'The last undo has not finished. Please try later' when the dependency is manually
               removed</li>
@@ -131,7 +131,7 @@
           <ul>
             <li>Description changes of requirement area items are not synchronized with other users having the same item
               selected, fixed</li>
-            <li>When removing an item in the product overview with dependencies or conditions on its descendants, these
+            <li>When removing an item in the products overview with dependencies or conditions on its descendants, these
               are not recovered on the undo, fixed</li>
           </ul>
           <p>Refactoring:</p>

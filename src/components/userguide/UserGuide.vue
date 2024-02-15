@@ -18,7 +18,7 @@
 						select professional mode bij selecting the cog at the top right in the application bar.</p>
 					<p>Professional mode adds the following features:</p>
 					<ul>
-						<li>The 'Products overview', a view mostly used by the Area Product Owner to manage his crossover interests by
+						<li>The 'Products overview', a view only available for the Area Product Owner to manage his crossover interests by
 							product area. </li>
 						<li>The user has the option to change database. A database contains products which are maintained independant
 							from products in other databases.</li>

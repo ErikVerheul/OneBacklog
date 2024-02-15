@@ -14,7 +14,7 @@
           <slot></slot>        
           <BNavItemDropdown text="Select your view" right>
             <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
-            <BDropdownItem v-if="store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products overview</BDropdownItem>
+            <BDropdownItem v-if="isAPO && store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products overview</BDropdownItem>
             <BDropdownItem to="../../board">Planning board</BDropdownItem>
             <BDropdownDivider v-if="isAssistAdmin || isAdmin || isServerAdmin"></BDropdownDivider>
             <BDropdownItem v-if="isAssistAdmin" to="../../assistadmin">AssistAdmin</BDropdownItem>
