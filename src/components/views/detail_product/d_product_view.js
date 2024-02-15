@@ -22,7 +22,8 @@ function created() {
 		store.state.changeHistory = []
 		// reset filters and searches
 		store.state.resetFilter = null
-		store.state.resetSearch = {}
+		store.state.resetSearchOnId = null
+		store.state.resetSearchOnTitle = null
 		this.returning = false
 	} else this.returning = true
 	// must reset the event listener to prevent duplication

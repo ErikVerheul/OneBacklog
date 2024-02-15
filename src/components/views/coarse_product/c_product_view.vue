@@ -3,7 +3,7 @@
   <div>
     <app-header>
       <!-- Right aligned nav items -->
-      <BNavbarNav class="ml-auto">
+      <BNavbarNav>
         <BNavForm>
           <BButton class="group-height" id="tooltip-undo" v-show="store.state.changeHistory.length > 0" @click="onUndoEvent()">Undo</BButton>
           <BTooltip target="tooltip-undo" triggers="hover">
@@ -12,16 +12,18 @@
           <div class="divider" />
           <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">Filter in tree</BButton>
           <div class="divider" />
-          <BInputGroup class="id-sizing" v-show="store.state.resetSearch.searchType !== 'searchInTitles'">
+          <BInputGroup class="id-sizing">
             <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>
             <template #append>
+              <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
             </template>
           </BInputGroup>
           <div class="divider" />
-          <BInputGroup class="group-height" v-show="!isRootSelected && store.state.resetSearch.searchType !== 'findItemOnId'">
-            <BFormInput id="searchInput" v-model="store.state.keyword" @change="doSearchInput" placeholder="Search in titles"></BFormInput>
+          <BInputGroup class="group-height">
+            <BFormInput id="searchInput" v-model="store.state.keyword" @change="doSeachOnTitle" placeholder="Search in titles"></BFormInput>
             <template #append>
+              <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
             </template>
           </BInputGroup>
@@ -29,11 +31,11 @@
       </BNavbarNav>
     </app-header>
     <div>
-      <BContainer>
+      <BContainer class="top-row">
         <BRow>
           <template v-if="getCurrentItemLevel <= LEVEL.EPIC">
             <BCol cols="1">
-              <label for="tShirtSizeId">T-Shirt size:</label>
+              <label for="tShirtSizeId">T-Shirt size</label>
             </BCol>
             <BCol cols="1">
               <BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @input="prepUpdate(store.state.currentDoc)" @blur="updateTsSize()" />
@@ -42,7 +44,7 @@
           </template>
           <template v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
             <BCol cols="1">
-              <label for="storyPointsId">Story points:</label>
+              <label for="storyPointsId">Story points</label>
             </BCol>
             <BCol cols="1">
               <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @input="prepUpdate(store.state.currentDoc)" @blur="updateStoryPoints()" />
@@ -55,7 +57,7 @@
           <BCol cols="3">
             <h3 v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== 'requirement-areas' && store.state.currentDoc.parentId !== 'requirement-areas'" align="right">
               State:
-              <BDropdown right class="m-1 .btn.btn-secondary.dropdown-toggle" :text=getItemStateText(store.state.currentDoc.state)>
+              <BDropdown right :text=getItemStateText(store.state.currentDoc.state)>
                 <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>
@@ -363,15 +365,18 @@
 }
 
 /* other stuff */
-label {
-  font-size:larger;
-  font-weight: 800;
-  margin-top: 3px;
+h3 {
+  font-size:1.4em;
 }
-.container {
+
+label {
+  font-size:1.4em;
+  font-weight: bolder;
+}
+
+.top-row {
   margin-top: 10px;
   max-width: 100%;
-  margin-bottom: 15px;
 }
 
 .filter-button {

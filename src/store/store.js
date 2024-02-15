@@ -142,7 +142,8 @@ const store = createStore({
 			selectedForView: 'comments',
 			previousSelectedNodes: undefined,
 			resetFilter: null,
-			resetSearch: {},
+			resetSearchOnId: null,
+			resetSearchOnTitle: null,
 			selectedNodes: [],
 			selectNodeOngoing: false,
 			showProgress: false,
@@ -440,24 +441,24 @@ const store = createStore({
 		resetFindOnId({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
-			if (!state.resetSearch.nodeFound) {
+			if (!state.resetSearchOnId || !state.resetSearchOnId.nodeFound) {
 				// the search did not find a node
 				return
 			}
 			// load and select the previous selected document
-			const prevSelectedNode = state.resetSearch.savedSelectedNode
+			const prevSelectedNode = state.resetSearchOnId.savedSelectedNode
 			dispatch('loadDoc', {
 				id: prevSelectedNode._id, onSuccessCallback: () => {
-					if (state.resetSearch.view === 'detailProduct' && state.resetSearch.nodeFound.productId !== prevSelectedNode.productId) {
+					if (state.resetSearchOnId.view === 'detailProduct' && state.resetSearchOnId.nodeFound.productId !== prevSelectedNode.productId) {
 						// the node was found in another product
 						commit('switchCurrentProduct', prevSelectedNode.productId)
 					} else {
 						commit('restoreTreeView', { type: 'findId', nodesToScan: undefined })
 					}
-					state.itemId = ''
-					state.resetSearch = {}
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
+					state.itemId = ''
+					state.resetSearchOnId = null
 				}
 			})
 		},
@@ -465,19 +466,19 @@ const store = createStore({
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}`)
-			if (!state.resetSearch.savedSelectedNode) {
+			if (!state.resetSearchOnTitle || !state.resetSearchOnTitle.savedSelectedNode) {
 				// the search did not find a node
 				return
 			}
-			const prevSelectedNode = state.resetSearch.savedSelectedNode
+			const prevSelectedNode = state.resetSearchOnTitle.savedSelectedNode
 			// load and select the previous selected document
 			dispatch('loadDoc', {
 				id: prevSelectedNode._id, onSuccessCallback: () => {
-					state.keyword = ''
-					state.resetSearch = {}
-					commit('restoreTreeView', { type: 'titles', nodesToScan: [prevSelectedNode] })
+					commit('restoreTreeView', { type: 'titles', nodesToScan: state.resetSearchOnTitle.productNodes })
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
+					state.keyword = ''
+					state.resetSearchOnTitle = null
 				}
 			})
 		},
@@ -493,8 +494,9 @@ const store = createStore({
 					id: prevSelectedNode._id, onSuccessCallback: () => {
 						state.itemId = ''
 						state.keyword = ''
-						state.resetSearch = {}
-						state.resetFind = null
+						state.resetFilter = null
+						state.resetSearchOnId = null
+						state.resetSearchOnTitle = null
 						commit('restoreTreeView', { type: 'filter', nodesToScan: payload.productModels })
 						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 						commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
@@ -710,15 +712,6 @@ const store = createStore({
 			}
 
 			state.helpersRef.traverseModels((nm) => {
-				// skip requirement areas dummy product items
-				if (nm._id === MISC.AREA_PRODUCTID) return
-				if (state.currentView === 'detailProduct') {
-					// skip product level and above (smaller level number)
-					if (nm.level <= LEVEL.PRODUCT) return
-				} else {
-					// skip database level and above (smaller level number)
-					if (nm.level <= LEVEL.DATABASE) return
-				}
 				// reset the view state
 				if (payload.type === 'condition') {
 					nm.isExpanded = nm.tmp.savedIsExpandedInCondition
@@ -750,8 +743,6 @@ const store = createStore({
 					nm.doShow = nm.tmp.savedDoShowInFilter
 					delete nm.tmp.savedDoShowInFilter
 					resetHighLights(nm, nm.tmp.savedHighLigthsInFilter)
-
-					state.resetFilter = null
 				}
 
 				if (payload.type === 'titles') {

@@ -12,24 +12,26 @@
           <div class="divider" />
           <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">Filter in tree</BButton>
           <div class="divider" />
-          <BInputGroup class="id-sizing" v-show="store.state.resetSearch.searchType !== 'searchInTitles'">
+          <BInputGroup class="id-sizing">
             <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>
             <template #append>
-              <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
+              <!--note: type="reset" removes the input of both BFormInputs -->
+              <BButton @click="resetFindId" variant="primary" type="reset" :disabled="store.state.resetSearchOnTitle !== null">x</BButton>
             </template>
           </BInputGroup>
           <div class="divider" />
-          <BInputGroup class="group-height" v-show="!isRootSelected && store.state.resetSearch.searchType !== 'findItemOnId'">
-            <BFormInput id="searchInput" v-model="store.state.keyword" @change="doSearchInput" placeholder="Search in titles"></BFormInput>
+          <BInputGroup class="group-height">
+            <BFormInput id="searchInput" v-model="store.state.keyword" @change="doSeachOnTitle" placeholder="Search in titles"></BFormInput>
             <template #append>
-              <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
+              <!--note: type="reset" removes the input of both BFormInputs -->
+              <BButton @click="resetSearchTitles" variant="primary" type="reset" :disabled="store.state.resetSearchOnId !== null">x</BButton>
             </template>
           </BInputGroup>
         </BNavForm>
       </BNavbarNav>
     </app-header>
     <div>
-      <BContainer class="container">
+      <BContainer class="top-row">
         <BRow>
           <template v-if="getCurrentItemLevel <= LEVEL.EPIC">
             <BCol cols="1">
@@ -58,6 +60,7 @@
             </BCol>
             <BCol cols="2"></BCol>
           </template>
+          <BCol v-if="getCurrentItemLevel === LEVEL.TASK" cols="4"></BCol>
           <BCol cols="5">
             <h3 v-if="store.state.userData.myOptions.proUser === 'true'">{{ store.state.currentProductTitle }} [Details]</h3>
             <h3 v-else>{{ store.state.currentProductTitle }}</h3>
@@ -65,7 +68,7 @@
           <BCol cols="3">
             <h3 v-if="store.state.currentDoc._id !== 'root'" align="right">
               State:
-              <BDropdown v-if="store.state.currentDoc.level < LEVEL.TASK" right class="m-1 .btn.btn-secondary.dropdown-toggle" :text=getItemStateText(store.state.currentDoc.state)>
+              <BDropdown v-if="store.state.currentDoc.level < LEVEL.TASK" right :text=getItemStateText(store.state.currentDoc.state)>
                 <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>
@@ -73,7 +76,7 @@
                 <BDropdownDivider></BDropdownDivider>
                 <BDropdownItem @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</BDropdownItem>
               </BDropdown>
-              <BDropdown v-else right class="m-2 .btn.btn-secondary.dropdown-toggle" :text=getItemStateText(store.state.currentDoc.state)>
+              <BDropdown v-else right :text=getItemStateText(store.state.currentDoc.state)>
                 <BDropdownItem @click="onStateChange(STATE.TODO)">{{ getTaskStateText(STATE.TODO) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getTaskStateText(STATE.INPROGRESS) }}</BDropdownItem>
                 <BDropdownItem @click="onStateChange(STATE.TESTREVIEW)">{{ getTaskStateText(STATE.TESTREVIEW) }}</BDropdownItem>
@@ -375,11 +378,13 @@
 h3 {
   font-size:1.4em;
 }
+
 label {
   font-size:1.4em;
   font-weight: bolder;
 }
-.container {
+
+.top-row {
   margin-top: 10px;
   max-width: 100%;
 }

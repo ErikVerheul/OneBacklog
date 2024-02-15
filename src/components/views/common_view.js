@@ -339,15 +339,23 @@ const methods = {
 		}
 
 		for (let i = 0; i < trimmedItemId.length; i++) {
-			if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) return false
+			if (!alphanum.includes(trimmedItemId.substring(i, i + 1).toLowerCase())) {
+				this.showLastEvent(`Wrong Id. The id contains other than digits and alphabetical characters`, SEV.WARNING)
+				return false
+			}
 		}
 		return true
 	},
 
 	/* Find, load and select an item with a given short or full Id. Scan the full tree */
 	doFindItemOnId(id) {
-		if (!this.idCheck(id)) return
+		if (store.state.resetSearchOnTitle !== null || !this.idCheck(id)) {
+			// return if pending search on title or invalid id string
+			return
+		}
 
+		const productNodes = store.state.helpersRef.getProductNodes()
+		// scan all items of the current products
 		const isShortId = id.length === SHORTKEYLENGTH
 		let nodeFound
 		store.state.helpersRef.traverseModels((nm) => {
@@ -356,19 +364,18 @@ const methods = {
 				nodeFound = nm
 				return false
 			}
-		})
+		},productNodes)
+
 		if (nodeFound) {
-			// save display state of the full screen
-			const nodesToScan = undefined
-			store.commit('saveTreeView', { nodesToScan, type: 'findId' })
+			// save display state of the current products
+			store.commit('saveTreeView', { productNodes, type: 'findId' })
 			// load and select the document if not already current
 			if (nodeFound._id !== store.state.currentDoc._id) {
 				// select the node after loading the document
 				store.dispatch('loadDoc', {
 					id: nodeFound._id, onSuccessCallback: () => {
 						// create reset object
-						store.state.resetSearch = {
-							searchType: 'findItemOnId',
+						store.state.resetSearchOnId = {
 							view: store.state.currentView,
 							savedSelectedNode: this.getLastSelectedNode,
 							nodeFound
@@ -391,18 +398,17 @@ const methods = {
 		}
 	},
 
-	doSearchInput() {
-		this.exeSearchInTitles(this.getLastSelectedNode)
-	},
+	/* Find all items with the key as a substring in their title in the current product branch */
+	doSeachOnTitle() {
+		if (store.state.resetSearchOnId !== null || store.state.keyword === '') {
+			// return if pending search on Id or empty keyword
+			return
+		}
 
-	exeSearchInTitles(branchHead) {
-		// cannot search on empty string
-		if (store.state.keyword === '') return
-
+		const productNodes = store.state.helpersRef.getProductNodes()
 		const nodesFound = []
 		// save display state of the branch
-		const nodesToScan = [branchHead]
-		store.commit('saveTreeView', { nodesToScan, type: 'titles' })
+		store.commit('saveTreeView', { productNodes, type: 'titles' })
 		store.state.helpersRef.traverseModels((nm) => {
 			if (nm.title.toLowerCase().includes(store.state.keyword.toLowerCase())) {
 				// expand the product up to the found item and highlight it
@@ -416,13 +422,13 @@ const methods = {
 					}
 				}
 			}
-		}, nodesToScan)
+		}, productNodes)
 
 		// create reset object
-		store.state.resetSearch = {
-			searchType: 'searchInTitles',
+		store.state.resetSearchOnTitle = {
 			view: store.state.currentView,
-			savedSelectedNode: this.getLastSelectedNode
+			savedSelectedNode: this.getLastSelectedNode,
+			productNodes
 		}
 
 		const productStr = this.isOverviewSelected ? 'all products' : ` product '${store.state.currentProductTitle}'`
