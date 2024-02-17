@@ -3,8 +3,6 @@ import { getSprintById } from '../../../common_functions.js'
 import AppHeader from '../../header/header.vue'
 import Multipane from '../../multipane/Multipane-comp.vue'
 import MultipaneResizer from '../../multipane/Multipane-Resizer.vue'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
 import DcontextMenu from './d_context.vue'
@@ -229,7 +227,6 @@ const components = {
 	'app-header': AppHeader,
 	Multipane,
 	MultipaneResizer,
-	QuillEditor,
 	slVueTree,
 	DcontextMenu,
 	Filters,
